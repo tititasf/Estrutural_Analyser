@@ -1,0 +1,441 @@
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\requests\__init__.py:89: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (3.0.4) doesn't match a supported version!
+  warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\chromadb\config.py:20: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import BaseSettings
+WARNING:root:ChromaDB nao disponivel. Active Learning sera limitado.
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+WARNING: Supabase credentials not found in .env
+Starting app for user: local.admin@pyside.cad
+[REFRESH] work='OBRA-TESTE1' proj='c987bcdb-270b-49f1-ad55-9feba6b6d2e3' db='D:\\Agente-cad-PYSIDE\\project_data.vision'
+[REFRESH] total docs=2
+[REFRESH] classified keys=[(1, 'Estruturais dos Pavimentos, Estado Bruto (.DXF)'), (2, 'Estruturais Pavimentos Limpos')]
+[WIDGET] found class_name='Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)' phase=1
+[RENDER] phase=1 class='Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)' docs=0
+[WIDGET] found class_name='Documentos e Atas de Reunioes(.PDF/.MD)' phase=1
+[RENDER] phase=1 class='Documentos e Atas de Reunioes(.PDF/.MD)' docs=0
+[WIDGET] found class_name='Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)' phase=1
+[RENDER] phase=1 class='Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)' docs=0
+[WIDGET] found class_name='Projetos Finalizados para Engenharia Reversa' phase=1
+[RENDER] phase=1 class='Projetos Finalizados para Engenharia Reversa' docs=0
+[WIDGET] found class_name='Estruturais Pavimentos Limpos' phase=2
+[RENDER] phase=2 class='Estruturais Pavimentos Limpos' docs=1
+[WIDGET] found class_name='Detalhamentos Específicos' phase=2
+[RENDER] phase=2 class='Detalhamentos Específicos' docs=0
+[WIDGET] found class_name='Projetos Finalizados para Engenharia Reversa' phase=2
+[RENDER] phase=2 class='Projetos Finalizados para Engenharia Reversa' docs=0
+[WIDGET] found class_name='Estruturais Pavimentos Limpos' phase=3
+[RENDER] phase=3 class='Estruturais Pavimentos Limpos' docs=0
+[WIDGET] found class_name='Pilares' phase=3
+[RENDER] phase=3 class='Pilares' docs=0
+[Phase3] 🔄 Populando 69 itens em Pilares (Projeto: c987bcdb-270b-49f1-ad55-9feba6b6d2e3)
+[WIDGET] found class_name='Vigas' phase=3
+[RENDER] phase=3 class='Vigas' docs=0
+[Phase3] 🔄 Populando 111 itens em Vigas (Projeto: c987bcdb-270b-49f1-ad55-9feba6b6d2e3)
+[WIDGET] found class_name='Lajes' phase=3
+[RENDER] phase=3 class='Lajes' docs=0
+[Phase3] 🔄 Populando 53 itens em Lajes (Projeto: c987bcdb-270b-49f1-ad55-9feba6b6d2e3)
+[WIDGET] found class_name='JSON Pilares' phase=4
+[RENDER] phase=4 class='JSON Pilares' docs=0
+WARNING:root:[Phase4] ❌ Arquivo não encontrado: D:\Agente-cad-PYSIDE\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\pilares_salvos.json
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Pilares (P-1)
+[WIDGET] found class_name='JSON Lajes' phase=4
+[RENDER] phase=4 class='JSON Lajes' docs=0
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Lajes (P-1)
+[WIDGET] found class_name='JSON Vigas Laterais' phase=4
+[RENDER] phase=4 class='JSON Vigas Laterais' docs=0
+WARNING:root:[Phase4] ❌ Arquivo não encontrado: D:\Agente-cad-PYSIDE\_ROBOS_ABAS\Robo_Laterais_de_Vigas\dados_vigas_ultima_sessao.json
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Vigas Laterais (P-1)
+[WIDGET] found class_name='JSON Vigas Fundo' phase=4
+[RENDER] phase=4 class='JSON Vigas Fundo' docs=0
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Vigas Fundo (P-1)
+[WIDGET] found class_name='Scripts Pilares' phase=5
+[RENDER] phase=5 class='Scripts Pilares' docs=0
+[WIDGET] found class_name='Scripts Lajes' phase=5
+[RENDER] phase=5 class='Scripts Lajes' docs=0
+[WIDGET] found class_name='Scripts Vigas Laterais' phase=5
+[RENDER] phase=5 class='Scripts Vigas Laterais' docs=0
+[WIDGET] found class_name='Scripts Vigas Fundo' phase=5
+[RENDER] phase=5 class='Scripts Vigas Fundo' docs=0
+[WIDGET] found class_name='DXF Pilares' phase=6
+[RENDER] phase=6 class='DXF Pilares' docs=0
+[WIDGET] found class_name='DXF Lajes' phase=6
+[RENDER] phase=6 class='DXF Lajes' docs=0
+[WIDGET] found class_name='DXF Vigas Laterais' phase=6
+[RENDER] phase=6 class='DXF Vigas Laterais' docs=0
+[WIDGET] found class_name='DXF Vigas Fundo' phase=6
+[RENDER] phase=6 class='DXF Vigas Fundo' docs=0
+[WIDGET] found class_name='DXF Consolidado por Pavimento' phase=7
+[RENDER] phase=7 class='DXF Consolidado por Pavimento' docs=0
+[WIDGET] found class_name='DXF Consolidado por Tipo' phase=7
+[RENDER] phase=7 class='DXF Consolidado por Tipo' docs=0
+[WIDGET] found class_name='DXF Final Validado' phase=8
+[RENDER] phase=8 class='DXF Final Validado' docs=0
+AVISO: Módulos de segurança não disponíveis
+[DEBUG] Arquivo de configuração: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\.config
+[RoboPilares] Modo desenvolvimento ativado - créditos bypassados
+Erro ao conectar ao AutoCAD: (-2147221021, 'Operação não disponível', None, None)
+Erro ao conectar ao AutoCAD: (-2147221021, 'Operação não disponível', None, None)
+Iniciando carregamento de dados legados...
+[OK] DB de Pilares carregado: 138 registros.
+[OBRA] Carregando: 2
+  [PAVIMENTO] Subsolo: 12 pilares convertidos.
+  [PAVIMENTO] Térreo: 2 pilares convertidos.
+  [PAVIMENTO] 22: 1 pilares convertidos.
+  [PAVIMENTO] 33: 4 pilares convertidos.
+[OBRA] Carregando: 4
+  [PAVIMENTO] Subsolo: 3 pilares convertidos.
+  [PAVIMENTO] Térreo: 4 pilares convertidos.
+[OBRA] Carregando: 22
+  [PAVIMENTO] Subsolo: 2 pilares convertidos.
+[OBRA] Carregando: IMPERIALE
+  [PAVIMENTO] 1_SS: 13 pilares convertidos.
+  [PAVIMENTO] TERREO: 1 pilares convertidos.
+[OBRA] Carregando: OBRA-TESTE1
+  [PAVIMENTO] P-1: 46 pilares convertidos.
+[OBRA] Carregando: Obra50_entidades
+  [PAVIMENTO] Pav50_entidades: 50 pilares convertidos.
+[TOTAL] 6 obras preparadas para exibição.
+[MainViewModel] ✅ Dados carregados: 6 obras, 138 pilares totais
+  - 2/Subsolo: 12 pilares
+  - 2/Térreo: 2 pilares
+  - 2/22: 1 pilares
+  - 2/33: 4 pilares
+  - 4/Subsolo: 3 pilares
+  - 4/Térreo: 4 pilares
+  - 22/Subsolo: 2 pilares
+  - IMPERIALE/1_SS: 13 pilares
+  - IMPERIALE/TERREO: 1 pilares
+  - OBRA-TESTE1/P-1: 46 pilares
+  - Obra50_entidades/Pav50_entidades: 50 pilares
+💾 Dados salvos com sucesso em:
+   - D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\pilares_salvos.json
+   - D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\obras_salvas.json
+[DEBUG] Ruler Updated: Max=300.0, Pointers=5
+Migrating panel IDs...
+Migration complete.
+[ERROR] Biblioteca 'groq' não instalada. Execute: pip install groq
+Main Window context set for: local.admin@pyside.cad
+[REFRESH] work='Obra_TREINO_1' proj='b39e4855-2c48-4ed5-a84f-bd4e3c12f77d' db='D:\\Agente-cad-PYSIDE\\project_data.vision'
+[REFRESH] total docs=172
+[REFRESH] classified keys=[(1, 'Estruturais dos Pavimentos, Estado Bruto (.DXF)'), (1, 'Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)'), (1, 'Documentos e Atas de Reunioes(.PDF/.MD)'), (1, 'Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)'), (1, 'Projetos Finalizados para Engenharia Reversa')]
+[WIDGET] found class_name='Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)' phase=1
+[RENDER] phase=1 class='Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)' docs=49
+[WIDGET] found class_name='Documentos e Atas de Reunioes(.PDF/.MD)' phase=1
+[RENDER] phase=1 class='Documentos e Atas de Reunioes(.PDF/.MD)' docs=3
+[WIDGET] found class_name='Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)' phase=1
+[RENDER] phase=1 class='Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)' docs=7
+[WIDGET] found class_name='Projetos Finalizados para Engenharia Reversa' phase=1
+[RENDER] phase=1 class='Projetos Finalizados para Engenharia Reversa' docs=30
+[WIDGET] found class_name='Estruturais Pavimentos Limpos' phase=2
+[RENDER] phase=2 class='Estruturais Pavimentos Limpos' docs=14
+[WIDGET] found class_name='Detalhamentos Específicos' phase=2
+[RENDER] phase=2 class='Detalhamentos Específicos' docs=8
+[WIDGET] found class_name='Projetos Finalizados para Engenharia Reversa' phase=2
+[RENDER] phase=2 class='Projetos Finalizados para Engenharia Reversa' docs=0
+[WIDGET] found class_name='Estruturais Pavimentos Limpos' phase=3
+[RENDER] phase=3 class='Estruturais Pavimentos Limpos' docs=0
+[WIDGET] found class_name='Pilares' phase=3
+[RENDER] phase=3 class='Pilares' docs=0
+[Phase3] 🔄 Populando 38 itens em Pilares (Projeto: b39e4855-2c48-4ed5-a84f-bd4e3c12f77d)
+[WIDGET] found class_name='Vigas' phase=3
+[RENDER] phase=3 class='Vigas' docs=0
+[Phase3] 🔄 Populando 43 itens em Vigas (Projeto: b39e4855-2c48-4ed5-a84f-bd4e3c12f77d)
+[WIDGET] found class_name='Lajes' phase=3
+[RENDER] phase=3 class='Lajes' docs=0
+[Phase3] 🔄 Populando 23 itens em Lajes (Projeto: b39e4855-2c48-4ed5-a84f-bd4e3c12f77d)
+[WIDGET] found class_name='JSON Pilares' phase=4
+[RENDER] phase=4 class='JSON Pilares' docs=0
+WARNING:root:[Phase4] ❌ Arquivo não encontrado: D:\Agente-cad-PYSIDE\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\pilares_salvos.json
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Pilares (TERREO)
+[WIDGET] found class_name='JSON Lajes' phase=4
+[RENDER] phase=4 class='JSON Lajes' docs=0
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Lajes (TERREO)
+[WIDGET] found class_name='JSON Vigas Laterais' phase=4
+[RENDER] phase=4 class='JSON Vigas Laterais' docs=0
+WARNING:root:[Phase4] ❌ Arquivo não encontrado: D:\Agente-cad-PYSIDE\_ROBOS_ABAS\Robo_Laterais_de_Vigas\dados_vigas_ultima_sessao.json
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Vigas Laterais (TERREO)
+[WIDGET] found class_name='JSON Vigas Fundo' phase=4
+[RENDER] phase=4 class='JSON Vigas Fundo' docs=0
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Vigas Fundo (TERREO)
+[WIDGET] found class_name='Scripts Pilares' phase=5
+[RENDER] phase=5 class='Scripts Pilares' docs=0
+[WIDGET] found class_name='Scripts Lajes' phase=5
+[RENDER] phase=5 class='Scripts Lajes' docs=0
+[WIDGET] found class_name='Scripts Vigas Laterais' phase=5
+[RENDER] phase=5 class='Scripts Vigas Laterais' docs=0
+[WIDGET] found class_name='Scripts Vigas Fundo' phase=5
+[RENDER] phase=5 class='Scripts Vigas Fundo' docs=0
+[WIDGET] found class_name='DXF Pilares' phase=6
+[RENDER] phase=6 class='DXF Pilares' docs=17
+[WIDGET] found class_name='DXF Lajes' phase=6
+[RENDER] phase=6 class='DXF Lajes' docs=0
+[WIDGET] found class_name='DXF Vigas Laterais' phase=6
+[RENDER] phase=6 class='DXF Vigas Laterais' docs=24
+[WIDGET] found class_name='DXF Vigas Fundo' phase=6
+[RENDER] phase=6 class='DXF Vigas Fundo' docs=16
+[WIDGET] found class_name='DXF Consolidado por Pavimento' phase=7
+[RENDER] phase=7 class='DXF Consolidado por Pavimento' docs=0
+[WIDGET] found class_name='DXF Consolidado por Tipo' phase=7
+[RENDER] phase=7 class='DXF Consolidado por Tipo' docs=0
+[WIDGET] found class_name='DXF Final Validado' phase=8
+[RENDER] phase=8 class='DXF Final Validado' docs=0
+[REFRESH] work='Obra_TREINO_1' proj='b39e4855-2c48-4ed5-a84f-bd4e3c12f77d' db='D:\\Agente-cad-PYSIDE\\project_data.vision'
+[REFRESH] total docs=172
+[REFRESH] classified keys=[(1, 'Estruturais dos Pavimentos, Estado Bruto (.DXF)'), (1, 'Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)'), (1, 'Documentos e Atas de Reunioes(.PDF/.MD)'), (1, 'Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)'), (1, 'Projetos Finalizados para Engenharia Reversa')]
+[WIDGET] found class_name='Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)' phase=1
+[RENDER] phase=1 class='Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)' docs=49
+[WIDGET] found class_name='Documentos e Atas de Reunioes(.PDF/.MD)' phase=1
+[RENDER] phase=1 class='Documentos e Atas de Reunioes(.PDF/.MD)' docs=3
+[WIDGET] found class_name='Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)' phase=1
+[RENDER] phase=1 class='Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)' docs=7
+[WIDGET] found class_name='Projetos Finalizados para Engenharia Reversa' phase=1
+[RENDER] phase=1 class='Projetos Finalizados para Engenharia Reversa' docs=30
+[WIDGET] found class_name='Estruturais Pavimentos Limpos' phase=2
+[RENDER] phase=2 class='Estruturais Pavimentos Limpos' docs=14
+[WIDGET] found class_name='Detalhamentos Específicos' phase=2
+[RENDER] phase=2 class='Detalhamentos Específicos' docs=8
+[WIDGET] found class_name='Projetos Finalizados para Engenharia Reversa' phase=2
+[RENDER] phase=2 class='Projetos Finalizados para Engenharia Reversa' docs=0
+[WIDGET] found class_name='Estruturais Pavimentos Limpos' phase=3
+[RENDER] phase=3 class='Estruturais Pavimentos Limpos' docs=0
+[WIDGET] found class_name='Pilares' phase=3
+[RENDER] phase=3 class='Pilares' docs=0
+[Phase3] 🔄 Populando 38 itens em Pilares (Projeto: b39e4855-2c48-4ed5-a84f-bd4e3c12f77d)
+[WIDGET] found class_name='Vigas' phase=3
+[RENDER] phase=3 class='Vigas' docs=0
+[Phase3] 🔄 Populando 43 itens em Vigas (Projeto: b39e4855-2c48-4ed5-a84f-bd4e3c12f77d)
+[WIDGET] found class_name='Lajes' phase=3
+[RENDER] phase=3 class='Lajes' docs=0
+[Phase3] 🔄 Populando 23 itens em Lajes (Projeto: b39e4855-2c48-4ed5-a84f-bd4e3c12f77d)
+[WIDGET] found class_name='JSON Pilares' phase=4
+[RENDER] phase=4 class='JSON Pilares' docs=0
+WARNING:root:[Phase4] ❌ Arquivo não encontrado: D:\Agente-cad-PYSIDE\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\pilares_salvos.json
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Pilares (TERREO)
+[WIDGET] found class_name='JSON Lajes' phase=4
+[RENDER] phase=4 class='JSON Lajes' docs=0
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Lajes (TERREO)
+[WIDGET] found class_name='JSON Vigas Laterais' phase=4
+[RENDER] phase=4 class='JSON Vigas Laterais' docs=0
+WARNING:root:[Phase4] ❌ Arquivo não encontrado: D:\Agente-cad-PYSIDE\_ROBOS_ABAS\Robo_Laterais_de_Vigas\dados_vigas_ultima_sessao.json
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Vigas Laterais (TERREO)
+[WIDGET] found class_name='JSON Vigas Fundo' phase=4
+[RENDER] phase=4 class='JSON Vigas Fundo' docs=0
+[Phase4] ℹ️ Nenhum dado encontrado para JSON Vigas Fundo (TERREO)
+[WIDGET] found class_name='Scripts Pilares' phase=5
+[RENDER] phase=5 class='Scripts Pilares' docs=0
+[WIDGET] found class_name='Scripts Lajes' phase=5
+[RENDER] phase=5 class='Scripts Lajes' docs=0
+[WIDGET] found class_name='Scripts Vigas Laterais' phase=5
+[RENDER] phase=5 class='Scripts Vigas Laterais' docs=0
+[WIDGET] found class_name='Scripts Vigas Fundo' phase=5
+[RENDER] phase=5 class='Scripts Vigas Fundo' docs=0
+[WIDGET] found class_name='DXF Pilares' phase=6
+[RENDER] phase=6 class='DXF Pilares' docs=17
+[WIDGET] found class_name='DXF Lajes' phase=6
+[RENDER] phase=6 class='DXF Lajes' docs=0
+[WIDGET] found class_name='DXF Vigas Laterais' phase=6
+[RENDER] phase=6 class='DXF Vigas Laterais' docs=24
+[WIDGET] found class_name='DXF Vigas Fundo' phase=6
+[RENDER] phase=6 class='DXF Vigas Fundo' docs=16
+[WIDGET] found class_name='DXF Consolidado por Pavimento' phase=7
+[RENDER] phase=7 class='DXF Consolidado por Pavimento' docs=0
+[WIDGET] found class_name='DXF Consolidado por Tipo' phase=7
+[RENDER] phase=7 class='DXF Consolidado por Tipo' docs=0
+[WIDGET] found class_name='DXF Final Validado' phase=8
+[RENDER] phase=8 class='DXF Final Validado' docs=0
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] 10 obras carregadas do arquivo
+[LOAD] Total de obras após mesclagem: 10
+[LOAD] ✅ Carregamento de obras concluído

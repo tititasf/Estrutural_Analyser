@@ -1,0 +1,1315 @@
+=== LAUNCH ===
+  Janela: "Vision-Estrutural AI - Pro Dashboard" em 20s
+  [PASS] launch: Vision-Estrutural AI - Pro Dashboard
+  [SHOT] v5_00_inicial.png (105KB)
+
+=== 1. SELECIONAR OBRA + PAVIMENTO ===
+  [TAB] Structural Analyzer
+  [OBRA DBG] 2 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,97)
+  [OBRA native] combo=0 txt_after=''
+  [PASS] select_obra: Obra_TREINO_1
+  [SHOT] v5_01_obra_selecionada.png (91KB)
+
+--- APP LOG (pos-obra-select, ultimas 25 linhas) ---
+  | [LOAD] 10 obras carregadas do arquivo
+  | [LOAD] Total de obras após mesclagem: 10
+  | [LOAD] ? Carregamento de obras conclu?do
+  | [WORK_CHANGED] work_name='Obra_TREINO_1'
+  | 2026-01-20 18:36:46,428 - INFO - ? Sincronizando Rob?s -> Obra: Obra_TREINO_1, Pav: None
+  | [MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_1'
+  | [MainViewModel] ? Encontrados 17 projetos estruturais para obra 'Obra_TREINO_1'
+  | [MainViewModel] ? Pavimento 'TERREO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'TIPO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO_13' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO_14' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO_1' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'FUNDACAO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'COBERTURA' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'ATICO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Subsolo' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Caixa-Agua-Barrilete' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Deck-1' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Cobertura-1' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Pavimento-14' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento '13-PAVIMENTO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Pavimento-TIPO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Pavimento_2' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO-1' adicionado ? lista do rob?
+  | [PAV_CHANGED] idx=-1 text=''
+--- FIM LOG ---
+
+  [PAV dbg] clicking 'TIPO' @ (824,72)
+  [PAV] Selecionado: TIPO
+  [PASS] select_pav: TIPO
+  [SHOT] v5_01b_pav_selecionado.png (91KB)
+
+--- APP LOG (pos-pav-select, ultimas 30 linhas) ---
+  | [LOAD]   - Pavimento 'Extração_012': 0 lajes
+  | [LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+  | [LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+  | [LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+  | [LOAD] 10 obras carregadas do arquivo
+  | [LOAD] Total de obras após mesclagem: 10
+  | [LOAD] ? Carregamento de obras conclu?do
+  | [WORK_CHANGED] work_name='Obra_TREINO_1'
+  | 2026-01-20 18:36:46,428 - INFO - ? Sincronizando Rob?s -> Obra: Obra_TREINO_1, Pav: None
+  | [MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_1'
+  | [MainViewModel] ? Encontrados 17 projetos estruturais para obra 'Obra_TREINO_1'
+  | [MainViewModel] ? Pavimento 'TERREO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'TIPO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO_13' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO_14' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO_1' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'FUNDACAO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'COBERTURA' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'ATICO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Subsolo' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Caixa-Agua-Barrilete' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Deck-1' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Cobertura-1' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Pavimento-14' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento '13-PAVIMENTO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Pavimento-TIPO' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'Pavimento_2' adicionado ? lista do rob?
+  | [MainViewModel] ? Pavimento 'PAVIMENTO-1' adicionado ? lista do rob?
+  | [PAV_CHANGED] idx=-1 text=''
+  | [PAV_CHANGED] idx=1 text='TIPO'
+--- FIM LOG ---
+
+  [BTN NOT FOUND] 'Atualizar'
+  [INFO] Atualizar nao encontrado — projeto ja carregado via _on_pavement_changed
+  [SHOT] v5_02_tab1_refresh.png (258KB)
+
+--- APP LOG (pos-atualizar, ultimas 30 linhas) ---
+  | [SAVE]   - Pavimento 'P-2': 0 lajes
+  | [SAVE]   - Pavimento '22': 0 lajes
+  | [SAVE] Obra '4': 1 pavimentos
+  | [SAVE]   - Pavimento 'Pavimento Teste': 0 lajes
+  | [SAVE] Obra 'Populacao_Treino': 2 pavimentos
+  | [SAVE]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+  | [SAVE]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+  | [SAVE] Obra 'CONSULTENGE': 2 pavimentos
+  | [SAVE]   - Pavimento 'Pavimento Teste': 0 lajes
+  | [SAVE]   - Pavimento 'Extração_012': 0 lajes
+  | [SAVE] Obra 'IMPERIALE': 1 pavimentos
+  | [SAVE]   - Pavimento 'Pavimento Teste': 0 lajes
+  | [SAVE] Obra 'Obra50_entidades': 1 pavimentos
+  | [SAVE]   - Pavimento 'Pav50_entidades': 50 lajes
+  | [SAVE] Obra 'Obra_TREINO_12': 1 pavimentos
+  | [SAVE]   - Pavimento 'Pavimento Teste': 0 lajes
+  | [SAVE] Obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos
+  | [SAVE]   - Pavimento 'Pavimento Teste': 0 lajes
+  | 2026-01-20 18:36:46,428 - INFO - ? Sincronizando Rob?s -> Obra: Obra_TREINO_1, Pav: TIPO
+  | [MainViewModel] ? Encontrados 17 projetos estruturais para obra 'Obra_TREINO_1'
+  | [MainViewModel] Sincronização Global: Pavimento 'TIPO' já existe com 0 pilares - dados preservados
+  | DEBUG: _open_project_tab call. PID=c59f212d-278b-4a37-b938-f0778a27d75d, Name=TIPO
+  | DEBUG: _load_project_into_view called with PID=c59f212d-278b-4a37-b938-f0778a27d75d. Current Name=Sem Projeto
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | 2026-01-20 18:36:46,428 - INFO - ? Sincronizando Rob?s -> Obra: Obra_TREINO_1, Pav: TIPO
+  | [MainViewModel] ? Encontrados 17 projetos estruturais para obra 'Obra_TREINO_1'
+  | [MainViewModel] Sincronização Global: Pavimento 'TIPO' já existe com 0 pilares - dados preservados
+  | 2026-01-20 18:36:46,428 - INFO - ? Sincronizando Rob?s -> Obra: Obra_TREINO_1, Pav: TIPO
+  | [MainViewModel] ? Encontrados 17 projetos estruturais para obra 'Obra_TREINO_1'
+  | [MainViewModel] Sincronização Global: Pavimento 'TIPO' já existe com 0 pilares - dados preservados
+--- FIM LOG ---
+
+  Total itens nas listas (pre-analise): 0
+  [BTN] ? Iniciar An?lise Geral
+  [SHOT] v5_03_tab1_analise.png (250KB)
+  [INFO] Aguardando Iniciar Analise (ate 60s)...
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+  [LOG] DEBUG: Pilar P33 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P34 re-analisado (Não validado).
+  [LOG] DEBUG: Pilar P35 re-analisado (Não validado).
+  [LOG] [ANALISE] concluída: PL=113 BM=72 SL=32
+
+--- APP LOG (pos-iniciar-analise, ultimas 15 linhas) ---
+  | DEBUG: Pilar P27 re-analisado (Não validado).
+  | DEBUG: Pilar P28 re-analisado (Não validado).
+  | DEBUG: Pilar P29 re-analisado (Não validado).
+  | DEBUG: Pilar P29 re-analisado (Não validado).
+  | DEBUG: Pilar P29 re-analisado (Não validado).
+  | DEBUG: Pilar P30 re-analisado (Não validado).
+  | DEBUG: Pilar P31 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P33 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P35 re-analisado (Não validado).
+  | [ANALISE] concluída: PL=113 BM=72 SL=32
+--- FIM LOG ---
+
+  [SHOT] v5_03_tab1_analise_done.png (282KB)
+  Total itens nas listas (pos-analise): 0
+  [PASS] tab1_listas_carregadas: vazio — DXF nao analisado ou sem elementos
+  [BTN] ? Sincronizar Robo Pilares
+  [SHOT] v5_04_tab1_sync.png (240KB)
+
+--- APP LOG (pos-sync, ultimas 10 linhas) ---
+  | DEBUG: Pilar P30 re-analisado (Não validado).
+  | DEBUG: Pilar P31 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P33 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P35 re-analisado (Não validado).
+  | [ANALISE] concluída: PL=113 BM=72 SL=32
+--- FIM LOG ---
+
+  [BTN] ? Atualizar Listas
+
+--- APP LOG (pos-atualizar2, ultimas 10 linhas) ---
+  | DEBUG: Pilar P30 re-analisado (Não validado).
+  | DEBUG: Pilar P31 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P33 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P35 re-analisado (Não validado).
+  | [ANALISE] concluída: PL=113 BM=72 SL=32
+--- FIM LOG ---
+
+  Total itens nas listas (pos-Atualizar2): 0
+  [PASS] tab1_listas_db: vazio no DB (Fase-3 nao importada ou 0 elementos)
+
+=== 2. TAB 0 ===
+  [TAB] Diagnostic Hub (Pré)
+  [SHOT] v5_05_tab0.png (99KB)
+  Tree: 21 nodes | 1o: ? OBRA-TESTE1
+  [PASS] tab0_sidebar: 21 nodes
+  Trees na janela: 1
+    tree[0] rect=(0,187,280,885)
+  Usando tree sidebar rect=(0,187,280,885)
+  Tree: encontrado '? OBRA_TREINO_1'
+  Tree após expand: 21 nós
+    n?: ? OBRA-TESTE1
+    n?: ? OBRA_FORMATO_EXEMPLO
+    n?: ? OBRA_TREINO_1
+    n?: ? Detalhes Estruturais (.DWG/.PDF/.DXF/.MD) (7)
+    n?: ? Documentos e Atas de Reunioes(.PDF/.MD) (3)
+    n?: ? Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF) (10)
+    n?: ? Projetos Finalizados para Engenharia Reversa (30)
+    n?: ? OBRA_TREINO_2
+    n?: ? OBRA_TREINO_3
+    n?: ? OBRA_TREINO_5
+    n?: ? OBRA_TREINO_6
+    n?: ? OBRA_TREINO_8
+    n?: ? OBRA_TREINO_9
+    n?: ? OBRA_TREINO_10
+    n?: ? OBRA_TREINO_11
+  Categoria encontrada: ? Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF) (10)
+  Tree após cat expand: 21 nós
+    n?: ? OBRA-TESTE1
+    n?: ? OBRA_FORMATO_EXEMPLO
+    n?: ? OBRA_TREINO_1
+    n?: ? Detalhes Estruturais (.DWG/.PDF/.DXF/.MD) (7)
+    n?: ? Documentos e Atas de Reunioes(.PDF/.MD) (3)
+    n?: ? Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF) (10)
+    n?: ? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-EX-1000-FUN-R01 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-EX-2000-TER-R01 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-EX-3000-1PV-R00 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-EX-4000-2PV-R00 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-EX-5000-TIP-R00 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-PE-6000-13P-R03 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-PE-7000-14P-R03 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-PE-8000-COB-R03 (R2018 ASCII - ODA)
+    n?: ? TMC-EST-PE-9000-ATC-R02 (R2018 ASCII - ODA)
+    n?: ? Projetos Finalizados para Engenharia Reversa (30)
+    n?: ? OBRA_TREINO_2
+    n?: ? OBRA_TREINO_3
+    n?: ? OBRA_TREINO_5
+  Doc real: ? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  select+Enter @ (157,432) rect=(45,416,270,449)
+
+--- APP LOG (pos-click1-tree, ultimas 6 linhas) ---
+  | DEBUG: Pilar P32 re-analisado (Não validado).
+  | DEBUG: Pilar P33 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P34 re-analisado (Não validado).
+  | DEBUG: Pilar P35 re-analisado (Não validado).
+  | [ANALISE] concluída: PL=113 BM=72 SL=32
+--- FIM LOG ---
+
+
+--- APP LOG (pos-enter-tree, ultimas 8 linhas) ---
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+--- FIM LOG ---
+
+  [SHOT] v5_06_tab0_render_dialog.png (126KB)
+
+--- APP LOG (pos-doc-select, ultimas 12 linhas) ---
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: 'P34'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: '432'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+--- FIM LOG ---
+
+  [BTN] 
+  [TAB0 DXF] dialog fechado com 'OK'
+  [SHOT] v5_07_tab0_dxf_loaded.png (235KB)
+  [PASS] tab0_load_dxf: ? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII -
+
+--- APP LOG (tab0-dxf, ultimas 20 linhas) ---
+  | [sync_pillars] ?? Pular distribui??o de alturas para P32 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P33: 'P33'
+  | [sync_pillars] ?? Pilar P33 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P33 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: 'P34'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: '432'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [PASS] tab0_applyfix_exists: enabled=True
+  [SHOT] v5_08_tab0_applyfix.png (224KB)
+  [PASS] tab0_applyfix_dialog: Modo de Renderização
+  [BTN] 
+  [PASS] tab0_interpretar_btn: enabled=True
+  [PASS] tab0_pipeline_btn: enabled=True
+  [INFO] Clicando Interpretar DXF...
+  [INFO] Dialog Fase-3: clicou 'Sim'
+  [SHOT] v5_09b_tab0_interpretar_start.png (125KB)
+
+--- APP LOG (interpretar-inicio, ultimas 10 linhas) ---
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [INFO] Aguardando Interpretar (ate 30s — import-only eh rapido)...
+  [INFO] Interpretar concluiu em ~3s
+
+--- APP LOG (pos-interpretar, ultimas 20 linhas) ---
+  | [sync_pillars] ?? Pular distribui??o de alturas para P32 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P33: 'P33'
+  | [sync_pillars] ?? Pilar P33 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P33 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: 'P34'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: '432'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [SHOT] v5_09c_tab0_interpretar_done.png (125KB)
+  [PASS] tab0_interpretar_run: fase3_ran=False done=True
+
+  [GAP-02] Verificando saida Fase-3 pilares_ground_truth.json...
+  [PASS] tab0_fase3_json: pilares_ground_truth.json: pilares=35 bh=-1
+  [PASS] tab0_fase3_bh: bh_extraidos=-1 (0/-1 — sem match espacial ou campo ausente)
+  [INFO] Clicando Pipeline Completo...
+  [SHOT] v5_09d_tab0_pipeline_start.png (120KB)
+
+--- APP LOG (pipeline-inicio, ultimas 10 linhas) ---
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [INFO] Aguardando Pipeline (ate 120s)...
+  [LOG@3s] [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  [INFO] Pipeline concluiu em ~3s
+
+--- APP LOG (pos-pipeline, ultimas 20 linhas) ---
+  | [sync_pillars] ?? Pular distribui??o de alturas para P32 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P33: 'P33'
+  | [sync_pillars] ?? Pilar P33 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P33 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: 'P34'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: '432'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [SHOT] v5_09e_tab0_pipeline_done.png (120KB)
+  [PASS] tab0_pipeline_run: done=True
+  [SHOT] v5_09_tab0_final.png (120KB)
+
+  [STATE] Estado pos-Tab0:
+  [STATE] Tabs disponiveis: ['TIPO', 'Diagnostic Hub (Pré)', 'Structural Analyzer', 'Comparison Engine (Pós)', 'Robo Pilares', 'Robo Laterais de Viga', 'Robo Fundo de Vigas', 'Robo Laje']
+  [STATE] Botoes visiveis: ['Minimizar', 'Restaurar', 'Fechar', '? Gerenciar Projetos', '?', 'LO', '?', 'Estilo 1', 'Estilo 3', 'Selecionar Similares']
+
+=== 3. TAB 2 ===
+  [TAB] Comparison Engine (Pós)
+  [SHOT] v5_10_tab2.png (91KB)
+  [TAB2 DBG] Controles na tab atual:
+  checkboxes: ['SYNC OFF', 'PL', 'LV', 'FV', 'LJ', 'Só estrutural (sem API)']
+  botoes: ['Minimizar', 'Restaurar', 'Fechar', '? Gerenciar Projetos', '?', 'LO', '? Validar', '? Certificar Obra', '? Atualizar']
+  combos: ['', '', '', '', 'Obra  Tipo']
+  [DBG] total botoes: 9
+    btn: 'Minimizar' @ rect=(1459,8,1506,22)
+    btn: 'Restaurar' @ rect=(1506,8,1552,22)
+    btn: 'Fechar' @ rect=(1552,8,1608,22)
+    btn: '? Gerenciar Projetos' @ rect=(132,30,272,60)
+    btn: '?' @ rect=(568,32,598,57)
+    btn: 'LO' @ rect=(1546,28,1580,62)
+    btn: '? Validar' @ rect=(1288,372,1592,399)
+    btn: '? Certificar Obra' @ rect=(1288,549,1592,581)
+    btn: '? Atualizar' @ rect=(1293,799,1587,821)
+  Combos Tab2: ['Obra  Tipo', 'Obra  Tipo']
+  [PASS] tab2_combos: ['Obra  Tipo', 'Obra  Tipo']
+  [OBRA DBG] 6 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(9,161,149,173) txt=''
+  [COMBO 3] rect=(1131,161,1271,173) txt=''
+  [COMBO 4] rect=(1298,219,1582,244) txt='Obra  Tipo'
+  [COMBO 5] rect=(1298,269,1582,294) txt='Obra  Tipo'
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,67)
+  [OBRA native] combo=0 txt_after=''
+  [TAB2] obra selecionada no Fase8Panel
+  [PASS] tab2_checkboxes: ['PL', 'LV', 'FV', 'LJ']
+  [PASS] tab2_scores_pre: ['94.0%', '92.0%', '89.0%', '99.0%', '93.5%']
+  [PASS] tab2_validar_exists: enabled=True
+  [INFO] CheckBox sem-API: "'Só estrutural (sem API)'" marcado
+  [SHOT] v5_11_tab2_validar_start.png (91KB)
+
+--- APP LOG (validar-inicio, ultimas 8 linhas) ---
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [PASS] tab2_validar_run: concluiu em ~7s
+
+--- APP LOG (pos-validar, ultimas 15 linhas) ---
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: '432'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [SHOT] v5_12_tab2_validar_done.png (91KB)
+  [PASS] tab2_certificar_exists: enabled=True
+  [SHOT] v5_13_tab2_certificar.png (102KB)
+
+--- APP LOG (pos-certificar, ultimas 12 linhas) ---
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [PASS] tab2_certificar_saved: CERTIFICADO.json
+  [SHOT] v5_14_tab2_final.png (93KB)
+
+=== 4. ROBOS DXF ITEM ===
+  [TAB] Structural Analyzer
+  [OBRA DBG] 5 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(1078,250,1585,274) txt='Formato:'
+  [COMBO 3] rect=(1182,399,1276,421) txt='Laje 1'
+  [COMBO 4] rect=(1182,537,1276,559) txt='Laje 2'
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,67)
+  [OBRA native] combo=0 txt_after=''
+  [SHOT] v5_15_pre_robos.png (256KB)
+
+=== Robo Pilares (PL) ===
+  [TAB] Robo Pilares
+  [SHOT] v5_16_robo_pilares_before.png (125KB)
+  [SHOT] v5_16_robo_pilares_before.png (125KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [OBRA tagged-wt] robo_obra_combo_pl @ rect=(43,203,193,230)
+  [OBRA tagged:robo_obra_combo_pl] selecionado: 'Obra_TREINO_1'
+  Obra selecionada no robo: Obra_TREINO_1
+
+--- APP LOG (robo-PL-pos-obra, ultimas 8 linhas) ---
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+--- FIM LOG ---
+
+  [PAV dbg] clicking 'TIPO' @ (824,47)
+  [PAV] Selecionado: TIPO
+  Pav selecionado: TIPO
+  [SHOT] v5_16b_robo_pilares_obra_pav.png (125KB)
+  [DXF BTN FOUND] "? DXF Item" @ rect=(196,143,273,167)
+  [PRE-DXF] Garantindo obra no combo global...
+  [OBRA DBG] 4 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(1111,590,1287,615) txt='Dados do Pilar'
+  [COMBO 3] rect=(43,203,193,230) txt='robo_obra_combo_pl'
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,67)
+  [OBRA native] combo=0 txt_after=''
+  [PRE-DXF] Combo global setado: Obra_TREINO_1
+  [EDIT 0] rect=(1008,30,1068,59) txt=''
+  [EDIT 1] rect=(1166,30,1226,59) txt=''
+  [EDIT 2] rect=(120,144,190,166) txt=''
+  [EDIT 3] rect=(1111,528,1287,553) txt='1'
+  [EDIT 4] rect=(1387,528,1562,553) txt='1'
+  [EDIT 5] rect=(1111,559,1287,584) txt='100'
+  [EDIT 6] rect=(1387,559,1562,584) txt='20'
+  [EDIT 7] rect=(1387,590,1562,615) txt='Fundação'
+  [ITEM FIELD] digitado 'P1' | lido='P1' @ (155,155)
+  [DXF PRE] DXFs existentes: 1 | mais recente mtime=1778943194
+  [DXF ENTER] Enter pressionado no item_field — dispara returnPressed
+  Clicando DXF Item...
+
+--- APP LOG (robo-PL-pos-dxf-click, ultimas 6 linhas) ---
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [SHOT] v5_17a_robo_pilares_pos_click.png (125KB)
+  Aguardando geracao DXF (30s)...
+
+--- APP LOG (robo-PL-pre-wait, ultimas 6 linhas) ---
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [DXFLOG@5s] [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra
+  [DXFLOG@5s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@5s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@5s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@5s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra
+  [DXFLOG@10s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@10s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@10s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@10s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra
+  [DXFLOG@15s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@15s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@15s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@15s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra
+  [DXFLOG@20s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@20s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@20s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@20s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra
+  [DXFLOG@25s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@25s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@25s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@25s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra
+  [DXFLOG@30s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@30s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@30s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@30s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [SHOT] v5_17_robo_pilares_dxf.png (125KB)
+  [SHOT] v5_17_robo_pilares_dxf_fail_analysis.png (125KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [FAIL] robo_PL_dxf: PL_preview_P1.dxf existe mas tem 134533s — obra nao selecionada?
+  [PASS] robo_PL_score: label nao visivel (normal se obra nao selecionada via UIA)
+
+--- APP LOG (robo-PL-pos-dxf, ultimas 12 linhas) ---
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+  | [DiagnosticHub] LITE MODE: Snaps e Metadados desativados para performance.
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+
+=== Robo Laterais (LV) ===
+  [TAB] Robo Laterais de Viga
+  [SHOT] v5_16_robo_laterais_before.png (115KB)
+  [SHOT] v5_16_robo_laterais_before.png (115KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [OBRA tagged-wt] robo_obra_combo_lv @ rect=(85,286,169,315)
+  [OBRA tagged:robo_obra_combo_lv] selecionado: 'Obra_TREINO_1'
+  Obra selecionada no robo: Obra_TREINO_1
+
+--- APP LOG (robo-LV-pos-obra, ultimas 8 linhas) ---
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+  | [DiagnosticHub] LITE MODE: Snaps e Metadados desativados para performance.
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [PAV dbg] clicking 'TIPO' @ (824,47)
+  [PAV] Selecionado: TIPO
+  Pav selecionado: TIPO
+  [SHOT] v5_16b_robo_laterais_obra_pav.png (115KB)
+  [DXF BTN FOUND] "? DXF Item" @ rect=(196,143,273,167)
+  [PRE-DXF] Garantindo obra no combo global...
+  [OBRA DBG] 5 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(85,286,169,315) txt='robo_obra_combo_lv'
+  [COMBO 3] rect=(75,321,139,350) txt=''
+  [COMBO 4] rect=(1230,480,1317,509) txt=''
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,67)
+  [OBRA native] combo=0 txt_after=''
+  [PRE-DXF] Combo global setado: Obra_TREINO_1
+  [EDIT 0] rect=(1008,30,1068,59) txt=''
+  [EDIT 1] rect=(1166,30,1226,59) txt=''
+  [EDIT 2] rect=(120,144,190,166) txt=''
+  [EDIT 3] rect=(89,356,190,383) txt=''
+  [EDIT 4] rect=(248,356,349,383) txt=''
+  [EDIT 5] rect=(1230,515,1317,542) txt=''
+  [EDIT 6] rect=(1230,548,1317,575) txt=''
+  [EDIT 7] rect=(1493,548,1573,575) txt=''
+  [ITEM FIELD] digitado 'V101_A' | lido='V101_A' @ (155,155)
+  [DXF PRE] DXFs existentes: 2 | mais recente mtime=1778943246
+  [DXF ENTER] Enter pressionado no item_field — dispara returnPressed
+  Clicando DXF Item...
+
+--- APP LOG (robo-LV-pos-dxf-click, ultimas 6 linhas) ---
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [SHOT] v5_17a_robo_laterais_pos_click.png (115KB)
+  Aguardando geracao DXF (30s)...
+
+--- APP LOG (robo-LV-pre-wait, ultimas 6 linhas) ---
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [DXFLOG@5s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@5s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@5s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@5s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@5s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@10s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@10s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@10s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@10s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@15s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@15s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@15s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@15s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@20s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@20s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@20s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@20s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@25s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@25s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@25s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@25s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  [DXFLOG@30s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@30s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@30s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@30s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [SHOT] v5_17_robo_laterais_dxf.png (115KB)
+  [SHOT] v5_17_robo_laterais_dxf_fail_analysis.png (115KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [FAIL] robo_LV_dxf: LV_preview_V101_A.dxf existe mas tem 134535s — obra nao selecionada?
+  [PASS] robo_LV_score: label nao visivel (normal se obra nao selecionada via UIA)
+
+--- APP LOG (robo-LV-pos-dxf, ultimas 12 linhas) ---
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+  | [DiagnosticHub] LITE MODE: Snaps e Metadados desativados para performance.
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+
+=== Robo Fundo (FV) ===
+  [TAB] Robo Fundo de Vigas
+  [SHOT] v5_16_robo_fundo_before.png (100KB)
+  [SHOT] v5_16_robo_fundo_before.png (100KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [OBRA tagged-wt] robo_obra_combo_fv @ rect=(59,222,218,251)
+  [OBRA tagged:robo_obra_combo_fv] selecionado: 'Obra_TREINO_1'
+  Obra selecionada no robo: Obra_TREINO_1
+
+--- APP LOG (robo-FV-pos-obra, ultimas 8 linhas) ---
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [PAV dbg] clicking 'TIPO' @ (824,47)
+  [PAV] Selecionado: TIPO
+  Pav selecionado: TIPO
+  [SHOT] v5_16b_robo_fundo_obra_pav.png (100KB)
+  [DXF BTN FOUND] "? DXF Item" @ rect=(197,143,274,167)
+  [PRE-DXF] Garantindo obra no combo global...
+  [OBRA DBG] 4 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(59,222,218,251) txt='robo_obra_combo_fv'
+  [COMBO 3] rect=(59,256,178,285) txt=''
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,67)
+  [OBRA native] combo=0 txt_after=''
+  [PRE-DXF] Combo global setado: Obra_TREINO_1
+  [EDIT 0] rect=(1008,30,1068,59) txt=''
+  [EDIT 1] rect=(1166,30,1226,59) txt=''
+  [EDIT 2] rect=(121,144,191,166) txt=''
+  [EDIT 3] rect=(1256,627,1414,656) txt=''
+  [EDIT 4] rect=(1256,662,1414,691) txt=''
+  [EDIT 5] rect=(1256,697,1414,726) txt=''
+  [EDIT 6] rect=(1256,732,1414,761) txt='TIPO'
+  [EDIT 7] rect=(1485,627,1643,656) txt=''
+  [ITEM FIELD] digitado 'V101_fundo' | lido='V101_fundo' @ (156,155)
+  [DXF PRE] DXFs existentes: 2 | mais recente mtime=1778943239
+  [DXF ENTER] Enter pressionado no item_field — dispara returnPressed
+  Clicando DXF Item...
+
+--- APP LOG (robo-FV-pos-dxf-click, ultimas 6 linhas) ---
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [SHOT] v5_17a_robo_fundo_pos_click.png (100KB)
+  Aguardando geracao DXF (30s)...
+
+--- APP LOG (robo-FV-pre-wait, ultimas 6 linhas) ---
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [DXFLOG@5s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@5s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@5s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@5s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@5s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@10s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@10s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@10s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@10s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@15s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@15s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@15s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@15s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@20s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@20s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@20s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@20s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@25s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@25s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@25s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@25s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  [DXFLOG@30s] [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@30s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@30s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@30s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [SHOT] v5_17_robo_fundo_dxf.png (100KB)
+  [SHOT] v5_17_robo_fundo_dxf_fail_analysis.png (100KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [FAIL] robo_FV_dxf: FV_preview_V101_fundo.dxf existe mas tem 134596s — obra nao selecionada?
+  [PASS] robo_FV_score: label nao visivel (normal se obra nao selecionada via UIA)
+
+--- APP LOG (robo-FV-pos-dxf, ultimas 12 linhas) ---
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+
+=== Robo Laje (LJ) ===
+  [TAB] Robo Laje
+  [SHOT] v5_16_robo_laje_before.png (130KB)
+  [SHOT] v5_16_robo_laje_before.png (130KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [OBRA tagged-wt] robo_obra_combo_lj @ rect=(56,224,225,253)
+  [OBRA tagged:robo_obra_combo_lj] 0 itens — skip
+  [OBRA tagged-wt] fallback apos tag nao funcionar
+  [OBRA DBG] 5 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(56,224,225,253) txt='robo_obra_combo_lj'
+  [COMBO 3] rect=(567,329,653,358) txt=''
+  [COMBO 4] rect=(1315,377,1577,406) txt='Dados da Laje'
+  [COMBO 0] skip barra global (y=30<80)
+  [COMBO 1] skip barra global (y=30<80)
+  [COMBO 2] 0 itens — skip
+  [COMBO 3] 0 itens — skip
+  [COMBO 4] 0 itens — skip
+  [RETRY] Combo vazio — aguardando 5s e tentando novamente...
+  [OBRA tagged-wt] robo_obra_combo_lj @ rect=(56,224,225,253)
+  [OBRA tagged:robo_obra_combo_lj] selecionado: 'Obra_TREINO_1'
+  Obra selecionada no robo: Obra_TREINO_1
+
+--- APP LOG (robo-LJ-pos-obra, ultimas 8 linhas) ---
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [PAV dbg] clicking 'TIPO' @ (824,47)
+  [PAV] Selecionado: TIPO
+  Pav selecionado: TIPO
+  [SHOT] v5_16b_robo_laje_obra_pav.png (131KB)
+  [DXF BTN FOUND] "? DXF Item" @ rect=(194,143,271,167)
+  [PRE-DXF] Garantindo obra no combo global...
+  [OBRA DBG] 5 combos na janela
+  [COMBO 0] rect=(353,30,553,59) txt=''
+  [COMBO 1] rect=(691,30,891,59) txt=''
+  [COMBO 2] rect=(56,224,225,253) txt='robo_obra_combo_lj'
+  [COMBO 3] rect=(567,329,653,358) txt=''
+  [COMBO 4] rect=(1315,377,1577,406) txt='Dados da Laje'
+  [COMBO 0] 23 itens: ['OBRA-TESTE1', 'OBRA_FORMATO_EXEMPLO', 'Obra_TREINO_1', 'Obra_TREINO_10', 'Obra_TREINO_11']
+  [OBRA hit] combo=0 item='Obra_TREINO_1' @ (486,67)
+  [OBRA native] combo=0 txt_after=''
+  [PRE-DXF] Combo global setado: Obra_TREINO_1
+  [EDIT 0] rect=(1008,30,1068,59) txt=''
+  [EDIT 1] rect=(1166,30,1226,59) txt=''
+  [EDIT 2] rect=(118,144,188,166) txt=''
+  [EDIT 3] rect=(1315,261,1577,290) txt=''
+  [EDIT 4] rect=(1315,319,1577,348) txt=''
+  [EDIT 5] rect=(1320,382,1556,401) txt='TIPO'
+  [ITEM FIELD] digitado 'L101' | lido='L101' @ (153,155)
+  [DXF PRE] DXFs existentes: 1 | mais recente mtime=1778943252
+  [DXF ENTER] Enter pressionado no item_field — dispara returnPressed
+  Clicando DXF Item...
+
+--- APP LOG (robo-LJ-pos-dxf-click, ultimas 6 linhas) ---
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LJ item='L101'
+  | [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [SHOT] v5_17a_robo_laje_pos_click.png (131KB)
+  Aguardando geracao DXF (30s)...
+
+--- APP LOG (robo-LJ-pre-wait, ultimas 6 linhas) ---
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LJ item='L101'
+  | [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@5s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@5s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@5s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@5s] [DXF_TRIGGER] tipo=LJ item='L101'
+  [DXFLOG@5s] [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@5s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@10s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@10s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@10s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@10s] [DXF_TRIGGER] tipo=LJ item='L101'
+  [DXFLOG@10s] [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@10s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@15s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@15s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@15s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@15s] [DXF_TRIGGER] tipo=LJ item='L101'
+  [DXFLOG@15s] [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@15s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@20s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@20s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@20s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@20s] [DXF_TRIGGER] tipo=LJ item='L101'
+  [DXFLOG@20s] [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@20s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@25s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@25s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@25s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@25s] [DXF_TRIGGER] tipo=LJ item='L101'
+  [DXFLOG@25s] [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@25s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=PL item='P1'
+  [DXFLOG@30s] [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=LV item='V101_A'
+  [DXFLOG@30s] [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  [DXFLOG@30s] [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [DXFLOG@30s] [DXF_TRIGGER] tipo=LJ item='L101'
+  [DXFLOG@30s] [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  [DXFLOG@30s] [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-
+  [SHOT] v5_17_robo_laje_dxf.png (131KB)
+  [SHOT] v5_17_robo_laje_dxf_fail_analysis.png (131KB)
+  [VISION-CLI ERR] [WinError 2] O sistema não pode encontrar o arquivo especificado
+  [VISION] Pulando analise (sem ANTHROPIC_API_KEY e sem claude CLI)
+  [FAIL] robo_LJ_dxf: LJ_preview_L101.dxf existe mas tem 134649s — obra nao selecionada?
+  [PASS] robo_LJ_score: label nao visivel (normal se obra nao selecionada via UIA)
+
+--- APP LOG (robo-LJ-pos-dxf, ultimas 12 linhas) ---
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LJ item='L101'
+  | [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+
+
+============================================================
+RESULTADOS v5
+============================================================
+  [OK] launch: Vision-Estrutural AI - Pro Dashboard
+  [OK] select_obra: Obra_TREINO_1
+  [OK] select_pav: TIPO
+  [OK] tab1_listas_carregadas: vazio — DXF nao analisado ou sem elementos
+  [OK] tab1_listas_db: vazio no DB (Fase-3 nao importada ou 0 elementos)
+  [OK] tab0_sidebar: 21 nodes
+  [OK] tab0_load_dxf: ? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII -
+  [OK] tab0_applyfix_exists: enabled=True
+  [OK] tab0_applyfix_dialog: Modo de Renderização
+  [OK] tab0_interpretar_btn: enabled=True
+  [OK] tab0_pipeline_btn: enabled=True
+  [OK] tab0_interpretar_run: fase3_ran=False done=True
+  [OK] tab0_fase3_json: pilares_ground_truth.json: pilares=35 bh=-1
+  [OK] tab0_fase3_bh: bh_extraidos=-1 (0/-1 — sem match espacial ou campo ausente)
+  [OK] tab0_pipeline_run: done=True
+  [OK] tab2_combos: ['Obra  Tipo', 'Obra  Tipo']
+  [OK] tab2_checkboxes: ['PL', 'LV', 'FV', 'LJ']
+  [OK] tab2_scores_pre: ['94.0%', '92.0%', '89.0%', '99.0%', '93.5%']
+  [OK] tab2_validar_exists: enabled=True
+  [OK] tab2_validar_run: concluiu em ~7s
+  [OK] tab2_certificar_exists: enabled=True
+  [OK] tab2_certificar_saved: CERTIFICADO.json
+  [XX] robo_PL_dxf: PL_preview_P1.dxf existe mas tem 134533s — obra nao selecionada?
+  [OK] robo_PL_score: label nao visivel (normal se obra nao selecionada via UIA)
+  [XX] robo_LV_dxf: LV_preview_V101_A.dxf existe mas tem 134535s — obra nao selecionada?
+  [OK] robo_LV_score: label nao visivel (normal se obra nao selecionada via UIA)
+  [XX] robo_FV_dxf: FV_preview_V101_fundo.dxf existe mas tem 134596s — obra nao selecionada?
+  [OK] robo_FV_score: label nao visivel (normal se obra nao selecionada via UIA)
+  [XX] robo_LJ_dxf: LJ_preview_L101.dxf existe mas tem 134649s — obra nao selecionada?
+  [OK] robo_LJ_score: label nao visivel (normal se obra nao selecionada via UIA)
+
+  26 PASS | 4 FAIL | 30 checks
+  Screenshots: 43 arquivos
+  Duracao total: 480s
+
+--- APP LOG (final, ultimas 50 linhas) ---
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P30: '2.5'
+  | [sync_pillars] ?? Pilar P30 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P30 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P31: '52'
+  | [sync_pillars] ?? Pilar P31 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P31 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P32: 'P32'
+  | [sync_pillars] ?? Pilar P32 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P32 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P32: '7'
+  | [sync_pillars] ?? Pilar P32 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P32 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P32: 'h=10'
+  | [sync_pillars] ?? Pilar P32 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P32 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P33: 'P33'
+  | [sync_pillars] ?? Pilar P33 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P33 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: 'P34'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P34: '432'
+  | [sync_pillars] ?? Pilar P34 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P34 (dimens?es inv?lidas)
+  | [sync_pillars] ?? Texto de dimens?o n?o cont?m 2 n?meros v?lidos para P35: 'V28'
+  | [sync_pillars] ?? Pilar P35 criado sem dimens?es (apenas n?mero e nome)
+  | [sync_pillars] ?? Pular distribui??o de alturas para P35 (dimens?es inv?lidas)
+  | Skipping intersection calculation for 5543 lines (Performance protection).
+  | [TREE_DBL] item='? TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)' has_data=True
+  | [DOC_SEL] doc=TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA) path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf
+  | [DiagnosticHub] Carregando Documento: TMC-EST-EX-0000-LOC-R03 (R2018 ASCII - ODA)
+  | [DiagnosticHub] Modo selecionado: TRUE_GEOMETRY
+  | [DiagnosticHub] DXF carregado em 0.01s (Modo: TRUE_GEOMETRY)
+  | [CANVAS] entities: lines=1911 polys=173 texts=1584 blocks=0
+  | [DiagnosticHub] LITE MODE: Snaps e Metadados desativados para performance.
+  | [APPLY FIX] Re-renderizando TMC-EST-EX-0000-LOC-R03_R2018_ASCII_ODA_6633.dxf modo=TRUE_GEOMETRY
+  | [APPLY FIX] Carregado em 0.32s modo=TRUE_GEOMETRY
+  | [APPLY FIX] Obra não identificada — save Fase-2 ignorado.
+  | [DXF_TRIGGER] tipo=PL item='P1'
+  | [DXF_RUN] tipo=PL item='P1' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LV item='V101_A'
+  | [DXF_RUN] tipo=LV item='V101_A' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=FV item='V101_fundo'
+  | [DXF_RUN] tipo=FV item='V101_fundo' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+  | [DXF_TRIGGER] tipo=LJ item='L101'
+  | [DXF_RUN] tipo=LJ item='L101' obra_nome='Obra_TREINO_1' has_cmb=True
+  | [DXF_RUN] base_dir='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main' obra_path=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\Obra_TREINO_1 exists=True | fallback=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1 exists=True
+--- FIM LOG ---
+

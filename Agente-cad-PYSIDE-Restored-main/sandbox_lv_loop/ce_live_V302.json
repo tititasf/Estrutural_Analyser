@@ -1,0 +1,917 @@
+{
+  "number": "302",
+  "name": "V302_A",
+  "floor": "Pavimento",
+  "side": "A",
+  "total_width": 19.0,
+  "total_height": 59.0,
+  "panels": [
+    {
+      "width": 178.5,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 22.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 159.5,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 110.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "h_A": 59.0,
+  "h_B": 56.0,
+  "b_geom": 19.0,
+  "h_section": 55.0,
+  "h_section_all": [
+    55.0
+  ],
+  "laje_sup_A": 14.0,
+  "laje_inf_A": 2.0,
+  "laje_sup_B": 12.0,
+  "laje_inf_B": 0.0,
+  "tipo_viga": "sarrafeada",
+  "section_views": [
+    {
+      "h_A": 59.0,
+      "h_B": 56.0,
+      "b": 19.0,
+      "laje_sup_A": 14.0,
+      "laje_inf_A": 2.0,
+      "laje_sup_B": 12.0,
+      "laje_inf_B": 0.0,
+      "h_section": 55.0,
+      "label": "V302"
+    },
+    {
+      "h_A": 59.0,
+      "h_B": 59.0,
+      "b": 19.0,
+      "laje_sup_A": 14.0,
+      "laje_inf_A": 1.0,
+      "laje_sup_B": 14.0,
+      "laje_inf_B": 0.0,
+      "h_section": 55.0,
+      "label": "CONT. V302.A"
+    },
+    {
+      "h_A": 59.0,
+      "h_B": 56.0,
+      "b": 19.0,
+      "laje_sup_A": 16.0,
+      "laje_inf_A": 2.0,
+      "laje_sup_B": 12.0,
+      "laje_inf_B": 0.0,
+      "h_section": 55.0,
+      "label": ""
+    }
+  ],
+  "continuation": "Proxima Parte",
+  "text_left": "",
+  "text_right": "",
+  "face_units": [
+    {
+      "label": "V302.B",
+      "side": "B",
+      "label_x": 5209.9,
+      "label_y": 7152.2,
+      "bbox": {
+        "x_left": 5217.5,
+        "x_right": 5619.0,
+        "y_bot": 7061.0,
+        "y_top": 7105.0
+      },
+      "h_body": 44.0,
+      "h_total": 56.0,
+      "laje_sup": 12.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 12.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 12.0,
+          "slab_bottom": 0.0,
+          "slab_center": 3.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 244.0,
+              "height": 43.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 5217.45330374174,
+          "_xr": 5461.45330374174
+        },
+        {
+          "largura_cm": 157.5,
+          "width": 157.5,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 12.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 12.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 5461.45330374174,
+          "_xr": 5618.95330374174
+        }
+      ]
+    },
+    {
+      "label": "V302.A",
+      "side": "A",
+      "label_x": 3898.4,
+      "label_y": 7144.0,
+      "bbox": {
+        "x_left": 3893.2,
+        "x_right": 4363.2,
+        "y_bot": 7080.0,
+        "y_top": 7123.0
+      },
+      "h_body": 43.0,
+      "h_total": 59.0,
+      "laje_sup": 14.0,
+      "laje_inf": 2.0,
+      "segments_count": 4,
+      "panels": [
+        {
+          "largura_cm": 178.5,
+          "width": 178.5,
+          "panel_type": "Sarrafeado",
+          "height1": 43.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 16.0,
+          "laje_inf_local": 2.0,
+          "slab_top": 16.0,
+          "slab_bottom": 2.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 178.5,
+              "height": 42.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 3893.180977775175,
+          "_xr": 4071.680977775175
+        },
+        {
+          "largura_cm": 22.0,
+          "width": 22.0,
+          "panel_type": "Sarrafeado",
+          "height1": 43.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 2.0,
+          "slab_top": 14.0,
+          "slab_bottom": 2.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": false,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 4071.680977775175,
+          "_xr": 4093.680977775175
+        },
+        {
+          "largura_cm": 159.5,
+          "width": 159.5,
+          "panel_type": "Sarrafeado",
+          "height1": 43.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 2.0,
+          "slab_top": 14.0,
+          "slab_bottom": 2.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 159.5,
+              "height": 42.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 4093.680977775175,
+          "_xr": 4253.180977775175
+        },
+        {
+          "largura_cm": 110.0,
+          "width": 110.0,
+          "panel_type": "Sarrafeado",
+          "height1": 43.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 2.0,
+          "slab_top": 14.0,
+          "slab_bottom": 2.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 110.0,
+              "height": 42.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 4253.180977775175,
+          "_xr": 4363.180977775182
+        }
+      ]
+    },
+    {
+      "label": "CONT. V302.A",
+      "side": "A",
+      "label_x": 3889.2,
+      "label_y": 6955.9,
+      "bbox": {
+        "x_left": 3885.9,
+        "x_right": 4861.9,
+        "y_bot": 6892.0,
+        "y_top": 6936.0
+      },
+      "h_body": 44.0,
+      "h_total": 59.0,
+      "laje_sup": 14.0,
+      "laje_inf": 1.0,
+      "segments_count": 4,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 1.0,
+          "slab_top": 14.0,
+          "slab_bottom": 1.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 244.0,
+              "height": 43.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 3885.923007371132,
+          "_xr": 4129.923007371131
+        },
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 1.0,
+          "slab_top": 14.0,
+          "slab_bottom": 1.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 244.0,
+              "height": 43.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 4129.923007371131,
+          "_xr": 4373.923007371131
+        },
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 1.0,
+          "slab_top": 14.0,
+          "slab_bottom": 1.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 244.0,
+              "height": 43.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 4373.923007371131,
+          "_xr": 4617.923007371131
+        },
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 1.0,
+          "slab_top": 14.0,
+          "slab_bottom": 1.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.3,
+              "width": 244.0,
+              "height": 43.7
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 4617.923007371131,
+          "_xr": 4861.923007371132
+        }
+      ]
+    },
+    {
+      "label": "CONT. V302.B",
+      "side": "B",
+      "label_x": 5215.2,
+      "label_y": 6935.8,
+      "bbox": {
+        "x_left": 5219.1,
+        "x_right": 5637.1,
+        "y_bot": 6869.0,
+        "y_top": 6914.0
+      },
+      "h_body": 45.0,
+      "h_total": 59.0,
+      "laje_sup": 14.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 45.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 14.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 5219.060217559604,
+          "_xr": 5463.060217559605
+        },
+        {
+          "largura_cm": 174.0,
+          "width": 174.0,
+          "panel_type": "Sarrafeado",
+          "height1": 45.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 14.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 5463.060217559605,
+          "_xr": 5637.060217559604
+        }
+      ]
+    },
+    {
+      "label": "CONT. V302.A",
+      "side": "A",
+      "label_x": 3883.6,
+      "label_y": 6772.1,
+      "bbox": {
+        "x_left": 3883.2,
+        "x_right": 4064.7,
+        "y_bot": 6708.0,
+        "y_top": 6752.0
+      },
+      "h_body": 44.0,
+      "h_total": 63.5,
+      "laje_sup": 19.5,
+      "laje_inf": 0.0,
+      "segments_count": 1,
+      "panels": [
+        {
+          "largura_cm": 181.5,
+          "width": 181.5,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 19.5,
+          "laje_inf_local": 0.0,
+          "slab_top": 19.5,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.1,
+              "width": 181.5,
+              "height": 43.9
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 3883.210140227954,
+          "_xr": 4064.710140227953
+        }
+      ]
+    },
+    {
+      "label": "CONT. V302.B",
+      "side": "B",
+      "label_x": 5217.0,
+      "label_y": 6770.9,
+      "bbox": {
+        "x_left": 5220.9,
+        "x_right": 5638.9,
+        "y_bot": 6684.0,
+        "y_top": 6728.0
+      },
+      "h_body": 44.0,
+      "h_total": 174.0,
+      "laje_sup": 15.0,
+      "laje_inf": 115.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 12.0,
+          "laje_inf_local": 115.0,
+          "slab_top": 12.0,
+          "slab_bottom": 115.0,
+          "slab_center": 3.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 244.0,
+              "height": 43.5
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 5220.901754096439,
+          "_xr": 5464.901754096439
+        },
+        {
+          "largura_cm": 174.0,
+          "width": 174.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 15.0,
+          "laje_inf_local": 115.0,
+          "slab_top": 15.0,
+          "slab_bottom": 115.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 174.0,
+              "height": 43.5
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 5464.901754096439,
+          "_xr": 5638.90175409644
+        }
+      ]
+    },
+    {
+      "label": "CONT. V302.B",
+      "side": "B",
+      "label_x": 5218.8,
+      "label_y": 6555.3,
+      "bbox": {
+        "x_left": 5222.7,
+        "x_right": 5636.7,
+        "y_bot": 6490.0,
+        "y_top": 6535.0
+      },
+      "h_body": 45.0,
+      "h_total": 45.5,
+      "laje_sup": 0.5,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 45.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 14.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 14.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 5222.694757217904,
+          "_xr": 5466.694757217903
+        },
+        {
+          "largura_cm": 170.0,
+          "width": 170.0,
+          "panel_type": "Sarrafeado",
+          "height1": 45.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.5,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.5,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 5466.694757217903,
+          "_xr": 5636.694757217903
+        }
+      ]
+    }
+  ],
+  "panels_A": [
+    {
+      "largura_cm": 178.5,
+      "width": 178.5,
+      "panel_type": "Sarrafeado",
+      "height1": 43.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 16.0,
+      "laje_inf_local": 2.0,
+      "slab_top": 16.0,
+      "slab_bottom": 2.0,
+      "slab_center": 0.0,
+      "is_first": true,
+      "is_last": false,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.3,
+          "width": 178.5,
+          "height": 42.7
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 3893.180977775175,
+      "_xr": 4071.680977775175
+    },
+    {
+      "largura_cm": 22.0,
+      "width": 22.0,
+      "panel_type": "Sarrafeado",
+      "height1": 43.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 14.0,
+      "laje_inf_local": 2.0,
+      "slab_top": 14.0,
+      "slab_bottom": 2.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "reuse_regions": [],
+      "codigos_forma": [],
+      "_xl": 4071.680977775175,
+      "_xr": 4093.680977775175
+    },
+    {
+      "largura_cm": 159.5,
+      "width": 159.5,
+      "panel_type": "Sarrafeado",
+      "height1": 43.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 14.0,
+      "laje_inf_local": 2.0,
+      "slab_top": 14.0,
+      "slab_bottom": 2.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": false,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.3,
+          "width": 159.5,
+          "height": 42.7
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 4093.680977775175,
+      "_xr": 4253.180977775175
+    },
+    {
+      "largura_cm": 110.0,
+      "width": 110.0,
+      "panel_type": "Sarrafeado",
+      "height1": 43.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 14.0,
+      "laje_inf_local": 2.0,
+      "slab_top": 14.0,
+      "slab_bottom": 2.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": true,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.3,
+          "width": 110.0,
+          "height": 42.7
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 4253.180977775175,
+      "_xr": 4363.180977775182
+    }
+  ],
+  "panels_B": [
+    {
+      "largura_cm": 244.0,
+      "width": 244.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 12.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 12.0,
+      "slab_bottom": 0.0,
+      "slab_center": 3.0,
+      "is_first": true,
+      "is_last": false,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 244.0,
+          "height": 43.6
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 5217.45330374174,
+      "_xr": 5461.45330374174
+    },
+    {
+      "largura_cm": 157.5,
+      "width": 157.5,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 12.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 12.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": true,
+      "holes": [],
+      "reuse": false,
+      "reuse_regions": [],
+      "codigos_forma": [],
+      "_xl": 5461.45330374174,
+      "_xr": 5618.95330374174
+    }
+  ],
+  "_er_meta": {
+    "source": "dxf_geom",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V302_motor_178111332849.dxf",
+    "confianca": 0.93
+  },
+  "_confianca": 0.93
+}

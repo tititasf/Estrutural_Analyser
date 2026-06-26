@@ -1,0 +1,2840 @@
+{
+  "scanner_version": "1.1",
+  "generated_at": "2026-06-06T03:50:58.222569+00:00",
+  "total_obras": 19,
+  "obras_com_limpos": 19,
+  "total_pavimentos": 150,
+  "total_entities": 1103601,
+  "obras": {
+    "Obra_TREINO_1": {
+      "obra_name": "Obra_TREINO_1",
+      "scan_ts": "2026-06-06T03:48:17.578733+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 17,
+      "total_entities": 69337,
+      "pav_types": [
+        "atico",
+        "barrilete",
+        "cobertura",
+        "deck",
+        "fundacao",
+        "pavimento",
+        "subsolo",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "13-PAVIMENTO",
+          "dxf_name": "13-PAVIMENTO.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 3574,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "6",
+            "4",
+            "1"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "ATICO",
+          "dxf_name": "ATICO.dxf",
+          "pav_type": "atico",
+          "entity_count": 4503,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "1",
+            "9",
+            "4",
+            "6"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Caixa-Agua-Barrilete",
+          "dxf_name": "Caixa-Agua-Barrilete.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 3073,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "4",
+            "6",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Cobertura-1",
+          "dxf_name": "Cobertura-1.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 2904,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "6",
+            "4",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 5759,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "1",
+            "6",
+            "8"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Deck-1",
+          "dxf_name": "Deck-1.dxf",
+          "pav_type": "deck",
+          "entity_count": 962,
+          "layer_count": 83,
+          "top_layers": [
+            "2",
+            "3",
+            "9",
+            "6",
+            "4",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "FUNDACAO",
+          "dxf_name": "FUNDACAO.dxf",
+          "pav_type": "fundacao",
+          "entity_count": 7444,
+          "layer_count": 83,
+          "top_layers": [
+            "6",
+            "3",
+            "2",
+            "9",
+            "1",
+            "8"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO-1",
+          "dxf_name": "PAVIMENTO-1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2781,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "6",
+            "4",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Pavimento-14",
+          "dxf_name": "Pavimento-14.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 3292,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "6",
+            "4",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Pavimento-TIPO",
+          "dxf_name": "Pavimento-TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 3377,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "6",
+            "4",
+            "1"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4980,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "1",
+            "9",
+            "6",
+            "8"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_13",
+          "dxf_name": "PAVIMENTO_13.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5893,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "1",
+            "9",
+            "6",
+            "8"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_14",
+          "dxf_name": "PAVIMENTO_14.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5033,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "1",
+            "9",
+            "6",
+            "8"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Pavimento_2",
+          "dxf_name": "Pavimento_2.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 3826,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "9",
+            "6",
+            "4",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Subsolo",
+          "dxf_name": "Subsolo.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 1331,
+          "layer_count": 83,
+          "top_layers": [
+            "9",
+            "2",
+            "1",
+            "6",
+            "3",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 4596,
+          "layer_count": 83,
+          "top_layers": [
+            "6",
+            "3",
+            "2",
+            "9",
+            "1",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 6009,
+          "layer_count": 83,
+          "top_layers": [
+            "3",
+            "2",
+            "1",
+            "9",
+            "6",
+            "8"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 51,
+      "viga_count": 183,
+      "laje_count": 130,
+      "recortes_total": 38,
+      "recortes_torres": 2,
+      "recortes_detalhes": 36
+    },
+    "Obra_TREINO_10": {
+      "obra_name": "Obra_TREINO_10",
+      "scan_ts": "2026-06-06T03:48:20.551966+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 10,
+      "total_entities": 43243,
+      "pav_types": [
+        "atico",
+        "cobertura",
+        "pavimento"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "ATICO",
+          "dxf_name": "ATICO.dxf",
+          "pav_type": "atico",
+          "entity_count": 3155,
+          "layer_count": 19,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "220",
+            "254"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 3302,
+          "layer_count": 23,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "220",
+            "221"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_01",
+          "dxf_name": "PAVIMENTO_01.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4691,
+          "layer_count": 25,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "220",
+            "110"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_02",
+          "dxf_name": "PAVIMENTO_02.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4981,
+          "layer_count": 26,
+          "top_layers": [
+            "216",
+            "250",
+            "238",
+            "226",
+            "220",
+            "249"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_03",
+          "dxf_name": "PAVIMENTO_03.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4856,
+          "layer_count": 27,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "231",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_04",
+          "dxf_name": "PAVIMENTO_04.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5192,
+          "layer_count": 27,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "231",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_05",
+          "dxf_name": "PAVIMENTO_05.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5023,
+          "layer_count": 23,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "231",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_06",
+          "dxf_name": "PAVIMENTO_06.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4222,
+          "layer_count": 25,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "231",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_07",
+          "dxf_name": "PAVIMENTO_07.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4218,
+          "layer_count": 26,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "231",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_09",
+          "dxf_name": "PAVIMENTO_09.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 3603,
+          "layer_count": 19,
+          "top_layers": [
+            "216",
+            "250",
+            "226",
+            "238",
+            "220",
+            "254"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 23,
+      "viga_count": 1,
+      "laje_count": 0,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_12": {
+      "obra_name": "Obra_TREINO_12",
+      "scan_ts": "2026-06-06T03:48:44.605607+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_12\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 10,
+      "total_entities": 121719,
+      "pav_types": [
+        "barrilete",
+        "cobertura",
+        "desconhecido",
+        "pavimento",
+        "subsolo",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 4124,
+          "layer_count": 45,
+          "top_layers": [
+            "7",
+            "1",
+            "0",
+            "15",
+            "218",
+            "FOLHA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 11200,
+          "layer_count": 57,
+          "top_layers": [
+            "7",
+            "0",
+            "15",
+            "1",
+            "218",
+            "COT"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 15918,
+          "layer_count": 65,
+          "top_layers": [
+            "7",
+            "15",
+            "50",
+            "1",
+            "218",
+            "18"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_2",
+          "dxf_name": "PAVIMENTO_2.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 12640,
+          "layer_count": 62,
+          "top_layers": [
+            "7",
+            "0",
+            "15",
+            "50",
+            "1",
+            "218"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_8",
+          "dxf_name": "PAVIMENTO_8.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 11697,
+          "layer_count": 61,
+          "top_layers": [
+            "7",
+            "0",
+            "15",
+            "1",
+            "218",
+            "18"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_1",
+          "dxf_name": "SUBSOLO_1.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 16889,
+          "layer_count": 64,
+          "top_layers": [
+            "7",
+            "15",
+            "50",
+            "1",
+            "254",
+            "218"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_2",
+          "dxf_name": "SUBSOLO_2.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 12527,
+          "layer_count": 61,
+          "top_layers": [
+            "7",
+            "15",
+            "0",
+            "1",
+            "210",
+            "191"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TAMPA",
+          "dxf_name": "TAMPA.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 4619,
+          "layer_count": 47,
+          "top_layers": [
+            "7",
+            "1",
+            "15",
+            "0",
+            "218",
+            "FOLHA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 20548,
+          "layer_count": 62,
+          "top_layers": [
+            "7",
+            "15",
+            "50",
+            "1",
+            "218",
+            "254"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 11557,
+          "layer_count": 61,
+          "top_layers": [
+            "7",
+            "0",
+            "15",
+            "1",
+            "18",
+            "218"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": false,
+      "pilar_count": 0,
+      "viga_count": 0,
+      "laje_count": 0,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_13": {
+      "obra_name": "Obra_TREINO_13",
+      "scan_ts": "2026-06-06T03:49:03.163471+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 18,
+      "total_entities": 60332,
+      "pav_types": [
+        "atico",
+        "cobertura",
+        "desconhecido",
+        "pavimento",
+        "subsolo",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "ATICO",
+          "dxf_name": "ATICO.dxf",
+          "pav_type": "atico",
+          "entity_count": 2564,
+          "layer_count": 60,
+          "top_layers": [
+            "F-COTAS",
+            "F-CORTE",
+            "F-VIGAS",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-SOLIDO-CORTE",
+            "F-PILARES-DIM"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 2488,
+          "layer_count": 56,
+          "top_layers": [
+            "F-CORTE",
+            "F-DESNIVEL-1",
+            "F-COTAS",
+            "F-VIGAS",
+            "F-VIGAS-DIM",
+            "F-SOLIDO-CORTE"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 4064,
+          "layer_count": 85,
+          "top_layers": [
+            "F-VIGAS",
+            "F-CUBETA",
+            "F-COTAS",
+            "F-AUX-YELLOW",
+            "F-TABELA-NÍVEIS",
+            "F-VIGAS-DIM"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DUPLEX",
+          "dxf_name": "DUPLEX.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 3354,
+          "layer_count": 53,
+          "top_layers": [
+            "F-COTAS",
+            "F-CORTE",
+            "F-VIGAS",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-SOLIDO-CORTE",
+            "F-PILARES-DIM"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "ESCADA",
+          "dxf_name": "ESCADA.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 1770,
+          "layer_count": 61,
+          "top_layers": [
+            "F-DESNIVEL-3",
+            "F-TABELA-NÍVEIS",
+            "F-CORTE",
+            "F-VIGAS",
+            "F-TEXTO-YELLOW",
+            "F-AUX-RED"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2378,
+          "layer_count": 62,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-VIGAS-DIM",
+            "F-COTAS-FUROS",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-SOLIDO-CORTE"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_2",
+          "dxf_name": "PAVIMENTO_2.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2686,
+          "layer_count": 65,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-VIGAS-DIM",
+            "F-COTAS-FUROS",
+            "F-SOLIDO-CORTE",
+            "F-FURO-PAREDE-TEXTOS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_3",
+          "dxf_name": "PAVIMENTO_3.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2580,
+          "layer_count": 61,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-COTAS-FUROS",
+            "F-VIGAS-DIM",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-SOLIDO-CORTE"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_4",
+          "dxf_name": "PAVIMENTO_4.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2489,
+          "layer_count": 65,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-COTAS-FUROS",
+            "F-VIGAS-DIM",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-SOLIDO-CORTE"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_5",
+          "dxf_name": "PAVIMENTO_5.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4880,
+          "layer_count": 72,
+          "top_layers": [
+            "F-CORTE",
+            "F-DESNIVEL-8",
+            "F-VIGAS",
+            "F-SOLIDO-CORTE",
+            "F-COTAS",
+            "F-DESNIVEL-3"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_6",
+          "dxf_name": "PAVIMENTO_6.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5512,
+          "layer_count": 74,
+          "top_layers": [
+            "F-SOLIDO-CORTE",
+            "F-CORTE",
+            "F-VIGAS",
+            "F-COTAS",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-DESNIVEL-6"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_1",
+          "dxf_name": "SUBSOLO_1.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 2580,
+          "layer_count": 78,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-COTAS-FUROS",
+            "F-VIGAS-DIM",
+            "F-PILARES-DIM",
+            "F-TABELA-NÍVEIS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_2",
+          "dxf_name": "SUBSOLO_2.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 3157,
+          "layer_count": 85,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-CUBETA",
+            "F-AUX-YELLOW",
+            "F-DESNIVEL-5",
+            "CARIMBO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_3",
+          "dxf_name": "SUBSOLO_3.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 4171,
+          "layer_count": 79,
+          "top_layers": [
+            "F-CUBETA",
+            "F-VIGAS",
+            "F-COTAS",
+            "F-VIGAS-DIM",
+            "F-TABELA-NÍVEIS",
+            "F-VIGAS-NOME"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_4",
+          "dxf_name": "SUBSOLO_4.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 4199,
+          "layer_count": 62,
+          "top_layers": [
+            "F-CUBETA",
+            "F-VIGAS",
+            "F-COTAS",
+            "F-VIGAS-DIM",
+            "F-PILARES-DIM",
+            "F-DET_LINHA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_5",
+          "dxf_name": "SUBSOLO_5.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 3915,
+          "layer_count": 76,
+          "top_layers": [
+            "F-VIGAS",
+            "F-AUX",
+            "F-COTAS",
+            "F-PILARES-NASCE",
+            "F-BLOCOS",
+            "F-VISTA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 4000,
+          "layer_count": 77,
+          "top_layers": [
+            "F-VIGAS",
+            "F-COTAS",
+            "F-DESNIVEL-2",
+            "F-VIGAS-DIM",
+            "F-SOLIDO-CORTE",
+            "F-FURO-PAREDE-TEXTOS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 3545,
+          "layer_count": 52,
+          "top_layers": [
+            "F-SOLIDO-CORTE",
+            "F-CORTE",
+            "F-COTAS",
+            "F-VIGAS",
+            "F-FURO-PAREDE-TEXTOS",
+            "F-COTAS-FUROS"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 30,
+      "viga_count": 51,
+      "laje_count": 39,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_14": {
+      "obra_name": "Obra_TREINO_14",
+      "scan_ts": "2026-06-06T03:49:08.770027+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 6,
+      "total_entities": 23085,
+      "pav_types": [
+        "cobertura",
+        "desconhecido",
+        "fundacao",
+        "pavimento",
+        "terreo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 1695,
+          "layer_count": 25,
+          "top_layers": [
+            "TEXTO",
+            "FOLHA",
+            "CORTE-FORMA",
+            "COTA",
+            "FO-Vigas",
+            "0"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "FUNDACAO",
+          "dxf_name": "FUNDACAO.dxf",
+          "pav_type": "fundacao",
+          "entity_count": 3701,
+          "layer_count": 40,
+          "top_layers": [
+            "TEXTO",
+            "CORTES",
+            "PERFIL-CORTINA",
+            "CORTE-FORMA",
+            "FO-Vigas",
+            "BLOCOS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "GERAL",
+          "dxf_name": "GERAL.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 3215,
+          "layer_count": 16,
+          "top_layers": [
+            "VISTAS",
+            "TEXTO",
+            "NIVEL",
+            "COTA",
+            "FOLHA",
+            "DETALHES"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_01",
+          "dxf_name": "PAVIMENTO_01.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 3495,
+          "layer_count": 31,
+          "top_layers": [
+            "CORTE-FORMA",
+            "FO-Vigas",
+            "ALVENARIA",
+            "0",
+            "TEXTO",
+            "FOLHA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_02",
+          "dxf_name": "PAVIMENTO_02.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5956,
+          "layer_count": 28,
+          "top_layers": [
+            "CORTES",
+            "COTA",
+            "TEXTO",
+            "CORTE-FORMA",
+            "FO-Vigas",
+            "FO-Textos dos pilares"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 5023,
+          "layer_count": 37,
+          "top_layers": [
+            "ALVENARIA",
+            "CORTE-FORMA",
+            "COTA",
+            "TEXTO",
+            "FO-Vigas",
+            "CORTES"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 30,
+      "viga_count": 27,
+      "laje_count": 0,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_15": {
+      "obra_name": "Obra_TREINO_15",
+      "scan_ts": "2026-06-06T03:49:29.327130+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 8,
+      "total_entities": 117211,
+      "pav_types": [
+        "barrilete",
+        "desconhecido",
+        "pavimento",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "ATIC",
+          "dxf_name": "ATIC.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 6874,
+          "layer_count": 35,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-STRS",
+            "A-FLOR",
+            "A-ANNO-DIMS",
+            "S-FNDN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 7253,
+          "layer_count": 39,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-STRS",
+            "A-FLOR",
+            "A-ANNO-DIMS",
+            "S-FNDN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DINF",
+          "dxf_name": "DINF.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 7976,
+          "layer_count": 38,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-STRS",
+            "A-FLOR",
+            "A-ANNO-DIMS",
+            "S-FNDN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DSUP",
+          "dxf_name": "DSUP.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 8179,
+          "layer_count": 37,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-STRS",
+            "A-FLOR",
+            "A-ANNO-DIMS",
+            "S-FNDN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "GERL",
+          "dxf_name": "GERL.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 57378,
+          "layer_count": 31,
+          "top_layers": [
+            "S-BEAM",
+            "S-COLS",
+            "S-FNDN",
+            "A-FLOR",
+            "A-WALL",
+            "S-STRS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_5",
+          "dxf_name": "PAVIMENTO_5.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 13555,
+          "layer_count": 34,
+          "top_layers": [
+            "S-BEAM",
+            "S-COLS",
+            "S-STRS",
+            "A-ANNO-DIMS",
+            "A-FLOR",
+            "S-BEAM-IDEN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_6",
+          "dxf_name": "PAVIMENTO_6.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 7820,
+          "layer_count": 37,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-STRS",
+            "A-FLOR",
+            "A-ANNO-DIMS",
+            "S-FNDN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 8176,
+          "layer_count": 38,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-STRS",
+            "A-FLOR",
+            "A-ANNO-DIMS",
+            "S-FNDN"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 40,
+      "viga_count": 40,
+      "laje_count": 17,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_16": {
+      "obra_name": "Obra_TREINO_16",
+      "scan_ts": "2026-06-06T03:49:48.362770+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 9,
+      "total_entities": 104636,
+      "pav_types": [
+        "barrilete",
+        "cobertura",
+        "desconhecido",
+        "fundacao",
+        "pavimento",
+        "terreo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 8590,
+          "layer_count": 31,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-FNDN",
+            "A-FLOR",
+            "S-FNDN-HDLN",
+            "A-DETL"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "CAIXA_DAGUA",
+          "dxf_name": "CAIXA_DAGUA.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 16058,
+          "layer_count": 40,
+          "top_layers": [
+            "S-BEAM",
+            "S-COLS",
+            "A-FLOR",
+            "S-FNDN",
+            "A-ANNO-DIMS",
+            "G-ANNO-DIMS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 9423,
+          "layer_count": 36,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "S-FNDN",
+            "A-FLOR",
+            "S-FNDN-HDLN",
+            "A-DETL"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 9440,
+          "layer_count": 32,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "A-FLOR",
+            "S-FNDN",
+            "S-FNDN-HDLN",
+            "A-ANNO-DIMS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "ESCADA",
+          "dxf_name": "ESCADA.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 2357,
+          "layer_count": 25,
+          "top_layers": [
+            "S-STRS",
+            "S-BEAM",
+            "A-ANNO-DIMS",
+            "S-STRS-ANNO",
+            "A-FLOR",
+            "A-DETL"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "FUNDACAO",
+          "dxf_name": "FUNDACAO.dxf",
+          "pav_type": "fundacao",
+          "entity_count": 18530,
+          "layer_count": 39,
+          "top_layers": [
+            "S-FNDN-HDLN",
+            "S-COLS",
+            "S-FNDN",
+            "S-BEAM",
+            "A-ANNO-DIMS",
+            "A-FLOR"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 10838,
+          "layer_count": 38,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "A-FLOR",
+            "S-FNDN",
+            "A-DETL",
+            "S-FNDN-HDLN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_4",
+          "dxf_name": "PAVIMENTO_4.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 8680,
+          "layer_count": 32,
+          "top_layers": [
+            "S-COLS",
+            "S-BEAM",
+            "A-FLOR",
+            "S-FNDN",
+            "S-FNDN-HDLN",
+            "A-ANNO-DIMS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 20720,
+          "layer_count": 43,
+          "top_layers": [
+            "S-FNDN",
+            "S-BEAM",
+            "S-COLS",
+            "S-FNDN-HDLN",
+            "A-FLOR",
+            "A-ANNO-DIMS"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 12,
+      "viga_count": 20,
+      "laje_count": 9,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_17": {
+      "obra_name": "Obra_TREINO_17",
+      "scan_ts": "2026-06-06T03:49:53.725600+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 9,
+      "total_entities": 71273,
+      "pav_types": [
+        "cobertura",
+        "desconhecido",
+        "pavimento",
+        "terreo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 6046,
+          "layer_count": 117,
+          "top_layers": [
+            "1",
+            "15",
+            "16",
+            "2",
+            "14",
+            "50"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "MURO_TERREO",
+          "dxf_name": "MURO_TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 29157,
+          "layer_count": 117,
+          "top_layers": [
+            "9",
+            "13",
+            "1",
+            "2",
+            "15",
+            "16"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5151,
+          "layer_count": 117,
+          "top_layers": [
+            "15",
+            "16",
+            "1",
+            "2",
+            "14",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_10",
+          "dxf_name": "PAVIMENTO_10.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4166,
+          "layer_count": 117,
+          "top_layers": [
+            "15",
+            "16",
+            "1",
+            "2",
+            "14",
+            "3"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_2",
+          "dxf_name": "PAVIMENTO_2.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4479,
+          "layer_count": 117,
+          "top_layers": [
+            "15",
+            "16",
+            "1",
+            "2",
+            "14",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_4",
+          "dxf_name": "PAVIMENTO_4.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 6276,
+          "layer_count": 117,
+          "top_layers": [
+            "1",
+            "15",
+            "16",
+            "2",
+            "14",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_5",
+          "dxf_name": "PAVIMENTO_5.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4373,
+          "layer_count": 117,
+          "top_layers": [
+            "15",
+            "16",
+            "1",
+            "2",
+            "14",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_9",
+          "dxf_name": "PAVIMENTO_9.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 6277,
+          "layer_count": 117,
+          "top_layers": [
+            "1",
+            "15",
+            "16",
+            "2",
+            "14",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "RESERVATORIO",
+          "dxf_name": "RESERVATORIO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 5348,
+          "layer_count": 117,
+          "top_layers": [
+            "15",
+            "16",
+            "1",
+            "2",
+            "4",
+            "14"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 7,
+      "viga_count": 4,
+      "laje_count": 0,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_18": {
+      "obra_name": "Obra_TREINO_18",
+      "scan_ts": "2026-06-06T03:49:57.686877+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 2,
+      "total_entities": 73342,
+      "pav_types": [
+        "desconhecido",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 38358,
+          "layer_count": 44,
+          "top_layers": [
+            "MTH-CARIMBO-TXT1",
+            "MTH-FACE-VIGA",
+            "MTH-COTAS7",
+            "MTH-SIMB_COTA",
+            "MTH-230",
+            "MTH-TRACEJADO-216"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 34984,
+          "layer_count": 43,
+          "top_layers": [
+            "MTH-CARIMBO-TXT1",
+            "MTH-COTAS7",
+            "MTH-SIMB_COTA",
+            "MTH-230",
+            "MTH-TRACEJADO-216",
+            "MTH-SOMBRA21"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 17,
+      "viga_count": 14,
+      "laje_count": 0,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_19": {
+      "obra_name": "Obra_TREINO_19",
+      "scan_ts": "2026-06-06T03:50:07.758772+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 6,
+      "total_entities": 34786,
+      "pav_types": [
+        "barrilete",
+        "desconhecido",
+        "pavimento",
+        "subsolo",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 3813,
+          "layer_count": 26,
+          "top_layers": [
+            "216",
+            "250",
+            "253",
+            "231",
+            "1",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 2234,
+          "layer_count": 25,
+          "top_layers": [
+            "216",
+            "250",
+            "231",
+            "253",
+            "1",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 5949,
+          "layer_count": 29,
+          "top_layers": [
+            "216",
+            "250",
+            "253",
+            "231",
+            "1",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_1",
+          "dxf_name": "SUBSOLO_1.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 6298,
+          "layer_count": 30,
+          "top_layers": [
+            "216",
+            "250",
+            "253",
+            "221",
+            "1",
+            "220"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 11983,
+          "layer_count": 40,
+          "top_layers": [
+            "216",
+            "250",
+            "253",
+            "221",
+            "220",
+            "231"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 4509,
+          "layer_count": 27,
+          "top_layers": [
+            "216",
+            "250",
+            "253",
+            "220",
+            "1",
+            "231"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 10,
+      "viga_count": 38,
+      "laje_count": 20,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_20": {
+      "obra_name": "Obra_TREINO_20",
+      "scan_ts": "2026-06-06T03:50:17.390847+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 11,
+      "total_entities": 43681,
+      "pav_types": [
+        "barrilete",
+        "cobertura",
+        "desconhecido",
+        "fundacao",
+        "pavimento",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 2629,
+          "layer_count": 80,
+          "top_layers": [
+            "VIGA",
+            "Pena_1",
+            "241",
+            "COTA",
+            "TEXTO",
+            "228"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 2565,
+          "layer_count": 83,
+          "top_layers": [
+            "VIGA",
+            "Pena_1",
+            "TEXTO",
+            "Linha_fina",
+            "COTA",
+            "241"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 2996,
+          "layer_count": 98,
+          "top_layers": [
+            "VIGA",
+            "241",
+            "Pena_1",
+            "COTA",
+            "0",
+            "TEXTO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "ESCADA",
+          "dxf_name": "ESCADA.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 3211,
+          "layer_count": 95,
+          "top_layers": [
+            "PENA_03",
+            "PENA_02",
+            "PENA_01",
+            "PENA_04",
+            "PENA_10",
+            "PENA_05"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "FUNDACAO",
+          "dxf_name": "FUNDACAO.dxf",
+          "pav_type": "fundacao",
+          "entity_count": 2728,
+          "layer_count": 74,
+          "top_layers": [
+            "VIGA",
+            "COTA",
+            "228",
+            "P-D",
+            "XREF-MC41-BAS-PLN-VEST$0$DEFPOINTS_ATOMO",
+            "BLOCO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 998,
+          "layer_count": 56,
+          "top_layers": [
+            "VIGA",
+            "228",
+            "XREF-MC41-BAS-PLN-VEST$0$DEFPOINTS_ATOMO",
+            "XREF-MC41-BAS-PLN-AMO-FINAL-05-PCR$0$DEFPOINTS_ATOMO",
+            "COTA",
+            "SEC-LIN"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_12",
+          "dxf_name": "PAVIMENTO_12.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 15932,
+          "layer_count": 98,
+          "top_layers": [
+            "PENA_03",
+            "PENA_02",
+            "PENA_21",
+            "PENA_09",
+            "PENA_11",
+            "PENA_01"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_13",
+          "dxf_name": "PAVIMENTO_13.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 3369,
+          "layer_count": 90,
+          "top_layers": [
+            "241",
+            "VIGA",
+            "Pena_1",
+            "COTA",
+            "0",
+            "TEXTO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_14",
+          "dxf_name": "PAVIMENTO_14.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2911,
+          "layer_count": 91,
+          "top_layers": [
+            "241",
+            "VIGA",
+            "Pena_1",
+            "0",
+            "COTA",
+            "TEXTO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 3033,
+          "layer_count": 79,
+          "top_layers": [
+            "241",
+            "VIGA",
+            "Pena_1",
+            "0",
+            "COTA",
+            "TEXTO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 3309,
+          "layer_count": 90,
+          "top_layers": [
+            "241",
+            "0",
+            "VIGA",
+            "Pena_1",
+            "COTA",
+            "TEXTO"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 12,
+      "viga_count": 0,
+      "laje_count": 11,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_21": {
+      "obra_name": "Obra_TREINO_21",
+      "scan_ts": "2026-06-06T03:50:23.777021+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 9,
+      "total_entities": 95525,
+      "pav_types": [
+        "barrilete",
+        "cobertura",
+        "desconhecido",
+        "pavimento",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 6287,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "10",
+            "2",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 5458,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "10",
+            "2",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 10129,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "2",
+            "4",
+            "10"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 12503,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "2",
+            "4",
+            "10"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_12",
+          "dxf_name": "PAVIMENTO_12.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 11876,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "10",
+            "4",
+            "2"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_2",
+          "dxf_name": "PAVIMENTO_2.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 11327,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "2",
+            "4",
+            "10"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_3",
+          "dxf_name": "PAVIMENTO_3.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 10571,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "2",
+            "4",
+            "10"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 17440,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "3",
+            "4",
+            "10",
+            "2"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 9934,
+          "layer_count": 83,
+          "top_layers": [
+            "1",
+            "6",
+            "2",
+            "3",
+            "4",
+            "10"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 50,
+      "viga_count": 33,
+      "laje_count": 17,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_22": {
+      "obra_name": "Obra_TREINO_22",
+      "scan_ts": "2026-06-06T03:50:27.750952+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 2,
+      "total_entities": 79598,
+      "pav_types": [
+        "pavimento"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "R01",
+          "dxf_name": "R01.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 24460,
+          "layer_count": 257,
+          "top_layers": [
+            "29",
+            "32",
+            "35",
+            "3",
+            "40",
+            "42"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "R02",
+          "dxf_name": "R02.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 55138,
+          "layer_count": 257,
+          "top_layers": [
+            "29",
+            "10",
+            "32",
+            "1",
+            "50",
+            "3"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 20,
+      "viga_count": 41,
+      "laje_count": 33,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_23": {
+      "obra_name": "Obra_TREINO_23",
+      "scan_ts": "2026-06-06T03:50:29.495941+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 4,
+      "total_entities": 7484,
+      "pav_types": [
+        "desconhecido",
+        "fundacao",
+        "pavimento",
+        "terreo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "FUNDACAO",
+          "dxf_name": "FUNDACAO.dxf",
+          "pav_type": "fundacao",
+          "entity_count": 2085,
+          "layer_count": 63,
+          "top_layers": [
+            "COTA",
+            "PENA_3",
+            "VIGA",
+            "PENA_1",
+            "TEXTO",
+            "P-D"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "INFERIOR",
+          "dxf_name": "INFERIOR.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 2030,
+          "layer_count": 63,
+          "top_layers": [
+            "PENA_3",
+            "0",
+            "PENA_1",
+            "COTA",
+            "TEXTO",
+            "T1"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 1312,
+          "layer_count": 53,
+          "top_layers": [
+            "0",
+            "PENA_3",
+            "TEXTO",
+            "PENA_1",
+            "COTA",
+            "VIGA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 2057,
+          "layer_count": 65,
+          "top_layers": [
+            "0",
+            "PENA_1",
+            "PENA_3",
+            "COTA",
+            "TEXTO",
+            "VIGA"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 25,
+      "viga_count": 5,
+      "laje_count": 16,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_3": {
+      "obra_name": "Obra_TREINO_3",
+      "scan_ts": "2026-06-06T03:50:31.822332+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 2,
+      "total_entities": 43183,
+      "pav_types": [
+        "desconhecido",
+        "subsolo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 36369,
+          "layer_count": 45,
+          "top_layers": [
+            "MTH-CARIMBO-TXT1",
+            "MTH-COTAS7",
+            "MTH-SIMB_COTA",
+            "MTH-SOMBRA21",
+            "MTH-231",
+            "MTH-FACE-VIGA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "Subsolo-1",
+          "dxf_name": "Subsolo-1.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 6814,
+          "layer_count": 45,
+          "top_layers": [
+            "MTH-COTAS7",
+            "MTH-231",
+            "MTH-LINHA-SEÇÃO",
+            "MTH-FACE-VIGA",
+            "MTH-DIM-VIGA",
+            "MTH-TXT-NEGRITO"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 42,
+      "viga_count": 80,
+      "laje_count": 38,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_5": {
+      "obra_name": "Obra_TREINO_5",
+      "scan_ts": "2026-06-06T03:50:37.013782+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 8,
+      "total_entities": 13426,
+      "pav_types": [
+        "fundacao",
+        "pavimento"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "FUNDACAO",
+          "dxf_name": "FUNDACAO.dxf",
+          "pav_type": "fundacao",
+          "entity_count": 2784,
+          "layer_count": 124,
+          "top_layers": [
+            "4",
+            "1",
+            "3",
+            "2",
+            "7",
+            "FINISSIMA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2095,
+          "layer_count": 117,
+          "top_layers": [
+            "3",
+            "1",
+            "2",
+            "6",
+            "7",
+            "FINISSIMA"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_10",
+          "dxf_name": "PAVIMENTO_10.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 1304,
+          "layer_count": 89,
+          "top_layers": [
+            "1",
+            "3",
+            "FINISSIMA",
+            "6",
+            "2",
+            "7"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_11",
+          "dxf_name": "PAVIMENTO_11.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 1493,
+          "layer_count": 89,
+          "top_layers": [
+            "1",
+            "3",
+            "FINISSIMA",
+            "6",
+            "2",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_20",
+          "dxf_name": "PAVIMENTO_20.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 1001,
+          "layer_count": 90,
+          "top_layers": [
+            "2",
+            "4",
+            "FINISSIMA",
+            "3",
+            "6",
+            "1"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_21",
+          "dxf_name": "PAVIMENTO_21.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 917,
+          "layer_count": 90,
+          "top_layers": [
+            "2",
+            "FINISSIMA",
+            "6",
+            "3",
+            "4",
+            "1"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_8",
+          "dxf_name": "PAVIMENTO_8.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 1690,
+          "layer_count": 89,
+          "top_layers": [
+            "1",
+            "3",
+            "FINISSIMA",
+            "2",
+            "6",
+            "4"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_9",
+          "dxf_name": "PAVIMENTO_9.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 2142,
+          "layer_count": 89,
+          "top_layers": [
+            "1",
+            "3",
+            "2",
+            "6",
+            "FINISSIMA",
+            "7"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 123,
+      "viga_count": 6,
+      "laje_count": 0,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_6": {
+      "obra_name": "Obra_TREINO_6",
+      "scan_ts": "2026-06-06T03:50:46.238453+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 8,
+      "total_entities": 46989,
+      "pav_types": [
+        "atico",
+        "cobertura",
+        "pavimento",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "ATICO",
+          "dxf_name": "ATICO.dxf",
+          "pav_type": "atico",
+          "entity_count": 4018,
+          "layer_count": 123,
+          "top_layers": [
+            "75",
+            "40",
+            "55",
+            "60",
+            "WP_NOTAS",
+            "37"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 2790,
+          "layer_count": 101,
+          "top_layers": [
+            "75",
+            "55",
+            "40",
+            "WP_NOTAS",
+            "2",
+            "39"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 6162,
+          "layer_count": 150,
+          "top_layers": [
+            "75",
+            "40",
+            "55",
+            "39",
+            "36",
+            "37"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_10",
+          "dxf_name": "PAVIMENTO_10.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4632,
+          "layer_count": 100,
+          "top_layers": [
+            "75",
+            "36",
+            "39",
+            "48",
+            "WP_NOTAS",
+            "37"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_11",
+          "dxf_name": "PAVIMENTO_11.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4887,
+          "layer_count": 62,
+          "top_layers": [
+            "75",
+            "36",
+            "39",
+            "48",
+            "37",
+            "WP_NOTAS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_12",
+          "dxf_name": "PAVIMENTO_12.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4928,
+          "layer_count": 155,
+          "top_layers": [
+            "75",
+            "96",
+            "39",
+            "48",
+            "55",
+            "WP_NOTAS"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 14865,
+          "layer_count": 160,
+          "top_layers": [
+            "75",
+            "60",
+            "55",
+            "37",
+            "40",
+            "36"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 4707,
+          "layer_count": 100,
+          "top_layers": [
+            "75",
+            "36",
+            "39",
+            "48",
+            "WP_NOTAS",
+            "37"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 23,
+      "viga_count": 21,
+      "laje_count": 14,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_8": {
+      "obra_name": "Obra_TREINO_8",
+      "scan_ts": "2026-06-06T03:50:53.591286+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 3,
+      "total_entities": 21168,
+      "pav_types": [
+        "pavimento"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "PAVIMENTO_01",
+          "dxf_name": "PAVIMENTO_01.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 7514,
+          "layer_count": 69,
+          "top_layers": [
+            "ES-VIGA",
+            "ES-LAJE-NOME",
+            "ES-VIGA-NOME",
+            "ES-COTAS",
+            "ES-PILAR-NOME",
+            "ES-VIGA FURO"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_02",
+          "dxf_name": "PAVIMENTO_02.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 9594,
+          "layer_count": 26,
+          "top_layers": [
+            "ES-VIGA",
+            "ES-LAJE-NOME",
+            "ES-COTAS",
+            "ES-VIGA-NOME",
+            "ES-VIGA FURO",
+            "ES-PILAR-NOME"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_03",
+          "dxf_name": "PAVIMENTO_03.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 4060,
+          "layer_count": 29,
+          "top_layers": [
+            "ES-VIGA",
+            "ES-COTAS",
+            "ES-LAJE-NOME",
+            "ES-VIGA-NOME",
+            "ES-COTAS-SETA",
+            "ES-PILAR-NOME"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 121,
+      "viga_count": 73,
+      "laje_count": 65,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    },
+    "Obra_TREINO_9": {
+      "obra_name": "Obra_TREINO_9",
+      "scan_ts": "2026-06-06T03:50:58.222107+00:00",
+      "limpos_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+      "total_pavimentos": 8,
+      "total_entities": 33583,
+      "pav_types": [
+        "barrilete",
+        "cobertura",
+        "desconhecido",
+        "pavimento",
+        "subsolo",
+        "terreo",
+        "tipo"
+      ],
+      "pavimentos": [
+        {
+          "pav_name": "BARRILETE",
+          "dxf_name": "BARRILETE.dxf",
+          "pav_type": "barrilete",
+          "entity_count": 3244,
+          "layer_count": 33,
+          "top_layers": [
+            "221",
+            "0",
+            "223",
+            "248",
+            "01",
+            "9"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "COBERTURA",
+          "dxf_name": "COBERTURA.dxf",
+          "pav_type": "cobertura",
+          "entity_count": 3339,
+          "layer_count": 46,
+          "top_layers": [
+            "0",
+            "221",
+            "223",
+            "01",
+            "241",
+            "9"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "DESCONHECIDO",
+          "dxf_name": "DESCONHECIDO.dxf",
+          "pav_type": "desconhecido",
+          "entity_count": 5256,
+          "layer_count": 84,
+          "top_layers": [
+            "2",
+            "1",
+            "4",
+            "29",
+            "5",
+            "9"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_1",
+          "dxf_name": "PAVIMENTO_1.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 8386,
+          "layer_count": 40,
+          "top_layers": [
+            "0",
+            "01",
+            "13",
+            "221",
+            "18",
+            "11"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "PAVIMENTO_2",
+          "dxf_name": "PAVIMENTO_2.dxf",
+          "pav_type": "pavimento",
+          "entity_count": 1262,
+          "layer_count": 31,
+          "top_layers": [
+            "0",
+            "221",
+            "18",
+            "01",
+            "9",
+            "201"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "SUBSOLO_1",
+          "dxf_name": "SUBSOLO_1.dxf",
+          "pav_type": "subsolo",
+          "entity_count": 4442,
+          "layer_count": 41,
+          "top_layers": [
+            "221",
+            "0",
+            "12",
+            "9",
+            "210",
+            "01"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TERREO",
+          "dxf_name": "TERREO.dxf",
+          "pav_type": "terreo",
+          "entity_count": 3483,
+          "layer_count": 37,
+          "top_layers": [
+            "01",
+            "0",
+            "9",
+            "242",
+            "12",
+            "3"
+          ],
+          "scan_ok": true
+        },
+        {
+          "pav_name": "TIPO",
+          "dxf_name": "TIPO.dxf",
+          "pav_type": "tipo",
+          "entity_count": 4171,
+          "layer_count": 31,
+          "top_layers": [
+            "221",
+            "0",
+            "01",
+            "224",
+            "248",
+            "223"
+          ],
+          "scan_ok": true
+        }
+      ],
+      "fase3_available": true,
+      "pilar_count": 17,
+      "viga_count": 17,
+      "laje_count": 27,
+      "recortes_total": 0,
+      "recortes_torres": 0,
+      "recortes_detalhes": 0
+    }
+  }
+}

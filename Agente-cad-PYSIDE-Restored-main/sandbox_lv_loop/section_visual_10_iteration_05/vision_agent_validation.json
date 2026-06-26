@@ -1,0 +1,58 @@
+{
+  "schema": "lv_section_vision_agent_v2",
+  "iteration": 5,
+  "scope": "visao_corte_laterais_de_viga",
+  "status": "gate_70_visual_aprovado",
+  "method": {
+    "reviewer": "chat_vision_agent",
+    "comparison": "N2 original versus N4 regenerado por ficha visual",
+    "score_scope": "componente da visao corte; objetos vizinhos nao pontuam",
+    "rubric": {
+      "topology_and_proportion": 35,
+      "panels_wood_and_hatches": 25,
+      "dimensions_texts_and_colors": 25,
+      "absence_of_invented_elements": 15
+    }
+  },
+  "summary": {
+    "beams": 10,
+    "section_pairs": 13,
+    "agent_visual_average_pct": 85.8,
+    "agent_visual_min_pct": 80,
+    "agent_visual_max_pct": 95,
+    "pairs_at_or_above_70": 13,
+    "beams_at_or_above_70": 10,
+    "n4_roundtrip_passed": 13,
+    "n4_roundtrip_total": 13
+  },
+  "reviews": [
+    {"beam": "V301", "section": 1, "score_pct": 82, "verdict": "aprovado_70"},
+    {"beam": "V301", "section": 2, "score_pct": 84, "verdict": "aprovado_70"},
+    {"beam": "V302", "section": 1, "score_pct": 82, "verdict": "aprovado_70"},
+    {"beam": "V305", "section": 1, "score_pct": 88, "verdict": "aprovado_70"},
+    {"beam": "V308", "section": 1, "score_pct": 92, "verdict": "aprovado_70"},
+    {"beam": "V308", "section": 2, "score_pct": 95, "verdict": "aprovado_70"},
+    {"beam": "V310", "section": 1, "score_pct": 80, "verdict": "aprovado_70"},
+    {"beam": "V311", "section": 1, "score_pct": 86, "verdict": "aprovado_70"},
+    {"beam": "V322", "section": 1, "score_pct": 85, "verdict": "aprovado_70"},
+    {"beam": "V327", "section": 1, "score_pct": 83, "verdict": "aprovado_70"},
+    {"beam": "V330", "section": 1, "score_pct": 92, "verdict": "aprovado_70"},
+    {"beam": "V330", "section": 2, "score_pct": 84, "verdict": "aprovado_70"},
+    {"beam": "V331", "section": 1, "score_pct": 83, "verdict": "aprovado_70"}
+  ],
+  "accepted_improvements": [
+    "topologia extraida do layer CONCRETO",
+    "primitivas visuais normalizadas por layer",
+    "reproducao de paineis, madeira, hachuras, cotas, textos e cores",
+    "supressao de elementos nao observados",
+    "suporte a DXF N4 contendo somente visao corte",
+    "roundtrip de B, H e topologia aprovado em 13 de 13"
+  ],
+  "remaining_for_arete_95": [
+    "generalizar campos visuais em parametros SCR sem depender das primitivas",
+    "elevar cobertura semantica obrigatoria acima de 95%",
+    "validar layers e blocos especializados ainda ausentes",
+    "conectar ao Comparison Engine somente depois do gate de regressao",
+    "executar validacao humana final"
+  ]
+}

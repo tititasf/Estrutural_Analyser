@@ -1,0 +1,46 @@
+{
+  "numero": 23,
+  "nome": "LJ23",
+  "comprimento": 300,
+  "largura": 122,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      300,
+      0
+    ],
+    [
+      300,
+      122
+    ],
+    [
+      0,
+      122
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 36600,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 60.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

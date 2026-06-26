@@ -1,0 +1,38 @@
+{
+  "viga": "V301",
+  "section_views": [
+    {
+      "idx": 1,
+      "label": "V301",
+      "h_A": "number_cm",
+      "h_B": "number_cm",
+      "b_cm": "number_cm",
+      "h_section": "number_cm",
+      "laje_sup_A": "number_cm",
+      "laje_inf_A": "number_cm",
+      "laje_sup_B": "number_cm",
+      "laje_inf_B": "number_cm",
+      "confidence": "0..1",
+      "notes": "visual evidence"
+    }
+  ],
+  "segments_A": [
+    {
+      "idx": 1,
+      "largura_cm": "number_cm",
+      "height1": "number_cm",
+      "panel_type": "Sarrafeado|Grade|Misto|unknown",
+      "laje_sup_local": "number_cm",
+      "laje_inf_local": "number_cm",
+      "details": {
+        "sarrafos": "visible count/notes",
+        "grades": "visible count/notes",
+        "holes": []
+      },
+      "confidence": "0..1"
+    }
+  ],
+  "segments_B": "same as segments_A",
+  "overall_similarity_stage": "40|60|80|90|95|100",
+  "blocking_questions": []
+}

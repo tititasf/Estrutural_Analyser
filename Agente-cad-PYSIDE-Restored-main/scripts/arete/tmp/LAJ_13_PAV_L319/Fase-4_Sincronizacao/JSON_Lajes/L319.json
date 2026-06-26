@@ -1,0 +1,1482 @@
+{
+  "nome": "L319",
+  "numero": 319,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      406.5,
+      0.0
+    ],
+    [
+      406.5,
+      558.07
+    ],
+    [
+      0.0,
+      558.07
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "comprimento": 406.5,
+  "largura": 558.07,
+  "area_cm2": 226855.46,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    },
+    {
+      "value": 263.9,
+      "is_union": false
+    },
+    {
+      "value": 284.4,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 143.1,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "structural_analyzer",
+    "project_id": "4869be2b-f17c-410b-a9c8-98a887ec1c95",
+    "id_item": "19",
+    "validated_fields": [
+      "laje_outline_segs"
+    ],
+    "validated_link_classes": {
+      "laje_outline_segs": [
+        "contour",
+        "acrescimo_borda"
+      ],
+      "laje_visao_corte": [
+        "cut_view_geom"
+      ]
+    },
+    "n3_line_source": "learned_n4_patterns",
+    "n3_pattern_nome": "L319",
+    "n3_pattern_score": 0.0362,
+    "n3_source": "structural_analyzer_n1",
+    "n3_teacher": null,
+    "ce_sync_source": "slab_elements",
+    "ce_sync_updated_at": "2026-06-24T18:53:07"
+  },
+  "laje_dim": "h=14",
+  "laje_nivel": "852.19",
+  "links": {
+    "name": {
+      "label": [
+        {
+          "text": "L319",
+          "type": "text",
+          "pos": [
+            1368.002577,
+            2284.076088
+          ],
+          "role": "Identificador Laje"
+        }
+      ]
+    },
+    "laje_dim": {
+      "label": [
+        {
+          "text": "h=14",
+          "pos": [
+            1372.318065,
+            2270.214626
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1
+        }
+      ]
+    },
+    "laje_visao_corte": {
+      "cut_view_geom": [
+        {
+          "cotas_debug": {
+            "n_cotas": 7,
+            "beam_height_cota": 55.0,
+            "scale_v": 1.0,
+            "bw_cota": 19.0,
+            "scale_v_confirmed": 1.0
+          },
+          "distance_to_slab": 0.0,
+          "ficha": {
+            "beam_bottom_dim": "19.0",
+            "beam_height": "55.0",
+            "beam_height_label": "55.0",
+            "beam_lajes_side_a": "1",
+            "beam_lajes_side_b": "1",
+            "beam_name": "V311",
+            "beam_name_confidence": 0.84,
+            "direction": "Leste",
+            "neigh_slab_height": "12.0",
+            "neighbor_dist_bottom": "43.0",
+            "neighbor_dist_top": "0.0",
+            "neighbor_height": "13",
+            "neighbor_position": "topo",
+            "own_dist_bottom": "41.0",
+            "own_dist_top": "0.0",
+            "own_height": "14",
+            "own_position": "topo",
+            "own_slab_height": "14.0",
+            "scale_v": "1.0",
+            "side_a_laje_height": "h=14",
+            "side_a_laje_name": "L319",
+            "side_b_laje_height": "h=12",
+            "side_b_laje_name": "L318",
+            "painel_espessura": "2.0",
+            "own_slab_ref_c_painel": "16.0",
+            "own_dist_top_c_painel": "0.0",
+            "own_dist_bottom_s_painel": "41.0",
+            "own_dist_bottom_c_painel": "39.0",
+            "own_dist_topo_formula": "bh(55) − H_laje(14) − d_fundo(41) = 0 cm",
+            "own_dist_fundo_formula": "bh(55) − H_laje(14) − d_topo(0) = 41 cm (sem painel) / 39 cm (−2cm painel)",
+            "neigh_slab_ref_c_painel": "14.0",
+            "neighbor_dist_top_c_painel": "0.0",
+            "neighbor_dist_bottom_s_painel": "43.0",
+            "neighbor_dist_bottom_c_painel": "41.0",
+            "neigh_dist_topo_formula": "bh(55) − H_laje_viz(12) − d_fundo(43) = 0 cm",
+            "neigh_dist_fundo_formula": "bh(55) − H_laje_viz(12) − d_topo(0) = 43 cm (sem painel) / 41 cm (−2cm painel)"
+          },
+          "ficha_links": {
+            "beam_bottom_dim": [
+              {
+                "aci": 3,
+                "attachment": null,
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "halign": 0,
+                "height": 10.0,
+                "is_block": false,
+                "layer": "3",
+                "lineweight": 25,
+                "pos": [
+                  1524.784169,
+                  2070.408183
+                ],
+                "role": "Ficha_beam_bottom_dim",
+                "rotation": 0,
+                "text": "19/55",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ],
+            "beam_height": [
+              {
+                "aci": 3,
+                "attachment": null,
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "halign": 0,
+                "height": 10.0,
+                "is_block": false,
+                "layer": "3",
+                "lineweight": 25,
+                "pos": [
+                  1524.784169,
+                  2070.408183
+                ],
+                "role": "Ficha_beam_height",
+                "rotation": 0,
+                "text": "19/55",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ],
+            "beam_height_label": [
+              {
+                "aci": 2,
+                "attachment": null,
+                "color": [
+                  255,
+                  255,
+                  0
+                ],
+                "halign": 0,
+                "height": 10.0,
+                "is_block": false,
+                "layer": "2",
+                "lineweight": 25,
+                "pos": [
+                  1558.464069,
+                  2209.041602
+                ],
+                "role": "Ficha_beam_height_label",
+                "rotation": 0,
+                "text": "55",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ],
+            "beam_name": [
+              {
+                "aci": 4,
+                "attachment": null,
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "halign": 0,
+                "height": 15.0,
+                "is_block": false,
+                "layer": "4",
+                "lineweight": 25,
+                "pos": [
+                  1599.6325,
+                  2082.038
+                ],
+                "role": "Ficha_beam_name",
+                "rotation": 0,
+                "text": "V311",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ]
+          },
+          "is_inferred": true,
+          "layer": "8",
+          "points": [
+            [
+              1573.3825,
+              2245.191324
+            ],
+            [
+              1573.3825,
+              2233.191324
+            ],
+            [
+              1603.3825,
+              2233.191324
+            ],
+            [
+              1603.3825,
+              2190.191324
+            ],
+            [
+              1622.3825,
+              2190.191324
+            ],
+            [
+              1622.3825,
+              2233.191324
+            ],
+            [
+              1652.3825,
+              2233.191324
+            ],
+            [
+              1652.3825,
+              2245.191324
+            ],
+            [
+              1573.3825,
+              2245.191324
+            ]
+          ],
+          "role": "Cut_view_geom_auto",
+          "source": "geometry_near_slab_boundary",
+          "text": "Visao de corte detectada",
+          "type": "poly"
+        },
+        {
+          "cotas_debug": {
+            "n_cotas": 9,
+            "beam_height_cota": null,
+            "scale_v": 1.0,
+            "bw_cota": null,
+            "scale_v_confirmed": 1.0
+          },
+          "distance_to_slab": 59.045,
+          "ficha": {
+            "beam_bottom_dim": "10.0",
+            "beam_height": "53.6",
+            "beam_lajes_side_a": "0",
+            "beam_lajes_side_b": "1",
+            "beam_name": "V309",
+            "beam_name_confidence": 0.86,
+            "direction": "Oeste",
+            "neigh_slab_height": "29.6",
+            "neighbor_dist_bottom": "0.0",
+            "neighbor_dist_top": "24.0",
+            "neighbor_height": "nulo",
+            "neighbor_position": "nulo",
+            "own_dist_bottom": "39.6",
+            "own_dist_top": "0.0",
+            "own_height": "14",
+            "own_position": "topo",
+            "own_slab_height": "14.0",
+            "scale_v": "1.0",
+            "side_a_laje_height": "nulo",
+            "side_a_laje_name": "nulo",
+            "side_b_laje_height": "h=14",
+            "side_b_laje_name": "L319",
+            "painel_espessura": "2.0",
+            "own_slab_ref_c_painel": "16.0",
+            "own_dist_top_c_painel": "0.0",
+            "own_dist_bottom_s_painel": "39.6",
+            "own_dist_bottom_c_painel": "37.6",
+            "own_dist_topo_formula": "bh(54) − H_laje(14) − d_fundo(40) = 0 cm",
+            "own_dist_fundo_formula": "bh(54) − H_laje(14) − d_topo(0) = 40 cm (sem painel) / 38 cm (−2cm painel)",
+            "neigh_slab_ref_c_painel": "31.6",
+            "neighbor_dist_top_c_painel": "24.0",
+            "neighbor_dist_bottom_s_painel": "0.0",
+            "neighbor_dist_bottom_c_painel": "-2.0",
+            "neigh_dist_topo_formula": "bh(54) − H_laje_viz(30) − d_fundo(0) = 24 cm",
+            "neigh_dist_fundo_formula": "bh(54) − H_laje_viz(30) − d_topo(24) = 0 cm (sem painel) / -2 cm (−2cm painel)"
+          },
+          "ficha_links": {
+            "beam_bottom_dim": [
+              {
+                "aci": 3,
+                "attachment": null,
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "halign": 0,
+                "height": 10.0,
+                "is_block": false,
+                "layer": "3",
+                "lineweight": 25,
+                "pos": [
+                  1175.584154,
+                  2566.251977
+                ],
+                "role": "Ficha_beam_bottom_dim",
+                "rotation": 0,
+                "text": "19/55",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ],
+            "beam_height": [
+              {
+                "aci": 3,
+                "attachment": null,
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "halign": 0,
+                "height": 10.0,
+                "is_block": false,
+                "layer": "3",
+                "lineweight": 25,
+                "pos": [
+                  1175.584154,
+                  2566.251977
+                ],
+                "role": "Ficha_beam_height",
+                "rotation": 0,
+                "text": "19/55",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ],
+            "beam_name": [
+              {
+                "aci": 4,
+                "attachment": null,
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "halign": 0,
+                "height": 15.0,
+                "is_block": false,
+                "layer": "4",
+                "lineweight": 25,
+                "pos": [
+                  1172.702614,
+                  2309.949825
+                ],
+                "role": "Ficha_beam_name",
+                "rotation": 0,
+                "text": "V309",
+                "valign": 0,
+                "width_factor": 1
+              }
+            ]
+          },
+          "is_inferred": true,
+          "layer": "8",
+          "points": [
+            [
+              1270.045111,
+              2415.045519
+            ],
+            [
+              1270.045111,
+              2361.446419
+            ],
+            [
+              1257.045111,
+              2361.446419
+            ],
+            [
+              1257.045111,
+              2391.038
+            ],
+            [
+              1260.045111,
+              2391.038
+            ],
+            [
+              1260.045111,
+              2413.949219
+            ],
+            [
+              1260.045111,
+              2415.045519
+            ],
+            [
+              1270.045111,
+              2415.045519
+            ]
+          ],
+          "role": "Cut_view_geom_auto",
+          "source": "geometry_near_slab_boundary",
+          "text": "Visao de corte detectada",
+          "type": "poly"
+        },
+        {
+          "type": "poly",
+          "points": [
+            [
+              1270.045111,
+              2710.038
+            ],
+            [
+              1270.045111,
+              2680.038
+            ],
+            [
+              1312.045111,
+              2680.038
+            ],
+            [
+              1312.045111,
+              2661.038
+            ],
+            [
+              1270.045111,
+              2661.038
+            ],
+            [
+              1270.045111,
+              2573.038
+            ],
+            [
+              1260.045111,
+              2573.038
+            ],
+            [
+              1260.045111,
+              2603.038
+            ],
+            [
+              1257.045111,
+              2603.038
+            ],
+            [
+              1257.045111,
+              2680.038
+            ],
+            [
+              1260.045111,
+              2680.038
+            ],
+            [
+              1260.045111,
+              2710.038
+            ],
+            [
+              1270.045111,
+              2710.038
+            ]
+          ],
+          "text": "Visao de corte detectada",
+          "role": "Cut_view_geom_auto",
+          "is_inferred": true,
+          "source": "geometry_near_slab_boundary",
+          "distance_to_slab": 0.0,
+          "layer": "8",
+          "ficha": {
+            "direction": "Norte",
+            "side_a_laje_name": "L319",
+            "side_a_laje_height": "h=14",
+            "side_b_laje_name": "L309",
+            "side_b_laje_height": "h=13",
+            "beam_lajes_side_a": "1",
+            "beam_lajes_side_b": "1",
+            "own_height": "14",
+            "neighbor_height": "13",
+            "beam_height": "58.0",
+            "beam_bottom_dim": "19.0",
+            "scale_v": "1.0545",
+            "own_dist_top": "0.0",
+            "own_dist_bottom": "44.0",
+            "neighbor_dist_top": "3.0",
+            "neighbor_dist_bottom": "42.0",
+            "own_slab_height": "14.0",
+            "neigh_slab_height": "13.0",
+            "own_position": "topo",
+            "neighbor_position": "centro",
+            "beam_name": "V302",
+            "beam_height_label": "58.0",
+            "beam_name_confidence": 0.89,
+            "painel_espessura": "2.0",
+            "own_slab_ref_c_painel": "16.0",
+            "own_dist_top_c_painel": "0.0",
+            "own_dist_bottom_s_painel": "44.0",
+            "own_dist_bottom_c_painel": "42.0",
+            "own_dist_topo_formula": "bh(58) − H_laje(14) − d_fundo(44) = 0 cm",
+            "own_dist_fundo_formula": "bh(58) − H_laje(14) − d_topo(0) = 44 cm (sem painel) / 42 cm (−2cm painel)",
+            "neigh_slab_ref_c_painel": "15.0",
+            "neighbor_dist_top_c_painel": "3.0",
+            "neighbor_dist_bottom_s_painel": "42.0",
+            "neighbor_dist_bottom_c_painel": "40.0",
+            "neigh_dist_topo_formula": "bh(58) − H_laje_viz(13) − d_fundo(42) = 3 cm",
+            "neigh_dist_fundo_formula": "bh(58) − H_laje_viz(13) − d_topo(3) = 42 cm (sem painel) / 40 cm (−2cm painel)"
+          },
+          "cotas_debug": {
+            "n_cotas": 24,
+            "beam_height_cota": 58.0,
+            "scale_v": 0.3834,
+            "bw_cota": 52.0,
+            "scale_v_confirmed": 1.0545
+          },
+          "ficha_links": {
+            "beam_bottom_dim": [
+              {
+                "text": "14/50",
+                "pos": [
+                  1376.97239,
+                  2608.943139
+                ],
+                "layer": "3",
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "aci": 3,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 10.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_beam_bottom_dim"
+              }
+            ],
+            "beam_height": [
+              {
+                "text": "14/50",
+                "pos": [
+                  1376.97239,
+                  2608.943139
+                ],
+                "layer": "3",
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "aci": 3,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 10.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_beam_height"
+              }
+            ],
+            "beam_name": [
+              {
+                "text": "V302",
+                "pos": [
+                  1200.683606,
+                  2683.257613
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 14.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_beam_name"
+              }
+            ],
+            "beam_height_label": [
+              {
+                "text": "58",
+                "pos": [
+                  1328.099268,
+                  2623.038
+                ],
+                "layer": "2",
+                "color": [
+                  255,
+                  255,
+                  0
+                ],
+                "aci": 2,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 10.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_beam_height_label"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "laje_vizinhas_niveis": {
+      "neighbor_north": [
+        {
+          "aci": 3,
+          "attachment": null,
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "halign": 0,
+          "height": 10.0,
+          "is_block": false,
+          "layer": "3",
+          "lineweight": 25,
+          "pos": [
+            1392.484818,
+            2890.421236
+          ],
+          "rotation": 0,
+          "text": "852.19",
+          "valign": 0,
+          "width_factor": 1,
+          "type": "text",
+          "role": "neighbor_north",
+          "source": "orthogonal_neighbor_level",
+          "source_slab": "L309",
+          "source_direction": "top",
+          "distance_to_slab": 0.0,
+          "is_inferred": true
+        },
+        {
+          "pos": [
+            1410.379359,
+            2850.747774
+          ],
+          "role": "neighbor_north",
+          "text": "L309",
+          "type": "text",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L309",
+          "source_direction": "top",
+          "distance_to_slab": 0.0,
+          "is_inferred": true
+        },
+        {
+          "aci": 3,
+          "attachment": null,
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "halign": 0,
+          "height": 10.0,
+          "is_block": false,
+          "layer": "3",
+          "lineweight": 25,
+          "pos": [
+            1416.284311,
+            2837.684408
+          ],
+          "rotation": 0,
+          "text": "h=13",
+          "valign": 0,
+          "width_factor": 1,
+          "role": "neighbor_north",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L309",
+          "source_direction": "top",
+          "distance_to_slab": 0.0,
+          "is_inferred": true
+        }
+      ],
+      "neighbor_east": [
+        {
+          "text": "402.5",
+          "pos": [
+            2689.132488,
+            2589.450645
+          ],
+          "layer": "2",
+          "color": [
+            255,
+            255,
+            0
+          ],
+          "aci": 2,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "type": "text",
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_level",
+          "source_slab": "L318",
+          "source_direction": "right",
+          "distance_to_slab": 13.882,
+          "is_inferred": true
+        },
+        {
+          "text": "L318",
+          "type": "text",
+          "pos": [
+            2668.171208,
+            2537.300708
+          ],
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L318",
+          "source_direction": "right",
+          "distance_to_slab": 13.882,
+          "is_inferred": true
+        },
+        {
+          "text": "h=12",
+          "pos": [
+            2676.57377,
+            2521.243864
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L318",
+          "source_direction": "right",
+          "distance_to_slab": 13.882,
+          "is_inferred": true
+        },
+        {
+          "text": "L320",
+          "type": "text",
+          "pos": [
+            1802.84963,
+            2264.423035
+          ],
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L320",
+          "source_direction": "right",
+          "distance_to_slab": 19.0,
+          "is_inferred": true
+        },
+        {
+          "text": "h=13",
+          "pos": [
+            1804.890854,
+            2248.922819
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L320",
+          "source_direction": "right",
+          "distance_to_slab": 19.0,
+          "is_inferred": true
+        }
+      ],
+      "neighbor_west": [],
+      "neighbor_south": [
+        {
+          "text": "161.8",
+          "pos": [
+            1495.981096,
+            1861.986619
+          ],
+          "layer": "2",
+          "color": [
+            255,
+            255,
+            0
+          ],
+          "aci": 2,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "type": "text",
+          "role": "neighbor_south",
+          "source": "orthogonal_neighbor_level",
+          "source_slab": "L326",
+          "source_direction": "bottom",
+          "distance_to_slab": 18.962,
+          "is_inferred": true
+        },
+        {
+          "text": "L326",
+          "type": "text",
+          "pos": [
+            1484.521315,
+            2017.157975
+          ],
+          "role": "neighbor_south",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L326",
+          "source_direction": "bottom",
+          "distance_to_slab": 18.962,
+          "is_inferred": true
+        },
+        {
+          "text": "h=10",
+          "pos": [
+            1494.606725,
+            2003.687869
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "role": "neighbor_south",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L326",
+          "source_direction": "bottom",
+          "distance_to_slab": 18.962,
+          "is_inferred": true
+        }
+      ]
+    },
+    "laje_pilares_apoio": {
+      "pillar_geom": [
+        {
+          "type": "poly",
+          "points": [
+            [
+              1572.8825,
+              2490.038
+            ],
+            [
+              1652.8825,
+              2490.038
+            ],
+            [
+              1652.8825,
+              2509.038
+            ],
+            [
+              1572.8825,
+              2509.038
+            ],
+            [
+              1572.8825,
+              2490.038
+            ]
+          ],
+          "text": "Pilar de apoio detectado",
+          "role": "Pillar_support_geom_auto",
+          "is_inferred": true,
+          "source": "compact_geometry_near_slab_boundary",
+          "distance_to_slab": 0.038,
+          "layer": "7",
+          "ficha": {
+            "pillar_orientation": "RETANGULAR HORIZONTAL",
+            "pillar_side": "A",
+            "touch_face": "BAIXO",
+            "hatch_description": "SEGUE",
+            "pillar_name": "P19"
+          },
+          "ficha_links": {
+            "pillar_name": [
+              {
+                "text": "P19",
+                "pos": [
+                  1638.612873,
+                  2463.989706
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 15.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_pillar_name"
+              }
+            ]
+          }
+        },
+        {
+          "type": "poly",
+          "points": [
+            [
+              1178.8825,
+              2620.038
+            ],
+            [
+              1197.8825,
+              2620.038
+            ],
+            [
+              1197.8825,
+              2680.038
+            ],
+            [
+              1178.8825,
+              2680.038
+            ],
+            [
+              1178.8825,
+              2620.038
+            ]
+          ],
+          "text": "Pilar de apoio detectado",
+          "role": "Pillar_support_geom_auto",
+          "is_inferred": true,
+          "source": "compact_geometry_near_slab_boundary",
+          "distance_to_slab": 0.118,
+          "layer": "7",
+          "ficha": {
+            "pillar_orientation": "RETANGULAR VERTICAL",
+            "pillar_side": "B",
+            "touch_face": "DIR",
+            "hatch_description": "SEGUE",
+            "pillar_name": "P10"
+          },
+          "ficha_links": {
+            "pillar_name": [
+              {
+                "text": "P10",
+                "pos": [
+                  1119.536579,
+                  2653.657279
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 15.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_pillar_name"
+              }
+            ]
+          }
+        },
+        {
+          "type": "poly",
+          "points": [
+            [
+              1178.8825,
+              2240.038
+            ],
+            [
+              1197.8825,
+              2240.038
+            ],
+            [
+              1197.8825,
+              2300.038
+            ],
+            [
+              1178.8825,
+              2300.038
+            ],
+            [
+              1178.8825,
+              2240.038
+            ]
+          ],
+          "text": "Pilar de apoio detectado",
+          "role": "Pillar_support_geom_auto",
+          "is_inferred": true,
+          "source": "compact_geometry_near_slab_boundary",
+          "distance_to_slab": 0.118,
+          "layer": "7",
+          "ficha": {
+            "pillar_orientation": "RETANGULAR VERTICAL",
+            "pillar_side": "B",
+            "touch_face": "DIR",
+            "hatch_description": "SEGUE",
+            "pillar_name": "P25"
+          },
+          "ficha_links": {
+            "pillar_name": [
+              {
+                "text": "P25",
+                "pos": [
+                  1123.1525,
+                  2269.876251
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 15.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_pillar_name"
+              }
+            ]
+          }
+        },
+        {
+          "type": "poly",
+          "points": [
+            [
+              1600.8825,
+              1963.038
+            ],
+            [
+              1624.8825,
+              1963.038
+            ],
+            [
+              1624.8825,
+              2043.038
+            ],
+            [
+              1600.8825,
+              2043.038
+            ],
+            [
+              1600.8825,
+              1963.038
+            ]
+          ],
+          "text": "Pilar de apoio detectado",
+          "role": "Pillar_support_geom_auto",
+          "is_inferred": true,
+          "source": "compact_geometry_near_slab_boundary",
+          "distance_to_slab": 23.962,
+          "layer": "7",
+          "ficha": {
+            "pillar_orientation": "RETANGULAR VERTICAL",
+            "pillar_side": "NULO",
+            "touch_face": "NULO",
+            "hatch_description": "SEGUE",
+            "pillar_name": "P28"
+          },
+          "ficha_links": {
+            "pillar_name": [
+              {
+                "text": "P28",
+                "pos": [
+                  1631.293056,
+                  2017.328716
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 15.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_pillar_name"
+              }
+            ]
+          }
+        }
+      ],
+      "pillar_label": []
+    },
+    "laje_nivel": {
+      "label": [
+        {
+          "text": "852.19",
+          "pos": [
+            1371.367613,
+            2231.123236
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1
+        }
+      ]
+    },
+    "laje_outline_segs": {
+      "acrescimo_borda": [],
+      "contour": [
+        {
+          "points": [
+            [
+              1603.3825,
+              2490.038
+            ],
+            [
+              1380.3825,
+              2490.038
+            ],
+            [
+              1380.3825,
+              2661.038
+            ],
+            [
+              1197.8825,
+              2661.038
+            ],
+            [
+              1197.8825,
+              2217.506423
+            ],
+            [
+              1356.845108,
+              2067.038
+            ],
+            [
+              1603.3825,
+              2067.038
+            ],
+            [
+              1603.3825,
+              2490.038
+            ]
+          ],
+          "role": "Contour",
+          "text": "Polyline",
+          "type": "poly",
+          "validated": true
+        }
+      ]
+    },
+    "_laje_complex": {
+      "label": [],
+      "dim": [],
+      "cut_view": []
+    }
+  },
+  "fields": {
+    "nome": "L319",
+    "numero": "19",
+    "laje_dim": "h=14",
+    "laje_nivel": "852.19"
+  },
+  "cotas_paineis": [
+    {
+      "value": 116.9,
+      "x": 231.2,
+      "y": -47.32,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 116.9,
+      "x": 348.07,
+      "y": -47.32,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 104.0,
+      "x": 211.98,
+      "y": -17.73,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 179.0,
+      "x": 253.23,
+      "y": 53.57,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 162.0,
+      "x": 171.56,
+      "y": 62.07,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 143.1,
+      "x": 114.11,
+      "y": 71.53,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 244.0,
+      "x": 257.59,
+      "y": 265.07,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 61.0,
+      "y": 302.74,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 203.0,
+      "y": 302.74,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 345.5,
+      "y": 302.74,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 20.0,
+      "x": 132.25,
+      "y": 302.78,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 20.5,
+      "x": 274.25,
+      "y": 302.79,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 171.0,
+      "x": 102.68,
+      "y": 472.57,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 61.5,
+      "x": 152.75,
+      "y": 476.68,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    }
+  ],
+  "pontaletes": {},
+  "_stog_pose": {
+    "x": 2741.57,
+    "y": 1703.87
+  },
+  "_forma_canonica": {
+    "cotas_valor": [
+      20.0,
+      20.5,
+      61.5,
+      104.0,
+      116.9,
+      116.9,
+      122.0,
+      122.0,
+      122.0,
+      143.1,
+      162.0,
+      171.0,
+      179.0,
+      244.0
+    ],
+    "textos": [
+      "104",
+      "116.9",
+      "116.9",
+      "122",
+      "122",
+      "122",
+      "14/50",
+      "143.1",
+      "162",
+      "171",
+      "179",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/60",
+      "19/60",
+      "20",
+      "20.5",
+      "244",
+      "61.5",
+      "852.19",
+      "L319",
+      "V303",
+      "V306",
+      "V307",
+      "V309",
+      "V310",
+      "V311",
+      "h=14"
+    ],
+    "textos_contexto": [
+      "P10",
+      "P25"
+    ]
+  },
+  "_confianca": 0.85
+}

@@ -1,0 +1,84 @@
+{
+  "PL_CIMA": {
+    "count": 50,
+    "size_range": "2-11856",
+    "layers": [
+      "hachura-chapa"
+    ],
+    "blocks": [
+      "B1A.D",
+      "B1A.E",
+      "B1B.D",
+      "B1B.E",
+      "B2A.E",
+      "BCGV",
+      "PAR.BAI",
+      "PAR.CIM",
+      "PAR.DIR",
+      "PAR.ESQ",
+      "PAR_BAIXO",
+      "PAR_CIMA"
+    ],
+    "lisp": [],
+    "anomalies": [
+      "P14_CIMA.scr: 0 geometria"
+    ]
+  },
+  "PL_ABCD": {
+    "count": 50,
+    "size_range": "5538-11322",
+    "layers": [
+      "Nível",
+      "Painéis",
+      "SARR_2.2x7",
+      "cota",
+      "nomenclatura"
+    ],
+    "blocks": [
+      "MULDURA",
+      "SLIPTDD",
+      "SLIPTEE",
+      "furacao"
+    ],
+    "lisp": [],
+    "anomalies": []
+  },
+  "PL_GRADES": {
+    "count": 50,
+    "size_range": "2932-9848",
+    "layers": [
+      "NOMENCLATURA"
+    ],
+    "blocks": [
+      "GRA-D",
+      "GRA-E"
+    ],
+    "lisp": [],
+    "anomalies": []
+  },
+  "LV_FACE": {
+    "count": 48,
+    "size_range": "6084-48306",
+    "layers": [],
+    "blocks": [],
+    "lisp": [
+      "HHHH",
+      "RECTANGLE"
+    ],
+    "anomalies": []
+  },
+  "LV_VC": {
+    "count": 50,
+    "size_range": "3348-4876",
+    "layers": [],
+    "blocks": [
+      "PAR_ESQ",
+      "PAR_FUNDO_DIR",
+      "PAR_FUNDO_ESQ",
+      "par_int_dir",
+      "par_int_esq"
+    ],
+    "lisp": [],
+    "anomalies": []
+  }
+}

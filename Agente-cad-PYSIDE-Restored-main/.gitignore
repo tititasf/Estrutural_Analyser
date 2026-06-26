@@ -1,0 +1,73 @@
+
+# Regras de Negócio e Robótica (Performance)
+
+
+# Ignorar binarios e builds dos robos
+_ROBOS_ABAS/**/dist/
+_ROBOS_ABAS/**/build/
+_ROBOS_ABAS/**/Distribuicao-pyinstaler-secure/
+_ROBOS_ABAS/**/*.exe
+_ROBOS_ABAS/**/*.rar
+_ROBOS_ABAS/**/*.pkg
+_ROBOS_ABAS/
+
+
+ferramentas_LOAD_LISP/
+
+# Arquivos de Design e AutoCAD (Temporários/Backups)
+*.dwl
+*.dwl2
+*.bak
+*.dxf
+*.dwg
+!src/assets/**/*.dwg
+!docs/**/*.dwg
+
+
+# Temporários e Downloads
+*.tmp
+*.crdownload
+*.vision
+test_part1.tmp
+repository/targets/*.tar.gz
+
+
+# Logs e Debugs
+*.log
+debug_output_*.txt
+nuitka-crash-report.xml
+updater.log
+
+# Versões de Código e Backups
+src_raw_backup/
+src_obfuscated/
+main.py.bak
+dist_v1/
+
+# Padrão Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+build/
+dist/
+*.egg-info/
+releases/
+
+# Binários e Pacotes
+*.exe
+*.zip
+*.msi
+
+
+
+# Regras de Agente
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.cursor/rules/byterover-rules.mdc
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md
+.env

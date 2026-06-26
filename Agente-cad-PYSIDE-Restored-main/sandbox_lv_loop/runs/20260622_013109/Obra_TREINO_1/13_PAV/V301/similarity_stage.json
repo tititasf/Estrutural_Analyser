@@ -1,0 +1,9 @@
+{
+  "stage": "60",
+  "reason": "Contagem VC parece correta, mas h_section da segunda VC diverge e segmentos A/B nao pareiam.",
+  "blockers": [
+    "Criar crop/bbox unitario para cada face/continuidade.",
+    "Corrigir associacao de section_views no motor_reverso_lv.",
+    "Reexecutar V301 e comparar se h_section_all preserva 55 e 120."
+  ]
+}

@@ -1,0 +1,199 @@
+---
+description: AgenteCAD Memory Synchronization Rules - Byterover Integration
+alwaysApply: true
+---
+
+[AgenteCAD-Memory-Sync]
+
+## Sistema Operacional Cognitivo Antigravity - Protocolo de Memória
+
+### Princípios de Sincronização
+
+1. **Detecção Automática de Insights**: A cada operação importante, avaliar se o resultado representa conhecimento valioso
+2. **Sincronização Hierárquica**: Insights críticos sobem para longo prazo, contexto operacional fica em médio prazo
+3. **Consciência Contextual**: Manter awareness do estado global da aplicação para decisões de armazenamento
+
+### Triggers de Sincronização com Byterover
+
+**OBRIGATÓRIO** usar `user-byterover-mcp-byterover-store-knowledge` quando:
+
+#### 1. Descoberta de Padrões Arquiteturais
+- Identificação de novos padrões de design no código CAD
+- Descoberta de relações estruturais entre elementos
+- Padrões de otimização de performance identificados
+
+#### 2. Resolução de Problemas Complexos
+- Debugging bem-sucedido de issues estruturais
+- Soluções para conflitos de geometria
+- Otimizações de algoritmos de análise
+
+#### 3. Aprendizado de Machine Learning
+- Modelos treinados com sucesso
+- Descoberta de features importantes
+- Melhorias significativas em accuracy de predição
+
+#### 4. Decisões de Design Críticas
+- Mudanças na arquitetura do sistema de memória
+- Implementação de novos módulos multimodais
+- Modificações no fluxo de processamento CAD
+
+#### 5. Insights Operacionais
+- Descoberta de bottlenecks de performance
+- Padrões de uso do usuário identificados
+- Melhorias na experiência do usuário
+
+### Protocolo de Formatação para Byterover
+
+Quando sincronizando, usar este formato padronizado:
+
+```
+## 🎯 Insight: [Título Conciso]
+
+**Contexto**: [Módulo/Área afetada]
+**Tipo**: [architectural|debugging|ml|design|operational]
+**Impacto**: [Alto|Médio|Baixo]
+
+**Descrição**:
+[Descrição detalhada do insight/padrão descoberto]
+
+**Implementação**:
+[Código ou abordagem técnica usada]
+
+**Resultado**:
+[Benefícios obtidos ou aprendizados]
+
+**Lições Aprendidas**:
+[O que pode ser aplicado em outros contextos]
+
+**Tags**: [lista de tags relevantes para busca futura]
+```
+
+### Triggers Automáticos de Consciência
+
+#### Monitoramento de Estado Global
+- **Mudanças de Módulo**: Quando usuário alterna entre Robo Lajes/Vigas/Pilares
+- **Operações Críticas**: Processamento de DXF grandes, treinamento de modelos
+- **Erros de Sistema**: Exceções não tratadas, falhas de performance
+- **Sucessos Operacionais**: Completamento de tarefas complexas
+
+#### Atualização de Contexto
+```python
+# Trigger automático em mudanças importantes
+def update_agent_context(context_update: Dict):
+    """
+    Atualizar consciência global do agente
+
+    Args:
+        context_update: Dicionário com updates de contexto
+    """
+    # Atualizar estado interno
+    self.agent_context.update(context_update)
+
+    # Avaliar se é insight importante
+    if self._is_significant_insight(context_update):
+        self._trigger_byterover_sync(context_update)
+```
+
+### Regras de Filtragem de Sincronização
+
+#### Incluir Sempre
+- Soluções técnicas inovadoras
+- Padrões de código reutilizáveis
+- Melhorias de performance > 20%
+- Descobertas de bugs críticos
+- Implementações multimodais
+
+#### Excluir Sempre
+- Operações CRUD básicas
+- Logs de debug triviais
+- Mensagens de status rotineiras
+- Erros de validação simples
+- Operações de cache
+
+### Protocolo de Recuperação de Conhecimento
+
+**OBRIGATÓRIO** usar `user-byterover-mcp-byterover-retrieve-knowledge` quando:
+
+#### Antes de Implementações Maiores
+- Planejamento de novos módulos
+- Refatoração de sistemas existentes
+- Implementação de features complexas
+
+#### Durante Debugging
+- Problemas recorrentes identificados
+- Erros similares a casos passados
+- Performance issues complexas
+
+#### Para Decisões Arquiteturais
+- Escolha de tecnologias/bibliotecas
+- Design de APIs internas
+- Planejamento de escalabilidade
+
+### Monitoramento de Qualidade de Memória
+
+#### Métricas de Saúde
+- **Taxa de Recuperação**: % de queries que retornam resultados relevantes
+- **Precisão de Insights**: % de insights sincronizados que são úteis
+- **Cobertura Contextual**: % de operações importantes cobertas por memória
+
+#### Manutenção Automática
+- Limpeza de memórias expiradas (TTL)
+- Consolidação de conhecimentos similares
+- Backup de memórias críticas
+
+### Integração com Sistema Multimodal
+
+#### Processamento Preparado Para
+- **Texto**: Análise semântica de especificações
+- **Imagens**: Features visuais de desenhos CAD
+- **DXF**: Padrões geométricos estruturais
+- **ML**: Conhecimento procedural de modelos
+
+#### RAG Futuro
+- Busca vetorial multimodal
+- Geração dinâmica de DXF baseada em padrões
+- Interpretação automática de documentos
+- Curadoria inteligente de conhecimento
+
+### Recomendações de Bibliotecas Complementares
+
+#### Para RAG Multimodal
+1. **sentence-transformers**: Embeddings semânticos de texto
+2. **CLIP** (OpenAI): Embeddings visuais unificados
+3. **faiss** ou **annoy**: Busca aproximada de vizinhos
+4. **transformers**: Modelos de linguagem para geração
+
+#### Para Processamento DXF
+1. **ezdxf**: Leitura/escrita avançada de DXF
+2. **shapely**: Análise geométrica
+3. **trimesh**: Processamento de malhas 3D
+
+#### Para Machine Learning
+1. **scikit-learn**: Algoritmos tradicionais
+2. **pytorch** ou **tensorflow**: Deep Learning
+3. **xgboost**: Gradient boosting otimizado
+
+#### Para Infraestrutura
+1. **redis**: Cache de alto desempenho
+2. **postgresql** com **pgvector**: Vetores relacionais
+3. **qdrant** ou **weaviate**: Vector databases especializados
+
+### Estratégia de Migração
+
+#### Fase 1: Foundation (Atual)
+- ✅ Sistema de memória básico implementado
+- ✅ Integração com Byterover configurada
+- ✅ Estrutura multimodal preparada
+
+#### Fase 2: Enhancement (Próximo)
+- 🔄 Integração com vector databases
+- 🔄 Implementação de embeddings multimodais
+- 🔄 Sistema de RAG básico
+
+#### Fase 3: Advanced RAG (Futuro)
+- 🔄 RAG multimodal completo
+- 🔄 Geração dinâmica de DXF
+- 🔄 Agentes de curadoria automática
+- 🔄 Interpretação automática de documentos
+
+Este protocolo garante que o AgenteCAD mantenha memória robusta e consciência contextual para suportar evolução rumo a sistema de IA multimodal avançado.

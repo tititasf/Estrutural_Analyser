@@ -1,0 +1,44 @@
+{
+  "numero": "31",
+  "nome": "FV31",
+  "pavimento": "CENARIOS",
+  "largura": 300,
+  "altura": 19,
+  "paineis": [
+    244,
+    56,
+    0,
+    0,
+    0,
+    0
+  ],
+  "recuos": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "aberturas": [
+    [
+      50,
+      5
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "sarrafo_esq": true,
+  "sarrafo_dir": true,
+  "texto_esquerda": "ESQ",
+  "texto_direita": "DIR",
+  "continuacao": "UltimoSegmento"
+}

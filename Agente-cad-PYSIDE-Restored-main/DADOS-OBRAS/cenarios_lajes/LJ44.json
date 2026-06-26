@@ -1,0 +1,58 @@
+{
+  "numero": 44,
+  "nome": "LJ44",
+  "comprimento": 406,
+  "largura": 423,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      406,
+      0
+    ],
+    [
+      406,
+      423
+    ],
+    [
+      0,
+      423
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 171738,
+  "linhas_verticais": [
+    {
+      "value": 122,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    },
+    {
+      "value": 264.0,
+      "is_union": false
+    },
+    {
+      "value": 284.0,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

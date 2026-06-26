@@ -2212,26 +2212,35 @@ class MainWindow(QMainWindow):
         
         viga_list = []
         for b in sorted_beams:
-             # Usa id_item (campo Nº Item da ficha) para o número da viga no Robo
-             viga_list.append({
-                 'name': b.get('name'),
-                 'number': b.get('id_item', b.get('name')),
-                 'parent_name': b.get('parent_name', b.get('name', 'V?'))
-             })
-             
+            base_name = b.get('name', '')
+            number = b.get('id_item', base_name)
+            # Cada viga gera 4 entradas: Para/Passa × Face A/B
+            for pp in ("Para", "Passa"):
+                for face in ("A", "B"):
+                    viga_list.append({
+                        'name': f"{base_name}_{pp}_{face}",   # chave única
+                        'display_name': f"{base_name}.{face}",  # exibição no robot
+                        'base_beam': base_name,
+                        'number': number,
+                        'parent_name': pp,   # segment_class = "Para" ou "Passa"
+                        'face': face,
+                    })
+
         if not viga_list:
              QMessageBox.information(self, "Aviso", "Nenhuma viga encontrada na análise.")
              return
-             
+
         res = self.robo_viga.add_viga_bulk(viga_list)
         # Se retornar um dict, usamos. Se retornar int (legado), tratamos.
         if isinstance(res, dict):
+            beams_count = len(sorted_beams)
             count = res.get('added', 0)
             skipped = res.get('skipped', 0)
-            msg = f"{count} novas vigas sincronizadas.\n({skipped} vigas já existiam no Robo Laterais)"
+            msg = (f"{beams_count} vigas → {count} entradas criadas (Para A/B + Passa A/B).\n"
+                   f"({skipped} entradas já existiam no Robo Laterais)")
         else:
             count = res
-            msg = f"{count} novas vigas sincronizadas com Robo Laterais."
+            msg = f"{count} novas entradas sincronizadas com Robo Laterais."
 
         self.log(f"🔗 Sincronização Robo Laterais: {count} novos, {len(viga_list)} total.")
         QMessageBox.information(self, "Sucesso", msg)

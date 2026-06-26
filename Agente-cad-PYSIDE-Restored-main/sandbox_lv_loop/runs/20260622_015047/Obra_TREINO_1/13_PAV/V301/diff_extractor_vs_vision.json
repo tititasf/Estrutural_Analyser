@@ -1,0 +1,30 @@
+{
+  "stage": 80,
+  "summary": "N2 V301 corrigido para secoes 55/120 e validacao por face_units. Sem diffs bloqueantes nesta rodada N2; pendencias movidas para detalhe fino e N4.",
+  "resolved": [
+    {
+      "path": "section_views[2].h_section",
+      "before": 55.0,
+      "after": 120.0,
+      "severity": "high"
+    },
+    {
+      "path": "segments_global_model",
+      "before": "A=13/B=12 flatten misturava blocos",
+      "after": "face_units=8 com segmentos por label",
+      "severity": "high"
+    }
+  ],
+  "remaining": [
+    {
+      "path": "details.sarrafos_grades_holes",
+      "status": "pending fine visual validation",
+      "severity": "medium"
+    },
+    {
+      "path": "n4_generation",
+      "status": "not executed in this iteration",
+      "severity": "medium"
+    }
+  ]
+}

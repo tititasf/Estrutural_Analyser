@@ -1,0 +1,124 @@
+{
+  "schema": "lv_section_visual_agent_v1",
+  "status": "baseline_reprovado",
+  "vision_author": "chat_agent",
+  "summary": {
+    "beams": 10,
+    "section_pairs": 13,
+    "field_contract_coverage_pct": 35.5,
+    "coarse_visual_similarity_pct": 10.8,
+    "arete_beams": 0
+  },
+  "common_n4_findings": [
+    "molde de concreto em L aplicado a topologias diferentes",
+    "barrote, tensor, presilhas, ancoragens, blocos, hatch e pontalete presumidos",
+    "extensoes de laje e fundo nao comandados pela ficha",
+    "textos e cotas fora da escala visual do N2"
+  ],
+  "reviews": [
+    {
+      "beam": "V301",
+      "section": 1,
+      "n2_visual_topology": "U com extensoes superiores bilaterais assimetricas",
+      "critical_gap": "N4 usa molde fixo em L e nao respeita as duas extensoes",
+      "coarse_score_pct": 8.4,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V301",
+      "section": 2,
+      "n2_visual_topology": "U alto; lajes extraidas nao confirmadas com seguranca",
+      "critical_gap": "N4 preserva o mesmo molde e inventa conjunto de montagem",
+      "coarse_score_pct": 11.1,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V302",
+      "section": 1,
+      "n2_visual_topology": "U com extensoes superiores bilaterais assimetricas",
+      "critical_gap": "topologia, extensoes e escala nao reproduzidas",
+      "coarse_score_pct": 10.9,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V305",
+      "section": 1,
+      "n2_visual_topology": "U reto sem extensao superior visivel",
+      "critical_gap": "N4 adiciona flange, concreto em L e componentes nao observados",
+      "coarse_score_pct": 9.0,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V308",
+      "section": 1,
+      "n2_visual_topology": "U reto",
+      "critical_gap": "N4 adiciona extensao e conjunto fixo",
+      "coarse_score_pct": 21.7,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V308",
+      "section": 2,
+      "n2_visual_topology": "U com extensao superior somente a direita",
+      "critical_gap": "lateralidade da extensao nao e representada pela ficha/gerador",
+      "coarse_score_pct": 22.6,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V310",
+      "section": 1,
+      "n2_visual_topology": "U com extensoes superiores bilaterais",
+      "critical_gap": "N4 diverge em contorno, montagem e proporcao",
+      "coarse_score_pct": 5.2,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V311",
+      "section": 1,
+      "n2_visual_topology": "U com extensao superior",
+      "critical_gap": "extensao e alturas locais nao comandam o N4",
+      "coarse_score_pct": 9.7,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V322",
+      "section": 1,
+      "n2_visual_topology": "U alto reto",
+      "critical_gap": "extrator indica lajes de 13 cm sem confirmacao visual; N4 cria flange",
+      "coarse_score_pct": 8.5,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V327",
+      "section": 1,
+      "n2_visual_topology": "U reto estreito",
+      "critical_gap": "N4 e desproporcional e inclui componentes extras",
+      "coarse_score_pct": 6.7,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V330",
+      "section": 1,
+      "n2_visual_topology": "U com fundo inferior muito largo",
+      "critical_gap": "fundo largo nao existe no contrato consumido pelo N4",
+      "coarse_score_pct": 11.1,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V330",
+      "section": 2,
+      "n2_visual_topology": "U alto reto",
+      "critical_gap": "N4 repete o molde fixo e nao isola corretamente a anatomia observada",
+      "coarse_score_pct": 7.4,
+      "verdict": "reprovado"
+    },
+    {
+      "beam": "V331",
+      "section": 1,
+      "n2_visual_topology": "U reto estreito e baixo",
+      "critical_gap": "N4 mantem conjunto grande e desproporcional",
+      "coarse_score_pct": 8.3,
+      "verdict": "reprovado"
+    }
+  ]
+}

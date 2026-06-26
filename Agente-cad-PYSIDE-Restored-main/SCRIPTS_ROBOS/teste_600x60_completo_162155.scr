@@ -1,0 +1,19 @@
+;; Script AutoCAD para Viga 600x60 Completa (V600.1)
+;; Gerado em 2026-01-21 16:21:55
+
+;; Desenhar retângulo da viga
+-LINE
+0,0
+600,0
+600,60
+0,60
+0,0
+
+;; Adicionar texto com o número da viga
+-TEXT
+300.0,30.0
+15.0
+0
+V600.1
+
+;; Finalizar

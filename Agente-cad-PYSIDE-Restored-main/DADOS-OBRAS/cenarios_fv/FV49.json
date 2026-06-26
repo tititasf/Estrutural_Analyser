@@ -1,0 +1,44 @@
+{
+  "numero": "49",
+  "nome": "FV49",
+  "pavimento": "CENARIOS",
+  "largura": 50,
+  "altura": 14,
+  "paineis": [
+    50,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "recuos": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "aberturas": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "sarrafo_esq": true,
+  "sarrafo_dir": true,
+  "texto_esquerda": "ESQ",
+  "texto_direita": "DIR",
+  "continuacao": "UltimoSegmento"
+}

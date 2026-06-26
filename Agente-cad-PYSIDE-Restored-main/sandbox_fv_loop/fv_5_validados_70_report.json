@@ -1,0 +1,77 @@
+[
+  {
+    "viga": "V332",
+    "score_n1_n2": 100.0,
+    "score_n3_n4": 100.0,
+    "segs": "1/1",
+    "comprimento_n1_n2": [
+      442.0,
+      442.0
+    ],
+    "h_n1_n2": [
+      19.0,
+      19.0
+    ],
+    "dxf_n3": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_preview_V332.dxf"
+  },
+  {
+    "viga": "V312",
+    "score_n1_n2": 100.0,
+    "score_n3_n4": 100.0,
+    "segs": "1/1",
+    "comprimento_n1_n2": [
+      461.0,
+      461.0
+    ],
+    "h_n1_n2": [
+      19.0,
+      19.0
+    ],
+    "dxf_n3": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_preview_V312.dxf"
+  },
+  {
+    "viga": "V311",
+    "score_n1_n2": 75.0,
+    "score_n3_n4": 75.0,
+    "segs": "1/1",
+    "comprimento_n1_n2": [
+      423.0,
+      447.0
+    ],
+    "h_n1_n2": [
+      19.0,
+      19.0
+    ],
+    "dxf_n3": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_preview_V311.dxf"
+  },
+  {
+    "viga": "V327",
+    "score_n1_n2": 75.0,
+    "score_n3_n4": 75.0,
+    "segs": "1/1",
+    "comprimento_n1_n2": [
+      279.0,
+      260.0
+    ],
+    "h_n1_n2": [
+      14.0,
+      14.0
+    ],
+    "dxf_n3": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_preview_V327.dxf"
+  },
+  {
+    "viga": "V331",
+    "score_n1_n2": 75.0,
+    "score_n3_n4": 75.0,
+    "segs": "1/1",
+    "comprimento_n1_n2": [
+      220.0,
+      201.0
+    ],
+    "h_n1_n2": [
+      14.0,
+      14.0
+    ],
+    "dxf_n3": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_preview_V331.dxf"
+  }
+]

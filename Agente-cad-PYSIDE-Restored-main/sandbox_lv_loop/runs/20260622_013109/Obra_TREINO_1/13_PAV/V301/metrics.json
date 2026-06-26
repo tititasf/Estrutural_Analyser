@@ -1,0 +1,23 @@
+{
+  "stage": "60",
+  "extractor_confidence": 0.9299999999999999,
+  "counts": {
+    "section_views": 2,
+    "segments_A": 13,
+    "segments_B": 12
+  },
+  "ready_for_agent_vision": true,
+  "score_formula": {
+    "section_views": 25,
+    "segments_A": 25,
+    "segments_B": 25,
+    "main_dimensions": 15,
+    "details_provenance": 10
+  },
+  "agent_vision_completed": true,
+  "primary_blockers": [
+    "Criar crop/bbox unitario para cada face/continuidade.",
+    "Corrigir associacao de section_views no motor_reverso_lv.",
+    "Reexecutar V301 e comparar se h_section_all preserva 55 e 120."
+  ]
+}

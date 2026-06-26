@@ -1,0 +1,48 @@
+{
+  "name": "V301_B",
+  "number": "301",
+  "side": "B",
+  "total_width": 19,
+  "total_height": 132,
+  "panels": [
+    {
+      "width": 244.0,
+      "height1": 125.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 28.7,
+      "height1": 125.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 21.8,
+      "height1": 125.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 111.0,
+      "height1": 125.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado"
+    }
+  ],
+  "holes": [],
+  "pillar_left": {
+    "active": false
+  },
+  "pillar_right": {
+    "active": false
+  }
+}

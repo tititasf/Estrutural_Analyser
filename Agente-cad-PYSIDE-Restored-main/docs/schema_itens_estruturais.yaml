@@ -1,0 +1,770 @@
+# ============================================================
+# SCHEMA DE CAMPOS — ITENS ESTRUTURAIS
+# Fonte de verdade para o Structural Analyzer → Robôs DXF/SCR
+#
+# Convenção:
+#   required: true  → o campo deve existir e ter valor válido
+#   required: false → campo opcional; se ausente, SA preenche "não se aplica"
+#   na_when: [...]  → condições em que o campo não se aplica ao item
+#   type: float     → unidade indicada em `unit`
+#   type: str       → valor textual
+#   type: bool      → true/false
+#   type: list[obj] → array de objetos; sub-campos descritos em `items:`
+# ============================================================
+
+version: "1.0.0"
+updated: "2026-05-18"
+author: "SA Data Contract — gerado a partir de Obra_TREINO_1 + análise de robôs"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PL — PILAR
+# ──────────────────────────────────────────────────────────────────────────────
+PL:
+  description: >
+    Pilar de concreto moldado in loco. Elemento vertical que transmite cargas
+    dos pavimentos superiores para as fundações. O Structural Analyzer extrai
+    geometria (seção transversal), alturas por zona (A–H) e distribuição de
+    grades. É o item com maior número de campos pois cada face (A–H) tem seus
+    próprios segmentos de altura e larguras de sarrafo.
+
+  fields:
+    # ── Identificação ─────────────────────────────────────────────────────────
+    numero:
+      type: str
+      required: true
+      description: "Número do pilar dentro do pavimento (ex: '1', '12')"
+      example: "1"
+
+    nome:
+      type: str
+      required: true
+      description: "Código único do pilar no projeto (ex: 'P1', 'P23')"
+      example: "P1"
+
+    pavimento:
+      type: str
+      required: true
+      description: "Pavimento ao qual o pilar pertence (ex: 'TIPO', 'GARAGEM', 'COBERTURA')"
+      example: "TIPO"
+
+    # ── Geometria principal ───────────────────────────────────────────────────
+    comprimento:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Dimensão do pilar na direção principal (maior lado da seção transversal).
+        Corresponde ao eixo horizontal no DXF (faces A/C e E/G).
+      example: 88.0
+
+    largura:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Dimensão secundária do pilar (menor lado da seção). Corresponde
+        ao eixo perpendicular. Usado para definir espessura da chapa lateral.
+      example: 19.0
+
+    altura:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Altura total do pilar do nível de chegada até o nível de saída.
+        Determina a extensão vertical de todas as vistas no DXF.
+      example: 280.0
+
+    nivel_chegada:
+      type: float
+      unit: cm
+      required: true
+      description: "Cota de base do pilar (zero = laje do pavimento inferior)"
+      example: 0.0
+
+    nivel_saida:
+      type: float
+      unit: cm
+      required: true
+      description: "Cota de topo do pilar. Deve satisfazer: nivel_saida - nivel_chegada = altura"
+      example: 280.0
+
+    modo_distribuicao:
+      type: str
+      required: true
+      description: >
+        Modo de distribuição de segmentos de altura por zona.
+        'NOVA' = distribuição calculada pelo SA.
+        'MANUAL' = valores definidos pelo usuário.
+      allowed_values: ["NOVA", "MANUAL"]
+      example: "NOVA"
+
+    # ── Segmentos de altura por zona (A a H) ─────────────────────────────────
+    # Cada zona (A–H) representa uma face do molde.
+    # h1_X = altura do rodapé (base); h2_X = painel principal; h3_X = colarinho (topo);
+    # h4_X, h5_X = segmentos extras (0 quando não usados).
+    # larg1_X, larg2_X, larg3_X = larguras dos sarrafos adicionais por segmento.
+    # laje_X = altura da laje encostada nessa face.
+    # posicao_laje_X = posição vertical onde a laje encosta.
+
+    h1_A:
+      type: float; unit: cm; required: true
+      description: "Altura do segmento 1 (rodapé/base) na zona A"
+      example: 2.0
+    h2_A:
+      type: float; unit: cm; required: true
+      description: "Altura do painel principal na zona A"
+      example: 244.0
+    h3_A:
+      type: float; unit: cm; required: true
+      description: "Altura do colarinho (topo) na zona A"
+      example: 34.0
+    h4_A:
+      type: float; unit: cm; required: false
+      description: "Segmento extra 4 na zona A (0 = não se aplica)"
+      na_when: ["sem recuo duplo na face A"]
+      example: 0.0
+    h5_A:
+      type: float; unit: cm; required: false
+      description: "Segmento extra 5 na zona A (0 = não se aplica)"
+      na_when: ["sem recuo duplo na face A"]
+      example: 0.0
+    larg1_A:
+      type: float; unit: cm; required: false
+      description: "Largura do sarrafo adicional 1 na zona A (0 = não se aplica)"
+      na_when: ["painel sem sarrafo adicional"]
+      example: 0.0
+    larg2_A:
+      type: float; unit: cm; required: false
+      description: "Largura do sarrafo adicional 2 na zona A (0 = não se aplica)"
+      na_when: ["painel sem sarrafo adicional"]
+      example: 0.0
+    larg3_A:
+      type: float; unit: cm; required: false
+      description: "Largura do sarrafo adicional 3 na zona A (0 = não se aplica)"
+      na_when: ["painel sem sarrafo adicional"]
+      example: 0.0
+    laje_A:
+      type: float; unit: cm; required: false
+      description: "Altura da laje encostada na face A (0 = sem laje nessa face)"
+      na_when: ["face A sem laje adjacente"]
+      example: 0.0
+    posicao_laje_A:
+      type: float; unit: cm; required: false
+      description: "Posição vertical onde a laje encosta na face A (0 = sem laje)"
+      na_when: ["face A sem laje adjacente"]
+      example: 0.0
+
+    # Zonas B, C, D, E, F, G, H — mesmo padrão de h1–h5, larg1–larg3, laje, posicao_laje
+    # (omitidas aqui por repetição — ver exemplo de zona A acima)
+    # Obs: zonas E–H só existem em pilares com comprimento > 2 faces (pilares grandes).
+
+    # ── Grades de espaçamento ─────────────────────────────────────────────────
+    grade_1:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Largura da grade principal de espaçamento (distância entre ponteiras).
+        Determina o step de furação no DXF GRADES.
+      example: 88.0
+
+    grade_2:
+      type: float
+      unit: cm
+      required: false
+      description: "Largura da grade secundária (0 = não se aplica)"
+      na_when: ["pilar sem segunda grade"]
+      example: 0.0
+
+    grade_3:
+      type: float
+      unit: cm
+      required: false
+      description: "Largura da grade terciária (0 = não se aplica)"
+      na_when: ["pilar sem terceira grade"]
+      example: 0.0
+
+    distancia_1:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Distância da primeira furação à borda do pilar (margem lateral).
+        Usado para posicionar o início das grades no DXF.
+      example: 14.0
+
+    distancia_2:
+      type: float
+      unit: cm
+      required: false
+      description: "Distância da segunda furação à borda (0 = não se aplica)"
+      na_when: ["apenas 1 coluna de furação"]
+      example: 0.0
+
+    # par_1_2 ... par_8_9 — pares de furação entre pontos consecutivos
+    par_1_2:
+      type: float; unit: cm; required: false
+      description: "Distância entre furo 1 e furo 2 (0 = não se aplica)"
+      na_when: ["menos de 2 furações"]
+      example: 0.0
+    # par_2_3 a par_8_9 — mesmo padrão, incrementando índice
+
+  na_fields:
+    # Campos que SEMPRE recebem "não se aplica" para este tipo de item
+    # (não existem no contexto de pilar)
+    - "panels"
+    - "total_width"
+    - "pillar_left"
+    - "pillar_right"
+    - "holes"
+    - "coordenadas"
+    - "linhas_verticais"
+    - "linhas_horizontais"
+    - "obstaculos"
+    - "reaproveitamento_dados"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# LV — VIGA LATERAL (Viga de Fundo de Laje, face lateral)
+# ──────────────────────────────────────────────────────────────────────────────
+LV:
+  description: >
+    Viga lateral de escoramento. Elemento horizontal que forma as faces
+    laterais (A e B) do molde de viga. Constituída por painéis (módulos de
+    largura variável) e pode conter aberturas (furos) e recuos de pilar nas
+    extremidades. O SA extrai número/posição dos painéis, alturas por painel
+    e configurações de grade.
+
+  fields:
+    # ── Identificação ─────────────────────────────────────────────────────────
+    number:
+      type: str
+      required: true
+      description: "Número da viga (ex: '101', '203')"
+      example: "101"
+
+    name:
+      type: str
+      required: true
+      description: "Código composto: número + lado (ex: 'V101_A', 'V203_B')"
+      example: "V101_A"
+
+    floor:
+      type: str
+      required: true
+      description: "Pavimento da viga"
+      example: "TIPO"
+
+    side:
+      type: str
+      required: true
+      description: "Lado da viga: A = face frontal, B = face posterior"
+      allowed_values: ["A", "B"]
+      example: "A"
+
+    # ── Geometria ─────────────────────────────────────────────────────────────
+    total_width:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Espessura total da chapa lateral da viga (correspondente ao b da seção).
+        Usado pelo robô para definir offset lateral do desenho.
+      example: 19.0
+
+    total_height:
+      type: float
+      unit: cm
+      required: true
+      description: >
+        Altura total da viga (h da seção). Determina a extensão vertical
+        de todos os painéis. Pode vir como string no JSON, convertido para float.
+      example: 120.0
+
+    # ── Painéis ───────────────────────────────────────────────────────────────
+    panels:
+      type: list[obj]
+      required: true
+      description: >
+        Array de módulos de largura que compõem o comprimento total da viga.
+        Cada painel é uma chapa independente. A soma de `width` de todos os
+        painéis = comprimento total da viga.
+      items:
+        width:
+          type: float; unit: cm; required: true
+          description: "Largura do painel (comprimento na direção longitudinal da viga)"
+          example: 120.0
+        height1:
+          type: float; unit: cm; required: true
+          description: "Altura da parte inferior do painel (até o sarrafo divisor ou total)"
+          example: 120.0
+        height2:
+          type: float; unit: cm; required: false
+          description: "Altura da parte superior (quando o painel é dividido). 0 = painel simples"
+          na_when: ["painel sem divisão interna"]
+          example: 120.0
+        grade_h1:
+          type: float; unit: cm; required: false
+          description: "Altura da grade no segmento inferior (0 = sem grade)"
+          na_when: ["painel sem grade"]
+          example: 0.0
+        grade_h2:
+          type: float; unit: cm; required: false
+          description: "Altura da grade no segmento superior (0 = sem grade)"
+          na_when: ["painel sem divisão ou sem grade"]
+          example: 0.0
+        laje_central_alt:
+          type: float; unit: cm; required: false
+          description: "Altura da laje central encostada neste painel (0 = sem laje central)"
+          na_when: ["viga sem laje central adjacente"]
+          example: 0.0
+        reuse:
+          type: bool; required: false
+          description: "Indica se o painel pode ser reaproveitado em outro uso"
+          na_when: ["obra sem reaproveitamento"]
+          example: false
+        panel_type:
+          type: str; required: false
+          description: "Tipo do painel (normal, especial, etc.)"
+          na_when: ["painel padrão sem tipo especial"]
+          example: "normal"
+
+    # ── Furos ─────────────────────────────────────────────────────────────────
+    holes:
+      type: list[obj]
+      required: true
+      description: >
+        Array de aberturas na face da viga (passagens de tubulação, ventilação, etc.).
+        Sempre presente no JSON (até 4 slots); slots inativos têm active=false.
+      items:
+        active:
+          type: bool; required: true
+          description: "Se true, o furo está presente na viga e deve ser desenhado no DXF"
+          example: false
+        width:
+          type: float; unit: cm; required: true
+          description: "Largura do furo (0 quando inactive)"
+          example: 0.0
+        height:
+          type: float; unit: cm; required: true
+          description: "Altura do furo (0 quando inactive)"
+          example: 0.0
+        position:
+          type: float; unit: cm; required: true
+          description: "Posição horizontal do furo a partir da borda esquerda da viga (0 quando inactive)"
+          example: 0.0
+
+    # ── Pilares de extremidade ────────────────────────────────────────────────
+    pillar_left:
+      type: obj
+      required: true
+      description: >
+        Configuração do pilar na extremidade esquerda da viga.
+        Define recuo da chapa nessa extremidade.
+      items:
+        active:
+          type: bool; required: true
+          description: "Se true, há pilar à esquerda e o painel deve ter recuo"
+          example: false
+        width:
+          type: float; unit: cm; required: true
+          description: "Largura do recuo do pilar (0 quando inactive)"
+          example: 0.0
+        length:
+          type: float; unit: cm; required: true
+          description: "Comprimento do pilar que penetra no molde (0 quando inactive)"
+          example: 0.0
+
+    pillar_right:
+      type: obj
+      required: true
+      description: "Configuração do pilar na extremidade direita da viga (mesma estrutura de pillar_left)"
+      items:
+        active:
+          type: bool; required: true
+          description: "Se true, há pilar à direita"
+          example: false
+        width:
+          type: float; unit: cm; required: true
+          example: 0.0
+        length:
+          type: float; unit: cm; required: true
+          example: 0.0
+
+    sarrafo_left_id:
+      type: int
+      required: false
+      description: "ID do sarrafo padrão na extremidade esquerda (0 = padrão/não definido)"
+      na_when: ["sem sarrafo especial na extremidade"]
+      example: 0
+
+    sarrafo_right_id:
+      type: int
+      required: false
+      description: "ID do sarrafo padrão na extremidade direita (0 = padrão/não definido)"
+      na_when: ["sem sarrafo especial na extremidade"]
+      example: 0
+
+  na_fields:
+    - "numero"
+    - "comprimento"
+    - "largura"
+    - "altura"
+    - "grade_1"
+    - "grade_2"
+    - "coordenadas"
+    - "linhas_verticais"
+    - "linhas_horizontais"
+    - "obstaculos"
+    - "reaproveitamento_dados"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# FV — VIGA DE FUNDO (face inferior do molde de viga)
+# ──────────────────────────────────────────────────────────────────────────────
+FV:
+  description: >
+    Viga de fundo: chapa horizontal que forma o fundo do molde de viga.
+    Compartilha a mesma estrutura de JSON que LV (panels, holes, pillar_left/right)
+    mas tem uma única vista (não tem face A/B). Possui campo `observations`
+    para anotações de montagem.
+
+  fields:
+    number:
+      type: str; required: true
+      description: "Número da viga de fundo"
+      example: "101"
+
+    name:
+      type: str; required: true
+      description: "Código da viga de fundo (ex: 'V101_fundo')"
+      example: "V101_fundo"
+
+    floor:
+      type: str; required: true
+      description: "Pavimento"
+      example: "TIPO"
+
+    side:
+      type: str; required: false
+      description: "Não se aplica para FV (viga de fundo não tem faces A/B)"
+      na_when: ["FV não tem distinção de face lateral"]
+      example: "não se aplica"
+
+    total_width:
+      type: float; unit: cm; required: true
+      description: "Largura total do fundo da viga (b da seção). Igual ao total_width da LV correspondente"
+      example: 19.0
+
+    total_height:
+      type: float; unit: cm; required: true
+      description: "Altura/espessura da chapa de fundo"
+      example: 120.0
+
+    panels:
+      type: list[obj]; required: true
+      description: "Painéis horizontais que compõem o comprimento do fundo"
+      items:
+        width:
+          type: float; unit: cm; required: true
+          description: "Largura do módulo de fundo"
+          example: 120.0
+        height1:
+          type: float; unit: cm; required: true
+          description: "Altura do módulo (profundidade da viga)"
+          example: 120.0
+        height2:
+          type: float; unit: cm; required: false
+          description: "Altura secundária (0 = painel simples)"
+          na_when: ["painel de fundo sem divisão"]
+          example: 0.0
+        grade_h1:
+          type: float; unit: cm; required: false
+          description: "Grade na parte inferior do painel de fundo"
+          na_when: ["sem grade no fundo"]
+          example: 0.0
+        grade_h2:
+          type: float; unit: cm; required: false
+          description: "Grade na parte superior do painel de fundo"
+          na_when: ["sem grade ou sem divisão"]
+          example: 0.0
+
+    holes:
+      type: list[obj]; required: true
+      description: "Furos no fundo da viga (mesma estrutura de LV.holes)"
+      items:
+        active: { type: bool; required: true; example: false }
+        width: { type: float; unit: cm; required: true; example: 0.0 }
+        height: { type: float; unit: cm; required: true; example: 0.0 }
+        position: { type: float; unit: cm; required: true; example: 0.0 }
+
+    pillar_left:
+      type: obj; required: true
+      description: "Recuo de pilar esquerdo no fundo (mesma estrutura de LV.pillar_left)"
+      items:
+        active: { type: bool; required: true; example: false }
+        width: { type: float; unit: cm; required: true; example: 0.0 }
+        length: { type: float; unit: cm; required: true; example: 0.0 }
+
+    pillar_right:
+      type: obj; required: true
+      description: "Recuo de pilar direito no fundo"
+      items:
+        active: { type: bool; required: true; example: false }
+        width: { type: float; unit: cm; required: true; example: 0.0 }
+        length: { type: float; unit: cm; required: true; example: 0.0 }
+
+    observations:
+      type: str; required: false
+      description: "Anotações livres de montagem para o fundo (ex: 'compensar 2cm')"
+      na_when: ["sem observações especiais"]
+      example: ""
+
+  na_fields:
+    - "numero"
+    - "nome"
+    - "comprimento"
+    - "largura"
+    - "altura"
+    - "pavimento"
+    - "grade_1"
+    - "grade_2"
+    - "coordenadas"
+    - "linhas_verticais"
+    - "linhas_horizontais"
+    - "obstaculos"
+    - "reaproveitamento_dados"
+    - "side"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# LJ — LAJE (Laje de escoramento)
+# ──────────────────────────────────────────────────────────────────────────────
+LJ:
+  description: >
+    Laje de piso ou cobertura. Elemento bidimensional definido por um polígono
+    de coordenadas e dividido em faixas por linhas verticais e horizontais.
+    O SA extrai: geometria do polígono, área, grade de divisão (linhas),
+    obstáculos internos (pilares passantes, aberturas), modo de seleção de
+    painéis e dados de reaproveitamento.
+
+  fields:
+    # ── Identificação ─────────────────────────────────────────────────────────
+    numero:
+      type: int; required: true
+      description: "Número sequencial da laje no pavimento"
+      example: 101
+
+    nome:
+      type: str; required: true
+      description: "Código da laje (ex: 'L101', 'L215')"
+      example: "L101"
+
+    pavimento:
+      type: str; required: true
+      description: "Pavimento ao qual a laje pertence"
+      example: "TIPO"
+
+    # ── Geometria ─────────────────────────────────────────────────────────────
+    comprimento:
+      type: float; unit: cm; required: true
+      description: "Dimensão maior da laje no eixo X (bounding box)"
+      example: 1420.2
+
+    largura:
+      type: float; unit: cm; required: true
+      description: "Dimensão maior da laje no eixo Y (bounding box)"
+      example: 302.0
+
+    coordenadas:
+      type: list[list[float]]; required: true
+      description: >
+        Polígono da laje em coordenadas locais [x, y] (cm).
+        O primeiro e último ponto podem ser iguais (polígono fechado).
+        Define o contorno real para o DXF layer CONTORNO-LAJE.
+      example: [[0.0, 0.0], [1420.2, 0.0], [1420.2, 302.0], [0.0, 0.0]]
+
+    area_cm2:
+      type: float; unit: cm²; required: true
+      description: "Área do polígono da laje em cm². Usado para calcular quantidade de painéis"
+      example: 428900.4
+
+    espessura:
+      type: float; unit: cm; required: false
+      description: "Espessura/altura da laje (quando informada pelo SA)"
+      na_when: ["laje sem definição de espessura — usa padrão 12cm"]
+      example: 12.0
+
+    # ── Divisão em faixas ─────────────────────────────────────────────────────
+    linhas_verticais:
+      type: list[obj]; required: true
+      description: >
+        Linhas de corte perpendiculares ao eixo X que dividem a laje em
+        faixas. Cada linha define uma posição X onde há junção ou corte
+        de painéis. Array vazio = laje sem divisão vertical.
+      items:
+        value:
+          type: float; unit: cm; required: true
+          description: "Posição X da linha de divisão (relativa ao canto inferior esquerdo da laje)"
+          example: 100.0
+        is_union:
+          type: bool; required: true
+          description: >
+            Se true: linha de união entre painéis (emendados, sem corte real).
+            Se false: linha de corte (borda entre painéis independentes).
+          example: false
+
+    linhas_horizontais:
+      type: list[obj]; required: true
+      description: >
+        Linhas de corte perpendiculares ao eixo Y (divisão horizontal da laje).
+        Mesma estrutura de linhas_verticais. Array vazio = sem divisão horizontal.
+      items:
+        value: { type: float; unit: cm; required: true; example: 150.0 }
+        is_union: { type: bool; required: true; example: false }
+
+    # ── Obstáculos internos ───────────────────────────────────────────────────
+    obstaculos:
+      type: list[obj]; required: true
+      description: >
+        Elementos que ocupam espaço dentro do perímetro da laje e que os painéis
+        devem contornar: pilares passantes, shafts, aberturas de escada, etc.
+        Array vazio = laje sem obstáculos.
+      items:
+        x:
+          type: float; unit: cm; required: true
+          description: "Posição X do canto inferior esquerdo do obstáculo"
+          example: 200.0
+        y:
+          type: float; unit: cm; required: true
+          description: "Posição Y do canto inferior esquerdo do obstáculo"
+          example: 50.0
+        width:
+          type: float; unit: cm; required: true
+          description: "Largura do obstáculo (direção X)"
+          example: 40.0
+        height:
+          type: float; unit: cm; required: true
+          description: "Altura do obstáculo (direção Y)"
+          example: 60.0
+
+    # ── Reaproveitamento ──────────────────────────────────────────────────────
+    reaproveitamento_dados:
+      type: obj; required: false
+      description: >
+        Dados de reaproveitamento de painéis da laje anterior para esta.
+        Presente quando o SA detectou oportunidade de reutilização.
+      na_when: ["obra sem reaproveitamento calculado ou primeira laje do pavimento"]
+      example: null
+
+    sobras_recebidas:
+      type: list[obj]; required: false
+      description: >
+        Sobras de outros painéis que foram alocadas nesta laje.
+        Array vazio = sem sobras recebidas.
+      na_when: ["sem redistribuição de sobras entre lajes"]
+      example: []
+
+    # ── Controles SA ─────────────────────────────────────────────────────────
+    modo_selecionado:
+      type: int; required: false
+      description: >
+        Modo de seleção de painéis usado pelo SA ao processar esta laje.
+        0 = automático, 1+ = modo manual específico.
+      na_when: ["não relevante para geração de DXF"]
+      example: 0
+
+    unioes_nos_bordes:
+      type: bool; required: false
+      description: >
+        Se true, o SA forçou uniões nos bordos do polígono (laje irregular).
+      na_when: ["laje retangular simples"]
+      example: false
+
+    observacoes:
+      type: str; required: false
+      description: "Notas livres sobre a laje (montagem, cortes especiais, etc.)"
+      na_when: ["sem observações"]
+      example: ""
+
+  na_fields:
+    - "grade_1"
+    - "grade_2"
+    - "panels"
+    - "total_width"
+    - "pillar_left"
+    - "pillar_right"
+    - "holes"
+    - "h1_A"
+    - "h2_A"
+    - "comprimento_pilar"
+    - "largura_pilar"
+    - "side"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CAMPOS COMPARTILHADOS ENTRE TIPOS
+# ──────────────────────────────────────────────────────────────────────────────
+shared_fields:
+  description: >
+    Campos com mesmo nome e semântica em múltiplos tipos de item.
+    O SA deve usar a mesma definição em todos os contextos.
+
+  width:
+    used_in: [LV.panels, FV.panels, LV.pillar_left, LV.pillar_right, LJ.obstaculos]
+    description: "Dimensão horizontal genérica. Semântica varia por contexto (ver item específico)"
+
+  height:
+    used_in: [LV.holes, FV.holes, LJ.obstaculos]
+    description: "Dimensão vertical genérica. Não confundir com total_height (viga inteira) ou altura (pilar)"
+
+  active:
+    used_in: [LV.holes, FV.holes, LV.pillar_left, LV.pillar_right, FV.pillar_left, FV.pillar_right]
+    description: "Flag booleano: quando false, todos os demais campos do objeto são 0 / não se aplicam"
+
+  position:
+    used_in: [LV.holes, FV.holes]
+    description: "Posição do centro do furo relativa à borda esquerda da viga (cm)"
+
+  panels:
+    used_in: [LV, FV]
+    description: "Array de módulos de chapa. Em LV representa as faces laterais; em FV o fundo"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# FLUXO DE DADOS: SA → ROBÔS
+# ──────────────────────────────────────────────────────────────────────────────
+data_flow:
+  description: >
+    O Structural Analyzer é a única fonte de verdade. Após análise (granular
+    ou end-to-end), o SA exporta um JSON completo para Fase-4_Sincronizacao.
+    Os robôs lêem EXCLUSIVAMENTE esses JSONs — nunca dados brutos de imagem.
+
+  pipeline:
+    1_sa_analysis:
+      input: "Imagem DXF ou PDF do projeto estrutural (Fase-1_Uploads)"
+      output: "JSON completo em Fase-4_Sincronizacao/JSON_{tipo}/"
+      contract: "Todos os campos obrigatórios preenchidos; campos NA marcados com 'não se aplica'"
+
+    2_robot_pl:
+      reads: "Fase-4_Sincronizacao/JSON_Pilares/{nome}.json"
+      generates: "Fase-6_Execucao_CAD/{obra}_{nome}.dxf"
+      key_fields: [nome, comprimento, largura, altura, grade_1, h1_A..h3_H, larg1_A..larg3_H]
+
+    3_robot_lv:
+      reads: "Fase-4_Sincronizacao/JSON_Vigas_Laterais/{nome}.json"
+      generates: "Fase-6_Execucao_CAD/{obra}_{nome}.dxf"
+      key_fields: [total_width, total_height, panels, holes, pillar_left, pillar_right]
+
+    4_robot_fv:
+      reads: "Fase-4_Sincronizacao/JSON_Vigas_Fundo/{nome}.json"
+      generates: "Fase-6_Execucao_CAD/{obra}_{nome}.dxf"
+      key_fields: [total_width, total_height, panels, holes, pillar_left, pillar_right]
+
+    5_robot_lj:
+      reads: "Fase-4_Sincronizacao/JSON_Lajes/{nome}.json"
+      generates: "Fase-6_Execucao_CAD/{obra}_{nome}.dxf"
+      key_fields: [comprimento, largura, coordenadas, linhas_verticais, obstaculos, area_cm2]
+
+  validation_rules:
+    - "Nenhum campo required pode ser null ou ausente no JSON exportado"
+    - "Campos required=false com na_when: se condição verdadeira → valor padrão (0, false, '' ou 'não se aplica')"
+    - "total_height de LV/FV pode vir como string — robôs DEVEM converter via float()"
+    - "Soma dos panels[].width em LV/FV ≈ comprimento total da viga (tolerância ±1cm)"
+    - "Soma dos h1..h5 em cada zona de PL deve igualar altura total do pilar"

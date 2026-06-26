@@ -1,0 +1,195 @@
+{
+  "source_run": "sandbox_lv_loop\\runs\\20260622_015047\\Obra_TREINO_1\\13_PAV\\V301",
+  "viga": "V301",
+  "status": "generated_n4_unit_artifacts",
+  "face_units": [
+    {
+      "idx": 1,
+      "label": "CONT. V301.A",
+      "side": "A",
+      "segments": 4,
+      "dxf": "n4_face_unit_01_CONT__V301_A.dxf",
+      "png": "n4_face_unit_01_CONT__V301_A.png",
+      "png_stats": {
+        "width_px": 1089,
+        "height_px": 499,
+        "nonblack_ratio": 0.05178
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0707,
+        "mean_abs_diff": 10.71,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 2,
+      "label": "V301.A",
+      "side": "A",
+      "segments": 4,
+      "dxf": "n4_face_unit_02_V301_A.dxf",
+      "png": "n4_face_unit_02_V301_A.png",
+      "png_stats": {
+        "width_px": 1068,
+        "height_px": 499,
+        "nonblack_ratio": 0.048
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0809,
+        "mean_abs_diff": 13.05,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 3,
+      "label": "CONT. V301.A",
+      "side": "A",
+      "segments": 4,
+      "dxf": "n4_face_unit_03_CONT__V301_A.dxf",
+      "png": "n4_face_unit_03_CONT__V301_A.png",
+      "png_stats": {
+        "width_px": 1094,
+        "height_px": 499,
+        "nonblack_ratio": 0.05142
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0914,
+        "mean_abs_diff": 14.67,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 4,
+      "label": "V301.B",
+      "side": "B",
+      "segments": 2,
+      "dxf": "n4_face_unit_04_V301_B.dxf",
+      "png": "n4_face_unit_04_V301_B.png",
+      "png_stats": {
+        "width_px": 765,
+        "height_px": 499,
+        "nonblack_ratio": 0.04732
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0341,
+        "mean_abs_diff": 12.56,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 5,
+      "label": "CONT. V301.A",
+      "side": "A",
+      "segments": 4,
+      "dxf": "n4_face_unit_05_CONT__V301_A.dxf",
+      "png": "n4_face_unit_05_CONT__V301_A.png",
+      "png_stats": {
+        "width_px": 1089,
+        "height_px": 499,
+        "nonblack_ratio": 0.05109
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.1031,
+        "mean_abs_diff": 12.22,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 6,
+      "label": "CONT. V301.B",
+      "side": "B",
+      "segments": 4,
+      "dxf": "n4_face_unit_06_CONT__V301_B.dxf",
+      "png": "n4_face_unit_06_CONT__V301_B.png",
+      "png_stats": {
+        "width_px": 1099,
+        "height_px": 499,
+        "nonblack_ratio": 0.05173
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0349,
+        "mean_abs_diff": 12.58,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 7,
+      "label": "CONT. V301.B",
+      "side": "B",
+      "segments": 4,
+      "dxf": "n4_face_unit_07_CONT__V301_B.dxf",
+      "png": "n4_face_unit_07_CONT__V301_B.png",
+      "png_stats": {
+        "width_px": 1094,
+        "height_px": 499,
+        "nonblack_ratio": 0.05182
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0446,
+        "mean_abs_diff": 11.37,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    },
+    {
+      "idx": 8,
+      "label": "CONT. V301.B",
+      "side": "B",
+      "segments": 4,
+      "dxf": "n4_face_unit_08_CONT__V301_B.dxf",
+      "png": "n4_face_unit_08_CONT__V301_B.png",
+      "png_stats": {
+        "width_px": 1089,
+        "height_px": 499,
+        "nonblack_ratio": 0.05142
+      },
+      "coarse_n2_n4_similarity": {
+        "available": true,
+        "mask_iou": 0.0368,
+        "mean_abs_diff": 11.32,
+        "note": "coarse render metric only; final decision must use vision reasoning"
+      }
+    }
+  ],
+  "sections": [
+    {
+      "idx": 1,
+      "label": "V301",
+      "b_cm": 19.0,
+      "h_section": 55.0,
+      "dxf": "n4_section_01_V301.dxf",
+      "png": "n4_section_01_V301.png",
+      "png_stats": {
+        "width_px": 579,
+        "height_px": 499,
+        "nonblack_ratio": 0.21757
+      }
+    },
+    {
+      "idx": 2,
+      "label": "V301",
+      "b_cm": 19.0,
+      "h_section": 120.0,
+      "dxf": "n4_section_02_V301.dxf",
+      "png": "n4_section_02_V301.png",
+      "png_stats": {
+        "width_px": 502,
+        "height_px": 499,
+        "nonblack_ratio": 0.20622
+      }
+    }
+  ],
+  "decision": {
+    "stage": "n4_artifacts_ready",
+    "next": [
+      "Run agent vision on each N4 PNG and matching N2 face_unit PNG.",
+      "Compare section N4 PNG against N2 section evidence.",
+      "Only then promote from 80 to 90+."
+    ]
+  }
+}

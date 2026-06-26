@@ -1,0 +1,24 @@
+{
+  "item": "V101",
+  "obra": "Obra_TREINO_1",
+  "total_entities": 365,
+  "by_type": {
+    "DIMENSION": 5,
+    "INSERT": 3,
+    "LINE": 336,
+    "LWPOLYLINE": 3,
+    "TEXT": 18
+  },
+  "by_layer": {
+    "0": 1,
+    "00 - FELIPE": 1,
+    "5": 5,
+    "CARIMBO": 14,
+    "COTA": 8,
+    "NOMENCLATURA": 1,
+    "Pain\u00e9is": 11,
+    "SARR_2.2x7": 323,
+    "SARR_EDITAR": 1
+  },
+  "tolerance_pct": 5
+}

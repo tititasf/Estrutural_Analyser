@@ -1,0 +1,62 @@
+{
+  "numero": 47,
+  "nome": "LJ47",
+  "comprimento": 405,
+  "largura": 558,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      405,
+      0
+    ],
+    [
+      405,
+      558
+    ],
+    [
+      0,
+      558
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 225990,
+  "linhas_verticais": [
+    {
+      "value": 122,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    },
+    {
+      "value": 264.0,
+      "is_union": false
+    },
+    {
+      "value": 284.0,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    },
+    {
+      "value": 488.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

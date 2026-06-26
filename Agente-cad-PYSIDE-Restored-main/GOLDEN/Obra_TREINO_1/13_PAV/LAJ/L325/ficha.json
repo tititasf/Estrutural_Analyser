@@ -1,0 +1,146 @@
+{
+  "nome": "L325",
+  "numero": 325,
+  "coordenadas": [
+    [
+      129.0,
+      459.0
+    ],
+    [
+      0.0,
+      459.0
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      129.0,
+      0.0
+    ],
+    [
+      129.0,
+      459.0
+    ]
+  ],
+  "comprimento": 129.0,
+  "largura": 459.0,
+  "area_cm2": 59211.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 60.5,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 215.1,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "_sa_meta": {
+    "n3_line_source": "learned_n4_patterns",
+    "n3_pattern_nome": "L325",
+    "n3_pattern_score": 0.0,
+    "source": "comparison_engine_n1",
+    "item_id": "L325",
+    "fields": {
+      "nome": "L325",
+      "numero": "25",
+      "laje_dim": "h=12",
+      "laje_nivel": "852.19"
+    },
+    "validated_fields": [],
+    "validated_link_classes": {},
+    "n3_teacher": "N2_N4_validated_training",
+    "n3_teacher_fields": [
+      "linhas_verticais",
+      "linhas_horizontais",
+      "_stog_pose",
+      "unioes_nos_bordes"
+    ]
+  },
+  "_stog_pose": {
+    "x": 5352.07,
+    "y": 1582.89
+  },
+  "cotas_paineis": [
+    {
+      "value": 215.0,
+      "x": 57.27,
+      "y": 120.82,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 244.0,
+      "x": 58.92,
+      "y": 350.32,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 60.5,
+      "x": 30.25,
+      "y": 392.68,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 68.5,
+      "x": 94.75,
+      "y": 392.7,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    }
+  ],
+  "pontaletes": {},
+  "_forma_canonica": {
+    "cotas_valor": [
+      60.5,
+      68.5,
+      215.0,
+      244.0
+    ],
+    "textos": [
+      "100/19",
+      "14/55",
+      "19/50",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/80",
+      "215",
+      "244",
+      "60.5",
+      "68.5",
+      "L325",
+      "V304",
+      "V308",
+      "V321",
+      "V323",
+      "VER DET.",
+      "h=12"
+    ],
+    "textos_contexto": [
+      "P24",
+      "P26",
+      "P33"
+    ]
+  },
+  "_er_meta": {
+    "source": "fase4+dxf_extract",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L325_sel_1782277773.dxf",
+    "confianca": 0.85
+  },
+  "_confianca": 0.85,
+  "pavimento": "13_PAV"
+}

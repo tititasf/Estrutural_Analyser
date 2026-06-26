@@ -1,0 +1,34 @@
+{
+  "stage": "pending_vision",
+  "extractor_confidence": 0.93,
+  "counts": {
+    "section_views": 2,
+    "segments_A": 13,
+    "segments_B": 12
+  },
+  "ready_for_agent_vision": true,
+  "score_formula": {
+    "section_views": 25,
+    "segments_A": 25,
+    "segments_B": 25,
+    "main_dimensions": 15,
+    "details_provenance": 10
+  },
+  "extractor_health": {
+    "section_heights": [
+      55.0,
+      120.0
+    ],
+    "unique_section_heights": [
+      55.0,
+      120.0
+    ],
+    "segments_A": 13,
+    "segments_B": 12,
+    "component_crops": 3,
+    "warnings": [
+      "segments_A/segments_B count mismatch: 13 vs 12"
+    ],
+    "ready_for_stage_80": false
+  }
+}

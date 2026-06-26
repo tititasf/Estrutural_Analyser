@@ -1,0 +1,1578 @@
+{
+  "feedback_entries": [
+    {
+      "class_type": "slab",
+      "element_id": "31",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T01:11:35.035221",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "31",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T01:28:33.068298",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "31",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T01:58:02.155772",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "04",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:35:40.186966",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "02",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:35:57.313747",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "11",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:37:19.828595",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "14",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:37:58.028454",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "29",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:38:59.937708",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "05",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:39:33.114623",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "06",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:39:40.012284",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "07",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:39:48.086015",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "31",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:40:24.260770",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "29",
+      "field_name": "outline_validation",
+      "predicted_value": "motor_outline",
+      "actual_value": "human_validated",
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db1_n1_interpretation",
+        "area_cm2": null,
+        "vertex_count": null,
+        "accepted_lines": null,
+        "rejected_lines": null
+      },
+      "timestamp": "2026-06-18T12:40:58.927141",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L301",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L301_motor_178111331366.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 76,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.150005",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L302",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L302_motor_178111331368.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 120,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.209271",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L303",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L303_motor_178111331370.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 84,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.258437",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L304",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L304_motor_178111331371.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 119,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.305217",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L305",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L305_motor_178111331373.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 84,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.352894",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L306",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L306_motor_178111331375.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 120,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.400131",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L307",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L307_motor_178111331377.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 83,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.446666",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L308",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L308_sel_1781121913.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 113,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.500831",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L309",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L309_motor_178111331380.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 170,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.548993",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L310",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L310_motor_178111331382.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 112,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.598868",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L311",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L311_motor_178111331384.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 161,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.653955",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L312",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L312_sel_1781576266.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 124,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.708632",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L313",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L313_motor_178111331388.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 163,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.759236",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L314",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":4478.07,\"y0\":2048.94,\"x1\":5428.63,\"y1\":2603.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L314_motor_178164519182.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 189,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.822063",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L316",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L316_motor_178111331395.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 116,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.876925",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L319",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":2657.84,\"y0\":1655.94,\"x1\":3315.08,\"y1\":2273.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L319_motor_178164519199.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 209,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.933568",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L320",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":2993.57,\"y0\":1656.53,\"x1\":3752.08,\"y1\":2273.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L320_motor_178164519202.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 157,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:08.989079",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L321",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":3425.08,\"y0\":1656.52,\"x1\":4189.08,\"y1\":2273.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L321_motor_178164519206.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 183,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.048237",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L322",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":3862.08,\"y0\":1656.52,\"x1\":4626.08,\"y1\":2102.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L322_motor_178164519215.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 111,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.103717",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L323",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":4234.07,\"y0\":1636.94,\"x1\":5084.12,\"y1\":2273.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L323_motor_178164519219.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 285,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.158529",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L324",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": "{\"x0\":4736.08,\"y0\":1655.94,\"x1\":5364.07,\"y1\":2273.94}",
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L324_motor_178164519223.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 191,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.210752",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L326",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L326_motor_178111331413.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 80,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.274084",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L327",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L327_sel_1781576357.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 195,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.322962",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L328",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L328_motor_178111331416.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 156,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.372416",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L329",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L329_motor_178111331418.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 190,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.388004",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L330",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L330_motor_178111331421.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 154,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.403283",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "L331",
+      "field_name": "recorte_validation",
+      "predicted_value": {
+        "bbox_motor": null,
+        "source_path": null
+      },
+      "actual_value": {
+        "bbox_aprovado": null,
+        "approved_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L331_motor_178111331423.dxf"
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.0,
+      "context_signature": {
+        "source": "db2_recorte",
+        "delta_left": null,
+        "delta_right": null,
+        "delta_bottom": null,
+        "delta_top": null,
+        "entity_count_motor": null,
+        "entity_count_aprovado": 165,
+        "contour_closure_score": null,
+        "neighbor_capture_score": null
+      },
+      "timestamp": "2026-06-16T19:00:09.420100",
+      "pavimento": "13_PAV",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_1",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          681.5,
+          1.0,
+          1.0,
+          36.95066633882679,
+          1.981630737114746,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_2",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          681.5,
+          0.0,
+          1.0,
+          36.95066633882679,
+          3.116765873787692,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_3",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          703.0,
+          1.0,
+          0.0,
+          36.41911828306744,
+          2.534262316661051,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_4",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          703.0,
+          0.0,
+          0.0,
+          37.58052694044088,
+          2.534262316661051,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_5",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          122.0,
+          0.0,
+          1.0,
+          36.585662670448215,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_6",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          60.0,
+          0.0,
+          1.0,
+          36.72359370493098,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_7",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          25.0,
+          0.0,
+          1.0,
+          36.78595614073435,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_8",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          122.0,
+          0.0,
+          1.0,
+          36.88940441659642,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_9",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          23.5,
+          0.0,
+          1.0,
+          37.00055628746949,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_10",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          122.0,
+          0.0,
+          1.0,
+          37.102904049758564,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_11",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          25.0,
+          0.0,
+          1.0,
+          37.21515643420464,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_12",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          60.0,
+          0.0,
+          1.0,
+          37.27751887000801,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_13",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          122.0,
+          0.0,
+          1.0,
+          37.40664579590676,
+          2.352916100744419,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_14",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          244.0,
+          0.0,
+          0.0,
+          37.03169479090242,
+          2.208515519213008,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_15",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          244.0,
+          0.0,
+          0.0,
+          37.03169479090242,
+          2.5555994491940477,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    },
+    {
+      "class_type": "slab",
+      "element_id": "dim_example_16",
+      "field_name": "dimension_detection",
+      "predicted_value": {
+        "mode": 0,
+        "features": [
+          215.0,
+          0.0,
+          0.0,
+          37.03169479090242,
+          2.8820574898934277,
+          0.0
+        ]
+      },
+      "actual_value": {
+        "action_keep": 1,
+        "offset_x": 0.0,
+        "offset_y": 0.0
+      },
+      "was_correct": true,
+      "confidence_at_prediction": 0.5,
+      "context_signature": {
+        "source": "db3_learning_map",
+        "mode": 0,
+        "features_count": 6,
+        "source_type": "user_validation_button"
+      },
+      "timestamp": "2026-01-09 21:00:16",
+      "pavimento": "",
+      "project_uuid": "1b2a3019-af5f-4fe2-bf1d-ac0d814baa83"
+    }
+  ],
+  "learned_parameters": [
+    {
+      "class_type": "slab",
+      "field_name": "outline_validation",
+      "context_key": "global",
+      "parameter_name": "confidence_boost",
+      "parameter_value": 0.15,
+      "sample_count": 13,
+      "hit_rate": 1.0,
+      "last_updated": "2026-06-18T21:54:31.387048"
+    },
+    {
+      "class_type": "slab",
+      "field_name": "recorte_validation",
+      "context_key": "global",
+      "parameter_name": "confidence_boost",
+      "parameter_value": 0.15,
+      "sample_count": 27,
+      "hit_rate": 1.0,
+      "last_updated": "2026-06-18T21:54:31.387142"
+    },
+    {
+      "class_type": "slab",
+      "field_name": "dimension_detection",
+      "context_key": "global",
+      "parameter_name": "confidence_boost",
+      "parameter_value": 0.15,
+      "sample_count": 16,
+      "hit_rate": 1.0,
+      "last_updated": "2026-06-18T21:54:31.387169"
+    }
+  ]
+}

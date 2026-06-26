@@ -1,0 +1,72 @@
+{
+  "source_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\prod_pav13_sections_arete_gap1800",
+  "summary": [
+    {
+      "item": "V330",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 14,
+      "rendered": 2
+    }
+  ],
+  "rows": [
+    {
+      "item": "V330",
+      "unit_idx": 1,
+      "label": "V330.A",
+      "side": "A",
+      "segments": 7,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_pontalete_style_v330\\V330\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_pontalete_style_v330\\V330\\n4_units\\n4_face_unit_01_V330_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0341,
+        "density_ratio": 0.5243,
+        "coarse_visual_score": 20.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 25.0,
+        "h_total": 25.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Grade"
+        ]
+      }
+    },
+    {
+      "item": "V330",
+      "unit_idx": 2,
+      "label": "V330.B",
+      "side": "B",
+      "segments": 7,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_pontalete_style_v330\\V330\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_pontalete_style_v330\\V330\\n4_units\\n4_face_unit_02_V330_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0598,
+        "density_ratio": 0.4092,
+        "coarse_visual_score": 18.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 107.0,
+        "h_total": 107.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Grade"
+        ]
+      }
+    }
+  ],
+  "totals": {
+    "items": 1,
+    "units_rendered": 2,
+    "avg_coarse_visual": 19.4,
+    "min_coarse_visual": 18.2,
+    "missing_A": [],
+    "missing_B": []
+  }
+}

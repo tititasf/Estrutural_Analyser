@@ -1,0 +1,1014 @@
+{
+  "number": "331",
+  "name": "V331_A",
+  "floor": "Pavimento",
+  "side": "A",
+  "total_width": 14.0,
+  "total_height": 0.0,
+  "panels": [
+    {
+      "width": 220.0,
+      "height1": 55.0,
+      "height2": 55.0,
+      "grade_h1": "220.0",
+      "grade_h2": "220.0"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": true,
+    "width": 9.7,
+    "length": 79.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "h_A": 0.0,
+  "h_B": 0.0,
+  "b_geom": 14.0,
+  "h_section": 40.0,
+  "h_section_all": [
+    40.0
+  ],
+  "laje_sup_A": 0.0,
+  "laje_inf_A": 0.0,
+  "laje_sup_B": 0.0,
+  "laje_inf_B": 0.0,
+  "tipo_viga": "sarrafeada",
+  "section_views": [
+    {
+      "label": "Corte 1",
+      "b": 14.0,
+      "h_section": 40.0,
+      "h_A": 44.0,
+      "h_B": 44.0,
+      "h_body_A": 0.0,
+      "h_body_B": 0.0,
+      "laje_sup_A": 0.0,
+      "laje_inf_A": 0.0,
+      "laje_sup_B": 0.0,
+      "laje_inf_B": 0.0,
+      "topology": "u_straight",
+      "extension_left_cm": 0.0,
+      "extension_right_cm": 0.0,
+      "body_width_cm": 14.0,
+      "concrete_profiles": [
+        [
+          [
+            -24.5,
+            50.25
+          ],
+          [
+            3.5,
+            50.25
+          ],
+          [
+            3.5,
+            22.25
+          ],
+          [
+            3.5,
+            -29.75
+          ],
+          [
+            -24.5,
+            -29.75
+          ],
+          [
+            -24.5,
+            50.25
+          ]
+        ]
+      ],
+      "concrete_segments": [],
+      "visual_primitives": [
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              1.0,
+              -84.977
+            ],
+            [
+              6.0,
+              -79.977
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -22.0,
+              -79.977
+            ],
+            [
+              -27.0,
+              -84.977
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              82.872,
+              47.75
+            ],
+            [
+              77.872,
+              52.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              77.872,
+              -35.25
+            ],
+            [
+              82.872,
+              -40.25
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              7.5,
+              -0.75
+            ],
+            [
+              11.9,
+              -0.75
+            ],
+            [
+              11.9,
+              13.25
+            ],
+            [
+              7.5,
+              13.25
+            ],
+            [
+              7.5,
+              -0.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              -28.5,
+              -0.75
+            ],
+            [
+              -32.9,
+              -0.75
+            ],
+            [
+              -32.9,
+              13.25
+            ],
+            [
+              -28.5,
+              13.25
+            ],
+            [
+              -28.5,
+              -0.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "SARR_3.5x7",
+          "closed": false,
+          "points": [
+            [
+              -46.9,
+              -37.75
+            ],
+            [
+              25.9,
+              -37.75
+            ],
+            [
+              25.9,
+              -67.808
+            ],
+            [
+              -46.9,
+              -67.808
+            ],
+            [
+              -46.9,
+              -37.75
+            ]
+          ],
+          "color": 81,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "SARR_3.5x7",
+          "closed": false,
+          "points": [
+            [
+              25.9,
+              44.25
+            ],
+            [
+              11.9,
+              44.25
+            ],
+            [
+              11.9,
+              -114.228
+            ],
+            [
+              25.9,
+              -114.228
+            ],
+            [
+              25.9,
+              44.25
+            ]
+          ],
+          "color": 81,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "SARR_3.5x7",
+          "closed": false,
+          "points": [
+            [
+              -46.9,
+              44.25
+            ],
+            [
+              -32.9,
+              44.25
+            ],
+            [
+              -32.9,
+              -114.228
+            ],
+            [
+              -46.9,
+              -114.228
+            ],
+            [
+              -46.9,
+              44.25
+            ]
+          ],
+          "color": 81,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              7.5,
+              -37.75
+            ],
+            [
+              11.9,
+              -37.75
+            ],
+            [
+              11.9,
+              -23.75
+            ],
+            [
+              7.5,
+              -23.75
+            ],
+            [
+              7.5,
+              -37.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              7.5,
+              36.25
+            ],
+            [
+              11.9,
+              36.25
+            ],
+            [
+              11.9,
+              50.25
+            ],
+            [
+              7.5,
+              50.25
+            ],
+            [
+              7.5,
+              36.25
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              -28.5,
+              -37.75
+            ],
+            [
+              -32.9,
+              -37.75
+            ],
+            [
+              -32.9,
+              -23.75
+            ],
+            [
+              -28.5,
+              -23.75
+            ],
+            [
+              -28.5,
+              -37.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              -28.5,
+              36.25
+            ],
+            [
+              -32.9,
+              36.25
+            ],
+            [
+              -32.9,
+              50.25
+            ],
+            [
+              -28.5,
+              50.25
+            ],
+            [
+              -28.5,
+              36.25
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "CONCRETO",
+          "closed": false,
+          "points": [
+            [
+              -24.5,
+              50.25
+            ],
+            [
+              3.5,
+              50.25
+            ],
+            [
+              3.5,
+              22.25
+            ],
+            [
+              3.5,
+              -29.75
+            ],
+            [
+              -24.5,
+              -29.75
+            ],
+            [
+              -24.5,
+              50.25
+            ]
+          ],
+          "color": 251,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": false,
+          "points": [
+            [
+              7.5,
+              50.25
+            ],
+            [
+              3.5,
+              50.25
+            ],
+            [
+              3.5,
+              -37.75
+            ],
+            [
+              7.5,
+              -37.75
+            ],
+            [
+              7.5,
+              50.25
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              -24.5,
+              -37.75
+            ],
+            [
+              -24.5,
+              -33.35
+            ],
+            [
+              -14.5,
+              -33.35
+            ],
+            [
+              -14.5,
+              -37.75
+            ],
+            [
+              -24.5,
+              -37.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": false,
+          "points": [
+            [
+              3.5,
+              -33.35
+            ],
+            [
+              3.5,
+              -29.75
+            ],
+            [
+              -24.5,
+              -29.75
+            ],
+            [
+              -24.5,
+              -33.35
+            ],
+            [
+              3.5,
+              -33.35
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": false,
+          "points": [
+            [
+              3.5,
+              -37.75
+            ],
+            [
+              3.5,
+              -33.35
+            ],
+            [
+              -6.5,
+              -33.35
+            ],
+            [
+              -6.5,
+              -37.75
+            ],
+            [
+              3.5,
+              -37.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": false,
+          "points": [
+            [
+              -28.5,
+              50.25
+            ],
+            [
+              -24.5,
+              50.25
+            ],
+            [
+              -24.5,
+              -37.75
+            ],
+            [
+              -28.5,
+              -37.75
+            ],
+            [
+              -28.5,
+              50.25
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -14.833,
+              -2.75
+            ],
+            [
+              -14.833,
+              -17.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              3.833,
+              -2.75
+            ],
+            [
+              -14.833,
+              -2.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              3.833,
+              -17.75
+            ],
+            [
+              3.833,
+              -2.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -14.833,
+              -17.75
+            ],
+            [
+              3.833,
+              -17.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -24.5,
+              -82.477
+            ],
+            [
+              3.5,
+              -82.477
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              3.5,
+              -40.75
+            ],
+            [
+              3.5,
+              -85.477
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -24.5,
+              -40.75
+            ],
+            [
+              -24.5,
+              -85.477
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -61.1,
+              -37.75
+            ],
+            [
+              -116.157,
+              -37.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -35.9,
+              50.25
+            ],
+            [
+              -116.157,
+              50.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -16.0,
+              0.583
+            ],
+            [
+              -1.0,
+              0.583
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -16.0,
+              19.917
+            ],
+            [
+              -16.0,
+              0.583
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -1.0,
+              19.917
+            ],
+            [
+              -16.0,
+              19.917
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -1.0,
+              0.583
+            ],
+            [
+              -1.0,
+              19.917
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              80.372,
+              -37.75
+            ],
+            [
+              80.372,
+              50.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              14.5,
+              50.25
+            ],
+            [
+              83.372,
+              50.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              30.1,
+              -37.75
+            ],
+            [
+              83.372,
+              -37.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "Cota Seção (2x)",
+          "text": "14",
+          "insert": [
+            -5.5,
+            -10.25
+          ],
+          "align_point": [
+            -5.5,
+            -10.25
+          ],
+          "height": 7.0,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "14",
+          "insert": [
+            -10.5,
+            -76.977
+          ],
+          "align_point": [
+            -10.5,
+            -76.977
+          ],
+          "height": 7.0,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "44",
+          "insert": [
+            -104.657,
+            6.25
+          ],
+          "align_point": [
+            -104.657,
+            6.25
+          ],
+          "height": 7.0,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "Cota Seção (2x)",
+          "text": "40",
+          "insert": [
+            5.5,
+            10.25
+          ],
+          "align_point": [
+            5.5,
+            10.25
+          ],
+          "height": 7.0,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "detalhes",
+          "text": "c",
+          "insert": [
+            -13.9,
+            -27.514
+          ],
+          "align_point": [
+            -13.9,
+            -27.514
+          ],
+          "height": 9.6,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "detalhes",
+          "text": "a",
+          "insert": [
+            -40.329,
+            7.883
+          ],
+          "align_point": [
+            -40.329,
+            7.883
+          ],
+          "height": 9.6,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 4,
+          "linetype": "BYLAYER"
+        }
+      ],
+      "profile_source": "concrete_layer_geometry",
+      "bbox": {
+        "x_left": -55.0,
+        "x_right": 255.0,
+        "y_bot": -175.0,
+        "y_top": 175.0
+      },
+      "source": "section_text_cluster"
+    }
+  ],
+  "continuation": "",
+  "text_left": "",
+  "text_right": "",
+  "face_units": [],
+  "panels_A": [],
+  "panels_B": [],
+  "_er_meta": {
+    "source": "dxf_geom_parcial",
+    "dxf_path": "sandbox_lv_loop\\section_visual_10_iteration_05\\V331\\n4_section_01_Corte.dxf",
+    "confianca": 0.5
+  },
+  "_confianca": 0.5
+}

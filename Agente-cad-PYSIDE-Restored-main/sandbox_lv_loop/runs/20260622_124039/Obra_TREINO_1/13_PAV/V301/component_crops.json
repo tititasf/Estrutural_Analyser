@@ -1,0 +1,41 @@
+[
+  {
+    "file": "crop_01.png",
+    "bbox_px": [
+      805,
+      0,
+      1194,
+      241
+    ],
+    "width_px": 389,
+    "height_px": 241,
+    "component_area_px": 64149,
+    "idx": 1
+  },
+  {
+    "file": "crop_02.png",
+    "bbox_px": [
+      1177,
+      0,
+      1578,
+      249
+    ],
+    "width_px": 401,
+    "height_px": 249,
+    "component_area_px": 61729,
+    "idx": 2
+  },
+  {
+    "file": "crop_03.png",
+    "bbox_px": [
+      53,
+      277,
+      380,
+      468
+    ],
+    "width_px": 327,
+    "height_px": 191,
+    "component_area_px": 39588,
+    "idx": 3
+  }
+]

@@ -1,0 +1,143 @@
+; (numeracao: V1A, largura: 730.00, altura: 19.00, continuacao: UltimoSegmento)
+ZOOM
+C
+5.0000,54.5000
+5
+;
+-LAYER
+S Painéis
+
+;
+; Linha lateral esquerda (recuo)
+_PLINE
+5.0000,45.0000
+5.0000,64.0000
+
+;
+-LAYER
+S NOMENCLATURA
+
+;
+-STYLE
+Standard
+
+0
+
+
+
+
+
+;
+_TEXT
+5.0000,72.0000
+12
+0
+V1A
+;
+_TEXT
+55.0000,72.0000
+12
+0
+
+;
+-LAYER
+S 5
+
+;
+;
+_TEXT
+0.0000,0.0000
+8
+90
+SemTextoEsquerda
+;
+;
+_TEXT
+747.0000,0.0000
+8
+90
+SemTextoDireita
+;
+-LAYER
+S SARR_2.2x7
+
+;
+ZOOM
+C
+370.0000,54.5000
+5
+;
+; Sarrafo Esquerdo
+_PLINE
+12.0000,45.0000
+12.0000,64.0000
+
+;
+; Sarrafo Direito
+_PLINE
+728.0000,45.0000
+728.0000,64.0000
+
+;
+-LAYER
+S Painéis
+
+;
+-LAYER
+S Painéis
+
+;
+-LAYER
+S COTA
+
+;
+_DIMLINEAR
+5.0000,45.0000
+735.0000,45.0000
+370.0000,0.0000
+;
+;
+_DIMLINEAR
+735.0000,45.0000
+735.0000,64.0000
+765.0000,59.5000
+;
+;
+-LAYER
+S SARR_2.2x7
+
+;
+ZOOM
+C
+370.0000,54.5000
+5
+;
+-LAYER
+S SARR_2.2x7
+
+;
+_LINETYPE
+S
+continuous
+
+;
+-LAYER
+S Painéis
+
+;
+_PLINE
+5.0000,45.0000
+5.0000,64.0000
+
+;
+-LAYER
+S SARR_2.2x7
+
+;
+-LAYER
+S COTA
+
+;
+_LINETYPE
+S
+Continuous

@@ -1,0 +1,266 @@
+{
+  "numero": 319,
+  "nome": "L319",
+  "comprimento": 406.5,
+  "largura": 558.07,
+  "pavimento": "Pavimento",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      406.5,
+      0.0
+    ],
+    [
+      406.5,
+      558.07
+    ],
+    [
+      0.0,
+      558.07
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 226855.46,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    },
+    {
+      "value": 263.9,
+      "is_union": false
+    },
+    {
+      "value": 284.4,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 143.1,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-06-17 12:33",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  },
+  "cotas_paineis": [
+    {
+      "value": 116.9,
+      "x": 231.2,
+      "y": -47.32,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 116.9,
+      "x": 348.07,
+      "y": -47.32,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 104.0,
+      "x": 211.98,
+      "y": -17.73,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 179.0,
+      "x": 253.23,
+      "y": 53.57,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 162.0,
+      "x": 171.56,
+      "y": 62.07,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 143.1,
+      "x": 114.11,
+      "y": 71.53,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 244.0,
+      "x": 257.59,
+      "y": 265.07,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 61.0,
+      "y": 302.74,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 203.0,
+      "y": 302.74,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 345.5,
+      "y": 302.74,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 20.0,
+      "x": 132.25,
+      "y": 302.78,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 20.5,
+      "x": 274.25,
+      "y": 302.79,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 171.0,
+      "x": 102.68,
+      "y": 472.57,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 61.5,
+      "x": 152.75,
+      "y": 476.68,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    }
+  ],
+  "_stog_pose": {
+    "x": 2741.57,
+    "y": 1703.87
+  },
+  "_forma_canonica": {
+    "cotas_valor": [
+      20.0,
+      20.5,
+      61.5,
+      104.0,
+      116.9,
+      116.9,
+      122.0,
+      122.0,
+      122.0,
+      143.1,
+      162.0,
+      171.0,
+      179.0,
+      244.0
+    ],
+    "textos": [
+      "104",
+      "116.9",
+      "116.9",
+      "122",
+      "122",
+      "122",
+      "14/50",
+      "143.1",
+      "162",
+      "171",
+      "179",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/60",
+      "19/60",
+      "20",
+      "20.5",
+      "244",
+      "61.5",
+      "852.19",
+      "L319",
+      "V303",
+      "V306",
+      "V307",
+      "V309",
+      "V310",
+      "V311",
+      "h=14"
+    ],
+    "textos_contexto": [
+      "P10",
+      "P25"
+    ]
+  },
+  "_er_meta": {
+    "source": "fase4+dxf_extract",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L319_motor_178164519199.dxf",
+    "confianca": 0.85
+  }
+}

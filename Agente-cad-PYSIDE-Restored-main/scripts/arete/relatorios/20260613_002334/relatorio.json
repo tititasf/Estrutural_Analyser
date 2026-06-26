@@ -1,0 +1,147 @@
+{
+  "classe": "PIL",
+  "pavimento": "13_PAV",
+  "rodada_ts": "20260613_002334",
+  "total": 1,
+  "pass": 0,
+  "fail": 1,
+  "blocked": 0,
+  "arete_pct": 0.0,
+  "itens": [
+    {
+      "elemento_id": "P1",
+      "classe": "PIL",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P1_motor_178106117394.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "PIL",
+        "elemento_id": "P1",
+        "campos_comparados": 103,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_P1\\Fase-6_Execucao_CAD\\PL_preview_P1.dxf",
+        "log_gerador": "Processando 1 pilares [item=P1] (3 zones: ABCD/CIMA/GRADES)\n  ABCD zone: X=-7000\n  CIMA zone: X=0\n  GRADES zone: X=4000\n\n  [ 1] P1: 66.0x19.0cm h=321cm  entities=903\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\nTotal entities: 903\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_P1\\Fase-6_Execucao_CAD\\PL_preview_P1.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_P1\\Fase-6_Execucao_CAD\\PL_stog_quality.png\n",
+        "erro": ""
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "FAIL",
+        "scores": {
+          "entidades_ok": false,
+          "geometria_ok": false,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 833,
+          "total_n4": 907
+        },
+        "diffs_entidades": [
+          {
+            "layer": "SARR_2.2x7",
+            "dxftype": "LINE",
+            "ref": 14,
+            "n4": 30,
+            "delta": 16
+          },
+          {
+            "layer": "SARR_2.2x7",
+            "dxftype": "INSERT",
+            "ref": 0,
+            "n4": 4,
+            "delta": 4
+          },
+          {
+            "layer": "SARR_3.5x7",
+            "dxftype": "LINE",
+            "ref": 0,
+            "n4": 8,
+            "delta": 8
+          },
+          {
+            "layer": "SARR_2.2x10",
+            "dxftype": "LINE",
+            "ref": 0,
+            "n4": 32,
+            "delta": 32
+          },
+          {
+            "layer": "SARR_2.2x10",
+            "dxftype": "DIMENSION",
+            "ref": 0,
+            "n4": 13,
+            "delta": 13
+          },
+          {
+            "layer": "COTA",
+            "dxftype": "DIMENSION",
+            "ref": 0,
+            "n4": 1,
+            "delta": 1
+          }
+        ],
+        "diffs_geometria": [
+          {
+            "layer": "SARR_2.2x7",
+            "ref_len": 1690.0,
+            "n4_len": 3355.8,
+            "delta_pct": 98.57
+          },
+          {
+            "layer": "SARRAFO",
+            "ref_len": 294.4,
+            "n4_len": 259.2,
+            "delta_pct": 11.96
+          },
+          {
+            "layer": "CHAPA",
+            "ref_len": 1772.8,
+            "n4_len": 916.8,
+            "delta_pct": 48.29
+          },
+          {
+            "layer": "SARR_3.5x7",
+            "ref_len": 0.0,
+            "n4_len": 1305.0,
+            "delta_pct": 100.0
+          },
+          {
+            "layer": "Painéis",
+            "ref_len": 3105.0,
+            "n4_len": 2973.0,
+            "delta_pct": 4.25
+          },
+          {
+            "layer": "SARR_2.2x10",
+            "ref_len": 0.0,
+            "n4_len": 1568.0,
+            "delta_pct": 100.0
+          },
+          {
+            "layer": "Madeira",
+            "ref_len": 1376.01,
+            "n4_len": 954.12,
+            "delta_pct": 30.66
+          },
+          {
+            "layer": "Perfil Metálico",
+            "ref_len": 2112.0,
+            "n4_len": 1120.0,
+            "delta_pct": 46.97
+          }
+        ],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260613_002334\\png\\PIL_P1.png",
+        "erro": ""
+      },
+      "g6": {},
+      "resultado_final": "FAIL",
+      "golden_selado": false
+    }
+  ]
+}

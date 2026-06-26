@@ -1,0 +1,41 @@
+{
+  "numero": 2,
+  "nome": "LJ02",
+  "comprimento": 200,
+  "largura": 100,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      200,
+      0
+    ],
+    [
+      200,
+      100
+    ],
+    [
+      0,
+      100
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 20000,
+  "linhas_verticais": [],
+  "linhas_horizontais": [
+    {
+      "value": 60.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

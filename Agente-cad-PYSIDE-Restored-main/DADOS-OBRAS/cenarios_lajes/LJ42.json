@@ -1,0 +1,58 @@
+{
+  "numero": 42,
+  "nome": "LJ42",
+  "comprimento": 976,
+  "largura": 244,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      976,
+      0
+    ],
+    [
+      976,
+      244
+    ],
+    [
+      0,
+      244
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 238144,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    },
+    {
+      "value": 488.0,
+      "is_union": false
+    },
+    {
+      "value": 732.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 122,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

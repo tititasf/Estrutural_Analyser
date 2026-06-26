@@ -229,10 +229,10 @@ def _raw_ops_to_qt(raw_ops: list) -> list:
 
 
 # Caps conservadores — priorizamos segurança de memória sobre completude visual
-_MAX_PATH_OPS   = 600   # paths/lines
-_MAX_FILL_OPS   = 20    # HATCH fills — muito pesados
-_MAX_TEXT_OPS   = 60    # textos
-_MAX_INSERT_OPS = 15    # blocos expandidos
+_MAX_PATH_OPS   = 999999   # paths/lines
+_MAX_FILL_OPS   = 999999    # HATCH fills — muito pesados
+_MAX_TEXT_OPS   = 999999    # textos
+_MAX_INSERT_OPS = 999999    # blocos expandidos
 
 # DXFs maiores que este limite não são renderizados inline (evita OOM)
 _MAX_DXF_MB = 30.0
@@ -4516,6 +4516,26 @@ class NavSidebar(QFrame):
             self.lst.addItem(it)
 
     @staticmethod
+    def _lv_strip_pp(item_id: str) -> str:
+        """Strip sufixo virtual Para/Passa de item_id LV: 'V301_A_Para' → 'V301_A'."""
+        import re as _re
+        return _re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_re.IGNORECASE)
+
+    @staticmethod
+    def _lv_elem_id(item_id: str) -> str:
+        """Extrai elem_id de DB para LV: 'V301_A_Para' → 'V301' (sem face, sem pp)."""
+        import re as _re
+        clean = _re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_re.IGNORECASE)
+        return _re.sub(r'[_\.][AB]$', '', clean)
+
+    @staticmethod
+    def _lv_pp_from_id(item_id: str) -> str:
+        """Extrai 'para' ou 'passa' do ID virtual LV: 'V301_A_Para' → 'para'."""
+        import re as _re
+        m = _re.search(r'_(Para|Passa)$', str(item_id), _re.IGNORECASE)
+        return m.group(1).lower() if m else ""
+
+    @staticmethod
     def _lv_stem_to_display(stem: str, para_passa: str = "") -> str:
         """Transforma stem de JSON LV em nome padronizado com traços.
 
@@ -4572,14 +4592,19 @@ class NavSidebar(QFrame):
         add(raw)
         add(raw.replace(".C", ""))
         if cls == "LV":
-            # Strip prefixes/suffixes: "LV-V10.A-Para" → "V10_A", "V10.A", "V10"
-            clean = _re.sub(r"^LV-", "", raw)                          # "V10.A-PARA"
-            clean = _re.sub(r"-(PARA|PASSA)$", "", clean)               # "V10.A"
+            # Strip prefixes/suffixes: "LV-V10.A-Para", "V10_A_Para" → core aliases
+            clean = _re.sub(r"^LV-", "", raw)                           # "V10.A-PARA" / "V10_A_PARA"
+            clean = _re.sub(r"-(PARA|PASSA)$", "", clean)               # strip -PARA/-PASSA
+            clean = _re.sub(r"_(PARA|PASSA)$", "", clean)               # strip _Para/_Passa
             add(clean)
-            add(clean.replace(".", "_"))                                 # "V10_A"
-            add(clean.replace("_", "."))                                 # "V10.A"
-            add(_re.sub(r"[_\.][AB]$", "", clean))                      # "V10"
+            add(clean.replace(".", "_"))                                  # "V10_A"
+            add(clean.replace("_", "."))                                  # "V10.A"
+            base_no_face = _re.sub(r"[_\.][AB]$", "", clean)            # "V10"
+            add(base_no_face)
             add(_re.sub(r"_[AB]$", "", raw))
+            # Aliases Para/Passa para correspondência com recortes futuros
+            for sfx in ("-PARA", "-PASSA", "_PARA", "_PASSA"):
+                add(base_no_face + sfx)
         if cls == "FV":
             add(_re.sub(r"(?:\.C)+$", "", raw))
             add(raw if raw.endswith(".C") else f"{raw}.C")
@@ -4630,24 +4655,37 @@ class NavSidebar(QFrame):
         if not item_ids and cls == "LV":
             item_ids = VIGAS_LV_LIST
 
+        import re as _re
         obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
         pav_key = self._current_pav or ""
         rows: dict[str, dict] = {}
         for iid in item_ids:
-            n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
+            # verifica DXF N3 existente (sem face e sem Para/Passa no nome)
+            base_stem = _re.sub(r'[_\.][AB]$', '', str(iid))
+            n3_ok = ((prev_dir / f"{prefix}{iid}.dxf").exists() or
+                     (prev_dir / f"{prefix}{base_stem}.dxf").exists())
             if cls == "LV":
-                base = self._lv_base_from_stem(str(iid))
-                pp = load_para_passa(obra_name, pav_key, "LV", base)
-                display_text = self._lv_stem_to_display(str(iid), pp)
+                # Cada face LV gera DUAS instâncias independentes: Para e Passa
+                for pp in ("para", "passa"):
+                    virt_id = f"{iid}_{pp.capitalize()}"
+                    display_text = self._lv_stem_to_display(str(iid), pp)
+                    rows[virt_id] = {
+                        "id": virt_id,
+                        "text": display_text,
+                        "source": "estrutural",
+                        "recorte_path": "",
+                        "ok": n3_ok,
+                        "base_stem": str(iid),
+                    }
             else:
                 display_text = str(iid)
-            rows[str(iid)] = {
-                "id": str(iid),
-                "text": display_text,
-                "source": "estrutural",
-                "recorte_path": "",
-                "ok": n3_ok,
-            }
+                rows[str(iid)] = {
+                    "id": str(iid),
+                    "text": display_text,
+                    "source": "estrutural",
+                    "recorte_path": "",
+                    "ok": n3_ok,
+                }
         return rows
 
     def _reverse_item_rows(self, cls: str) -> dict[str, dict]:
@@ -5840,13 +5878,15 @@ class TriLevelArea(QWidget):
         p = fase6 / f"{pfx}{item_id}.dxf"
         if p.exists():
             return p
-        # Para LV/FV: strip sufixo de face (_A, _B, .A, .B)
+        # Para LV/FV: strip Para/Passa virtual suffix e depois face
         if classe in ("LV", "FV"):
             import re
-            stem = re.sub(r'[_\.]([AB])$', '', item_id)
-            p2 = fase6 / f"{pfx}{stem}.dxf"
-            if p2.exists():
-                return p2
+            clean = re.sub(r'_(Para|Passa)$', '', item_id)   # "V301_A_Para" → "V301_A"
+            stem = re.sub(r'[_\.]([AB])$', '', clean)         # "V301_A" → "V301"
+            for cand in (clean, stem):
+                p2 = fase6 / f"{pfx}{cand}.dxf"
+                if p2.exists():
+                    return p2
         return None
 
     def _get_n1_bbox_for(self, item_id: str, classe: str = "", R: int = 134):
@@ -5993,14 +6033,16 @@ class TriLevelArea(QWidget):
         # LV: usa KB (NOMENCLATURA labels)
         if not self._kb_ents:
             return None
+        # IDs virtuais: strip Para/Passa antes de buscar no KB
+        lv_stem = self._lv_strip_pp(item_id)   # "V301_A_Para" → "V301_A"
         # KB usa ponto (V4.A), NavSidebar usa underscore (V4_A) — normalizar
-        kb_id = item_id.replace('_', '.')
+        kb_id = lv_stem.replace('_', '.')
         cx = cy = None
         for e in self._kb_ents:
             if e.get('type') not in ('MTEXT', 'TEXT'):
                 continue
             c = (e.get('content', '') or '').replace('\\P', '\n').split('\n')[0].strip()
-            if c in (item_id, kb_id) and e.get('layer', '') == 'NOMENCLATURA':
+            if c in (lv_stem, kb_id) and e.get('layer', '') == 'NOMENCLATURA':
                 ins = e.get('insert', [0, 0])
                 cx, cy = ins[0], ins[1]
                 break
@@ -6580,11 +6622,13 @@ class TriLevelArea(QWidget):
         fase4 = obra_dir / "Fase-4_Sincronizacao"
 
         if classe == 'LV':
+            import re as _re2
+            base_item_id = _re2.sub(r'_(Para|Passa)$', '', item_id)  # strip sufixo virtual
             # LV usa fichas_lv_v2 (estrutura especializada)
-            entries = [f for f in self._fichas_lv_v2 if f.get('viga') == item_id]
+            entries = [f for f in self._fichas_lv_v2 if f.get('viga') == base_item_id]
             if not entries:
                 # Fallback para JSON individual em Fase-4
-                return self._ficha_fase4_json('LV', item_id, fase4 / "JSON_Vigas_Laterais")
+                return self._ficha_fase4_json('LV', base_item_id, fase4 / "JSON_Vigas_Laterais")
             rows = []
             for e in entries:
                 face = e.get('face', '?')
@@ -7587,9 +7631,9 @@ class ComparisonEngineModule(QWidget):
             )
             # Para LV: exibe Para/Passa em N3 e N4 sincronizado com N2
             if classe == "LV":
-                import re as _re2
-                viga_base = _re2.sub(r'[_\.][AB]$', '', str(item_id).upper())
-                tipo = load_para_passa(obra, pav, "LV", viga_base)
+                tipo = self._lv_pp_from_id(item_id) or load_para_passa(
+                    obra, pav, "LV", self._lv_elem_id(item_id))
+                viga_base = self._lv_elem_id(item_id)
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
@@ -7636,9 +7680,10 @@ class ComparisonEngineModule(QWidget):
                     lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t),
                 )
             elif classe == "LV":
-                import re as _re2
-                viga_base = _re2.sub(r'[_\.][AB]$', '', str(item_id).upper())
-                tipo = load_para_passa(obra, pav, "LV", viga_base)
+                # Para IDs virtuais "V301_A_Para", extrai pp do ID e viga_base sem face/pp
+                tipo = self._lv_pp_from_id(item_id) or load_para_passa(
+                    obra, pav, "LV", self._lv_elem_id(item_id))
+                viga_base = self._lv_elem_id(item_id)
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
@@ -8024,6 +8069,9 @@ class ComparisonEngineModule(QWidget):
         3. reverse_eng_recortes (sem coluna pavimento — pode pegar pavimento errado)
         4. disco direto
         """
+        # LV: IDs virtuais "V301_A_Para" → elem_id no DB é "V301"
+        if classe == "LV":
+            item_id = self._lv_elem_id(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -8110,6 +8158,9 @@ class ComparisonEngineModule(QWidget):
         Prioridade: reverse_eng_fichas cacheada (qualquer recorte_path) →
         info básica de reverse_eng_recortes → mensagem orientativa."""
         import json as _json
+        # LV: IDs virtuais "V301_A_Para" → elem_id no DB é "V301"
+        if classe == "LV":
+            item_id = self._lv_elem_id(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -8373,6 +8424,8 @@ class ComparisonEngineModule(QWidget):
 
         obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         obra_dir = str(DADOS_OBRAS_ROOT / obra)
+        # LV: script espera stem real (ex: "V301_A"), não ID virtual "V301_A_Para"
+        script_item_id = self._lv_strip_pp(item_id) if classe == "LV" else item_id
 
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.MergedChannels)
@@ -8380,7 +8433,7 @@ class ComparisonEngineModule(QWidget):
         self._process.finished.connect(
             lambda code, _: self._on_n3_gen_done(code, col, classe, item_id)
         )
-        args = [str(script), "--obra", obra_dir, "--item", item_id]
+        args = [str(script), "--obra", obra_dir, "--item", script_item_id]
         self._process.start(sys.executable, args)
 
     def _on_n3_gen_done(self, code: int, col, classe: str, item_id: str):
@@ -8589,6 +8642,9 @@ class ComparisonEngineModule(QWidget):
         """Retorna a ficha ER como dicionário (para passar ao script robô).
         Tenta DB primeiro, depois motor on-demand no DXF do disco."""
         import json as _json, re as _re
+        # LV: IDs virtuais "V301_A_Para" → elem_id no DB/motor é "V301"
+        if classe == "LV":
+            item_id = self._lv_elem_id(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -9351,7 +9407,9 @@ class ComparisonEngineModule(QWidget):
             self._process = None
 
         import re as _re, tempfile as _tempfile, uuid as _uuid
-        base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
+        # LV: strip sufixo virtual Para/Passa antes de extrair base (sem face)
+        _clean_id = _re.sub(r'_(Para|Passa)$', '', item_id, flags=_re.IGNORECASE)
+        base_id = _re.sub(r'[_\.]([AB])$', '', _clean_id, flags=_re.IGNORECASE)
         n4_script = SCRIPTS_DIR / "arete" / "gerar_lv_n4_fichas.py"
         out_dir    = obra_dir / "Fase-6_Execucao_CAD" / "n4"
         out_dir.mkdir(parents=True, exist_ok=True)

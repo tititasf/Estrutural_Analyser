@@ -1,0 +1,28 @@
+{
+ "signatures": [
+  {
+   "keyid": "b200a2df93ffd0aff584445c109aa3f82073f8e45c3459a6f82a99d727869799",
+   "sig": "82dc539902ecaabfea8255c40db4dc39197c414bf742df0d276051bbecbd15d97febb3cd63eb9dad43b955f5107bb007b49c9af32fef61edfc1f669ee07cc404"
+  }
+ ],
+ "signed": {
+  "_type": "targets",
+  "expires": "2026-01-30T09:24:46Z",
+  "spec_version": "1.0.31",
+  "targets": {
+   "AgenteCAD-1.0.1.tar.gz": {
+    "custom": {
+     "tufup": {
+      "required": false
+     },
+     "user": null
+    },
+    "hashes": {
+     "sha256": "bb115fd6f975bb3fc491ffd057b6a0d24ae5aa60346388ab0d132a256205a588"
+    },
+    "length": 562059401
+   }
+  },
+  "version": 6
+ }
+}

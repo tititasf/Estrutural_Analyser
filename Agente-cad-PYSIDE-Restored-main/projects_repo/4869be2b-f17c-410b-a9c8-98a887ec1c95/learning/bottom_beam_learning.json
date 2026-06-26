@@ -1,0 +1,491 @@
+{
+  "feedback_entries": [
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_1_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:22:09.309911",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_1_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:22:11.674701",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_2_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:22:45.636383",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_2_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:22:48.538577",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_3_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:23:44.998576",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_3_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:23:47.618368",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_4_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:24:15.827973",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_4_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:24:17.994849",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_5_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:24:41.029528",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_5_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:24:42.859246",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_7_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:25:27.292864",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_7_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:25:28.995736",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_8_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:26:11.093075",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_8_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:26:15.778630",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_9_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:26:55.893284",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V301",
+      "field_name": "viga_fundo_seg_9_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:26:57.898920",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_1_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:27:50.020919",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_1_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:27:59.170807",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_2_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:29:19.220390",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_3_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:30:13.971931",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_4_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:30:42.181231",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_5_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:31:26.419979",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_6_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:32:02.948118",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_7_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:32:34.124198",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_7_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:32:36.546536",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_9_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:33:16.157417",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    },
+    {
+      "class_type": "bottom_beam",
+      "element_id": "V302",
+      "field_name": "viga_fundo_seg_8_area_segs",
+      "predicted_value": null,
+      "actual_value": "Polyline",
+      "was_correct": true,
+      "confidence_at_prediction": 1.0,
+      "context_signature": [
+        1.0,
+        0.0,
+        0.0,
+        1000.0
+      ],
+      "timestamp": "2026-06-18T22:33:19.044409",
+      "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+      "project_uuid": "4869be2b-f17c-410b-a9c8-98a887ec1c95"
+    }
+  ],
+  "learned_parameters": []
+}

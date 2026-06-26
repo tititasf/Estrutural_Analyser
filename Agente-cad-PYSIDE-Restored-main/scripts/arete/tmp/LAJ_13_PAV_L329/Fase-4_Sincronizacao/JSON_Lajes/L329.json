@@ -1,0 +1,673 @@
+{
+  "nome": "L329",
+  "numero": 329,
+  "coordenadas": [
+    [
+      2.5,
+      0.0
+    ],
+    [
+      415.5,
+      0.0
+    ],
+    [
+      415.5,
+      52.0
+    ],
+    [
+      418.0,
+      52.0
+    ],
+    [
+      418.0,
+      71.0
+    ],
+    [
+      0.0,
+      71.0
+    ],
+    [
+      0.0,
+      52.0
+    ],
+    [
+      2.5,
+      52.0
+    ],
+    [
+      2.5,
+      0.0
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 71.0,
+  "area_cm2": 29418.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 204.9,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 35.6,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "structural_analyzer",
+    "project_id": "4869be2b-f17c-410b-a9c8-98a887ec1c95",
+    "id_item": "29",
+    "validated_fields": [],
+    "validated_link_classes": {},
+    "n3_line_source": "learned_n4_patterns",
+    "n3_pattern_nome": "L329",
+    "n3_pattern_score": 0.0,
+    "n3_source": "structural_analyzer_n1",
+    "n3_teacher": null,
+    "ce_sync_source": "slab_elements",
+    "ce_sync_updated_at": "2026-06-24T18:53:07"
+  },
+  "laje_dim": "h=10",
+  "laje_nivel": "852.12",
+  "links": {
+    "name": {
+      "label": [
+        {
+          "text": "L329",
+          "type": "text",
+          "pos": [
+            2682.775732,
+            1999.085492
+          ],
+          "role": "Identificador Laje"
+        }
+      ]
+    },
+    "laje_dim": {
+      "label": [
+        {
+          "text": "h=10",
+          "pos": [
+            2693.819936,
+            1983.104563
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1
+        }
+      ]
+    },
+    "laje_visao_corte": {
+      "cut_view_geom": []
+    },
+    "laje_vizinhas_niveis": {
+      "neighbor_north": [
+        {
+          "text": "L322",
+          "type": "text",
+          "pos": [
+            2667.459728,
+            2267.720562
+          ],
+          "role": "neighbor_north",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L322",
+          "source_direction": "top",
+          "distance_to_slab": 0.0,
+          "is_inferred": true
+        },
+        {
+          "text": "h=13",
+          "pos": [
+            2675.96224,
+            2252.542528
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "role": "neighbor_north",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L322",
+          "source_direction": "top",
+          "distance_to_slab": 0.0,
+          "is_inferred": true
+        }
+      ],
+      "neighbor_east": [
+        {
+          "text": "206.5",
+          "pos": [
+            3015.1325,
+            1861.986619
+          ],
+          "layer": "2",
+          "color": [
+            255,
+            255,
+            0
+          ],
+          "aci": 2,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "type": "text",
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_level",
+          "source_slab": "L330",
+          "source_direction": "right",
+          "distance_to_slab": 19.0,
+          "is_inferred": true
+        },
+        {
+          "text": "L330",
+          "type": "text",
+          "pos": [
+            3067.209273,
+            2011.628561
+          ],
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L330",
+          "source_direction": "right",
+          "distance_to_slab": 19.0,
+          "is_inferred": true
+        },
+        {
+          "text": "h=10",
+          "pos": [
+            3072.684783,
+            1996.088698
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "role": "neighbor_east",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L330",
+          "source_direction": "right",
+          "distance_to_slab": 19.0,
+          "is_inferred": true
+        }
+      ],
+      "neighbor_west": [
+        {
+          "text": "852.19",
+          "pos": [
+            2256.141112,
+            2210.812797
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "type": "text",
+          "role": "neighbor_west",
+          "source": "orthogonal_neighbor_level",
+          "source_slab": "L328",
+          "source_direction": "left",
+          "distance_to_slab": 19.117,
+          "is_inferred": true
+        },
+        {
+          "text": "L328",
+          "type": "text",
+          "pos": [
+            2256.11561,
+            2011.331493
+          ],
+          "role": "neighbor_west",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L328",
+          "source_direction": "left",
+          "distance_to_slab": 19.117,
+          "is_inferred": true
+        },
+        {
+          "text": "h=10",
+          "pos": [
+            2264.363884,
+            1994.690114
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1,
+          "role": "neighbor_west",
+          "source": "orthogonal_neighbor_identity",
+          "source_slab": "L328",
+          "source_direction": "left",
+          "distance_to_slab": 19.117,
+          "is_inferred": true
+        }
+      ],
+      "neighbor_south": []
+    },
+    "laje_pilares_apoio": {
+      "pillar_geom": [
+        {
+          "type": "poly",
+          "points": [
+            [
+              2911.8825,
+              1963.038
+            ],
+            [
+              2935.8825,
+              1963.038
+            ],
+            [
+              2935.8825,
+              2029.038
+            ],
+            [
+              2911.8825,
+              2029.038
+            ],
+            [
+              2911.8825,
+              1963.038
+            ]
+          ],
+          "text": "Pilar de apoio detectado",
+          "role": "Pillar_support_geom_auto",
+          "is_inferred": true,
+          "source": "compact_geometry_near_slab_boundary",
+          "distance_to_slab": 0.0,
+          "layer": "7",
+          "ficha": {
+            "pillar_orientation": "RETANGULAR VERTICAL",
+            "pillar_side": "A",
+            "touch_face": "ESQ",
+            "hatch_description": "SEGUE",
+            "pillar_name": "P31"
+          },
+          "ficha_links": {
+            "pillar_name": [
+              {
+                "text": "P31",
+                "pos": [
+                  2945.957943,
+                  2012.100413
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 15.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_pillar_name"
+              }
+            ]
+          }
+        },
+        {
+          "type": "poly",
+          "points": [
+            [
+              2474.8825,
+              1963.038
+            ],
+            [
+              2498.8825,
+              1963.038
+            ],
+            [
+              2498.8825,
+              2029.038
+            ],
+            [
+              2474.8825,
+              2029.038
+            ],
+            [
+              2474.8825,
+              1963.038
+            ]
+          ],
+          "text": "Pilar de apoio detectado",
+          "role": "Pillar_support_geom_auto",
+          "is_inferred": true,
+          "source": "compact_geometry_near_slab_boundary",
+          "distance_to_slab": 0.0,
+          "layer": "7",
+          "ficha": {
+            "pillar_orientation": "RETANGULAR VERTICAL",
+            "pillar_side": "B",
+            "touch_face": "DIR",
+            "hatch_description": "SEGUE",
+            "pillar_name": "P30"
+          },
+          "ficha_links": {
+            "pillar_name": [
+              {
+                "text": "P30",
+                "pos": [
+                  2510.616539,
+                  1937.680161
+                ],
+                "layer": "4",
+                "color": [
+                  0,
+                  255,
+                  255
+                ],
+                "aci": 4,
+                "lineweight": 25,
+                "is_block": false,
+                "rotation": 0,
+                "height": 15.0,
+                "halign": 0,
+                "valign": 0,
+                "attachment": null,
+                "width_factor": 1,
+                "role": "Ficha_pillar_name"
+              }
+            ]
+          }
+        }
+      ],
+      "pillar_label": []
+    },
+    "laje_nivel": {
+      "label": [
+        {
+          "text": "852.12",
+          "pos": [
+            2686.633855,
+            2027.974571
+          ],
+          "layer": "3",
+          "color": [
+            0,
+            255,
+            0
+          ],
+          "aci": 3,
+          "lineweight": 25,
+          "is_block": false,
+          "rotation": 0,
+          "height": 10.0,
+          "halign": 0,
+          "valign": 0,
+          "attachment": null,
+          "width_factor": 1
+        }
+      ]
+    },
+    "laje_outline_segs": {
+      "contour": [
+        {
+          "type": "poly",
+          "points": [
+            [
+              2496.5,
+              1977.0
+            ],
+            [
+              2914.5,
+              1977.0
+            ],
+            [
+              2914.5,
+              2048.0
+            ],
+            [
+              2496.5,
+              2048.0
+            ],
+            [
+              2496.5,
+              1977.0
+            ]
+          ],
+          "role": "Contorno Automático"
+        }
+      ],
+      "acrescimo_borda": []
+    },
+    "_laje_complex": {
+      "label": [],
+      "dim": [],
+      "cut_view": []
+    }
+  },
+  "fields": {
+    "nome": "L329",
+    "numero": "29",
+    "laje_dim": "h=10",
+    "laje_nivel": "852.12"
+  },
+  "cotas_paineis": [
+    {
+      "value": 35.5,
+      "x": 153.14,
+      "y": 17.69,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 16.5,
+      "x": -20.57,
+      "y": 18.95,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 16.5,
+      "x": 34.21,
+      "y": 18.95,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 16.5,
+      "x": 416.43,
+      "y": 18.95,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 202.5,
+      "x": 103.75,
+      "y": 22.69,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 210.5,
+      "x": 310.25,
+      "y": 22.69,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 35.5,
+      "x": 173.52,
+      "y": 53.19,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 2.5,
+      "x": 20.18,
+      "y": 63.02,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 2.5,
+      "x": 457.18,
+      "y": 63.02,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 2.5,
+      "x": -39.18,
+      "y": 63.84,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 2.5,
+      "x": 397.82,
+      "y": 63.84,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 205.0,
+      "x": 102.5,
+      "y": 78.54,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 213.0,
+      "x": 311.5,
+      "y": 78.64,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    }
+  ],
+  "pontaletes": {},
+  "_stog_pose": {
+    "x": 4041.07,
+    "y": 1578.0
+  },
+  "_forma_canonica": {
+    "cotas_valor": [
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      16.5,
+      16.5,
+      16.5,
+      35.5,
+      35.5,
+      202.5,
+      205.0,
+      210.5,
+      213.0
+    ],
+    "textos": [
+      "16.5",
+      "16.5",
+      "16.5",
+      "19/55",
+      "2.5",
+      "2.5",
+      "2.5",
+      "2.5",
+      "202.5",
+      "205",
+      "210.5",
+      "213",
+      "24/66",
+      "24/66",
+      "35.5",
+      "35.5",
+      "852.12",
+      "L329",
+      "V315",
+      "V317",
+      "h=10"
+    ],
+    "textos_contexto": [
+      "P30",
+      "P31"
+    ]
+  },
+  "_confianca": 0.85
+}

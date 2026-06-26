@@ -1,0 +1,3255 @@
+{
+  "number": "306",
+  "name": "V306_A",
+  "floor": "Pavimento",
+  "side": "A",
+  "total_width": 19.0,
+  "total_height": 40.0,
+  "panels": [
+    {
+      "width": 122.0,
+      "height1": 40.0,
+      "height2": 40.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 104.0,
+      "height1": 40.0,
+      "height2": 40.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "h_A": 40.0,
+  "h_B": 44.0,
+  "b_geom": 19.0,
+  "h_section": 55.0,
+  "h_section_all": [
+    55.0
+  ],
+  "laje_sup_A": 0.0,
+  "laje_inf_A": 0.0,
+  "laje_sup_B": 0.0,
+  "laje_inf_B": 0.0,
+  "tipo_viga": "sarrafeada",
+  "section_views": [
+    {
+      "label": "Corte 1",
+      "b": 19.0,
+      "h_section": 55.0,
+      "h_A": 59.0,
+      "h_B": 59.0,
+      "h_body_A": 40.0,
+      "h_body_B": 44.0,
+      "laje_sup_A": 10.0,
+      "laje_inf_A": 0.0,
+      "laje_sup_B": 13.0,
+      "laje_inf_B": 0.0,
+      "topology": "bilateral",
+      "extension_left_cm": 27.8,
+      "extension_right_cm": 27.8,
+      "body_width_cm": 19.0,
+      "concrete_profiles": [
+        [
+          [
+            63.85,
+            39.25
+          ],
+          [
+            63.85,
+            65.25
+          ],
+          [
+            8.25,
+            65.25
+          ],
+          [
+            8.25,
+            65.25
+          ],
+          [
+            -29.75,
+            65.25
+          ],
+          [
+            -29.75,
+            -44.75
+          ],
+          [
+            8.25,
+            -44.75
+          ],
+          [
+            8.25,
+            39.25
+          ]
+        ],
+        [
+          [
+            8.25,
+            35.25
+          ],
+          [
+            8.25,
+            -44.75
+          ],
+          [
+            -29.75,
+            -44.75
+          ],
+          [
+            -29.75,
+            31.25
+          ],
+          [
+            -85.35,
+            31.25
+          ],
+          [
+            -85.35,
+            51.25
+          ],
+          [
+            -29.75,
+            51.25
+          ],
+          [
+            -29.75,
+            65.25
+          ],
+          [
+            8.25,
+            65.25
+          ]
+        ]
+      ],
+      "concrete_segments": [],
+      "visual_primitives": [
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -66.35,
+              -52.75
+            ],
+            [
+              -140.727,
+              -52.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -40.75,
+              65.25
+            ],
+            [
+              -140.727,
+              65.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -137.727,
+              -52.75
+            ],
+            [
+              -137.727,
+              65.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              44.85,
+              -52.75
+            ],
+            [
+              88.122,
+              -52.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              66.85,
+              35.25
+            ],
+            [
+              88.122,
+              35.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              85.122,
+              -52.75
+            ],
+            [
+              85.122,
+              35.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              4.25,
+              15.583
+            ],
+            [
+              4.25,
+              34.917
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              4.25,
+              34.917
+            ],
+            [
+              -10.75,
+              34.917
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -10.75,
+              34.917
+            ],
+            [
+              -10.75,
+              15.583
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -10.75,
+              15.583
+            ],
+            [
+              4.25,
+              15.583
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -88.35,
+              51.25
+            ],
+            [
+              -121.407,
+              51.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -88.35,
+              31.25
+            ],
+            [
+              -121.407,
+              31.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -118.407,
+              51.25
+            ],
+            [
+              -118.407,
+              31.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -88.35,
+              27.25
+            ],
+            [
+              -121.407,
+              27.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -66.35,
+              -52.75
+            ],
+            [
+              -121.407,
+              -52.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -118.407,
+              27.25
+            ],
+            [
+              -118.407,
+              -52.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -29.75,
+              -55.75
+            ],
+            [
+              -29.75,
+              -78.174
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              8.25,
+              -55.75
+            ],
+            [
+              8.25,
+              -78.174
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -29.75,
+              -75.174
+            ],
+            [
+              8.25,
+              -75.174
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -19.75,
+              -32.75
+            ],
+            [
+              -1.75,
+              -32.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -1.75,
+              -32.75
+            ],
+            [
+              -1.75,
+              -17.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -1.75,
+              -17.75
+            ],
+            [
+              -19.75,
+              -17.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "Cota Seção (2x)",
+          "points": [
+            [
+              -19.75,
+              -17.75
+            ],
+            [
+              -19.75,
+              -32.75
+            ]
+          ],
+          "color": 180,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              66.85,
+              39.25
+            ],
+            [
+              88.122,
+              39.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              66.85,
+              65.25
+            ],
+            [
+              88.122,
+              65.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              85.122,
+              39.25
+            ],
+            [
+              85.122,
+              65.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              66.85,
+              65.25
+            ],
+            [
+              108.616,
+              65.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              69.486,
+              -52.75
+            ],
+            [
+              108.616,
+              -52.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              105.616,
+              65.25
+            ],
+            [
+              105.616,
+              -52.75
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -40.75,
+              65.25
+            ],
+            [
+              -121.407,
+              65.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -88.35,
+              51.25
+            ],
+            [
+              -121.407,
+              51.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              -118.407,
+              65.25
+            ],
+            [
+              -118.407,
+              51.25
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              171.935,
+              99.371
+            ],
+            [
+              143.989,
+              99.371
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              146.989,
+              139.371
+            ],
+            [
+              146.989,
+              99.371
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              145.489,
+              100.871
+            ],
+            [
+              148.489,
+              97.871
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              171.935,
+              99.371
+            ],
+            [
+              118.057,
+              99.371
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              121.057,
+              158.371
+            ],
+            [
+              121.057,
+              99.371
+            ]
+          ],
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "line",
+          "layer": "COTA",
+          "points": [
+            [
+              119.557,
+              100.871
+            ],
+            [
+              122.557,
+              97.871
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": true,
+          "points": [
+            [
+              -33.75,
+              27.25
+            ],
+            [
+              -29.75,
+              27.25
+            ],
+            [
+              -29.75,
+              -52.75
+            ],
+            [
+              -33.75,
+              -52.75
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              8.25,
+              -52.75
+            ],
+            [
+              8.25,
+              -48.35
+            ],
+            [
+              -5.75,
+              -48.35
+            ],
+            [
+              -5.75,
+              -52.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": true,
+          "points": [
+            [
+              8.25,
+              -48.35
+            ],
+            [
+              8.25,
+              -44.75
+            ],
+            [
+              -29.75,
+              -44.75
+            ],
+            [
+              -29.75,
+              -48.35
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              -29.75,
+              -52.75
+            ],
+            [
+              -29.75,
+              -48.35
+            ],
+            [
+              -15.75,
+              -48.35
+            ],
+            [
+              -15.75,
+              -52.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": true,
+          "points": [
+            [
+              12.25,
+              35.25
+            ],
+            [
+              8.25,
+              35.25
+            ],
+            [
+              8.25,
+              -52.75
+            ],
+            [
+              12.25,
+              -52.75
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": true,
+          "points": [
+            [
+              -29.75,
+              27.25
+            ],
+            [
+              -29.75,
+              31.25
+            ],
+            [
+              -85.35,
+              31.25
+            ],
+            [
+              -85.35,
+              27.25
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "CONCRETO",
+          "closed": false,
+          "points": [
+            [
+              8.25,
+              35.25
+            ],
+            [
+              8.25,
+              -44.75
+            ],
+            [
+              -29.75,
+              -44.75
+            ],
+            [
+              -29.75,
+              31.25
+            ],
+            [
+              -85.35,
+              31.25
+            ],
+            [
+              -85.35,
+              51.25
+            ],
+            [
+              -29.75,
+              51.25
+            ],
+            [
+              -29.75,
+              65.25
+            ],
+            [
+              8.25,
+              65.25
+            ]
+          ],
+          "color": 251,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": true,
+          "points": [
+            [
+              -33.35,
+              65.25
+            ],
+            [
+              -29.75,
+              65.25
+            ],
+            [
+              -29.75,
+              51.25
+            ],
+            [
+              -33.35,
+              51.25
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              -37.75,
+              51.25
+            ],
+            [
+              -33.35,
+              51.25
+            ],
+            [
+              -33.35,
+              65.25
+            ],
+            [
+              -37.75,
+              65.25
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "CONCRETO",
+          "closed": true,
+          "points": [
+            [
+              63.85,
+              39.25
+            ],
+            [
+              63.85,
+              65.25
+            ],
+            [
+              8.25,
+              65.25
+            ],
+            [
+              8.25,
+              65.25
+            ],
+            [
+              -29.75,
+              65.25
+            ],
+            [
+              -29.75,
+              -44.75
+            ],
+            [
+              8.25,
+              -44.75
+            ],
+            [
+              8.25,
+              39.25
+            ]
+          ],
+          "color": 251,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Painéis",
+          "closed": true,
+          "points": [
+            [
+              63.85,
+              35.25
+            ],
+            [
+              63.85,
+              39.25
+            ],
+            [
+              8.25,
+              39.25
+            ],
+            [
+              8.25,
+              35.25
+            ]
+          ],
+          "color": 200,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              16.65,
+              21.25
+            ],
+            [
+              12.25,
+              21.25
+            ],
+            [
+              12.25,
+              35.25
+            ],
+            [
+              16.65,
+              35.25
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              16.65,
+              -52.75
+            ],
+            [
+              12.25,
+              -52.75
+            ],
+            [
+              12.25,
+              -38.75
+            ],
+            [
+              16.65,
+              -38.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              -38.15,
+              13.25
+            ],
+            [
+              -33.75,
+              13.25
+            ],
+            [
+              -33.75,
+              27.25
+            ],
+            [
+              -38.15,
+              27.25
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              -38.15,
+              -52.75
+            ],
+            [
+              -33.75,
+              -52.75
+            ],
+            [
+              -33.75,
+              -38.75
+            ],
+            [
+              -38.15,
+              -38.75
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              16.65,
+              -13.533
+            ],
+            [
+              12.25,
+              -13.533
+            ],
+            [
+              12.25,
+              0.467
+            ],
+            [
+              16.65,
+              0.467
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "Madeira",
+          "closed": true,
+          "points": [
+            [
+              -38.15,
+              -21.533
+            ],
+            [
+              -33.75,
+              -21.533
+            ],
+            [
+              -33.75,
+              -7.533
+            ],
+            [
+              -38.15,
+              -7.533
+            ]
+          ],
+          "color": 126,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "SARR_3.5x7",
+          "closed": true,
+          "points": [
+            [
+              -52.15,
+              21.25
+            ],
+            [
+              -38.15,
+              21.25
+            ],
+            [
+              -38.15,
+              -129.228
+            ],
+            [
+              -52.15,
+              -129.228
+            ]
+          ],
+          "color": 81,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "SARR_3.5x7",
+          "closed": true,
+          "points": [
+            [
+              30.65,
+              29.25
+            ],
+            [
+              16.65,
+              29.25
+            ],
+            [
+              16.65,
+              -129.228
+            ],
+            [
+              30.65,
+              -129.228
+            ]
+          ],
+          "color": 81,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "SARR_3.5x7",
+          "closed": true,
+          "points": [
+            [
+              -52.15,
+              -52.75
+            ],
+            [
+              30.65,
+              -52.75
+            ],
+            [
+              30.65,
+              -82.808
+            ],
+            [
+              -52.15,
+              -82.808
+            ]
+          ],
+          "color": 81,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -140.227,
+              -50.25
+            ],
+            [
+              -135.227,
+              -55.25
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -135.227,
+              62.75
+            ],
+            [
+              -140.227,
+              67.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              82.622,
+              -50.25
+            ],
+            [
+              87.622,
+              -55.25
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              87.622,
+              32.75
+            ],
+            [
+              82.622,
+              37.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -115.907,
+              48.75
+            ],
+            [
+              -120.907,
+              53.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -120.907,
+              33.75
+            ],
+            [
+              -115.907,
+              28.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -115.907,
+              24.75
+            ],
+            [
+              -120.907,
+              29.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -120.907,
+              -50.25
+            ],
+            [
+              -115.907,
+              -55.25
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -27.25,
+              -72.674
+            ],
+            [
+              -32.25,
+              -77.674
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              5.75,
+              -77.674
+            ],
+            [
+              10.75,
+              -72.674
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              82.622,
+              41.75
+            ],
+            [
+              87.622,
+              36.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              87.622,
+              62.75
+            ],
+            [
+              82.622,
+              67.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              108.116,
+              62.75
+            ],
+            [
+              103.116,
+              67.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              103.116,
+              -50.25
+            ],
+            [
+              108.116,
+              -55.25
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -115.907,
+              62.75
+            ],
+            [
+              -120.907,
+              67.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "polyline",
+          "layer": "COTA",
+          "closed": false,
+          "points": [
+            [
+              -120.907,
+              53.75
+            ],
+            [
+              -115.907,
+              48.75
+            ]
+          ],
+          "color": 256,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "detalhes",
+          "text": "b",
+          "insert": [
+            14.343,
+            -21.735
+          ],
+          "align_point": [
+            14.343,
+            -21.735
+          ],
+          "height": 9.6,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "detalhes",
+          "text": "a",
+          "insert": [
+            -45.381,
+            -29.705
+          ],
+          "align_point": [
+            -45.381,
+            -29.705
+          ],
+          "height": 9.6,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "detalhes",
+          "text": "c",
+          "insert": [
+            -19.15,
+            -42.514
+          ],
+          "align_point": [
+            -19.15,
+            -42.514
+          ],
+          "height": 9.6,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 4,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "59",
+          "insert": [
+            -129.227,
+            6.25
+          ],
+          "align_point": [
+            -129.227,
+            6.25
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "44",
+          "insert": [
+            93.622,
+            -8.75
+          ],
+          "align_point": [
+            93.622,
+            -8.75
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "Cota Seção (2x)",
+          "text": "55",
+          "insert": [
+            10.75,
+            25.25
+          ],
+          "align_point": [
+            10.75,
+            25.25
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "10",
+          "insert": [
+            -109.907,
+            41.25
+          ],
+          "align_point": [
+            -109.907,
+            41.25
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "40",
+          "insert": [
+            -109.907,
+            -12.75
+          ],
+          "align_point": [
+            -109.907,
+            -12.75
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "19",
+          "insert": [
+            -10.75,
+            -69.674
+          ],
+          "align_point": [
+            -10.75,
+            -69.674
+          ],
+          "height": 7.0,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "Cota Seção (2x)",
+          "text": "19",
+          "insert": [
+            -10.75,
+            -25.25
+          ],
+          "align_point": [
+            -10.75,
+            -25.25
+          ],
+          "height": 7.0,
+          "rotation": 0.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "13",
+          "insert": [
+            93.622,
+            52.25
+          ],
+          "align_point": [
+            93.622,
+            52.25
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "59",
+          "insert": [
+            114.116,
+            6.25
+          ],
+          "align_point": [
+            114.116,
+            6.25
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "7",
+          "insert": [
+            -109.907,
+            58.25
+          ],
+          "align_point": [
+            -109.907,
+            58.25
+          ],
+          "height": 7.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 1,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "text",
+          "layer": "COTA",
+          "text": "59",
+          "insert": [
+            132.918,
+            128.871
+          ],
+          "align_point": [
+            132.918,
+            128.871
+          ],
+          "height": 10.0,
+          "rotation": 90.0,
+          "halign": 0,
+          "valign": 0,
+          "color": 240,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -29.75,
+                27.25
+              ],
+              [
+                -33.75,
+                27.25
+              ],
+              [
+                -33.75,
+                -52.75
+              ],
+              [
+                -29.75,
+                -52.75
+              ],
+              [
+                -29.75,
+                27.25
+              ]
+            ]
+          ],
+          "pattern": "SOLID",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": true,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                8.25,
+                -52.75
+              ],
+              [
+                8.25,
+                -48.35
+              ],
+              [
+                -5.75,
+                -48.35
+              ],
+              [
+                -5.75,
+                -52.75
+              ],
+              [
+                8.25,
+                -52.75
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                8.25,
+                -48.35
+              ],
+              [
+                8.25,
+                -44.75
+              ],
+              [
+                -29.75,
+                -44.75
+              ],
+              [
+                -29.75,
+                -48.35
+              ],
+              [
+                8.25,
+                -48.35
+              ]
+            ]
+          ],
+          "pattern": "SOLID",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": true,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -29.75,
+                -52.75
+              ],
+              [
+                -29.75,
+                -48.35
+              ],
+              [
+                -15.75,
+                -48.35
+              ],
+              [
+                -15.75,
+                -52.75
+              ],
+              [
+                -29.75,
+                -52.75
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                12.25,
+                35.25
+              ],
+              [
+                8.25,
+                35.25
+              ],
+              [
+                8.25,
+                -52.75
+              ],
+              [
+                12.25,
+                -52.75
+              ],
+              [
+                12.25,
+                35.25
+              ]
+            ]
+          ],
+          "pattern": "SOLID",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": true,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -29.75,
+                27.25
+              ],
+              [
+                -29.75,
+                31.25
+              ],
+              [
+                -85.35,
+                31.25
+              ],
+              [
+                -85.35,
+                27.25
+              ],
+              [
+                -29.75,
+                27.25
+              ]
+            ]
+          ],
+          "pattern": "SOLID",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": true,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -33.35,
+                65.25
+              ],
+              [
+                -29.75,
+                65.25
+              ],
+              [
+                -29.75,
+                51.25
+              ],
+              [
+                -33.35,
+                51.25
+              ],
+              [
+                -33.35,
+                65.25
+              ]
+            ]
+          ],
+          "pattern": "SOLID",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": true,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -37.75,
+                51.25
+              ],
+              [
+                -33.35,
+                51.25
+              ],
+              [
+                -33.35,
+                65.25
+              ],
+              [
+                -37.75,
+                65.25
+              ],
+              [
+                -37.75,
+                51.25
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                63.85,
+                35.25
+              ],
+              [
+                63.85,
+                39.25
+              ],
+              [
+                8.25,
+                39.25
+              ],
+              [
+                8.25,
+                35.25
+              ],
+              [
+                63.85,
+                35.25
+              ]
+            ]
+          ],
+          "pattern": "SOLID",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": true,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                16.65,
+                21.25
+              ],
+              [
+                12.25,
+                21.25
+              ],
+              [
+                12.25,
+                35.25
+              ],
+              [
+                16.65,
+                35.25
+              ],
+              [
+                16.65,
+                21.25
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                16.65,
+                -52.75
+              ],
+              [
+                12.25,
+                -52.75
+              ],
+              [
+                12.25,
+                -38.75
+              ],
+              [
+                16.65,
+                -38.75
+              ],
+              [
+                16.65,
+                -52.75
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -38.15,
+                13.25
+              ],
+              [
+                -33.75,
+                13.25
+              ],
+              [
+                -33.75,
+                27.25
+              ],
+              [
+                -38.15,
+                27.25
+              ],
+              [
+                -38.15,
+                13.25
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -38.15,
+                -52.75
+              ],
+              [
+                -33.75,
+                -52.75
+              ],
+              [
+                -33.75,
+                -38.75
+              ],
+              [
+                -38.15,
+                -38.75
+              ],
+              [
+                -38.15,
+                -52.75
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                16.65,
+                -13.533
+              ],
+              [
+                12.25,
+                -13.533
+              ],
+              [
+                12.25,
+                0.467
+              ],
+              [
+                16.65,
+                0.467
+              ],
+              [
+                16.65,
+                -13.533
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        },
+        {
+          "kind": "hatch",
+          "layer": "Hachura",
+          "paths": [
+            [
+              [
+                -38.15,
+                -21.533
+              ],
+              [
+                -33.75,
+                -21.533
+              ],
+              [
+                -33.75,
+                -7.533
+              ],
+              [
+                -38.15,
+                -7.533
+              ],
+              [
+                -38.15,
+                -21.533
+              ]
+            ]
+          ],
+          "pattern": "ANSI31",
+          "scale": 1.0,
+          "angle": 0.0,
+          "solid": false,
+          "color": 7,
+          "linetype": "BYLAYER"
+        }
+      ],
+      "profile_source": "concrete_layer_geometry",
+      "bbox": {
+        "x_left": -60.0,
+        "x_right": 250.0,
+        "y_bot": -297.5,
+        "y_top": 52.5
+      },
+      "source": "section_text_cluster"
+    }
+  ],
+  "continuation": "Proxima Parte",
+  "text_left": "",
+  "text_right": "",
+  "face_units": [
+    {
+      "label": "V306.A",
+      "side": "A",
+      "label_x": 2064.2,
+      "label_y": 21.0,
+      "label_source": "text",
+      "bbox": {
+        "x_left": 2061.2,
+        "x_right": 2287.2,
+        "y_bot": -40.0,
+        "y_top": 0.0
+      },
+      "h_body": 40.0,
+      "h_total": 40.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 122.0,
+          "width": 122.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 122.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2061.2,
+          "_xr": 2183.2
+        },
+        {
+          "largura_cm": 104.0,
+          "width": 104.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 104.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2183.2,
+          "_xr": 2287.2
+        }
+      ]
+    },
+    {
+      "label": "",
+      "side": "A",
+      "label_x": null,
+      "label_y": null,
+      "label_source": "row_inference",
+      "bbox": {
+        "x_left": 2370.4,
+        "x_right": 2784.4,
+        "y_bot": -40.0,
+        "y_top": 0.0
+      },
+      "h_body": 40.0,
+      "h_total": 40.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 170.0,
+          "width": 170.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 170.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2370.3999999999996,
+          "_xr": 2540.3999999999996
+        },
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 244.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2540.3999999999996,
+          "_xr": 2784.3999999999996
+        }
+      ]
+    },
+    {
+      "label": "CONT. V306.A",
+      "side": "A",
+      "label_x": 2061.6,
+      "label_y": -177.0,
+      "label_source": "text",
+      "bbox": {
+        "x_left": 2058.6,
+        "x_right": 2472.6,
+        "y_bot": -226.0,
+        "y_top": -186.0
+      },
+      "h_body": 40.0,
+      "h_total": 40.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 170.0,
+          "width": 170.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 170.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2058.6000000000004,
+          "_xr": 2228.6000000000004
+        },
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 244.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2228.6000000000004,
+          "_xr": 2472.6000000000004
+        }
+      ]
+    },
+    {
+      "label": "",
+      "side": "A",
+      "label_x": null,
+      "label_y": null,
+      "label_source": "row_inference",
+      "bbox": {
+        "x_left": 2567.8,
+        "x_right": 2981.8,
+        "y_bot": -226.0,
+        "y_top": -186.0
+      },
+      "h_body": 40.0,
+      "h_total": 40.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 244.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2567.8,
+          "_xr": 2811.8
+        },
+        {
+          "largura_cm": 170.0,
+          "width": 170.0,
+          "panel_type": "Sarrafeado",
+          "height1": 40.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.0,
+              "width": 170.0,
+              "height": 39.8
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2811.8,
+          "_xr": 2981.8
+        }
+      ]
+    },
+    {
+      "label": "CONT. V306.A",
+      "side": "A",
+      "label_x": 2063.1,
+      "label_y": -348.0,
+      "label_source": "text",
+      "bbox": {
+        "x_left": 2060.1,
+        "x_right": 2472.1,
+        "y_bot": -428.0,
+        "y_top": -369.0
+      },
+      "h_body": 59.0,
+      "h_total": 59.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 242.0,
+          "width": 242.0,
+          "panel_type": "Sarrafeado",
+          "height1": 59.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 242.0,
+              "height": 40.0
+            },
+            {
+              "x_offset": 0.0,
+              "y_offset": 52.4,
+              "width": 242.0,
+              "height": 6.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2060.1000000000004,
+          "_xr": 2302.1000000000004
+        },
+        {
+          "largura_cm": 170.0,
+          "width": 170.0,
+          "panel_type": "Sarrafeado",
+          "height1": 59.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 170.0,
+              "height": 40.0
+            },
+            {
+              "x_offset": 0.0,
+              "y_offset": 52.4,
+              "width": 170.0,
+              "height": 6.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2302.1000000000004,
+          "_xr": 2472.1000000000004
+        }
+      ]
+    },
+    {
+      "label": "",
+      "side": "A",
+      "label_x": null,
+      "label_y": null,
+      "label_source": "row_inference",
+      "bbox": {
+        "x_left": 2568.7,
+        "x_right": 2978.7,
+        "y_bot": -428.0,
+        "y_top": -369.0
+      },
+      "h_body": 59.0,
+      "h_total": 59.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 242.0,
+          "width": 242.0,
+          "panel_type": "Sarrafeado",
+          "height1": 59.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 242.0,
+              "height": 40.0
+            },
+            {
+              "x_offset": 0.0,
+              "y_offset": 52.4,
+              "width": 242.0,
+              "height": 6.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2568.7,
+          "_xr": 2810.7
+        },
+        {
+          "largura_cm": 168.0,
+          "width": 168.0,
+          "panel_type": "Sarrafeado",
+          "height1": 59.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 168.0,
+              "height": 40.0
+            },
+            {
+              "x_offset": 0.0,
+              "y_offset": 52.4,
+              "width": 168.0,
+              "height": 6.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2810.7,
+          "_xr": 2978.7
+        }
+      ]
+    },
+    {
+      "label": "V306.B",
+      "side": "B",
+      "label_x": 1803.0,
+      "label_y": -552.0,
+      "label_source": "text",
+      "bbox": {
+        "x_left": 1800.0,
+        "x_right": 2218.0,
+        "y_bot": -620.0,
+        "y_top": -576.0
+      },
+      "h_body": 44.0,
+      "h_total": 44.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 244.0,
+              "height": 43.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 1800.0,
+          "_xr": 2044.0
+        },
+        {
+          "largura_cm": 174.0,
+          "width": 174.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 174.0,
+              "height": 43.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2044.0,
+          "_xr": 2218.0
+        }
+      ]
+    },
+    {
+      "label": "",
+      "side": "B",
+      "label_x": null,
+      "label_y": null,
+      "label_source": "row_inference",
+      "bbox": {
+        "x_left": 2255.2,
+        "x_right": 2673.2,
+        "y_bot": -615.0,
+        "y_top": -571.0
+      },
+      "h_body": 44.0,
+      "h_total": 44.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 244.0,
+          "width": 244.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 244.0,
+              "height": 43.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2255.2,
+          "_xr": 2499.2
+        },
+        {
+          "largura_cm": 174.0,
+          "width": 174.0,
+          "panel_type": "Sarrafeado",
+          "height1": 44.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 174.0,
+              "height": 43.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2499.2,
+          "_xr": 2673.2
+        }
+      ]
+    },
+    {
+      "label": "",
+      "side": "B",
+      "label_x": null,
+      "label_y": null,
+      "label_source": "row_inference",
+      "bbox": {
+        "x_left": 2736.9,
+        "x_right": 2983.4,
+        "y_bot": -615.0,
+        "y_top": -572.0
+      },
+      "h_body": 43.0,
+      "h_total": 43.0,
+      "laje_sup": 0.0,
+      "laje_inf": 0.0,
+      "segments_count": 2,
+      "panels": [
+        {
+          "largura_cm": 124.5,
+          "width": 124.5,
+          "panel_type": "Sarrafeado",
+          "height1": 43.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": true,
+          "is_last": false,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 124.5,
+              "height": 42.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2736.8999999999996,
+          "_xr": 2861.3999999999996
+        },
+        {
+          "largura_cm": 122.0,
+          "width": 122.0,
+          "panel_type": "Sarrafeado",
+          "height1": 43.0,
+          "height2": 0.0,
+          "grade_h1": 0.0,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": true,
+          "holes": [],
+          "reuse": true,
+          "reuse_regions": [
+            {
+              "x_offset": 0.0,
+              "y_offset": 0.4,
+              "width": 122.0,
+              "height": 42.6
+            }
+          ],
+          "codigos_forma": [],
+          "_xl": 2861.3999999999996,
+          "_xr": 2983.3999999999996
+        }
+      ]
+    }
+  ],
+  "panels_A": [
+    {
+      "largura_cm": 122.0,
+      "width": 122.0,
+      "panel_type": "Sarrafeado",
+      "height1": 40.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": true,
+      "is_last": false,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 122.0,
+          "height": 39.8
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 2061.2,
+      "_xr": 2183.2
+    },
+    {
+      "largura_cm": 104.0,
+      "width": 104.0,
+      "panel_type": "Sarrafeado",
+      "height1": 40.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": true,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 104.0,
+          "height": 39.8
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 2183.2,
+      "_xr": 2287.2
+    }
+  ],
+  "panels_B": [
+    {
+      "largura_cm": 244.0,
+      "width": 244.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": true,
+      "is_last": false,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.4,
+          "width": 244.0,
+          "height": 43.6
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 1800.0,
+      "_xr": 2044.0
+    },
+    {
+      "largura_cm": 174.0,
+      "width": 174.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": true,
+      "holes": [],
+      "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.4,
+          "width": 174.0,
+          "height": 43.6
+        }
+      ],
+      "codigos_forma": [],
+      "_xl": 2044.0,
+      "_xr": 2218.0
+    }
+  ],
+  "_er_meta": {
+    "source": "dxf_geom",
+    "dxf_path": "sandbox_lv_loop\\prod_pav13_sections_arete_gap1800\\V306\\LV_preview_V306_A.dxf",
+    "confianca": 0.9299999999999999
+  },
+  "_confianca": 0.9299999999999999
+}

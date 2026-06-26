@@ -1,0 +1,22 @@
+;; Script de Teste - Fundo 1
+;; Gerado em 2026-01-21 23:15:29
+
+ferramentas_LOAD_LISP
+
+;; Desenhar um retângulo de teste
+-LINE
+0,0
+100,0
+100,50
+0,50
+0,0
+
+;; Adicionar texto de teste
+-TEXT
+50,25
+10
+0
+TESTE 1
+
+;; Fim do teste
+(princ "\nTeste executado com sucesso!\n")

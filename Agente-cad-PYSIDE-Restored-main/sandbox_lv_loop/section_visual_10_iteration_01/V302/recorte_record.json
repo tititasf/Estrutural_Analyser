@@ -1,0 +1,11 @@
+{
+  "id": 8,
+  "obra_name": "Obra_TREINO_1",
+  "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+  "elemento_id": "V302",
+  "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V302_motor_178111332849.dxf",
+  "status": "aprovado",
+  "confidence": 100.0,
+  "created_at": "2026-06-09T14:42:41.520181",
+  "sha256": "59251dc661532d8873bce93095d5eacbb7cbc180b8351391847c23400bd38bdd"
+}
