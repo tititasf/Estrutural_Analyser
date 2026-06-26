@@ -2988,15 +2988,7 @@ class MainWindow(QMainWindow):
         self.module_tabs.currentChanged.connect(self._on_module_tab_changed)
 
         # Inicializar Dados dos Combos (Obras e Pavimentos)
-        # Timer singleShot para garantir que DB esteja pronto se necessario
         QTimer.singleShot(500, self._refresh_nav_combos)
-
-        # Timer adicional para garantir que dados legados sejam carregados
-        # (Robo Pilares pode demorar mais para inicializar)
-        QTimer.singleShot(2000, self._refresh_nav_combos)
-
-        # Timer final para casos extremos
-        QTimer.singleShot(5000, self._refresh_nav_combos)
 
     # ─────────────────────────────────────────────
     # Robo DXF Generation Toolbar (Granular + Pavimento)
@@ -5783,15 +5775,13 @@ class MainWindow(QMainWindow):
                     'material': 'C30', 'level': 'Pavimento 1'
                 }
                 
-                # --- ENRIQUECIMENTO COM DADOS DA PRÉ-ANÁLISE ---
-                # Puxa os vínculos de lajes, nível e nome que foram mapeados perfeitamente 
-                # pela _build_pillar_report na fase de pré-análise
+                # --- ENRIQUECIMENTO AVANÇADO COM DADOS DA PRÉ-ANÁLISE E VIGAS ---
                 pre_pillar = None
                 p_rep = getattr(self, 'pavimento_preprocess', {}).get('pillar_report', {})
                 n_rep = getattr(self, 'pavimento_preprocess', {}).get('nivel_report', {}).get('pilares', {})
                 
                 cx, cy = poly_shape.centroid.x, poly_shape.centroid.y
-                # Tenta match geométrico (se o centroide cai na bbox da pre-análise)
+                # 1. Match Geométrico / Nome
                 for pk, pv in p_rep.items():
                     bbox = pv.get('bbox')
                     if bbox:
@@ -5803,44 +5793,96 @@ class MainWindow(QMainWindow):
                 if not pre_pillar and pillar_name in p_rep:
                     pre_pillar = p_rep[pillar_name]
                 
+                # 2. Dimensões do Pilar (Largura x Comprimento)
+                minx, miny, maxx, maxy = poly_shape.bounds
+                bw = round(maxx - minx, 1)
+                bl = round(maxy - miny, 1)
+                bw = int(bw) if abs(bw - int(bw)) < 0.1 else bw
+                bl = int(bl) if abs(bl - int(bl)) < 0.1 else bl
+                dimensao_pilar = f"{min(bw, bl)}x{max(bw, bl)}"
+                if 'fields' not in p_data: p_data['fields'] = {}
+                p_data['fields']['Dimensão (b x h)'] = dimensao_pilar
+                
                 if pre_pillar:
-                    # Atualiza com o nome exato detectado
                     if pre_pillar.get('name') and pre_pillar['name'] != pillar_name:
                         pillar_name = pre_pillar['name']
                         p_data['name'] = pillar_name
                     
-                    # Adiciona classificação
                     p_data['classification'] = pre_pillar.get('classification', 'INDETERMINADO')
                     
-                    # Vincula lajes associadas ao pilar no Structural Analyzer
+                    # 3. Vincular Lajes Respectivas aos Lados e suas Alturas
                     adj_lajes = pre_pillar.get('lajes', [])
                     if adj_lajes:
                         p_data['lajes_adjacentes'] = adj_lajes
                         
                         laje_str = ", ".join(set([l['laje'] for l in adj_lajes]))
                         if 'connections' not in p_data['links']: p_data['links']['connections'] = {}
-                        
                         p_data['links']['connections']['lajes_conectadas'] = {
                             'value': laje_str,
                             'details': adj_lajes
                         }
                         
-                        # Adiciona no fields para aparecer direto na ficha do pilar
-                        if 'fields' not in p_data: p_data['fields'] = {}
-                        p_data['fields']['Lajes Adjacentes'] = laje_str
+                        # Extrair detalhes lado a lado e Nível Mais Alto
+                        highest_level = -99999.0
+                        highest_level_str = None
+                        lajes_details = []
                         
-                        # Pegar medidas das lajes conectadas se possível para facilitar vínculos manuais futuros
-                        medidas = []
                         for l in adj_lajes:
-                            for sl in self.slabs_found:
-                                if sl['name'] == l['laje'] and 'dim' in sl:
-                                    medidas.append(f"{l['laje']}: {sl['dim']}")
-                        if medidas:
-                            p_data['fields']['Medidas das Lajes'] = ", ".join(set(medidas))
+                            s_name = l['laje']
+                            s_side = l.get('side', '?')
+                            s_h = ""
+                            s_lvl_str = ""
+                            for sl in getattr(self, 'slabs_found', []):
+                                if sl['name'] == s_name:
+                                    s_h = sl.get('height', '') or sl.get('dim', '')
+                                    s_lvl_str = sl.get('nivel_str', '')
+                                    try:
+                                        lvl_val = float(s_lvl_str.replace(',', '.'))
+                                        if lvl_val > highest_level:
+                                            highest_level = lvl_val
+                                            highest_level_str = s_lvl_str
+                                    except Exception:
+                                        pass
+                                    break
+                            
+                            lajes_details.append(f"Lado {s_side}: {s_name}" + (f" (H={s_h})" if s_h else ""))
+                        
+                        p_data['fields']['Lajes por Face'] = " | ".join(lajes_details)
+                        
+                        # Definir Nível do Pilar pelo nível mais alto da laje que toca ele
+                        if highest_level_str:
+                            p_data['level'] = highest_level_str
+                            p_data['fields']['Nível (Via Laje)'] = highest_level_str
+                        else:
+                            if pillar_name in n_rep:
+                                p_data['level'] = str(n_rep[pillar_name].get('level_str') or 'Pavimento 1')
+                else:
+                    if pillar_name in n_rep:
+                        p_data['level'] = str(n_rep[pillar_name].get('level_str') or 'Pavimento 1')
 
-                # Extrai nível exato da pré-análise
-                if pillar_name in n_rep:
-                    p_data['level'] = str(n_rep[pillar_name].get('level_str') or 'Pavimento 1')
+                # 4. Dimensão das Vigas que Chegam (Isso vai definir aberturas)
+                from shapely.geometry import Polygon, LineString
+                arriving_beams = []
+                for beam in getattr(self, 'beams_found', []):
+                    b_pts = beam.get('points') or (beam.get('geometry', {}).get('poly') if isinstance(beam.get('geometry'), dict) else [])
+                    if len(b_pts) >= 2:
+                        try:
+                            b_shape = Polygon(b_pts) if len(b_pts) > 2 else LineString(b_pts)
+                            if poly_shape.intersects(b_shape) or poly_shape.distance(b_shape) < 2.0:
+                                b_name = beam.get('name', 'V?')
+                                b_dim = beam.get('fields', {}).get('dimensao') or beam.get('dim', '')
+                                arriving_beams.append(f"{b_name} ({b_dim})" if b_dim else b_name)
+                        except Exception:
+                            pass
+                
+                if arriving_beams:
+                    p_data['fields']['Vigas Conectadas (Aberturas)'] = ", ".join(arriving_beams)
+                    if 'connections' not in p_data['links']: p_data['links']['connections'] = {}
+                    p_data['links']['connections']['vigas_conectadas'] = {
+                        'value': ", ".join(arriving_beams),
+                        'details': arriving_beams
+                    }
+                # ------------------------------------------------
                 # ------------------------------------------------
                 
                 # Análise Contextual (Initial)

@@ -123,29 +123,6 @@
       "ts": "2026-05-21T21:16:59"
     },
     {
-      "id": "V301",
-      "tipo": "FV",
-      "obra": "Obra_TREINO_1",
-      "modo": "item=V301",
-      "sem": {
-        "b": 19.0,
-        "comprimento": 3202.0,
-        "n_paineis": 16,
-        "has_holes": true
-      },
-      "score": {
-        "score": 78,
-        "ratio": 0.013,
-        "gen_struct": 9,
-        "stog_struct": 694,
-        "missing_layers": 4,
-        "extra_layers": 0,
-        "item_mode": true,
-        "presence_pts": 50
-      },
-      "ts": "2026-06-25T21:19:19"
-    },
-    {
       "id": "V302",
       "tipo": "FV",
       "obra": "Obra_TREINO_1",
@@ -213,6 +190,29 @@
         "presence_pts": 50
       },
       "ts": "2026-06-26T02:18:57"
+    },
+    {
+      "id": "V301",
+      "tipo": "FV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V301",
+      "sem": {
+        "b": 19.0,
+        "comprimento": 3202.0,
+        "n_paineis": 16,
+        "has_holes": true
+      },
+      "score": {
+        "score": 75,
+        "ratio": 0.023,
+        "gen_struct": 16,
+        "stog_struct": 694,
+        "missing_layers": 5,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-06-26T03:15:42"
     }
   ],
   "summary": {
@@ -267,7 +267,7 @@
     },
     "FV": {
       "count": 5,
-      "score_avg": 79.8,
+      "score_avg": 79.2,
       "score_min": 75,
       "score_max": 90,
       "score_dist": {

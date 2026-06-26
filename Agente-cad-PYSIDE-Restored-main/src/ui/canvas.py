@@ -1271,8 +1271,8 @@ class CADCanvas(QGraphicsView):
         self.beam_visuals = []
         self.contour_visuals = []
         self.snap_points = []
-        self.snap_points = []
         self.snap_segments = []
+        self.snap_grid = {}
         
         # [NOVO] Ãndices para filtragem instantÃ¢nea
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}

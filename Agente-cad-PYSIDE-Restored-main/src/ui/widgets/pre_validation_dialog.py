@@ -797,7 +797,7 @@ class PreValidationDialog(QDialog):
 
     def _build_detail_reference_viewer(self) -> 'QWidget | None':
         """
-        Viewer central grande — recorte PIL do Motor Reverso como gabarito.
+        Viewer central grande - recorte PIL do Motor Reverso como gabarito.
         Posicionado ACIMA da lista de termos na aba Convenção de Pilares.
         """
         dxf_path, elem_id = self._query_detail_recorte()
@@ -805,13 +805,28 @@ class PreValidationDialog(QDialog):
             if not self._db_path:
                 return None  # silencia se DB não foi fornecido
             # Mostra aviso mas mantém espaço
-            grp = QGroupBox("Gabarito — Recorte PIL (Motor Reverso)")
+            grp = QGroupBox("Gabarito - Recorte PIL (Motor Reverso)")
             lb = QLabel("Recorte não encontrado no DB para esta obra / pavimento.")
             lb.setAlignment(Qt.AlignCenter)
             lb.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:9px;")
             lb.setFixedHeight(60)
             QVBoxLayout(grp).addWidget(lb)
             return grp
+
+        title = f"Gabarito  —  PIL '{elem_id}'  |  {self._obra} / {self._pavimento}"
+        grp = QGroupBox(title)
+        vbox = QVBoxLayout(grp)
+        vbox.setContentsMargins(4, 8, 4, 4)
+
+        # Viewer funcional com Modo Leve e performance máxima
+        from src.ui.canvas import CADCanvas
+        viewer = CADCanvas()
+        viewer.setMinimumHeight(280)
+        
+        # Load asynchronously to NOT freeze the UI!
+        viewer.load_dxf_async(dxf_path)
+        vbox.addWidget(viewer)
+        return grp
 
         scene, bbox = self._load_dxf_to_scene(dxf_path)
         if not scene or not bbox:
