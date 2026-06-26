@@ -5224,10 +5224,10 @@ class MainWindow(QMainWindow):
             )
             return
 
-        # ── Convenção de Pilares: diálogo moderno ANTES da análise ──────────
+        # ── Pré-processamento do pavimento (antes da análise pesada) ────────
         self.pavimento_preprocess = self._run_pavimento_preprocess()
-        _term_map = self._show_convention_dialog(self.pavimento_preprocess)
-        self.pavimento_preprocess['term_type_map'] = _term_map
+        if 'term_type_map' not in self.pavimento_preprocess:
+            self.pavimento_preprocess['term_type_map'] = {}
         # ──────────────────────────────────────────────────────────────────
 
         import uuid # Garantir import

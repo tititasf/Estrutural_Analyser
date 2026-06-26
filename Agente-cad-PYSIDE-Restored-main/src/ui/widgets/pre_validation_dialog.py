@@ -721,7 +721,7 @@ class PreValidationDialog(QDialog):
 
     def _load_dxf_to_scene(self, dxf_path: str) -> tuple['QGraphicsScene | None', tuple]:
         """
-        Carrega LINE + LWPOLYLINE do DXF recorte em uma QGraphicsScene isolada.
+        Carrega DXF recorte em uma QGraphicsScene isolada usando ezdxf.addons.drawing.
         Retorna (scene, (x0, y0, x1, y1)) ou (None, ()).
         """
         try:
@@ -730,43 +730,37 @@ class PreValidationDialog(QDialog):
             msp = doc.modelspace()
             scene = QGraphicsScene()
             scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
-            base_pen = QPen(QColor('#90a4ae'))
-            base_pen.setCosmetic(True)
-            base_pen.setWidth(1)
-            accent_pen = QPen(QColor(Colors.ACCENT_MINT))
-            accent_pen.setCosmetic(True)
-            accent_pen.setWidth(2)
-            all_x: list[float] = []
-            all_y: list[float] = []
-            for ent in msp:
-                t = ent.dxftype()
-                try:
-                    # Hachura do pilar em destaque (layer PL_PILAR ou similar) → mint
-                    layer = (ent.dxf.layer or '').upper()
-                    pen = accent_pen if 'PIL' in layer or 'PILAR' in layer else base_pen
-                    if t == 'LINE':
-                        x1, y1 = ent.dxf.start.x, ent.dxf.start.y
-                        x2, y2 = ent.dxf.end.x, ent.dxf.end.y
-                        scene.addLine(x1, y1, x2, y2, pen)
-                        all_x += [x1, x2]; all_y += [y1, y2]
-                    elif t == 'LWPOLYLINE':
-                        pts = list(ent.get_points('xy'))
-                        if len(pts) >= 2:
-                            path = QPainterPath()
-                            path.moveTo(pts[0][0], pts[0][1])
-                            for px, py in pts[1:]:
-                                path.lineTo(px, py)
-                            if getattr(ent, 'closed', False):
-                                path.closeSubpath()
-                            scene.addPath(path, pen)
-                            all_x += [p[0] for p in pts]
-                            all_y += [p[1] for p in pts]
-                except Exception:
-                    continue
-            if not all_x:
+            
+            try:
+                from ezdxf.addons.drawing import RenderContext, Frontend
+                from ezdxf.addons.drawing.pyqt import PyQtBackend
+                from ezdxf.addons.drawing.config import Configuration, BackgroundPolicy, ColorPolicy
+                
+                for layer in doc.layers:
+                    layer.on()
+                    layer.thaw()
+                for ent in doc.entitydb.values():
+                    if hasattr(ent, 'dxf') and hasattr(ent.dxf, 'invisible'):
+                        ent.dxf.invisible = 0
+
+                ctx = RenderContext(doc)
+                out = PyQtBackend(scene)
+                config = Configuration(
+                    background_policy=BackgroundPolicy.CUSTOM,
+                    custom_bg_color=Colors.BG_PANEL,
+                    color_policy=ColorPolicy.COLOR_SWAP_BW,
+                )
+                Frontend(ctx, out, config=config).draw_layout(msp)
+                
+                rect = scene.itemsBoundingRect()
+                if rect.isNull():
+                    return None, ()
+                return scene, (rect.left(), rect.top(), rect.right(), rect.bottom())
+            except Exception as e:
+                print(f"Fallback due to {e}")
                 return None, ()
-            return scene, (min(all_x), min(all_y), max(all_x), max(all_y))
-        except Exception:
+                
+        except Exception as e:
             return None, ()
 
     def _build_detail_reference_viewer(self) -> 'QWidget | None':
@@ -1437,8 +1431,9 @@ class PreValidationDialog(QDialog):
         # Header
         root.addWidget(self._build_header())
 
-        # Tabs  (Convenção de Pilares foi movida para ANTES da análise)
+        # Tabs
         tabs = QTabWidget()
+        tabs.addTab(self._build_convention_tab(), "  Convenção de Pilares  ")
         tabs.addTab(self._build_pillars_tab(), "  Pilares  ")
         tabs.addTab(self._build_cut_views_tab(), "  Visão de Cortes  ")
         root.addWidget(tabs, 1)
