@@ -3389,9 +3389,10 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         # grp_main = QGroupBox("Principal")
         # ... (Código removido a pedido do usuário)
 
-        # Botões de Produção/Geração/Ferramentas: criados mas NÃO exibidos no painel
-        grp_prod = QGroupBox("Produção")
-        prod_grid = QGridLayout(grp_prod)
+        # Botões de Produção/Geração/Ferramentas: criados mas NÃO exibidos no painel.
+        # Os QGroupBox são self.* para evitar GC dos filhos ("Signal source has been deleted").
+        self.grp_prod = QGroupBox("Produção")
+        prod_grid = QGridLayout(self.grp_prod)
         self.btns_prod = [
             QPushButton("Próxima Viga"), QPushButton("Próximo Segmento"),
             QPushButton("Extensão L"), QPushButton("Cancelar")
@@ -3400,10 +3401,10 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         for i, b in enumerate(self.btns_prod):
             b.setStyleSheet(f"background-color: {colors[i]}; font-weight: bold; color: white; padding: 4px; font-size: 11px;")
             prod_grid.addWidget(b, i // 2, i % 2)
-        # grp_prod NÃO adicionado ao layout
+        # self.grp_prod NÃO adicionado ao layout
 
-        grp_geracao = QGroupBox("Geração")
-        geracao_grid = QGridLayout(grp_geracao)
+        self.grp_geracao = QGroupBox("Geração")
+        geracao_grid = QGridLayout(self.grp_geracao)
         self.btn_gerar_segmento = QPushButton("Gerar Segmento")
         self.btn_gerar_conjunto = QPushButton("Gerar conjunto de Viga")
         self.btn_gerar_pavimento = QPushButton("Gerar Pavimento")
@@ -3413,10 +3414,10 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         geracao_grid.addWidget(self.btn_gerar_segmento, 0, 0)
         geracao_grid.addWidget(self.btn_gerar_conjunto, 0, 1)
         geracao_grid.addWidget(self.btn_gerar_pavimento, 1, 0, 1, 2)
-        # grp_geracao NÃO adicionado ao layout
+        # self.grp_geracao NÃO adicionado ao layout
 
-        grp_tools = QGroupBox("Ferramentas")
-        tools_grid = QGridLayout(grp_tools)
+        self.grp_tools = QGroupBox("Ferramentas")
+        tools_grid = QGridLayout(self.grp_tools)
         self.btn_config_desenho = QPushButton("Configuração Desenho")
         self.btn_config_ordenador = QPushButton("Configuração Ordenador")
         self.btn_lisp_fd = QPushButton("Criar comando lisp FD")
@@ -3425,7 +3426,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         tools_grid.addWidget(self.btn_config_desenho, 0, 0)
         tools_grid.addWidget(self.btn_config_ordenador, 0, 1)
         tools_grid.addWidget(self.btn_lisp_fd, 1, 0, 1, 2)
-        # grp_tools NÃO adicionado ao layout
+        # self.grp_tools NÃO adicionado ao layout
 
         # btn_analisar_boundary: criado mas NÃO exibido
         self.btn_analisar_boundary = QPushButton("Analisar Boundary")
