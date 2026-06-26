@@ -1601,12 +1601,25 @@ class _CenterPanel(QFrame):
         proxy  = _DXFRenderProxy(canvas, thread, self._canvas_pending, parent=self)
         self._canvas_pending[canvas_id] = thread
 
+        def _cleanup_load(t=thread, w=worker, p=proxy,
+                          lt=self._dxf_threads, lw=self._dxf_workers, lp=self._dxf_proxies):
+            try:
+                if t in lt: lt.remove(t)
+                if w in lw: lw.remove(w)
+                if p in lp: lp.remove(p)
+            except Exception:
+                pass
+            try:
+                t.deleteLater()
+            except Exception:
+                pass
+
         thread.started.connect(worker.run)
         worker.finished.connect(proxy.on_loaded)
         worker.error.connect(proxy.on_error)
         worker.finished.connect(thread.quit)
         worker.error.connect(thread.quit)
-        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(_cleanup_load)
 
         self._dxf_threads.append(thread)
         self._dxf_workers.append(worker)
@@ -1645,12 +1658,25 @@ class _CenterPanel(QFrame):
         proxy  = _DXFRenderProxy(canvas, thread, self._canvas_pending, parent=self)
         self._canvas_pending[canvas_id] = thread
 
+        def _cleanup_gran(t=thread, w=worker, p=proxy,
+                          lt=self._dxf_threads, lw=self._dxf_workers, lp=self._dxf_proxies):
+            try:
+                if t in lt: lt.remove(t)
+                if w in lw: lw.remove(w)
+                if p in lp: lp.remove(p)
+            except Exception:
+                pass
+            try:
+                t.deleteLater()
+            except Exception:
+                pass
+
         thread.started.connect(worker.run)
         worker.finished.connect(proxy.on_loaded)
         worker.error.connect(proxy.on_error)
         worker.finished.connect(thread.quit)
         worker.error.connect(thread.quit)
-        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(_cleanup_gran)
 
         self._dxf_threads.append(thread)
         self._dxf_workers.append(worker)
@@ -1786,7 +1812,24 @@ class _CenterPanel(QFrame):
                 ent = item.data(256)
                 if ent is not None:
                     # Cópia perfeita e fiel da entidade DXF original (cores, layers, geometrias complexas)
-                    msp.add_entity(ent.copy())
+                    ent_copy = ent.copy()
+                    
+                    try:
+                        from PySide6.QtGui import QColor, Qt
+                        import ezdxf.colors
+                        # Pega a cor original renderizada do Qt
+                        qcolor = None
+                        if hasattr(item, 'pen') and item.pen().style() != Qt.NoPen:
+                            qcolor = item.pen().color()
+                        elif hasattr(item, 'brush') and item.brush().style() != Qt.NoBrush:
+                            qcolor = item.brush().color()
+                            
+                        if qcolor is not None:
+                            ent_copy.dxf.true_color = ezdxf.colors.rgb2int((qcolor.red(), qcolor.green(), qcolor.blue()))
+                    except Exception:
+                        pass
+                        
+                    msp.add_entity(ent_copy)
                     n += 1
                     continue
 
