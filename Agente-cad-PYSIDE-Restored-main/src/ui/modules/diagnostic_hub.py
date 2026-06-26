@@ -1925,6 +1925,8 @@ class DiagnosticHubModule(QWidget):
             from PySide6.QtWidgets import QGraphicsSimpleTextItem
 
             selected = canvas.scene.selectedItems()
+            if not selected and hasattr(canvas, 'selected_items'):
+                selected = [i for i in canvas.selected_items if i is not None]
             if not selected:
                 return {'error': 'Nenhum item selecionado. Selecione uma área antes de recortar.'}
 
@@ -2162,6 +2164,8 @@ class DiagnosticHubModule(QWidget):
             target_canvas = self.canvas
 
         selected = target_canvas.scene.selectedItems()
+        if not selected and hasattr(target_canvas, 'selected_items'):
+            selected = [i for i in target_canvas.selected_items if i is not None]
         if not selected:
             QMessageBox.warning(
                 self, "Recortar Seleção",
