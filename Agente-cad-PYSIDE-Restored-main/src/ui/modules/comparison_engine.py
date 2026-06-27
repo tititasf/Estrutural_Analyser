@@ -87,9 +87,9 @@ class DXFVectorView(QWidget):
         self.canvas = CADCanvas()
         
         # Oculta a toolbar padrão do CADCanvas para ficar igual ao viewer antigo
-        if hasattr(self.canvas, 'toolbar_layout'):
-            # This is tricky, CADCanvas doesn't expose toolbar easily, but we can just use the canvas.
-            pass
+        if hasattr(self.canvas, 'toolbar'):
+            self.canvas.toolbar.hide()
+            self.canvas.toolbar.setVisible(False)
             
         self.layout.addWidget(self.canvas)
         self._dxf_bbox = None
@@ -106,37 +106,71 @@ class DXFVectorView(QWidget):
             self.clear_image("Sem DXF")
             self.ready.emit()
             return
-            
+
         try:
-            # Em comparison engine, geralmente queremos destacar a cor original
             self.canvas.add_dxf_entities({}, source_dxf_path=dxf_path, color_override=None)
             self._is_loaded = True
-            
-            # Tentar fazer zoom se bbox foi fornecida
             if bbox:
-                self.zoom_to_bbox(bbox)
+                self._cull_to_bbox(bbox)
+                from PySide6.QtCore import QTimer
+                QTimer.singleShot(50, lambda b=bbox: self.zoom_to_bbox(b))
         except Exception as e:
             print(f"Error loading DXF in DXFVectorView wrapper: {e}")
-            
+
         self.ready.emit()
 
-    def zoom_to_bbox(self, bbox):
-        if not bbox or not self._is_loaded: return
-        self._dxf_bbox = bbox
-        
+    def _cull_to_bbox(self, bbox):
+        """Oculta itens da cena fora do bbox e restringe sceneRect ao bbox.
+        Coordenadas DXF: x=same, y_scene=-y_dxf.
+        """
         x0, y0, x1, y1 = bbox
-        # O CADCanvas gerencia QGraphicsScene, o sistema de coordenadas é (x, -y)
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
         from PySide6.QtCore import QRectF
-        rect = QRectF(x0, -y1, w, h)
-        
-        # Margem de 10%
-        margin_x = w * 0.1
-        margin_y = h * 0.1
-        rect.adjust(-margin_x, -margin_y, margin_x, margin_y)
-        
-        from PySide6.QtCore import Qt
+        # Scene rect correspondente ao bbox DXF (y negado)
+        scene_clip = QRectF(min(x0, x1), -max(y0, y1),
+                            abs(x1 - x0), abs(y1 - y0))
+        # Margem pequena: 5 unidades (= 5 cm DXF) para não cortar bordas
+        # sem vazamento de entidades do painel vizinho (gap seção↔face ≈ 40 cm)
+        scene_clip = scene_clip.adjusted(-5, -5, 5, 5)
+        for item in self.canvas.scene.items():
+            try:
+                if not scene_clip.intersects(item.sceneBoundingRect()):
+                    item.setVisible(False)
+            except Exception:
+                pass
+        self.canvas.setSceneRect(scene_clip)
+
+    def zoom_to_bbox(self, bbox):
+        if not bbox or not self._is_loaded:
+            return
+        self._dxf_bbox = bbox
+
+        from PySide6.QtCore import QRectF, Qt
+
+        # Usa bounds reais dos itens VISÍVEIS para evitar zoom infinito quando
+        # lat_bbox tem x1=99999 (aberto à direita).
+        visible_rect: "QRectF | None" = None
+        for item in self.canvas.scene.items():
+            try:
+                if not item.isVisible():
+                    continue
+                br = item.sceneBoundingRect()
+                if br.isEmpty():
+                    continue
+                visible_rect = br if visible_rect is None else visible_rect.united(br)
+            except Exception:
+                pass
+
+        if visible_rect is None or visible_rect.isEmpty():
+            # Fallback: usar bbox explícito (sem o infinito)
+            x0, y0, x1, y1 = bbox
+            w, h = abs(x1 - x0), abs(y1 - y0)
+            if w > 10000 or h > 10000 or w <= 0 or h <= 0:
+                return
+            visible_rect = QRectF(x0, -y1, w, h)
+
+        margin_x = visible_rect.width()  * 0.08
+        margin_y = visible_rect.height() * 0.08
+        rect = visible_rect.adjusted(-margin_x, -margin_y, margin_x, margin_y)
         self.canvas.fitInView(rect, Qt.KeepAspectRatio)
 
     def set_highlight_bbox(self, bbox):
@@ -9591,67 +9625,81 @@ class ComparisonEngineModule(QWidget):
         return None
 
     def _lv_n4_zone_bboxes(self, er_ficha: dict) -> tuple:
-        """Bboxes de visualizacao LV N4: corte com zoom finito e lateral separada."""
+        """Bboxes de visualizacao LV N4: corte com zoom finito e lateral separada.
+
+        Gerador N4 usa draw_viga_lateral (x_origin=0, y_top=0):
+          x_sect_center = max(40, sect_total - 124 - b)   ← NÃO 95!
+          y0_sect = y_top - h_A = -h_A
+          y_center_sect = y0_sect + h_section / 2
+        Faces: x_A = sect_total (≥1800)
+        """
         er_ficha = er_ficha or {}
-        b_cm = float(er_ficha.get('b_cm', er_ficha.get('b_geom', 19)) or 19)
+        b_cm   = float(er_ficha.get('b_cm',  er_ficha.get('b_geom', 19)) or 19)
+        h_A    = float(er_ficha.get('h_cm',  er_ficha.get('h_A',    45)) or 45)
+        h_sect = max(55.0, float(
+            er_ficha.get('h_section_cm', er_ficha.get('h_section', 55)) or 55
+        ))
         sect_total = max(190, int(b_cm) + 178, 1800)
+
+        # Posição horizontal da seção transversal (espelha draw_viga_lateral)
+        x_sect_center = max(40.0, float(sect_total) - 124.0 - b_cm)
+
+        # Posição vertical: y_top=0, seção começa em y0_A = -h_A
+        y0_sect   = -h_A
+        y_center0 = y0_sect + h_sect / 2.0
+
         section_views = er_ficha.get('section_views') or []
 
-        y_section = -150.0
         x_points: list[float] = []
         y_points: list[float] = []
-        for sv in section_views:
+
+        # draw_viga_lateral só desenha a primeira section_view
+        sv = section_views[0] if section_views else None
+        if sv:
             try:
-                h_sec = float(
-                    sv.get('h_section', sv.get('h_section_cm', 0)) or 0
-                )
+                sv_h = float(sv.get('h_section', sv.get('h_section_cm', h_sect)) or h_sect)
             except Exception:
-                h_sec = 0.0
-            h_sec = max(h_sec, 55.0)
-            y_center = y_section + h_sec / 2.0
-            primitives = (
+                sv_h = h_sect
+            sv_h    = max(sv_h, 55.0)
+            y_ctr   = y0_sect + sv_h / 2.0
+            prims   = (
                 (sv.get('raw') or {}).get('visual_primitives')
                 or sv.get('visual_primitives')
                 or []
             )
-
-            def _add_point(pt):
-                try:
-                    x_points.append(95.0 + float(pt[0]))
-                    y_points.append(y_center + float(pt[1]))
-                except Exception:
-                    pass
-
-            for prim in primitives:
+            for prim in prims:
                 kind = prim.get('kind')
+                pts  = []
                 if kind in ('line', 'polyline'):
-                    for pt in prim.get('points') or []:
-                        _add_point(pt)
+                    pts = prim.get('points') or []
                 elif kind == 'text':
-                    _add_point(prim.get('insert') or [0.0, 0.0])
+                    pts = [prim.get('insert') or [0.0, 0.0]]
                 elif kind == 'hatch':
                     for path in prim.get('paths') or []:
-                        for pt in path:
-                            _add_point(pt)
+                        pts.extend(path)
+                for pt in pts:
+                    try:
+                        x_points.append(x_sect_center + float(pt[0]))
+                        y_points.append(y_ctr        + float(pt[1]))
+                    except Exception:
+                        pass
 
-            if not primitives:
-                x_points.extend([25.0, min(sect_total - 25.0, 165.0)])
-                y_points.extend([y_center - h_sec / 2.0 - 45.0,
-                                 y_center + h_sec / 2.0 + 45.0])
-            y_section -= max(h_sec + 90.0, 180.0)
+        # Fallback: bounds do draw_section_detail (barrote = widest element)
+        if not x_points or not y_points:
+            bw2 = (140.0 + b_cm) / 2.0       # meia-largura do barrote
+            x_points = [x_sect_center - bw2 - 5, x_sect_center + bw2 + b_cm + 5]
+            y_points  = [y0_sect - 25.0,          y0_sect + h_sect + 25.0]
 
-        if x_points and y_points:
-            vc_bbox = (
-                max(-80.0, min(x_points) - 35.0),
-                min(y_points) - 35.0,
-                min(float(sect_total - 15), max(x_points) + 35.0),
-                max(y_points) + 35.0,
-            )
-            y_min_section = vc_bbox[1]
-            y_max_section = vc_bbox[3]
-        else:
-            vc_bbox = (-60.0, -250.0, float(sect_total - 15), 80.0)
-            y_min_section, y_max_section = vc_bbox[1], vc_bbox[3]
+        # vc_bbox: capear direita a sect_total-50 para nunca vazar em Face A (x=sect_total)
+        # Gap garantido: sect_total-50 vs lat_bbox que começa em sect_total-5 = 45 cm gap
+        vc_bbox = (
+            min(x_points) - 30.0,
+            min(y_points) - 30.0,
+            min(max(x_points) + 30.0, float(sect_total) - 50.0),
+            max(y_points) + 30.0,
+        )
+        y_min_section = vc_bbox[1]
+        y_max_section = vc_bbox[3]
 
         lat_bbox = (sect_total - 5, y_min_section - 120, 99999, y_max_section + 120)
         return vc_bbox, lat_bbox

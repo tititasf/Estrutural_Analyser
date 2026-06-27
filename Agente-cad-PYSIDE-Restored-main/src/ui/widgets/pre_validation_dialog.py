@@ -866,7 +866,9 @@ class PreValidationDialog(QDialog):
                 rect = scene.itemsBoundingRect()
                 if rect.isNull():
                     raise ValueError("Scene is empty")
-                
+
+                x0, y0 = rect.left(), rect.top()
+                x1, y1 = rect.right(), rect.bottom()
                 viewer = _MiniDXFView(scene, x0, y0, x1, y1,
                                       thumb_w=800, thumb_h=250,
                                       highlight_pts=[])

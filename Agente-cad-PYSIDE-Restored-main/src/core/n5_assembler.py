@@ -149,19 +149,18 @@ def _import_doc_entities(
     except Exception:
         pass
 
-    copies = []
+    entities_to_import = []
     for entity in src_doc.modelspace():
         try:
             if skip_fv_helpers and _is_fv_helper_entity(entity):
                 continue
-            copied = entity.copy()
             if dx or dy:
-                copied.translate(dx, dy, 0)
-            copies.append(copied)
+                entity.translate(dx, dy, 0)
+            entities_to_import.append(entity)
         except Exception:
             continue
-    if copies:
-        importer.import_entities(copies, dst_doc.modelspace())
+    if entities_to_import:
+        importer.import_entities(entities_to_import, dst_doc.modelspace())
     importer.finalize()
     for dim in dst_doc.modelspace().query("DIMENSION"):
         try:
@@ -169,7 +168,7 @@ def _import_doc_entities(
                 dim.render()
         except Exception:
             continue
-    return len(copies)
+    return len(entities_to_import)
 
 
 def _fv_aliases(item_id: str) -> list[str]:
@@ -228,8 +227,7 @@ def assemble_n5(
     """Monta um DXF N5 consolidado a partir dos previews N3.
 
     Suportado agora:
-      - LJ: copia os N3 nas coordenadas nativas, mantendo a montagem sobre o estrutural.
-      - FV: empacota previews em grade de folhas, respeitando ordem natural dos itens.
+      - LJ e FV: ambos empacotam previews em grade de folhas, respeitando ordem natural dos itens.
     """
     obra_dir = Path(obra_dir)
     classe = classe.upper().strip()
@@ -248,7 +246,7 @@ def assemble_n5(
     manifest_path = out_dir / f"N5_{classe}_{pav_tag}.json"
 
     dst = _new_doc_like()
-    items: list[N5ItemResult] = []
+    items = []
 
     if classe == "LJ":
         for item_id in ids:
@@ -258,11 +256,10 @@ def assemble_n5(
                 continue
             try:
                 src_doc = ezdxf.readfile(str(src_path))
-                count = _import_doc_entities(src_doc, dst)
+                count = _import_doc_entities(src_doc, dst, skip_fv_helpers=True)
                 items.append(N5ItemResult(item_id, str(src_path), "ok", f"{count} entidades"))
             except Exception as exc:
                 items.append(N5ItemResult(item_id, str(src_path), "error", str(exc)[:120]))
-
     else:  # FV
         max_row_w = float(row_width or 3200.0)
         margin = 120.0
@@ -306,6 +303,7 @@ def assemble_n5(
                 items.append(N5ItemResult(item_id, str(src_path), "error", str(exc)[:120]))
 
     dst.saveas(str(out_path))
+    import json
     manifest = {
         "classe": classe,
         "obra": obra_dir.name,
@@ -317,4 +315,3 @@ def assemble_n5(
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     return N5AssemblyResult(classe, obra_dir.name, pavimento, out_path, manifest_path, items)
-

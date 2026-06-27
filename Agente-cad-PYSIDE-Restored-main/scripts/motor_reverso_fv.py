@@ -481,6 +481,16 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         seg_dict = {'total_width': seg_width, 'panels': panels_rich}
         if _mult and _mult > 1:
             seg_dict['_multiplier'] = _mult
+            
+        # Extrair texto_esq e texto_dir nas esquinas do segmento (pode estar em cima ou embaixo dependendo da versão do STOG gerador)
+        # Região: proximidade X com a borda
+        left_cands = [t for t in msp_texts if t[3] == '5' and abs(t[1] - seg_min_x) < 50]
+        right_cands = [t for t in msp_texts if t[3] == '5' and abs(t[1] - seg_max_x) < 50]
+        if left_cands:
+            seg_dict['texto_esq'] = min(left_cands, key=lambda t: abs(t[1] - seg_min_x))[0]
+        if right_cands:
+            seg_dict['texto_dir'] = min(right_cands, key=lambda t: abs(t[1] - seg_max_x))[0]
+            
         return seg_dict, seg_width
 
     for i in range(len(final_polys) - 1):

@@ -749,48 +749,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     consecutive segments where no entities are drawn (pilar crossings).
 
     For each segment:
-      - Computes its own STOG-module sub-panels via compute_panels()
-      - Draws panel polys, dividers, sarrafos independently
-      - Draws sub-panel dims (1st level)
-      - Draws segment total dim (2nd level, if segment has >1 sub-panel)
-
-    Between segments a gap of hole.width is left (no geometry).
-
-    Overall viga total dim is drawn at deepest level if >1 segment.
-
-    Returns total footprint of the viga (segments + gaps).
-    """
-    if not panels_json or viga_b <= 0:
-        return 0.0
-
-    b = viga_b
-
-    # Pre-collect all hole texts and labels to avoid printing them inside panels
-    ignore_texts = set()
-    if label_left: ignore_texts.add(str(label_left).strip().lower())
-    if label_right: ignore_texts.add(str(label_right).strip().lower())
-    if holes:
-        for h in holes:
-            if isinstance(h, dict) and h.get('text'):
-                ignore_texts.add(str(h['text']).strip().lower())
-    if panels_json:
-        for p in panels_json:
-            if isinstance(p, dict):
-                te = p.get('texto_esq', p.get('label_left', ''))
-                td = p.get('texto_dir', p.get('label_right', ''))
-                if te: ignore_texts.add(str(te).strip().lower())
-                if td: ignore_texts.add(str(td).strip().lower())
-
-    # -- Parse segments (each panel dict = one segment) ------------------------
-    import copy as _copy
-    segments = []
-    for p in panels_json:
-        if isinstance(p, dict) and 'total_width' in p:
-            sw = float(p['total_width'])
-            if sw > 0:
-                mult = int(p.get('_multiplier', 1) or 1)
-                if mult > 1:
-                    # Expandir N cópias; só a primeira carrega _mult_label para exibir "NxMMM"
                     base = _copy.deepcopy(p)
                     base.pop('_multiplier', None)
                     base['_mult_label'] = f'{mult}x{round(sw):g}'
@@ -844,7 +802,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
     # -- Draw each segment -----------------------------------------------------
     x_cursor = x0
-    last_drawn_right_text = None
     for seg_idx, seg_item in enumerate(segments):
         # Handle both flat float/dict and rich segment dictionaries
         if isinstance(seg_item, dict) and 'panels' in seg_item:
@@ -920,7 +877,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             # Draw any specific texts inside the panel (e.g. 'P1', 'V309')
             if p_texts:
                 for idx, txt in enumerate(p_texts):
-                    if str(txt).strip().lower() in ignore_texts: continue
+                    if txt in ignore_texts: continue
                     t = msp.add_text(txt, dxfattribs={'layer': '5', 'height': 8})
                     t.dxf.insert = (xp + pw/2 - 5, y0 + b/2 + (idx * 10))
 
@@ -988,28 +945,19 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             seg_label_right = label_right
 
         if str(seg_label_left).strip() and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan'):
-            text_left = str(seg_label_left).strip()
-            if not last_drawn_right_text or text_left != last_drawn_right_text:
-                add_text(msp, seg_x0 - 10, label_y, text_left, LABEL_H, '5',
-                         halign=2, rotation=0)
+            add_text(msp, seg_x0 - 10, label_y, str(seg_label_left).strip(), LABEL_H, '5',
+                     halign=2, rotation=0)
         
         if str(seg_label_right).strip() and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan'):
-            text_right = str(seg_label_right).strip()
-            add_text(msp, seg_x_end + 10, label_y, text_right, LABEL_H, '5',
+            add_text(msp, seg_x_end + 10, label_y, str(seg_label_right).strip(), LABEL_H, '5',
                      halign=0, rotation=0)
-            last_drawn_right_text = text_right
-        else:
-            last_drawn_right_text = None
 
         if seg_idx < len(gaps):
             gap_label = gaps[seg_idx][1]
             if gap_label and gap_label != 'Pilar Cruzado':
-                if last_drawn_right_text and gap_label.strip() == last_drawn_right_text:
-                    pass
-                else:
-                    gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                    add_text(msp, gap_center, y0 + b + LABEL_ABOVE, gap_label, LABEL_H, '5',
-                             halign=1, rotation=0)
+                gap_center = seg_x_end + gaps[seg_idx][0] / 2
+                add_text(msp, gap_center, y0 + b + LABEL_ABOVE, gap_label, LABEL_H, '5',
+                         halign=1, rotation=0)
 
         # Draw individual sub-panel dims (1st level, and tiers if present)
         xp = seg_x0
