@@ -3630,6 +3630,21 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.tree_fundos.setStyleSheet(f"QTreeWidget {{ background-color: {_DS.DEEP}; border: 1px solid {_DS.BORDER}; }} QHeaderView::section {{ background-color: {_DS.ELEVATED}; }}")
         left_layout.addWidget(self.tree_fundos)
 
+        # Botões Salvar + Atualizar lado a lado (movidos para a lista)
+        btns_row = QHBoxLayout()
+        btns_row.setSpacing(6)
+        self.btn_salvar = QPushButton("Salvar")
+        self.btn_salvar.setStyleSheet(
+            f"background-color: {_DS.INTERACTIVE}; color: {_DS.WHITE}; font-weight: bold; "
+            f"font-size: 11px; padding: 4px 10px; min-height: 26px; border-radius: 4px;")
+        self.btn_atualizar = QPushButton("Atualizar")
+        self.btn_atualizar.setStyleSheet(
+            f"background-color: {_DS.RAISED}; color: {_DS.PRIMARY}; font-size: 11px; "
+            f"padding: 4px 10px; min-height: 26px; border-radius: 4px; border: 1px solid {_DS.BORDER_STR};")
+        btns_row.addWidget(self.btn_salvar)
+        btns_row.addWidget(self.btn_atualizar)
+        left_layout.addLayout(btns_row)
+
         # Botões de ação secundária no footer da esquerda
         left_actions = QHBoxLayout()
         self.btn_delete_sel = QPushButton("🗑️ Excluir Selecionados")
@@ -3721,20 +3736,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.btn_analisar_boundary = QPushButton("Analisar Boundary")
         self.btn_analisar_boundary.setStyleSheet(f"background-color: {_DS.WARNING}; color: {_DS.WHITE}; font-weight: bold; font-size: 12px; padding: 8px; min-height: 30px;")
 
-        # Botões Salvar + Atualizar lado a lado
-        btns_row = QHBoxLayout()
-        btns_row.setSpacing(6)
-        self.btn_salvar = QPushButton("Salvar")
-        self.btn_salvar.setStyleSheet(
-            f"background-color: {_DS.INTERACTIVE}; color: {_DS.WHITE}; font-weight: bold; "
-            f"font-size: 11px; padding: 4px 10px; min-height: 26px; border-radius: 4px;")
-        self.btn_atualizar = QPushButton("Atualizar")
-        self.btn_atualizar.setStyleSheet(
-            f"background-color: {_DS.RAISED}; color: {_DS.PRIMARY}; font-size: 11px; "
-            f"padding: 4px 10px; min-height: 26px; border-radius: 4px; border: 1px solid {_DS.BORDER_STR};")
-        btns_row.addWidget(self.btn_salvar)
-        btns_row.addWidget(self.btn_atualizar)
-        cmd_layout.addLayout(btns_row)
+        # Botões Salvar + Atualizar movidos para a coluna da esquerda
 
         # GRUPO 4: DETALHES (Tabs)
         # O TabWidget fica como último elemento do scroll
