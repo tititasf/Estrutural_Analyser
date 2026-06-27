@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
                                  QComboBox, QInputDialog, QMenu, QToolButton, QTabWidget,
                                  QFrame, QScrollArea, QSplitter, QAbstractItemView, QProgressBar, QTextEdit, QGridLayout, QSizePolicy,
                                  QTreeWidget, QTreeWidgetItem)
-from PySide6.QtCore import Signal, Qt, QSize, QEvent, QTimer
+from PySide6.QtCore import Signal, Qt, QSize, QEvent, QTimer, QProcess
 from PySide6.QtGui import QIcon, QFont, QColor
 import json
 import re
@@ -68,6 +68,9 @@ class ProjectManager(QWidget):
         self.sync_service = SyncService()
         self.current_project_id = None
         self.current_work_name = None
+        self._auto_rag_process = None
+        self._auto_rag_active_work = None
+        self._auto_rag_pending_work = None
         self.sync_complete_signal.connect(self._on_sync_complete)
         # Lazy tab rendering — só renderiza o tab visível
         self._classified_docs_cache: dict = {}
@@ -2544,6 +2547,61 @@ class ProjectManager(QWidget):
     # ── Index badge helpers ────────────────────────────────────────────────
 
     # ── RAG Pipeline ──────────────────────────────────────────────────────────
+
+    def _ensure_local_rag_snapshot(self, work_name: str | None):
+        """Atualiza silenciosamente o snapshot local ao selecionar uma obra."""
+        work_name = str(work_name or "").strip()
+        if not work_name or work_name == "__NO_WORK__":
+            return
+
+        if (
+            self._auto_rag_process is not None
+            and self._auto_rag_process.state() != QProcess.ProcessState.NotRunning
+        ):
+            if work_name != self._auto_rag_active_work:
+                self._auto_rag_pending_work = work_name
+            return
+
+        import sys
+
+        script = Path("D:/Agente-cad-PYSIDE/scripts/obra_rag_pipeline.py")
+        if not script.exists():
+            logging.warning("[RAG-LOCAL] pipeline ausente: %s", script)
+            return
+
+        process = QProcess(self)
+        process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        process.readyReadStandardOutput.connect(
+            lambda p=process: logging.info(
+                "[RAG-LOCAL] %s",
+                bytes(p.readAllStandardOutput()).decode("utf-8", errors="replace").strip(),
+            )
+        )
+        process.finished.connect(self._on_auto_rag_snapshot_finished)
+        self._auto_rag_process = process
+        self._auto_rag_active_work = work_name
+        process.start(
+            sys.executable,
+            [str(script), "--obra", work_name, "--apply"],
+        )
+
+    def _on_auto_rag_snapshot_finished(self, exit_code: int, _exit_status):
+        work_name = self._auto_rag_active_work
+        if exit_code:
+            logging.warning(
+                "[RAG-LOCAL] snapshot automatico falhou para %s (exit=%s)",
+                work_name,
+                exit_code,
+            )
+        elif work_name == self.current_work_name:
+            QTimer.singleShot(0, self._refresh_rag_badge)
+
+        self._auto_rag_process = None
+        self._auto_rag_active_work = None
+        pending = self._auto_rag_pending_work
+        self._auto_rag_pending_work = None
+        if pending and pending != work_name:
+            QTimer.singleShot(0, lambda obra=pending: self._ensure_local_rag_snapshot(obra))
 
     def _on_rag_pipeline_clicked(self):
         """Dispara o pipeline RAG semântico em QThread."""
@@ -6655,8 +6713,11 @@ class ProjectManager(QWidget):
         repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
         app_root = Path(__file__).resolve().parents[3]
         scripts_dir = repo_root / "scripts"
-        if str(scripts_dir) not in sys.path:
-            sys.path.insert(0, str(scripts_dir))
+        app_repo_root = app_root.parent
+        app_repo_scripts_dir = app_repo_root / "scripts"
+        for candidate_scripts_dir in (scripts_dir, app_repo_scripts_dir):
+            if candidate_scripts_dir.exists() and str(candidate_scripts_dir) not in sys.path:
+                sys.path.insert(0, str(candidate_scripts_dir))
 
         try:
             from rag_tier import get_tier, load_tombstones, tier_at_least
@@ -6671,7 +6732,10 @@ class ProjectManager(QWidget):
         registry_error = ""
         try:
             from classe_registry import canonicalize_class, load_registry, registered_classes
-            class_registry = load_registry(repo_root / "data" / "classe_registry.json")
+            registry_path = repo_root / "data" / "classe_registry.json"
+            if not registry_path.exists():
+                registry_path = app_repo_root / "data" / "classe_registry.json"
+            class_registry = load_registry(registry_path)
             canonical_classes = registered_classes(class_registry)
 
             def canonical_class(value):
@@ -7271,6 +7335,11 @@ class ProjectManager(QWidget):
         filter_work = selected_item.data(Qt.UserRole) if selected_item else None
 
         self.current_work_name = filter_work if filter_work != "__NO_WORK__" else None
+        if self.current_work_name:
+            _QT.singleShot(
+                150,
+                lambda obra=self.current_work_name: self._ensure_local_rag_snapshot(obra),
+            )
 
         has_work = bool(filter_work) and filter_work != "__NO_WORK__"
         self.btn_delete_work.setVisible(has_work)

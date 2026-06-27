@@ -31,6 +31,18 @@ from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
 
 from src.ui.theme import Colors, Semantic, Accent, Text, Surface, Border, Contextual
 
+# ── Logger de diagnóstico de freeze (TEMPORÁRIO) ────────────────────────────────
+_DBG_LOG = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'freeze_dump.log'
+)
+def _dbg(msg: str) -> None:
+    try:
+        with open(_DBG_LOG, 'a', encoding='utf-8') as _f:
+            _f.write(f"[{datetime.now().strftime('%H:%M:%S.%f')[:-3]}] PVD: {msg}\n")
+            _f.flush()
+    except Exception:
+        pass
+
 # ── Constantes de terminologia ─────────────────────────────────────────────────
 
 PHYSICAL_TYPES: list[tuple[str, str]] = [
@@ -839,6 +851,7 @@ class PreValidationDialog(QDialog):
         # a criação de widgets SEMPRE na GUI thread. Conectar a uma função livre
         # (closure) faria o Qt usar DirectConnection -> o callback rodaria dentro
         # da worker thread, criando QWidget fora da GUI thread e travando a app.
+        _dbg(f"_build_detail_reference_viewer: iniciando _DXFReaderThread para {dxf_path}")
         self._dxf_thread = _DXFReaderThread(dxf_path)
         self._dxf_thread.finished.connect(self._on_gabarito_doc_loaded)
         self._dxf_thread.start()
@@ -847,6 +860,7 @@ class PreValidationDialog(QDialog):
 
     def _on_gabarito_doc_loaded(self, doc) -> None:
         """Renderiza o gabarito na GUI thread após a leitura assíncrona do DXF."""
+        _dbg(f"_on_gabarito_doc_loaded INICIO doc={bool(doc)}")
         vbox = getattr(self, '_gab_vbox', None)
         loading_label = getattr(self, '_gab_loading', None)
         if vbox is None:
@@ -893,6 +907,7 @@ class PreValidationDialog(QDialog):
 
                 x0, y0 = rect.left(), rect.top()
                 x1, y1 = rect.right(), rect.bottom()
+                _dbg("_on_gabarito_doc_loaded: criando _MiniDXFView do gabarito")
                 viewer = _MiniDXFView(scene, x0, y0, x1, y1,
                                       thumb_w=800, thumb_h=250,
                                       highlight_pts=[])
@@ -904,6 +919,7 @@ class PreValidationDialog(QDialog):
                 viewer.setMinimumHeight(200)
                 viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 vbox.addWidget(viewer)
+                _dbg("_on_gabarito_doc_loaded: gabarito adicionado OK")
             except Exception as e:
                 err_lbl = QLabel(f"Falha ao renderizar gabarito: {e}")
                 err_lbl.setAlignment(Qt.AlignCenter)
@@ -1609,12 +1625,15 @@ class PreValidationDialog(QDialog):
 
         def _do_build():
             try:
+                _dbg(f"_do_build INICIO tab={index}")
                 new_widget = builder()
+                _dbg(f"_do_build builder() OK tab={index}")
                 self._tabs.blockSignals(True)
                 self._tabs.removeTab(index)
                 self._tabs.insertTab(index, new_widget, tab_text)
                 self._tabs.setCurrentIndex(index)
-                
+                _dbg(f"_do_build insertTab+setCurrentIndex OK tab={index}")
+
                 # Trigger lazy loader after a short delay so layout is done
                 QTimer.singleShot(100, self._trigger_dynamic_viewers_for_visible_tab)
             except Exception as e:
@@ -1736,7 +1755,9 @@ class PreValidationDialog(QDialog):
         lay.setSpacing(6)
 
         # Viewer central do gabarito (Motor Reverso)
+        _dbg("_build_convention_tab: antes do gabarito")
         gabarito = self._build_detail_reference_viewer()
+        _dbg("_build_convention_tab: gabarito construido")
         if gabarito:
             lay.addWidget(gabarito)
             sep = QFrame(); sep.setFrameShape(QFrame.HLine)
@@ -1744,7 +1765,9 @@ class PreValidationDialog(QDialog):
             lay.addWidget(sep)
 
         # Lista de termos + mini viewers por classe
+        _dbg("_build_convention_tab: antes do convention_panel")
         lay.addWidget(self._build_convention_panel())
+        _dbg("_build_convention_tab: convention_panel OK")
         lay.addStretch()
         scroll.setWidget(inner)
         return scroll
@@ -1830,7 +1853,9 @@ class PreValidationDialog(QDialog):
             phys_combo.currentIndexChanged.connect(_make_on_change())
             self._term_combos[term] = phys_combo
 
+            _dbg(f"convention_panel: criando viewer termo '{term}'")
             ref_viewer = self._make_conv_viewer_for_term(term, w=190, h=85)
+            _dbg(f"convention_panel: viewer termo '{term}' OK")
 
             grid.addWidget(term_lbl, row, 0)
             grid.addWidget(std_lbl, row, 1)

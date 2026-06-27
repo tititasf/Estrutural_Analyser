@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QListWidgetItem, QSplitter,
     QTabWidget, QTableWidget, QTableWidgetItem, QTextEdit,
     QProgressBar, QMessageBox, QSizePolicy, QScrollArea,
-    QComboBox, QDialog, QDialogButtonBox, QLineEdit,
+    QComboBox, QDialog, QDialogButtonBox, QLineEdit, QInputDialog,
     QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem,
     QGraphicsSimpleTextItem, QRadioButton, QButtonGroup, QApplication,
 )
@@ -31,6 +31,7 @@ from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
 from src.core.crop_learning_store import (
     ensure_crop_learning_schema as _crop_learning_ensure_schema,
     record_crop_learning_event as _record_crop_learning_event,
+    revoke_crop_learning_events_for_recorte as _revoke_crop_learning_events_for_recorte,
 )
 
 try:
@@ -1294,6 +1295,8 @@ def _render_obra_html(data: dict) -> str:
 class _CenterPanel(QFrame):
     """4 tabs: Viz.Completo (CADCanvas) | Viz.Granular | Ficha Granular | Ficha Obra ER"""
 
+    ficha_validation_requested = Signal(bool)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setStyleSheet(f"background:{Colors.BG_DEEP};")
@@ -1305,6 +1308,7 @@ class _CenterPanel(QFrame):
         self._canvas_pending: dict = {}
         # Lazy loading: DXF completo só carrega quando Tab 0 está ativa
         self._pending_completo_dxf: str | None = None
+        self._current_ficha_context: dict = {}
 
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
@@ -1489,12 +1493,55 @@ class _CenterPanel(QFrame):
         self.canvas_granular.keyPressEvent = self._canvas_granular_key_press
 
         # ── Tab 3 — Fichas Granulares [F5] ──
+        ficha_container = QWidget()
+        ficha_lay = QVBoxLayout(ficha_container)
+        ficha_lay.setContentsMargins(0, 0, 0, 0)
+        ficha_lay.setSpacing(0)
+
+        ficha_toolbar = QFrame()
+        ficha_toolbar.setFixedHeight(34)
+        ficha_toolbar.setStyleSheet(
+            f"background:{Colors.BG_SECONDARY}; border-bottom:1px solid {Colors.BORDER_DEFAULT};"
+        )
+        ficha_toolbar_lay = QHBoxLayout(ficha_toolbar)
+        ficha_toolbar_lay.setContentsMargins(8, 4, 8, 4)
+        ficha_toolbar_lay.setSpacing(6)
+
+        self._ficha_status = QLabel("Nenhuma ficha selecionada")
+        self._ficha_status.setStyleSheet(
+            f"color:{Colors.TEXT_DIM}; font-size:10px; font-weight:bold;"
+        )
+        ficha_toolbar_lay.addWidget(self._ficha_status)
+        ficha_toolbar_lay.addStretch()
+
+        self._btn_revoke_ficha = QPushButton("Revogar F5")
+        self._btn_revoke_ficha.setToolTip(
+            "Retira esta ficha do RAG global, preservando historico e tombstone TX."
+        )
+        self._btn_revoke_ficha.setEnabled(False)
+        self._btn_revoke_ficha.clicked.connect(
+            lambda: self.ficha_validation_requested.emit(False)
+        )
+        ficha_toolbar_lay.addWidget(self._btn_revoke_ficha)
+
+        self._btn_validate_ficha = QPushButton("Validar F5")
+        self._btn_validate_ficha.setToolTip(
+            "Confirma humanamente todos os campos exibidos e promove somente esta ficha para T1."
+        )
+        self._btn_validate_ficha.setEnabled(False)
+        self._btn_validate_ficha.clicked.connect(
+            lambda: self.ficha_validation_requested.emit(True)
+        )
+        ficha_toolbar_lay.addWidget(self._btn_validate_ficha)
+        ficha_lay.addWidget(ficha_toolbar)
+
         self._ficha_table = QTextEdit()
         self._ficha_table.setReadOnly(True)
         self._ficha_table.setStyleSheet(
             f"background:{Surface.DEEP}; color:{Text.PRIMARY}; border:none;"
         )
-        self._tabs.addTab(self._ficha_table, "Fichas Granulares [F5]")
+        ficha_lay.addWidget(self._ficha_table, 1)
+        self._tabs.addTab(ficha_container, "Fichas Granulares [F5]")
         
         # ── Tab 4 — Ficha Pavimento/Classe [F4] ──
         self._pav_text = QTextEdit()
@@ -1768,8 +1815,39 @@ class _CenterPanel(QFrame):
         self._dxf_proxies.append(proxy)
         thread.start()
 
-    def load_ficha_granular(self, campos_json: str | None,
-                             classe: str = '', confianca: float = 0.0, elemento_id: str = ''):
+    def load_ficha_granular(
+        self,
+        campos_json: str | None,
+        classe: str = '',
+        confianca: float = 0.0,
+        elemento_id: str = '',
+        context: dict | None = None,
+    ):
+        self._current_ficha_context = dict(context or {})
+        has_ficha = bool(campos_json and self._current_ficha_context.get("ficha_id"))
+        status = str(self._current_ficha_context.get("status") or "draft").lower()
+        self._btn_validate_ficha.setEnabled(has_ficha)
+        self._btn_revoke_ficha.setEnabled(
+            has_ficha and status in {"aprovado", "approved"}
+        )
+        if not has_ficha:
+            self._ficha_status.setText("Nenhuma ficha selecionada")
+            status_color = Colors.TEXT_DIM
+        elif status in {"aprovado", "approved"}:
+            indexed = bool(self._current_ficha_context.get("rag_indexed"))
+            self._ficha_status.setText(
+                f"T1 validada humanamente | RAG {'indexado' if indexed else 'pendente'}"
+            )
+            status_color = Colors.ACCENT_SUCCESS
+        elif status in {"revoked", "desvalidado", "invalidado"}:
+            self._ficha_status.setText("TX revogada | fora das consultas RAG")
+            status_color = Colors.ACCENT_DANGER
+        else:
+            self._ficha_status.setText("T0 em quarentena | revise antes de validar")
+            status_color = Colors.ACCENT_WARNING
+        self._ficha_status.setStyleSheet(
+            f"color:{status_color}; font-size:10px; font-weight:bold;"
+        )
         if not campos_json:
             self._ficha_table.setHtml(
                 f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
@@ -2841,6 +2919,9 @@ class DiagnosticReverseHub(QWidget):
 
         # ── Painel Central ────────────────────────────────────────────
         self._center = _CenterPanel()
+        self._center.ficha_validation_requested.connect(
+            self._on_ficha_validation_requested
+        )
         splitter.addWidget(self._center)
 
         root.addWidget(splitter, 1)
@@ -3505,7 +3586,8 @@ class DiagnosticReverseHub(QWidget):
         extra_cls = "AND classe=?" if classe else ""
         params_with_cls = (obra_name, id_or_elem, classe) if classe else (obra_name, id_or_elem)
         rows = _db_query(
-            f"SELECT campos_json, classe, confianca FROM reverse_eng_fichas "
+            f"SELECT id, campos_json, classe, confianca, recorte_path, status, "
+            f"COALESCE(rag_indexed,0), obra_name, pavimento FROM reverse_eng_fichas "
             f"WHERE (obra_name=? OR obra_name='') AND elemento_id=? {extra_cls} "
             f"ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, updated_at DESC LIMIT 1",
             (*params_with_cls, obra_name)
@@ -3513,20 +3595,131 @@ class DiagnosticReverseHub(QWidget):
         if not rows:
             # Fallback: proj_id numerico (legado)
             rows = _db_query(
-                "SELECT campos_json, classe, confianca FROM reverse_eng_fichas "
+                "SELECT id, campos_json, classe, confianca, recorte_path, status, "
+                "COALESCE(rag_indexed,0), obra_name, pavimento FROM reverse_eng_fichas "
                 "WHERE projeto_id=? ORDER BY updated_at DESC LIMIT 1",
                 (id_or_elem,)
             )
         if rows:
-            campos_json, db_cls, db_conf = rows[0]
+            (
+                ficha_id,
+                campos_json,
+                db_cls,
+                db_conf,
+                recorte_path,
+                status,
+                rag_indexed,
+                db_obra,
+                pavimento,
+            ) = rows[0]
             self._center.load_ficha_granular(
                 campos_json,
                 classe=classe or (db_cls or ''),
                 confianca=float(db_conf or 0.0),
                 elemento_id=id_or_elem,
+                context={
+                    "ficha_id": ficha_id,
+                    "obra_name": db_obra or obra_name,
+                    "pavimento": pavimento,
+                    "classe": classe or (db_cls or ""),
+                    "elemento_id": id_or_elem,
+                    "recorte_path": recorte_path,
+                    "status": status,
+                    "rag_indexed": rag_indexed,
+                },
             )
         else:
             self._center.load_ficha_granular(None)
+
+    def _on_ficha_validation_requested(self, validate: bool):
+        """Aplica validação/revogação humana exclusivamente à ficha F5 selecionada."""
+        context = dict(self._center._current_ficha_context or {})
+        if not context.get("ficha_id"):
+            QMessageBox.warning(self, "Ficha F5", "Selecione uma ficha granular primeiro.")
+            return
+
+        if validate:
+            answer = QMessageBox.question(
+                self,
+                "Validar ficha F5",
+                "Confirma que revisou os campos exibidos desta ficha N2/F5?\n\n"
+                "Somente esta ficha será promovida para T1 e poderá ensinar o RAG global.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
+                return
+            try:
+                from rag_validation_events import record_reverse_hub_approval
+
+                result = record_reverse_hub_approval(
+                    obra_name=context["obra_name"],
+                    classe=context["classe"],
+                    elemento_id=context["elemento_id"],
+                    recorte_path=context.get("recorte_path") or "",
+                    db_path=DB_PATH,
+                    auto_index=True,
+                    validation_origin="human_ui",
+                )
+            except Exception as exc:
+                QMessageBox.critical(self, "Validar ficha F5", str(exc))
+                return
+            if result.get("status") != "promoted_t1":
+                QMessageBox.warning(
+                    self,
+                    "Validar ficha F5",
+                    f"A ficha não foi promovida: {result}",
+                )
+                return
+            message = "Ficha promovida para T1."
+            if result.get("index_error"):
+                message += "\nA indexação ficou pendente: " + str(result["index_error"])
+            elif result.get("indexed"):
+                message += "\nÍndice global atualizado para esta ficha."
+            QMessageBox.information(self, "Validar ficha F5", message)
+        else:
+            reason, ok = QInputDialog.getText(
+                self,
+                "Revogar ficha F5",
+                "Motivo da revogação humana:",
+            )
+            reason = str(reason or "").strip()
+            if not ok or not reason:
+                return
+            try:
+                from rag_validation_events import record_reverse_hub_revocation
+
+                result = record_reverse_hub_revocation(
+                    obra_name=context["obra_name"],
+                    classe=context["classe"],
+                    elemento_id=context["elemento_id"],
+                    recorte_path=context.get("recorte_path"),
+                    reason=reason,
+                    db_path=DB_PATH,
+                    validation_origin="human_ui",
+                )
+            except Exception as exc:
+                QMessageBox.critical(self, "Revogar ficha F5", str(exc))
+                return
+            if result.get("status") != "revoked_tx":
+                QMessageBox.warning(
+                    self,
+                    "Revogar ficha F5",
+                    f"A ficha não foi revogada: {result}",
+                )
+                return
+            QMessageBox.information(
+                self,
+                "Revogar ficha F5",
+                "Ficha marcada como TX e removida das consultas RAG. "
+                "O histórico foi preservado.",
+            )
+
+        self._load_ficha_for_elemento(
+            context["elemento_id"],
+            context["obra_name"],
+            context["classe"],
+        )
 
     def _on_excluir(self):
         """Exclui o recorte selecionado na lista direita (reverse_eng_recortes + arquivo físico)."""
@@ -3551,6 +3744,16 @@ class DiagnosticReverseHub(QWidget):
         )
         if resp != QMessageBox.Yes:
             return
+
+        # Revoga primeiro qualquer exemplo que este recorte tenha ensinado.
+        revoked_learning = _revoke_crop_learning_events_for_recorte(
+            recorte_path,
+            reason="human_deleted_or_invalidated_crop",
+            revoked_by="human_ui",
+            db_path=DB_PATH,
+        )
+        if revoked_learning:
+            print(f"[CROP-LEARNING] revoked {revoked_learning} event(s) for {recorte_path}")
 
         # 1. Remover do banco de dados
         _db_execute(

@@ -112,28 +112,45 @@ class DXFVectorView(QWidget):
             self._is_loaded = True
             if bbox:
                 self._cull_to_bbox(bbox)
+                # Dispara zoom no próximo ciclo — cobre o caso "widget já visível"
                 from PySide6.QtCore import QTimer
-                QTimer.singleShot(50, lambda b=bbox: self.zoom_to_bbox(b))
+                QTimer.singleShot(0, lambda b=bbox: self.zoom_to_bbox(b))
         except Exception as e:
             print(f"Error loading DXF in DXFVectorView wrapper: {e}")
 
         self.ready.emit()
 
+    def showEvent(self, event):
+        """Re-aplica zoom quando widget fica visível — cobre o caso de load_dxf
+        chamado antes do widget ser exibido (ex: switch_to_lv_zones cria splitter)."""
+        super().showEvent(event)
+        if self._is_loaded and self._dxf_bbox:
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(0, lambda: self.zoom_to_bbox(self._dxf_bbox))
+
     def _cull_to_bbox(self, bbox):
         """Oculta itens da cena fora do bbox e restringe sceneRect ao bbox.
-        Coordenadas DXF: x=same, y_scene=-y_dxf.
+
+        ezdxf PyQtBackend coloca entidades com scene_y = DXF_y (SEM inverter y).
+        O view CADCanvas faz o flip visual com scale(1,-1).
+        Portanto scene coords == DXF coords — usar min/max direto, sem negação.
+
+        Entidades que ABRANGEM dois painéis (ex: border 'Folhas' x=1585..3070)
+        passariam no simples intersects — filtramos também pelo CENTRO X.
         """
         x0, y0, x1, y1 = bbox
         from PySide6.QtCore import QRectF
-        # Scene rect correspondente ao bbox DXF (y negado)
-        scene_clip = QRectF(min(x0, x1), -max(y0, y1),
+        # scene_y == DXF_y: usar min/max direto
+        scene_clip = QRectF(min(x0, x1), min(y0, y1),
                             abs(x1 - x0), abs(y1 - y0))
-        # Margem pequena: 5 unidades (= 5 cm DXF) para não cortar bordas
-        # sem vazamento de entidades do painel vizinho (gap seção↔face ≈ 40 cm)
         scene_clip = scene_clip.adjusted(-5, -5, 5, 5)
+        self._scene_clip = scene_clip   # salvo para zoom_to_bbox usar
+        cx0, cx1 = scene_clip.left(), scene_clip.right()
         for item in self.canvas.scene.items():
             try:
-                if not scene_clip.intersects(item.sceneBoundingRect()):
+                br = item.sceneBoundingRect()
+                cx = br.center().x()
+                if not scene_clip.intersects(br) or not (cx0 <= cx <= cx1):
                     item.setVisible(False)
             except Exception:
                 pass
@@ -146,8 +163,11 @@ class DXFVectorView(QWidget):
 
         from PySide6.QtCore import QRectF, Qt
 
-        # Usa bounds reais dos itens VISÍVEIS para evitar zoom infinito quando
-        # lat_bbox tem x1=99999 (aberto à direita).
+        clip = getattr(self, '_scene_clip', None)
+
+        # Une apenas itens visíveis, clampando cada um ao clip para que entidades
+        # largas (que sobreviveram ao intersects mas têm centre dentro do clip)
+        # não inflacionem o viewport além dos limites da zona.
         visible_rect: "QRectF | None" = None
         for item in self.canvas.scene.items():
             try:
@@ -156,17 +176,20 @@ class DXFVectorView(QWidget):
                 br = item.sceneBoundingRect()
                 if br.isEmpty():
                     continue
+                if clip:
+                    br = br.intersected(clip)
+                    if br.isEmpty():
+                        continue
                 visible_rect = br if visible_rect is None else visible_rect.united(br)
             except Exception:
                 pass
 
         if visible_rect is None or visible_rect.isEmpty():
-            # Fallback: usar bbox explícito (sem o infinito)
-            x0, y0, x1, y1 = bbox
-            w, h = abs(x1 - x0), abs(y1 - y0)
-            if w > 10000 or h > 10000 or w <= 0 or h <= 0:
+            # Fallback: scene_clip já está ajustado (x1=99999 clipado pelos itens)
+            if clip and not clip.isEmpty() and clip.width() < 10000:
+                visible_rect = clip
+            else:
                 return
-            visible_rect = QRectF(x0, -y1, w, h)
 
         margin_x = visible_rect.width()  * 0.08
         margin_y = visible_rect.height() * 0.08
@@ -8940,7 +8963,7 @@ class ComparisonEngineModule(QWidget):
                     self._refresh_n3_compare_n4_if_active(classe, item_id)
                     self.nav_sidebar._enable_item_btns()
                 else:
-                    n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
+                    n4_bbox = None
                     col.load_content(str(n4_dxf), n4_bbox)
                     col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 ok — {item_id}", Colors.ACCENT_SUCCESS)

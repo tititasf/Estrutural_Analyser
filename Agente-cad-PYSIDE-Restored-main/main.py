@@ -1597,12 +1597,11 @@ class MainWindow(QMainWindow):
         self.btn_process.clicked.connect(self.process_pillars_action)
         left_layout.addWidget(self.btn_process)
 
-        self.btn_process_with_context = QPushButton("🧠 Interpretar com Contexto")
+        self.btn_process_with_context = QPushButton("🧠 Consultar Contexto RAG")
         self.btn_process_with_context.setObjectName("btn_interpretar_contexto")
-        self.btn_process_with_context.setText("Análise com Contexto (futuro)")
         self.btn_process_with_context.setToolTip(
-            "Futuro: reaproveitamento de grades e paineis entre pavimentos via F1/F2/F3. "
-            "Etapa 1 apenas reserva o botao; nao roda logica de contexto."
+            "Consulta regras semanticas e exemplos T1/T2 para o item atual. "
+            "Somente leitura: nao executa Analise Geral, nao altera fichas e nao gera DXF."
         )
         self.btn_process_with_context.setStyleSheet(
             f"{_BTN_H} background: #1a3a2a; color: #5dcfa0;"
@@ -7246,28 +7245,60 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _process_with_obra_context(self):
-        """
-        '🧠 Interpretar com Contexto' — Fase-3 análise com pré-contexto da Ficha da Obra.
-
-        Mesma análise que process_pillars_action(), porém:
-        1. Lê pre_processamento_estado.json da obra ativa para obter a Ficha Pré-Interpretativa
-        2. Injeta contexto (totais esperados, padrões de pavimento) no log antes de analisar
-        3. Roda process_pillars_action() normalmente — o contexto fica no log e pode ser
-           usado manualmente pelo operador para validar / ajustar os resultados.
-
-        Nota: A integração profunda (feedback automático ao motor) será implementada em
-        sprint futuro conforme MASTERPLAN-CAD-ANALYZER EPIC 4.5+.
-        """
+        """Consulta contexto RAG T1+ sem executar ou alterar a Analise Geral."""
         from PySide6.QtWidgets import QMessageBox as _QMB
-        _QMB.information(
-            self,
-            "Análise com Contexto (futuro)",
-            "Este botão fica reservado para a etapa futura de contexto F1/F2/F3.\n\n"
-            "Intenção: reaproveitar grades e paineis entre pavimentos e usar a ficha "
-            "global da obra como memoria operacional.\n\n"
-            "Na Etapa 1 ele não executa interpretação nem altera dados."
-        )
-        self.log("Análise com Contexto: reservado para etapa futura; nenhuma ação executada.")
+        try:
+            import sys as _sys
+            _scripts_dir = Path("D:/Agente-cad-PYSIDE/scripts")
+            if str(_scripts_dir) not in _sys.path:
+                _sys.path.insert(0, str(_scripts_dir))
+            from rag_context_service import get_rag_context_for_item, format_context_text
+
+            obra = self.sa_cmb_obras.currentText().strip()
+            pavimento = self.sa_cmb_pavimentos.currentText().strip()
+            item_data = (
+                self.current_card.item_data
+                if getattr(self, "current_card", None) is not None
+                and isinstance(getattr(self.current_card, "item_data", None), dict)
+                else {}
+            )
+            item_id = str(
+                item_data.get("name")
+                or item_data.get("nome")
+                or item_data.get("id")
+                or ""
+            )
+            raw_type = str(item_data.get("type") or item_data.get("tipo") or "").lower()
+            if "pilar" in raw_type:
+                classes = ["PL"]
+            elif "laje" in raw_type:
+                classes = ["LJ"]
+            elif "fundo" in raw_type or item_data.get("fundo"):
+                classes = ["FV"]
+            elif "viga" in raw_type:
+                classes = ["LV"]
+            else:
+                classes = ["PL", "LV", "FV", "LJ"]
+
+            contexts = [
+                get_rag_context_for_item(
+                    classe=classe,
+                    item_id=item_id,
+                    obra=obra or None,
+                    pavimento=pavimento or None,
+                    min_tier="T1",
+                )
+                for classe in classes
+            ]
+            text = "\n\n".join(format_context_text(context) for context in contexts)
+            _QMB.information(self, "Contexto RAG read-only", text)
+            self.log(
+                f"RAG read-only consultado: obra={obra or '-'} pav={pavimento or '-'} "
+                f"item={item_id or '-'} classes={','.join(classes)}"
+            )
+        except Exception as exc:
+            self.log(f"Erro ao consultar contexto RAG: {exc}")
+            _QMB.warning(self, "Contexto RAG", f"Nao foi possivel consultar o RAG:\n{exc}")
         return
         if not self.dxf_data:
             from PySide6.QtWidgets import QMessageBox as _QMB
@@ -13929,6 +13960,53 @@ def main():
 
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
+
+    # ── Watchdog de freeze (TEMPORÁRIO — diagnóstico de travamento) ────────────
+    # A GUI thread pulsa _wd_beat a cada 500ms via QTimer. Uma thread daemon
+    # verifica: se a GUI ficar >4s sem pulsar (== congelada), despeja o stack de
+    # TODAS as threads em freeze_dump.log. Captura o ponto exato do freeze.
+    try:
+        import threading as _wd_threading
+        import time as _wd_time
+        import faulthandler as _wd_fault
+        from PySide6.QtCore import QTimer as _WDTimer
+
+        _wd_log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'freeze_dump.log')
+        _wd_state = {'last': _wd_time.time(), 'dumped': False}
+
+        def _wd_pulse():
+            _wd_state['last'] = _wd_time.time()
+            _wd_state['dumped'] = False
+
+        _wd_timer = _WDTimer()
+        _wd_timer.timeout.connect(_wd_pulse)
+        _wd_timer.start(500)
+        app._wd_timer = _wd_timer  # impede GC do timer
+
+        def _wd_monitor():
+            while True:
+                _wd_time.sleep(1.0)
+                gap = _wd_time.time() - _wd_state['last']
+                if gap > 4.0 and not _wd_state['dumped']:
+                    _wd_state['dumped'] = True
+                    try:
+                        with open(_wd_log_path, 'a', encoding='utf-8') as _f:
+                            _f.write(
+                                f"\n===== FREEZE DETECTADO (GUI parada ha {gap:.1f}s) "
+                                f"@ {_wd_time.strftime('%Y-%m-%d %H:%M:%S')} =====\n"
+                            )
+                            _wd_fault.dump_traceback(file=_f, all_threads=True)
+                            _f.flush()
+                        print(f"[WATCHDOG] FREEZE detectado ({gap:.1f}s) -> freeze_dump.log",
+                              file=sys.stderr, flush=True)
+                    except Exception:
+                        pass
+
+        _wd_thr = _wd_threading.Thread(target=_wd_monitor, daemon=True, name='freeze-watchdog')
+        _wd_thr.start()
+    except Exception as _wd_e:
+        print(f"[WATCHDOG] nao instalado: {_wd_e}", file=sys.stderr)
+    # ───────────────────────────────────────────────────────────────────────────
 
     # Suprimir warnings cosmÃ©ticos de QSS parse
     from PySide6.QtCore import qInstallMessageHandler, QtMsgType

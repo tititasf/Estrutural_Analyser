@@ -1,5 +1,7 @@
 # STORY RAG-3.1 - Crop Learning no Diagnostic Reverse Hub
 
+**Status:** Backend concluido e automatizado em 2026-06-27; smoke visual pendente.
+
 ## Objetivo
 
 Separar a aprovacao manual de recorte da validacao de ficha/campos/N4.
@@ -85,3 +87,13 @@ Smoke manual:
 3. Aprovar recorte.
 4. Confirmar evento de recorte gravado.
 5. Confirmar que F5/N2 nao virou T1 e N4 nao foi validado.
+
+## Evidencias de execucao
+
+- `crop_learning_events` recebe somente o exemplo de recorte.
+- A exclusao humana revoga todos os exemplos ativos do mesmo `recorte_path`.
+- A revogacao preserva `revoked_by`, `revoked_at` e `revoked_reason`.
+- `python -m pytest tests\test_crop_learning_store.py tests\test_item_attention_store.py`
+  passou com 6 testes.
+- Os 14 testes de `rag_validation_events`, tiers, tombstones e origem sintetica
+  tambem passaram no repositorio raiz.

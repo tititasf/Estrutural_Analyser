@@ -3954,7 +3954,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
 
     def apply_theme(self):
         self.setStyleSheet(f"""
-            QMainWindow, QWidget {{ background-color: {_DS.DEEP}; color: {_DS.TEXT}; font-family: 'Segoe UI', Arial; }}
+            QMainWindow, QWidget {{ background-color: {_DS.BASE}; color: {_DS.TEXT}; font-family: 'Segoe UI', Arial; }}
             QGroupBox {{ border: 1px solid {_DS.BORDER}; border-radius: 5px; margin-top: 10px; font-weight: bold; color: {_DS.PRIMARY}; }}
             QGroupBox::title {{ subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }}
             QLineEdit {{ background-color: {_DS.CARD}; border: 1px solid {_DS.BORDER}; color: {_DS.WHITE}; padding: 4px; border-radius: 3px; }}

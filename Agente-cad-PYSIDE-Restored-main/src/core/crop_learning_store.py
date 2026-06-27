@@ -248,6 +248,39 @@ def revoke_crop_learning_event(
         return cur.rowcount > 0
 
 
+def revoke_crop_learning_events_for_recorte(
+    recorte_path: str | Path,
+    *,
+    reason: str,
+    revoked_by: str | None = None,
+    db_path: str | Path = DEFAULT_DB_PATH,
+) -> int:
+    """Tombstone every active crop example derived from one crop file."""
+    ensure_crop_learning_schema(db_path)
+    now = _now()
+    with sqlite3.connect(str(db_path)) as conn:
+        cur = conn.execute(
+            """
+            UPDATE crop_learning_events
+            SET status='revoked',
+                revoked_by=?,
+                revoked_at=?,
+                revoked_reason=?,
+                updated_at=?
+            WHERE recorte_path=? AND status='validated'
+            """,
+            (
+                revoked_by or _operator(),
+                now,
+                reason,
+                now,
+                str(recorte_path),
+            ),
+        )
+        conn.commit()
+        return int(cur.rowcount)
+
+
 def get_active_crop_examples(
     classe: str,
     *,

@@ -642,10 +642,10 @@ def dim_panel(msp, x0, x1, y_base):
 
 
 def dim_viga_total(msp, x0, x1, y_base):
-    """Horizontal dim for total viga -- 2nd level (y_base - DIM_TOTAL_BELOW)."""
+    """Horizontal dim for total viga -- 3rd level (y_base - DIM_OVERALL_BELOW)."""
     try:
         d = msp.add_linear_dim(
-            base=(x0, y_base - DIM_TOTAL_BELOW),
+            base=(x0, y_base - DIM_OVERALL_BELOW),
             p1=(x0, y_base),
             p2=(x1, y_base),
             angle=0,
@@ -872,7 +872,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
     # -- Draw each segment -----------------------------------------------------
     x_cursor = x0
-    last_drawn_right_text = None
+    last_drawn_text = None
     for seg_idx, seg_item in enumerate(segments):
         # Handle both flat float/dict and rich segment dictionaries
         if isinstance(seg_item, dict) and 'panels' in seg_item:
@@ -986,8 +986,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                   panel_openings=panel_openings,
                   sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
 
-        # Posiciona textos 10cm abaixo da cota mais baixa global
-        label_y = global_lowest_cota_y - 10
+        # Posiciona textos 15cm abaixo da cota mais baixa global (10cm originais + 5cm extras)
+        label_y = global_lowest_cota_y - 15
         
         seg_label_left = ''
         seg_label_right = ''
@@ -1003,28 +1003,31 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         if str(seg_label_left).strip() and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan'):
             text_left = str(seg_label_left).strip()
-            if not last_drawn_right_text or text_left != last_drawn_right_text:
+            # Verifica contra o texto direito do anterior E contra o gap_label anterior
+            if not last_drawn_text or text_left.lower() != last_drawn_text.lower():
                 add_text(msp, seg_x0 - 10, label_y, text_left, LABEL_H, '5',
                          halign=2, rotation=0)
+        
+        # Limpa o texto anterior, pois agora estamos processando o texto direito e o gap DESSA iteração
+        last_drawn_text = None
         
         if str(seg_label_right).strip() and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan'):
             text_right = str(seg_label_right).strip()
             add_text(msp, seg_x_end + 10, label_y, text_right, LABEL_H, '5',
                      halign=0, rotation=0)
-            last_drawn_right_text = text_right
-        else:
-            last_drawn_right_text = None
+            last_drawn_text = text_right
 
         if seg_idx < len(gaps):
             gap_label = gaps[seg_idx][1]
             if gap_label and gap_label != 'Pilar Cruzado':
-                if last_drawn_right_text and gap_label.strip() == last_drawn_right_text:
-                    pass
+                gap_text = gap_label.strip()
+                if last_drawn_text and gap_text.lower() == last_drawn_text.lower():
+                    pass # Já foi desenhado pelo right_text
                 else:
                     gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                    # Em vez de y0 + b + LABEL_ABOVE (acima da viga), desenhar na mesma linha das cotas
-                    add_text(msp, gap_center, label_y, gap_label, LABEL_H, '5',
+                    add_text(msp, gap_center, label_y, gap_text, LABEL_H, '5',
                              halign=1, rotation=0)
+                    last_drawn_text = gap_text # Atualiza para o próximo segmento checar!
 
         # Draw individual sub-panel dims (1st level, and tiers if present)
         xp = seg_x0
@@ -1116,6 +1119,10 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     # -- Vertical b dim -- right side ------------------------------------------
     rightmost_x = x0 + total_footprint
     dim_viga_b(msp, rightmost_x, y0, b)
+    
+    # -- Overall horizontal dim -- bottom --------------------------------------
+    if len(segments) > 1 or (segments and isinstance(segments[0], dict) and len(segments[0].get('panels', [])) > 1):
+        dim_viga_total(msp, x0, rightmost_x, y0)
 
     return total_footprint
 

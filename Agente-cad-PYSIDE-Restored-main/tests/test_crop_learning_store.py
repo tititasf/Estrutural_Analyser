@@ -6,6 +6,7 @@ from src.core.crop_learning_store import (
     get_active_crop_examples,
     record_crop_learning_event,
     revoke_crop_learning_event,
+    revoke_crop_learning_events_for_recorte,
 )
 
 
@@ -143,3 +144,39 @@ def test_crop_learning_revoke_excludes_active_examples(tmp_path):
         db_path=db_path,
     )
     assert get_active_crop_examples("LV", db_path=db_path) == []
+
+
+def test_crop_learning_revoke_by_recorte_preserves_audit_history(tmp_path):
+    db_path = tmp_path / "project_data.vision"
+    dxf_path = tmp_path / "crop_FV.dxf"
+    dxf_path.write_text("0\nEOF\n", encoding="utf-8")
+
+    event_id = record_crop_learning_event(
+        obra_name="Obra_TREINO_3",
+        pavimento="13_PAV",
+        classe="FV",
+        elemento_id="V301",
+        recorte_path=dxf_path,
+        db_path=db_path,
+    )
+
+    revoked = revoke_crop_learning_events_for_recorte(
+        dxf_path,
+        reason="human_deleted_or_invalidated_crop",
+        revoked_by="human_ui",
+        db_path=db_path,
+    )
+
+    assert revoked == 1
+    assert get_active_crop_examples("FV", db_path=db_path) == []
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute(
+            """SELECT status, revoked_by, revoked_reason
+               FROM crop_learning_events WHERE id=?""",
+            (event_id,),
+        ).fetchone()
+    assert row == (
+        "revoked",
+        "human_ui",
+        "human_deleted_or_invalidated_crop",
+    )
