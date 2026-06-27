@@ -2817,10 +2817,20 @@ class _FichaMotorWorker(QObject):
         # --- BLOCO DE PRESERVAÇÃO DE INTEGRIDADE ---
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT campos_json FROM reverse_eng_fichas
+            SELECT campos_json, COALESCE(status,'draft'), COALESCE(rag_indexed,0)
+            FROM reverse_eng_fichas
             WHERE obra_name=? AND pavimento=? AND classe=? AND elemento_id=?
         """, (obra_name, pavimento, classe, elemento_id))
         row = cursor.fetchone()
+
+        # F5 aprovada é imutável. Para corrigir: revogar -> reextrair -> revalidar.
+        if row and str(row[1] or "").lower() in {"aprovado", "approved"}:
+            print(
+                f"[F5-IMMUTABLE] {obra_name}/{pavimento}/{classe}/{elemento_id} "
+                "preservada; revogue antes de reextrair."
+            )
+            conn.close()
+            return
         
         if row and row[0]:
             try:
@@ -2859,6 +2869,7 @@ class _FichaMotorWorker(QObject):
                 campos_json=excluded.campos_json,
                 confianca=excluded.confianca,
                 recorte_path=excluded.recorte_path,
+                rag_indexed=0,
                 updated_at=excluded.updated_at
         """, (projeto_id, obra_name, pavimento, classe, elemento_id,
               campos_json, recorte_path, confianca,
