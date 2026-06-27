@@ -4366,7 +4366,8 @@ class NavSidebar(QFrame):
         self._selected_recorte_path = ""  # recorte_path do item ER selecionado (Qt.UserRole+1)
         self._tab_btns: dict  = {}
         self._lj_filter: "set[str] | None" = None  # stems LJ válidos do DXF atual
-        self._lv_subtab: str = ""  # "Para" | "Passa" | "" (nenhuma selecionada)
+        self._lv_subtab: str  = ""   # "Para" | "Passa" | "" (nenhuma selecionada)
+        self._pil_subtab: str = ""   # "Para" | "Passa" | "" (nenhuma selecionada)
 
         self.setStyleSheet(f"background: {Colors.BG_PANEL}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
 
@@ -4462,6 +4463,36 @@ class NavSidebar(QFrame):
         _lv_sub_lay.addWidget(self._btn_lv_passa)
         self._lv_subtab_widget.setVisible(False)
         lay.addWidget(self._lv_subtab_widget)
+
+        # ── Sub-abas PIL: Vigas Param / Vigas Passam ──────────────────────
+        self._pil_subtab_widget = QWidget()
+        _pil_sub_lay = QHBoxLayout(self._pil_subtab_widget)
+        _pil_sub_lay.setContentsMargins(0, 0, 0, 0)
+        _pil_sub_lay.setSpacing(2)
+        self._pil_ss_para_act  = (f"QPushButton{{background:{Contextual.FOREST};color:{Text.BRIGHT};border-radius:3px;"
+                                   f"font-size:10px;font-weight:bold;border-bottom:2px solid {Semantic.SUCCESS};}}")
+        self._pil_ss_para_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
+                                   f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
+                                   f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
+        self._pil_ss_pass_act  = (f"QPushButton{{background:rgba(160, 112, 255, 0.18);color:{Text.BRIGHT};border-radius:3px;"
+                                   f"font-size:10px;font-weight:bold;border-bottom:2px solid {Contextual.PURPLE};}}")
+        self._pil_ss_pass_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
+                                   f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
+                                   f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
+        self._btn_pil_para = QPushButton("Vigas Param")
+        self._btn_pil_para.setFixedHeight(20)
+        self._btn_pil_para.setCheckable(True)
+        self._btn_pil_para.setStyleSheet(self._pil_ss_para_inac)
+        self._btn_pil_para.clicked.connect(lambda: self._select_pil_subtab("Para"))
+        self._btn_pil_passa = QPushButton("Vigas Passam")
+        self._btn_pil_passa.setFixedHeight(20)
+        self._btn_pil_passa.setCheckable(True)
+        self._btn_pil_passa.setStyleSheet(self._pil_ss_pass_inac)
+        self._btn_pil_passa.clicked.connect(lambda: self._select_pil_subtab("Passa"))
+        _pil_sub_lay.addWidget(self._btn_pil_para)
+        _pil_sub_lay.addWidget(self._btn_pil_passa)
+        self._pil_subtab_widget.setVisible(False)
+        lay.addWidget(self._pil_subtab_widget)
 
         # ── Lista de itens (scrollável) ──────────────────────────────
         self.tbl_items = QTableWidget(0, 2)
@@ -4633,17 +4664,28 @@ class NavSidebar(QFrame):
                 """)
         # Sub-abas LV: mostrar apenas quando LV ativo
         self._lv_subtab_widget.setVisible(cls == "LV")
-        if cls == "LV":
+        # Sub-abas PIL: mostrar apenas quando PIL ativo
+        self._pil_subtab_widget.setVisible(cls == "PL")
+        if cls in ("LV", "PL"):
             # Resetar sub-aba e mostrar placeholder — não carregar ainda
-            self._lv_subtab = ""
-            self._btn_lv_para.setChecked(False)
-            self._btn_lv_passa.setChecked(False)
-            self._btn_lv_para.setStyleSheet(self._lv_ss_para_inac)
-            self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac)
+            if cls == "LV":
+                self._lv_subtab = ""
+                self._btn_lv_para.setChecked(False)
+                self._btn_lv_passa.setChecked(False)
+                self._btn_lv_para.setStyleSheet(self._lv_ss_para_inac)
+                self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac)
+                ph_txt = "↑ Selecione Vigas Para ou Vigas Passam"
+            else:  # PL
+                self._pil_subtab = ""
+                self._btn_pil_para.setChecked(False)
+                self._btn_pil_passa.setChecked(False)
+                self._btn_pil_para.setStyleSheet(self._pil_ss_para_inac)
+                self._btn_pil_passa.setStyleSheet(self._pil_ss_pass_inac)
+                ph_txt = "↑ Selecione Vigas Param ou Vigas Passam"
             self.tbl_items.blockSignals(True)
             self.tbl_items.clearSelection()
             self.tbl_items.setRowCount(1)
-            _ph = QTableWidgetItem("↑ Selecione Vigas Para ou Vigas Passam")
+            _ph = QTableWidgetItem(ph_txt)
             _ph.setFlags(_ph.flags() & ~Qt.ItemIsSelectable)
             _ph.setForeground(QColor(Colors.TEXT_DIM))
             _ph2 = QTableWidgetItem("")
@@ -4667,10 +4709,22 @@ class NavSidebar(QFrame):
         self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac if is_para else self._lv_ss_pass_act)
         self._populate_list("LV")
 
+    # ── Sub-aba PIL selecionada (Para / Passa) ────────────────────────
+    def _select_pil_subtab(self, pp: str):
+        self._pil_subtab = pp
+        is_para = (pp == "Para")
+        self._btn_pil_para.setChecked(is_para)
+        self._btn_pil_passa.setChecked(not is_para)
+        self._btn_pil_para.setStyleSheet(self._pil_ss_para_act if is_para else self._pil_ss_para_inac)
+        self._btn_pil_passa.setStyleSheet(self._pil_ss_pass_inac if is_para else self._pil_ss_pass_act)
+        self._populate_list("PL")
+
     # ── Popula lista a partir do JSON dir da obra ─────────────────────
     def _populate_list(self, cls: str):
-        # LV requer que uma sub-aba esteja selecionada antes de popular
+        # LV e PL requerem que uma sub-aba esteja selecionada antes de popular
         if cls == "LV" and not self._lv_subtab:
+            return
+        if cls == "PL" and not self._pil_subtab:
             return
         self._populate_aligned_items(cls)
         return
@@ -4901,6 +4955,20 @@ class NavSidebar(QFrame):
                         "ok": n3_ok,
                         "base_stem": str(iid),
                     }
+            elif cls == "PL":
+                # Cada pilar PIL gera DUAS instâncias: Para (Vigas Param) e Passa (Vigas Passam)
+                for pp in ("para", "passa"):
+                    virt_id = f"{iid}_{pp.capitalize()}"
+                    label = "Param" if pp == "para" else "Passam"
+                    display_text = f"{iid}-Vigas {label}"
+                    rows[virt_id] = {
+                        "id": virt_id,
+                        "text": display_text,
+                        "source": "estrutural",
+                        "recorte_path": "",
+                        "ok": n3_ok,
+                        "base_stem": str(iid),
+                    }
             else:
                 display_text = str(iid)
                 rows[str(iid)] = {
@@ -4923,6 +4991,14 @@ class NavSidebar(QFrame):
                 pp = load_para_passa(obra_name, pav_key, "LV", str(elem_id).upper())
                 pp_suffix = f"-{pp.capitalize()}" if pp else ""
                 disp = f"LV-{elem_id}{pp_suffix}"
+            elif cls == "PL":
+                pp = load_para_passa(obra_name, pav_key, "PIL", str(elem_id).upper())
+                if pp == "para":
+                    disp = f"{elem_id}-Vigas Param"
+                elif pp == "passa":
+                    disp = f"{elem_id}-Vigas Passam"
+                else:
+                    disp = str(elem_id)
             else:
                 disp = str(elem_id)
                 pp = ""
@@ -4994,9 +5070,15 @@ class NavSidebar(QFrame):
             structural = self._structural_item_rows(cls)
             reverse = self._reverse_item_rows(cls)
 
-            # Filtrar por sub-aba Para/Passa quando LV está ativo
+            # Filtrar por sub-aba Para/Passa quando LV ou PL está ativo
             if cls == "LV" and self._lv_subtab:
                 pp_lower = self._lv_subtab.lower()
+                structural = {k: v for k, v in structural.items()
+                              if k.lower().endswith(f"_{pp_lower}")}
+                reverse = {k: v for k, v in reverse.items()
+                           if not v.get("pp") or v.get("pp") == pp_lower}
+            elif cls == "PL" and self._pil_subtab:
+                pp_lower = self._pil_subtab.lower()
                 structural = {k: v for k, v in structural.items()
                               if k.lower().endswith(f"_{pp_lower}")}
                 reverse = {k: v for k, v in reverse.items()

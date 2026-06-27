@@ -81,12 +81,8 @@ def normalize_viga_name(value):
     """Remove internal pipeline marks and an existing drawing suffix."""
     name = str(value or '').strip()
     name = re.sub(r'^\s*CONT\.\s*', '', name, flags=re.IGNORECASE)
-    name = re.sub(
-        r'(?<![A-Z0-9])N4ER(?![A-Z0-9])',
-        '',
-        name,
-        flags=re.IGNORECASE,
-    )
+    # Remove n4er de forma mais agressiva para limpar ex: V301n4er
+    name = re.sub(r'n4er', '', name, flags=re.IGNORECASE)
     name = re.sub(r'\.C\s*$', '', name, flags=re.IGNORECASE)
     return name.strip(' _.-')
 
@@ -798,6 +794,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     for _ in range(mult - 1):
                         other = _copy.deepcopy(base)
                         other.pop('_mult_label', None)  # cópias não repetem o label
+                        other['_is_mult_copy'] = True
                         segments.append(other)
                 else:
                     segments.append(p)
@@ -831,6 +828,14 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 hole_idx += 1
                 continue
                 
+        # Se o próximo segmento for uma cópia de multiplicador, aplicamos um gap visual (ex: 15cm) para que não se encontrem
+        next_seg = segments[i+1]
+        if isinstance(next_seg, dict) and next_seg.get('_is_mult_copy'):
+            mult_gap = 15.0
+            gaps.append((mult_gap, ''))
+            current_pos += mult_gap
+            continue
+
         # No matching hole means this is a contiguous segment boundary (e.g. L-shape corner)
         gaps.append((0.0, ''))
 
@@ -1045,10 +1050,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 dim_panel(msp, xp, xp + pw, y0)
             xp += pw
 
-        x_cursor = seg_x_end
-        if seg_idx < len(gaps):
-            gap_w = gaps[seg_idx][0]
-            x_cursor += gap_w
 
         # Draw segment total dim (2nd level) if segment has >1 sub-panel
         if len(sub_panels) > 1:

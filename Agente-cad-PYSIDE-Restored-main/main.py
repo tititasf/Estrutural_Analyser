@@ -3495,7 +3495,8 @@ class MainWindow(QMainWindow):
         self._dxf_status_labels[tipo] = status_lbl
         hlay.addWidget(status_lbl)
 
-        vlay.addWidget(toolbar)
+        # Painel ocultado a pedido do usuário
+        # vlay.addWidget(toolbar)
         vlay.addWidget(robo_widget, stretch=1)
 
         # ── Conexões ────────────────────────────────────────────────────────

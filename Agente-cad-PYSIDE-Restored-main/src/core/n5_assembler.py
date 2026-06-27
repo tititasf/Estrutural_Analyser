@@ -149,18 +149,25 @@ def _import_doc_entities(
     except Exception:
         pass
 
-    entities_to_import = []
-    for entity in src_doc.modelspace():
-        try:
-            if skip_fv_helpers and _is_fv_helper_entity(entity):
-                continue
-            if dx or dy:
+    if skip_fv_helpers:
+        for entity in list(src_doc.modelspace()):
+            if _is_fv_helper_entity(entity):
+                try:
+                    src_doc.modelspace().delete_entity(entity)
+                except Exception:
+                    pass
+
+    if dx or dy:
+        for entity in src_doc.modelspace():
+            try:
                 entity.translate(dx, dy, 0)
-            entities_to_import.append(entity)
-        except Exception:
-            continue
-    if entities_to_import:
-        importer.import_entities(entities_to_import, dst_doc.modelspace())
+            except Exception:
+                pass
+
+    try:
+        importer.import_modelspace(dst_doc.modelspace())
+    except Exception:
+        pass
     importer.finalize()
     for dim in dst_doc.modelspace().query("DIMENSION"):
         try:

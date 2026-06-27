@@ -829,9 +829,33 @@ class PreValidationDialog(QDialog):
         loading_label.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:12px; font-weight:bold;")
         vbox.addWidget(loading_label)
 
-        def _on_doc_loaded(doc):
-            loading_label.hide()
-            vbox.removeWidget(loading_label)
+        # Guarda o contexto para o slot que roda na GUI thread.
+        self._gab_vbox = vbox
+        self._gab_loading = loading_label
+
+        # Carrega o DXF em thread separada para não travar a GUI.
+        # IMPORTANTE: o slot é um MÉTODO ligado a self (QObject que vive na GUI
+        # thread). Assim o Qt resolve a conexão como QueuedConnection e executa
+        # a criação de widgets SEMPRE na GUI thread. Conectar a uma função livre
+        # (closure) faria o Qt usar DirectConnection -> o callback rodaria dentro
+        # da worker thread, criando QWidget fora da GUI thread e travando a app.
+        self._dxf_thread = _DXFReaderThread(dxf_path)
+        self._dxf_thread.finished.connect(self._on_gabarito_doc_loaded)
+        self._dxf_thread.start()
+
+        return grp
+
+    def _on_gabarito_doc_loaded(self, doc) -> None:
+        """Renderiza o gabarito na GUI thread após a leitura assíncrona do DXF."""
+        vbox = getattr(self, '_gab_vbox', None)
+        loading_label = getattr(self, '_gab_loading', None)
+        if vbox is None:
+            self._dxf_thread = None
+            return
+        try:
+            if loading_label is not None:
+                loading_label.hide()
+                vbox.removeWidget(loading_label)
             if not doc:
                 err_lbl = QLabel("Falha ao ler o arquivo DXF.")
                 err_lbl.setAlignment(Qt.AlignCenter)
@@ -842,11 +866,11 @@ class PreValidationDialog(QDialog):
                 msp = doc.modelspace()
                 scene = QGraphicsScene()
                 scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
-                
+
                 from ezdxf.addons.drawing import RenderContext, Frontend
                 from ezdxf.addons.drawing.pyqt import PyQtBackend
                 from ezdxf.addons.drawing.config import Configuration, BackgroundPolicy, ColorPolicy
-                
+
                 for layer in doc.layers:
                     layer.on()
                     layer.thaw()
@@ -862,7 +886,7 @@ class PreValidationDialog(QDialog):
                     color_policy=ColorPolicy.COLOR,
                 )
                 Frontend(ctx, out, config=config).draw_layout(msp)
-                
+
                 rect = scene.itemsBoundingRect()
                 if rect.isNull():
                     raise ValueError("Scene is empty")
@@ -872,6 +896,9 @@ class PreValidationDialog(QDialog):
                 viewer = _MiniDXFView(scene, x0, y0, x1, y1,
                                       thumb_w=800, thumb_h=250,
                                       highlight_pts=[])
+                # Mantém a cena viva enquanto a view existir (evita GC da cena
+                # local, que deixaria a QGraphicsView apontando para C++ morto).
+                viewer._dxf_scene_ref = scene
                 viewer.setMaximumWidth(16777215)
                 viewer.setMinimumWidth(300)
                 viewer.setMinimumHeight(200)
@@ -881,16 +908,11 @@ class PreValidationDialog(QDialog):
                 err_lbl = QLabel(f"Falha ao renderizar gabarito: {e}")
                 err_lbl.setAlignment(Qt.AlignCenter)
                 vbox.addWidget(err_lbl)
-            finally:
-                # Mantém uma referência para a thread não morrer prematuramente
-                self._dxf_thread = None
-
-        # Carrega o DXF em thread separada para não travar a GUI
-        self._dxf_thread = _DXFReaderThread(dxf_path)
-        self._dxf_thread.finished.connect(_on_doc_loaded)
-        self._dxf_thread.start()
-
-        return grp
+        finally:
+            # Libera o contexto e a referência da thread (já terminou).
+            self._gab_vbox = None
+            self._gab_loading = None
+            self._dxf_thread = None
 
     # ── Convenção salva ────────────────────────────────────────────────────────
 
@@ -2899,26 +2921,45 @@ class ConvencaoPilaresDialog(PreValidationDialog):
         QTimer.singleShot(50, self._build_conv_content_deferred)
 
     def _build_conv_content_deferred(self) -> None:
-        """Constrói o conteúdo pesado (gabarito + painel de termos) de forma diferida."""
-        inner = QWidget()
-        lay = QVBoxLayout(inner)
-        lay.setContentsMargins(6, 4, 6, 4)
-        lay.setSpacing(6)
+        """Constrói o conteúdo pesado (gabarito + painel de termos) de forma diferida.
 
-        gabarito = self._build_detail_reference_viewer()
-        if gabarito:
-            lay.addWidget(gabarito)
-            sep = QFrame()
-            sep.setFrameShape(QFrame.HLine)
-            sep.setStyleSheet(f"color:{Colors.BORDER_DEFAULT};")
-            lay.addWidget(sep)
+        Roda como slot de QTimer.singleShot: qualquer exceção que escapasse daqui
+        poderia abortar/travar a app (dependendo da versão do PySide6), então todo
+        o corpo é protegido por try/except.
+        """
+        try:
+            inner = QWidget()
+            lay = QVBoxLayout(inner)
+            lay.setContentsMargins(6, 4, 6, 4)
+            lay.setSpacing(6)
 
-        lay.addWidget(self._build_convention_panel())
-        lay.addStretch()
-        old = self._conv_scroll.widget()
-        self._conv_scroll.setWidget(inner)
-        if old:
-            old.deleteLater()
+            gabarito = self._build_detail_reference_viewer()
+            if gabarito:
+                lay.addWidget(gabarito)
+                sep = QFrame()
+                sep.setFrameShape(QFrame.HLine)
+                sep.setStyleSheet(f"color:{Colors.BORDER_DEFAULT};")
+                lay.addWidget(sep)
+
+            lay.addWidget(self._build_convention_panel())
+            lay.addStretch()
+            # takeWidget() remove o widget antigo SEM deletá-lo (devolve a posse);
+            # setWidget() deletaria o antigo sozinho, então NÃO chamar deleteLater
+            # sobre algo já destruído (causava RuntimeError dentro do slot).
+            old = self._conv_scroll.takeWidget()
+            self._conv_scroll.setWidget(inner)
+            if old is not None:
+                old.deleteLater()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            try:
+                err = QLabel(f"Falha ao montar a Convenção de Pilares:\n{e}")
+                err.setAlignment(Qt.AlignCenter)
+                err.setStyleSheet(f"color:{Colors.TEXT_MUTED}; padding:30px;")
+                self._conv_scroll.setWidget(err)
+            except Exception:
+                pass
 
 
     # ── Overrides p/ modo pré-análise ───────────────────────────────────────────

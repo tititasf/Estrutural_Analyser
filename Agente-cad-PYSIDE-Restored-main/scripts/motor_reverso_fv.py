@@ -482,10 +482,17 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         if _mult and _mult > 1:
             seg_dict['_multiplier'] = _mult
             
-        # Extrair texto_esq e texto_dir nas esquinas do segmento (pode estar em cima ou embaixo dependendo da versão do STOG gerador)
-        # Região: proximidade X com a borda
-        left_cands = [t for t in msp_texts if t[3] == '5' and abs(t[1] - seg_min_x) < 50]
-        right_cands = [t for t in msp_texts if t[3] == '5' and abs(t[1] - seg_max_x) < 50]
+        # Extrair texto_esq e texto_dir nas esquinas do segmento
+        # Filtro estrito: deve estar fora do painel verticalmente (acima/abaixo) OU exatamente na borda lateral
+        def is_edge_label(t, border_x, is_left):
+            if t[2] <= row_base_y + 1 or t[2] >= row_base_y + (b_fv_poly or 19.0) - 1:
+                return True
+            if is_left:
+                return t[1] <= border_x + 5
+            return t[1] >= border_x - 5
+
+        left_cands = [t for t in msp_texts if t[3] == '5' and abs(t[1] - seg_min_x) < 50 and is_edge_label(t, seg_min_x, True)]
+        right_cands = [t for t in msp_texts if t[3] == '5' and abs(t[1] - seg_max_x) < 50 and is_edge_label(t, seg_max_x, False)]
         if left_cands:
             seg_dict['texto_esq'] = min(left_cands, key=lambda t: abs(t[1] - seg_min_x))[0]
         if right_cands:
