@@ -176,9 +176,13 @@ class DXFVectorView(QWidget):
     def set_highlight_bbox(self, bbox):
         self._highlight_bbox = bbox
         if not bbox: return
+        
         # Remove old highlight
         if hasattr(self, '_h_rect'):
-            self.canvas.scene.removeItem(self._h_rect)
+            try:
+                self.canvas.scene.removeItem(self._h_rect)
+            except RuntimeError:
+                pass
             
         x0, y0, x1, y1 = bbox
         w = abs(x1 - x0)
@@ -198,7 +202,10 @@ class DXFVectorView(QWidget):
         
         # Remove old highlight
         if hasattr(self, '_h_path'):
-            self.canvas.scene.removeItem(self._h_path)
+            try:
+                self.canvas.scene.removeItem(self._h_path)
+            except RuntimeError:
+                pass
             
         from PySide6.QtGui import QPainterPath, QPen, QColor
         from PySide6.QtCore import QPointF

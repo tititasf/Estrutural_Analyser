@@ -175,7 +175,7 @@ def _import_doc_entities(
                 dim.render()
         except Exception:
             continue
-    return len(entities_to_import)
+    return len(src_doc.modelspace())
 
 
 def _fv_aliases(item_id: str) -> list[str]:

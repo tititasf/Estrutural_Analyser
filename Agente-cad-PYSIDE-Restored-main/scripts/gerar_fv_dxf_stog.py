@@ -29,8 +29,8 @@ NOM_ABOVE       = 9      # y = viga_top + NOM_ABOVE for NOMENCLATURA
 NOM_H           = 12.0   # NOMENCLATURA text height (SCR: -STYLE Standard, height 12)
 LABEL_ABOVE     = 40     # y = viga_top + LABEL_ABOVE for endpoint/gap labels
 LABEL_H         = 12.0   # endpoint/gap label height (layer 5)
-DIM_BELOW       = 20     # y = viga_bottom - DIM_BELOW  (nível 1: cota individual)
-DIM_TOTAL_BELOW = 40     # y = viga_bottom - DIM_TOTAL_BELOW (nível 2: total segmento)
+DIM_BELOW       = 25     # y = viga_bottom - DIM_BELOW  (nível 1: cota individual)
+DIM_TOTAL_BELOW = 50     # y = viga_bottom - DIM_TOTAL_BELOW (nível 2: total segmento)
 DIM_B_RIGHT     = 28     # x = viga_right + DIM_B_RIGHT for vertical b dim
 PID_H           = 12.0   # panel-ID text height (layer '5')
 SARR_RECUO      = 7      # recuo offset for sarrafos from viga edges (cm)
@@ -215,7 +215,9 @@ def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2,
         side_sign * math.cos(math.radians(angle)),
         vert_sign * math.sin(math.radians(angle)),
     )
-    width_vec = (1.0, 0.0) if side == 'E' else (-1.0, 0.0)
+    # Garante que width_vec seja sempre ortogonal a length_vec (mantém o painel retangular)
+    lx, ly = length_vec
+    width_vec = (ly, -lx) if side == 'E' else (-ly, lx)
     outer_x = -float(larg2) if side == 'E' else float(main_comp + larg2)
     outer_y = 0.0 if vert == 'T' else float(main_b)
 
@@ -510,13 +512,13 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
         msp.add_line(
             (x0 + fe + SARR_RECUO, y0),
             (x0 + te + SARR_RECUO, y0 + b),
-            dxfattribs={'layer': layer},
+            dxfattribs={'layer': SARR_LAYER},
         )
     if sarrafo_dir:
         msp.add_line(
             (x0 + total_width - fd - SARR_RECUO, y0),
             (x0 + total_width - td - SARR_RECUO, y0 + b),
-            dxfattribs={'layer': layer},
+            dxfattribs={'layer': SARR_LAYER},
         )
 
     h_offsets = _sarr_h_offsets(b)
@@ -697,8 +699,8 @@ def _parse_active_holes(holes):
 
 
 # Deeper dim level for segment totals (between sub-panel dims and overall total)
-DIM_SEG_TOTAL_BELOW = 40  # nível 2 (mesmo que DIM_TOTAL_BELOW — padrão 20/40/60)
-DIM_OVERALL_BELOW   = 60  # nível 3: total geral multi-segmento
+DIM_SEG_TOTAL_BELOW = 50  # nível 2 (mesmo que DIM_TOTAL_BELOW — padrão 25/50/75)
+DIM_OVERALL_BELOW   = 75  # nível 3: total geral multi-segmento
 
 
 def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
@@ -846,6 +848,27 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     all_subpanel_edges = []   # list of (x_start, x_end) for every sub-panel
     segment_edges = []        # list of (seg_x0, seg_x_end) per segment
     multi_subpanel_segs = 0   # count segments with >1 sub-panel
+    
+    # -- Find global lowest cota Y for the entire viga to align all texts --
+    global_lowest_cota_y = y0 - DIM_BELOW
+    for seg_item in segments:
+        if isinstance(seg_item, dict) and 'panels' in seg_item:
+            s_panels = [p['width'] for p in seg_item['panels']]
+            s_panels_tiers = [p.get('tiers', []) for p in seg_item['panels']]
+        else:
+            s_width = float(seg_item) if not isinstance(seg_item, dict) else float(seg_item.get('width', 0))
+            s_panels = compute_panels(s_width)
+            s_panels_tiers = [[] for _ in s_panels]
+            
+        if len(s_panels) > 1:
+            global_lowest_cota_y = min(global_lowest_cota_y, y0 - DIM_TOTAL_BELOW)
+            
+        for pw, tiers in zip(s_panels, s_panels_tiers):
+            if tiers:
+                for t_idx, tier_vals in enumerate(tiers):
+                    tier_sum = sum(float(tv) for tv in tier_vals)
+                    if abs(tier_sum - pw) <= 1.5:
+                        global_lowest_cota_y = min(global_lowest_cota_y, y0 - (DIM_BELOW + t_idx * 15))
 
     # -- Draw each segment -----------------------------------------------------
     x_cursor = x0
@@ -963,22 +986,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                   panel_openings=panel_openings,
                   sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
 
-        # Acha o nível mais abaixo de cota (começa com DIM_BELOW)
-        lowest_cota_y = y0 - DIM_BELOW
-        if len(sub_panels) > 1:
-            lowest_cota_y = min(lowest_cota_y, y0 - DIM_TOTAL_BELOW)
-            
-        for i, pw in enumerate(sub_panels):
-            if isinstance(seg_item, dict) and isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']):
-                p_item = seg_item['panels'][i]
-                if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
-                    for t_idx, tier_vals in enumerate(p_item['tiers']):
-                        tier_sum = sum(float(tv) for tv in tier_vals)
-                        if abs(tier_sum - pw) <= 1.5:
-                            lowest_cota_y = min(lowest_cota_y, y0 - (DIM_BELOW + t_idx * 15))
-
-        # Posiciona textos 10cm abaixo da cota mais baixa
-        label_y = lowest_cota_y - 10
+        # Posiciona textos 10cm abaixo da cota mais baixa global
+        label_y = global_lowest_cota_y - 10
         
         seg_label_left = ''
         seg_label_right = ''
@@ -1013,7 +1022,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     pass
                 else:
                     gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                    add_text(msp, gap_center, y0 + b + LABEL_ABOVE, gap_label, LABEL_H, '5',
+                    # Em vez de y0 + b + LABEL_ABOVE (acima da viga), desenhar na mesma linha das cotas
+                    add_text(msp, gap_center, label_y, gap_label, LABEL_H, '5',
                              halign=1, rotation=0)
 
         # Draw individual sub-panel dims (1st level, and tiers if present)
