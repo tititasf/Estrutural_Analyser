@@ -1849,11 +1849,12 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal = QTabWidget()
         self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars = QTreeWidget()
-        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status", "Classificação"])
+        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status", "%", "Classificação"])
         self.list_pillars.setColumnWidth(0, 50)
         self.list_pillars.setColumnWidth(1, 150)
         self.list_pillars.setColumnWidth(2, 55)
-        self.list_pillars.setColumnWidth(3, 95)  # NASCE/SEGUE/MORRE/PASSA…
+        self.list_pillars.setColumnWidth(3, 40)  # %
+        self.list_pillars.setColumnWidth(4, 95)  # NASCE/SEGUE/MORRE/PASSA…
 
         self.list_beams = QTreeWidget()
         self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%"])
@@ -1885,12 +1886,11 @@ class MainWindow(QMainWindow):
         self.list_beams_fundo.setColumnWidth(3, 40)
         
         self.list_slabs = QTreeWidget()
-        self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%", "Ação"]) # + Ação
+        self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
         self.list_slabs.setColumnWidth(0, 50)
-        self.list_slabs.setColumnWidth(1, 120)
+        self.list_slabs.setColumnWidth(1, 140)
         self.list_slabs.setColumnWidth(2, 50)
         self.list_slabs.setColumnWidth(3, 50)
-        self.list_slabs.setColumnWidth(4, 80)
 
         self.list_issues = QListWidget()
         
@@ -1939,12 +1939,12 @@ class MainWindow(QMainWindow):
         self.tabs_library_internal.setStyleSheet(STYLE_TABS)
         
         self.list_pillars_valid = QTreeWidget()
-        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status", "Classificação"])
+        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status", "%", "Classificação"])
         self.list_pillars_valid.setColumnWidth(0, 50)
         self.list_pillars_valid.setColumnWidth(1, 150)
         self.list_pillars_valid.setColumnWidth(2, 55)
-        self.list_pillars_valid.setColumnWidth(3, 95)
-        self.list_pillars_valid.setColumnWidth(2, 60)
+        self.list_pillars_valid.setColumnWidth(3, 40)
+        self.list_pillars_valid.setColumnWidth(4, 95)
 
         self.list_beams_valid = QTreeWidget()
         self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
@@ -5461,26 +5461,37 @@ class MainWindow(QMainWindow):
         # --- Snapshot de Dados Validados (Modo Incremental Automático) ---
         # Agora a análise geral SEMPRE preserva o que está validado/editado.
         # Para refazer um item do zero, o usuário deve excluí-lo da biblioteca.
+        def _has_human_validation(item: dict) -> bool:
+            """Validação humana REAL: is_validated OU validated_fields não-vazio.
+            NUNCA usa 'links' — todo pilar tem links automáticos e isso ressuscitava
+            itens obsoletos como "órfãos validados" falsos."""
+            if not isinstance(item, dict):
+                return False
+            if item.get('is_validated'):
+                return True
+            vf = item.get('validated_fields')
+            return bool(vf) and len(vf) > 0
+
         incremental = True
         preserved_pillars = {}
         preserved_beams = {}
         preserved_slabs = {}
-        
-        # Snapshot Pilares
+
+        # Snapshot Pilares — só os com validação humana real
         for p in self.pillars_found:
-             if p.get('is_validated') or p.get('validated_fields') or p.get('links'):
+             if _has_human_validation(p):
                  preserved_pillars[p.get('name')] = p
-                 
+
         # Snapshot Vigas (chave normalizada para migração de DB antigo F.V→FV-)
         if hasattr(self, 'beams_found'):
              for b in self.beams_found:
-                 if b.get('is_validated') or b.get('validated_fields') or b.get('links'):
+                 if _has_human_validation(b):
                      preserved_beams[_normalize_beam_name(b.get('name', ''))] = b
-                     
+
         # Snapshot Lajes
         if hasattr(self, 'slabs_found'):
              for s in self.slabs_found:
-                 if s.get('is_validated') or s.get('validated_fields') or s.get('links'):
+                 if _has_human_validation(s):
                      preserved_slabs[s.get('name')] = s
                      
         if preserved_pillars or preserved_beams or preserved_slabs:
@@ -6114,10 +6125,10 @@ class MainWindow(QMainWindow):
 
             self.pillars_found.append(p_data)
 
-        # Preservar Pilares Validados Órfãos
+        # Preservar Pilares Validados Órfãos (só com validação humana real)
         detected_pillar_names = {p['name'] for p in self.pillars_found}
         for name, old_p in preserved_pillars.items():
-            if name not in detected_pillar_names:
+            if name not in detected_pillar_names and _has_human_validation(old_p):
                 self.pillars_found.append(old_p)
                 self.log(f"🛡️ Mantendo pilar validado órfão: {name}")
 
