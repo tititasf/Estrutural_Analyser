@@ -688,6 +688,34 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     })
             return result_h
 
+        def _seg_actual_height(xl: float, xr: float,
+                               y_bot: float, y_top: float,
+                               h_body: float) -> float:
+            """Detecta H-line interna que limita a altura REAL deste segmento.
+
+            Em vigas com degrau (ex.: V301.A P1=44cm vs P2=109cm) existe
+            uma H-line de Painéis em y_top-h1 que abrange o painel baixo mas
+            não o painel alto. Retorna h1 real se encontrada, senão h_body.
+            Condição: h_line interna deve abranger >= 55% do X do segmento
+            e estar pelo menos 5 cm acima de y_bot e abaixo de y_top.
+            """
+            seg_w = xr - xl
+            if seg_w < 1.0:
+                return h_body
+            inner_hs = [
+                y for y, xl_h, xr_h in paineis_h
+                if y_bot + 5.0 < y < y_top - 5.0
+                and (min(xr_h, xr) - max(xl_h, xl)) > seg_w * 0.55
+            ]
+            if not inner_hs:
+                return h_body
+            # H-line mais alta (mais próxima do topo) delimita o fundo do painel baixo
+            y_inner = max(inner_hs)
+            h_computed = round(y_top - y_inner, 1)
+            if 5.0 < h_computed < h_body - 5.0:
+                return h_computed
+            return h_body
+
         def _reuse_regions_seg(xl: float, xr: float,
                                y_bot: float, y_top: float) -> list:
             """Retorna faixas de reaproveitamento recortadas no corpo do segmento."""
@@ -735,8 +763,9 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
             if len(deduped) < 2:
                 gh = _extract_grade_h(x_left, x_right, y_bot, y_top) if face_grade else 0.0
+                h_seg = _seg_actual_height(x_left, x_right, y_bot, y_top, h_body)
                 return [_make_seg(x_left, x_right, y_bot, y_top,
-                                  h_body, ptype_face, gh,
+                                  h_seg, ptype_face, gh,
                                   is_first=True, is_last=True)]
 
             segs: list = []
@@ -747,8 +776,9 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             for idx, k in enumerate(valid_ks):
                 xl, xr = deduped[k], deduped[k + 1]
                 gh = _extract_grade_h(xl, xr, y_bot, y_top) if face_grade else 0.0
+                h_seg = _seg_actual_height(xl, xr, y_bot, y_top, h_body)
                 segs.append(_make_seg(xl, xr, y_bot, y_top,
-                                      h_body, ptype_face, gh,
+                                      h_seg, ptype_face, gh,
                                       is_first=(idx == 0),
                                       is_last=(idx == len(valid_ks) - 1)))
             return segs
@@ -1546,6 +1576,31 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     return current
                 return max(float(current or h_body), max(candidates))
 
+            def _raw_holes_face(pair: dict) -> list:
+                """LWPOLYLINE DASHED que intersectam o bbox da face (coords brutas).
+
+                Usado pelo gerador N4 para desenhar perfis em L/degrau sem
+                precisar reconstruir a abertura a partir de sub-segmentos.
+                """
+                xl = float(pair.get('x_left', 0.0))
+                xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot',  0.0))
+                yt = float(pair.get('y_top',  0.0))
+                result = []
+                for hxl, hyl, hxr, hyr in holes_lwpoly:
+                    ovl_x = min(hxr, xr) - max(hxl, xl)
+                    ovl_y = min(hyr, yt) - max(hyl, yb)
+                    if ovl_x > 5.0 and ovl_y > 5.0:
+                        result.append({
+                            'x_left':  round(hxl, 1),
+                            'y_bot':   round(hyl, 1),
+                            'x_right': round(hxr, 1),
+                            'y_top':   round(hyr, 1),
+                            'width':   round(hxr - hxl, 1),
+                            'height':  round(hyr - hyl, 1),
+                        })
+                return result
+
             relevant_labels = [
                 (lx, ly, txt, side) for lx, ly, txt, side in face_labels
                 if elem_prefix and elem_prefix in txt.strip().upper()
@@ -1625,6 +1680,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         'grade_layer_style': _grade_layer_style(pair, segs_u),
                         'segments_count': len(segs_u),
                         'panels': segs_u,
+                        'raw_holes': _raw_holes_face(pair),
                     }
                     units_by_bbox[key] = unit
                     units.append(unit)

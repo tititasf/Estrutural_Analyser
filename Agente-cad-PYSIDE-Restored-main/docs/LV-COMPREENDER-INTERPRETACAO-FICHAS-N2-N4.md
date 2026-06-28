@@ -224,7 +224,68 @@ Decisoes atuais:
 16. `slab_center` e campo de ficha. Ele so deve virar faixa/hachura no N4 quando o segmento
     tem altura alta (`height1 >= 80`); em segmentos baixos, manter como evidencia sem desenhar.
 
-## 6. Gaps Restantes
+## 6. Modelo de Segmentos/Painéis Confirmado (2026-06-28, via vision V301)
+
+### 6.1 Estrutura visual N2 LV (segmentos vs painéis)
+
+Descoberto por leitura vision iterativa com o dono sobre V301:
+
+- Cada `face_unit` no DB representa o TEMPLATE de 2 segmentos visuais exibidos
+  lado a lado (par espelho) no recorte N2. O motor detecta 1 face_unit, o DXF
+  mostra 2 instâncias espelho.
+- Cada segmento visual tem 2 PAINÉIS (não 4 sub-widths como o motor extrai):
+  - Painel 1 (esq): `largura_cm` = grande (ex. 244), `height1` = REDUZIDO (ex. 44cm)
+    — painel baixo sobre o pilar/cruzamento.
+  - Painel 2 (dir): `largura_cm` = restante (ex. 161.5), `height1` = h_body (ex. 109cm)
+    — painel completo do vão.
+- O motor extrai 4 sub-widths [244, 28.7, 21.8, 111] por LIMITAÇÃO: as
+  V-lines internas de sarrafo/abertura criam sub-segmentos extras. Os sub-widths
+  28.7+21.8 = 50.5 = largura real da abertura em P2.
+
+### 6.2 Abertura (recorte de canto)
+
+- Uma abertura é um recorte retangular no canto de um painel (não um buraco
+  interno), identificado por LWPOLYLINE DASHED na layer Painéis.
+- Campos capturados: `corner` (TL/TR/BL/BR), `width`, `height`, `position`.
+- A partir de 2026-06-28 o motor também exporta `raw_holes` por face_unit:
+  lista de todas LWPOLYLINE DASHED que intersectam o bbox da face, em
+  coordenadas brutas. O gerador N4 pode usar isso para perfis em L/degrau.
+
+### 6.3 Height1 por segmento (degrau de painel)
+
+- Antes: `height1 = h_body` para todos os painéis de uma face_unit.
+- Agora (2026-06-28): o motor detecta H-lines INTERNAS da layer Painéis dentro
+  do y_range da face. Se uma H-line interna abrange ≥55% do X de um segmento e
+  está pelo menos 5cm acima de y_bot, `height1 = y_top - y_inner` (altura real
+  do painel, menor que h_body).
+- Exemplo V301.A: P1 [0,244] → height1=44; P2 e sub-segs → height1=109 (=h_body).
+
+### 6.4 Laje (campo ainda problemático em V301)
+
+- Laje correta de V301.A na imagem: 15cm (COTA "15" visível no topo).
+- Motor extrai laje_sup=7cm. Causa provável: o motor encontra um H-line pair
+  com h_body=125 confirmado pela COTA "124" (h_total correto de P2), porque
+  124 ≈ 125 dentro da tolerância de 1.5cm. Com h_body=125 e h_total=124 o
+  motor computa laje=124-125=-1 → 0, e cai no passo 2 que pega algum "7".
+- Fix futuro: tornar a confirmação por COTA mais restrita ao lado DIREITO do
+  par específico, não ao range geral do label.
+
+### 6.5 Regras RAG adicionais (LV/AB/)
+
+17. `LV/AB/h1_per_panel`: painéis em degrau têm `height1` diferente do
+    `h_body` da face. Detectar via H-line interna que abrange o painel mas
+    não a face inteira.
+18. `LV/AB/raw_holes_face`: `raw_holes` no face_unit contém LWPOLYLINE DASHED
+    em coords brutas; usar no N4 para recortes de canto (perfil em L/degrau).
+19. `LV/AB/panel_count_vs_subwidths`: o motor extrai N sub-widths por V-lines;
+    os visuais "painéis" do engenheiro são agrupamentos desses sub-widths
+    separados por aberturas/sarrafos. Para V301.A: 4 sub-widths = 2 painéis
+    visuais (P1=244, P2=161.5 com abertura 50.5×65).
+20. `LV/AB/mirror_pair`: cada face_unit do DB = 2 segmentos espelho exibidos
+    lado a lado no recorte N2. O N4 deve replicar o template 2× (normal +
+    espelho) ao gerar por face_unit.
+
+## 7. Gaps Restantes
 
 Principais itens que ainda seguram A/B abaixo de arete:
 
