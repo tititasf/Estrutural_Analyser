@@ -1540,6 +1540,39 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             result['panels_A']   = _propagate_laje(
                 [dict(s) for s in panels_B], ls_B, li_B, face_B)
 
+        # Fallback: laje_sup de seção transversal quando lateral não detectou
+        # (ex.: DXF sem layer Hachura → _has_laje_box sempre False)
+        # Usa h_A − h_body_A da seção mais próxima ao h_body da face,
+        # mas só aceita seções cuja h_body_* difere ≤10 cm do h_body lateral
+        # (evita falsos positivos de seções de vigas vizinhas no mesmo DXF).
+        if local_section_views:
+            def _sv_laje(face_dict: dict | None, sv_key_body: str, sv_key_h: str) -> float:
+                if face_dict is None:
+                    return 0.0
+                h_body = float(face_dict.get('h_body', 0.0))
+                candidates = [
+                    v for v in local_section_views
+                    if float(v.get(sv_key_body, 0) or 0) > 0
+                    and abs(float(v.get(sv_key_body, 0) or 0) - h_body) <= 10.0
+                ]
+                if not candidates:
+                    return 0.0
+                best = min(candidates,
+                           key=lambda v: abs(float(v.get(sv_key_body, 0) or 0) - h_body))
+                laje = float(best.get(sv_key_h, 0) or 0) - float(best.get(sv_key_body, 0) or 0)
+                return round(laje, 1) if 2.0 < laje <= 35.0 else 0.0
+
+            if result.get('laje_sup_A', 0) == 0:
+                lj = _sv_laje(face_A, 'h_body_A', 'h_A')
+                if lj > 0:
+                    result['laje_sup_A'] = lj
+                    result['panels_A'] = _propagate_laje(panels_A, lj, result.get('laje_inf_A', 0.0), face_A)
+            if result.get('laje_sup_B', 0) == 0:
+                lj = _sv_laje(face_B, 'h_body_B', 'h_B')
+                if lj > 0:
+                    result['laje_sup_B'] = lj
+                    result['panels_B'] = _propagate_laje(panels_B, lj, result.get('laje_inf_B', 0.0), face_B)
+
         # 7a. Unidades visuais por face/continuação. Mantém panels_A/B para
         # compatibilidade, mas expõe o modelo correto para validação N2 vision:
         # cada label da viga vira uma ficha unitária com seus próprios segmentos.
