@@ -41,7 +41,7 @@ def setup_layers(doc):
     ]
     for name, color in defs:
         if name not in doc.layers:
-            doc.layers.new(name).color = color
+            doc.layers.new(name, dxfattribs={'color': color}).color = color
 
     if "COTA_VIG" not in doc.dimstyles:
         ds = doc.dimstyles.new("COTA_VIG")
