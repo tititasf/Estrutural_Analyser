@@ -308,6 +308,12 @@ class PreValidationDialog(QDialog):
         # Cena DXF compartilhada pelos mini viewers (sem grab, sem pixelação)
         self._dxf_scene = getattr(canvas, 'scene', None) if canvas is not None else None
 
+        # Anti-freeze: suspende repaints do canvas principal enquanto este modal
+        # (maximizado, que cobre o canvas) está aberto. Sem isso, os mini-viewers
+        # vivos sobre a cena gigante fazem o canvas repintar em loop e travam.
+        self._canvas_suppressed = False
+        self.finished.connect(self._restore_canvas_updates)
+
         # Mapas de suporte (construídos antes dos dados)
         self._slab_height_map: dict[str, str] = self._build_slab_height_map()
         self._slab_nivel_map:  dict[str, str] = self._build_slab_nivel_map()
@@ -551,6 +557,45 @@ class PreValidationDialog(QDialog):
 
         return 'nulo'
 
+    def _suppress_canvas_updates(self) -> None:
+        """Desliga repaints do canvas principal enquanto o modal está aberto.
+
+        O diálogo é maximizado e cobre o canvas, então isto é invisível ao
+        usuário. Evita que os mini-viewers vivos (QGraphicsView sobre a mesma
+        cena de dezenas de milhares de itens) disparem repaints em cascata do
+        canvas full-screen — a causa do travamento ao abrir a janela.
+        """
+        c = getattr(self, '_canvas', None)
+        if c is None or self._canvas_suppressed:
+            return
+        try:
+            c.setUpdatesEnabled(False)
+            self._canvas_suppressed = True
+        except Exception:
+            pass
+
+    def _restore_canvas_updates(self, *args) -> None:
+        """Reabilita os updates do canvas principal (ao fechar o diálogo)."""
+        c = getattr(self, '_canvas', None)
+        if c is None or not self._canvas_suppressed:
+            return
+        try:
+            c.setUpdatesEnabled(True)
+            vp = c.viewport() if hasattr(c, 'viewport') else None
+            if vp is not None:
+                vp.update()
+        except Exception:
+            pass
+        self._canvas_suppressed = False
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._suppress_canvas_updates()
+
+    def closeEvent(self, event):
+        self._restore_canvas_updates()
+        super().closeEvent(event)
+
     def _make_mini_viewer(
         self, pts: list,
         thumb_w: int, thumb_h: int,
@@ -560,11 +605,17 @@ class PreValidationDialog(QDialog):
         fallback_fill: str = Surface.RAISED,
     ) -> QWidget | None:
         """
-        Cria um _MiniDXFView que compartilha a cena DXF do canvas principal,
-        centralizado na bbox dos pontos + margem de contexto.
+        Cria um _MiniDXFView VIVO (vetorial, com zoom e arraste) que compartilha
+        a cena DXF do canvas principal, centralizado na bbox dos pontos + margem.
 
-        Renderização vetorial: nenhum grab, nenhuma pixelação — Qt desenha
-        diretamente na geometria DXF em qualquer zoom.
+        Performance/anti-freeze: enquanto este diálogo modal (maximizado) está
+        aberto, os updates do canvas principal ficam SUSPENSOS — ver
+        _suppress_canvas_updates(). Sem isso, múltiplas QGraphicsView sobre a
+        mesma cena gigante (planta inteira) faziam o canvas repintar 25k+ itens
+        em loop e travavam a GUI. As tabelas de pilares/cortes ainda carregam os
+        viewers de forma lazy (apenas os visíveis) via _update_dynamic_viewers.
+
+        Fallback: QLabel com polígono geométrico se a cena não estiver disponível.
 
         Fallback: QLabel com polígono geométrico se a cena não estiver disponível.
         """
