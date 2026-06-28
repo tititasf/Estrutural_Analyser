@@ -2446,6 +2446,84 @@ class PreValidationDialog(QDialog):
 
         return '\n'.join(lines)
 
+    def _build_laje_lado_widget(self, laje_name: str, direction: str,
+                                position: str, dist_top, dist_bot,
+                                lado: str, slab_h_cut: str, color: str) -> QLabel:
+        """
+        Fichinha 'Lajes LADO A/B' — versão bonita (HTML rico), no mesmo padrão
+        visual da coluna 'Detalhes sobre o Segmento de Viga'. Substitui o texto
+        plano de _laje_info_text por rótulos/valores coloridos e título destacado.
+        """
+        CL = Text.SECONDARY   # rótulo muted
+        CV = Text.PRIMARY     # valor padrão
+
+        def _kv(k: str, v: str, sfx: str = '', vc: str = CV) -> str:
+            tail = f"&nbsp;<span style='color:{CL}'>{sfx}</span>" if sfx else ''
+            return (f"<span style='color:{CL}'>{k}</span>"
+                    f"&nbsp;<span style='color:{vc}'>{v}</span>{tail}")
+
+        wall = not laje_name or laje_name in ('—', 'nulo', 'NULO', '')
+        if wall:
+            html = (
+                "<div style='font-size:9px; line-height:1.45; padding:4px;'>"
+                f"<b style='color:{CL}'>── Parede</b><br>"
+                f"&nbsp;&nbsp;<span style='color:{CL}'>(sem laje vizinha)</span>"
+                "</div>"
+            )
+        else:
+            h     = self._slab_height_map.get(laje_name, '')
+            nivel = self._slab_nivel_map.get(laje_name, '')
+
+            def _fmt(v) -> str:
+                s = str(v).strip() if v is not None else ''
+                return s if s.lower() not in ('—', '', 'nulo') else '—'
+
+            def _unit(v) -> str:
+                try:
+                    float(str(v).replace(',', '.'))
+                    return 'cm'
+                except (ValueError, TypeError):
+                    return ''
+
+            sh_cut_raw = str(slab_h_cut).strip() if slab_h_cut not in ('—', '', None) else ''
+            # Lado "nulo": a viga NÃO corta esta laje → altura cadastrada não se aplica
+            side_is_nulo = sh_cut_raw.lower() == 'nulo'
+
+            altura_disp = '—' if side_is_nulo else _fmt(h)
+            dt = _fmt(dist_top)
+            df = _fmt(dist_bot)
+            pos_clean = str(position or '').strip()
+            if pos_clean.lower() in ('—', 'nulo', ''):
+                pos_clean = '—'
+            dir_clean = direction if direction and direction not in ('—', '') else '—'
+
+            title = f"<b style='color:{color}'>── {laje_name}</b>"
+            if lado:
+                title += f"&nbsp;<span style='color:{CL}'>|&nbsp;Lado {lado}</span>"
+
+            rows = [title]
+            rows.append(f"&nbsp;&nbsp;{_kv('Altura:', altura_disp, _unit(altura_disp))}")
+            if sh_cut_raw:
+                rows.append(f"&nbsp;&nbsp;{_kv('Espessura no corte:', sh_cut_raw, _unit(sh_cut_raw))}")
+            rows.append(f"&nbsp;&nbsp;{_kv('Dist. topo da viga:', dt, _unit(dt))}")
+            rows.append(f"&nbsp;&nbsp;{_kv('Dist. fundo da viga:', df, _unit(df))}")
+            rows.append(f"&nbsp;&nbsp;{_kv('Nível da laje:', _fmt(nivel))}")
+            rows.append(f"&nbsp;&nbsp;{_kv('Posição da viga:', dir_clean, vc=color)}")
+            rows.append(f"&nbsp;&nbsp;{_kv('Classif. vertical:', pos_clean, vc=color)}")
+
+            html = (
+                "<div style='font-size:9px; line-height:1.45; padding:4px;'>"
+                + '<br>'.join(rows) +
+                "</div>"
+            )
+
+        lbl = QLabel(html)
+        lbl.setWordWrap(True)
+        lbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        lbl.setStyleSheet('background:transparent;')
+        lbl.setTextFormat(Qt.RichText)
+        return lbl
+
     def _build_cut_view_table(self) -> QTableWidget:
         cols = ["Viga Assoc.", "Conf %",
                 "Detalhes sobre o Segmento de Viga",
@@ -2598,39 +2676,31 @@ class PreValidationDialog(QDialog):
                         if laje1_dir not in ('—', '') else '—'
             wall = cut['neigh_laje'] in ('—', '', None, 'nulo', 'NULO')
 
-            own_text = self._laje_info_text(
+            # Cores: coluna LADO A em mint, LADO B em azul (igual aos blocos A/B
+            # da ficha de segmento de viga). Parede herda muted dentro do widget.
+            CM = Accent.PRIMARY      # mint — coluna Lado A
+            CB = Accent.INTERACTIVE  # azul — coluna Lado B
+
+            own_widget = self._build_laje_lado_widget(
                 cut['own_laje'], laje1_dir,
                 cut['own_pos'], cut['own_dist_top'], cut['own_dist_bot'],
-                own_lado, slab_h_cut=cut.get('own_slab_h', ''),
+                own_lado, cut.get('own_slab_h', ''),
+                CM if own_lado != 'B' else CB,
             )
-            neigh_text = self._laje_info_text(
+            neigh_widget = self._build_laje_lado_widget(
                 cut['neigh_laje'], laje2_dir,
                 cut['neigh_pos'], cut['neigh_dist_top'], cut['neigh_dist_bot'],
-                neigh_lado, slab_h_cut=cut.get('neigh_slab_h', ''),
+                neigh_lado, cut.get('neigh_slab_h', ''),
+                CB if own_lado != 'B' else CM,
             )
-
-            def _make_laje_lbl(text, is_wall, is_own):
-                lbl = QLabel(text)
-                lbl.setWordWrap(True)
-                lbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-                if is_own:
-                    color = Colors.ACCENT_MINT
-                elif is_wall:
-                    color = Colors.TEXT_MUTED
-                else:
-                    color = Accent.INTERACTIVE
-                lbl.setStyleSheet(
-                    f"color:{color}; font-size:9px; padding:4px; background:transparent;"
-                )
-                return lbl
 
             # own_lado == 'A' → own vai para col A, neigh para col B; caso contrário, inverte
             if own_lado != 'B':
-                tbl.setCellWidget(row, self._CUT_COL_LAJE1, _make_laje_lbl(own_text,  False, True))
-                tbl.setCellWidget(row, self._CUT_COL_LAJE2, _make_laje_lbl(neigh_text, wall, False))
+                tbl.setCellWidget(row, self._CUT_COL_LAJE1, own_widget)
+                tbl.setCellWidget(row, self._CUT_COL_LAJE2, neigh_widget)
             else:
-                tbl.setCellWidget(row, self._CUT_COL_LAJE1, _make_laje_lbl(neigh_text, wall, False))
-                tbl.setCellWidget(row, self._CUT_COL_LAJE2, _make_laje_lbl(own_text,  False, True))
+                tbl.setCellWidget(row, self._CUT_COL_LAJE1, neigh_widget)
+                tbl.setCellWidget(row, self._CUT_COL_LAJE2, own_widget)
 
             # ── Status + TAG (container widget) ─────────────────────────────
             st_combo = QComboBox()
