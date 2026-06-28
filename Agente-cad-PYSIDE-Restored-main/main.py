@@ -1897,23 +1897,23 @@ class MainWindow(QMainWindow):
         # Conectar Sinais (Atual)
         # Conectar Sinais (Atual) - Mouse e Teclado (Setinhas)
         self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
-        self.list_pillars.currentItemChanged.connect(lambda curr, prev: self.on_list_pillar_clicked(curr) if curr else None)
+        # self.list_pillars.currentItemChanged.connect(lambda curr, prev: # self.on_list_pillar_clicked(curr) if curr else None)
         
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
-        self.list_beams.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        # self.list_beams.currentItemChanged.connect(lambda curr, prev: # self.on_list_beam_clicked(curr, 0) if curr else None)
         self.list_beams_para.itemClicked.connect(self.on_list_beam_clicked)
-        self.list_beams_para.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        # self.list_beams_para.currentItemChanged.connect(lambda curr, prev: # self.on_list_beam_clicked(curr, 0) if curr else None)
         self.list_beams_passa.itemClicked.connect(self.on_list_beam_clicked)
-        self.list_beams_passa.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        # self.list_beams_passa.currentItemChanged.connect(lambda curr, prev: # self.on_list_beam_clicked(curr, 0) if curr else None)
 
         self.list_beams_fundo.itemClicked.connect(self.on_list_beam_fundo_clicked)
-        self.list_beams_fundo.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
+        # self.list_beams_fundo.currentItemChanged.connect(lambda curr, prev: # self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
         
         self.list_slabs.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
-        self.list_slabs.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
+        # self.list_slabs.currentItemChanged.connect(lambda curr, prev: # self.on_list_slab_clicked(curr) if curr else None)
         
         self.list_issues.itemClicked.connect(self.on_issue_clicked)
-        self.list_issues.currentItemChanged.connect(lambda curr, prev: self.on_issue_clicked(curr) if curr else None)
+        # self.list_issues.currentItemChanged.connect(lambda curr, prev: # self.on_issue_clicked(curr) if curr else None)
         
         # Adicionar Abas com Containers
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
@@ -1970,16 +1970,16 @@ class MainWindow(QMainWindow):
         # Conectar Sinais (Validado)
         # Conectar Sinais (Validado) - Mouse e Teclado
         self.list_pillars_valid.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
-        self.list_pillars_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_pillar_clicked(curr) if curr else None)
+        # self.list_pillars_valid.currentItemChanged.connect(lambda curr, prev: # self.on_list_pillar_clicked(curr) if curr else None)
         
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
-        self.list_beams_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        # self.list_beams_valid.currentItemChanged.connect(lambda curr, prev: # self.on_list_beam_clicked(curr, 0) if curr else None)
         
         self.list_beams_fundo_valid.itemClicked.connect(self.on_list_beam_fundo_clicked)
-        self.list_beams_fundo_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
+        # self.list_beams_fundo_valid.currentItemChanged.connect(lambda curr, prev: # self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
         
         self.list_slabs_valid.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
-        self.list_slabs_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
+        # self.list_slabs_valid.currentItemChanged.connect(lambda curr, prev: # self.on_list_slab_clicked(curr) if curr else None)
         
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
@@ -2240,10 +2240,17 @@ class MainWindow(QMainWindow):
                 if hasattr(self.robo_laje.laje_tab, 'obra_changed'):
                     self.robo_laje.laje_tab.obra_changed.emit(obra_robo)
 
-                # Iniciar Processamento IA Automatizado (Linhas + Cotas)
-                # automate_ai_for_all_lajes faz um save final ao terminar
+                                # Iniciar Processamento IA Automatizado (Linhas + Cotas)
                 if run_ai and hasattr(self.robo_laje.laje_tab, 'automate_ai_for_all_lajes'):
-                    self.robo_laje.laje_tab.automate_ai_for_all_lajes()
+                    self.show_progress("Processando Lajes pela IA...", 0)
+                    
+                    def prog_cb(pct, msg):
+                        self.update_progress(pct, msg)
+                        from PySide6.QtWidgets import QApplication
+                        QApplication.processEvents()
+
+                    self.robo_laje.laje_tab.automate_ai_for_all_lajes(progress_callback=prog_cb)
+                    self.hide_progress()
                 else:
                     # Sem IA: salvar uma vez após sincronização
                     if hasattr(self.robo_laje, 'save_all_obras_auto'):
@@ -12181,10 +12188,6 @@ class MainWindow(QMainWindow):
                 if self._sa_attention_has_note("fundo" if list_type == "fundo" else "lateral", b):
                     status = "⚠"
                 
-                # % Completitude
-                pct = self._calculate_completion(b)
-                pct_str = f"{int(pct)}%"
-                
                 if list_type == 'lateral':
                     # pp_filter="para"/"passa" → sub-aba; "" → árvore completa (legado)
                     _pp_pairs = [('para', 'Para'), ('passa', 'Passa')]
@@ -12206,7 +12209,7 @@ class MainWindow(QMainWindow):
                         child_a.setText(0, str(b.get('id_item', '00')))
                         child_a.setText(1, f"{prefix}{clean_name}.A {tipo_suffix}")
                         child_a.setText(2, str(status))
-                        child_a.setText(3, pct_str)
+                        child_a.setText(3, f"{int(self._calculate_completion(b, subtype='viga_lateral_a'))}%")
                         child_a.setData(0, Qt.UserRole, str(b.get('id')))
                         child_a.setData(0, Qt.UserRole + 1, 'viga_lateral_a')
                         child_a.setData(0, Qt.UserRole + 2, tipo_comp)
@@ -12215,7 +12218,7 @@ class MainWindow(QMainWindow):
                         child_b.setText(0, str(b.get('id_item', '00')))
                         child_b.setText(1, f"{prefix}{clean_name}.B {tipo_suffix}")
                         child_b.setText(2, str(status))
-                        child_b.setText(3, pct_str)
+                        child_b.setText(3, f"{int(self._calculate_completion(b, subtype='viga_lateral_b'))}%")
                         child_b.setData(0, Qt.UserRole, str(b.get('id')))
                         child_b.setData(0, Qt.UserRole + 1, 'viga_lateral_b')
                         child_b.setData(0, Qt.UserRole + 2, tipo_comp)
@@ -12225,7 +12228,7 @@ class MainWindow(QMainWindow):
                     child_f.setText(0, str(b.get('id_item', '00')))
                     child_f.setText(1, f"{prefix}{clean_name}.C")
                     child_f.setText(2, str(status))
-                    child_f.setText(3, pct_str)
+                    child_f.setText(3, f"{int(self._calculate_completion(b, subtype='viga_fundo_c'))}%")
                     child_f.setData(0, Qt.UserRole, str(b.get('id')))
                     child_f.setData(0, Qt.UserRole + 1, 'viga_fundo_c')
 
@@ -13025,6 +13028,14 @@ class MainWindow(QMainWindow):
         # Atualizar todos os widgets em cache para este ID
         for item in self.tree_item_map[iid]:
             try:
+                # Obter subtype específico da árvore se existir (ex: viga_lateral_a)
+                subtype = item.data(0, Qt.UserRole + 1)
+                if not subtype: subtype = itype
+                
+                # Recalcular % específico para a linha da árvore (Global, Fundo, ou Lateral)
+                local_pct = self._calculate_completion(item_data, subtype=subtype)
+                local_pct_str = f"{int(local_pct)}%"
+
                 # Comum a todos: 1: Nome, 2: Status
                 item.setText(1, display_name)
                 item.setText(2, status)
@@ -13034,14 +13045,17 @@ class MainWindow(QMainWindow):
                     # Somente colunas 0, 1, 2
                     pass
                 elif 'viga' in itype:
-                    # 3: %, 4: Seg A, 5: Seg B
+                    # 3: %, 4: Seg A, 5: Seg B (se existirem)
                     na, nb, _ = self._scan_beam_segments(item_data)
-                    item.setText(3, pct_str)
-                    item.setText(4, str(na))
-                    item.setText(5, str(nb))
+                    item.setText(3, local_pct_str)
+                    
+                    # Evitar erro de índice em árvores que não têm colunas 4 e 5 (como a de Fundo que foi reestruturada)
+                    if item.treeWidget() and item.treeWidget().columnCount() > 4:
+                        item.setText(4, str(na))
+                        item.setText(5, str(nb))
                 elif 'laje' in itype:
                     # 3: %, 4: Botão (não muda ao setar texto)
-                    item.setText(3, pct_str)
+                    item.setText(3, local_pct_str)
                 
                 # Atualizar cor status
                 color = QColor("#dddddd")

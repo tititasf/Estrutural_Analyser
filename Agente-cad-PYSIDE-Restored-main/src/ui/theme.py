@@ -591,7 +591,7 @@ QTreeWidget::item {{
     border-bottom: 1px solid {Border.SUBTLE};
 }}
 QTreeWidget::item:hover {{
-    background: {Surface.ELEVATED};
+    background: {Surface.CARD};
 }}
 QTreeWidget::item:selected {{
     background: {Surface.ELEVATED};
