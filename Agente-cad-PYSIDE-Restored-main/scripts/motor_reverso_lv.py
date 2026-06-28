@@ -323,20 +323,46 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         # Se não houver confirmação COTA, usa o par com maior h_body dentro do range.
 
         def _find_pair_for_label(lx: float, ly: float) -> dict | None:
-            """Par de H-lines para um face label, com confirmação por COTA."""
-            # Candidatos a y_top: H-lines wide abaixo (ou ligeiramente acima) do label
+            """Par de H-lines para um face label.
+
+            Estratégia 3-buckets para funcionar SEM layer COTA no DXF:
+
+            1. cota_confirmed: COTA text confirma h_body (tol 0.6) → prioridade máxima.
+            2. partial_floor : H-line parcial (ratio < 0.90) → borda de degrau interna.
+                               Usa "minimum cover": iterando do menor para o maior h_body,
+                               aceita apenas H-lines que cobrem x-zonas ainda descobertas
+                               da face. O h_body mais profundo do cover é o correto.
+                               Isso evita H-lines espúrias na mesma x-zona que dariam
+                               h_body maior (ex.: 142 vs 109 para a mesma zona direita).
+            3. full_floor    : H-line full-width (ratio ≥ 0.90) → fundo uniforme ou topo CONT.
+                               Prefere o MENOR h_body para evitar cruzar para fileira CONT.
+
+            Prioridade de retorno: cota_confirmed > partial_floor > full_floor.
+            """
             tops = [
                 (y, xl, xr) for y, xl, xr, w in ys
                 if (ly - _LABEL_Y_GAP <= y <= ly + 5)
                 and (xl - _LABEL_X_GAP <= lx <= xr + _LABEL_X_GAP)
             ]
-            tops.sort(key=lambda t: abs(ly - t[0]))  # mais próximo do label primeiro
+            tops.sort(key=lambda t: abs(ly - t[0]))
 
-            best_confirmed: dict | None = None
-            best_fallback: dict | None = None
+            best_confirmed:  dict | None = None
+            best_full_floor: dict | None = None
 
             for y_top, xl_t, xr_t in tops:
-                for y_bot, xl_b, xr_b, w_b in ys:
+                top_w = max(xr_t - xl_t, 1.0)
+
+                # --- Minimum-cover para partial_floor ----------------------------
+                # Ordena y_bot descendente (menor h_body primeiro) e constrói uma
+                # cobertura incremental do range [xl_t, xr_t].  Para cada x-zona,
+                # aceita apenas o primeiro candidato (o mais raso), descartando
+                # H-lines espúrias mais profundas na mesma zona.
+                covered_intervals: list = []   # [(xl, xr)] já cobertos
+                cover_depth: float = 0.0       # profundidade máxima do cover
+                cover_pair: dict | None = None # par que atingiu cover_depth
+
+                for y_bot, xl_b, xr_b, w_b in sorted(
+                        ys, key=lambda t: t[0], reverse=True):  # menor h primeiro
                     if y_bot >= y_top:
                         continue
                     h_body = y_top - y_bot
@@ -345,7 +371,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     x_ov = min(xr_t, xr_b) - max(xl_t, xl_b)
                     if x_ov < _MIN_OVERLAP:
                         continue
-                    # Construir par
+                    ratio = x_ov / top_w
+
                     x_right = max(xr_t, xr_b)
                     pair = {
                         'y_bot':   y_bot,   'y_top':   y_top,
@@ -354,8 +381,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         'x_right': x_right,
                         'total_w': round(x_right - min(xl_t, xl_b), 1),
                     }
-                    # Confirmação COTA: h_body deve aparecer como cota próxima
-                    pair_left = min(xl_t, xl_b)
                     allow_left_cota = lx < xl_t - 15.0
                     cota_near = [
                         v for cx, cy, v in cota_txts
@@ -369,20 +394,38 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         )
                         and (y_bot - 40 <= cy <= y_top + 40)
                     ]
-                    if any(abs(float(v) - h_body) <= 1.5 for v in cota_near):
+                    if any(abs(float(v) - h_body) <= 0.6 for v in cota_near):
                         if best_confirmed is None:
                             best_confirmed = pair
+                        continue  # confirmado por COTA: não participa do cover
+
+                    if ratio < 0.90:
+                        # Candidato partial_floor: calcula nova cobertura
+                        xl_c = max(xl_b, xl_t)
+                        xr_c = min(xr_b, xr_t)
+                        already_covered = sum(
+                            max(0.0, min(xr_c, ci_xr) - max(xl_c, ci_xl))
+                            for ci_xl, ci_xr in covered_intervals
+                        )
+                        new_cov = (xr_c - xl_c) - already_covered
+                        if new_cov > 5.0:  # cobre ≥5cm de zona nova
+                            covered_intervals.append((xl_c, xr_c))
+                            if h_body > cover_depth:
+                                cover_depth = h_body
+                                cover_pair = pair
                     else:
-                        # A borda inferior correta e a primeira geometria
-                        # valida abaixo do topo. Preferir menor altura evita
-                        # unir duas fileiras vizinhas quando nao ha COTA.
-                        if best_fallback is None or h_body < best_fallback['h_body']:
-                            best_fallback = pair
+                        # H-line full-width: fundo uniforme OU topo de CONT
+                        if (best_full_floor is None
+                                or h_body < best_full_floor['h_body']):
+                            best_full_floor = pair
 
                 if best_confirmed is not None:
-                    break  # encontrou par confirmado para este y_top
+                    break
+                if cover_pair is not None:
+                    break  # primeiro y_top válido vence (tops ordenados por prox. ao label)
 
-            return best_confirmed or best_fallback
+            best_partial_floor = cover_pair
+            return best_confirmed or best_partial_floor or best_full_floor
 
         # Pares fallback (sem label) — algoritmo guloso padrão
         all_pairs: list = []
@@ -710,8 +753,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             if not inner_hs:
                 return h_body
             # H-line mais alta (mais próxima do topo) delimita o fundo do painel baixo
-            y_inner = max(inner_hs)
-            h_computed = round(y_top - y_inner, 1)
+            y_inner = float(max(inner_hs))
+            h_computed = round(float(y_top) - y_inner, 1)
             if 5.0 < h_computed < h_body - 5.0:
                 return h_computed
             return h_body
