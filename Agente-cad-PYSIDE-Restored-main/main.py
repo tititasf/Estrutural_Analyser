@@ -1849,10 +1849,11 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal = QTabWidget()
         self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars = QTreeWidget()
-        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status"])
+        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status", "Classificação"])
         self.list_pillars.setColumnWidth(0, 50)
-        self.list_pillars.setColumnWidth(1, 190)  # +40px para badge B/H (ex: "P1  46×56 ✓")
-        self.list_pillars.setColumnWidth(2, 60)
+        self.list_pillars.setColumnWidth(1, 150)
+        self.list_pillars.setColumnWidth(2, 55)
+        self.list_pillars.setColumnWidth(3, 95)  # NASCE/SEGUE/MORRE/PASSA…
 
         self.list_beams = QTreeWidget()
         self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%"])
@@ -1938,9 +1939,11 @@ class MainWindow(QMainWindow):
         self.tabs_library_internal.setStyleSheet(STYLE_TABS)
         
         self.list_pillars_valid = QTreeWidget()
-        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status"])
+        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status", "Classificação"])
         self.list_pillars_valid.setColumnWidth(0, 50)
-        self.list_pillars_valid.setColumnWidth(1, 190)  # +40px para badge B/H
+        self.list_pillars_valid.setColumnWidth(1, 150)
+        self.list_pillars_valid.setColumnWidth(2, 55)
+        self.list_pillars_valid.setColumnWidth(3, 95)
         self.list_pillars_valid.setColumnWidth(2, 60)
 
         self.list_beams_valid = QTreeWidget()
@@ -11868,10 +11871,10 @@ class MainWindow(QMainWindow):
             
         return 10 # Default fallback
 
-    def _calculate_completion(self, item_data):
+    def _calculate_completion(self, item_data, subtype=None):
         """Calcula % de completude dinâmico baseado no total de campos reais."""
         if not item_data: return 0.0
-        itype = str(item_data.get('type') or '').lower()
+        itype = str(subtype or item_data.get('type') or '').lower()
         
         # 1. Se validado globalmente, 100%
         if item_data.get('is_fully_validated'):
@@ -11881,58 +11884,71 @@ class MainWindow(QMainWindow):
         v_raw = item_data.get('validated_fields', [])
         n_raw = item_data.get('na_fields', [])
         
-        # Garantir sets de strings de IDs únicos
         val_fields = set(v_raw.keys()) if isinstance(v_raw, dict) else set(v_raw)
         na_fields = set(n_raw.keys()) if isinstance(n_raw, dict) else set(n_raw)
-        
-        # Campos principais concluídos (União)
         done_fields = val_fields | na_fields
 
         if 'laje' in itype:
             laje_fields = {
-                'name',
-                'laje_dim',
-                'laje_visao_corte',
-                'laje_vizinhas_niveis',
-                'laje_pilares_apoio',
-                'laje_nivel',
-                'laje_outline_segs',
-                'laje_islands',
+                'name', 'laje_dim', 'laje_visao_corte', 'laje_vizinhas_niveis',
+                'laje_pilares_apoio', 'laje_nivel', 'laje_outline_segs', 'laje_islands'
             }
             total_expected = len(laje_fields)
             total_done = len(done_fields & laje_fields)
-            if total_expected <= 0:
-                return 100.0
+            if total_expected <= 0: return 100.0
             return max(0.0, min(100.0, (total_done / total_expected) * 100))
+
+        # ---- LÓGICA ISOLADA PARA SUB-ITENS DE VIGA ----
+        is_sub_viga = itype in ['viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c']
+        if is_sub_viga:
+            na_seg, nb_seg, nf_seg = self._scan_beam_segments(item_data)
+            
+            # Escolher qual prefixo procurar
+            if itype == 'viga_lateral_a':
+                prefix = 'viga_a_'
+                seg_count = na_seg
+            elif itype == 'viga_lateral_b':
+                prefix = 'viga_b_'
+                seg_count = nb_seg
+            else:
+                prefix = 'viga_fundo_'
+                seg_count = nf_seg
+                
+            # 2 globais (nome, viga_segs) + 4 por segmento (geometria, dimensão, ap1, ap2)
+            total_expected = 2 + (seg_count * 4)
+            
+            # Contar concluídos desta categoria
+            total_done = 0
+            if 'name' in done_fields: total_done += 1
+            if 'viga_segs' in done_fields: total_done += 1
+            
+            for f in done_fields:
+                if f.startswith(prefix):
+                    total_done += 1
+                    
+            if total_expected <= 0: return 100.0
+            pct = (total_done / total_expected) * 100
+            return max(0.0, min(100.0, pct))
+        # ------------------------------------------------
 
         total_done = len(done_fields)
         
-        # 3. Bônus por Slots — apenas para campos já concluídos pelo humano.
-        # Slots de campos não validados são ignorados para evitar % fantasma
-        # (a análise geral pode marcar na_link_classes automaticamente).
+        # 3. Bônus por Slots
         v_slots = item_data.get('validated_link_classes', {})
         n_slots = item_data.get('na_link_classes', {})
-
         done_slots_count = 0
         if isinstance(v_slots, dict) and isinstance(n_slots, dict):
-            for field_key in done_fields:   # só campos que o humano tocou
+            for field_key in done_fields:
                 done_slots_count += len(v_slots.get(field_key, []))
                 done_slots_count += len(n_slots.get(field_key, []))
 
-        total_points = total_done + (done_slots_count * 0.1)  # 0.1 bonus por slot
+        total_points = total_done + (done_slots_count * 0.1)
         
-        # 4. Total Esperado Dinâmico
         total_expected = self._calculate_total_fields(item_data)
-        
         if total_expected <= 0: return 100.0
         
         pct = (total_points / total_expected) * 100
-        
-        # Clamp 0-100
-        if pct > 100: pct = 100.0
-        if pct < 0: pct = 0.0
-        
-        return pct
+        return max(0.0, min(100.0, pct))
 
     def _populate_generic_tree(self, tree_widget, items_list, item_type='pillar'):
         """Popula QTreeWidget com colunas: Item | Nome | Status | %"""
@@ -12020,7 +12036,31 @@ class MainWindow(QMainWindow):
             if item_id not in self.tree_item_map: self.tree_item_map[item_id] = []
             self.tree_item_map[item_id].append(tree_item)
             
-            # 4. Colunas e Botões específicos para Laje (Pilares agora têm apenas 3 colunas fixas)
+            # 4. Colunas específicas
+            if item_type == 'pillar':
+                # Coluna "Classificação": NASCE / PASSA / SEGUE / MORRE / …
+                classif = (
+                    item_data.get('classification')
+                    or (item_data.get('fields') or {}).get('Classificação')
+                    or '—'
+                )
+                classif = str(classif).strip().upper() or '—'
+                if classif in ('INDETERMINADO', ''):
+                    classif = '—'
+                tree_item.setText(3, classif)
+                _CLASSIF_COLORS = {
+                    'NASCE':  '#4fc3f7',  # azul claro
+                    'MORRE':  '#ef5350',  # vermelho
+                    'PASSA':  '#ffb74d',  # laranja
+                    'SEGUE':  '#81c784',  # verde
+                    'CONTINUA': '#81c784',
+                }
+                _c = _CLASSIF_COLORS.get(classif)
+                if _c:
+                    tree_item.setForeground(3, QColor(_c))
+                else:
+                    tree_item.setForeground(3, QColor('#888'))
+
             if item_type == 'slab':
                 tree_item.setText(3, str(pct_str))
                 
@@ -12826,9 +12866,10 @@ class MainWindow(QMainWindow):
 
             self._sync_list_item_text(item_data)
 
+            # [AJUSTE] Chamar draw_item_links para reconstruir as geometrias e aplicar a nova cor (verde)
             if self.canvas and self.canvas.scene:
+                self.canvas.draw_item_links(item_data, clear=True, destination='focus')
                 self.canvas.scene.update()
-            if self.canvas:
                 self.canvas.viewport().update()
         except Exception as e:
             import traceback

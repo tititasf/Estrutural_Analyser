@@ -814,29 +814,37 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     # We match holes to inter-segment gaps using their cumulative position
     gaps = []
     current_pos = 0.0
+    logical_pos = 0.0
     hole_idx = 0
     for i in range(len(segments) - 1):
         sw = float(segments[i]['total_width']) if isinstance(segments[i], dict) else float(segments[i])
         current_pos += sw
         
-        # Check if the next active hole matches this position
-        if hole_idx < len(active_holes):
-            # Allow some floating point tolerance
-            if abs(active_holes[hole_idx]['position'] - current_pos) < 5.0:
-                gap_w = active_holes[hole_idx]['width']
-                gap_label = active_holes[hole_idx].get('text') or 'Pilar Cruzado'
-                gaps.append((gap_w, gap_label))
-                current_pos += gap_w
-                hole_idx += 1
-                continue
-                
-        # Se o próximo segmento for uma cópia de multiplicador, aplicamos um gap visual (ex: 15cm) para que não se encontrem
+        is_curr_copy = isinstance(segments[i], dict) and segments[i].get('_is_mult_copy')
+        if not is_curr_copy:
+            logical_pos += sw
+        
         next_seg = segments[i+1]
-        if isinstance(next_seg, dict) and next_seg.get('_is_mult_copy'):
+        is_next_copy = isinstance(next_seg, dict) and next_seg.get('_is_mult_copy')
+        
+        # Se o próximo segmento for uma cópia de multiplicador, aplicamos um gap visual (ex: 15cm)
+        if is_next_copy:
             mult_gap = 15.0
             gaps.append((mult_gap, ''))
             current_pos += mult_gap
             continue
+
+        # Check if the next active hole matches this position
+        if hole_idx < len(active_holes):
+            # Allow some floating point tolerance
+            if abs(active_holes[hole_idx]['position'] - logical_pos) < 5.0:
+                gap_w = active_holes[hole_idx]['width']
+                gap_label = active_holes[hole_idx].get('text') or 'Pilar Cruzado'
+                gaps.append((gap_w, gap_label))
+                current_pos += gap_w
+                logical_pos += gap_w
+                hole_idx += 1
+                continue
 
         # No matching hole means this is a contiguous segment boundary (e.g. L-shape corner)
         gaps.append((0.0, ''))
