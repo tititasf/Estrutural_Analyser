@@ -5892,81 +5892,126 @@ class MainWindow(QMainWindow):
             _pp   = "para"             if _idx == 0 else "passa"
             self._populate_beam_tree(_tree, self.beams_found, "lateral", _pp)
 
+        # ── Pilares DIRIGIDOS POR NOME (name-driven) ──────────────────────────
+        # Lista de pilares = nomes 'P<num>' da ÁREA DA PLANTA (1 por nome).
+        # Para cada nome, resolve a geometria:
+        #   (a) pré-análise (pavimento_pillar_report) com mesmo nome;
+        #   (b) senão, busca a geometria perto do texto no estrutural limpo;
+        #   (c) senão, entra SEM geometria, marcado p/ refino (needs_geometry).
+        p_rep_all = getattr(self, 'pavimento_pillar_report', {}) or {}
+        plan_names = self._collect_plan_pillar_names()
+        _claimed_geom_ids: set = set()
+        pillar_work_items: list = []
+        _stat_report = _stat_search = _stat_nogeom = 0
+
+        for nm in sorted(plan_names.keys(), key=lambda s: nat_key({'name': s})):
+            positions = plan_names[nm]
+            pre = p_rep_all.get(nm)
+            geom_pts = None
+            if pre and pre.get('points') and len(pre.get('points')) >= 3:
+                geom_pts = pre['points']
+                _stat_report += 1
+            else:
+                found_pts, found_id = self._find_pillar_geom_near_text(
+                    positions, _claimed_geom_ids)
+                if found_pts:
+                    geom_pts = found_pts
+                    _claimed_geom_ids.add(found_id)
+                    _stat_search += 1
+                else:
+                    _stat_nogeom += 1
+            pillar_work_items.append({
+                'pillar_name':    nm,
+                'points':         geom_pts,
+                'anchor':         positions[0] if positions else None,
+                'pre_pillar':     pre,
+                'needs_geometry': geom_pts is None,
+            })
+
+        self.log(
+            f"🧱 Pilares por nome: {len(pillar_work_items)} nome(s) na planta "
+            f"({_stat_report} c/ geometria da pré-análise, {_stat_search} "
+            f"vinculados por proximidade, {_stat_nogeom} pendentes de geometria)."
+        )
+
         # 2. Processar Pilares
         self.update_progress(50, "Analisando Pilares...")
-        total_p = len(polylines)
-        
-        for i, p_item in enumerate(polylines):
-            if i % 10 == 0: self.update_progress(50 + int((i/total_p)*45))
-            poly_points = p_item['points']
+        total_p = len(pillar_work_items)
+
+        for i, work in enumerate(pillar_work_items):
+            if total_p and i % 5 == 0:
+                self.update_progress(50 + int((i / total_p) * 45))
+
+            pillar_name = work['pillar_name']
+            pre_pillar  = work.get('pre_pillar')
+            n_rep = (getattr(self, 'pavimento_nivel_report', {}) or {}).get('pilares', {})
+
+            # Normaliza p/ TUPLAS: geometria do report vem do JSON do DB como
+            # listas [x,y], e PillarPerspectiveMapper faz set(points) (exige hashable)
             unique_points = []
-            for pt in poly_points:
+            for pt in (work.get('points') or []):
+                pt = tuple(pt) if isinstance(pt, (list, tuple)) else pt
                 if not unique_points or pt != unique_points[-1]:
                     unique_points.append(pt)
-            
-            if len(unique_points) < 3:
-                continue
-                
+
             try:
+                # ── PILAR SEM GEOMETRIA: entra na lista marcado p/ refino ──────
+                if work.get('needs_geometry') or len(unique_points) < 3:
+                    anchor = work.get('anchor') or (0.0, 0.0)
+                    p_data = {
+                        'name': pillar_name, 'type': 'Pilar',
+                        'pos': (float(anchor[0]), float(anchor[1])),
+                        'format': 'INDETERMINADO', 'area_val': 0.0, 'dim': '—',
+                        'points': [], 'sides_data': {},
+                        'links': {}, 'neighbors': [], 'beams_visual': [],
+                        'material': 'C30', 'level': 'Pavimento 1',
+                        'needs_geometry': True, 'fields': {},
+                    }
+                    if pre_pillar:
+                        p_data['classification'] = pre_pillar.get('classification', 'INDETERMINADO')
+                    p_data['issues'] = ['⚠ Geometria não localizada — refino pendente']
+                    temp_pillars.append(p_data)
+                    continue
+
                 poly_shape = Polygon(unique_points)
                 if not poly_shape.is_valid:
                     from shapely.validation import make_valid
                     poly_shape = make_valid(poly_shape)
-                    
+
                 if poly_shape.geom_type == 'MultiPolygon':
                     poly_shape = max(poly_shape.geoms, key=lambda g: g.area)
-                
+
                 if poly_shape.geom_type != 'Polygon':
                     continue
 
-                # Nome Real e Formato por Perspectiva (VIA ENGINE)
-                p_ent = self.context_engine.find_nearest_text(unique_points, "P") if self.context_engine else None
-                p_name = p_ent['text'] if p_ent else None
-                pillar_name = p_name or f"P{i+1}"
-                
                 from src.core.perspective_mapper import PillarPerspectiveMapper
                 shape_type, orient = PillarPerspectiveMapper.identify_shape(unique_points)
-                
+
                 p_data = {
                     'name': pillar_name,
                     'type': 'Pilar',
-                    'pos': (poly_shape.centroid.x, poly_shape.centroid.y), # Centro Real
+                    'pos': (poly_shape.centroid.x, poly_shape.centroid.y),
                     'format': shape_type,
-                    'area_val': poly_shape.area, # Valor numérico para o DB
+                    'area_val': poly_shape.area,
                     'dim': f"{int(poly_shape.area)}cm²",
                     'points': list(poly_shape.exterior.coords),
                     'sides_data': PillarPerspectiveMapper.map_sides(unique_points, shape_type, orient),
                     'links': {
-                        'pilar_segs': { # Popula automaticamente o slot 'pilar_segs' (esperado pelo DetailCard)
+                        'pilar_segs': {
                             'segments': [{
                                 'type': 'poly',
                                 'points': list(poly_shape.exterior.coords),
                                 'text': 'Geometria Automática'
                             }]
                         }
-                    }, 
+                    },
                     'neighbors': [],
-                    'beams_visual': [], 
+                    'beams_visual': [],
                     'material': 'C30', 'level': 'Pavimento 1'
                 }
-                
-                # --- ENRIQUECIMENTO AVANÇADO COM DADOS DA PRÉ-ANÁLISE E VIGAS ---
-                pre_pillar = None
-                p_rep = getattr(self, 'pavimento_preprocess', {}).get('pillar_report', {})
-                n_rep = getattr(self, 'pavimento_preprocess', {}).get('nivel_report', {}).get('pilares', {})
-                
+
+                # --- ENRIQUECIMENTO COM DADOS DA PRÉ-ANÁLISE ---
                 cx, cy = poly_shape.centroid.x, poly_shape.centroid.y
-                # 1. Match Geométrico / Nome
-                for pk, pv in p_rep.items():
-                    bbox = pv.get('bbox')
-                    if bbox:
-                        minx, miny, maxx, maxy = bbox
-                        if minx <= cx <= maxx and miny <= cy <= maxy:
-                            pre_pillar = pv
-                            break
-                
-                if not pre_pillar and pillar_name in p_rep:
-                    pre_pillar = p_rep[pillar_name]
                 
                 # 2. Dimensões do Pilar (Largura x Comprimento)
                 minx, miny, maxx, maxy = poly_shape.bounds
@@ -6060,18 +6105,79 @@ class MainWindow(QMainWindow):
                 # ------------------------------------------------
                 # ------------------------------------------------
                 
+                # --- FORÇAR VÍNCULOS REAIS DA PRÉ-FICHA ---
+                # Evita alucinações de coordenadas e garante sincronia com o estrutural original
+                if pre_pillar:
+                    pts = pre_pillar.get('points')
+                    if pts:
+                        p_data['points'] = pts
+                        if 'links' not in p_data: p_data['links'] = {}
+                        p_data['links']['pilar_segs'] = {
+                            'segments': [{'type': 'poly', 'points': pts, 'text': 'Geometria (Pré-Ficha)'}]
+                        }
+                        xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+                        pw = round(max(xs) - min(xs), 1); pl = round(max(ys) - min(ys), 1)
+                        pw = int(pw) if abs(pw - int(pw)) < 0.1 else pw
+                        pl = int(pl) if abs(pl - int(pl)) < 0.1 else pl
+                        real_dim = f"{min(pw, pl)}x{max(pw, pl)}"
+                        p_data['dim'] = real_dim
+                        cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+
+                        best_dim_txt = None
+                        for txt_ent in (self.dxf_data.get('texts', []) if self.dxf_data else []):
+                            t = str(txt_ent.get('text', '')).replace(" ", "").lower()
+                            if t == real_dim.lower():
+                                tx = txt_ent.get('pos', [0, 0])[0]
+                                ty = txt_ent.get('pos', [0, 0])[1]
+                                if (tx - cx) ** 2 + (ty - cy) ** 2 < 4000000:
+                                    best_dim_txt = txt_ent
+                                    break
+                        if best_dim_txt:
+                            pts_txt = best_dim_txt.get('pos') or best_dim_txt.get('points', [])
+                            if pts_txt and not isinstance(pts_txt[0], (list, tuple)): pts_txt = [pts_txt]
+                            p_data['links']['dim'] = {'label': [{'type': 'text', 'text': best_dim_txt['text'], 'points': pts_txt, 'bbox': best_dim_txt.get('bbox')}]}
+                        else:
+                            p_data['links']['dim'] = {'label': [{'type': 'text', 'text': real_dim, 'points': [(cx, cy)], 'bbox': (cx, cy, cx, cy)}]}
+
+                        real_name = pre_pillar.get('name')
+                        if real_name:
+                            p_data['name'] = real_name
+                            pillar_name = real_name
+                            best_txt = None
+                            for txt_ent in (self.dxf_data.get('texts', []) if self.dxf_data else []):
+                                if str(txt_ent.get('text', '')) == real_name:
+                                    tx = txt_ent.get('pos', [0, 0])[0]
+                                    ty = txt_ent.get('pos', [0, 0])[1]
+                                    if (tx - cx) ** 2 + (ty - cy) ** 2 < 4000000:
+                                        best_txt = txt_ent
+                                        break
+                            if best_txt:
+                                pts_txt = best_txt.get('pos') or best_txt.get('points', [])
+                                if pts_txt and not isinstance(pts_txt[0], (list, tuple)): pts_txt = [pts_txt]
+                                p_data['links']['name'] = {'label': [{'type': 'text', 'text': best_txt['text'], 'points': pts_txt, 'bbox': best_txt.get('bbox')}]}
+                            else:
+                                p_data['links']['name'] = {'label': [{'type': 'text', 'text': real_name, 'points': [(cx, cy)], 'bbox': (cx, cy, cx, cy)}]}
+
+                        if 'confidence_map' not in p_data: p_data['confidence_map'] = {}
+                        p_data['confidence_map']['name'] = 1.0
+                        p_data['confidence_map']['pilar_segs'] = 1.0
+                        p_data['confidence_map']['dim'] = 1.0
+
                 # Análise Contextual (Initial)
                 if self.pillar_analyzer:
                     self.pillar_analyzer.analyze(p_data)
-                
 
-                
                 p_data['issues'] = self._run_sanity_checks(p_data)
-                
                 temp_pillars.append(p_data)
-                
+
             except Exception as e:
-                self.log(f"⚠️ Erro no pilar {i}: {e}")
+                self.log(f"⚠️ Erro no pilar {work.get('pillar_name', i)}: {e}")
+
+        _n_pend = sum(1 for p in temp_pillars if p.get('needs_geometry'))
+        self.log(
+            f"🧱 Pilares montados: {len(temp_pillars)} "
+            f"({len(temp_pillars) - _n_pend} com geometria, {_n_pend} pendentes de refino)."
+        )
 
         # ORDENAR PILARES
         temp_pillars.sort(key=nat_key)
@@ -10877,6 +10983,119 @@ class MainWindow(QMainWindow):
                     f"↺ Pré-ficha: candidato alt. para {key} injetado como {alt_key} "
                     f"(bbox: {best_gk})"
                 )
+
+    def _plan_area_bbox(self, margin_frac: float = 0.05, margin_min: float = 50.0):
+        """bbox da ÁREA DA PLANTA = união das lajes detectadas + margem.
+        Usado para descartar textos P# de cortes/legendas/detalhes (fora da planta)."""
+        area = None
+        for s in getattr(self, 'slabs_found', []) or []:
+            pts = s.get('points') or []
+            try:
+                xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
+            except Exception:
+                continue
+            if not xs:
+                continue
+            b = (min(xs), min(ys), max(xs), max(ys))
+            area = b if area is None else (
+                min(area[0], b[0]), min(area[1], b[1]),
+                max(area[2], b[2]), max(area[3], b[3]))
+        if area is None:
+            return None
+        mx, my = area[2] - area[0], area[3] - area[1]
+        marg = max(mx, my) * margin_frac + margin_min
+        return (area[0] - marg, area[1] - marg, area[2] + marg, area[3] + marg)
+
+    def _collect_plan_pillar_names(self) -> dict:
+        """
+        Coleta nomes de pilares (textos 'P<num>') que estão na ÁREA DA PLANTA,
+        agrupados por nome único. Descarta textos de cortes/legendas/detalhes.
+        Retorna {nome_upper: [(x,y), ...]} (posições do texto na planta).
+        """
+        import re as _re
+        texts = (getattr(self, 'dxf_data', None) or {}).get('texts', []) or []
+        area = self._plan_area_bbox()
+        pat = _re.compile(r'^P\d+[A-Z]?$')
+        names: dict = {}
+        for t in texts:
+            s = str(t.get('text', '')).strip().upper()
+            if not pat.match(s):
+                continue
+            pos = t.get('pos') or t.get('points') or [None, None]
+            if pos and isinstance(pos[0], (list, tuple)):
+                pos = pos[0]
+            try:
+                x, y = float(pos[0]), float(pos[1])
+            except (TypeError, ValueError, IndexError):
+                continue
+            if area and not (area[0] <= x <= area[2] and area[1] <= y <= area[3]):
+                continue  # texto fora da planta (corte/legenda/detalhe)
+            names.setdefault(s, []).append((x, y))
+        return names
+
+    @staticmethod
+    def _is_pillar_like_polygon(sh) -> bool:
+        """Heurística: a geometria tem 'cara' de pilar (área/proporção/retangularidade).
+        Limiares conservadores — ponto de refino do motor."""
+        try:
+            minx, miny, maxx, maxy = sh.bounds
+        except Exception:
+            return False
+        w, h = maxx - minx, maxy - miny
+        if w <= 0 or h <= 0:
+            return False
+        a = sh.area
+        if a < 80 or a > 60000:           # ~10x10cm a ~200x300cm
+            return False
+        rect = w * h
+        if rect > 0 and a / rect < 0.5:   # preenche bem o bbox (retangular/compacto)
+            return False
+        if max(w, h) / max(1e-6, min(w, h)) > 12:  # não é uma linha fina
+            return False
+        return True
+
+    def _find_pillar_geom_near_text(self, positions: list, claimed_ids: set,
+                                    max_dist: float = 200.0):
+        """
+        Busca a polyline com cara de pilar mais próxima de alguma das posições do
+        texto P# (estrutural limpo), para vincular geometria a um nome que NÃO
+        tinha geometria na pré-análise. Prefere a que CONTÉM o texto.
+        Retorna (points, poly_id) ou (None, None).
+        """
+        from shapely.geometry import Polygon, Point
+        polys = (getattr(self, 'dxf_data', None) or {}).get('polylines', []) or []
+        best = None; best_score = None
+        for p in polys:
+            pid = id(p)
+            if pid in claimed_ids:
+                continue
+            raw = p.get('points') or []
+            uniq = []
+            for q in raw:
+                if not uniq or q != uniq[-1]:
+                    uniq.append(q)
+            if len(uniq) < 3:
+                continue
+            try:
+                sh = Polygon(uniq)
+                if sh.geom_type != 'Polygon' or not sh.is_valid:
+                    continue
+            except Exception:
+                continue
+            if not self._is_pillar_like_polygon(sh):
+                continue
+            for (ax, ay) in positions:
+                pt = Point(ax, ay)
+                d = sh.distance(pt)
+                if d > max_dist:
+                    continue
+                score = 0.0 if sh.contains(pt) else d
+                if best_score is None or score < best_score:
+                    best_score = score
+                    best = (uniq, pid)
+        if best:
+            return best[0], best[1]
+        return None, None
 
     def _build_pillar_report(self, slabs: list[Dict]) -> dict:
         """
