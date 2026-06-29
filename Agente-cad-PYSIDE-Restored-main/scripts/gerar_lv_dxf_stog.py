@@ -24,6 +24,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 import json, argparse, re, math
 from pathlib import Path
 import ezdxf
+from visual_modes import apply_visual_mode
 
 # ── Constantes de layout (calibradas nos DXFs STOG) ────────────────────────
 GAP_ROW_LV     = 100    # gap vertical entre linhas de vigas (cm)
@@ -896,7 +897,10 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                 float(p.get('laje_sup_local', p.get('slab_top', 0)) or 0)
                 if has_local_sup else float(laje_sup or 0)
             )
-            if ls <= 0:
+            # Painéis de degrau (P1) são mais baixos que h_face: sem laje acima
+            _ph1 = float(p.get('height1', 0) or 0)
+            if ls <= 0 or (0 < _ph1 < h - 5.0 and
+                           float(p.get('laje_central_alt', 0) or 0) == 0):
                 x_cur += pw
                 continue
             pts = [(x_cur, y0+h), (x_cur+pw, y0+h),
@@ -939,14 +943,15 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         else:
             h1_d, lc_h_d = h, 0
 
-        # Contorno externo do painel
-        draw_panel_lines(msp, x_cur, y0, pw, h)
+        # Contorno externo do painel: degrau (P1) usa height1 < h_face
+        h_draw = h1 if (0 < h1 < h - 5.0 and not has_laje_central) else h
+        draw_panel_lines(msp, x_cur, y0, pw, h_draw)
 
         # Reproduz somente as faixas detectadas no N2. O fallback de painel
         # inteiro atende fichas antigas que possuem apenas o booleano reuse.
         if is_reuse:
             reuse_regions = p.get('reuse_regions') or [
-                {'x_offset': 0.0, 'y_offset': 0.0, 'width': pw, 'height': h}
+                {'x_offset': 0.0, 'y_offset': 0.0, 'width': pw, 'height': h_draw}
             ]
             for region in reuse_regions:
                 rx1 = x_cur + max(0.0, float(region.get('x_offset', 0) or 0))
@@ -977,7 +982,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             ht.paths.add_polyline_path(pts_lc, is_closed=True)
 
         # ── Sarrafos / Grades for H1 zone ──────────────────────────────
-        h1_zone = h1_d if has_laje_central else h
+        h1_zone = h1_d if has_laje_central else h_draw
         if panel_type == 'Grade' and gh1 > 0 and not reverse_grade_style:
             # Grade mode
             y_grade_top = y0 + h1_zone if has_laje_central else y0 + h
@@ -1008,9 +1013,14 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                                             sarr_layer2, sarr_w2, positions2,
                                             is_first, is_last)
 
-        # Divisor entre paineis
+        # Divisor entre paineis: na junção degrau (P1→P2) cobre a altura maior
         if not is_last:
-            msp.add_line((x_cur+pw, y0), (x_cur+pw, y0+h),
+            _p_next = panels[idx + 1]
+            _ph1n = float(_p_next.get('height1', 0) or 0)
+            _lc_next = float(_p_next.get('laje_central_alt', 0) or 0) > 0
+            h_draw_next = _ph1n if (0 < _ph1n < h - 5.0 and not _lc_next) else h
+            div_h = max(h_draw, h_draw_next)
+            msp.add_line((x_cur+pw, y0), (x_cur+pw, y0+div_h),
                          dxfattribs={'layer': 'Painéis'})
 
         x_cur += pw
@@ -1601,6 +1611,8 @@ def main():
                         help='Injeta dados de teste na 1a viga (aberturas, pilares, h1!=h2)')
     parser.add_argument('--item', type=str, default=None,
                         help='Gerar só esta viga (ex: V001). Output: LV_preview_V001.dxf')
+    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
+                        help='Perfil visual do DXF (padrao: NOVA)')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -2198,6 +2210,7 @@ def main():
     # ── Salvar DXF ─────────────────────────────────────────────────────────
     out_name = f'LV_preview_{args.item}.dxf' if args.item else 'LV_stog_quality.dxf'
     out_dxf = out_dir / out_name
+    apply_visual_mode(doc, args.visual_mode, 'LV')
     try:
         doc.saveas(str(out_dxf))
     except PermissionError:

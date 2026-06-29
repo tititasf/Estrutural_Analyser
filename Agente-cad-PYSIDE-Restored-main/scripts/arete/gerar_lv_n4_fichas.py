@@ -37,21 +37,45 @@ def _entry_from_motor_ficha(elem: str, ficha: dict) -> dict:
     h_a = float(ficha.get('h_A', ficha.get('h_cm', 0)) or 0)
     h_b = float(ficha.get('h_B', ficha.get('h_B_cm', h_a)) or h_a)
     b = float(ficha.get('b_geom', ficha.get('b_cm', 19)) or 19)
+    lj_sup_a = float(ficha.get('laje_sup_A', 0) or 0)
+    lj_inf_a = float(ficha.get('laje_inf_A', 0) or 0)
+    lj_sup_b = float(ficha.get('laje_sup_B', 0) or 0)
+    lj_inf_b = float(ficha.get('laje_inf_B', 0) or 0)
+
+    # Propagar laje_sup/inf do motor para face_units (o motor calcula via fallback
+    # de seção mas não atualiza o campo laje_sup dentro de cada face_unit)
+    raw_fus = ficha.get('face_units', [])
+    face_units = []
+    for fu in raw_fus:
+        fu = dict(fu)  # cópia rasa
+        side = str(fu.get('side', '')).upper()
+        if side == 'A':
+            if float(fu.get('laje_sup', 0) or 0) == 0 and lj_sup_a > 0:
+                fu['laje_sup'] = lj_sup_a
+            if float(fu.get('laje_inf', 0) or 0) == 0 and lj_inf_a > 0:
+                fu['laje_inf'] = lj_inf_a
+        elif side == 'B':
+            if float(fu.get('laje_sup', 0) or 0) == 0 and lj_sup_b > 0:
+                fu['laje_sup'] = lj_sup_b
+            if float(fu.get('laje_inf', 0) or 0) == 0 and lj_inf_b > 0:
+                fu['laje_inf'] = lj_inf_b
+        face_units.append(fu)
+
     return {
         'viga': elem,
         'face': 'A',
         'h_cm': h_a,
         'h_B_cm': h_b,
         'b_cm': b,
-        'laje_sup_cm': float(ficha.get('laje_sup_A', 0) or 0),
-        'laje_inf_cm': float(ficha.get('laje_inf_A', 0) or 0),
-        'laje_sup_B_cm': float(ficha.get('laje_sup_B', 0) or 0),
-        'laje_inf_B_cm': float(ficha.get('laje_inf_B', 0) or 0),
+        'laje_sup_cm': lj_sup_a,
+        'laje_inf_cm': lj_inf_a,
+        'laje_sup_B_cm': lj_sup_b,
+        'laje_inf_B_cm': lj_inf_b,
         'h_section_cm': float(ficha.get('h_section', 55) or 55),
         'h_section_all': ficha.get('h_section_all', []),
         'tipo_viga': ficha.get('tipo_viga', 'sarrafeada'),
         'section_views': ficha.get('section_views', []),
-        'face_units': ficha.get('face_units', []),
+        'face_units': face_units,
         'segmentos': ficha.get('panels_A', ficha.get('segmentos', [])),
         'segmentos_B': ficha.get('panels_B', ficha.get('segmentos_B', [])),
         'pillar_left': ficha.get('pillar_left', {'active': False}),

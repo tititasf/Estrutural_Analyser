@@ -35,8 +35,9 @@ from PySide6.QtWidgets import (
     QScrollArea, QSplitter, QGroupBox, QTextEdit, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QSizePolicy,
     QListWidget, QListWidgetItem, QApplication, QLineEdit, QDialog,
+    QRadioButton, QButtonGroup,
 )
-from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent
+from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent, QSettings
 from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, QPixmap, QTransform
 
 from src.ui.components.organisms import DualCanvasManager
@@ -4623,7 +4624,7 @@ class NavSidebar(QFrame):
         lay.addLayout(n_row1)
 
         self.btn_gerar_n5 = _mbtn("▶ N5 Montagem", _N5_BG, _N5_HOV)
-        self.btn_gerar_n5.setToolTip("N5: montar 1 DXF consolidado dos N3 da classe atual (LJ/FV)")
+        self.btn_gerar_n5.setToolTip("N5: montar 1 DXF consolidado dos N3 da classe atual")
         self.btn_gerar_n5.clicked.connect(self._on_gerar_n5_clicked)
         self.btn_gerar_n5.setVisible(False)   # N5 auto-dispara ao selecionar a aba N5
         lay.addWidget(self.btn_gerar_n5)
@@ -4675,7 +4676,7 @@ class NavSidebar(QFrame):
     # ── Classe selecionada ───────────────────────────────────────────
     def _select_class(self, cls: str):
         self._current_classe = cls
-        self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
+        self.btn_gerar_n5.setEnabled(cls in ("LJ", "PL", "LV", "FV"))
         color = self._CLS_COLORS.get(cls, Colors.ACCENT_BLUE)
         for c, btn in self._tab_btns.items():
             active = (c == cls)
@@ -4967,23 +4968,27 @@ class NavSidebar(QFrame):
         obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
         pav_key = self._current_pav or ""
         rows: dict[str, dict] = {}
+        _lv_seen_bases: set[str] = set()
         for iid in item_ids:
             # verifica DXF N3 existente (sem face e sem Para/Passa no nome)
             base_stem = _re.sub(r'[_\.][AB]$', '', str(iid))
             n3_ok = ((prev_dir / f"{prefix}{iid}.dxf").exists() or
                      (prev_dir / f"{prefix}{base_stem}.dxf").exists())
             if cls == "LV":
-                # Cada face LV gera DUAS instâncias independentes: Para e Passa
+                base = _re.sub(r'[_\.]([AB])', '', str(iid), flags=_re.IGNORECASE)
+                if base in _lv_seen_bases:
+                    continue
+                _lv_seen_bases.add(base)
+                n3_ok_base = (prev_dir / f"{prefix}{base}.dxf").exists()
                 for pp in ("para", "passa"):
-                    virt_id = f"{iid}_{pp.capitalize()}"
-                    display_text = _lv_stem_to_display(str(iid), pp)
+                    virt_id = f"{base}_{pp.capitalize()}"
                     rows[virt_id] = {
                         "id": virt_id,
-                        "text": display_text,
+                        "text": f"LV-{base}",
                         "source": "estrutural",
                         "recorte_path": "",
-                        "ok": n3_ok,
-                        "base_stem": str(iid),
+                        "ok": n3_ok_base,
+                        "base_stem": base,
                     }
             elif cls == "PL":
                 # Cada pilar PIL gera DUAS instâncias: Para (Vigas Param) e Passa (Vigas Passam)
@@ -5161,7 +5166,7 @@ class NavSidebar(QFrame):
 
             self.tbl_items.resizeRowsToContents()
             self.btn_process_all.setEnabled(True)
-            self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
+            self.btn_gerar_n5.setEnabled(cls in ("LJ", "PL", "LV", "FV"))
             self._restore_table_selection(prev_item, prev_source, emit=False)
         finally:
             self.tbl_items.blockSignals(False)
@@ -5546,7 +5551,7 @@ class NavSidebar(QFrame):
         for btn in (self.btn_process, self.btn_gerar_n1,
                     self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
             btn.setEnabled(True)
-        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "FV"))
+        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "PL", "LV", "FV"))
         self.item_selected.emit(classe, item_id)
 
     def _on_process_clicked(self):
@@ -5619,7 +5624,7 @@ class NavSidebar(QFrame):
             for btn in (self.btn_process, self.btn_gerar_n1,
                         self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
                 btn.setEnabled(True)
-        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "FV"))
+        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "PL", "LV", "FV"))
         self.btn_process_all.setEnabled(True)
 
     def set_status(self, text: str, color: str = ""):
@@ -6386,16 +6391,16 @@ class TriLevelArea(QWidget):
         # LV: usa KB (NOMENCLATURA labels)
         if not self._kb_ents:
             return None
-        # IDs virtuais: strip Para/Passa antes de buscar no KB
-        lv_stem = _lv_strip_pp(item_id)   # "V301_A_Para" → "V301_A"
-        # KB usa ponto (V4.A), NavSidebar usa underscore (V4_A) — normalizar
-        kb_id = lv_stem.replace('_', '.')
+        lv_base = _lv_elem_id(item_id)
+        _lv_cands = {lv_base, lv_base.replace('_', '.'),
+                     f'{lv_base}_A', f'{lv_base}.A',
+                     f'{lv_base}_B', f'{lv_base}.B'}
         cx = cy = None
         for e in self._kb_ents:
             if e.get('type') not in ('MTEXT', 'TEXT'):
                 continue
             c = (e.get('content', '') or '').replace('\\P', '\n').split('\n')[0].strip()
-            if c in (lv_stem, kb_id) and e.get('layer', '') == 'NOMENCLATURA':
+            if c in _lv_cands and e.get('layer', '') == 'NOMENCLATURA':
                 ins = e.get('insert', [0, 0])
                 cx, cy = ins[0], ins[1]
                 break
@@ -6591,7 +6596,8 @@ class TriLevelArea(QWidget):
         """Reseta todos os steps de todos os níveis para 'pending'."""
         for col in self._columns:
             col.pipeline.reset()
-        # Restaura N4 para single-viewer caso esteja em modo PIL 3-panel
+        # Restaura N3 e N4 para single-viewer caso estejam em modo LV/PIL 3-panel
+        self._columns[2].restore_single_view()
         self._columns[3].restore_single_view()
 
     # ── Fichas ──────────────────────────────────────────────────────
@@ -7211,6 +7217,89 @@ class AnaliseGeralWorker(QThread):
 # Module principal (Tab 2)
 # ──────────────────────────────────────────────────────
 
+class VisualModeSelector(QWidget):
+    """Seletor exclusivo Nova/Ini, persistido por nivel e classe."""
+
+    mode_changed = Signal(str)
+    _SUPPORTED_CLASSES = {"PL", "LV", "FV"}
+
+    def __init__(self, level: str, accent: str, parent=None):
+        super().__init__(parent)
+        self._level = str(level).upper()
+        self._classe = ""
+        self._mode = "NOVA"
+        self._loading = False
+        self._settings = QSettings("AgenteCAD", "ComparisonEngine")
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(4, 0, 4, 0)
+        layout.setSpacing(5)
+        label = QLabel("Modo visual:")
+        label.setStyleSheet(f"color: {accent}; font-size: 9px; font-weight: bold;")
+        layout.addWidget(label)
+
+        self.radio_nova = QRadioButton("Nova")
+        self.radio_ini = QRadioButton("Ini")
+        self._group = QButtonGroup(self)
+        self._group.setExclusive(True)
+        self._group.addButton(self.radio_nova)
+        self._group.addButton(self.radio_ini)
+        radio_style = (
+            f"QRadioButton {{ color: {accent}; font-size: 9px; spacing: 3px; }}"
+            "QRadioButton::indicator { width: 10px; height: 10px; "
+            f"border-radius: 6px; border: 1px solid {accent}; background: transparent; }}"
+            f"QRadioButton::indicator:checked {{ background: {accent}; "
+            "border: 2px solid #222222; }}"
+        )
+        self.radio_nova.setStyleSheet(radio_style)
+        self.radio_ini.setStyleSheet(radio_style)
+        self.radio_nova.toggled.connect(
+            lambda checked: checked and self._select_mode("NOVA")
+        )
+        self.radio_ini.toggled.connect(
+            lambda checked: checked and self._select_mode("INI")
+        )
+        layout.addWidget(self.radio_nova)
+        layout.addWidget(self.radio_ini)
+        self.radio_nova.setChecked(True)
+
+    @property
+    def mode(self) -> str:
+        return self._mode
+
+    def set_classe(self, classe: str) -> None:
+        self._classe = str(classe or "").upper()
+        supported = self._classe in self._SUPPORTED_CLASSES
+        self.setVisible(supported)
+        if not supported:
+            self._set_mode("NOVA", emit=False)
+            return
+        saved = self._settings.value(
+            f"visual_mode/{self._level}/{self._classe}", "NOVA"
+        )
+        self._set_mode(str(saved).upper(), emit=False)
+
+    def _set_mode(self, mode: str, emit: bool) -> None:
+        normalized = mode if mode in ("NOVA", "INI") else "NOVA"
+        changed = normalized != self._mode
+        self._loading = True
+        self._mode = normalized
+        self.radio_nova.setChecked(normalized == "NOVA")
+        self.radio_ini.setChecked(normalized == "INI")
+        self._loading = False
+        if emit and changed:
+            self.mode_changed.emit(normalized)
+
+    def _select_mode(self, mode: str) -> None:
+        if self._loading:
+            return
+        self._set_mode(mode, emit=True)
+        if self._classe in self._SUPPORTED_CLASSES:
+            self._settings.setValue(
+                f"visual_mode/{self._level}/{self._classe}", self._mode
+            )
+
+
 class ComparisonEngineModule(QWidget):
     """
     Tab 2 — Comparison Engine / Fase-8 Validação Visual.
@@ -7324,6 +7413,11 @@ class ComparisonEngineModule(QWidget):
         _btn_cfg_n3 = _hdr_btn("Configuracao Visual", _N3_FG)
         _btn_cfg_n3.clicked.connect(lambda: self._on_configuracao_visual(2))
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cfg_n3)
+        self._visual_mode_n3 = VisualModeSelector("N3", _N3_FG, self)
+        self._visual_mode_n3.mode_changed.connect(
+            lambda mode: self._on_visual_mode_changed("N3", mode)
+        )
+        self.tri_level._columns[2]._badge_row.addWidget(self._visual_mode_n3)
 
         # N4 header: Comparar com N2 | Abrir DXF
         _btn_cmp_n2 = _hdr_btn("Comparar com N2", _N4_FG, checkable=True)
@@ -7336,6 +7430,11 @@ class ComparisonEngineModule(QWidget):
         _btn_cfg_n4 = _hdr_btn("Configuracao Visual", _N4_FG)
         _btn_cfg_n4.clicked.connect(lambda: self._on_configuracao_visual(3))
         self.tri_level._columns[3]._badge_row.addWidget(_btn_cfg_n4)
+        self._visual_mode_n4 = VisualModeSelector("N4", _N4_FG, self)
+        self._visual_mode_n4.mode_changed.connect(
+            lambda mode: self._on_visual_mode_changed("N4", mode)
+        )
+        self.tri_level._columns[3]._badge_row.addWidget(self._visual_mode_n4)
 
         # N5 header: Comparar Eng. Reversa Humana | Abrir DXF
         _btn_cmp_n5 = _hdr_btn("Comparar Eng. Rev. Humana", _N5_FG, checkable=True)
@@ -7348,6 +7447,18 @@ class ComparisonEngineModule(QWidget):
         _btn_cfg_n5 = _hdr_btn("Configuracao Visual", _N5_FG)
         _btn_cfg_n5.clicked.connect(lambda: self._on_configuracao_visual(4))
         self.tri_level._columns[4]._badge_row.addWidget(_btn_cfg_n5)
+        self._visual_mode_n5 = VisualModeSelector("N5", _N5_FG, self)
+        self._visual_mode_n5.mode_changed.connect(
+            lambda mode: self._on_visual_mode_changed("N5", mode)
+        )
+        self.tri_level._columns[4]._badge_row.addWidget(self._visual_mode_n5)
+        _initial_classe = getattr(self.nav_sidebar, "_current_classe", "")
+        for _selector in (
+            self._visual_mode_n3,
+            self._visual_mode_n4,
+            self._visual_mode_n5,
+        ):
+            _selector.set_classe(_initial_classe)
 
         # Troca de classe → N5 auto-gera | seleção de item → N3 ou N4 auto-exibe
         self.nav_sidebar.classe_changed.connect(self._on_classe_changed)
@@ -7655,11 +7766,53 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar.set_status(f"Erro Config Visual: {str(exc)[:80]}", Colors.ACCENT_DANGER)
             print(f"[CE] _on_configuracao_visual error: {exc}")
 
+    def _visual_mode_for(self, level: str) -> str:
+        selector = {
+            "N3": getattr(self, "_visual_mode_n3", None),
+            "N4": getattr(self, "_visual_mode_n4", None),
+            "N5": getattr(self, "_visual_mode_n5", None),
+        }.get(str(level).upper())
+        return selector.mode if selector is not None else "NOVA"
+
+    def _on_visual_mode_changed(self, level: str, mode: str):
+        """Regenera somente o nivel atual usando o perfil visual selecionado."""
+        classe = str(getattr(self.nav_sidebar, "_current_classe", "") or "").upper()
+        if classe not in ("PL", "LV", "FV"):
+            return
+        self._seq_id += 1
+        if level == "N5":
+            item_ids = self.nav_sidebar.current_item_ids()
+            if item_ids:
+                self._on_gerar_n5(classe, item_ids)
+            return
+
+        selected_classe = str(
+            getattr(self.nav_sidebar, "_selected_classe", "") or ""
+        ).upper()
+        item_id = str(getattr(self.nav_sidebar, "_selected_item", "") or "")
+        if not item_id or selected_classe != classe:
+            self.nav_sidebar.set_status(
+                f"Modo {mode.title()} salvo; selecione um item para regenerar",
+                Colors.TEXT_DIM,
+            )
+            return
+        if level == "N3":
+            self._on_gerar_n3(classe, item_id, force_regen=True)
+        elif level == "N4":
+            self._on_gerar_n4(classe, item_id)
+
     def _on_classe_changed(self, cls: str):
         """Ao trocar aba de classe, gera/exibe dinamicamente o N5 da classe."""
         try:
+            for selector in (
+                getattr(self, "_visual_mode_n3", None),
+                getattr(self, "_visual_mode_n4", None),
+                getattr(self, "_visual_mode_n5", None),
+            ):
+                if selector is not None:
+                    selector.set_classe(cls)
             self.tri_level._nivel_tabs.setCurrentIndex(4)
-            if cls not in ("LJ", "FV"):
+            if cls not in ("LJ", "PL", "LV", "FV"):
                 col = self.tri_level._columns[4]
                 col.img_widget.cancel_load(f"N5 nao disponivel para {cls}")
                 return
@@ -8755,7 +8908,14 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _materialize_lj_n3_json_from_n1 error: {exc}")
             return None
 
-    def _on_gerar_n3(self, classe: str, item_id: str, auto_chain: bool = False, seq: int = -1):
+    def _on_gerar_n3(
+        self,
+        classe: str,
+        item_id: str,
+        auto_chain: bool = False,
+        seq: int = -1,
+        force_regen: bool = False,
+    ):
         """Gerar N3: step 1=conversão, step 2=ficha, step 3=gerar DXF + carregar."""
         try:
             if seq >= 0 and seq != self._seq_id:
@@ -8782,7 +8942,7 @@ class ComparisonEngineModule(QWidget):
             if classe == "LJ":
                 self._materialize_lj_n3_json_from_n1(obra, item_id)
             n3_dxf   = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
-            if classe == "LJ":
+            if classe == "LJ" or force_regen:
                 n3_dxf = None
             col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
             self._configure_level_attention("N3", classe, item_id)
@@ -8790,7 +8950,16 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(2, 'running', 'Gerando DXF...')
             if n3_dxf and n3_dxf.exists():
-                col.load_content(str(n3_dxf), None)
+                if classe == 'LV':
+                    _n3_er = self._build_n3_lv_er_ficha(item_id)
+                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_n3_er)
+                    col.switch_to_lv_zones(
+                        {'Visão Corte': (str(n3_dxf), vc_bbox),
+                         'Lateral A-B': (str(n3_dxf), lat_bbox)},
+                        _n3_er
+                    )
+                else:
+                    col.load_content(str(n3_dxf), None)
                 col.pipeline.set_step(2, 'ok', 'DXF existente')
                 self.nav_sidebar.set_status(f"✅ N3 ok — {item_id}", Colors.ACCENT_SUCCESS)
                 self._refresh_n3_compare_n4_if_active(classe, item_id)
@@ -8847,6 +9016,8 @@ class ComparisonEngineModule(QWidget):
             lambda code, _: self._on_n3_gen_done(code, col, classe, item_id)
         )
         args = [str(script), "--obra", obra_dir, "--item", script_item_id]
+        if classe in ("PL", "LV", "FV"):
+            args += ["--visual-mode", self._visual_mode_for("N3")]
         self._process.start(sys.executable, args)
 
     def _on_n3_gen_done(self, code: int, col, classe: str, item_id: str):
@@ -8858,7 +9029,16 @@ class ComparisonEngineModule(QWidget):
         try:
             n3_dxf = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
             if code == 0 and n3_dxf and n3_dxf.exists():
-                col.load_content(str(n3_dxf), None)
+                if classe == 'LV':
+                    _n3_er = self._build_n3_lv_er_ficha(item_id)
+                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_n3_er)
+                    col.switch_to_lv_zones(
+                        {'Visão Corte': (str(n3_dxf), vc_bbox),
+                         'Lateral A-B': (str(n3_dxf), lat_bbox)},
+                        _n3_er
+                    )
+                else:
+                    col.load_content(str(n3_dxf), None)
                 col.pipeline.set_step(2, 'ok', '')
                 col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
                 self._configure_level_attention("N3", classe, item_id)
@@ -8998,9 +9178,9 @@ class ComparisonEngineModule(QWidget):
             col = self.tri_level._columns[4]
             col.pipeline.reset()
             col.pipeline.set_step(0, 'running', f'{classe} ({len(item_ids)})')
-            if classe not in ("LJ", "FV"):
+            if classe not in ("LJ", "PL", "LV", "FV"):
                 col.pipeline.set_step(0, 'error', 'classe sem N5')
-                self.nav_sidebar.set_status("N5 suporta apenas LJ e FV neste ciclo", Colors.TEXT_DIM)
+                self.nav_sidebar.set_status("Classe sem suporte N5", Colors.TEXT_DIM)
                 self.nav_sidebar._enable_item_btns()
                 return
 
@@ -9009,7 +9189,13 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(0, 'ok', f'{len(item_ids)} itens')
             col.pipeline.set_step(1, 'running', 'Consolidando...')
-            result = assemble_n5(obra_dir, classe, item_ids=item_ids, pavimento=pav)
+            result = assemble_n5(
+                obra_dir,
+                classe,
+                item_ids=item_ids,
+                pavimento=pav,
+                visual_mode=self._visual_mode_for("N5"),
+            )
             col.pipeline.set_step(1, 'ok', f'{result.ok_count}/{len(result.items)} ok')
 
             col.pipeline.set_step(2, 'running', 'Carregando DXF...')
@@ -9021,7 +9207,8 @@ class ComparisonEngineModule(QWidget):
                 ("Manifest", str(result.manifest_path)),
                 ("Itens OK", str(result.ok_count)),
                 ("Itens ausentes/erro", str(result.missing_count)),
-                ("Regra", "LJ: coordenadas nativas; FV: grade de folhas ordenada"),
+                ("Modo visual", self._visual_mode_for("N5").title()),
+                ("Regra", "LJ nativo; PL/LV/FV em folhas ordenadas"),
             ]
             for n5_item in result.items[:80]:
                 status = n5_item.status.upper()
@@ -9224,7 +9411,8 @@ class ComparisonEngineModule(QWidget):
                         [sys.executable, str(script),
                          "--obra", str(obra_dir),
                          "--item", item_id,
-                         "--zone", zone.lower()],
+                         "--zone", zone.lower(),
+                         "--visual-mode", self._visual_mode_for("N3")],
                         capture_output=True, timeout=30,
                     )
                 except Exception as _e:
@@ -9687,7 +9875,8 @@ class ComparisonEngineModule(QWidget):
                         [sys.executable, str(script),
                          "--obra", str(tmp_dir),
                          "--item", item_id,
-                         "--zone", zone.lower()],
+                         "--zone", zone.lower(),
+                         "--visual-mode", self._visual_mode_for("N4")],
                         capture_output=True, timeout=30,
                     )
                 except Exception as _e:
@@ -9816,6 +10005,29 @@ class ComparisonEngineModule(QWidget):
         lat_bbox = (sect_total - 5, y_min_section - 120, 99999, y_max_section + 120)
         return vc_bbox, lat_bbox
 
+    def _build_n3_lv_er_ficha(self, item_id: str) -> dict:
+        """Constrói er_ficha mínimo para N3 LV a partir de fichas_lv_v2.json."""
+        import re as _re
+        base = _re.sub(r'_(Para|Passa)', '', item_id, flags=_re.IGNORECASE)
+        base = _re.sub(r'[_\.]([AB])', '', base, flags=_re.IGNORECASE)
+        entries = [e for e in getattr(self.tri_level, '_fichas_lv_v2', [])
+                   if e.get('viga') == base]
+        if not entries:
+            return {}
+        face_units = []
+        for e in entries:
+            face = str(e.get('face', 'A')).upper()
+            segs = e.get('segmentos', [])
+            panels = [{'largura_cm': float(s.get('largura_cm', 0) or 0)} for s in segs]
+            face_units.append({'side': face, 'label': f'Face {face}', 'panels': panels,
+                               'h_body': e.get('h_cm', 0), 'laje_sup': e.get('laje_sup_cm', 0),
+                               'laje_inf': e.get('laje_inf_cm', 0)})
+        entry_a = next((e for e in entries if str(e.get('face', '')).upper() == 'A'), {})
+        entry_b = next((e for e in entries if str(e.get('face', '')).upper() == 'B'), {})
+        return {'h_cm': entry_a.get('h_cm', 0), 'h_B_cm': entry_b.get('h_cm', 0),
+                'b_cm': entry_a.get('b_cm', 0), 'tipo_viga': entry_a.get('tipo_viga', '—'),
+                'face_units': face_units}
+
     def _start_n4_lv_generation(self, item_id: str, er_ficha: dict,
                                 obra_dir: Path, col):
         """Gera N4 LV via gerar_lv_n4_fichas.py (bypass DB — LV não está no DB)."""
@@ -9890,6 +10102,7 @@ class ComparisonEngineModule(QWidget):
                 "--out", str(out_dir),
                 "--obra", str(obra_dir),
                 "--entry-json", str(entry_path),
+                "--visual-mode", self._visual_mode_for("N4"),
             ],
         )
 
@@ -10046,6 +10259,8 @@ class ComparisonEngineModule(QWidget):
 
         self._process.finished.connect(_on_done)
         args = [str(script), "--obra", str(obra_dir), "--item", temp_item]
+        if classe in ("PL", "LV", "FV"):
+            args += ["--visual-mode", self._visual_mode_for("N4")]
         self._process.start(sys.executable, args)
         self.nav_sidebar.set_status(f"⏳ N4 gerando via robô — {item_id}...", Colors.ACCENT_WARNING)
 
