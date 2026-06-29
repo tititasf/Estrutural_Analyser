@@ -1,10 +1,11 @@
+import sys
+from src.mcp.db_bridge import save_human_edit_event
 """
 Comparison Engine — Tab 2
 Fase-8: Validação Visual (NVIDIA NIM) + Certificação de Obras.
 Layout: [DualCanvas | Painel Fase-8]
 """
 import os
-import sys
 import json
 import re
 from pathlib import Path
@@ -3527,6 +3528,16 @@ class LevelColumn(QFrame):
         att_top.addWidget(self._attention_check, 0)
         att_inline_lay.addLayout(att_top)
 
+        # Linha 2: Botão Salvar (Event Sourcing)
+        self._btn_save_sa = QPushButton("💾 Salvar Alterações")
+        self._btn_save_sa.setToolTip("Salva as edições atuais da ficha e gera log de aprendizado")
+        self._btn_save_sa.setStyleSheet(
+            f"background-color: {Colors.ACCENT_SUCCESS}; color: white; "
+            f"border: none; border-radius: 3px; font-weight: bold; font-size: 10px; padding: 4px;"
+        )
+        self._btn_save_sa.clicked.connect(self._on_save_sa_clicked)
+        att_inline_lay.addWidget(self._btn_save_sa)
+
         # Linha 2: campo de nota compacto (3 linhas, scroll, max 3000 chars)
         self._attention_text = QTextEdit()
         self._attention_text.setFixedHeight(46)   # ~3 linhas de 9px
@@ -3780,6 +3791,18 @@ class LevelColumn(QFrame):
         if self._attention_loading or not self._human_validation_callback:
             return
         self._human_validation_callback(bool(self._human_validation_check.isChecked()))
+
+    def _on_save_sa_clicked(self):
+        if self._attention_callback:
+            self._attention_save_timer.stop()
+            self._attention_dirty = False
+            self._attention_callback(
+                bool(self._attention_check.isChecked()),
+                self._attention_text.toPlainText(),
+            )
+        self._btn_save_sa.setText("✅ Salvo!")
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(2000, lambda: self._btn_save_sa.setText("💾 Salvar Alterações"))
 
     def _flush_attention_pending(self):
         if self._attention_loading or not self._attention_callback or not self._attention_dirty:
@@ -8437,7 +8460,26 @@ class ComparisonEngineModule(QWidget):
         try:
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
+            previous = load_attention(obra, pav, classe, item_id, scope)
             save_attention(obra, pav, classe, item_id, scope, attention, note, note_origin="human_ui")
+            before = {
+                "attention": bool(previous.get("attention")),
+                "note": previous.get("note") or "",
+            }
+            after = {"attention": bool(attention), "note": note or ""}
+            if before != after:
+                save_human_edit_event(
+                    obra_id=obra,
+                    classe=classe,
+                    item_id=item_id,
+                    fase_editada=f"{scope}_ATENCAO",
+                    ui_context="ComparisonEngine",
+                    estado_anterior=before,
+                    estado_novo=after,
+                    nota_usuario=(note or "Alteração manual de atenção")[:1000],
+                    source_agent="comparison_engine",
+                    correlation_id=f"{obra}:{pav}:{classe}:{item_id}:{scope}",
+                )
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_level_attention error: {exc}")

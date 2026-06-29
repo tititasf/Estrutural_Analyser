@@ -738,13 +738,13 @@ class PreValidationDialog(QDialog):
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
 
-            # 0ª — Tenta pegar o recorte da convencao de pilares
+            # 0ª — Tenta pegar o recorte da convencao de pilares (obra-wide: vale para todos os pavimentos)
             try:
                 cur.execute(
                     "SELECT output_path FROM obra_recortes "
-                    "WHERE obra_name=? AND pavimento_name=? AND recorte_type='convencao_pilares' AND status IN ('approved', 'manual') "
+                    "WHERE obra_name=? AND recorte_type='convencao_pilares' AND status IN ('approved', 'manual') "
                     "ORDER BY recorte_index DESC LIMIT 1",
-                    (self._obra, self._pavimento)
+                    (self._obra,)
                 )
                 row = cur.fetchone()
                 if row and row['output_path'] and os.path.isfile(row['output_path']):
@@ -1612,13 +1612,14 @@ class PreValidationDialog(QDialog):
 
         # Tabs — lazy loading: conteúdo só é construído ao selecionar a aba
         self._tabs = QTabWidget()
-        self._tab_loaded: dict[int, bool] = {0: False, 1: False, 2: False}
+        self._tab_loaded: dict[int, bool] = {0: False, 1: False, 2: False, 3: False}
 
         # Placeholders leves (QWidget vazio com loading label)
         for idx, title in enumerate([
             "  Convenção de Pilares  ",
             "  Pilares  ",
             "  Visão de Cortes  ",
+            "  Convenção de Níveis  ",
         ]):
             placeholder = QWidget()
             placeholder_lay = QVBoxLayout(placeholder)
@@ -1650,6 +1651,7 @@ class PreValidationDialog(QDialog):
             0: self._build_convention_tab,
             1: self._build_pillars_tab,
             2: self._build_cut_views_tab,
+            3: self._build_niveis_tab,
         }
         builder = builders.get(index)
         if not builder:
@@ -2897,6 +2899,395 @@ class PreValidationDialog(QDialog):
                 f'automática de pilares. Verifique na aba Pilares.\n'
                 f'O corte será removido dos vínculos de laje ao confirmar.'
             )
+
+    # ── Aba Convenção de Níveis ────────────────────────────────────────────────
+
+    def _build_niveis_tab(self) -> QWidget:
+        """
+        Aba Convenção de Níveis.
+
+        Colunas: Nome Doc | Nome Pav | Nível Chegada | Nível Saída | Altura |
+                 Lajes (SA) | Pilares | Vigas
+
+        Fonte primária: Elevação Típica (recorte convencao_niveis) — lista TODOS
+        os pavimentos do projeto. Fonte secundária: pré-análise SA (laje_niveis).
+        Pavimentos SA sem correspondência na Elevação Típica são adicionados ao fim.
+        """
+        from PySide6.QtWidgets import (
+            QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView,
+        )
+        from PySide6.QtGui import QFont as _QFont, QColor as _QColor
+        from pathlib import Path
+        import re as _re
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("QScrollArea { border: none; }")
+        inner = QWidget()
+        lay = QVBoxLayout(inner)
+        lay.setContentsMargins(8, 6, 8, 6)
+        lay.setSpacing(6)
+
+        # ── Viewer do recorte convencao_niveis (se existir) ───────────────────
+        niveis_recorte = self._query_niveis_recorte()
+        if niveis_recorte:
+            dxf_path, label = niveis_recorte
+            grp = QGroupBox(f"Recorte Convenção de Níveis — {label}")
+            grp_vbox = QVBoxLayout(grp)
+            grp_vbox.setContentsMargins(4, 8, 4, 4)
+            loading_lbl = QLabel("Carregando recorte…")
+            loading_lbl.setAlignment(Qt.AlignCenter)
+            loading_lbl.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:11px;")
+            grp_vbox.addWidget(loading_lbl)
+            self._niveis_gab_vbox    = grp_vbox
+            self._niveis_gab_loading = loading_lbl
+            self._niveis_dxf_thread  = _DXFReaderThread(dxf_path)
+            self._niveis_dxf_thread.finished.connect(self._on_niveis_gabarito_loaded)
+            self._niveis_dxf_thread.start()
+            lay.addWidget(grp)
+
+        # ── Extrai cotas da Elevação Típica ───────────────────────────────────
+        from src.core.niveis_extractor import (
+            extract_elevacao_tipica, pav_num_from_sa_name,
+            lajes_by_nivel, derive_nome_pav,
+        )
+        elevacao_tipica: list = []
+        if niveis_recorte:
+            try:
+                from src.core.dxf_loader import DXFLoader as _DXFLoader
+                dxf_data = _DXFLoader.load_dxf(niveis_recorte[0])
+                texts_rec = dxf_data.get('texts', []) if dxf_data else []
+                elevacao_tipica = extract_elevacao_tipica(texts_rec)
+            except Exception:
+                pass
+
+        all_pav_data = self._collect_all_pav_niveis()
+
+        # ── Monta lookup SA por pav_num ───────────────────────────────────────
+        sa_by_num: dict[int, tuple] = {}
+        tip_sa: 'tuple | None' = None
+        for sa_nome, laje_list, fonte in all_pav_data:
+            num = pav_num_from_sa_name(sa_nome)
+            if num is None:
+                if _re.search(r'[-_]TIP[-_]', sa_nome, _re.IGNORECASE) and tip_sa is None:
+                    tip_sa = (sa_nome, laje_list, fonte)
+            else:
+                if num not in sa_by_num:
+                    sa_by_num[num] = (sa_nome, laje_list, fonte)
+
+        # ── Monta linhas da tabela ────────────────────────────────────────────
+        rows: list[dict] = []
+
+        if elevacao_tipica:
+            matched_nums: set[int] = set()
+            for entry in elevacao_tipica:
+                num = entry['pav_num']
+                sa_info = sa_by_num.get(num)
+                if sa_info is None and entry.get('is_tipo') and tip_sa:
+                    sa_info = tip_sa
+                if sa_info:
+                    matched_nums.add(num)
+                rows.append({
+                    'pav_num':    num,
+                    'nome_doc':   sa_info[0] if sa_info else '—',
+                    'nome_pav':   entry['pav_raw'],
+                    'chegada':    entry['chegada'],
+                    'saida':      entry['saida'],
+                    'altura':     entry['altura'],
+                    'laje_list':  sa_info[1] if sa_info else [],
+                    'fonte':      sa_info[2] if sa_info else '—',
+                    'is_current': sa_info is not None and sa_info[0] == self._pavimento,
+                })
+            # SA não presentes na Elevação Típica
+            for num, (sa_nome, laje_list, fonte) in sa_by_num.items():
+                if num not in matched_nums:
+                    rows.append({
+                        'pav_num':    num,
+                        'nome_doc':   sa_nome,
+                        'nome_pav':   derive_nome_pav(num),
+                        'chegada':    '?',
+                        'saida':      '?',
+                        'altura':     '?',
+                        'laje_list':  laje_list,
+                        'fonte':      fonte,
+                        'is_current': sa_nome == self._pavimento,
+                    })
+        else:
+            # Sem Elevação Típica — apenas SA
+            for sa_nome, laje_list, fonte in all_pav_data:
+                num = pav_num_from_sa_name(sa_nome)
+                rows.append({
+                    'pav_num':    num if num is not None else 5000,
+                    'nome_doc':   sa_nome,
+                    'nome_pav':   derive_nome_pav(num),
+                    'chegada':    '?',
+                    'saida':      '?',
+                    'altura':     '?',
+                    'laje_list':  laje_list,
+                    'fonte':      fonte,
+                    'is_current': sa_nome == self._pavimento,
+                })
+
+        rows.sort(key=lambda r: r['pav_num'])
+
+        # ── Infobar ───────────────────────────────────────────────────────────
+        n_et  = len(elevacao_tipica)
+        n_sa  = len(all_pav_data)
+        src   = f"Elevação Típica: {n_et} pav.  +  SA: {n_sa} pav." if n_et else f"SA: {n_sa} pav. (sem recorte Conv. Nív.)"
+        info_lbl = QLabel(
+            f"Pavimento atual: <b>{self._pavimento}</b>  —  "
+            f"Lajes detectadas pelo SA: {len(self._slabs)}<br>"
+            f"{src}<br>"
+            "Colunas Pilares e Vigas disponíveis em versão futura."
+        )
+        info_lbl.setWordWrap(True)
+        info_lbl.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:10px;")
+        lay.addWidget(info_lbl)
+
+        # ── Tabela: 8 colunas fixas ───────────────────────────────────────────
+        # Nome Doc | Nome Pav | Nível Chegada | Nível Saída | Altura | Lajes | Pilares | Vigas
+        tbl = QTableWidget(0, 8)
+        tbl.setHorizontalHeaderLabels([
+            "Nome Doc", "Nome Pav",
+            "Nível\nChegada", "Nível\nSaída", "Altura",
+            "Lajes (SA)", "Pilares", "Vigas",
+        ])
+        hdr = tbl.horizontalHeader()
+        hdr.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(5, QHeaderView.Stretch)
+        hdr.setSectionResizeMode(6, QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(7, QHeaderView.ResizeToContents)
+        tbl.verticalHeader().setVisible(False)
+        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
+        tbl.setAlternatingRowColors(True)
+        tbl.setWordWrap(True)
+        tbl.setStyleSheet(
+            f"QTableWidget {{ background:{Colors.BG_SECONDARY};"
+            f" color:{Colors.TEXT_PRIMARY}; gridline-color:{Colors.BORDER_DEFAULT};"
+            f" border:none; font-size:10px; }}"
+            f"QTableWidget::item:alternate {{ background:{Colors.BG_PANEL}; }}"
+            f"QHeaderView::section {{ background:{Colors.BG_PANEL}; color:{Colors.ACCENT_MINT};"
+            f" border:none; padding:4px; font-size:9px; font-weight:bold; }}"
+        )
+
+        for row in rows:
+            ri = tbl.rowCount()
+            tbl.insertRow(ri)
+
+            # Col 0: Nome Doc
+            item_doc = QTableWidgetItem(row['nome_doc'])
+            if row['is_current']:
+                f = _QFont(); f.setBold(True)
+                item_doc.setFont(f)
+                item_doc.setForeground(_QColor(Colors.ACCENT_MINT))
+            else:
+                item_doc.setForeground(_QColor(Colors.TEXT_SECONDARY))
+            item_doc.setToolTip(row['nome_doc'])
+            tbl.setItem(ri, 0, item_doc)
+
+            # Col 1: Nome Pav
+            item_np = QTableWidgetItem(row['nome_pav'])
+            item_np.setForeground(_QColor(Colors.TEXT_PRIMARY))
+            tbl.setItem(ri, 1, item_np)
+
+            # Col 2: Nível Chegada
+            item_ch = QTableWidgetItem(row['chegada'])
+            if row['chegada'] != '?':
+                item_ch.setForeground(_QColor(Contextual.GOLD))
+            else:
+                item_ch.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 2, item_ch)
+
+            # Col 3: Nível Saída
+            item_sa = QTableWidgetItem(row['saida'])
+            if row['saida'] != '?':
+                item_sa.setForeground(_QColor(Contextual.GOLD))
+            else:
+                item_sa.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 3, item_sa)
+
+            # Col 4: Altura
+            item_al = QTableWidgetItem(row['altura'])
+            if row['altura'] != '?':
+                item_al.setForeground(_QColor(Colors.ACCENT_MINT))
+            else:
+                item_al.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 4, item_al)
+
+            # Col 5: Lajes (agrupadas por nível)
+            laj_txt = lajes_by_nivel(row['laje_list']) if row['laje_list'] else '—'
+            item_laj = QTableWidgetItem(laj_txt)
+            item_laj.setToolTip(f"[{row['fonte']}]")
+            tbl.setItem(ri, 5, item_laj)
+
+            # Col 6: Pilares (futuro)
+            item_pil = QTableWidgetItem('—')
+            item_pil.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 6, item_pil)
+
+            # Col 7: Vigas (futuro)
+            item_vig = QTableWidgetItem('—')
+            item_vig.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 7, item_vig)
+
+        tbl.resizeRowsToContents()
+        lay.addWidget(tbl, 1)
+
+        n_com_cota = sum(1 for r in rows if r['chegada'] != '?')
+        footer = QLabel(
+            f"{len(rows)} pavimento(s)  |  {n_com_cota} com cotas da Elevação Típica  |  "
+            "Pilares/Vigas disponíveis em versão futura"
+        )
+        footer.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:9px;")
+        lay.addWidget(footer)
+
+        lay.addStretch()
+        scroll.setWidget(inner)
+        return scroll
+
+    def _query_niveis_recorte(self) -> 'tuple[str, str] | None':
+        """Busca recorte convencao_niveis aprovado para esta obra."""
+        if not self._db_path:
+            return None
+        try:
+            import sqlite3
+            conn = sqlite3.connect(self._db_path)
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT output_path FROM obra_recortes "
+                "WHERE obra_name=? AND recorte_type='convencao_niveis' AND status IN ('approved','manual') "
+                "ORDER BY recorte_index DESC LIMIT 1",
+                (self._obra,)
+            ).fetchone()
+            conn.close()
+            if row and row['output_path'] and os.path.isfile(row['output_path']):
+                return row['output_path'], "Convenção de Níveis"
+        except Exception:
+            pass
+        return None
+
+    def _collect_all_pav_niveis(self) -> 'list[tuple[str, list, str]]':
+        """
+        Coleta dados de níveis de todos os pavimentos.
+
+        Retorna lista de (pav_nome, laje_list, fonte_str) onde:
+          - pav_nome: nome do pavimento
+          - laje_list: lista de {name, nivel_str}
+          - fonte_str: origem dos dados ('SA atual' | 'estado JSON' | 'sem dados')
+
+        Prioridade:
+        1. Pavimento atual → usa self._slabs (SA recém-rodado, mais fresco)
+        2. Outros pavimentos → lê pre_processamento_estado.json (batch SA anterior)
+        """
+        result: list = []
+        seen_pavs: set = set()
+
+        # 1. Pavimento atual (SA recém-rodado)
+        current_laje_list: list = []
+        for slab in self._slabs:
+            name = slab.get('name') or ''
+            fields = slab.get('fields') or {}
+            nivel_str = (
+                fields.get('laje_nivel') or
+                slab.get('nivel') or
+                slab.get('level') or ''
+            )
+            if name:
+                current_laje_list.append({'name': name, 'nivel_str': str(nivel_str).strip()})
+
+        if self._pavimento:
+            result.append((self._pavimento, current_laje_list, 'SA atual'))
+            seen_pavs.add(self._pavimento)
+
+        # 2. Outros pavimentos → pre_processamento_estado.json
+        try:
+            from pathlib import Path as _P
+            DADOS_OBRAS = _P("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+            estado_path = DADOS_OBRAS / self._obra / "pre_processamento_estado.json"
+            if estado_path.exists():
+                import json as _json
+                estado = _json.loads(estado_path.read_text(encoding='utf-8'))
+                pavs_json = estado.get('ficha', {}).get('pavimentos', [])
+                for pav in pavs_json:
+                    pav_nome = pav.get('nome', '')
+                    if not pav_nome or pav_nome in seen_pavs:
+                        continue
+                    laje_niveis = pav.get('laje_niveis', [])
+                    # Fallback se laje_niveis não estiver (estado antigo sem o campo)
+                    if not laje_niveis:
+                        nc = pav.get('nivel_chegada', 0)
+                        ns = pav.get('nivel_saida', 0)
+                        laje_niveis = [{'name': '(chegada)', 'nivel_str': str(nc)}]
+                        if ns != nc:
+                            laje_niveis.append({'name': '(saída)', 'nivel_str': str(ns)})
+                    result.append((pav_nome, laje_niveis, 'estado JSON'))
+                    seen_pavs.add(pav_nome)
+        except Exception:
+            pass
+
+        # Ordena: pavimento atual primeiro, demais por nome
+        current_row = [(n, l, f) for n, l, f in result if n == self._pavimento]
+        others = sorted([(n, l, f) for n, l, f in result if n != self._pavimento], key=lambda x: x[0])
+        return current_row + others
+
+    def _on_niveis_gabarito_loaded(self, doc) -> None:
+        """Renderiza o recorte de Convenção de Níveis na GUI thread."""
+        vbox = getattr(self, '_niveis_gab_vbox', None)
+        loading_lbl = getattr(self, '_niveis_gab_loading', None)
+        if vbox is None:
+            self._niveis_dxf_thread = None
+            return
+        try:
+            if loading_lbl:
+                loading_lbl.hide()
+                vbox.removeWidget(loading_lbl)
+            if not doc:
+                vbox.addWidget(QLabel("Falha ao carregar DXF do recorte."))
+                return
+            try:
+                from ezdxf.addons.drawing import RenderContext, Frontend
+                from ezdxf.addons.drawing.pyqt import PyQtBackend
+                from ezdxf.addons.drawing.config import Configuration, BackgroundPolicy, ColorPolicy
+                from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
+
+                msp = doc.modelspace()
+                scene = QGraphicsScene()
+                scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
+                for layer in doc.layers:
+                    layer.on(); layer.thaw()
+                for ent in doc.entitydb.values():
+                    if hasattr(ent, 'dxf') and hasattr(ent.dxf, 'invisible'):
+                        ent.dxf.invisible = 0
+                ctx = RenderContext(doc)
+                out = PyQtBackend(scene)
+                cfg = Configuration(
+                    background_policy=BackgroundPolicy.CUSTOM,
+                    custom_bg_color=Colors.BG_PANEL,
+                    color_policy=ColorPolicy.COLOR,
+                )
+                Frontend(ctx, out, config=cfg).draw_layout(msp)
+                rect = scene.itemsBoundingRect()
+                if rect.isNull():
+                    raise ValueError("cena vazia")
+                viewer = _MiniDXFView(
+                    scene, rect.left(), rect.top(), rect.right(), rect.bottom(),
+                    thumb_w=900, thumb_h=260, highlight_pts=[],
+                )
+                viewer._dxf_scene_ref = scene
+                viewer.setMinimumHeight(200)
+                viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                vbox.addWidget(viewer)
+            except Exception as e:
+                vbox.addWidget(QLabel(f"Falha ao renderizar: {e}"))
+        finally:
+            self._niveis_gab_vbox = None
+            self._niveis_gab_loading = None
+            self._niveis_dxf_thread = None
 
     def _confirm_and_save(self) -> None:
         """Salva histórico de pré-ficha (geometria → override) e aceita o diálogo."""

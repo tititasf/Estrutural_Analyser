@@ -231,7 +231,8 @@ def gerar_lv_n4(elem: str, entry: dict,
 
         if dxf_src and dxf_src.exists():
             dxf_dst = out_dir / dxf_src.name
-            shutil.copy2(dxf_src, dxf_dst)
+            if dxf_src.resolve() != dxf_dst.resolve():
+                shutil.copy2(dxf_src, dxf_dst)
             result['dxf_path'] = str(dxf_dst)
             result['view_paths']['ALL'] = str(dxf_dst)
 

@@ -1,0 +1,10 @@
+{
+  "id": "52fd248f-c0c4-4893-ade0-47393a2512fb",
+  "tipo": "regra_ficha",
+  "classe": "PIL",
+  "item_id": "P15",
+  "obra": "Obra_TREINO_1",
+  "text": "Edição Manual em PIL P15: [\"comprimento\", \"hachura\"] alterado no contexto DiagnosticPreHub.",
+  "timestamp": "2026-06-29T18:50:06+00:00",
+  "source_agent": "DiagnosticPreHub"
+}

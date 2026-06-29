@@ -1,453 +1,61 @@
 CRITICAL STARTUP ERROR:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 14102, in <module>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 14982, in <module>
     main()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 14096, in main
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 14976, in main
     start_app(dummy_user)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 14056, in start_app
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 14937, in start_app
     window = MainWindow()
              ^^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 237, in __init__
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 236, in __init__
     self.init_ui()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2993, in init_ui
-    self.diagnostic_module = DiagnosticHubModule(self.db)
-                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\diagnostic_hub.py", line 658, in __init__
-    center_panel = self._build_center_panel()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\diagnostic_hub.py", line 821, in _build_center_panel
-    self.canvas = CADCanvas()
-                  ^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 434, in __init__
-    self._init_cad_toolbar()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 794, in _init_cad_toolbar
-    self.toolbar = QWidget(self)
-                   ^^^^^^^
-UnboundLocalError: cannot access local variable 'QWidget' where it is not associated with a value
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3041, in init_ui
+    self.diagnostic_reverse_module = DiagnosticReverseHub()
+                                     ^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\diagnostic_reverse_hub.py", line 3024, in __init__
+    self._right = _RightPanel()
+                  ^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\diagnostic_reverse_hub.py", line 2387, in __init__
+    _cls_colors = {{
+                  ^^
+TypeError: unhashable type: 'dict'
 
-[2026-06-29 09:23:05] UNHANDLED EXCEPTION:
+[2026-06-29 15:46:05] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
 
 
-[2026-06-29 09:23:14] UNHANDLED EXCEPTION:
+[2026-06-29 15:59:43] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
 
 
-[2026-06-29 09:23:15] UNHANDLED EXCEPTION:
+[2026-06-29 15:59:43] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
 
 
-[2026-06-29 09:29:27] UNHANDLED EXCEPTION:
+[2026-06-29 16:08:29] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
-
-
-[2026-06-29 09:29:33] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
-
-
-[2026-06-29 09:29:34] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
-
-
-[2026-06-29 09:29:35] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
-
-
-[2026-06-29 09:29:36] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3722, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3892, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'N3ZoneViewerLV' object has no attribute 'draw'
-
-
-[2026-06-29 10:09:31] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3271, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 10:19:34] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:34] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:38] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:38] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:45] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:45] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:46] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:46] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:47] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:48] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:49] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:49] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:50] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:50] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:19:51] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3728, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3898, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:19:51] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3298, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3345, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3927, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:40:18] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3274, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 10:49:26] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3733, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3903, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:49:26] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3301, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3349, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3931, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:49:37] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3733, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3903, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:49:37] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3301, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3349, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3931, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:49:38] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3733, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3903, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:49:38] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3301, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3349, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3931, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:49:46] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3733, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3903, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:49:46] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3301, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3349, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3931, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 10:49:48] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3733, in on_tree1_selection_changed
-    self.load_beam_view(key)
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Laterais_de_Vigas\robo_laterais_viga_pyside.py", line 3903, in load_beam_view
-    self.preview.draw(self.model)
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'DXFVectorView' object has no attribute 'draw'
-
-
-[2026-06-29 10:49:48] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3301, in _on_lv_item_loaded
-    self._on_lv_fields_regen()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3349, in _on_lv_fields_regen
-    self._run_robo_dxf(
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3931, in _run_robo_dxf
-    status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
-RuntimeError: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
-
-
-[2026-06-29 12:04:37] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3274, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 12:05:13] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3274, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 12:15:17] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3273, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 12:26:20] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3273, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 13:22:26] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3275, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 14:32:34] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3275, in _setup_lv_dxf_viewer
-    for fw in self.robo_viga.fields.values():
-              ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'VigaMainWindow' object has no attribute 'fields'
-
-
-[2026-06-29 14:34:55] UNHANDLED EXCEPTION:
-Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1918, in <lambda>
     self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6796, in on_list_pillar_clicked
     self.canvas.draw_item_links(pilar)
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
     l_type = link.get('type')
@@ -455,38 +63,201 @@ Traceback (most recent call last):
 AttributeError: 'str' object has no attribute 'get'
 
 
-[2026-06-29 14:38:01] UNHANDLED EXCEPTION:
+[2026-06-29 16:08:37] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
-    self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
-                                                            ^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1918, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6796, in on_list_pillar_clicked
+    self.canvas.draw_item_links(pilar)
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
     l_type = link.get('type')
              ^^^^^^^^
 AttributeError: 'str' object has no attribute 'get'
 
 
-[2026-06-29 14:38:09] UNHANDLED EXCEPTION:
+[2026-06-29 16:11:13] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
-    self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
-                                                            ^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:11:13] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:11:13] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:13:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:13:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:13:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:13:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 16:13:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1918, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6796, in on_list_pillar_clicked
+    self.canvas.draw_item_links(pilar)
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
     l_type = link.get('type')
              ^^^^^^^^
 AttributeError: 'str' object has no attribute 'get'
 
 
-[2026-06-29 14:38:14] UNHANDLED EXCEPTION:
+[2026-06-29 16:14:01] UNHANDLED EXCEPTION:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
-    self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
-                                                            ^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1918, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6796, in on_list_pillar_clicked
+    self.canvas.draw_item_links(pilar)
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
     l_type = link.get('type')
              ^^^^^^^^
 AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-06-29 19:14:31] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:14:31] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:14:47] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:14:47] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:14:47] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:15:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:15:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:15:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 19:15:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
 

@@ -1,6 +1,6 @@
 # MASTERPLAN — Cérebro RAG Multimodal + Curadoria Redesign
 ## Vision-Estrutural AI — Segundo Cérebro para Compreensão Estrutural
-**Versão:** 3.1 (observabilidade, retrieval local e plugins)
+**Versão:** 3.2 (Event Sourcing MCP com Active Learning controlado)
 **Data:** 2026-06-26
 **Orquestração:** Athena (CEO-Planejamento)
 **Status:** EXECUÇÃO CONTROLADA — infraestrutura avançada; promoção depende de validação humana
@@ -57,6 +57,13 @@ Ainda não há embedding visual nem backfill de validações antigas.
 N3/N4. O snapshot por obra ganhou retrieval lexical determinístico explicitamente
 local (`is_global_truth=false`). Foram adicionados health check, export auditável com
 hashes e registros plugáveis para extratores/robôs. Nenhuma dessas rotinas promove T0.
+
+**Mudança v3.1 → v3.2:** Event Sourcing MCP registra edições humanas como evidências
+`CAPTURED/T0`. O daemon gera propostas `PROPOSED/T0` em quarentena e o indexador usa
+stores isolados `candidates` e `approved`; nunca altera `estruturais.index`. Somente
+`Aprovar proposta`, com origem e justificativa humanas, promove T0→T1. Salvar, editar,
+anotar ou executar looper jamais equivale a aprovação. A Curadoria ganhou a subaba
+`Evidências MCP` para controlar o ciclo.
 
 ---
 
@@ -925,6 +932,7 @@ depois `@dev` implementa, `@qa` valida e `@devops` publica/automatiza. Não pula
 | `Agente-cad-PYSIDE-Restored-main/docs/CROP-LEARNING-SPEC.md` | Contrato do aprendizado de recorte: CROP-T1, eventos, métricas, revogação e separação de F5/N4. | EPIC RAG-3.1 |
 | `Agente-cad-PYSIDE-Restored-main/docs/RAG-POR-OBRA-SPEC.md` | Contrato entre RAG global e RAG por-obra, persistência, T0 local e promoção bloqueada. | EPIC RAG-4.2 |
 | `Agente-cad-PYSIDE-Restored-main/docs/RAG-REVOGACAO-HUMANA-SPEC.md` | Desvalidação humana, tombstones, versionamento, limpeza física e rebuild FAISS/Chroma. | EPIC RAG-0.4 / RAG-3.2b |
+| `docs/MCP-ACTIVE-LEARNING-SPEC.md` | Event Sourcing T0, propostas, aprovação humana, stores isolados e mapa de botões MCP. | Active Learning MCP |
 | `Agente-cad-PYSIDE-Restored-main/docs/HANDOFF-CEREBRO-RAG-MULTIMODAL.md` | Resumo executivo para @dev/@qa com ordem de stories, gates e NÃO-FAZER. | Antes da execução |
 
 ### 12.4 Nota de harmonização documental

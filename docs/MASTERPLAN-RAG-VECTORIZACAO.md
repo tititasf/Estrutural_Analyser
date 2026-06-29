@@ -1,4 +1,12 @@
-# MASTERPLAN — RAG & Vectorizacao CAD-ANALYZER
+# MASTERPLAN
+
+> **UPDATE (2026-06-29):** O Event Sourcing via MCP registra ações manuais em
+> `human_event_logs` como evidências T0. Propostas não aprovadas são vetorizadas apenas
+> no store isolado `data/vectors/active_learning/candidates`. Após aprovação humana
+> explícita, podem entrar no store `approved`. O pipeline MCP nunca faz append em
+> `estruturais.index`, e vetorizar uma proposta não significa retreinar robôs.
+
+ — RAG & Vectorizacao CAD-ANALYZER
 
 ## Protocolo oficial de conhecimento estrutural vetorizado
 

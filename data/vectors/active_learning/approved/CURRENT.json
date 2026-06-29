@@ -1,0 +1,12 @@
+{
+  "count": 0,
+  "dimension": 384,
+  "generation": "c6385186139742ff8976f4a19a5909a9",
+  "index_file": "c6385186139742ff8976f4a19a5909a9.index",
+  "index_sha256": "63252194ff2edb654488a0c2df56ff041445a229c159e47591bc9f5956c23a02",
+  "meta_file": "c6385186139742ff8976f4a19a5909a9_meta.json",
+  "meta_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "model": "all-MiniLM-L6-v2",
+  "schema_version": 1,
+  "store": "approved"
+}

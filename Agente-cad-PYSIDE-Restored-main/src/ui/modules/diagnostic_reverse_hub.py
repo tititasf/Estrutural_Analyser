@@ -7,10 +7,12 @@ dos DXFs STOG humanos (Projetos_Finalizados_para_Engenharia_Reversa/).
 Sprint ER-2 | MASTERPLAN-ENGENHARIA-REVERSA.md
 """
 from __future__ import annotations
+import sys
+from src.mcp.db_bridge import save_human_edit_event
 
+import hashlib
 import json
 import sqlite3
-import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal, QThread, QObject, QSize, QEvent
@@ -419,7 +421,7 @@ class _LeftPanel(QFrame):
 
         self.setStyleSheet(f"background:{Colors.BG_SECONDARY};")
         self.setMinimumWidth(180)
-        self.setMaximumWidth(280)
+        self.setMaximumWidth(350)
 
         lay = QVBoxLayout(self)
         lay.setContentsMargins(4, 4, 4, 4)
@@ -437,14 +439,14 @@ class _LeftPanel(QFrame):
         self.cmb_obra.setPlaceholderText("— selecione a obra —")
         self.cmb_obra.setStyleSheet(f"""
             QComboBox {{
-                background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY};
-                border:1px solid {Colors.BORDER_DEFAULT}; border-radius:4px;
-                font-size:10px; padding:2px 6px;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 4px 8px; font-size: 11px;
             }}
-            QComboBox::drop-down {{ border:none; }}
+            QComboBox::drop-down {{ border: none; }}
             QComboBox QAbstractItemView {{
-                background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY};
-                selection-background-color:{Colors.ACCENT_BLUE};
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                selection-background-color: {Colors.ACCENT_TEAL};
             }}
         """)
         self.cmb_obra.currentTextChanged.connect(self._on_cmb_obra_changed)
@@ -469,12 +471,15 @@ class _LeftPanel(QFrame):
         self.lst = QListWidget()
         self.lst.setStyleSheet(f"""
             QListWidget {{
-                background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY};
-                border:1px solid {Colors.BORDER_DEFAULT}; font-size:10px;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                font-size: 11px;
             }}
-            QListWidget::item {{ padding:2px 4px; }}
-            QListWidget::item:selected {{ background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; }}
-            QListWidget::item:hover {{ background:{Colors.BG_CARD}; }}
+            QListWidget::item {{ padding: 5px 8px; }}
+            QListWidget::item:selected {{
+                background: rgba(0, 180, 180, 64); color: {Colors.ACCENT_TEAL};
+            }}
+            QListWidget::item:hover {{ background: {Colors.BG_PANEL}; }}
         """)
         self.lst.itemClicked.connect(self._on_item_clicked)
         lay.addWidget(self.lst, 1)
@@ -1631,6 +1636,12 @@ class _CenterPanel(QFrame):
             return
 
         out_path = Path(self._granular_dxf_path)
+        old_hash = (
+            hashlib.sha256(out_path.read_bytes()).hexdigest()
+            if out_path.exists()
+            else ""
+        )
+        removed_count = len(self._granular_deleted)
 
         result = _CenterPanel.export_scene_to_dxf(self.canvas_granular, out_path)
         if result.get('error'):
@@ -1640,6 +1651,35 @@ class _CenterPanel(QFrame):
 
         self._granular_deleted.clear()
         n = result.get('entities_copied', 0)
+        try:
+            current_item = self._current_item if getattr(self, "_current_item", None) else {}
+            classe = str(current_item.get("classe") or "UNK")
+            item_id = str(
+                current_item.get("elemento_id")
+                or current_item.get("numero")
+                or out_path.stem
+            )
+            new_hash = hashlib.sha256(out_path.read_bytes()).hexdigest()
+            if old_hash != new_hash or removed_count:
+                reason, accepted = QInputDialog.getText(
+                    self,
+                    "Motivo da edição",
+                    "Por que este recorte foi ajustado? (opcional)",
+                )
+                save_human_edit_event(
+                    obra_id=getattr(self, "_current_obra", "") or _obra_name_from_path(out_path),
+                    classe=classe,
+                    item_id=item_id,
+                    fase_editada="CROP_EDIT",
+                    ui_context="DiagnosticReverseHub",
+                    estado_anterior={"dxf_sha256": old_hash},
+                    estado_novo={"dxf_sha256": new_hash, "entities_copied": n},
+                    nota_usuario=reason.strip() if accepted else "",
+                    source_agent="diagnostic_reverse_hub",
+                    correlation_id=str(out_path.resolve()),
+                )
+        except Exception as exc:
+            print(f"[MCP] evidência de edição não registrada: {exc}")
         QMessageBox.information(
             self, "Salvar Granular",
             f"DXF salvo com sucesso.\n{n} entidade(s) · {out_path.name}"
@@ -2198,8 +2238,8 @@ class _RightPanel(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumWidth(200)
-        self.setMaximumWidth(320)
+        self.setMinimumWidth(220)
+        self.setMaximumWidth(350)
         self.setStyleSheet(f"background:{Colors.BG_SECONDARY}; border: none;")
 
         main_layout = QVBoxLayout(self)
@@ -2247,12 +2287,15 @@ class _RightPanel(QFrame):
         self.lst_recortes = QListWidget()
         self.lst_recortes.setStyleSheet(f"""
             QListWidget {{
-                background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY};
-                border:1px solid {Colors.BORDER_DEFAULT}; font-size:9px;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                font-size: 10px;
             }}
-            QListWidget::item {{ padding:2px 4px; }}
-            QListWidget::item:selected {{ background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; }}
-            QListWidget::item:hover {{ background:{Colors.BG_CARD}; }}
+            QListWidget::item {{ padding: 5px 8px; }}
+            QListWidget::item:selected {{
+                background: rgba(0, 180, 180, 51); color: {Colors.ACCENT_TEAL};
+            }}
+            QListWidget::item:hover {{ background: {Colors.BG_PANEL}; }}
         """)
         # currentItemChanged garante que setas do teclado também disparam o load
         self.lst_recortes.currentItemChanged.connect(
@@ -2263,139 +2306,216 @@ class _RightPanel(QFrame):
 
         lay.addWidget(self._sep())
 
-        # ── Seção: Ações (2 colunas para liberar espaço vertical na lista) ──
-
-        def _row(*widgets):
-            fr = QFrame()
-            fr.setStyleSheet("background:transparent; border:none;")
-            rl = QHBoxLayout(fr)
-            rl.setContentsMargins(0, 0, 0, 0)
-            rl.setSpacing(4)
-            for w in widgets:
-                rl.addWidget(w)
-            return fr
-
-        # [✂ Recortar | ✂ Rec. Seleção]
-        btn_rec = _btn("✂ Recortar", Surface.RAISED, Accent.INTERACTIVE)
+        # ── Seção: Ações ──
+        # Botão recorte manual
+        btn_rec = QPushButton("✂ Recortar")
         btn_rec.setToolTip("Recortar — exporta todas as entidades visíveis do canvas")
+        btn_rec.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(180, 120, 0, 160); color: {Colors.ACCENT_WARNING};
+                border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 3px 6px;
+            }}
+            QPushButton:hover {{ background: rgba(180, 120, 0, 230); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+        """)
         btn_rec.clicked.connect(self._on_recortar)
+        lay.addWidget(btn_rec)
 
-        btn_rec_sel = _btn("✂ Rec. Seleção", "rgba(160, 112, 255, 0.22)", Contextual.PURPLE)
-        btn_rec_sel.setToolTip(
-            "Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas"
-        )
+        # Botão recorte por seleção
+        btn_rec_sel = QPushButton("✂ Recortar Seleção")
+        btn_rec_sel.setToolTip("Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas")
+        btn_rec_sel.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(120, 60, 180, 160); color: {Contextual.PURPLE};
+                border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 3px 6px;
+            }}
+            QPushButton:hover {{ background: rgba(120, 60, 180, 230); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+        """)
         btn_rec_sel.clicked.connect(self._on_recortar_selecao)
-        lay.addWidget(_row(btn_rec, btn_rec_sel))
+        lay.addWidget(btn_rec_sel)
 
         lay.addWidget(self._sep())
 
         lbl_proc = QLabel("Processar Granulares:")
-        lbl_proc.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:9px; background:transparent;")
+        lbl_proc.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:10px; background:transparent;")
         lay.addWidget(lbl_proc)
 
-        # [▶ Pilares | ▶ L.Vigas]  e  [▶ F.Vigas | ▶ Lajes]
         _cls_defs = [
-            ("PIL", "Pilares",  Surface.RAISED,              Accent.INTERACTIVE),
-            ("LV",  "L.Vigas",  Semantic.SUCCESS_BG_DARK,    "rgba(31, 94, 48, 1)"),
-            ("FV",  "F.Vigas",  Semantic.WARNING_BG_DARK,    "rgba(90, 58, 26, 1)"),
-            ("LAJ", "Lajes",    "rgba(214, 51, 132, 0.18)",  Contextual.MAGENTA),
+            ("PIL", "Pilares"), ("LV", "L.Vigas"), ("FV", "F.Vigas"), ("LAJ", "Lajes")
         ]
-        for (k0, l0, bg0, hv0), (k1, l1, bg1, hv1) in zip(_cls_defs[::2], _cls_defs[1::2]):
-            b0 = _btn(f"▶ {l0}", bg0, hv0)
-            b0.setToolTip(f"Processar Granulares {l0}")
-            b0.clicked.connect(lambda _c, k=k0: self._on_processar_cls(k))
-            b1 = _btn(f"▶ {l1}", bg1, hv1)
-            b1.setToolTip(f"Processar Granulares {l1}")
-            b1.clicked.connect(lambda _c, k=k1: self._on_processar_cls(k))
-            lay.addWidget(_row(b0, b1))
+        proc_grid = QGridLayout()
+        proc_grid.setContentsMargins(0, 0, 0, 0)
+        proc_grid.setSpacing(4)
+        for i, (k, lbl) in enumerate(_cls_defs):
+            b = QPushButton(f"▶ {lbl}")
+            b.setToolTip(f"Processar Granulares {lbl}")
+            b.setStyleSheet(f"""
+                QPushButton {{
+                    background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+                    border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
+                    font-size: 11px; font-weight: bold; padding: 3px 6px;
+                }}
+                QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
+                QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            """)
+            b.clicked.connect(lambda _c, key=k: self._on_processar_cls(key))
+            proc_grid.addWidget(b, i // 2, i % 2)
+        lay.addLayout(proc_grid)
 
-        # ⚡ Processar toda a Obra (largura total)
-        btn_tudo = _btn("⚡ Processar toda a Obra\n(todos pavs × classes)", "rgba(160, 112, 255, 0.22)", Contextual.PURPLE, h=32)
+        # ⚡ Processar toda a Obra
+        btn_tudo = QPushButton("⚡ Processar toda a Obra (Auto)")
         btn_tudo.setToolTip(
-            "Roda PIL/LV/FV/LAJ em todos os pavimentos aprovados da obra.\n"
+            "Roda PIL/LV/FV/LAJ em todos os pavimentos aprovados da obra.\\n"
             "Cada classe usa o DXF correto automaticamente."
         )
+        btn_tudo.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 3px 6px;
+            }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+        """)
         btn_tudo.clicked.connect(self._on_processar_tudo)
         lay.addWidget(btn_tudo)
 
-        # 📋 Gerar Fichas (largura total)
-        btn_ficha = _btn(
-            "📋 Gerar Fichas\n[F4-Pavimentos] [F5-Granulares]\ne [F6-Obra ER]", Semantic.SUCCESS_BG_DARK, "rgba(31, 94, 48, 1)", h=50
-        )
+        # 📋 Gerar Fichas
+        btn_ficha = QPushButton("📋 Gerar Fichas [F4] [F5] [F6]")
         btn_ficha.setToolTip(
-            "Processa todos os itens aprovados para gerar simultaneamente:\n"
-            "- Fichas Granulares (F5) N2 para cada recorte\n"
-            "- Fichas de Pavimentos (F4) agrupadas por classe\n"
+            "Processa todos os itens aprovados para gerar simultaneamente:\\n"
+            "- Fichas Granulares (F5) N2 para cada recorte\\n"
+            "- Fichas de Pavimentos (F4) agrupadas por classe\\n"
             "- Ficha Obra Engenharia Reversa (F6) consolidada global"
         )
+        btn_ficha.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 3px 6px;
+            }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+        """)
         btn_ficha.clicked.connect(self._on_gerar_ficha)
         lay.addWidget(btn_ficha)
 
         lay.addWidget(self._sep())
 
-        # ── Ajustar Classe (radios em grid 2×2) ──────────────────────
+        # ── Ajustar Classe ──────────────────────
         lbl_cls_adj = QLabel("Ajustar Classe:")
         lbl_cls_adj.setStyleSheet(
-            f"color:{Colors.TEXT_DIM}; font-size:9px; background:transparent;"
+            f"color:{Colors.TEXT_SECONDARY}; font-size:10px; background:transparent;"
         )
         lay.addWidget(lbl_cls_adj)
 
-        cls_frame = QFrame()
-        cls_frame.setStyleSheet(
-            f"background:{Colors.BG_CARD}; border:1px solid {Colors.BORDER_DEFAULT}; "
-            f"border-radius:4px;"
-        )
-        cls_grid = QGridLayout(cls_frame)
-        cls_grid.setContentsMargins(6, 3, 6, 3)
-        cls_grid.setSpacing(2)
-
-        self._cls_radios: dict[str, QRadioButton] = {}
+        self._cls_radios: dict[str, QPushButton] = {}
         self._cls_group = QButtonGroup(self)
-        rb_style = (
-            f"QRadioButton {{ color:{Colors.TEXT_PRIMARY}; font-size:10px; "
-            f"background:transparent; }}"
-            f"QRadioButton::indicator {{ width:12px; height:12px; }}"
-            f"QRadioButton::indicator:checked {{ background:{Colors.ACCENT_BLUE}; "
-            f"border:2px solid {Colors.ACCENT_BLUE}; border-radius:6px; }}"
-            f"QRadioButton::indicator:unchecked {{ background:transparent; "
-            f"border:2px solid {Colors.BORDER_DEFAULT}; border-radius:6px; }}"
-        )
-        for i, (key, label) in enumerate(_CLASSES):
-            rb = QRadioButton(label)
-            rb.setStyleSheet(rb_style)
-            self._cls_group.addButton(rb, i)
-            self._cls_radios[key] = rb
-            cls_grid.addWidget(rb, i // 2, i % 2)
+        self._cls_group.setExclusive(True)
 
-        lay.addWidget(cls_frame)
+        cls_rows = [QHBoxLayout(), QHBoxLayout()]
+        for r in cls_rows:
+            r.setSpacing(4)
+            lay.addLayout(r)
+
+        _cls_colors = {
+            "PIL": Contextual.PURPLE,
+            "LV": Colors.ACCENT_TEAL,
+            "FV": Accent.PRIMARY,
+            "LAJ": Contextual.GOLD,
+        }
+        for i, (key, label) in enumerate(_CLASSES):
+            btn = QPushButton(label)
+            btn.setCheckable(True)
+            btn.setFixedHeight(24)
+            cls_color = _cls_colors.get(key, Colors.TEXT_SECONDARY)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: transparent; color: {Colors.TEXT_DIM};
+                    border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 12px;
+                    font-size: 10px; font-weight: normal;
+                }}
+                QPushButton:hover {{ border-color: {cls_color}; }}
+                QPushButton:checked {{
+                    background: {cls_color}; color: {Colors.TEXT_BRIGHT};
+                    border: 1px solid {cls_color}; font-weight: bold;
+                }}
+                QPushButton:disabled {{ color: rgba(255, 255, 255, 30); border-color: rgba(255, 255, 255, 20); }}
+            """)
+            self._cls_group.addButton(btn, i)
+            self._cls_radios[key] = btn
+            cls_rows[i // 2].addWidget(btn)
 
         lay.addWidget(self._sep())
 
-        # [💾 Salvar | 🗑 Excluir]
-        btn_salvar  = _btn("💾 Salvar",  Colors.ACCENT_BLUE,   Colors.ACCENT_BLUE_HOVER)
-        btn_excluir = _btn("🗑 Excluir", Colors.ACCENT_DANGER,  "rgba(211, 47, 47, 1)")
+        # Botão salvar estado do viewer
+        btn_salvar = QPushButton("💾 Salvar")
+        btn_salvar.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(80, 80, 220, 160); color: {{Accent.INTERACTIVE_HOVER}};
+                border: 1px solid {{Accent.INTERACTIVE_HOVER}}; border-radius: 4px;
+                font-size: 10px; font-weight: bold; padding: 4px 8px;
+            }}
+            QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
+            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+        """)
         btn_salvar.clicked.connect(self._on_salvar)
-        btn_excluir.clicked.connect(self._on_excluir)
-        lay.addWidget(_row(btn_salvar, btn_excluir))
+        lay.addWidget(btn_salvar)
 
-        # ⚡ Aprovar tudo ≥ 90% (largura total)
-        btn_auto_aprovar = _btn("⚡ Aprovar tudo ≥ 90%", Semantic.SUCCESS_BG_DARK, "rgba(31, 94, 48, 1)", h=26)
-        btn_auto_aprovar.setToolTip(
-            "Aprova automaticamente todos os recortes com confiança ≥ 90%.\n"
-            "⚠️ Estes NÃO são usados como dados de treino.\n"
-            "Use apenas para avançar — revisão humana 1-a-1 gera dados reais."
-        )
-        btn_auto_aprovar.clicked.connect(self._on_aprovar_auto)
-        lay.addWidget(btn_auto_aprovar)
+        btn_row = QHBoxLayout()
+        btn_row.setSpacing(4)
 
-        # ✅ Aprovar (largura total)
-        btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
+        btn_aprovar = QPushButton("✓ Aprovar")
         btn_aprovar.setToolTip(
-            "Aprova somente o recorte com revisão humana.\n"
+            "Aprova somente o recorte com revisão humana.\\n"
             "Ensina o recortador por classe; não valida F5/N2 nem N4."
         )
+        btn_aprovar.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(0, 200, 120, 160); color: {{Colors.ACCENT_SUCCESS_ALT}};
+                border: 1px solid {{Colors.ACCENT_SUCCESS_ALT}}; border-radius: 4px;
+                font-size: 10px; font-weight: bold; padding: 4px 8px;
+            }}
+            QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
+            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+        """)
         btn_aprovar.clicked.connect(self._on_aprovar)
-        lay.addWidget(btn_aprovar)
+        btn_row.addWidget(btn_aprovar)
+
+        btn_excluir = QPushButton("🗑 Excluir")
+        btn_excluir.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(255, 80, 80, 160); color: {{Colors.ACCENT_DANGER}};
+                border: 1px solid {{Colors.ACCENT_DANGER}}; border-radius: 4px;
+                font-size: 10px; font-weight: bold; padding: 4px 8px;
+            }}
+            QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
+            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+        """)
+        btn_excluir.clicked.connect(self._on_excluir)
+        btn_row.addWidget(btn_excluir)
+        lay.addLayout(btn_row)
+
+        btn_auto_aprovar = QPushButton("⚡ Aprovar tudo ≥ 90%")
+        btn_auto_aprovar.setToolTip(
+            "Aprova automaticamente todos os recortes com confiança ≥ 90%.\\n"
+            "⚠️ Estes NÃO são usados como dados de treino.\\n"
+            "Use apenas para avançar — revisão humana 1-a-1 gera dados reais."
+        )
+        btn_auto_aprovar.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(0, 200, 120, 160); color: {{Colors.ACCENT_SUCCESS_ALT}};
+                border: 1px solid {{Colors.ACCENT_SUCCESS_ALT}}; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 4px 8px;
+            }}
+            QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
+            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+        """)
+        btn_auto_aprovar.clicked.connect(self._on_aprovar_auto)
+        lay.addWidget(btn_auto_aprovar)
 
         lay.addWidget(self._sep())
 
@@ -2915,18 +3035,18 @@ class DiagnosticReverseHub(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
+        # ── Divisor central ──────────────────────────────────────────
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.setHandleWidth(4)
+        splitter.setStyleSheet(
+            f"QSplitter::handle {{ background:{Colors.BORDER_DEFAULT}; }}"
+        )
+
         # ── Painel Esquerdo ───────────────────────────────────────────
         self._left = _LeftPanel()
         self._left.item_selected.connect(self._on_item_selected)
         self._left.obra_changed.connect(lambda obra: setattr(self, '_current_obra', obra))
-        root.addWidget(self._left)
-
-        # ── Divisor central ──────────────────────────────────────────
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.setHandleWidth(2)
-        splitter.setStyleSheet(
-            f"QSplitter::handle {{ background:{Colors.BORDER_DEFAULT}; }}"
-        )
+        splitter.addWidget(self._left)
 
         # ── Painel Central ────────────────────────────────────────────
         self._center = _CenterPanel()
@@ -2934,8 +3054,6 @@ class DiagnosticReverseHub(QWidget):
             self._on_ficha_validation_requested
         )
         splitter.addWidget(self._center)
-
-        root.addWidget(splitter, 1)
 
         # ── Painel Direito ────────────────────────────────────────────
         self._right = _RightPanel()
@@ -2954,7 +3072,10 @@ class DiagnosticReverseHub(QWidget):
         self._right.processar_cls.connect(self._on_processar_cls)
         self._right.processar_tudo.connect(self._on_processar_tudo)
         self._right.gerar_ficha_requested.connect(self._on_gerar_ficha)
-        root.addWidget(self._right)
+        splitter.addWidget(self._right)
+
+        splitter.setSizes([240, 700, 260])
+        root.addWidget(splitter, 1)
 
         # Worker de motor (para não bloquear UI)
         self._motor_worker: QThread | None = None
@@ -3239,6 +3360,9 @@ class DiagnosticReverseHub(QWidget):
         if not recorte_path:
             QMessageBox.warning(self, "Aviso", "Item sem caminho de arquivo associado.")
             return
+        recorte_file = Path(recorte_path)
+        old_hash = hashlib.sha256(recorte_file.read_bytes()).hexdigest() if recorte_file.exists() else ""
+        old_cls = str(current.data(Qt.UserRole + 1) or "")
 
         # Descobrir qual radio está marcado
         new_cls = None
@@ -3285,6 +3409,28 @@ class DiagnosticReverseHub(QWidget):
 
         # Se há edições DXF pendentes no Visualizador Granular → salvar junto
         self._center._save_granular_dxf_silent()
+        try:
+            new_hash = hashlib.sha256(recorte_file.read_bytes()).hexdigest() if recorte_file.exists() else ""
+            if old_cls != new_cls or old_hash != new_hash:
+                reason, accepted = QInputDialog.getText(
+                    self,
+                    "Motivo da edição",
+                    "Por que a classe ou o recorte foi ajustado? (opcional)",
+                )
+                save_human_edit_event(
+                    obra_id=obra_name,
+                    classe=new_cls,
+                    item_id=str(elem_id or recorte_file.stem),
+                    fase_editada="CROP_EDIT",
+                    ui_context="DiagnosticReverseHub",
+                    estado_anterior={"classe": old_cls, "dxf_sha256": old_hash},
+                    estado_novo={"classe": new_cls, "dxf_sha256": new_hash},
+                    nota_usuario=reason.strip() if accepted else "",
+                    source_agent="diagnostic_reverse_hub",
+                    correlation_id=str(recorte_file.resolve()),
+                )
+        except Exception as exc:
+            print(f"[MCP] evidência de recorte não registrada: {exc}")
         _record_laj_learning_event(
             "human_saved",
             obra_name=obra_name,

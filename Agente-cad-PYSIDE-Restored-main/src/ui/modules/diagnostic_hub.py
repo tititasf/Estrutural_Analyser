@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QFrame,
                                QButtonGroup, QLabel, QMessageBox, QPushButton,
                                QScrollArea, QCheckBox, QProgressBar, QSizePolicy,
                                QComboBox, QTabWidget, QListWidget, QListWidgetItem,
-                               QSplitter,
+                               QSplitter, QAbstractItemView,
                                QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem)
 from PySide6.QtCore import QThread, Signal, QProcess, Qt, QTimer, QObject
 from src.ui.components.organisms import DiagnosticSidebar, TechSheetPanel
@@ -251,6 +251,7 @@ class PreProcessAllWorker(QThread):
 
             pav_status   = "ok"
             pav_niveis: list = []
+            pav_laje_niveis: list = []   # [{name, nivel_str}] — para Convenção de Níveis
             # Acumula todos os itens do pavimento (agregação cross-torre para sides_data)
             pav_pilares: list = []
             pav_vigas:   list = []
@@ -318,9 +319,12 @@ class PreProcessAllWorker(QThread):
                     for s in raw_lajes:
                         process_slab_intelligent(s, texts)
                         lv = s.get('fields', {}).get('laje_nivel') or s.get('level') or s.get('nivel')
+                        laje_name = s.get('name') or ''
                         if lv:
+                            lv_str = str(lv).strip()
+                            pav_laje_niveis.append({'name': laje_name, 'nivel_str': lv_str})
                             try:
-                                pav_niveis.append(float(str(lv).replace(',', '.').replace('+', '')))
+                                pav_niveis.append(float(lv_str.replace(',', '.').replace('+', '')))
                             except Exception:
                                 pass
                     torre_lajes = raw_lajes
@@ -374,6 +378,14 @@ class PreProcessAllWorker(QThread):
 
             # ── Pavimento aggregate ───────────────────────────────────────────
             niveis_s = sorted(set(pav_niveis))
+            # Deduplica laje_niveis mantendo a primeira ocorrência por nome
+            seen_lj: set = set()
+            laje_niveis_dedup: list = []
+            for entry in pav_laje_niveis:
+                k = entry.get('name', '')
+                if k and k not in seen_lj:
+                    seen_lj.add(k)
+                    laje_niveis_dedup.append(entry)
             ficha_pavs.append({
                 'nome':                pav_name,
                 'n_pilares':           len(pav_pilares),
@@ -382,6 +394,7 @@ class PreProcessAllWorker(QThread):
                 'nivel_chegada':       niveis_s[0]  if niveis_s          else 0,
                 'nivel_saida':         niveis_s[-1] if len(niveis_s) > 1 else (niveis_s[0] if niveis_s else 0),
                 'lajes_nivel_distinto': len(niveis_s) > 1,
+                'laje_niveis':         laje_niveis_dedup,
                 'status':              pav_status,
                 'torres_count':        len(pav_list),
                 'analysis_mode':        self.analysis_mode,
@@ -852,6 +865,12 @@ class DiagnosticHubModule(QWidget):
             4, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Contextual.PURPLE)
         )
 
+        # Tab 5 - CONVENÇÃO DE NÍVEIS
+        self._niveis_tab_widget = self._build_niveis_tab_widget()
+        self._canvas_tabs.addTab(self._niveis_tab_widget, "📏 Convenção de Níveis")
+        self._canvas_tabs.tabBar().setTabTextColor(
+            5, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Colors.ACCENT_SUCCESS_ALT)
+        )
 
         vlay.addWidget(self._canvas_tabs, 1)
 
@@ -944,11 +963,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_manual_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(180, 120, 0, 38); color: {Colors.ACCENT_WARNING};
+                background: rgba(180, 120, 0, 160); color: {Colors.ACCENT_WARNING};
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
-            QPushButton:hover {{ background: rgba(180, 120, 0, 71); }}
+            QPushButton:hover {{ background: rgba(180, 120, 0, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_manual_crop.setEnabled(False)
@@ -963,11 +982,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_selection_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(120, 60, 180, 38); color: {Contextual.PURPLE};
+                background: rgba(120, 60, 180, 160); color: {Contextual.PURPLE};
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
-            QPushButton:hover {{ background: rgba(120, 60, 180, 71); }}
+            QPushButton:hover {{ background: rgba(120, 60, 180, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_selection_crop.setEnabled(False)
@@ -978,11 +997,11 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_crops = QPushButton("⚙ Processar Auto")
         self._btn_process_crops.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(0, 180, 180, 38); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 71); }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_crops.setEnabled(False)
@@ -993,11 +1012,11 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_all_crops = QPushButton("⚡ Processar Todos Pav. Auto")
         self._btn_process_all_crops.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(0, 180, 180, 38); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 71); }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_all_crops.setEnabled(False)
@@ -1058,11 +1077,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_save_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(80, 80, 220, 31); color: {Accent.INTERACTIVE_HOVER};
+                background: rgba(80, 80, 220, 160); color: {Accent.INTERACTIVE_HOVER};
                 border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(80, 80, 220, 71); }}
+            QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_save_crop.setEnabled(False)
@@ -1076,19 +1095,23 @@ class DiagnosticHubModule(QWidget):
         vlay.addWidget(lbl_class)
 
         _CROP_CLASSES = [
-            ("detalhe",  "Detalhe",  Contextual.PURPLE),
-            ("torre",    "Torre 1",  Colors.ACCENT_TEAL),
-            ("torre_2",  "Torre 2",  Accent.PRIMARY),
-            ("outro",    "Outro",    Colors.TEXT_SECONDARY),
+            # (cls_id, label, color, row_index)
+            ("detalhe",           "Detalhe",     Contextual.PURPLE,             0),
+            ("torre",             "Torre 1",     Colors.ACCENT_TEAL,            0),
+            ("torre_2",           "Torre 2",     Accent.PRIMARY,                0),
+            ("convencao_pilares", "Conv. Pil.",  Contextual.GOLD,               1),
+            ("convencao_niveis",  "Conv. Nív.",  Colors.ACCENT_SUCCESS_ALT,     1),
+            ("outro",             "Outro",       Colors.TEXT_SECONDARY,         1),
         ]
 
         self._crop_class_group = QButtonGroup(self)
         self._crop_class_group.setExclusive(True)
-        class_row = QHBoxLayout()
-        class_row.setSpacing(4)
+        class_rows = [QHBoxLayout(), QHBoxLayout()]
+        for r in class_rows:
+            r.setSpacing(4)
         self._crop_class_btns: dict[str, QPushButton] = {}
 
-        for cls_id, cls_label, cls_color in _CROP_CLASSES:
+        for cls_id, cls_label, cls_color, row_i in _CROP_CLASSES:
             btn = QPushButton(cls_label)
             btn.setCheckable(True)
             btn.setEnabled(False)
@@ -1114,9 +1137,10 @@ class DiagnosticHubModule(QWidget):
             """)
             self._crop_class_group.addButton(btn)
             self._crop_class_btns[cls_id] = btn
-            class_row.addWidget(btn)
+            class_rows[row_i].addWidget(btn)
 
-        vlay.addLayout(class_row)
+        for r in class_rows:
+            vlay.addLayout(r)
 
         # Conectar via QButtonGroup.buttonClicked — dispara 1x por clique do usuário,
         # NÃO dispara por setChecked() programático.
@@ -1133,11 +1157,11 @@ class DiagnosticHubModule(QWidget):
         self._btn_approve_crop = QPushButton("✓ Aprovar")
         self._btn_approve_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(0, 200, 120, 31); color: {Colors.ACCENT_SUCCESS_ALT};
+                background: rgba(0, 200, 120, 160); color: {Colors.ACCENT_SUCCESS_ALT};
                 border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(0, 200, 120, 71); }}
+            QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_approve_crop.setEnabled(False)
@@ -1151,11 +1175,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_delete_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(255, 80, 80, 26); color: {Colors.ACCENT_DANGER};
+                background: rgba(255, 80, 80, 160); color: {Colors.ACCENT_DANGER};
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(255, 80, 80, 64); }}
+            QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_delete_crop.setEnabled(False)
@@ -1179,11 +1203,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_process_limpo.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(180, 80, 200, 31); color: {Colors.ACCENT_PURPLE};
+                background: rgba(180, 80, 200, 160); color: {Colors.ACCENT_PURPLE};
                 border: 1px solid {Colors.ACCENT_PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 8px;
             }}
-            QPushButton:hover {{ background: rgba(180, 80, 200, 64); }}
+            QPushButton:hover {{ background: rgba(180, 80, 200, 230); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_limpo.setEnabled(False)
@@ -1208,11 +1232,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_process_f3.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(180, 80, 200, 31); color: {Contextual.PURPLE};
+                background: rgba(180, 80, 200, 160); color: {Contextual.PURPLE};
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 padding: 4px; font-weight: bold; font-size: 11px;
             }}
-            QPushButton:hover {{ background: rgba(180, 80, 200, 64); }}
+            QPushButton:hover {{ background: rgba(180, 80, 200, 230); }}
         """)
         self._btn_process_f3.setEnabled(False)
         self._btn_process_f3.clicked.connect(self._run_process_f3)
@@ -1222,11 +1246,11 @@ class DiagnosticHubModule(QWidget):
         self._btn_cancel_preprocess = QPushButton("⏹ Cancelar")
         self._btn_cancel_preprocess.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(220, 50, 50, 31); color: {Colors.ACCENT_DANGER};
+                background: rgba(220, 50, 50, 160); color: {Colors.ACCENT_DANGER};
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; padding: 3px 8px;
             }}
-            QPushButton:hover {{ background: rgba(220, 50, 50, 64); }}
+            QPushButton:hover {{ background: rgba(220, 50, 50, 230); }}
         """)
         self._btn_cancel_preprocess.setVisible(False)
         self._btn_cancel_preprocess.clicked.connect(self._cancel_pre_process)
@@ -1557,7 +1581,7 @@ class DiagnosticHubModule(QWidget):
             return
         output_path = row_data.get('output_path', '')
         rtype = row_data.get('recorte_type', 'torre')
-        tab_idx = 1 if rtype == 'torre' else 2
+        tab_idx = 1 if rtype in ('torre', 'torre_2') else 2
         self._canvas_tabs.setCurrentIndex(tab_idx)
 
         self._btn_approve_crop.setEnabled(True)
@@ -2068,16 +2092,19 @@ class DiagnosticHubModule(QWidget):
         dlg_layout.addWidget(QLabel("Qual tipo de recorte?"))
 
         btn_group = QButtonGroup(dialog)
-        rb_torre   = QRadioButton("🏛 Pavimento Limpo (Torre)")
-        rb_detalhe = QRadioButton("📐 Detalhes")
-        rb_conv_pil = QRadioButton("📖 Convenção de Pilares")
+        rb_torre       = QRadioButton("🏛 Pavimento Limpo (Torre)")
+        rb_detalhe     = QRadioButton("📐 Detalhes")
+        rb_conv_pil    = QRadioButton("📖 Convenção de Pilares")
+        rb_conv_niveis = QRadioButton("📏 Convenção de Níveis")
         rb_torre.setChecked(True)
-        btn_group.addButton(rb_torre,   0)
-        btn_group.addButton(rb_detalhe, 1)
-        btn_group.addButton(rb_conv_pil, 2)
+        btn_group.addButton(rb_torre,       0)
+        btn_group.addButton(rb_detalhe,     1)
+        btn_group.addButton(rb_conv_pil,    2)
+        btn_group.addButton(rb_conv_niveis, 3)
         dlg_layout.addWidget(rb_torre)
         dlg_layout.addWidget(rb_detalhe)
         dlg_layout.addWidget(rb_conv_pil)
+        dlg_layout.addWidget(rb_conv_niveis)
 
         # Número da torre (visível apenas para Pavimento Limpo)
         torre_row = QHBoxLayout()
@@ -2096,6 +2123,7 @@ class DiagnosticHubModule(QWidget):
         rb_torre.toggled.connect(_toggle_torre)
         rb_detalhe.toggled.connect(_toggle_torre)
         rb_conv_pil.toggled.connect(_toggle_torre)
+        rb_conv_niveis.toggled.connect(_toggle_torre)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
@@ -2105,11 +2133,15 @@ class DiagnosticHubModule(QWidget):
         if dialog.exec() != QDialog.Accepted:
             return
 
-        is_detalhe = rb_detalhe.isChecked()
-        is_conv_pil = rb_conv_pil.isChecked()
+        is_detalhe     = rb_detalhe.isChecked()
+        is_conv_pil    = rb_conv_pil.isChecked()
+        is_conv_niveis = rb_conv_niveis.isChecked()
         torre_num  = int(self._sb_torre_num.currentText())
 
-        if is_conv_pil:
+        if is_conv_niveis:
+            rtype    = "convencao_niveis"
+            filename = "convencao_niveis_manual.dxf"
+        elif is_conv_pil:
             rtype    = "convencao_pilares"
             filename = "convencao_pilares_manual.dxf"
         elif is_detalhe:
@@ -2249,16 +2281,19 @@ class DiagnosticHubModule(QWidget):
         dlg_layout.addWidget(QLabel(f"Itens selecionados: {len(selected)}\nQual tipo de recorte?"))
 
         btn_group = QButtonGroup(dialog)
-        rb_torre   = QRadioButton("🏛 Pavimento Limpo (Torre)")
-        rb_detalhe = QRadioButton("📐 Detalhes")
-        rb_conv_pil = QRadioButton("📖 Convenção de Pilares")
+        rb_torre       = QRadioButton("🏛 Pavimento Limpo (Torre)")
+        rb_detalhe     = QRadioButton("📐 Detalhes")
+        rb_conv_pil    = QRadioButton("📖 Convenção de Pilares")
+        rb_conv_niveis = QRadioButton("📏 Convenção de Níveis")
         rb_torre.setChecked(True)
-        btn_group.addButton(rb_torre,   0)
-        btn_group.addButton(rb_detalhe, 1)
-        btn_group.addButton(rb_conv_pil, 2)
+        btn_group.addButton(rb_torre,       0)
+        btn_group.addButton(rb_detalhe,     1)
+        btn_group.addButton(rb_conv_pil,    2)
+        btn_group.addButton(rb_conv_niveis, 3)
         dlg_layout.addWidget(rb_torre)
         dlg_layout.addWidget(rb_detalhe)
         dlg_layout.addWidget(rb_conv_pil)
+        dlg_layout.addWidget(rb_conv_niveis)
 
         torre_row = QHBoxLayout()
         lbl_torre = QLabel("Número da torre:")
@@ -2276,6 +2311,7 @@ class DiagnosticHubModule(QWidget):
         rb_torre.toggled.connect(_toggle_torre)
         rb_detalhe.toggled.connect(_toggle_torre)
         rb_conv_pil.toggled.connect(_toggle_torre)
+        rb_conv_niveis.toggled.connect(_toggle_torre)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
@@ -2285,11 +2321,15 @@ class DiagnosticHubModule(QWidget):
         if dialog.exec() != QDialog.Accepted:
             return
 
-        is_detalhe = rb_detalhe.isChecked()
-        is_conv_pil = rb_conv_pil.isChecked()
+        is_detalhe     = rb_detalhe.isChecked()
+        is_conv_pil    = rb_conv_pil.isChecked()
+        is_conv_niveis = rb_conv_niveis.isChecked()
         torre_num  = int(sb_torre_num.currentText())
 
-        if is_conv_pil:
+        if is_conv_niveis:
+            rtype    = "convencao_niveis"
+            filename = "convencao_niveis_selecao.dxf"
+        elif is_conv_pil:
             rtype    = "convencao_pilares"
             filename = "convencao_pilares_selecao.dxf"
         elif is_detalhe:
@@ -2710,6 +2750,7 @@ class DiagnosticHubModule(QWidget):
             )
             self._lbl_preprocess_feedback.setText(fb)
             self.refresh_ficha_tab(ficha)
+            self.refresh_niveis_tab(ficha)
         except Exception as exc:
             self._lbl_preprocess_feedback.setText(f"⚠ Erro ao ler estado: {exc}")
 
@@ -2860,6 +2901,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_preprocess_feedback.setText(fb)
 
         self.refresh_ficha_tab(ficha)
+        self.refresh_niveis_tab(ficha)
         print(f"[DiagnosticHub] PreProcess concluído — {n_pav} pavimento(s)", flush=True)
 
         # Dispara RAG automaticamente (fase 2 implícita)
@@ -3296,6 +3338,295 @@ class DiagnosticHubModule(QWidget):
     def _on_canvas_tab_changed(self, idx: int):
         """Atualiza estado ao trocar aba do canvas."""
         pass
+
+    # ─────────────────────────────────────────────
+    # Aba Convenção de Níveis
+    # ─────────────────────────────────────────────
+
+    def _build_niveis_tab_widget(self) -> QWidget:
+        """
+        Constrói o widget da aba 📏 CONVENÇÃO DE NÍVEIS (estado inicial vazio).
+
+        8 colunas: Nome Doc | Nome Pav | Nível Chegada | Nível Saída | Altura |
+                   Lajes (SA) | Pilares | Vigas
+
+        Preenchida por refresh_niveis_tab() após batch SA ou carregamento de estado.
+        """
+        from PySide6.QtWidgets import QTableWidget, QHeaderView, QAbstractItemView
+        container = QWidget()
+        container.setStyleSheet(f"background: {Colors.BG_DEEP};")
+        main_lay = QVBoxLayout(container)
+        main_lay.setContentsMargins(16, 14, 16, 14)
+        main_lay.setSpacing(10)
+
+        hdr = QLabel("📏 Convenção de Níveis")
+        hdr.setStyleSheet(
+            f"color: {Colors.ACCENT_SUCCESS_ALT}; font-size: 13px; font-weight: bold; background: transparent;"
+        )
+        main_lay.addWidget(hdr)
+
+        info = QLabel(
+            "Tabela de níveis absolutos de todos os pavimentos (chegada/saída/altura).\n"
+            "Fonte primária: recorte Conv. Nív. (Elevação Típica).  "
+            "Fonte secundária: pré-análise SA por laje_nivel.\n"
+            "Execute 'Analisar todos os Pavimentos Limpos' para preencher automaticamente."
+        )
+        info.setWordWrap(True)
+        info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;")
+        main_lay.addWidget(info)
+
+        sep = QLabel("─" * 60)
+        sep.setStyleSheet(f"color: {Colors.BORDER_DEFAULT}; font-size: 10px; background: transparent;")
+        main_lay.addWidget(sep)
+
+        self._niveis_status_lbl = QLabel("⏳  Execute a pré-análise para preencher os níveis.")
+        self._niveis_status_lbl.setStyleSheet(
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
+        )
+        main_lay.addWidget(self._niveis_status_lbl)
+
+        tbl = QTableWidget(0, 8)
+        tbl.setHorizontalHeaderLabels([
+            "Nome Doc", "Nome Pav",
+            "Nível\nChegada", "Nível\nSaída", "Altura",
+            "Lajes (SA)", "Pilares", "Vigas",
+        ])
+        hv = tbl.horizontalHeader()
+        hv.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        hv.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        hv.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        hv.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        hv.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        hv.setSectionResizeMode(5, QHeaderView.Stretch)
+        hv.setSectionResizeMode(6, QHeaderView.ResizeToContents)
+        hv.setSectionResizeMode(7, QHeaderView.ResizeToContents)
+        tbl.verticalHeader().setVisible(False)
+        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
+        tbl.setAlternatingRowColors(True)
+        tbl.setWordWrap(True)
+        tbl.setStyleSheet(f"""
+            QTableWidget {{
+                background: {Colors.BG_SECONDARY}; color: {Colors.TEXT_PRIMARY};
+                gridline-color: {Colors.BORDER_DEFAULT}; border: none; font-size: 10px;
+            }}
+            QTableWidget::item:alternate {{ background: {Colors.BG_PANEL}; }}
+            QHeaderView::section {{
+                background: {Colors.BG_PANEL}; color: {Colors.ACCENT_SUCCESS_ALT};
+                border: none; padding: 4px; font-size: 9px; font-weight: bold;
+            }}
+        """)
+        main_lay.addWidget(tbl, 1)
+        self._niveis_table = tbl
+
+        self._niveis_footer_lbl = QLabel("Última geração: —")
+        self._niveis_footer_lbl.setStyleSheet(
+            f"color: {Colors.TEXT_DIM}; font-size: 10px; background: transparent;"
+        )
+        main_lay.addWidget(self._niveis_footer_lbl)
+
+        return container
+
+    def refresh_niveis_tab(self, ficha_data: dict):
+        """
+        Popula a aba Convenção de Níveis (8 colunas).
+
+        Colunas: Nome Doc | Nome Pav | Nível Chegada | Nível Saída | Altura |
+                 Lajes (SA) | Pilares | Vigas
+
+        Fonte primária: recorte convencao_niveis (Elevação Típica) — todos os
+        pavimentos do projeto, não só os que temos DXFs SA.
+        Fonte secundária: laje_niveis do batch SA por pavimento.
+        """
+        from PySide6.QtWidgets import QTableWidgetItem
+        from PySide6.QtGui import QColor as _QColor, QFont as _QFont
+        from datetime import datetime as _dt
+        import sqlite3
+        import re as _re
+
+        if not hasattr(self, '_niveis_table'):
+            return
+
+        tbl = self._niveis_table
+        pavs = ficha_data.get('pavimentos', [])
+        obra = ficha_data.get('obra', '')
+
+        # ── Busca recorte convencao_niveis (obra-wide) ────────────────────────
+        recorte_path: 'str | None' = None
+        if obra:
+            try:
+                DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+                conn = sqlite3.connect(str(DB), timeout=5)
+                row = conn.execute(
+                    "SELECT output_path FROM obra_recortes "
+                    "WHERE obra_name=? AND recorte_type='convencao_niveis' "
+                    "AND status IN ('approved','manual') "
+                    "ORDER BY recorte_index DESC LIMIT 1",
+                    (obra,)
+                ).fetchone()
+                conn.close()
+                if row and row[0] and Path(row[0]).exists():
+                    recorte_path = row[0]
+            except Exception:
+                pass
+
+        # ── Importa helpers ───────────────────────────────────────────────────
+        from src.core.niveis_extractor import (
+            extract_elevacao_tipica, pav_num_from_sa_name,
+            lajes_by_nivel, derive_nome_pav,
+        )
+
+        # ── Extrai Elevação Típica ────────────────────────────────────────────
+        elevacao_tipica: list = []
+        if recorte_path:
+            try:
+                from src.core.dxf_loader import DXFLoader as _DXFLoader
+                dxf_data = _DXFLoader.load_dxf(recorte_path)
+                texts_rec = dxf_data.get('texts', []) if dxf_data else []
+                elevacao_tipica = extract_elevacao_tipica(texts_rec)
+            except Exception as exc:
+                print(f"[DiagnosticHub] Erro ao extrair Elevação Típica: {exc}", flush=True)
+
+        # ── Lookup SA por pav_num ─────────────────────────────────────────────
+        sa_by_num: dict[int, tuple] = {}
+        tip_sa: 'tuple | None' = None
+        for pav in pavs:
+            sa_nome     = pav.get('nome', '')
+            laje_niveis = pav.get('laje_niveis', [])
+            if not sa_nome:
+                continue
+            num = pav_num_from_sa_name(sa_nome)
+            if num is None:
+                if _re.search(r'[-_]TIP[-_]', sa_nome, _re.IGNORECASE) and tip_sa is None:
+                    tip_sa = (sa_nome, laje_niveis)
+            else:
+                if num not in sa_by_num:
+                    sa_by_num[num] = (sa_nome, laje_niveis)
+
+        # ── Monta linhas ──────────────────────────────────────────────────────
+        rows: list[dict] = []
+
+        if elevacao_tipica:
+            matched: set[int] = set()
+            for entry in elevacao_tipica:
+                num     = entry['pav_num']
+                sa_info = sa_by_num.get(num)
+                if sa_info is None and entry.get('is_tipo') and tip_sa:
+                    sa_info = tip_sa
+                if sa_info:
+                    matched.add(num)
+                rows.append({
+                    'pav_num':  num,
+                    'nome_doc': sa_info[0] if sa_info else '—',
+                    'nome_pav': entry['pav_raw'],
+                    'chegada':  entry['chegada'],
+                    'saida':    entry['saida'],
+                    'altura':   entry['altura'],
+                    'laje_list': sa_info[1] if sa_info else [],
+                })
+            for num, (sa_nome, laje_niveis) in sa_by_num.items():
+                if num not in matched:
+                    rows.append({
+                        'pav_num':  num,
+                        'nome_doc': sa_nome,
+                        'nome_pav': derive_nome_pav(num),
+                        'chegada':  '?',
+                        'saida':    '?',
+                        'altura':   '?',
+                        'laje_list': laje_niveis,
+                    })
+        else:
+            for pav in pavs:
+                sa_nome = pav.get('nome', '—')
+                num = pav_num_from_sa_name(sa_nome)
+                rows.append({
+                    'pav_num':  num if num is not None else 5000,
+                    'nome_doc': sa_nome,
+                    'nome_pav': derive_nome_pav(num),
+                    'chegada':  '?',
+                    'saida':    '?',
+                    'altura':   '?',
+                    'laje_list': pav.get('laje_niveis', []),
+                })
+
+        rows.sort(key=lambda r: r['pav_num'])
+
+        # ── Preenche tabela ───────────────────────────────────────────────────
+        tbl.setRowCount(0)
+        for row in rows:
+            ri = tbl.rowCount()
+            tbl.insertRow(ri)
+
+            # Col 0: Nome Doc
+            item_doc = QTableWidgetItem(row['nome_doc'])
+            item_doc.setForeground(_QColor(Colors.TEXT_SECONDARY))
+            item_doc.setToolTip(row['nome_doc'])
+            tbl.setItem(ri, 0, item_doc)
+
+            # Col 1: Nome Pav
+            item_np = QTableWidgetItem(row['nome_pav'])
+            item_np.setForeground(_QColor(Colors.ACCENT_SUCCESS_ALT))
+            tbl.setItem(ri, 1, item_np)
+
+            # Col 2: Nível Chegada
+            item_ch = QTableWidgetItem(row['chegada'])
+            item_ch.setForeground(
+                _QColor(Contextual.GOLD) if row['chegada'] != '?' else _QColor(Colors.TEXT_DIM)
+            )
+            tbl.setItem(ri, 2, item_ch)
+
+            # Col 3: Nível Saída
+            item_sa_v = QTableWidgetItem(row['saida'])
+            item_sa_v.setForeground(
+                _QColor(Contextual.GOLD) if row['saida'] != '?' else _QColor(Colors.TEXT_DIM)
+            )
+            tbl.setItem(ri, 3, item_sa_v)
+
+            # Col 4: Altura
+            item_al = QTableWidgetItem(row['altura'])
+            item_al.setForeground(
+                _QColor(Colors.ACCENT_MINT) if row['altura'] != '?' else _QColor(Colors.TEXT_DIM)
+            )
+            tbl.setItem(ri, 4, item_al)
+
+            # Col 5: Lajes agrupadas por nível
+            laj_txt = lajes_by_nivel(row['laje_list']) if row['laje_list'] else '—'
+            item_laj = QTableWidgetItem(laj_txt)
+            tbl.setItem(ri, 5, item_laj)
+
+            # Col 6: Pilares (futuro)
+            item_pil = QTableWidgetItem('—')
+            item_pil.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 6, item_pil)
+
+            # Col 7: Vigas (futuro)
+            item_vig = QTableWidgetItem('—')
+            item_vig.setForeground(_QColor(Colors.TEXT_DIM))
+            tbl.setItem(ri, 7, item_vig)
+
+        tbl.resizeRowsToContents()
+
+        # ── Status e rodapé ───────────────────────────────────────────────────
+        n_et   = len(elevacao_tipica)
+        n_rows = len(rows)
+        n_cota = sum(1 for r in rows if r['chegada'] != '?')
+
+        if recorte_path:
+            fonte = f"Elevação Típica: {n_et} pav. extraídos  |  {n_cota}/{n_rows} com cotas"
+            status_color = Semantic.SUCCESS
+        else:
+            fonte = "pré-análise SA (sem recorte Conv. Nív.)"
+            status_color = Contextual.GOLD
+
+        self._niveis_status_lbl.setText(f"✅  {n_rows} pavimento(s) — {fonte}")
+        self._niveis_status_lbl.setStyleSheet(
+            f"color: {status_color}; font-size: 11px; background: transparent;"
+        )
+        ts = _dt.now().strftime("%d/%m/%Y %H:%M")
+        footer_txt = f"Última geração: {ts}"
+        if not recorte_path:
+            footer_txt += "  |  ⚠ Adicione recorte 'Conv. Nív.' (Elevação Típica) para cotas absolutas"
+        self._niveis_footer_lbl.setText(footer_txt)
 
     def _on_work_changed_hub(self, _):
         """Atualiza ComboBox quando obra ativa muda no coordinator."""

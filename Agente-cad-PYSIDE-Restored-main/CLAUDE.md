@@ -35,6 +35,10 @@ Estado/progresso: `scripts/arete/relatorios/` (relatório mais recente = onde pa
 | Launcher | `iniciar_dashboard.bat` (já aponta para Python 3.12) |
 | Build | `build_nuitka.bat` (já aponta para Python 3.12) |
 | Pin de versão | `.python-version` na raiz do repo = `3.12` |
+| Ambiente oficial | `D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe` |
+
+Configurar com `install_all.ps1` e iniciar sempre por `iniciar_dashboard.bat`.
+Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 
 ## Fatos do ambiente (verificados — não redescobrir)
 

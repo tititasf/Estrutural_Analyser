@@ -15,12 +15,15 @@ DEFAULT_DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 DEFAULT_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 DEFAULT_FAISS_DIR = Path("D:/Agente-cad-PYSIDE/data/vectors/faiss")
 DEFAULT_ARTIFACT_ROOT = Path("D:/Agente-cad-PYSIDE/data/artifact_memory")
+DEFAULT_ACTIVE_LEARNING_ROOT = Path("D:/Agente-cad-PYSIDE/data/vectors/active_learning")
+DEFAULT_CANDIDATES_ROOT = Path("D:/Agente-cad-PYSIDE/data/active_learning_candidates")
 EXPORT_TABLES = (
     "semantic_rag_kb",
     "crop_learning_events",
     "rag_artifact_validations",
     "training_events",
     "item_attention_notes",
+    "human_event_logs",
 )
 
 
@@ -47,6 +50,8 @@ def export_rag_bundle(
     obras_root: str | Path = DEFAULT_OBRAS_ROOT,
     faiss_dir: str | Path = DEFAULT_FAISS_DIR,
     artifact_root: str | Path = DEFAULT_ARTIFACT_ROOT,
+    active_learning_root: str | Path = DEFAULT_ACTIVE_LEARNING_ROOT,
+    candidates_root: str | Path = DEFAULT_CANDIDATES_ROOT,
     include_binary: bool = False,
 ) -> dict[str, Any]:
     output_dir = Path(output_dir)
@@ -54,6 +59,8 @@ def export_rag_bundle(
     obras_root = Path(obras_root)
     faiss_dir = Path(faiss_dir)
     artifact_root = Path(artifact_root)
+    active_learning_root = Path(active_learning_root)
+    candidates_root = Path(candidates_root)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if db_path.exists():
@@ -81,6 +88,19 @@ def export_rag_bundle(
             destination = output_dir / "artifact_images" / source.relative_to(artifact_root)
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
+
+    if candidates_root.exists():
+        for source in sorted(candidates_root.rglob("*.json")):
+            destination = output_dir / "active_learning_candidates" / source.relative_to(candidates_root)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+    if active_learning_root.exists():
+        patterns = ("*.json", "*.index") if include_binary else ("*.json",)
+        for pattern in patterns:
+            for source in sorted(active_learning_root.rglob(pattern)):
+                destination = output_dir / "active_learning_stores" / source.relative_to(active_learning_root)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
 
     for name in ("rag_tombstones.json", "REGISTRY.json"):
         source = faiss_dir / name
@@ -125,6 +145,8 @@ def main() -> int:
     parser.add_argument("--obras-root", default=str(DEFAULT_OBRAS_ROOT))
     parser.add_argument("--faiss-dir", default=str(DEFAULT_FAISS_DIR))
     parser.add_argument("--artifact-root", default=str(DEFAULT_ARTIFACT_ROOT))
+    parser.add_argument("--active-learning-root", default=str(DEFAULT_ACTIVE_LEARNING_ROOT))
+    parser.add_argument("--candidates-root", default=str(DEFAULT_CANDIDATES_ROOT))
     parser.add_argument("--include-binary", action="store_true")
     args = parser.parse_args()
     manifest = export_rag_bundle(
@@ -133,6 +155,8 @@ def main() -> int:
         obras_root=args.obras_root,
         faiss_dir=args.faiss_dir,
         artifact_root=args.artifact_root,
+        active_learning_root=args.active_learning_root,
+        candidates_root=args.candidates_root,
         include_binary=args.include_binary,
     )
     print(json.dumps({"status": "ok", "files": len(manifest["files"])}, indent=2))

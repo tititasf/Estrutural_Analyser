@@ -18,6 +18,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.venv/
 .pytest_cache/
 .pytest-tmp/
 .fuse_hidden*

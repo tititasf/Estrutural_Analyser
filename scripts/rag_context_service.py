@@ -13,9 +13,11 @@ from pathlib import Path
 from typing import Any
 
 try:
+    from .active_learning_query import query_active_learning
     from .obra_rag_query import query_local_snapshot
     from .rag_tier import get_tier, is_indexable, load_tombstones
 except ImportError:
+    from active_learning_query import query_active_learning
     from obra_rag_query import query_local_snapshot
     from rag_tier import get_tier, is_indexable, load_tombstones
 
@@ -133,6 +135,11 @@ def get_rag_context_for_item(
             local_query,
             obras_root=obras_root,
         )
+    approved_lessons = query_active_learning(
+        " ".join(value for value in (db_class, item_id, pavimento) if value),
+        limit=5,
+        include_candidates=False,
+    )
     return {
         "classe": db_class,
         "ui_classe": classe,
@@ -143,6 +150,7 @@ def get_rag_context_for_item(
         "rules": rules,
         "validated_examples": examples,
         "local_context": local_context,
+        "approved_active_learning": approved_lessons,
         "status": "ok",
         "warnings": [] if examples else ["Sem exemplos validados T1/T2 para este contexto ainda."],
     }
@@ -210,6 +218,20 @@ def format_context_text(context: dict[str, Any], *, max_rules: int = 5, max_exam
                 f"  - LOCAL/{result.get('tier')} {result.get('kind')} "
                 f"{result.get('classe') or '-'} {result.get('item_id') or result.get('title') or '-'} "
                 f"| score={result.get('score')}"
+            )
+
+    lines.append("")
+    lines.append("Lições MCP aprovadas T1/T2:")
+    approved_lessons = context.get("approved_active_learning") or []
+    if not approved_lessons:
+        lines.append("  - Nenhuma proposta MCP aprovada para este contexto.")
+    else:
+        for result in approved_lessons[:max_examples]:
+            meta = result.get("meta") or {}
+            lines.append(
+                f"  - {meta.get('tier')} {meta.get('tipo')} "
+                f"{meta.get('classe')} {meta.get('item_id')} | "
+                f"score={result.get('score', 0):.3f}"
             )
 
     lines.append("")

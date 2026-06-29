@@ -10,6 +10,18 @@ O sistema RAG FAISS está operacional com **799 vetores** de 11 obras (228 pilar
 em **8 frentes distintas** do pipeline CAD-ANALYZER — da extração DXF até a geração de DXFs
 finais — para que o sistema tenha **compreensão semântica real** dos elementos estruturais.
 
+### UPDATE (2026-06-29) - Camada de Event Sourcing MCP
+A infraestrutura de RAG descrita abaixo foi recentemente potencializada pela nova camada **MCP (Model Context Protocol)** e banco de dados SQLite (human_event_logs). Foram criados ganchos diretamente na UI (Diagnostic Hubs, Structural Analyzer e Robô de Laterais) usando db_bridge.save_human_edit_event().
+Qualquer edição humana pode gerar um evento rastreável, mas o evento nasce
+`CAPTURED/T0`: é evidência para investigação, não verdade validada. O daemon produz
+uma proposta `PROPOSED/T0` e somente o botão explícito **Aprovar proposta**, com
+justificativa humana, permite T1. Os stores MCP são separados do corpus estrutural;
+nenhum botão Salvar escreve em `estruturais.index`.
+
+Os loops 1, 2, 7 e 8 possuem ferramentas de leitura/captura úteis. Os loops 3, 4, 5 e
+6 ainda possuem ferramentas MCP declarativas com `PENDENTE_INTEGRACAO`; não devem ser
+descritos como automação operacional.
+
 ### Stack RAG (Confirmado Operacional)
 | Componente | Tecnologia | Status |
 |---|---|---|

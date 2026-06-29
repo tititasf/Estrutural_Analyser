@@ -349,7 +349,10 @@ class DetailCard(QWidget):
                 count = len(links)
                 
             if initial_val:
-                w.setText(f"Dim: {initial_val}")
+                if 'dim' in field_id.lower():
+                    w.setText(f"Dim: {initial_val}")
+                else:
+                    w.setText(f"{initial_val}")
                 w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
             elif count > 0 and isinstance(w, QLabel):
                 w.setText(f"{count} Vínculo(s) Ok")
@@ -2417,7 +2420,7 @@ class DetailCard(QWidget):
                          txt = str(s_list[0].get('text', ''))
                          if txt.strip(): 
                              # Somente extrair número se NÃO for campo de nome ou dimensão
-                             is_dim_or_name = "dim" in field_id or "name" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
+                             is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                              if not is_dim_or_name:
                                  import re
                                  nums = re.findall(r'\d+[.,]?\d*', txt)
@@ -2436,7 +2439,7 @@ class DetailCard(QWidget):
                  
                  txt = str(slots[0].get('text', ''))
                  if txt.strip(): 
-                     is_dim_or_name = "dim" in field_id or "name" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
+                     is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                      if not is_dim_or_name:
                          import re
                          nums = re.findall(r'\d+[.,]?\d*', txt)

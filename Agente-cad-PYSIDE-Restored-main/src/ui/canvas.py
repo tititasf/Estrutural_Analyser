@@ -3872,11 +3872,27 @@ class CADCanvas(QGraphicsView):
                     return
 
                 elif self.picking_mode in ('text', 'geometry'):
+                    # Prioriza itens selecionados se o usuário já clicou/selecionou algo
+                    selected_items = self.scene.selectedItems()
+                    if selected_items:
+                        for item in selected_items:
+                            if self.picking_mode == 'text' and isinstance(item, QGraphicsSimpleTextItem):
+                                self.pick_completed.emit({'text': item.text(), 'type': 'text', 'pos': (item.pos().x(), item.pos().y())})
+                                self.set_picking_mode(None)
+                                return
+                            elif self.picking_mode == 'geometry' and hasattr(item, 'item_data'):
+                                name = item.item_data.get('name', 'Item') if isinstance(item.item_data, dict) else 'Item'
+                                item_id = item.item_data.get('id') if isinstance(item.item_data, dict) else None
+                                self.pick_completed.emit({'text': name, 'type': 'geometry', 'id': item_id})
+                                self.set_picking_mode(None)
+                                return
+                    
                     cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                     best_ent = self._get_best_entity_under_cursor(cursor_pos, mode=self.picking_mode)
                     if best_ent:
                         self.pick_completed.emit(best_ent); self.set_picking_mode(None)
                     return
+
 
             if self.edit_mode == 'move' and self.is_moving:
                 self.is_moving = False; self.set_edit_mode('select'); return

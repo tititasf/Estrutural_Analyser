@@ -1,6 +1,13 @@
-import numpy as np # Force early initialization for Nuitka standalone
 import sys
 import os
+
+if sys.version_info[:2] != (3, 12):
+    raise SystemExit(
+        "CAD-ANALYZER exige Python 3.12.x. "
+        "Inicie por iniciar_dashboard.bat ou pelo .venv do projeto."
+    )
+
+import numpy as np # Force early initialization for Nuitka standalone
 
 # ── Diagnóstico de crashes nativos (faulthandler) ─────────────────────────────
 import faulthandler
@@ -1473,39 +1480,41 @@ class MainWindow(QMainWindow):
                 return
             project_id, raw_name = data
 
-            import PySide6.QtWidgets
-            PySide6.QtWidgets.QApplication.processEvents()
-
-            # Exibe feedback na própria combobox para clareza
+            # Feedback visual imediato (sem processEvents — evita reentrância)
             idx = self.sa_cmb_pavimentos.currentIndex()
             if idx >= 0:
                 self.sa_cmb_pavimentos.setItemText(idx, f"⏳ Lendo {raw_name}...")
-            
-            # Exibe feedback na topbar ou log para o usuário saber que começou
             self.log(f"⏳ Carregando dados do pavimento: {raw_name}...")
-            PySide6.QtWidgets.QApplication.processEvents()
-            
+
             def _do_pav():
-                # Restaura texto normal
-                if idx >= 0 and getattr(self, '_sa_populate_pavimentos', None):
+                # Restaura texto normal na combobox SA
+                if idx >= 0:
                     display = _pav_card_label(raw_name)
                     self.sa_cmb_pavimentos.setItemText(idx, display)
 
-                # Sincroniza top bar pelo nome raw
-                top_idx = self.cmb_pavements.findText(raw_name)
-                if top_idx >= 0:
-                    if self.cmb_pavements.currentIndex() != top_idx:
-                        # Signal _on_pavement_changed dispara e carrega DXF
-                        self.cmb_pavements.setCurrentIndex(top_idx)
-                    else:
-                        # Mesmo índice: signal não re-dispara, forçar carga
-                        self._open_project_tab(project_id, raw_name)
-                else:
-                    # Não encontrou no top bar — carrega direto pelo project_id
-                    self.log(f"[SA] Forçando carregamento via combo: {raw_name}")
-                    obra = self.sa_cmb_obras.currentText()
-                    self.sync_robots_with_master_context(obra, raw_name, project_id)
+                # Sincroniza top bar pelo project_id (findText por texto falha pois
+                # cmb_pavements usa _pav_card_label como display, não raw_name)
+                top_idx = -1
+                for _i in range(self.cmb_pavements.count()):
+                    _d = self.cmb_pavements.itemData(_i)
+                    if _d and str(_d[0]) == str(project_id):
+                        top_idx = _i
+                        break
+                if top_idx >= 0 and self.cmb_pavements.currentIndex() != top_idx:
+                    # Bloqueia sinal para não disparar _on_pavement_changed em paralelo
+                    self.cmb_pavements.blockSignals(True)
+                    self.cmb_pavements.setCurrentIndex(top_idx)
+                    self.cmb_pavements.blockSignals(False)
+
+                # Sincroniza robôs com novo contexto
+                obra = self.sa_cmb_obras.currentText()
+                self.sync_robots_with_master_context(obra, raw_name, project_id)
+
+                # Carrega o projeto — se já é o ativo, apenas atualiza as listas
+                if str(project_id) != str(getattr(self, 'active_project_id', None)):
                     self._open_project_tab(project_id, raw_name)
+                else:
+                    self._update_all_lists_ui()
 
             from PySide6.QtCore import QTimer
             QTimer.singleShot(150, _do_pav)
@@ -3282,8 +3291,9 @@ class MainWindow(QMainWindow):
         self._lv_regen_timer.setInterval(1500)
         self._lv_regen_timer.timeout.connect(self._on_lv_fields_regen)
 
-        for fw in self.robo_viga.fields.values():
-            fw.textChanged.connect(self._lv_regen_timer.start)
+        if hasattr(self.robo_viga, 'fields'):
+            for fw in self.robo_viga.fields.values():
+                fw.textChanged.connect(self._lv_regen_timer.start)
 
         # Para painéis (tabela genérica não tem sinais diretos, então a gente pode ligar cellChanged)
         if hasattr(self.robo_viga, 'table_panels'):

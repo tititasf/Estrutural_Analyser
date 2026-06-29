@@ -10,15 +10,18 @@ dependencies = [
     "ezdxf",
     "shapely",
     "chromadb",
-    "numpy",
+    "numpy>=1.24,<2.0",
     "google-generativeai",
     "rtree",
     "supabase",
     "tufup",
     "pydantic",
-    "python-dotenv"
+    "python-dotenv",
+    "mcp[cli]>=1.0.0",
+    "email-validator>=2.0.0",
+    "nuitka>=2.0.0"
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 
 [tool.tufup]
 app_name = "AgenteCAD"

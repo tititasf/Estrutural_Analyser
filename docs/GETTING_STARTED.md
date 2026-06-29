@@ -23,14 +23,16 @@ Este guia cobre tudo que você precisa para começar a usar o CAD-ANALYZER, desd
 
 ### Software Requerido
 
-#### 1. Python 3.8+
+#### 1. Python 3.12.x (obrigatório)
 ```bash
 # Verificar versão
-python --version
+py -3.12 --version
 
 # Baixar em: https://www.python.org/downloads/
 # Marque: "Add Python to PATH" durante instalação
 ```
+
+Python 3.13/3.14 não são suportados. Consulte `docs/PYTHON-3.12-RUNTIME.md`.
 
 #### 2. Tesseract OCR (Windows)
 ```bash
@@ -75,17 +77,18 @@ cd Agente-cad-PYSIDE
 # Navegue até o diretório
 cd D:\Agente-cad-PYSIDE
 
-# Crie ambiente virtual
-python -m venv venv
+# Crie o ambiente oficial com Python 3.12
+py -3.12 -m venv .venv
 
 # Ative o ambiente
 # Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 
 # Linux/Mac:
-source venv/bin/activate
+source .venv/bin/activate
 
-# Verifique ativação (deve mostrar "venv" no prompt)
+# Verifique ativação (deve informar Python 3.12.x)
+python --version
 ```
 
 ### Passo 3: Instalar Dependências

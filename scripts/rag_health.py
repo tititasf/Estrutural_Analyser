@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sqlite3
 from collections import Counter
@@ -13,6 +14,7 @@ DEFAULT_DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 DEFAULT_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 DEFAULT_FAISS_DIR = Path("D:/Agente-cad-PYSIDE/data/vectors/faiss")
 DEFAULT_ARTIFACT_ROOT = Path("D:/Agente-cad-PYSIDE/data/artifact_memory")
+DEFAULT_ACTIVE_LEARNING_ROOT = Path("D:/Agente-cad-PYSIDE/data/vectors/active_learning")
 
 
 def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
@@ -26,17 +28,23 @@ def _columns(conn: sqlite3.Connection, table: str) -> set[str]:
     return {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def collect_health(
     *,
     db_path: str | Path = DEFAULT_DB_PATH,
     obras_root: str | Path = DEFAULT_OBRAS_ROOT,
     faiss_dir: str | Path = DEFAULT_FAISS_DIR,
     artifact_root: str | Path = DEFAULT_ARTIFACT_ROOT,
+    active_learning_root: str | Path = DEFAULT_ACTIVE_LEARNING_ROOT,
 ) -> dict[str, Any]:
     db_path = Path(db_path)
     obras_root = Path(obras_root)
     faiss_dir = Path(faiss_dir)
     artifact_root = Path(artifact_root)
+    active_learning_root = Path(active_learning_root)
     report: dict[str, Any] = {
         "status": "ok",
         "read_only": True,
@@ -45,6 +53,7 @@ def collect_health(
         "artifacts": Counter(),
         "faiss": Counter(),
         "snapshots": Counter(),
+        "active_learning": Counter(),
         "issues": [],
     }
 
@@ -60,6 +69,7 @@ def collect_health(
                 "rag_artifact_validations",
                 "training_events",
                 "item_attention_notes",
+                "human_event_logs",
             ):
                 report["tables"][table] = (
                     conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
@@ -71,6 +81,11 @@ def collect_health(
                 report["issues"].append(
                     {"severity": "warning", "code": "semantic_bridge_empty", "detail": "semantic_rag_kb=0"}
                 )
+            if _table_exists(conn, "human_event_logs") and "status" in _columns(conn, "human_event_logs"):
+                for status, count in conn.execute(
+                    "SELECT status, COUNT(*) FROM human_event_logs GROUP BY status"
+                ):
+                    report["active_learning"][str(status or "unknown")] += count
 
             if _table_exists(conn, "rag_artifact_validations"):
                 cols = _columns(conn, "rag_artifact_validations")
@@ -133,6 +148,32 @@ def collect_health(
                 {"severity": "warning", "code": "tombstones_invalid", "detail": str(tombstones_path)}
             )
 
+    for store in ("candidates", "approved"):
+        store_dir = active_learning_root / store
+        pointer_path = store_dir / "CURRENT.json"
+        if not pointer_path.exists():
+            continue
+        try:
+            pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+            index_path = store_dir / pointer["index_file"]
+            meta_path = store_dir / pointer["meta_file"]
+            if _sha256(index_path) != pointer["index_sha256"]:
+                raise ValueError("index hash mismatch")
+            if _sha256(meta_path) != pointer["meta_sha256"]:
+                raise ValueError("metadata hash mismatch")
+            rows = json.loads(meta_path.read_text(encoding="utf-8"))
+            if len(rows) != int(pointer["count"]):
+                raise ValueError("pointer count mismatch")
+            if store == "candidates" and any(row.get("tier") != "T0" for row in rows):
+                raise ValueError("candidate store contains non-T0 row")
+            if store == "approved" and any(row.get("tier") not in {"T1", "T2"} for row in rows):
+                raise ValueError("approved store contains non-approved tier")
+            report["active_learning"][f"{store}_vectors"] = len(rows)
+        except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            report["issues"].append(
+                {"severity": "error", "code": "active_learning_store_invalid", "detail": f"{store}: {exc}"}
+            )
+
     for manifest_path in obras_root.glob("*/obra_rag/manifest.json"):
         try:
             payload = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -149,6 +190,7 @@ def collect_health(
     report["artifacts"] = dict(report["artifacts"])
     report["faiss"] = dict(report["faiss"])
     report["snapshots"] = dict(report["snapshots"])
+    report["active_learning"] = dict(report["active_learning"])
     if any(issue["severity"] == "error" for issue in report["issues"]):
         report["status"] = "error"
     elif report["issues"]:
@@ -162,6 +204,7 @@ def main() -> int:
     parser.add_argument("--obras-root", default=str(DEFAULT_OBRAS_ROOT))
     parser.add_argument("--faiss-dir", default=str(DEFAULT_FAISS_DIR))
     parser.add_argument("--artifact-root", default=str(DEFAULT_ARTIFACT_ROOT))
+    parser.add_argument("--active-learning-root", default=str(DEFAULT_ACTIVE_LEARNING_ROOT))
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
     report = collect_health(
@@ -169,6 +212,7 @@ def main() -> int:
         obras_root=args.obras_root,
         faiss_dir=args.faiss_dir,
         artifact_root=args.artifact_root,
+        active_learning_root=args.active_learning_root,
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 1 if args.strict and report["status"] != "ok" else 0

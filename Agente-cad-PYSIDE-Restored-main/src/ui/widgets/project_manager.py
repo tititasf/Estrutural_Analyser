@@ -9,6 +9,7 @@ from PySide6.QtGui import QIcon, QFont, QColor
 import json
 import re
 import os
+import sys
 import logging
 import shutil
 import uuid
@@ -6094,6 +6095,7 @@ class ProjectManager(QWidget):
         self.curadoria_rag_tabs.addTab(self._build_curadoria_pending_tab(), "Pendencias")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_learning_tab(), "Aprendizado")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_training_pipelines_tab(), "Pipelines de Treino")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_mcp_evidence_tab(), "Evidencias MCP")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_vector_tab(), "Memoria Vetorial")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_db_tab(), "Banco de Dados")
 
@@ -6594,6 +6596,154 @@ class ProjectManager(QWidget):
         ))
         return page
 
+    def _build_curadoria_mcp_evidence_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Evidencias MCP - Active Learning controlado",
+            "Edicoes sao evidencias T0. Somente Aprovar proposta promove para T1; Salvar nunca valida."
+        ))
+        grid = QGridLayout()
+        grid.setSpacing(8)
+        for index, args in enumerate([
+            ("mcp_captured", "Capturadas", "Edicoes aguardando analise."),
+            ("mcp_proposed", "Propostas T0", "Hipoteses aguardando decisao humana."),
+            ("mcp_approved", "Aprovadas T1", "Licoes autorizadas explicitamente."),
+            ("mcp_indexed", "Indexadas", "Aprovadas materializadas no store MCP."),
+            ("mcp_rejected", "Rejeitadas/TX", "Historico preservado fora das consultas."),
+            ("mcp_failed", "Falhas", "Eventos reprocessaveis com erro auditavel."),
+        ]):
+            grid.addWidget(self._make_curadoria_compact_metric_card(*args), index // 3, index % 3)
+        layout.addLayout(grid)
+
+        actions = QGridLayout()
+        actions.setSpacing(8)
+        for index, (text, callback) in enumerate([
+            ("Gerar propostas T0", lambda: self._run_mcp_background("daemon")),
+            ("Analisar padroes", lambda: self._run_mcp_background("patterns")),
+            ("Atualizar indice candidato", lambda: self._run_mcp_background("candidates")),
+            ("Aprovar proposta", self._approve_selected_mcp_proposal),
+            ("Rejeitar proposta", self._reject_selected_mcp_proposal),
+            ("Indexar aprovadas T1", lambda: self._run_mcp_background("approved")),
+        ]):
+            button = QPushButton(text)
+            button.setMinimumHeight(30)
+            button.clicked.connect(callback)
+            actions.addWidget(button, index // 3, index % 3)
+        layout.addLayout(actions)
+        self._mcp_evidence_status = QLabel("")
+        self._mcp_evidence_status.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:11px;")
+        layout.addWidget(self._mcp_evidence_status)
+        layout.addWidget(self._make_curadoria_table(
+            "mcp_evidence",
+            ["ID", "Estado", "Tier", "Classe", "Item", "Fase", "Obra", "Motivo", "Atualizado"],
+        ))
+        return page
+
+    def _selected_mcp_log_id(self):
+        table = self._curadoria_tables.get("mcp_evidence")
+        if not table or table.currentRow() < 0:
+            return "", ""
+        row = table.currentRow()
+        id_item = table.item(row, 0)
+        status_item = table.item(row, 1)
+        return (
+            id_item.text() if id_item else "",
+            status_item.text() if status_item else "",
+        )
+
+    def _mcp_bridge(self):
+        import sys
+        repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+        from src.mcp import db_bridge
+        return db_bridge
+
+    def _mcp_actor_id(self):
+        user = getattr(self.auth_service, "current_user", None)
+        if isinstance(user, dict):
+            return str(user.get("email") or user.get("id") or "ui_operator")
+        return str(getattr(user, "email", None) or getattr(user, "id", None) or "ui_operator")
+
+    def _approve_selected_mcp_proposal(self):
+        log_id, status = self._selected_mcp_log_id()
+        if not log_id or status != "PROPOSED":
+            QMessageBox.information(self, "Evidencias MCP", "Selecione uma proposta T0 em estado PROPOSED.")
+            return
+        reason, ok = QInputDialog.getText(
+            self, "Aprovar proposta", "Justificativa humana obrigatoria:"
+        )
+        if not ok or not reason.strip():
+            return
+        try:
+            changed = self._mcp_bridge().approve_event_candidate(
+                log_id,
+                approved_by=self._mcp_actor_id(),
+                reason=reason.strip(),
+                validation_origin="human_ui",
+                db_path=Path(self.db.db_path),
+            )
+            if not changed:
+                raise RuntimeError("a proposta mudou de estado antes da aprovacao")
+            self._refresh_curadoria_rag_observer()
+        except Exception as exc:
+            QMessageBox.critical(self, "Aprovar proposta", str(exc))
+
+    def _reject_selected_mcp_proposal(self):
+        log_id, status = self._selected_mcp_log_id()
+        if not log_id or status not in {"PROPOSED", "APPROVED"}:
+            QMessageBox.information(self, "Evidencias MCP", "Selecione uma proposta PROPOSED ou APPROVED.")
+            return
+        reason, ok = QInputDialog.getText(
+            self, "Rejeitar proposta", "Motivo obrigatorio:"
+        )
+        if not ok or not reason.strip():
+            return
+        try:
+            changed = self._mcp_bridge().reject_event_candidate(
+                log_id,
+                rejected_by=self._mcp_actor_id(),
+                reason=reason.strip(),
+                db_path=Path(self.db.db_path),
+            )
+            if not changed:
+                raise RuntimeError("a proposta mudou de estado antes da rejeicao")
+            self._refresh_curadoria_rag_observer()
+        except Exception as exc:
+            QMessageBox.critical(self, "Rejeitar proposta", str(exc))
+
+    def _run_mcp_background(self, mode):
+        if getattr(self, "_mcp_learning_process", None):
+            if self._mcp_learning_process.state() != QProcess.NotRunning:
+                return
+        repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
+        if mode == "daemon":
+            script = repo_root / "scripts" / "mcp_active_learning_daemon.py"
+            args = [str(script), "--db", str(self.db.db_path)]
+        elif mode == "patterns":
+            script = repo_root / "scripts" / "active_learning_patterns.py"
+            args = [str(script), "--db", str(self.db.db_path)]
+        else:
+            script = repo_root / "scripts" / "rag_active_trainer.py"
+            args = [str(script), "--db", str(self.db.db_path)]
+            if mode == "approved":
+                args.append("--approved")
+        process = QProcess(self)
+        process.setWorkingDirectory(str(repo_root))
+        process.finished.connect(lambda code, _status: self._on_mcp_background_finished(code))
+        self._mcp_learning_process = process
+        self._mcp_evidence_status.setText(f"Executando {mode}...")
+        process.start(sys.executable, args)
+
+    def _on_mcp_background_finished(self, exit_code):
+        process = getattr(self, "_mcp_learning_process", None)
+        output = bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace") if process else ""
+        error = bytes(process.readAllStandardError()).decode("utf-8", errors="replace") if process else ""
+        self._mcp_evidence_status.setText(
+            ("Concluido. " + output.strip()) if exit_code == 0 else ("Falha: " + error.strip())
+        )
+        self._refresh_curadoria_rag_observer()
+
     def _build_curadoria_vector_tab(self):
         page, layout = self._make_curadoria_scroll_page()
         layout.addWidget(self._make_curadoria_header(
@@ -6654,7 +6804,20 @@ class ProjectManager(QWidget):
             "train_runs": metrics["train_runs"],
             "train_events": metrics["table_counts"].get("training_events", 0),
             "train_crop_events": metrics["table_counts"].get("crop_learning_events", 0),
+            "train_artifacts": (
+                f"{metrics['artifact_counts'].get('render_ready', 0)}/"
+                f"{metrics['artifact_counts'].get('validated', 0)}"
+            ),
             "train_human_notes": metrics["train_human_notes"],
+            "mcp_captured": metrics["mcp_status_counts"].get("CAPTURED", 0),
+            "mcp_proposed": metrics["mcp_status_counts"].get("PROPOSED", 0),
+            "mcp_approved": metrics["mcp_status_counts"].get("APPROVED", 0),
+            "mcp_indexed": metrics["mcp_status_counts"].get("INDEXED", 0),
+            "mcp_rejected": (
+                metrics["mcp_status_counts"].get("REJECTED", 0)
+                + metrics["mcp_status_counts"].get("TEST_QUARANTINED", 0)
+            ),
+            "mcp_failed": metrics["mcp_status_counts"].get("FAILED", 0),
             "pending_high": metrics["pending_counts"].get("ALTA", 0),
             "pending_medium": metrics["pending_counts"].get("MEDIA", 0),
             "pending_info": metrics["pending_counts"].get("INFO", 0),
@@ -6673,6 +6836,7 @@ class ProjectManager(QWidget):
         self._fill_curadoria_table("training_pipelines", metrics["training_pipeline_rows"])
         self._fill_curadoria_table("training_classes", metrics["training_class_rows"])
         self._fill_curadoria_table("training_runs", metrics["training_run_rows"])
+        self._fill_curadoria_table("mcp_evidence", metrics["mcp_evidence_rows"])
         self._fill_curadoria_table("pending", metrics["pending_rows"])
         self._fill_curadoria_table("faiss_stores", metrics["faiss_rows"])
         self._fill_curadoria_table("db_tables", metrics["db_rows"])
@@ -6828,6 +6992,10 @@ class ProjectManager(QWidget):
             "encyclopedia_rows": [],
             "semantic_rows": [],
             "learning_counts": Counter(),
+            "artifact_counts": Counter(),
+            "artifact_history_rows": [],
+            "mcp_status_counts": Counter(),
+            "mcp_evidence_rows": [],
             "learning_event_rows": [],
             "learning_role_rows": [],
             "learning_accuracy": "-",
@@ -6874,9 +7042,11 @@ class ProjectManager(QWidget):
                     "fase3_fichas",
                     "semantic_rag_kb",
                     "crop_learning_events",
+                    "rag_artifact_validations",
                     "training_events",
                     "transformation_rules",
                     "item_attention_notes",
+                    "human_event_logs",
                     "cache_fichas",
                 ]
                 for table in tracked_tables:
@@ -6903,6 +7073,47 @@ class ProjectManager(QWidget):
                     ).fetchone()[0]
 
                 metrics["semantic_total"] = metrics["table_counts"].get("semantic_rag_kb", 0)
+                if table_exists(conn, "rag_artifact_validations"):
+                    artifact_columns = set(table_columns(conn, "rag_artifact_validations"))
+                    if "status" in artifact_columns:
+                        for status, count in conn.execute(
+                            "SELECT status, COUNT(*) FROM rag_artifact_validations GROUP BY status"
+                        ).fetchall():
+                            metrics["artifact_counts"][str(status or "?")] = count
+                    if "render_status" in artifact_columns:
+                        metrics["artifact_counts"]["render_ready"] = conn.execute(
+                            """
+                            SELECT COUNT(*) FROM rag_artifact_validations
+                            WHERE status='validated' AND render_status='ready'
+                            """
+                        ).fetchone()[0]
+                    artifact_fields = [
+                        "scope", "classe", "item_id", "obra_name", "pavimento",
+                        "status", "render_status", "updated_at", "validated_at",
+                    ]
+                    projection = ", ".join(
+                        field if field in artifact_columns else f"NULL AS {field}"
+                        for field in artifact_fields
+                    )
+                    order_field = "updated_at" if "updated_at" in artifact_columns else "rowid"
+                    metrics["artifact_history_rows"] = [
+                        [
+                            str(row[0] or "?").upper(),
+                            row[1] or "?",
+                            row[2] or "?",
+                            row[3] or "?",
+                            row[4] or "?",
+                            str(row[5] or "?").upper(),
+                            row[6] or "-",
+                            row[7] or row[8] or "-",
+                        ]
+                        for row in conn.execute(
+                            f"""
+                            SELECT {projection} FROM rag_artifact_validations
+                            ORDER BY {order_field} DESC LIMIT 200
+                            """
+                        ).fetchall()
+                    ]
                 if table_exists(conn, "semantic_rag_kb"):
                     semantic_by_class = Counter()
                     for classe, count in conn.execute(
@@ -7045,6 +7256,41 @@ class ProjectManager(QWidget):
                     ).fetchall():
                         metrics["learning_role_rows"].append([role or "?", count])
                 metrics["train_human_notes"] = metrics["table_counts"].get("item_attention_notes", 0)
+                if table_exists(conn, "human_event_logs"):
+                    human_columns = set(table_columns(conn, "human_event_logs"))
+                    if "status" in human_columns:
+                        for status, count in conn.execute(
+                            "SELECT status, COUNT(*) FROM human_event_logs GROUP BY status"
+                        ).fetchall():
+                            metrics["mcp_status_counts"][str(status or "CAPTURED")] = count
+                        fields = [
+                            "log_id", "status", "tier", "classe", "item_id",
+                            "fase_editada", "obra_id", "user_reason", "updated_at",
+                        ]
+                        projection = ", ".join(
+                            field if field in human_columns else f"NULL AS {field}"
+                            for field in fields
+                        )
+                        metrics["mcp_evidence_rows"] = [
+                            [
+                                row[0] or "?",
+                                row[1] or "CAPTURED",
+                                row[2] or "T0",
+                                row[3] or "?",
+                                row[4] or "?",
+                                row[5] or "?",
+                                row[6] or "?",
+                                row[7] or "",
+                                row[8] or "-",
+                            ]
+                            for row in conn.execute(
+                                f"""
+                                SELECT {projection} FROM human_event_logs
+                                ORDER BY COALESCE(updated_at, timestamp) DESC
+                                LIMIT 500
+                                """
+                            ).fetchall()
+                        ]
             except Exception as exc:
                 metrics["db_rows"].append(["project_data.vision", 0, "ERRO", str(exc)])
             finally:
