@@ -169,8 +169,13 @@ class PillarAnalyzer:
         if 'confidence_map' not in p_data: p_data['confidence_map'] = {}
         
         # 0. Identificador (Nome)
-        # Regra: Texto próximo iniciando com P
-        self._analyze_field(p_data, 'name', 'label', {'prompt': "Buscar texto ('P')", 'radius': 500})
+        # No pipeline name-driven a identidade já foi resolvida antes da
+        # pré-ficha. Não permitir que um P# vizinho sobrescreva o nome canônico.
+        if not p_data.get('identity_locked'):
+            self._analyze_field(
+                p_data, 'name', 'label',
+                {'prompt': "Buscar texto ('P')", 'radius': 500},
+            )
         
         # 1. Dimensão
         # Regra: Texto (ex: 20x40) Próximo. Regex simples dimensions

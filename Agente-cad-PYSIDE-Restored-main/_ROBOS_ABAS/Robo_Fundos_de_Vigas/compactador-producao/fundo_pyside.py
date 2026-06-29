@@ -3437,7 +3437,8 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
                         print(f"[FV] Segmentos carregados do DB: {elemento_id} → {len(segs)} segmentos")
                         return segs
         except Exception as e:
-            print(f"[FV] Erro ao carregar segmentos do DB para {elemento_id}: {e}")
+            if "no such table" not in str(e).lower():
+                print(f"[FV] Erro ao carregar segmentos do DB para {elemento_id}: {e}")
         return []
 
     def _refresh_viga_children(self, viga_item, segs: list, num, obra: str, pav: str):

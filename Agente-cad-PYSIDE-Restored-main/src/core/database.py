@@ -1289,6 +1289,7 @@ class DatabaseManager:
                     name=excluded.name,
                     type=excluded.type,
                     area=excluded.area,
+                    points_json=excluded.points_json,
                     sides_data_json=excluded.sides_data_json,
                     links_json=excluded.links_json,
                     conf_map_json=excluded.conf_map_json,

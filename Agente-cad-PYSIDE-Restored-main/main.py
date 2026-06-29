@@ -191,7 +191,6 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Vision-Estrutural AI - Pro Dashboard")
         self.resize(1600, 1000)
-        self.setWindowState(Qt.WindowMaximized)
         
         # Estado
         # Garantir que o banco seja criado no diretório do main.py
@@ -415,7 +414,13 @@ class MainWindow(QMainWindow):
         """Propaga o contexto de Obra e Pavimento para todos os robôs integrados."""
         if project_id is None:
              project_id = self.current_project_id
-        
+
+        # Evita cascata de LOAD/SAVE quando o contexto já é o mesmo
+        _ctx = (work_name, pavement_name, str(project_id or ''))
+        if getattr(self, '_last_robot_sync_ctx', None) == _ctx:
+            return
+        self._last_robot_sync_ctx = _ctx
+
         self.log(f"🔄 Sincronizando Robôs -> Obra: {work_name}, Pav: {pavement_name}, PID: {project_id}")
         
         try:
@@ -1055,8 +1060,11 @@ class MainWindow(QMainWindow):
 
     def _load_project_into_view(self, project_id):
         """Carrega efetivamente o projeto ID na View Unica (com Cache Swap)."""
+        if getattr(self, '_analysis_in_progress', False):
+            print(f"[GUARD] _load_project_into_view bloqueado: análise em andamento (PID={project_id})", flush=True)
+            return
         print(f"DEBUG: _load_project_into_view called with PID={project_id}. Current Name={self.current_project_name}")
-        
+
         # FIX: Detect if project_id is a path (Upstream bug) and resolve to real ID
         if "/" in str(project_id) or "\\" in str(project_id):
              print(f"DEBUG: PID is a path. Attempting resolution via DB...")
@@ -3080,6 +3088,8 @@ class MainWindow(QMainWindow):
                 wrapper = self._build_robo_dxf_wrapper(self.robo_fundo, 'FV', 'V', 'gerar_fv_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
                 QTimer.singleShot(200, self._setup_fv_dxf_viewer)
+                QTimer.singleShot(250, self._setup_lv_dxf_viewer)
+
             except Exception as e:
                 self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Fundo: {e}"))
                 self.robo_fundo = None
@@ -3216,6 +3226,155 @@ class MainWindow(QMainWindow):
         self.robo_fundo.regen_requested.connect(self._on_fv_fields_regen)
 
         self.log("[FV Viewer] DXFVectorView instalado no Robô Fundo de Vigas")
+
+    def _setup_lv_dxf_viewer(self):
+        """Conecta eventos de regeneração para o DXFVectorView do Robo Laterais de Viga."""
+        if not getattr(self, 'robo_viga', None):
+            return
+
+        viewer = getattr(self.robo_viga, 'preview', None)
+        if viewer is None:
+            return
+            
+        parent = viewer.parent()
+        if parent is None:
+            return
+        layout = parent.layout()
+        if layout is None:
+            return
+            
+        idx = layout.indexOf(viewer)
+        viewer.setVisible(False)
+        
+        try:
+            from src.ui.modules.comparison_engine import DXFVectorView
+        except ImportError as _e:
+            self.log(f"[LV Viewer] Não foi possível importar DXFVectorView: {_e}")
+            return
+            
+        self.robo_viga.preview = DXFVectorView(bg='#0d1117')
+        self.robo_viga.preview.setMinimumHeight(400)
+        
+        if idx >= 0:
+            layout.insertWidget(idx, self.robo_viga.preview, stretch=1)
+        else:
+            layout.addWidget(self.robo_viga.preview, stretch=1)
+
+        self._lv_current_item = None
+
+        # Sinais da arvore
+        self.robo_viga.tree1.itemSelectionChanged.connect(self._on_lv_item_loaded)
+        
+        self._lv_regen_timer = QTimer(self)
+        self._lv_regen_timer.setSingleShot(True)
+        self._lv_regen_timer.setInterval(1500)
+        self._lv_regen_timer.timeout.connect(self._on_lv_fields_regen)
+
+        for fw in self.robo_viga.fields.values():
+            fw.textChanged.connect(self._lv_regen_timer.start)
+
+        # Para painéis (tabela genérica não tem sinais diretos, então a gente pode ligar cellChanged)
+        if hasattr(self.robo_viga, 'table_panels'):
+            self.robo_viga.table_panels.itemChanged.connect(self._lv_regen_timer.start)
+
+        self.log("[LV Viewer] Integração do motor N3/N4 ao Robo Laterais de Viga")
+
+    def _on_lv_item_loaded(self):
+        items = getattr(self.robo_viga, 'tree1', None).selectedItems() if getattr(self, 'robo_viga', None) else []
+        if not items:
+            return
+        
+        item = items[0]
+        vdata = item.data(0, Qt.UserRole)
+        if not vdata: return
+        vname = vdata.get('key')
+        if not vname: return
+        
+        # A vname pode ser 'FV-V309.C' ou 'FV-V309.C.A' (Face)
+        # O script stog espera o base name, ou a face? O Robo Fundo espera 'V301'.
+        self._lv_current_item = vname
+        self._lv_regen_timer.stop()
+        
+        # The viewer will update when DXF is generated
+        # Generate immediately
+        self._on_lv_fields_regen()
+
+    def _on_lv_fields_regen(self):
+        if not getattr(self, 'robo_viga', None): return
+        
+        # O Robo Laterais já tem o modelo pendente
+        items = self.robo_viga.tree1.selectedItems()
+        if not items: return
+        
+        item = items[0]
+        vdata = item.data(0, Qt.UserRole)
+        if not vdata: return
+        vname = vdata.get('key')
+        
+        obra = self.robo_viga.current_obra
+        pav = self.robo_viga.current_pavimento
+        if not obra or not pav: return
+        
+        import re as _re
+        base_nome = vname
+        seg_idx = vdata.get('panel_idx', -1)
+        
+        # Fallback if someone passed it in vname
+        if '.seg' in base_nome:
+            parts = base_nome.split('.seg')
+            base_nome = parts[0]
+            try:
+                if seg_idx == -1:
+                    seg_idx = int(parts[1]) - 1
+            except:
+                pass
+                
+        if '.' in base_nome:
+            parts = base_nome.split('.')
+            if parts[-1].upper() in ['A', 'B', 'C']:
+                base_nome = '.'.join(parts[:-1])
+                
+        m = _re.search(r'\d+', base_nome)
+        if m:
+            from pathlib import Path as _Path
+            self.robo_viga.save_session_data()
+            self.robo_viga._do_dxf_regeneration()  # Força gerar JSON Fase-4
+            
+            extra_args = []
+            if seg_idx >= 0:
+                extra_args.extend(['--seg_idx', str(seg_idx)])
+            
+            # Executar STOG DXF
+            self._run_robo_dxf(
+                'LV', 'gerar_lv_dxf_stog.py',
+                item_id=base_nome, open_canvas=False,
+                extra_args=extra_args,
+                _after_dxf=lambda p: self._lv_dxf_viewer_reload(base_nome, seg_idx)
+            )
+
+    def _lv_dxf_viewer_reload(self, base_nome, seg_idx=-1):
+        obra = self.robo_viga.current_obra
+        pav = self.robo_viga.current_pavimento
+        from pathlib import Path as _Path
+        
+        dados_ext = _Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS')
+        dados_loc = _Path(self.base_dir) / 'DADOS-OBRAS'
+        
+        dxf_name = f"LV_preview_{base_nome}.dxf"
+        if seg_idx >= 0:
+            dxf_name = f"LV_preview_{base_nome}_seg{seg_idx + 1}.dxf"
+            
+        for root in (dados_ext, dados_loc):
+            fase6 = root / obra / 'Fase-6_Execucao_CAD'
+            if fase6.exists():
+                dxf_path = fase6 / dxf_name
+                if dxf_path.exists():
+                    self.robo_viga.preview.load_dxf(str(dxf_path))
+                    return
+                # Fallback to load_zones (if using legacy viewer)
+                if hasattr(self.robo_viga.preview, 'load_zones'):
+                    self.robo_viga.preview.load_zones(str(fase6), base_nome)
+                return
 
     def _fv_obra_atual(self) -> str:
         """Retorna a obra selecionada no robô FV (ou no combo principal como fallback)."""
@@ -5420,7 +5579,7 @@ class MainWindow(QMainWindow):
 
     # ──────────────────────────────────────────────────────────────────────
 
-    def process_pillars_action(self):
+    def process_pillars_action(self, skip_pre_validation: bool = False):
         if not self.dxf_data:
             # CAD-UI-4.3: feedback explícito — não silenciar
             self.log("⚠️ Nenhum DXF carregado. Carregue um DXF no Tab 0 (Diagnostic Hub) primeiro.")
@@ -5433,6 +5592,11 @@ class MainWindow(QMainWindow):
                 "Alternativa: Use '▶ Interpretar DXF' (painel azul no Tab 0) para carregar dados da Fase-3."
             )
             return
+
+        # Bloqueia qualquer reload de projeto durante a análise: processEvents() dentro
+        # do loop de pilares e do AI automation de lajes podem disparar _load_project_into_view
+        # ou load_project_action, que zerariam self.pillars_found antes do autosave.
+        self._analysis_in_progress = True
 
         # ── Pré-processamento do pavimento (antes da análise pesada) ────────
         self.pavimento_preprocess = self._run_pavimento_preprocess()
@@ -5528,7 +5692,10 @@ class MainWindow(QMainWindow):
         polylines = self.dxf_data.get('polylines', [])
         texts = self.dxf_data.get('texts', [])
         lines = self.dxf_data.get('lines', [])
-        
+        # Snapshot dos textos do DXF no início da análise — garante que
+        # processEvents() durante o loop de lajes não vai substituir self.dxf_data
+        # e invalidar a coleta de nomes de pilares.
+        self._analysis_texts = texts
 
         # 1.1 Detect Slabs (Lajes)
         self.update_progress(30, "Mapeando Lajes...")
@@ -5732,7 +5899,10 @@ class MainWindow(QMainWindow):
              s['id_item'] = f"{i+1:02}"
 
         self._infer_slab_levels_from_context(self.slabs_found)
-        self.pavimento_pillar_report = self._build_pillar_report(self.slabs_found)
+        # Inventário canônico ANTES da pré-validação:
+        # todo texto P# da planta entra no relatório, mesmo sem geometria.
+        # Os vínculos das lajes enriquecem o inventário, mas não definem sua existência.
+        self.pavimento_pillar_report = self._build_complete_pillar_report(self.slabs_found)
         # Aplica rejeições do histórico de pré-ficha antes da pré-validação
         self._apply_preficha_rejections(self.pavimento_pillar_report)
         n_report = len(self.pavimento_pillar_report)
@@ -5750,7 +5920,7 @@ class MainWindow(QMainWindow):
                  (f", {n_hall} suspeitos de alucinação" if n_hall else "") + ".")
 
         # ── Pré-validação interativa (Pilares + Visão de Cortes) ──────────────
-        if not self._run_pre_validation_dialog():
+        if not skip_pre_validation and not self._run_pre_validation_dialog():
             self.log("⚠ Pré-validação cancelada pelo usuário — análise interrompida.")
             self.update_progress(0, "Cancelado.")
             return
@@ -5782,7 +5952,7 @@ class MainWindow(QMainWindow):
         # 1. Pilares consolidados no report
         if hasattr(self, 'pavimento_pillar_report'):
             for p_name, p_data in self.pavimento_pillar_report.items():
-                if p_data.get('classification') == 'NASCE':
+                if p_data.get('classification') == 'NASCE' or p_data.get('is_invalid'):
                     continue
                 bbox = p_data.get('bbox')
                 if bbox:
@@ -5903,6 +6073,16 @@ class MainWindow(QMainWindow):
         #   (c) senão, entra SEM geometria, marcado p/ refino (needs_geometry).
         p_rep_all = getattr(self, 'pavimento_pillar_report', {}) or {}
         plan_names = self._collect_plan_pillar_names()
+        print(f"[DIAG_PIL] loop entry: p_rep_all={len(p_rep_all)}, plan_names={len(plan_names)}", flush=True)
+        # A pré-ficha é a fonte autoritativa após a confirmação. Inclui nomes
+        # canônicos que possam ter ficado sem texto após algum ajuste de vínculo.
+        for _key, _pre in p_rep_all.items():
+            if str(_key).endswith('__ALT') or _pre.get('is_invalid'):
+                continue
+            _nm = str(_pre.get('name') or _key).strip().upper()
+            if _nm:
+                _anchor = _pre.get('name_positions') or []
+                plan_names.setdefault(_nm, list(_anchor))
         _claimed_geom_ids: set = set()
         pillar_work_items: list = []
         _stat_report = _stat_search = _stat_nogeom = 0
@@ -5910,6 +6090,9 @@ class MainWindow(QMainWindow):
         for nm in sorted(plan_names.keys(), key=lambda s: nat_key({'name': s})):
             positions = plan_names[nm]
             pre = p_rep_all.get(nm)
+            if pre and pre.get('is_invalid'):
+                self.log(f"🚫 Pilar {nm} removido pela decisão da pré-ficha.")
+                continue
             geom_pts = None
             if pre and pre.get('points') and len(pre.get('points')) >= 3:
                 geom_pts = pre['points']
@@ -5927,6 +6110,7 @@ class MainWindow(QMainWindow):
                 'pillar_name':    nm,
                 'points':         geom_pts,
                 'anchor':         positions[0] if positions else None,
+                'name_positions': positions,
                 'pre_pillar':     pre,
                 'needs_geometry': geom_pts is None,
             })
@@ -5963,6 +6147,7 @@ class MainWindow(QMainWindow):
                     anchor = work.get('anchor') or (0.0, 0.0)
                     p_data = {
                         'name': pillar_name, 'type': 'Pilar',
+                        'canonical_name': pillar_name, 'identity_locked': True,
                         'pos': (float(anchor[0]), float(anchor[1])),
                         'format': 'INDETERMINADO', 'area_val': 0.0, 'dim': '—',
                         'points': [], 'sides_data': {},
@@ -5972,6 +6157,9 @@ class MainWindow(QMainWindow):
                     }
                     if pre_pillar:
                         p_data['classification'] = pre_pillar.get('classification', 'INDETERMINADO')
+                        p_data['physical_type'] = pre_pillar.get('physical_type', 'unknown')
+                        p_data['lajes_adjacentes'] = list(pre_pillar.get('lajes') or [])
+                        p_data['preficha_reviewed'] = True
                     p_data['issues'] = ['⚠ Geometria não localizada — refino pendente']
                     temp_pillars.append(p_data)
                     continue
@@ -5992,6 +6180,8 @@ class MainWindow(QMainWindow):
 
                 p_data = {
                     'name': pillar_name,
+                    'canonical_name': pillar_name,
+                    'identity_locked': True,
                     'type': 'Pilar',
                     'pos': (poly_shape.centroid.x, poly_shape.centroid.y),
                     'format': shape_type,
@@ -6032,6 +6222,8 @@ class MainWindow(QMainWindow):
                         p_data['name'] = pillar_name
                     
                     p_data['classification'] = pre_pillar.get('classification', 'INDETERMINADO')
+                    p_data['physical_type'] = pre_pillar.get('physical_type', 'unknown')
+                    p_data['preficha_reviewed'] = True
                     
                     # 3. Vincular Lajes Respectivas aos Lados e suas Alturas
                     adj_lajes = pre_pillar.get('lajes', [])
@@ -6165,6 +6357,21 @@ class MainWindow(QMainWindow):
                         p_data['confidence_map']['name'] = 1.0
                         p_data['confidence_map']['pilar_segs'] = 1.0
                         p_data['confidence_map']['dim'] = 1.0
+
+                # Identidade é definida pelo inventário P# e confirmada na pré-ficha.
+                # O analisador contextual pode enriquecer os demais campos, mas não
+                # pode trocar P26 por um texto P# vizinho.
+                _name_positions = work.get('name_positions') or []
+                if _name_positions:
+                    _np = _name_positions[0]
+                    p_data.setdefault('links', {})['name'] = {
+                        'label': [{
+                            'type': 'text', 'text': pillar_name,
+                            'points': [tuple(_np)], 'pos': tuple(_np),
+                            'role': 'Identificador Pilar Canônico',
+                        }]
+                    }
+                    p_data.setdefault('confidence_map', {})['name'] = 1.0
 
                 # Análise Contextual (Initial)
                 if self.pillar_analyzer:
@@ -6348,21 +6555,8 @@ class MainWindow(QMainWindow):
                     self.log(f"⚠ Pré-save merge DB→mem: {_e_bk}")
                 # ===== FIM PRÉ-SAVE =========================================
 
-                # ===== LIMPEZA DO BANCO =====
-                # Excluir dados obsoletos para evitar o acúmulo de itens fantasmas
-                # Os itens validados foram mantidos nas listas *_found (reforçado acima).
-                try:
-                    conn = self.db._get_conn()
-                    conn.execute("DELETE FROM pillars WHERE project_id = ?", (self.current_project_id,))
-                    conn.execute("DELETE FROM slabs WHERE project_id = ?", (self.current_project_id,))
-                    conn.execute("DELETE FROM beams WHERE project_id = ?", (self.current_project_id,))
-                    conn.commit()
-                except Exception as e:
-                    self.log(f"Erro ao limpar banco para análise: {e}")
-                finally:
-                    conn.close()
-                # ============================
-
+                # Salva primeiro e remove obsoletos somente após todos os UPSERTs.
+                # Assim uma falha intermediária não deixa o projeto vazio.
                 for p in getattr(self, 'pillars_found', []):
                     self.db.save_pillar(p, self.current_project_id)
                 for s in getattr(self, 'slabs_found', []):
@@ -6372,22 +6566,30 @@ class MainWindow(QMainWindow):
                     if n_lj_json:
                         self.log(f"🧩 Lajes SA→N1/N3/Robo: {n_lj_json} JSON_Lajes e {n_lj_el} slab_elements atualizados.")
                     if getattr(self, 'robo_laje', None):
+                        # Backup antes do AI automation: processEvents() dentro pode zerar pillars_found
+                        _pil_bak = list(self.pillars_found)
+                        _slb_bak = list(self.slabs_found)
+                        print(f"[GUARD] backup pré-sync: {len(_pil_bak)} pilares", flush=True)
                         self.sync_slabs_to_robo_laje_action(
                             confirm=False,
                             switch_to_tab=False,
                             run_ai=True,
                         )
+                        # Restaura se processEvents() zerou durante o AI automation
+                        if not self.pillars_found and _pil_bak:
+                            self.pillars_found = _pil_bak
+                            print(f"[GUARD] pillars_found restaurado pós-sync: {len(self.pillars_found)} pilares", flush=True)
+                        if not self.slabs_found and _slb_bak:
+                            self.slabs_found = _slb_bak
                 except Exception as _e_lj_mat:
                     self.log(f"⚠️ Falha ao propagar lajes SA→N1/N3/Robo: {_e_lj_mat}")
                 try:
-                    from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv, apply_fv_trained_overlay
+                    from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv
 
                     # FASE 1: Processar dados FV e atualizar links em memória (sem acesso ao DB)
                     _fv_results = []
                     for b in getattr(self, 'beams_found', []):
                         fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
-                        _obra_overlay = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
-                        fv_data = apply_fv_trained_overlay(fv_data, b.get("name", ""), _obra_overlay)
 
                         if 'links' not in b:
                             b['links'] = {}
@@ -6527,6 +6729,35 @@ class MainWindow(QMainWindow):
                     self.log(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
                     for b in getattr(self, 'beams_found', []):
                         self.db.save_beam(b, self.current_project_id)
+
+                # Limpeza pós-save, em uma única transação. Só é alcançada quando
+                # as três coleções já foram persistidas com sucesso/fallback.
+                _conn_clean = self.db._get_conn()
+                try:
+                    for _table, _items in (
+                        ('pillars', getattr(self, 'pillars_found', [])),
+                        ('slabs', getattr(self, 'slabs_found', [])),
+                        ('beams', getattr(self, 'beams_found', [])),
+                    ):
+                        _ids = [str(x.get('id')) for x in _items if x.get('id')]
+                        if _ids:
+                            _marks = ','.join('?' for _ in _ids)
+                            _conn_clean.execute(
+                                f"DELETE FROM {_table} WHERE project_id=? "
+                                f"AND id NOT IN ({_marks})",
+                                [self.current_project_id, *_ids],
+                            )
+                        else:
+                            _conn_clean.execute(
+                                f"DELETE FROM {_table} WHERE project_id=?",
+                                (self.current_project_id,),
+                            )
+                    _conn_clean.commit()
+                except Exception:
+                    _conn_clean.rollback()
+                    raise
+                finally:
+                    _conn_clean.close()
                 
                 self.log(
                     "💾 Autosave Análise Geral: "
@@ -6539,6 +6770,8 @@ class MainWindow(QMainWindow):
         print(f"[ANALISE] concluída: PL={len(self.pillars_found)} BM={len(getattr(self,'beams_found',[]))} SL={len(getattr(self,'slabs_found',[]))}", flush=True)
         self.log(f"Análise finalizada: {len(self.pillars_found)} Pilares, {len(self.beams_found)} Vigas e {len(self.slabs_found)} Lajes.")
         self.btn_save.setEnabled(True)
+        self._analysis_texts = None  # Limpa snapshot para não vazar para próxima análise
+        self._analysis_in_progress = False  # Libera reloads de projeto
 
     # Legacy methods removed
     def on_list_pillar_clicked(self, item, column=0):
@@ -7207,7 +7440,7 @@ class MainWindow(QMainWindow):
 
         # === ETAPA 5: RODAR ANÁLISE GERAL + COMPARAR ===
         self.log("⚙️ Executando Análise Geral (motor FV)...")
-        self.process_pillars_action()
+        self.process_pillars_action(skip_pre_validation=True)
         # process_pillars_action é síncrona — comparar direto após retorno
         self._compare_fv_n1_n2(n2_fv)
 
@@ -7362,7 +7595,7 @@ class MainWindow(QMainWindow):
         btn_rerun.setStyleSheet("background:#005a9e; color:white; font-weight:bold; height:28px;")
         def _rerun():
             dlg.accept()
-            _QT.singleShot(200, lambda: (self.process_pillars_action(), self._compare_fv_n1_n2(n2_fv)))
+            _QT.singleShot(200, lambda: (self.process_pillars_action(skip_pre_validation=True), self._compare_fv_n1_n2(n2_fv)))
         btn_rerun.clicked.connect(_rerun)
         btn_close = QPushButton("Fechar")
         btn_close.clicked.connect(dlg.accept)
@@ -7492,7 +7725,7 @@ class MainWindow(QMainWindow):
             self.log(obra_ctx)
 
         # Executar análise normal com contexto injetado no log
-        self.process_pillars_action()
+        self.process_pillars_action(skip_pre_validation=True)
 
     @staticmethod
     def _validate_structural_item(d: dict) -> bool:
@@ -7565,6 +7798,9 @@ class MainWindow(QMainWindow):
     def load_project_action(self):
         """Carrega e restaura o estado do projeto."""
         if not self.current_project_id:
+            return
+        if getattr(self, '_analysis_in_progress', False):
+            print(f"[GUARD] load_project_action bloqueado: análise em andamento", flush=True)
             return
         
         # --- AUTO SYNC FROM ROBOTS ---
@@ -10784,6 +11020,7 @@ class MainWindow(QMainWindow):
         """
         term_map = result.get('term_type_map') or {}
         pillar_overrides = result.get('pillar_overrides') or {}
+        invalid_pillar_keys: set = set(result.get('invalid_pillar_keys') or set())
         cut_assignments = result.get('cut_view_assignments') or {}
         invalid_cut_uids: set = result.get('invalid_cut_uids') or set()
 
@@ -10804,6 +11041,58 @@ class MainWindow(QMainWindow):
                 entry['classification'] = override.get('classification', entry.get('classification'))
                 entry['physical_type'] = override.get('physical_type', 'unknown')
                 entry['ignore_in_beams'] = bool(override.get('ignore_in_beams', False))
+                entry['is_invalid'] = bool(override.get('is_invalid', key in invalid_pillar_keys))
+                entry['preficha_reviewed'] = True
+
+        rejected_geom_sigs = set()
+        for key in invalid_pillar_keys:
+            pts = (self.pavimento_pillar_report.get(key) or {}).get('points') or []
+            if pts:
+                rejected_geom_sigs.add(self._pillar_points_sig(pts))
+
+        # Se a geometria original foi rejeitada e uma alternativa foi aprovada,
+        # promove a alternativa para a chave/nome canônico.
+        for key in list(self.pavimento_pillar_report):
+            if not str(key).endswith('__ALT') or key in invalid_pillar_keys:
+                continue
+            alt = self.pavimento_pillar_report[key]
+            original_key = alt.get('alt_for_original_key')
+            if original_key not in invalid_pillar_keys:
+                continue
+            promoted = dict(alt)
+            promoted['name'] = (
+                self.pavimento_pillar_report.get(original_key, {}).get('name')
+                or original_key
+            )
+            promoted['is_invalid'] = False
+            promoted['geometry_promoted_from'] = key
+            promoted['preficha_reviewed'] = True
+            self.pavimento_pillar_report[original_key] = promoted
+            invalid_pillar_keys.discard(original_key)
+
+        self.pavimento_invalid_pillar_keys = set(invalid_pillar_keys)
+
+        # Propaga rejeições humanas aos vínculos das lajes. Sem isto, uma
+        # geometria recusada continuava reaparecendo no próximo relatório.
+        invalid_geom_sigs = set(rejected_geom_sigs)
+        for key in invalid_pillar_keys:
+            entry = self.pavimento_pillar_report.get(key) or {}
+            pts = entry.get('points') or []
+            if pts:
+                invalid_geom_sigs.add(self._pillar_points_sig(pts))
+        if invalid_geom_sigs:
+            for slab in self.slabs_found or []:
+                p_links = (
+                    slab.get('links', {})
+                    .get('laje_pilares_apoio', {})
+                    .get('pillar_geom', [])
+                )
+                if isinstance(p_links, list):
+                    p_links[:] = [
+                        link for link in p_links
+                        if self._pillar_points_sig(link.get('points') or [])
+                        not in invalid_geom_sigs
+                    ]
 
         if not cut_assignments and not invalid_cut_uids:
             return
@@ -11009,6 +11298,21 @@ class MainWindow(QMainWindow):
         marg = max(mx, my) * margin_frac + margin_min
         return (area[0] - marg, area[1] - marg, area[2] + marg, area[3] + marg)
 
+    @staticmethod
+    def _pillar_points_sig(points: list) -> str:
+        """Assinatura posicional de um contorno, independente da direção dos pontos."""
+        coords = []
+        for point in points or []:
+            try:
+                coords.append((round(float(point[0]), 3), round(float(point[1]), 3)))
+            except Exception:
+                continue
+        if coords and coords[0] == coords[-1]:
+            coords.pop()
+        if not coords:
+            return 'EMPTY'
+        return '|'.join(f'{x:.3f},{y:.3f}' for x, y in sorted(set(coords)))
+
     def _collect_plan_pillar_names(self) -> dict:
         """
         Coleta nomes de pilares (textos 'P<num>') que estão na ÁREA DA PLANTA,
@@ -11016,14 +11320,21 @@ class MainWindow(QMainWindow):
         Retorna {nome_upper: [(x,y), ...]} (posições do texto na planta).
         """
         import re as _re
-        texts = (getattr(self, 'dxf_data', None) or {}).get('texts', []) or []
+        # Usa snapshot da análise em curso (evita leitura de dxf_data substituído
+        # por processEvents() durante o loop de lajes).
+        _snap = getattr(self, '_analysis_texts', None)
+        texts = _snap if _snap is not None else (getattr(self, 'dxf_data', None) or {}).get('texts', []) or []
         area = self._plan_area_bbox()
+        print(f"[DIAG_PIL] _collect_plan_pillar_names: texts={len(texts)} (snap={'sim' if _snap is not None else 'nao'}), area={'ativa' if area else 'None'}", flush=True)
         pat = _re.compile(r'^P\d+[A-Z]?$')
         names: dict = {}
+        _dbg_p_raw = 0
+        _dbg_filtered_area = 0
         for t in texts:
             s = str(t.get('text', '')).strip().upper()
             if not pat.match(s):
                 continue
+            _dbg_p_raw += 1
             pos = t.get('pos') or t.get('points') or [None, None]
             if pos and isinstance(pos[0], (list, tuple)):
                 pos = pos[0]
@@ -11032,14 +11343,19 @@ class MainWindow(QMainWindow):
             except (TypeError, ValueError, IndexError):
                 continue
             if area and not (area[0] <= x <= area[2] and area[1] <= y <= area[3]):
+                _dbg_filtered_area += 1
                 continue  # texto fora da planta (corte/legenda/detalhe)
             names.setdefault(s, []).append((x, y))
+        print(f"[DIAG_PIL] P# bruto={_dbg_p_raw}, filtrados_área={_dbg_filtered_area}, únicos={len(names)}: {list(names.keys())[:12]}", flush=True)
         return names
 
     @staticmethod
-    def _is_pillar_like_polygon(sh) -> bool:
-        """Heurística: a geometria tem 'cara' de pilar (área/proporção/retangularidade).
-        Limiares conservadores — ponto de refino do motor."""
+    def _is_pillar_like_polygon(sh, points: list | None = None) -> bool:
+        """Aceita pilares compactos e polígonos ortogonais especiais (L/T/U).
+
+        Geometria especial só é aceita no fluxo dirigido por um texto P#, portanto
+        não transforma toda visão de corte côncava do desenho em pilar.
+        """
         try:
             minx, miny, maxx, maxy = sh.bounds
         except Exception:
@@ -11051,11 +11367,34 @@ class MainWindow(QMainWindow):
         if a < 80 or a > 60000:           # ~10x10cm a ~200x300cm
             return False
         rect = w * h
-        if rect > 0 and a / rect < 0.5:   # preenche bem o bbox (retangular/compacto)
-            return False
         if max(w, h) / max(1e-6, min(w, h)) > 12:  # não é uma linha fina
             return False
-        return True
+        fill = a / rect if rect > 0 else 0.0
+        if fill >= 0.5:
+            return True
+
+        # Pilar L/T/U: contorno ortogonal, côncavo e com quantidade controlada
+        # de vértices. P26/P27 do 13P, por exemplo, têm fill≈0.19.
+        raw = list(points or [])
+        if raw and raw[0] == raw[-1]:
+            raw = raw[:-1]
+        if not (6 <= len(raw) <= 16) or fill < 0.12:
+            return False
+        axis_aligned = 0
+        usable_edges = 0
+        for i, p1 in enumerate(raw):
+            p2 = raw[(i + 1) % len(raw)]
+            try:
+                dx = abs(float(p2[0]) - float(p1[0]))
+                dy = abs(float(p2[1]) - float(p1[1]))
+            except Exception:
+                continue
+            if dx <= 1e-6 and dy <= 1e-6:
+                continue
+            usable_edges += 1
+            if dx <= 1.0 or dy <= 1.0:
+                axis_aligned += 1
+        return usable_edges >= 6 and axis_aligned / usable_edges >= 0.8
 
     def _find_pillar_geom_near_text(self, positions: list, claimed_ids: set,
                                     max_dist: float = 200.0):
@@ -11085,7 +11424,7 @@ class MainWindow(QMainWindow):
                     continue
             except Exception:
                 continue
-            if not self._is_pillar_like_polygon(sh):
+            if not self._is_pillar_like_polygon(sh, uniq):
                 continue
             for (ax, ay) in positions:
                 pt = Point(ax, ay)
@@ -11099,6 +11438,175 @@ class MainWindow(QMainWindow):
         if best:
             return best[0], best[1]
         return None, None
+
+    def _pillar_laje_entries(self, points: list, slabs: list[Dict]) -> list[dict]:
+        """Deriva lajes adjacentes para pilares encontrados pelo inventário P#."""
+        if not points:
+            return []
+        from shapely.geometry import Polygon
+        try:
+            pillar_poly = Polygon(points)
+            if not pillar_poly.is_valid:
+                pillar_poly = pillar_poly.buffer(0)
+        except Exception:
+            return []
+        entries: list[dict] = []
+        horizontal = (pillar_poly.bounds[2] - pillar_poly.bounds[0]) >= (
+            pillar_poly.bounds[3] - pillar_poly.bounds[1]
+        )
+        for slab in slabs or []:
+            slab_pts = slab.get('points') or []
+            if len(slab_pts) < 3:
+                continue
+            try:
+                slab_poly = Polygon(slab_pts)
+                distance = pillar_poly.distance(slab_poly)
+            except Exception:
+                continue
+            if distance > 5.0 and not pillar_poly.intersects(slab_poly):
+                continue
+            side, face = self._pillar_face_from_edge_overlap(points, slab_pts, horizontal)
+            entries.append({
+                'laje': slab.get('name') or '?',
+                'side': side,
+                'face': face,
+                'source': 'canonical_geometry_adjacency',
+            })
+        return entries
+
+    def _build_complete_pillar_report(self, slabs: list[Dict]) -> dict:
+        """Monta o inventário canônico P# usado pela pré-ficha.
+
+        Existência vem dos textos P# da planta. Geometria/classificação/lajes
+        vêm dos vínculos já interpretados e, como fallback, da busca geométrica
+        dirigida pelo nome. Assim nenhum pilar some antes da pré-validação.
+        """
+        linked_report = self._build_pillar_report(slabs)
+        plan_names = self._collect_plan_pillar_names()
+
+        # Fallback: se coleta de textos falhou (dxf_data inválido ou textos não
+        # correspondem ao padrão), usa nomes do linked_report (vínculos das lajes)
+        # para não perder pilares — reproduz comportamento pré-refatoração.
+        if not plan_names and linked_report:
+            print(f"[WARN_PIL] plan_names vazio — fallback para {len(linked_report)} nomes do linked_report", flush=True)
+            for _nm, _entry in linked_report.items():
+                if not str(_nm).endswith('__ALT'):
+                    plan_names[_nm] = list(_entry.get('name_positions') or [])
+
+        result: dict = {}
+        claimed_geom_ids: set = set()
+
+        for name, positions in plan_names.items():
+            linked = linked_report.get(name)
+            points = list((linked or {}).get('points') or [])
+            source = 'slab_support_links' if points else 'unresolved'
+            if not points:
+                points, geom_id = self._find_pillar_geom_near_text(
+                    positions, claimed_geom_ids
+                )
+                if points:
+                    claimed_geom_ids.add(geom_id)
+                    points = list(points)
+                    source = 'name_proximity'
+
+            entry = dict(linked or {})
+            entry.update({
+                'name': name,
+                'points': points or [],
+                'name_positions': list(positions),
+                'geometry_source': source,
+                'needs_geometry': not bool(points),
+                'classification': entry.get('classification') or 'INDETERMINADO',
+                'ignore_in_beams': bool(entry.get('ignore_in_beams', False)),
+            })
+            if points:
+                try:
+                    xs = [float(p[0]) for p in points]
+                    ys = [float(p[1]) for p in points]
+                    entry['bbox'] = (min(xs), min(ys), max(xs), max(ys))
+                    from src.core.perspective_mapper import PillarPerspectiveMapper
+                    shape, orientation = PillarPerspectiveMapper.identify_shape(
+                        [tuple(p) for p in points]
+                    )
+                    entry['shape_type'] = shape
+                    entry['orientation'] = entry.get('orientation') or orientation
+                except Exception:
+                    entry['bbox'] = entry.get('bbox')
+                derived_lajes = self._pillar_laje_entries(points, slabs)
+                existing = {x.get('laje'): x for x in entry.get('lajes', [])}
+                for item in derived_lajes:
+                    existing.setdefault(item.get('laje'), item)
+                entry['lajes'] = list(existing.values())
+            else:
+                entry['bbox'] = None
+                entry['lajes'] = list(entry.get('lajes') or [])
+            result[name] = entry
+
+        self._reconcile_canonical_pillar_links(result, slabs)
+        return result
+
+    def _reconcile_canonical_pillar_links(self, report: dict,
+                                          slabs: list[Dict]) -> None:
+        """Remove pilares canônicos dos cortes e os registra como apoios das lajes."""
+        by_sig = {}
+        for name, entry in report.items():
+            pts = entry.get('points') or []
+            if pts:
+                by_sig[self._pillar_points_sig(pts)] = (name, entry)
+        if not by_sig:
+            return
+
+        for slab in slabs or []:
+            links = slab.setdefault('links', {})
+            cut_geom = (
+                links.setdefault('laje_visao_corte', {})
+                .setdefault('cut_view_geom', [])
+            )
+            if isinstance(cut_geom, list):
+                cut_geom[:] = [
+                    link for link in cut_geom
+                    if self._pillar_points_sig(link.get('points') or []) not in by_sig
+                ]
+
+            support = (
+                links.setdefault('laje_pilares_apoio', {})
+                .setdefault('pillar_geom', [])
+            )
+            if not isinstance(support, list):
+                continue
+            existing = {
+                self._pillar_points_sig(link.get('points') or [])
+                for link in support if isinstance(link, dict)
+            }
+            slab_name = slab.get('name') or '?'
+            for sig, (name, entry) in by_sig.items():
+                if sig in existing:
+                    continue
+                adjacency = next(
+                    (x for x in entry.get('lajes', [])
+                     if x.get('laje') == slab_name),
+                    None,
+                )
+                if not adjacency:
+                    continue
+                support.append({
+                    'type': 'poly',
+                    'points': entry.get('points') or [],
+                    'text': 'Pilar canônico detectado por nome',
+                    'role': 'Pillar_support_geom_canonical',
+                    'source': entry.get('geometry_source'),
+                    'is_inferred': True,
+                    'ficha': {
+                        'pillar_name': name,
+                        'pillar_side': adjacency.get('side', 'NULO'),
+                        'touch_face': adjacency.get('face', 'NULO'),
+                        'pillar_orientation': entry.get('orientation', ''),
+                        'hatch_description': entry.get(
+                            'classification', 'INDETERMINADO'
+                        ),
+                    },
+                })
+                existing.add(sig)
 
     def _build_pillar_report(self, slabs: list[Dict]) -> dict:
         """
@@ -12287,7 +12795,8 @@ class MainWindow(QMainWindow):
                 classif = str(classif).strip().upper() or '—'
                 if classif in ('INDETERMINADO', ''):
                     classif = '—'
-                tree_item.setText(3, classif)
+                tree_item.setText(3, str(pct_str))
+                tree_item.setText(4, classif)
                 _CLASSIF_COLORS = {
                     'NASCE':  '#4fc3f7',  # azul claro
                     'MORRE':  '#ef5350',  # vermelho
@@ -12297,9 +12806,9 @@ class MainWindow(QMainWindow):
                 }
                 _c = _CLASSIF_COLORS.get(classif)
                 if _c:
-                    tree_item.setForeground(3, QColor(_c))
+                    tree_item.setForeground(4, QColor(_c))
                 else:
-                    tree_item.setForeground(3, QColor('#888'))
+                    tree_item.setForeground(4, QColor('#888'))
 
             if item_type == 'slab':
                 tree_item.setText(3, str(pct_str))
@@ -13006,11 +13515,11 @@ class MainWindow(QMainWindow):
                         "area_n2_cm2": n2_entry.get("area_cm2"),
                         "has_coords": bool(n2_entry.get("coordenadas")),
                     }
-                    if entry["polygon_dims"] and n2_comp["comprimento"] and n2_comp["largura"]:
+                    if entry["polygon_dims"] and n2_comp.get("comprimento_n2") and n2_comp.get("largura_n2"):
                         pw = entry["polygon_dims"]["width"]
                         ph = entry["polygon_dims"]["height"]
-                        tc = float(n2_comp["comprimento"])
-                        tl = float(n2_comp["largura"])
+                        tc = float(n2_comp["comprimento_n2"])
+                        tl = float(n2_comp["largura_n2"])
                         # Best orientation match
                         d1 = min(abs(pw - tc) + abs(ph - tl), abs(pw - tl) + abs(ph - tc))
                         dim_delta = d1 / max(tc + tl, 1.0)
@@ -14427,8 +14936,7 @@ def main():
         window.setGeometry(screen.x() + 50, screen.y() + 50,
                            min(1600, screen.width() - 100),
                            min(1000, screen.height() - 100))
-        window.show()
-        window.setWindowState(Qt.WindowMaximized)
+        window.showMaximized()
         window.raise_()
         window.activateWindow()
         windows['main'] = window

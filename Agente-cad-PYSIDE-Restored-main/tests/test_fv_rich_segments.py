@@ -26,6 +26,9 @@ def test_fv_v301_rich_segments():
     
     # V301 deve ter 14 segmentos físicos separados por gaps
     assert len(rich) == 16, f"Esperado 16 segmentos, encontrou {len(rich)}"
+    assert [
+        i + 1 for i, segment in enumerate(rich) if segment.get('row_break')
+    ] == [7, 13], "As continuações entre linhas devem permanecer separadas"
     
     # Segmento 1: 305.5 -> paineis de 244 e 61.5
     seg1 = rich[0]

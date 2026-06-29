@@ -33,6 +33,7 @@ DIM_BELOW      = 37     # y = painel_bottom - DIM_BELOW -> cotas paineis individ
 DIM_TOTAL_BELOW= 60     # y = painel_bottom - DIM_TOTAL_BELOW -> cota total
 DIM_H_RIGHT    = 28     # x = painel_right + DIM_H_RIGHT -> cota h_lateral vertical
 GAP_AB         = 50     # gap horizontal entre Face A (right) e Face B (left)
+LV_UNIT_GAP    = 50.0   # gap entre continuacoes/face_units no viewer dedicado
 NOM_H          = 16.5   # altura texto NOMENCLATURA
 PID_H          = 12.0   # altura texto panel-ID interno
 
@@ -1369,7 +1370,7 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                       skip_layers=None,
                       nota_face_A=None, nota_face_B=None,
                       pontaletes_A=None, pontaletes_B=None,
-                      section_views=None):
+                      section_views=None, view='ALL'):
     """Desenha uma viga lateral completa em uma linha horizontal.
     Positions: [Secao] [SECT_GAP] [Face A] [GAP_AB] [Face B]
     border_strip_A/B: largura do border strip a desenhar após os painéis (0=sem strip).
@@ -1377,25 +1378,32 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     """
     if skip_layers is None:
         skip_layers = set()
+    view = str(view or 'ALL').upper()
+    if view not in {'ALL', 'CORTE', 'A', 'B'}:
+        raise ValueError(f'Vista LV invalida: {view}')
     h = max(h_A, h_B, 1.0)
     comp_A = sum(p['width'] for p in panels_A)
     comp_B = sum(p['width'] for p in panels_B)
     comprimento = max(comp_A, comp_B, 1.0)
 
     sect_total = max(SECT_W + SECT_GAP, int(b) + 178, LV_FACE_X0_MIN)
-    x_A = x_origin + sect_total
+    x_A = x_origin + sect_total if view == 'ALL' else x_origin
     x_sect_center = max(x_origin + 40, x_A - 124 - int(b))
 
     h_sect = h_section if h_section else h_A
     y0_sect = y_top - h_A
     section_view = (section_views or [None])[0]
     y_center_sect = y0_sect + h_sect / 2.0
-    if not draw_section_visual_primitives(
-        msp, section_view, x_sect_center, y_center_sect
-    ):
-        draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
-                            viga_nome=viga_nome, b_alma=b_alma,
-                            h_A=h_A, h_B=h_B, skip_layers=skip_layers)
+    if view in {'ALL', 'CORTE'}:
+        if not draw_section_visual_primitives(
+            msp, section_view, x_sect_center, y_center_sect
+        ):
+            draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
+                                viga_nome=viga_nome, b_alma=b_alma,
+                                h_A=h_A, h_B=h_B, skip_layers=skip_layers)
+
+    if view == 'CORTE':
+        return x_sect_center + max(140.0 + b, 220.0), y0_sect - 40.0
 
     _ls_A = laje_sup_A if laje_sup_A is not None else laje_sup
     _li_A = laje_inf_A if laje_inf_A is not None else laje_inf
@@ -1403,25 +1411,28 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     _li_B = laje_inf_B if laje_inf_B is not None else laje_inf
 
     y0_A = y_top - h_A
-    draw_lv_face(msp, x_A, y0_A, panels_A, h_A, f'{viga_nome}.A',
-                 holes=holes_A,
-                 pillar_left=pillar_left_A, pillar_right=pillar_right_A,
-                 laje_sup=_ls_A, laje_inf=_li_A,
-                 border_strip_width=border_strip_A,
-                 skip_layers=skip_layers, nota_face=nota_face_A,
-                 pontaletes_face=pontaletes_A)
+    if view in {'ALL', 'A'}:
+        draw_lv_face(msp, x_A, y0_A, panels_A, h_A, f'{viga_nome}.A',
+                     holes=holes_A,
+                     pillar_left=pillar_left_A, pillar_right=pillar_right_A,
+                     laje_sup=_ls_A, laje_inf=_li_A,
+                     border_strip_width=border_strip_A,
+                     skip_layers=skip_layers, nota_face=nota_face_A,
+                     pontaletes_face=pontaletes_A)
 
-    x_B  = x_A + comprimento + GAP_AB
+    x_B = x_A + comp_A + GAP_AB if view == 'ALL' else x_origin
     y0_B = y_top - h_B
-    draw_lv_face(msp, x_B, y0_B, panels_B, h_B, f'{viga_nome}.B',
-                 holes=holes_B,
-                 pillar_left=pillar_left_B, pillar_right=pillar_right_B,
-                 laje_sup=_ls_B, laje_inf=_li_B,
-                 border_strip_width=border_strip_B,
-                 skip_layers=skip_layers, nota_face=nota_face_B,
-                 pontaletes_face=pontaletes_B)
+    if view in {'ALL', 'B'}:
+        draw_lv_face(msp, x_B, y0_B, panels_B, h_B, f'{viga_nome}.B',
+                     holes=holes_B,
+                     pillar_left=pillar_left_B, pillar_right=pillar_right_B,
+                     laje_sup=_ls_B, laje_inf=_li_B,
+                     border_strip_width=border_strip_B,
+                     skip_layers=skip_layers, nota_face=nota_face_B,
+                     pontaletes_face=pontaletes_B)
 
-    x_max = x_B + comprimento + DIM_H_RIGHT + 40
+    face_width = comp_A if view == 'A' else comp_B
+    x_max = (x_A if view == 'A' else x_B) + face_width + DIM_H_RIGHT + 40
     y_min = min(y0_A, y0_B) - laje_inf - DIM_TOTAL_BELOW - 15
     return x_max, y_min
 
@@ -1461,7 +1472,8 @@ def _panel_from_face_unit_segment(seg: dict, h_face: float) -> dict:
 
 
 def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
-                                 section_views=None, b=19.0, skip_layers=None):
+                                 section_views=None, b=19.0, skip_layers=None,
+                                 view='ALL'):
     """Desenha viga LV com unidades/continuacoes detectadas no N2.
 
     A geometria original do recorte serve para extrair dados e ordenar as
@@ -1470,22 +1482,28 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
     """
     if skip_layers is None:
         skip_layers = set()
+    view = str(view or 'ALL').upper()
+    if view not in {'ALL', 'CORTE', 'A', 'B'}:
+        raise ValueError(f'Vista LV invalida: {view}')
     valid_units = []
     for unit in face_units or []:
         bbox = unit.get('bbox') or {}
         segs = unit.get('segments') or unit.get('panels') or []
-        if bbox and segs:
+        if segs:
             valid_units.append(unit)
-    if not valid_units:
+    if not valid_units and view != 'CORTE':
         return x_origin, y_top
 
-    min_x = min(float((u.get('bbox') or {}).get('x_left', 0)) for u in valid_units)
-    max_y = max(float((u.get('bbox') or {}).get('y_top', 0)) for u in valid_units)
     section_col_w = 210.0
-    face_x0 = x_origin + max(section_col_w + 60.0, LV_FACE_X0_MIN)
+    face_x0 = (
+        x_origin + max(section_col_w + 60.0, LV_FACE_X0_MIN)
+        if view == 'ALL'
+        else x_origin
+    )
 
     y_section = y_top - 150.0
-    for idx, sv in enumerate(section_views or []):
+    visible_sections = (section_views or []) if view in {'ALL', 'CORTE'} else []
+    for idx, sv in enumerate(visible_sections):
         h_sec = float(sv.get('h_section', 0) or sv.get('h_section_cm', 0) or 0)
         if h_sec <= 0:
             continue
@@ -1499,6 +1517,9 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
                                 viga_nome=label, b_alma=b, h_A=h_a, h_B=h_b,
                                 skip_layers=skip_layers)
         y_section -= max(h_sec + 90.0, 180.0)
+
+    if view == 'CORTE':
+        return x_origin + section_col_w, y_section
 
     prepared_units = []
     for unit in valid_units:
@@ -1522,28 +1543,22 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
         float((item[1] or {}).get('x_left', 0)),
     ))
 
-    col_widths = {'A': 0.0, 'B': 0.0, '?': 0.0}
-    for unit, _bbox, _h_face, panels in prepared_units:
-        side = str(unit.get('side') or '?').upper()
-        side = side if side in ('A', 'B') else '?'
-        col_widths[side] = max(
-            col_widths.get(side, 0.0),
-            sum(p['width'] for p in panels) + DIM_H_RIGHT + 50,
-        )
+    if view in {'A', 'B'}:
+        prepared_units = [
+            item for item in prepared_units
+            if str(item[0].get('side') or '').upper() == view
+        ]
 
-    col_gap = 170.0
-    x_cols = {'A': face_x0}
-    x_cols['B'] = x_cols['A'] + max(col_widths.get('A', 0.0), 260.0) + col_gap
-    x_cols['?'] = x_cols['B'] + max(col_widths.get('B', 0.0), 260.0) + col_gap
-    y_cursors = {side: y_top - 150.0 for side in ('A', 'B', '?')}
+    # Uma sequencia horizontal por viewer. Cada continuacao avanca pela sua
+    # largura real mais exatamente 50 cm, sem reutilizar a mesma origem.
+    x_cursor = face_x0
+    y_baseline = y_top - 150.0
     x_max = face_x0
     y_min = y_top
 
     for unit, _bbox, h_face, panels in prepared_units:
-        side = str(unit.get('side') or '?').upper()
-        side = side if side in ('A', 'B') else '?'
-        x0 = x_cols[side]
-        y0 = y_cursors[side] - h_face
+        x0 = x_cursor
+        y0 = y_baseline - h_face
         label = str(unit.get('label') or '')
         grade_layer_style = str(unit.get('grade_layer_style') or 'native')
         reverse_grade = grade_layer_style == 'paineis'
@@ -1561,11 +1576,12 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             reverse_grade_style=reverse_grade,
             suppress_sarrafo_spans=reverse_grade,
         )
-        x_max = max(x_max, x0 + sum(p['width'] for p in panels) + DIM_H_RIGHT + 40)
+        unit_width = sum(p['width'] for p in panels)
+        x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)
         y_min = min(y_min, y0 - DIM_TOTAL_BELOW - 30)
-        y_cursors[side] = y0 - DIM_TOTAL_BELOW - 110.0
+        x_cursor = x0 + unit_width + LV_UNIT_GAP
 
-    return max(x_max, x_cols.get('B', face_x0) + col_widths.get('B', 0.0) + 80), y_min
+    return x_max, y_min
 
 
 def draw_cards(msp, x0, y_bottom, obra_nome=''):
@@ -1611,8 +1627,14 @@ def main():
                         help='Injeta dados de teste na 1a viga (aberturas, pilares, h1!=h2)')
     parser.add_argument('--item', type=str, default=None,
                         help='Gerar só esta viga (ex: V001). Output: LV_preview_V001.dxf')
+    parser.add_argument('--seg_idx', type=int, default=-1,
+                        help='Índice do segmento para desenhar apenas aquele segmento (0-based).')
     parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
+    parser.add_argument(
+        '--view', choices=['ALL', 'CORTE', 'A', 'B'], default='ALL',
+        help='Artefato LV a gerar: combinado, corte, face A ou face B.',
+    )
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -1982,6 +2004,7 @@ def main():
                 section_views=v.get('section_views', []),
                 b=v['b'],
                 skip_layers=skip_layers,
+                view=args.view,
             )
             h_span = abs(y_cursor - y_min)
             print(f'  {v["nome"]:8s}: face_units={len(v.get("face_units", []))}  '
@@ -1995,6 +2018,18 @@ def main():
         panels_B = v['panels_B']
         if not panels_A:
             continue
+            
+        if hasattr(args, 'seg_idx') and args.seg_idx >= 0:
+            if args.seg_idx < len(panels_A):
+                panels_A = [panels_A[args.seg_idx]]
+            else:
+                panels_A = []
+                
+            idx_B = len(panels_B) - 1 - args.seg_idx
+            if 0 <= idx_B < len(panels_B):
+                panels_B = [panels_B[idx_B]]
+            else:
+                panels_B = []
 
         h_max = max(v['h_A'], v['h_B'])
         n_panels = max(len(panels_A), len(panels_B))
@@ -2039,7 +2074,8 @@ def main():
             nota_face_B    = _notas.get('B'),
             pontaletes_A   = fichas_pont_map.get(v['nome'], {}).get('A'),
             pontaletes_B   = fichas_pont_map.get(v['nome'], {}).get('B'),
-            section_views  = v.get('section_views', []),
+            section_views  = [v.get('section_views', [])[args.seg_idx]] if hasattr(args, 'seg_idx') and args.seg_idx >= 0 and args.seg_idx < len(v.get('section_views', [])) else v.get('section_views', []),
+            view           = args.view,
         )
 
         print(f'  {v["nome"]:8s}: comp={v["comp"]:.0f}cm  '
@@ -2053,7 +2089,8 @@ def main():
 
     # ── Cards de folha acima das vigas ─────────────────────────────────────
     obra_nome = obra_path.name.replace('_', ' ')
-    draw_cards(msp, 0, CARD_Y_GAP, obra_nome=obra_nome)
+    if args.view == 'ALL':
+        draw_cards(msp, 0, CARD_Y_GAP, obra_nome=obra_nome)
 
     # ── Sentinels: 1 entidade por layer STOG universal (>80% das obras reais) ──
     # Layers cobrindo elementos que o gerador NÃO desenha por padrão.
@@ -2208,7 +2245,28 @@ def main():
             print(f'  [CRIT-BOOST-LV] erro: {_e}')
 
     # ── Salvar DXF ─────────────────────────────────────────────────────────
-    out_name = f'LV_preview_{args.item}.dxf' if args.item else 'LV_stog_quality.dxf'
+    if args.item and args.view != 'ALL':
+        base_item = re.sub(r'_A$', '', args.item, flags=re.IGNORECASE)
+        view_suffix = 'CORTE' if args.view == 'CORTE' else f'VIEW_{args.view}'
+        out_name = f'LV_preview_{base_item}_{view_suffix}.dxf'
+    else:
+        out_name = f'LV_preview_{args.item}.dxf' if args.item else 'LV_stog_quality.dxf'
+
+    if args.view != 'ALL':
+        # Viewers dedicados nao recebem cards nem sentinelas/boosts distantes;
+        # assim o autofit enquadra somente o corte ou a face solicitada.
+        for entity in list(msp):
+            layer = str(getattr(entity.dxf, 'layer', '') or '')
+            remove = layer in {'Folhas', 'CARIMBO'}
+            if not remove and entity.dxftype() == 'LINE':
+                try:
+                    remove = max(
+                        float(entity.dxf.start.x), float(entity.dxf.end.x)
+                    ) < -1000.0
+                except Exception:
+                    remove = False
+            if remove:
+                msp.delete_entity(entity)
     out_dxf = out_dir / out_name
     apply_visual_mode(doc, args.visual_mode, 'LV')
     try:

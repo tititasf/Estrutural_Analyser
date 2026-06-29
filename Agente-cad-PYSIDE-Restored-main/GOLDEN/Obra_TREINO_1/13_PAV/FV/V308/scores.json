@@ -12,13 +12,13 @@
       "textos_ok": true,
       "hatches_ok": true,
       "total_ref": 58,
-      "total_n4": 24
+      "total_n4": 25
     },
     "n_diffs_ent": 0,
     "n_diffs_geom": 0,
     "n_diffs_txt": 0
   },
-  "n4_sha256": "8c5a4935d3125de71567215be85d12d295f1c83b3a40d4b5eb78c3b62f358155",
-  "selado_em": "2026-06-25T02:25:23.787860",
+  "n4_sha256": "66a07e5ac021e7108d443446009396a75e66002cd4c0626a709ec4a35b8b63c3",
+  "selado_em": "2026-06-29T12:08:22.862070",
   "proveniencia": "draft"
 }

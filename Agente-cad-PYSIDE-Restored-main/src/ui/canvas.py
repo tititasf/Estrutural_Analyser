@@ -787,7 +787,7 @@ class CADCanvas(QGraphicsView):
             font-weight: bold; font-family: 'Consolas', monospace;
         """)
         self.input_label.hide()
-        self.input_label.move(10, self.height() - 50)
+        self.input_label.move(10, self.height() - 80)
 
     def _init_cad_toolbar(self):
         """Cria barra de ferramentas superior redesenhada — ghost buttons com grupos."""
@@ -796,9 +796,9 @@ class CADCanvas(QGraphicsView):
 
         self.toolbar.setStyleSheet(f"""
             QWidget#CADToolbar {{
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                     stop:0 rgba(24, 24, 30, 255), stop:1 rgba(16, 16, 20, 255));
-                border-right: 1px solid rgba(0, 188, 212, 45);
+                border-top: 1px solid rgba(0, 188, 212, 45);
             }}
 
             /* ── Base: ghost ── */
@@ -856,27 +856,27 @@ class CADCanvas(QGraphicsView):
                 background: rgba(160, 112, 255, 66);
             }}
 
-            /* ── Separador horizontal ── */
+            /* ── Separador vertical ── */
             QFrame#vsep {{
                 background: rgba(255, 255, 255, 23);
-                min-width: 32px;
-                max-width: 32px;
-                min-height: 1px;
-                max-height: 1px;
-                margin-left: 5px;
+                min-width: 1px;
+                max-width: 1px;
+                min-height: 24px;
+                max-height: 24px;
+                margin-top: 5px;
             }}
         """)
 
-        from PySide6.QtWidgets import QVBoxLayout
-        layout = QVBoxLayout(self.toolbar)
-        layout.setContentsMargins(2, 8, 2, 8)
+        from PySide6.QtWidgets import QHBoxLayout
+        layout = QHBoxLayout(self.toolbar)
+        layout.setContentsMargins(8, 2, 8, 2)
         layout.setSpacing(6)
-        layout.setAlignment(Qt.AlignTop)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         def vsep():
             s = QFrame()
             s.setObjectName("vsep")
-            s.setFrameShape(QFrame.HLine)
+            s.setFrameShape(QFrame.VLine)
             return s
 
         self.tool_buttons = {}
@@ -885,9 +885,9 @@ class CADCanvas(QGraphicsView):
         from PySide6.QtWidgets import QCheckBox
         self.performatic_mode = True
         self.chk_perf_container = QWidget()
-        perf_layout = QVBoxLayout(self.chk_perf_container)
+        perf_layout = QHBoxLayout(self.chk_perf_container)
         perf_layout.setContentsMargins(0, 0, 0, 0)
-        perf_layout.setSpacing(2)
+        perf_layout.setSpacing(4)
         perf_layout.setAlignment(Qt.AlignCenter)
 
         self.chk_perf_render = QCheckBox()
@@ -995,7 +995,7 @@ class CADCanvas(QGraphicsView):
         # Modo inicial
         self.set_edit_mode('select')
 
-        self.toolbar.setGeometry(0, 0, 40, self.height())
+        self.toolbar.setGeometry(0, self.height() - 40, self.width(), 40)
 
     def toggle_ortho(self):
         """Liga/Desliga modo ortogonal"""
@@ -1086,9 +1086,9 @@ class CADCanvas(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'toolbar'):
-            self.toolbar.setGeometry(0, 0, 40, self.height())
+            self.toolbar.setGeometry(0, self.height() - 40, self.width(), 40)
         if hasattr(self, 'input_label'):
-            self.input_label.move(10, self.height() - 50)
+            self.input_label.move(10, self.height() - 80)
         if hasattr(self, 'loading_label') and self.loading_label.isVisible():
             x = (self.width() - self.loading_label.width()) // 2
             y = (self.height() - self.loading_label.height()) // 2

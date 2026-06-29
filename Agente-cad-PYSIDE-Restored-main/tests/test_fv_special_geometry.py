@@ -140,3 +140,67 @@ def test_dimension_tiers_are_spaced_25_cm_per_layer():
         and abs(entity.dxf.defpoint2.y - entity.dxf.defpoint3.y) < 1e-6
     })
     assert horizontal_tier_y == [-50.0, -25.0]
+
+
+def test_row_break_keeps_continuation_segments_15_cm_apart():
+    segments = [
+        {"total_width": 100.0, "panels": [{"width": 100.0}]},
+        {
+            "total_width": 80.0,
+            "row_break": True,
+            "panels": [{"width": 80.0}],
+        },
+    ]
+    doc = fv.setup_doc()
+
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V301",
+        label_left="", label_right="",
+    )
+
+    panel_starts = sorted({
+        round(min(point[0] for point in entity.get_points("xy")), 2)
+        for entity in doc.modelspace()
+        if entity.dxftype() == "LWPOLYLINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+    })
+    assert panel_starts == [0.0, 115.0]
+
+
+def test_support_text_offsets_distinguish_ends_from_between_segments():
+    segments = [
+        {
+            "total_width": 100.0,
+            "texto_esq": "INICIO",
+            "texto_dir": "APOIO",
+            "panels": [{"width": 100.0}],
+        },
+        {
+            "total_width": 80.0,
+            "row_break": True,
+            "texto_esq": "APOIO",
+            "texto_dir": "FINAL",
+            "panels": [{"width": 80.0}],
+        },
+    ]
+    doc = fv.setup_doc()
+
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V301",
+        label_left="", label_right="",
+    )
+
+    labels = {
+        entity.dxf.text: (
+            round(float(entity.dxf.insert.x), 2),
+            round(float(entity.dxf.insert.y), 2),
+        )
+        for entity in doc.modelspace()
+        if entity.dxftype() == "TEXT"
+        and entity.dxf.text in {"INICIO", "APOIO", "FINAL"}
+    }
+    assert labels == {
+        "INICIO": (-10.0, -45.0),
+        "APOIO": (95.0, -45.0),
+        "FINAL": (205.0, -45.0),
+    }

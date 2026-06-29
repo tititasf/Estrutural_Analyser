@@ -1,0 +1,23 @@
+{
+  "background": "#101318",
+  "entity_count": 228,
+  "height": 600,
+  "layers": [
+    "BARRA_ANCORAGEM",
+    "CONCRETO",
+    "COTA",
+    "ESTRUTURACAO",
+    "HACHURACONCRETO",
+    "Hachura",
+    "Madeira",
+    "Painéis",
+    "SARRAFO_2_2X7",
+    "detalhes"
+  ],
+  "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\n4_split_validation\\LV_preview_V301_CORTE.png",
+  "png_sha256": "6d8a0f7af6a29eccecf4553984f4ea015e12048ceec05db47363e74707ce0bb5",
+  "renderer_version": "dxf-canonical-v1",
+  "source_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\n4_split_validation\\LV_preview_V301_CORTE.dxf",
+  "source_sha256": "56f9a03737360f54720e7abeecbf8193862a14733532e285c335d56ebe51156f",
+  "width": 1600
+}

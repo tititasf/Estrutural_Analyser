@@ -105,27 +105,72 @@ class AdminDashboard(QWidget):
             QTabBar::tab:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; border-bottom: 2px solid {Text.BRIGHT}; }}
         """)
         
-        # 0. Community Projects List (Existing logic moved here)
+        # 1. Mapa RAG
+        self.mapa_tab = QWidget()
+        self.setup_mapa_tab()
+        self.tabs.addTab(self.mapa_tab, "🗺️ Mapa RAG")
+        
+        # 2. Enciclopédia
+        self.enciclopedia_tab = QWidget()
+        self.setup_enciclopedia_tab()
+        self.tabs.addTab(self.enciclopedia_tab, "📚 Enciclopédia")
+        
+        # 3. Corpus & Cobertura (Lista de Obras/Nuvem)
         self.curadoria_tab = QWidget()
         self.setup_curadoria_tab()
-        self.tabs.addTab(self.curadoria_tab, "📋 Lista de Curadoria")
+        self.tabs.addTab(self.curadoria_tab, "🌐 Corpus & Cobertura")
 
-        # 1. Database Dashboard
-        self.db_tab = QWidget()
-        self.setup_db_tab()
-        self.tabs.addTab(self.db_tab, "📊 Banco de Dados")
-        
-        # 2. Vector Intelligence
+        # 4. Aprendizado (Accuracy & Comprehension)
+        self.accuracy_tab = QWidget()
+        self.setup_accuracy_tab()
+        self.tabs.addTab(self.accuracy_tab, "📈 Aprendizado")
+
+        # 5. Memória Vetorial
         self.vector_tab = QWidget()
         self.setup_vector_tab()
         self.tabs.addTab(self.vector_tab, "🧠 Memória Vetorial")
-        
-        # 3. Accuracy & Comprehension
-        self.accuracy_tab = QWidget()
-        self.setup_accuracy_tab()
-        self.tabs.addTab(self.accuracy_tab, "🎯 Acurácia & IA")
+
+        # 6. Banco de Dados (Pipeline)
+        self.db_tab = QWidget()
+        self.setup_db_tab()
+        self.tabs.addTab(self.db_tab, "🗄️ Banco de Dados")
         
         layout.addWidget(self.tabs)
+
+    def setup_mapa_tab(self):
+        layout = QVBoxLayout(self.mapa_tab)
+        layout.setAlignment(Qt.AlignCenter)
+        lbl = QLabel("🗺️ MAPA RAG - Fluxo do Segundo Cérebro\n\nN1/N2 (Drafts) -> Quarentena (T0)\nValidação Humana -> Professor (T1)\nConsolidação Global -> Regra (T2)")
+        lbl.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-size: 20px; font-weight: bold; background: {Colors.BG_CARD}; padding: 30px; border-radius: 12px; border: 1px solid {Accent.PRIMARY};")
+        lbl.setAlignment(Qt.AlignCenter)
+        layout.addWidget(lbl)
+
+    def setup_enciclopedia_tab(self):
+        layout = QVBoxLayout(self.enciclopedia_tab)
+        layout.setAlignment(Qt.AlignTop)
+        title = QLabel("📚 Enciclopédia Estrutural (As 8 Dimensões)")
+        title.setStyleSheet(f"color: {Accent.PRIMARY}; font-size: 22px; font-weight: bold; margin-bottom: 20px;")
+        layout.addWidget(title)
+        
+        dims = [
+            "1. Visual Estrutural Limpa (N1)", "2. Desenho dos Robôs (N3/N4)", 
+            "3. Dados / Fichas / Campos", "4. Regras Semânticas (Domain Knowledge)",
+            "5. Contexto Obra/Pavimento", "6. Engenharia Reversa (N2)",
+            "7. Visual STOG (Layers/Cores)", "8. Corpus Global (FAISS)"
+        ]
+        grid = QGridLayout()
+        grid.setSpacing(15)
+        
+        for i, dim in enumerate(dims):
+            card = QFrame()
+            card.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Border.DEFAULT}; border-radius: 8px;")
+            cl = QVBoxLayout(card)
+            l = QLabel(dim)
+            l.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-weight: bold; font-size: 14px;")
+            cl.addWidget(l)
+            grid.addWidget(card, i // 2, i % 2)
+            
+        layout.addLayout(grid)
 
     def setup_curadoria_tab(self):
         """Nova UI: Lista de Obras (Esq) | Abas Detalhes (Dir)"""

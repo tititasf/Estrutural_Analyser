@@ -844,8 +844,10 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         next_seg = segments[i+1]
         is_next_copy = isinstance(next_seg, dict) and next_seg.get('_is_mult_copy')
         
-        # Se o próximo segmento for uma cópia de multiplicador, aplicamos um gap visual (ex: 15cm)
-        if is_next_copy:
+        # Cópias e continuações vindas de outra linha da prancha precisam
+        # permanecer como segmentos visualmente separados no N4.
+        is_row_break = isinstance(next_seg, dict) and next_seg.get('row_break')
+        if is_next_copy or is_row_break:
             mult_gap = 15.0
             gaps.append((mult_gap, ''))
             current_pos += mult_gap
@@ -1045,7 +1047,9 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         # Posiciona textos 15cm abaixo da cota mais baixa global (10cm originais + 5cm extras)
         label_y = global_lowest_cota_y - 15
-        
+        # Textos inicial/final ficam 5cm mais abaixo para distinguir dos "entre segmentos"
+        label_y_ends = label_y - 5
+
         seg_label_left = ''
         seg_label_right = ''
         if isinstance(seg_item, dict):
@@ -1058,20 +1062,35 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         if seg_idx == len(segments) - 1 and not seg_label_right and label_right:
             seg_label_right = label_right
 
+        is_first_seg = (seg_idx == 0)
+        is_last_seg  = (seg_idx == len(segments) - 1)
+
         if str(seg_label_left).strip() and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan'):
             text_left = str(seg_label_left).strip()
             # Verifica contra o texto direito do anterior E contra o gap_label anterior
             if not last_drawn_text or text_left.lower() != last_drawn_text.lower():
-                add_text(msp, seg_x0 - 10, label_y, text_left, LABEL_H, '5',
-                         halign=2, rotation=0)
-        
+                if is_first_seg:
+                    # Texto inicial: 5cm mais abaixo, posição X normal
+                    add_text(msp, seg_x0 - 10, label_y_ends, text_left, LABEL_H, '5',
+                             halign=2, rotation=0)
+                else:
+                    # Texto entre segmentos: 15cm para a esquerda e 5cm abaixo
+                    add_text(msp, seg_x0 - 25, label_y_ends, text_left, LABEL_H, '5',
+                             halign=2, rotation=0)
+
         # Limpa o texto anterior, pois agora estamos processando o texto direito e o gap DESSA iteração
         last_drawn_text = None
-        
+
         if str(seg_label_right).strip() and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan'):
             text_right = str(seg_label_right).strip()
-            add_text(msp, seg_x_end + 10, label_y, text_right, LABEL_H, '5',
-                     halign=0, rotation=0)
+            if is_last_seg:
+                # Texto final: 5cm mais abaixo, posição X normal
+                add_text(msp, seg_x_end + 10, label_y_ends, text_right, LABEL_H, '5',
+                         halign=0, rotation=0)
+            else:
+                # Texto entre segmentos: 15cm para a esquerda e 5cm abaixo
+                add_text(msp, seg_x_end - 5, label_y_ends, text_right, LABEL_H, '5',
+                         halign=0, rotation=0)
             last_drawn_text = text_right
 
         if seg_idx < len(gaps):
@@ -1079,12 +1098,13 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             if gap_label and gap_label != 'Pilar Cruzado':
                 gap_text = gap_label.strip()
                 if last_drawn_text and gap_text.lower() == last_drawn_text.lower():
-                    pass # Já foi desenhado pelo right_text
+                    pass  # Já foi desenhado pelo right_text
                 else:
                     gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                    add_text(msp, gap_center, label_y, gap_text, LABEL_H, '5',
+                    # Texto entre segmentos: 15cm para a esquerda e 5cm abaixo
+                    add_text(msp, gap_center - 15, label_y_ends, gap_text, LABEL_H, '5',
                              halign=1, rotation=0)
-                    last_drawn_text = gap_text # Atualiza para o próximo segmento checar!
+                    last_drawn_text = gap_text  # Atualiza para o próximo segmento checar!
 
         # Draw individual sub-panel dims (1st level, and tiers if present)
         xp = seg_x0

@@ -1,0 +1,17 @@
+{
+  "background": "#101318",
+  "entity_count": 380,
+  "height": 600,
+  "layers": [
+    "COTA",
+    "NOMENCLATURA",
+    "Painéis",
+    "SARR_2.2x7"
+  ],
+  "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\n4_split_validation\\LV_preview_V301_VIEW_A.png",
+  "png_sha256": "5b5c799c8685d77aa737fddacc3e8fe58ec1ca242d7012a966bdf7460019091e",
+  "renderer_version": "dxf-canonical-v1",
+  "source_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\n4_split_validation\\LV_preview_V301_VIEW_A.dxf",
+  "source_sha256": "a485ab2236e1718767c1c3d35ea873cf384b559b9668182858f5ee1426bfc204",
+  "width": 1600
+}

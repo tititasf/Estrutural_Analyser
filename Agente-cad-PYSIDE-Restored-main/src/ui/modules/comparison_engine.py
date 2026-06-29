@@ -4002,17 +4002,38 @@ class LevelColumn(QFrame):
 
     def switch_to_lv_zones(self, zone_paths: dict, er_ficha: dict,
                             zone_fichas: "dict | None" = None):
-        """Replace viewer+ficha with 2-panel layout for LV.
+        """Exibe LV em três artefatos independentes: corte, face A e face B.
 
         zone_paths: {'Visão Corte': (dxf_path, bbox_or_None),
-                     'Lateral A-B': (dxf_path, bbox_or_None)}
+                     'Visão A': (dxf_path, bbox_or_None),
+                     'Visão B': (dxf_path, bbox_or_None)}
         er_ficha:   full LV ficha dict (campos: h_cm, h_B_cm, b_cm, tipo_viga,
                     segmentos, segmentos_B, laje_sup_cm, laje_inf_cm, ...)
         """
         ACCENT = Semantic.SUCCESS
-        ZONES = ['Visão Corte', 'Lateral A-B']
+        ZONES = ['Visão Corte', 'Visão A', 'Visão B']
         lay = self.layout()
         from pathlib import Path as _Path
+
+        def _side_ficha(side: str) -> dict:
+            data = dict(er_ficha or {})
+            units = data.get('face_units') or []
+            if units:
+                data['face_units'] = [
+                    unit for unit in units
+                    if str(unit.get('side') or '').upper() == side
+                ]
+            elif side == 'A':
+                data['segmentos'] = (
+                    data.get('segmentos') or data.get('panels_A') or []
+                )
+                data['segmentos_B'] = []
+            else:
+                data['segmentos'] = []
+                data['segmentos_B'] = (
+                    data.get('segmentos_B') or data.get('panels_B') or []
+                )
+            return data
 
         if not getattr(self, '_pil_mode', False):
             self._splitter_vf.setVisible(False)
@@ -4042,10 +4063,11 @@ class LevelColumn(QFrame):
                 pv.addWidget(view, self.SINGLE_VIEWER_STRETCH[0])
 
                 # Ficha estruturada (substituem as antigas tabelas simples)
-                if zone == 'Lateral A-B':
-                    ficha_w = _lv_segs_table(er_ficha or {}, ACCENT)
-                else:
+                if zone == 'Visão Corte':
                     ficha_w = _lv_section_widget(er_ficha or {}, ACCENT)
+                else:
+                    side = 'A' if zone == 'Visão A' else 'B'
+                    ficha_w = _lv_segs_table(_side_ficha(side), ACCENT)
                 ficha_w.setMinimumHeight(120)
                 ficha_w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 pv.addWidget(ficha_w, self.SINGLE_VIEWER_STRETCH[1])
@@ -4054,22 +4076,14 @@ class LevelColumn(QFrame):
                 self._zone_fichas[zone] = ficha_w
                 splitter.addWidget(panel)
 
-            # Visão Corte ~26%, Lateral A-B ~74%
-            splitter.setSizes([264, 736])
+            # Corte compacto; A e B recebem a mesma largura para comparação.
+            splitter.setSizes([220, 390, 390])
             lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
         else:
             # Já em modo LV — atualizar fichas sem recriar o layout
-            if 'Lateral A-B' in self._zone_fichas:
-                old = self._zone_fichas['Lateral A-B']
-                new = _lv_segs_table(er_ficha or {}, ACCENT)
-                new.setMinimumHeight(120)
-                new.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                old.parent().layout().replaceWidget(old, new)
-                old.setParent(None); old.deleteLater()
-                self._zone_fichas['Lateral A-B'] = new
             if 'Visão Corte' in self._zone_fichas:
                 old = self._zone_fichas['Visão Corte']
                 new = _lv_section_widget(er_ficha or {}, ACCENT)
@@ -4078,8 +4092,18 @@ class LevelColumn(QFrame):
                 old.parent().layout().replaceWidget(old, new)
                 old.setParent(None); old.deleteLater()
                 self._zone_fichas['Visão Corte'] = new
+            for zone, side in (('Visão A', 'A'), ('Visão B', 'B')):
+                if zone not in self._zone_fichas:
+                    continue
+                old = self._zone_fichas[zone]
+                new = _lv_segs_table(_side_ficha(side), ACCENT)
+                new.setMinimumHeight(120)
+                new.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                old.parent().layout().replaceWidget(old, new)
+                old.setParent(None); old.deleteLater()
+                self._zone_fichas[zone] = new
 
-        # ── Carregar DXFs (mesmo arquivo, bboxes diferentes → culling por X) ──
+        # Cada painel recebe seu próprio DXF; bbox permanece como fallback legado.
         for zone, view in self._zone_views.items():
             entry = zone_paths.get(zone)
             if entry:
@@ -9122,7 +9146,7 @@ class ComparisonEngineModule(QWidget):
             # FV N3 shares the generator/profile with N4 and must not reuse a
             # preview produced with an older visual/detail contract. Its input
             # remains the persistent Fase-4 ficha derived from N1.
-            if classe in ("LJ", "FV") or force_regen:
+            if classe in ("LJ", "FV", "LV") or force_regen:
                 n3_dxf = None
             col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
             self._configure_level_attention("N3", classe, item_id)
@@ -9132,10 +9156,8 @@ class ComparisonEngineModule(QWidget):
             if n3_dxf and n3_dxf.exists():
                 if classe == 'LV':
                     _n3_er = self._build_n3_lv_er_ficha(item_id)
-                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_n3_er)
                     col.switch_to_lv_zones(
-                        {'Visão Corte': (str(n3_dxf), vc_bbox),
-                         'Lateral A-B': (str(n3_dxf), lat_bbox)},
+                        self._lv_generated_zone_paths(n3_dxf, _n3_er),
                         _n3_er
                     )
                 else:
@@ -9145,7 +9167,13 @@ class ComparisonEngineModule(QWidget):
                 self._refresh_n3_compare_n4_if_active(classe, item_id)
                 self.nav_sidebar._enable_item_btns()
             else:
-                self._start_n3_generation(classe, item_id, col)
+                if classe == 'LV':
+                    n3_ficha = self._build_n3_lv_er_ficha(item_id)
+                    self._start_n4_lv_generation(
+                        item_id, n3_ficha, obra_dir, col, level='N3'
+                    )
+                else:
+                    self._start_n3_generation(classe, item_id, col)
 
         except Exception as exc:
             print(f"[CE] _on_gerar_n3 error: {exc}")
@@ -9211,10 +9239,8 @@ class ComparisonEngineModule(QWidget):
             if code == 0 and n3_dxf and n3_dxf.exists():
                 if classe == 'LV':
                     _n3_er = self._build_n3_lv_er_ficha(item_id)
-                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_n3_er)
                     col.switch_to_lv_zones(
-                        {'Visão Corte': (str(n3_dxf), vc_bbox),
-                         'Lateral A-B': (str(n3_dxf), lat_bbox)},
+                        self._lv_generated_zone_paths(n3_dxf, _n3_er),
                         _n3_er
                     )
                 else:
@@ -9309,14 +9335,9 @@ class ComparisonEngineModule(QWidget):
             _ce_log(f"N4 dxf_check n4_dxf={n4_dxf} force_regen={force_regen}")
             if n4_dxf and n4_dxf.exists() and not force_regen:
                 if classe == 'LV':
-                    # 2-panel view: Visão Corte | Lateral A-B
-                    # sect_total = max(SECT_W+SECT_GAP, b+178) = max(190, b+178)
-                    # Face A começa em x = sect_total — corte 15cm antes para não incluir painéis
-                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(er_ficha or {})
-                    lv_zones = {
-                        'Visão Corte': (str(n4_dxf), vc_bbox),
-                        'Lateral A-B': (str(n4_dxf), lat_bbox),
-                    }
+                    lv_zones = self._lv_generated_zone_paths(
+                        n4_dxf, er_ficha or {}
+                    )
                     col.switch_to_lv_zones(lv_zones, er_ficha or {})
                     col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 LV — {item_id}", Colors.ACCENT_SUCCESS)
@@ -10204,6 +10225,29 @@ class ComparisonEngineModule(QWidget):
         lat_bbox = (sect_total - 5, y_min_section - 120, 99999, y_max_section + 120)
         return vc_bbox, lat_bbox
 
+    def _lv_generated_zone_paths(self, dxf_path: Path, er_ficha: dict) -> dict:
+        """Resolve o pacote LV separado; aceita o DXF combinado como fallback."""
+        path = Path(dxf_path)
+        stem = re.sub(r'^LV_preview_', '', path.stem, flags=re.IGNORECASE)
+        base_id = re.sub(r'_A$', '', stem, flags=re.IGNORECASE)
+        dedicated = {
+            'Visão Corte': path.parent / f'LV_preview_{base_id}_CORTE.dxf',
+            'Visão A': path.parent / f'LV_preview_{base_id}_VIEW_A.dxf',
+            'Visão B': path.parent / f'LV_preview_{base_id}_VIEW_B.dxf',
+        }
+        if all(candidate.exists() for candidate in dedicated.values()):
+            return {
+                zone: (str(candidate), None)
+                for zone, candidate in dedicated.items()
+            }
+
+        vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(er_ficha or {})
+        return {
+            'Visão Corte': (str(path), vc_bbox),
+            'Visão A': (str(path), lat_bbox),
+            'Visão B': (str(path), lat_bbox),
+        }
+
     def _build_n3_lv_er_ficha(self, item_id: str) -> dict:
         """Constrói er_ficha mínimo para N3 LV a partir de fichas_lv_v2.json."""
         import re as _re
@@ -10217,19 +10261,31 @@ class ComparisonEngineModule(QWidget):
         for e in entries:
             face = str(e.get('face', 'A')).upper()
             segs = e.get('segmentos', [])
-            panels = [{'largura_cm': float(s.get('largura_cm', 0) or 0)} for s in segs]
-            face_units.append({'side': face, 'label': f'Face {face}', 'panels': panels,
-                               'h_body': e.get('h_cm', 0), 'laje_sup': e.get('laje_sup_cm', 0),
-                               'laje_inf': e.get('laje_inf_cm', 0)})
+            panels = [dict(segment) for segment in segs]
+            face_units.append({
+                'side': face,
+                'label': f'{base}.{face}',
+                'panels': panels,
+                'h_body': e.get('h_cm', 0),
+                'laje_sup': e.get('laje_sup_cm', 0),
+                'laje_inf': e.get('laje_inf_cm', 0),
+            })
         entry_a = next((e for e in entries if str(e.get('face', '')).upper() == 'A'), {})
         entry_b = next((e for e in entries if str(e.get('face', '')).upper() == 'B'), {})
-        return {'h_cm': entry_a.get('h_cm', 0), 'h_B_cm': entry_b.get('h_cm', 0),
-                'b_cm': entry_a.get('b_cm', 0), 'tipo_viga': entry_a.get('tipo_viga', '—'),
-                'face_units': face_units}
+        return {
+            'h_cm': entry_a.get('h_cm', 0),
+            'h_B_cm': entry_b.get('h_cm', entry_a.get('h_B_cm', 0)),
+            'b_cm': entry_a.get('b_cm', 0),
+            'h_section': entry_a.get('h_section_cm', 55),
+            'tipo_viga': entry_a.get('tipo_viga', '—'),
+            'section_views': entry_a.get('section_views', []),
+            'face_units': face_units,
+            '_sa_meta': {'source': 'Structural Analyzer / N1'},
+        }
 
     def _start_n4_lv_generation(self, item_id: str, er_ficha: dict,
-                                obra_dir: Path, col):
-        """Gera N4 LV via gerar_lv_n4_fichas.py (bypass DB — LV não está no DB)."""
+                                obra_dir: Path, col, level: str = 'N4'):
+        """Executa o motor LV comum; apenas a ficha de entrada muda entre N3/N4."""
         if self._process is not None:
             if self._process.state() == QProcess.Running:
                 try:
@@ -10249,10 +10305,13 @@ class ComparisonEngineModule(QWidget):
         _clean_id = _re.sub(r'_(Para|Passa)$', '', item_id, flags=_re.IGNORECASE)
         base_id = _re.sub(r'[_\.]([AB])$', '', _clean_id, flags=_re.IGNORECASE)
         n4_script = SCRIPTS_DIR / "arete" / "gerar_lv_n4_fichas.py"
-        out_dir    = obra_dir / "Fase-6_Execucao_CAD" / "n4"
+        level = str(level or 'N4').upper()
+        out_dir = obra_dir / "Fase-6_Execucao_CAD"
+        if level == 'N4':
+            out_dir = out_dir / "n4"
         out_dir.mkdir(parents=True, exist_ok=True)
         entry_path = Path(_tempfile.gettempdir()) / (
-            f"ce_lv_{base_id}_{_uuid.uuid4().hex}.json")
+            f"ce_lv_{level.lower()}_{base_id}_{_uuid.uuid4().hex}.json")
         entry_path.write_text(
             json.dumps(er_ficha, ensure_ascii=False, indent=2),
             encoding="utf-8",
@@ -10265,25 +10324,33 @@ class ComparisonEngineModule(QWidget):
         def _on_done(code, _sig,
                      _base_id=base_id, _item_id=item_id,
                      _out_dir=out_dir, _col=col, _er_ficha=er_ficha,
-                     _entry_path=entry_path):
+                     _entry_path=entry_path, _level=level):
             try:
                 # DXF gerado: LV_preview_{base_id}_A.dxf
                 dxf_path = _out_dir / f"LV_preview_{_base_id}_A.dxf"
                 if code == 0 and dxf_path.exists():
-                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_er_ficha or {})
-                    lv_zones = {
-                        'Visão Corte': (str(dxf_path), vc_bbox),
-                        'Lateral A-B': (str(dxf_path), lat_bbox),
-                    }
+                    lv_zones = self._lv_generated_zone_paths(
+                        dxf_path, _er_ficha or {}
+                    )
                     _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
-                    self._configure_level_attention("N4", "LV", _item_id)
-                    self._configure_level_attention("N3", "LV", _item_id)
-                    self.nav_sidebar.set_status(f"✅ N4 LV gerado — {_item_id}", Colors.ACCENT_SUCCESS)
+                    self._configure_level_attention(_level, "LV", _item_id)
+                    if _level == 'N4':
+                        self._configure_level_attention("N3", "LV", _item_id)
+                    self.nav_sidebar.set_status(
+                        f"✅ {_level} LV gerado — {_item_id}",
+                        Colors.ACCENT_SUCCESS,
+                    )
                     self._refresh_n3_compare_n4_if_active("LV", _item_id)
+                    if _level == 'N3':
+                        self.tri_level.set_processing(False)
+                        self.nav_sidebar.refresh_tree()
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
-                    self.nav_sidebar.set_status(f"❌ N4 LV falhou — {_item_id}", Colors.ACCENT_ERROR)
+                    self.nav_sidebar.set_status(
+                        f"❌ {_level} LV falhou — {_item_id}",
+                        Colors.ACCENT_ERROR,
+                    )
             except Exception as _e:
                 print(f"[CE] _on_done LV n4: {_e}")
             finally:
@@ -10301,7 +10368,7 @@ class ComparisonEngineModule(QWidget):
                 "--out", str(out_dir),
                 "--obra", str(obra_dir),
                 "--entry-json", str(entry_path),
-                "--visual-mode", self._visual_mode_for("N4"),
+                "--visual-mode", self._visual_mode_for(level),
             ],
         )
 
@@ -10433,11 +10500,9 @@ class ComparisonEngineModule(QWidget):
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
                     generated.replace(canon)
                     if _classe == 'LV':
-                        vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_er_ficha or {})
-                        lv_zones = {
-                            'Visão Corte': (str(canon), vc_bbox),
-                            'Lateral A-B': (str(canon), lat_bbox),
-                        }
+                        lv_zones = self._lv_generated_zone_paths(
+                            canon, _er_ficha or {}
+                        )
                         _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     else:
                         n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None

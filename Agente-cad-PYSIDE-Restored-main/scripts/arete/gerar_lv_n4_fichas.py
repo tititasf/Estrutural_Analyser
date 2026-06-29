@@ -166,7 +166,24 @@ def gerar_lv_n4(elem: str, entry: dict,
                 tmp_root: Path | None = None,
                 visual_mode: str = 'NOVA') -> dict:
     """Gera N4 para 1 viga. Retorna {ok, dxf_path, log}."""
-    result = {'elem': elem, 'ok': False, 'dxf_path': None, 'log': ''}
+    result = {
+        'elem': elem,
+        'ok': False,
+        'dxf_path': None,
+        'view_paths': {},
+        'log': '',
+    }
+
+    entry = dict(entry)
+    if not entry.get('section_views'):
+        h_a = float(entry.get('h_cm', entry.get('h_A', 55)) or 55)
+        h_b = float(entry.get('h_B_cm', entry.get('h_B', h_a)) or h_a)
+        entry['section_views'] = [{
+            'h_A': h_a,
+            'h_B': h_b,
+            'h_section': float(entry.get('h_section_cm', 55) or 55),
+            'b': float(entry.get('b_cm', entry.get('b_geom', 19)) or 19),
+        }]
 
     tmp_base = Path(tmp_root) if tmp_root else Path(tempfile.mkdtemp(prefix='lv_n4_'))
     obra_dir = tmp_base / f"LV_13PAV_{elem}"
@@ -195,6 +212,7 @@ def gerar_lv_n4(elem: str, entry: dict,
         '--item', elem + '_A',
         '--max', '1',
         '--visual-mode', visual_mode,
+        '--view', 'ALL',
     ]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=90, cwd=str(REPO))
@@ -205,7 +223,7 @@ def gerar_lv_n4(elem: str, entry: dict,
 
         # Copiar DXF N4 para out_dir
         out_dir.mkdir(parents=True, exist_ok=True)
-        dxf_src = out_fase6 / f"LV_{elem}_A.dxf"
+        dxf_src = out_fase6 / f"LV_preview_{elem}_A.dxf"
         if not dxf_src.exists():
             # tentar nome sem _A
             cands = list(out_fase6.glob(f"LV_*{elem}*.dxf"))
@@ -215,6 +233,36 @@ def gerar_lv_n4(elem: str, entry: dict,
             dxf_dst = out_dir / dxf_src.name
             shutil.copy2(dxf_src, dxf_dst)
             result['dxf_path'] = str(dxf_dst)
+            result['view_paths']['ALL'] = str(dxf_dst)
+
+            for view, filename in (
+                ('CORTE', f'LV_preview_{elem}_CORTE.dxf'),
+                ('A', f'LV_preview_{elem}_VIEW_A.dxf'),
+                ('B', f'LV_preview_{elem}_VIEW_B.dxf'),
+            ):
+                view_cmd = [
+                    sys.executable, str(GERADOR),
+                    '--obra', str(obra_dir),
+                    '--item', elem + '_A',
+                    '--max', '1',
+                    '--visual-mode', visual_mode,
+                    '--view', view,
+                ]
+                view_run = subprocess.run(
+                    view_cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=90,
+                    cwd=str(REPO),
+                )
+                result['log'] += (view_run.stdout or '') + (view_run.stderr or '')
+                view_src = out_fase6 / filename
+                if view_run.returncode != 0 or not view_src.exists():
+                    result['log'] += f'\n[{view} ausente ou falhou: {view_src}]'
+                    return result
+                view_dst = out_dir / filename
+                shutil.copy2(view_src, view_dst)
+                result['view_paths'][view] = str(view_dst)
             result['ok'] = True
         else:
             result['log'] += f'\n[DXF não encontrado em {out_fase6}]'

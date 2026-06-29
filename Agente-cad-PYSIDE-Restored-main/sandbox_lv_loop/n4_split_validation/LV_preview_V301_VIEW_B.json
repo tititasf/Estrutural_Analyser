@@ -1,0 +1,18 @@
+{
+  "background": "#101318",
+  "entity_count": 341,
+  "height": 600,
+  "layers": [
+    "COTA",
+    "NOMENCLATURA",
+    "Painéis",
+    "Reaproveitamento",
+    "SARR_2.2x7"
+  ],
+  "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\n4_split_validation\\LV_preview_V301_VIEW_B.png",
+  "png_sha256": "dd2972736c52542b02c0da5aeaa9a74e933e3283459a6bc06a5237df6e2dd10b",
+  "renderer_version": "dxf-canonical-v1",
+  "source_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\n4_split_validation\\LV_preview_V301_VIEW_B.dxf",
+  "source_sha256": "e15d8311d005fc516d1186ae98232c25fff23f2ddf14f62e97e9ee4e2a6bba2e",
+  "width": 1600
+}

@@ -1390,7 +1390,7 @@ class _CenterPanel(QFrame):
 
         # CADCanvas — sempre em modo select; pan via botão do meio
         self.canvas = CADCanvas()
-        self.canvas.toolbar.setVisible(False)
+        # self.canvas.toolbar.setVisible(False)
         self.canvas.set_edit_mode('select')
         comp_lay.addWidget(self.canvas, 1)
         self._tabs.addTab(completo_container, "Visualizador Projeto Completo")
@@ -1480,7 +1480,7 @@ class _CenterPanel(QFrame):
 
         # CADCanvas granular — sempre em modo select; pan via botão do meio
         self.canvas_granular = CADCanvas()
-        self.canvas_granular.toolbar.setVisible(False)
+        # self.canvas_granular.toolbar.setVisible(False)
         self.canvas_granular.set_edit_mode('select')
         gran_lay.addWidget(self.canvas_granular, 1)
 

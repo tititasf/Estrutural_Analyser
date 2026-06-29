@@ -76,13 +76,62 @@ def _entity_extents(entity) -> tuple[float, float, float, float] | None:
                 max(float(entity.dxf.start.x), float(entity.dxf.end.x)),
                 max(float(entity.dxf.start.y), float(entity.dxf.end.y)),
             )
+
+_SENTINEL_X = -5000.0
+
+
+def natural_key(value: str) -> list[object]:
+    parts = re.split(r"(\d+)", str(value).upper())
+    return [int(p) if p.isdigit() else p for p in parts]
+
+
+def _safe_name(value: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value).strip())
+    return safe.strip("_") or "GERAL"
+
+
+def _entity_extents(entity) -> tuple[float, float, float, float] | None:
+    try:
+        ext = bbox.extents([entity], fast=True)
+        if ext.has_data:
+            return (float(ext.extmin.x), float(ext.extmin.y), float(ext.extmax.x), float(ext.extmax.y))
+    except Exception:
+        pass
+
+    try:
+        t = entity.dxftype()
+        if t == "LINE":
+            return (
+                min(float(entity.dxf.start.x), float(entity.dxf.end.x)),
+                min(float(entity.dxf.start.y), float(entity.dxf.end.y)),
+                max(float(entity.dxf.start.x), float(entity.dxf.end.x)),
+                max(float(entity.dxf.start.y), float(entity.dxf.end.y)),
+            )
         if t == "LWPOLYLINE":
             pts = list(entity.vertices())
             if pts:
                 xs = [float(p[0]) for p in pts]
                 ys = [float(p[1]) for p in pts]
                 return (min(xs), min(ys), max(xs), max(ys))
-        if t in ("TEXT", "MTEXT", "INSERT") and hasattr(entity.dxf, "insert"):
+        if t in ("TEXT", "MTEXT") and hasattr(entity.dxf, "insert"):
+            ix = float(entity.dxf.insert.x)
+            iy = float(entity.dxf.insert.y)
+            width = 50.0
+            height = 10.0
+            if t == "TEXT":
+                height = float(getattr(entity.dxf, "height", 10.0))
+                width = len(str(getattr(entity.dxf, "text", ""))) * height * 0.8
+            elif t == "MTEXT":
+                width = float(getattr(entity.dxf, "width", 50.0))
+                height = float(getattr(entity.dxf, "char_height", 10.0)) * 2
+            
+            return (
+                ix,
+                iy - height,
+                ix + width,
+                iy + height,
+            )
+        if t == "INSERT" and hasattr(entity.dxf, "insert"):
             return (
                 float(entity.dxf.insert.x),
                 float(entity.dxf.insert.y),
@@ -321,10 +370,10 @@ def assemble_n5(
             except Exception as exc:
                 items.append(N5ItemResult(item_id, str(src_path), "error", str(exc)[:120]))
     else:  # PL, LV e FV: empacota cada item como uma folha/grupo.
-        max_row_w = float(row_width or 3200.0)
-        margin = 120.0
-        gap_x = 160.0
-        gap_y = 190.0
+        max_row_w = float(row_width or 2000.0)  # 20 metros
+        margin = 150.0
+        gap_x = 250.0
+        gap_y = 300.0
         x_cursor = margin
         y_cursor = -margin
         row_h = 0.0

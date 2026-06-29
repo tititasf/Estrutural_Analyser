@@ -26,11 +26,13 @@ COR_CONTORNO = 7
 COR_PAINEL   = 3
 COR_TEXTO    = 2
 COR_OBST     = 1
+COR_HATCH    = 8
 
 
 def setup_layers(doc):
     defs = [
         ("Contorno",        COR_CONTORNO),
+        ("Hatch",           COR_HATCH),
         ("Paineis",         COR_PAINEL),
         ("Texto Secao",     COR_TEXTO),
         ("NOMENCLATURA",    COR_TEXTO),
@@ -67,30 +69,17 @@ def draw_polygon(msp, coords: list, layer: str):
 
 def draw_panels(msp, comp: float, larg: float,
                 linhas_v: list, linhas_h: list):
-    """
-    Desenha paineis da laje como retangulos.
+    """Desenha as divisorias internas sem sobrepor o contorno externo."""
+    xs = sorted(set([float(l["value"]) for l in linhas_v]))
+    ys = sorted(set([float(l["value"]) for l in linhas_h]))
 
-    linhas_v: posicoes x das divisoes verticais (incluindo comp no final)
-    linhas_h: posicoes y das divisoes horizontais (incluindo larg no final)
-    """
-    # Garante que o limite da laje esta incluido
-    xs = sorted(set([0.0] + [float(l["value"]) for l in linhas_v]))
-    ys = sorted(set([0.0] + [float(l["value"]) for l in linhas_h]))
-
-    if not xs or xs[-1] < comp:
-        xs.append(comp)
-    if not ys or ys[-1] < larg:
-        ys.append(larg)
-
-    for i in range(len(xs) - 1):
-        for j in range(len(ys) - 1):
-            x0, x1 = xs[i], xs[i + 1]
-            y0, y1 = ys[j], ys[j + 1]
-            if (x1 - x0) <= 0 or (y1 - y0) <= 0:
-                continue
-            pts = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-            pline = msp.add_lwpolyline(pts, close=True)
-            pline.dxf.layer = "Paineis"
+    for x in xs:
+        if 0 < x < comp:
+            msp.add_line((x, 0), (x, larg), dxfattribs={"layer": "Paineis"})
+    
+    for y in ys:
+        if 0 < y < larg:
+            msp.add_line((0, y), (comp, y), dxfattribs={"layer": "Paineis"})
 
 
 def gerar_dxf_laje(lid: str, data: dict, output_path: Path, pav: str) -> dict:
@@ -113,6 +102,16 @@ def gerar_dxf_laje(lid: str, data: dict, output_path: Path, pav: str) -> dict:
         # Retangulo padrao se sem coordenadas
         rect = [[0, 0], [comp, 0], [comp, larg], [0, larg], [0, 0]]
         draw_polygon(msp, rect, "Contorno")
+
+        # Hatch
+    if coords and len(coords) >= 3:
+        hatch = msp.add_hatch(color=8, dxfattribs={"layer": "Hatch"})
+        hatch.set_pattern_fill("ANSI31", scale=0.5)
+        hatch.paths.add_polyline_path([(c[0], c[1]) for c in coords], is_closed=True)
+    else:
+        hatch = msp.add_hatch(color=8, dxfattribs={"layer": "Hatch"})
+        hatch.set_pattern_fill("ANSI31", scale=0.5)
+        hatch.paths.add_polyline_path(rect, is_closed=True)
 
     # Paineis internos
     draw_panels(msp, comp, larg, linhas_v, linhas_h)
@@ -166,30 +165,49 @@ def gerar_dxf_laje(lid: str, data: dict, output_path: Path, pav: str) -> dict:
                 })
 
     # DIMENSION entities (cotas horizontais e verticais)
-    dim_y = -25.0
+    dim_y_overall = -20.0
+    dim_y_panels = -40.0
+    dim_x_overall = comp + 20.0
+    dim_x_panels = comp + 40.0
+
+    # Cota total horizontal
     try:
         d = msp.add_linear_dim(
-            base=(0.0, dim_y), p1=(0.0, 0.0), p2=(comp, 0.0),
+            base=(comp/2, dim_y_overall), p1=(0.0, 0.0), p2=(comp, 0.0),
             angle=0, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
         d.render()
     except Exception:
         pass
-    dim_x = comp + 20.0
+
+    # Cota total vertical
     try:
         d = msp.add_linear_dim(
-            base=(dim_x, 0.0), p1=(comp, 0.0), p2=(comp, larg),
+            base=(dim_x_overall, larg/2), p1=(comp, 0.0), p2=(comp, larg),
             angle=90, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
         d.render()
     except Exception:
         pass
-    # Cotas por painel
+
+    # Cotas por painel horizontal
     for i in range(len(xs) - 1):
         sw = xs[i+1] - xs[i]
         if sw > 1:
             try:
                 d = msp.add_linear_dim(
-                    base=(xs[i], dim_y - 20), p1=(xs[i], 0.0), p2=(xs[i+1], 0.0),
+                    base=(xs[i] + sw/2, dim_y_panels), p1=(xs[i], 0.0), p2=(xs[i+1], 0.0),
                     angle=0, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
+                d.render()
+            except Exception:
+                pass
+
+    # Cotas por painel vertical
+    for j in range(len(ys) - 1):
+        sh = ys[j+1] - ys[j]
+        if sh > 1:
+            try:
+                d = msp.add_linear_dim(
+                    base=(dim_x_panels, ys[j] + sh/2), p1=(comp, ys[j]), p2=(comp, ys[j+1]),
+                    angle=90, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
                 d.render()
             except Exception:
                 pass
