@@ -1,4 +1,5 @@
 import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
@@ -6,6 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERATOR = ROOT / "scripts" / "gerar_fv_dxf_stog.py"
+sys.path.insert(0, str(GENERATOR.parent))
 SPEC = importlib.util.spec_from_file_location("fv_generator_geometry", GENERATOR)
 fv = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(fv)
@@ -85,3 +87,56 @@ def test_opening_splits_intersecting_horizontal_sarrafo():
 
 def test_pipeline_marker_is_removed_before_drawing_suffix():
     assert fv.normalize_viga_name("V301_n4er.C") == "V301"
+
+
+def test_multi_segment_does_not_create_overall_dimension():
+    segments = [
+        {
+            "total_width": 300.0,
+            "panels": [{"width": 200.0}, {"width": 100.0}],
+        },
+        {
+            "total_width": 250.0,
+            "panels": [{"width": 150.0}, {"width": 100.0}],
+        },
+    ]
+    holes = [{"active": True, "width": 20.0, "position": 300.0}]
+    doc = fv.setup_doc()
+
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V10",
+        holes=holes, label_left="", label_right="",
+    )
+
+    measurements = [
+        round(float(entity.get_measurement()), 2)
+        for entity in doc.modelspace()
+        if entity.dxftype() == "DIMENSION"
+    ]
+    assert 300.0 in measurements
+    assert 250.0 in measurements
+    assert 570.0 not in measurements
+
+
+def test_dimension_tiers_are_spaced_25_cm_per_layer():
+    segments = [{
+        "total_width": 200.0,
+        "panels": [{
+            "width": 200.0,
+            "tiers": [[100.0, 100.0], [80.0, 120.0]],
+        }],
+    }]
+    doc = fv.setup_doc()
+
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V11",
+        label_left="", label_right="",
+    )
+
+    horizontal_tier_y = sorted({
+        round(float(entity.dxf.defpoint.y), 2)
+        for entity in doc.modelspace()
+        if entity.dxftype() == "DIMENSION"
+        and abs(entity.dxf.defpoint2.y - entity.dxf.defpoint3.y) < 1e-6
+    })
+    assert horizontal_tier_y == [-50.0, -25.0]

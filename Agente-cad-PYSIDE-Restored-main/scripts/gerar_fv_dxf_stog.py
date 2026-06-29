@@ -32,6 +32,7 @@ LABEL_ABOVE     = 40     # y = viga_top + LABEL_ABOVE for endpoint/gap labels
 LABEL_H         = 12.0   # endpoint/gap label height (layer 5)
 DIM_BELOW       = 25     # y = viga_bottom - DIM_BELOW  (nível 1: cota individual)
 DIM_TOTAL_BELOW = 50     # y = viga_bottom - DIM_TOTAL_BELOW (nível 2: total segmento)
+TIER_STEP       = 25     # espaçamento vertical adicional entre camadas de cotas
 DIM_B_RIGHT     = 28     # x = viga_right + DIM_B_RIGHT for vertical b dim
 PID_H           = 12.0   # panel-ID text height (layer '5')
 SARR_RECUO      = 7      # recuo offset for sarrafos from viga edges (cm)
@@ -642,22 +643,6 @@ def dim_panel(msp, x0, x1, y_base):
         pass
 
 
-def dim_viga_total(msp, x0, x1, y_base):
-    """Horizontal dim for total viga -- 3rd level (y_base - DIM_OVERALL_BELOW)."""
-    try:
-        d = msp.add_linear_dim(
-            base=(x0, y_base - DIM_OVERALL_BELOW),
-            p1=(x0, y_base),
-            p2=(x1, y_base),
-            angle=0,
-            dimstyle='PAINEL',
-            dxfattribs={'layer': 'COTA'},
-        )
-        d.render()
-    except Exception:
-        pass
-
-
 def dim_viga_b(msp, x_right, y0, b):
     """Vertical dim for viga b -- right side (x_right + DIM_B_RIGHT)."""
     if b <= 0:
@@ -694,14 +679,10 @@ def _parse_active_holes(holes):
         active.append({
             'width': hw,
             'position': float(h.get('position', 0)),
+            'text': h.get('text'),
         })
     active.sort(key=lambda h: h['position'])
     return active
-
-
-# Deeper dim level for segment totals (between sub-panel dims and overall total)
-DIM_SEG_TOTAL_BELOW = 50  # nível 2 (mesmo que DIM_TOTAL_BELOW — padrão 25/50/75)
-DIM_OVERALL_BELOW   = 75  # nível 3: total geral multi-segmento
 
 
 def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
@@ -737,6 +718,39 @@ def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
         _lin(xp + pw - fd, y0, xp + pw, y0, xp + pw - fd / 2, y0 - OFFS)
 
 
+def _panel_height(panel, default_b):
+    """Retorna a altura física desenhável, preservando fichas legadas."""
+    if isinstance(panel, dict):
+        try:
+            height = float(panel.get('height', 0) or 0)
+            if height > 0:
+                return height
+        except (TypeError, ValueError):
+            pass
+        verts = panel.get('vertices') or []
+        if verts:
+            try:
+                ys = [float(v.get('y', 0)) for v in verts]
+                span = max(ys) - min(ys)
+                if span > 0:
+                    return span
+            except (TypeError, ValueError):
+                pass
+    return float(default_b)
+
+
+def get_seg_b(seg_item, default_b):
+    """Obtém a largura principal do fundo; L-drops não a redefinem."""
+    if not isinstance(seg_item, dict):
+        return float(default_b)
+    regular = [
+        panel for panel in seg_item.get('panels', [])
+        if isinstance(panel, dict) and not panel.get('is_L_drop')
+    ]
+    heights = [_panel_height(panel, default_b) for panel in regular]
+    return max(heights) if heights else float(default_b)
+
+
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
               pillar_left=None, pillar_right=None, holes=None, obs='',
               label_left='L Esq', label_right='L Dir'):
@@ -755,7 +769,9 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
     Between segments a gap of hole.width is left (no geometry).
 
-    Overall viga total dim is drawn at deepest level if >1 segment.
+    No overall dimension is drawn across multiple physical segments. Each
+    segment keeps its own total, so pillar gaps and row continuations are not
+    represented as one fabricated length.
 
     Returns total footprint of the viga (segments + gaps).
     """
@@ -835,29 +851,30 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             current_pos += mult_gap
             continue
 
+        gap_w = 0.0
+        gap_label = ''
+
         # Check if the next active hole matches this position
         if hole_idx < len(active_holes):
             # Allow some floating point tolerance
             if abs(active_holes[hole_idx]['position'] - logical_pos) < 5.0:
                 gap_w = active_holes[hole_idx]['width']
                 gap_label = active_holes[hole_idx].get('text') or 'Pilar Cruzado'
-                gaps.append((gap_w, gap_label))
-                current_pos += gap_w
                 logical_pos += gap_w
                 hole_idx += 1
-                continue
 
-        # No matching hole means this is a contiguous segment boundary (e.g. L-shape corner)
-        gaps.append((0.0, ''))
+        # Variações de largura precisam de espaço visual para a cota vertical.
+        seg_b_current = get_seg_b(segments[i], b)
+        seg_b_next = get_seg_b(segments[i + 1], b)
+        if abs(seg_b_current - seg_b_next) > 0.1:
+            gap_w = max(gap_w, 40.0)
+
+        gaps.append((gap_w, gap_label))
+        current_pos += gap_w
 
     # -- Compute total footprint -----------------------------------------------
     total_footprint = sum(float(s['total_width']) if isinstance(s, dict) else float(s) for s in segments) + sum(g[0] for g in gaps)
 
-    # -- Track all sub-panel edges for overall dims ----------------------------
-    all_subpanel_edges = []   # list of (x_start, x_end) for every sub-panel
-    segment_edges = []        # list of (seg_x0, seg_x_end) per segment
-    multi_subpanel_segs = 0   # count segments with >1 sub-panel
-    
     # -- Find global lowest cota Y for the entire viga to align all texts --
     global_lowest_cota_y = y0 - DIM_BELOW
     for seg_item in segments:
@@ -877,7 +894,10 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 for t_idx, tier_vals in enumerate(tiers):
                     tier_sum = sum(float(tv) for tv in tier_vals)
                     if abs(tier_sum - pw) <= 1.5:
-                        global_lowest_cota_y = min(global_lowest_cota_y, y0 - (DIM_BELOW + t_idx * 15))
+                        global_lowest_cota_y = min(
+                            global_lowest_cota_y,
+                            y0 - (DIM_BELOW + t_idx * TIER_STEP),
+                        )
 
     # -- Draw each segment -----------------------------------------------------
     x_cursor = x0
@@ -887,6 +907,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         if isinstance(seg_item, dict) and 'panels' in seg_item:
             seg_width = seg_item['total_width']
             sub_panels = [p['width'] for p in seg_item['panels']]
+            sub_panel_heights = [_panel_height(p, b) for p in seg_item['panels']]
+            sub_panel_l_drops = [bool(p.get('is_L_drop')) for p in seg_item['panels']]
             sub_panel_texts = [p.get('texts', []) for p in seg_item['panels']]
             sub_panel_verts = [p.get('vertices', None) for p in seg_item['panels']]
             sub_panel_loose = [p.get('loose', []) for p in seg_item['panels']]
@@ -894,6 +916,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             # Fallback to legacy automatic computation
             seg_width = float(seg_item) if not isinstance(seg_item, dict) else float(seg_item.get('width', 0))
             sub_panels = compute_panels(seg_width)
+            sub_panel_heights = [b for _ in sub_panels]
+            sub_panel_l_drops = [False for _ in sub_panels]
             sub_panel_texts = [[] for _ in sub_panels]
             sub_panel_verts = [None for _ in sub_panels]
             sub_panel_loose = [[] for _ in sub_panels]
@@ -908,30 +932,36 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         # Draw panel outlines (LWPOLYLINE) for each sub-panel
         xp = seg_x0
-        for i, (pw, p_texts, p_verts, p_loose) in enumerate(zip(sub_panels, sub_panel_texts, sub_panel_verts, sub_panel_loose)):
+        for i, (pw, ph, is_l_drop, p_texts, p_verts, p_loose) in enumerate(zip(
+            sub_panels, sub_panel_heights, sub_panel_l_drops,
+            sub_panel_texts, sub_panel_verts, sub_panel_loose,
+        )):
             if p_verts:
                 # Custom trapezoid defined by top/bottom end setbacks.
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
                 msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
                 p_obj = seg_item['panels'][i]
                 ch = p_obj.get('chanfros', {})
-                for frac in (1 / 3, 2 / 3):
-                    y_line = b * frac
-                    left = float(ch.get('fe', 0)) + (
-                        float(ch.get('te', 0)) - float(ch.get('fe', 0))
-                    ) * frac
-                    right = pw - float(ch.get('fd', 0)) - (
-                        float(ch.get('td', 0)) - float(ch.get('fd', 0))
-                    ) * frac
-                    if right > left:
-                        msp.add_line(
-                            (xp + left, y0 + y_line),
-                            (xp + right, y0 + y_line),
-                            dxfattribs={'layer': LY_PAINEIS},
-                        )
+                if ch:
+                    for frac in (1 / 3, 2 / 3):
+                        y_line = ph * frac
+                        left = float(ch.get('fe', 0)) + (
+                            float(ch.get('te', 0)) - float(ch.get('fe', 0))
+                        ) * frac
+                        right = pw - float(ch.get('fd', 0)) - (
+                            float(ch.get('td', 0)) - float(ch.get('fd', 0))
+                        ) * frac
+                        if right > left:
+                            msp.add_line(
+                                (xp + left, y0 + y_line),
+                                (xp + right, y0 + y_line),
+                                dxfattribs={'layer': LY_PAINEIS},
+                            )
+            elif is_l_drop:
+                panel_poly(msp, xp, y0 + b - ph, pw, ph)
             else:
                 # Standard rectangular module
-                panel_poly(msp, xp, y0, pw, b)
+                panel_poly(msp, xp, y0, pw, ph)
             
             # Draw loose attached entities (L-corners, etc.)
             for le in p_loose:
@@ -952,14 +982,34 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     t = msp.add_text(le['text'], dxfattribs={'layer': le_layer, 'height': 8})
                     t.dxf.insert = (xp + le['insert']['x'], y0 + le['insert']['y'])
                     
-            all_subpanel_edges.append((xp, xp + pw))
-            
             # Draw any specific texts inside the panel (e.g. 'P1', 'V309')
             if p_texts:
                 for idx, txt in enumerate(p_texts):
-                    if str(txt).strip().lower() in ignore_texts: continue
-                    t = msp.add_text(txt, dxfattribs={'layer': '5', 'height': 8})
-                    t.dxf.insert = (xp + pw/2 - 5, y0 + b/2 + (idx * 10))
+                    txt_clean = str(txt).strip()
+                    txt_upper = txt_clean.upper()
+                    base_name = normalize_viga_name(viga_nome).upper()
+                    if txt_clean.lower() in ignore_texts:
+                        continue
+                    if txt_upper in (base_name, f'{base_name}.C'):
+                        continue
+                    if label_left and txt_upper == str(label_left).strip().upper():
+                        continue
+                    if label_right and txt_upper == str(label_right).strip().upper():
+                        continue
+                    if isinstance(seg_item, dict):
+                        edge_labels = (
+                            seg_item.get('texto_esq', ''),
+                            seg_item.get('texto_dir', ''),
+                        )
+                        if any(
+                            txt_upper == str(value).strip().upper()
+                            for value in edge_labels if value
+                        ):
+                            continue
+                    t = msp.add_text(
+                        txt_clean, dxfattribs={'layer': '5', 'height': 8}
+                    )
+                    t.dxf.insert = (xp + pw/2 - 5, y0 + ph/2 + (idx * 10))
 
             # Draw chanfro cotas se painel tem 'chanfros' explícito
             if isinstance(seg_item, dict):
@@ -972,8 +1022,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             xp += pw
 
         seg_x_end = seg_x0 + seg_width
-        segment_edges.append((seg_x0, seg_x_end))
-
         # Draw panel dividers (vertical LINEs between adjacent sub-panels)
         xp = seg_x0
         for i, pw in enumerate(sub_panels):
@@ -1053,7 +1101,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     if abs(tier_sum - pw) > 1.5:
                         continue
                     t_xp = xp
-                    y_off = DIM_BELOW + (t_idx * 15)  # Stack them downwards
+                    y_off = DIM_BELOW + (t_idx * TIER_STEP)
                     for tv in tier_vals:
                         try:
                             d = msp.add_linear_dim(
@@ -1075,7 +1123,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         # Draw segment total dim (2nd level) if segment has >1 sub-panel
         if len(sub_panels) > 1:
-            multi_subpanel_segs += 1
             # Use DIM_TOTAL_BELOW for all segment total dimensions
             seg_dim_y_offset = DIM_TOTAL_BELOW
             try:
@@ -1102,13 +1149,24 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 cy = y0 + b / 2.0
                 add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
 
+        seg_b = get_seg_b(seg_item, b)
+        is_last_seg = seg_idx == len(segments) - 1
+        has_b_change = (
+            not is_last_seg
+            and abs(seg_b - get_seg_b(segments[seg_idx + 1], b)) > 0.1
+        )
+        if is_last_seg or has_b_change:
+            dim_viga_b(msp, seg_x_end, y0, seg_b)
+
         # Advance cursor past this segment + gap to next segment
         x_cursor = seg_x_end
         if seg_idx < len(gaps):
             x_cursor += gaps[seg_idx][0]
 
     # -- NOMENCLATURA text (once, above full viga) -----------------------------
-    nom_text = f'{normalize_viga_name(viga_nome)}.C'
+    is_continuation = bool(re.match(r'^\s*CONT\.\s*', str(viga_nome), re.IGNORECASE))
+    continuation_prefix = 'CONT. ' if is_continuation else ''
+    nom_text = f'{continuation_prefix}{normalize_viga_name(viga_nome)}.C'
     if obs:
         nom_text = f'{nom_text} {obs}'
     nom_left_clearance = 0.0
@@ -1124,14 +1182,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
              NOM_H, 'NOMENCLATURA', style='Standard')
 
 
-
-    # -- Vertical b dim -- right side ------------------------------------------
-    rightmost_x = x0 + total_footprint
-    dim_viga_b(msp, rightmost_x, y0, b)
-    
-    # -- Overall horizontal dim -- bottom --------------------------------------
-    if len(segments) > 1 or (segments and isinstance(segments[0], dict) and len(segments[0].get('panels', [])) > 1):
-        dim_viga_total(msp, x0, rightmost_x, y0)
 
     return total_footprint
 
@@ -1333,6 +1383,12 @@ def main():
                     d_ov = json.loads(override_f.read_text(encoding='utf-8'))
                     if 'segments_rich' in d_ov:
                         d['segments_rich'] = d_ov['segments_rich']
+                    if 'holes' in d_ov:
+                        d['holes'] = d_ov['holes']
+                    if 'label_left' in d_ov:
+                        d['label_left'] = d_ov['label_left']
+                    if 'label_right' in d_ov:
+                        d['label_right'] = d_ov['label_right']
                     if 'total_width' in d_ov and d_ov['total_width'] > 0:
                         d['total_width'] = d_ov['total_width']
                     print(f'[FV] Override aplicado: {override_f.name}')
@@ -1365,7 +1421,8 @@ def main():
             has_row_break = any(isinstance(p, dict) and p.get('row_break') for p in panels)
             # Em modo --item não limita por MAX_ROW_W (a viga cabe inteira na prancha)
             _over_max = (comp > MAX_ROW_W) and not args.item
-            if (_over_max or has_row_break) and len(panels) > 1:
+            should_split = (not args.item) and (_over_max or has_row_break)
+            if should_split and len(panels) > 1:
                 parts = []
                 c_panels, c_holes = [], []
                 c_comp = 0.0
@@ -1373,6 +1430,7 @@ def main():
                 holes_list = viga_dict.get('holes', [])
                 active_holes = [h for h in holes_list if h.get('active')]
                 hole_idx = 0
+                part_idx = 0
                 
                 for i, p in enumerate(panels):
                     w = float(p.get('total_width', p.get('width', 0))) if isinstance(p, dict) else float(p)
@@ -1393,12 +1451,17 @@ def main():
                     _exceeds = (c_comp + w > MAX_ROW_W) and not args.item
                     if (_exceeds or is_break) and c_panels:
                         nm = viga_dict['nome']
+                        part_name = f"CONT. {nm}" if parts else nm
                         parts.append({
-                            **viga_dict, 'nome': nm, 'comp': c_comp,
+                            **viga_dict, 'nome': part_name, 'comp': c_comp,
                             'panels': c_panels, 'holes': c_holes,
-                            'label_left': viga_dict['label_left'] if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
-                            'label_right': 'L Dir'
+                            'label_left': viga_dict.get('label_left') if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
+                            'label_right': 'L Dir',
+                            'parent_b': viga_b,
+                            'parent_comp': comp,
+                            'part_idx': part_idx,
                         })
+                        part_idx += 1
                         c_panels, c_holes = [], []
                         c_comp = 0.0
                         
@@ -1422,12 +1485,21 @@ def main():
                 
                 if c_panels:
                     nm = viga_dict['nome']
+                    part_name = f"CONT. {nm}" if parts else nm
                     parts.append({
-                        **viga_dict, 'nome': nm, 'comp': c_comp,
-                        'panels': c_panels, 'holes': c_holes
+                        **viga_dict, 'nome': part_name, 'comp': c_comp,
+                        'panels': c_panels, 'holes': c_holes,
+                        'label_left': viga_dict.get('label_left') if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
+                        'label_right': viga_dict.get('label_right'),
+                        'parent_b': viga_b,
+                        'parent_comp': comp,
+                        'part_idx': part_idx,
                     })
                 vigas_raw.extend(parts)
             else:
+                viga_dict['parent_b'] = viga_b
+                viga_dict['parent_comp'] = comp
+                viga_dict['part_idx'] = 0
                 vigas_raw.append(viga_dict)
 
     # -- Filtro anti-hallucination: excluir vigas com b dominante ──────────────
@@ -1501,7 +1573,11 @@ def main():
     # -- Sort and pack into rows -----------------------------------------------
     # Em modo --item não reordena (preserva ordem original dos segmentos)
     if not args.item:
-        vigas.sort(key=lambda v: (-v['b'], -v['comp']))
+        vigas.sort(key=lambda v: (
+            -v.get('parent_b', v['b']),
+            -v.get('parent_comp', v['comp']),
+            v.get('part_idx', 0),
+        ))
 
     rows = []
     cur_row, cur_w = [], 0.0

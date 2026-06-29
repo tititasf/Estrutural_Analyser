@@ -197,6 +197,35 @@ class DXFVectorView(QWidget):
         rect = visible_rect.adjusted(-margin_x, -margin_y, margin_x, margin_y)
         self.canvas.fitInView(rect, Qt.KeepAspectRatio)
 
+    def _fit(self):
+        """Compatibilidade dos viewers N4: enquadra toda geometria visível."""
+        if not self._is_loaded:
+            return
+        if self._dxf_bbox:
+            self.zoom_to_bbox(self._dxf_bbox)
+            return
+        visible_rect = None
+        for item in self.canvas.scene.items():
+            try:
+                if not item.isVisible():
+                    continue
+                rect = item.sceneBoundingRect()
+                if rect.isEmpty():
+                    continue
+                visible_rect = (
+                    rect if visible_rect is None else visible_rect.united(rect)
+                )
+            except Exception:
+                continue
+        if visible_rect is None or visible_rect.isEmpty():
+            return
+        margin_x = max(visible_rect.width() * 0.08, 1.0)
+        margin_y = max(visible_rect.height() * 0.08, 1.0)
+        self.canvas.fitInView(
+            visible_rect.adjusted(-margin_x, -margin_y, margin_x, margin_y),
+            Qt.KeepAspectRatio,
+        )
+
     def set_highlight_bbox(self, bbox):
         self._highlight_bbox = bbox
         if not bbox: return
@@ -3191,10 +3220,167 @@ def _lv_segs_table(er_ficha: dict, accent: str = Semantic.SUCCESS,
     return scroll
 
 
+def _ficha_field_label(key: object) -> str:
+    text = str(key or "").strip().replace("_", " ")
+    return text[:1].upper() + text[1:] if text else "Campo"
+
+
+def _ficha_compact_value(value: object) -> str:
+    if value is None or value == "":
+        return "—"
+    if isinstance(value, bool):
+        return "Sim" if value else "Não"
+    if isinstance(value, float):
+        return f"{value:.2f}".rstrip("0").rstrip(".")
+    if isinstance(value, dict):
+        parts = [
+            f"{_ficha_field_label(k)}={_ficha_compact_value(v)}"
+            for k, v in list(value.items())[:4]
+            if v not in (None, "", [], {})
+        ]
+        return "; ".join(parts) if parts else f"{len(value)} campo(s)"
+    if isinstance(value, list):
+        if not value:
+            return "0 itens"
+        if all(not isinstance(item, (dict, list)) for item in value):
+            sample = ", ".join(_ficha_compact_value(item) for item in value[:5])
+            return f"{len(value)} item(ns): {sample}"
+        return f"{len(value)} item(ns)"
+    return str(value)
+
+
+def _ficha_semantic_group(key: str) -> str:
+    norm = str(key or "").casefold()
+    if any(token in norm for token in (
+        "compr", "larg", "altura", "height", "width", "area", "espess",
+        "dim", "b_cm", "h_cm", "laje", "slab", "pd_",
+    )):
+        return "DIMENSÕES E NÍVEIS"
+    if any(token in norm for token in (
+        "coord", "bbox", "point", "vert", "position", "anchor", "origem",
+        "offset", "rotation", "angulo",
+    )):
+        return "GEOMETRIA E POSIÇÃO"
+    if any(token in norm for token in (
+        "panel", "painel", "segment", "face", "section", "hole", "abertura",
+        "grade", "sarr", "paraf", "chapa", "pontal", "barrote", "escora",
+        "pillar", "pilar", "obstac",
+    )):
+        return "COMPONENTES E DETALHAMENTO"
+    if any(token in norm for token in (
+        "valid", "confidence", "confi", "status", "source", "score",
+        "complet", "warning", "erro",
+    )):
+        return "VALIDAÇÃO E ORIGEM"
+    return "CONFIGURAÇÃO E PROPRIEDADES"
+
+
+def _structured_ficha_rows(
+    campos: dict,
+    item_id: str,
+    db_cls: str,
+    *,
+    title: str,
+    status: str = "",
+    confidence: float | None = None,
+    source: str = "",
+) -> list:
+    """Converte uma ficha de qualquer robô em seções sem perder estruturas."""
+    campos = campos if isinstance(campos, dict) else {}
+    identity_order = (
+        "nome", "name", "numero", "number", "pavimento", "floor",
+        "classe", "class", "tipo", "type", "subtipo", "side",
+    )
+    identity_keys = set(identity_order)
+    rows = [
+        ("==", title),
+        ("Elemento", item_id or campos.get("nome") or campos.get("name") or "—"),
+        ("Classe", db_cls),
+    ]
+    for key in identity_order:
+        if key in campos and campos[key] not in (None, ""):
+            rows.append((_ficha_field_label(key), _ficha_compact_value(campos[key])))
+    if status or source or confidence is not None:
+        rows.append(("==", "VALIDAÇÃO E ORIGEM"))
+        if status:
+            rows.append(("Status", status))
+        if confidence is not None:
+            rows.append(("Confiança", f"{max(0.0, confidence) * 100:.0f}%"))
+        if source:
+            rows.append(("Origem", source))
+
+    grouped: dict[str, list[tuple[str, object]]] = {}
+    for key, value in campos.items():
+        if str(key).startswith("_") or str(key).casefold() in identity_keys:
+            continue
+        grouped.setdefault(_ficha_semantic_group(str(key)), []).append((str(key), value))
+
+    for group in (
+        "DIMENSÕES E NÍVEIS",
+        "GEOMETRIA E POSIÇÃO",
+        "COMPONENTES E DETALHAMENTO",
+        "CONFIGURAÇÃO E PROPRIEDADES",
+        "VALIDAÇÃO E ORIGEM",
+    ):
+        fields = grouped.get(group, [])
+        if not fields:
+            continue
+        rows.append(("==", group))
+        for key, value in fields:
+            label = _ficha_field_label(key)
+            rows.append((label, _ficha_compact_value(value)))
+            if isinstance(value, list) and value and isinstance(value[0], dict):
+                for index, item in enumerate(value[:4], start=1):
+                    rows.append((f"  {label} {index}", _ficha_compact_value(item)))
+            elif isinstance(value, dict):
+                for child_key, child_value in list(value.items())[:8]:
+                    rows.append((
+                        f"  {_ficha_field_label(child_key)}",
+                        _ficha_compact_value(child_value),
+                    ))
+    if len(rows) <= 3:
+        rows.append(("⚠ Ficha", "Sem propriedades disponíveis para este item"))
+    return rows
+
+
+def _n3_structured_ficha_rows(
+    campos: dict,
+    item_id: str,
+    classe: str,
+    *,
+    title_suffix: str = "",
+) -> list:
+    """N3 uses the N4 presentation contract without changing data lineage."""
+    campos = campos if isinstance(campos, dict) else {}
+    meta = campos.get("_sa_meta", {})
+    meta = meta if isinstance(meta, dict) else {}
+    completeness = meta.get("completude_pct")
+    confidence = None
+    if isinstance(completeness, (int, float)):
+        confidence = max(0.0, min(float(completeness) / 100.0, 1.0))
+    source = str(meta.get("source") or "Structural Analyzer / N1")
+    suffix = f" · {title_suffix}" if title_suffix else ""
+    return _structured_ficha_rows(
+        campos,
+        item_id,
+        classe,
+        title=f"FICHA N3 · ROBÔ VIA STRUCTURAL ANALYZER · {classe}{suffix}",
+        status="Ficha Fase-4",
+        confidence=confidence,
+        source=source,
+    )
+
+
 class LevelColumn(QFrame):
     """Coluna de nível (N1/N2/N3): badge + header, viewer, pipeline steps, ficha."""
 
     COL_W = 540   # largura fixa da coluna (pixels)
+    VIEWER_Y_REDUCTION = 0.25
+    MAIN_VIEWER_MIN_HEIGHT = 120   # 160px * 0.75
+    SINGLE_VIEWER_SIZES = (525, 475)   # viewer 70% -> 52.5%
+    SINGLE_VIEWER_STRETCH = (21, 19)
+    COMPARE_OUTER_STRETCH = (21, 47)
+    COMPARE_INNER_STRETCH = (21, 26)
 
     def __init__(self, nivel_id: str, titulo: str, bg_color: str,
                  accent: str, descricao: str, mode: str = 'png'):
@@ -3379,7 +3565,7 @@ class LevelColumn(QFrame):
             self.img_widget: DXFVectorView | ZoomableImageLabel = DXFVectorView(bg=Colors.BG_DEEP)
         else:
             self.img_widget = ZoomableImageLabel(bg=Colors.BG_DEEP)
-        self.img_widget.setMinimumHeight(160)
+        self.img_widget.setMinimumHeight(self.MAIN_VIEWER_MIN_HEIGHT)
         self.img_widget.setStyleSheet(border_style)
         splitter_vf.addWidget(self.img_widget)
 
@@ -3434,9 +3620,9 @@ class LevelColumn(QFrame):
         bottom_lay.addWidget(ficha_scroll, 1)
 
         splitter_vf.addWidget(bottom_w)
-        splitter_vf.setSizes([700, 300])  # 70% viewer / 30% ficha
-        splitter_vf.setStretchFactor(0, 7)
-        splitter_vf.setStretchFactor(1, 3)
+        splitter_vf.setSizes(list(self.SINGLE_VIEWER_SIZES))
+        splitter_vf.setStretchFactor(0, self.SINGLE_VIEWER_STRETCH[0])
+        splitter_vf.setStretchFactor(1, self.SINGLE_VIEWER_STRETCH[1])
         self._splitter_vf = splitter_vf
         self._last_loaded_dxf: str = ""   # rastreia último DXF carregado na coluna
         lay.addWidget(splitter_vf, 1)
@@ -3747,8 +3933,8 @@ class LevelColumn(QFrame):
                 pv.addWidget(zone_hdr)
 
                 view = DXFVectorView(bg=Colors.BG_DEEP)
-                view.setMinimumHeight(180)
-                pv.addWidget(view, 1)
+                view.setMinimumHeight(135)  # 180px * 0.75
+                pv.addWidget(view, self.SINGLE_VIEWER_STRETCH[0])
 
                 tbl = QTableWidget(0, 2)
                 tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
@@ -3758,9 +3944,10 @@ class LevelColumn(QFrame):
                     1, QHeaderView.Stretch)
                 tbl.verticalHeader().setVisible(False)
                 tbl.setEditTriggers(QTableWidget.NoEditTriggers)
-                tbl.setFixedHeight(120)
+                tbl.setMinimumHeight(90)
+                tbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 tbl.setStyleSheet(self.ficha_table.styleSheet())
-                pv.addWidget(tbl)
+                pv.addWidget(tbl, self.SINGLE_VIEWER_STRETCH[1])
 
                 self._zone_views[zone] = view
                 self._zone_tables[zone] = tbl
@@ -3851,17 +4038,17 @@ class LevelColumn(QFrame):
                 pv.addWidget(zone_hdr)
 
                 view = DXFVectorView(bg=Colors.BG_DEEP)
-                view.setMinimumHeight(180)
-                pv.addWidget(view, 1)
+                view.setMinimumHeight(135)  # 180px * 0.75
+                pv.addWidget(view, self.SINGLE_VIEWER_STRETCH[0])
 
                 # Ficha estruturada (substituem as antigas tabelas simples)
                 if zone == 'Lateral A-B':
                     ficha_w = _lv_segs_table(er_ficha or {}, ACCENT)
-                    ficha_w.setFixedHeight(160)
                 else:
                     ficha_w = _lv_section_widget(er_ficha or {}, ACCENT)
-                    ficha_w.setFixedHeight(160)
-                pv.addWidget(ficha_w)
+                ficha_w.setMinimumHeight(120)
+                ficha_w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                pv.addWidget(ficha_w, self.SINGLE_VIEWER_STRETCH[1])
 
                 self._zone_views[zone]  = view
                 self._zone_fichas[zone] = ficha_w
@@ -3878,14 +4065,16 @@ class LevelColumn(QFrame):
             if 'Lateral A-B' in self._zone_fichas:
                 old = self._zone_fichas['Lateral A-B']
                 new = _lv_segs_table(er_ficha or {}, ACCENT)
-                new.setFixedHeight(160)
+                new.setMinimumHeight(120)
+                new.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 old.parent().layout().replaceWidget(old, new)
                 old.setParent(None); old.deleteLater()
                 self._zone_fichas['Lateral A-B'] = new
             if 'Visão Corte' in self._zone_fichas:
                 old = self._zone_fichas['Visão Corte']
                 new = _lv_section_widget(er_ficha or {}, ACCENT)
-                new.setFixedHeight(160)
+                new.setMinimumHeight(120)
+                new.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 old.parent().layout().replaceWidget(old, new)
                 old.setParent(None); old.deleteLater()
                 self._zone_fichas['Visão Corte'] = new
@@ -3955,7 +4144,10 @@ class LevelColumn(QFrame):
         self._apply_compare_viewer_y_ratio()
 
     def _apply_compare_viewer_y_ratio(self):
-        """Keep compare:viewer:ficha at 7:7:3, matching the column viewer Y ratio."""
+        """Reduz ambos viewers em 25% e entrega o espaço liberado à ficha.
+
+        Razão anterior: 7:7:3. Razão efetiva nova: 21:21:26.
+        """
         try:
             lay = self.layout()
             compare = getattr(self, '_n2_above', None)
@@ -3964,12 +4156,16 @@ class LevelColumn(QFrame):
             compare_idx = lay.indexOf(compare)
             splitter_idx = lay.indexOf(self._splitter_vf)
             if compare_idx >= 0:
-                lay.setStretch(compare_idx, 7)
+                lay.setStretch(compare_idx, self.COMPARE_OUTER_STRETCH[0])
             if splitter_idx >= 0:
-                lay.setStretch(splitter_idx, 10)
-            self._splitter_vf.setSizes([700, 300])
-            self._splitter_vf.setStretchFactor(0, 7)
-            self._splitter_vf.setStretchFactor(1, 3)
+                lay.setStretch(splitter_idx, self.COMPARE_OUTER_STRETCH[1])
+            self._splitter_vf.setSizes(list(self.COMPARE_INNER_STRETCH))
+            self._splitter_vf.setStretchFactor(
+                0, self.COMPARE_INNER_STRETCH[0]
+            )
+            self._splitter_vf.setStretchFactor(
+                1, self.COMPARE_INNER_STRETCH[1]
+            )
         except Exception:
             pass
 
@@ -3984,7 +4180,13 @@ class LevelColumn(QFrame):
                 splitter_idx = self.layout().indexOf(self._splitter_vf)
                 if splitter_idx >= 0:
                     self.layout().setStretch(splitter_idx, 1)
-                self._splitter_vf.setSizes([700, 300])
+                self._splitter_vf.setSizes(list(self.SINGLE_VIEWER_SIZES))
+                self._splitter_vf.setStretchFactor(
+                    0, self.SINGLE_VIEWER_STRETCH[0]
+                )
+                self._splitter_vf.setStretchFactor(
+                    1, self.SINGLE_VIEWER_STRETCH[1]
+                )
             except Exception:
                 pass
 
@@ -5589,8 +5791,8 @@ class NavSidebar(QFrame):
 
     def _on_gerar_n5_clicked(self):
         cls = self._current_classe
-        if cls not in ("LJ", "FV"):
-            self.set_status("N5 suporta apenas Lajes e Fundos de Viga neste ciclo", Colors.TEXT_DIM)
+        if cls not in ("LJ", "PL", "LV", "FV"):
+            self.set_status("Classe sem suporte N5", Colors.TEXT_DIM)
             return
         self._disable_all_btns()
         self.gerar_n5_requested.emit(cls, self.current_item_ids())
@@ -6508,7 +6710,10 @@ class TriLevelArea(QWidget):
             data = json.loads(json_path.read_text(encoding='utf-8', errors='replace'))
         except Exception as exc:
             return [("Erro leitura", str(exc)[:60])]
-        rows = []
+        rows = [
+            ("==", f"FICHA N3 · ROBÔ · {classe} {item_id}"),
+            ("==", "IDENTIFICAÇÃO"),
+        ]
         for k, v in data.items():
             if isinstance(v, (dict, list)):
                 rows.append((k, json.dumps(v, ensure_ascii=False)[:80]))
@@ -6911,6 +7116,11 @@ class TriLevelArea(QWidget):
         panels_B = sorted(panels_B, reverse=True)
 
         return [
+            ("==", f"FICHA N2 · ENGENHARIA REVERSA · LV {vn}"),
+            ("==", "GEOMETRIA E POSIÇÃO"),
+            ("Sentinel (x, y)", f"({cx:.0f}, {cy:.0f})"),
+            ("Face sep y (A/B)", f"A={face_y.get('A',0):.0f} B={face_y.get('B',0):.0f}" if face_y else "—"),
+            ("==", "COMPONENTES E DETALHAMENTO"),
             ("Entidades na região KB", n_ents),
             ("Layers presentes", ", ".join(sorted(layers)) or "—"),
             ("Painéis A (larguras cm)", str(panels_A) if panels_A else "—"),
@@ -6918,8 +7128,6 @@ class TriLevelArea(QWidget):
             ("Sarrafos (tipo: count)", str(sarr_counts) or "—"),
             ("MTEXT/labels", " | ".join(mtext_content[:8]) or "—"),
             ("COTAs (amostra)", str(sorted(set(dim_values))[:10]) or "—"),
-            ("Face sep y (A/B)", f"A={face_y.get('A',0):.0f} B={face_y.get('B',0):.0f}" if face_y else "—"),
-            ("Sentinel (x, y)", f"({cx:.0f}, {cy:.0f})"),
         ]
 
     def _ficha_n2_for(self, classe: str, item_id: str) -> list:
@@ -6939,9 +7147,12 @@ class TriLevelArea(QWidget):
                       if abs(ex - cx) < R and abs(ey - cy) < R]
             layers = sorted({e[3] for e in nearby})
             return [
+                ("==", f"FICHA N2 · ENGENHARIA REVERSA · PILAR {item_id}"),
+                ("==", "GEOMETRIA E POSIÇÃO"),
                 ("Item", item_id),
                 ("Posição estrutural (x)", f"{cx:.0f}"),
                 ("Posição estrutural (y)", f"{cy:.0f}"),
+                ("==", "COMPONENTES E DETALHAMENTO"),
                 ("Entidades vizinhas", len(nearby)),
                 ("Layers vizinhos", ", ".join(layers[:6]) or "—"),
             ]
@@ -6950,10 +7161,13 @@ class TriLevelArea(QWidget):
             if not fv:
                 return [("N2 FV", "Dados de fundo viga não encontrados na Fase-3")]
             return [
+                ("==", f"FICHA N2 · ENGENHARIA REVERSA · FUNDO {item_id}"),
+                ("==", "DIMENSÕES E NÍVEIS"),
                 ("Nome", item_id),
                 ("b (cm)", fv.get("b", "—")),
                 ("h (cm)", fv.get("h", "—")),
                 ("Comprimento (cm)", fv.get("comprimento", "—")),
+                ("==", "VALIDAÇÃO E ORIGEM"),
                 ("Confidence", f"{fv.get('confidence',0)*100:.1f}%" if fv.get('confidence') else "—"),
             ]
         elif classe == 'LJ':
@@ -6962,11 +7176,15 @@ class TriLevelArea(QWidget):
                 return [("N2 Laje", "Dados de laje não encontrados na Fase-3")]
             linhas_v = lj.get("linhas_verticais", [])
             return [
+                ("==", f"FICHA N2 · ENGENHARIA REVERSA · LAJE {item_id}"),
+                ("==", "DIMENSÕES E NÍVEIS"),
                 ("Nome", item_id),
                 ("Comprimento (cm)", lj.get("comprimento", "—")),
                 ("Largura (cm)", lj.get("largura", "—")),
+                ("==", "COMPONENTES E DETALHAMENTO"),
                 ("Linhas verticais", len(linhas_v)),
                 ("Obstáculos", len(lj.get("obstaculos", []))),
+                ("==", "GEOMETRIA E POSIÇÃO"),
                 ("Coordenadas", f"{len(lj.get('coordenadas',[]))} pts"),
             ]
         return [("N2", f"Classe '{classe}' sem ficha N2 implementada")]
@@ -6990,47 +7208,37 @@ class TriLevelArea(QWidget):
                 return self._ficha_fase4_json('LV', base_item_id, fase4 / "JSON_Vigas_Laterais")
             rows = []
             for e in entries:
-                face = e.get('face', '?')
-                segs = e.get('segmentos', [])
-                widths = [s.get('largura_cm', '?') for s in segs]
-                codes  = ['/'.join(s.get('codigos_forma', [])) for s in segs]
-                rows += [
-                    (f"[{face}] h_cm", e.get('h_cm', '—')),
-                    (f"[{face}] b_cm", e.get('b_cm', '—')),
-                    (f"[{face}] laje_sup_cm", e.get('laje_sup_cm', '—')),
-                    (f"[{face}] laje_inf_cm", e.get('laje_inf_cm', '—')),
-                    (f"[{face}] comprimento_cm", e.get('comprimento_cm', '—')),
-                    (f"[{face}] painéis (cm)", str(widths)),
-                    (f"[{face}] códigos forma", str(codes)),
-                    (f"[{face}] sarrafos",
-                     f"{e.get('total_sarrafos','—')} ({e.get('sarr_por_tipo',{})})"),
-                    (f"[{face}] nota_face", e.get('nota_face', '—')),
-                    ("---", ""),
-                ]
+                face = str(e.get('face', '?'))
+                face_data = dict(e)
+                face_data.setdefault("_sa_meta", {
+                    "source": "Structural Analyzer / N1",
+                })
+                rows.extend(_n3_structured_ficha_rows(
+                    face_data,
+                    base_item_id,
+                    "LV",
+                    title_suffix=f"FACE {face}",
+                ))
+                rows.append(("---", ""))
             return rows or [("Ficha LV v2", "vazia")]
 
         elif classe == 'PL':
             return self._ficha_fase4_json('PL', item_id, fase4 / "JSON_Pilares")
 
         elif classe == 'FV':
-            rows = self._ficha_n1_for('FV', item_id)
-            rows += [("---", ""), ("==", "N3 ROBO FUNDO / FASE 4")]
-            rows += self._ficha_fase4_json('FV', f"{item_id}_fundo", fase4 / "JSON_Vigas_Fundo")
-            return rows
+            return self._ficha_fase4_json(
+                'FV', f"{item_id}_fundo", fase4 / "JSON_Vigas_Fundo"
+            )
 
         elif classe == 'LJ':
-            rows = [
-                ("==", "N1 STRUCTURAL ANALYZER"),
-                *self._ficha_n1_for("LJ", item_id),
-                ("==", "FICHA N3 / ROBO LAJE"),
-            ]
-            rows.extend(self._ficha_fase4_json('LJ', item_id, fase4 / "JSON_Lajes"))
-            return rows
+            return self._ficha_fase4_json(
+                'LJ', item_id, fase4 / "JSON_Lajes"
+            )
 
         return self._ficha_generic(classe, item_id)
 
     def _ficha_fase4_json(self, classe: str, item_id: str, json_dir: Path) -> list:
-        """Lê JSON Fase-4 e formata para exibição com agrupamento semântico."""
+        """Lê a ficha N3/N1 e aplica o mesmo contrato visual usado pelo N4."""
         json_path = json_dir / f"{item_id}.json"
         if not json_path.exists():
             return [(f"JSON Fase-4 {classe}", f"não encontrado: {item_id}")]
@@ -7039,63 +7247,8 @@ class TriLevelArea(QWidget):
         except Exception as exc:
             return [("Erro leitura", str(exc)[:60])]
 
-        meta = data.pop('_sa_meta', {})
-        rows = []
-
-        # Campos de identificação sempre primeiro
-        for k in ('nome', 'numero', 'name', 'number', 'pavimento', 'floor', 'side'):
-            if k in data:
-                rows.append((k, str(data.pop(k))))
-
-        # Dimensões
-        rows.append(("---", ""))
-        for k in ('comprimento', 'largura', 'altura', 'total_width', 'total_height',
-                  'b', 'h', 'area_cm2'):
-            if k in data:
-                rows.append((k, str(data.pop(k))))
-
-        # Painéis (LV/FV)
-        if 'panels' in data:
-            panels = data.pop('panels')
-            rows.append(("---", ""))
-            rows.append(("Painéis (n)", len(panels)))
-            for i, p in enumerate(panels[:8]):
-                w = p.get('width', '?')
-                h1 = p.get('height1', '?')
-                rows.append((f"Painel {i+1}", f"L={w} H={h1}"))
-
-        # Grades
-        rows.append(("---", ""))
-        for k in sorted(k for k in data if k.startswith('grade_')):
-            if data[k]:
-                rows.append((k, str(data.pop(k))))
-
-        # Par (parafusos)
-        pars = {k: v for k, v in data.items() if k.startswith('par_') and v}
-        if pars:
-            rows.append(("---", ""))
-            for k, v in sorted(pars.items()):
-                rows.append((k, str(v)))
-                data.pop(k)
-
-        # Completude meta
-        if meta:
-            rows.append(("---", ""))
-            rows.append(("Completude", f"{meta.get('completude_pct', '?'):.1f}%"
-                         if isinstance(meta.get('completude_pct'), (int, float)) else "?"))
-            rows.append(("Campos extraídos", str(len(meta.get('campos_extraidos', [])))))
-            rows.append(("Campos defaulted", str(len(meta.get('campos_defaulted', [])))))
-
-        # Resto (campos não mapeados)
-        remaining = {k: v for k, v in data.items()
-                     if v not in (0, 0.0, '', None, [], {})
-                     and not k.startswith('h1_') and not k.startswith('larg1_')}
-        if remaining:
-            rows.append(("---", ""))
-            for k, v in list(remaining.items())[:12]:
-                rows.append((k, str(v)[:40]))
-
-        return rows or [("(vazio)", "")]
+        display_item_id = re.sub(r'_fundo$', '', item_id, flags=re.IGNORECASE)
+        return _n3_structured_ficha_rows(data, display_item_id, classe)
 
 
 # ──────────────────────────────────────────────────────
@@ -7218,7 +7371,7 @@ class AnaliseGeralWorker(QThread):
 # ──────────────────────────────────────────────────────
 
 class VisualModeSelector(QWidget):
-    """Seletor exclusivo Nova/Ini, persistido por nivel e classe."""
+    """Seletor Nova/Ini; N3 e N4 compartilham o perfil visual do robô."""
 
     mode_changed = Signal(str)
     _SUPPORTED_CLASSES = {"PL", "LV", "FV"}
@@ -7274,10 +7427,31 @@ class VisualModeSelector(QWidget):
         if not supported:
             self._set_mode("NOVA", emit=False)
             return
-        saved = self._settings.value(
-            f"visual_mode/{self._level}/{self._classe}", "NOVA"
-        )
+        if self._level in ("N3", "N4"):
+            legacy_n4 = self._settings.value(
+                f"visual_mode/N4/{self._classe}", "NOVA"
+            )
+            saved = self._settings.value(
+                f"visual_mode/ROBOT/{self._classe}", legacy_n4
+            )
+        else:
+            saved = self._settings.value(
+                f"visual_mode/{self._level}/{self._classe}", "NOVA"
+            )
         self._set_mode(str(saved).upper(), emit=False)
+
+    def sync_mode(self, mode: str) -> None:
+        """Sincroniza outro seletor sem disparar uma segunda regeneração."""
+        self._set_mode(mode, emit=False)
+        if self._classe not in self._SUPPORTED_CLASSES:
+            return
+        self._settings.setValue(
+            f"visual_mode/{self._level}/{self._classe}", self._mode
+        )
+        if self._level in ("N3", "N4"):
+            self._settings.setValue(
+                f"visual_mode/ROBOT/{self._classe}", self._mode
+            )
 
     def _set_mode(self, mode: str, emit: bool) -> None:
         normalized = mode if mode in ("NOVA", "INI") else "NOVA"
@@ -7298,6 +7472,10 @@ class VisualModeSelector(QWidget):
             self._settings.setValue(
                 f"visual_mode/{self._level}/{self._classe}", self._mode
             )
+            if self._level in ("N3", "N4"):
+                self._settings.setValue(
+                    f"visual_mode/ROBOT/{self._classe}", self._mode
+                )
 
 
 class ComparisonEngineModule(QWidget):
@@ -7779,6 +7957,14 @@ class ComparisonEngineModule(QWidget):
         classe = str(getattr(self.nav_sidebar, "_current_classe", "") or "").upper()
         if classe not in ("PL", "LV", "FV"):
             return
+        if level in ("N3", "N4"):
+            peer = (
+                getattr(self, "_visual_mode_n4", None)
+                if level == "N3"
+                else getattr(self, "_visual_mode_n3", None)
+            )
+            if peer is not None:
+                peer.sync_mode(mode)
         self._seq_id += 1
         if level == "N5":
             item_ids = self.nav_sidebar.current_item_ids()
@@ -8604,25 +8790,16 @@ class ComparisonEngineModule(QWidget):
 
     def _format_ficha_rows(self, item_id: str, db_cls: str, campos: dict, conf: float,
                             rec_status: str, source: str) -> list:
-        """Monta as linhas padrão da ficha N2 ER: Elemento/Classe/Status ER/Confiança/Origem
-        + campos extraídos."""
-        result = [
-            ("Elemento", item_id),
-            ("Classe", db_cls),
-            ("Status ER", rec_status or "—"),
-            ("Confiança", f"{(conf or 0)*100:.0f}%"),
-            ("Origem", source),
-        ]
-        for k, v in campos.items():
-            if k.startswith("_"):
-                continue
-            if isinstance(v, list):
-                result.append((k, f"[{len(v)} itens]"))
-            elif isinstance(v, dict):
-                result.append((k, str(v)[:60]))
-            else:
-                result.append((k, str(v)))
-        return result
+        """Ficha N2 ER estruturada por semântica e com detalhes aninhados."""
+        return _structured_ficha_rows(
+            campos,
+            item_id,
+            db_cls,
+            title=f"FICHA N2 · ENGENHARIA REVERSA · {db_cls}",
+            status=rec_status or "—",
+            confidence=float(conf or 0.0),
+            source=source,
+        )
 
     def _get_recorte_dxf_for_er(self, obra: str, classe: str, item_id: str,
                                 pav: str = "") -> "Path | None":
@@ -8942,7 +9119,10 @@ class ComparisonEngineModule(QWidget):
             if classe == "LJ":
                 self._materialize_lj_n3_json_from_n1(obra, item_id)
             n3_dxf   = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
-            if classe == "LJ" or force_regen:
+            # FV N3 shares the generator/profile with N4 and must not reuse a
+            # preview produced with an older visual/detail contract. Its input
+            # remains the persistent Fase-4 ficha derived from N1.
+            if classe in ("LJ", "FV") or force_regen:
                 n3_dxf = None
             col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
             self._configure_level_attention("N3", classe, item_id)
@@ -9166,6 +9346,25 @@ class ComparisonEngineModule(QWidget):
             except Exception:
                 pass
 
+    def _n5_property_rows(self, classe: str, item_ids: list[str]) -> list:
+        """Inclui na ficha N5 as propriedades da classe/item de referência."""
+        if not item_ids:
+            return []
+        selected = str(getattr(self.nav_sidebar, "_selected_item", "") or "")
+        item_id = selected if selected in item_ids else str(item_ids[0])
+        rows = [
+            ("==", f"PROPRIEDADES CONSOLIDADAS · {classe}"),
+            ("Item de referência", item_id),
+        ]
+        try:
+            source_rows = self.tri_level._ficha_n3_for(classe, item_id)
+            rows.extend(source_rows[:80])
+            if len(source_rows) > 80:
+                rows.append(("Campos adicionais", f"{len(source_rows) - 80} omitidos"))
+        except Exception as exc:
+            rows.append(("⚠ Propriedades", f"Não foi possível carregar: {str(exc)[:70]}"))
+        return rows
+
     def _on_gerar_n5(self, classe: str, item_ids: list):
         """N5: monta 1 DXF consolidado da classe a partir dos previews N3."""
         try:
@@ -9200,15 +9399,20 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(2, 'running', 'Carregando DXF...')
             rows = [
+                ("==", f"FICHA N5 · MONTAGEM CONSOLIDADA · {result.classe}"),
+                ("==", "IDENTIFICAÇÃO"),
                 ("Classe", result.classe),
                 ("Obra", result.obra),
                 ("Pavimento", result.pavimento or "GERAL"),
+                ("==", "ARQUIVOS E CONFIGURAÇÃO"),
                 ("DXF N5", str(result.output_path)),
                 ("Manifest", str(result.manifest_path)),
-                ("Itens OK", str(result.ok_count)),
-                ("Itens ausentes/erro", str(result.missing_count)),
                 ("Modo visual", self._visual_mode_for("N5").title()),
                 ("Regra", "LJ nativo; PL/LV/FV em folhas ordenadas"),
+                ("==", "RESULTADO DA MONTAGEM"),
+                ("Itens OK", str(result.ok_count)),
+                ("Itens ausentes/erro", str(result.missing_count)),
+                ("==", "ITENS CONSOLIDADOS"),
             ]
             for n5_item in result.items[:80]:
                 status = n5_item.status.upper()
@@ -9216,6 +9420,7 @@ class ComparisonEngineModule(QWidget):
                 rows.append((f"{n5_item.item_id} [{status}]", msg))
             if len(result.items) > 80:
                 rows.append(("Itens omitidos", str(len(result.items) - 80)))
+            rows.extend(self._n5_property_rows(classe, item_ids))
 
             col.set_ficha(rows)
             col.load_content(str(result.output_path), None)
@@ -9359,24 +9564,18 @@ class ComparisonEngineModule(QWidget):
         return {}
 
     def _ficha_rows_from_dict(self, campos: dict, item_id: str, db_cls: str) -> list:
-        """Converte dict da ficha ER em lista de tuplas para set_ficha()."""
-        conf = float(campos.get("_confianca", 0.0))
-        result = [
-            ("Elemento", item_id),
-            ("Classe", db_cls),
-            ("Status ER", campos.get("_er_meta", {}).get("source", "—") if isinstance(campos.get("_er_meta"), dict) else "—"),
-            ("Confiança", f"{conf*100:.0f}%"),
-        ]
-        for k, v in campos.items():
-            if k.startswith("_"):
-                continue
-            if isinstance(v, list):
-                result.append((k, f"[{len(v)} itens]"))
-            elif isinstance(v, dict):
-                result.append((k, str(v)[:60]))
-            else:
-                result.append((k, str(v)))
-        return result
+        """Ficha N4 estruturada por características do robô."""
+        meta = campos.get("_er_meta", {}) if isinstance(campos, dict) else {}
+        source = meta.get("source", "—") if isinstance(meta, dict) else "—"
+        return _structured_ficha_rows(
+            campos,
+            item_id,
+            db_cls,
+            title=f"FICHA N4 · ROBÔ VIA ENGENHARIA REVERSA · {db_cls}",
+            status=source,
+            confidence=float(campos.get("_confianca", 0.0) or 0.0),
+            source=source,
+        )
 
     def _find_or_generate_pil_zones(self, obra_dir: Path, item_id: str) -> dict:
         """Find (or generate if missing) zone DXFs for a PIL item.
