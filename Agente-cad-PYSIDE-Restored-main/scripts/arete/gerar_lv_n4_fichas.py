@@ -139,7 +139,8 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
 
 def gerar_lv_n4(elem: str, entry: dict,
                 out_dir: Path = N4_OUT,
-                tmp_root: Path | None = None) -> dict:
+                tmp_root: Path | None = None,
+                visual_mode: str = 'NOVA') -> dict:
     """Gera N4 para 1 viga. Retorna {ok, dxf_path, log}."""
     result = {'elem': elem, 'ok': False, 'dxf_path': None, 'log': ''}
 
@@ -169,6 +170,7 @@ def gerar_lv_n4(elem: str, entry: dict,
         '--obra', str(obra_dir),
         '--item', elem + '_A',
         '--max', '1',
+        '--visual-mode', visual_mode,
     ]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=90, cwd=str(REPO))
@@ -207,6 +209,8 @@ if __name__ == '__main__':
     parser.add_argument('--obra', default=str(OBRA_DIR))
     parser.add_argument('--entry-json',
                         help='Ficha live do motor para um unico elemento')
+    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
+                        help='Perfil visual do DXF (padrao: NOVA)')
     args = parser.parse_args()
 
     if args.entry_json:
@@ -239,7 +243,7 @@ if __name__ == '__main__':
             print(f'[{elem}] Não encontrado em fichas_lv_v2.json')
             continue
         print(f'[{elem}] gerando...', end=' ', flush=True)
-        r = gerar_lv_n4(elem, entry, out_dir)
+        r = gerar_lv_n4(elem, entry, out_dir, visual_mode=args.visual_mode)
         if r['ok']:
             ok += 1
             print(f'OK => {r["dxf_path"]}')

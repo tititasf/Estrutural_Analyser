@@ -21,6 +21,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 import json, argparse, re, math
 from pathlib import Path
 import ezdxf
+from visual_modes import apply_visual_mode
 
 # -- Constants (calibrated from STOG DXFs) ------------------------------------
 GAP_VIGAS       = 47     # gap between vigas in same row (cm)
@@ -1239,6 +1240,8 @@ def main():
                         help='Caminho para JSON no formato get_current_data() do robô. '
                              'Gera DXF preview completo (chanfros, sarrafos, painel L, aberturas) '
                              'sem precisar de Fase-4 JSON. Requer também --obra e --item.')
+    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
+                        help='Perfil visual do DXF (padrao: NOVA)')
     args = parser.parse_args()
 
     # -- Modo robot_json: geração direta a partir dos dados do robô ---------------
@@ -1276,6 +1279,7 @@ def main():
             out_name = f'FV_preview_{viga_nome}.dxf'
 
         out_path = out_dir / out_name
+        apply_visual_mode(doc, args.visual_mode, 'FV')
         doc.saveas(str(out_path))
         print(f'[FV] robot_json DXF → {out_path}')
         return
@@ -1557,6 +1561,7 @@ def main():
         else:
             out_name = f'FV_preview_{args.item}.dxf'
         out_dxf  = out_dir / out_name
+        apply_visual_mode(doc, args.visual_mode, 'FV')
         doc.saveas(str(out_dxf))
         print(f'\nDXF: {out_dxf}')
         return
@@ -1712,6 +1717,7 @@ def main():
 
     out_name = 'FV_stog_quality.dxf'
     out_dxf = out_dir / out_name
+    apply_visual_mode(doc, args.visual_mode, 'FV')
     doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')
 

@@ -1299,7 +1299,7 @@ class _CenterPanel(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setStyleSheet(f"background:{Colors.BG_DEEP};")
+        self.setStyleSheet(f"background:{Colors.BG_PRIMARY};")
 
         # Estado de loading assíncrono
         self._dxf_threads:  list = []
@@ -1316,7 +1316,7 @@ class _CenterPanel(QFrame):
 
         self._tabs = QTabWidget()
         self._tabs.setStyleSheet(f"""
-            QTabWidget::pane {{ border:none; background:{Colors.BG_DEEP}; }}
+            QTabWidget::pane {{ border:none; background:{Colors.BG_PRIMARY}; }}
             QTabBar::tab {{
                 background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY};
                 padding:4px 10px; font-size:9px; border-right:1px solid {Colors.BORDER_DEFAULT};
@@ -2909,7 +2909,7 @@ class DiagnosticReverseHub(QWidget):
         self._selected_proj_id: str = ""
         self._selected_dxf_path: str = ""
 
-        self.setStyleSheet(f"background:{Colors.BG_DEEP};")
+        self.setStyleSheet(f"background:{Colors.BG_PRIMARY};")
 
         root = QHBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)

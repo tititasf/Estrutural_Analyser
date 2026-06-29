@@ -16,6 +16,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 import json, argparse, math
 from pathlib import Path
 import ezdxf
+from visual_modes import apply_visual_mode
 
 # GradeCalculator — robô legado (calcular_grades, calculate_details_legacy)
 try:
@@ -1793,6 +1794,8 @@ def main():
     parser.add_argument('--zone', type=str, default='all',
                         choices=['all', 'abcd', 'cima', 'grades', 'efgh'],
                         help='Gerar apenas esta zona em DXF isolado (all=modo legado combinado)')
+    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
+                        help='Perfil visual do DXF (padrao: NOVA)')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -1860,6 +1863,7 @@ def main():
 
             out_name = f'PL_{zone_label}_preview_{pf.stem}.dxf'
             out_path = out_dir / out_name
+            apply_visual_mode(doc_z, args.visual_mode, 'PL')
             doc_z.saveas(str(out_path))
             print(f'  [{idx+1:2d}] {nome}: {comp}x{larg_v}cm h={altura:.0f}cm  '
                   f'entities={n}  → {out_name}')
@@ -2048,6 +2052,7 @@ def main():
 
     out_name = f'PL_preview_{args.item}.dxf' if args.item else 'PL_stog_quality.dxf'
     out_dxf = out_dir / out_name
+    apply_visual_mode(doc, args.visual_mode, 'PL')
     doc.saveas(str(out_dxf))
     print(f'\nTotal entities: {total_entities}')
     print(f'DXF: {out_dxf}')

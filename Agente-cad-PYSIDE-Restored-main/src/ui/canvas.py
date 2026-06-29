@@ -2493,7 +2493,12 @@ class CADCanvas(QGraphicsView):
                     if not l_type:
                         # print(f"[DEBUG Canvas] Skipping link in {slot_name}: No Type")
                         continue
-                    
+                    current_pen = local_pen
+                    # [AJUSTE] Pintar de verde se o link estiver validado ou se o campo inteiro estiver validado
+                    if link.get('validated') or field_id in target.get('validated_fields', []):
+                        current_pen = QPen(QColor(76, 175, 80), 3)
+                        current_pen.setCosmetic(True)
+
                     item = None
                     # Texto
                     if l_type == 'text' and link.get('pos'):
@@ -2512,7 +2517,7 @@ class CADCanvas(QGraphicsView):
                             if len(pts[0]) > 2:
                                 pts = [(p[0], p[1]) for p in pts]
                             
-                            # [NOVO] Registrar Snaps para geometria de vÃ­nculo (Contornos, Linhas, etc)
+                            # [NOVO] Registrar Snaps para geometria de vínculo (Contornos, Linhas, etc)
                             if destination != 'focus': 
                                 for i, pt in enumerate(pts):
                                     self._add_snap_point(pt, 'endpoint')
@@ -2529,17 +2534,17 @@ class CADCanvas(QGraphicsView):
                             is_closed = l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1])
                             
                             # Apenas o CONTORNO vira SlabGraphicsItem. 
-                            # AcrÃ©scimos e Ilhas devem ser desenhados como PATHS para respeitar cores customizadas
+                            # Acréscimos e Ilhas devem ser desenhados como PATHS para respeitar cores customizadas
                             is_main_contour = slot_name == 'contour'
                             
                             if destination == 'slab' and is_closed and is_main_contour:
                                 # print(f"[DEBUG CANVAS] Creating SlabGraphicsItem for {target.get('name')}")
                                 item = SlabGraphicsItem(pts, label=None)
                                 item.set_validated(target.get('is_validated', False))
-                                # Se nÃ£o estiver validado, forÃ§amos o pen de destaque azul (ou o especificado no loop)
+                                # Se não estiver validado, forçamos o pen de destaque azul (ou o especificado no loop)
                                 if not target.get('is_validated'):
-                                    item.setPen(local_pen)
-                                item.setZValue(100) # Fundo (atrÃ¡s dos segmentos)
+                                    item.setPen(current_pen)
+                                item.setZValue(100) # Fundo (atrás dos segmentos)
                                 item.setToolTip(f"Slab: {target.get('name')} ({slot_name})")
                                 self.scene.addItem(item)
                                 # print(f"[DEBUG CANVAS] Added SlabGraphicsItem for {target.get('name')} ({slot_name})")
@@ -2548,13 +2553,13 @@ class CADCanvas(QGraphicsView):
                                 path.moveTo(pts[0][0], pts[0][1])
                                 for p in pts[1:]: path.lineTo(p[0], p[1])
                                 if is_closed: path.closeSubpath()
-                                item = self.scene.addPath(path, local_pen)
+                                item = self.scene.addPath(path, current_pen)
                                 # FV/LV sub-itens recebem zValue mais alto para aparecer sobre linhas DXF
                                 z_val = 200 if _lv_fv_prefix else 105
                                 item.setZValue(z_val)
                                 # print(f"[DEBUG CANVAS] Added Path for {target.get('name')} ({slot_name}) | Type: {l_type}")
 
-                    # CÃ­rculos
+                    # Círculos
                     elif l_type == 'circle' and link.get('pos') and link.get('radius') is not None:
                         r = link['radius']
                         px, py = link['pos']

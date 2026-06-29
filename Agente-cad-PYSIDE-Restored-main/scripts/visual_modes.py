@@ -1,0 +1,366 @@
+"""Perfis visuais dos geradores DXF de Pilares e Vigas.
+
+NOVA e o caminho de producao atual e, por contrato, nao altera o documento.
+INI e uma primeira reproducao isolada dos templates/SCR legados:
+
+* sarrafos sao emitidos como uma MLINE central (estilo SAR3, fundo solido);
+* a escala da MLINE corresponde a largura geometrica/nominal do sarrafo;
+* entidades passam a usar cor BYLAYER;
+* layers seguem os nomes e cores encontrados nos templates dos robos.
+
+O perfil e aplicado somente ao final da geracao. Assim, refinamentos do INI
+nao podem mudar geometria, layers ou cores do modo NOVA.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from itertools import combinations
+from typing import Iterable
+
+
+VISUAL_MODE_NOVA = "NOVA"
+VISUAL_MODE_INI = "INI"
+VISUAL_MODES = (VISUAL_MODE_NOVA, VISUAL_MODE_INI)
+
+
+def normalize_visual_mode(value: object) -> str:
+    mode = str(value or VISUAL_MODE_NOVA).strip().upper()
+    if mode not in VISUAL_MODES:
+        raise ValueError(f"Modo visual invalido: {value!r}")
+    return mode
+
+
+# Cores ACI observadas nos moldes/DXFs dos robos SCR.
+_LEGACY_COLORS = {
+    "0": 7,
+    "Painéis": 255,
+    "hachura-chapa": 7,
+    "Hachura": 251,
+    "barra_ancoragem": 224,
+    "BARRA_ANCORAGEM": 224,
+    "COTA": 241,
+    "cota": 241,
+    "cotaS": 241,
+    "NOMENCLATURA": 7,
+    "nomenclatura": 7,
+    "DIVISAO": 142,
+    "Nível": 3,
+    "pedireito": 3,
+    "CONCRETO": 251,
+    "concreto": 251,
+    "GRAVATA": 224,
+    "perfil_metalico": 224,
+    "Perfil Metálico": 224,
+    "SARRAFO": 30,
+    "SARRAFO_2_2X7": 30,
+    "SARRAFO_2_2x7": 30,
+    "SARRAFO_2_2x5": 91,
+    "SARR_2.2x7": 30,
+    "SARR_2.2x10": 60,
+    "SARR_2.2x5": 91,
+    "SARR_2.2x3.5": 71,
+    "SARR_3.5x7": 7,
+    "SARRAFO_PRESSAO": 1,
+    "SARRAFO DE PRESSAO": 1,
+    "Sarrafo_de_pressao": 1,
+}
+
+
+_INI_LAYER_MAP = {
+    "PL": {
+        "paineis": "hachura-chapa",
+        "painéis": "hachura-chapa",
+        "sarrafo": "SARRAFO_2_2X7",
+        "sarr_2.2x7": "SARRAFO_2_2X7",
+        "sarr_2.2x10": "SARRAFO_2_2X7",
+        "sarr_3.5x7": "SARRAFO_2_2X7",
+        "gravata": "perfil_metalico",
+        "perfil metálico": "perfil_metalico",
+        "hachura": "barra_ancoragem",
+        "nível": "pedireito",
+    },
+    "LV": {
+        "sarr_2.2x7": "SARRAFO_2_2X7",
+        "sarr_2.2x10": "SARRAFO_2_2X7",
+        "sarr_2.2x5": "SARRAFO_2_2x5",
+        "sarr_2.2x3.5": "SARRAFO_2_2x5",
+        "sarr_3.5x7": "SARRAFO_2_2X7",
+        "sarrafo_2_2x7": "SARRAFO_2_2X7",
+        "5": "DIVISAO",
+        "cota": "cota",
+    },
+    "FV": {
+        "sarr_2.2x7": "SARRAFO_2_2x5",
+        "sarr_2.2x10": "SARRAFO_2_2x5",
+        "sarr_2.2x5": "SARRAFO_2_2x5",
+        "sarr_5cm": "SARRAFO_2_2x5",
+        "sarr_contorno_10cm": "SARRAFO_2_2x5",
+        "sarrafo de pressao": "Sarrafo_de_pressao",
+        "nomenclatura": "0",
+        "5": "DIVISAO",
+        "cota": "cota",
+    },
+}
+
+
+@dataclass
+class VisualModeStats:
+    mode: str
+    robot_class: str
+    remapped_entities: int = 0
+    mlines_created: int = 0
+    rectangles_collapsed: int = 0
+
+
+def _ensure_layer(doc, name: str) -> None:
+    color = _LEGACY_COLORS.get(name, 7)
+    if name not in doc.layers:
+        doc.layers.add(name, color=color)
+    else:
+        doc.layers.get(name).dxf.color = color
+
+
+def _ensure_sar3_style(doc) -> None:
+    if "SAR3" in doc.mline_styles:
+        style = doc.mline_styles.get("SAR3")
+    else:
+        style = doc.mline_styles.new("SAR3")
+    if len(style.elements.elements) != 2:
+        style.elements.elements.clear()
+        style.elements.append(-0.5, color=256, linetype="BYLAYER")
+        style.elements.append(0.5, color=256, linetype="BYLAYER")
+    style.dxf.flags = style.MITER | style.FILL
+    style.dxf.fill_color = 256
+
+
+def _polyline_vertices(entity) -> list[tuple[float, float]]:
+    kind = entity.dxftype()
+    if kind == "LINE":
+        return [
+            (float(entity.dxf.start.x), float(entity.dxf.start.y)),
+            (float(entity.dxf.end.x), float(entity.dxf.end.y)),
+        ]
+    if kind == "LWPOLYLINE":
+        return [(float(x), float(y)) for x, y, *_ in entity.get_points()]
+    return []
+
+
+def _is_sarrafo_layer(layer: str) -> bool:
+    norm = str(layer or "").casefold()
+    return "sarr" in norm
+
+
+def _axis_aligned_rectangle(vertices: list[tuple[float, float]],
+                            tolerance: float = 1e-4):
+    if len(vertices) < 4:
+        return None
+    points = vertices[:-1] if vertices[0] == vertices[-1] else vertices
+    if len(points) != 4:
+        return None
+    xs = sorted({round(point[0], 4) for point in points})
+    ys = sorted({round(point[1], 4) for point in points})
+    if len(xs) != 2 or len(ys) != 2:
+        return None
+    corners = {(x, y) for x in xs for y in ys}
+    actual = {(round(x, 4), round(y, 4)) for x, y in points}
+    if corners != actual:
+        return None
+    width, height = xs[1] - xs[0], ys[1] - ys[0]
+    if width <= tolerance or height <= tolerance:
+        return None
+    return xs[0], ys[0], xs[1], ys[1]
+
+
+def _centerline_from_bbox(box):
+    x0, y0, x1, y1 = box
+    width, height = x1 - x0, y1 - y0
+    if width >= height:
+        cy = (y0 + y1) / 2.0
+        return [(x0, cy), (x1, cy)], height
+    cx = (x0 + x1) / 2.0
+    return [(cx, y0), (cx, y1)], width
+
+
+def _line_points(entity):
+    return (
+        (float(entity.dxf.start.x), float(entity.dxf.start.y)),
+        (float(entity.dxf.end.x), float(entity.dxf.end.y)),
+    )
+
+
+def _edge_key(p1, p2, precision: int = 4):
+    a = (round(p1[0], precision), round(p1[1], precision))
+    b = (round(p2[0], precision), round(p2[1], precision))
+    return tuple(sorted((a, b)))
+
+
+def _line_rectangles(lines: list) -> list[tuple[list, tuple]]:
+    """Localiza retangulos formados por quatro LINEs no mesmo layer."""
+    by_edge: dict[tuple[str, tuple], list] = {}
+    horizontal: dict[tuple[str, float, float], list[tuple[float, object]]] = {}
+    for entity in lines:
+        p1, p2 = _line_points(entity)
+        layer = str(entity.dxf.layer)
+        by_edge.setdefault((layer, _edge_key(p1, p2)), []).append(entity)
+        if abs(p1[1] - p2[1]) <= 1e-4 and abs(p1[0] - p2[0]) > 1e-4:
+            x0, x1 = sorted((round(p1[0], 4), round(p2[0], 4)))
+            horizontal.setdefault(
+                (layer, x0, x1), []
+            ).append((round(p1[1], 4), entity))
+
+    used = set()
+    found = []
+    for (layer, x0, x1), entries in horizontal.items():
+        for (y0, bottom), (y1, top) in sorted(
+            combinations(sorted(entries), 2),
+            key=lambda pair: abs(pair[1][0] - pair[0][0]),
+        ):
+            if y0 == y1 or id(bottom) in used or id(top) in used:
+                continue
+            y0, y1 = sorted((y0, y1))
+            left_key = (layer, _edge_key((x0, y0), (x0, y1)))
+            right_key = (layer, _edge_key((x1, y0), (x1, y1)))
+            left = next(
+                (e for e in by_edge.get(left_key, []) if id(e) not in used),
+                None,
+            )
+            right = next(
+                (e for e in by_edge.get(right_key, []) if id(e) not in used),
+                None,
+            )
+            if left is None or right is None:
+                continue
+            group = [bottom, top, left, right]
+            used.update(id(entity) for entity in group)
+            found.append((group, (x0, y0, x1, y1)))
+    return found
+
+
+def _width_from_layer(layer: str, vertices) -> float:
+    """Fallback para linhas sem retangulo: seção nominal orientada pelo eixo."""
+    match = __import__("re").search(
+        r"(?:SARR(?:AFO)?[_ .-]*)(\d+(?:[._]\d+)?)X(\d+(?:[._]\d+)?)",
+        str(layer).upper(),
+    )
+    if not match:
+        return 2.2
+    first = float(match.group(1).replace("_", "."))
+    second = float(match.group(2).replace("_", "."))
+    p0, p1 = vertices[0], vertices[-1]
+    horizontal = abs(p1[0] - p0[0]) >= abs(p1[1] - p0[1])
+    return first if horizontal else second
+
+
+def _add_solid_mline(msp, vertices, layer: str, thickness: float) -> None:
+    msp.add_mline(
+        vertices,
+        close=False,
+        dxfattribs={
+            "layer": layer,
+            "style_name": "SAR3",
+            "scale_factor": max(float(thickness), 0.1),
+            "justification": 1,  # Zero/centro: preserva o envelope do retangulo.
+            "color": 256,
+        },
+    )
+
+
+def _iter_modelspace_entities(doc) -> Iterable:
+    # Os motores atuais geram a geometria editavel no modelspace. Nao
+    # reescrevemos definicoes de blocos, pois elas sao compartilhadas.
+    return list(doc.modelspace())
+
+
+def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
+                      robot_class: str = "") -> VisualModeStats:
+    """Aplica o perfil solicitado a um documento ezdxf.
+
+    NOVA retorna imediatamente e preserva byte/semantica do motor atual.
+    """
+    normalized = normalize_visual_mode(mode)
+    cls = str(robot_class or "").strip().upper()
+    stats = VisualModeStats(normalized, cls)
+    if normalized == VISUAL_MODE_NOVA:
+        return stats
+
+    layer_map = _INI_LAYER_MAP.get(cls, {})
+    _ensure_sar3_style(doc)
+
+    msp = doc.modelspace()
+    sarrafo_entities = []
+    for entity in _iter_modelspace_entities(doc):
+        old_layer = str(entity.dxf.get("layer", "0"))
+        new_layer = layer_map.get(old_layer.casefold(), old_layer)
+        _ensure_layer(doc, new_layer)
+
+        if new_layer != old_layer:
+            entity.dxf.layer = new_layer
+            stats.remapped_entities += 1
+
+        # INI historico usa a paleta do layer, nao cores individuais.
+        if entity.dxf.is_supported("color"):
+            entity.dxf.color = 256
+
+        if (
+            _is_sarrafo_layer(new_layer)
+            and entity.dxftype() in ("LINE", "LWPOLYLINE")
+        ):
+            sarrafo_entities.append(entity)
+
+    consumed = set()
+
+    # Retangulos LWPOLYLINE fechados viram uma unica linha central MLINE.
+    for entity in sarrafo_entities:
+        if entity.dxftype() != "LWPOLYLINE" or not entity.closed:
+            continue
+        vertices = _polyline_vertices(entity)
+        box = _axis_aligned_rectangle(vertices)
+        if box is None:
+            continue
+        centerline, thickness = _centerline_from_bbox(box)
+        _add_solid_mline(msp, centerline, entity.dxf.layer, thickness)
+        consumed.add(id(entity))
+        stats.mlines_created += 1
+        stats.rectangles_collapsed += 1
+
+    # Os motores também constroem retângulos como quatro LINEs independentes.
+    line_entities = [
+        entity for entity in sarrafo_entities
+        if entity.dxftype() == "LINE" and id(entity) not in consumed
+    ]
+    for group, box in _line_rectangles(line_entities):
+        centerline, thickness = _centerline_from_bbox(box)
+        _add_solid_mline(msp, centerline, group[0].dxf.layer, thickness)
+        consumed.update(id(entity) for entity in group)
+        stats.mlines_created += 1
+        stats.rectangles_collapsed += 1
+
+    # Linhas que já eram eixos permanecem uma linha, com escala pela seção.
+    for entity in sarrafo_entities:
+        if id(entity) in consumed:
+            continue
+        vertices = _polyline_vertices(entity)
+        if len(vertices) < 2:
+            continue
+        if entity.dxftype() == "LWPOLYLINE" and entity.closed:
+            # Forma fechada não retangular: não há eixo confiável.
+            continue
+        thickness = _width_from_layer(entity.dxf.layer, vertices)
+        _add_solid_mline(msp, vertices, entity.dxf.layer, thickness)
+        consumed.add(id(entity))
+        stats.mlines_created += 1
+
+    for entity in sarrafo_entities:
+        if id(entity) in consumed:
+            msp.delete_entity(entity)
+
+    # Atualiza inclusive layers presentes no desenho mas sem entidades.
+    for layer in list(doc.layers):
+        name = str(layer.dxf.name)
+        mapped = layer_map.get(name.casefold(), name)
+        _ensure_layer(doc, mapped)
+        if name in _LEGACY_COLORS:
+            layer.dxf.color = _LEGACY_COLORS[name]
+
+    return stats
