@@ -26,6 +26,14 @@ from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+from src.core.artifact_governance import guarded_saveas
+
+_MOTOR_ID = "ROBOT_LV_N3_N4"
+_MOTOR_SOURCES = [Path(__file__)]
+
 # ── Constantes de layout (calibradas nos DXFs STOG) ────────────────────────
 GAP_ROW_LV     = 100    # gap vertical entre linhas de vigas (cm)
 NOM_ABOVE      = 9      # y = painel_top + NOM_ABOVE -> NOMENCLATURA
@@ -2270,12 +2278,18 @@ def main():
     out_dxf = out_dir / out_name
     apply_visual_mode(doc, args.visual_mode, 'LV')
     try:
-        doc.saveas(str(out_dxf))
+        out_dxf = guarded_saveas(
+            doc, out_dxf,
+            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+        )
     except PermissionError:
         import time
         ts = time.strftime('%H%M%S')
         out_dxf = out_dir / f'LV_stog_{ts}.dxf'
-        doc.saveas(str(out_dxf))
+        out_dxf = guarded_saveas(
+            doc, out_dxf,
+            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+        )
     print(f'\nDXF: {out_dxf}')
 
     # ── PNG preview ─────────────────────────────────────────────────────────

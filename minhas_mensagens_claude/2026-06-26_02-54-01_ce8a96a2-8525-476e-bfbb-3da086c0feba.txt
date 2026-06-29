@@ -1,0 +1,52 @@
+[2026-06-26 02:54:01] /model
+
+---
+
+[2026-06-26 02:54:12] /effort
+
+---
+
+[2026-06-26 02:56:37] vamos usar esse chat focado em melhorar a performance da app e identificar acumulos de cpou ram logs etc que causem crash. e debugar em pontos criticos performance geral de todas abas viwers, renderizacoes dados analises geral daapp porfa. MANTENDO INTEGRIDADE E QUALDIADE ATUAL DEFORMA SEGURA . A APP É [Image #1] E TA CRASHANDO ENQUANTOO USO E FECHA SOZINHA
+
+---
+
+[2026-06-26 03:12:45] SIM PORFA JA AJUSTA ESSES E CONTINUA AUDITANDO
+
+---
+
+[2026-06-26 03:25:51] TA ALGOMAIS A INVESTIGAR OU DEBUGAR?
+
+---
+
+[2026-06-26 03:29:06] SE FAZER DOWNGRADE CORROMPE ALGO?
+
+---
+
+[2026-06-26 03:32:55] CONSEGUE FAZER POR E MANTER INTEGRIDADE E DOCUMENTAR QUE DEVEMOS USAR ESSA VERSAO
+
+---
+
+[2026-06-26 03:46:03] eu uso o atalhoinicializador no desktop veja seta coerente
+
+---
+
+[2026-06-26 03:55:44] fixa ele no meu iniciar com meu icone da app porfa
+
+---
+
+[2026-06-26 03:59:12] nao to conseguindo fixar na barra  de tarefas [Image #1]
+
+---
+
+[2026-06-26 04:01:02] funcionou obrigado. qual projetoogithub é esse?
+
+---
+
+[2026-06-26 04:18:41] ta abrindo sem o terminal e era util abrir oterminaljunto para eu ver oque tem de errado e erros e passar aochat como feedback etc
+
+---
+
+[2026-06-26 04:29:29] abriu sem terminal ainda
+
+---
+

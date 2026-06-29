@@ -1,0 +1,52 @@
+[2026-06-20 01:24:35] Você vai implementar a ETAPA 1  Fichas & Botões (fundação) do app CAD PySide. O objetivo é fazer o sistema de fichas F1F9 e os 3 botões FUNCIONAREM (IDs rastreáveis, preenchimento dinâmico, persistência, lógica clara dos botões)  independente da qualidade da interpretação. A qualidade vem na ETAPA 2 (loops de treino), que NÃO é seu escopo.
+
+ANTES DE TOCAR EM CÓDIGO  LEIA (fonte da verdade)
+Em D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\docs\:
+
+MASTERPLAN-FICHAS-F1-F9-HARMONIZACAO.md  principal (taxonomia, §0.1 ordem macro, §1.3 mapeamento DB real, §3.5 os 3 botões, §6 R1-R7)
+MASTERPLAN-LOOP-TREINO-MOTOR.md (contexto da Etapa 2  só ler, não implementar)
+QUALITY-GATE-MASTERPLANS-FICHAS-LOOP.md
+Apoio: STATUS-ATUAL-JUNHO-2026.md, VECTOR_SCHEMA.md, SEMANTICA-{PILAR,VIGA,LAJE}-NOVA.md, REVERSE_ENGINEERING.md
+REPO E BANCO
+Raiz: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main  App: main.py (PySide6)
+Banco REAL: D:\Agente-cad-PYSIDE\project_data.vision (1.35 GB)  NÃO use data/*.db (vazios)
+Vetores: LanceDB DADOS-OBRAS\stog_rag_db + Chroma vector_memory/chroma.sqlite3
+Gabarito N2: projects_repo/<project_id>/laje_data/obras.json
+ARQUIVOS-CHAVE (use grep; linhas mudam)
+main.py: process_pillars_action() (botão Análise GeralF7), _process_with_reverse_engineering() (botão Eng Reversaconsulta F5)  src/ui/modules/diagnostic_hub.py (F2/F3)  src/ui/modules/diagnostic_reverse_hub.py (F4/F5/F6, _on_gerar_ficha)  src/ui/widgets/project_manager.py (F1)  scripts/motor_reverso_obra.py (F6, fix consolidar_obra_er)  src/core/slab_tracer.py (motor  NÃO alterar)
+
+TAXONOMIA F1F9 (TRAVADA)
+F1 Pré-Obra F1-{OBRA}  F2 Pré-Pavimento F2-{OBRA}-{PAV}  F3 Obra-Global (em dev) F3-{OBRA}  F4 Eng.Reversa PavClasse F4-{OBRA}-{PAV}-{CLASSE}  F5 item N2 = tabela reverse_eng_fichas (902) F5-...-{ITEM}  F6 obra-reversa = reverse_eng_obra_ficha (2)  F7 Structural=N1 = fase3_fichas (405)  F8 N3 Comparison  F9 N4 Comparison. Schema de item já existe em reverse_eng_fichas.campos_json  use como base.
+
+OS 3 BOTÕES
+Iniciar Análise Geral  motor puro sem teacher; gera F7/N1 (fase3_fichas); pode ser ruim, tudo bem.
+Analisar com Eng Reversa  CONSULTA N2/F5 (reverse_eng_fichas), não gera DXF; relatório de granularidade + confirmação.
+Análise com Contexto  FUTURO; só deixar aba/botão + documentar intenção (reaproveitamento de grades/painéis entre pavimentos via F1/F2/F3); NÃO implementar lógica.
+TAREFAS (com aceite)
+T1 IDs rastreáveis em toda criação de ficha.
+T2 Schema canônico  docs/SCHEMA-FICHA-GRANULAR.md a partir do campos_json real; aplicar a F5 e F7.
+T3 Botões com lógica/rótulos certos; corrigir cmb_obrascmb_works e o relatório N2 achar os recortes validados.
+T4 Preenchimento dinâmico ao selecionar recorte/documento.
+T5 Persistência segura (validado nunca sobreposto; reabrir recarrega) via validated_fields_json/na_fields_json.
+T6 Fix F6 consolidar_obra_er.
+T7 UI R1R7: combobox Structural por pavimento da triagem (obra_triagem); Hub Pré exibir classe real (não "Outros"); 3 abas no Reverse Hub; rótulos com nº de ficha; reconciliar VECTOR_SCHEMA (só doc).
+RESTRIÇÕES
+NÃO recriar tabelas  NÃO op destrutiva de DB (backup do .vision antes de escrever)  ZERO hardcode de interpretação  NÃO mexer em transformation_rules nem slab_tracer.py  branch git separada, commits pequenos, edições cirúrgicas.
+
+ENTREGÁVEL
+T1T7 passando na obra-piloto Obra_TREINO_1, pavimento 13 (project_id 4869be2b-f17c-410b-a9c8-98a887ec1c95). Ao final, docs/ETAPA-1-RELATORIO.md com o que mudou. Comece lendo os 4 docs e fazendo inventário (grep) dos botões.
+
+---
+
+[2026-06-20 01:41:23] falta algo? preciso fazer algo?
+
+---
+
+[2026-06-20 01:42:36] quero que comite tudo para nada ficar de fora e ter um comit 100% atualizado contendo todos changes de tudo.
+
+---
+
+[2026-06-20 01:51:04] faz push mantendo integridade porfavor sem perder nada nem sobreescrever
+
+---
+

@@ -1,0 +1,102 @@
+[2026-06-14 22:49:56] Nova frente: ARETE LAJE (paralela ao PIL, não conflita). Rode com cwd em D:\Agente-cad-PYSIDE
+(NÃO em corporacao-senciente  senão hooks SYNAPSE/code-intel travam tudo).
+
+LEIA NESTA ORDEM:
+1. docs/MASTERPLAN-ARETE-LAJE.md (seu plano completo  arco LJ-A  LJ-B  LJ-C)
+2. docs/MASTERPLAN-ARETE-QUALITY-GATES.md (§G2 v1.2 paridade canônica, §4-B treino, regras)
+
+CONTEXTO: app PySide6 que porta robôs SCR de fôrma de concreto para DXF. Fluxo dual:
+N2 = ficha extraída do DXF STOG humano (recorte); N4 = DXF gerado pelo robô a partir do N2.
+Meta: N4 idêntico ao recorte N2 (mesmo conteúdo, estilo do robô) = "Arete". É TREINO para
+construir um MOTOR UNIVERSAL de laje  tudo por fórmula, zero hardcode de medida de uma laje.
+
+SUA MISSÃO = FASE LJ-A (N2N4) no 13_PAV da Obra_TREINO_1 (18 lajes; comece por L308, a única
+aprovada por humano):
+- LJ-A.1: o motor_reverso_laj.py hoje STUBA obstaculos=[], modo_selecionado=0, pontaletes={}.
+  Complete a extração real de obstáculos (polígonos internos), modo (orientação dos painéis)
+  e valide coordenadas/comprimento/largura contra o recorte.
+- LJ-A.2/3: construa a forma canônica LAJ (painéis [{w,h}], uniões, obstáculos, cotas-valor,
+  textos, contagens) extraída dos DOIS lados, e o G2 canônico no arete_runner.
+- LJ-A.4/5: loop de Arete em L308  depois as 18.
+
+DOMÍNIO CRÍTICO (não erre):
+- linhas_verticais/horizontais são CALCULADAS por algoritmo (modo1: 122/60/união verticais,
+  244 horizontais)  se o N4 não bate a grade de painéis, o fix é no algoritmo calcular_modo1,
+  POR FÓRMULA, nunca hardcodar a divisão de uma laje.
+- PONTALETES ficam FORA da paridade DXF (cálculo NBR 7190, não fôrma). A entrega do robô é
+  painéis + uniões + HLAZ (hachura nas tiras de junção).
+- obstaculos = furos/shafts (polígonos dentro do polígono da laje).
+
+DADOS: ficha N2 no SQLite project_data.vision (tabela reverse_eng_fichas, pavimento='13_PAV',
+classe='LAJ'). Recortes em DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\...13°...LJ...
+(prefira *_sel_* sobre *_motor_*). Gerador: scripts/gerar_lj_dxf_stog.py (draw_laje_planta).
+Robô SCR de lajes (ref de estilo): _ROBOS_ABAS/Robo_Lajes.
+
+LOOP: VALOR vem do recorte STOG; POSIÇÃO/estilo da cota vem do robô SCR; fix por fórmula em
+gerar_lj_dxf_stog.py ou motor_reverso_laj.py; gera preview de 1 laje  render PNG  me mostra
+lado a lado com o recorte  arete  regenera lote. Um fix por causa; proibido selar com FAIL;
+comparação canônica (conteúdo), nunca (layer,dxftype) cru; se houver algo no recorte que não é
+da laje, propõe exceção e me pergunta.
+
+REGRA DE OURO: não edite scripts/arete/ se outra sessão estiver mexendo nele; foque em LAJ.
+Comece confirmando cwd, lendo o masterplan, e gerando a ficha+preview de L308 pra comparar.
+
+---
+
+[2026-06-14 22:50:13] Nova frente: ARETE LAJE (paralela ao PIL, não conflita). Rode com cwd em D:\Agente-cad-PYSIDE
+(NÃO em corporacao-senciente  senão hooks SYNAPSE/code-intel travam tudo).
+
+LEIA NESTA ORDEM:
+1. docs/MASTERPLAN-ARETE-LAJE.md (seu plano completo  arco LJ-A  LJ-B  LJ-C)
+2. docs/MASTERPLAN-ARETE-QUALITY-GATES.md (§G2 v1.2 paridade canônica, §4-B treino, regras)
+
+CONTEXTO: app PySide6 que porta robôs SCR de fôrma de concreto para DXF. Fluxo dual:
+N2 = ficha extraída do DXF STOG humano (recorte); N4 = DXF gerado pelo robô a partir do N2.
+Meta: N4 idêntico ao recorte N2 (mesmo conteúdo, estilo do robô) = "Arete". É TREINO para
+construir um MOTOR UNIVERSAL de laje  tudo por fórmula, zero hardcode de medida de uma laje.
+
+SUA MISSÃO = FASE LJ-A (N2N4) no 13_PAV da Obra_TREINO_1 (18 lajes; comece por L308, a única
+aprovada por humano):
+- LJ-A.1: o motor_reverso_laj.py hoje STUBA obstaculos=[], modo_selecionado=0, pontaletes={}.
+  Complete a extração real de obstáculos (polígonos internos), modo (orientação dos painéis)
+  e valide coordenadas/comprimento/largura contra o recorte.
+- LJ-A.2/3: construa a forma canônica LAJ (painéis [{w,h}], uniões, obstáculos, cotas-valor,
+  textos, contagens) extraída dos DOIS lados, e o G2 canônico no arete_runner.
+- LJ-A.4/5: loop de Arete em L308  depois as 18.
+
+DOMÍNIO CRÍTICO (não erre):
+- linhas_verticais/horizontais são CALCULADAS por algoritmo (modo1: 122/60/união verticais,
+  244 horizontais)  se o N4 não bate a grade de painéis, o fix é no algoritmo calcular_modo1,
+  POR FÓRMULA, nunca hardcodar a divisão de uma laje.
+- PONTALETES ficam FORA da paridade DXF (cálculo NBR 7190, não fôrma). A entrega do robô é
+  painéis + uniões + HLAZ (hachura nas tiras de junção).
+- obstaculos = furos/shafts (polígonos dentro do polígono da laje).
+
+DADOS: ficha N2 no SQLite project_data.vision (tabela reverse_eng_fichas, pavimento='13_PAV',
+classe='LAJ'). Recortes em DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\...13°...LJ...
+(prefira *_sel_* sobre *_motor_*). Gerador: scripts/gerar_lj_dxf_stog.py (draw_laje_planta).
+Robô SCR de lajes (ref de estilo): _ROBOS_ABAS/Robo_Lajes.
+
+LOOP: VALOR vem do recorte STOG; POSIÇÃO/estilo da cota vem do robô SCR; fix por fórmula em
+gerar_lj_dxf_stog.py ou motor_reverso_laj.py; gera preview de 1 laje  render PNG  me mostra
+lado a lado com o recorte  arete  regenera lote. Um fix por causa; proibido selar com FAIL;
+comparação canônica (conteúdo), nunca (layer,dxftype) cru; se houver algo no recorte que não é
+da laje, propõe exceção e me pergunta.
+
+REGRA DE OURO: não edite scripts/arete/ se outra sessão estiver mexendo nele; foque em LAJ.
+Comece confirmando cwd, lendo o masterplan, e gerando a ficha+preview de L308 pra comparar.
+
+---
+
+[2026-06-15 12:31:33] pronto?
+
+---
+
+[2026-06-15 12:40:19] pronto?
+
+---
+
+[2026-06-15 13:24:24] oque faço agora?
+
+---
+

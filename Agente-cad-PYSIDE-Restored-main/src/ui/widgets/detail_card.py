@@ -1362,6 +1362,25 @@ class DetailCard(QWidget):
                 self.fields['format'].currentTextChanged.connect(lambda txt: self._on_field_changed('format', txt))
                 h_layout.addRow("Formato da Seção [format]:", self.fields['format'])
 
+                # Classificação (Apenas Pilar)
+                _classif_raw = (
+                    self.item_data.get('classification')
+                    or (self.item_data.get('fields') or {}).get('Classificação')
+                    or 'INDETERMINADO'
+                )
+                _classif_val = str(_classif_raw).strip().upper() or 'INDETERMINADO'
+                self.fields['classification'] = QComboBox()
+                self.fields['classification'].addItems([
+                    "INDETERMINADO", "NASCE", "SEGUE", "MORRE", "PASSA", "CONTINUA",
+                ])
+                self.fields['classification'].setCurrentText(
+                    _classif_val if _classif_val in ("INDETERMINADO", "NASCE", "SEGUE", "MORRE", "PASSA", "CONTINUA") else "INDETERMINADO"
+                )
+                self.fields['classification'].setFixedHeight(24)
+                self.fields['classification'].setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
+                self.fields['classification'].currentTextChanged.connect(lambda txt: self._on_field_changed('classification', txt))
+                h_layout.addRow("Classificação [classification]:", self.fields['classification'])
+
             layout.addWidget(header)
 
             # ── GRUPO: Dimensional / Geometria Global (Pilares) ──────────────────

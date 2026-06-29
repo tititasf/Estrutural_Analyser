@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-06-29T12:06:27.753703",
-  "project_id": "4869be2b-f17c-410b-a9c8-98a887ec1c95",
+  "timestamp": "2026-06-29T14:34:31.506671",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
   "total_slabs": 31,
   "validated_count": 0,
   "non_validated_count": 31,
@@ -233,18 +233,9 @@
   "slabs": [
     {
       "name": "L301",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_1",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_1",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 74206.5,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -290,18 +281,9 @@
     },
     {
       "name": "L302",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_2",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_2",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 76494.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -347,16 +329,9 @@
     },
     {
       "name": "L303",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_3",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_3",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 76194.0,
       "points_count": 9,
       "confidence_score": 0.4,
@@ -402,18 +377,9 @@
     },
     {
       "name": "L304",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_4",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_4",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 76494.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -459,18 +425,9 @@
     },
     {
       "name": "L305",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_5",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_5",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 76494.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -516,18 +473,9 @@
     },
     {
       "name": "L306",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_6",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_6",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 76494.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -573,18 +521,9 @@
     },
     {
       "name": "L307",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_7",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_7",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 76494.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -630,18 +569,9 @@
     },
     {
       "name": "L308",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_8",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_8",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 52908.50250000005,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -687,18 +617,9 @@
     },
     {
       "name": "L309",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_9",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_9",
       "validated": false,
-      "validated_fields": [
-        "laje_pilares_apoio",
-        "laje_dim",
-        "laje_nivel",
-        "laje_visao_corte",
-        "laje_islands",
-        "name",
-        "laje_outline_segs",
-        "laje_vizinhas_niveis"
-      ],
+      "validated_fields": [],
       "area": 126110.5,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -744,12 +665,9 @@
     },
     {
       "name": "L310",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_10",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_10",
       "validated": false,
-      "validated_fields": [
-        "laje_dim",
-        "name"
-      ],
+      "validated_fields": [],
       "area": 129998.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -795,7 +713,7 @@
     },
     {
       "name": "L311",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_11",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_11",
       "validated": false,
       "validated_fields": [],
       "area": 129998.0,
@@ -843,11 +761,9 @@
     },
     {
       "name": "L312",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_12",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_12",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 129998.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -893,7 +809,7 @@
     },
     {
       "name": "L313",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_13",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_13",
       "validated": false,
       "validated_fields": [],
       "area": 129998.0,
@@ -941,7 +857,7 @@
     },
     {
       "name": "L314",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_14",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_14",
       "validated": false,
       "validated_fields": [],
       "area": 129998.0,
@@ -989,11 +905,9 @@
     },
     {
       "name": "L315",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_15",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_15",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 129998.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1039,7 +953,7 @@
     },
     {
       "name": "L316",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_16",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_16",
       "validated": false,
       "validated_fields": [],
       "area": 89879.0,
@@ -1087,11 +1001,9 @@
     },
     {
       "name": "L317",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_17",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_17",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 51382.545824999994,
       "points_count": 5,
       "confidence_score": 0.486,
@@ -1137,11 +1049,9 @@
     },
     {
       "name": "L318",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_18",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_18",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 539955.3600000001,
       "points_count": 7,
       "confidence_score": 0.44,
@@ -1187,11 +1097,9 @@
     },
     {
       "name": "L319",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_19",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_19",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 194240.19099193564,
       "points_count": 8,
       "confidence_score": 0.5,
@@ -1237,7 +1145,7 @@
     },
     {
       "name": "L320",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_20",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_20",
       "validated": false,
       "validated_fields": [],
       "area": 177859.0,
@@ -1285,11 +1193,9 @@
     },
     {
       "name": "L321",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_21",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_21",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 184756.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1335,11 +1241,9 @@
     },
     {
       "name": "L322",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_22",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_22",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 184756.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1385,11 +1289,9 @@
     },
     {
       "name": "L323",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_23",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_23",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 184756.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1435,11 +1337,9 @@
     },
     {
       "name": "L324",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_24",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_24",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 184756.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1485,11 +1385,9 @@
     },
     {
       "name": "L325",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_25",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_25",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 61662.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1535,11 +1433,9 @@
     },
     {
       "name": "L326",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_26",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_26",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 13767.530432999996,
       "points_count": 18,
       "confidence_score": 0.36,
@@ -1585,11 +1481,9 @@
     },
     {
       "name": "L327",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_27",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_27",
       "validated": false,
-      "validated_fields": [
-        "laje_outline_segs"
-      ],
+      "validated_fields": [],
       "area": 29678.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -1635,7 +1529,7 @@
     },
     {
       "name": "L328",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_28",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_28",
       "validated": false,
       "validated_fields": [],
       "area": 29118.0,
@@ -1683,7 +1577,7 @@
     },
     {
       "name": "L329",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_29",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_29",
       "validated": false,
       "validated_fields": [],
       "area": 29678.0,
@@ -1731,7 +1625,7 @@
     },
     {
       "name": "L330",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_30",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_30",
       "validated": false,
       "validated_fields": [],
       "area": 29678.0,
@@ -1779,7 +1673,7 @@
     },
     {
       "name": "L331",
-      "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_31",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_31",
       "validated": false,
       "validated_fields": [],
       "area": 29678.0,

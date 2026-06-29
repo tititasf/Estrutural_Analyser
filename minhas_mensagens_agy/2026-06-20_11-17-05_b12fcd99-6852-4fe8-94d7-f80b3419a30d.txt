@@ -1,0 +1,31 @@
+[2026-06-20 11:17:05] no structural analyzer ao selecionar o pavimento nao ta sendo crregado/exibido corretamente no viwer dxf 
+2026-01-20 18:36:46,428 - INFO - 🔄 Sincronizando Robôs -> Obra: Obra_TREINO_1, Pav: TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA
+[MainViewModel] ✅ Encontrados 9 projetos estruturais para obra 'Obra_TREINO_1'
+[MainViewModel] Sincronização Global: Pavimento 'TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' já existe com 0 pilares - dados preservados
+QWindowsWindow::setGeometry: Unable to set geometry 1600x1013+0+23 (frame: 1616x1052-8-8) on QWidgetWindow/"MainWindowClassWindow" on "W2043". Resulting geometry: 1600x837+0+23 (frame: 1616x876-8-8) margins: 8, 31, 8, 8 minimum size: 1321x1013 MINMAXINFO(maxSize=POINT(x=0, y=0), maxpos=POINT(x=0, y=0), maxtrack=POINT(x=0, y=0), mintrack=POINT(x=1337, y=1052)))
+DEBUG: _load_project_into_view called with PID=4869be2b-f17c-410b-a9c8-98a887ec1c95. Current Name=Sem Projeto
+2026-01-20 18:36:46,428 - INFO - 🔄 Sincronizando Robôs -> Obra: Obra_TREINO_1, Pav: TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA
+[MainViewModel] ✅ Encontrados 9 projetos estruturais para obra 'Obra_TREINO_1'
+[MainViewModel] Sincronização Global: Pavimento 'TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' já existe com 0 pilares - dados preservados
+2026-01-20 18:36:46,428 - INFO - 🔄 Sincronizando Robôs -> Obra: Obra_TREINO_1, Pav: TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA
+[MainViewModel] ✅ Encontrados 9 projetos estruturais para obra 'Obra_TREINO_1'
+[MainViewModel] Sincronização Global: Pavimento 'TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' já existe com 0 pilares - dados preservados
+
+---
+
+[2026-06-20 18:12:35] a selecao de obras nos combox dos robos nao está funcionando nao lista as obras que temos em gerenciar projeto, ajusta porfa
+
+---
+
+[2026-06-20 18:26:28] C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_30SUXc2XIR.png no gerenciar projetos temos muitas mais obras, todas que estiverem listadas aqui devem estar disponivei de selecao nos cmbox das obras além disso garanta mesmo ordenamento e exibicao que está aqui
+
+---
+
+[2026-06-20 18:44:11] ta mas olha, funcinou as obras nos robos pilares lateral de viga e fundos, porem funcionou só o obra nao funcionou junto os pavimentos dessas obras, deve ser baseado nos recortes limpos seguindo mesma logica que popula os combox do comparison engine de obra e pavimentos limpos recortados que é listado la com o nome do pavimento classificado na triagem etc .. entende? faz certo amigo. e no robo lajes nem funcionou o combox obra ainda. mas mesma coisa faz funcionar o obra e o pavimento junto. os lajes e pilares a parte de pavimentos é uma listagem ao invez de combox mas é mesma logica
+
+---
+
+[2026-06-20 19:12:13] robo laje ok, os demais nao vai testando e validando at´´e dar ok ai eu testo
+
+---
+

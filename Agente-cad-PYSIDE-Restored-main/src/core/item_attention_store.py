@@ -173,6 +173,20 @@ def save_human_validation(
     now = datetime.now(UTC).isoformat(timespec="seconds")
     key = _key(obra, pavimento, classe, item_id, scope)
     validation_origin = _require_human_origin(validation_origin)
+    if _norm(scope).upper() in {"N3", "N4"}:
+        from src.core.artifact_governance import set_validation_protection
+
+        set_validation_protection(
+            obra,
+            pavimento,
+            classe,
+            item_id,
+            scope,
+            bool(human_validated),
+            db_path=db_path,
+            validation_origin=validation_origin,
+            updated_by=updated_by,
+        )
     metadata_json = json.dumps(metadata or {}, ensure_ascii=False, sort_keys=True)
     with sqlite3.connect(str(db_path)) as conn:
         conn.execute(
@@ -214,7 +228,28 @@ def is_human_validated(
     db_path: Path | str = DB_PATH,
 ) -> bool:
     data = load_attention(obra, pavimento, classe, item_id, scope, db_path)
-    return bool(data.get("human_validated"))
+    validated = bool(data.get("human_validated"))
+    if validated and _norm(scope).upper() in {"N3", "N4"}:
+        from src.core.artifact_governance import (
+            is_validation_policy_locked,
+            set_validation_protection,
+        )
+
+        if not is_validation_policy_locked(
+            obra, pavimento, classe, item_id, scope, db_path
+        ):
+            set_validation_protection(
+                obra,
+                pavimento,
+                classe,
+                item_id,
+                scope,
+                True,
+                db_path=db_path,
+                validation_origin=data.get("validation_origin") or "human_ui",
+                updated_by=data.get("updated_by"),
+            )
+    return validated
 
 
 def has_attention(

@@ -1,0 +1,271 @@
+{
+  "item": "L319",
+  "n3": {
+    "outline": {
+      "comprimento": 405.5,
+      "largura": 577.5,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          405.5,
+          0.0
+        ],
+        [
+          405.5,
+          577.47
+        ],
+        [
+          0.0,
+          577.47
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 121.5,
+        "is_union": false
+      },
+      {
+        "value": 141.5,
+        "is_union": true
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 135.5,
+        "is_union": false
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      121.5,
+      135.5,
+      264.0,
+      442.0
+    ],
+    "hlaz": [],
+    "cotas_paineis_info": [
+      20.0,
+      20.5,
+      121.5,
+      121.5,
+      122.0,
+      152.0,
+      442.0
+    ],
+    "nomes": [
+      "L319"
+    ],
+    "contexto_ignorado": [
+      "121.5",
+      "121.5"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "n4": {
+    "outline": {
+      "comprimento": 406.5,
+      "largura": 558.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          406.5,
+          0.0
+        ],
+        [
+          406.5,
+          558.07
+        ],
+        [
+          0.0,
+          558.07
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 122.0,
+        "is_union": false
+      },
+      {
+        "value": 142.0,
+        "is_union": true
+      },
+      {
+        "value": 264.0,
+        "is_union": false
+      },
+      {
+        "value": 284.5,
+        "is_union": true
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 143.0,
+        "is_union": false
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      20.5,
+      122.0,
+      122.0,
+      122.0,
+      143.0,
+      415.0
+    ],
+    "hlaz": [],
+    "cotas_paineis_info": [
+      20.0,
+      20.5,
+      122.0,
+      122.0,
+      122.0,
+      143.0,
+      415.0
+    ],
+    "nomes": [
+      "L319"
+    ],
+    "contexto_ignorado": [
+      "415.1"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "pass": false,
+  "diffs": {
+    "outline": {
+      "ref": {
+        "comprimento": 405.5,
+        "largura": 577.5,
+        "coordenadas": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            405.5,
+            0.0
+          ],
+          [
+            405.5,
+            577.47
+          ],
+          [
+            0.0,
+            577.47
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "n4": {
+        "comprimento": 406.5,
+        "largura": 558.0,
+        "coordenadas": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            406.5,
+            0.0
+          ],
+          [
+            406.5,
+            558.07
+          ],
+          [
+            0.0,
+            558.07
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      }
+    },
+    "linhas_verticais": {
+      "ref": [
+        {
+          "value": 121.5,
+          "is_union": false
+        },
+        {
+          "value": 141.5,
+          "is_union": true
+        }
+      ],
+      "n4": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 142.0,
+          "is_union": true
+        },
+        {
+          "value": 264.0,
+          "is_union": false
+        },
+        {
+          "value": 284.5,
+          "is_union": true
+        }
+      ]
+    },
+    "linhas_horizontais": {
+      "ref": [
+        {
+          "value": 135.5,
+          "is_union": false
+        }
+      ],
+      "n4": [
+        {
+          "value": 143.0,
+          "is_union": false
+        }
+      ]
+    },
+    "cotas_valor": {
+      "ref": [
+        20.0,
+        121.5,
+        135.5,
+        264.0,
+        442.0
+      ],
+      "n4": [
+        20.0,
+        20.5,
+        122.0,
+        122.0,
+        122.0,
+        143.0,
+        415.0
+      ]
+    }
+  }
+}

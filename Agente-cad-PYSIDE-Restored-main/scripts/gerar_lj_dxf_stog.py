@@ -30,6 +30,14 @@ import json, argparse, re, math
 from pathlib import Path
 import ezdxf
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+from src.core.artifact_governance import guarded_saveas
+
+_MOTOR_ID = "ROBOT_LJ_N3_N4"
+_MOTOR_SOURCES = [Path(__file__)]
+
 # -- Constants ----------------------------------------------------------------
 SARRAFO_GAP = 19.0   # 19cm gap between paired lines (from STOG real)
 PILAR_HATCH_STEP = 12.0  # diagonal hatch line spacing inside pilars
@@ -983,7 +991,10 @@ def main():
 
         if args.item:
             out_dxf = out_dir / f'LJ_preview_{args.item}.dxf'
-            doc.saveas(str(out_dxf))
+            out_dxf = guarded_saveas(
+                doc, out_dxf,
+                motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+            )
             print(f'\nDXF (planta): {out_dxf}')
             print(f'Total panels: {total_panels}')
 
@@ -1153,7 +1164,10 @@ def main():
 
         out_name = f'LJ_preview_{args.item}.dxf' if args.item else 'LJ_stog_quality.dxf'
         out_dxf = out_dir / out_name
-        doc.saveas(str(out_dxf))
+        out_dxf = guarded_saveas(
+            doc, out_dxf,
+            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+        )
         print(f'\nDXF (planta): {out_dxf}')
         print(f'Total panels: {total_panels}')
 
@@ -1245,7 +1259,10 @@ def main():
 
     out_name = f'LJ_preview_{args.item}.dxf' if args.item else 'LJ_stog_quality.dxf'
     out_dxf = out_dir / out_name
-    doc.saveas(str(out_dxf))
+    out_dxf = guarded_saveas(
+        doc, out_dxf,
+        motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+    )
     print(f'\nDXF: {out_dxf}')
 
     # PNG preview

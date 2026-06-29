@@ -1385,7 +1385,8 @@ class MainWindow(QMainWindow):
             self.sa_cmb_pavimentos.clear()
             try:
                 projects = [p for p in self.db.get_projects() if (p.get('work_name') or '') == obra_name]
-                added = set()
+                added = set()       # project IDs já inseridos
+                added_names = set() # pavement_names já inseridos (evita duplicata com IDs diferentes)
                 try:
                     import sqlite3 as _sql
                     conn = _sql.connect(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision"))
@@ -1401,28 +1402,39 @@ class MainWindow(QMainWindow):
                     for row in rows:
                         fname = row["file_name"] or ""
                         fpath = row["file_path"] or ""
+                        fname_base = fname.rsplit('.', 1)[0] if fname else ""
                         match = None
                         for p in projects:
-                            if fname and fname in (p.get('pavement_name') or p.get('name') or p.get('dxf_path') or ''):
-                                match = p
-                                break
+                            pname = p.get('pavement_name') or p.get('name') or ''
+                            if fname_base and fname_base == pname:
+                                match = p; break
+                            if fname and fname in (pname or p.get('dxf_path') or ''):
+                                match = p; break
                             if fpath and fpath == (p.get('dxf_path') or ''):
-                                match = p
-                                break
+                                match = p; break
                         if match:
+                            if str(match['id']) in added:
+                                continue
                             nm = match.get('pavement_name') or match.get('name') or fname
+                            if nm in added_names:
+                                continue
                             display = _pav_card_label(fname or nm)
                             self.sa_cmb_pavimentos.addItem(display, (match['id'], nm))
                             added.add(str(match['id']))
+                            added_names.add(nm)
                 except Exception:
                     pass
                 for p in projects:
                     if str(p.get('id')) in added:
                         continue
                     nm = p.get('pavement_name') or p.get('name') or ''
+                    if nm in added_names:
+                        continue
                     display = _pav_card_label(nm)
                     # userData = (project_id, raw_name) para busca precisa
                     self.sa_cmb_pavimentos.addItem(display, (p['id'], nm))
+                    added.add(str(p['id']))
+                    added_names.add(nm)
             except Exception:
                 pass
             self.sa_cmb_pavimentos.blockSignals(False)
@@ -6073,7 +6085,6 @@ class MainWindow(QMainWindow):
         #   (c) senão, entra SEM geometria, marcado p/ refino (needs_geometry).
         p_rep_all = getattr(self, 'pavimento_pillar_report', {}) or {}
         plan_names = self._collect_plan_pillar_names()
-        print(f"[DIAG_PIL] loop entry: p_rep_all={len(p_rep_all)}, plan_names={len(plan_names)}", flush=True)
         # A pré-ficha é a fonte autoritativa após a confirmação. Inclui nomes
         # canônicos que possam ter ficado sem texto após algum ajuste de vínculo.
         for _key, _pre in p_rep_all.items():
@@ -6279,7 +6290,7 @@ class MainWindow(QMainWindow):
                 from shapely.geometry import Polygon, LineString
                 arriving_beams = []
                 for beam in getattr(self, 'beams_found', []):
-                    b_pts = beam.get('points') or (beam.get('geometry', {}).get('poly') if isinstance(beam.get('geometry'), dict) else [])
+                    b_pts = beam.get('points') or (beam.get('geometry', {}).get('poly') if isinstance(beam.get('geometry'), dict) else None) or []
                     if len(b_pts) >= 2:
                         try:
                             b_shape = Polygon(b_pts) if len(b_pts) > 2 else LineString(b_pts)
@@ -6456,7 +6467,6 @@ class MainWindow(QMainWindow):
             unique_id = f"{self.current_project_id}_p_{i+1}" if self.current_project_id else str(uuid.uuid4())
             p['id'] = unique_id
             p['id_item'] = f"{i+1:02}"
-            
 
         # Atualização de UI Delegada para _update_all_lists_ui() no final do loop
         # Isso evita redundância e duplicação na lista de issues.
@@ -11325,16 +11335,12 @@ class MainWindow(QMainWindow):
         _snap = getattr(self, '_analysis_texts', None)
         texts = _snap if _snap is not None else (getattr(self, 'dxf_data', None) or {}).get('texts', []) or []
         area = self._plan_area_bbox()
-        print(f"[DIAG_PIL] _collect_plan_pillar_names: texts={len(texts)} (snap={'sim' if _snap is not None else 'nao'}), area={'ativa' if area else 'None'}", flush=True)
         pat = _re.compile(r'^P\d+[A-Z]?$')
         names: dict = {}
-        _dbg_p_raw = 0
-        _dbg_filtered_area = 0
         for t in texts:
             s = str(t.get('text', '')).strip().upper()
             if not pat.match(s):
                 continue
-            _dbg_p_raw += 1
             pos = t.get('pos') or t.get('points') or [None, None]
             if pos and isinstance(pos[0], (list, tuple)):
                 pos = pos[0]
@@ -11343,10 +11349,8 @@ class MainWindow(QMainWindow):
             except (TypeError, ValueError, IndexError):
                 continue
             if area and not (area[0] <= x <= area[2] and area[1] <= y <= area[3]):
-                _dbg_filtered_area += 1
                 continue  # texto fora da planta (corte/legenda/detalhe)
             names.setdefault(s, []).append((x, y))
-        print(f"[DIAG_PIL] P# bruto={_dbg_p_raw}, filtrados_área={_dbg_filtered_area}, únicos={len(names)}: {list(names.keys())[:12]}", flush=True)
         return names
 
     @staticmethod

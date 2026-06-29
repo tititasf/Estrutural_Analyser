@@ -417,3 +417,76 @@ Traceback (most recent call last):
               ^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'VigaMainWindow' object has no attribute 'fields'
 
+
+[2026-06-29 12:26:20] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3273, in _setup_lv_dxf_viewer
+    for fw in self.robo_viga.fields.values():
+              ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VigaMainWindow' object has no attribute 'fields'
+
+
+[2026-06-29 13:22:26] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3275, in _setup_lv_dxf_viewer
+    for fw in self.robo_viga.fields.values():
+              ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VigaMainWindow' object has no attribute 'fields'
+
+
+[2026-06-29 14:32:34] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 3275, in _setup_lv_dxf_viewer
+    for fw in self.robo_viga.fields.values():
+              ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VigaMainWindow' object has no attribute 'fields'
+
+
+[2026-06-29 14:34:55] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+    self.canvas.draw_item_links(pilar)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
+    l_type = link.get('type')
+             ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-06-29 14:38:01] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
+    self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
+                                                            ^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
+    l_type = link.get('type')
+             ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-06-29 14:38:09] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
+    self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
+                                                            ^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
+    l_type = link.get('type')
+             ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-06-29 14:38:14] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1908, in <lambda>
+    self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
+                                                            ^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6785, in on_list_pillar_clicked
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 2492, in draw_item_links
+    l_type = link.get('type')
+             ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+

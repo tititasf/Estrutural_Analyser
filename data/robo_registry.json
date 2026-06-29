@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "classes": [
+    {
+      "class_id": "PIL",
+      "extractor": {
+        "module": "motor_reverso_pil",
+        "callable": "extrair_ficha_pilar"
+      },
+      "robot": {
+        "module": "gerar_pl_dxf_stog",
+        "callable": "main",
+        "artifact_scope": ["N3", "N4"]
+      }
+    },
+    {
+      "class_id": "LV",
+      "extractor": {
+        "module": "motor_reverso_lv",
+        "callable": "extrair_ficha_lateral_viga"
+      },
+      "robot": {
+        "module": "gerar_lv_dxf_stog",
+        "callable": "main",
+        "artifact_scope": ["N3", "N4"]
+      }
+    },
+    {
+      "class_id": "FV",
+      "extractor": {
+        "module": "motor_reverso_fv",
+        "callable": "extrair_ficha_fundo_viga"
+      },
+      "robot": {
+        "module": "gerar_fv_dxf_stog",
+        "callable": "main",
+        "artifact_scope": ["N3", "N4"]
+      }
+    },
+    {
+      "class_id": "LAJ",
+      "extractor": {
+        "module": "motor_reverso_laj",
+        "callable": "extrair_ficha_laje"
+      },
+      "robot": {
+        "module": "gerar_lj_dxf_stog",
+        "callable": "main",
+        "artifact_scope": ["N3", "N4"]
+      }
+    }
+  ]
+}

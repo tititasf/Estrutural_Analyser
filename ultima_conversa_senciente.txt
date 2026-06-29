@@ -1,0 +1,2088 @@
+--- MSG ---
+▐▛███▜▌   Claude Code v2.1.173
+▝▜█████▛▘  Sonnet 4.6 · Claude Pro
+  ▘▘ ▝▝    ~\Desktop\corporacao-senciente
+
+
+❯ quais sao os squad de dados, rag, compreensao dedesenhos estruturais, e do    
+  cad analyzer. preciso fazer uma analise de dados e de rag para ver se ta      
+  conectado corretamente aos processos ever hamonizacao do repositodo           
+  D:\Agente-cad-PYSIDE da app. foca no comparison engine entenda abas n1 n2 n3  
+  n4 é nela quesecentrlaiza todoaprendizado e machinelerning e rag. e tambem a  
+  aba principal  structural analyzer                                            
+  ⎿  UserPromptSubmit hook error  ⎿  Hook JSON output validation failed — hookSpecificOutput is missing required field "hookEventName"
+
+● Vou explorar a estrutura do repositório CAD e os squads relacionados para
+  fazer uma análise completa.
+
+● Explore(Exploração profunda do repo CAD e squads de dados/RAG)
+  ⎿  Done (55 tool uses · 104.5k tokens · 6m 24s)
+  (ctrl+o to expand)
+
+● Análise completa. Aqui está o diagnóstico real do estado atual:
+
+  ---
+  Diagnóstico: CAD-Analyzer — Dados, RAG e Comparison Engine
+
+  Estado Geral (Honesto)
+
+  ┌──────────────────┬────────────┬─────────────────────────────────────────┐
+  │    Componente    │   Status   │                Realidade                │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ Structural       │ ✅ 100%    │ Funciona, extrai pilares/vigas/lajes    │
+  │ Analyzer (N1)    │            │                                         │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ Robôs geradores  │ ✅ 100%    │ Geram DXFs corretamente                 │
+  │ (N3/N4)          │            │                                         │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ Comparison       │ ⚠️ 50%     │ Visualização funciona, motor de         │
+  │ Engine UI        │            │ aprendizado ausente                     │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ RAG              │ ❌ 0%      │ Scripts existem em scripts/rag_*.py mas │
+  │                  │ produção   │  isolados, não conectados               │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ Squads de dados  │ ❌ 0%      │ Só declarações YAML, sem invocação real │
+  │                  │ código     │                                         │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ Learning Loop    │ ❌ 0%      │ Nunca implementado                      │
+  ├──────────────────┼────────────┼─────────────────────────────────────────┤
+  │ Quality Gates    │ ❌ 0%      │ Mencionados na spec, código ausente     │
+  │ G0–G6            │            │                                         │
+  └──────────────────┴────────────┴─────────────────────────────────────────┘
+
+  ---
+  Squads Relevantes (O Que Prometem vs. O Que Existe)
+
+  Squad de dados:
+  - rag-forge — Pipeline RAG completo (ChromaDB, BGE-M3, RAGAS) → só em YAML
+  - stog-intelligence — Análise granular dos DXFs STOG → declarado, sem
+  invocação do UI
+  - feature-forge — Feature store (Feast + Redis) para treinar modelos →
+  declarado, sem integração
+  - sample-forge — Curadoria dos training_events → declarado, 805 eventos no DB
+  não curados
+  - ceo-data — Orquestrador ML → marcado como "EM CRIAÇÃO", não operacional
+
+  ---
+  Gaps Críticos no Comparison Engine (N1/N2/N3/N4)
+
+  O motor de aprendizado deveria ser assim:
+
+  N1 (Structural Analyzer)
+   └→ Fase-4 → JSON → Robô → N3 DXF
+                                      ↘
+                                       [Comparison Engine]
+                                        ├─ Score fidelidade N3 vs N4
+                                        ├─ Quality Gates G0–G6
+                                        ├─ Captura diffs → training_events
+                                        └─ RAG consulta contexto
+  N2 (Motor Reverso STOG)
+   └→ Ficha reversa → Robô → N4 DXF ↗
+
+  O que EXISTE: A visualização dual dos DXFs lado a lado (canvas sincronizados).
+
+  O que NÃO EXISTE:
+  1. Scoring automático de fidelidade (Hausdorff/área) — prometido >= 95%
+  2. Quality gates G0–G6
+  3. Captura automática de diffs → training_events
+  4. Chamada ao RAG para contexto ao comparar
+  5. Loop de retraining
+
+  ---
+  Gap Crítico no Banco de Dados
+
+  A tabela transformation_rules (o "motor de regras ML") está vazia — só existe
+  um backup obsoleto com 6 regras e schema incompatível. Os 805 training_events
+  existem mas não alimentam nenhum modelo.
+
+  ---
+  Próximos Passos (Prioridade)
+
+  P0 — Crítico para o aprendizado funcionar:
+  1. Implementar scoring de fidelidade no Comparison Engine (Hausdorff distance
+  entre N3 e N4)
+  2. Conectar quality gates G0–G6 ao UI
+  3. Auto-captura de diffs → training_events
+
+  P1 — RAG:
+  4. Inicializar ChromaDB com Obra_TREINO_1
+  5. Conectar rag_query.py ao Comparison Engine para buscar contexto
+  6. Migrar e restaurar transformation_rules (6 regras do backup)
+
+  P2 — Squads:
+  7. Implementar invocação real do CEO-CAD-ANALYZER (atualmente só YAML)
+  8. Ativar CEO-DATA (marcado como "EM CRIAÇÃO")
+
+  ---
+  Quer que eu comece pela implementação do scoring de fidelidade no Comparison
+  Engine (P0 mais urgente), ou prefere primeiro mapear os arquivos específicos
+  de alguma aba N1/N2/N3/N4 antes de definir o plano?
+
+✻ Cogitated for 7m 10s
+
+❯ /CEOs:CEO-PLANEJAMENTO faz o plano completo disso mantendo integridade e  se  
+integrando harmonicamente ao qu eja está funcional NOTA VITAL EXTRATORES  N2 N1 
+énossamaior  objetivo e fonte de verdade e validacao humana etc... os           
+robostambem. além disso temas documentacoes rag sobre tudo qyue ja conversamos  
+ou lemos etc ... veja oquetem tmabem desemantica etc etc pq invoquei nota pq a  
+compreensao global nao está consolidada entao nao tome verdade absoluta em nas  
+informacoes sobre cada classe etc e sim harmonize e consensualize para          
+chegarmos ao ponto ideal que realmente agregue valor a nossos fluxos. oque      
+desejo no fundo é que para cada classe tenhamos uma visao de compreensao        
+sistematica hierarquica com texto e visual e fichas e dxfs e exemplos para ser  
+um rag multimodal que realmente compreenda e seja o core da corporacao e a app  
+o alimente e se retroalimente dele para suas analises etc.. ta os que sao os    
+niveis na minha cabeça um item tem a perspectiva visual estruturallimpa dele,   
+tem a perspectiva de desenho dos robos, tem a perspectiva de dados fichas       
+campos, tem a perspectiva de descriçao textual, geometrica, logica, calculos    
+distribuicao, tem a perspectiva de obra, pavimento,item granular  e contexto    
+global de todas obras e possibilidades de tal classe, tem a compreensao de      
+engenharia reversa visual, ficha, dxf, tem a compreensao de visual dos dxfs     
+gerados e lidos compreensoa delayers historicos cores etc. se vc ver sao        
+multiplas camadas e todas se conectam etc mas a compreensaoo granular de cada   
+faseeetapa é crucialpara ter um segundo cerebro sobre a compreensao estrutural  
+que analisamos e vamos analisar cotidianamente e treinar e produzir, vai ter    
+expansoes futuras de novas classes e partes e coisas entao deixa flexivel para  
+desenvolvimento posteriorde mais interpretacao oumais robos e classes           
+  ⎿  UserPromptSubmit hook error  ⎿  Hook JSON output validation failed — hookSpecificOutput is missing required field "hookEventName"
+  ⎿  You've hit your session limit · resets 3:40pm (America/Sao_Paulo)
+     /upgrade to increase your usage limit.
+
+✻ Worked for 0s
+
+❯ /login                                                                        
+  ⎿  Login successful
+
+❯ /CEOs:CEO-PLANEJAMENTO faz o plano completo disso mantendo integridade e  se  
+integrando harmonicamente ao qu eja está funcional NOTA VITAL EXTRATORES  N2 N1 
+énossamaior  objetivo e fonte de verdade e validacao humana etc... os           
+robostambem. além disso temas documentacoes rag sobre tudo qyue ja conversamos  
+ou lemos etc ... veja oquetem tmabem desemantica etc etc pq invoquei nota pq a  
+compreensao global nao está consolidada entao nao tome verdade absoluta em nas  
+informacoes sobre cada classe etc e sim harmonize e consensualize para          
+chegarmos ao ponto ideal que realmente agregue valor a nossos fluxos. oque      
+desejo no fundo é que para cada classe tenhamos uma visao de compreensao        
+sistematica hierarquica com texto e visual e fichas e dxfs e exemplos para ser  
+um rag multimodal que realmente compreenda e seja o core da corporacao e a app  
+o alimente e se retroalimente dele para suas analises etc.. ta os que sao os    
+niveis na minha cabeça um item tem a perspectiva visual estruturallimpa dele,   
+tem a perspectiva de desenho dos robos, tem a perspectiva de dados fichas       
+campos, tem a perspectiva de descriçao textual, geometrica, logica, calculos    
+distribuicao, tem a perspectiva de obra, pavimento,item granular  e contexto    
+global de todas obras e possibilidades de tal classe, tem a compreensao de      
+engenharia reversa visual, ficha, dxf, tem a compreensao de visual dos dxfs     
+gerados e lidos compreensoa delayers historicos cores etc. se vc ver sao        
+multiplas camadas e todas se conectam etc mas a compreensaoo granular de cada   
+faseeetapa é crucialpara ter um segundo cerebro sobre a compreensao estrutural  
+que analisamos e vamos analisar cotidianamente e treinar e produzir, vai ter    
+expansoes futuras de novas classes e partes e coisas entao deixa flexivel para  
+desenvolvimento posteriorde mais interpretacao oumais robos e classes; ah além  
+disso temos todas as fichas veja todos niveis de fichas devemos ter compreensao 
+granular de todas elas como comprrensao global comprensaoo granular paraa       
+obra. ah como tinhamos nos docs referenciados tambem muita coisa sobre rag      
+edados etcveja se ta tudo harmonizado a doce se tamo indo na direcao correta,   
+temos que ter o rag global etc e o rag obra gerado dinamicamente ao iniciar o   
+trbaalho de uma obra etc , sao duas coisas separas uma a da obra épara ajudar   
+na compreensao e interpretacao daquela obra especifica vaiser necessario em     
+certas etapas depois vouver oque faço, a global éa principal de tudo etc... ah  
+preciso que vincule ao plano as aba CURADORIA, ela é o coracao dos dados e rag  
+etc. ta totalmente obsoleta atualize e monteela de forma a serparte visual ux e 
+ui desses dados. de forma que fique organizado e expresse um mapamental ou      
+pipeline de como ta estruturado esse cerebro rag nosso. [Image #1] tem 4 sub    
+abas e pode criar mais se quiser mas temos que tornar relamente util e          
+informacional, me aconslehe oque é bom ter ali oque é possivel expresar e       
+registrar etc.. quais metricas e como expresar a ordenacao mental do cad        
+analyzer suas fichas etapas procesoss etc                                       
+  ⎿  UserPromptSubmit hook error  ⎿  Hook JSON output validation failed — hookSpecificOutput is missing required field "hookEventName"
+
+● Vou ler os arquivos-chave para ter uma base sólida antes de produzir o
+  masterplan.
+
+  Searched for 3 patterns, read 6 files (ctrl+o to expand)
+
+● Agora vou ver o estado atual da aba CURADORIA e os arquivos de UI relevantes.
+
+  Searched for 3 patterns, read 2 files (ctrl+o to expand)
+
+● Tenho tudo que preciso. Vou sintetizar o masterplan completo agora, cruzando
+  tudo que li dos docs, harmonizando sem tomar verdade absoluta em nada — e
+  centrando no N1/N2 como fonte de verdade.
+
+  Read 2 files (ctrl+o to expand)
+
+● Tenho tudo necessário. Agora vou produzir o masterplan completo — harmonizando
+  os docs existentes, sem tomar nenhum como verdade absoluta.
+
+● Write(D:\Agente-cad-PYSIDE\MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md)
+  ⎿  PreToolUse:Write hook error                                     ⎿  Failed with non-blocking status code: 
+  ⎿  Wrote 631 lines to
+     D:\Agente-cad-PYSIDE\MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md
+       2 ## Vision-Estrutural AI — Segundo Cérebro para Compreensão Estru
+         tural
+       3 **Versão:** 1.0
+       4 **Data:** 2026-06-26
+       5 **Orquestração:** Athena (CEO-Planejamento)
+       6 **Status:** PLANEJAMENTO — pronto para execução por sprints
+       7 
+       8 ---
+       9 
+      10 ## 0. NOTA DE HARMONIZAÇÃO
+     … +766 lines (ctrl+o to expand)
+
+● Masterplan criado. Agora vou salvar isso na memória do projeto para referência
+  futura.
+
+  Recalled 1 memory, wrote 2 memories (ctrl+o to expand)
+  ⎿  PreToolUse:Write hook error                                     ⎿  Failed with non-blocking status code: 
+  ⎿  PreToolUse:Edit hook error                                      ⎿  Failed with non-blocking status code: 
+
+● Masterplan entregue. Aqui está o resumo executivo do que foi produzido:
+
+  ---
+  ️ MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md
+
+  Salvo em: D:/Agente-cad-PYSIDE/MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md
+
+  ---
+  O que o plano resolve
+
+  Diagnóstico harmonizado (sem tomar nenhum doc como absoluto):
+  - As 902 fichas N2 e 405 fichas N1 existem no banco, mas rag_indexed = 0% — o
+  RAG não sabe que elas existem. Essa é a lacuna mais crítica.
+  - Os 4 stores RAG (FAISS, LanceDB×2, Chroma) são complementares, não 
+  redundantes — cada um tem papel fixo. ChromaDB funciona em Python 3.12.
+  - A semantic_rag_kb (bridge de 0 rows) é o elo que conecta tudo — está vazia.
+
+  ---
+  As 8 Dimensões por Classe
+
+  Para PIL / LV / FV / LAJ (e qualquer classe futura), o Cérebro RAG mantém:
+  1. Visual estrutural limpa (N1 canvas)
+  2. Desenho dos robôs (N3/N4 DXF)
+  3. Dados/fichas/campos (F5, F7)
+  4. Regras semânticas/lógicas (domain_knowledge)
+  5. Contexto obra/pavimento/item (F1-F4)
+  6. Engenharia reversa visual/ficha/DXF (N2 flow)
+  7. Layers/cores/histórico dos DXFs (stog_kbs)
+  8. Corpus global cross-obra (FAISS + knowledge_base)
+
+  ---
+  Curadoria — 6 Sub-abas Propostas
+
+  ┌───────────────────┬─────────────────────────────────────────────────────┐
+  │      Sub-aba      │                   O que expressa                    │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Mapa RAG          │ Diagrama SVG interativo do pipeline completo        │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Enciclopédia      │ As 8 dimensões por classe — o "atlas" do            │
+  │                   │ conhecimento                                        │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Corpus &          │ Heatmap F1-F9 × obras (cobertura de indexação)      │
+  │ Cobertura         │                                                     │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Aprendizado       │ Curvas de convergência N1→N2, accuracy, training    │
+  │                   │ events                                              │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Memória Vetorial  │ Status dos 4 stores com operações                   │
+  ├───────────────────┼─────────────────────────────────────────────────────┤
+  │ Banco de Dados    │ Tabelas com alertas de integridade                  │
+  └───────────────────┴─────────────────────────────────────────────────────┘
+
+  ---
+  6 EPICs em Sequência
+
+  P0 (imediato):  RAG-1 (indexar 902+405 fichas) + RAG-2 (Curadoria UI)
+  P1 (paralelo):  RAG-3 (RAG por-obra) + RAG-4 (conteúdo enciclopédia — valida
+  com você)
+  P1 (após):      RAG-5 (loop de treino via Comparison Engine)
+  P2 (futuro):    RAG-6 (plugin para novas classes)
+
+  O loop fecha quando: N1 → N3 ≈ N4 sem usar N2 como input — só como gabarito.
+
+  Por onde quer começar — RAG-1 (indexação, puro backend) ou RAG-2 (Curadoria
+  UI)?
+
+✻ Cogitated for 6m 6s
+
+❯ /model                                                                        
+  ⎿  Set model to Opus 4.8 and saved as your default for new sessions
+
+❯ mas pergunta vc vai indexar algo que ainda nao está correto, conformeeu for   
+  ajustando ealterando e validando ositens os recortes etc vai iratualizando o  
+  rag dinamicamnete e                                                           
+    fluidamente ou vai contaminar alimentarele agora com essasinfos das fichas  
+  n1 n2 n3 n4 etc? to ajustando e desenvolvendo ainda para conseguir fazer      
+  certinho.. esse proceso do rag                                                
+    é para me ajudar a tornar o aprendizado mais rapido e conseguir chegar no   
+  objetivo com harmonia e robustez de garantia deum aprendizado eficaaz... o    
+  caminho que vc tomou éo                                                       
+    melhore correto? conversa comigo sobre oque pedi e sobre onde vai impactar  
+  diretamente esse eu plano, em que abas e em quebotoes para eu entender oque   
+  muda e se estamos alinhados,                                                  
+    me de conselhos tambem                                                      
+  ⎿  UserPromptSubmit hook error  ⎿  Hook JSON output validation failed — hookSpecificOutput is missing required field "hookEventName"
+● Pergunta excelente — e ela expõe um erro no meu RAG-1. Vou ser honesto contigo
+  antes de qualquer coisa.
+
+  Tua intuição está certa. Meu EPIC RAG-1 estava errado pro teu momento.
+
+  Do jeito que escrevi ("indexar as 902 fichas F5 + 405 F7 agora"), eu indexaria
+  lixo como se fosse verdade. Os números do teu próprio banco provam isso:
+
+  - reverse_eng_fichas: 765 draft + 137 extracted, e só 3 aprovadas por humano
+  (P1, P101, L308)
+  - fase3_fichas (F7/N1): 0 revisados
+
+  Indexar isso agora = contaminar o cérebro com 899 hipóteses não confirmadas.
+  Pior: RAG é traiçoeiro porque o erro não fica visível — ele se dilui. Você
+  consultaria o RAG depois, ele te devolveria um "similar" que na verdade era um
+  draft errado, e você nem saberia. É garbage-in, garbage-out com maquiagem de
+  inteligência.
+
+  Então não. Não vamos alimentar ele agora com N1/N2/N3/N4 em desenvolvimento.
+
+  ---
+  O conceito correto: RAG cresce POR validação, não por bulk dump
+
+  O que você descreveu — "conforme eu for ajustando e validando, vai atualizando
+  dinamicamente" — é exatamente a arquitetura certa. Deixa eu nomear ela:
+
+  O gatilho de indexação é o ato de validação humana, não o calendário.
+
+  Item em draft  ──────────────►  NÃO entra no RAG (fica em quarentena / working
+  memory)
+                                           │
+         você valida/aprova o item ────────┤
+                                           ▼
+  Item aprovado  ──────────────►  AGORA indexa no RAG global (vira "professor")
+                                           │
+         validado em ≥2 obras ─────────────┤
+                                           ▼
+  Padrão consolidado ──────────►  vira default/regra global
+
+  Isso, aliás, já é a filosofia dos teus próprios masterplans e eu deveria ter
+  respeitado:
+  - "Humano validado vence sempre" (Princípio 7 do Loop de Treino)
+  - "reverse_eng_fichas são imutáveis... o que melhora é o motor, a F5 fica 
+  fixa"
+
+  Meu RAG-1 violava isso. Corrigido na cabeça, vou te propor a reescrita abaixo.
+
+  ---
+  A distinção que muda tudo: REGRA vs INSTÂNCIA
+
+  Aqui está o pulo do gato pra você não travar o RAG inteiro esperando validar
+  tudo:
+
+  ┌────────────┬─────────────────┬────────────┬────────────────────────────┐
+  │            │                 │   Pode     │                            │
+  │    Tipo    │     Exemplo     │  popular   │          Por quê           │
+  │            │                 │   AGORA?   │                            │
+  ├────────────┼─────────────────┼────────────┼────────────────────────────┤
+  │            │ grade_1 =       │            │ É conhecimento que VOCÊ    │
+  │ Regra /    │ comprimento +   │ ✅ SIM     │ define e confirma.         │
+  │ semântica  │ 22              │            │ Estável. É o               │
+  │            │                 │            │ domain_knowledge.          │
+  ├────────────┼─────────────────┼────────────┼────────────────────────────┤
+  │ Instância  │ "o pilar P305   │ ❌ NÃO (só │ É hipótese do motor.       │
+  │ / ficha    │ da obra X tem   │  validado) │ Incerta até você aprovar.  │
+  │            │ comp=240"       │            │                            │
+  └────────────┴─────────────────┴────────────┴────────────────────────────┘
+
+  Ou seja: o domain_knowledge (as 66 regras de campo, fórmulas, "o que é um
+  pilar cambotado") pode e deve crescer agora — porque são as leis da física do
+  teu domínio, você as conhece. Já as fichas dos itens ficam em quarentena até
+  você bater o martelo.
+
+  O RAG fica útil desde o dia 1 com as regras, mesmo com zero instâncias
+  indexadas. E aí cada item que você valida adiciona um exemplo concreto àquela
+  regra.
+
+  ---
+  Como o RAG TE ACELERA (o que você realmente quer)
+
+  O valor não é "ter um banco cheio". É isto: enquanto você valida o item nº 50,
+  o RAG sussurra:
+
+  ▎ "Esse pilar é 94% similar ao P101 que você já aprovou. Os campos 
+  ▎ provavelmente são estes. Confirma?"
+
+  Você confirma com 1 clique em vez de preencher do zero. Cada validação fica 
+  mais rápida que a anterior. É um volante que ganha inércia. Mas isso só
+  funciona se o que está lá dentro for verdade validada — senão ele te sugere
+  erro e você valida errado mais rápido (catástrofe).
+
+  Por isso a ordem importa: RAG pequeno e correto > RAG grande e contaminado.
+  Seus 3 itens aprovados (P1, P101, L308) são o golden seed. Começamos com 3
+  certos.
+
+  ---
+  Onde isso impacta — abas e botões concretos
+
+  Você pediu pra entender o que muda. Aqui está o mapa direto:
+
+  1. Diagnostic Reverse Hub (onde você extrai/valida recortes N2 → F5)
+  -  MUDA: o botão de aprovar/validar recorte ganha um efeito colateral novo →
+  ao aprovar, dispara a indexação daquele item no RAG. Antes salvava no banco e
+  parava ali.
+  - É aqui que o cérebro "aprende" um caso novo.
+
+  2. Structural Analyzer (botões "Análise Geral" / "com Eng Reversa" / "com
+  Contexto")
+  -  MUDA: "Análise com Eng Reversa" e "com Contexto" passam a CONSULTAR o RAG
+  (read-only, nunca escreve). É a sugestão que te acelera.
+  - "Análise Geral" não muda — continua o motor puro sem teacher (tem que
+  aprender sozinho, é o que o loop refina).
+
+  3. Comparison Engine (N1 vs N2 vs N3 vs N4)
+  -  MUDA: quando você aprova um match/score, isso vira training_event com
+  proveniência → alimenta o RAG. É o outro ponto de "aprendizado por validação".
+  - A visualização não muda; o que muda é o que acontece quando você bate o 
+  martelo.
+
+  4. Curadoria (o cérebro visualizado)
+  -  MUDA TOTALMENTE, mas começa read-only / observador. Ela só mostra o
+  estado: "3 itens validados, 899 em quarentena, regra grade_1 tem 2 exemplos".
+  Ela não escreve nada no RAG → zero risco de contaminação.
+  - Conforme você valida nas outras abas, você vê o cérebro crescer na
+  Curadoria, em tempo real.
+
+  ---
+  Meus conselhos (3 diretos)
+
+  1. Inverta a ordem dos meus EPICs. Faça a Curadoria-observador primeiro
+  (read-only, segura, te dá visibilidade do estado real). Só depois ligue a
+  indexação por validação. Construir o "painel do cérebro" antes de ligar o
+  motor te dá controle visual sobre o que está entrando.
+  2. Trate o RAG em 3 camadas de confiança (quarentena → validado →
+  consolidado). Nunca deixe um draft se passar por verdade. Adicione uma
+  coluna/flag de confianca ou tier em tudo que for indexável. Você consulta o
+  RAG filtrando por tier — durante desenvolvimento, só consulta tier "validado".
+  3. Popule só as REGRAS agora (domain_knowledge / semantic_rag_kb), não as
+  instâncias. Isso destrava o valor imediato do RAG sem risco, porque regra é
+  conhecimento teu, não palpite do motor.
+
+  ---
+  Reescrita proposta do plano (a parte que muda)
+
+  RAG-1 (antigo "indexar tudo") → vira "Infra de indexação incremental gated por
+  validação":
+  - Coluna tier/confianca em fichas
+  - Função indexar_item_ao_validar() disparada pelo botão de aprovar — um item 
+  por vez
+  - Popular só semantic_rag_kb a partir das regras do domain_knowledge (seguro)
+  - NÃO fazer bulk das 902 fichas
+
+  Nova ordem:
+  1º  Curadoria-observador (read-only)        ← vê o estado, zero risco
+  2º  domain_knowledge / regras semânticas    ← valor imediato, é conhecimento
+  teu
+  3º  Indexação por validação (event-driven)  ← cresce conforme você aprova
+  4º  RAG consulta no Structural Analyzer      ← o acelerador
+  5º  Loop de treino fecha                     ← convergência N1→N2
+
+  ---
+  Faz sentido pra você? Esse é o caminho que respeita teu momento ("ainda estou
+  fazendo certinho") em vez de cristalizar o errado.
+
+  Se concordar, eu atualizo o MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md com essa
+  correção (RAG-1 reescrito, EPICs reordenados, e uma seção nova "Política de
+  Confiança / Anti-Contaminação"). Quer que eu já faça essa atualização?
+
+✻ Churned for 1m 34s
+
+❯ sim ajusta o plano e alinha e deixa claro tudo isso, indique as documentacoes 
+  a alinhare harmonizar e criar etc. nao é vc que vai executar o plano vc é o   
+  modelo inteligenteque vai dexar ele mastigadinho porfavor para a execucao ser 
+  correta e alinhada                                                            
+  ⎿  UserPromptSubmit hook error  ⎿  Hook JSON output validation failed — hookSpecificOutput is missing required field "hookEventName"
+
+● Vou reescrever o masterplan completo com a correção conceitual, deixando cada
+  story executável por um modelo menor — com arquivos exatos, entrada/saída/gate
+  e proibições explícitas.
+
+● Write(D:\Agente-cad-PYSIDE\MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md)
+  ⎿  PreToolUse:Write hook error                                     ⎿  Failed with non-blocking status code: 
+  ⎿  Added 386 lines, removed 493 lines
+        1  # MASTERPLAN — Cérebro RAG Multimodal + Curadoria Redesign
+        2  ## Vision-Estrutural AI — Segundo Cérebro para Compreensão Est
+           rutural
+        3 -**Versão:** 1.0                                               
+        3 +**Versão:** 2.0 (revisão anti-contaminação — RAG gated por val
+          +idação humana)                                                
+        4  **Data:** 2026-06-26
+        5  **Orquestração:** Athena (CEO-Planejamento)
+        6 -**Status:** PLANEJAMENTO — pronto para execução por sprints   
+        6 +**Status:** PLANEJAMENTO — pronto para execução incremental po
+          +r modelo menor/squad                                          
+        7 +**Mudança v1.0 → v2.0:** O RAG **não é mais alimentado por bul
+          +k dump** das fichas em                                        
+        8 +desenvolvimento. Passa a crescer **por evento de validação hum
+          +ana** (gated). Adicionada                                     
+        9 +Política de Confiança (§3), distinção Regra vs Instância (§4),
+          + EPICs reordenados (§9).                                      
+       10  
+       11  ---
+       12  
+       10 -## 0. NOTA DE HARMONIZAÇÃO                                    
+       13 +## 0. COMO LER E EXECUTAR ESTE DOCUMENTO                      
+       14  
+       12 -> **Atenção ao executor:** Este masterplan sintetiza e harmoni
+          -za múltiplos documentos                                       
+       13 -> anteriores. Onde houver conflito entre este e qualquer maste
+          -rplan anterior,                                               
+       14 -> **este prevalece**. A compreensão por classe não está consol
+          -idada — cada                                                  
+       15 -> sprint deve validar com o dono antes de fixar regras semânti
+          -cas por classe.                                               
+       16 -> **Nunca tome verdade absoluta** as especificações por classe
+          - sem validar                                                  
+       17 -> contra o N2 real da obra correspondente.                    
+       15 +> **Para o modelo/agente executor:** este plano é mastigado de
+          + propósito. Cada story tem                                    
+       16 +> **Arquivo · Ação · Entrada · Saída · Gate · NÃO-FAZER**. Exe
+          +cute uma story por vez, na                                    
+       17 +> ordem da §9. Nunca pule o NÃO-FAZER — ele existe para impedi
+          +r contaminação do cérebro.                                    
+       18 +> Ao terminar uma story, confira o Gate antes de seguir. Se um
+          + Gate falhar, **pare e reporte**.                             
+       19  
+       20 +> **Regra de honestidade:** a compreensão por classe **não est
+          +á consolidada**. Nenhuma spec                                 
+       21 +> de classe (PIL/LV/FV/LAJ) deste ou de outro doc é verdade ab
+          +soluta. Antes de fixar regra                                  
+       22 +> semântica de classe, **valide contra o N2 real da obra** e c
+          +onfirme com o dono.                                           
+       23 +                                                              
+       24  ---
+       25  
+       26  ## 1. VISÃO ESTRATÉGICA (Uma Frase)
+       27  
+       23 -> Construir o **segundo cérebro** do CAD-Analyzer: um RAG mult
+          -imodal que compreende                                         
+       24 -> cada classe estrutural em 8 dimensões simultâneas, é aliment
+          -ado pelos extratores                                          
+       25 -> N1/N2 e robôs como fonte de verdade, e é navegável visualmen
+          -te pela aba **Curadoria**.                                    
+       28 +> Construir o **segundo cérebro** do CAD-Analyzer: um RAG mult
+          +imodal que compreende cada                                    
+       29 +> classe estrutural em 8 dimensões, **cresce conforme o humano
+          + valida** (nunca por dados                                    
+       30 +> em rascunho), e é navegável pela aba **Curadoria** como um m
+          +apa mental vivo — para                                        
+       31 +> **acelerar o aprendizado** com **garantia de que só conhecim
+          +ento correto entra**.                                         
+       32  
+       33  ---
+       34  
+       29 -## 2. PRINCÍPIOS INEGOCIÁVEIS                                 
+       35 +## 2. O PROBLEMA QUE ESTE PLANO RESOLVE (e o erro que evita)  
+       36  
+       31 -| # | Princípio | Por quê |                                   
+       32 -|---|-----------|---------|                                   
+       33 -| P1 | **N1 e N2 são a fonte de verdade** — tudo parte deles |
+          - Motor universal, sem hardcode |                              
+       34 -| P2 | **Robôs são co-protagonistas** — N3/N4 validam a interp
+          -retação | Fecham o loop visual |                              
+       35 -| P3 | **RAG Global ≠ RAG por-obra** — dois contextos distinto
+          -s | Global acumula; por-obra é específico |                   
+       36 -| P4 | **Curadoria é o mapa mental vivo** — não é CRUD | Expre
+          -ssa o estado do cérebro, não gerencia dados |                 
+       37 -| P5 | **8 dimensões por classe** — compreensão hierárquica co
+          -mpleta | Qualquer classe, presente ou futura |                
+       38 -| P6 | **Flexibilidade de expansão** — novas classes/partes se
+          - plugam no mesmo schema | Próximas classes: fundação, escada, 
+          -reservatório |                                                
+       39 -| P7 | **Validação humana preservada** — dado humano nunca é s
+          -obrescrito | Princípio 7 do Loop de Treino |                  
+       40 -| P8 | **Motor Universal** — toda regra serve qualquer obra, n
+          -ão um caso específico | Regra de Ouro do ARETE doc |          
+       37 +**Contexto real (dono, 2026-06-26):** o sistema está **em dese
+          +nvolvimento ativo** —                                         
+       38 +fichas, recortes e itens N1/N2/N3/N4 ainda estão sendo ajustad
+          +os e validados. Não estão                                     
+       39 +corretos ainda.                                               
+       40  
+       42 ----                                                           
+       41 +**Erro a evitar (era o RAG-1 da v1.0):** indexar agora as 902 
+          +fichas F5 + 405 fichas F7                                     
+       42 +contaminaria o cérebro com **899 hipóteses não confirmadas** (
+          +765 draft + 137 extracted;                                    
+       43 +só **3 aprovadas por humano**: P1, P101, L308). RAG dilui o er
+          +ro e o torna invisível →                                      
+       44 +o sistema passaria a sugerir o errado com cara de inteligência
+          +.                                                             
+       45  
+       44 -## 3. AS 8 DIMENSÕES DE COMPREENSÃO POR CLASSE                
+       46 +**Solução (v2.0):** o RAG cresce **por ato de validação humana
+          +**, item a item, com                                          
+       47 +camadas de confiança. Começa pequeno e **correto** (golden see
+          +d = os 3 aprovados) e                                         
+       48 +ganha inércia a cada validação. O valor imediato vem das **reg
+          +ras** (que o dono conhece),                                   
+       49 +não das instâncias (que o motor ainda erra).                  
+       50  
+       46 -Para cada classe estrutural (PIL / LV / FV / LAJ — e futuras),
+          - o Cérebro RAG mantém                                         
+       47 -compreensão em **8 dimensões**. Cada dimensão alimenta e é ali
+          -mentada pelo RAG.                                             
+       48 -                                                              
+       49 -```                                                           
+       50 -CLASSE (ex: PIL — Pilar)                                      
+       51 -│                                                             
+       52 -├── DIM-1: VISUAL ESTRUTURAL LIMPA                            
+       53 -│     O que o Structural Analyzer "vê" no DXF bruto.          
+       54 -│     Fonte: N1 (F7) — canvas vetorial, layers, entidades raw.
+       55 -│     RAG: embeddings de geometria + texto descritivo por item
+          -.                                                             
+       56 -│                                                             
+       57 -├── DIM-2: DESENHO DOS ROBÔS                                  
+       58 -│     Como o robô desenha a partir da ficha.                  
+       59 -│     Fonte: N3 (de N1) e N4 (de N2) — DXF gerado.            
+       60 -│     RAG: embeddings de DXF gerado + diff visual N3 vs N4.   
+       61 -│                                                             
+       62 -├── DIM-3: DADOS / FICHAS / CAMPOS                            
+       63 -│     A ficha estruturada do item (F5 = N2, F7 = N1).         
+       64 -│     Fonte: reverse_eng_fichas.campos_json, fase3_fichas.    
+       65 -│     RAG: chunk por campo semântico (semantic_ref → domain_kn
+          -owledge).                                                     
+       66 -│                                                             
+       67 -├── DIM-4: DESCRIÇÃO TEXTUAL + GEOMETRIA + LÓGICA             
+       68 -│     Regras verbais da classe: o que é, como se lê, como se c
+          -alcula.                                                       
+       69 -│     Fonte: domain_knowledge (217 chunks, field_semantics=66)
+          -.                                                             
+       70 -│     RAG: chunks de regras semânticas, fórmulas, distribuição
+          -.                                                             
+       71 -│                                                             
+       72 -├── DIM-5: CONTEXTO OBRA / PAVIMENTO / ITEM                   
+       73 -│     Onde o item aparece na obra: pavimento, posição, vizinho
+          -s.                                                            
+       74 -│     Fonte: F1/F2/F3 fichas de obra, F4 por pavimento×classe.
+       75 -│     RAG: embeddings contextuais por item dentro da obra.    
+       76 -│                                                             
+       77 -├── DIM-6: ENGENHARIA REVERSA                                 
+       78 -│     Como o extrator reverso lê o STOG humano.               
+       79 -│     Fonte: N2 (F5) — motor_reverso_{classe}.py → recortes.  
+       80 -│     RAG: embeddings de fichas N2 + snapshots de recortes vis
+          -uais.                                                         
+       81 -│                                                             
+       82 -├── DIM-7: VISUAL DOS DXFs (LAYERS, CORES, HISTÓRICO)         
+       83 -│     Compreensão de layers STOG, padrões de cor, blocos, esti
+          -los.                                                          
+       84 -│     Fonte: stog_kbs (2179 rows: header/inventory/semantics/n
+          -omenclaturas).                                                
+       85 -│     RAG: embeddings de inventário de entidades por layer/cor
+          -.                                                             
+       86 -│                                                             
+       87 -└── DIM-8: CORPUS GLOBAL — TODAS AS OBRAS                     
+       88 -      Distribuição estatística da classe: ranges, casos extrem
+          -os, outliers.                                                 
+       89 -      Fonte: knowledge_base.json (a construir), FAISS corpus (
+          -799+ elementos).                                              
+       90 -      RAG: vetor médio da classe + histogramas de dimensões.  
+       91 -```                                                           
+       92 -                                                              
+       93 -**Regra de expansão:** qualquer nova classe (ex: Fundação, Esc
+          -ada) cria 8 pastas                                            
+       94 -no RAG, uma por dimensão. O schema é idêntico — apenas o conte
+          -údo muda.                                                     
+       95 -                                                              
+       51  ---
+       52  
+       98 -## 4. ARQUITETURA DO RAG — DOIS CONTEXTOS                     
+       53 +## 3. POLÍTICA DE CONFIANÇA / ANTI-CONTAMINAÇÃO (NÚCLEO DO PLA
+          +NO)                                                           
+       54  
+      100 -### 4.1 RAG Global (Principal)                                
+       55 +> Esta seção tem **prioridade sobre qualquer outra**. Toda esc
+          +rita no RAG passa por aqui.                                   
+       56  
+      102 -Acumula conhecimento de TODAS as obras processadas. É o "segun
+          -do cérebro" permanente.                                       
+       57 +### 3.1 As 3 Camadas de Confiança (tiers)                     
+       58  
+      104 -```                                                           
+      105 -RAG GLOBAL                                                    
+      106 -│                                                             
+      107 -├── Store A: FAISS (corpus estrutural)                        
+      108 -│     Tecnologia: FAISS FlatIP, all-MiniLM-L6-v2 (384-dim)    
+      109 -│     Conteúdo atual: ~832 elementos (228 PIL + 351 VIG + 220 
+          -LAJ + outros)                                                 
+      110 -│     Arquivos: data/vectors/faiss/ (estruturais.index + pilar
+          -es.index + etc.)                                              
+      111 -│     Papel: similaridade geométrica + plausibilidade cross-ob
+          -ra                                                            
+      112 -│                                                             
+      113 -├── Store B: domain_knowledge (LanceDB — FONTE SEMÂNTICA)     
+      114 -│     Tecnologia: LanceDB, NVIDIA nv-embed-v1 (4096-dim)      
+      115 -│     Conteúdo atual: 217 chunks (field_semantics=66, outros d
+          -oc_types)                                                     
+      116 -│     Localização: DADOS-OBRAS/stog_rag_db/                   
+      117 -│     Papel: regras de campo, fórmulas, significado semântico 
+          -de cada campo                                                 
+      118 -│                                                             
+      119 -├── Store C: stog_kbs (LanceDB — INVENTÁRIO STOG)             
+      120 -│     Conteúdo atual: 2179 rows (header/inventory/semantics/no
+          -menclaturas)                                                  
+      121 -│     Papel: ground truth de inventário por DXF STOG humano   
+      122 -│                                                             
+      123 -├── Store D: Chroma (aprendizado adaptativo)                  
+      124 -│     Tecnologia: ChromaDB (Python 3.12 — funciona)           
+      125 -│     Conteúdo atual: 2282 embeddings                         
+      126 -│     Collections: adaptive_learning, structural_elements, tra
+          -ining_samples                                                 
+      127 -│     Localização: Restored-main/vector_memory/chroma.sqlite3 
+      128 -│     Papel: retrieval espacial por geometria, learned_dx/dy p
+          -or campo                                                      
+      129 -│                                                             
+      130 -└── Bridge: semantic_rag_kb (SQLite — estado: 0 rows, PRIORITÁ
+          -RIO)                                                          
+      131 -      Tabela em project_data.vision                           
+      132 -      Papel: materializar semantic_ref por classe a partir do 
+          -domain_knowledge                                              
+      133 -      Ação necessária: popular a partir dos 66 chunks field_se
+          -mantics                                                       
+      134 -```                                                           
+       59 +Todo dado indexável carrega um campo `tier` (ou `confianca`). 
+          +O RAG global só serve                                         
+       60 +como "verdade/professor" o que estiver em tier ≥ VALIDADO.    
+       61  
+      136 -**Notas de harmonização:**                                    
+      137 -- ChromaDB NÃO está morto — funciona em Python 3.12. O Masterp
+          -lan RAG-VECTORIZACAO                                          
+      138 -  reportou abandono no Python 3.14, mas a app roda em 3.12. Ma
+          -nter ambos.                                                   
+      139 -- FAISS e Chroma têm papéis complementares (não redundantes): 
+          -FAISS = similaridade                                          
+      140 -  textual estruturada; Chroma = geometria espacial adaptativa.
+      141 -- domain_knowledge (LanceDB) = âncora semântica de TUDO. Nunca
+          - substituir.                                                  
+       62 +| Tier | Nome | Quem produz | Entra no RAG global? | Papel |  
+       63 +|------|------|-------------|----------------------|-------|  
+       64 +| **T0** | QUARENTENA | Motor (draft/extracted) | ❌ NÃO (fica
+          + isolado) | Hipótese em desenvolvimento |                     
+       65 +| **T1** | VALIDADO | Humano aprova (1 obra) | ✅ SIM (como pr
+          +ofessor) | Verdade confirmada |                               
+       66 +| **T2** | CONSOLIDADO | Validado em ≥ 2 obras | ✅ SIM (vira 
+          +default/regra) | Padrão generalizável |                       
+       67  
+      143 -### 4.2 RAG por-Obra (Dinâmico — gerado ao iniciar trabalho)  
+       68 +**Mapeamento para o banco real (não criar coluna duplicada — u
+          +sar o que existe):**                                          
+       69 +- T0 = `reverse_eng_fichas.status IN ('draft','extracted')` · 
+          +`fase3_fichas.revisado=0`                                     
+       70 +- T1 = `status='aprovado'` OU `is_validated=1` OU `validated_f
+          +ields_json` preenchido                                        
+       71 +- T2 = marca derivada: campo presente em T1 de ≥ 2 obras disti
+          +ntas (calculado, não digitado)                                
+       72  
+      145 -Criado quando o operador abre uma obra nova para trabalhar. É 
+          -destruído/recriado                                            
+      146 -a cada uso — reflete SOMENTE aquela obra.                     
+       73 +### 3.2 Gatilho de Indexação = Ato de Validação Humana        
+       74  
+       75  ```
+      149 -RAG POR-OBRA (ephemeral, per-obra)                            
+      150 -│                                                             
+      151 -├── Contexto F1: metadados da obra (contagens, classificação t
+          -riagem)                                                       
+      152 -├── Contexto F2: pavimentos e estrutura de andares            
+      153 -├── Contexto N2/F5: fichas granulares da eng. reversa dessa ob
+          -ra                                                            
+      154 -│     (se já extraídas — motor_reverso_{classe}.py)           
+      155 -├── Contexto visual: recortes dos DXFs STOG dessa obra        
+      156 -└── Contexto stog_kbs: inventário STOG dessa obra específica  
+       76 +Item em T0 (draft)  ─────────────────────►  NÃO indexa. Fica e
+          +m quarentena.                                                 
+       77 +                                                    │         
+       78 +   humano clica "aprovar/validar" o item ───────────┤         
+       79 +                                                    ▼         
+       80 +Item vira T1  ───────────────────────────►  indexa AGORA esse 
+          +item no RAG global                                            
+       81 +                                                    │         
+       82 +   campo validado em ≥ 2 obras ─────────────────────┤         
+       83 +                                                    ▼         
+       84 +Item/campo vira T2  ──────────────────────►  candidata a defau
+          +lt/regra global                                               
+       85  ```
+       86  
+      159 -**Quando usar:**                                              
+      160 -- "Analisar com Eng. Reversa" → consulta RAG por-obra para gab
+          -arito N2                                                      
+      161 -- Comparison Engine → score N1 vs N2 usa contexto por-obra    
+      162 -- Diagnóstico de divergências → RAG por-obra explica diferença
+          - via domain_knowledge                                         
+       87 +**Indexação é incremental e event-driven — NUNCA batch das fic
+          +has em desenvolvimento.**                                     
+       88  
+      164 -**Implementação:** `scripts/obra_rag_pipeline.py` (existe, EPI
+          -C-1 pendente)                                                 
+       89 +### 3.3 Distinção crítica: REGRA vs INSTÂNCIA                 
+       90  
+      166 ----                                                           
+       91 +| Tipo | Exemplo | Pode entrar AGORA? | Onde mora |           
+       92 +|------|---------|---------------------|-----------|          
+       93 +| **REGRA / semântica** | `grade_1 = comprimento + 22`; "pilar
+          + cambotado é..." | ✅ SIM | `domain_knowledge` (LanceDB) + `se
+          +mantic_rag_kb` |                                              
+       94 +| **INSTÂNCIA / ficha** | "P305 da obra X tem comp=240" | ❌ S
+          +ó se T1+ | FAISS + Chroma (fichas) |                          
+       95  
+      168 -## 5. MAPEAMENTO RAG ↔ FICHAS F1–F9                           
+       96 +Regra é conhecimento que o **dono define e confirma** → estáve
+          +l → pode popular já.                                          
+       97 +Instância é **palpite do motor** → incerto → só entra após val
+          +idação humana.                                                
+       98  
+      170 -Esta tabela é a "chave de tradução" entre fichas, dimensões e 
+          -stores RAG.                                                   
+      171 -É a visão canônica. Não criar novas fichas sem encaixar aqui p
+          -rimeiro.                                                      
+       99 +### 3.4 Consulta com filtro de tier                           
+      100  
+      173 -| Ficha | Nome | Nível N | Dimensão RAG | Store Principal | Es
+          -tado |                                                        
+      174 -|-------|------|---------|--------------|-----------------|---
+          ------|                                                        
+      175 -| F1 | Pré-Obra | — | DIM-5 (contexto obra) | semantic_rag_kb 
+          -| Parcial |                                                   
+      176 -| F2 | Pré-Pavimento | — | DIM-5 (contexto pav) | semantic_rag
+          -_kb | Parcial |                                               
+      177 -| F3 | Ficha-Obra Global | — | DIM-5 + DIM-8 | FAISS global | 
+          -EM DEV |                                                      
+      178 -| F4 | Eng. Rev. Pav×Classe | N4 consolida | DIM-6 agregado | 
+          -RAG por-obra | Quebrado |                                     
+      179 -| **F5** | **Granular Eng. Reversa** | **N2 ← GABARITO** | **D
+          -IM-6 + DIM-3** | **Chroma + FAISS** | **rag_indexed=0** |     
+      180 -| F6 | Obra Eng. Rev. (consolida) | N2 consolida | DIM-6 obra 
+          -| RAG por-obra | A impl. |                                    
+      181 -| **F7** | **Ficha Structural Analyzer** | **N1 ← MOTOR** | **
+          -DIM-1 + DIM-3** | **Chroma + FAISS** | 0 revisados |          
+      182 -| F8 | Ficha N3 (robô de N1) | N3 | DIM-2 | FAISS + diff | A f
+          -ormalizar |                                                   
+      183 -| F9 | Ficha N4 (robô de N2) | N4 | DIM-2 | FAISS + diff | A f
+          -ormalizar |                                                   
+      101 +Durante o desenvolvimento, toda consulta ao RAG **filtra por `
+          +tier >= T1`**. O motor                                        
+      102 +nunca "aprende" de quarentena. Quarentena serve só para a Cura
+          +doria mostrar "o que está                                     
+      103 +pendente de validação" — é visibilidade, não conhecimento.    
+      104  
+      185 -**Observação crítica (não tomar como absoluto):**             
+      186 -- As 902 fichas F5 (`reverse_eng_fichas`) têm `rag_indexed=0` 
+          -— **nenhuma foi indexada**.                                   
+      187 -  Esta é a lacuna mais urgente do RAG.                        
+      188 -- As 405 fichas F7 (`fase3_fichas`) têm `dna_vector` mas `0 re
+          -visados` — dados existem                                      
+      189 -  mas a qualidade é desconhecida por classe sem validação huma
+          -na.                                                           
+      105 +### 3.5 Regras de imutabilidade (herdadas dos masterplans exis
+          +tentes)                                                       
+      106  
+      107 +- `reverse_eng_fichas` (F5/N2) são **imutáveis**. Reextração →
+          + versiona via `status`,                                       
+      108 +  nunca sobrescreve. (Loop de Treino, Princípio 1)            
+      109 +- Dado humano validado **nunca é sobrescrito, apagado ou rebai
+          +xado**. (Princípio 7)                                         
+      110 +- N3 **nunca** é alimentado por N2/N4 (proibido vazamento de g
+          +abarito). (Princípio 9)                                       
+      111 +- Aprendizado grava em `engrev_*_learning.vision` / `training_
+          +events`, **nunca** em cima                                    
+      112 +  do gabarito.                                                
+      113 +                                                              
+      114  ---
+      115  
+      193 -## 6. REDESIGN DA ABA CURADORIA                               
+      116 +## 4. AS 8 DIMENSÕES DE COMPREENSÃO POR CLASSE                
+      117  
+      195 -A aba Curadoria é o **mapa mental vivo** do cérebro RAG. Não é
+          - um CRUD de dados —                                           
+      196 -é uma **vitrine de inteligência** que expressa o estado atual 
+          -do segundo cérebro e                                          
+      197 -orienta o operador sobre o que sabe, o que não sabe, e onde o 
+          -sistema está aprendendo.                                      
+      118 +Para cada classe (PIL / LV / FV / LAJ — e futuras), o Cérebro 
+          +RAG mantém compreensão em                                     
+      119 +8 dimensões. **Cada dimensão respeita a Política de Confiança 
+          +(§3):** regras entram já;                                     
+      120 +instâncias só após validação.                                 
+      121  
+      199 -### 6.1 Sub-abas Propostas (6 total — pode criar mais)        
+      200 -                                                              
+      122  ```
+      202 -CURADORIA                                                     
+      203 -├── [1] Mapa RAG            ← Visual pipeline do cérebro      
+      204 -├── [2] Enciclopédia        ← 8 dimensões por classe (o coraçã
+          -o)                                                            
+      205 -├── [3] Corpus & Cobertura  ← F1-F9 indexing status + métricas
+      206 -├── [4] Aprendizado         ← training events, convergência, a
+          -ccuracy                                                       
+      207 -├── [5] Memória Vetorial    ← Status dos 4 stores RAG         
+      208 -└── [6] Banco de Dados      ← Tabelas SQLite (versão melhorada
+          - do atual)                                                    
+      123 +CLASSE (ex: PIL — Pilar)                                      
+      124 +│                                                             
+      125 +├── DIM-1: VISUAL ESTRUTURAL LIMPA       (N1/F7 canvas)       
+          +   [instância: gated]                                         
+      126 +├── DIM-2: DESENHO DOS ROBÔS             (N3 de N1 / N4 de N2)
+          +   [instância: gated]                                         
+      127 +├── DIM-3: DADOS / FICHAS / CAMPOS       (F5=N2, F7=N1)       
+          +   [instância: gated]                                         
+      128 +├── DIM-4: DESCRIÇÃO TEXTUAL/GEO/LÓGICA  (domain_knowledge)   
+          +   [REGRA: já]                                                
+      129 +├── DIM-5: CONTEXTO OBRA/PAV/ITEM        (F1/F2/F3/F4)        
+          +   [misto]                                                    
+      130 +├── DIM-6: ENGENHARIA REVERSA            (N2/F5, motor_reverso
+          +)  [instância: gated]                                         
+      131 +├── DIM-7: VISUAL DXFs LAYERS/CORES      (stog_kbs)           
+          +   [REGRA+inventário: já]                                     
+      132 +└── DIM-8: CORPUS GLOBAL TODAS AS OBRAS  (FAISS + knowledge_ba
+          +se)[só T1+ acumulado]                                         
+      133  ```
+      134  
+      135 +**Expansão:** nova classe (ex: Fundação, Escada) cria 8 dimens
+          +ões idênticas — só o                                          
+      136 +conteúdo muda. O schema é fixo (ver EPIC RAG-6).              
+      137 +                                                              
+      138  ---
+      139  
+      213 -### Sub-aba 1: MAPA RAG                                       
+      140 +## 5. ARQUITETURA DO RAG — DOIS CONTEXTOS                     
+      141  
+      215 -**Conceito:** Um diagrama de pipeline interativo (renderizado 
+          -em canvas) mostrando                                          
+      216 -como os dados fluem desde o DXF bruto até o RAG global.       
+      142 +### 5.1 RAG Global (Principal) — acumula só T1+               
+      143  
+      144  ```
+      219 -DXF BRUTO ──► Structural Analyzer (N1)                        
+      220 -                    │                                         
+      221 -                    ▼                                         
+      222 -              F7 (fase3_fichas) ──► FAISS Global ──► Chroma Ad
+          -aptativo                                                      
+      223 -                    │                                         
+      224 -                    ▼ [Comparison Engine]                     
+      225 -                    │                    ▲                    
+      226 -STOG Humano ──► Motor Reverso (N2)       │                    
+      227 -                    │                    │                    
+      228 -                    ▼                    │                    
+      229 -              F5 (rev_eng_fichas) ──► domain_knowledge (âncora
+          - semântica)                                                   
+      230 -                    │                    │                    
+      231 -                    ▼                    ▼                    
+      232 -              Robô N4 ◄──────────── stog_kbs                  
+      233 -                    │                                         
+      234 -                    ▼                                         
+      235 -              RAG por-obra ◄── (criado ao abrir obra)         
+      236 -                    │                                         
+      237 -                    ▼                                         
+      238 -              RAG Global (FAISS + Chroma + LanceDB)           
+      145 +RAG GLOBAL  (serve apenas tier >= VALIDADO)                   
+      146 +│                                                             
+      147 +├── Store A: FAISS (corpus estrutural)        data/vectors/fai
+          +ss/                                                           
+      148 +│     all-MiniLM-L6-v2 (384-dim) · ~832 vetores atuais        
+      149 +│     Papel: similaridade textual de instâncias VALIDADAS     
+      150 +│                                                             
+      151 +├── Store B: domain_knowledge (LanceDB)        DADOS-OBRAS/sto
+          +g_rag_db/  ★ FONTE SEMÂNTICA                                  
+      152 +│     nv-embed-v1 (4096-dim) · 217 chunks (field_semantics=66)
+      153 +│     Papel: REGRAS/fórmulas/significado → pode crescer AGORA 
+      154 +│                                                             
+      155 +├── Store C: stog_kbs (LanceDB)                mesma instância
+      156 +│     2179 rows (header/inventory/semantics/nomenclaturas)    
+      157 +│     Papel: inventário STOG por DXF (DIM-7) → factual, pode c
+          +rescer                                                        
+      158 +│                                                             
+      159 +├── Store D: Chroma                            Restored-main/v
+          +ector_memory/chroma.sqlite3                                   
+      160 +│     2282 embeddings · Python 3.12 FUNCIONA                  
+      161 +│     Collections: adaptive_learning · structural_elements · t
+          +raining_samples                                               
+      162 +│     Papel: geometria espacial + learned_dx/dy → só de itens 
+          +T1+                                                           
+      163 +│                                                             
+      164 +└── Bridge: semantic_rag_kb (SQLite)           project_data.vi
+          +sion · 0 rows ⚠️                                              
+      165 +      Papel: materializar semantic_ref por classe a partir do 
+          +domain_knowledge                                              
+      166 +      É REGRA → pode (deve) popular AGORA                     
+      167  ```
+      168  
+      241 -**Widgets:**                                                  
+      242 -- Diagrama SVG interativo (clicável por nó)                   
+      243 -- Ao clicar em cada nó → painel lateral com: nome, tecnologia,
+          - estado atual (rows/vectors), última atualização              
+      244 -- Indicadores de saúde: verde (operacional), amarelo (parcial)
+          -, vermelho (vazio/quebrado)                                   
+      245 -- Botão "Reindexar" por store                                 
+      246 -- Linha do tempo: últimas atualizações de cada store          
+      169 +**Notas de harmonização (decisões a confirmar — §11):**       
+      170 +- ChromaDB **não** está morto: o doc RAG-VECTORIZACAO reportou
+          + falha no Python 3.14, mas                                    
+      171 +  a app roda em **3.12** e o Chroma tem 2282 embeddings vivos.
+          + **Manter** FAISS + Chroma                                    
+      172 +  (papéis complementares: FAISS=texto, Chroma=geometria).     
+      173 +- Dois modelos de embedding coexistem por design: nv-embed-v1 
+          +(regras) e MiniLM (fichas).                                   
+      174  
+      248 ----                                                           
+      175 +### 5.2 RAG por-Obra (Dinâmico, gerado ao abrir a obra)       
+      176  
+      250 -### Sub-aba 2: ENCICLOPÉDIA DE CLASSES                        
+      177 +Ajuda a **interpretar aquela obra específica**. Distinto do gl
+          +obal. Pode incluir T0 da                                      
+      178 +**própria obra** (porque é contexto local de trabalho, não ver
+          +dade global) — mas marcado                                    
+      179 +como local, e **nunca promovido ao global sem validação**.    
+      180  
+      252 -**Conceito:** Para cada classe (PIL / LV / FV / LAJ / futuras)
+          -, exibe as 8 dimensões                                        
+      253 -em um layout hierárquico visual. É o "atlas" do conhecimento e
+          -strutural.                                                    
+      254 -                                                              
+      255 -**Layout por classe:**                                        
+      256 -                                                              
+      181  ```
+      258 -┌─────────────────────────────────────────────────────────────
+          -┐                                                             
+      259 -│  CLASSE: PIL — Pilar                           [Score: 72%] 
+          -│                                                             
+      260 -├──────────────┬──────────────┬───────────────────────────────
+          -┤                                                             
+      261 -│ DIM-1        │ DIM-2        │ DIM-3                         
+          -│                                                             
+      262 -│ Visual N1    │ Visual Robô  │ Campos da Ficha               
+          -│                                                             
+      263 -│ [DXF canvas] │ [N3/N4 PNG]  │ comprimento, largura, secao,  
+          -│                                                             
+      264 -│              │              │ laje_A..H, grade_1, h3...     
+          -│                                                             
+      265 -├──────────────┴──────────────┼───────────────────────────────
+          -┤                                                             
+      266 -│ DIM-4: Regras Semânticas    │ DIM-5: Contexto Obra          
+          -│                                                             
+      267 -│ grade_1 = comp+22           │ Obras: 23 | Pavs: 92          
+          -│                                                             
+      268 -│ h3 casos: 2 (B≤30, B>30)   │ Items catalogados: 7216       │
+      269 -│ laje_A..H = posição painel  │ Range comp: [90, 600] cm      
+          -│                                                             
+      270 -├─────────────────────────────┴───────────────────────────────
+          -┤                                                             
+      271 -│ DIM-6: Eng. Reversa         │ DIM-7: Layers STOG            
+          -│                                                             
+      272 -│ Motor: motor_reverso_pil.py │ CIMA, ABCD, GRADES            
+          -│                                                             
+      273 -│ Fichas N2: 225 (draft)      │ Layers: 7 | Blocos: 11        
+          -│                                                             
+      274 -│ Aprovados: 3 (humano)       │ Layer cota: COTA              
+          -│                                                             
+      275 -├─────────────────────────────┴───────────────────────────────
+          -┤                                                             
+      276 -│ DIM-8: Corpus Global                                        
+          -│                                                             
+      277 -│ Distribuição: [histograma de comp/larg/área por obra]       
+          -│                                                             
+      278 -│ Outliers: 3 casos | Casos extremos: TREINO_12               
+          -│                                                             
+      279 -└─────────────────────────────────────────────────────────────
+          -┘                                                             
+      182 +RAG POR-OBRA  (escopo = 1 obra · script: scripts/obra_rag_pipe
+          +line.py)                                                      
+      183 +├── F1 metadados · F2 pavimentos · F3 obra-global             
+      184 +├── N2/F5 dessa obra (gabarito local) · recortes visuais      
+      185 +└── stog_kbs dessa obra                                       
+      186  ```
+      187  
+      282 -**Interação:**                                                
+      283 -- Seletor de classe no topo (PIL / LV / FV / LAJ + "+ Nova Cla
+          -sse" para futuro)                                             
+      284 -- Cada dimensão é clicável → abre detalhes completos          
+      285 -- DIM-1/2: carrega DXF canvas inline com zoom                 
+      286 -- DIM-3: exibe todos os campos com semantic_ref e valor exempl
+          -o                                                             
+      287 -- DIM-4: lista regras do domain_knowledge para a classe       
+      288 -- DIM-5: gráfico de distribuição por obras                    
+      289 -- DIM-6: galeria de recortes N2 aprovados                     
+      290 -- DIM-7: tabela de layers com exemplos visuais                
+      291 -- DIM-8: histogramas interativos                              
+      188 +**Persistência (recomendado):** `DADOS-OBRAS/{obra}/obra_rag/`
+          + para não recriar a cada                                      
+      189 +sessão. Recriar só quando a obra muda.                        
+      190  
+      293 -**Score por classe:** média ponderada das 8 dimensões (cobertu
+          -ra × qualidade).                                              
+      294 -Verde ≥ 80%, Amarelo 50-80%, Vermelho < 50%.                  
+      295 -                                                              
+      191  ---
+      192  
+      298 -### Sub-aba 3: CORPUS & COBERTURA                             
+      193 +## 6. MAPEAMENTO RAG ↔ FICHAS F1–F9 (chave de tradução canônic
+          +a)                                                            
+      194  
+      300 -**Conceito:** Mapa de calor (heatmap) mostrando a cobertura da
+          -s fichas F1-F9                                                
+      301 -por obra × classe × pavimento.                                
+      195 +| Ficha | Nível N | Dimensão | Store | Tier atual | Pode index
+          +ar agora? |                                                   
+      196 +|-------|---------|----------|-------|-----------|------------
+          +---------|                                                    
+      197 +| F1 Pré-Obra | — | DIM-5 | semantic_rag_kb | misto | regra: s
+          +im |                                                          
+      198 +| F2 Pré-Pav | — | DIM-5 | semantic_rag_kb | misto | regra: si
+          +m |                                                           
+      199 +| F3 Obra-Global | — | DIM-5/8 | FAISS | T0 (em dev) | não |  
+      200 +| F4 Pav×Classe | N4 cons. | DIM-6 | RAG por-obra | T0 | não |
+      201 +| **F5 Granular ER** | **N2 GABARITO** | DIM-6/3 | Chroma+FAIS
+          +S | **902: 765 draft + 137 extr + 3 aprov** | **só os 3 T1** |
+      202 +| F6 Obra ER | N2 cons. | DIM-6 | RAG por-obra | T0 | não |   
+      203 +| **F7 Structural** | **N1 MOTOR** | DIM-1/3 | Chroma+FAISS | 
+          +**405: 0 revisados** | **não** |                              
+      204 +| F8 N3 (robô N1) | N3 | DIM-2 | FAISS+diff | T0 | não |      
+      205 +| F9 N4 (robô N2) | N4 | DIM-2 | FAISS+diff | T0 | não |      
+      206  
+      303 -**Widgets:**                                                  
+      304 -- **Heatmap principal:** eixo X = obras (1-23+), eixo Y = (F1/
+          -F2/F3/F5/F7/F8/F9),                                           
+      305 -  cor = % indexado no RAG (verde escuro = 100%, branco = 0%)  
+      306 -- **Painel de métricas:**                                     
+      307 -  ```                                                         
+      308 -  F5 (N2 Granular):   902 fichas | rag_indexed: 0% ← CRÍTICO  
+      309 -  F7 (N1 Structural): 405 fichas | revisados:   0% ← CRÍTICO  
+      310 -  F3 (Obra Global):     2 fichas | cobertura:   8%            
+      311 -  domain_knowledge:   217 chunks | field_sem:  66             
+      312 -  stog_kbs:          2179 rows   | coberturas: 23 obras       
+      313 -  ```                                                         
+      314 -- **Progress bars** por classe e por store                    
+      315 -- **Botão "Indexar Pendentes"** → dispara indexação das fichas
+          - não indexadas                                                
+      316 -- **Log em tempo real** da indexação                          
+      207 +**Conclusão operacional:** hoje só **3 instâncias** podem entr
+          +ar (golden seed). Tudo mais                                   
+      208 +espera validação. Mas **regras** (`domain_knowledge`/`semantic
+          +_rag_kb`) entram já.                                          
+      209  
+      210  ---
+      211  
+      320 -### Sub-aba 4: APRENDIZADO                                    
+      212 +## 7. REDESIGN DA ABA CURADORIA                               
+      213  
+      322 -**Conceito:** Dashboard de aprendizado do motor. Mostra a conv
+          -ergência                                                      
+      323 -N1 → N2 ao longo do tempo e por classe.                       
+      214 +A Curadoria é o **mapa mental vivo** do cérebro. **Começa read
+          +-only (observador)** — ela                                    
+      215 +**não escreve no RAG** → zero risco de contaminação. Conforme 
+          +você valida nas outras abas,                                  
+      216 +você **vê o cérebro crescer** aqui.                           
+      217  
+      325 -**Widgets:**                                                  
+      326 -- **Curva de convergência** por classe:                       
+      327 -  - Eixo X: iterações de treino / obras processadas           
+      328 -  - Eixo Y: hit-rate campo (F7 vs F5)                         
+      329 -  - Uma linha por classe (PIL/LV/FV/LAJ)                      
+      330 -- **Painel training_events:**                                 
+      331 -  ```                                                         
+      332 -  Total eventos:   901                                        
+      333 -  Por tipo:                                                   
+      334 -    user_validation:  [n]                                     
+      335 -    user_rejection:   [n]                                     
+      336 -    user_na:          [n]                                     
+      337 -  Por campo:                                                  
+      338 -    Laje_laje_outline_segs: 202 valid + 20 rejeições          
+      339 -    [top 10 campos mais treinados]                            
+      340 -  ```                                                         
+      341 -- **Tabela transformation_rules:**                            
+      342 -  - Lista regras existentes com accuracy por classe           
+      343 -  - Alerta para regras com accuracy < 70%                     
+      344 -  - Estado atual: `Laje_name=6.9%`, `Pilar_name=32.8%` ← desta
+          -car em vermelho                                               
+      345 -- **Gráfico de divergências** por classe (campo a campo)      
+      346 -- **Histórico de aprovações humanas:** timeline de validações 
+          -(data, obra, item, campo)                                     
+      218 +### 7.1 Sub-abas (6 — pode criar mais)                        
+      219  
+      348 ----                                                           
+      220 +```                                                           
+      221 +CURADORIA                                                     
+      222 +├── [1] Mapa RAG            ← pipeline visual do cérebro (read
+          +-only)                                                        
+      223 +├── [2] Enciclopédia        ← 8 dimensões por classe (coração)
+          + (read-only)                                                  
+      224 +├── [3] Corpus & Cobertura  ← heatmap F1-F9 + status de tier (
+          +read-only)                                                    
+      225 +├── [4] Aprendizado         ← convergência N1→N2, training_eve
+          +nts, accuracy                                                 
+      226 +├── [5] Memória Vetorial    ← status dos 4 stores + operações 
+          +de manutenção                                                 
+      227 +└── [6] Banco de Dados      ← tabelas SQLite + alertas (melhor
+          +a do atual)                                                   
+      228 +```                                                           
+      229  
+      350 -### Sub-aba 5: MEMÓRIA VETORIAL (melhorada)                   
+      230 +### 7.2 Sub-aba 1: MAPA RAG                                   
+      231 +Diagrama de pipeline interativo (QPainter/QSvgWidget). Nós cli
+          +cáveis → painel com                                           
+      232 +nome/tecnologia/rows-vetores/última-atualização. Saúde por cor
+          + (verde/amarelo/vermelho).                                    
+      233 +**Mostra explicitamente a barreira de tier:** o que está em qu
+          +arentena vs no cérebro.                                       
+      234  
+      352 -**Conceito:** Status técnico dos 4 stores RAG + operações de m
+          -anutenção.                                                    
+      235 +```                                                           
+      236 +DXF BRUTO → Structural Analyzer (N1/F7) ─┐                    
+      237 +STOG Humano → Motor Reverso (N2/F5) ─────┤                    
+      238 +                                          ▼                   
+      239 +                              [ BARREIRA DE VALIDAÇÃO ]  ← só 
+          +T1+ passa                                                     
+      240 +                                          ▼                   
+      241 +                   FAISS · Chroma · domain_knowledge · stog_kb
+          +s (RAG GLOBAL)                                                
+      242 +                                          ▼                   
+      243 +                          RAG por-obra (ao abrir obra)        
+      244 +```                                                           
+      245  
+      354 -**Widgets:**                                                  
+      355 -- **Cards por store:**                                        
+      356 -  ```                                                         
+      357 -  ┌─ FAISS (Corpus Estrutural) ─────────────────────────────┐ 
+      358 -  │ Status: ✅ OPERACIONAL                                   │
+      359 -  │ Modelo: all-MiniLM-L6-v2 (384-dim)                     │  
+      360 -  │ Vetores: 832 | Obras: 11 | Última atualização: 19/03    │ 
+      361 -  │ Índices: estruturais.index, pilares.index, vigas.index  │ 
+      362 -  │ [Reindexar] [Busca Manual] [Ver Vizinhos]               │ 
+      363 -  └──────────────────────────────────────────────────────────┘
+      246 +### 7.3 Sub-aba 2: ENCICLOPÉDIA DE CLASSES (coração)          
+      247 +Para cada classe, layout das 8 dimensões (ver §4). Seletor de 
+          +classe + "+ Nova Classe".                                     
+      248 +Cada dimensão clicável abre detalhe. **Cada item exibido mostr
+          +a seu tier** (badge:                                          
+      249 +quarentena/validado/consolidado). Score por classe = cobertura
+          + × qualidade das 8 dims.                                      
+      250  
+      365 -  ┌─ domain_knowledge (LanceDB — Âncora Semântica) ─────────┐ 
+      366 -  │ Status: ✅ OPERACIONAL                                   │
+      367 -  │ Modelo: NVIDIA nv-embed-v1 (4096-dim)                   │ 
+      368 -  │ Chunks: 217 | field_semantics: 66                        │
+      369 -  │ [Buscar] [Ver Chunks] [Estatísticas]                     │
+      370 -  └──────────────────────────────────────────────────────────┘
+      251 +```                                                           
+      252 +┌─ CLASSE: PIL — Pilar ───────────────────────────[Score 72%]─
+          +┐                                                             
+      253 +│ DIM-1 Visual N1 │ DIM-2 Visual Robô │ DIM-3 Campos da Ficha 
+          + │                                                            
+      254 +│ [DXF canvas]    │ [N3/N4 PNG]       │ comp, larg, grade_1...
+          + │                                                            
+      255 +│ DIM-4 Regras    │ DIM-5 Contexto    │ DIM-6 Eng.Reversa     
+          + │                                                            
+      256 +│ grade_1=comp+22 │ 23 obras/92 pav   │ N2:225·aprov:3 [T1]   
+          + │                                                            
+      257 +│ DIM-7 Layers STOG (CIMA/ABCD/GRADES)│ DIM-8 Corpus [histos] 
+          + │                                                            
+      258 +└─────────────────────────────────────────────────────────────
+          +─┘                                                            
+      259 +```                                                           
+      260  
+      372 -  ┌─ Chroma (Aprendizado Adaptativo) ───────────────────────┐ 
+      373 -  │ Status: ✅ Python 3.12 OPERACIONAL                      │ 
+      374 -  │ Embeddings: 2282                                         │
+      375 -  │ Collections: adaptive_learning | structural_elements    │ 
+      376 -  │              training_samples                            │
+      377 -  │ [Ver Collections] [Busca Espacial]                       │
+      378 -  └──────────────────────────────────────────────────────────┘
+      261 +### 7.4 Sub-aba 3: CORPUS & COBERTURA                         
+      262 +Heatmap obras × fichas (F1/F2/F3/F5/F7/F8/F9), cor = % VALIDAD
+          +O+indexado.                                                   
+      263 +Painel de métricas com **separação por tier** (ex: "F5: 3 vali
+          +dados / 899 quarentena").                                     
+      264 +Botão **"Indexar Validados Pendentes"** → indexa só itens já T
+          +1 ainda não no RAG (seguro).                                  
+      265 +**NÃO** ter botão que indexe quarentena.                      
+      266  
+      380 -  ┌─ semantic_rag_kb (Bridge SQLite) ───────────────────────┐ 
+      381 -  │ Status: ⚠️ VAZIO (0 rows) — POPULATE URGENTE           │  
+      382 -  │ Objetivo: semantic_ref por classe a partir do            │
+      383 -  │           domain_knowledge field_semantics               │
+      384 -  │ [Popular Agora] ← dispara populate_semantic_rag_kb.py   │ 
+      385 -  └──────────────────────────────────────────────────────────┘
+      386 -  ```                                                         
+      387 -- **Busca manual** em qualquer store                          
+      388 -- **Logs de operações** recentes                              
+      267 +### 7.5 Sub-aba 4: APRENDIZADO                                
+      268 +Curva de convergência hit-rate N1 vs N2 por classe ao longo do
+          + tempo. Painel                                                
+      269 +`training_events` (901) por tipo/campo. Tabela `transformation
+          +_rules` com accuracy                                          
+      270 +(destacar LAJ=6.9%, PIL=32.8% em vermelho). Timeline de aprova
+          +ções humanas.                                                 
+      271  
+      390 ----                                                           
+      272 +### 7.6 Sub-aba 5: MEMÓRIA VETORIAL                           
+      273 +Card por store (FAISS/domain_knowledge/Chroma/semantic_rag_kb)
+          + com status, modelo,                                          
+      274 +contagem, última atualização, e ações: [Reindexar T1+] [Busca 
+          +Manual] [Ver Vizinhos].                                       
+      275 +Card semantic_rag_kb destaca "0 rows — POPULAR" com botão [Pop
+          +ular Regras Agora].                                           
+      276  
+      392 -### Sub-aba 6: BANCO DE DADOS (melhorada)                     
+      277 +### 7.7 Sub-aba 6: BANCO DE DADOS                             
+      278 +Tabelas do `project_data.vision` com row counts ao vivo + aler
+          +tas de integridade:                                           
+      279 +`semantic_rag_kb=0`, `cache_fichas=0`, `reverse_eng_fichas.rag
+          +_indexed=0`, accuracy baixa.                                  
+      280 +Preview top-10 por tabela. Export CSV/JSON.                   
+      281  
+      394 -**Versão melhorada do tab existente "Banco de Dados":**       
+      395 -                                                              
+      396 -- **Tabelas do project_data.vision** com row counts em tempo r
+          -eal                                                           
+      397 -- **Gráfico de crescimento** por tabela ao longo do tempo     
+      398 -- **Alertas de integridade:**                                 
+      399 -  - `cache_fichas`: 0 rows → cache vazio                      
+      400 -  - `semantic_rag_kb`: 0 rows → bridge vazio                  
+      401 -  - `reverse_eng_fichas.rag_indexed=0`: 902 fichas não indexad
+          -as                                                            
+      402 -  - `transformation_rules`: accuracy baixa por tipo           
+      403 -- **Preview de dados** de cada tabela (top 10 rows)           
+      404 -- **Exportar** dados como CSV/JSON por tabela                 
+      405 -                                                              
+      282  ---
+      283  
+      408 -## 7. FLUXO DE ALIMENTAÇÃO RETROALIMENTADO                    
+      284 +## 8. FLUXO RETROALIMENTADO (com barreira de tier)            
+      285  
+      410 -O diagrama abaixo mostra como o pipeline fecha o loop:        
+      411 -                                                              
+      286  ```
+      413 -INGESTÃO (DXF bruto)                                          
+      414 -        │                                                     
+      415 -        ▼                                                     
+      416 -STRUCTURAL ANALYZER → N1 (F7) ──────────────────────┐         
+      417 -        │                                             │       
+      418 -        │                                             ▼       
+      419 -        │                              COMPARISON ENGINE      
+      420 -        │                              (F7 vs F5 — N1 vs N2)  
+      421 -        │                                    │                
+      422 -        ▼                                    │ sinal de treino
+      423 -MOTOR REVERSO (STOG) → N2 (F5) ─────────────┘                 
+      424 -        │                                                     
+      425 -        ▼                                                     
+      426 -RAG POR-OBRA ──► CONSULTA ──► Orienta extração atual          
+      427 -        │                                                     
+      428 -        ▼                                                     
+      429 -INDEXAÇÃO RAG GLOBAL                                          
+      430 -  ├─ FAISS: embeddings textuais dos campos                    
+      431 -  ├─ Chroma: geometria espacial + learned_dx/dy               
+      432 -  ├─ domain_knowledge: regras semânticas validadas            
+      433 -  └─ semantic_rag_kb: bridge por classe                       
+      434 -        │                                                     
+      435 -        ▼                                                     
+      436 -PRÓXIMA OBRA ──► RAG GLOBAL guia extração ──► melhor N1 ──► lo
+          -op                                                            
+      287 +INGESTÃO → Structural Analyzer → N1/F7 ─┐                     
+      288 +                                         ▼                    
+      289 +                            COMPARISON ENGINE (N1 vs N2)      
+      290 +STOG → Motor Reverso → N2/F5 ────────────┘   │ sinal de treino
+          + → training_events                                            
+      291 +                                             │                
+      292 +                  [humano valida item] ──────┤                
+      293 +                                             ▼                
+      294 +                         BARREIRA DE TIER (só T1+)            
+      295 +                                             ▼                
+      296 +              INDEXA item no RAG GLOBAL (FAISS/Chroma) + regra
+          + no domain_knowledge                                          
+      297 +                                             ▼                
+      298 +       PRÓXIMO item similar → RAG sugere (consulta T1+) → huma
+          +no confirma 1-clique                                          
+      299 +                                             ▼                
+      300 +                          aprendizado acelera (volante ganha i
+          +nércia)                                                       
+      301  ```
+      302  
+      439 -**O loop fecha quando:** N1 → N3 ≈ N4 (sem usar N2 como input,
+          - só como gabarito).                                           
+      303 +Loop fecha quando **N1→N3 ≈ N4** sem usar N2 como input (só ga
+          +barito de validação).                                         
+      304  
+      305  ---
+      306  
+      443 -## 8. EPICS DO PLANO                                          
+      307 +## 9. EPICS — ORDEM REVISADA (v2.0)                           
+      308  
+      445 -### EPIC RAG-1: Indexação das Fichas Existentes (P0 — URGENTE)
+      446 -**Objetivo:** As 902 fichas F5 e 405 fichas F7 têm `rag_indexe
+          -d=0`.                                                         
+      447 -Indexar tudo no FAISS e Chroma para que o RAG realmente funcio
+          -ne.                                                           
+      309 +> Ordem pensada para **risco crescente**: primeiro o que é seg
+          +uro e dá visibilidade,                                        
+      310 +> por último o que toca o motor. Cada story: Arquivo · Ação · 
+          +Entrada · Saída · Gate · NÃO-FAZER.                           
+      311  
+      449 -**Stories:**                                                  
+      450 -- RAG-1.1: Script `indexar_fichas_f5.py` — itera reverse_eng_f
+          -ichas, gera embedding                                         
+      451 -  all-MiniLM-L6-v2, insere no FAISS pilares/vigas/lajes, seta 
+          -`rag_indexed=1`                                               
+      452 -- RAG-1.2: Script `indexar_fichas_f7.py` — idem para fase3_fic
+          -has                                                           
+      453 -- RAG-1.3: Script `populate_semantic_rag_kb.py` — lê os 66 chu
+          -nks field_semantics                                           
+      454 -  do domain_knowledge e materializa em `semantic_rag_kb` (clas
+          -se/regra/obra/confianca)                                      
+      455 -- RAG-1.4: Botão "Indexar Pendentes" na sub-aba Corpus & Cober
+          -tura dispara RAG-1.1+1.2                                      
+      456 -- RAG-1.5: Update knowledge_base.json com contagens reais das 
+          -23 obras                                                      
+      312 +### EPIC RAG-0: Fundação de Confiança (P0 — primeiro de tudo) 
+      313 +**Objetivo:** instalar a Política de Confiança no código antes
+          + de indexar qualquer coisa.                                   
+      314  
+      458 -**Gate:** FAISS tem >= 1200 vetores; `semantic_rag_kb` tem >= 
+          -60 rows; Curadoria                                            
+      459 -exibe heatmap com cobertura real.                             
+      315 +- **RAG-0.1 — Helper de tier**                                
+      316 +  - Arquivo: `scripts/rag_tier.py` (criar)                    
+      317 +  - Ação: função `get_tier(ficha_row) -> 'T0'|'T1'|'T2'` lendo
+          + `status`/`is_validated`/                                     
+      318 +    `validated_fields_json` conforme §3.1. Função `is_indexabl
+          +e(row) -> bool` (T1+).                                        
+      319 +  - Saída: módulo importável por todos os scripts de indexação
+          +.                                                             
+      320 +  - Gate: `python scripts/rag_tier.py --selftest` classifica c
+          +orretamente os 3 aprovados                                    
+      321 +    (P1/P101/L308 = T1) e amostras draft (= T0).              
+      322 +  - NÃO-FAZER: não inventar coluna nova; derivar tier do que j
+          +á existe no banco.                                            
+      323  
+      461 ----                                                           
+      324 +- **RAG-0.2 — Guarda de indexação**                           
+      325 +  - Arquivo: `scripts/rag_ingestor.py` (editar — já existe)   
+      326 +  - Ação: toda função de ingestão chama `is_indexable()` antes
+          + de inserir. Se T0 → recusa                                   
+      327 +    e loga "QUARENTENA: {id} não indexável (tier T0)".        
+      328 +  - Gate: tentar indexar uma ficha draft → recusada com log; i
+          +ndexar P101 → aceita.                                         
+      329 +  - NÃO-FAZER: nenhum caminho de código pode inserir T0 no RAG
+          + global.                                                      
+      330  
+      463 -### EPIC RAG-2: Curadoria Redesign UI (P0 — paralelo)         
+      464 -**Objetivo:** Substituir as 4 sub-abas obsoletas pelas 6 novas
+          -.                                                             
+      465 -Não é migração — é reimplementação completa do módulo `gerenci
+          -ar_projetos.py`                                               
+      466 -na seção CURADORIA.                                           
+      331 +- **RAG-0.3 — Consulta filtrada por tier**                    
+      332 +  - Arquivo: `scripts/rag_query.py` (editar)                  
+      333 +  - Ação: parâmetro `min_tier='T1'` default em todas as querie
+          +s do global.                                                  
+      334 +  - Gate: query retorna só itens T1+.                         
+      335 +  - NÃO-FAZER: não permitir query global sem filtro de tier.  
+      336  
+      468 -**Stories:**                                                  
+      469 -- RAG-2.1: Sub-aba Mapa RAG — diagrama SVG de pipeline interat
+          -ivo (QSvgWidget ou QPainter)                                  
+      470 -- RAG-2.2: Sub-aba Enciclopédia — layout 8 dimensões por class
+          -e, seletor de classe                                          
+      471 -- RAG-2.3: Sub-aba Corpus & Cobertura — heatmap F1-F9 × obras 
+      472 -- RAG-2.4: Sub-aba Aprendizado — curvas de convergência + trai
+          -ning_events dashboard                                         
+      473 -- RAG-2.5: Sub-aba Memória Vetorial — cards de store + operaçõ
+          -es                                                            
+      474 -- RAG-2.6: Sub-aba Banco de Dados — tabelas melhoradas com ale
+          -rtas                                                          
+      337 +### EPIC RAG-1: Regras Semânticas Agora (P0 — seguro, valor im
+          +ediato)                                                       
+      338 +**Objetivo:** popular o que é REGRA (não instância) — destrava
+          + valor sem risco.                                             
+      339  
+      476 -**Gate:** Curadoria carrega sem erro, todas as 6 sub-abas exib
+          -em dados reais do DB.                                         
+      340 +- **RAG-1.1 — Popular semantic_rag_kb a partir do domain_knowl
+          +edge**                                                        
+      341 +  - Arquivo: `scripts/populate_semantic_rag_kb.py` (criar)    
+      342 +  - Ação: ler os 66 chunks `field_semantics` do `domain_knowle
+          +dge` (LanceDB) e materializar                                 
+      343 +    em `semantic_rag_kb` (cols `classe/regra_semantica/obra_co
+          +ntexto/confianca`).                                           
+      344 +  - Entrada: `DADOS-OBRAS/stog_rag_db` · Saída: `semantic_rag_
+          +kb` ≥ 60 rows.                                                
+      345 +  - Gate: `SELECT COUNT(*) FROM semantic_rag_kb` ≥ 60; consult
+          +a por classe retorna regras.                                  
+      346 +  - NÃO-FAZER: não inventar regras; só espelhar o que está no 
+          +domain_knowledge.                                             
+      347  
+      478 ----                                                           
+      348 +- **RAG-1.2 — Indexar golden seed (os 3 itens T1)**           
+      349 +  - Arquivo: `scripts/indexar_validados.py` (criar)           
+      350 +  - Ação: indexar SOMENTE itens T1 (hoje P1, P101, L308) no FA
+          +ISS + Chroma, setar                                           
+      351 +    `rag_indexed=1` neles.                                    
+      352 +  - Gate: FAISS ganha exatamente os itens T1; nenhum T0 entra.
+      353 +  - NÃO-FAZER: **não** iterar todas as 902; filtrar por `is_in
+          +dexable()`.                                                   
+      354  
+      480 -### EPIC RAG-3: RAG por-Obra Operacional (P1)                 
+      481 -**Objetivo:** Quando o operador seleciona uma obra no top bar,
+          - o RAG por-obra                                               
+      482 -é gerado/carregado automaticamente em background.             
+      355 +### EPIC RAG-2: Curadoria-Observador (P0 — paralelo, read-only
+          +)                                                             
+      356 +**Objetivo:** painel do cérebro sem escrever nada. Dá visibili
+          +dade do estado real.                                          
+      357  
+      484 -**Stories:**                                                  
+      485 -- RAG-3.1: `obra_rag_pipeline.py` completo — gera RAG por-obra
+          - a partir de F1/F2/F5                                         
+      486 -- RAG-3.2: Integrar ao signal de seleção de obra no `main.py` 
+      487 -- RAG-3.3: "Analisar com Eng. Reversa" no Structural Analyzer 
+          -consulta RAG por-obra                                         
+      488 -- RAG-3.4: Indicador na top bar: "RAG Obra: carregado / não in
+          -dexado"                                                       
+      358 +> Arquivo da Curadoria: módulo da aba "Gerenciar Projetos" → s
+          +eção CURADORIA                                                
+      359 +> (`src/ui/modules/` — hoje `.pyc`; localizar fonte `project_m
+          +anager`/`gerenciar_projetos`).                                
+      360 +> Todas as stories abaixo são **read-only sobre o DB**.       
+      361  
+      490 -**Gate:** Selecionar obra → log mostra "RAG por-obra carregado
+          - em Xms".                                                     
+      362 +- **RAG-2.1** Sub-aba Mapa RAG (diagrama + barreira de tier vi
+          +sível). Gate: abre, mostra                                    
+      363 +  contagens reais por store. NÃO-FAZER: sem botão de escrita a
+          +qui.                                                          
+      364 +- **RAG-2.2** Sub-aba Enciclopédia (8 dims por classe, badge d
+          +e tier por item). Gate:                                       
+      365 +  exibe ≥ 1 classe com dados reais. NÃO-FAZER: não editar fich
+          +as a partir daqui.                                            
+      366 +- **RAG-2.3** Sub-aba Corpus & Cobertura (heatmap + métricas p
+          +or tier + botão "Indexar                                      
+      367 +  Validados Pendentes" que chama RAG-1.2 só para T1). Gate: he
+          +atmap reflete DB.                                             
+      368 +  NÃO-FAZER: nenhum botão que indexe T0.                      
+      369 +- **RAG-2.4** Sub-aba Aprendizado (training_events + accuracy 
+          ++ convergência). Gate:                                        
+      370 +  mostra 901 eventos reais.                                   
+      371 +- **RAG-2.5** Sub-aba Memória Vetorial (cards + [Reindexar T1+
+          +] + [Popular Regras]). Gate:                                  
+      372 +  cards mostram contagem viva dos 4 stores.                   
+      373 +- **RAG-2.6** Sub-aba Banco de Dados (tabelas + alertas). Gate
+          +: alertas disparam nos casos                                  
+      374 +  reais (semantic_rag_kb=0 antes de RAG-1.1, etc.).           
+      375  
+      492 ----                                                           
+      376 +### EPIC RAG-3: Indexação por Validação — Event-Driven (P1)   
+      377 +**Objetivo:** o gatilho real — validar um item passa a indexá-
+          +lo.                                                           
+      378  
+      494 -### EPIC RAG-4: Enciclopédia por Classe — Conteúdo (P1)       
+      495 -**Objetivo:** Popular o conteúdo das 8 dimensões para PIL/LV/F
+          -V/LAJ.                                                        
+      496 -Este EPIC é de **curadoria de conteúdo**, não de código — cada
+          - dimensão                                                     
+      497 -deve ser validada pelo dono para cada classe.                 
+      379 +- **RAG-3.1 — Hook de validação no Diagnostic Reverse Hub**   
+      380 +  - Arquivo: `src/ui/modules/diagnostic_reverse_hub.py`       
+      381 +  - Ação: ao aprovar/validar recorte (item vira T1) → chamar `
+          +indexar_validados.py`                                         
+      382 +    para AQUELE item. Registrar `training_event` com proveniên
+          +cia (obra/pav/classe/item).                                   
+      383 +  - Gate: aprovar 1 recorte → FAISS +1 vetor, log de indexação
+          +, evento gravado.                                             
+      384 +  - NÃO-FAZER: não reindexar a obra toda; só o item aprovado. 
+          +Não tocar a F5 (imutável).                                    
+      385  
+      499 -**Stories:**                                                  
+      500 -- RAG-4.1 (PIL): validar DIM-1 a DIM-8 para Pilar com o dono  
+      501 -- RAG-4.2 (LV): idem para Lateral de Viga                     
+      502 -- RAG-4.3 (FV): idem para Fundo de Viga                       
+      503 -- RAG-4.4 (LAJ): idem para Laje                               
+      504 -- RAG-4.5: Script `export_classe_encyclopedia.py` — exporta JS
+          -ON por classe com 8 dims                                      
+      386 +- **RAG-3.2 — Hook de validação no Comparison Engine**        
+      387 +  - Arquivo: `src/ui/modules/comparison_engine.py`            
+      388 +  - Ação: aprovar match/score N1 vs N2 → `training_event` + in
+          +dexa item T1.                                                 
+      389 +  - Gate: aprovação gera evento + indexação do item.          
+      390 +  - NÃO-FAZER: N3 nunca recebe campos de N2/N4 (Princípio 9, a
+          +nti-vazamento).                                               
+      391  
+      506 -**Gate:** Enciclopédia exibe conteúdo validado para 2+ classes
+          -.                                                             
+      392 +- **RAG-3.3 — Promoção T1 → T2**                              
+      393 +  - Arquivo: `scripts/promover_consolidado.py` (criar)        
+      394 +  - Ação: campo/padrão validado em ≥ 2 obras → marca T2 → cand
+          +idata a default global.                                       
+      395 +  - Gate: padrão presente em 2 obras T1 vira T2; em 1 obra per
+          +manece T1.                                                    
+      396 +  - NÃO-FAZER: não promover com 1 obra só (Princípio 4 — gener
+          +alização gated).                                              
+      397  
+      508 -**NOTA:** Não tomar como verdade absoluta nenhum doc anterior 
+          -sobre as classes.                                             
+      509 -Validar cada regra de campo com o dono antes de fixar no domai
+          -n_knowledge.                                                  
+      398 +### EPIC RAG-4: RAG Consulta no Structural Analyzer (P1 — o ac
+          +elerador)                                                     
+      399 +**Objetivo:** o RAG passa a SUGERIR durante a interpretação (r
+          +ead-only, filtrado T1+).                                      
+      400  
+      511 ----                                                           
+      401 +- **RAG-4.1 — "Análise com Eng. Reversa" consulta RAG por-obra
+          + + global**                                                   
+      402 +  - Arquivo: `src/ui/modules/` (Structural Analyzer) + `script
+          +s/obra_rag_pipeline.py`                                       
+      403 +  - Ação: botão consulta gabarito N2 da obra + similares T1 do
+          + global; exibe sugestão                                       
+      404 +    de campos com nível de confiança. Nunca escreve, nunca ger
+          +a DXF.                                                        
+      405 +  - Gate: selecionar item → painel mostra "similar a P101 (T1,
+          + 94%)" + campos sugeridos.                                    
+      406 +  - NÃO-FAZER: não autocompletar sem confirmação humana; "Anál
+          +ise Geral" não muda.                                          
+      407  
+      513 -### EPIC RAG-5: Loop de Treino via Comparison Engine (P1 — apó
+          -s RAG-1)                                                      
+      514 -**Objetivo:** Fechar o loop de aprendizado: divergências N1 vs
+          - N2 no Comparison                                             
+      515 -Engine alimentam os stores RAG.                               
+      408 +- **RAG-4.2 — RAG por-obra automático ao abrir obra**         
+      409 +  - Arquivo: `scripts/obra_rag_pipeline.py` + signal de obra n
+          +o `main.py`                                                   
+      410 +  - Ação: selecionar obra no top bar → gera/carrega `DADOS-OBR
+          +AS/{obra}/obra_rag/`.                                         
+      411 +  - Gate: log "RAG por-obra carregado em Xms"; indicador na to
+          +p bar.                                                        
+      412 +  - NÃO-FAZER: por-obra não promove nada ao global automaticam
+          +ente.                                                         
+      413  
+      517 -**Stories:**                                                  
+      518 -- RAG-5.1: Mapa de Equivalência de Vocabulário N1↔N2 (derivado
+          - do domain_knowledge,                                         
+      519 -  não hardcoded) — resolve o GAP CRÍTICO #V do MASTERPLAN-LOOP
+          --TREINO-MOTOR                                                 
+      520 -- RAG-5.2: Captura automática de diffs N1 vs N2 → `training_ev
+          -ents` com proveniência                                        
+      521 -- RAG-5.3: Retraining de `transformation_rules` com 901+ event
+          -os existentes                                                 
+      522 -- RAG-5.4: Sub-aba Aprendizado mostra progresso em tempo real 
+      523 -- RAG-5.5: Gate de generalização: parâmetro só vira default ap
+          -ós >= 2 obras                                                 
+      414 +### EPIC RAG-5: Loop de Treino fecha (P1 — depois de RAG-3)   
+      415 +**Objetivo:** divergências viram aprendizado; accuracy sobe.  
+      416  
+      525 -**Gate:** Accuracy de transformation_rules >= 70% em PIL, LV, 
+          -FV, LAJ.                                                      
+      417 +- **RAG-5.1** Mapa de Equivalência de Vocabulário N1↔N2 **deri
+          +vado do domain_knowledge**                                    
+      418 +  (resolve GAP #V do Loop de Treino). Arquivo: `scripts/vocab_
+          +equivalence.py` (criar).                                      
+      419 +  Gate: mapeia ≥ 90% dos campos PIL/LV/FV/LAJ. NÃO-FAZER: não 
+          +hardcodar à mão.                                              
+      420 +- **RAG-5.2** Retraining de `transformation_rules` com os 901 
+          +`training_events` (só T1+).                                   
+      421 +  Gate: accuracy ≥ 70% em PIL/LV/FV/LAJ. NÃO-FAZER: não treina
+          +r com T0.                                                     
+      422 +- **RAG-5.3** Sub-aba Aprendizado mostra a curva subindo em te
+          +mpo real.                                                     
+      423  
+      527 ----                                                           
+      424 +### EPIC RAG-6: Expansão para Novas Classes (P2 — futuro, deix
+          +ar preparado)                                                 
+      425 +**Objetivo:** plugar nova classe sem mexer no código central. 
+      426  
+      529 -### EPIC RAG-6: Expansão para Novas Classes (P2 — futuro)     
+      530 -**Objetivo:** Schema de plugin para adicionar novas classes se
+          -m alterar código central.                                     
+      427 +- **RAG-6.1** `classe_registry.json` declarativo (metadados + 
+          +8 dims template).                                             
+      428 +- **RAG-6.2** Enciclopédia lê do registry (nova classe sem rec
+          +ompilar).                                                     
+      429 +- **RAG-6.3** Template `motor_reverso_base.py` para nova class
+          +e.                                                            
+      430 +- **RAG-6.4** `robo_registry.json` plugável.                  
+      431 +- Gate: adicionar "Fundação" sem alterar PIL/LV/FV/LAJ. NÃO-FA
+          +ZER: não acoplar classes.                                     
+      432  
+      532 -**Stories:**                                                  
+      533 -- RAG-6.1: `classe_registry.json` — registro declarativo de cl
+          -asses com metadados                                           
+      534 -- RAG-6.2: Enciclopédia aceita nova classe via JSON sem recomp
+          -ilação                                                        
+      535 -- RAG-6.3: Motor reverso para nova classe segue template da `m
+          -otor_reverso_base.py`                                         
+      536 -- RAG-6.4: Robô de nova classe plugável via `robo_registry.jso
+          -n`                                                            
+      537 -                                                              
+      538 -**Gate:** Adicionar classe "Fundação" sem alterar código das c
+          -lasses existentes.                                            
+      539 -                                                              
+      433  ---
+      434  
+      542 -## 9. SEQUÊNCIA DE EXECUÇÃO                                   
+      435 +## 10. SEQUÊNCIA DE EXECUÇÃO (risco crescente)                
+      436  
+      437  ```
+      545 -FASE 0 (Imediata — não bloqueia nada):                        
+      546 -  EPIC RAG-1 (indexação fichas) ← mais impacto, menos risco   
+      547 -  EPIC RAG-2.5 + RAG-2.6 (Memória Vetorial + Banco de Dados) ←
+          - UI fácil                                                     
+      548 -                                                              
+      549 -FASE 1 (paralela após FASE 0):                                
+      550 -  EPIC RAG-2.1..2.4 (Curadoria completa) ← UI principal       
+      551 -  EPIC RAG-3 (RAG por-obra) ← backend independente            
+      552 -                                                              
+      553 -FASE 2 (após FASE 1):                                         
+      554 -  EPIC RAG-4 (conteúdo Enciclopédia com dono) ← curadoria huma
+          -na                                                            
+      555 -  EPIC RAG-5 (loop de treino) ← depende RAG-1 indexação       
+      556 -                                                              
+      557 -FASE 3 (maturidade):                                          
+      558 -  EPIC RAG-6 (expansão novas classes)                         
+      438 +1º  RAG-0 (fundação de confiança)        ← protege tudo. NÃO i
+          +ndexa nada ainda.                                             
+      439 +2º  RAG-1 (regras agora)                 ← seguro, valor imedi
+          +ato (sem instâncias)                                          
+      440 +3º  RAG-2 (Curadoria observador)         ← read-only, visibili
+          +dade do estado                                                
+      441 +        │ (a partir daqui você VÊ o cérebro e pode validar com
+          + confiança)                                                   
+      442 +4º  RAG-3 (indexação por validação)      ← liga o gatilho even
+          +t-driven                                                      
+      443 +5º  RAG-4 (consulta no Structural)       ← o acelerador (suges
+          +tão durante trabalho)                                         
+      444 +6º  RAG-5 (loop de treino fecha)         ← convergência N1→N2,
+          + accuracy sobe                                                
+      445 +7º  RAG-6 (novas classes)                ← futuro             
+      446  ```
+      447  
+      448  ---
+      449  
+      563 -## 10. MÉTRICAS DE SAÚDE DO CÉREBRO                           
+      450 +## 11. DECISÕES PENDENTES (VALIDAR COM O DONO ANTES DE EXECUTA
+          +R)                                                            
+      451  
+      565 -| Métrica | Atual | Meta | Fonte |                            
+      566 -|---------|-------|------|-------|                            
+      567 -| Fichas F5 indexadas | 0% (0/902) | 100% | reverse_eng_fichas
+          -.rag_indexed |                                                
+      568 -| Fichas F7 revisadas | 0% (0/405) | 80% | fase3_fichas.revisa
+          -do |                                                          
+      569 -| semantic_rag_kb populada | 0 rows | 66+ rows | project_data.
+          -vision |                                                      
+      570 -| FAISS vetores | 832 | 2000+ | estruturais.index |           
+      571 -| Chroma embeddings | 2282 | 5000+ | chroma.sqlite3 |         
+      572 -| Accuracy PIL (transformation_rules) | 32.8% | 70%+ | trainin
+          -g_events |                                                    
+      573 -| Accuracy LAJ (transformation_rules) | 6.9% | 70%+ | training
+          -_events |                                                     
+      574 -| Hit-rate Comparison N1 vs N2 | ? (não medido) | 95%+ | Compa
+          -rison Engine |                                                
+      575 -| Obras com RAG por-obra gerado | 0 | 23 | obra_rag_pipeline.p
+          -y |                                                           
+      576 -| Score Enciclopédia por classe | 0% | 80%+ | Curadoria DIM-1.
+          -.8 |                                                          
+      452 +1. **RAG por-obra pode incluir T0 da própria obra?** Recomenda
+          +ção: sim, mas marcado                                         
+      453 +   "local", nunca promovido ao global sem validação. Confirmar
+          +.                                                             
+      454 +2. **Persistir RAG por-obra** em `DADOS-OBRAS/{obra}/obra_rag/
+          +`? Recomendação: sim.                                         
+      455 +3. **Manter FAISS + Chroma** (papéis distintos)? Recomendação:
+          + manter ambos.                                                
+      456 +4. **Dois modelos de embedding** (nv-embed-v1 regras / MiniLM 
+          +fichas)? Recomendação: manter.                                
+      457 +5. **F5 com comp/larg inconsistentes (LAJ 5/98):** coordenada 
+          +vence (Princípio 2). Confirmar.                               
+      458 +6. **Enciclopédia exibe T0?** Recomendação: sim, com badge "qu
+          +arentena" — visibilidade                                      
+      459 +   não é contaminação (não entra no global). Confirmar.       
+      460  
+      461  ---
+      462  
+      580 -## 11. DECISÕES PENDENTES (VALIDAR COM O DONO)                
+      463 +## 12. DOCUMENTAÇÕES — ALINHAR / HARMONIZAR / CRIAR           
+      464  
+      582 -Estas decisões afetam arquitetura e devem ser validadas antes 
+          -de implementar:                                               
+      465 +### 12.1 Alinhar (estão certas, citar como fonte — não reescre
+          +ver)                                                          
+      466 +| Doc | Papel |                                               
+      467 +|-----|-------|                                               
+      468 +| `MASTERPLAN-FICHAS-F1-F9-HARMONIZACAO.md` | Schema canônico 
+          +F1-F9 + banco real |                                          
+      469 +| `MASTERPLAN-LOOP-TREINO-MOTOR.md` | Princípios inegociáveis 
+          +1-10 (base da §3.5) |                                         
+      470 +| `MASTERPLAN-ENGENHARIA-REVERSA.md` | Definição N1/N2/N3/N4 +
+          + EPICs ER |                                                   
+      471 +| `MASTERPLAN-ARETE-QUALITY-GATES.md` | Regra de Ouro (motor u
+          +niversal) + gates |                                           
+      472  
+      584 -1. **ChromaDB vs FAISS:** Manter ambos (papéis complementares)
+          - ou unificar?                                                 
+      585 -   Recomendação: **manter ambos** — papéis distintos. Validar.
+      473 +### 12.2 Harmonizar (têm conflito/desatualização — ajustar not
+          +a de reconciliação)                                           
+      474 +| Doc | Ajuste necessário |                                   
+      475 +|-----|-------------------|                                   
+      476 +| `MASTERPLAN-RAG-VECTORIZACAO.md` | Corrigir "ChromaDB abando
+          +nado": vale p/ Py3.14; em Py3.12 está vivo (2282 emb). Adicion
+          +ar nota. |                                                    
+      477 +| `MASTERPLAN-RAG-INTEGRACAO-COMPLETA.md` | As 8 frentes assum
+          +em indexação ampla — adicionar que toda frente respeita barrei
+          +ra de tier (§3). |                                            
+      478 +| `MASTERPLAN-SEMANTICO-v1.0.md` | Sprint B (KB global) e Spri
+          +nt C (accuracy) devem usar só T1+ — alinhar com §3. |         
+      479 +| `MASTERPLAN-GERENCIAR-PROJETOS-v5.0.md` | Seção Curadoria es
+          +tava ausente — referenciar este doc para o redesign (§7). |   
+      480  
+      587 -2. **NVIDIA nv-embed-v1 vs all-MiniLM-L6-v2:** domain_knowledg
+          -e usa nv-embed-v1                                             
+      588 -   (4096-dim, requer API NVIDIA). Fichas F5/F7 usam all-MiniLM
+          --L6-v2 (384-dim, local).                                      
+      589 -   Manter dois modelos ou unificar? Recomendação: **manter doi
+          -s** — domínios distintos.                                     
+      481 +### 12.3 Criar (novos — parte da execução)                    
+      482 +| Doc a criar | Conteúdo | Quando |                           
+      483 +|-------------|----------|--------|                           
+      484 +| `docs/POLITICA-CONFIANCA-RAG.md` | Extrair §3 deste plano co
+          +mo doc autônomo de referência | EPIC RAG-0 |                  
+      485 +| `docs/SEMANTICA-CANONICA-PIL.md` | Regras de campo do Pilar 
+          +validadas com o dono | EPIC RAG-4/5 |                         
+      486 +| `docs/SEMANTICA-CANONICA-LV.md` | Idem Lateral de Viga | ide
+          +m |                                                           
+      487 +| `docs/SEMANTICA-CANONICA-FV.md` | Idem Fundo de Viga | idem 
+          +|                                                             
+      488 +| `docs/SEMANTICA-CANONICA-LAJ.md` | Idem Laje | idem |       
+      489 +| `docs/ENCICLOPEDIA-SCHEMA.md` | Schema das 8 dimensões + tem
+          +plate de nova classe | EPIC RAG-2.2 / RAG-6 |                 
+      490 +| `docs/CURADORIA-UI-SPEC.md` | Spec detalhada das 6 sub-abas 
+          +(wireframes + dados) | EPIC RAG-2 |                           
+      491  
+      591 -3. **RAG por-obra: persistência ou ephemeral?** Sugestão: pers
+          -istir em                                                      
+      592 -   `DADOS-OBRAS/{obra}/obra_rag/` para não recriar a cada sess
+          -ão.                                                           
+      593 -                                                              
+      594 -4. **Enciclopédia: quanto validar antes de exibir?** Exibir tu
+          -do com flag de                                                
+      595 -   confiança, ou só exibir quando validado? Recomendação: **ex
+          -ibir tudo com flag**.                                         
+      596 -                                                              
+      597 -5. **Novos campos F5 inconsistentes (LAJ: 5/98 com comp/larg e
+          -rrados):**                                                    
+      598 -   Usar coordenadas como verdade (conforme Princípio 2 do Loop
+          -) — confirmar.                                                
+      599 -                                                              
+      492  ---
+      493  
+      602 -## 12. ARQUIVOS-CHAVE DE REFERÊNCIA                           
+      494 +## 13. MÉTRICAS DE SAÚDE (com tier)                           
+      495  
+      604 -| Arquivo | O que define |                                    
+      605 -|---------|--------------|                                    
+      606 -| `MASTERPLAN-FICHAS-F1-F9-HARMONIZACAO.md` | Schema canônico 
+          -F1-F9 + banco real |                                          
+      607 -| `MASTERPLAN-LOOP-TREINO-MOTOR.md` | Loop de treino N1→N2 + p
+          -rincípios inegociáveis |                                      
+      608 -| `MASTERPLAN-ENGENHARIA-REVERSA.md` | Arquitetura N1/N2/N3/N4
+          - + EPICs ER |                                                 
+      609 -| `MASTERPLAN-ARETE-QUALITY-GATES.md` | Regra de Ouro (motor u
+          -niversal) + gates G0-G6 |                                     
+      610 -| `MASTERPLAN-RAG-INTEGRACAO-COMPLETA.md` | 8 frentes de integ
+          -ração RAG no pipeline |                                       
+      611 -| `MASTERPLAN-RAG-VECTORIZACAO.md` | Stack técnico FAISS + dec
+          -isão vs ChromaDB |                                            
+      612 -| `MASTERPLAN-SEMANTICO-v1.0.md` | Sprints A-D: PreStogGate, K
+          -B global, accuracy |                                          
+      613 -| `MASTERPLAN-GERENCIAR-PROJETOS-v5.0.md` | UI state + CE fixe
+          -s + Trilha A/B |                                              
+      614 -| `MASTERPLAN-SS-v5.0.md` | Sprints 1-6: crash fix, test suite
+          -, visual outliers |                                           
+      496 +| Métrica | Atual | Meta | Observação |                       
+      497 +|---------|-------|------|------------|                       
+      498 +| Instâncias T1 indexadas | 3 | cresce por validação | golden 
+          +seed → volante |                                              
+      499 +| semantic_rag_kb (regras) | 0 | ≥ 60 | RAG-1.1 — seguro agora
+          + |                                                            
+      500 +| Itens em quarentena (T0) | 899 | diminui ao validar | visíve
+          +l na Curadoria |                                              
+      501 +| FAISS vetores (T1+) | 832 | cresce gated | só validado |    
+      502 +| Chroma embeddings (T1+) | 2282 | cresce gated | só validado 
+          +|                                                             
+      503 +| Accuracy PIL / LAJ | 32.8% / 6.9% | ≥ 70% | RAG-5.2, só T1 |
+      504 +| Hit-rate N1 vs N2 | não medido | ≥ 95% | Comparison Engine |
+      505 +| RAG por-obra gerado | 0 | sob demanda | RAG-4.2 |           
+      506  
+      507  ---
+      508  
+      618 -## 13. O QUE NÃO MUDAR (PROTEGIDO)                            
+      509 +## 14. O QUE NÃO MUDAR (PROTEGIDO)                            
+      510  
+      620 -| O que é | Por quê proteger |                                
+      621 -|---------|-----------------|                                 
+      622 -| Schema N1 (Structural Analyzer) | Princípio inegociável do A
+          -RETE doc |                                                    
+      623 -| Fichas F5 (`reverse_eng_fichas`) | Gabarito imutável — versi
+          -onar via `status`, nunca sobrescrever |                       
+      624 -| Validações humanas (`is_validated=1`) | Princípio 7 do Loop 
+          -de Treino |                                                   
+      625 -| Geradores STOG (PL/LV/FV/LJ) | 23 obras certificadas — não r
+          -egredir |                                                     
+      626 -| domain_knowledge LanceDB | Fonte semântica primária — expand
+          -ir, nunca substituir |                                        
+      511 +| Protegido | Por quê |                                       
+      512 +|-----------|---------|                                       
+      513 +| Schema N1 (Structural Analyzer) | Decisão inegociável (ARETE
+          + doc) |                                                       
+      514 +| Fichas F5 (`reverse_eng_fichas`) | Gabarito imutável — versi
+          +onar por status |                                             
+      515 +| Validações humanas (`is_validated=1`) | Princípio 7 |       
+      516 +| N3 isolado de N2/N4 | Princípio 9 (anti-vazamento) |        
+      517 +| Geradores STOG (PL/LV/FV/LJ) | 23 obras certificadas |      
+      518 +| domain_knowledge LanceDB | Fonte semântica — expandir, nunca
+          + substituir |                                                 
+      519 +| "Análise Geral" (motor puro) | Tem que aprender sozinho — nã
+          +o recebe sugestão do RAG |                                    
+      520  
+      521  ---
+      522  
+      630 -*MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md*                   
+      523 +*MASTERPLAN-CEREBRO-RAG-MULTIMODAL v2.0 — anti-contaminação · 
+          +RAG gated por validação*                                      
+      524  *Athena (CEO-Planejamento) × Diana Corporação Senciente × 2026
+           -06-26*
+  ⎿  You've hit your session limit · resets 3:40pm (America/Sao_Paulo)
+     /upgrade to increase your usage limit.
+
+✻ Worked for 3m 4s
+
+❯ /recap                                                                        
+  ⎿  You've hit your session limit · resets 3:40pm (America/Sao_Paulo) quero que termiine de alinhar o plan pois o claude foi interrompido garanta de manter direcionamento e compreensao prossiga
+
+--- MSG ---
+consegue colocar que caso eu desvalide humanamente se consiga invalidar tal informacao que tava validadano rag? oque recomenda limpeza ou sobreescrever com novo dado validado depois?
+
+--- MSG ---
+para executar esse plan me recomenda qual modelo? 5.4high 5.4 medium, 5.5medium 5.5 hight?
+
+--- MSG ---
+ok entao prossiga implemente
+
+--- MSG ---
+ok continua proximos passos
+
+--- MSG ---
+ok prossiga
+
+--- MSG ---
+continua ta hight
+
+--- MSG ---
+ajusta esse tema da observacao tomeamelhor decisao sei la oque é vc entende. ta prossiga proximos passos
+
+--- MSG ---
+ajusta esse tema da observacao tomeamelhor decisao sei la oque é vc entende. ta prossiga proximos passos
+
+--- MSG ---
+ajusta esse tema da observacao tomeamelhor decisao sei la oque é vc entende. ta prossiga proximos passos
+
+--- MSG ---
+continua
+
+--- MSG ---
+continua
+
+--- MSG ---
+ok continue  aprimore
+
+--- MSG ---
+ok prossiga proximos passos
+
+--- MSG ---
+quais proximospassos?
+
+--- MSG ---
+ta  mas me explica oque é esse ciclo
+
+--- MSG ---
+ta vou começar a obra_treino_3 vamos la por opaso para ver se estamos alinhados em logica de producao, meu primeiro paso ésubir osdocs na ingestao e pressionar o botao de [Image #1]  atualizar obra db + rag lcoal; ta conectado ao seu sistema esse botao? vc tem conciencia dele?[Image #2] depois eu vou na triagem e aprovo a classificacao datriagem para popular corretamente os  itenss e gerar a ficha pre obra F1 [Image #3] ; dai eu vou ir la no diagnostic hub selecionar uma obra e seus brutos e processar os recortes de pavimentos limpos, detalhes e convencao de pilares de todos pavimentos da obra, depois vou analisar todos pavimentos limpos para assim gerar as f2 e f3, [Image #4] e ja processar granularmente todos os itens e gerar o f7 tambem ja salvando e listando todos os itens. é a  analise inicial aqui, a convencoa de pilares e preficha de cada pavimento apenas aceita e e confirma automaticamente quantoinvocado por aqui, pois o intuito é teressas fichas iniciais para depois no procesamentoindivual de cada pav ja tenhamos uma base "ainda nao ta implementado como vai funcionar mas a ideia é ter essa geracao dinamica aqui e ja preenchimento automatico de tudo  ai a parte manual de validar e fazer pavimento por pavimento vem na proxima fase que é no structural analzyer ertc" E SIMULTANEAMENTE SE PREENCHE ESSA FICHA NO GERENCIAR PROJETOS DA ABA INTERPRETACAO EXTRAÇAO POPULANDO GRANULARMENTE TODOS OS ITENS ANALISADOS POR PAVIMENTO NA LISTA DE CLASSES RESPECTIVAS, A IDEIA É VER STATUS DE APROVACAO DE CADA ITEM AQUI [Image #7]  AI CONFORME FOR APROVANDO NO SA VAI SUBINDO A % NA LISTA ESQUERDA DO SA E AO MESMOTEMPO SUBE ESSA % AQUI DE STATUS DOS ITENS GRANULARES POR PAVIMENTO SELEECIONADO NO COMBOX;  [Image #5] ; ta eu quero testar e validar que o ssitema está conectado até este ponto. esse pipeline workflow de producao é o sem egnenharia reversa e é base inicial de producao antes de começar a validar os campos dos itens no SA/N1 e resultados finais n3/robos dxf. TA o outro pipele a parte desse é que antes de eu ir no structural analyzer agora que to treinando eu vou na aba [Image #6] diagnostic reverse e faço os recortes de todos trabalhos humanos feito porclasse tendo granularmente cada um, ai gero todas as fichas f4 f5 f6 eng reversa, e popular n2, usando motores extracao e gerando n4 dinamicamente ai la no comparison engine eu valido os n4 em relacao aos n2, temos quase nenhum ainda mas to nisso.  ; ta veja se estamos alinhados. e ai ao avancar na fase do SA depois eu vou la no comparison engine e valido o N3 que é produito do SA/N1 E ao gerar o n3 simultaneamente popula os robos equivalentes de cada classe. nessa populacao dos robos e do n3, quero que popule tambem [Image #8]  pois sao os dados e fichas do n3 /robos, mesmacoisa listar granularmente de acordo a classe e o pavimento selecionado no combox, o status aqui é validado ou nao que é a validacao do n3. ; [Image #9] ESSA ABA ROBO SCR PODE REMOVER NAO VAMOS NECESSITAR LISTAR MAIS ELES; AI A RENUMERA AS ABAS SEGUINTES, ; ESSA ABA CONVERSAO SCRIPTS DXF tambem nao necessita pois é a mesma coisa do sycn robos, ai a aba unicacao dxf pav, que liste os docs n5 [Image #10] ; e a aba revisaoe entrega depois monto oque vai ser mas ébasicamente um zip contendo separadamente os n5 e contendo uma pasta com as fichas pdfs de cadaitem de cada classe separamente por paasta para visualizacao granular na entrega [Image #11] ;   nao comecei a obra treino quero saber se vc ta alinhado com todo esse plan para poder seguir em coerencia e testarmos juntos a eficiencia desse rag e onde e em que botoes vai alimentar ou ser alimentado , servir ou ser servido , veja stages ideias de acrescentar algum botao se necessario ou oque recomenda que vai gerar o melho resultado
+
+--- MSG ---
+No fluxo reverso, o que a aprovação manual do recorte deve validar?
+    answer: Somente o recorte (Recommended) faltou comentar que necessito que aprendamos a recortar melhor a cada recorte aprovado além da parte do resultado correto n4 tem a parte de recortar corretamente e aprender a recortar
+
+--- MSG ---
+No fluxo reverso, o que a aprovação manual do recorte deve validar?
+    answer: Somente o recorte (Recommended) faltou comentar que necessito que aprendamos a recortar melhor a cada recorte aprovado além da parte do resultado correto n4 tem a parte de recortar corretamente e aprender a recortar melhor cada classe etc, assim fica dinamico aprendizados de recortes conforme vou inserindo novas classes de interpretacao etc
+
+--- MSG ---
+No fluxo reverso, o que a aprovação manual do recorte deve validar?
+    answer: Somente o recorte (Recommended) faltou comentar que necessito que aprendamos a recortar melhor a cada recorte aprovado além da parte do resultado correto n4 tem a parte de recortar corretamente e aprender a recortar melhor cada classe etc, assim fica dinamico aprendizados de recortes conforme vou inserindo novas classes de interpretacao etc; continua
+
+--- MSG ---
+entao implementa prossiga
+
+--- MSG ---
+eu tenho uns loopers definidos em documentaocao que sao as formas pipelines de treinamentos para melhorar a eficacia do n4 em comparacao cm n2 melhorando extrator e validacao visualmenteresultado etc comparando certo? tem um desse para cada classe? tem um desses tambem para comparar e validar e treinar o n3 em relacao ao n4, e  melhorar interpretacao n1 e conversao n1 n3 para chegar no resultado n4 que é equivalente a n2 validado humano encontrando a interpretacao n1 SA correta para chegar nos mesmos valores, treinando assim interpretacao dos estruturais limpos tentando chegar nos resultados dos n4 dinamicamente com o motor. ta referente a todo nosso contexto de rag e dados e etc. onde entra isso?quero feedback de mapa mental visual em alguma parte ai ao lado das abas dos dados rag etc que seja aba Pipelines de treinos. e quero que me explique como isso se conecta ao rag ou como funciona esses procedimentos de treinos para assim ter definido como se faz para atingir arete com uma classe nova e como é oprocesso de treino via chat CLI, E como é as aprovacoes humanas e notas humanas de atencao nos itenspara assim ter feedback dinamicos e ciclos de humano in the loops e ciclos de machine learning apenas para termos caminhos definidos de evolucao
+
+--- MSG ---
+continua
+
+--- MSG ---
+[Image #1] visualmente horrivel seja mais evoluido em ux e ui tecnologicamente de aparencia e gosto
+
+--- MSG ---
+ta vesenessepipeline decli automaticanao vai contaminar rag por validar algo "humanamente" de forma sintetica etc garanta que nao ocorra
+
+--- MSG ---
+ok, eu uso os ciclos para elesw tentarem refinar omotor de interpretacao ou extracao etc e explicar logicas entao ta tudo bem assim né? ficou algo mais pendente?
+
+--- MSG ---
+ok prossiga com as pendencias porfa
+
+--- MSG ---
+ok alguma pendencia mais referente a todo esse processo rag que estamos fazendo? masterplan foi completado?
+
+--- MSG ---
+ok alguma pendencia mais referente a todo esse processo rag que estamos fazendo? masterplan foi completado?
+
+--- MSG ---
+entao continua eexecucao econforme executa vai marcando como
+
+--- MSG ---
+continua
+
+--- MSG ---
+continua
+
+--- MSG ---
+ok prossiga
+
+--- MSG ---
+como é isos?
+
+--- MSG ---
+ta como ainda to delvendo e refinando essa fichas n2 espero refinar o mtor de definir bem quais campos sao necessarios e comovia ser o estado finalné ai venho aqui e invoco voce rag para ajustar isso? ou sozinho vai se ajustar quando eu finalmente validar os campos que no final  foram os escolhidos necessarios etc
+
+--- MSG ---
+ta ok , ta opulando isso qoue podemos mais fazer implementar para seguir o plan
+
+--- MSG ---
+ok prossiga implemente
+
+--- MSG ---
+ta entao nao tem nad amais do plan que de paraimplementar ate eu fazer validacores?
+
+--- MSG ---
+ta entao nao tem nad amais do plan que de paraimplementar ate eu fazer validacores?
+
+--- MSG ---
+ok ja implementa tudo que pode avanar do master plan para deixar avancado o maximo
+
+--- MSG ---
+ta do master plan nada mais?
+

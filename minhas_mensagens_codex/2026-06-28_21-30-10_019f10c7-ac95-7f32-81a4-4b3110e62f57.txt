@@ -1,0 +1,28 @@
+[2026-06-28 21:30:10] revisa o n4 dos fundos de viga, recem fiz varias alteracoes visuais e comportamentais do motor n4 e sinto que foram revertidas, poderia vasculhar os ultimos comits eversealgum tem alguma versao mais recente desse gerador? ou algumas regras e conotacoes que haviamosfeitos?
+
+---
+
+[2026-06-28 21:39:55] entao ao invez de restaurar leia e aplique tudo novamente de acordo ao melhor motor que tivermos atual, pq regrediu em tanta coisa que eu tinha feito e quero o n4 mais atual possivel dos fundos de viga, para isso motor extracao n2 e motor gerador n4 e a compreensoa das regrasé vital. deixa no pontomais atual deles, meche só neles. ai depois vou seguir ajustando comvc
+
+---
+
+[2026-06-28 21:56:55] ta vem se temalgum stash de algo mais perdido por ai com progressoes emoutras areas que nao estao. poderia verificar? stashs ou branchs
+
+---
+
+[2026-06-28 22:20:20] revisa esses 1 a um veja oque tem de diferente entre o atual e oque estava la   - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/gerar_lj_dxf_stog.py: 230 linhas com cotas DIMENSION reais, novas layers, hachuras e nomenclatura.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/ui/style.qss: redesign visual completo de 308 linhas, totalmente ausente do HEAD.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/ui/widgets/project_manager.py: galeria visual validada N3/N4 e histórico rag_artifact_validations.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/ui/widgets/detail_card.py: botões compactos de remover segmento e melhor preservação de textos.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/core/beam_tracer.py: preservação de sufixos de vigas como (A), (B) e nomes hifenizados.
+
+---
+
+[2026-06-28 22:26:03] revisa esses 1 a um veja oque tem de diferente entre o atual e oque estava la   - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/gerar_lj_dxf_stog.py: 230 linhas com cotas DIMENSION reais, novas layers, hachuras e nomenclatura.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/ui/style.qss: redesign visual completo de 308 linhas, totalmente ausente do HEAD.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/ui/widgets/project_manager.py: galeria visual validada N3/N4 e histórico rag_artifact_validations.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/ui/widgets/detail_card.py: botões compactos de remover segmento e melhor preservação de textos.
+  - /D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/core/beam_tracer.py: preservação de sufixos de vigas como (A), (B) e nomes hifenizados.
+
+---
+

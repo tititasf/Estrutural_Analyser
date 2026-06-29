@@ -1,0 +1,345 @@
+[2026-06-25 18:22:02] se vc adicionou o desing das pages ainda nao permite ver, ajusta visualmente o limite das listas e dos botoes etc tanto do esquerdo como do direito para caberem visualmente, diminua e deixe mais compacto etc.. valide porfavor
+
+---
+
+[2026-06-25 18:41:47] perfeito agora vi que o viwer do diagnostic reverse e do diagnostic pre nao está exibindo corretamente 100% de fidelidadde de toda linhas.. ta faltando exibir algumas.. poderia verificar se ele ta filtrando algo ao carregar e exibir o dxf?
+
+---
+
+[2026-06-25 18:57:28] voce diminui integridae e fidelidade visual e nao resolveu o problema, entao retorne essas edicoes e tente novamente encontrar as possiveis linhas que estao sendo excluidas e nao desenhadas. apenas desenho ALL e ja está amigo ALL laayers cores linha hatchs tudo
+
+---
+
+[2026-06-25 19:07:05] /model
+
+---
+
+[2026-06-25 19:07:19] ainda falta algumas linhas serem exibidas... verifica o porque
+
+---
+
+[2026-06-25 19:26:47] ainda ta faltando linhas... sao poucas mas faltam
+
+---
+
+[2026-06-25 19:27:11] /model
+
+---
+
+[2026-06-25 19:27:42] ainda ta faltando linhas... sao poucas mas faltam ; audita e investiga mais pq se perde talvez sejam outros tipos de linhas ou outras coisas mas visualmente é linha
+
+---
+
+[2026-06-25 19:36:13] todos arquivos é muita coisa foca no arquivo do terreo porfavor do obra treino 1, foi la que vi tal incoerencia
+
+---
+
+[2026-06-25 19:57:27] ainda nao solucionou as linhas nao estao sendo exibidas oo diagnostic reverse hub nem no diagnotic pre hub .... verificao viwer, talvez alguma outra biblioteca?
+
+---
+
+[2026-06-25 20:11:47] funionou em linhas mas corrompeu cores
+
+---
+
+[2026-06-25 20:16:07] ta e a performance desse novo consegue melhorar? sinto ele um pouquinho lento. mas mantendo integridade
+
+---
+
+[2026-06-25 20:17:09] ah voce exibiu as cores e corrompeu as linhas novamente. voltamos ao ponto inicial..
+
+---
+
+[2026-06-25 20:31:35] -gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 103, in <module>
+    from src.ui.canvas import CADCanvas
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 308
+    self.scene.blockSignals(False)
+IndentationError: unexpected indent
+
+---
+
+[2026-06-25 20:45:35] voltamos ao problma inicial de ainda faltar exibir algumas linhas... tente novamente vc retrocedeu a bibloteca?
+
+---
+
+[2026-06-25 20:52:33] tado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 103, in <module>
+    from src.ui.canvas import CADCanvas
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 525
+    self._highlighted_items = set() # [Sincronização] Limpar destaque
+IndentationError: unexpected indent
+
+---
+
+[2026-06-25 21:10:22] otimo comita, garanta que todos viwers usem essa biblioteca e esse viwer que exibe tudo. na aba diagnitic pre hub, diagnostic reverse hub, na structural analyzer , no comparison engine n1 n2 n3 n4 n5, e nos viwers do robo das lajes e dos fundos de vigas porfavor
+
+---
+
+[2026-06-25 23:55:17] abre aa app ta crashando tem erro
+
+---
+
+[2026-06-25 23:58:04] /model
+
+---
+
+[2026-06-25 23:58:10] abre aa app ta crashando tem erro
+
+---
+
+[2026-06-26 00:07:03] C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_XhkS6VcDWz.png o procesar recortes auto nao ta funcionando verifica
+
+---
+
+[2026-06-26 00:20:22] o recorte automatico feito da torre 1 paviento limp para o pavimento terreo da obra treino 1 nao abre/exibe no viwer, verica [CADCanvas] Using ezdxf.addons.drawing for D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA\EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+using Qt binding: PySide6
+[DiagnosticHub] on_loaded: 8,738 entidades — iniciando render no main thread (0.0s load)
+[CADCanvas] Using ezdxf.addons.drawing for D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA.dxf
+[DiagnosticHub] on_loaded: render concluído
+[crop_engine] Erro ao persistir recortes no DB: attempt to write a readonly database
+[DiagnosticHub] on_loaded: 3,439 entidades — iniciando render no main thread (0.0s load)
+[CADCanvas] Using ezdxf.addons.drawing for D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA\EL-(Detalhes)-(TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_1780807777.dxf
+[DiagnosticHub] on_loaded: render concluído C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_PiSKVaHCUD.png
+
+---
+
+[2026-06-26 00:27:23] esse start com sincronizacao global ta mto lento oque pode mos fazer? ad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning:
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\chromadb\config.py:20: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import BaseSettings
+WARNING:root:ChromaDB nao disponivel. Active Learning sera limitado.
+qt.qpa.window: SetProcessDpiAwarenessContext() failed: Acesso negado.
+Qt's default DPI awareness context is DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2. If you know what you are doing, you can overwrite this default using qt.conf (https://doc.qt.io/qt-6/highdpi.html#configuring-windows).
+WARNING: Supabase credentials not found in .env
+Starting app for user: local.admin@pyside.cad
+[QSS DEBUG] Loaded 3475 bytes from D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\style.qss
+[QSS DEBUG] Global stylesheet applied successfully
+AVISO: Módulos de segurança não disponíveis
+[DEBUG] Arquivo de configuração: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\.config
+[RoboPilares] Modo desenvolvimento ativado - créditos bypassados
+Migrating panel IDs...
+Migration complete.
+[GroqService] Inicializado com modelo: llama-3.3-70b-versatile
+Main Window context set for: local.admin@pyside.cad
+Iniciando carregamento de dados legados...
+[OK] DB de Pilares carregado: 138 registros.
+[OBRA] Carregando: 2
+  [PAVIMENTO] Subsolo: 12 pilares convertidos.
+  [PAVIMENTO] Térreo: 2 pilares convertidos.
+  [PAVIMENTO] 22: 1 pilares convertidos.
+  [PAVIMENTO] 33: 4 pilares convertidos.
+[OBRA] Carregando: 4
+  [PAVIMENTO] Subsolo: 3 pilares convertidos.
+  [PAVIMENTO] Térreo: 4 pilares convertidos.
+[OBRA] Carregando: 22
+  [PAVIMENTO] Subsolo: 2 pilares convertidos.
+[OBRA] Carregando: IMPERIALE
+  [PAVIMENTO] 1_SS: 13 pilares convertidos.
+  [PAVIMENTO] TERREO: 1 pilares convertidos.
+[OBRA] Carregando: OBRA-TESTE1
+  [PAVIMENTO] P-1: 46 pilares convertidos.
+[OBRA] Carregando: Obra50_entidades
+  [PAVIMENTO] Pav50_entidades: 50 pilares convertidos.
+[TOTAL] 6 obras preparadas para exibição.
+[MainViewModel] ✅ Dados carregados: 6 obras, 138 pilares totais
+  - 2/Subsolo: 12 pilares
+  - 2/Térreo: 2 pilares
+  - 2/22: 1 pilares
+  - 2/33: 4 pilares
+  - 4/Subsolo: 3 pilares
+  - 4/Térreo: 4 pilares
+  - 22/Subsolo: 2 pilares
+  - IMPERIALE/1_SS: 13 pilares
+  - IMPERIALE/TERREO: 1 pilares
+  - OBRA-TESTE1/P-1: 46 pilares
+  - Obra50_entidades/Pav50_entidades: 50 pilares
+⚠️ Nenhuma obra encontrada no legado.
+[MainViewModel] ✅ Encontrados 1 projetos estruturais para obra 'OBRA-TESTE1'
+💾 Dados salvos com sucesso em:
+   - D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\pilares_salvos.json
+   - D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\obras_salvas.json
+[DEBUG] Ruler Updated: Max=300.0, Pointers=5
+[MainViewModel] Sincronização Global: Criando nova Obra 'OBRA_FORMATO_EXEMPLO'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'OBRA_FORMATO_EXEMPLO'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_1'
+[MainViewModel] ✅ Encontrados 9 projetos estruturais para obra 'Obra_TREINO_1'
+[MainViewModel] ✅ Pavimento 'TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-EX-4000-2PV-R00_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-EX-3000-1PV-R00_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] ✅ Pavimento 'TMC-EST-PE-8000-COB-R03_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_10'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_10'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_11'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_11'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_12'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_12'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_13'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_13'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_14'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_14'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_15'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_15'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_16'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_16'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_17'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_17'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_18'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_18'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_19'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_19'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_2'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_2'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_20'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_20'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_21'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_21'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_22'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_22'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_23'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_23'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_3'
+[MainViewModel] ✅ Encontrados 1 projetos estruturais para obra 'Obra_TREINO_3'
+[MainViewModel] ✅ Pavimento 'RDD-EST-EXE-301-R00_R2018_ASCII_ODA' adicionado à lista do robô
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_5'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_5'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_6'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_6'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_8'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_8'
+[MainViewModel] Sincronização Global: Criando nova Obra 'Obra_TREINO_9'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obra 'Obra_TREINO_9'
+[MainViewModel] Sincronização Global: Criando nova Obra 'teste1'
+[MainViewModel] ℹ️ Nenhum projeto estrutural encontrado para obr…
+
+---
+
+[2026-06-26 00:34:19] a funcao de selecionar nosviwers deixou de funcionar na aba de diagnostic pre hub verifica nao toconseguindo selecionar as linhas textos etc para poder selecionar e recortar
+
+---
+
+[2026-06-26 00:48:22] ajusta que o viwer da convencao de pilares nao ta usando esse mesmo viwer que definimos funcional , configura que seja la esse viwer tambem porfavor
+
+---
+
+[2026-06-26 00:52:28] ajusta no diagnotis pre huvb para ter uma classe mais de recorte, que se chame convencao de pilares, tem que recortar as referrncias de simbologia de pilares. vou fazer alguns e depois tente criar o recorte automatico disso porfa vai servir para a convencao de pilares exibir exatamente esse recorte aoinvez dosdetalhes completo
+
+---
+
+[2026-06-26 01:19:25] C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_XGJFm6lLCN.png o recortar selecao nao ta reconhecendo oque ta selecionado verifica
+
+---
+
+[2026-06-26 01:24:26] o viwer no giagnostic reverse hub ta com problema nao ta exibindo o dxf igual  esse do diagnostic pre . ajusta
+
+---
+
+[2026-06-26 01:40:43] C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_AUAlqclUF2.png ele ainda nao ta reconhecendo no diagnetic pre hub a selecao dos itens que seleciono no viwer bruto... verifica... olha que ao abrir e carregar oviweromodo selecao sempre ja esta ativado verifica confirma se é esse modo selecao sempre ativado que seleciona ositens e o botao de recortarselecao reconhece. obotao de recortar cria um recorte com o todo queresta, e o botao recortar selcao somente ositens selecionados, funcionava veja pqnaota reconhecendo ;
+
+---
+
+[2026-06-26 02:05:34] ainda nao ta funcionando a o recortar selecaopq nao reconhece os itens selecionados que selecioneino viwer dodiagnotic pre
+
+---
+
+[2026-06-26 02:11:02] ta uma duvida percebi que esses novos viwers que usamos sao umpouco mais pesados de performance, sabe me dizer o pq?
+
+---
+
+[2026-06-26 02:14:48] sim porfa e no carregamento tambem mas mantendo integridadetotal...to tendo problema nos viwers da convencaopilares, prelista pilares e cortes de viga, pois saomuitosminiviwers ai trava tudo.. consegue buscar uma solucao perfomatica? preciso de funcional osminiviwers para navegar e confirmar dados preenchidos etc , só que pode ser de forma leve esses miniviwers para que nao trave a app.   além disso no diagnostic pre hub se mmelhorar a performance otimo tambem vai ser util
+
+---
+
+[2026-06-26 02:24:17] melhora a performance tambem dos viwers no comparison engine n1 n2 n3 n4 n5 e comparacoes paraser mais perfomatico
+
+---
+
+[2026-06-26 02:40:06] ta no diagnostic pre hub crie um botao de procesar todos pav auto, para assim ter 1 para o pav selecionado bruto e 1 para processar todos simultanemaente, o que processa todos nao substitui dados validados humanos ok? apenas oque processa auto de 1 pav só C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_5IbxJFnPOF.png
+
+---
+
+[2026-06-26 02:43:50] C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_BA0cskUUH0.png o recortar selecao ainda nao funciona... hmm mas no diagnostic reverse funciona. entao se baiseia nele para fazer funcionar aqui porfavor
+
+---
+
+[2026-06-26 02:49:57] além disso gostei da ideia do opcional de terum checkbox de renderizacao perfomatica e renderizacao completa, assima perfomatica aplica uns filtros do que exibirpara ficar mais leve o viwer. consegue implementar sem comrromper  qualidade e funcionalidades atuais?? a ideia é que esse check box esteja ao lado esquerdo do botao select do viwer C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_SMGmeAOyDE.png e em todos os viwers que tem esses painel superior que tenha esse checkbox de renderizacao perfomatica porfavor. efaz um favoor de todos iniciarem a app com esse checkbox ja selecionado assim caso somenteeu queira ver o modocompleto que éo atual e pesado eu desativoe recarrego tal iviwere ai renderiza ele completono viwer que eutiver usando na aba que estiver usado
+
+---
+
+[2026-06-26 03:05:06] O RECORTE DO DIAGNOSTIC REVERSE HUB EU ACABEIDE VER QUE TA CORROMPENDO A QUALIDADE DO DXXF NO VIWER, DEPOISFICA PRETO EM BRANCO C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_W4dUeMXd3l.png C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\python_xk6aph1278.png E NAO QUERO.. QUERO INTEGRO RECORTE FUNCIONAL PORFA
+
+---
+
+[2026-06-26 03:12:12] TA AGORA NA ABA DE CONVENCAO DE PIALRES AO ABRIR ELA POR TER TANTOS MINIIVIWERS TRAVA TUDO, OQUE ME RECOMENDA?
+
+---
+
+[2026-06-26 03:20:06] OS RECORTES DOS DIAGNOSTIS HUB PRE  EDIAGNOSTIC REVERSE AINDA ESTAO SAINDO COM A QUALIDADE DE CORES CORROMPIDA VERIFICA PORFAVOR E AJUSTA. E AJUSTA O FORMATO VISUAL DO CHECKBOX FIT TA MUITO PEQUENO E QUASE NAO SE VE SETA ATIVADO OU DESATIVADO PORFA.
+
+---
+
+[2026-06-26 03:30:46] AINDA ESTÁ CORROMPIDA A FIDELIDADE DO RECORTE E SUAS CORES ETC E VERIFICAE AJUSTA
+
+---
+
+[2026-06-26 04:23:35] oi
+
+---
+
+[2026-06-26 11:04:05] o botao recortar selecao ficou otimo e funcional, só que o botao somente recortar ainda ta reproduzindomesmo erro, ajusta em ambos porfavor
+
+---
+
+[2026-06-26 11:38:42] ta agora os viwers eu to vendo que as linhas brancas e textosbrancos ele ta substituindo pornegro.. consegue deixar a integridade do branco normal? mantendo integridade das cores etc. ajusta isso em todos viwers da app pois esta em todos
+
+---
+
+[2026-06-26 12:09:04] C:\Users\Thierry\Documents\ShareX\Screenshots\2026-06\Yoh79QRyJr.png nos viwers esse painel superior quero que seja na esqeurda  do viwer verticalmente, mantenha por extenso mas deixabem compacto paraficar agradavel, faça em todos os viwers porfavor
+
+---
+
+[2026-06-26 12:30:43] mais compacto em X , querofininho e pequenas asletras, nao necessita ossimbolos apenas osnomes dos comandos
+
+---
+
+[2026-06-26 18:19:21] menor que isso, metade
+
+---
+
+[2026-06-26 18:21:00] Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 64, in <module>
+    from laje_src.ui.main_window import MainWindow as LajeMainWindow  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1494
+    from .styles import DS
+SyntaxError: expected 'except' or 'finally' block
+
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main>
+
+---
+
+[2026-06-26 18:32:47] o check box melhora mais simples e deixa o texto do cehckbox leve abaixo dele nao ao lado
+
+---
+

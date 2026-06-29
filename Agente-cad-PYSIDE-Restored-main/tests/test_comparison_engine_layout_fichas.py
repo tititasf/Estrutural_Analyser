@@ -92,6 +92,33 @@ def test_structured_ficha_preserves_nested_characteristics():
     assert "Holes 1" in labels
 
 
+def test_structured_ficha_accepts_numpy_arrays_without_ambiguous_truth_value():
+    np = pytest.importorskip("numpy")
+
+    rows = _structured_ficha_rows(
+        {
+            "name": "V303",
+            "segments_rich": [
+                {
+                    "total_width": 437,
+                    "panels": [{
+                        "width": 193,
+                        "vertices": np.array([], dtype=object),
+                    }],
+                }
+            ],
+            "empty_vertices": np.array([], dtype=object),
+        },
+        "V303",
+        "FV",
+        title="FICHA N4",
+    )
+
+    labels = [label.strip() for label, _ in rows]
+    assert "Segments rich 1" in labels
+    assert any(label == "Empty vertices" for label, _ in rows)
+
+
 def test_n3_uses_n4_detail_contract_but_keeps_n1_lineage():
     rows = _n3_structured_ficha_rows(
         {

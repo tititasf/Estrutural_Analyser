@@ -23,6 +23,14 @@ from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+from src.core.artifact_governance import guarded_saveas
+
+_MOTOR_ID = "ROBOT_FV_N3_N4"
+_MOTOR_SOURCES = [Path(__file__)]
+
 # -- Constants (calibrated from STOG DXFs) ------------------------------------
 GAP_VIGAS       = 47     # gap between vigas in same row (cm)
 GAP_ROW         = 115    # gap viga_top_inferior -> viga_bottom_superior (cm)
@@ -492,8 +500,8 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     if b < 10:
         xp = x0
         for idx, pw in enumerate(panel_widths):
-            verts = panel_verts[idx] if panel_verts and idx < len(panel_verts) else None
-            if verts:
+            verts = panel_verts[idx] if _has_items(panel_verts) and idx < len(panel_verts) else None
+            if _has_items(verts):
                 pts = [(xp + float(v.get('x', 0.0)), y0 + float(v.get('y', 0.0))) for v in verts]
             else:
                 pts = [(xp, y0), (xp + pw, y0), (xp + pw, y0 + b), (xp, y0 + b)]
@@ -727,8 +735,8 @@ def _panel_height(panel, default_b):
                 return height
         except (TypeError, ValueError):
             pass
-        verts = panel.get('vertices') or []
-        if verts:
+        verts = panel.get('vertices')
+        if _has_items(verts):
             try:
                 ys = [float(v.get('y', 0)) for v in verts]
                 span = max(ys) - min(ys)
@@ -737,6 +745,15 @@ def _panel_height(panel, default_b):
             except (TypeError, ValueError):
                 pass
     return float(default_b)
+
+
+def _has_items(value):
+    if value is None:
+        return False
+    try:
+        return len(value) > 0
+    except TypeError:
+        return bool(value)
 
 
 def get_seg_b(seg_item, default_b):
@@ -749,6 +766,64 @@ def get_seg_b(seg_item, default_b):
     ]
     heights = [_panel_height(panel, default_b) for panel in regular]
     return max(heights) if heights else float(default_b)
+
+
+def _seg_width(seg_item):
+    if isinstance(seg_item, dict):
+        return float(seg_item.get('total_width', seg_item.get('width', 0)) or 0)
+    return float(seg_item)
+
+
+def _seg_text(seg_item, side):
+    if not isinstance(seg_item, dict):
+        return ''
+    key = 'texto_esq' if side == 'left' else 'texto_dir'
+    alt = 'label_left' if side == 'left' else 'label_right'
+    return str(seg_item.get(key, seg_item.get(alt, '')) or '').strip()
+
+
+def _same_mult_group(a, b):
+    return (
+        isinstance(a, dict)
+        and isinstance(b, dict)
+        and a.get('_mult_group_id') is not None
+        and a.get('_mult_group_id') == b.get('_mult_group_id')
+    )
+
+
+def _truthy_height_zero(panel):
+    if not isinstance(panel, dict) or 'height' not in panel:
+        return False
+    try:
+        return float(panel.get('height') or 0) <= 0.1
+    except (TypeError, ValueError):
+        return False
+
+
+def _sanitize_segments_after_multipliers(panels_json):
+    """Remove falso painel duplicado que pode vir apos um grupo multiplicado."""
+    cleaned = []
+    prev_was_multiplier = False
+    for seg in panels_json:
+        if not isinstance(seg, dict):
+            cleaned.append(seg)
+            prev_was_multiplier = False
+            continue
+
+        current = seg
+        panels = seg.get('panels') or []
+        if prev_was_multiplier and len(panels) > 1 and any(_truthy_height_zero(p) for p in panels):
+            kept = [p for p in panels if not _truthy_height_zero(p)]
+            if kept:
+                current = dict(seg)
+                current['panels'] = kept
+                current['total_width'] = round(
+                    sum(float(p.get('width', 0) or 0) for p in kept), 1
+                )
+
+        cleaned.append(current)
+        prev_was_multiplier = int(current.get('_multiplier', 1) or 1) > 1
+    return cleaned
 
 
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
@@ -778,6 +853,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     if not panels_json or viga_b <= 0:
         return 0.0
 
+    panels_json = _sanitize_segments_after_multipliers(panels_json)
     b = viga_b
 
     # Pre-collect all hole texts and labels to avoid printing them inside panels
@@ -799,22 +875,28 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     # -- Parse segments (each panel dict = one segment) ------------------------
     import copy as _copy
     segments = []
+    mult_group_seq = 0
     for p in panels_json:
         if isinstance(p, dict) and 'total_width' in p:
             sw = float(p['total_width'])
             if sw > 0:
                 mult = int(p.get('_multiplier', 1) or 1)
                 if mult > 1:
-                    # Expandir N cópias; só a primeira carrega _mult_label para exibir "NxMMM"
-                    base = _copy.deepcopy(p)
-                    base.pop('_multiplier', None)
-                    base['_mult_label'] = f'{mult}x{round(sw):g}'
-                    segments.append(base)
-                    for _ in range(mult - 1):
-                        other = _copy.deepcopy(base)
-                        other.pop('_mult_label', None)  # cópias não repetem o label
-                        other['_is_mult_copy'] = True
-                        segments.append(other)
+                    # Expandir N copias; o grupo guarda metadados para nao
+                    # desenhar textos entre as copias multiplicadas.
+                    mult_group_seq += 1
+                    group_id = f'mult-{mult_group_seq}'
+                    for idx in range(mult):
+                        item = _copy.deepcopy(p)
+                        item.pop('_multiplier', None)
+                        item['_mult_group_id'] = group_id
+                        item['_mult_index'] = idx
+                        item['_mult_count'] = mult
+                        if idx == 0:
+                            item['_mult_label'] = f'{mult}x{round(sw):g}'
+                        else:
+                            item['_is_mult_copy'] = True
+                        segments.append(item)
                 else:
                     segments.append(p)
         else:
@@ -834,7 +916,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     logical_pos = 0.0
     hole_idx = 0
     for i in range(len(segments) - 1):
-        sw = float(segments[i]['total_width']) if isinstance(segments[i], dict) else float(segments[i])
+        sw = _seg_width(segments[i])
         current_pos += sw
         
         is_curr_copy = isinstance(segments[i], dict) and segments[i].get('_is_mult_copy')
@@ -843,11 +925,12 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         
         next_seg = segments[i+1]
         is_next_copy = isinstance(next_seg, dict) and next_seg.get('_is_mult_copy')
+        is_internal_mult = _same_mult_group(segments[i], next_seg)
         
         # Cópias e continuações vindas de outra linha da prancha precisam
         # permanecer como segmentos visualmente separados no N4.
         is_row_break = isinstance(next_seg, dict) and next_seg.get('row_break')
-        if is_next_copy or is_row_break:
+        if is_internal_mult or is_next_copy or is_row_break:
             mult_gap = 15.0
             gaps.append((mult_gap, ''))
             current_pos += mult_gap
@@ -859,9 +942,17 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         # Check if the next active hole matches this position
         if hole_idx < len(active_holes):
             # Allow some floating point tolerance
-            if abs(active_holes[hole_idx]['position'] - logical_pos) < 5.0:
-                gap_w = active_holes[hole_idx]['width']
-                gap_label = active_holes[hole_idx].get('text') or 'Pilar Cruzado'
+            hole = active_holes[hole_idx]
+            hole_text = str(hole.get('text') or '').strip().upper()
+            boundary_labels = {
+                _seg_text(segments[i], 'right').upper(),
+                _seg_text(segments[i + 1], 'left').upper(),
+            }
+            position_match = abs(hole['position'] - logical_pos) < 5.0
+            label_match = bool(hole_text and hole_text in boundary_labels)
+            if position_match or label_match:
+                gap_w = hole['width']
+                gap_label = hole.get('text') or 'Pilar Cruzado'
                 logical_pos += gap_w
                 hole_idx += 1
 
@@ -875,7 +966,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         current_pos += gap_w
 
     # -- Compute total footprint -----------------------------------------------
-    total_footprint = sum(float(s['total_width']) if isinstance(s, dict) else float(s) for s in segments) + sum(g[0] for g in gaps)
+    total_footprint = sum(_seg_width(s) for s in segments) + sum(g[0] for g in gaps)
 
     # -- Find global lowest cota Y for the entire viga to align all texts --
     global_lowest_cota_y = y0 - DIM_BELOW
@@ -938,7 +1029,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             sub_panels, sub_panel_heights, sub_panel_l_drops,
             sub_panel_texts, sub_panel_verts, sub_panel_loose,
         )):
-            if p_verts:
+            if _has_items(p_verts):
                 # Custom trapezoid defined by top/bottom end setbacks.
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
                 msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
@@ -985,7 +1076,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     t.dxf.insert = (xp + le['insert']['x'], y0 + le['insert']['y'])
                     
             # Draw any specific texts inside the panel (e.g. 'P1', 'V309')
-            if p_texts:
+            if _has_items(p_texts):
                 for idx, txt in enumerate(p_texts):
                     txt_clean = str(txt).strip()
                     txt_upper = txt_clean.upper()
@@ -1064,8 +1155,17 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         is_first_seg = (seg_idx == 0)
         is_last_seg  = (seg_idx == len(segments) - 1)
+        mult_index = int(seg_item.get('_mult_index', 0) or 0) if isinstance(seg_item, dict) else 0
+        mult_count = int(seg_item.get('_mult_count', 1) or 1) if isinstance(seg_item, dict) else 1
+        is_mult_member = isinstance(seg_item, dict) and seg_item.get('_mult_group_id') is not None
+        suppress_mult_left_text = is_mult_member and mult_index > 0
+        suppress_mult_right_text = is_mult_member and mult_index < (mult_count - 1)
 
-        if str(seg_label_left).strip() and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan'):
+        if (
+            not suppress_mult_left_text
+            and str(seg_label_left).strip()
+            and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan')
+        ):
             text_left = str(seg_label_left).strip()
             # Verifica contra o texto direito do anterior E contra o gap_label anterior
             if not last_drawn_text or text_left.lower() != last_drawn_text.lower():
@@ -1081,7 +1181,11 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         # Limpa o texto anterior, pois agora estamos processando o texto direito e o gap DESSA iteração
         last_drawn_text = None
 
-        if str(seg_label_right).strip() and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan'):
+        if (
+            not suppress_mult_right_text
+            and str(seg_label_right).strip()
+            and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan')
+        ):
             text_right = str(seg_label_right).strip()
             if is_last_seg:
                 # Texto final: 5cm mais abaixo, posição X normal
@@ -1161,7 +1265,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         # Texto multiplicador "NxMMM" — só quando painéis não têm geometria explícita
         if isinstance(seg_item, dict) and seg_item.get('_mult_label'):
             has_verts = any(
-                isinstance(pp, dict) and pp.get('vertices')
+                isinstance(pp, dict) and _has_items(pp.get('vertices'))
                 for pp in seg_item.get('panels', [])
             )
             if not has_verts:
@@ -1277,7 +1381,7 @@ def _normalize_segments_rich(segments, viga_b):
         b_seg = float(seg.get('total_width', 0))  # não é b, mas usamos viga_b
         for p in seg.get('panels', []):
             verts = p.get('vertices')
-            if not verts or len(verts) < 3:
+            if not _has_items(verts) or len(verts) < 3:
                 continue
             y_vals = [float(v.get('y', 0)) for v in verts]
             y_min  = min(y_vals)
@@ -1350,7 +1454,10 @@ def main():
 
         out_path = out_dir / out_name
         apply_visual_mode(doc, args.visual_mode, 'FV')
-        doc.saveas(str(out_path))
+        out_path = guarded_saveas(
+            doc, out_path,
+            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+        )
         print(f'[FV] robot_json DXF → {out_path}')
         return
 
@@ -1658,7 +1765,10 @@ def main():
             out_name = f'FV_preview_{args.item}.dxf'
         out_dxf  = out_dir / out_name
         apply_visual_mode(doc, args.visual_mode, 'FV')
-        doc.saveas(str(out_dxf))
+        out_dxf = guarded_saveas(
+            doc, out_dxf,
+            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+        )
         print(f'\nDXF: {out_dxf}')
         return
 
@@ -1814,7 +1924,10 @@ def main():
     out_name = 'FV_stog_quality.dxf'
     out_dxf = out_dir / out_name
     apply_visual_mode(doc, args.visual_mode, 'FV')
-    doc.saveas(str(out_dxf))
+    out_dxf = guarded_saveas(
+        doc, out_dxf,
+        motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+    )
     print(f'\nDXF: {out_dxf}')
 
     # -- PNG preview -----------------------------------------------------------

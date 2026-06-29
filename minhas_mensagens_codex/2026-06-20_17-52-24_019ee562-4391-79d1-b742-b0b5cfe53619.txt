@@ -1,0 +1,521 @@
+[2026-06-20 17:52:24] C:\Users\Thierry\Desktop\CAD-ANALYZER.bat esse atalho desse bat do nosso programa ta abrindo e ja selecionando uma obra/pavimento em algumas obras, poderia ver oque ele seleciiona porfa
+
+---
+
+[2026-06-20 17:58:41] veja eu só abrir e ele ja carregou /selecionou um montao de coisa... rastreia e identifica como nao ter essas selecoes e carregamentos só ao abrir a app e sim ao selecionar alguma obra ou pavimento etc em alguma aba ai sim se carrega que deveria ser o comportamento normal rry\AppData\Roaming\Python\Python314\site-packages\requests\__init__.py:89: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (3.0.4) doesn't match a supported version!
+  warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning:
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\chromadb\config.py:20: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import BaseSettings
+WARNING:root:ChromaDB nao disponivel. Active Learning sera limitado.
+qt.qpa.window: SetProcessDpiAwarenessContext() failed: Acesso negado.
+Qt's default DPI awareness context is DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2. If you know what you are doing, you can overwrite this default using qt.conf (https://doc.qt.io/qt-6/highdpi.html#configuring-windows).
+WARNING: Supabase credentials not found in .env
+Starting app for user: local.admin@pyside.cad
+[QSS DEBUG] Loaded 3475 bytes from D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\style.qss
+[QSS DEBUG] Global stylesheet applied successfully
+AVISO: Módulos de segurança não disponíveis
+[DEBUG] Arquivo de configuração: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\.config
+[RoboPilares] Modo desenvolvimento ativado - créditos bypassados
+Erro ao conectar ao AutoCAD: (-2147221021, 'Operação não disponível', None, None)
+Erro ao conectar ao AutoCAD: (-2147221021, 'Operação não disponível', None, None)
+Iniciando carregamento de dados legados...
+[OK] DB de Pilares carregado: 138 registros.
+[OBRA] Carregando: 2
+  [PAVIMENTO] Subsolo: 12 pilares convertidos.
+  [PAVIMENTO] Térreo: 2 pilares convertidos.
+  [PAVIMENTO] 22: 1 pilares convertidos.
+  [PAVIMENTO] 33: 4 pilares convertidos.
+[OBRA] Carregando: 4
+  [PAVIMENTO] Subsolo: 3 pilares convertidos.
+  [PAVIMENTO] Térreo: 4 pilares convertidos.
+[OBRA] Carregando: 22
+  [PAVIMENTO] Subsolo: 2 pilares convertidos.
+[OBRA] Carregando: IMPERIALE
+  [PAVIMENTO] 1_SS: 13 pilares convertidos.
+  [PAVIMENTO] TERREO: 1 pilares convertidos.
+[OBRA] Carregando: OBRA-TESTE1
+  [PAVIMENTO] P-1: 46 pilares convertidos.
+[OBRA] Carregando: Obra50_entidades
+  [PAVIMENTO] Pav50_entidades: 50 pilares convertidos.
+[TOTAL] 6 obras preparadas para exibição.
+[MainViewModel] ✅ Dados carregados: 6 obras, 138 pilares totais
+  - 2/Subsolo: 12 pilares
+  - 2/Térreo: 2 pilares
+  - 2/22: 1 pilares
+  - 2/33: 4 pilares
+  - 4/Subsolo: 3 pilares
+  - 4/Térreo: 4 pilares
+  - 22/Subsolo: 2 pilares
+  - IMPERIALE/1_SS: 13 pilares
+  - IMPERIALE/TERREO: 1 pilares
+  - OBRA-TESTE1/P-1: 46 pilares
+  - Obra50_entidades/Pav50_entidades: 50 pilares
+ Dados salvos com sucesso em:
+   - D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\pilares_salvos.json
+   - D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Pilares\pilares-atualizado-09-25\src\core\obras_salvas.json
+[DEBUG] Ruler Updated: Max=300.0, Pointers=5
+Migrating panel IDs...
+Migration complete.
+[GroqService] Inicializado com modelo: llama-3.3-70b-versatile
+Main Window context set for: local.admin@pyside.cad
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra 'OBRA_FORMATO_EXEMPLO': 1 pavimentos no arquivo
+[LOAD] Obra 'OBRA_FORMATO_EXEMPLO' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_1': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_1' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_10': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_10' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra50_entidades': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra50_entidades' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pav50_entidades': 50 lajes
+[LOAD] Carregando obra 'Obra_TREINO_12': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_12' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Obra_TREINO_11': 1 pavimentos no arquivo
+[LOAD] Obra 'Obra_TREINO_11' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'OBRA-SYNC': 2 pavimentos no arquivo
+[LOAD] Obra 'OBRA-SYNC' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 53 lajes
+[LOAD] Carregando obra 'OBRA-TESTE1': 4 pavimentos no arquivo
+[LOAD] Obra 'OBRA-TESTE1' carregada: 4 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'P-1': 0 lajes
+[LOAD]   - Pavimento 'P-2': 0 lajes
+[LOAD]   - Pavimento '22': 0 lajes
+[LOAD] Carregando obra '4': 1 pavimentos no arquivo
+[LOAD] Obra '4' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] Carregando obra 'Populacao_Treino': 2 pavimentos no arquivo
+[LOAD] Obra 'Populacao_Treino' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Treino Cotas Modo 1': 2 lajes
+[LOAD]   - Pavimento 'Pavimento treino modo 1': 1 lajes
+[LOAD] Carregando obra 'CONSULTENGE': 2 pavimentos no arquivo
+[LOAD] Obra 'CONSULTENGE' carregada: 2 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD]   - Pavimento 'Extração_012': 0 lajes
+[LOAD] Carregando obra 'IMPERIALE': 1 pavimentos no arquivo
+[LOAD] Obra 'IMPERIALE' carregada: 1 pavimentos após deserialização
+[LOAD]   - Pavimento 'Pavimento Teste': 0 lajes
+[LOAD] 12 obras carregadas do arquivo
+[LOAD] Total de obras após mesclagem: 12
+[LOAD] ✅ Carregamento de obras concluído
+
+---
+

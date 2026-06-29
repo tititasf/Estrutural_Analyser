@@ -1,0 +1,443 @@
+{
+  "item": "L318",
+  "n3": {
+    "outline": {
+      "comprimento": 2413.0,
+      "largura": 152.0,
+      "coordenadas": [
+        [
+          0.0,
+          152.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          2413.0,
+          0.0
+        ],
+        [
+          2413.0,
+          152.0
+        ],
+        [
+          0.0,
+          152.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 244.0,
+        "is_union": false
+      },
+      {
+        "value": 320.5,
+        "is_union": false
+      },
+      {
+        "value": 564.5,
+        "is_union": false
+      },
+      {
+        "value": 808.5,
+        "is_union": false
+      },
+      {
+        "value": 1052.5,
+        "is_union": false
+      },
+      {
+        "value": 1252.0,
+        "is_union": false
+      },
+      {
+        "value": 1448.0,
+        "is_union": false
+      },
+      {
+        "value": 1692.0,
+        "is_union": false
+      },
+      {
+        "value": 1936.0,
+        "is_union": false
+      },
+      {
+        "value": 2180.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 40.5,
+        "is_union": false
+      },
+      {
+        "value": 60.5,
+        "is_union": true
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      40.5,
+      76.5,
+      91.5,
+      196.0,
+      199.5,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "hlaz": [
+      {
+        "x": 2413.0,
+        "y": 40.5,
+        "width": 726.0,
+        "height": 20.0
+      }
+    ],
+    "cotas_paineis_info": [
+      20.0,
+      40.5,
+      76.5,
+      91.5,
+      196.0,
+      199.5,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "nomes": [
+      "L318"
+    ],
+    "contexto_ignorado": [
+      "199.5"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "n4": {
+    "outline": {
+      "comprimento": 2413.0,
+      "largura": 152.0,
+      "coordenadas": [
+        [
+          0.0,
+          152.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          2413.0,
+          0.0
+        ],
+        [
+          2413.0,
+          152.0
+        ],
+        [
+          0.0,
+          152.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 244.0,
+        "is_union": false
+      },
+      {
+        "value": 320.5,
+        "is_union": false
+      },
+      {
+        "value": 564.5,
+        "is_union": false
+      },
+      {
+        "value": 808.5,
+        "is_union": false
+      },
+      {
+        "value": 1052.5,
+        "is_union": false
+      },
+      {
+        "value": 1252.0,
+        "is_union": false
+      },
+      {
+        "value": 1448.0,
+        "is_union": false
+      },
+      {
+        "value": 1692.0,
+        "is_union": false
+      },
+      {
+        "value": 1936.0,
+        "is_union": false
+      },
+      {
+        "value": 2180.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 40.5,
+        "is_union": false
+      },
+      {
+        "value": 60.5,
+        "is_union": true
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      40.5,
+      76.5,
+      91.5,
+      196.0,
+      199.5,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "hlaz": [
+      {
+        "x": 2413.0,
+        "y": 40.5,
+        "width": 726.0,
+        "height": 20.0
+      }
+    ],
+    "cotas_paineis_info": [
+      20.0,
+      40.5,
+      76.5,
+      91.5,
+      196.0,
+      199.5,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "nomes": [
+      "L318"
+    ],
+    "contexto_ignorado": [
+      "199.5"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "n3_n4_diff": {},
+  "n2": {
+    "outline": {
+      "comprimento": 2413.0,
+      "largura": 152.0,
+      "coordenadas": [
+        [
+          0.0,
+          152.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          2413.0,
+          0.0
+        ],
+        [
+          2413.0,
+          152.0
+        ],
+        [
+          0.0,
+          152.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 244.0,
+        "is_union": false
+      },
+      {
+        "value": 320.5,
+        "is_union": false
+      },
+      {
+        "value": 564.5,
+        "is_union": false
+      },
+      {
+        "value": 808.5,
+        "is_union": false
+      },
+      {
+        "value": 1052.5,
+        "is_union": false
+      },
+      {
+        "value": 1252.0,
+        "is_union": false
+      },
+      {
+        "value": 1448.0,
+        "is_union": false
+      },
+      {
+        "value": 1692.0,
+        "is_union": false
+      },
+      {
+        "value": 1936.0,
+        "is_union": false
+      },
+      {
+        "value": 2180.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 40.5,
+        "is_union": false
+      },
+      {
+        "value": 60.5,
+        "is_union": true
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      40.5,
+      76.5,
+      91.5,
+      196.0,
+      199.5,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "hlaz": [
+      {
+        "x": 2413.0,
+        "y": 40.5,
+        "width": 726.0,
+        "height": 20.0
+      }
+    ],
+    "cotas_paineis_info": [
+      20.0,
+      60.5,
+      60.5,
+      60.5,
+      60.5,
+      89.5,
+      91.5,
+      91.5,
+      91.5,
+      91.5,
+      91.5,
+      196.0,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "nomes": [
+      "L318"
+    ],
+    "contexto_ignorado": [
+      "120/19",
+      "14/40",
+      "14/50",
+      "19/100",
+      "19/120",
+      "19/120",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/60",
+      "19/60",
+      "19/79",
+      "19/80",
+      "19/86",
+      "19/86",
+      "19/86",
+      "19/98",
+      "199.5",
+      "50/19",
+      "50/19",
+      "80/19",
+      "852.19",
+      "852.19",
+      "P10",
+      "P11",
+      "P17",
+      "P18",
+      "P19",
+      "P20",
+      "P21",
+      "P22",
+      "P23",
+      "P24",
+      "P50",
+      "P51",
+      "h=12"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "n2_n4_diff": {}
+}

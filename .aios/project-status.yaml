@@ -1,0 +1,23 @@
+status:
+  branch: main
+  modifiedFiles:
+    - Agente-cad-PYSIDE-Restored-main/debug_slab_pav13.json
+    - Agente-cad-PYSIDE-Restored-main/docs/ENCICLOPEDIA-SCHEMA.md
+    - Agente-cad-PYSIDE-Restored-main/main.py
+    - Agente-cad-PYSIDE-Restored-main/scripts/gerar_dxf_lajes.py
+    - Agente-cad-PYSIDE-Restored-main/scripts/gerar_fv_dxf_stog.py
+  modifiedFilesTotalCount: 412
+  recentCommits:
+    - >-
+      e feat(scripts): visual_mode em gerar_lv + fixes n4_fichas +
+      comparison_engine
+    - >-
+      f fix(UI): links validados em verde no canvas + corrige BG color no
+      DiagnosticHub
+  currentEpic: null
+  currentStory: null
+  lastUpdate: '2026-06-29T02:02:52.909Z'
+  isGitRepo: true
+timestamp: 1782698572910
+ttl: 60
+gitFingerprint: 1782408341447.8132:1782698492317.1372

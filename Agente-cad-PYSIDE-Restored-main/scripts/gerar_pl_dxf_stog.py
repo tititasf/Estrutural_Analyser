@@ -18,6 +18,14 @@ from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+from src.core.artifact_governance import guarded_saveas
+
+_MOTOR_ID = "ROBOT_PL_N3_N4"
+_MOTOR_SOURCES = [Path(__file__)]
+
 # GradeCalculator — robô legado (calcular_grades, calculate_details_legacy)
 try:
     _GC_PATH = str(Path(__file__).parent.parent /
@@ -1864,7 +1872,10 @@ def main():
             out_name = f'PL_{zone_label}_preview_{pf.stem}.dxf'
             out_path = out_dir / out_name
             apply_visual_mode(doc_z, args.visual_mode, 'PL')
-            doc_z.saveas(str(out_path))
+            out_path = guarded_saveas(
+                doc_z, out_path,
+                motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+            )
             print(f'  [{idx+1:2d}] {nome}: {comp}x{larg_v}cm h={altura:.0f}cm  '
                   f'entities={n}  → {out_name}')
         print(f'\nZone mode {zone_label} concluído.')
@@ -2053,7 +2064,10 @@ def main():
     out_name = f'PL_preview_{args.item}.dxf' if args.item else 'PL_stog_quality.dxf'
     out_dxf = out_dir / out_name
     apply_visual_mode(doc, args.visual_mode, 'PL')
-    doc.saveas(str(out_dxf))
+    out_dxf = guarded_saveas(
+        doc, out_dxf,
+        motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
+    )
     print(f'\nTotal entities: {total_entities}')
     print(f'DXF: {out_dxf}')
 

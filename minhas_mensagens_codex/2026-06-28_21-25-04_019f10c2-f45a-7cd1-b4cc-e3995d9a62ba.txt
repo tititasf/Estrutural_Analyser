@@ -1,0 +1,12 @@
+[2026-06-28 21:25:04] revisa a analise geral do strcutural nalazyer, por algummotivonao está populando corretamente todos os pilares, recentemente alterei emediz como ta pipeline completo do SA para entender a logica de interpretacao seta correta
+
+---
+
+[2026-06-28 21:37:09] isso eu queria a analise dos pialres antes da prevalidacao para assim la ter ja preenchido toods e todos os nomes na prevaldiacoa, ajuda ele a detectargeometrias pilares especiais com geometrias especias mas amntendo integridade atual. e depoisda preficha que popula os itenspialres na ficha do sa depois de reavaliar oque estánapreficha e usar todas infos coletadas la para todos pilares e fazercertinho usanod dados das lajes e dos pilares. (ainda nao temosdadosde vigas mas ok) e ajusta oos problemas encontrados
+
+---
+
+[2026-06-28 22:27:48] rodei a analise la enao populou nenhum pilar na lista esquerda do SA
+
+---
+

@@ -1,0 +1,202 @@
+[2026-06-16 20:02:09] A previous agent produced the plan below to accomplish the user's task. Implement the plan in a fresh context. Treat the plan as the source of user intent, re-read files as needed, and carry the work through implementation and verification.
+
+# Plano de Execução — N1/N3 LAJ com Eng. Reversa
+
+## Summary
+
+Implementar a próxima fase LAJ sem misturar responsabilidades: melhorar o N1 do Structural Analyzer, criar a rota isolada `Interpretar com Eng. Reversa`, versionar aprendizado em DB próprio de N1 LAJ e fazer o N3 usar o mesmo motor DXF do N4, ingerindo ficha vinda do N1.
+
+A primeira entrega valida Obra_TREINO_1 / 13_PAV, mas nenhuma regra pode depender desse pavimento.
+
+## Key Changes
+
+### 1. Aprendizagem N1 LAJ
+
+Criar módulo:
+
+```text
+src/core/engrev_laj_n1_interpretacao_learning_store.py
+```
+
+DB dedicado:
+
+```text
+D:/Agente-cad-PYSIDE/engrev_laj_n1_interpretacao_learning.vision
+```
+
+Tabelas:
+- `engrev_laj_n1_interpretacao_events`
+- `engrev_laj_n1_interpretacao_features`
+- `engrev_laj_n1_interpretacao_calibrator_versions`
+
+Não criar tabelas de aprendizado dentro de `project_data.vision`.
+
+### 2. SlabTracer Semântico
+
+Refatorar `src/core/slab_tracer.py` para trocar o `polygonize` direto por pipeline:
+
+```text
+label Lxxx -> linhas candidatas -> classificação -> rejeição -> ciclos válidos -> melhor polígono
+```
+
+Classificar e excluir:
+- cotas e extension lines
+- textos/leaders/eixos
+- cortes informativos de viga
+- hachuras e símbolos auxiliares
+- pequenos retângulos/cortes sobrepostos que não cercam a label
+
+Selecionar contorno:
+- menor polígono fechado que contém a label
+- área compatível com textos/cotas próximas
+- bordas sustentadas por vigas/pilares reais
+- aceitar polígono com N vértices, não só retângulo
+
+### 3. Structural Analyzer UI
+
+Em `src/ui/modules/diagnostic_hub.py`:
+- manter `Iniciar Análise Geral`
+- manter `Interpretar com Contexto`
+- adicionar `Interpretar com Eng. Reversa`
+- cada botão chama modo isolado: `baseline`, `context`, `engrev_assisted`
+
+Em `src/ui/widgets/detail_card.py`:
+- ocultar grupo `Pontaletes / Escoras` para LAJ nesta fase
+- manter `laje_outline_segs` como campo principal de contorno
+- validação humana desse campo grava evento `human_laje_outline_validated`
+
+### 4. Conversão N1 → N3
+
+Criar módulo:
+
+```text
+src/core/laje_n1_to_robot_ficha.py
+```
+
+Ele converte N1 LAJ para ficha robô LAJ:
+- `nome`
+- `numero`
+- `coordenadas`
+- `comprimento`
+- `largura`
+- `area_cm2`
+- `modo_selecionado`
+- `linhas_verticais`
+- `linhas_horizontais`
+- `obstaculos`
+- `unioes_nos_bordes`
+- `observacoes`
+
+N3 deve chamar `scripts/gerar_lj_dxf_stog.py`, igual N4. Diferença única:
+- N3 lê ficha derivada do N1
+- N4 lê ficha N2 aprovada
+
+### 5. Comparação e Auditoria
+
+Criar auditoria LAJ N1/N3:
+
+```text
+scripts/audit_laj_n1_n3_13pav.py
+```
+
+Saída por laje:
+- N2 aprovado usado como professor
+- hash do estrutural limpo
+- hash do recorte N2
+- bbox N1
+- bbox N2
+- delta de contorno
+- N3 gerado
+- N4 publicado
+- veredito canônico
+- veredito visual
+
+Gerar contact sheets:
+- N1 baseline vs N2
+- N1 engrev-assisted vs N2
+- N3 vs N4 overlay
+
+## Implementation Steps
+
+1. Adicionar store de aprendizagem N1 LAJ com schema e testes unitários.
+2. Instrumentar validação humana de `laje_outline_segs`.
+3. Ocultar pontaletes/escoras no DetailCard LAJ.
+4. Refatorar `SlabTracer` para classificador de linhas.
+5. Adicionar modo `engrev_assisted` sem alterar baseline.
+6. Implementar botão `Interpretar com Eng. Reversa`.
+7. Implementar conversor N1 LAJ → ficha robô.
+8. Roteirizar N3 LAJ para usar o mesmo gerador N4.
+9. Criar auditoria N1-vs-N2 e N3-vs-N4.
+10. Rodar primeiro em L327 e L308; depois 18 LAJ do 13_PAV.
+11. Só ativar calibrador candidato quando auditoria 13_PAV estiver verde.
+
+## Test Plan
+
+Testes mínimos:
+
+```text
+tests/test_engrev_laj_n1_interpretacao_learning_store.py
+tests/test_slab_tracer_laj_semantic_filter.py
+tests/test_laje_n1_to_robot_ficha.py
+tests/test_laj_n3_matches_n4_contract.py
+```
+
+Casos obrigatórios:
+- retângulo simples continua correto
+- laje deformada não vira retângulo
+- cota cruzando laje não entra no contorno
+- corte informativo de viga não entra no contorno
+- `Interpretar com Eng. Reversa` não muda saída do baseline
+- DB de aprendizado N1 LAJ é separado
+- N3 falha se divergir de N4 em contorno ou linhas internas
+
+## Assumptions
+
+- Nome final do botão: `Interpretar com Eng. Reversa`.
+- Nome final do DB: `engrev_laj_n1_interpretacao_learning.vision`.
+- Pontaletes/escoras ficam ocultos, não deletados do schema.
+- A primeira validação completa é LAJ 13_PAV; outras classes só recebem estrutura extensível depois.
+
+
+---
+
+[2026-06-16 20:03:09] otimo gostei do plan implemente na ordem que melhor se aprenta
+
+---
+
+[2026-06-16 20:21:57] ta, terminou? posso testar?
+
+---
+
+[2026-06-16 21:47:23] ta, terminou? posso testar? acho que nao, vi la que abaixo do botao interpretar com contexto nao fez o novo botao de interpretar com engenharia reversa, la no structural analizer. [Image #1] alem disso vi que ainda nao melhorou a analise geral das lajes, além disso vi que quando analiso e fecho e abro app os itens que tinham sido analizados e elistados no pavimento nao ficaram salvos e devem manter estado e salvamento deles porfa
+
+---
+
+[2026-06-16 21:49:12] ta, terminou? posso testar? acho que nao, vi la que abaixo do botao interpretar com contexto nao fez o novo botao de interpretar com engenharia reversa, la no structural analizer. [Image #1] alem disso vi que ainda nao melhorou a analise geral das lajes, além disso vi que quando analiso e fecho e abro app os itens que tinham sido analizados e elistados no pavimento nao ficaram salvos e devem manter estado e salvamento deles porfa para nao perder trabalho etc. ainda ta ineficiente o analise geral ele nao consegue ignorar as cotas e as deformidades dos recortes de viga informacional no estrutural considerando deformidade no marco e nao deveria [Image #2]
+
+---
+
+[2026-06-16 22:11:03] continua
+
+---
+
+[2026-06-16 22:43:55] pronto?
+
+---
+
+[2026-06-16 22:48:26] ainda nao conseguem... hmm usa um pouco da inteligencia do recortar lajes do engenharia reversa, é muito similar a compreensao do que é o contorno e tambem use a inteligencia do extrator da ficha n2 para gerar n4 , é similar ve se assim consegue melhorar o analise geral das lajes porfavor
+
+---
+
+[2026-06-16 23:02:56] veja se vc ta atacando especificamente a aprendizagem e padroes do vinculo do campo [Image #1] segmentos da area (geometria) ; pq é esse vinculo que decide o marco
+
+---
+
+[2026-06-17 14:47:29] continua
+
+---
+
+[2026-06-17 16:49:34] continua
+
+---
+

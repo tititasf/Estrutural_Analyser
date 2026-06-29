@@ -1,0 +1,8 @@
+[2026-06-26 12:06:33] verifica o n5 dos fundos de viga, ta gerando uns obtos distantesdeondedeveria e tafaltando coisa na unificacao n5.
+
+---
+
+[2026-06-26 12:06:48] Qlogout
+
+---
+

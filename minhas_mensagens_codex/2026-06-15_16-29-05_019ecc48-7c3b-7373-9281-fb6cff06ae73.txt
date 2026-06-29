@@ -1,0 +1,522 @@
+[2026-06-15 16:29:05] Você é o executor autônomo da frente ARETE LAJE de um sistema CAD estrutural. Esta é uma
+sessão de continuação  outra sessão já avançou na L308 e travou. Você RETOMA, não recomeça.
+Leia tudo abaixo: você começa do zero de memória, mas o trabalho já tem estado salvo em disco.
+
+
+0. AMBIENTE (crítico para eficiência)
+
+Rode com cwd em D:\Agente-cad-PYSIDE (NÃO em corporacao-senciente  lá há hooks SYNAPSE/
+code-intel que injetam regras irrelevantes e travam tudo). Os arquivos do projeto estão em
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main.
+
+LEIA PRIMEIRO, NESTA ORDEM:
+1. Agente-cad-PYSIDE-Restored-main\docs\MASTERPLAN-ARETE-LAJE.md (seu plano; §6 = critérios Arete)
+2. Agente-cad-PYSIDE-Restored-main\docs\MASTERPLAN-ARETE-QUALITY-GATES.md (§G2 v1.2 paridade
+   canônica, §4-B treinomotor universal, Regra de Ouro no topo)
+
+
+1. CONTEXTO DO PROJETO
+
+App PySide6 que automatiza FORMAS DE CONCRETO. Os "robôs" desenham as fôrmas; nasceram para
+emitir SCR (scripts AutoCAD) e estamos PORTANDO esse comportamento para gerar DXF direto.
+Fluxo dual:
+- N2 = ficha granular extraída do DXF STOG humano (o recorte feito pelo engenheiro)
+- N4 = DXF gerado pelo nosso robô A PARTIR da ficha N2
+META = N4 idêntico ao recorte N2 (mesmo conteúdo, no estilo-padrão do robô) = "ARETE".
+
+É um TREINO: usamos a Obra_TREINO_1 (que tem gabarito humano) para construir um MOTOR
+UNIVERSAL de laje que depois roda em qualquer obra.
+
+🥇 REGRA DE OURO (acima de tudo): TUDO é motor universal. ZERO hardcode isolado a uma laje,
+pavimento ou obra. Toda lógica por FÓRMULA geral a partir da ficha. Solução que só serve a um
+caso = bug, não fix. O produto é o motor genérico; o item validado é só a prova.
+
+
+2. COMO MEDIMOS ARETE (comparação CANÔNICA)
+
+NÃO compare entidade-por-entidade (layer,dxftype) cru contra o desenho humano  o robô tem o
+estilo dele. Compare o CONTEÚDO SEMÂNTICO (forma canônica) extraído dos DOIS lados (recorte e
+N4): contorno, linhas internas, cotas-VALOR, contagens. Painéis 0,5cm. Nunca sintetizar layer
+de estilo humano. Nunca selar com FAIL. Um fix por causa (vale p/ todas as lajes), nunca por item.
+
+
+3. ESCOPO DO PRODUTO DO ROBÔ DE LAJE (decisão de domínio FECHADA)
+
+O que importa é a ÁREA INTERNA da laje. O produto do robô = CONTORNO (outline) + LINHAS
+INTERNAS (divisões de painel, uniões, HLAZ) + cotas dessas divisões internas. Vigas e pilares
+são contorno = info de contexto, NÃO produto do robô de laje.
+
+Classificação definitiva (verificada na L308):
+- CONTEÚDO (entra na paridade  tem que bater): polígono do contorno (INTEGRIDADE é prioridade
+  nº1), linhas internas, cotas internas (122/167/102/20/61), HLAZ nas uniões, nome (L308),
+  obstáculos internos, modo_selecionado.
+- CONTEXTO (exceção info-only  criar lista LJ_CONTEXTO no arete_config, FORA da paridade):
+  dims de vigas de contorno (19/120, 19/55, 19/66, 19/71), pilares vizinhos (P8, P49),
+  nível (852.12), espessura anotada (h=13). São anotações da estrutura circundante.
+- CRUFT DO GERADOR (REMOVER do gerar_lj_dxf_stog.py  NUNCA excluir no G2, isso esconde
+  divergência): 6 AUX00 ("L308 122X102"), 6 c=..., labels duplicados por painel. O recorte
+  não tem nada disso.
+- pontaletes: FORA da paridade (cálculo NBR, não fôrma). linhas_vert/horiz são ALGORÍTMICAS
+  (modo1)  se a grade não bate, fix no algoritmo, nunca hardcode da divisão de uma laje.
+
+
+4. ESTADO ATUAL DA L308 (já feito  não refazer)
+
+- Recorte usado: DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\...13°...LJ...\
+  LAJ_L308_sel_1781121913.dxf (prefira *_sel_* sobre *_motor_*)
+- Ficha N2 extraída: 289 x 183; grade X 122|167, Y 102|20(HLAZ)|61; modo_selecionado=1;
+  obstaculos=[]. A grade principal JÁ ALINHA entre recorte e N4.
+- Preview lado a lado: test_output\arete_lj\L308_tmp\ARETE_LJ_L308_extracted_preview.png
+- Ficha temp + N4: test_output\arete_lj\L308_tmp\Fase-4_Sincronizacao\JSON_Lajes\L308.json
+  e ...\Fase-6_Execucao_CAD\LJ_preview_L308.dxf
+- Pendência atual (o que travou): o N4 emite AUX00/c=/labels duplicados a mais e falta tratar
+  o contexto (P8/P49/19xxx/nível/h=).
+- Arquivos de trabalho: scripts\gerar_lj_dxf_stog.py (gerador), scripts\motor_reverso_laj.py
+  (extrator). Robô SCR de laje (ref de estilo): _ROBOS_ABAS\Robo_Lajes.
+- DB: D:\Agente-cad-PYSIDE\project_data.vision, tabela reverse_eng_fichas, pavimento='13_PAV',
+  classe='LAJ' (18 lajes; L308 é a única com recorte aprovado por humano).
+
+
+5. SUA MISSÃO (FASE LJ-A, na ordem)
+
+(a) Remover do gerar_lj_dxf_stog.py o cruft: AUX00, c=..., labels duplicados por painel.
+(b) Criar LJ_CONTEXTO no arete_config e excluir da paridade: 19/xxx (vigas), P8/P49 (pilares),
+    852.12 (nível), h=13 (espessura). NÃO emitir esses no N4 (são contexto, não produto da laje).
+(c) Garantir INTEGRIDADE DO CONTORNO (prioridade nº1): outline reconhecido e gerado idêntico
+    (vértices, comprimento/largura 0,5cm, obstáculos internos no lugar).
+(d) Rerodar o diff canônico da L308 focando contorno + linhas internas + cotas internas + HLAZ
+    até Arete. Renderize o PNG e ME MOSTRE lado a lado para eu validar visualmente.
+(e) Só então expandir às outras 17 lajes do 13_PAV, selando golden incremental.
+
+LOOP DE TRABALHO: VALOR alvo vem do recorte STOG; POSIÇÃO/estilo da cota vem do robô SCR de
+laje; fix POR FÓRMULA em gerar_lj_dxf_stog.py ou motor_reverso_laj.py; gera preview de 1 laje 
+render PNG  inspeção visual  diff canônico  regenera lote. Um fix por causa.
+
+
+6. REGRAS INEGOCIÁVEIS
+
+- Regra de Ouro (motor universal, zero hardcode).
+- Comparação canônica (conteúdo), nunca (layer,dxftype) cru.
+- Nunca sintetizar layer de estilo humano; nunca selar com FAIL; nunca expandir escopo antes
+  do step atual a 100%.
+- Cruft do gerador  remover no gerador; contexto do recorte  exceção documentada. Direções
+  opostas, nunca confundir.
+- NÃO edite scripts\arete\ se outra sessão estiver mexendo nele (harness compartilhado entre
+  frentes PIL/LV/FV/LAJ). Foque em LAJ.
+- Modo autônomo: execute, corrija, instale o que precisar. Pare só para decisão de produto
+  ambígua (e quando parar, mostre PNG + contagens + a pergunta exata).
+
+Comece confirmando o cwd, lendo os 2 masterplans, abrindo o preview atual da L308 para ver o
+estado, e então execute (a)(b)(c)(d). Me mostre o PNG lado a lado da L308 quando rerodar.
+
+---
+
+[2026-06-15 16:46:21] preciso que vincule ao mortor da laje no n4 pq para eu visualizar e validar visualmente desejo fazer por la
+
+---
+
+[2026-06-15 16:59:18] o marco gerado está totalmente diferente do marco do stog humano
+
+---
+
+[2026-06-15 17:22:42] que funcionar para todas as lajes todas medidas de marco etc , veja e testa e valida 1 a 1 da obra treino 1. a que vc fez ficou bom, mas que funcionar o motor de forma universao para qualquer laje dinamicamente.. entao constroi e testa e valida com as lajes que temos na obra treino 1, 13 pavimento
+
+---
+
+[2026-06-15 18:03:37] ta implementado no motor n4? posso abrir e visualizar resultado e comprar n2 com n4? consegue fazer vc isso? visualmente via pytest etc?
+
+---
+
+[2026-06-15 19:14:40] continua
+
+---
+
+[2026-06-15 21:01:31] Boa entrega (18 N4 publicados, pytest verde). Agora muda o MÉTODO de validação: daqui pra
+frente VOCÊ é autônomo na validação visual  você LÊ as imagens com a ferramenta Read (ela
+abre PNG e você enxerga), valida sozinho, e SÓ me reporta quando atingir 100% em AMBOS
+(extração N2 + geração N4). NÃO me peça para abrir imagem nenhuma. cwd = D:\Agente-cad-PYSIDE.
+
+ "pytest 1 passed" NÃO é validação visual. Um teste verde só prova que o código rodou  não
+prova que os 18 desenhos estão corretos. A validação real é você OLHAR cada laje.
+
+VALIDAÇÃO AUTÔNOMA (loop, por laje, nas 18 do 13_PAV):
+Para CADA laje (L301..L331), você mesmo executa e LÊ com Read:
+1. EXTRAÇÃO (N2): abra o recorte humano e a ficha extraída. Leia o render do N2 e confirme que
+   a ficha capturou o que o desenho mostra: contorno, linhas internas, cotas internas (somam o
+   total), HLAZ nas uniões, obstáculos, modo. Se a ficha não reflete o recorte  corrija o
+   motor_reverso_laj (por fórmula) e re-extraia.
+2. GERAÇÃO (N4): leia o PNG lado a lado (N2 x N4) e o overlay CAD. Confirme item a item:
+   - contorno idêntico (integridade do outline)
+   - linhas internas iguais (divisões/uniões/HLAZ no lugar)
+   - cotas internas com mesmos VALORES e contagem
+   - zero AUX00 / c= / labels duplicados
+   - contexto (viga/pilar/nível/h=) tratado como exceção, não emitido
+3. Onde divergir, conserte (por fórmula geral, Regra de Ouro), regenere, e RELEIA a imagem.
+   Repita até a laje estar visualmente idêntica. Um fix por causa (vale p/ todas as lajes).
+
+USE as imagens que você já gera:
+- test_output\arete_lj\pytest_13_PAV\ARETE_LJ_13PAV_pytest_contact_sheet.png (lado a lado)
+- ...\ARETE_LJ_13PAV_overlay_contact_sheet.png (overlay N2 verde x N4 vermelho)
+Abra-as com Read e descreva, por laje, o que está certo e o que diverge. O overlay é o teste
+mais duro: onde o vermelho (N4) não cobre o verde (N2), há divergência geométrica  investigue.
+
+CRITÉRIO DE 100% (só me reporte quando bater TUDO isto):
+- 18/18 lajes com extração validada (ficha N2 reflete o recorte) E geração validada (N4
+  idêntico ao N2: contorno + linhas internas + cotas-valor), confirmado POR VOCÊ lendo as
+  imagens  não por pytest verde.
+- Endurça o pytest se ele passa frouxo: ele deve FALHAR se qualquer laje divergir no conteúdo
+  canônico ou no marco físico. Um teste que passa com desenho errado é um teste inútil  conserte.
+- Sele o golden das 18 só após a validação visual sua.
+
+QUANDO PARAR E ME CHAMAR: só (a) ao atingir 100% (me traga o resumo por laje + as 2 contact
+sheets já lidas e comentadas por você), ou (b) decisão de produto genuinamente ambígua (algo no
+recorte que talvez não seja da laje)  e aí mostre a imagem + sua análise + a pergunta exata.
+
+REGRAS: Regra de Ouro (motor universal, zero hardcode); comparação canônica (conteúdo, não
+layer cru); contorno + linhas internas são o produto; viga/pilar/nível/h= = contexto (exceção);
+AUX00/c= = remover do gerador; nunca selar com FAIL; não toque em scripts\arete\ se outra
+sessão estiver nele. Trabalhe autônomo até 100%.
+
+---
+
+[2026-06-15 22:01:18] Boa entrega (18 N4 publicados, pytest verde). Agora muda o MÉTODO de validação: daqui pra
+frente VOCÊ é autônomo na validação visual  você LÊ as imagens com a ferramenta Read (ela
+abre PNG e você enxerga), valida sozinho, e SÓ me reporta quando atingir 100% em AMBOS
+(extração N2 + geração N4). NÃO me peça para abrir imagem nenhuma. cwd = D:\Agente-cad-PYSIDE.
+
+ "pytest 1 passed" NÃO é validação visual. Um teste verde só prova que o código rodou  não
+prova que os 18 desenhos estão corretos. A validação real é você OLHAR cada laje.
+
+VALIDAÇÃO AUTÔNOMA (loop, por laje, nas 18 do 13_PAV):
+Para CADA laje (L301..L331), você mesmo executa e LÊ com Read:
+1. EXTRAÇÃO (N2): abra o recorte humano e a ficha extraída. Leia o render do N2 e confirme que
+   a ficha capturou o que o desenho mostra: contorno, linhas internas, cotas internas (somam o
+   total), HLAZ nas uniões, obstáculos, modo. Se a ficha não reflete o recorte  corrija o
+   motor_reverso_laj (por fórmula) e re-extraia.
+2. GERAÇÃO (N4): leia o PNG lado a lado (N2 x N4) e o overlay CAD. Confirme item a item:
+   - contorno idêntico (integridade do outline)
+   - linhas internas iguais (divisões/uniões/HLAZ no lugar)
+   - cotas internas com mesmos VALORES e contagem
+   - zero AUX00 / c= / labels duplicados
+   - contexto (viga/pilar/nível/h=) tratado como exceção, não emitido
+3. Onde divergir, conserte (por fórmula geral, Regra de Ouro), regenere, e RELEIA a imagem.
+   Repita até a laje estar visualmente idêntica. Um fix por causa (vale p/ todas as lajes).
+
+USE as imagens que você já gera:
+- test_output\arete_lj\pytest_13_PAV\ARETE_LJ_13PAV_pytest_contact_sheet.png (lado a lado)
+- ...\ARETE_LJ_13PAV_overlay_contact_sheet.png (overlay N2 verde x N4 vermelho)
+Abra-as com Read e descreva, por laje, o que está certo e o que diverge. O overlay é o teste
+mais duro: onde o vermelho (N4) não cobre o verde (N2), há divergência geométrica  investigue.
+
+CRITÉRIO DE 100% (só me reporte quando bater TUDO isto):
+- 18/18 lajes com extração validada (ficha N2 reflete o recorte) E geração validada (N4
+  idêntico ao N2: contorno + linhas internas + cotas-valor), confirmado POR VOCÊ lendo as
+  imagens  não por pytest verde.
+- Endurça o pytest se ele passa frouxo: ele deve FALHAR se qualquer laje divergir no conteúdo
+  canônico ou no marco físico. Um teste que passa com desenho errado é um teste inútil  conserte.
+- Sele o golden das 18 só após a validação visual sua.
+
+QUANDO PARAR E ME CHAMAR: só (a) ao atingir 100% (me traga o resumo por laje + as 2 contact
+sheets já lidas e comentadas por você), ou (b) decisão de produto genuinamente ambígua (algo no
+recorte que talvez não seja da laje)  e aí mostre a imagem + sua análise + a pergunta exata.
+
+REGRAS: Regra de Ouro (motor universal, zero hardcode); comparação canônica (conteúdo, não
+layer cru); contorno + linhas internas são o produto; viga/pilar/nível/h= = contexto (exceção);
+AUX00/c= = remover do gerador; nunca selar com FAIL; não toque em scripts\arete\ se outra
+sessão estiver nele. Trabalhe autônomo até 100%.
+
+---
+
+[2026-06-15 22:10:20] [Image #1] [Image #2] o contorno que voce gerou ta totalmente fora de proporcao ao orginal, verifica
+
+---
+
+[2026-06-15 23:28:45] Você é o executor autônomo da frente ARETE LAJE de um sistema CAD estrutural. Sessão de
+continuação  há estado salvo em disco e correções de dados já aplicadas. Leia tudo: você
+começa sem memória, mas o trabalho já avançou.
+
+0. AMBIENTE (crítico para eficiência)
+
+Rode com cwd em D:\Agente-cad-PYSIDE (NÃO em corporacao-senciente  lá há hooks SYNAPSE/
+code-intel que injetam regras irrelevantes e travam tudo). Arquivos do projeto em
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main. DB: D:\Agente-cad-PYSIDE\project_data.vision.
+LEIA PRIMEIRO:
+1. Agente-cad-PYSIDE-Restored-main\docs\MASTERPLAN-ARETE-LAJE.md (§6 = critérios Arete LAJ)
+2. Agente-cad-PYSIDE-Restored-main\docs\MASTERPLAN-ARETE-QUALITY-GATES.md (§G2 v1.2 canônico,
+   §4-B treinomotor universal, Regra de Ouro no topo)
+
+1. CONTEXTO DO PROJETO
+
+App PySide6 que automatiza FORMAS DE CONCRETO. Robôs desenham as fôrmas (nasceram p/ emitir
+SCR; estamos portando p/ gerar DXF). Fluxo dual:
+- N2 = ficha granular extraída do DXF STOG humano (o recorte feito pelo engenheiro)
+- N4 = DXF gerado pelo robô A PARTIR da ficha N2
+META = N4 idêntico ao recorte N2 (mesmo conteúdo, no estilo-padrão do robô) = "ARETE".
+É TREINO: usamos a Obra_TREINO_1 (gabarito humano) p/ construir um MOTOR UNIVERSAL de laje.
+🥇 REGRA DE OURO: TUDO é motor universal. ZERO hardcode isolado a uma laje/pavimento/obra.
+Tudo por FÓRMULA geral a partir da ficha. Solução que só serve a um caso = bug, não fix.
+
+2. CORREÇÃO DE DADOS JÁ FEITA (não refazer) + BUG DE CÓDIGO A CORRIGIR
+
+DESCOBERTA: as aprovações humanas dos recortes estavam INVISÍVEIS pro pipeline porque foram
+gravadas com obra_name='' (vazio). Já rodei um backfill: 121 linhas corrigidas (obra_name
+derivado do path). Agora LAJ 13_PAV tem 19 recortes aprovados visíveis, 1 por laje
+(determinístico). Backup do DB em project_data.vision.bak_backfill_*.
+VOCÊ DEVE CORRIGIR O CÓDIGO (senão volta a quebrar a cada nova aprovação):
+- src/ui/modules/diagnostic_reverse_hub.py, INSERT de recorte (~linha 3148): usa `self._obra`
+  como obra_name, mas no "Processar toda a Obra" `self._obra` está VAZIO  grava obra_name=''.
+  Corrija para SEMPRE preencher obra_name (derive do recorte_path: segmento 'Obra_*' após
+  DADOS-OBRAS, ou do projeto selecionado). Nunca inserir obra_name vazio.
+- A aprovação (~linha 2651) faz só `UPDATE ... SET status='aprovado' WHERE recorte_path=?` 
+  não corrige obra_name. Garanta que ao aprovar, obra_name também fique correto.
+- Confira os outros INSERTs (~2454, ~2549, ~3152) pela mesma falha.
+
+3. PRIORIDADE DE RECORTE (determinística  sempre)
+
+Para escolher o recorte de uma laje: status APROVADO > _sel_ > auto/motor. Onde houver
+aprovado, use SÓ ele. NUNCA "o _motor_ mais recente" quando existe um aprovado. Garanta isso
+no comparison_engine E no pipeline de Arete. Onde NÃO houver aprovado, marque BLOCKED e me
+avise  não chute.
+
+4. ESCOPO DO PRODUTO DO ROBÔ DE LAJE (decisão de domínio fechada)
+
+Importa a ÁREA INTERNA. Produto do robô = CONTORNO (outline) + LINHAS INTERNAS (divisões de
+painel, uniões, HLAZ) + cotas dessas divisões internas.
+- CONTEÚDO (entra na paridade): contorno (integridade nº1), linhas internas, cotas internas
+  (devem somar o total), HLAZ nas uniões, nome da laje, obstáculos internos, modo_selecionado.
+- CONTEXTO (exceção info-only, lista LJ_CONTEXTO no arete_config, FORA da paridade): dims de
+  vigas de contorno (ex. 19/120), pilares vizinhos (P8/P49), nível (852.12), espessura (h=13).
+- CRUFT do gerador (REMOVER do gerar_lj_dxf_stog.py, nunca excluir no G2): AUX00, c=..., labels
+  duplicados por painel. O recorte humano não tem isso.
+- Pontaletes FORA da paridade (cálculo NBR, não fôrma). linhas_vert/horiz são ALGORÍTMICAS
+  (modo1)  se a grade não bate, fix no algoritmo, nunca hardcode da divisão de uma laje.
+
+5. COMO MEDIMOS ARETE (comparação CANÔNICA)
+
+NÃO compare (layer,dxftype) cru contra o desenho humano  o robô tem o estilo dele. Compare o
+CONTEÚDO SEMÂNTICO extraído dos DOIS lados (recorte e N4) pelo motor reverso: contorno, linhas
+internas, cotas-VALOR, contagens. Painéis 0,5cm. Nunca sintetizar layer de estilo humano.
+
+6. SUA MISSÃO (em ordem)
+
+(a) Corrigir o bug do obra_name no código (seção 2).
+(b) Garantir prioridade de recorte aprovado (seção 3).
+(c) Reprocessar as 18 lajes do 13_PAV a PARTIR DOS RECORTES APROVADOS (agora visíveis):
+    para cada laje  extrai N2 do recorte aprovado, gera N4 do MESMO recorte (registre path +
+    hash dos dois lados para provar que são o mesmo), publica em Fase-6_Execucao_CAD/n4.
+(d) Remover AUX00/c=/labels duplicados do gerador; tratar contexto como LJ_CONTEXTO.
+
+7. VALIDAÇÃO AUTÔNOMA (você lê as imagens  NÃO me peça para abrir nada)
+
+ "pytest passed" NÃO é validação. Um teste verde não prova que o desenho está certo. A prova
+é VOCÊ OLHAR. Use a ferramenta Read (ela abre PNG e você enxerga).
+Para CADA laje (L301..L331):
+1. EXTRAÇÃO: confirme que a ficha N2 reflete o recorte aprovado (contorno, linhas internas,
+   cotas somando o total, HLAZ, obstáculos, modo). Se não, corrija motor_reverso_laj por fórmula.
+2. GERAÇÃO: abra com Read o N4 PUBLICADO (o arquivo em Fase-6/n4, NÃO um temp) e o recorte
+   aprovado. Confirme: contorno idêntico, linhas internas iguais, cotas-valor batendo, zero
+   AUX00/c=, contexto fora. Onde divergir  conserte por fórmula  regenere  RELEIA a imagem.
+   Repita até idêntico. Um fix por causa (vale p/ todas as lajes).
+3. ENDUREÇA o pytest/audit: deve FALHAR se o N4 publicado divergir do recorte aprovado (bbox/
+   marco + conteúdo canônico). Teste que passa com desenho errado é inútil  conserte o teste.
+
+8. CRITÉRIO DE 100% (só me reporte ao bater TUDO, ou em dúvida real)
+
+- 18/18 lajes: extração validada + N4 publicado idêntico ao recorte aprovado, confirmado POR
+  VOCÊ lendo as imagens dos arquivos publicados (não por pytest verde).
+- Tabela final por laje: recorte usado (path+hash), bbox N2, bbox N4, batem? S/N, seu veredito
+  visual. Lajes sem recorte aprovado = BLOCKED para eu aprovar.
+- Bug do obra_name corrigido no código + testes endurecidos.
+QUANDO PARAR: só (a) ao atingir 100% (traga a tabela + as contact sheets já lidas e comentadas
+por você), ou (b) decisão de produto ambígua (mostre imagem + análise + pergunta exata).
+
+9. REGRAS INEGOCIÁVEIS
+
+Regra de Ouro (motor universal, zero hardcode)  comparação canônica (conteúdo, não layer cru) 
+contorno + linhas internas = produto; viga/pilar/nível/h= = contexto; AUX00/c= = remover do
+gerador  recorte aprovado tem prioridade absoluta  nunca selar com FAIL  nunca declarar pronto
+por pytest verde  schema N1 imutável  não toque em scripts\arete\ se outra sessão estiver nele 
+modo autônomo, pare só para decisão de produto ambígua.
+Comece confirmando o cwd, lendo os 2 masterplans, corrigindo o bug do obra_name no código, e
+reprocessando a L301 a partir do recorte aprovado (LAJ_L301_motor_178111331366.dxf)  valide
+você mesmo lendo a imagem do N4 publicado antes de seguir para as demais.
+Esse prompt inclui tudo:
+
+---
+
+[2026-06-15 23:56:57] ja ajustou motor n4 la? posso abrir app e vai ta correto?
+
+---
+
+[2026-06-16 00:10:04] tem que ter sensibilidade de fracao até 1 casa 10.1 10.2 10.3 etc.. funcionou e ficou bem mais ele arrendoda numeros fracao e nao pode, ajusta, exemplo: [Image #1]  161.5 e [Image #2] 162
+
+---
+
+[2026-06-16 00:36:52] ficou otimo! só o posicionamento das cotas que ta externamente e normalmente fazemos na linha mais central em vertical e em horizontal
+
+---
+
+[2026-06-16 00:41:43] [Image #1] esse é o stog humano, ve que o estrutural tem dobrinhas e nao é um retangulo perfeito? e que essas deformidades tem cotas mostrando os recortes e medidas das deformidades etc, necessito mesmo nivel de detalhe porfa [Image #2] como pode ver o gerado é apenas um retangulo perfeito e isso é mentira
+
+---
+
+[2026-06-16 01:02:45] totalmente incorreto, nao fez comparacao visual ou nao identificou a area real veja ainda ta retangulo perfeito e agora com cotas alucinadas [Image #1]
+
+---
+
+[2026-06-16 01:12:30] totalmente incorreto, nao fez comparacao visual ou nao identificou a area real veja ainda ta retangulo perfeito e agora com cotas alucinadas [Image #1]
+
+---
+
+[2026-06-16 01:19:44] abriur?
+
+---
+
+[2026-06-16 01:20:16] aqui nao teve alteracoes, vc consegue ver?
+
+---
+
+[2026-06-16 01:35:13] mas é para ajustar justamente o motor n4 meu querido tem que funcionar la ainda nao funciona
+
+---
+
+[2026-06-16 11:42:32] Ajuste arquitetural no motor N4 da LAJE  contornos deformados (não-retangulares) precisam sair
+funcionais, estáveis e bem desenhados, sem caos. cwd = D:\Agente-cad-PYSIDE.
+
+LEIA: docs\MASTERPLAN-ARETE-LAJE.md (§6 critérios) e docs\MASTERPLAN-ARETE-QUALITY-GATES.md
+(Regra de Ouro, §G2 v1.2 canônico).
+
+ DIAGNÓSTICO (confirmado no disco) 
+1. A extração simplifica o contorno num RETÂNGULO: coordenadas do L327 =
+   [[0,0],[461.31,0],[461.31,71],[0,71]]  não capturou a deformidade real (a laje tem degraus/
+   recortes, ver N2). O gerador desenha retângulo a partir de comprimentolargura.
+2. Para "mostrar" a deformidade, foi criado um HACK: campo _stog_detail_primitives (primitivas
+   CRUAS do STOG) + draw_stog_detail_primitives(). Isso despeja linhas cruas em vez de extrair o
+   contorno real  retângulo + linhas cruas misturados = caos. ESTE é o problema. Remover.
+3. Instabilidade: há DUAS rotas de geração divergentes  o batch preserva _stog_detail_primitives,
+   o comparison_engine descartava  app regenera retângulo e sobrescreve o arquivo bom.
+
+ MELHOR CAMINHO (faça assim, não remende o hack) 
+PRINCÍPIO: o contorno da laje é um POLÍGONO. Retângulo = polígono de 4 vértices; laje deformada =
+polígono de N vértices. MESMA representação, UM motor só (Regra de Ouro). Nada de caso-especial
+retângulo + hack de deformidade.
+
+1. EXTRAÇÃO LIMPA (motor_reverso_laj.py): extrair o CONTORNO REAL como polígono fechado para o
+   campo `coordenadas`  com TODOS os vértices da deformidade (degraus, recortes), traçando o
+   outline real do recorte. NÃO despejar todas as linhas; NÃO usar _stog_detail_primitives.
+   Separadamente e de forma ESTRUTURADA: linhas internas (divisões de painel, uniões), HLAZ,
+   obstáculos. Cada um como dado tipado, não primitiva crua.
+2. GERAÇÃO UNIFICADA (gerar_lj_dxf_stog.py): desenhar o contorno a partir de `coordenadas`
+   (add_lwpolyline do polígono)  funciona igual para retângulo E deformado, mesmo código. Depois
+   as linhas internas + uniões + HLAZ DENTRO do polígono, e as cotas internas. REMOVER
+   draw_stog_detail_primitives e a suposição de retângulo (complarg). Um caminho só.
+3. ROTA ÚNICA DE GERAÇÃO (fonte da verdade): o botão/aba N4 do comparison_engine.py e o batch
+   TÊM que chamar a MESMA função geradora com a MESMA ficha completa. Elimine o JSON temporário
+   que descarta campos. Idealmente o app só LÊ o N4 publicado; se regenerar, usa o caminho
+   idêntico ao batch. Assim o app nunca mais sobrescreve com versão pior.
+
+ VALIDAÇÃO AUTÔNOMA (você lê as imagens  não me peça para abrir) 
+Comece pelo L327 (caso deformado) e por 1 retângulo simples (ex. L308) para garantir que o motor
+único serve aos dois. Para cada: gere o N4 pelo MESMO caminho do app, abra o PNG com Read e
+compare com o recorte aprovado  contorno (polígono com a deformidade), linhas internas, cotas
+internas somando o total, HLAZ, sem primitivas cruas soltas. Onde divergir  conserte por fórmula
+ regenere  releia. Endureça o pytest pra FALHAR se o N4 publicado for retângulo quando o recorte
+é deformado, ou se sobrar primitiva crua.
+
+CRITÉRIO: deformados E retângulos saindo corretos pelo MESMO motor, estáveis (app não sobrescreve),
+desenho limpo. Traga a comparação do L327 + de 1 retângulo, lidas por você, antes de rodar no lote.
+
+ REGRAS 
+Regra de Ouro (um motor universal por polígono, zero hack/caso-especial)  contorno + linhas
+internas = produto; viga/pilar/nível/h= = contexto (exceção); pontaletes fora  comparação canônica
+ nunca selar com FAIL  não declarar pronto por pytest verde  rota de geração única (app=batch) 
+não toque em scripts\arete\ se outra sessão estiver nele  modo autônomo, pare só em dúvida real.
+
+Comece confirmando cwd, lendo os masterplans, e mapeando as DUAS rotas de geração (batch x
+comparison_engine) para unificá-las antes de mexer na extração.
+
+---
+
+[2026-06-16 12:05:55] continua
+
+---
+
+[2026-06-16 12:36:21] [Image #1]  o 327 conseguiu reconhecer o deforme, porem as cotas ficaram totalmene bugadas... antes tava melhor , nao é para reproduzirlas e sim gerarlas, ter o padrao das cotas estarem dentro da area da laje e nas linhas centrais e se tiver deformidades ter as cotas dessa deformidade internamente...  ta ;alem disso vi que em outras lajes com deformidade nao conseguiu reconhcer e nao funcionou o motor n4... refina para funcione em todos casos possiveis [Image #2]  se vc ver temos aqui 2 deformidades e no n4 nao foi reproduzida nenhuma [Image #3] ;  outro detalhe que te solicito é que o nome da laje nunca fique sobre algumas das linhas internas das lajes, posicione ele em algum espaço que nao cruze a coordenada de nnenhuma das linhas internas, para assim nao ficar contaminado a visao
+
+---
+
+[2026-06-16 12:47:19] prossiga
+
+---
+
+[2026-06-16 14:06:12] perfeito ficou muito bom, poderiamos voltar a parte de recortes no diagnostic reversa, o motor de recorte das lajes por exemplo nesse 13 pav, os que eu aprovei humano queria que servisse de referencia para melhorar um pouquinho o motor, pq os que nao foram aprovados é pq nao ficou bom consegue dar uma analisada nos que eu aprovei e no motor atual para ver como melhorar a eficacia e a sinceridade da % porfa[Image #1]
+
+---
+
+[2026-06-16 14:33:51] continua
+
+---
+
+[2026-06-16 15:16:14] [Image #1] [Image #2] [Image #3] [Image #4] [Image #5] [Image #6]  veja todos os que nao aprovei (tem mais do que as imagens que enviei) é pq nao fecham o marco e ta incompleto a laje no recorte ve... me ajuda a conseguir melhorar o motor de recorte, ele melhorou na sinceridade da % mas nao resolveu o problema.. investiga e soluciona
+
+---
+
+[2026-06-16 15:38:14] prossiga
+
+---
+
+[2026-06-16 16:45:08] prossiga
+
+---
+
+[2026-06-16 16:55:58] prossiga
+
+---
+
+[2026-06-16 18:29:01] boa melhorou muito quase todos deu para apenas dar uma pequena editada salvar e aprovar. a pergunta é se eu for processando obras e pavimentos, vai ficar cada vez melhor?
+
+---
+
+[2026-06-16 18:33:23] e qual seria a dificuldade em ter um machine learning ou aprendizagem de padroes dos aprovados automaticamente? para a cada aprovacao humana melhorar?
+
+---
+
+[2026-06-16 18:35:38] entendi blz essa implementacao inicial e registro de versionamento para os recortes é bom, faz um masterplan de como fazer isso para cada os recortes das lajes porfavor, mas mantendo integridade atual porfa
+
+---
+
+[2026-06-16 18:42:02] ok prossiga implementa
+
+---
+
+[2026-06-16 18:53:13] nao deixe nomes genericos seja bem especifico que esse db é dos recortes de lajes do eng reversa, pois vamos ter varias partes e varios db para nao misturar etc
+
+---
+
+[2026-06-16 19:36:06] ta agora temos que ter claro todas partes da laje que existem e processos para voce me ajduar a conectarlos em inteligencia e eficacia. 
+
+Temos:
+1: Processo de recortar Diagnostic reverse Lajes
+2: N2 ficha granular de cada recorte extraido do stog humano da tal laje no eng reversa, o estrutural limpo é muito similar só nao tem as linhas internas verticasi e horizontais dentro de cada laje porem em forma bruta do contorno é identico certo pois foi feito encima do estrutural limpo as lajes stogs humanas
+3: N1 ficha granular de cada recorte extraido do dxf estrutural limpo, e as fichas n1.  (ESSA É A PROXIMA ETAPA ALVO E APERFEIÇOAMENTO O SISTEMA QUE TEM FOI O PRIMEIRO DESENVOLVIDO E É BURRINHO NAO FOI TREINADO TANTO E NAO CONSEGUE OBTER AINDA AS AREAS DOS CONTORNOS PRECISAMENTE, AGORA QUE TEMOS AS FICHAS N2 JA APROVADAS DOS RECORTES E TAMBEM JA GERADAS NO N4, PRECISAMOS REFINAR E ENSINAR ESSE MOTOR A CONSEGUIR RECONHECER AS LAJES E BATER O MESMO RESULTADO DE FICHA N1 QUE TEMOS NO N2 PARA CADA LAJE GRANULARMENTE DO 13 PAVIMENTO OBRA TREINO 1, CLARO QUE TEM QUE SER MOTOR UNIVERSAL PARA FUNCIONAR EM QUALQUER OBRA ETC, LEMBRE É UM TREINO, E TEM QUE TER MESMO SISTEMA QUE TEMOS DE APRENDIZAGEM CONTINUA COMO FIZEMOS PARA OS RECORTES DAS LAJES, VAMOS PRECISAR QUE O MODELO SEJA INTELIGENTE E APRENDA COM O TEMPO CADA VEZ MAIS, OBVIO DE INICIO VERSIONAMENTO COM SETUPS COMO ESSE, E DEPOIS DE COLETAR DADOS APROVADOS AI SIM VAMOS PODER ATIVAR A FUNCAO DE APRENDIZAGEM, POREM JA CRIE E PROGRAME A COLETA E ASSIM APÓS FUNCIONAR E EU CONSEGUIR APROVAR TODOS ITENS DO PAV 13 AVANCAMOS PROXIMAS VERSOES E VAMOS TESTANDO COM OS OUTROS PAVS E OBRAS OK? O CAMPO/VINCULO REFERENTE AO CONTORNO NO N1 É OS CAMPOS [Image #1] SEGMENTOS AREA GEEOMETRIA AI EU TENHO O BOTAO VALIDAR PARA APROVAR ETC. E ACUMULAR DADOS PARA IRMOS TREINANDO, ATUALMENTE ELE TA ERRANDO BASTANTE VEJA MAS TAMO QUASE LA [Image #2] ELE SE PERDE COM ALGUMAS COTAS OU LINHAS QUE CRUZAM O DESENHO E NAO SAO NEM PILARES OU VIGAS E AS CONSIDERAM PARTE DO CONTORNO COMO LINHA SOLIDA E AI CONFLITUAM NA HORA DA INTERPRETACAO ,[Image #3] OUTRA COISA É QUE NOS ESTRUTURAIS TEM DESENHOS INFORMATIVOS SOBRE AS VIGAS QUE SERIAM SUAS VISOES DE CORTE ESSAS PARTES QUE FICAM SOBREPOSTAS AS VIGAS E SOBRESAEM AS LAJES, E TEM COTAS ETC... NAO PODE SE COFUNDIR E CONTORNAR ELAS POIS SAO APENAS INFORMATIVAS EXEMPLO: [Image #4] [Image #5] [Image #6] TEMOS OS BOTOES INICIAR ANALISE GERAL E INTERPRETAR COM CONTEXTO[Image #7]. TENHOS VARIOS OBJETIVOS MAS VAMOS AO PONTO, PRECISO UM BOTAO INTERPRETAR COM ENG.REVERSA. esse busca objetivamente interpretar todo o estrutural limpo tentando chegar nos valores ja definidos nas fichas n2 somado a interpretacao do iniciar analise geral. entao hmm basicamente é um plus do iniciar analise geral com auxilio da ja pre interpretacao do eng reversa. necessito esses 3 motores diferentes e separados e isolados para asism poder comparar se de fato ter as infos da obra(interpretar com contexto) ou ter as infos (dos resultados finais) ajudam na interpretacao inicial, assim poderemos treinar fazendo comparativos entende? ta esses botoes fazem analise e populam todas classes de item  por equanto monta e deixa preparada as estrutura das demais classes mas foca na laje que é oque estamos fazendo para assim poder avancar aqui. ta objetivo 1 é esse botao e eessa funcao isolada certo? a ficha do n1 permanece a mesma mas o objetivo é ter conversor fichas n1 a n2 e chegar ao mesmo resultado pois assim o resultado n3 ou n4 serao identicos ok.  ta objetivo 2 é reavaliacao e e evolucao imediata da interpretacao das lajes de acordo as instruco e imagens deste prompt, para desde ja o iniciar analise geral ja funcione melhor, e ai depois de feito o botao de interpretar com eng.reversa agente testa e pode comparar um motor ja eficiente. 3 [Image #8] de todos esses campos da laje no structural analyzer (oque popula n1) ta sobreexagerado de campos, nao precisamos dos campos dos pontaletes/scoras ainda nao estamos analisando isso ok, 4. necessito que o motor n3 seja identico ao motor n4 porem que ingira os dados do n1 e nao do n2 , por enquanto faz para as lajes ok a ideia é o motor n33 ser universal e aprender a gerar as linhas verticais e horizontais de acordo ao padrao que se ve nos stog humanos. tem certos padroes podemos ver eles tambem no robo pyside scr das lajes como os modos deifidos de 122 244 60 20 etc... vamos ter que treinar e aprender porem de momento a ideia é analisar a engenahria reversa e conseguir construir um motor que gere o mesmo resultado no n3 que obtemos no n4 lendo a n2, só que no n3 vamos ler o n1 e nao tem linhas verticais e horizontais tem somente o contorno. ta ai o aprendizado .
+
+---
+
+[2026-06-16 19:40:01] ta agora temos que ter claro todas partes da laje que existem e processos para voce me ajduar a conectarlos em inteligencia e eficacia. 
+
+Temos:
+1: Processo de recortar Diagnostic reverse Lajes
+2: N2 ficha granular de cada recorte extraido do stog humano da tal laje no eng reversa, o estrutural limpo é muito similar só nao tem as linhas internas verticasi e horizontais dentro de cada laje porem em forma bruta do contorno é identico certo pois foi feito encima do estrutural limpo as lajes stogs humanas
+3: n4 ficha e dxf gerado atravez do n2 que ta certinho para o 13 pavimento os aprovados etc pergunte se precisar
+4: N1 ficha granular de cada recorte extraido do dxf estrutural limpo, e as fichas n1.  (ESSA É A PROXIMA ETAPA ALVO E APERFEIÇOAMENTO O SISTEMA QUE TEM FOI O PRIMEIRO DESENVOLVIDO E É BURRINHO NAO FOI TREINADO TANTO E NAO CONSEGUE OBTER AINDA AS AREAS DOS CONTORNOS PRECISAMENTE, AGORA QUE TEMOS AS FICHAS N2 JA APROVADAS DOS RECORTES E TAMBEM JA GERADAS NO N4, PRECISAMOS REFINAR E ENSINAR ESSE MOTOR A CONSEGUIR RECONHECER AS LAJES E BATER O MESMO RESULTADO DE FICHA N1 QUE TEMOS NO N2 PARA CADA LAJE GRANULARMENTE DO 13 PAVIMENTO OBRA TREINO 1, CLARO QUE TEM QUE SER MOTOR UNIVERSAL PARA FUNCIONAR EM QUALQUER OBRA ETC, LEMBRE É UM TREINO, E TEM QUE TER MESMO SISTEMA QUE TEMOS DE APRENDIZAGEM CONTINUA COMO FIZEMOS PARA OS RECORTES DAS LAJES, VAMOS PRECISAR QUE O MODELO SEJA INTELIGENTE E APRENDA COM O TEMPO CADA VEZ MAIS, OBVIO DE INICIO VERSIONAMENTO COM SETUPS COMO ESSE, E DEPOIS DE COLETAR DADOS APROVADOS AI SIM VAMOS PODER ATIVAR A FUNCAO DE APRENDIZAGEM, POREM JA CRIE E PROGRAME A COLETA E ASSIM APÓS FUNCIONAR E EU CONSEGUIR APROVAR TODOS ITENS DO PAV 13 AVANCAMOS PROXIMAS VERSOES E VAMOS TESTANDO COM OS OUTROS PAVS E OBRAS OK? O CAMPO/VINCULO REFERENTE AO CONTORNO NO N1 É OS CAMPOS [Image #1] SEGMENTOS AREA GEEOMETRIA AI EU TENHO O BOTAO VALIDAR PARA APROVAR ETC. E ACUMULAR DADOS PARA IRMOS TREINANDO, ATUALMENTE ELE TA ERRANDO BASTANTE VEJA MAS TAMO QUASE LA [Image #2] ELE SE PERDE COM ALGUMAS COTAS OU LINHAS QUE CRUZAM O DESENHO E NAO SAO NEM PILARES OU VIGAS E AS CONSIDERAM PARTE DO CONTORNO COMO LINHA SOLIDA E AI CONFLITUAM NA HORA DA INTERPRETACAO ,[Image #3] OUTRA COISA É QUE NOS ESTRUTURAIS TEM DESENHOS INFORMATIVOS SOBRE AS VIGAS QUE SERIAM SUAS VISOES DE CORTE ESSAS PARTES QUE FICAM SOBREPOSTAS AS VIGAS E SOBRESAEM AS LAJES, E TEM COTAS ETC... NAO PODE SE COFUNDIR E CONTORNAR ELAS POIS SAO APENAS INFORMATIVAS EXEMPLO: [Image #4] [Image #5] [Image #6] TEMOS OS BOTOES INICIAR ANALISE GERAL E INTERPRETAR COM CONTEXTO[Image #7]. TENHOS VARIOS OBJETIVOS MAS VAMOS AO PONTO, PRECISO UM BOTAO INTERPRETAR COM ENG.REVERSA. esse busca objetivamente interpretar todo o estrutural limpo tentando chegar nos valores ja definidos nas fichas n2 somado a interpretacao do iniciar analise geral. entao hmm basicamente é um plus do iniciar analise geral com auxilio da ja pre interpretacao do eng reversa. necessito esses 3 motores diferentes e separados e isolados para asism poder comparar se de fato ter as infos da obra(interpretar com contexto) ou ter as infos (dos resultados finais) ajudam na interpretacao inicial, assim poderemos treinar fazendo comparativos entende? ta esses botoes fazem analise e populam todas classes de item  por equanto monta e deixa preparada as estrutura das demais classes mas foca na laje que é oque estamos fazendo para assim poder avancar aqui. ta objetivo 1 é esse botao e eessa funcao isolada certo? a ficha do n1 permanece a mesma mas o objetivo é ter conversor fichas n1 a n2 e chegar ao mesmo resultado pois assim o resultado n3 ou n4 serao identicos ok.  ta objetivo 2 é reavaliacao e e evolucao imediata da interpretacao das lajes de acordo as instruco e imagens deste prompt, para desde ja o iniciar analise geral ja funcione melhor, e ai depois de feito o botao de interpretar com eng.reversa agente testa e pode comparar um motor ja eficiente. 3 [Image #8] de todos esses campos da laje no structural analyzer (oque popula n1) ta sobreexagerado de campos, nao precisamos dos campos dos pontaletes/scoras ainda nao estamos analisando isso ok, 4. necessito que o motor n3 seja identico ao motor n4 porem que ingira os dados do n1 e nao do n2 , por enquanto faz para as lajes ok a ideia é o motor n33 ser universal e aprender a gerar as linhas verticais e horizontais de acordo ao padrao que se ve nos stog humanos. tem certos padroes podemos ver eles tambem no robo pyside scr das lajes como os modos deifidos de 122 244 60 20 etc... vamos ter que treinar e aprender porem de momento a ideia é analisar a engenahria reversa e conseguir construir um motor que gere o mesmo resultado no n3 que obtemos no n4 lendo a n2, só que no n3 vamos ler o n1 e nao tem linhas verticais e horizontais tem somente o contorno. ta ai o aprendizado .   ; monta o masterplan compelto, pergunte tudo que encessitar, faça completinho e detalhado para modelo menor poder executar sem dificuldades analise e estude bem . 5: temos tambem o robo laje que é onde vai estar populado simultaneamente com a granularidade do n3, para poder visualizar e editar o contorno e as linhas verticais e horizontais desejadas pois ta conectado ao strucutral analizer ao popular o n1 e gerar o motor n3 se popula e gera simultanemaente dentro do robo lajes para poder acessar os itens granularmente la dentro tambem
+
+---
+
+[2026-06-16 19:50:49] continua
+
+---
+
+[2026-06-16 20:00:00] continue
+
+---
+

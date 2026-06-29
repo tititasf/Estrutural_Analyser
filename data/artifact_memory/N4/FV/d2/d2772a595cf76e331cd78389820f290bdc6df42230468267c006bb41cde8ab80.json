@@ -1,0 +1,18 @@
+{
+  "background": "#101318",
+  "entity_count": 14,
+  "height": 768,
+  "layers": [
+    "5",
+    "COTA",
+    "NOMENCLATURA",
+    "Painéis",
+    "SARR_2.2x7"
+  ],
+  "png_path": "D:\\Agente-cad-PYSIDE\\data\\artifact_memory\\N4\\FV\\d2\\d2772a595cf76e331cd78389820f290bdc6df42230468267c006bb41cde8ab80.png",
+  "png_sha256": "30f18cc804cc4f494ff29d9a956b4d621a293e3416f2ecd9a18d623ac843366b",
+  "renderer_version": "dxf-canonical-v1",
+  "source_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\FV_preview_V309.dxf",
+  "source_sha256": "d2772a595cf76e331cd78389820f290bdc6df42230468267c006bb41cde8ab80",
+  "width": 1024
+}

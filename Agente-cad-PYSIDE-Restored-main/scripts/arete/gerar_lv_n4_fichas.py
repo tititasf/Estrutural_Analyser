@@ -235,34 +235,6 @@ def gerar_lv_n4(elem: str, entry: dict,
             result['dxf_path'] = str(dxf_dst)
             result['view_paths']['ALL'] = str(dxf_dst)
 
-            for view, filename in (
-                ('CORTE', f'LV_preview_{elem}_CORTE.dxf'),
-                ('A', f'LV_preview_{elem}_VIEW_A.dxf'),
-                ('B', f'LV_preview_{elem}_VIEW_B.dxf'),
-            ):
-                view_cmd = [
-                    sys.executable, str(GERADOR),
-                    '--obra', str(obra_dir),
-                    '--item', elem + '_A',
-                    '--max', '1',
-                    '--visual-mode', visual_mode,
-                    '--view', view,
-                ]
-                view_run = subprocess.run(
-                    view_cmd,
-                    capture_output=True,
-                    text=True,
-                    timeout=90,
-                    cwd=str(REPO),
-                )
-                result['log'] += (view_run.stdout or '') + (view_run.stderr or '')
-                view_src = out_fase6 / filename
-                if view_run.returncode != 0 or not view_src.exists():
-                    result['log'] += f'\n[{view} ausente ou falhou: {view_src}]'
-                    return result
-                view_dst = out_dir / filename
-                shutil.copy2(view_src, view_dst)
-                result['view_paths'][view] = str(view_dst)
             result['ok'] = True
         else:
             result['log'] += f'\n[DXF não encontrado em {out_fase6}]'

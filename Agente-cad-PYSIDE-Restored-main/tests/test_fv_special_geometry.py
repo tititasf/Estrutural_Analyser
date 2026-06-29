@@ -204,3 +204,98 @@ def test_support_text_offsets_distinguish_ends_from_between_segments():
         "APOIO": (95.0, -45.0),
         "FINAL": (205.0, -45.0),
     }
+
+
+def test_multiplier_group_suppresses_internal_texts_and_keeps_next_segment_unique():
+    segments = [
+        {
+            "total_width": 100.0,
+            "texto_esq": "A",
+            "texto_dir": "B",
+            "panels": [{"width": 100.0}],
+        },
+        {
+            "total_width": 40.0,
+            "_multiplier": 3,
+            "texto_esq": "B",
+            "texto_dir": "C",
+            "panels": [{"width": 40.0, "height": 19.0}],
+        },
+        {
+            "total_width": 120.0,
+            "row_break": True,
+            "texto_esq": "C",
+            "texto_dir": "D",
+            "panels": [
+                {"width": 60.0, "height": 0.0, "tiers": [[40.0, 20.0]]},
+                {"width": 60.0, "height": 19.0, "tiers": [[40.0, 20.0]]},
+            ],
+        },
+        {
+            "total_width": 30.0,
+            "texto_esq": "D",
+            "texto_dir": "E",
+            "panels": [{"width": 30.0}],
+        },
+    ]
+    holes = [
+        {"active": True, "width": 10.0, "position": 100.0, "text": "B"},
+        # Position intentionally follows the duplicated source segment width.
+        # The generator must still match by label after sanitizing the segment.
+        {"active": True, "width": 20.0, "position": 270.0, "text": "D"},
+    ]
+    doc = fv.setup_doc()
+
+    footprint = fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V302",
+        holes=holes, label_left="", label_right="",
+    )
+
+    panel_starts = sorted({
+        round(min(point[0] for point in entity.get_points("xy")), 2)
+        for entity in doc.modelspace()
+        if entity.dxftype() == "LWPOLYLINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+    })
+    support_texts = [
+        entity.dxf.text
+        for entity in doc.modelspace()
+        if entity.dxftype() == "TEXT"
+        and entity.dxf.layer == "5"
+        and entity.dxf.text in {"A", "B", "C", "D", "E"}
+    ]
+
+    assert footprint == pytest.approx(385.0)
+    assert panel_starts == [0.0, 110.0, 165.0, 220.0, 275.0, 355.0]
+    assert support_texts.count("C") == 1
+    assert support_texts.count("D") == 1
+
+
+def test_numpy_vertices_from_l_panel_do_not_break_truth_checks():
+    np = pytest.importorskip("numpy")
+    segments = [{
+        "total_width": 120.0,
+        "panels": [{
+            "width": 120.0,
+            "height": 29.0,
+            "vertices": np.array([
+                {"x": 0.0, "y": 0.0},
+                {"x": 120.0, "y": 0.0},
+                {"x": 120.0, "y": 29.0},
+                {"x": 0.0, "y": 29.0},
+            ], dtype=object),
+            "texts": np.array([], dtype=object),
+        }],
+    }]
+    doc = fv.setup_doc()
+
+    footprint = fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V303",
+        label_left="", label_right="",
+    )
+
+    assert footprint == pytest.approx(120.0)
+    assert any(
+        entity.dxftype() == "LWPOLYLINE" and entity.dxf.layer == fv.LY_PAINEIS
+        for entity in doc.modelspace()
+    )

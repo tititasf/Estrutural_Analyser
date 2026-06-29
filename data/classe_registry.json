@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "unknown_policy": "preserve_unmapped",
+  "dimensions": [
+    {"id": 1, "key": "visual_n1", "name": "Visual estrutural N1"},
+    {"id": 2, "key": "desenho_robos", "name": "Desenho dos robos N3/N4"},
+    {"id": 3, "key": "dados_fichas", "name": "Dados, fichas e campos"},
+    {"id": 4, "key": "semantica_logica", "name": "Descricao, geometria e logica"},
+    {"id": 5, "key": "contexto_obra", "name": "Obra, pavimento e item"},
+    {"id": 6, "key": "engenharia_reversa", "name": "Engenharia reversa N2"},
+    {"id": 7, "key": "visual_dxf", "name": "Layers, cores e historico DXF"},
+    {"id": 8, "key": "corpus_global", "name": "Corpus global entre obras"}
+  ],
+  "classes": [
+    {
+      "id": "PIL",
+      "name": "Pilar",
+      "aliases": ["PILAR"],
+      "enabled": true
+    },
+    {
+      "id": "LV",
+      "name": "Lateral de Viga",
+      "aliases": ["LATERAL_VIGA", "LATERAL DE VIGA"],
+      "enabled": true
+    },
+    {
+      "id": "FV",
+      "name": "Fundo de Viga",
+      "aliases": ["FUNDO_VIGA", "FUNDO DE VIGA"],
+      "enabled": true
+    },
+    {
+      "id": "LAJ",
+      "name": "Laje",
+      "aliases": ["LAJE"],
+      "enabled": true
+    }
+  ]
+}

@@ -6,6 +6,7 @@ Layout: [DualCanvas | Painel Fase-8]
 import os
 import sys
 import json
+import re
 from pathlib import Path
 from datetime import datetime
 
@@ -291,6 +292,11 @@ from src.ui.theme import Colors, Fonts, Radius, Semantic, Contextual, Text, Surf
 from src.core.item_attention_store import (
     has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
     save_para_passa, load_para_passa,
+)
+from src.core.artifact_governance import (
+    discover_level_artifacts,
+    guarded_promote,
+    restore_validation_artifacts,
 )
 
 try:
@@ -3225,8 +3231,41 @@ def _ficha_field_label(key: object) -> str:
     return text[:1].upper() + text[1:] if text else "Campo"
 
 
+def _ce_plain_value(value: object):
+    """Converte numpy/scalars e sequencias exoticas para tipos Python puros."""
+    if hasattr(value, "tolist") and not isinstance(value, (str, bytes, dict)):
+        try:
+            return _ce_plain_value(value.tolist())
+        except Exception:
+            pass
+    if hasattr(value, "item") and not isinstance(value, (str, bytes, dict, list, tuple)):
+        try:
+            return value.item()
+        except Exception:
+            pass
+    if isinstance(value, dict):
+        return {str(k): _ce_plain_value(v) for k, v in value.items()}
+    if isinstance(value, tuple):
+        return [_ce_plain_value(v) for v in value]
+    if isinstance(value, list):
+        return [_ce_plain_value(v) for v in value]
+    return value
+
+
+def _ce_is_empty_value(value: object) -> bool:
+    value = _ce_plain_value(value)
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value == ""
+    if isinstance(value, (list, tuple, dict, set)):
+        return len(value) == 0
+    return False
+
+
 def _ficha_compact_value(value: object) -> str:
-    if value is None or value == "":
+    value = _ce_plain_value(value)
+    if _ce_is_empty_value(value):
         return "—"
     if isinstance(value, bool):
         return "Sim" if value else "Não"
@@ -3236,7 +3275,7 @@ def _ficha_compact_value(value: object) -> str:
         parts = [
             f"{_ficha_field_label(k)}={_ficha_compact_value(v)}"
             for k, v in list(value.items())[:4]
-            if v not in (None, "", [], {})
+            if not _ce_is_empty_value(v)
         ]
         return "; ".join(parts) if parts else f"{len(value)} campo(s)"
     if isinstance(value, list):
@@ -3298,7 +3337,7 @@ def _structured_ficha_rows(
         ("Classe", db_cls),
     ]
     for key in identity_order:
-        if key in campos and campos[key] not in (None, ""):
+        if key in campos and not _ce_is_empty_value(campos[key]):
             rows.append((_ficha_field_label(key), _ficha_compact_value(campos[key])))
     if status or source or confidence is not None:
         rows.append(("==", "VALIDAÇÃO E ORIGEM"))
@@ -9109,6 +9148,82 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _materialize_lj_n3_json_from_n1 error: {exc}")
             return None
 
+    def _load_human_validated_level(
+        self, scope: str, classe: str, item_id: str, obra: str
+    ) -> bool:
+        pav = self.fase8_panel.current_pav_key
+        if not is_human_validated(obra, pav, classe, item_id, scope):
+            return False
+
+        paths = restore_validation_artifacts(
+            obra, pav, classe, item_id, scope
+        )
+        if not paths:
+            paths = discover_level_artifacts(
+                obra, classe, item_id, scope
+            )
+
+        col_idx = 2 if scope == "N3" else 3
+        col = self.tri_level._columns[col_idx]
+        if not paths:
+            col.pipeline.set_step(2, "error", "validado, artefato ausente")
+            self.nav_sidebar.set_status(
+                f"🔒 {scope} validado — desmarque a validação humana para gerar {item_id}",
+                Colors.ACCENT_WARNING,
+            )
+            self.nav_sidebar._enable_item_btns()
+            return True
+
+        if classe == "PL":
+            zones = {}
+            for zone in ("ABCD", "CIMA", "GRADES", "EFGH"):
+                zones[zone] = next(
+                    (
+                        path for path in paths
+                        if f"PL_{zone}_preview_" in path.name
+                    ),
+                    None,
+                )
+            zones = {key: value for key, value in zones.items() if value}
+            col.switch_to_pil_zones(zones, {})
+            loaded_name = "·".join(zones)
+        elif classe == "LV":
+            primary = next(
+                (
+                    path for path in paths
+                    if path.name.upper().endswith("_A.DXF")
+                ),
+                paths[0],
+            )
+            ficha = (
+                self._build_n3_lv_er_ficha(item_id)
+                if scope == "N3"
+                else self._get_er_ficha_dict(obra, classe, item_id)
+            )
+            col.switch_to_lv_zones(
+                self._lv_generated_zone_paths(primary, ficha or {}),
+                ficha or {},
+            )
+            loaded_name = primary.name
+        else:
+            primary = paths[0]
+            bbox = (
+                self.tri_level._get_n2_bbox_for(item_id, classe)
+                if scope == "N4" and classe == "LJ"
+                else None
+            )
+            col.load_content(str(primary), bbox)
+            loaded_name = primary.name
+
+        col.pipeline.set_step(2, "ok", f"🔒 {loaded_name[:22]}")
+        self._configure_level_attention(scope, classe, item_id)
+        self.nav_sidebar.set_status(
+            f"🔒 {scope} humano preservado — {item_id}",
+            Colors.ACCENT_SUCCESS,
+        )
+        self.nav_sidebar._enable_item_btns()
+        return True
+
     def _on_gerar_n3(
         self,
         classe: str,
@@ -9127,6 +9242,9 @@ class ComparisonEngineModule(QWidget):
                 return
         except Exception as exc:
             print(f"[CE] _on_gerar_n3 early error: {exc}")
+            return
+
+        if self._load_human_validated_level("N3", classe, item_id, obra):
             return
 
         try:
@@ -9274,6 +9392,9 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _on_gerar_n4 early error: {exc}")
             return
 
+        if self._load_human_validated_level("N4", classe, item_id, obra):
+            return
+
         try:
             _ce_log(f"N4 start classe={classe} id={item_id}")
             col = self.tri_level._columns[3]
@@ -9362,6 +9483,11 @@ class ComparisonEngineModule(QWidget):
 
         except Exception as exc:
             print(f"[CE] _on_gerar_n4 error: {exc}")
+            try:
+                import traceback as _traceback
+                _traceback.print_exc()
+            except Exception:
+                pass
             try:
                 self.nav_sidebar._enable_item_btns()
             except Exception:
@@ -10087,6 +10213,8 @@ class ComparisonEngineModule(QWidget):
             zones.append("EFGH")
 
         results: dict = {}
+        official_n4 = obra_dir / "Fase-6_Execucao_CAD" / "n4"
+        official_n4.mkdir(parents=True, exist_ok=True)
         for zone in zones:
             expected = out_dir_n4 / f"PL_{zone}_preview_{item_id}.dxf"
             if script.exists():
@@ -10101,7 +10229,19 @@ class ComparisonEngineModule(QWidget):
                     )
                 except Exception as _e:
                     print(f"[CE] PIL N4 zone {zone} gen error: {_e}")
-            results[zone] = expected if expected.exists() else None
+            if expected.exists():
+                canonical = official_n4 / expected.name
+                generated = guarded_promote(
+                    expected,
+                    canonical,
+                    motor_id="ROBOT_PL_N3_N4",
+                    source_paths=[script],
+                )
+                results[zone] = (
+                    canonical if canonical.exists() else generated
+                )
+            else:
+                results[zone] = None
         return results
 
     def _get_pil_zone_fichas(self, obra: str, item_id: str,
@@ -10438,6 +10578,7 @@ class ComparisonEngineModule(QWidget):
         ficha_clean.setdefault('pillar_right', {'active': False, 'width': 0.0, 'length': 0.0})
         ficha_clean.setdefault('sarrafo_left_id',  0)
         ficha_clean.setdefault('sarrafo_right_id', 0)
+        ficha_clean = _ce_plain_value(ficha_clean)
 
         # Para LV: escreve _A.json e _B.json (script lê apenas *_A.json)
         temp_files: list[Path] = []
@@ -10498,16 +10639,22 @@ class ComparisonEngineModule(QWidget):
                 if code == 0 and generated and generated.exists():
                     # Move para pasta n4 com nome canônico
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
-                    generated.replace(canon)
+                    promoted = guarded_promote(
+                        generated,
+                        canon,
+                        motor_id=f"ROBOT_{_classe}_N3_N4",
+                        source_paths=[script],
+                    )
+                    display_path = canon if canon.exists() else promoted
                     if _classe == 'LV':
                         lv_zones = self._lv_generated_zone_paths(
-                            canon, _er_ficha or {}
+                            display_path, _er_ficha or {}
                         )
                         _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     else:
                         n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
-                        _col.load_content(str(canon), n4_bbox)
-                    _col.pipeline.set_step(2, 'ok', canon.name[:25])
+                        _col.load_content(str(display_path), n4_bbox)
+                    _col.pipeline.set_step(2, 'ok', display_path.name[:25])
                     self._configure_level_attention("N4", _classe, _item_id)
                     self._configure_level_attention("N3", _classe, _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)

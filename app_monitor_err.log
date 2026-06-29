@@ -1,0 +1,16 @@
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\requests\__init__.py:89: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (3.0.4) doesn't match a supported version!
+  warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\chromadb\config.py:20: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1 import BaseSettings
+WARNING:root:ChromaDB nao disponivel. Active Learning sera limitado.
+qt.qpa.window: SetProcessDpiAwarenessContext() failed: Acesso negado.
+Qt's default DPI awareness context is DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2. If you know what you are doing, you can overwrite this default using qt.conf (https://doc.qt.io/qt-6/highdpi.html#configuring-windows).
