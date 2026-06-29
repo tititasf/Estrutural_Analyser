@@ -1831,13 +1831,12 @@ class MainWindow(QMainWindow):
                 btn_sync_pilar.clicked.connect(self.sync_pillars_to_robo_pilares_action)
                 layout.addWidget(btn_sync_pilar)
 
-            # Botão Criar Comando LISP (apenas na aba de Análise)
-            if not is_library:
-                btn_create_lisp = QPushButton("📜 Criar Comando LISP")
-                btn_create_lisp.setStyleSheet(f"{_ROBO_BTN} background: #155724; color: #8ddbad;")
-                btn_create_lisp.setToolTip("Cria os arquivos comando_LAZ.lsp e script_LAZ.scr para execução no AutoCAD.")
-                btn_create_lisp.clicked.connect(lambda: self._create_laz_command_files())
-                layout.addWidget(btn_create_lisp)
+            # Botão Criar Comando LISP — OCULTO a pedido do usuário (libera espaço
+            # para a lista de pilares; funcionalidade mantida, basta reabilitar)
+            # if not is_library:
+            #     btn_create_lisp = QPushButton("📜 Criar Comando LISP")
+            #     btn_create_lisp.clicked.connect(lambda: self._create_laz_command_files())
+            #     layout.addWidget(btn_create_lisp)
 
             return container
 
@@ -2007,7 +2006,11 @@ class MainWindow(QMainWindow):
         self.console = QTextEdit()
         self.console.setReadOnly(True)
         self.console.setMaximumHeight(150)
-        left_layout.addWidget(QLabel("Terminal de Eventos:"))
+        # Terminal de Eventos oculto (libera espaço para a lista); console vivo pois self.log() usa append()
+        self._console_label = QLabel("Terminal de Eventos:")
+        self._console_label.setVisible(False)
+        self.console.setVisible(False)
+        left_layout.addWidget(self._console_label)
         left_layout.addWidget(self.console)
         
         self.splitter.addWidget(self.left_panel)
