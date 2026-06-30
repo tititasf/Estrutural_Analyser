@@ -40,9 +40,15 @@ import re
 import sqlite3
 
 try:
-    from fv_l_panel_geometry import detect_right_l_panel
+    from fv_l_panel_geometry import (
+        derive_quadrilateral_chanfros,
+        detect_right_l_panel,
+    )
 except ModuleNotFoundError:  # importado como scripts.motor_reverso_fv
-    from scripts.fv_l_panel_geometry import detect_right_l_panel
+    from scripts.fv_l_panel_geometry import (
+        derive_quadrilateral_chanfros,
+        detect_right_l_panel,
+    )
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
@@ -418,6 +424,9 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
             }
             if len(p) > 4 and len(p[4]) >= 4:
                 p_dict['vertices'] = [{'x': round(v[0] - p[0], 1), 'y': round(v[1] - row_base_y, 1)} for v in p[4]]
+                chanfros = derive_quadrilateral_chanfros(p_dict['vertices'])
+                if chanfros:
+                    p_dict['chanfros'] = chanfros
             
             # Extract sub-dimensions (tiers)
             cota_texts = []

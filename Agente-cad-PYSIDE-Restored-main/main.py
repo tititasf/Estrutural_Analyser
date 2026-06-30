@@ -3115,6 +3115,7 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_pilares = create_pilares_widget(db_manager=self.db)
                 self.robo_pilares.setWindowFlags(Qt.Widget)
+        self.robo_pilares.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_pilares, 'robo_obra_combo_pl')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_pilares, 'PL', 'P', 'gerar_pl_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -3131,6 +3132,7 @@ class MainWindow(QMainWindow):
                 self.robo_viga = VigaMainWindow()
                 self.robo_viga.licensing_service = self.licensing_proxy
                 self.robo_viga.setWindowFlags(Qt.Widget)
+        self.robo_viga.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_viga, 'robo_obra_combo_lv')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_viga, 'LV', 'V', 'gerar_lv_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -3146,6 +3148,7 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_fundo = FundoMainWindow()
                 self.robo_fundo.setWindowFlags(Qt.Widget)
+        self.robo_fundo.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_fundo, 'robo_obra_combo_fv')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_fundo, 'FV', 'V', 'gerar_fv_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -3164,6 +3167,7 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_laje = LajeMainWindow()
                 self.robo_laje.setWindowFlags(Qt.Widget)
+        self.robo_laje.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_laje, 'robo_obra_combo_lj')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_laje, 'LJ', 'L', 'gerar_lj_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -5982,12 +5986,6 @@ class MainWindow(QMainWindow):
         self.log(f"📐 Relatório de níveis: {n_confirms} confirmados, {n_inferred} inferidos, {n_unknown} desconhecidos" +
                  (f", {n_hall} suspeitos de alucinação" if n_hall else "") + ".")
 
-        # ── Pré-validação interativa (Pilares + Visão de Cortes) ──────────────
-        if not skip_pre_validation and not self._run_pre_validation_dialog():
-            self.log("⚠ Pré-validação cancelada pelo usuário — análise interrompida.")
-            self.update_progress(0, "Cancelado.")
-            return
-
         walker = BeamWalker(self.spatial_index)
         from shapely.geometry import Polygon
         self.pillars_found = []
@@ -6127,6 +6125,23 @@ class MainWindow(QMainWindow):
             _tree = self.list_beams_para if _idx == 0 else self.list_beams_passa
             _pp   = "para"             if _idx == 0 else "passa"
             self._populate_beam_tree(_tree, self.beams_found, "lateral", _pp)
+
+        # Abre depois que o SA gerou LV/FV. O diálogo recebe as mesmas instâncias
+        # usadas no restante do pipeline, evitando divergência entre foto e vínculo.
+        if not skip_pre_validation and not self._run_pre_validation_dialog():
+            self.log("⚠ Pré-validação cancelada pelo usuário — análise interrompida.")
+            self.update_progress(0, "Cancelado.")
+            return
+        if not skip_pre_validation:
+            self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
+            self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
+            self.list_beams_para.clear()
+            self.list_beams_passa.clear()
+            if hasattr(self, '_lv_analysis_tabs'):
+                _idx = self._lv_analysis_tabs.currentIndex()
+                _tree = self.list_beams_para if _idx == 0 else self.list_beams_passa
+                _pp = "para" if _idx == 0 else "passa"
+                self._populate_beam_tree(_tree, self.beams_found, "lateral", _pp)
 
         # ── Pilares DIRIGIDOS POR NOME (name-driven) ──────────────────────────
         # Lista de pilares = nomes 'P<num>' da ÁREA DA PLANTA (1 por nome).
@@ -9098,6 +9113,48 @@ class MainWindow(QMainWindow):
                             _links_now[_para_k] = {sk: list(sv) for sk, sv in _sv.items()}
             _refresh_fundo_link_fichas()
 
+        # --- Invalidar contornos fundo deslocados do cache do DB ---
+        # Bug legado: _classify_lines capturava linhas próximas ao label de texto (que
+        # fica abaixo da viga), gerando polígonos deslocados. Detectar e limpar para
+        # forçar o hot-path a reprocessar com process_fundo_segments (já corrigido).
+        if has_fundo_contours and not seg_bottom_empty:
+            _lat_pts_chk = []
+            for _sk in ('seg_side_a', 'seg_side_b'):
+                for _seg in classified.get(_sk, []):
+                    _lat_pts_chk.extend(_seg)
+            if _lat_pts_chk:
+                _is_h_chk = b.get('is_h', True)
+                _lat_tol_chk = 5.0  # margem de 5u para absorver imprecisão DXF
+                if _is_h_chk:
+                    _lat_min_chk = min(p[1] for p in _lat_pts_chk) - _lat_tol_chk
+                    _lat_max_chk = max(p[1] for p in _lat_pts_chk) + _lat_tol_chk
+                else:
+                    _lat_min_chk = min(p[0] for p in _lat_pts_chk) - _lat_tol_chk
+                    _lat_max_chk = max(p[0] for p in _lat_pts_chk) + _lat_tol_chk
+                _fundo_displaced = False
+                for _lk, _lv in b.get('links', {}).items():
+                    if 'viga_fundo_seg' not in _lk or '_area_segs' not in _lk:
+                        continue
+                    for _ct in _lv.get('contour', []):
+                        for _pt in _ct.get('points', []):
+                            _tc = _pt[1] if _is_h_chk else _pt[0]
+                            if _tc < _lat_min_chk or _tc > _lat_max_chk:
+                                _fundo_displaced = True
+                                break
+                        if _fundo_displaced:
+                            break
+                    if _fundo_displaced:
+                        break
+                if _fundo_displaced:
+                    # Limpar contornos ruins; hot-path abaixo (seg_bottom_empty) reprocessa
+                    for _lk in list(b.get('links', {}).keys()):
+                        if 'viga_fundo_seg' in _lk and '_area_segs' in _lk:
+                            b['links'][_lk]['contour'] = []
+                    if 'viga_segs' in b.get('links', {}):
+                        b['links']['viga_segs']['seg_bottom'] = []
+                    has_fundo_contours = False
+                    seg_bottom_empty = True
+
         if has_links and not seg_bottom_empty and has_fundo_contours:
             # Sincronizar name link com nome normalizado (se divergiu de DB antigo)
             _name_lbl = b.get('links', {}).get('name', {}).get('label', [])
@@ -9134,18 +9191,34 @@ class MainWindow(QMainWindow):
             coords_i = classified_inner.get('merged_bottom_groups_coords', [])
             seg_bottom_raw_i = classified_inner.get('seg_bottom', [])
             is_h_i = b.get('is_h', True)
-            
+
+            # Calcular limites laterais reais (faces da viga) para filtrar linhas deslocadas
+            _hp_lat_pts = []
+            for _sk in ('seg_side_a', 'seg_side_b'):
+                for _seg in classified_inner.get(_sk, []):
+                    _hp_lat_pts.extend(_seg)
+            if _hp_lat_pts:
+                _hp_tol = 5.0
+                if is_h_i:
+                    _hp_lat_min = min(p[1] for p in _hp_lat_pts) - _hp_tol
+                    _hp_lat_max = max(p[1] for p in _hp_lat_pts) + _hp_tol
+                else:
+                    _hp_lat_min = min(p[0] for p in _hp_lat_pts) - _hp_tol
+                    _hp_lat_max = max(p[0] for p in _hp_lat_pts) + _hp_tol
+                def _hp_in_lat(ln):
+                    coords_t = [p[1] for p in ln] if is_h_i else [p[0] for p in ln]
+                    avg_t = sum(coords_t) / len(coords_t)
+                    return _hp_lat_min <= avg_t <= _hp_lat_max
+                seg_bottom_raw_i = [ln for ln in seg_bottom_raw_i if _hp_in_lat(ln)]
+
             if seg_bottom_raw_i:
-                # Prioridade: coordenadas reais do DXF — evita deslocamento causado por
-                # coords sintéticas baseadas em beam_pos (posição do label de texto).
+                # Prioridade: coordenadas reais do DXF filtradas por limites laterais reais.
                 seg_idx = 0
                 for raw_line in seg_bottom_raw_i:
                     if len(raw_line) < 2:
                         continue
                     p1, p2 = raw_line[0], raw_line[-1]
                     length_i = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
-                    if length_i < 30:
-                        continue
                     seg_idx += 1
 
                     b[f'viga_fundo_seg_{seg_idx}_exists'] = True
@@ -9157,8 +9230,16 @@ class MainWindow(QMainWindow):
                     b['links'][area_key]['contour'].append(entry)
                     b['links']['viga_segs']['seg_bottom'].append(entry)
             elif lengths_i:
-                # Fallback sintético — só usado quando não há linhas brutas do DXF.
-                # coords_i[idx-1] aponta para grupos de divisores (pilares), não para o span.
+                # Fallback sintético — último recurso quando não há linhas brutas válidas.
+                # Centro transversal: média das laterais A+B (não beam_pos que é o label).
+                _hp_side_pts = _hp_lat_pts  # já calculado acima no filtro lateral
+                if _hp_side_pts:
+                    _hp_trans_c = (sum(p[1] for p in _hp_side_pts) / len(_hp_side_pts) if is_h_i
+                                   else sum(p[0] for p in _hp_side_pts) / len(_hp_side_pts))
+                else:
+                    _bp = b.get('pos', (0, 0))
+                    _hp_trans_c = _bp[1] if is_h_i else _bp[0]
+
                 for idx, length_i in enumerate(lengths_i, start=1):
                     b[f'viga_fundo_seg_{idx}_exists'] = True
                     area_key = f'viga_fundo_seg_{idx}_area_segs'
@@ -9166,12 +9247,16 @@ class MainWindow(QMainWindow):
                         b['links'][area_key] = {'contour': []}
 
                     if idx <= len(coords_i):
-                        span_min, span_max = coords_i[idx - 1]
-                        beam_pos = b.get('pos', (0, 0))
-                        if is_h_i:
-                            synth = [(span_min, beam_pos[1]), (span_max, beam_pos[1])]
+                        is_div_mode = len(coords_i) > len(lengths_i)
+                        if is_div_mode and idx < len(coords_i):
+                            span_min = coords_i[idx - 1][1]
+                            span_max = coords_i[idx][0]
                         else:
-                            synth = [(beam_pos[0], span_min), (beam_pos[0], span_max)]
+                            span_min, span_max = coords_i[idx - 1]
+                        if is_h_i:
+                            synth = [(span_min, _hp_trans_c), (span_max, _hp_trans_c)]
+                        else:
+                            synth = [(_hp_trans_c, span_min), (_hp_trans_c, span_max)]
                         entry = {'type': 'poly', 'points': synth, 'len': length_i, 'tag': 'Fundo'}
                         b['links'][area_key]['contour'].append(entry)
                         b['links']['viga_segs']['seg_bottom'].append(entry)
@@ -9300,10 +9385,28 @@ class MainWindow(QMainWindow):
             seg_bottom_raw = classified.get('seg_bottom', [])
             is_h = b.get('is_h', True)
 
-            # Altura da viga para criar retângulo quando só 1 linha é encontrada
+            # Altura da viga para criar retângulo quando só 1 linha é encontrada.
+            # Aceita "19/55" e "19x55" — group(1) = largura (dimensão transversal no plano).
             _dim_text = b.get('fields', {}).get('dimensao', '') or ''
-            _m_dim = re.search(r'(\d+)\s*[xX]\s*(\d+)', _dim_text)
+            _m_dim = re.search(r'(\d+)\s*[xX/]\s*(\d+)', _dim_text)
             h_beam = float(_m_dim.group(1)) if _m_dim else 20.0
+
+            # Intervalo transversal real da viga (das linhas laterais A e B) para filtrar
+            # linhas deslocadas classificadas pelo critério "próxima ao label" do BeamTracer.
+            _lat_pts = []
+            for _sk in ('seg_side_a', 'seg_side_b'):
+                for _seg in classified.get(_sk, []):
+                    _lat_pts.extend(_seg)
+            if _lat_pts:
+                _lat_tol = 2.0  # aceita linhas dentro das faces reais ±2u (precisão DXF)
+                if is_h:
+                    _lat_t_min = min(p[1] for p in _lat_pts) - _lat_tol
+                    _lat_t_max = max(p[1] for p in _lat_pts) + _lat_tol
+                else:
+                    _lat_t_min = min(p[0] for p in _lat_pts) - _lat_tol
+                    _lat_t_max = max(p[0] for p in _lat_pts) + _lat_tol
+            else:
+                _lat_t_min = _lat_t_max = None
 
             if lengths_list:
                 # Caminho preferencial: usar os comprimentos/coords já calculados
@@ -9333,6 +9436,21 @@ class MainWindow(QMainWindow):
                             line_len = line_max - line_min
                             if line_len > 0 and overlap / line_len > 0.3:
                                 matching_lines.append(raw_line)
+
+                    # Filtrar matching_lines pelo intervalo transversal das faces laterais.
+                    # Linhas da condição-3 do classificador (próximas ao label, deslocadas)
+                    # ficam fora dos limites reais da viga e causam polígono deslocado.
+                    if matching_lines and _lat_t_min is not None:
+                        if is_h:
+                            matching_lines = [
+                                ln for ln in matching_lines
+                                if _lat_t_min <= (sum(p[1] for p in ln) / len(ln)) <= _lat_t_max
+                            ]
+                        else:
+                            matching_lines = [
+                                ln for ln in matching_lines
+                                if _lat_t_min <= (sum(p[0] for p in ln) / len(ln)) <= _lat_t_max
+                            ]
 
                     if matching_lines:
                         # Fechar 2+ linhas em 1 polígono; 1 linha → retângulo com h_beam
@@ -10983,7 +11101,7 @@ class MainWindow(QMainWindow):
 
         Convenção de faces:
           HORIZONTAL (pw >= ph):  A=baixo(y0)  B=cima(y1)  C=esq(x0)  D=dir(x1)
-          VERTICAL   (ph >  pw):  A=esq(x0)   B=dir(x1)   C=baixo(y0) D=cima(y1)
+          VERTICAL   (ph >  pw):  A=esq(x0)   B=dir(x1)   C=cima(y1) D=baixo(y0)
 
         Retorna (lado, face_label) ou ('NULO','NULO') se só toca em canto.
         """
@@ -11007,8 +11125,8 @@ class MainWindow(QMainWindow):
             p_edges = {
                 'A': ('V', px0, py0, py1, 'ESQ'),
                 'B': ('V', px1, py0, py1, 'DIR'),
-                'C': ('H', py0, px0, px1, 'BAIXO'),  # base/baixo do pilar vertical
-                'D': ('H', py1, px0, px1, 'CIMA'),   # topo/cima do pilar vertical
+                'C': ('H', py1, px0, px1, 'CIMA'),   # topo/cima do pilar vertical
+                'D': ('H', py0, px0, px1, 'BAIXO'),  # base/baixo do pilar vertical
             }
 
         # Arestas da laje separadas por orientação
@@ -11128,6 +11246,7 @@ class MainWindow(QMainWindow):
             convention_file=_convention_file,
             db_path=_db_path,
             dxf_data=getattr(self, 'dxf_data', None),
+            beams=getattr(self, 'beams_found', None),
             parent=self,
         )
 
@@ -11154,6 +11273,19 @@ class MainWindow(QMainWindow):
         invalid_pillar_keys: set = set(result.get('invalid_pillar_keys') or set())
         cut_assignments = result.get('cut_view_assignments') or {}
         invalid_cut_uids: set = result.get('invalid_cut_uids') or set()
+        segment_decisions = result.get('segment_decisions') or {}
+
+        # A UI e o pipeline compartilham estas instâncias de viga. A decisão é
+        # aplicada no próprio link exibido, sem nova inferência geométrica.
+        if segment_decisions:
+            from src.core.preficha_segments import apply_preficha_segment_decisions
+            segment_summary = apply_preficha_segment_decisions(
+                getattr(self, 'beams_found', []), segment_decisions
+            )
+            self.log(
+                f"🧩 Segmentos da pré-ficha: {segment_summary['reviewed']} revisado(s), "
+                f"{segment_summary['removed']} removido(s)."
+            )
 
         # Salva mapeamento de termos no preprocess para uso posterior.
         # Se o diálogo pós-análise não tinha combos (aba Convenção removida),
@@ -11623,8 +11755,8 @@ class MainWindow(QMainWindow):
                 face_coords = {
                     'A': ('V', px0, py0, py1),
                     'B': ('V', px1, py0, py1),
-                    'C': ('H', py0, px0, px1),  # baixo (corrigido)
-                    'D': ('H', py1, px0, px1),  # cima (corrigido)
+                    'C': ('H', py1, px0, px1),  # cima (topo do pilar vertical)
+                    'D': ('H', py0, px0, px1),  # baixo (base do pilar vertical)
                 }
 
             face_hits: dict = {f: [] for f in face_coords}

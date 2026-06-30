@@ -1,5 +1,55 @@
 {
-  "12 PAV": {
-    "erro": "Pavimento '12 PAV' não encontrado em discovery para 'Obra_TREINO_1'"
+  "13": {
+    "obra": "Obra_TREINO_1",
+    "pavimento": "13",
+    "tipos_validados": [
+      "LJ"
+    ],
+    "score_pavimento": 45.0,
+    "resultados": {
+      "LJ": {
+        "tipo": "LJ",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 1933,
+          "total_entidades_gen": 3135,
+          "struct_entidades_stog": 1852,
+          "struct_entidades_gen": 3004,
+          "ratio_struct": 1.622,
+          "layers_stog": 10,
+          "layers_gen": 5,
+          "layers_faltando": [
+            "0",
+            "1",
+            "7",
+            "AUX00",
+            "REAPROVEITAMENTO"
+          ],
+          "layers_extras": [],
+          "score_estrutural": 45,
+          "tipos_entidades_stog": {
+            "HATCH": 81,
+            "LINE": 1082,
+            "DIMENSION": 224,
+            "SOLID": 8,
+            "LWPOLYLINE": 226,
+            "TEXT": 294,
+            "MTEXT": 18
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 1713,
+            "HATCH": 131,
+            "TEXT": 131,
+            "LINE": 482,
+            "DIMENSION": 677,
+            "SOLID": 1
+          }
+        },
+        "visual": null,
+        "score_final": 45
+      }
+    }
   }
 }

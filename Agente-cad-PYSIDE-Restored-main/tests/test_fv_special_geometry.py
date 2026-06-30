@@ -11,7 +11,10 @@ sys.path.insert(0, str(GENERATOR.parent))
 SPEC = importlib.util.spec_from_file_location("fv_generator_geometry", GENERATOR)
 fv = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(fv)
-from fv_l_panel_geometry import detect_right_l_panel
+from fv_l_panel_geometry import (
+    derive_quadrilateral_chanfros,
+    detect_right_l_panel,
+)
 
 
 def _points(vertices):
@@ -29,6 +32,75 @@ def test_chanfro_is_inclined_end_edge_not_square_notch():
         (330.0, 24.0),
         (0.0, 24.0),
     ]
+
+
+def test_chanfro_is_derived_from_quadrilateral_vertices():
+    chanfros = derive_quadrilateral_chanfros([
+        {"x": 0.0, "y": 0.0},
+        {"x": 7.6, "y": 19.0},
+        {"x": 254.0, "y": 19.0},
+        {"x": 254.0, "y": 0.0},
+        {"x": 0.0, "y": 0.0},
+    ])
+
+    assert chanfros == {"te": 7.6, "fe": 0.0, "td": 0.0, "fd": 0.0}
+
+
+def test_derived_top_chanfro_drives_sarrafos_and_dimension_above_panel():
+    segments = [{
+        "total_width": 254.0,
+        "panels": [{
+            "width": 254.0,
+            "height": 19.0,
+            "vertices": [
+                {"x": 0.0, "y": 0.0},
+                {"x": 7.6, "y": 19.0},
+                {"x": 254.0, "y": 19.0},
+                {"x": 254.0, "y": 0.0},
+            ],
+            "tiers": [[122.0, 132.0], [254.0]],
+        }],
+    }]
+    doc = fv.setup_doc()
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V306",
+        label_left="", label_right="",
+    )
+
+    assert segments[0]["panels"][0]["chanfros"] == {
+        "te": 7.6, "fe": 0.0, "td": 0.0, "fd": 0.0,
+    }
+    sarr_lines = [
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "LINE" and entity.dxf.layer == fv.SARR_LAYER
+    ]
+    assert any(
+        (round(float(line.dxf.start.x), 1), round(float(line.dxf.start.y), 1),
+         round(float(line.dxf.end.x), 1), round(float(line.dxf.end.y), 1))
+        == (7.0, 0.0, 14.6, 19.0)
+        for line in sarr_lines
+    )
+    top_chanfro_dims = [
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "DIMENSION"
+        and round(float(entity.get_measurement()), 1) == 7.6
+    ]
+    assert len(top_chanfro_dims) == 1
+    assert float(top_chanfro_dims[0].dxf.defpoint.y) > 19.0
+
+    nomenclature = next(
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "TEXT" and entity.dxf.text == "V306.C"
+    )
+    assert float(nomenclature.dxf.insert.x) == pytest.approx(22.6)
+
+    panel_horizontal_lines = [
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+        and abs(float(entity.dxf.start.y) - float(entity.dxf.end.y)) < 1e-6
+    ]
+    assert panel_horizontal_lines == []
 
 
 def test_l_panel_uses_length_perpendicular_and_width_transverse():
@@ -169,6 +241,45 @@ def test_single_polygon_uses_level_one_tier_as_panel_dividers():
         == [0.0, 19.0]
     ]
     assert len(panel_dividers) == 1
+
+
+def test_composite_name_suppresses_internal_panel_lines_and_end_labels():
+    segments = [{
+        "total_width": 394.0,
+        "panels": [
+            {"width": 244.0, "height": 19.0},
+            {"width": 150.0, "height": 19.0},
+        ],
+    }]
+    doc = fv.setup_doc()
+
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V313-V315-V317",
+        label_left="L Esq", label_right="L Dir",
+    )
+
+    assert fv.is_composite_viga_name("V313-V315-V317.C")
+    assert not fv.is_composite_viga_name("V313.C")
+    assert not any(
+        entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+        and abs(float(entity.dxf.start.y) - float(entity.dxf.end.y)) < 1e-6
+        for entity in doc.modelspace()
+    )
+    assert any(
+        entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.SARR_LAYER
+        and abs(float(entity.dxf.start.y) - float(entity.dxf.end.y)) < 1e-6
+        for entity in doc.modelspace()
+    )
+    texts = {
+        entity.dxf.text
+        for entity in doc.modelspace()
+        if entity.dxftype() == "TEXT"
+    }
+    assert "L Esq" not in texts
+    assert "L Dir" not in texts
+    assert "V313-V315-V317.C" in texts
 
 
 def test_row_break_keeps_continuation_segments_15_cm_apart():

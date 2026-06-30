@@ -96,3 +96,17 @@ def test_fv_v303_splits_each_right_l_into_independent_panels():
         == pytest.approx(segment["total_width"])
         for segment in rich
     )
+
+
+def test_fv_v306_extracts_top_chamfer_for_sarrafos_and_dimension():
+    candidates = list(Path(
+        "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos"
+    ).glob("*FV - R00/FV_V306_motor_178111331106.dxf"))
+    if not candidates:
+        pytest.skip("Recorte FV V306 de referência não encontrado")
+
+    ficha = extrair_ficha_fundo_viga(str(candidates[0]), "V306")
+
+    assert ficha["segments_rich"][0]["panels"][0]["chanfros"] == {
+        "te": 7.6, "fe": 0.0, "td": 0.0, "fd": 0.0,
+    }

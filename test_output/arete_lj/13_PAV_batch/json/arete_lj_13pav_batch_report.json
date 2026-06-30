@@ -1,8 +1,9 @@
 {
   "obra": "Obra_TREINO_1",
   "pavimento": "13_PAV",
-  "total": 18,
-  "pass": 18,
+  "total": 31,
+  "pass": 31,
+  "blocked": 0,
   "fail": 0,
   "items": [
     {
@@ -47,12 +48,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L301.dxf",
+      "recorte_sha256": "22bbf5cde887b5ebc5de0540e9c0d82ffddf344af9ee683df300eabc15b95ebc",
+      "n4_sha256": "460beaa6ef7ba11cb96d10f74190eb16cdf28431173f8828db196101ebf2bd5c",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L301.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L301"
+        "L301",
+        "244",
+        "161.5",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -97,12 +105,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L302.dxf",
+      "recorte_sha256": "07bd86232367d567c1ea2616c4e37810065162dea1e8192c5d0bbfbedc10eafa",
+      "n4_sha256": "07b89e073504e4569e7368bcc4c34209da4b3f1420802f7d93450dbd913d8249",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L302.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L302"
+        "L302",
+        "244",
+        "174",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -147,12 +162,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L303.dxf",
+      "recorte_sha256": "0cf87b81e007d7f238eed5b673af568eee4fded48f111594d5ddaf85509574bb",
+      "n4_sha256": "97354edeff28bec871321358e3cfac3991596f868d7f5724e88afc6f5b96a92b",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L303.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L303"
+        "L303",
+        "244",
+        "174",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -197,12 +219,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L304.dxf",
+      "recorte_sha256": "5e90f77b3be42b4ac3adc7771af14fa176b479fd7589cd617c26937b064447fc",
+      "n4_sha256": "56979bfbb75a04ed88cb3f04d740afad21a7ccbd4461f3af4ca840a60472bad7",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L304.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L304"
+        "L304",
+        "244",
+        "174",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -247,12 +276,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L305.dxf",
+      "recorte_sha256": "f9e782d09202d74f01447e61f638e060610defb9ecbd00ff77d0ca08566310b1",
+      "n4_sha256": "960f0a93821adbc1e22f03a5a345e80027f06e0b7879bd779b13640504a32e5f",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L305.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L305"
+        "L305",
+        "244",
+        "174",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -297,12 +333,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L306.dxf",
+      "recorte_sha256": "4b3f1453e644ae240b4e4957a063c750cb24ec06fc80bc22bd3af78e5a73d21c",
+      "n4_sha256": "1fcb8399cdd03d6937a5c838f5431d6bf549074a18cd00cf552d7bff3a54c649",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L306.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L306"
+        "L306",
+        "244",
+        "174",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -347,12 +390,19 @@
         "y": 2606.58
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L307.dxf",
+      "recorte_sha256": "2be4681d930d638d9020b8b956ea0f368938dfd1fe146d6c9c36eb8801868809",
+      "n4_sha256": "efabaec007e8e7831caf2bfd9ae9ca1d5752e7922f466db62f2800ad8d404a92",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L307.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L307"
+        "L307",
+        "244",
+        "174",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -404,12 +454,19 @@
         "y": 2610.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L308.dxf",
+      "recorte_sha256": "e18b6ade835ca674cf5edaab79db986a8cb0449738aa264b7db43321986c167b",
+      "n4_sha256": "b4a4b6c3083d3f474e844925e2ef56fe493739df9fea23a67fe7f1a915c21626",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L308.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L308"
+        "L308",
+        "122",
+        "167",
+        "102",
+        "20",
+        "61"
       ]
     },
     {
@@ -458,12 +515,20 @@
         "y": 2280.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L309.dxf",
+      "recorte_sha256": "dabbd7e3b171f68ce6b6fed3be13bd4d2f7c77d61167cf72da229e5f4f67d738",
+      "n4_sha256": "ed05cc5b4730864a5b1a53f69363bbda0874492ece023e20777d1dcab5569c24",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L309.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L309"
+        "L309",
+        "244",
+        "161.5",
+        "122",
+        "47",
+        "20",
+        "122"
       ]
     },
     {
@@ -512,12 +577,20 @@
         "y": 2280.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L310.dxf",
+      "recorte_sha256": "84d46b3472f0b1f4458dd16053458c632faf1d9e966b858f2744564f75aca5bb",
+      "n4_sha256": "5fb60fbc76583b2239e0cee131bb767e4003160d6753dad013691a44b20a68e5",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L310.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L310"
+        "L310",
+        "244",
+        "174",
+        "122",
+        "47",
+        "20",
+        "122"
       ]
     },
     {
@@ -566,12 +639,73 @@
         "y": 2280.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L311.dxf",
+      "recorte_sha256": "5b316ed96937fd54d2f226e44fc5ef95d7f23f5af1650e6ea64a9ce6630e28e2",
+      "n4_sha256": "479b083cc3759601f02e82448a966995536e38262aeb1b6c94031fffb91942be",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L311.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L311"
+        "L311",
+        "244",
+        "174",
+        "122",
+        "47",
+        "20",
+        "122"
+      ]
+    },
+    {
+      "id": "L312",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L312_sel_1781576266.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4041.07,
+        2280.94,
+        4459.07,
+        2402.94
+      ],
+      "n4_bbox_abs": [
+        4041.07,
+        2280.94,
+        4459.07,
+        2402.94
+      ],
+      "comprimento": 418.0,
+      "largura": 122.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "hlaz": [
+        {
+          "x": 0.0,
+          "y": 122.0,
+          "width": 418.0,
+          "height": 47.0
+        }
+      ],
+      "stog_pose": {
+        "x": 4041.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L312.dxf",
+      "recorte_sha256": "7aa140c431a8a0820629b0218d928872c3260c9bc1af55d3f46a29f231be5311",
+      "n4_sha256": "40044d601d249197051dcd20bbd08ff4d17d89bddc8c9d83b92a6e621bf5fee2",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L312.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L312",
+        "244",
+        "174",
+        "122"
       ]
     },
     {
@@ -620,12 +754,135 @@
         "y": 2280.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L313.dxf",
+      "recorte_sha256": "e60afc629c5780787fe294ce69e8ea393592b33bdc4ca360b12bd50d8e6e8a2f",
+      "n4_sha256": "5e262f456ae3c6ca7265d374177cc24e60425c9f6a6587597e861a4e733ba0cc",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L313.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L313"
+        "L313",
+        "244",
+        "174",
+        "122",
+        "47",
+        "20",
+        "122"
+      ]
+    },
+    {
+      "id": "L314",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L314_motor_178164519182.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4915.07,
+        2280.94,
+        5333.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        4915.07,
+        2280.94,
+        5333.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4915.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L314.dxf",
+      "recorte_sha256": "0bd435562006bb8d35f830da3a9fa9cde78ae8e073a9ef6951463ad32dd67946",
+      "n4_sha256": "0ac052eb6841c20803fd086b301dd1abcd8f380b1749a97328abce3a9de86822",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L314.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L314",
+        "244",
+        "174",
+        "122",
+        "47",
+        "20",
+        "122"
+      ]
+    },
+    {
+      "id": "L315",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L315_sel_1782277668.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5352.07,
+        2280.94,
+        5770.07,
+        2402.94
+      ],
+      "n4_bbox_abs": [
+        5352.07,
+        2280.94,
+        5770.07,
+        2402.94
+      ],
+      "comprimento": 418.0,
+      "largura": 122.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "hlaz": [
+        {
+          "x": 0.0,
+          "y": 122.0,
+          "width": 418.0,
+          "height": 47.0
+        }
+      ],
+      "stog_pose": {
+        "x": 5352.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L315.dxf",
+      "recorte_sha256": "a571b01d81bf29f0756b2584c15b3db121a87fe46945d24b0f15d07416487567",
+      "n4_sha256": "835390190a2c832609b92b96b9406dfaade68083720748cf6f9f616514eec9c1",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L315.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L315",
+        "244",
+        "174",
+        "122"
       ]
     },
     {
@@ -674,12 +931,645 @@
         "y": 2280.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L316.dxf",
+      "recorte_sha256": "5268aacd130607b2b08e68a4e9d7b100b47e13f4ef26c9f95ba995cb23097ea9",
+      "n4_sha256": "11d25bcb217b8f3bab32ecb832ee983b8cad6b1ad31aef94cc60f5b83321ce8e",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L316.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L316"
+        "L316",
+        "122",
+        "20",
+        "60",
+        "87",
+        "244",
+        "67"
+      ]
+    },
+    {
+      "id": "L317",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L317_sel_1782277704.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        6097.07,
+        2280.94,
+        6194.57,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        6097.07,
+        2280.94,
+        6194.57,
+        2793.94
+      ],
+      "comprimento": 97.5,
+      "largura": 513.0,
+      "linhas_verticais": [
+        {
+          "value": 48.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        },
+        {
+          "value": 366.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 6097.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L317.dxf",
+      "recorte_sha256": "f720d8c7864953d5720d474acfba63f092e1c4f1d5d0a79c18ba2fd7f511facc",
+      "n4_sha256": "698a22f5a925ddc838d6057cabfee986890eafc89d3d17f9e7f52b40bd6a37e9",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L317.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L317",
+        "49",
+        "48.5",
+        "244",
+        "122",
+        "147"
+      ]
+    },
+    {
+      "id": "L318",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L318_sel_1782277738.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2939.07,
+        2109.94,
+        5352.07,
+        2261.94
+      ],
+      "n4_bbox_abs": [
+        2939.07,
+        2109.94,
+        5352.07,
+        2261.94
+      ],
+      "comprimento": 2413.0,
+      "largura": 152.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        },
+        {
+          "value": 320.4,
+          "is_union": false
+        },
+        {
+          "value": 564.4,
+          "is_union": false
+        },
+        {
+          "value": 808.4,
+          "is_union": false
+        },
+        {
+          "value": 1052.4,
+          "is_union": false
+        },
+        {
+          "value": 1251.9,
+          "is_union": false
+        },
+        {
+          "value": 1447.9,
+          "is_union": false
+        },
+        {
+          "value": 1691.9,
+          "is_union": false
+        },
+        {
+          "value": 1935.9,
+          "is_union": false
+        },
+        {
+          "value": 2179.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 40.5,
+          "is_union": false
+        },
+        {
+          "value": 60.5,
+          "is_union": true
+        }
+      ],
+      "hlaz": [
+        {
+          "x": 2413.0,
+          "y": 40.5,
+          "width": 726.0,
+          "height": 20.0
+        }
+      ],
+      "stog_pose": {
+        "x": 2939.07,
+        "y": 2109.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L318.dxf",
+      "recorte_sha256": "b79d41ef14d52c64b217018d78fbd8f4a1d1e3520c729b2e9f99c699630a1369",
+      "n4_sha256": "3863cd06316002debabd9178f50f167ba65b63af02143f6bbe7cfee3a41e3b71",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L318.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L318",
+        "244",
+        "76",
+        "244",
+        "244",
+        "244",
+        "200",
+        "196",
+        "244",
+        "244",
+        "244",
+        "233",
+        "40.5",
+        "20",
+        "91.5"
+      ]
+    },
+    {
+      "id": "L319",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L319_motor_178164519199.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2741.57,
+        1703.87,
+        3148.07,
+        2261.94
+      ],
+      "n4_bbox_abs": [
+        2741.57,
+        1703.87,
+        3148.07,
+        2261.94
+      ],
+      "comprimento": 406.5,
+      "largura": 558.07,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 142.0,
+          "is_union": true
+        },
+        {
+          "value": 263.9,
+          "is_union": false
+        },
+        {
+          "value": 284.4,
+          "is_union": true
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 143.1,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2741.57,
+        "y": 1703.87
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L319.dxf",
+      "recorte_sha256": "ed2e45cd9fcf40bab83ce164e7d60c42c807b41fc6a1adfee73bc0266277d69b",
+      "n4_sha256": "92137ca67d4daecf80b8978eefa6e3720d7d6fa563b58b4fca8906436ec6d820",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L319.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L319",
+        "122",
+        "20",
+        "122",
+        "20",
+        "122.5",
+        "143",
+        "415.1"
+      ]
+    },
+    {
+      "id": "L320",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L320_motor_178164519202.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3167.07,
+        1667.94,
+        3585.07,
+        2090.94
+      ],
+      "n4_bbox_abs": [
+        3167.07,
+        1667.94,
+        3585.07,
+        2090.94
+      ],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 147.9,
+          "is_union": true
+        },
+        {
+          "value": 269.9,
+          "is_union": false
+        },
+        {
+          "value": 295.9,
+          "is_union": true
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3167.07,
+        "y": 1667.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L320.dxf",
+      "recorte_sha256": "1e7188e9889a7ee932eb4a50e0bea414b45ade5d35708d3ebe9ca2c7b37c6b61",
+      "n4_sha256": "5569ecedf45e373f479476937c58a0151843ea94a2470022e37f070aee64c646",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L320.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L320",
+        "122",
+        "26",
+        "122",
+        "26",
+        "122",
+        "244",
+        "179"
+      ]
+    },
+    {
+      "id": "L321",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L321_motor_178164519206.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        1667.94,
+        4022.07,
+        2090.94
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        1667.94,
+        4022.07,
+        2090.94
+      ],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 147.9,
+          "is_union": true
+        },
+        {
+          "value": 269.9,
+          "is_union": false
+        },
+        {
+          "value": 295.9,
+          "is_union": true
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 1667.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L321.dxf",
+      "recorte_sha256": "44e9fa48c83f449598ebd67ae1980e10f4d501d367190749aa31f976b5cb00f8",
+      "n4_sha256": "87230af6dbec72d5f7ee6cd3110d171156619c1d1e91672e8d2caf9a3e04808d",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L321.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L321",
+        "122",
+        "26",
+        "122",
+        "26",
+        "122",
+        "244",
+        "179"
+      ]
+    },
+    {
+      "id": "L322",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L322_motor_178164519215.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4040.98,
+        1667.94,
+        4458.98,
+        2090.94
+      ],
+      "n4_bbox_abs": [
+        4040.98,
+        1667.94,
+        4458.98,
+        2090.94
+      ],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 148.1,
+          "is_union": true
+        },
+        {
+          "value": 270.1,
+          "is_union": false
+        },
+        {
+          "value": 296.1,
+          "is_union": true
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 179.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4040.98,
+        "y": 1667.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L322.dxf",
+      "recorte_sha256": "9c3d516dedb4cebc47334884ac473fe3d4fb900d740b1c9d0e9f8fa4c369d54f",
+      "n4_sha256": "1071476a04da2809c0925b55bf145f917f9b660e48e3f3f97f37d473c9808d39",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L322.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L322",
+        "122",
+        "26",
+        "122",
+        "26",
+        "122",
+        "179",
+        "244"
+      ]
+    },
+    {
+      "id": "L323",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L323_motor_178164519219.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4478.07,
+        1667.94,
+        4896.07,
+        2090.94
+      ],
+      "n4_bbox_abs": [
+        4478.07,
+        1667.94,
+        4896.07,
+        2090.94
+      ],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 147.9,
+          "is_union": true
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 269.9,
+          "is_union": false
+        },
+        {
+          "value": 295.9,
+          "is_union": true
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4478.07,
+        "y": 1667.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L323.dxf",
+      "recorte_sha256": "feb85b55695485e5d4293ce12df366462b8397f9c082192dcc6a3a8511bd765f",
+      "n4_sha256": "69d777ff3e37faeb42fa4a97e6213adb8e88c7b8a275c2f8d5dfb1a994eb89bf",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L323.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L323",
+        "122",
+        "26",
+        "52",
+        "70",
+        "26",
+        "122",
+        "244",
+        "179"
+      ]
+    },
+    {
+      "id": "L324",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L324_motor_178164519223.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4915.07,
+        1667.94,
+        5333.07,
+        2090.94
+      ],
+      "n4_bbox_abs": [
+        4915.07,
+        1667.94,
+        5333.07,
+        2090.94
+      ],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 147.9,
+          "is_union": true
+        },
+        {
+          "value": 269.9,
+          "is_union": false
+        },
+        {
+          "value": 295.9,
+          "is_union": true
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4915.07,
+        "y": 1667.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L324.dxf",
+      "recorte_sha256": "3c813341971df4cd19173f06947104d444c2763939f74b0c734a7d4364d1f877",
+      "n4_sha256": "4b98e0c87b16c02b222be604e20b3c04c3a5681349eab198d7d3d2c909201425",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L324.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L324",
+        "122",
+        "26",
+        "122",
+        "26",
+        "122",
+        "244",
+        "179"
+      ]
+    },
+    {
+      "id": "L325",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L325_sel_1782277773.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5352.07,
+        1582.89,
+        5481.07,
+        2041.89
+      ],
+      "n4_bbox_abs": [
+        5352.07,
+        1582.89,
+        5481.07,
+        2041.89
+      ],
+      "comprimento": 129.0,
+      "largura": 459.0,
+      "linhas_verticais": [
+        {
+          "value": 60.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 215.1,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 5352.07,
+        "y": 1582.89
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L325.dxf",
+      "recorte_sha256": "296944c1215702fe513520bbe8a65e9acfc5457d344cf9a63cc694b8bf9ddbbd",
+      "n4_sha256": "8ffa3d6e7749cb1f44563cf9653258695aa1391dd06285ae0bc84ba42eddc393",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L325.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L325",
+        "60.5",
+        "68.5",
+        "215",
+        "244"
       ]
     },
     {
@@ -720,12 +1610,73 @@
         "y": 1577.94
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L326.dxf",
+      "recorte_sha256": "3bb7a54f42839e84f4e73acf8dbc8a4c1e2b6b5890ba42b7c79806580c3cd1c9",
+      "n4_sha256": "5ba0c1c4e83fef493497e816a09ec9012cfd5da99b61d9132091f2ed6dbb7ff2",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L326.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L326"
+        "L326",
+        "117",
+        "116.7",
+        "36",
+        "35"
+      ]
+    },
+    {
+      "id": "L327",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L327_sel_1781576357.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3169.57,
+        1577.94,
+        3585.07,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        3169.57,
+        1577.94,
+        3585.07,
+        1648.94
+      ],
+      "comprimento": 415.5,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 235.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.5,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3169.57,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L327.dxf",
+      "recorte_sha256": "2c3d3a9806d7629e051b368a8339f6cc1bc4a5edf0a24b96482b9c0b4f199e16",
+      "n4_sha256": "031651b673a81c5da08cdb9701bb1c685d910ad389322581864eb2a426e33126",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L327.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L327",
+        "236",
+        "176.9",
+        "35.5",
+        "35.5",
+        "16.5",
+        "16.5",
+        "2.5"
       ]
     },
     {
@@ -736,15 +1687,15 @@
       "marco_pass": true,
       "ref_bbox_abs": [
         3604.07,
-        1577.94,
+        1578.0,
         4022.07,
-        1648.94
+        1649.0
       ],
       "n4_bbox_abs": [
         3604.07,
-        1577.94,
+        1578.0,
         4022.07,
-        1648.94
+        1649.0
       ],
       "comprimento": 418.0,
       "largura": 71.0,
@@ -763,15 +1714,29 @@
       "hlaz": null,
       "stog_pose": {
         "x": 3604.07,
-        "y": 1577.94
+        "y": 1578.0
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L328.dxf",
+      "recorte_sha256": "1b1daeffb3935a16899ff3bde8bdc40331b35e43104e3630fde8081ac2dfb4b3",
+      "n4_sha256": "b7c517efec5aa9d6f3df3e20bcc0dc7934abb337630473c67339ec2dabd5c0b1",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L328.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L328"
+        "L328",
+        "197.5",
+        "215.5",
+        "36",
+        "35",
+        "197.5",
+        "215.5",
+        "200",
+        "218",
+        "16",
+        "16",
+        "2.5",
+        "2.5"
       ]
     },
     {
@@ -781,30 +1746,22 @@
       "conteudo_pass": true,
       "marco_pass": true,
       "ref_bbox_abs": [
-        4043.57,
-        1577.94,
-        4509.93,
-        1648.94
+        4041.07,
+        1578.0,
+        4459.07,
+        1649.0
       ],
       "n4_bbox_abs": [
-        4043.57,
-        1577.94,
-        4509.93,
-        1648.94
+        4041.07,
+        1578.0,
+        4459.07,
+        1649.0
       ],
-      "comprimento": 466.36,
+      "comprimento": 418.0,
       "largura": 71.0,
       "linhas_verticais": [
         {
-          "value": 202.4,
-          "is_union": false
-        },
-        {
-          "value": 413.0,
-          "is_union": false
-        },
-        {
-          "value": 415.5,
+          "value": 204.9,
           "is_union": false
         }
       ],
@@ -816,16 +1773,30 @@
       ],
       "hlaz": null,
       "stog_pose": {
-        "x": 4043.57,
-        "y": 1577.94
+        "x": 4041.07,
+        "y": 1578.0
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L329.dxf",
+      "recorte_sha256": "ba5d3a642b0a4b027fa6d76688db51c2eaa72fba7aceb8e4360d291d5e99af75",
+      "n4_sha256": "39575be8dd39fd2fb157f22ab62fa054531f808a1f0d218e1860db013e91c49e",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L329.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L329"
+        "L329",
+        "202.5",
+        "210.5",
+        "36",
+        "35",
+        "202.5",
+        "210.5",
+        "205",
+        "213",
+        "16",
+        "16",
+        "2.5",
+        "2.5"
       ]
     },
     {
@@ -835,30 +1806,22 @@
       "conteudo_pass": true,
       "marco_pass": true,
       "ref_bbox_abs": [
-        4480.57,
-        1577.94,
-        4946.93,
-        1648.94
+        4478.07,
+        1578.0,
+        4896.07,
+        1649.0
       ],
       "n4_bbox_abs": [
-        4480.57,
-        1577.94,
-        4946.93,
-        1648.94
+        4478.07,
+        1578.0,
+        4896.07,
+        1649.0
       ],
-      "comprimento": 466.36,
+      "comprimento": 418.0,
       "largura": 71.0,
       "linhas_verticais": [
         {
-          "value": 197.4,
-          "is_union": false
-        },
-        {
-          "value": 413.0,
-          "is_union": false
-        },
-        {
-          "value": 415.5,
+          "value": 199.9,
           "is_union": false
         }
       ],
@@ -870,16 +1833,30 @@
       ],
       "hlaz": null,
       "stog_pose": {
-        "x": 4480.57,
-        "y": 1577.94
+        "x": 4478.07,
+        "y": 1578.0
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L330.dxf",
+      "recorte_sha256": "53e45a8c325b8ab869ccb28b65533586f695a268a3145e358e1c05cb7d7c4328",
+      "n4_sha256": "81a9116185ae2afd37c16a3ae76d1c99f1eb51799b8180fc28b4ea3108761914",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L330.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L330"
+        "L330",
+        "197.5",
+        "215.5",
+        "36",
+        "35",
+        "197.5",
+        "215.5",
+        "200",
+        "218",
+        "16",
+        "16",
+        "2.5",
+        "2.5"
       ]
     },
     {
@@ -890,15 +1867,15 @@
       "marco_pass": true,
       "ref_bbox_abs": [
         4915.07,
-        1577.94,
+        1578.0,
         5333.07,
-        1648.94
+        1649.0
       ],
       "n4_bbox_abs": [
         4915.07,
-        1577.94,
+        1578.0,
         5333.07,
-        1648.94
+        1649.0
       ],
       "comprimento": 418.0,
       "largura": 71.0,
@@ -917,15 +1894,28 @@
       "hlaz": null,
       "stog_pose": {
         "x": 4915.07,
-        "y": 1577.94
+        "y": 1578.0
       },
       "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\n4\\LJ_preview_L331.dxf",
+      "recorte_sha256": "8a93d3078f1250b98dcf2b79b611a2c165c72d6a5b7307ddb3e5b1012b02fd92",
+      "n4_sha256": "a15e2b57fe629d35e82c53d5ceb9fcd0bd3913394f5a51bd8974457705c05f9a",
       "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_batch\\png\\ARETE_LJ_L331.png",
       "diffs": {},
       "n4_has_aux00": false,
       "n4_has_c_equals": false,
       "n4_texts": [
-        "L331"
+        "L331",
+        "171.5",
+        "244",
+        "36",
+        "35",
+        "171.5",
+        "244",
+        "174",
+        "244",
+        "16",
+        "16",
+        "2.5"
       ]
     }
   ]

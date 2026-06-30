@@ -22,7 +22,10 @@ import json, argparse, re, math
 from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
-from fv_l_panel_geometry import detect_right_l_panel
+from fv_l_panel_geometry import (
+    derive_quadrilateral_chanfros,
+    detect_right_l_panel,
+)
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
@@ -100,6 +103,11 @@ def normalize_viga_name(value):
     name = re.sub(r'n4er', '', name, flags=re.IGNORECASE)
     name = re.sub(r'\.C\s*$', '', name, flags=re.IGNORECASE)
     return name.strip(' _.-')
+
+
+def is_composite_viga_name(value):
+    name = normalize_viga_name(value).upper()
+    return len(re.findall(r'\b[A-Z]+\d+[A-Z]?\b', name)) > 1
 
 
 def create_nf_blocks(doc, max_n=10):
@@ -921,6 +929,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
     panels_json = _sanitize_segments_after_multipliers(panels_json)
     b = viga_b
+    is_composite_name = is_composite_viga_name(viga_nome)
 
     # Pre-collect all hole texts and labels to avoid printing them inside panels
     ignore_texts = set()
@@ -1106,33 +1115,24 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
                 msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
                 p_obj = seg_item['panels'][i]
-                ch = p_obj.get('chanfros', {})
-                if ch:
-                    for frac in (1 / 3, 2 / 3):
-                        y_line = ph * frac
-                        left = float(ch.get('fe', 0)) + (
-                            float(ch.get('te', 0)) - float(ch.get('fe', 0))
-                        ) * frac
-                        right = pw - float(ch.get('fd', 0)) - (
-                            float(ch.get('td', 0)) - float(ch.get('fd', 0))
-                        ) * frac
-                        if right > left:
-                            msp.add_line(
-                                (xp + left, y0 + y_line),
-                                (xp + right, y0 + y_line),
-                                dxfattribs={'layer': LY_PAINEIS},
-                            )
+                if not p_obj.get('chanfros'):
+                    chanfros = derive_quadrilateral_chanfros(p_verts)
+                    if chanfros:
+                        p_obj['chanfros'] = chanfros
             elif is_l_drop:
                 panel_poly(
                     msp, xp, y0 + b - ph, pw, ph,
-                    draw_internal_lines=not has_right_l_pair,
+                    draw_internal_lines=not (
+                        has_right_l_pair or is_composite_name
+                    ),
                 )
             else:
                 # Standard rectangular module
                 panel_poly(
                     msp, xp, y0, pw, ph,
                     draw_internal_lines=not (
-                        has_right_l_pair and i == len(sub_panels) - 2
+                        is_composite_name
+                        or (has_right_l_pair and i == len(sub_panels) - 2)
                     ),
                 )
             
@@ -1248,6 +1248,10 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         is_first_seg = (seg_idx == 0)
         is_last_seg  = (seg_idx == len(segments) - 1)
+        if is_composite_name and is_first_seg:
+            seg_label_left = ''
+        if is_composite_name and is_last_seg:
+            seg_label_right = ''
         mult_index = int(seg_item.get('_mult_index', 0) or 0) if isinstance(seg_item, dict) else 0
         mult_count = int(seg_item.get('_mult_count', 1) or 1) if isinstance(seg_item, dict) else 1
         is_mult_member = isinstance(seg_item, dict) and seg_item.get('_mult_group_id') is not None
@@ -1411,6 +1415,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 float(first_ch.get('te', 0.0)),
                 float(first_ch.get('fe', 0.0)),
             )
+            if nom_left_clearance > 0:
+                nom_left_clearance += NOM_H
     add_text(msp, x0 + nom_left_clearance + 3, y0 + b + NOM_ABOVE, nom_text,
              NOM_H, 'NOMENCLATURA', style='Standard')
 

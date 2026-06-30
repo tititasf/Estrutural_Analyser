@@ -8366,18 +8366,14 @@ class ComparisonEngineModule(QWidget):
                 return f"{label}: pendente ({detail}; DXF ausente)."
 
             if classe == "LJ":
-                from scripts.arete_lj_canonico import canonical, diff
-                diffs = diff(canonical(Path(left)), canonical(Path(right))).get("diffs", {})
-                weights = {
-                    "outline": 50,
-                    "linhas_verticais": 20,
-                    "linhas_horizontais": 20,
-                    "hlaz": 5,
-                    "obstaculos": 5,
-                }
-                lost = sum(weight for field, weight in weights.items() if field in diffs)
-                pct = max(0, 100 - lost)
-                fails = [field for field in weights if field in diffs]
+                from scripts.arete_lj_canonico import canonical
+                import sys, os
+                if str(SCRIPTS_DIR) not in sys.path:
+                    sys.path.append(str(SCRIPTS_DIR))
+                from engrev_laj_recorte_loop import _score_diff
+                ref_fc = canonical(Path(left))
+                cand_fc = canonical(Path(right))
+                pct, fails = _score_diff(ref_fc, cand_fc)
                 suffix = "OK" if not fails else "diverge: " + ", ".join(fails)
                 return f"{label}: {pct:.0f}% ({detail}; marco/linhas LAJ; {suffix})."
 

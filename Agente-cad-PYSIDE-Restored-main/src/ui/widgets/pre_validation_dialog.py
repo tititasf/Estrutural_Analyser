@@ -23,13 +23,18 @@ from PySide6.QtWidgets import (
     QPushButton, QTabWidget, QTableWidget, QTableWidgetItem, QHeaderView,
     QFrame, QComboBox, QGroupBox, QGridLayout, QAbstractItemView,
     QSizePolicy, QScrollArea, QSplitter, QGraphicsView, QGraphicsScene,
-    QMessageBox,
+    QMessageBox, QTextEdit, QFileDialog,
 )
 from PySide6.QtCore import Qt, QPointF, QRectF, QTimer, QSize, QThread, Signal
 from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
                             QPen, QPolygonF, QPainterPath)
 
 from src.ui.theme import Colors, Semantic, Accent, Text, Surface, Border, Contextual
+from src.core.preficha_segments import (
+    SEGMENT_TAB_SPECS,
+    collect_preficha_segments,
+    serializable_segment,
+)
 
 # ── Logger de diagnóstico de freeze (TEMPORÁRIO) ────────────────────────────────
 _DBG_LOG = os.path.join(
@@ -357,6 +362,7 @@ class PreValidationDialog(QDialog):
         convention_file: str | None = None,  # path p/ JSON de convenção salva
         db_path: str | None = None,           # SQLite project_data.vision
         dxf_data: dict | None = None,         # DXF bruto para re-detecção de geometrias
+        beams: list[dict] | None = None,       # vigas SA ja segmentadas (mesmas refs do pos-preficha)
         parent=None,
     ):
         super().__init__(parent)
@@ -398,6 +404,13 @@ class PreValidationDialog(QDialog):
         self._dxf_scene = getattr(canvas, 'scene', None) if canvas is not None else None
         # DXF bruto (optional) — usado para re-detectar geometrias de pilares
         self._dxf_data = dxf_data or {}
+        self._beams = beams or []
+        self._segment_data: dict[str, list[dict]] = collect_preficha_segments(self._beams)
+        self._segment_tables: dict[str, QTableWidget] = {}
+        self._segment_viewer_data: dict[str, dict[int, list]] = {}
+        self._segment_status_combos: dict[str, QComboBox] = {}
+        self._segment_attention: dict[str, str] = {}
+        self._atencao_notes: dict[str, str] = {}
 
         # Anti-freeze: suspende repaints do canvas principal enquanto este modal
         # (maximizado, que cobre o canvas) está aberto. Sem isso, os mini-viewers
@@ -431,6 +444,13 @@ class PreValidationDialog(QDialog):
         # ── Histórico de pré-ficha (persistência por geometria) ───────────────
         self._history_path: str | None = self._resolve_history_path()
         self._pf_history: dict = self._load_pf_history()
+        segment_history = self._pf_history.get('beam_segments', {})
+        for entries in self._segment_data.values():
+            for segment in entries:
+                saved = segment_history.get(segment['uid'], {})
+                if saved:
+                    segment['status'] = saved.get('status') or 'valid'
+                    segment['attention'] = saved.get('attention') or ''
 
         # Sobrescreve _term_type_map com convenção salva (se existir) ANTES de _build_ui
         if convention_file and os.path.isfile(convention_file):
@@ -1196,16 +1216,17 @@ class PreValidationDialog(QDialog):
     def _load_pf_history(self) -> dict:
         """Carrega histórico salvo; retorna dict vazio se não existir."""
         if not self._history_path or not os.path.isfile(self._history_path):
-            return {'pilares': {}, 'cut_views': {}}
+            return {'pilares': {}, 'cut_views': {}, 'beam_segments': {}}
         try:
             with open(self._history_path, encoding='utf-8') as f:
                 data = json.load(f)
             return {
                 'pilares':   data.get('pilares', {}),
                 'cut_views': data.get('cut_views', {}),
+                'beam_segments': data.get('beam_segments', {}),
             }
         except Exception:
-            return {'pilares': {}, 'cut_views': {}}
+            return {'pilares': {}, 'cut_views': {}, 'beam_segments': {}}
 
     def _save_pf_history(self) -> None:
         """Persiste estado atual dos combos de pilar e corte, keyed por geometria."""
@@ -1213,6 +1234,7 @@ class PreValidationDialog(QDialog):
             return
         pilares: dict = dict(self._pf_history.get('pilares', {}))
         cut_views: dict = dict(self._pf_history.get('cut_views', {}))
+        beam_segments: dict = dict(self._pf_history.get('beam_segments', {}))
         now = datetime.now().isoformat(timespec='seconds')
 
         # Pilares
@@ -1259,13 +1281,28 @@ class PreValidationDialog(QDialog):
                 entry['pillar_name']     = prev_entry.get('pillar_name', '')
             cut_views[geo] = entry
 
+        # Segmentos de vigas: UID semantico estavel (tipo|viga|indice|ocorrencia).
+        for entries in self._segment_data.values():
+            for segment in entries:
+                uid = segment['uid']
+                combo = self._segment_status_combos.get(uid)
+                status = combo.currentData() if combo else segment.get('status', 'valid')
+                attention = self._segment_attention.get(uid, segment.get('attention', ''))
+                beam_segments[uid] = {
+                    'status': status or 'valid',
+                    'attention': attention,
+                    'source_key': segment.get('source_key', ''),
+                    'saved_at': now,
+                }
+
         data = {
-            'version':   2,
+            'version':   3,
             'obra':      self._obra,
             'pavimento': self._pavimento,
             'saved_at':  now,
             'pilares':   pilares,
             'cut_views': cut_views,
+            'beam_segments': beam_segments,
         }
         try:
             os.makedirs(os.path.dirname(self._history_path), exist_ok=True)
@@ -1744,16 +1781,22 @@ class PreValidationDialog(QDialog):
 
         # Tabs — lazy loading: conteúdo só é construído ao selecionar a aba
         self._tabs = QTabWidget()
-        self._tab_loaded: dict[int, bool] = {0: False, 1: False, 2: False, 3: False, 4: False}
-
-        # Placeholders leves (QWidget vazio com loading label)
-        for idx, title in enumerate([
+        tab_titles = [
             "  Convenção de Pilares  ",
             "  Pilares  ",
             "  Visão de Cortes  ",
+            "  Segmentos Fundos  ",
+            "  Segmentos Lateral A Para  ",
+            "  Segmentos Lateral B Para  ",
+            "  Segmentos Lateral A Passa  ",
+            "  Segmentos Lateral B Passa  ",
             "  Convenção de Níveis  ",
             "  Pilares Especiais  ",
-        ]):
+        ]
+        self._tab_loaded: dict[int, bool] = {idx: False for idx in range(len(tab_titles))}
+
+        # Placeholders leves (QWidget vazio com loading label)
+        for idx, title in enumerate(tab_titles):
             placeholder = QWidget()
             placeholder_lay = QVBoxLayout(placeholder)
             placeholder_lay.setContentsMargins(0, 0, 0, 0)
@@ -1784,8 +1827,13 @@ class PreValidationDialog(QDialog):
             0: self._build_convention_tab,
             1: self._build_pillars_tab,
             2: self._build_cut_views_tab,
-            3: self._build_niveis_tab,
-            4: self._build_especiais_tab,
+            3: lambda: self._build_segment_tab('fundo'),
+            4: lambda: self._build_segment_tab('lateral_a_para'),
+            5: lambda: self._build_segment_tab('lateral_b_para'),
+            6: lambda: self._build_segment_tab('lateral_a_passa'),
+            7: lambda: self._build_segment_tab('lateral_b_passa'),
+            8: self._build_niveis_tab,
+            9: self._build_especiais_tab,
         }
         builder = builders.get(index)
         if not builder:
@@ -1849,6 +1897,15 @@ class PreValidationDialog(QDialog):
         # Visão de Corte
         if getattr(self, '_cut_table', None) and self._cut_table.isVisible():
             self._update_dynamic_viewers(self._cut_table, getattr(self, '_cut_viewer_data', {}), self._CUT_COL_FOTO, True)
+        # Segmentos de vigas: cada aba mantem apenas os viewers das linhas visiveis.
+        for kind, table in self._segment_tables.items():
+            if table.isVisible():
+                self._update_dynamic_viewers(
+                    table,
+                    self._segment_viewer_data.get(kind, {}),
+                    table.property('viewer_column'),
+                    True,
+                )
 
 
     def _build_header(self) -> QFrame:
@@ -1924,6 +1981,14 @@ class PreValidationDialog(QDialog):
         btn_save.clicked.connect(self._save_convention)
         self._btn_save_conv = btn_save
 
+        btn_html = QPushButton("  Gerar todos HTMLs  ")
+        btn_html.setToolTip("Gera uma ficha HTML separada por aba, com fotos e notas de atenção")
+        btn_html.setStyleSheet(
+            f"QPushButton {{ color:{Colors.ACCENT_MINT}; border-color:{Colors.ACCENT_MINT}; padding:6px 14px; }}"
+            f"QPushButton:hover {{ background:{Semantic.SUCCESS_BG_DARK}; }}"
+        )
+        btn_html.clicked.connect(self._export_html_snapshot)
+
         btn_confirm = QPushButton("  Confirmar e Prosseguir  ▶")
         btn_confirm.setStyleSheet(
             f"QPushButton {{ background:{Accent.PRIMARY}; color:{Surface.DEEP}; font-weight:bold; "
@@ -1934,6 +1999,7 @@ class PreValidationDialog(QDialog):
 
         lay.addWidget(btn_cancel)
         lay.addWidget(btn_save)
+        lay.addWidget(btn_html)
         lay.addWidget(btn_confirm)
         return frame
 
@@ -2201,7 +2267,8 @@ class PreValidationDialog(QDialog):
     _PIL_COL_LADO_B    = 7
     _PIL_COL_LADO_C    = 8
     _PIL_COL_LADO_D    = 9
-    _PIL_COL_FOTO      = 10
+    _PIL_COL_ATENCAO   = 10  # nota livre para feedback / gabarito
+    _PIL_COL_FOTO      = 11
 
     # Índice das colunas da tabela de pilares especiais (A-H)
     _ESP_COL_NOME      = 0
@@ -2233,13 +2300,12 @@ class PreValidationDialog(QDialog):
         cols = [
             "Nome", "Classif. SA", "Classif. Override",
             "Formato Pilar", "Conf %", "Nível",
-            "Lado-A", "Lado-B", "Lado-C", "Lado-D", "Foto",
+            "Lado-A", "Lado-B", "Lado-C", "Lado-D", "⚑ Atenção", "Foto",
         ]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
         hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
-        # Nome: metade do tamanho — o espaço economizado sai do total (não vai p/ outras colunas)
         hdr.setSectionResizeMode(self._PIL_COL_NOME, QHeaderView.Fixed)
         tbl.setColumnWidth(self._PIL_COL_NOME, 75)
         for col in (self._PIL_COL_LADO_A, self._PIL_COL_LADO_B,
@@ -2248,20 +2314,35 @@ class PreValidationDialog(QDialog):
             tbl.setColumnWidth(col, self._PIL_LADO_COL_W)
         hdr.setSectionResizeMode(self._PIL_COL_OVERRIDE, QHeaderView.Interactive)
         tbl.setColumnWidth(self._PIL_COL_OVERRIDE, 180)
+        hdr.setSectionResizeMode(self._PIL_COL_ATENCAO, QHeaderView.Interactive)
+        tbl.setColumnWidth(self._PIL_COL_ATENCAO, 200)
         hdr.setSectionResizeMode(self._PIL_COL_FOTO, QHeaderView.Fixed)
         tbl.setColumnWidth(self._PIL_COL_FOTO, self._PIL_COL_FOTO_W)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
-        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # Atenção é editável; demais colunas não
+        tbl.setEditTriggers(QAbstractItemView.SelectedClicked | QAbstractItemView.DoubleClicked)
         tbl.verticalHeader().setVisible(False)
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
-        tbl.setMinimumHeight(0)  # não trava o layout; footer permanece visível
+        tbl.setMinimumHeight(0)
         self._pillar_table = tbl
         self._pillar_viewer_data = {}
+        # Mantém notas existentes caso a exportação tenha ocorrido antes do lazy-load.
         tbl.verticalScrollBar().valueChanged.connect(
             lambda _: self._update_dynamic_viewers(self._pillar_table, self._pillar_viewer_data, self._PIL_COL_FOTO, False)
         )
+        tbl.itemChanged.connect(self._on_atencao_changed)
         self._populate_pillar_table()
         return tbl
+
+    def _on_atencao_changed(self, item: QTableWidgetItem) -> None:
+        """Persiste nota de atenção quando o usuário edita a célula."""
+        if item.column() != self._PIL_COL_ATENCAO:
+            return
+        row = item.row()
+        nome_item = self._pillar_table.item(row, self._PIL_COL_NOME)
+        key = nome_item.data(Qt.UserRole) if nome_item else None
+        if key:
+            self._atencao_notes[key] = item.text().strip()
 
     def _row_bg_for_classif(self, classif: str) -> QColor | None:
         """
@@ -2288,7 +2369,7 @@ class PreValidationDialog(QDialog):
         """Aplica a cor de fundo da linha em todas as células (itens + label de Tipo Físico)."""
         tbl = self._pillar_table
         bg = self._row_bg_for_classif(classif)
-        skip = {self._PIL_COL_OVERRIDE, self._PIL_COL_FOTO}
+        skip = {self._PIL_COL_OVERRIDE, self._PIL_COL_ATENCAO, self._PIL_COL_FOTO}
         for col in range(tbl.columnCount()):
             if col in skip or col == self._PIL_COL_PHYS:
                 continue
@@ -2444,6 +2525,13 @@ class PreValidationDialog(QDialog):
                     elif cell_text == 'nulo':
                         item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
                 tbl.setItem(row, col, item)
+
+            # ── Coluna Atenção (editável) ────────────────────────────────────
+            nota = self._atencao_notes.get(key, '')
+            atencao_item = QTableWidgetItem(nota)
+            atencao_item.setForeground(QBrush(QColor('#f0b840')))
+            atencao_item.setToolTip('Clique para digitar uma nota de atenção — será salva no HTML')
+            tbl.setItem(row, self._PIL_COL_ATENCAO, atencao_item)
 
             # ── Combobox Override ────────────────────────────────────────────
             combo = QComboBox()
@@ -3198,6 +3286,169 @@ class PreValidationDialog(QDialog):
                 f'O corte será removido dos vínculos de laje ao confirmar.'
             )
 
+    # ── Abas de segmentos de vigas ───────────────────────────────────────────
+
+    _SEG_THUMB_W = 440
+    _SEG_THUMB_H = 210
+    _SEG_ROW_H = 220
+
+    def _build_segment_tab(self, kind: str) -> QWidget:
+        """Monta uma lista segmentar LV/FV sem recalcular geometrias do SA."""
+        spec = SEGMENT_TAB_SPECS[kind]
+        root = QWidget()
+        lay = QVBoxLayout(root)
+        lay.setContentsMargins(6, 6, 6, 6)
+        lay.setSpacing(4)
+        entries = self._segment_data.get(kind, [])
+        info = QLabel(
+            f"{spec['title']} — {len(entries)} segmento(s). "
+            "A foto usa exatamente a geometria vinculada pelo motor SA; "
+            "marcar como ignorado remove esse mesmo vínculo após a confirmação."
+        )
+        info.setWordWrap(True)
+        info.setStyleSheet(f"font-size:9px; color:{Colors.TEXT_MUTED};")
+        lay.addWidget(info)
+        lay.addWidget(self._build_segment_table(kind), 1)
+        return root
+
+    def _build_segment_table(self, kind: str) -> QTableWidget:
+        is_fundo = kind == 'fundo'
+        if is_fundo:
+            columns = ["Viga", "Segmento", "Comprimento", "Status", "⚑ Atenção", "Foto"]
+            col = {'beam': 0, 'segment': 1, 'length': 2, 'status': 3, 'attention': 4, 'photo': 5}
+        else:
+            columns = [
+                "Viga", "Segmento", "Lado", "Comportamento", "Comprimento",
+                "Detalhes do Segmento", "Status", "⚑ Atenção", "Foto",
+            ]
+            col = {
+                'beam': 0, 'segment': 1, 'side': 2, 'behavior': 3, 'length': 4,
+                'details': 5, 'status': 6, 'attention': 7, 'photo': 8,
+            }
+
+        table = QTableWidget(0, len(columns))
+        table.setHorizontalHeaderLabels(columns)
+        table.setProperty('viewer_column', col['photo'])
+        table.setProperty('attention_column', col['attention'])
+        header = table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(col['beam'], QHeaderView.Interactive)
+        table.setColumnWidth(col['beam'], 150)
+        header.setSectionResizeMode(col['attention'], QHeaderView.Interactive)
+        table.setColumnWidth(col['attention'], 210)
+        header.setSectionResizeMode(col['photo'], QHeaderView.Fixed)
+        table.setColumnWidth(col['photo'], self._SEG_THUMB_W + 10)
+        if not is_fundo:
+            header.setSectionResizeMode(col['details'], QHeaderView.Interactive)
+            table.setColumnWidth(col['details'], 240)
+        table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table.setEditTriggers(QAbstractItemView.SelectedClicked | QAbstractItemView.DoubleClicked)
+        table.verticalHeader().setVisible(False)
+        table.setStyleSheet("QTableWidget { font-size:9px; }")
+        table.setMinimumHeight(0)
+
+        viewer_data: dict[int, list] = {}
+        self._segment_tables[kind] = table
+        self._segment_viewer_data[kind] = viewer_data
+        table.verticalScrollBar().valueChanged.connect(
+            lambda _, t=table, d=viewer_data, c=col['photo']:
+                self._update_dynamic_viewers(t, d, c, True)
+        )
+        table.itemChanged.connect(
+            lambda item, t=table: self._on_segment_attention_changed(t, item)
+        )
+
+        table.setUpdatesEnabled(False)
+        for segment in self._segment_data.get(kind, []):
+            row = table.rowCount()
+            table.insertRow(row)
+            table.setRowHeight(row, self._SEG_ROW_H)
+            beam_item = _make_item(segment['beam_name'], bold=True)
+            beam_item.setData(Qt.UserRole, segment['uid'])
+            table.setItem(row, col['beam'], beam_item)
+            table.setItem(row, col['segment'], _make_item(segment['segment_label'], Qt.AlignCenter, bold=True))
+            table.setItem(row, col['length'], _make_item(f"{segment['length']:.1f}", Qt.AlignCenter))
+
+            if not is_fundo:
+                table.setItem(row, col['side'], _make_item(segment['side'], Qt.AlignCenter, bold=True))
+                table.setItem(row, col['behavior'], _make_item(segment['behavior'], Qt.AlignCenter))
+                details = segment.get('ficha') or {}
+                detail_lines = [f"Tag: {segment.get('tag') or '—'}"]
+                for key in ('altura_total', 'largura_total_fundo', 'comprimento_total_fundo',
+                            'apoio_inicial', 'apoio_final'):
+                    value = details.get(key)
+                    if value not in (None, ''):
+                        detail_lines.append(f"{key.replace('_', ' ').title()}: {value}")
+                detail_label = QLabel('<br>'.join(detail_lines))
+                detail_label.setWordWrap(True)
+                detail_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+                detail_label.setStyleSheet(
+                    f"color:{Colors.TEXT_SECONDARY}; padding:4px; background:transparent;"
+                )
+                table.setCellWidget(row, col['details'], detail_label)
+
+            status_combo = QComboBox()
+            status_combo.addItem("Válido — manter vínculo", "valid")
+            status_combo.addItem("Ignorar — remover vínculo", "ignore")
+            initial_status = segment.get('status') or 'valid'
+            status_combo.setCurrentIndex(1 if initial_status == 'ignore' else 0)
+            status_combo.currentIndexChanged.connect(
+                lambda _, uid=segment['uid'], combo=status_combo:
+                    self._on_segment_status_changed(uid, combo)
+            )
+            table.setCellWidget(row, col['status'], status_combo)
+            self._segment_status_combos[segment['uid']] = status_combo
+
+            attention = str(segment.get('attention') or '')
+            self._segment_attention[segment['uid']] = attention
+            attention_item = QTableWidgetItem(attention)
+            attention_item.setForeground(QBrush(QColor(Contextual.GOLD)))
+            attention_item.setToolTip("Clique para registrar uma observação desta geometria")
+            table.setItem(row, col['attention'], attention_item)
+
+            points = segment.get('points') or []
+            if points:
+                viewer_data[row] = points
+                loading = QLabel("⏳ Carregando...")
+                loading.setAlignment(Qt.AlignCenter)
+                loading.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:10px;")
+                table.setCellWidget(row, col['photo'], loading)
+            else:
+                table.setItem(row, col['photo'], _make_item('—', Qt.AlignCenter, color=QColor(Colors.TEXT_MUTED)))
+            self._paint_segment_row(table, row, initial_status)
+
+        table.setUpdatesEnabled(True)
+        QTimer.singleShot(
+            150,
+            lambda t=table, d=viewer_data, c=col['photo']:
+                self._update_dynamic_viewers(t, d, c, True),
+        )
+        return table
+
+    def _on_segment_attention_changed(self, table: QTableWidget, item: QTableWidgetItem) -> None:
+        if item.column() != int(table.property('attention_column')):
+            return
+        beam_item = table.item(item.row(), 0)
+        uid = beam_item.data(Qt.UserRole) if beam_item else None
+        if uid:
+            self._segment_attention[str(uid)] = item.text().strip()
+
+    def _on_segment_status_changed(self, uid: str, combo: QComboBox) -> None:
+        for table in self._segment_tables.values():
+            for row in range(table.rowCount()):
+                beam_item = table.item(row, 0)
+                if beam_item and beam_item.data(Qt.UserRole) == uid:
+                    self._paint_segment_row(table, row, combo.currentData() or 'valid')
+                    return
+
+    @staticmethod
+    def _paint_segment_row(table: QTableWidget, row: int, status: str) -> None:
+        background = QColor(Semantic.WARNING_BG_DARK) if status == 'ignore' else QColor(Surface.RAISED)
+        for column in range(table.columnCount()):
+            item = table.item(row, column)
+            if item:
+                item.setBackground(QBrush(background))
+
     # ── Aba Convenção de Níveis ────────────────────────────────────────────────
 
     def _build_niveis_tab(self) -> QWidget:
@@ -3828,6 +4079,167 @@ class PreValidationDialog(QDialog):
         self._save_pf_history()
         self.accept()
 
+    # ── Export HTML Snapshot ───────────────────────────────────────────────────
+
+    def _widget_to_b64_png(self, widget) -> str:
+        """Captura um QWidget como PNG base64."""
+        try:
+            from PySide6.QtGui import QPixmap
+            px = widget.grab()
+            if px.isNull():
+                return ''
+            from PySide6.QtCore import QBuffer, QByteArray, QIODevice
+            buf = QBuffer()
+            buf.open(QIODevice.WriteOnly)
+            px.save(buf, 'PNG')
+            import base64
+            return base64.b64encode(buf.data().data()).decode('ascii')
+        except Exception:
+            return ''
+
+    def _export_html_snapshot(self) -> None:
+        """Gera uma ficha HTML independente para cada aba de dados."""
+        import html
+        logs_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..', '..', 'scripts', 'arete', 'logs'
+        )
+        os.makedirs(logs_dir, exist_ok=True)
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        default_dir = os.path.join(logs_dir, f'preficha_{self._pavimento}_{ts}')
+        output_dir = QFileDialog.getExistingDirectory(
+            self, "Salvar todas as fichas HTML", logs_dir,
+        )
+        if not output_dir:
+            return
+        output_dir = os.path.join(output_dir, os.path.basename(default_dir))
+        os.makedirs(output_dir, exist_ok=True)
+
+        def _photo(points: list) -> str:
+            pixmap = self._render_polygon_geometric(
+                points, self._SEG_THUMB_W, self._SEG_THUMB_H,
+                Colors.ACCENT_MINT, Surface.RAISED,
+            )
+            if pixmap is None:
+                return ''
+            label = QLabel()
+            label.setPixmap(pixmap)
+            label.setFixedSize(pixmap.size())
+            return self._widget_to_b64_png(label)
+
+        reports: list[tuple[str, str, list[str], list[dict]]] = []
+
+        pillar_rows: list[dict] = []
+        special_rows: list[dict] = []
+        nr_pilares = (self._nivel_report or {}).get('pilares', {})
+        for key, pillar in sorted(self._pillar_report.items(), key=lambda kv: self._natural_sort_key(kv[0])):
+            combo = self._pillar_combos.get(key)
+            classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
+            row = {
+                'Nome': pillar.get('name') or key,
+                'Classificação': classif,
+                'Formato': _pilar_formato(pillar.get('points') or []),
+                'Nível': (nr_pilares.get(key) or {}).get('level_str') or '—',
+                'Lado A': self._get_side_cell(pillar, 'A'),
+                'Lado B': self._get_side_cell(pillar, 'B'),
+                'Lado C': self._get_side_cell(pillar, 'C'),
+                'Lado D': self._get_side_cell(pillar, 'D'),
+                'Atenção': self._atencao_notes.get(key, ''),
+                '_points': pillar.get('points') or [],
+            }
+            (pillar_rows if row['Formato'] == 'Retangular' else special_rows).append(row)
+        pillar_headers = ['Nome', 'Classificação', 'Formato', 'Nível', 'Lado A', 'Lado B', 'Lado C', 'Lado D', 'Atenção']
+        reports.append(('pilares', 'Pré-ficha — Pilares', pillar_headers, pillar_rows))
+        reports.append(('pilares_especiais', 'Pré-ficha — Pilares Especiais', pillar_headers, special_rows))
+
+        cut_rows = []
+        for cut in self._cut_view_data:
+            combo = self._cut_combos.get(cut['uid'])
+            status_combo = self._cut_status_combos.get(cut['uid'])
+            cut_rows.append({
+                'Viga': combo.currentText() if combo else cut.get('beam_name', ''),
+                'Confiança': f"{cut.get('conf_pct', 0)}%",
+                'Laje A': cut.get('own_laje', '—'),
+                'Laje B': cut.get('neigh_laje', '—'),
+                'Altura': cut.get('beam_h', '—'),
+                'Status': status_combo.currentText() if status_combo else 'Válido',
+                '_points': cut.get('pts') or [],
+            })
+        reports.append((
+            'visao_cortes', 'Pré-ficha — Visão de Cortes',
+            ['Viga', 'Confiança', 'Laje A', 'Laje B', 'Altura', 'Status'], cut_rows,
+        ))
+
+        for kind, spec in SEGMENT_TAB_SPECS.items():
+            segment_rows = []
+            for raw in self._segment_data.get(kind, []):
+                segment = serializable_segment(raw)
+                combo = self._segment_status_combos.get(segment['uid'])
+                segment_rows.append({
+                    'Viga': segment['beam_name'],
+                    'Segmento': segment['segment_label'],
+                    'Lado': segment['side'],
+                    'Comportamento': segment['behavior'],
+                    'Comprimento': f"{segment['length']:.1f}",
+                    'Status': combo.currentText() if combo else segment.get('status', 'valid'),
+                    'Atenção': self._segment_attention.get(segment['uid'], segment.get('attention', '')),
+                    '_points': segment.get('points') or [],
+                })
+            headers = ['Viga', 'Segmento', 'Comprimento', 'Status', 'Atenção'] if kind == 'fundo' else [
+                'Viga', 'Segmento', 'Lado', 'Comportamento', 'Comprimento', 'Status', 'Atenção'
+            ]
+            reports.append((kind, f"Pré-ficha — {spec['title']}", headers, segment_rows))
+
+        generated: list[tuple[str, str, int]] = []
+        try:
+            for slug, title, headers, rows in reports:
+                body = []
+                for row in rows:
+                    cells = ''.join(
+                        f"<td>{html.escape(str(row.get(header, '')))}</td>"
+                        for header in headers
+                    )
+                    encoded = _photo(row.get('_points') or [])
+                    photo = (
+                        f'<img src="data:image/png;base64,{encoded}" alt="geometria">'
+                        if encoded else '<span class="muted">sem geometria</span>'
+                    )
+                    body.append(f"<tr>{cells}<td>{photo}</td></tr>")
+                document = f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+<title>{html.escape(title)}</title><style>
+body{{background:#1a1a1a;color:#c8c8c8;font:11px monospace;margin:16px}}
+h1{{color:#7eb8f7;font-size:16px}} .meta,.muted{{color:#777}}
+table{{border-collapse:collapse;width:100%}} th{{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px}}
+td{{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}}
+img{{width:440px;height:210px;object-fit:contain;background:#111}} tr:hover td{{background:#222}}
+</style></head><body><h1>{html.escape(title)}</h1>
+<div class="meta">Obra: <b>{html.escape(self._obra)}</b> | Pavimento: <b>{html.escape(self._pavimento)}</b> |
+Gerado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Registros: {len(rows)}</div>
+<table><thead><tr>{''.join(f'<th>{html.escape(h)}</th>' for h in headers)}<th>Foto</th></tr></thead>
+<tbody>{''.join(body)}</tbody></table></body></html>"""
+                filename = f'preficha_{slug}.html'
+                with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as file:
+                    file.write(document)
+                generated.append((filename, title, len(rows)))
+
+            index_items = ''.join(
+                f'<li><a href="{html.escape(filename)}">{html.escape(title)}</a> — {count} registro(s)</li>'
+                for filename, title, count in generated
+            )
+            with open(os.path.join(output_dir, 'index.html'), 'w', encoding='utf-8') as file:
+                file.write(
+                    '<!DOCTYPE html><html lang="pt-BR"><meta charset="UTF-8">'
+                    '<body style="background:#1a1a1a;color:#ccc;font:14px sans-serif">'
+                    f'<h1>Pré-fichas — {html.escape(self._obra)} / {html.escape(self._pavimento)}</h1>'
+                    f'<ul>{index_items}</ul></body></html>'
+                )
+            QMessageBox.information(
+                self, "HTMLs Gerados",
+                f"{len(generated)} fichas e índice salvos em:\n{output_dir}",
+            )
+        except Exception as exc:
+            QMessageBox.critical(self, "Erro ao Salvar", str(exc))
+
     # ── Resultado ─────────────────────────────────────────────────────────────
 
     def get_result(self) -> dict:
@@ -3837,6 +4249,7 @@ class PreValidationDialog(QDialog):
             'term_type_map':        {term: phys_type},
             'pillar_overrides':     {key: {classification, physical_type, ignore_in_beams}},
             'cut_view_assignments': {uid: {beam_name, confidence, status, is_invalid}},
+            'segment_decisions':    {uid: {status, attention}},
             'invalid_pillar_keys':  set[str],   # pilares com classif "não é pilar"
             'invalid_cut_uids':     set[str],   # cortes marcados como "não é visão corte"
           }
@@ -3912,12 +4325,27 @@ class PreValidationDialog(QDialog):
                 'is_invalid': is_invalid,
             }
 
+        segment_decisions: dict[str, dict] = {}
+        for entries in self._segment_data.values():
+            for segment in entries:
+                uid = segment['uid']
+                combo = self._segment_status_combos.get(uid)
+                status = combo.currentData() if combo else segment.get('status', 'valid')
+                segment_decisions[uid] = {
+                    'status': status or 'valid',
+                    'attention': self._segment_attention.get(
+                        uid, segment.get('attention', '')
+                    ),
+                    'source_key': segment.get('source_key', ''),
+                }
+
         return {
             'term_type_map':        term_map,
             'pillar_overrides':     pillar_overrides,
             'cut_view_assignments': cut_assignments,
             'invalid_pillar_keys':  invalid_pillar_keys,
             'invalid_cut_uids':     invalid_cut_uids,
+            'segment_decisions':    segment_decisions,
         }
 
 
