@@ -20075,3 +20075,49 @@ Current thread 0x00003d78 (most recent call first):
 [11:57:32.918] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V313-V315V-V317.dxf force_regen=True
 [11:57:32.919] N4 generate classe=FV id=V313-V315V-V317 via=robot
 [11:57:32.925] N4 generate launched
+[12:54:41.582] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[13:15:35.129] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[13:16:47.252] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[13:16:56.111] ITEM_SELECTED classe=LJ id=L312 flow=reverso
+[13:16:56.150] N1 flow=reverso classe=LJ id=L312 auto_chain=True
+[13:16:56.153] N1 ER shortcircuit → chaining N2
+[13:16:56.219] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L312
+[13:16:56.224] N2 recorte via fichas recente: LAJ_L312_sel_1781576266.dxf
+[13:16:56.280] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\LAJ_L312_sel_1781576266.dxf
+[13:16:56.281] N2 loading DXF size=43KB
+[13:16:56.326] N2 recorte via fichas pav=: LAJ_L312_sel_1781576266.dxf
+[13:16:56.394] N2 done ok. is_er=True auto_chain=True
+[13:16:56.453] N4 start classe=LJ id=L312
+[13:16:56.455] N4 get_er_ficha classe=LJ id=L312
+[13:16:56.457] N2 recorte via fichas pav=: LAJ_L312_sel_1781576266.dxf
+[13:16:56.473] N4 set_ficha classe=LJ id=L312 er_keys=20
+[13:16:56.736] N4 step0 ok
+[13:16:56.737] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LJ_preview_L312.dxf force_regen=True
+[13:16:56.737] N4 generate classe=LJ id=L312 via=robot
+[13:16:56.743] N4 generate launched
+[13:18:45.685] ITEM_SELECTED classe=LJ id=L313 flow=reverso
+[13:18:45.718] N1 flow=reverso classe=LJ id=L313 auto_chain=True
+[13:18:45.721] N1 ER shortcircuit → chaining N2
+[13:18:45.776] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L313
+[13:18:45.781] N2 recorte via fichas recente: LAJ_L313_motor_178111331388.dxf
+[13:18:45.826] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\LAJ_L313_motor_178111331388.dxf
+[13:18:45.826] N2 loading DXF size=46KB
+[13:18:45.870] N2 recorte via fichas pav=: LAJ_L313_motor_178111331388.dxf
+[13:18:45.943] N2 done ok. is_er=True auto_chain=True
+[13:18:48.854] ITEM_SELECTED classe=LJ id=L315 flow=reverso
+[13:18:48.887] N1 flow=reverso classe=LJ id=L315 auto_chain=True
+[13:18:48.890] N1 ER shortcircuit → chaining N2
+[13:18:48.952] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L315
+[13:18:48.957] N2 recorte via fichas recente: LAJ_L315_sel_1782277668.dxf
+[13:18:49.001] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\LAJ_L315_sel_1782277668.dxf
+[13:18:49.002] N2 loading DXF size=51KB
+[13:18:49.053] N2 recorte via fichas pav=: LAJ_L315_sel_1782277668.dxf
+[13:18:49.291] N2 done ok. is_er=True auto_chain=True
+[13:18:49.358] N4 start classe=LJ id=L315
+[13:18:49.360] N4 get_er_ficha classe=LJ id=L315
+[13:18:49.361] N2 recorte via fichas pav=: LAJ_L315_sel_1782277668.dxf
+[13:18:49.381] N4 set_ficha classe=LJ id=L315 er_keys=20
+[13:18:49.599] N4 step0 ok
+[13:18:49.601] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LJ_preview_L315.dxf force_regen=True
+[13:18:49.601] N4 generate classe=LJ id=L315 via=robot
+[13:18:49.607] N4 generate launched

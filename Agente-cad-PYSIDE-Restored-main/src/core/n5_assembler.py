@@ -76,37 +76,6 @@ def _entity_extents(entity) -> tuple[float, float, float, float] | None:
                 max(float(entity.dxf.start.x), float(entity.dxf.end.x)),
                 max(float(entity.dxf.start.y), float(entity.dxf.end.y)),
             )
-
-_SENTINEL_X = -5000.0
-
-
-def natural_key(value: str) -> list[object]:
-    parts = re.split(r"(\d+)", str(value).upper())
-    return [int(p) if p.isdigit() else p for p in parts]
-
-
-def _safe_name(value: str) -> str:
-    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value).strip())
-    return safe.strip("_") or "GERAL"
-
-
-def _entity_extents(entity) -> tuple[float, float, float, float] | None:
-    try:
-        ext = bbox.extents([entity], fast=True)
-        if ext.has_data:
-            return (float(ext.extmin.x), float(ext.extmin.y), float(ext.extmax.x), float(ext.extmax.y))
-    except Exception:
-        pass
-
-    try:
-        t = entity.dxftype()
-        if t == "LINE":
-            return (
-                min(float(entity.dxf.start.x), float(entity.dxf.end.x)),
-                min(float(entity.dxf.start.y), float(entity.dxf.end.y)),
-                max(float(entity.dxf.start.x), float(entity.dxf.end.x)),
-                max(float(entity.dxf.start.y), float(entity.dxf.end.y)),
-            )
         if t == "LWPOLYLINE":
             pts = list(entity.vertices())
             if pts:

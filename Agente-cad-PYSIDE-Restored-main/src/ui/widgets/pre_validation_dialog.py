@@ -4079,6 +4079,109 @@ class PreValidationDialog(QDialog):
         self._save_pf_history()
         self.accept()
 
+    # ── Estado de Análise (snapshot persistente p/ headless) ──────────────────
+
+    def _analysis_state_path(self) -> str:
+        """Caminho fixo do snapshot de estado: html_fichas/{obra}/estado_{pav}.json"""
+        base = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..', '..', 'scripts', 'arete', 'html_fichas', self._obra,
+        ))
+        pav_slug = re.sub(r'[^\w\-]', '_', self._pavimento)[:60]
+        return os.path.join(base, f'estado_{pav_slug}.json')
+
+    def _save_analysis_state(self) -> None:
+        """Serializa o estado completo da análise para JSON headless-friendly."""
+        try:
+            state_path = self._analysis_state_path()
+            os.makedirs(os.path.dirname(state_path), exist_ok=True)
+
+            nr_pilares = (self._nivel_report or {}).get('pilares', {})
+
+            # Pilares: geometria + classificação atual + lajes enriquecidas
+            pilares_serial: list[dict] = []
+            for key, pillar in sorted(
+                self._pillar_report.items(),
+                key=lambda kv: self._natural_sort_key(kv[0])
+            ):
+                combo = self._pillar_combos.get(key)
+                classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
+                pilares_serial.append({
+                    'key':            key,
+                    'name':           pillar.get('name') or key,
+                    'classification': classif,
+                    'orientation':    pillar.get('orientation') or 'vertical',
+                    'points':         pillar.get('points') or [],
+                    'bbox':           pillar.get('bbox') or [],
+                    'lajes':          pillar.get('lajes') or [],
+                    'nivel_str':      (nr_pilares.get(key) or {}).get('level_str') or '',
+                    'lado_A':         self._get_side_cell(pillar, 'A'),
+                    'lado_B':         self._get_side_cell(pillar, 'B'),
+                    'lado_C':         self._get_side_cell(pillar, 'C'),
+                    'lado_D':         self._get_side_cell(pillar, 'D'),
+                    'atencao':        self._atencao_notes.get(key, ''),
+                })
+
+            # Slabs
+            slabs_serial = [
+                {
+                    'name':   s.get('name') or '',
+                    'nivel':  (s.get('fields') or {}).get('laje_nivel') or s.get('nivel') or '',
+                    'height': (s.get('fields') or {}).get('laje_h') or s.get('height') or '',
+                }
+                for s in (self._slabs or [])
+            ]
+
+            # Cortes de viga
+            cuts_serial = []
+            for cut in self._cut_view_data:
+                combo = self._cut_combos.get(cut['uid'])
+                sc = self._cut_status_combos.get(cut['uid'])
+                cuts_serial.append({
+                    'uid':        cut['uid'],
+                    'beam_name':  combo.currentText() if combo else cut.get('beam_name', ''),
+                    'conf_pct':   cut.get('conf_pct', 0),
+                    'own_laje':   cut.get('own_laje', ''),
+                    'neigh_laje': cut.get('neigh_laje', ''),
+                    'beam_h':     cut.get('beam_h', ''),
+                    'status':     sc.currentText() if sc else 'Válido',
+                    'pts':        cut.get('pts') or [],
+                })
+
+            # Segmentos
+            segs_serial: dict[str, list] = {}
+            for kind in SEGMENT_TAB_SPECS:
+                segs_serial[kind] = []
+                for raw in self._segment_data.get(kind, []):
+                    seg = serializable_segment(raw)
+                    cb = self._segment_status_combos.get(seg['uid'])
+                    segs_serial[kind].append({
+                        'uid':           seg['uid'],
+                        'beam_name':     seg['beam_name'],
+                        'segment_label': seg['segment_label'],
+                        'side':          seg['side'],
+                        'behavior':      seg['behavior'],
+                        'length':        seg['length'],
+                        'status':        cb.currentText() if cb else seg.get('status', 'valid'),
+                        'atencao':       self._segment_attention.get(seg['uid'], seg.get('attention', '')),
+                        'points':        seg.get('points') or [],
+                    })
+
+            state = {
+                'gerado_em':  datetime.now().isoformat(timespec='seconds'),
+                'obra':       self._obra,
+                'pavimento':  self._pavimento,
+                'db_path':    self._db_path or '',
+                'pilares':    pilares_serial,
+                'slabs':      slabs_serial,
+                'cortes':     cuts_serial,
+                'segmentos':  segs_serial,
+            }
+            with open(state_path, 'w', encoding='utf-8') as f:
+                json.dump(state, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass  # snapshot é best-effort — nunca bloquear o usuário
+
     # ── Export HTML Snapshot ───────────────────────────────────────────────────
 
     def _widget_to_b64_png(self, widget) -> str:
@@ -4163,6 +4266,7 @@ class PreValidationDialog(QDialog):
     def _export_html_snapshot(self) -> None:
         """Gera uma ficha HTML independente para cada aba de dados."""
         import html
+        self._save_analysis_state()   # snapshot JSON para modo headless
         # Pasta fixa por obra: scripts/arete/html_fichas/{obra}/{pavimento}_{ts}/
         # Acumula histórico de geração sem sobrescrever runs anteriores.
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')

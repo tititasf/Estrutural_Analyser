@@ -3441,10 +3441,10 @@ class LevelColumn(QFrame):
         lay.setSpacing(4)
 
         # ── Header compacto: [badge+título+desc+atenção] | [pipeline inline] ──
-        # Altura fixa: 50px sem atenção, 100px com atenção (3 linhas nota)
+        # Altura fixa: 50px sem atenção; com atenção usa min/max para caber todo conteúdo
         _HDR_H_NORMAL  = 50
-        _HDR_H_ATT     = 100
-        _HDR_H_ATT_PP  = 120    # +20px para linha Para/Passa
+        _HDR_H_ATT     = 170
+        _HDR_H_ATT_PP  = 195    # +25px para linha Para/Passa
         hdr = QFrame()
         hdr.setFixedHeight(_HDR_H_NORMAL)
         hdr.setStyleSheet(f"background: {bg_color}; border-radius: 4px;")
