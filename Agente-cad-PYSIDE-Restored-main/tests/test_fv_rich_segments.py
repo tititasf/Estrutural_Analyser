@@ -110,3 +110,68 @@ def test_fv_v306_extracts_top_chamfer_for_sarrafos_and_dimension():
     assert ficha["segments_rich"][0]["panels"][0]["chanfros"] == {
         "te": 7.6, "fe": 0.0, "td": 0.0, "fd": 0.0,
     }
+
+
+def test_fv_v307_extracts_distinct_angled_l_geometry():
+    candidates = list(Path(
+        "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos"
+    ).glob("*FV - R00/FV_V307_motor_178111331108.dxf"))
+    if not candidates:
+        pytest.skip("Recorte FV V307 de referência não encontrado")
+
+    ficha = extrair_ficha_fundo_viga(str(candidates[0]), "V307")
+    panel = ficha["segments_rich"][0]["panels"][0]
+
+    assert panel["angled_l"]["type"] == "left_angled"
+    assert panel["angled_l"]["main_height"] == 19.0
+    assert panel["angled_l"]["total_height"] == 35.4
+    assert panel["is_L_drop"] is False
+    assert panel["panel_dividers"] == [133.7]
+
+
+@pytest.mark.parametrize(
+    ("pattern", "element", "assertion"),
+    [
+        (
+            "FV_V323-V328_motor_*.dxf",
+            "V323-V328",
+            lambda ficha: [
+                panel["width"]
+                for panel in ficha["segments_rich"][0]["panels"]
+            ] == [122.0, 138.0],
+        ),
+        (
+            "FV_V330_motor_*.dxf",
+            "V330",
+            lambda ficha: all(
+                panel["is_liso"]
+                for segment in ficha["segments_rich"]
+                for panel in segment["panels"]
+            ),
+        ),
+        (
+            "FV_VF202_motor_*.dxf",
+            "VF202",
+            lambda ficha: (
+                ficha["segments_rich"][0]["panels"][0]["chanfros"]["td"]
+                == 5.6
+            ),
+        ),
+        (
+            "FV_VF301_motor_*.dxf",
+            "VF301",
+            lambda ficha: ficha["segments_rich"][1]["_multiplier"] == 6,
+        ),
+    ],
+)
+def test_fv_attention_cases_extract_declared_semantics(
+    pattern, element, assertion
+):
+    candidates = list(Path(
+        "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos"
+    ).glob(f"*FV - R00/{pattern}"))
+    if not candidates:
+        pytest.skip(f"Recorte FV {element} de referência não encontrado")
+
+    ficha = extrair_ficha_fundo_viga(str(sorted(candidates)[-1]), element)
+    assert assertion(ficha)

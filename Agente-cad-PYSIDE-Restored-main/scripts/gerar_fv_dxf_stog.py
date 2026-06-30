@@ -24,6 +24,7 @@ import ezdxf
 from visual_modes import apply_visual_mode
 from fv_l_panel_geometry import (
     derive_quadrilateral_chanfros,
+    detect_left_angled_l_panel,
     detect_right_l_panel,
 )
 
@@ -530,6 +531,11 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     total_width = sum(panel_widths)
     if total_width <= 0 or b <= 0:
         return
+    if panel_items and all(
+        isinstance(panel, dict) and panel.get('is_liso')
+        for panel in panel_items
+    ):
+        return
 
     # V310: b<10cm recebe contorno verde no painel; 10≤b≤14cm usa sarrafo 5cm.
     if b < 10:
@@ -544,6 +550,16 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
             xp += pw
         return
     layer = 'SARR_5cm' if b <= 14 else SARR_LAYER
+
+    angled_l_panel = None
+    if panel_items and len(panel_items) == 1 and isinstance(panel_items[0], dict):
+        angled_l_panel = panel_items[0].get('angled_l')
+    if angled_l_panel:
+        _draw_left_angled_l_sarr(
+            msp, x0, y0, angled_l_panel,
+            sarrafo_esq=sarrafo_esq, sarrafo_dir=sarrafo_dir,
+        )
+        return
 
     right_l_panel = None
     if panel_items and isinstance(panel_items[-1], dict):
@@ -649,7 +665,148 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
                 msp.add_line(
                     (inner_x, rail_y), (outer_x, rail_y),
                     dxfattribs={'layer': 'SARR_EDITAR'},
-                )
+            )
+
+
+def _line_intersection(p, direction, q, q_direction):
+    denominator = (
+        direction[0] * q_direction[1]
+        - direction[1] * q_direction[0]
+    )
+    if abs(denominator) < 1e-9:
+        return None
+    delta = (q[0] - p[0], q[1] - p[1])
+    scale = (
+        delta[0] * q_direction[1]
+        - delta[1] * q_direction[0]
+    ) / denominator
+    return (
+        p[0] + scale * direction[0],
+        p[1] + scale * direction[1],
+    )
+
+
+def _line_x_at_y(point, direction, target_y):
+    if abs(direction[1]) < 1e-9:
+        return None
+    scale = (target_y - point[1]) / direction[1]
+    return point[0] + scale * direction[0]
+
+
+def _draw_left_angled_l_sarr(
+    msp, x0, y0, geometry, sarrafo_esq=True, sarrafo_dir=True,
+):
+    def point(key):
+        value = geometry[key]
+        return float(value['x']), float(value['y'])
+
+    outer_mid = point('outer_mid')
+    bottom_left = point('bottom_left')
+    bottom_right = point('bottom_right')
+    top_right = point('top_right')
+    tip_top = point('tip_top')
+    main_height = float(geometry['main_height'])
+    direction = (
+        bottom_left[0] - outer_mid[0],
+        bottom_left[1] - outer_mid[1],
+    )
+    direction_length = math.hypot(*direction)
+    if direction_length <= 0:
+        return
+    unit = (
+        direction[0] / direction_length,
+        direction[1] / direction_length,
+    )
+    normal = (-unit[1], unit[0])
+    if (
+        (tip_top[0] - outer_mid[0]) * normal[0]
+        + (tip_top[1] - outer_mid[1]) * normal[1]
+    ) < 0:
+        normal = (-normal[0], -normal[1])
+
+    outer_start = (
+        outer_mid[0] + unit[0] * SARR_RECUO,
+        outer_mid[1] + unit[1] * SARR_RECUO,
+    )
+    outer_end = (
+        tip_top[0] + unit[0] * SARR_RECUO,
+        tip_top[1] + unit[1] * SARR_RECUO,
+    )
+    outer_direction = (
+        outer_end[0] - outer_start[0],
+        outer_end[1] - outer_start[1],
+    )
+    lower_sarr_y = SARR_RECUO
+
+    if sarrafo_esq:
+        msp.add_line(
+            (x0 + outer_start[0], y0 + outer_start[1]),
+            (x0 + outer_end[0], y0 + outer_end[1]),
+            dxfattribs={'layer': SARR_LAYER},
+        )
+        offsets = sorted({
+            SARR_RECUO,
+            main_height - SARR_RECUO,
+            main_height,
+        })
+        for offset in offsets:
+            if offset <= 0 or offset > main_height + 0.1:
+                continue
+            rail_point = (
+                outer_mid[0] + normal[0] * offset,
+                outer_mid[1] + normal[1] * offset,
+            )
+            rail_start = _line_intersection(
+                rail_point, direction, outer_start, outer_direction
+            )
+            rail_end_x = _line_x_at_y(
+                rail_point, direction, lower_sarr_y
+            )
+            if rail_start is None or rail_end_x is None:
+                continue
+            msp.add_line(
+                (x0 + rail_start[0], y0 + rail_start[1]),
+                (x0 + rail_end_x, y0 + lower_sarr_y),
+                dxfattribs={'layer': SARR_LAYER},
+            )
+
+    main_offsets = _sarr_h_offsets(main_height)
+    top_rail_point = (
+        outer_mid[0] + normal[0] * main_height,
+        outer_mid[1] + normal[1] * main_height,
+    )
+    right_direction = (
+        top_right[0] - bottom_right[0],
+        top_right[1] - bottom_right[1],
+    )
+    lower_direction = (
+        bottom_left[0] - outer_mid[0],
+        bottom_left[1] - outer_mid[1],
+    )
+    for index, offset in enumerate(main_offsets):
+        if index == 0:
+            left_x = _line_x_at_y(outer_mid, lower_direction, offset)
+        else:
+            left_x = _line_x_at_y(top_rail_point, direction, offset)
+        right_boundary_x = _line_x_at_y(
+            bottom_right, right_direction, offset
+        )
+        if left_x is None or right_boundary_x is None:
+            continue
+        right_x = right_boundary_x - SARR_RECUO
+        if right_x > left_x:
+            msp.add_line(
+                (x0 + left_x, y0 + offset),
+                (x0 + right_x, y0 + offset),
+                dxfattribs={'layer': SARR_LAYER},
+            )
+
+    if sarrafo_dir:
+        msp.add_line(
+            (x0 + bottom_right[0] - SARR_RECUO, y0 + bottom_right[1]),
+            (x0 + top_right[0] - SARR_RECUO, y0 + top_right[1]),
+            dxfattribs={'layer': SARR_LAYER},
+        )
 
 
 def draw_escoras(msp, x0, y0, comprimento):
@@ -838,7 +995,12 @@ def get_seg_b(seg_item, default_b):
         panel for panel in seg_item.get('panels', [])
         if isinstance(panel, dict) and not panel.get('is_L_drop')
     ]
-    heights = [_panel_height(panel, default_b) for panel in regular]
+    heights = [
+        float(panel['angled_l']['main_height'])
+        if panel.get('angled_l')
+        else _panel_height(panel, default_b)
+        for panel in regular
+    ]
     return max(heights) if heights else float(default_b)
 
 
@@ -1115,7 +1277,11 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
                 msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
                 p_obj = seg_item['panels'][i]
-                if not p_obj.get('chanfros'):
+                if not p_obj.get('angled_l'):
+                    angled_l = detect_left_angled_l_panel(p_verts)
+                    if angled_l:
+                        p_obj['angled_l'] = angled_l
+                if not p_obj.get('angled_l') and not p_obj.get('chanfros'):
                     chanfros = derive_quadrilateral_chanfros(p_verts)
                     if chanfros:
                         p_obj['chanfros'] = chanfros
@@ -1135,6 +1301,24 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                         or (has_right_l_pair and i == len(sub_panels) - 2)
                     ),
                 )
+
+            if isinstance(seg_item, dict):
+                panel_objects = seg_item.get('panels') or []
+                panel_obj = panel_objects[i] if i < len(panel_objects) else {}
+                if panel_obj.get('is_liso'):
+                    limits = [0.0]
+                    limits.extend(sorted(float(value) for value in (
+                        panel_obj.get('panel_dividers') or []
+                    )))
+                    limits.append(float(pw))
+                    for start, end in zip(limits, limits[1:]):
+                        if end - start <= 0.1:
+                            continue
+                        add_text(
+                            msp, xp + (start + end) / 2.0,
+                            y0 + ph / 2.0, 'LISO', 8,
+                            'NOMENCLATURA', halign=1, valign=2,
+                        )
             
             # Draw loose attached entities (L-corners, etc.)
             for le in p_loose:
@@ -1210,8 +1394,17 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             and seg_item.get('panels')
         ):
             panel = seg_item['panels'][0]
-            for offset in _tier_panel_dividers(panel, sub_panels[0]):
-                panel_divider(msp, seg_x0 + offset, y0, b)
+            explicit_dividers = panel.get('panel_dividers') or []
+            divider_offsets = list(explicit_dividers)
+            divider_offsets.extend(_tier_panel_dividers(panel, sub_panels[0]))
+            divider_height = float(
+                panel.get('angled_l', {}).get('main_height', b)
+            )
+            for offset in sorted(set(float(value) for value in divider_offsets)):
+                if 0.1 < offset < float(sub_panels[0]) - 0.1:
+                    panel_divider(
+                        msp, seg_x0 + offset, y0, divider_height
+                    )
 
         # Draw sarrafos for this segment (respecting sarrafo_esq/dir flags from robot)
         seg_sarr_esq = seg_item.get('sarrafo_esq', True) if isinstance(seg_item, dict) else True

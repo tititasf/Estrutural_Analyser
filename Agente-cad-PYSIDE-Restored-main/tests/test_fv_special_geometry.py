@@ -13,6 +13,7 @@ fv = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(fv)
 from fv_l_panel_geometry import (
     derive_quadrilateral_chanfros,
+    detect_left_angled_l_panel,
     detect_right_l_panel,
 )
 
@@ -459,6 +460,101 @@ def test_right_l_outline_is_split_into_horizontal_and_rotated_panels():
         "drop_depth": 30.0,
         "side": "right",
     }
+
+
+def test_left_angled_l_is_one_panel_with_joined_sarrafos():
+    vertices = [
+        {"x": 0.0, "y": 22.3},
+        {"x": 21.1, "y": 0.0},
+        {"x": 255.7, "y": 0.0},
+        {"x": 248.2, "y": 19.0},
+        {"x": 29.3, "y": 19.0},
+        {"x": 13.8, "y": 35.4},
+    ]
+    geometry = detect_left_angled_l_panel(vertices)
+    assert geometry["type"] == "left_angled"
+    assert geometry["main_height"] == 19.0
+    assert geometry["total_height"] == 35.4
+
+    segments = [{
+        "total_width": 255.7,
+        "panels": [{
+            "width": 255.7,
+            "height": 35.4,
+            "vertices": vertices,
+        }],
+    }]
+    doc = fv.setup_doc()
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 35.4, "V307",
+        label_left="", label_right="",
+    )
+
+    sarr_lines = {
+        tuple(round(float(value), 1) for value in (
+            entity.dxf.start.x,
+            entity.dxf.start.y,
+            entity.dxf.end.x,
+            entity.dxf.end.y,
+        ))
+        for entity in doc.modelspace()
+        if entity.dxftype() == "LINE" and entity.dxf.layer == fv.SARR_LAYER
+    }
+    assert {
+        (4.8, 17.2, 18.6, 30.3),
+        (9.9, 22.0, 24.1, 7.0),
+        (13.5, 25.5, 31.0, 7.0),
+        (18.6, 30.3, 40.6, 7.0),
+        (14.5, 7.0, 245.9, 7.0),
+        (35.9, 12.0, 244.0, 12.0),
+        (248.7, 0.0, 241.2, 19.0),
+    }.issubset(sarr_lines)
+    assert (7.0, 0.0, 7.0, 35.4) not in sarr_lines
+
+    vertical_dims = [
+        round(float(entity.get_measurement()), 1)
+        for entity in doc.modelspace()
+        if entity.dxftype() == "DIMENSION"
+        and abs(float(entity.dxf.defpoint2.x) - float(entity.dxf.defpoint3.x)) < 1e-6
+    ]
+    assert 19.0 in vertical_dims
+    assert 35.4 not in vertical_dims
+
+
+def test_liso_panels_keep_dividers_and_labels_without_sarrafos():
+    segments = [{
+        "total_width": 311.0,
+        "panels": [{
+            "width": 311.0,
+            "height": 19.0,
+            "is_liso": True,
+            "panel_dividers": [122.0],
+        }],
+    }]
+    doc = fv.setup_doc()
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V330",
+        label_left="", label_right="",
+    )
+
+    msp = doc.modelspace()
+    assert not [
+        entity for entity in msp
+        if entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.SARR_LAYER
+    ]
+    assert len([
+        entity for entity in msp
+        if entity.dxftype() == "TEXT"
+        and entity.dxf.text == "LISO"
+    ]) == 2
+    assert any(
+        entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+        and round(float(entity.dxf.start.x), 1) == 122.0
+        and round(float(entity.dxf.end.x), 1) == 122.0
+        for entity in msp
+    )
 
 
 def test_legacy_right_l_draws_separate_panel_sarrafos_and_dimensions():
