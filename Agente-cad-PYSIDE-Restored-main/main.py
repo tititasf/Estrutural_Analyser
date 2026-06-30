@@ -2334,7 +2334,7 @@ class MainWindow(QMainWindow):
                 if confirm:
                     QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
 
-        self.statusBar.showMessage(f"Sincronização concluída: {count} lajes enviadas.", 5000)
+        self.statusBar().showMessage(f"Sincronização concluída: {count} lajes enviadas.", 5000)
 
     def _auto_sync_beams_to_laterais_silent(self):
         """Versão silenciosa (sem dialogs) do sync para Robo LV, chamada após análise."""

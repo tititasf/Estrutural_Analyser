@@ -755,7 +755,7 @@ class DiagnosticHubModule(QWidget):
 
         # Obra ComboBox
         lbl_obra = QLabel("Obra:")
-        lbl_obra.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;")
+        lbl_obra.setStyleSheet(f"color: white; font-size: 11px; background: transparent;")
         vlay.addWidget(lbl_obra)
 
         self._combo_obra = QComboBox()
@@ -783,7 +783,7 @@ class DiagnosticHubModule(QWidget):
         # Brutos aprovados label
         self._lbl_brutos_count = QLabel("Brutos aprovados:")
         self._lbl_brutos_count.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
+            f"color: white; font-size: 11px; background: transparent;"
         )
         vlay.addWidget(self._lbl_brutos_count)
 
@@ -811,7 +811,7 @@ class DiagnosticHubModule(QWidget):
         btn_abrir_dxf = QPushButton("📂 Abrir")
         btn_abrir_dxf.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: {Colors.BG_CARD}; color: #FFFFFF;
+                background: {Colors.BG_CARD}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
@@ -824,7 +824,7 @@ class DiagnosticHubModule(QWidget):
         btn_refresh = QPushButton("↻ Atualizar")
         btn_refresh.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: {Colors.BG_CARD}; color: #FFFFFF;
+                background: {Colors.BG_CARD}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
@@ -855,7 +855,7 @@ class DiagnosticHubModule(QWidget):
                 border: none; background: {Colors.BG_CARD};
             }}
             QTabBar::tab {{
-                background: {Colors.BG_SECONDARY}; color: {Colors.TEXT_SECONDARY};
+                background: {Colors.BG_SECONDARY}; color: white;
                 padding: 6px 18px; border: 1px solid {Colors.BORDER_DEFAULT};
                 border-bottom: none; border-radius: 4px 4px 0 0;
                 font-size: 11px; font-weight: bold;
@@ -929,7 +929,7 @@ class DiagnosticHubModule(QWidget):
             btn.setFixedWidth(70)
             btn.setStyleSheet(f"""
                 QPushButton {{ color: white;
-                    background: {Colors.BG_CARD}; color: #FFFFFF;
+                    background: {Colors.BG_CARD}; color: white;
                     border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
                     font-size: 10px; padding: 2px 6px;
                 }}
@@ -951,7 +951,7 @@ class DiagnosticHubModule(QWidget):
         # Status do crop atual
         self._lbl_crop_info = QLabel("")
         self._lbl_crop_info.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
+            f"color: white; font-size: 10px; background: transparent;"
         )
         tb_layout.addWidget(self._lbl_crop_info)
 
@@ -991,7 +991,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_recortes_status = QLabel("Selecione um bruto")
         self._lbl_recortes_status.setWordWrap(True)
         self._lbl_recortes_status.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
+            f"color: white; font-size: 10px; background: transparent;"
         )
         vlay.addWidget(self._lbl_recortes_status)
 
@@ -1004,12 +1004,12 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_manual_crop.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(180, 120, 0, 160); color: #FFFFFF;
+                background: rgba(180, 120, 0, 160); color: white;
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(180, 120, 0, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_manual_crop.setEnabled(False)
         self._btn_manual_crop.clicked.connect(self._run_manual_crop)
@@ -1023,12 +1023,12 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_selection_crop.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(120, 60, 180, 160); color: #FFFFFF;
+                background: rgba(120, 60, 180, 160); color: white;
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(120, 60, 180, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_selection_crop.setEnabled(False)
         self._btn_selection_crop.clicked.connect(self._run_selection_crop)
@@ -1038,12 +1038,12 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_crops = QPushButton("⚙ Processar Auto")
         self._btn_process_crops.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: #FFFFFF;
+                background: rgba(0, 180, 180, 160); color: white;
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_crops.setEnabled(False)
         self._btn_process_crops.clicked.connect(self._run_crop_engine)
@@ -1053,12 +1053,12 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_all_crops = QPushButton("⚡ Processar Todos Pav. Auto")
         self._btn_process_all_crops.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: #FFFFFF;
+                background: rgba(0, 180, 180, 160); color: white;
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_all_crops.setEnabled(False)
         self._btn_process_all_crops.clicked.connect(self._run_crop_engine_all)
@@ -1091,7 +1091,7 @@ class DiagnosticHubModule(QWidget):
         # Lista de recortes
         lbl_lista = QLabel("Recortes detectados:")
         lbl_lista.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
+            f"color: white; font-size: 10px; background: transparent;"
         )
         vlay.addWidget(lbl_lista)
 
@@ -1118,12 +1118,12 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_save_crop.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(80, 80, 220, 160); color: #FFFFFF;
+                background: rgba(80, 80, 220, 160); color: white;
                 border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_save_crop.setEnabled(False)
         self._btn_save_crop.clicked.connect(self._save_current_crop)
@@ -1131,7 +1131,7 @@ class DiagnosticHubModule(QWidget):
         # ── Radio buttons de classificação do recorte ──────────────────────────
         lbl_class = QLabel("Classificar recorte:")
         lbl_class.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
+            f"color: white; font-size: 10px; background: transparent;"
         )
         vlay.addWidget(lbl_class)
 
@@ -1160,7 +1160,7 @@ class DiagnosticHubModule(QWidget):
             btn.setStyleSheet(f"""
                 QPushButton {{ color: white;
                     background: {cls_color};
-                    color: #FFFFFF;
+                    color: white;
                     border: 1px solid {cls_color};
                     border-radius: 12px;
                     font-size: 9px; font-weight: bold;
@@ -1172,7 +1172,7 @@ class DiagnosticHubModule(QWidget):
                 }}
                 QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 30); }}
                 QPushButton:disabled {{
-                    color: {Colors.TEXT_DIM};
+                    color: white;
                     border-color: {Colors.TEXT_DIM};
                 }}
             """)
@@ -1198,12 +1198,12 @@ class DiagnosticHubModule(QWidget):
         self._btn_approve_crop = QPushButton("✓ Aprovar")
         self._btn_approve_crop.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(0, 200, 120, 160); color: #FFFFFF;
+                background: rgba(0, 200, 120, 160); color: white;
                 border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_approve_crop.setEnabled(False)
         self._btn_approve_crop.clicked.connect(self._approve_current_crop)
@@ -1216,12 +1216,12 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_delete_crop.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(255, 80, 80, 160); color: #FFFFFF;
+                background: rgba(255, 80, 80, 160); color: white;
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_delete_crop.setEnabled(False)
         self._btn_delete_crop.clicked.connect(self._delete_current_crop)
@@ -1244,12 +1244,12 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_process_limpo.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(180, 80, 200, 160); color: #FFFFFF;
+                background: rgba(180, 80, 200, 160); color: white;
                 border: 1px solid {Colors.ACCENT_PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 8px;
             }}
             QPushButton:hover {{ background: rgba(180, 80, 200, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_limpo.setEnabled(False)
         self._btn_process_limpo.clicked.connect(lambda: self._run_pre_process_all("baseline"))
@@ -1273,7 +1273,7 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_process_f3.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(180, 80, 200, 160); color: #FFFFFF;
+                background: rgba(180, 80, 200, 160); color: white;
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 padding: 4px; font-weight: bold; font-size: 11px;
             }}
@@ -1287,7 +1287,7 @@ class DiagnosticHubModule(QWidget):
         self._btn_cancel_preprocess = QPushButton("⏹ Cancelar")
         self._btn_cancel_preprocess.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(220, 50, 50, 160); color: #FFFFFF;
+                background: rgba(220, 50, 50, 160); color: white;
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; padding: 3px 8px;
             }}
@@ -2769,7 +2769,7 @@ class DiagnosticHubModule(QWidget):
             # Limpa ficha tab
             self._ficha_status_lbl.setText("⏳  Execute '⚡ Interpretar Obra Toda' para gerar a ficha.")
             self._ficha_status_lbl.setStyleSheet(
-                f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: {Colors.BG_CARD};"
+                f"color: white; font-size: 11px; background: {Colors.BG_CARD};"
             )
             return
         try:
@@ -2865,7 +2865,7 @@ class DiagnosticHubModule(QWidget):
         self._inline_log = QLabel("")
         self._inline_log.setWordWrap(True)
         self._inline_log.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
+            f"color: white; font-size: 10px; background: transparent;"
         )
         self._ficha_content_lay.addWidget(self._inline_log)
         self._ficha_content_lay.addStretch()
@@ -3153,7 +3153,7 @@ class DiagnosticHubModule(QWidget):
                     for insight in insights:
                         html += f"<li>{insight}</li>"
                 else:
-                    html += f"<li style='color: {Text.MUTED};'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
+                    html += f"<li style='color: white;'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
                     
                 html += f"""
                     </ul>
@@ -3217,7 +3217,7 @@ class DiagnosticHubModule(QWidget):
         self._ficha_status_lbl = QLabel("⏳  Execute '⚡ Interpretar Obra Toda' para gerar a ficha.")
         self._ficha_status_lbl.setWordWrap(True)
         self._ficha_status_lbl.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
+            f"color: white; font-size: 11px; background: transparent;"
         )
         main_lay.addWidget(self._ficha_status_lbl)
 
@@ -3315,7 +3315,7 @@ class DiagnosticHubModule(QWidget):
             rsm_lbl = QLabel(resumo)
             rsm_lbl.setWordWrap(True)
             rsm_lbl.setStyleSheet(
-                f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: {Colors.BG_PANEL};"
+                f"color: white; font-size: 10px; background: {Colors.BG_PANEL};"
                 f" border: 1px solid {Border.DEFAULT}; border-radius: 4px; padding: 8px;"
             )
             self._ficha_content_lay.addWidget(rsm_lbl)
@@ -3413,7 +3413,7 @@ class DiagnosticHubModule(QWidget):
             "Execute 'Analisar todos os Pavimentos Limpos' para preencher automaticamente."
         )
         info.setWordWrap(True)
-        info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;")
+        info.setStyleSheet(f"color: white; font-size: 10px; background: transparent;")
         main_lay.addWidget(info)
 
         sep = QLabel("─" * 60)
@@ -3422,7 +3422,7 @@ class DiagnosticHubModule(QWidget):
 
         self._niveis_status_lbl = QLabel("⏳  Execute a pré-análise para preencher os níveis.")
         self._niveis_status_lbl.setStyleSheet(
-            f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
+            f"color: white; font-size: 11px; background: transparent;"
         )
         main_lay.addWidget(self._niveis_status_lbl)
 
@@ -3731,18 +3731,18 @@ class DiagnosticHubModule(QWidget):
             }}
             QLabel {{ color: white; font-size: {Fonts.SIZE_MD}; }}
             QPushButton {{ color: white;
-                background: {Colors.ACCENT_BLUE}; color: #FFFFFF;
+                background: {Colors.ACCENT_BLUE}; color: white;
                 border-radius: {Radius.MD}; padding: 4px 14px;
                 font-weight: bold; font-size: {Fonts.SIZE_MD};
             }}
             QPushButton:hover {{ background: {Colors.ACCENT_BLUE_HOVER}; }}
-            QPushButton:disabled {{ background: {Colors.BORDER_DEFAULT}; color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ background: {Colors.BORDER_DEFAULT}; color: white; }}
             QPushButton#pipeline_btn {{
                 background: rgba(26, 74, 26, 1); border: 1px solid {Colors.ACCENT_SUCCESS};
                 font-size: {Fonts.SIZE_MD}; padding: 3px 12px;
             }}
             QPushButton#pipeline_btn:hover {{ background: {Colors.ACCENT_SUCCESS}; }}
-            QCheckBox {{ color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_MD}; }}
+            QCheckBox {{ color: white; font-size: {Fonts.SIZE_MD}; }}
             QProgressBar {{
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: {Radius.SM};
                 background: {Colors.BG_PANEL}; height: 7px;
@@ -3766,7 +3766,7 @@ class DiagnosticHubModule(QWidget):
         r1.addWidget(lbl_title)
 
         self._lbl_fase3_obra = QLabel("Nenhuma obra selecionada")
-        self._lbl_fase3_obra.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_MD};")
+        self._lbl_fase3_obra.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_MD};")
         r1.addWidget(self._lbl_fase3_obra)
 
         r1.addStretch()
@@ -3780,7 +3780,7 @@ class DiagnosticHubModule(QWidget):
 
         self._lbl_fase3_status = QLabel("")
         self._lbl_fase3_status.setFixedWidth(160)
-        self._lbl_fase3_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
+        self._lbl_fase3_status.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM};")
         r1.addWidget(self._lbl_fase3_status)
 
         self._chk_fase3_force = QCheckBox("Forçar")
@@ -3814,7 +3814,7 @@ class DiagnosticHubModule(QWidget):
         r2.addWidget(self._pipeline_progress)
 
         self._lbl_pipeline_status = QLabel("")
-        self._lbl_pipeline_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
+        self._lbl_pipeline_status.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM};")
         r2.addWidget(self._lbl_pipeline_status)
 
         r2.addStretch()
@@ -3839,20 +3839,20 @@ class DiagnosticHubModule(QWidget):
         r3.setSpacing(6)
 
         lbl_r3 = QLabel("CAD:")
-        lbl_r3.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM}; font-weight: bold; min-width: 30px;")
+        lbl_r3.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM}; font-weight: bold; min-width: 30px;")
         r3.addWidget(lbl_r3)
 
         self._lbl_dxf_status = QLabel("Pronto para gerar DXF")
-        self._lbl_dxf_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
+        self._lbl_dxf_status.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM};")
         r3.addWidget(self._lbl_dxf_status)
         r3.addStretch()
 
         self._btn_gerar_dxf = QPushButton("Gerar DXF STOG (Obra)")
         self._btn_gerar_dxf.setStyleSheet(
-            f"QPushButton {{ color: white; background: {Surface.RAISED}; color: #FFFFFF; border: 1px solid {Accent.PRIMARY}; "
+            f"QPushButton {{ color: white; background: {Surface.RAISED}; color: white; border: 1px solid {Accent.PRIMARY}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: {Surface.BASE}; }} "
-            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
+            f"QPushButton:disabled {{ color: white; border-color: white; }}"
         )
         self._btn_gerar_dxf.setToolTip(
             "Gera DXFs STOG de toda a obra (PL+LV+FV+LJ) a partir dos JSONs de Fase-4.\n"
@@ -3864,10 +3864,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-12: Entregar Obra
         self._btn_entregar = QPushButton("Entregar Obra")
         self._btn_entregar.setStyleSheet(
-            f"QPushButton {{ color: white; background: {Contextual.FOREST}; color: #FFFFFF; border: 1px solid {Semantic.SUCCESS}; "
+            f"QPushButton {{ color: white; background: {Contextual.FOREST}; color: white; border: 1px solid {Semantic.SUCCESS}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: rgba(30, 106, 30, 1); }} "
-            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
+            f"QPushButton:disabled {{ color: white; border-color: white; }}"
         )
         self._btn_entregar.setToolTip("CAD-12: Gera DXFs + converte para DWG via ODA (1 clique)")
         self._btn_entregar.clicked.connect(self._on_entregar_obra)
@@ -3876,10 +3876,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-13: Exportar Dados Treino
         self._btn_ml_export = QPushButton("Exportar Dados Treino")
         self._btn_ml_export.setStyleSheet(
-            f"QPushButton {{ color: white; background: rgba(160, 112, 255, 0.18); color: #FFFFFF; border: 1px solid {Contextual.PURPLE}; "
+            f"QPushButton {{ color: white; background: rgba(160, 112, 255, 0.18); color: white; border: 1px solid {Contextual.PURPLE}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: rgba(160, 112, 255, 0.28); }} "
-            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
+            f"QPushButton:disabled {{ color: white; border-color: white; }}"
         )
         self._btn_ml_export.setToolTip("CAD-13: Exporta training_data.json + insights do correction_log")
         self._btn_ml_export.clicked.connect(self._on_ml_export)
@@ -3888,10 +3888,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-14: Importar Todos Pavimentos
         self._btn_multi_pav = QPushButton("Importar Pavimentos")
         self._btn_multi_pav.setStyleSheet(
-            f"QPushButton {{ color: white; background: {Semantic.WARNING_BG_DARK}; color: #FFFFFF; border: 1px solid {Semantic.WARNING}; "
+            f"QPushButton {{ color: white; background: {Semantic.WARNING_BG_DARK}; color: white; border: 1px solid {Semantic.WARNING}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: rgba(90, 58, 26, 1); }} "
-            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
+            f"QPushButton:disabled {{ color: white; border-color: white; }}"
         )
         self._btn_multi_pav.setToolTip("CAD-14: Importa todos os pavimentos da obra via Fase4Importer")
         self._btn_multi_pav.clicked.connect(self._on_multi_pav_import)

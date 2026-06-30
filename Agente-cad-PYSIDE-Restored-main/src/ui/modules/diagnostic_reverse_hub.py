@@ -2267,7 +2267,7 @@ class _RightPanel(QFrame):
                 f"QPushButton {{ color: white; background:{bg}; color: #FFFFFF; border-radius:3px; "
                 f"font-size:9px; font-weight:bold; padding:2px 4px; }} "
                 f"QPushButton:hover {{ background:{hover}; }} "
-                f"QPushButton:disabled {{ background:{Colors.BORDER_DEFAULT}; color:{Colors.TEXT_DIM}; }}"
+                f"QPushButton:disabled {{ background:{Colors.BORDER_DEFAULT}; color:white; }}"
             )
             return b
 
@@ -2317,7 +2317,7 @@ class _RightPanel(QFrame):
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(180, 120, 0, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         btn_rec.clicked.connect(self._on_recortar)
         lay.addWidget(btn_rec)
@@ -2332,7 +2332,7 @@ class _RightPanel(QFrame):
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(120, 60, 180, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         btn_rec_sel.clicked.connect(self._on_recortar_selecao)
         lay.addWidget(btn_rec_sel)
@@ -2359,7 +2359,7 @@ class _RightPanel(QFrame):
                     font-size: 11px; font-weight: bold; padding: 3px 6px;
                 }}
                 QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-                QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+                QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
             """)
             b.clicked.connect(lambda _c, key=k: self._on_processar_cls(key))
             proc_grid.addWidget(b, i // 2, i % 2)
@@ -2378,7 +2378,7 @@ class _RightPanel(QFrame):
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         btn_tudo.clicked.connect(self._on_processar_tudo)
         lay.addWidget(btn_tudo)
@@ -2398,7 +2398,7 @@ class _RightPanel(QFrame):
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         btn_ficha.clicked.connect(self._on_gerar_ficha)
         lay.addWidget(btn_ficha)
@@ -2460,7 +2460,7 @@ class _RightPanel(QFrame):
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
-            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_salvar.clicked.connect(self._on_salvar)
         lay.addWidget(btn_salvar)
@@ -2480,7 +2480,7 @@ class _RightPanel(QFrame):
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_aprovar.clicked.connect(self._on_aprovar)
         btn_row.addWidget(btn_aprovar)
@@ -2493,7 +2493,7 @@ class _RightPanel(QFrame):
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
-            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_excluir.clicked.connect(self._on_excluir)
         btn_row.addWidget(btn_excluir)
@@ -2512,7 +2512,7 @@ class _RightPanel(QFrame):
                 font-size: 11px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: {{Colors.TEXT_DIM}}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_auto_aprovar.clicked.connect(self._on_aprovar_auto)
         lay.addWidget(btn_auto_aprovar)
