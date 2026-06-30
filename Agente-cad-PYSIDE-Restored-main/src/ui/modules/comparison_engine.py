@@ -10708,6 +10708,8 @@ class ComparisonEngineModule(QWidget):
 
         self._process.finished.connect(_on_done)
         args = [str(script), "--obra", str(obra_dir), "--item", temp_item]
+        if classe == "LJ":
+            args += ["--mode", "cards"]
         if classe in ("PL", "LV", "FV"):
             args += ["--visual-mode", self._visual_mode_for("N4")]
         self._process.start(sys.executable, args)
@@ -10808,6 +10810,8 @@ class ComparisonEngineModule(QWidget):
         self.tri_level.set_processing(True)
 
         args = [str(script), "--obra", obra_dir]
+        if classe == "LJ":
+            args += ["--mode", "cards"]
         if item_id and item_id != "ALL":
             args += ["--item", item_id]
 

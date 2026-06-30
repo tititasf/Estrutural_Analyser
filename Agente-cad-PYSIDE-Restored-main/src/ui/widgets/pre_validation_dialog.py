@@ -4097,22 +4097,81 @@ class PreValidationDialog(QDialog):
         except Exception:
             return ''
 
+    def _file_to_b64(self, path: str) -> str:
+        """Lê um arquivo PNG do filesystem e retorna base64."""
+        try:
+            import base64
+            with open(path, 'rb') as f:
+                return base64.b64encode(f.read()).decode('ascii')
+        except Exception:
+            return ''
+
+    def _find_n4_png(self, class_prefix: str, item_name: str) -> str:
+        """Busca render N4 mais recente: relatorios/{ts}/png/{class_prefix}_{item_name}.png."""
+        import glob as _glob
+        base = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..', '..', 'scripts', 'arete', 'relatorios'
+        ))
+        pattern = os.path.join(base, '*', 'png', f'{class_prefix}_{item_name}.png')
+        matches = sorted(_glob.glob(pattern), reverse=True)
+        return self._file_to_b64(matches[0]) if matches else ''
+
+    def _find_n2_png(self, obra: str, subfolder: str, item_name: str) -> str:
+        """Busca render N2 em DADOS-OBRAS/{obra}/Fase-6_Execucao_CAD/{subfolder}/{item}_n2.png."""
+        path = os.path.join(
+            'D:/Agente-cad-PYSIDE/DADOS-OBRAS', obra,
+            'Fase-6_Execucao_CAD', subfolder, f'{item_name}_n2.png'
+        )
+        return self._file_to_b64(path)
+
+    def _n2_ficha_html(self, classe: str, elemento_id: str) -> str:
+        """Retorna HTML compacto dos campos N2 (ficha informacional do DB)."""
+        if not self._db_path:
+            return '<span style="color:#555">sem DB</span>'
+        try:
+            import sqlite3, json as _json, html as _hl
+            conn = sqlite3.connect(self._db_path)
+            row = conn.execute(
+                "SELECT campos_json FROM reverse_eng_fichas "
+                "WHERE classe=? AND elemento_id=? AND obra_name=? "
+                "ORDER BY id DESC LIMIT 1",
+                (classe, elemento_id, self._obra),
+            ).fetchone()
+            conn.close()
+            if not row:
+                return '<span style="color:#555">—</span>'
+            data = _json.loads(row[0])
+            skip = {'_er_meta', 'modo_distribuicao', 'pavimento', 'numero', 'nome'}
+            entries = []
+            for k, v in data.items():
+                if k in skip:
+                    continue
+                if v in (0, 0.0, '', None) or (isinstance(v, list) and not v):
+                    continue
+                entries.append(
+                    f'<tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">'
+                    f'{_hl.escape(str(k))}</td>'
+                    f'<td style="padding:1px 4px">{_hl.escape(str(v))}</td></tr>'
+                )
+            if not entries:
+                return '<span style="color:#555">sem dados</span>'
+            return f'<table style="font-size:9px;border-collapse:collapse">{"".join(entries)}</table>'
+        except Exception:
+            return '<span style="color:#555">erro</span>'
+
     def _export_html_snapshot(self) -> None:
         """Gera uma ficha HTML independente para cada aba de dados."""
         import html
-        logs_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '..', '..', '..', 'scripts', 'arete', 'logs'
-        )
-        os.makedirs(logs_dir, exist_ok=True)
+        # Pasta fixa por obra: scripts/arete/html_fichas/{obra}/{pavimento}_{ts}/
+        # Acumula histórico de geração sem sobrescrever runs anteriores.
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-        default_dir = os.path.join(logs_dir, f'preficha_{self._pavimento}_{ts}')
-        output_dir = QFileDialog.getExistingDirectory(
-            self, "Salvar todas as fichas HTML", logs_dir,
-        )
-        if not output_dir:
-            return
-        output_dir = os.path.join(output_dir, os.path.basename(default_dir))
+        base = os.path.normpath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..', '..', 'scripts', 'arete', 'html_fichas',
+            self._obra,
+        ))
+        output_dir = os.path.join(base, f'{self._pavimento}_{ts}')
         os.makedirs(output_dir, exist_ok=True)
 
         def _photo(points: list) -> str:
@@ -4127,7 +4186,19 @@ class PreValidationDialog(QDialog):
             label.setFixedSize(pixmap.size())
             return self._widget_to_b64_png(label)
 
-        reports: list[tuple[str, str, list[str], list[dict]]] = []
+        def _img_cell(b64: str, cls: str = 'img-n4') -> str:
+            if b64:
+                return f'<td><img class="{cls}" src="data:image/png;base64,{b64}" alt="render"></td>'
+            return '<td><span class="muted">—</span></td>'
+
+        def _html_cell(content: str) -> str:
+            return f'<td style="max-width:340px;overflow:auto">{content}</td>'
+
+        # ── Report: Pilares ──────────────────────────────────────────────────
+        # Extra colunas por row: _n4_b64, _n2_html
+        # tuple: (slug, title, data_headers, rows, extra_th_html, extra_td_fn)
+        # ────────────────────────────────────────────────────────────────────
+        reports: list[tuple] = []
 
         pillar_rows: list[dict] = []
         special_rows: list[dict] = []
@@ -4135,8 +4206,9 @@ class PreValidationDialog(QDialog):
         for key, pillar in sorted(self._pillar_report.items(), key=lambda kv: self._natural_sort_key(kv[0])):
             combo = self._pillar_combos.get(key)
             classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
+            nome = pillar.get('name') or key
             row = {
-                'Nome': pillar.get('name') or key,
+                'Nome': nome,
                 'Classificação': classif,
                 'Formato': _pilar_formato(pillar.get('points') or []),
                 'Nível': (nr_pilares.get(key) or {}).get('level_str') or '—',
@@ -4146,12 +4218,26 @@ class PreValidationDialog(QDialog):
                 'Lado D': self._get_side_cell(pillar, 'D'),
                 'Atenção': self._atencao_notes.get(key, ''),
                 '_points': pillar.get('points') or [],
+                '_nome': nome,
             }
             (pillar_rows if row['Formato'] == 'Retangular' else special_rows).append(row)
-        pillar_headers = ['Nome', 'Classificação', 'Formato', 'Nível', 'Lado A', 'Lado B', 'Lado C', 'Lado D', 'Atenção']
-        reports.append(('pilares', 'Pré-ficha — Pilares', pillar_headers, pillar_rows))
-        reports.append(('pilares_especiais', 'Pré-ficha — Pilares Especiais', pillar_headers, special_rows))
 
+        pillar_headers = ['Nome', 'Classificação', 'Formato', 'Nível', 'Lado A', 'Lado B', 'Lado C', 'Lado D', 'Atenção']
+        _pil_extra_th = '<th>Foto N1</th><th>Foto N4</th><th>Ficha N2</th>'
+
+        def _pil_extra_td(row: dict) -> str:
+            nome = row['_nome']
+            geo = _photo(row.get('_points') or [])
+            n4  = self._find_n4_png('PIL', nome)
+            n2h = self._n2_ficha_html('PIL', nome)
+            geo_cell = (f'<td><img class="img-geo" src="data:image/png;base64,{geo}" alt="geo"></td>'
+                        if geo else '<td><span class="muted">sem geo</span></td>')
+            return geo_cell + _img_cell(n4) + _html_cell(n2h)
+
+        reports.append(('pilares', 'Pré-ficha — Pilares', pillar_headers, pillar_rows, _pil_extra_th, _pil_extra_td))
+        reports.append(('pilares_especiais', 'Pré-ficha — Pilares Especiais', pillar_headers, special_rows, _pil_extra_th, _pil_extra_td))
+
+        # ── Report: Visão de Cortes ──────────────────────────────────────────
         cut_rows = []
         for cut in self._cut_view_data:
             combo = self._cut_combos.get(cut['uid'])
@@ -4165,17 +4251,35 @@ class PreValidationDialog(QDialog):
                 'Status': status_combo.currentText() if status_combo else 'Válido',
                 '_points': cut.get('pts') or [],
             })
+        _cut_extra_th = '<th>Foto</th>'
+
+        def _cut_extra_td(row: dict) -> str:
+            geo = _photo(row.get('_points') or [])
+            return (f'<td><img class="img-geo" src="data:image/png;base64,{geo}" alt="geo"></td>'
+                    if geo else '<td><span class="muted">sem geo</span></td>')
+
         reports.append((
             'visao_cortes', 'Pré-ficha — Visão de Cortes',
-            ['Viga', 'Confiança', 'Laje A', 'Laje B', 'Altura', 'Status'], cut_rows,
+            ['Viga', 'Confiança', 'Laje A', 'Laje B', 'Altura', 'Status'],
+            cut_rows, _cut_extra_th, _cut_extra_td,
         ))
 
+        # ── Reports: Segmentos de Vigas ──────────────────────────────────────
+        # fundo → FV, laterais → LV
+        _seg_class = {
+            'fundo': 'FV',
+            'lateral_a_para': 'LV',
+            'lateral_b_para': 'LV',
+            'lateral_a_passa': 'LV',
+            'lateral_b_passa': 'LV',
+        }
         for kind, spec in SEGMENT_TAB_SPECS.items():
+            seg_cls = _seg_class.get(kind, 'LV')
             segment_rows = []
             for raw in self._segment_data.get(kind, []):
                 segment = serializable_segment(raw)
                 combo = self._segment_status_combos.get(segment['uid'])
-                segment_rows.append({
+                seg_r: dict = {
                     'Viga': segment['beam_name'],
                     'Segmento': segment['segment_label'],
                     'Lado': segment['side'],
@@ -4184,47 +4288,81 @@ class PreValidationDialog(QDialog):
                     'Status': combo.currentText() if combo else segment.get('status', 'valid'),
                     'Atenção': self._segment_attention.get(segment['uid'], segment.get('attention', '')),
                     '_points': segment.get('points') or [],
-                })
-            headers = ['Viga', 'Segmento', 'Comprimento', 'Status', 'Atenção'] if kind == 'fundo' else [
-                'Viga', 'Segmento', 'Lado', 'Comportamento', 'Comprimento', 'Status', 'Atenção'
-            ]
-            reports.append((kind, f"Pré-ficha — {spec['title']}", headers, segment_rows))
+                    '_beam': segment['beam_name'],
+                    '_cls': seg_cls,
+                }
+                segment_rows.append(seg_r)
+
+            seg_headers = (
+                ['Viga', 'Segmento', 'Comprimento', 'Status', 'Atenção']
+                if kind == 'fundo' else
+                ['Viga', 'Segmento', 'Lado', 'Comportamento', 'Comprimento', 'Status', 'Atenção']
+            )
+            _seg_extra_th = '<th>Foto N1</th><th>Foto N4</th><th>Foto N2</th>'
+
+            def _make_seg_extra(cls: str):
+                def _seg_extra_td(row: dict) -> str:
+                    beam = row['_beam']
+                    geo  = _photo(row.get('_points') or [])
+                    n4   = self._find_n4_png(cls, beam)
+                    n2   = self._find_n2_png(self._obra, f'comparacao_{cls.lower()}', beam)
+                    if not n2:
+                        n2 = self._find_n2_png(self._obra, 'comparacao_lv', beam)
+                    geo_cell = (f'<td><img class="img-geo" src="data:image/png;base64,{geo}" alt="geo"></td>'
+                                if geo else '<td><span class="muted">sem geo</span></td>')
+                    return geo_cell + _img_cell(n4) + _img_cell(n2, 'img-n2')
+                return _seg_extra_td
+
+            reports.append((
+                kind, f"Pré-ficha — {spec['title']}",
+                seg_headers, segment_rows,
+                _seg_extra_th, _make_seg_extra(seg_cls),
+            ))
+
+        # ── Render HTML ──────────────────────────────────────────────────────
+        css = (
+            'body{background:#1a1a1a;color:#c8c8c8;font:11px monospace;margin:16px}'
+            'h1{color:#7eb8f7;font-size:16px} .meta,.muted{color:#777}'
+            'table{border-collapse:collapse;width:100%}'
+            'th{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px;white-space:nowrap}'
+            'td{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}'
+            '.img-geo{width:280px;height:160px;object-fit:contain;background:#111}'
+            '.img-n4{width:440px;height:260px;object-fit:contain;background:#111}'
+            '.img-n2{width:440px;height:260px;object-fit:contain;background:#111}'
+            'tr:hover td{background:#222}'
+        )
 
         generated: list[tuple[str, str, int]] = []
         try:
-            for slug, title, headers, rows in reports:
-                body = []
+            for slug, title, headers, rows, extra_th, extra_td_fn in reports:
+                body_parts = []
                 for row in rows:
                     cells = ''.join(
-                        f"<td>{html.escape(str(row.get(header, '')))}</td>"
-                        for header in headers
+                        f"<td>{html.escape(str(row.get(h, '')))}</td>"
+                        for h in headers
                     )
-                    encoded = _photo(row.get('_points') or [])
-                    photo = (
-                        f'<img src="data:image/png;base64,{encoded}" alt="geometria">'
-                        if encoded else '<span class="muted">sem geometria</span>'
-                    )
-                    body.append(f"<tr>{cells}<td>{photo}</td></tr>")
-                document = f"""<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-<title>{html.escape(title)}</title><style>
-body{{background:#1a1a1a;color:#c8c8c8;font:11px monospace;margin:16px}}
-h1{{color:#7eb8f7;font-size:16px}} .meta,.muted{{color:#777}}
-table{{border-collapse:collapse;width:100%}} th{{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px}}
-td{{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}}
-img{{width:440px;height:210px;object-fit:contain;background:#111}} tr:hover td{{background:#222}}
-</style></head><body><h1>{html.escape(title)}</h1>
-<div class="meta">Obra: <b>{html.escape(self._obra)}</b> | Pavimento: <b>{html.escape(self._pavimento)}</b> |
-Gerado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Registros: {len(rows)}</div>
-<table><thead><tr>{''.join(f'<th>{html.escape(h)}</th>' for h in headers)}<th>Foto</th></tr></thead>
-<tbody>{''.join(body)}</tbody></table></body></html>"""
+                    extra = extra_td_fn(row) if extra_td_fn else ''
+                    body_parts.append(f"<tr>{cells}{extra}</tr>")
+                th_row = ''.join(f'<th>{html.escape(h)}</th>' for h in headers) + (extra_th or '')
+                document = (
+                    f'<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+                    f'<title>{html.escape(title)}</title><style>{css}</style></head>'
+                    f'<body><h1>{html.escape(title)}</h1>'
+                    f'<div class="meta">Obra: <b>{html.escape(self._obra)}</b> | '
+                    f'Pavimento: <b>{html.escape(self._pavimento)}</b> | '
+                    f'Gerado: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | '
+                    f'Registros: {len(rows)}</div>'
+                    f'<table><thead><tr>{th_row}</tr></thead>'
+                    f'<tbody>{"".join(body_parts)}</tbody></table></body></html>'
+                )
                 filename = f'preficha_{slug}.html'
                 with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as file:
                     file.write(document)
                 generated.append((filename, title, len(rows)))
 
             index_items = ''.join(
-                f'<li><a href="{html.escape(filename)}">{html.escape(title)}</a> — {count} registro(s)</li>'
-                for filename, title, count in generated
+                f'<li><a href="{html.escape(f)}">{html.escape(t)}</a> — {c} registro(s)</li>'
+                for f, t, c in generated
             )
             with open(os.path.join(output_dir, 'index.html'), 'w', encoding='utf-8') as file:
                 file.write(

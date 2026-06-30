@@ -3115,7 +3115,7 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_pilares = create_pilares_widget(db_manager=self.db)
                 self.robo_pilares.setWindowFlags(Qt.Widget)
-        self.robo_pilares.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+                self.robo_pilares.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_pilares, 'robo_obra_combo_pl')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_pilares, 'PL', 'P', 'gerar_pl_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -3132,7 +3132,7 @@ class MainWindow(QMainWindow):
                 self.robo_viga = VigaMainWindow()
                 self.robo_viga.licensing_service = self.licensing_proxy
                 self.robo_viga.setWindowFlags(Qt.Widget)
-        self.robo_viga.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+                self.robo_viga.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_viga, 'robo_obra_combo_lv')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_viga, 'LV', 'V', 'gerar_lv_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -3148,7 +3148,7 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_fundo = FundoMainWindow()
                 self.robo_fundo.setWindowFlags(Qt.Widget)
-        self.robo_fundo.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+                self.robo_fundo.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_fundo, 'robo_obra_combo_fv')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_fundo, 'FV', 'V', 'gerar_fv_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
@@ -3167,7 +3167,7 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_laje = LajeMainWindow()
                 self.robo_laje.setWindowFlags(Qt.Widget)
-        self.robo_laje.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+                self.robo_laje.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                 self._tag_robo_obra_combo(self.robo_laje, 'robo_obra_combo_lj')
                 wrapper = self._build_robo_dxf_wrapper(self.robo_laje, 'LJ', 'L', 'gerar_lj_dxf_stog.py')
                 self.module_stack.addWidget(wrapper)
