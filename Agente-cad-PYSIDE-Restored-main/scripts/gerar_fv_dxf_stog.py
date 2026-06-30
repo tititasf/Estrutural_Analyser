@@ -175,6 +175,27 @@ def panel_divider(msp, x, y0, b):
     msp.add_line((x, y0), (x, y0 + b), dxfattribs={'layer': LY_PAINEIS})
 
 
+def _tier_panel_dividers(panel, panel_width):
+    """Return level-1 divider offsets for a panel stored as one polygon."""
+    if not isinstance(panel, dict):
+        return []
+    for tier in panel.get('tiers') or []:
+        try:
+            values = [float(value) for value in tier if float(value) > 0]
+        except (TypeError, ValueError):
+            continue
+        if len(values) <= 1 or abs(sum(values) - float(panel_width)) > 1.5:
+            continue
+        offsets = []
+        cursor = 0.0
+        for value in values[:-1]:
+            cursor += value
+            if 0.1 < cursor < float(panel_width) - 0.1:
+                offsets.append(cursor)
+        return offsets
+    return []
+
+
 def _sarr_h_offsets(b):
     """Compute Y-offsets for horizontal sarrafo lines given beam b (cm).
     Real STOG pattern: sarr_h=7 always.
@@ -1180,6 +1201,17 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             xp += pw
             if i < len(sub_panels) - 1:
                 panel_divider(msp, xp, y0, b)
+
+        # Alguns DXFs representam todos os painéis por um único contorno e
+        # registram as divisões somente na cota de nível 1 (ex.: 244 + 42).
+        if (
+            len(sub_panels) == 1
+            and isinstance(seg_item, dict)
+            and seg_item.get('panels')
+        ):
+            panel = seg_item['panels'][0]
+            for offset in _tier_panel_dividers(panel, sub_panels[0]):
+                panel_divider(msp, seg_x0 + offset, y0, b)
 
         # Draw sarrafos for this segment (respecting sarrafo_esq/dir flags from robot)
         seg_sarr_esq = seg_item.get('sarrafo_esq', True) if isinstance(seg_item, dict) else True

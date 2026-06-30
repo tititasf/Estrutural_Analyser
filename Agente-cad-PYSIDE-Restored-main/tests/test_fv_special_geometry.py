@@ -143,6 +143,34 @@ def test_dimension_tiers_are_spaced_25_cm_per_layer():
     assert horizontal_tier_y == [-50.0, -25.0]
 
 
+def test_single_polygon_uses_level_one_tier_as_panel_dividers():
+    segments = [{
+        "total_width": 286.0,
+        "panels": [{
+            "width": 286.0,
+            "height": 19.0,
+            "tiers": [[244.0, 42.0], [286.0]],
+        }],
+    }]
+    doc = fv.setup_doc()
+
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V305",
+        label_left="", label_right="",
+    )
+
+    panel_dividers = [
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+        and abs(float(entity.dxf.start.x) - 244.0) < 1e-6
+        and abs(float(entity.dxf.end.x) - 244.0) < 1e-6
+        and sorted((float(entity.dxf.start.y), float(entity.dxf.end.y)))
+        == [0.0, 19.0]
+    ]
+    assert len(panel_dividers) == 1
+
+
 def test_row_break_keeps_continuation_segments_15_cm_apart():
     segments = [
         {"total_width": 100.0, "panels": [{"width": 100.0}]},

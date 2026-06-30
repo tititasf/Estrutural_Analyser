@@ -11660,14 +11660,22 @@ class MainWindow(QMainWindow):
                 fid = le.get('side', 'NULO')
                 covered.add(fid)
                 hits = face_hits.get(fid, [])
+                # A e B = faces longas; C e D = faces curtas (doc INTERPRETACAO-PILARES-ABCD)
+                is_long_face = fid in ('A', 'B')
+                has_laje = bool(le.get('laje'))
                 if not hits:
                     le['content_type'] = 'laje'
-                elif face_inside.get(fid):
+                elif face_inside.get(fid) and not (is_long_face and has_laje):
+                    # Caso 4: pilar dentro da viga (ou face curta interna)
                     le['content_type'] = 'viga'
                     le['viga'] = {'name': hits[0]['name'], 'dim': hits[0]['dim']}
-                else:
-                    # Face alinhada com parede de viga E toca laje → Caso 5 Extra
+                elif is_long_face and has_laje:
+                    # Caso 5 Extra: face longa alinhada com parede da viga E tem laje
                     le['content_type'] = 'both'
+                    le['viga'] = {'name': hits[0]['name'], 'dim': hits[0]['dim']}
+                else:
+                    # Casos 1/2: face curta (C/D) alinhada com parede de viga → VIGA puro
+                    le['content_type'] = 'viga'
                     le['viga'] = {'name': hits[0]['name'], 'dim': hits[0]['dim']}
 
             # Faces sem laje mas com parede de viga alinhada → entrada pura de viga
@@ -15469,16 +15477,18 @@ def main():
                            min(1600, screen.width() - 100),
                            min(1000, screen.height() - 100))
                            
-        window.showMinimized()
+        window.showNormal()
         
         # --- FIX DE MAXIMIZACAO ---
+        # Mostrar Normal primeiro e depois de 500ms maximizar. 
+        # Isso simula perfeitamente a janela abrindo e um humano clicando em maximizar.
         from PySide6.QtCore import QTimer
         def do_maximize():
             window.showMaximized()
             window.raise_()
             window.activateWindow()
             
-        QTimer.singleShot(400, do_maximize)
+        QTimer.singleShot(500, do_maximize)
         windows['main'] = window
 
         # If MainWindow closes, and there is no login window, check if we should re-show login
