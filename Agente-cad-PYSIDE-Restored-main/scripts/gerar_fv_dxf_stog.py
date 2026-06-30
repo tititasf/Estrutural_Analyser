@@ -22,6 +22,7 @@ import json, argparse, re, math
 from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
+from fv_l_panel_geometry import detect_right_l_panel
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
@@ -29,7 +30,11 @@ if str(_PROJECT_ROOT) not in sys.path:
 from src.core.artifact_governance import guarded_saveas
 
 _MOTOR_ID = "ROBOT_FV_N3_N4"
-_MOTOR_SOURCES = [Path(__file__)]
+_MOTOR_SOURCES = [
+    Path(__file__),
+    Path(__file__).with_name("motor_reverso_fv.py"),
+    Path(__file__).with_name("fv_l_panel_geometry.py"),
+]
 
 # -- Constants (calibrated from STOG DXFs) ------------------------------------
 GAP_VIGAS       = 47     # gap between vigas in same row (cm)
@@ -468,7 +473,7 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
 
 def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
               panel_chanfros=None, panel_openings=None,
-              sarrafo_esq=True, sarrafo_dir=True):
+              sarrafo_esq=True, sarrafo_dir=True, panel_items=None):
     """Draw SARR_2.2x7 lines for a single contiguous real segment.
 
     sarrafo_esq/sarrafo_dir: when False, the respective vertical sarrafo
@@ -510,6 +515,16 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
         return
     layer = 'SARR_5cm' if b <= 14 else SARR_LAYER
 
+    right_l_panel = None
+    if panel_items and isinstance(panel_items[-1], dict):
+        candidate = panel_items[-1]
+        if candidate.get('is_L_drop') and candidate.get('l_side', 'right') == 'right':
+            right_l_panel = candidate
+    right_l_height = _panel_height(right_l_panel, b) if right_l_panel else 0.0
+    right_l_width = float(right_l_panel.get('width', 0.0)) if right_l_panel else 0.0
+    right_l_drop = max(0.0, right_l_height - float(b))
+    has_right_l = right_l_width > 0 and right_l_drop > 0.1
+
     ch_left = panel_chanfros[0] if panel_chanfros else {}
     ch_right = panel_chanfros[-1] if panel_chanfros else {}
     te = float((ch_left or {}).get('te', 0.0))
@@ -524,7 +539,7 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
             (x0 + te + SARR_RECUO, y0 + b),
             dxfattribs={'layer': SARR_LAYER},
         )
-    if sarrafo_dir:
+    if sarrafo_dir and not has_right_l:
         msp.add_line(
             (x0 + total_width - fd - SARR_RECUO, y0),
             (x0 + total_width - td - SARR_RECUO, y0 + b),
@@ -553,7 +568,12 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     for offset in h_offsets:
         frac = offset / b
         xl = fe + (te - fe) * frac + SARR_RECUO
-        xr = total_width - fd - (td - fd) * frac - SARR_RECUO
+        if has_right_l:
+            # O sarrafo do painel horizontal cresce 7cm + largura da folha L,
+            # chegando à extremidade externa. O montante direito pertence ao L.
+            xr = total_width
+        else:
+            xr = total_width - fd - (td - fd) * frac - SARR_RECUO
         if xr <= xl:
             continue
         cuts = sorted(
@@ -576,6 +596,30 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
                 (x0 + xr, y0 + offset),
                 dxfattribs={'layer': layer},
             )
+
+    if has_right_l and sarrafo_dir:
+        inner_x = x0 + total_width - right_l_width
+        outer_x = x0 + total_width
+        bottom_y = y0 - right_l_drop
+        if right_l_drop >= 2 * SARR_RECUO:
+            rail_end_y = bottom_y + SARR_RECUO
+            for rail_x in (inner_x + SARR_RECUO, outer_x - SARR_RECUO):
+                msp.add_line(
+                    (rail_x, y0), (rail_x, rail_end_y),
+                    dxfattribs={'layer': layer},
+                )
+            for rail_y in (y0, rail_end_y):
+                msp.add_line(
+                    (inner_x, rail_y), (outer_x, rail_y),
+                    dxfattribs={'layer': layer},
+                )
+        else:
+            # Dobras curtas não comportam os dois montantes com recuo de 7cm.
+            for rail_y in (y0, y0 - right_l_drop / 2.0):
+                msp.add_line(
+                    (inner_x, rail_y), (outer_x, rail_y),
+                    dxfattribs={'layer': 'SARR_EDITAR'},
+                )
 
 
 def draw_escoras(msp, x0, y0, comprimento):
@@ -1134,7 +1178,9 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts,
                   panel_chanfros=panel_chanfros,
                   panel_openings=panel_openings,
-                  sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
+                  sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir,
+                  panel_items=(seg_item.get('panels', [])
+                               if isinstance(seg_item, dict) else None))
 
         # Posiciona textos 15cm abaixo da cota mais baixa global (10cm originais + 5cm extras)
         label_y = global_lowest_cota_y - 15
@@ -1217,7 +1263,11 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 p_item = seg_item['panels'][i]
             else:
                 p_item = {}
-            if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
+            is_l_panel = isinstance(p_item, dict) and p_item.get('is_L_drop')
+            if is_l_panel:
+                panel_bottom = y0 + b - _panel_height(p_item, b)
+                dim_panel(msp, xp, xp + pw, panel_bottom)
+            elif isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
                 tiers = p_item['tiers']
                 for t_idx, tier_vals in enumerate(tiers):
                     # Validar: só renderizar tier se sum(tier_vals) ≈ largura do painel (±1.5cm)
@@ -1274,12 +1324,24 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
 
         seg_b = get_seg_b(seg_item, b)
+        right_l_panel = None
+        if isinstance(seg_item, dict) and seg_item.get('panels'):
+            candidate = seg_item['panels'][-1]
+            if (
+                isinstance(candidate, dict)
+                and candidate.get('is_L_drop')
+                and candidate.get('l_side', 'right') == 'right'
+            ):
+                right_l_panel = candidate
         is_last_seg = seg_idx == len(segments) - 1
         has_b_change = (
             not is_last_seg
             and abs(seg_b - get_seg_b(segments[seg_idx + 1], b)) > 0.1
         )
-        if is_last_seg or has_b_change:
+        if right_l_panel:
+            l_height = _panel_height(right_l_panel, b)
+            dim_viga_b(msp, seg_x_end, y0 + b - l_height, l_height)
+        elif is_last_seg or has_b_change:
             dim_viga_b(msp, seg_x_end, y0, seg_b)
 
         # Advance cursor past this segment + gap to next segment
@@ -1396,6 +1458,46 @@ def _normalize_segments_rich(segments, viga_b):
             if y_max2 > viga_b * 3.0:
                 # Provavelmente unidade diferente ou coordenada bugada — resetar
                 p.pop('vertices', None)
+    return segments
+
+
+def _split_legacy_right_l_panels(segments, viga_b):
+    """Upgrade old rich fichas whose right L was stored as one polygon."""
+    for seg in segments:
+        if not isinstance(seg, dict):
+            continue
+        upgraded = []
+        for panel in seg.get('panels', []):
+            if not isinstance(panel, dict) or panel.get('is_L_drop'):
+                upgraded.append(panel)
+                continue
+            geometry = detect_right_l_panel(panel.get('vertices'), viga_b)
+            if not geometry:
+                upgraded.append(panel)
+                continue
+
+            main_panel = dict(panel)
+            main_panel['width'] = geometry['main_width']
+            main_panel['height'] = float(viga_b)
+            main_panel['is_L_drop'] = False
+            main_panel.pop('vertices', None)
+            tiers = main_panel.get('tiers') or []
+            if tiers and any(
+                abs(sum(float(value) for value in tier) - main_panel['width']) > 1.5
+                for tier in tiers
+            ):
+                main_panel.pop('tiers', None)
+
+            leaf_panel = {
+                'width': geometry['leaf_width'],
+                'height': geometry['leaf_height'],
+                'is_L_drop': True,
+                'l_side': geometry['side'],
+                'l_drop_depth': geometry['drop_depth'],
+                'texts': [],
+            }
+            upgraded.extend((main_panel, leaf_panel))
+        seg['panels'] = upgraded
     return segments
 
 
@@ -1532,6 +1634,7 @@ def main():
         
         # Priority: segments_rich -> panels (com normalização de vértices)
         panels = d.get('segments_rich', d.get('panels', []))
+        panels = _split_legacy_right_l_panels(panels, viga_b)
         panels = _normalize_segments_rich(panels, viga_b)
         
         comp   = sum(float(p.get('total_width', p.get('width', 0))) for p in panels)

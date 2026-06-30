@@ -39,6 +39,11 @@ import json
 import re
 import sqlite3
 
+try:
+    from fv_l_panel_geometry import detect_right_l_panel
+except ModuleNotFoundError:  # importado como scripts.motor_reverso_fv
+    from scripts.fv_l_panel_geometry import detect_right_l_panel
+
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
 GAP_PILAR_MIN = 2.0      # cm — gap minimo entre polys para contar como pilar cruzado
@@ -452,6 +457,41 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
                         if t not in unique_tiers:
                             unique_tiers.append(t)
                     p_dict['tiers'] = unique_tiers
+
+            l_geometry = detect_right_l_panel(
+                p_dict.get('vertices'), b_fv_poly or p_height
+            )
+            if l_geometry:
+                main_panel = dict(p_dict)
+                main_panel['width'] = l_geometry['main_width']
+                main_panel['height'] = float(b_fv_poly or p_height)
+                main_panel['is_L_drop'] = False
+                main_panel.pop('vertices', None)
+                main_panel['sarrafos'] = _calc_sarrafos(
+                    main_panel['width'], main_panel['height']
+                )
+                tiers = main_panel.get('tiers') or []
+                if tiers and any(
+                    abs(sum(float(value) for value in tier) - main_panel['width']) >= 2.0
+                    for tier in tiers
+                ):
+                    main_panel.pop('tiers', None)
+
+                leaf_panel = {
+                    'width': l_geometry['leaf_width'],
+                    'height': l_geometry['leaf_height'],
+                    'is_L_drop': True,
+                    'l_side': l_geometry['side'],
+                    'l_drop_depth': l_geometry['drop_depth'],
+                    'texts': [],
+                    'sarrafos': _calc_sarrafos(
+                        l_geometry['leaf_width'],
+                        l_geometry['leaf_height'],
+                        is_l_drop=True,
+                    ),
+                }
+                panels_rich.extend((main_panel, leaf_panel))
+                continue
 
             # O painel principal sempre precede uma eventual queda em L.
             panels_rich.append(p_dict)

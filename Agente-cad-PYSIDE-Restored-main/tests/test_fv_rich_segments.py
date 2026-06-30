@@ -67,3 +67,30 @@ def test_fv_v301_rich_segments():
     
     # TUDO PASSOU!
     print("V301 Rich Segments extraído e validado com sucesso!")
+
+
+def test_fv_v303_splits_each_right_l_into_independent_panels():
+    candidates = list(Path(
+        "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos"
+    ).glob("*FV - R00/FV_V303_motor_178111331100.dxf"))
+    if not candidates:
+        pytest.skip("Recorte FV V303 de referência não encontrado")
+
+    ficha = extrair_ficha_fundo_viga(str(candidates[0]), "V303")
+    rich = ficha["segments_rich"]
+
+    assert [segment["total_width"] for segment in rich] == [
+        192.5, 387.5, 418.0, 437.0, 437.0,
+    ]
+    assert [panel["width"] for panel in rich[3]["panels"]] == [244.0, 174.0, 19.0]
+    assert [panel["width"] for panel in rich[4]["panels"]] == [244.0, 174.0, 19.0]
+    assert rich[3]["panels"][-1]["is_L_drop"] is True
+    assert rich[3]["panels"][-1]["height"] == 29.0
+    assert rich[4]["panels"][-1]["is_L_drop"] is True
+    assert rich[4]["panels"][-1]["height"] == 49.0
+    assert rich[4]["_multiplier"] == 2
+    assert all(
+        sum(panel["width"] for panel in segment["panels"])
+        == pytest.approx(segment["total_width"])
+        for segment in rich
+    )

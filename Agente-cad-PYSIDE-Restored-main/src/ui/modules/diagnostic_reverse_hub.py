@@ -2460,7 +2460,7 @@ class _RightPanel(QFrame):
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
-            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_salvar.clicked.connect(self._on_salvar)
         lay.addWidget(btn_salvar)
@@ -2480,7 +2480,7 @@ class _RightPanel(QFrame):
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_aprovar.clicked.connect(self._on_aprovar)
         btn_row.addWidget(btn_aprovar)
@@ -2493,7 +2493,7 @@ class _RightPanel(QFrame):
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
-            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_excluir.clicked.connect(self._on_excluir)
         btn_row.addWidget(btn_excluir)
@@ -2512,7 +2512,7 @@ class _RightPanel(QFrame):
                 font-size: 11px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: white}; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
         """)
         btn_auto_aprovar.clicked.connect(self._on_aprovar_auto)
         lay.addWidget(btn_auto_aprovar)

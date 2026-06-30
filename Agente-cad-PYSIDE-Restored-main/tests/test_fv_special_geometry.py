@@ -11,6 +11,7 @@ sys.path.insert(0, str(GENERATOR.parent))
 SPEC = importlib.util.spec_from_file_location("fv_generator_geometry", GENERATOR)
 fv = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(fv)
+from fv_l_panel_geometry import detect_right_l_panel
 
 
 def _points(vertices):
@@ -299,3 +300,132 @@ def test_numpy_vertices_from_l_panel_do_not_break_truth_checks():
         entity.dxftype() == "LWPOLYLINE" and entity.dxf.layer == fv.LY_PAINEIS
         for entity in doc.modelspace()
     )
+
+
+def test_right_l_outline_is_split_into_horizontal_and_rotated_panels():
+    geometry = detect_right_l_panel([
+        {"x": 0.0, "y": 19.0},
+        {"x": 193.0, "y": 19.0},
+        {"x": 193.0, "y": -30.0},
+        {"x": 174.0, "y": -30.0},
+        {"x": 174.0, "y": 0.0},
+        {"x": 0.0, "y": 0.0},
+        {"x": 0.0, "y": 19.0},
+    ], 19.0)
+
+    assert geometry == {
+        "main_width": 174.0,
+        "leaf_width": 19.0,
+        "leaf_height": 49.0,
+        "drop_depth": 30.0,
+        "side": "right",
+    }
+
+
+def test_legacy_right_l_draws_separate_panel_sarrafos_and_dimensions():
+    segments = [{
+        "total_width": 437.0,
+        "panels": [
+            {"width": 244.0, "height": 19.0},
+            {
+                "width": 193.0,
+                "height": 49.0,
+                "vertices": [
+                    {"x": 0.0, "y": 19.0},
+                    {"x": 193.0, "y": 19.0},
+                    {"x": 193.0, "y": -30.0},
+                    {"x": 174.0, "y": -30.0},
+                    {"x": 174.0, "y": 0.0},
+                    {"x": 0.0, "y": 0.0},
+                ],
+            },
+        ],
+    }]
+    fv._split_legacy_right_l_panels(segments, 19.0)
+    assert [panel["width"] for panel in segments[0]["panels"]] == [244.0, 174.0, 19.0]
+
+    doc = fv.setup_doc()
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V303",
+        label_left="", label_right="",
+    )
+
+    panel_boxes = sorted(
+        tuple(round(value, 1) for value in (
+            min(point[0] for point in entity.get_points("xy")),
+            max(point[0] for point in entity.get_points("xy")),
+            min(point[1] for point in entity.get_points("xy")),
+            max(point[1] for point in entity.get_points("xy")),
+        ))
+        for entity in doc.modelspace()
+        if entity.dxftype() == "LWPOLYLINE" and entity.dxf.layer == fv.LY_PAINEIS
+    )
+    assert panel_boxes == [
+        (0.0, 244.0, 0.0, 19.0),
+        (244.0, 418.0, 0.0, 19.0),
+        (418.0, 437.0, -30.0, 19.0),
+    ]
+
+    sarr_lines = [
+        (
+            round(float(entity.dxf.start.x), 1),
+            round(float(entity.dxf.start.y), 1),
+            round(float(entity.dxf.end.x), 1),
+            round(float(entity.dxf.end.y), 1),
+        )
+        for entity in doc.modelspace()
+        if entity.dxftype() == "LINE" and entity.dxf.layer == fv.SARR_LAYER
+    ]
+    assert (425.0, 0.0, 425.0, -23.0) in sarr_lines
+    assert (430.0, 0.0, 430.0, -23.0) in sarr_lines
+    assert (418.0, 0.0, 437.0, 0.0) in sarr_lines
+    assert (418.0, -23.0, 437.0, -23.0) in sarr_lines
+    assert not any(
+        x1 == x2 == 430.0 and min(y1, y2) >= 0.0 and max(y1, y2) == 19.0
+        for x1, y1, x2, y2 in sarr_lines
+    )
+    assert any(
+        y1 == y2 and max(x1, x2) == 437.0 and y1 > 0.0
+        for x1, y1, x2, y2 in sarr_lines
+    )
+
+    measurements = sorted(
+        round(float(entity.get_measurement()), 1)
+        for entity in doc.modelspace()
+        if entity.dxftype() == "DIMENSION"
+    )
+    for expected in (19.0, 49.0, 174.0, 244.0, 437.0):
+        assert expected in measurements
+
+
+def test_multiplier_repeats_the_independent_l_panel_once_per_copy():
+    segments = [{
+        "total_width": 437.0,
+        "_multiplier": 2,
+        "panels": [
+            {"width": 244.0, "height": 19.0},
+            {"width": 174.0, "height": 19.0},
+            {
+                "width": 19.0,
+                "height": 49.0,
+                "is_L_drop": True,
+                "l_side": "right",
+            },
+        ],
+    }]
+    doc = fv.setup_doc()
+    fv.draw_viga(
+        doc.modelspace(), 0, 0, segments, 19.0, "V303",
+        label_left="", label_right="",
+    )
+
+    l_panels = [
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "LWPOLYLINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+        and round(max(point[0] for point in entity.get_points("xy"))
+                  - min(point[0] for point in entity.get_points("xy")), 1) == 19.0
+        and round(max(point[1] for point in entity.get_points("xy"))
+                  - min(point[1] for point in entity.get_points("xy")), 1) == 49.0
+    ]
+    assert len(l_panels) == 2
