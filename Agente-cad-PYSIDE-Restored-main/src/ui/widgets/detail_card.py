@@ -599,6 +599,7 @@ class DetailCard(QWidget):
         lm.config_changed.connect(lambda k, v: self.config_updated.emit(k, v))
         lm.link_data_changed.connect(lambda f=field_id: (
             self._refresh_link_conf_badge(f),
+            self._refresh_text_field_from_link(f),
             self.data_changed.emit(self.item_data),
         ))
         
@@ -1827,6 +1828,10 @@ class DetailCard(QWidget):
             self._add_info_row(f_v_int, "Distância Parede Direita:", f'{id_v_int}_dist_dir')
             tab_l.addWidget(v_int_grp)
 
+            # Pre-fill N/A: Laje 2 e Viga Passam vazios → N/A (após UI construída)
+            from PySide6.QtCore import QTimer as _QTna
+            _QTna.singleShot(10, lambda _s=side: self._init_side_na_defaults(_s))
+
             # Categorias de Vigas
             beam_categories = [
                 ("Viga de Contorno Esquerda", "esq", False),
@@ -2207,8 +2212,8 @@ class DetailCard(QWidget):
         self._add_linked_row(form, "Dimensão:", f'{seg_uid}_dim', "text")
         form.addRow("", self._create_fundo_metric_tags(seg_uid))
 
-        self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text", hide_input=True)
-        self._add_linked_row(form, "Apoio Final:", f'{seg_uid}_local_fim', "text", hide_input=True)
+        self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text")
+        self._add_linked_row(form, "Apoio Final:", f'{seg_uid}_local_fim', "text")
         
         info = QLabel("Largura, comprimento, chanfros e aberturas sao ficha do vinculo geometrico.")
         info.setWordWrap(True)
@@ -2480,6 +2485,44 @@ class DetailCard(QWidget):
             
         return None
 
+    def _init_side_na_defaults(self, side: str) -> None:
+        """Pre-fill N/A em campos de Laje 1/2 e Viga que Passa quando vazios.
+
+        Chamado via QTimer após a aba do lado ser construída. Só preenche campos
+        ainda vazios — nunca sobrescreve valor já digitado pelo usuário.
+
+        Regras:
+          Laje 1: se nome vazio ou 'N/A' → H e Nível recebem N/A
+          Laje 2: se nome vazio          → nome + H + Nível recebem N/A
+          Viga:   se nome vazio          → nome + Dimensão + Nível recebem N/A
+        """
+        def _na(fid: str) -> None:
+            w = self.fields.get(fid)
+            if w and hasattr(w, 'text') and not w.text().strip():
+                w.blockSignals(True)
+                w.setText('N/A')
+                w.blockSignals(False)
+                self.item_data[fid] = 'N/A'
+
+        # Laje 1: H e Nível vazios quando nome é 'N/A' ou quando nome também está vazio
+        l1_n_w = self.fields.get(f'p_s{side}_l1_n')
+        l1_nome = l1_n_w.text().strip() if (l1_n_w and hasattr(l1_n_w, 'text')) else ''
+        if not l1_nome or l1_nome.upper() in ('N/A', 'N.A.', 'NULO', 'NONE', '—'):
+            _na(f'p_s{side}_l1_h')
+            _na(f'p_s{side}_l1_v')
+
+        # Laje 2: se nome vazio → todos os campos de Laje 2 recebem N/A
+        l2_n_w = self.fields.get(f'p_s{side}_l2_n')
+        if l2_n_w and hasattr(l2_n_w, 'text') and not l2_n_w.text().strip():
+            for fid in (f'p_s{side}_l2_n', f'p_s{side}_l2_h', f'p_s{side}_l2_v'):
+                _na(fid)
+
+        # Viga que Passa: se nome vazio → campos de viga recebem N/A
+        v_n_w = self.fields.get(f'p_s{side}_v_int_n')
+        if v_n_w and hasattr(v_n_w, 'text') and not v_n_w.text().strip():
+            for fid in (f'p_s{side}_v_int_n', f'p_s{side}_v_int_d', f'p_s{side}_v_int_v'):
+                _na(fid)
+
     def _on_panel_slab_name_changed(self, side: str, laje_idx: int, slab_name: str):
         """Auto-preenche Altura e Nível da Laje quando o nome é informado.
 
@@ -2489,6 +2532,18 @@ class DetailCard(QWidget):
         slab_name = (slab_name or '').strip()
         if not slab_name:
             return
+
+        # Nome indica ausência de laje (N/A, nulo, etc.) → H e Nível recebem N/A
+        if slab_name.upper() in ('N/A', 'N.A.', 'NULO', 'NONE', '—'):
+            for fid in (f'p_s{side}_l{laje_idx}_h', f'p_s{side}_l{laje_idx}_v'):
+                w = self.fields.get(fid)
+                if w and hasattr(w, 'text') and not w.text().strip():
+                    w.blockSignals(True)
+                    w.setText('N/A')
+                    w.blockSignals(False)
+                    self.item_data[fid] = 'N/A'
+            return
+
         try:
             main_win = self.window()
             slabs = getattr(main_win, 'slabs_found', None) or []
@@ -2565,6 +2620,25 @@ class DetailCard(QWidget):
             ns_w.setText(ns_str)
             ns_w.blockSignals(False)
             self.item_data['nivel_saida'] = ns_str
+
+    def _refresh_text_field_from_link(self, field_id: str) -> None:
+        """Atualiza QLineEdit a partir do link 'label' slot quando link_data_changed dispara.
+
+        Só atualiza se o campo está vazio (não sobrescreve texto digitado manualmente).
+        Usado para campos como Apoio Inicial/Final que são QLineEdit mas podem ser
+        populados via vincular CAD.
+        """
+        from PySide6.QtWidgets import QLineEdit as _QLE
+        w = self.fields.get(field_id)
+        if not isinstance(w, _QLE):
+            return
+        if w.text().strip():
+            return
+        val = self._get_initial_value(field_id)
+        if val:
+            w.blockSignals(True)
+            w.setText(str(val))
+            w.blockSignals(False)
 
     def _calc_field_links_confidence(self, field_id) -> float:
         """Confiança dos vínculos de um campo — escala de 0.0 a 1.0.

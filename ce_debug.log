@@ -19489,3 +19489,89 @@ Current thread 0x0000225c (most recent call first):
 [21:31:00.323] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
 [21:36:43.790] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
 [21:38:42.214] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[22:06:40.108] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[22:08:50.139] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[22:26:15.740] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[22:27:36.034] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[23:24:02.222] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[23:24:30.192] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[08:55:55.523] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[09:08:12.432] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[09:46:32.770] ITEM_SELECTED classe=FV id=V301 flow=reverso
+[09:46:32.779] N1 flow=reverso classe=FV id=V301 auto_chain=True
+[09:46:32.782] N1 ER shortcircuit → chaining N2
+[09:46:32.836] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V301
+[09:46:32.889] N2 recorte via fichas recente: FV_V301_motor_178111331094.dxf
+[09:46:32.890] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V301_motor_178111331094.dxf
+[09:46:32.890] N2 loading DXF size=99KB
+[09:46:33.066] N2 done ok. is_er=True auto_chain=True
+[09:46:37.305] ITEM_SELECTED classe=FV id=V302 flow=reverso
+[09:46:37.313] N1 flow=reverso classe=FV id=V302 auto_chain=True
+[09:46:37.316] N1 ER shortcircuit → chaining N2
+[09:46:37.374] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V302
+[09:46:37.381] N2 recorte via fichas recente: FV_V302_motor_178111331098.dxf
+[09:46:37.381] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V302_motor_178111331098.dxf
+[09:46:37.381] N2 loading DXF size=54KB
+[09:46:37.519] N2 done ok. is_er=True auto_chain=True
+[09:46:37.575] N4 start classe=FV id=V302
+[09:46:37.577] N4 get_er_ficha classe=FV id=V302
+[09:46:37.581] N2 recorte via fichas recente: FV_V302_motor_178111331098.dxf
+[09:46:37.601] FV ficha live V302: segments=6
+[09:46:37.601] N4 set_ficha classe=FV id=V302 er_keys=18
+[09:46:37.796] N4 step0 ok
+[09:46:37.798] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V302.dxf force_regen=True
+[09:46:37.799] N4 generate classe=FV id=V302 via=robot
+[09:46:37.805] N4 generate launched
+Windows fatal exception: access violation
+
+Thread 0x00001788 (most recent call first):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 15127 in _wd_monitor
+  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1010 in run
+  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1073 in _bootstrap_inner
+  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1030 in _bootstrap
+
+Current thread 0x00003d78 (most recent call first):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 5391 in _populate_aligned_items
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 5048 in _populate_list
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 5927 in refresh_tree
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 8483 in _save_level_attention
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 8440 in <lambda>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 3812 in _flush_attention_pending
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 15315 in main
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 15319 in <module>
+[09:50:25.322] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[09:54:33.719] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[09:54:45.154] ITEM_SELECTED classe=FV id=V302 flow=reverso
+[09:54:45.164] N1 flow=reverso classe=FV id=V302 auto_chain=True
+[09:54:45.166] N1 ER shortcircuit → chaining N2
+[09:54:45.238] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V302
+[09:54:45.242] N2 recorte via fichas recente: FV_V302_motor_178111331098.dxf
+[09:54:45.242] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V302_motor_178111331098.dxf
+[09:54:45.242] N2 loading DXF size=54KB
+[09:54:45.383] N2 done ok. is_er=True auto_chain=True
+[09:54:45.458] N4 start classe=FV id=V302
+[09:54:45.460] N4 get_er_ficha classe=FV id=V302
+[09:54:45.463] N2 recorte via fichas recente: FV_V302_motor_178111331098.dxf
+[09:54:45.482] FV ficha live V302: segments=6
+[09:54:45.482] N4 set_ficha classe=FV id=V302 er_keys=18
+[09:54:46.037] N4 step0 ok
+[09:54:46.039] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V302.dxf force_regen=True
+[09:54:46.040] N4 generate classe=FV id=V302 via=robot
+[09:54:46.046] N4 generate launched
+[09:54:54.592] ITEM_SELECTED classe=FV id=V303 flow=reverso
+[09:54:54.601] N1 flow=reverso classe=FV id=V303 auto_chain=True
+[09:54:54.604] N1 ER shortcircuit → chaining N2
+[09:54:54.665] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V303
+[09:54:54.670] N2 recorte via fichas recente: FV_V303_motor_178111331100.dxf
+[09:54:54.670] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V303_motor_178111331100.dxf
+[09:54:54.670] N2 loading DXF size=63KB
+[09:54:54.828] N2 done ok. is_er=True auto_chain=True
+[09:54:54.900] N4 start classe=FV id=V303
+[09:54:54.902] N4 get_er_ficha classe=FV id=V303
+[09:54:54.905] N2 recorte via fichas recente: FV_V303_motor_178111331100.dxf
+[09:54:54.927] FV ficha live V303: segments=5
+[09:54:54.927] N4 set_ficha classe=FV id=V303 er_keys=18
+[09:54:55.285] N4 step0 ok
+[09:54:55.286] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V303.dxf force_regen=True
+[09:54:55.287] N4 generate classe=FV id=V303 via=robot
+[09:54:55.294] N4 generate launched

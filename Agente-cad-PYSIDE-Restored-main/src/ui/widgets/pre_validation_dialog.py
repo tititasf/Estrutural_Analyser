@@ -61,6 +61,94 @@ PHYS_IGNORE: dict[str, bool] = {
     'unknown': False,
 }
 
+# Formato geométrico do pilar (shape detection)
+PILLAR_FORMATO_LABELS: dict[str, str] = {
+    'Retangular':  'Retangular',
+    'em L':        'em L',
+    'em U':        'em U',
+    'em T':        'em T',
+    'Circular':    'Circular',
+    'Especial':    'Especial',
+}
+
+PILLAR_FORMATO_COLORS: dict[str, str] = {
+    'Retangular': '#4fc3a1',   # mint — padrão ok
+    'em L':       '#e6b400',   # gold
+    'em U':       '#e6b400',
+    'em T':       '#e6b400',
+    'Circular':   '#7eb8f7',   # azul info
+    'Especial':   '#f07070',   # vermelho leve
+}
+
+
+def _pilar_formato(pts: list) -> str:
+    """Detecta o formato geométrico do pilar a partir dos vértices da polilinha.
+
+    Passos:
+      1. Remove vértice de fechamento (se último == primeiro).
+      2. Remove vértices colineares (3 consecutivos na mesma linha H/V).
+      3. Classifica pelo número de vértices limpos:
+           4  → Retangular
+           6  → em L
+           8  → em U
+           ≥8 com perfil circular (CV de distâncias < 15%) → Circular
+           outros → Especial
+    """
+    if not pts:
+        return 'Especial'
+    try:
+        clean = list(pts)
+        # 1. Remove vértice de fechamento
+        if len(clean) > 1:
+            if (abs(float(clean[0][0]) - float(clean[-1][0])) < 0.5
+                    and abs(float(clean[0][1]) - float(clean[-1][1])) < 0.5):
+                clean = clean[:-1]
+
+        # 2. Remove vértices colineares iterativamente (H ou V)
+        changed = True
+        while changed and len(clean) > 3:
+            changed = False
+            new: list = []
+            nc = len(clean)
+            for i in range(nc):
+                p0 = clean[(i - 1) % nc]
+                p1 = clean[i]
+                p2 = clean[(i + 1) % nc]
+                vert  = (abs(float(p0[0]) - float(p1[0])) < 0.5
+                         and abs(float(p1[0]) - float(p2[0])) < 0.5)
+                horiz = (abs(float(p0[1]) - float(p1[1])) < 0.5
+                         and abs(float(p1[1]) - float(p2[1])) < 0.5)
+                if vert or horiz:
+                    changed = True
+                else:
+                    new.append(p1)
+            if new:
+                clean = new
+
+        n = len(clean)
+        if n == 4:
+            return 'Retangular'
+        if n == 6:
+            return 'em L'
+        if n == 8:
+            return 'em U'
+
+        # 3. Circular: muitos segmentos e vértices equidistantes do centróide
+        if n >= 8:
+            import math as _math
+            cx = sum(float(p[0]) for p in clean) / n
+            cy = sum(float(p[1]) for p in clean) / n
+            dists = [_math.sqrt((float(p[0]) - cx) ** 2 + (float(p[1]) - cy) ** 2)
+                     for p in clean]
+            md = sum(dists) / n
+            if md > 0 and (max(dists) - min(dists)) / md < 0.15:
+                return 'Circular'
+
+        return 'Especial'
+    except Exception:
+        return 'Especial'
+
+
 # Termos padrão → tipo físico
 STANDARD_TERM_MAP: dict[str, str] = {
     'NASCE':    'visual_only',
@@ -512,53 +600,71 @@ class PreValidationDialog(QDialog):
         """
         Retorna o texto para a célula do lado (A/B/C/D) de um pilar.
 
+        Regras estruturais:
+          Lados A e B  → sempre LAJE (face principal: laje encosta direto no pilar)
+          Lados C e D  → VIGA QUE PASSA quando a face está DENTRO do corpo da viga
+                         (proxy: pontos da aresta dentro de polígono de laje);
+                         LAJE quando a face encontra uma laje sem viga atravessando;
+                         NULO se não há nada.
+
         Estratégias em ordem de prioridade:
-        1. Lajes entries vindas do analisador → bloco multi-linha "Laje:/Altura:/Nivel:"
-        2. Amostragem múltipla ao longo da aresta (25 / 50 / 75 %) dentro de
-           qualquer polígono de laje → bloco VIGA
-        3. Aresta colínear com borda do polígono de laje (overlap ≥ 5 u) → bloco VIGA
-           (cobre aresta coincidente com fronteira, onde ray-casting é não-det.)
-        4. Projeção perpendicular para FORA da aresta → bloco VIGA
-           (detecta lajes adjacentes nos lados C/D cujo limite coincide com a borda)
+        1. Links diretos do SA (pillar['lajes']) → bloco Laje/Altura/Nível
+        2. Pontos da aresta DENTRO de polígono de laje:
+             A/B → LAJE com nome; C/D → VIGA QUE PASSA (face embutida = viga atravessa)
+        3. Aresta colínear com borda do polígono (slab boundary = pilar face):
+             A/B → LAJE com nome; C/D → LAJE com nome (laje abuta a face sem viga)
+        4. Projeção perpendicular para FORA da aresta (slab adjacente exterior):
+             A/B → LAJE com nome; C/D → LAJE com nome (laje do lado, sem viga interna)
         5. Nada encontrado → "nulo"
         """
         lajes_entries = [e for e in (pillar.get('lajes') or []) if e.get('side') == side]
         if lajes_entries:
             parts: list[str] = []
             for e in lajes_entries:
-                ln = e.get('laje') or '?'
+                ln    = e.get('laje') or '?'
                 h     = self._slab_height_map.get(ln) or ''
                 nivel = self._slab_nivel_map.get(ln) or ''
                 parts.append(self._side_cell_laje_block(ln, h, nivel))
             return '\n\n'.join(parts)
 
-        bbox = pillar.get('bbox')
+        bbox        = pillar.get('bbox')
         orientation = pillar.get('orientation') or 'horizontal'
-        edge = self._side_edge(bbox, orientation, side)
+        edge        = self._side_edge(bbox, orientation, side)
         if not edge:
             return 'nulo'
 
         (ex0, ey0), (ex1, ey1) = edge
+        is_ab = side in ('A', 'B')
 
-        # ── Estratégia 2: amostragem múltipla (3 pontos) ──────────────────────
         samples = [
-            (ex0 * 0.75 + ex1 * 0.25,  ey0 * 0.75 + ey1 * 0.25),
-            ((ex0 + ex1) / 2.0,         (ey0 + ey1) / 2.0),
-            (ex0 * 0.25 + ex1 * 0.75,  ey0 * 0.25 + ey1 * 0.75),
+            (ex0 * 0.75 + ex1 * 0.25, ey0 * 0.75 + ey1 * 0.25),
+            ((ex0 + ex1) / 2.0,        (ey0 + ey1) / 2.0),
+            (ex0 * 0.25 + ex1 * 0.75, ey0 * 0.25 + ey1 * 0.75),
         ]
-        for slab_name, poly_pts in self._slab_poly_map.items():
+
+        def _laje_block(sn: str) -> str:
+            return self._side_cell_laje_block(
+                sn,
+                self._slab_height_map.get(sn) or '',
+                self._slab_nivel_map.get(sn) or '',
+            )
+
+        # ── Estratégia 2: pontos da aresta DENTRO de polígono de laje ─────────
+        # A/B: face principal toca laje → LAJE
+        # C/D: face embutida em polígono → proxy de viga que atravessa → VIGA template
+        for sn, poly_pts in self._slab_poly_map.items():
             for px, py in samples:
                 if self._point_in_polygon(px, py, poly_pts):
-                    return self._VIGA_CELL_TEXT
+                    return _laje_block(sn) if is_ab else self._VIGA_CELL_TEXT
 
-        # ── Estratégia 3: sobreposição colínear com borda do polígono ─────────
-        for slab_name, poly_pts in self._slab_poly_map.items():
+        # ── Estratégia 3: aresta colínear com borda do polígono ───────────────
+        # Laje termina exatamente na face → LAJE para ambos os casos (A/B/C/D)
+        for sn, poly_pts in self._slab_poly_map.items():
             if self._edge_overlaps_poly_boundary((ex0, ey0), (ex1, ey1), poly_pts):
-                return self._VIGA_CELL_TEXT
+                return _laje_block(sn)
 
         # ── Estratégia 4: projeção perpendicular para fora da aresta ──────────
-        # Para lados C/D onde a borda do pilar coincide com a borda do polígono
-        # de laje adjacente — ray-casting on-boundary é não-determinístico.
+        # Encontra laje adjacente exterior → LAJE para todos os lados
         horiz = (orientation or '').lower() != 'vertical'
         outward_dirs = {
             True:  {'A': (0.0, -1.0), 'B': (0.0, 1.0), 'C': (-1.0, 0.0), 'D': (1.0, 0.0)},
@@ -567,9 +673,9 @@ class PreValidationDialog(QDialog):
         dx, dy = outward_dirs[horiz].get(side, (0.0, 0.0))
         for delta in (4.0, 12.0, 25.0):
             for px, py in samples:
-                for poly_pts in self._slab_poly_map.values():
+                for sn, poly_pts in self._slab_poly_map.items():
                     if self._point_in_polygon(px + dx * delta, py + dy * delta, poly_pts):
-                        return self._VIGA_CELL_TEXT
+                        return _laje_block(sn)
 
         return 'nulo'
 
@@ -1638,7 +1744,7 @@ class PreValidationDialog(QDialog):
 
         # Tabs — lazy loading: conteúdo só é construído ao selecionar a aba
         self._tabs = QTabWidget()
-        self._tab_loaded: dict[int, bool] = {0: False, 1: False, 2: False, 3: False}
+        self._tab_loaded: dict[int, bool] = {0: False, 1: False, 2: False, 3: False, 4: False}
 
         # Placeholders leves (QWidget vazio com loading label)
         for idx, title in enumerate([
@@ -1646,6 +1752,7 @@ class PreValidationDialog(QDialog):
             "  Pilares  ",
             "  Visão de Cortes  ",
             "  Convenção de Níveis  ",
+            "  Pilares Especiais  ",
         ]):
             placeholder = QWidget()
             placeholder_lay = QVBoxLayout(placeholder)
@@ -1678,6 +1785,7 @@ class PreValidationDialog(QDialog):
             1: self._build_pillars_tab,
             2: self._build_cut_views_tab,
             3: self._build_niveis_tab,
+            4: self._build_especiais_tab,
         }
         builder = builders.get(index)
         if not builder:
@@ -2081,12 +2189,12 @@ class PreValidationDialog(QDialog):
                 return f"~ {std}"
         return "—"
 
-    # Índice das colunas da tabela de pilares
+    # Índice das colunas da tabela de pilares (retangulares)
     # Classif.SA e Classif.Override ficam lado a lado (cols 1 e 2)
     _PIL_COL_NOME      = 0
     _PIL_COL_CLASSIF   = 1
     _PIL_COL_OVERRIDE  = 2   # ao lado da classificação SA
-    _PIL_COL_PHYS      = 3
+    _PIL_COL_PHYS      = 3   # agora: "Formato Pilar" (shape geométrico)
     _PIL_COL_CONF      = 4
     _PIL_COL_NIVEL     = 5
     _PIL_COL_LADO_A    = 6
@@ -2094,6 +2202,23 @@ class PreValidationDialog(QDialog):
     _PIL_COL_LADO_C    = 8
     _PIL_COL_LADO_D    = 9
     _PIL_COL_FOTO      = 10
+
+    # Índice das colunas da tabela de pilares especiais (A-H)
+    _ESP_COL_NOME      = 0
+    _ESP_COL_CLASSIF   = 1
+    _ESP_COL_OVERRIDE  = 2
+    _ESP_COL_FORMATO   = 3
+    _ESP_COL_CONF      = 4
+    _ESP_COL_NIVEL     = 5
+    _ESP_COL_LADO_A    = 6
+    _ESP_COL_LADO_B    = 7
+    _ESP_COL_LADO_C    = 8
+    _ESP_COL_LADO_D    = 9
+    _ESP_COL_LADO_E    = 10
+    _ESP_COL_LADO_F    = 11
+    _ESP_COL_LADO_G    = 12
+    _ESP_COL_LADO_H    = 13
+    _ESP_COL_FOTO      = 14
 
     # Dimensões do mini viewer de pilar
     _PIL_THUMB_W  = 440
@@ -2107,7 +2232,7 @@ class PreValidationDialog(QDialog):
     def _build_pillar_table(self) -> QTableWidget:
         cols = [
             "Nome", "Classif. SA", "Classif. Override",
-            "Tipo Físico", "Conf %", "Nível",
+            "Formato Pilar", "Conf %", "Nível",
             "Lado-A", "Lado-B", "Lado-C", "Lado-D", "Foto",
         ]
         tbl = QTableWidget(0, len(cols))
@@ -2178,13 +2303,15 @@ class PreValidationDialog(QDialog):
         key = nome_item.data(Qt.UserRole) if nome_item else None
         if key and key in self._phys_labels:
             lbl = self._phys_labels[key]
-            phys = self._physical_type_for(classif)
-            ignore = PHYS_IGNORE.get(phys, False)
-            txt = Text.SECONDARY if ignore else Semantic.DANGER
+            # Preserva a cor do formato; apenas atualiza o background
             bg_css = bg.name() if bg else 'transparent'
-            lbl.setStyleSheet(
-                f"color:{txt}; font-size:9px; padding:3px; background:{bg_css};"
-            )
+            cur_ss = lbl.styleSheet()
+            # Substitui apenas a parte background mantendo color existente
+            import re as _re
+            new_ss = _re.sub(r'background:[^;]+;', f'background:{bg_css};', cur_ss)
+            if 'background:' not in new_ss:
+                new_ss += f' background:{bg_css};'
+            lbl.setStyleSheet(new_ss)
 
     @staticmethod
     def _natural_sort_key(s: str):
@@ -2231,13 +2358,18 @@ class PreValidationDialog(QDialog):
             phys = self._physical_type_for(classif)
             ignore = PHYS_IGNORE.get(phys, False)
 
+            # Detecta formato geométrico; pilares não-retangulares vão p/ aba Especiais
+            pts = pillar.get('points') or []
+            formato = _pilar_formato(pts)
+            if formato != 'Retangular':
+                continue   # será renderizado na aba "Pilares Especiais"
+
             conf_pct = 0 if classif == 'INDETERMINADO' else 95
             if classif in (_NAO_PILAR_SOLIDO, _NAO_PILAR_VISUAL):
                 conf_pct = 100
 
             p_nr = nr_pilares.get(key, {})
             nivel_str = p_nr.get('level_str') or '—'
-            phys_label_text = PHYS_LABEL.get(phys, phys)
             conf_color = _confidence_color(conf_pct)
 
             # ── Nome: fonte maior + negrito ──────────────────────────────────
@@ -2268,22 +2400,29 @@ class PreValidationDialog(QDialog):
             nome_item.setData(Qt.UserRole, key)   # guarda key para lookup dinâmico
             tbl.setItem(row, self._PIL_COL_NOME, nome_item)
 
-            tbl.setItem(row, self._PIL_COL_CLASSIF, _make_item(classif))
+            # Classif. SA com sufixo do tipo físico (sólido / visual)
+            if phys == 'visual_only':
+                classif_sa_display = f'{classif}  ·  visual'
+            elif phys == 'solid':
+                classif_sa_display = f'{classif}  ·  sólido'
+            else:
+                classif_sa_display = classif
+            tbl.setItem(row, self._PIL_COL_CLASSIF, _make_item(classif_sa_display))
             tbl.setItem(row, self._PIL_COL_CONF,
                         _make_item(f"{conf_pct}%", Qt.AlignCenter, color=conf_color))
             tbl.setItem(row, self._PIL_COL_NIVEL,
                         _make_item(nivel_str, Qt.AlignCenter))
 
-            # ── Tipo Físico: QLabel com word wrap ────────────────────────────
-            txt_color = Text.SECONDARY if ignore else Semantic.DANGER
-            phys_lbl = QLabel(phys_label_text)
-            phys_lbl.setWordWrap(True)
-            phys_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            phys_lbl.setStyleSheet(
-                f"color:{txt_color}; font-size:9px; padding:3px; background:transparent;"
+            # ── Formato Pilar: QLabel colorido por shape ──────────────────────
+            fmt_color = PILLAR_FORMATO_COLORS.get(formato, '#f07070')
+            fmt_lbl = QLabel(PILLAR_FORMATO_LABELS.get(formato, formato))
+            fmt_lbl.setWordWrap(True)
+            fmt_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            fmt_lbl.setStyleSheet(
+                f"color:{fmt_color}; font-size:9px; padding:3px; background:transparent;"
             )
-            self._phys_labels[key] = phys_lbl
-            tbl.setCellWidget(row, self._PIL_COL_PHYS, phys_lbl)
+            self._phys_labels[key] = fmt_lbl
+            tbl.setCellWidget(row, self._PIL_COL_PHYS, fmt_lbl)
 
             # ── Colunas Lado-A … Lado-D ──────────────────────────────────────
             # Se classificação inválida (não é pilar / geometria errada) → "Não se aplica"
@@ -2463,27 +2602,25 @@ class PreValidationDialog(QDialog):
         return STANDARD_TERM_MAP.get(cu, 'unknown')
 
     def _refresh_pillar_table_row_for_term(self, term: str):
-        """Atualiza coluna Tipo Físico (QLabel) para todos os pilares com esse termo."""
+        """Atualiza sufixo de tipo físico na coluna Classif.SA para pilares com esse termo."""
         tbl = self._pillar_table
+        phys = self._term_type_map.get(term, 'unknown')
         for row in range(tbl.rowCount()):
             classif_item = tbl.item(row, self._PIL_COL_CLASSIF)
-            if not classif_item or classif_item.text().upper() != term.upper():
+            if not classif_item:
                 continue
-            phys = self._term_type_map.get(term, 'unknown')
-            ignore = PHYS_IGNORE.get(phys, False)
-            phys_label_text = PHYS_LABEL.get(phys, phys)
-            # Obtém key pelo UserRole do item Nome
-            nome_item = tbl.item(row, self._PIL_COL_NOME)
-            key = nome_item.data(Qt.UserRole) if nome_item else None
-            if key and key in self._phys_labels:
-                lbl = self._phys_labels[key]
-                lbl.setText(phys_label_text)
-                bg = self._row_bg_for_classif(classif_item.text())
-                bg_css = bg.name() if bg else 'transparent'
-                txt = Text.SECONDARY if ignore else Semantic.DANGER
-                lbl.setStyleSheet(
-                    f"color:{txt}; font-size:9px; padding:3px; background:{bg_css};"
-                )
+            # Compara sem sufixo (o texto pode ser "NASCE  ·  visual")
+            base = classif_item.text().split('  ·  ')[0].strip()
+            if base.upper() != term.upper():
+                continue
+            # Atualiza sufixo do tipo físico no item de Classif.SA
+            if phys == 'visual_only':
+                new_text = f'{term}  ·  visual'
+            elif phys == 'solid':
+                new_text = f'{term}  ·  sólido'
+            else:
+                new_text = term
+            classif_item.setText(new_text)
 
     # ── Aba Visão de Cortes ────────────────────────────────────────────────────
 
@@ -3322,6 +3459,212 @@ class PreValidationDialog(QDialog):
         scroll.setWidget(inner)
         return scroll
 
+    # ── Aba Pilares Especiais ───────────────────────────────────────────────────
+
+    def _build_especiais_tab(self) -> QWidget:
+        """Aba para pilares com formato não-retangular (em L, em U, em T, Circular, Especial)."""
+        w = QWidget()
+        lay = QVBoxLayout(w)
+        lay.setContentsMargins(6, 6, 6, 6)
+        lay.setSpacing(4)
+
+        info = QLabel(
+            "Pilares com geometria especial (em L, em U, em T, Circular, Especial). "
+            "8 lados A–H para análise estendida."
+        )
+        info.setWordWrap(True)
+        info.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:9px; padding:3px;")
+        lay.addWidget(info)
+
+        lay.addWidget(self._build_especiais_table(), 1)
+        return w
+
+    def _build_especiais_table(self) -> QTableWidget:
+        cols = [
+            "Nome", "Classif. SA", "Classif. Override",
+            "Formato Pilar", "Conf %", "Nível",
+            "Lado-A", "Lado-B", "Lado-C", "Lado-D",
+            "Lado-E", "Lado-F", "Lado-G", "Lado-H", "Foto",
+        ]
+        tbl = QTableWidget(0, len(cols))
+        tbl.setHorizontalHeaderLabels(cols)
+        hdr = tbl.horizontalHeader()
+        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(self._ESP_COL_NOME, QHeaderView.Fixed)
+        tbl.setColumnWidth(self._ESP_COL_NOME, 75)
+        for col in (self._ESP_COL_LADO_A, self._ESP_COL_LADO_B,
+                    self._ESP_COL_LADO_C, self._ESP_COL_LADO_D,
+                    self._ESP_COL_LADO_E, self._ESP_COL_LADO_F,
+                    self._ESP_COL_LADO_G, self._ESP_COL_LADO_H):
+            hdr.setSectionResizeMode(col, QHeaderView.Interactive)
+            tbl.setColumnWidth(col, self._PIL_LADO_COL_W)
+        hdr.setSectionResizeMode(self._ESP_COL_OVERRIDE, QHeaderView.Interactive)
+        tbl.setColumnWidth(self._ESP_COL_OVERRIDE, 180)
+        hdr.setSectionResizeMode(self._ESP_COL_FOTO, QHeaderView.Fixed)
+        tbl.setColumnWidth(self._ESP_COL_FOTO, self._PIL_COL_FOTO_W)
+        tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
+        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        tbl.verticalHeader().setVisible(False)
+        tbl.setStyleSheet("QTableWidget { font-size:9px; }")
+        self._especiais_table = tbl
+        self._especiais_viewer_data: dict = {}
+        self._especiais_rows: dict[str, int] = {}
+        tbl.verticalScrollBar().valueChanged.connect(
+            lambda _: self._update_dynamic_viewers(
+                self._especiais_table, self._especiais_viewer_data,
+                self._ESP_COL_FOTO, False)
+        )
+        self._populate_especiais_table()
+        return tbl
+
+    def _populate_especiais_table(self):
+        if not hasattr(self, '_especiais_table'):
+            return
+        tbl = self._especiais_table
+        tbl.setUpdatesEnabled(False)
+        tbl.setRowCount(0)
+        self._especiais_rows.clear()
+        self._especiais_viewer_data.clear()
+        nr_pilares = (self._nivel_report or {}).get('pilares', {})
+
+        def _pil_sort_key(kv):
+            k = kv[0]
+            if k.endswith('__ALT'):
+                return self._natural_sort_key(k[:-5]) + [1]
+            return self._natural_sort_key(k) + [0]
+
+        sorted_items = sorted(self._pillar_report.items(), key=_pil_sort_key)
+        for key, pillar in sorted_items:
+            pts = pillar.get('points') or []
+            formato = _pilar_formato(pts)
+            if formato == 'Retangular':
+                continue   # retangulares ficam na aba Pilares
+
+            row = tbl.rowCount()
+            tbl.insertRow(row)
+            tbl.setRowHeight(row, self._PIL_ROW_H)
+            self._especiais_rows[key] = row
+
+            name = pillar.get('name') or key
+            classif = pillar.get('classification') or 'INDETERMINADO'
+
+            # Restaura override do histórico
+            geo_key = self._pillar_geo_key(pillar)
+            hist_pil = self._pf_history.get('pilares', {}).get(geo_key)
+            if hist_pil and hist_pil.get('classification'):
+                classif = hist_pil['classification']
+
+            phys = self._physical_type_for(classif)
+            conf_pct = 0 if classif == 'INDETERMINADO' else 95
+            if classif in (_NAO_PILAR_SOLIDO, _NAO_PILAR_VISUAL):
+                conf_pct = 100
+
+            p_nr = nr_pilares.get(key, {})
+            nivel_str = p_nr.get('level_str') or '—'
+            conf_color = _confidence_color(conf_pct)
+
+            # Nome
+            nome_item = _make_item(name, bold=True)
+            f = nome_item.font(); f.setPixelSize(18); f.setBold(True)
+            nome_item.setFont(f)
+            nome_item.setData(Qt.UserRole, key)
+            tbl.setItem(row, self._ESP_COL_NOME, nome_item)
+
+            # Classif. SA com sufixo tipo físico
+            if phys == 'visual_only':
+                classif_sa_display = f'{classif}  ·  visual'
+            elif phys == 'solid':
+                classif_sa_display = f'{classif}  ·  sólido'
+            else:
+                classif_sa_display = classif
+            tbl.setItem(row, self._ESP_COL_CLASSIF, _make_item(classif_sa_display))
+            tbl.setItem(row, self._ESP_COL_CONF,
+                        _make_item(f"{conf_pct}%", Qt.AlignCenter, color=conf_color))
+            tbl.setItem(row, self._ESP_COL_NIVEL,
+                        _make_item(nivel_str, Qt.AlignCenter))
+
+            # Formato Pilar
+            fmt_color = PILLAR_FORMATO_COLORS.get(formato, '#f07070')
+            fmt_lbl = QLabel(PILLAR_FORMATO_LABELS.get(formato, formato))
+            fmt_lbl.setWordWrap(True)
+            fmt_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            fmt_lbl.setStyleSheet(
+                f"color:{fmt_color}; font-size:9px; padding:3px; background:transparent;"
+            )
+            tbl.setCellWidget(row, self._ESP_COL_FORMATO, fmt_lbl)
+
+            # Lados A-D (mesma lógica dos retangulares)
+            invalid_geom = classif.upper() in _NAO_SE_APLICA_CLASSIFS
+            for col, side in (
+                (self._ESP_COL_LADO_A, 'A'), (self._ESP_COL_LADO_B, 'B'),
+                (self._ESP_COL_LADO_C, 'C'), (self._ESP_COL_LADO_D, 'D'),
+            ):
+                if invalid_geom:
+                    item = _make_item('Não se aplica', color=QColor(Colors.TEXT_MUTED))
+                else:
+                    cell_text = self._get_side_cell(pillar, side)
+                    item = _make_item(cell_text)
+                    item.setToolTip(cell_text)
+                tbl.setItem(row, col, item)
+
+            # Lados E-H (placeholder — conteúdo definido pelo usuário futuramente)
+            for col in (self._ESP_COL_LADO_E, self._ESP_COL_LADO_F,
+                        self._ESP_COL_LADO_G, self._ESP_COL_LADO_H):
+                tbl.setItem(row, col, _make_item('—', Qt.AlignCenter,
+                                                  color=QColor(Colors.TEXT_MUTED)))
+
+            # Override combo
+            combo = QComboBox()
+            combo.setStyleSheet("font-size:9px;")
+            options = list(PILLAR_CLASSIFICATION_OPTIONS)
+            sep_idx = options.index(_SEPARADOR_ITEM) if _SEPARADOR_ITEM in options else len(options)
+            for term in self._term_type_map:
+                if term not in options and term not in (_SEPARADOR_ITEM, _SEPARADOR_GEOM):
+                    options.insert(sep_idx, term); sep_idx += 1
+            _SEPARADORES = {_SEPARADOR_ITEM, _SEPARADOR_GEOM}
+            for j, opt in enumerate(options):
+                combo.addItem(opt)
+                mi = combo.model().item(j)
+                if not mi: continue
+                if opt in _SEPARADORES:
+                    mi.setEnabled(False)
+                    mi.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
+                elif opt in (_NAO_PILAR_SOLIDO, _NAO_PILAR_VISUAL):
+                    mi.setForeground(QBrush(QColor(Contextual.GOLD)))
+                elif opt in (_GEOM_ERRADA_SOLIDA, _GEOM_ERRADA_VISUAL):
+                    mi.setForeground(QBrush(QColor(Semantic.WARNING)))
+            idx = next((i for i, o in enumerate(options) if o == classif), 0)
+            combo.setCurrentIndex(idx)
+            combo.currentIndexChanged.connect(
+                lambda _, k=key, c=combo: self._on_pillar_classif_changed(k, c))
+            tbl.setCellWidget(row, self._ESP_COL_OVERRIDE, combo)
+            self._pillar_combos[key] = combo   # registra p/ get_result() e _save_pf_history()
+
+            # Mini viewer
+            if pts:
+                self._especiais_viewer_data[row] = pts
+                lbl = QLabel("⏳ Carregando...")
+                lbl.setAlignment(Qt.AlignCenter)
+                lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px;")
+                tbl.setCellWidget(row, self._ESP_COL_FOTO, lbl)
+            else:
+                tbl.setItem(row, self._ESP_COL_FOTO,
+                            _make_item('—', Qt.AlignCenter, color=QColor(Colors.TEXT_MUTED)))
+
+            # Cor de linha
+            bg = self._row_bg_for_classif(classif)
+            skip = {self._ESP_COL_OVERRIDE, self._ESP_COL_FOTO, self._ESP_COL_FORMATO}
+            for col in range(tbl.columnCount()):
+                if col in skip: continue
+                it = tbl.item(row, col)
+                if it:
+                    if bg: it.setBackground(QBrush(bg))
+                    else:  it.setBackground(QBrush())
+
+        tbl.setUpdatesEnabled(True)
+        QTimer.singleShot(150, lambda: self._update_dynamic_viewers(
+            tbl, self._especiais_viewer_data, self._ESP_COL_FOTO, False))
+
     def _query_niveis_recorte(self) -> 'tuple[str, str] | None':
         """Busca recorte convencao_niveis aprovado para esta obra."""
         if not self._db_path:
@@ -3508,11 +3851,20 @@ class PreValidationDialog(QDialog):
             phys = PHYSICAL_TYPES[combo.currentIndex()][0]
             term_map[term] = phys
 
-        # Pilares
+        # Pilares — cobre TODOS os pilares do report, mesmo os de abas não carregadas.
+        # Combos registrados têm prioridade; pilares sem combo usam a classificação
+        # original da análise (ou do histórico já restaurado em _populate_*).
         pillar_overrides: dict[str, dict] = {}
         invalid_pillar_keys: set[str] = set()
-        for key, combo in self._pillar_combos.items():
-            classif = combo.currentText()
+        all_keys = set(self._pillar_report.keys()) | set(self._pillar_combos.keys())
+        for key in all_keys:
+            combo = self._pillar_combos.get(key)
+            if combo:
+                classif = combo.currentText()
+            else:
+                # Aba não carregada — usa classificação do pillar_report (já com hist)
+                pillar = self._pillar_report.get(key, {})
+                classif = pillar.get('classification') or 'INDETERMINADO'
             if classif in (_SEPARADOR_ITEM, _SEPARADOR_GEOM):
                 classif = 'INDETERMINADO'
             phys = self._physical_type_for(classif)

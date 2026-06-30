@@ -1493,6 +1493,47 @@ class MainWindow(QMainWindow):
                     display = _pav_card_label(raw_name)
                     self.sa_cmb_pavimentos.setItemText(idx, display)
 
+                # ── Auto-fill Cheg./Saída a partir da Convenção de Níveis ──────
+                try:
+                    obra_key = self.sa_cmb_obras.currentText()
+                    if not hasattr(self, '_sa_conv_niveis_cache'):
+                        self._sa_conv_niveis_cache: dict = {}
+                    if obra_key not in self._sa_conv_niveis_cache:
+                        import sqlite3 as _sql, os as _os
+                        _db = getattr(self.db, 'db_path', 'D:/Agente-cad-PYSIDE/project_data.vision')
+                        _conn = _sql.connect(_db)
+                        _conn.row_factory = _sql.Row
+                        _row = _conn.execute(
+                            "SELECT output_path FROM obra_recortes "
+                            "WHERE obra_name=? AND recorte_type='convencao_niveis' "
+                            "AND status IN ('approved','manual') "
+                            "ORDER BY recorte_index DESC LIMIT 1",
+                            (obra_key,)
+                        ).fetchone()
+                        _conn.close()
+                        _pmap: dict = {}
+                        if _row and _row['output_path'] and _os.path.isfile(_row['output_path']):
+                            from src.core.dxf_loader import DXFLoader as _DL
+                            from src.core.niveis_extractor import extract_elevacao_tipica as _eet
+                            _dxf = _DL.load_dxf(_row['output_path'])
+                            for _e in _eet((_dxf or {}).get('texts', [])):
+                                _pmap[_e['pav_num']] = _e
+                        self._sa_conv_niveis_cache[obra_key] = _pmap
+                    from src.core.niveis_extractor import pav_num_from_sa_name as _pnfs
+                    _pnum = _pnfs(raw_name)
+                    _pentry = self._sa_conv_niveis_cache.get(obra_key, {}).get(_pnum)
+                    if _pentry:
+                        _cheg = _pentry.get('chegada', '?')
+                        _said = _pentry.get('saida', '?')
+                        if _cheg != '?':
+                            self.sa_edit_nivel_cheg.setText(str(_cheg))
+                            self.edit_level_arr.setText(str(_cheg))
+                        if _said != '?':
+                            self.sa_edit_nivel_saida.setText(str(_said))
+                            self.edit_level_exit.setText(str(_said))
+                except Exception:
+                    pass
+
                 # Sincroniza top bar pelo project_id (findText por texto falha pois
                 # cmb_pavements usa _pav_card_label como display, não raw_name)
                 top_idx = -1
@@ -9048,14 +9089,36 @@ class MainWindow(QMainWindow):
             seg_bottom_raw_i = classified_inner.get('seg_bottom', [])
             is_h_i = b.get('is_h', True)
             
-            if lengths_i:
+            if seg_bottom_raw_i:
+                # Prioridade: coordenadas reais do DXF — evita deslocamento causado por
+                # coords sintéticas baseadas em beam_pos (posição do label de texto).
+                seg_idx = 0
+                for raw_line in seg_bottom_raw_i:
+                    if len(raw_line) < 2:
+                        continue
+                    p1, p2 = raw_line[0], raw_line[-1]
+                    length_i = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                    if length_i < 30:
+                        continue
+                    seg_idx += 1
+
+                    b[f'viga_fundo_seg_{seg_idx}_exists'] = True
+                    area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
+                    if area_key not in b['links']:
+                        b['links'][area_key] = {'contour': []}
+
+                    entry = {'type': 'poly', 'points': raw_line, 'len': length_i, 'tag': 'Fundo'}
+                    b['links'][area_key]['contour'].append(entry)
+                    b['links']['viga_segs']['seg_bottom'].append(entry)
+            elif lengths_i:
+                # Fallback sintético — só usado quando não há linhas brutas do DXF.
+                # coords_i[idx-1] aponta para grupos de divisores (pilares), não para o span.
                 for idx, length_i in enumerate(lengths_i, start=1):
                     b[f'viga_fundo_seg_{idx}_exists'] = True
                     area_key = f'viga_fundo_seg_{idx}_area_segs'
                     if area_key not in b['links']:
                         b['links'][area_key] = {'contour': []}
-                    
-                    # Construir geometria sintética ou associar real
+
                     if idx <= len(coords_i):
                         span_min, span_max = coords_i[idx - 1]
                         beam_pos = b.get('pos', (0, 0))
@@ -9066,25 +9129,6 @@ class MainWindow(QMainWindow):
                         entry = {'type': 'poly', 'points': synth, 'len': length_i, 'tag': 'Fundo'}
                         b['links'][area_key]['contour'].append(entry)
                         b['links']['viga_segs']['seg_bottom'].append(entry)
-            elif seg_bottom_raw_i:
-                seg_idx = 0
-                for raw_line in seg_bottom_raw_i:
-                    if len(raw_line) < 2:
-                        continue
-                    p1, p2 = raw_line[0], raw_line[-1]
-                    length_i = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
-                    if length_i < 30:
-                        continue
-                    seg_idx += 1
-                    
-                    b[f'viga_fundo_seg_{seg_idx}_exists'] = True
-                    area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
-                    if area_key not in b['links']:
-                        b['links'][area_key] = {'contour': []}
-                        
-                    entry = {'type': 'poly', 'points': raw_line, 'len': length_i, 'tag': 'Fundo'}
-                    b['links'][area_key]['contour'].append(entry)
-                    b['links']['viga_segs']['seg_bottom'].append(entry)
                     
             b['seg_c'] = len(b['links']['viga_segs']['seg_bottom'])
             _run_lv_motors_patch()
@@ -9251,23 +9295,43 @@ class MainWindow(QMainWindow):
                         b['links'][area_key]['contour'] = [link_entry]
                         b['links']['viga_segs']['seg_bottom'].append(link_entry)
                     elif i <= len(coords_list):
-                        # Fallback sintético: retângulo de 4 pontos usando h_beam
-                        span_min, span_max = coords_list[i - 1]
-                        beam_pos = b.get('pos', (0, 0))
+                        # Fallback sintético: retângulo de 4 pontos usando h_beam.
+                        # Em modo divisor coords_list contém posições de colunas (não vãos);
+                        # detectar pelo tamanho relativo e ajustar as coordenadas axiais.
+                        is_divisor_mode = len(coords_list) > len(lengths_list)
+                        if is_divisor_mode and i < len(coords_list):
+                            # Vão entre coluna i-1 e coluna i
+                            span_min = coords_list[i - 1][1]
+                            span_max = coords_list[i][0]
+                        else:
+                            span_min, span_max = coords_list[i - 1]
+
+                        # Coordenada transversal: usar média das laterais (mais preciso que beam_pos)
+                        _side_pts = []
+                        for _sk in ('seg_side_a', 'seg_side_b'):
+                            for _seg in classified.get(_sk, []):
+                                _side_pts.extend(_seg)
+                        if _side_pts:
+                            trans_c = (sum(p[1] for p in _side_pts) / len(_side_pts) if is_h
+                                       else sum(p[0] for p in _side_pts) / len(_side_pts))
+                        else:
+                            _bp = b.get('pos', (0, 0))
+                            trans_c = _bp[1] if is_h else _bp[0]
+
                         half_h = h_beam / 2.0
                         if is_h:
                             synth_line = [
-                                (span_min, beam_pos[1] - half_h),
-                                (span_max, beam_pos[1] - half_h),
-                                (span_max, beam_pos[1] + half_h),
-                                (span_min, beam_pos[1] + half_h),
+                                (span_min, trans_c - half_h),
+                                (span_max, trans_c - half_h),
+                                (span_max, trans_c + half_h),
+                                (span_min, trans_c + half_h),
                             ]
                         else:
                             synth_line = [
-                                (beam_pos[0] - half_h, span_min),
-                                (beam_pos[0] + half_h, span_min),
-                                (beam_pos[0] + half_h, span_max),
-                                (beam_pos[0] - half_h, span_max),
+                                (trans_c - half_h, span_min),
+                                (trans_c + half_h, span_min),
+                                (trans_c + half_h, span_max),
+                                (trans_c - half_h, span_max),
                             ]
                         link_entry = {'type': 'poly', 'points': synth_line, 'len': length, 'tag': 'Fundo'}
                         b['links'][area_key]['contour'] = [link_entry]
@@ -12016,11 +12080,28 @@ class MainWindow(QMainWindow):
                     # receberem nivel via delta de corte e consenso de vizinhos
                     self._infer_slab_levels_from_context(slabs)
 
+                    # Mapa de niveis válidos dos slabs sem warning (para fallback)
+                    valid_slab_positions: list[tuple[float, float, float]] = []
+                    for s in slabs:
+                        sn = s.get('name') or str(s.get('id') or id(s))
+                        e = lajes_report.get(sn)
+                        # Exclui suspeitos e os slabs que acabamos de limpar
+                        if not e or e.get('warnings') or s in cleared_slabs:
+                            continue
+                        lv = e.get('level')
+                        if lv is None or abs(lv - median_level) > 4.0:
+                            continue
+                        pos = s.get('pos')
+                        if pos:
+                            valid_slab_positions.append((pos[0], pos[1], lv))
+
                     for slab in cleared_slabs:
                         name = slab.get('name') or str(slab.get('id') or id(slab))
                         entry = lajes_report.get(name)
                         if not entry:
                             continue
+
+                        # Tentativa 1: nivel inferido por corte/vizinho
                         src = self._slab_level_source(slab, include_neighbor_context=True)
                         if src and src['value'] is not None:
                             alt_val = src['value']
@@ -12034,6 +12115,26 @@ class MainWindow(QMainWindow):
                                     else 'neighbor_inferred'
                                 )
                                 entry['confidence'] = float(inf.get('confidence', 0.60))
+                                entry['warnings'] = []
+                                continue
+
+                        # Tentativa 2: proximidade espacial 2D — slab mais próximo
+                        # com nivel válido. Último recurso quando sem corte ou vizinho.
+                        own_pos = slab.get('pos')
+                        if own_pos and valid_slab_positions:
+                            ox, oy = own_pos
+                            best_lv: float | None = None
+                            best_dist = float('inf')
+                            for sx, sy, slv in valid_slab_positions:
+                                d = ((sx - ox) ** 2 + (sy - oy) ** 2) ** 0.5
+                                if d < best_dist:
+                                    best_dist = d
+                                    best_lv = slv
+                            if best_lv is not None:
+                                entry['level'] = best_lv
+                                entry['level_str'] = self._format_slab_level_value(best_lv)
+                                entry['source_type'] = 'spatial_proximity_fallback'
+                                entry['confidence'] = 0.40
                                 entry['warnings'] = []
 
         # ── 3. Pilares ────────────────────────────────────────────────────────
@@ -15200,7 +15301,15 @@ def main():
         window.setGeometry(screen.x() + 50, screen.y() + 50,
                            min(1600, screen.width() - 100),
                            min(1000, screen.height() - 100))
-        window.showMaximized()
+                           
+        # --- FIX DE MAXIMIZACAO ---
+        # Exibe em modo normal primeiro para os layouts e abas ocultas calcularem o limite
+        window.show()
+        app.processEvents()
+        
+        # Maximiza com um leve atraso para forcar o Qt a disparar um ResizeEvent limpo
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(100, window.showMaximized)
         window.raise_()
         window.activateWindow()
         windows['main'] = window

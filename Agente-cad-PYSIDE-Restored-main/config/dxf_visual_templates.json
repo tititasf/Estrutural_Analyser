@@ -124,12 +124,16 @@
     "script": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\gerar_fv_dxf_stog.py",
     "origem": "motor_dxf_atual",
     "constantes": {
+      "_MOTOR_ID": "ROBOT_FV_N3_N4",
       "GAP_VIGAS": 47,
       "GAP_ROW": 115,
       "NOM_ABOVE": 9,
       "NOM_H": 12.0,
-      "DIM_BELOW": 37,
-      "DIM_TOTAL_BELOW": 69,
+      "LABEL_ABOVE": 40,
+      "LABEL_H": 12.0,
+      "DIM_BELOW": 25,
+      "DIM_TOTAL_BELOW": 50,
+      "TIER_STEP": 25,
       "DIM_B_RIGHT": 28,
       "PID_H": 12.0,
       "SARR_RECUO": 7,
@@ -144,9 +148,7 @@
       "CARD_Y_GAP": 200,
       "SARR_LAYER": "SARR_2.2x7",
       "SARR_MAX_GAP": 21,
-      "LY_PAINEIS": "Painéis",
-      "DIM_SEG_TOTAL_BELOW": 53,
-      "DIM_OVERALL_BELOW": 85
+      "LY_PAINEIS": "Painéis"
     },
     "layers": {
       "Painéis": 200,
@@ -159,6 +161,8 @@
       "Madeira": 126,
       "SARRAFO DE PRESSAO": 251,
       "SARR_2.2x7": 40,
+      "SARR_5cm": 4,
+      "SARR_CONTORNO_10cm": 3,
       "SARR_EDITAR": 141,
       "Perfil Metálico": 224,
       "REAPROVEITAMENTO": 251,

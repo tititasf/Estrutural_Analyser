@@ -89,3 +89,283 @@ Traceback (most recent call last):
                         ~~~~~~~~~~~~^^^
 IndexError: list index out of range
 
+
+[2026-06-29 22:08:35] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:08:35] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:08:53] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:08:53] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:08:53] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:08:53] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:27:08] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:27:08] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:27:38] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:27:38] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:27:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:27:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:28:18] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 22:37:20] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 23:24:16] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 23:24:16] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 23:24:33] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 23:24:33] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 23:24:33] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-29 23:24:33] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:04:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:04:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:08:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:08:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:08:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:08:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:10:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-06-30 09:28:25] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
