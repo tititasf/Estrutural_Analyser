@@ -366,6 +366,15 @@ def test_legacy_right_l_draws_separate_panel_sarrafos_and_dimensions():
         (418.0, 437.0, -30.0, 19.0),
     ]
 
+    contaminating_panel_lines = [
+        entity for entity in doc.modelspace()
+        if entity.dxftype() == "LINE"
+        and entity.dxf.layer == fv.LY_PAINEIS
+        and abs(float(entity.dxf.start.y) - float(entity.dxf.end.y)) < 1e-6
+        and min(float(entity.dxf.start.x), float(entity.dxf.end.x)) >= 244.0
+    ]
+    assert contaminating_panel_lines == []
+
     sarr_lines = [
         (
             round(float(entity.dxf.start.x), 1),

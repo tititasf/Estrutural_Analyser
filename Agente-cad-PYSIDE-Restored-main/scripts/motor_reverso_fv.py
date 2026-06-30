@@ -560,7 +560,16 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         seg_max_x = max(p[1] for p in polys)
         _mult = None
         for _t in msp_texts:
-            if 'PAIN' in _t[3].upper() and seg_min_x - 5 <= _t[1] <= seg_max_x + 5:
+            multiplier_in_row = (
+                row_base_y - Y_TOL_ROW
+                <= _t[2]
+                <= row_base_y + (b_fv_poly or 19.0) + 2.0
+            )
+            if (
+                'PAIN' in _t[3].upper()
+                and seg_min_x - 5 <= _t[1] <= seg_max_x + 5
+                and multiplier_in_row
+            ):
                 _m = _re_mult.match(r'^(\d+)[Xx]$', _t[0].strip())
                 if _m:
                     _mult = int(_m.group(1))

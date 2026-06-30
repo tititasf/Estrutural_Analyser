@@ -88,7 +88,9 @@ def test_fv_v303_splits_each_right_l_into_independent_panels():
     assert rich[3]["panels"][-1]["height"] == 29.0
     assert rich[4]["panels"][-1]["is_L_drop"] is True
     assert rich[4]["panels"][-1]["height"] == 49.0
-    assert rich[4]["_multiplier"] == 2
+    assert rich[2]["_multiplier"] == 2
+    assert "_multiplier" not in rich[3]
+    assert "_multiplier" not in rich[4]
     assert all(
         sum(panel["width"] for panel in segment["panels"])
         == pytest.approx(segment["total_width"])

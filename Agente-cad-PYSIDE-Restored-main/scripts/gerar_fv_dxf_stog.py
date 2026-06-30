@@ -154,7 +154,7 @@ def setup_doc():
     return doc
 
 
-def panel_poly(msp, x0, y0, w, h):
+def panel_poly(msp, x0, y0, w, h, draw_internal_lines=True):
     """Draw a panel as closed LWPOLYLINE + 2 interior horizontal wood-slat LINEs on Paineis layer.
 
     Two evenly-spaced slat lines represent the real STOG wood-board pattern without
@@ -163,7 +163,7 @@ def panel_poly(msp, x0, y0, w, h):
     pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
     msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
     # 2 fixed slat lines: at h/3 and 2h/3 from bottom edge
-    if h > 6:
+    if draw_internal_lines and h > 6:
         for frac in (1/3, 2/3):
             y_slat = y0 + h * frac
             msp.add_line((x0, y_slat), (x0 + w, y_slat), dxfattribs={'layer': LY_PAINEIS})
@@ -1069,6 +1069,12 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         # Draw panel outlines (LWPOLYLINE) for each sub-panel
         xp = seg_x0
+        has_right_l_pair = (
+            len(sub_panels) >= 2
+            and sub_panel_l_drops[-1]
+            and isinstance(seg_item, dict)
+            and seg_item.get('panels', [])[-1].get('l_side', 'right') == 'right'
+        )
         for i, (pw, ph, is_l_drop, p_texts, p_verts, p_loose) in enumerate(zip(
             sub_panels, sub_panel_heights, sub_panel_l_drops,
             sub_panel_texts, sub_panel_verts, sub_panel_loose,
@@ -1095,10 +1101,18 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                                 dxfattribs={'layer': LY_PAINEIS},
                             )
             elif is_l_drop:
-                panel_poly(msp, xp, y0 + b - ph, pw, ph)
+                panel_poly(
+                    msp, xp, y0 + b - ph, pw, ph,
+                    draw_internal_lines=not has_right_l_pair,
+                )
             else:
                 # Standard rectangular module
-                panel_poly(msp, xp, y0, pw, ph)
+                panel_poly(
+                    msp, xp, y0, pw, ph,
+                    draw_internal_lines=not (
+                        has_right_l_pair and i == len(sub_panels) - 2
+                    ),
+                )
             
             # Draw loose attached entities (L-corners, etc.)
             for le in p_loose:
