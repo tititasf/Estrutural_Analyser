@@ -15302,7 +15302,7 @@ def main():
                            min(1600, screen.width() - 100),
                            min(1000, screen.height() - 100))
                            
-                        window.showMaximized()
+        window.showMaximized()
         
         # --- FIX DE MAXIMIZACAO ---
         # Forca um recálculo de layout nas abas alterando a geometria em 1 pixel e voltando

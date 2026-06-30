@@ -155,10 +155,11 @@ def setup_doc():
 
 
 def panel_poly(msp, x0, y0, w, h, draw_internal_lines=True):
-    """Draw a panel as closed LWPOLYLINE + 2 interior horizontal wood-slat LINEs on Paineis layer.
+    """Draw a panel outline and, when applicable, its legacy internal lines.
 
     Two evenly-spaced slat lines represent the real STOG wood-board pattern without
-    causing overdraw for obras with large-b vigas (b>24cm).
+    causing overdraw for obras with large-b vigas (b>24cm). Folded L pairs disable
+    them because the source DXF contains only their outlines and real sarrafos.
     """
     pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
     msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
