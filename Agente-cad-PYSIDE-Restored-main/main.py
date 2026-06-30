@@ -6134,6 +6134,13 @@ class MainWindow(QMainWindow):
         #   (a) pré-análise (pavimento_pillar_report) com mesmo nome;
         #   (b) senão, busca a geometria perto do texto no estrutural limpo;
         #   (c) senão, entra SEM geometria, marcado p/ refino (needs_geometry).
+
+        # Enriquece faces dos pilares com alinhamento de vigas (executado após
+        # beams_found estar disponível — ver INTERPRETACAO-PILARES-ABCD.md)
+        _pil_rep = getattr(self, 'pavimento_pillar_report', None)
+        if _pil_rep:
+            self._enrich_pillar_report_with_beams(_pil_rep, getattr(self, 'beams_found', []))
+
         p_rep_all = getattr(self, 'pavimento_pillar_report', {}) or {}
         plan_names = self._collect_plan_pillar_names()
         # A pré-ficha é a fonte autoritativa após a confirmação. Inclui nomes
@@ -6291,38 +6298,77 @@ class MainWindow(QMainWindow):
                     adj_lajes = pre_pillar.get('lajes', [])
                     if adj_lajes:
                         p_data['lajes_adjacentes'] = adj_lajes
-                        
-                        laje_str = ", ".join(set([l['laje'] for l in adj_lajes]))
+
+                        laje_nomes = set(l['laje'] for l in adj_lajes if l.get('laje'))
+                        laje_str = ", ".join(sorted(laje_nomes))
                         if 'connections' not in p_data['links']: p_data['links']['connections'] = {}
                         p_data['links']['connections']['lajes_conectadas'] = {
                             'value': laje_str,
                             'details': adj_lajes
                         }
-                        
+
                         # Extrair detalhes lado a lado e Nível Mais Alto
                         highest_level = -99999.0
                         highest_level_str = None
                         lajes_details = []
-                        
+
                         for l in adj_lajes:
-                            s_name = l['laje']
+                            s_name = l.get('laje') or ''
                             s_side = l.get('side', '?')
                             s_h = ""
                             s_lvl_str = ""
-                            for sl in getattr(self, 'slabs_found', []):
-                                if sl['name'] == s_name:
-                                    s_h = sl.get('height', '') or sl.get('dim', '')
-                                    s_lvl_str = sl.get('nivel_str', '')
-                                    try:
-                                        lvl_val = float(s_lvl_str.replace(',', '.'))
-                                        if lvl_val > highest_level:
-                                            highest_level = lvl_val
-                                            highest_level_str = s_lvl_str
-                                    except Exception:
-                                        pass
-                                    break
-                            
-                            lajes_details.append(f"Lado {s_side}: {s_name}" + (f" (H={s_h})" if s_h else ""))
+                            if s_name:
+                                for sl in getattr(self, 'slabs_found', []):
+                                    if sl['name'] == s_name:
+                                        s_h = sl.get('height', '') or sl.get('dim', '')
+                                        s_lvl_str = sl.get('nivel_str', '')
+                                        try:
+                                            lvl_val = float(s_lvl_str.replace(',', '.'))
+                                            if lvl_val > highest_level:
+                                                highest_level = lvl_val
+                                                highest_level_str = s_lvl_str
+                                        except Exception:
+                                            pass
+                                        break
+
+                            if s_name:
+                                lajes_details.append(f"Lado {s_side}: {s_name}" + (f" (H={s_h})" if s_h else ""))
+
+                        # Popular campos p_s{side}_* na preficha (lajes e vigas por face)
+                        _side_l1_used: set = set()
+                        _side_l2_used: set = set()
+                        for _le in adj_lajes:
+                            _fid = _le.get('side', 'NULO')
+                            if _fid == 'NULO':
+                                continue
+                            _ct = _le.get('content_type', 'laje')
+                            _slab_nm = _le.get('laje') or ''
+                            _vi = _le.get('viga') or {}
+
+                            # Laje
+                            if _ct in ('laje', 'both') and _slab_nm:
+                                _k1n = f'p_s{_fid}_l1_n'
+                                _k2n = f'p_s{_fid}_l2_n'
+                                if _fid not in _side_l1_used and not p_data.get(_k1n):
+                                    p_data[_k1n] = _slab_nm
+                                    _side_l1_used.add(_fid)
+                                    for _sl in getattr(self, 'slabs_found', []):
+                                        if _sl['name'] == _slab_nm:
+                                            p_data[f'p_s{_fid}_l1_h'] = _sl.get('height', '') or _sl.get('dim', '')
+                                            p_data[f'p_s{_fid}_l1_v'] = _sl.get('nivel_str', '')
+                                            break
+                                elif _fid not in _side_l2_used and not p_data.get(_k2n):
+                                    p_data[_k2n] = _slab_nm
+                                    _side_l2_used.add(_fid)
+
+                            # Viga
+                            if _ct in ('viga', 'both') and _vi:
+                                _kn = f'p_s{_fid}_v_int_n'
+                                _kd = f'p_s{_fid}_v_int_d'
+                                if not p_data.get(_kn):
+                                    p_data[_kn] = _vi.get('name', '')
+                                if not p_data.get(_kd):
+                                    p_data[_kd] = _vi.get('dim', '')
                         
                         p_data['fields']['Lajes por Face'] = " | ".join(lajes_details)
                         
@@ -10937,7 +10983,7 @@ class MainWindow(QMainWindow):
 
         Convenção de faces:
           HORIZONTAL (pw >= ph):  A=baixo(y0)  B=cima(y1)  C=esq(x0)  D=dir(x1)
-          VERTICAL   (ph >  pw):  A=esq(x0)   B=dir(x1)   C=cima(y1) D=baixo(y0)
+          VERTICAL   (ph >  pw):  A=esq(x0)   B=dir(x1)   C=baixo(y0) D=cima(y1)
 
         Retorna (lado, face_label) ou ('NULO','NULO') se só toca em canto.
         """
@@ -10961,8 +11007,8 @@ class MainWindow(QMainWindow):
             p_edges = {
                 'A': ('V', px0, py0, py1, 'ESQ'),
                 'B': ('V', px1, py0, py1, 'DIR'),
-                'C': ('H', py1, px0, px1, 'CIMA'),
-                'D': ('H', py0, px0, px1, 'BAIXO'),
+                'C': ('H', py0, px0, px1, 'BAIXO'),  # base/baixo do pilar vertical
+                'D': ('H', py1, px0, px1, 'CIMA'),   # topo/cima do pilar vertical
             }
 
         # Arestas da laje separadas por orientação
@@ -11517,6 +11563,127 @@ class MainWindow(QMainWindow):
         if best:
             return best[0], best[1]
         return None, None
+
+    def _enrich_pillar_report_with_beams(self, report: dict, beams: list) -> None:
+        """
+        Classifica cada entrada 'lajes' do pilar como 'laje', 'viga' ou 'both',
+        segundo os 5 casos de INTERPRETACAO-PILARES-ABCD.md.
+
+        Modifica report in-place. Adiciona 'content_type' e 'viga' a cada entrada.
+        Também cria entradas puras de viga para faces sem laje mas com parede alinhada.
+        """
+        if not report or not beams:
+            return
+
+        TOL_ALIGN = 4.0
+        MIN_OV = 1.0
+
+        beam_info = []
+        for beam in beams:
+            b_pts = (beam.get('points')
+                     or (beam.get('geometry', {}).get('poly')
+                         if isinstance(beam.get('geometry'), dict) else None)
+                     or [])
+            if len(b_pts) < 3:
+                continue
+            try:
+                bxs = [float(p[0]) for p in b_pts]
+                bys = [float(p[1]) for p in b_pts]
+            except Exception:
+                continue
+            beam_info.append({
+                'name': beam.get('name', ''),
+                'dim': (beam.get('fields') or {}).get('dimensao', '') or beam.get('dim', ''),
+                'x0': min(bxs), 'x1': max(bxs),
+                'y0': min(bys), 'y1': max(bys),
+            })
+
+        for _nm, entry in report.items():
+            pts = entry.get('points') or []
+            if not pts:
+                continue
+            try:
+                pxs = [float(p[0]) for p in pts]
+                pys = [float(p[1]) for p in pts]
+            except Exception:
+                continue
+            px0, px1 = min(pxs), max(pxs)
+            py0, py1 = min(pys), max(pys)
+            pw, ph = px1 - px0, py1 - py0
+            horizontal = pw >= ph
+
+            if horizontal:
+                face_coords = {
+                    'A': ('H', py0, px0, px1),
+                    'B': ('H', py1, px0, px1),
+                    'C': ('V', px0, py0, py1),
+                    'D': ('V', px1, py0, py1),
+                }
+            else:
+                face_coords = {
+                    'A': ('V', px0, py0, py1),
+                    'B': ('V', px1, py0, py1),
+                    'C': ('H', py0, px0, px1),  # baixo (corrigido)
+                    'D': ('H', py1, px0, px1),  # cima (corrigido)
+                }
+
+            face_hits: dict = {f: [] for f in face_coords}
+            face_inside: dict = {f: False for f in face_coords}
+
+            for bi in beam_info:
+                inside = (bi['x0'] <= px0 + TOL_ALIGN and bi['x1'] >= px1 - TOL_ALIGN and
+                          bi['y0'] <= py0 + TOL_ALIGN and bi['y1'] >= py1 - TOL_ALIGN)
+                for fid, (axis, fixed, r0, r1) in face_coords.items():
+                    if inside:
+                        face_hits[fid].append(bi)
+                        face_inside[fid] = True
+                        continue
+                    if axis == 'H':
+                        for wy in (bi['y0'], bi['y1']):
+                            if abs(fixed - wy) < TOL_ALIGN:
+                                ov = min(r1, bi['x1']) - max(r0, bi['x0'])
+                                if ov > MIN_OV:
+                                    face_hits[fid].append(bi)
+                                    break
+                    else:
+                        for wx in (bi['x0'], bi['x1']):
+                            if abs(fixed - wx) < TOL_ALIGN:
+                                ov = min(r1, bi['y1']) - max(r0, bi['y0'])
+                                if ov > MIN_OV:
+                                    face_hits[fid].append(bi)
+                                    break
+
+            laje_entries = entry.get('lajes', [])
+            covered: set = set()
+
+            for le in laje_entries:
+                fid = le.get('side', 'NULO')
+                covered.add(fid)
+                hits = face_hits.get(fid, [])
+                if not hits:
+                    le['content_type'] = 'laje'
+                elif face_inside.get(fid):
+                    le['content_type'] = 'viga'
+                    le['viga'] = {'name': hits[0]['name'], 'dim': hits[0]['dim']}
+                else:
+                    # Face alinhada com parede de viga E toca laje → Caso 5 Extra
+                    le['content_type'] = 'both'
+                    le['viga'] = {'name': hits[0]['name'], 'dim': hits[0]['dim']}
+
+            # Faces sem laje mas com parede de viga alinhada → entrada pura de viga
+            for fid, hits in face_hits.items():
+                if fid in covered or not hits:
+                    continue
+                laje_entries.append({
+                    'laje': None,
+                    'side': fid,
+                    'face': 'VIGA',
+                    'content_type': 'viga',
+                    'viga': {'name': hits[0]['name'], 'dim': hits[0]['dim']},
+                    'source': 'beam_wall_alignment',
+                })
+
+            entry['lajes'] = laje_entries
 
     def _pillar_laje_entries(self, points: list, slabs: list[Dict]) -> list[dict]:
         """Deriva lajes adjacentes para pilares encontrados pelo inventário P#."""
@@ -15302,19 +15469,16 @@ def main():
                            min(1600, screen.width() - 100),
                            min(1000, screen.height() - 100))
                            
-        window.showMaximized()
+        window.showMinimized()
         
         # --- FIX DE MAXIMIZACAO ---
-        # Forca um recálculo de layout nas abas alterando a geometria em 1 pixel e voltando
-        def force_layout_refresh():
-            w, h = window.width(), window.height()
-            window.resize(w, h - 1)
-            window.resize(w, h)
-            
         from PySide6.QtCore import QTimer
-        QTimer.singleShot(300, force_layout_refresh)
-        window.raise_()
-        window.activateWindow()
+        def do_maximize():
+            window.showMaximized()
+            window.raise_()
+            window.activateWindow()
+            
+        QTimer.singleShot(400, do_maximize)
         windows['main'] = window
 
         # If MainWindow closes, and there is no login window, check if we should re-show login
