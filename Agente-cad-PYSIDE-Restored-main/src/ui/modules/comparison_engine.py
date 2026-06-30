@@ -10662,21 +10662,26 @@ class ComparisonEngineModule(QWidget):
                 # Procura DXF gerado (nome: {PFX}{temp_item}.dxf ou variante)
                 fase6 = obra_dir / "Fase-6_Execucao_CAD"
                 generated = None
+                _ce_log(f"[N4-DONE] code={code} temp_item={_temp_item} pfx={_pfx_out} fase6={fase6}")
                 for cand in [f"{_pfx_out}{_temp_item}.dxf",
                               f"{_pfx_out}{_temp_item}_A.dxf"]:
                     p = fase6 / cand
+                    _ce_log(f"[N4-DONE] check candidate: {p} exists={p.exists()}")
                     if p.exists():
                         generated = p
                         break
                 if generated is None:
                     # Fallback: qualquer DXF recém-criado com temp_item no nome
+                    _ce_log(f"[N4-DONE] fallback glob: *{_temp_item}*.dxf")
                     for p in fase6.glob(f"*{_temp_item}*.dxf"):
                         generated = p
+                        _ce_log(f"[N4-DONE] fallback found: {p}")
                         break
 
                 if code == 0 and generated and generated.exists():
                     # Move para pasta n4 com nome canônico
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
+                    _ce_log(f"[N4-DONE] promoting {generated} -> {canon}")
                     promoted = guarded_promote(
                         generated,
                         canon,
@@ -10684,6 +10689,7 @@ class ComparisonEngineModule(QWidget):
                         source_paths=[script],
                     )
                     display_path = canon if canon.exists() else promoted
+                    _ce_log(f"[N4-DONE] display_path={display_path} exists={display_path.exists()}")
                     if _classe == 'LV':
                         lv_zones = self._lv_generated_zone_paths(
                             display_path, _er_ficha or {}
@@ -10691,6 +10697,7 @@ class ComparisonEngineModule(QWidget):
                         _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     else:
                         n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
+                        _ce_log(f"[N4-DONE] load_content({display_path}, bbox={n4_bbox})")
                         _col.load_content(str(display_path), n4_bbox)
                     _col.pipeline.set_step(2, 'ok', display_path.name[:25])
                     self._configure_level_attention("N4", _classe, _item_id)
@@ -10698,6 +10705,7 @@ class ComparisonEngineModule(QWidget):
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                     self._refresh_n3_compare_n4_if_active(_classe, _item_id)
                 else:
+                    _ce_log(f"[N4-DONE] FAIL: code={code} generated={generated} exists={generated.exists() if generated else 'N/A'}")
                     _col.pipeline.set_step(2, 'error', f'código {code}')
                     self.nav_sidebar.set_status(f"❌ N4 erro — {_item_id}", Colors.ACCENT_DANGER)
 
@@ -10708,8 +10716,6 @@ class ComparisonEngineModule(QWidget):
 
         self._process.finished.connect(_on_done)
         args = [str(script), "--obra", str(obra_dir), "--item", temp_item]
-        if classe == "LJ":
-            args += ["--mode", "cards"]
         if classe in ("PL", "LV", "FV"):
             args += ["--visual-mode", self._visual_mode_for("N4")]
         self._process.start(sys.executable, args)
@@ -10810,8 +10816,6 @@ class ComparisonEngineModule(QWidget):
         self.tri_level.set_processing(True)
 
         args = [str(script), "--obra", obra_dir]
-        if classe == "LJ":
-            args += ["--mode", "cards"]
         if item_id and item_id != "ALL":
             args += ["--item", item_id]
 

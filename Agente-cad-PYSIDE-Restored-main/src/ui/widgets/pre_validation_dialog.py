@@ -431,6 +431,7 @@ class PreValidationDialog(QDialog):
         self._pillar_rows: dict[str, int] = {}           # key → row index
         self._phys_labels: dict[str, QLabel] = {}        # key → QLabel de Tipo Físico
         self._cut_status_combos: dict[str, QComboBox] = {}  # uid → status combobox
+        self._cut_attention: dict[str, str] = {}
         self._cut_tag_labels: dict[str, QLabel] = {}         # uid → tag QLabel
         self._cut_migrar_btns: dict[str, QPushButton] = {}   # uid → botão migrar pilar
         self._cut_row_meta: dict[str, dict] = {}             # uid → {'row', 'is_hist'}
@@ -444,6 +445,14 @@ class PreValidationDialog(QDialog):
         # ── Histórico de pré-ficha (persistência por geometria) ───────────────
         self._history_path: str | None = self._resolve_history_path()
         self._pf_history: dict = self._load_pf_history()
+        ui_state = self._pf_history.get('ui_state', {})
+        try:
+            self._active_tab_index = max(0, min(9, int(ui_state.get('active_tab', 0))))
+        except (TypeError, ValueError):
+            self._active_tab_index = 0
+        self._saved_scroll_positions: dict[str, int] = dict(
+            ui_state.get('scroll_positions', {}) or {}
+        )
         segment_history = self._pf_history.get('beam_segments', {})
         for entries in self._segment_data.values():
             for segment in entries:
@@ -735,6 +744,7 @@ class PreValidationDialog(QDialog):
         self._suppress_canvas_updates()
 
     def closeEvent(self, event):
+        self._save_pf_history()
         self._restore_canvas_updates()
         super().closeEvent(event)
 
@@ -1216,7 +1226,7 @@ class PreValidationDialog(QDialog):
     def _load_pf_history(self) -> dict:
         """Carrega histórico salvo; retorna dict vazio se não existir."""
         if not self._history_path or not os.path.isfile(self._history_path):
-            return {'pilares': {}, 'cut_views': {}, 'beam_segments': {}}
+            return {'pilares': {}, 'cut_views': {}, 'beam_segments': {}, 'ui_state': {}}
         try:
             with open(self._history_path, encoding='utf-8') as f:
                 data = json.load(f)
@@ -1224,9 +1234,10 @@ class PreValidationDialog(QDialog):
                 'pilares':   data.get('pilares', {}),
                 'cut_views': data.get('cut_views', {}),
                 'beam_segments': data.get('beam_segments', {}),
+                'ui_state': data.get('ui_state', {}),
             }
         except Exception:
-            return {'pilares': {}, 'cut_views': {}, 'beam_segments': {}}
+            return {'pilares': {}, 'cut_views': {}, 'beam_segments': {}, 'ui_state': {}}
 
     def _save_pf_history(self) -> None:
         """Persiste estado atual dos combos de pilar e corte, keyed por geometria."""
@@ -1249,6 +1260,9 @@ class PreValidationDialog(QDialog):
                 'last_name':    key,
                 'classification': classif,
                 'physical_type': self._physical_type_for(classif),
+                'attention': self._atencao_notes.get(
+                    key, (self._pf_history.get('pilares', {}).get(geo, {}) or {}).get('attention', '')
+                ),
                 'saved_at':     now,
             }
 
@@ -1269,6 +1283,7 @@ class PreValidationDialog(QDialog):
                 'beam_name':  beam_name or beam_text,
                 'status':     status,
                 'own_laje':   cut.get('own_laje', ''),
+                'attention':  self._cut_attention.get(uid, (prev_entry or {}).get('attention', '')),
                 'saved_at':   now,
             }
             # Preserva dados de migração pilar se já existiam (ou foram recém-gravados)
@@ -1295,6 +1310,16 @@ class PreValidationDialog(QDialog):
                     'saved_at': now,
                 }
 
+        scroll_positions = dict(self._saved_scroll_positions)
+        table_specs = [
+            ('pilares', getattr(self, '_pillar_table', None)),
+            ('visao_cortes', getattr(self, '_cut_table', None)),
+        ]
+        table_specs.extend((kind, table) for kind, table in self._segment_tables.items())
+        for state_key, table in table_specs:
+            if table is not None:
+                scroll_positions[state_key] = table.verticalScrollBar().value()
+
         data = {
             'version':   3,
             'obra':      self._obra,
@@ -1303,6 +1328,10 @@ class PreValidationDialog(QDialog):
             'pilares':   pilares,
             'cut_views': cut_views,
             'beam_segments': beam_segments,
+            'ui_state': {
+                'active_tab': getattr(self, '_active_tab_index', 0),
+                'scroll_positions': scroll_positions,
+            },
         }
         try:
             os.makedirs(os.path.dirname(self._history_path), exist_ok=True)
@@ -1814,13 +1843,21 @@ class PreValidationDialog(QDialog):
         # Footer
         root.addWidget(self._build_footer())
 
-        # Carrega tab 0 (Convenção) via QTimer para que o dialog apareça instantaneamente
-        QTimer.singleShot(50, lambda: self._on_tab_changed(0))
+        # Restaura a última aba da sessão sem construir as demais.
+        def _restore_active_tab():
+            index = getattr(self, '_active_tab_index', 0)
+            self._tabs.setCurrentIndex(index)
+            self._on_tab_changed(index)  # necessário quando index == 0 (sem sinal Qt)
+        QTimer.singleShot(50, _restore_active_tab)
 
     def _on_tab_changed(self, index: int) -> None:
         """Lazy-load: constrói o conteúdo da aba apenas na primeira vez que é selecionada."""
+        self._active_tab_index = index
+        # Aba oculta não mantém QGraphicsView vivo. O scroll/tabela permanecem.
+        QTimer.singleShot(0, self._deactivate_hidden_viewers)
         if self._tab_loaded.get(index, True):
-            return  # já carregada
+            QTimer.singleShot(0, self._trigger_dynamic_viewers_for_visible_tab)
+            return  # já carregada; sessão e scroll foram preservados
         self._tab_loaded[index] = True
 
         builders = {
@@ -1843,8 +1880,6 @@ class PreValidationDialog(QDialog):
         tab_text = self._tabs.tabText(index)
         
         # Show a loading placeholder instantly
-        from PySide6.QtWidgets import QLabel
-        from PySide6.QtCore import QTimer, Qt
         loading_lbl = QLabel("Montando elementos da tabela (isso pode levar alguns segundos)...")
         loading_lbl.setAlignment(Qt.AlignCenter)
         loading_lbl.setStyleSheet("font-size: 14px; color: gray;")
@@ -1874,7 +1909,6 @@ class PreValidationDialog(QDialog):
             except Exception as e:
                 import traceback
                 traceback.print_exc()
-                from PySide6.QtWidgets import QLabel
                 error_lbl = QLabel(f"❌ Erro crítico ao montar aba:\n{e}\n\nO erro foi reportado no terminal.")
                 error_lbl.setAlignment(Qt.AlignCenter)
                 error_lbl.setStyleSheet("font-size: 14px; color: red;")
@@ -1890,7 +1924,7 @@ class PreValidationDialog(QDialog):
         QTimer.singleShot(50, _do_build)
 
     def _trigger_dynamic_viewers_for_visible_tab(self):
-        # Dispara o recarregamento dos miniviewers (5 por vez baseados no scroll)
+        # Recarrega exclusivamente as linhas visíveis da aba atual.
         # Pilares
         if getattr(self, '_pillar_table', None) and self._pillar_table.isVisible():
             self._update_dynamic_viewers(self._pillar_table, getattr(self, '_pillar_viewer_data', {}), self._PIL_COL_FOTO, False)
@@ -1906,6 +1940,37 @@ class PreValidationDialog(QDialog):
                     table.property('viewer_column'),
                     True,
                 )
+
+    def _dynamic_viewer_tables(self):
+        pillar_table = getattr(self, '_pillar_table', None)
+        if pillar_table is not None:
+            yield pillar_table, getattr(self, '_pillar_viewer_data', {}), self._PIL_COL_FOTO
+        cut_table = getattr(self, '_cut_table', None)
+        if cut_table is not None:
+            yield cut_table, getattr(self, '_cut_viewer_data', {}), self._CUT_COL_FOTO
+        for kind, table in self._segment_tables.items():
+            yield table, self._segment_viewer_data.get(kind, {}), int(table.property('viewer_column'))
+
+    def _deactivate_hidden_viewers(self) -> None:
+        """Destrói viewers de abas ocultas, mantendo dados, scroll e edições."""
+        for table, data_dict, column in self._dynamic_viewer_tables():
+            if table.isVisible():
+                continue
+            self._unload_dynamic_viewers(table, data_dict, column)
+
+    def _unload_dynamic_viewers(self, table: QTableWidget, data_dict: dict, column: int) -> None:
+        for row in data_dict:
+            widget = table.cellWidget(row, column)
+            if not isinstance(widget, _MiniDXFView):
+                continue
+            placeholder = QLabel("⏳ Rolar para carregar")
+            placeholder.setAlignment(Qt.AlignCenter)
+            placeholder.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:10px;")
+            table.setCellWidget(row, column, placeholder)
+
+    def _restore_table_scroll(self, table: QTableWidget, state_key: str) -> None:
+        value = int(self._saved_scroll_positions.get(state_key, 0) or 0)
+        QTimer.singleShot(0, lambda: table.verticalScrollBar().setValue(value))
 
 
     def _build_header(self) -> QFrame:
@@ -2288,10 +2353,10 @@ class PreValidationDialog(QDialog):
     _ESP_COL_FOTO      = 14
 
     # Dimensões do mini viewer de pilar
-    _PIL_THUMB_W  = 440
-    _PIL_THUMB_H  = 210
-    _PIL_COL_FOTO_W = 450
-    _PIL_ROW_H    = 220
+    _PIL_THUMB_W  = 880
+    _PIL_THUMB_H  = 420
+    _PIL_COL_FOTO_W = 890
+    _PIL_ROW_H    = 430
 
     # Largura das colunas Lado-A/B/C/D (−20% de 130)
     _PIL_LADO_COL_W = 104
@@ -2300,7 +2365,7 @@ class PreValidationDialog(QDialog):
         cols = [
             "Nome", "Classif. SA", "Classif. Override",
             "Formato Pilar", "Conf %", "Nível",
-            "Lado-A", "Lado-B", "Lado-C", "Lado-D", "⚑ Atenção", "Foto",
+            "Lado-A", "Lado-B", "Lado-C", "Lado-D", "⚑ Atenção / Feedback (editável)", "Foto",
         ]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
@@ -2315,12 +2380,17 @@ class PreValidationDialog(QDialog):
         hdr.setSectionResizeMode(self._PIL_COL_OVERRIDE, QHeaderView.Interactive)
         tbl.setColumnWidth(self._PIL_COL_OVERRIDE, 180)
         hdr.setSectionResizeMode(self._PIL_COL_ATENCAO, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._PIL_COL_ATENCAO, 200)
+        tbl.setColumnWidth(self._PIL_COL_ATENCAO, 300)
         hdr.setSectionResizeMode(self._PIL_COL_FOTO, QHeaderView.Fixed)
         tbl.setColumnWidth(self._PIL_COL_FOTO, self._PIL_COL_FOTO_W)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
         # Atenção é editável; demais colunas não
-        tbl.setEditTriggers(QAbstractItemView.SelectedClicked | QAbstractItemView.DoubleClicked)
+        tbl.setEditTriggers(
+            QAbstractItemView.CurrentChanged
+            | QAbstractItemView.SelectedClicked
+            | QAbstractItemView.EditKeyPressed
+            | QAbstractItemView.DoubleClicked
+        )
         tbl.verticalHeader().setVisible(False)
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
         tbl.setMinimumHeight(0)
@@ -2332,6 +2402,7 @@ class PreValidationDialog(QDialog):
         )
         tbl.itemChanged.connect(self._on_atencao_changed)
         self._populate_pillar_table()
+        self._restore_table_scroll(tbl, 'pilares')
         return tbl
 
     def _on_atencao_changed(self, item: QTableWidgetItem) -> None:
@@ -2435,6 +2506,8 @@ class PreValidationDialog(QDialog):
                 classif = hist_pil['classification']
                 if classif.upper() in _NAO_SE_APLICA_CLASSIFS:
                     geo_foi_rejeitada = True
+            if hist_pil and hist_pil.get('attention'):
+                self._atencao_notes[key] = str(hist_pil['attention'])
 
             phys = self._physical_type_for(classif)
             ignore = PHYS_IGNORE.get(phys, False)
@@ -2590,15 +2663,17 @@ class PreValidationDialog(QDialog):
             
         vp_height = tbl.viewport().height()
         top_row = tbl.rowAt(0)
-        bottom_row = tbl.rowAt(vp_height)
+        bottom_row = tbl.rowAt(max(0, vp_height - 1))
         
         if top_row == -1:
             top_row = 0
         if bottom_row == -1:
             bottom_row = tbl.rowCount() - 1
             
-        start_row = max(0, top_row - 1)
-        end_row = min(tbl.rowCount() - 1, bottom_row + 1)
+        # Sem prefetch: viewers 2x maiores tornam suficiente manter apenas o
+        # intervalo realmente visível no viewport atual.
+        start_row = max(0, top_row)
+        end_row = min(tbl.rowCount() - 1, bottom_row)
         
         # Load visíveis
         for row in range(start_row, end_row + 1):
@@ -2617,7 +2692,7 @@ class PreValidationDialog(QDialog):
                     
         # Unload invisíveis para salvar memória e rendering
         for row, pts in list(data_dict.items()):
-            if row < start_row - 2 or row > end_row + 2:
+            if row < start_row or row > end_row:
                 current_widget = tbl.cellWidget(row, col_idx)
                 if current_widget and isinstance(current_widget, _MiniDXFView):
                     lbl = QLabel("⏳ Rolar para carregar")
@@ -2747,7 +2822,8 @@ class PreValidationDialog(QDialog):
     _CUT_COL_LAJE1  = 3   # Laje 1 (multilinhas: nome, dir, H, classif, dist)
     _CUT_COL_LAJE2  = 4   # Laje 2 (idem, ou "Parede")
     _CUT_COL_STATUS = 5   # Combobox: válido / não é VC / errada
-    _CUT_COL_FOTO   = 6   # Mini viewer
+    _CUT_COL_ATENCAO = 6  # feedback humano editável
+    _CUT_COL_FOTO   = 7   # Mini viewer
 
     # Opções de status do corte
     _CUT_ST_OK     = '— Válido (é visão de corte) —'
@@ -2758,10 +2834,10 @@ class PreValidationDialog(QDialog):
     # Opção "nenhuma viga identificada"
     _CUT_NENHUMA   = '— Nenhuma (não identificada) —'
 
-    _CUT_THUMB_W  = 440
-    _CUT_THUMB_H  = 210
-    _CUT_COL_FOTO_W = 450
-    _CUT_ROW_H    = 310
+    _CUT_THUMB_W  = 880
+    _CUT_THUMB_H  = 420
+    _CUT_COL_FOTO_W = 890
+    _CUT_ROW_H    = 430
     _CUT_LAJE_COL_W = 276   # largura das colunas Laje A / Laje B (+20%)
 
     def _laje_info_text(self, laje_name: str, direction: str,
@@ -2915,7 +2991,8 @@ class PreValidationDialog(QDialog):
     def _build_cut_view_table(self) -> QTableWidget:
         cols = ["Viga Assoc.", "Conf %",
                 "Detalhes sobre o Segmento de Viga",
-                "Lajes LADO A", "Lajes LADO B", "Status", "Foto"]
+                "Lajes LADO A", "Lajes LADO B", "Status",
+                "⚑ Atenção / Feedback (editável)", "Foto"]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
@@ -2929,10 +3006,17 @@ class PreValidationDialog(QDialog):
             tbl.setColumnWidth(col, self._CUT_LAJE_COL_W)
         hdr.setSectionResizeMode(self._CUT_COL_STATUS, QHeaderView.Interactive)
         tbl.setColumnWidth(self._CUT_COL_STATUS, 220)
+        hdr.setSectionResizeMode(self._CUT_COL_ATENCAO, QHeaderView.Interactive)
+        tbl.setColumnWidth(self._CUT_COL_ATENCAO, 300)
         hdr.setSectionResizeMode(self._CUT_COL_FOTO, QHeaderView.Fixed)
         tbl.setColumnWidth(self._CUT_COL_FOTO, self._CUT_COL_FOTO_W)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
-        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        tbl.setEditTriggers(
+            QAbstractItemView.CurrentChanged
+            | QAbstractItemView.SelectedClicked
+            | QAbstractItemView.EditKeyPressed
+            | QAbstractItemView.DoubleClicked
+        )
         tbl.verticalHeader().setVisible(False)
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
         tbl.setMinimumHeight(0)  # não trava o layout; footer permanece visível
@@ -2941,8 +3025,18 @@ class PreValidationDialog(QDialog):
         tbl.verticalScrollBar().valueChanged.connect(
             lambda _: self._update_dynamic_viewers(self._cut_table, self._cut_viewer_data, self._CUT_COL_FOTO, True)
         )
+        tbl.itemChanged.connect(self._on_cut_attention_changed)
         self._populate_cut_view_table()
+        self._restore_table_scroll(tbl, 'visao_cortes')
         return tbl
+
+    def _on_cut_attention_changed(self, item: QTableWidgetItem) -> None:
+        if item.column() != self._CUT_COL_ATENCAO:
+            return
+        uid_item = self._cut_table.item(item.row(), self._CUT_COL_CONF)
+        uid = uid_item.data(Qt.UserRole) if uid_item else None
+        if uid:
+            self._cut_attention[str(uid)] = item.text().strip()
 
     # Mapa de cor de fundo da linha por (status_data, is_hist)
     _CUT_ROW_BG: dict[tuple, str] = {
@@ -3048,6 +3142,7 @@ class PreValidationDialog(QDialog):
             tbl.setItem(row, self._CUT_COL_CONF,
                         _make_item(f"{conf_pct}%", Qt.AlignCenter,
                                    color=_confidence_color(conf_pct)))
+            tbl.item(row, self._CUT_COL_CONF).setData(Qt.UserRole, uid)
 
             # ── Detalhes sobre o Segmento de Viga ───────────────────────────
             seg_widget = self._build_segmento_viga_widget(cut)
@@ -3163,6 +3258,15 @@ class PreValidationDialog(QDialog):
                 lambda _, u=uid: self._on_cut_status_changed(u))
             btn_migrar.clicked.connect(
                 lambda _, u=uid, c=_cut_ref: self._migrate_cut_to_pilar(u, c))
+
+            attention = str(hist_cv.get('attention') or self._cut_attention.get(uid, ''))
+            self._cut_attention[uid] = attention
+            attention_item = QTableWidgetItem(attention)
+            attention_item.setForeground(QBrush(QColor(Contextual.GOLD)))
+            attention_item.setToolTip(
+                'Clique e escreva sua interpretação; o feedback será salvo no histórico e no HTML.'
+            )
+            tbl.setItem(row, self._CUT_COL_ATENCAO, attention_item)
 
             # ── Mini viewer ──────────────────────────────────────────────────
             pts = cut.get('pts') or []
@@ -3288,9 +3392,9 @@ class PreValidationDialog(QDialog):
 
     # ── Abas de segmentos de vigas ───────────────────────────────────────────
 
-    _SEG_THUMB_W = 440
-    _SEG_THUMB_H = 210
-    _SEG_ROW_H = 220
+    _SEG_THUMB_W = 880
+    _SEG_THUMB_H = 420
+    _SEG_ROW_H = 430
 
     def _build_segment_tab(self, kind: str) -> QWidget:
         """Monta uma lista segmentar LV/FV sem recalcular geometrias do SA."""
@@ -3314,12 +3418,19 @@ class PreValidationDialog(QDialog):
     def _build_segment_table(self, kind: str) -> QTableWidget:
         is_fundo = kind == 'fundo'
         if is_fundo:
-            columns = ["Viga", "Segmento", "Comprimento", "Status", "⚑ Atenção", "Foto"]
-            col = {'beam': 0, 'segment': 1, 'length': 2, 'status': 3, 'attention': 4, 'photo': 5}
+            columns = [
+                "Viga", "Segmento", "Comprimento", "Largura", "Status",
+                "⚑ Atenção / Feedback (editável)", "Foto",
+            ]
+            col = {
+                'beam': 0, 'segment': 1, 'length': 2, 'width': 3,
+                'status': 4, 'attention': 5, 'photo': 6,
+            }
         else:
             columns = [
                 "Viga", "Segmento", "Lado", "Comportamento", "Comprimento",
-                "Detalhes do Segmento", "Status", "⚑ Atenção", "Foto",
+                "Detalhes do Segmento", "Status",
+                "⚑ Atenção / Feedback (editável)", "Foto",
             ]
             col = {
                 'beam': 0, 'segment': 1, 'side': 2, 'behavior': 3, 'length': 4,
@@ -3335,14 +3446,19 @@ class PreValidationDialog(QDialog):
         header.setSectionResizeMode(col['beam'], QHeaderView.Interactive)
         table.setColumnWidth(col['beam'], 150)
         header.setSectionResizeMode(col['attention'], QHeaderView.Interactive)
-        table.setColumnWidth(col['attention'], 210)
+        table.setColumnWidth(col['attention'], 300)
         header.setSectionResizeMode(col['photo'], QHeaderView.Fixed)
         table.setColumnWidth(col['photo'], self._SEG_THUMB_W + 10)
         if not is_fundo:
             header.setSectionResizeMode(col['details'], QHeaderView.Interactive)
             table.setColumnWidth(col['details'], 240)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        table.setEditTriggers(QAbstractItemView.SelectedClicked | QAbstractItemView.DoubleClicked)
+        table.setEditTriggers(
+            QAbstractItemView.CurrentChanged
+            | QAbstractItemView.SelectedClicked
+            | QAbstractItemView.EditKeyPressed
+            | QAbstractItemView.DoubleClicked
+        )
         table.verticalHeader().setVisible(False)
         table.setStyleSheet("QTableWidget { font-size:9px; }")
         table.setMinimumHeight(0)
@@ -3368,6 +3484,11 @@ class PreValidationDialog(QDialog):
             table.setItem(row, col['beam'], beam_item)
             table.setItem(row, col['segment'], _make_item(segment['segment_label'], Qt.AlignCenter, bold=True))
             table.setItem(row, col['length'], _make_item(f"{segment['length']:.1f}", Qt.AlignCenter))
+            if is_fundo:
+                table.setItem(
+                    row, col['width'],
+                    _make_item(segment.get('width') or '—', Qt.AlignCenter),
+                )
 
             if not is_fundo:
                 table.setItem(row, col['side'], _make_item(segment['side'], Qt.AlignCenter, bold=True))
@@ -3423,6 +3544,7 @@ class PreValidationDialog(QDialog):
             lambda t=table, d=viewer_data, c=col['photo']:
                 self._update_dynamic_viewers(t, d, c, True),
         )
+        self._restore_table_scroll(table, kind)
         return table
 
     def _on_segment_attention_changed(self, table: QTableWidget, item: QTableWidgetItem) -> None:
@@ -4145,6 +4267,7 @@ class PreValidationDialog(QDialog):
                     'neigh_laje': cut.get('neigh_laje', ''),
                     'beam_h':     cut.get('beam_h', ''),
                     'status':     sc.currentText() if sc else 'Válido',
+                    'atencao':    self._cut_attention.get(cut['uid'], ''),
                     'pts':        cut.get('pts') or [],
                 })
 
@@ -4162,6 +4285,7 @@ class PreValidationDialog(QDialog):
                         'side':          seg['side'],
                         'behavior':      seg['behavior'],
                         'length':        seg['length'],
+                        'width':         seg.get('width', ''),
                         'status':        cb.currentText() if cb else seg.get('status', 'valid'),
                         'atencao':       self._segment_attention.get(seg['uid'], seg.get('attention', '')),
                         'points':        seg.get('points') or [],
@@ -4220,6 +4344,218 @@ class PreValidationDialog(QDialog):
         matches = sorted(_glob.glob(pattern), reverse=True)
         return self._file_to_b64(matches[0]) if matches else ''
 
+    def _render_ezdxf_b64(self, dxf_path: str, width: int = 900, height: int = 600) -> str:
+        """Renderiza qualquer DXF com ezdxf+matplotlib (fundo branco). Retorna base64 PNG."""
+        if not os.path.exists(dxf_path):
+            return ''
+        try:
+            import io, base64
+            import ezdxf
+            from ezdxf.addons.drawing import RenderContext, Frontend
+            from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            dpi = 150
+            doc = ezdxf.readfile(dxf_path)
+            msp = doc.modelspace()
+            fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
+            ax = fig.add_axes([0, 0, 1, 1])
+            ctx = RenderContext(doc)
+            out = MatplotlibBackend(ax)
+            Frontend(ctx, out).draw_layout(msp)
+            buf = io.BytesIO()
+            fig.savefig(buf, format='png', dpi=dpi, facecolor='white', bbox_inches='tight')
+            plt.close(fig)
+            buf.seek(0)
+            return base64.b64encode(buf.read()).decode('ascii')
+        except Exception as exc:
+            print(f'[HTML] _render_ezdxf_b64 falhou ({dxf_path}): {exc}', flush=True)
+            return ''
+
+    def _find_pilar_dxf(self, view_type: str, item_name: str, n4: bool = False) -> str:
+        """Retorna path do DXF da vista solicitada.
+        n4=True → /n4/PL_preview_{nome}.dxf (combined gerado pelo CE via N2).
+        n4=False → root Fase-6 com split CIMA/ABCD/GRADES (N3, gerado via Fase-4/N1).
+        """
+        if not self._obra:
+            return ''
+        base = os.path.join('D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra, 'Fase-6_Execucao_CAD')
+        if n4:
+            # CE gera PL_preview_{nome}.dxf (combined) em /n4/ — não tem split views
+            p = os.path.join(base, 'n4', f'PL_preview_{item_name}.dxf')
+            return p if os.path.exists(p) else ''
+        # N3: split views em root Fase-6
+        if view_type == 'CIMA':
+            filenames = [f'PL_CIMA_preview_{item_name}.dxf']
+        elif view_type == 'ABCD':
+            filenames = [f'PL_ABCD_preview_{item_name}.dxf']
+        elif view_type == 'GRADES':
+            filenames = [f'PL_GRADES_preview_{item_name}.dxf']
+        else:
+            filenames = [f'PL_preview_{item_name}.dxf']
+        for fn in filenames:
+            p = os.path.join(base, fn)
+            if os.path.exists(p):
+                return p
+        return ''
+
+    def _render_n2_recorte_b64(self, item_name: str, width: int = 700, height: int = 500) -> str:
+        """Renderiza o DXF recorte N2 mais recente do pilar (Fase-2 triagem)."""
+        if not self._obra:
+            return ''
+        import glob as _glob
+        recortes_base = os.path.join(
+            'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+            'Fase-2_Triagem', 'recortes_reversos'
+        )
+        # Busca em subpastas PL/PIL do 13 PAV
+        pattern = os.path.join(recortes_base, '**', f'PIL_{item_name}_motor_*.dxf')
+        matches = sorted(_glob.glob(pattern, recursive=True), reverse=True)
+        if not matches:
+            return ''
+        return self._render_ezdxf_b64(matches[0], width=width, height=height)
+
+    def _n1_ficha_html_pilar(self, pilar_key: str) -> str:
+        """Retorna HTML completo com TODOS os campos SA do pilar (Ficha N1 SA)."""
+        import html as _hl
+        pillar = self._pillar_report.get(pilar_key, {})
+        if not pillar:
+            return '<span style="color:#555">—</span>'
+        nr_entry = (self._nivel_report or {}).get('pilares', {}).get(pilar_key, {})
+
+        def _row(label: str, val, color: str = '#7eb8f7') -> str:
+            return (f'<tr><td style="color:{color};padding:1px 5px;white-space:nowrap;'
+                    f'font-weight:600">{_hl.escape(str(label))}</td>'
+                    f'<td style="padding:1px 5px">{_hl.escape(str(val))}</td></tr>')
+
+        def _sep(label: str) -> str:
+            return (f'<tr><td colspan="2" style="padding:3px 5px 1px;color:#4fc3a1;'
+                    f'font-weight:700;border-top:1px solid #333">{_hl.escape(label)}</td></tr>')
+
+        rows = []
+        # ── Identidade ────────────────────────────────────────────────────────
+        rows.append(_sep('IDENTIDADE'))
+        rows.append(_row('Nome', pillar.get('name', pilar_key)))
+        rows.append(_row('Classificação', pillar.get('classification', '—')))
+        rows.append(_row('Tipo físico', pillar.get('physical_type', '—')))
+        rows.append(_row('Shape', pillar.get('shape_type', '—')))
+        rows.append(_row('Orientação', pillar.get('orientation', '—')))
+        rows.append(_row('Ignora vigas?', 'Sim' if pillar.get('ignore_in_beams') else 'Não'))
+        rows.append(_row('Geo. fonte', pillar.get('geometry_source', '—')))
+
+        # ── Geometria ─────────────────────────────────────────────────────────
+        rows.append(_sep('GEOMETRIA'))
+        pts = pillar.get('points') or []
+        if pts:
+            xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+            w, h_ = max(xs) - min(xs), max(ys) - min(ys)
+            rows.append(_row('Largura DXF', f'{w:.1f}'))
+            rows.append(_row('Altura DXF', f'{h_:.1f}'))
+            cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+            rows.append(_row('Centro', f'({cx:.1f}, {cy:.1f})'))
+        bbox = pillar.get('bbox')
+        if bbox:
+            rows.append(_row('BBox', f'{bbox[0]:.1f},{bbox[1]:.1f} → {bbox[2]:.1f},{bbox[3]:.1f}'))
+
+        # ── Nível ─────────────────────────────────────────────────────────────
+        rows.append(_sep('NÍVEL'))
+        if nr_entry:
+            for k, v in nr_entry.items():
+                if v not in (None, '', 0, 0.0):
+                    rows.append(_row(k, v))
+        else:
+            rows.append(_row('nivel_str', pillar.get('nivel_str', '—')))
+
+        # ── Lajes adjacentes (ABCD) ──────────────────────────────────────────
+        rows.append(_sep('LAJES ADJACENTES'))
+        lajes = pillar.get('lajes') or []
+        if lajes:
+            for lj in lajes:
+                nome_lj = lj.get('laje') or lj.get('laje_name') or '?'
+                side = lj.get('side', '?')
+                face = lj.get('face', '')
+                src  = lj.get('side_source', lj.get('source', ''))
+                dist = lj.get('dist', '')
+                alt  = lj.get('altura', lj.get('alt', ''))
+                niv  = lj.get('nivel_str', lj.get('nivel', ''))
+                detail = f'Side={side}'
+                if face and face not in ('AUTO', ''):
+                    detail += f' Face={face}'
+                if alt:
+                    detail += f' Alt={alt}'
+                if niv:
+                    detail += f' Nív={niv}'
+                if dist:
+                    detail += f' dist={float(dist):.0f}'
+                if src:
+                    detail += f' [{src}]'
+                col = {'A': '#ff9f43', 'B': '#4fc3a1', 'C': '#e17055', 'D': '#74b9ff'}.get(side, '#aaa')
+                rows.append(_row(nome_lj, detail, color=col))
+        else:
+            rows.append(_row('—', 'sem lajes vinculadas'))
+
+        # ── Vigas vinculadas ─────────────────────────────────────────────────
+        beams = pillar.get('beams') or []
+        if beams:
+            rows.append(_sep('VIGAS'))
+            for b in beams:
+                bname = b.get('name') or b.get('beam_name', '?')
+                bside = b.get('side', '')
+                btyp  = b.get('type', b.get('behavior', ''))
+                detail = f'lado={bside}' if bside else ''
+                if btyp:
+                    detail += f' tipo={btyp}'
+                rows.append(_row(bname, detail or '—', color='#7eb8f7'))
+
+        # ── Campos extras ────────────────────────────────────────────────────
+        skip = {'name', 'classification', 'physical_type', 'shape_type', 'orientation',
+                'ignore_in_beams', 'geometry_source', 'points', 'lajes', 'beams',
+                'bbox', 'nivel_str', 'lajes_adjacentes', 'preficha_reviewed',
+                'confidence_map', 'links', 'issues', 'needs_geometry',
+                'alt_for_original_key', 'geometry_alt_candidate'}
+        extras = {k: v for k, v in pillar.items() if k not in skip
+                  and v not in (None, '', 0, 0.0, [], {})}
+        if extras:
+            rows.append(_sep('OUTROS'))
+            for k, v in extras.items():
+                rows.append(_row(k, str(v)[:120]))
+
+        return (f'<table style="font-size:9px;border-collapse:collapse;'
+                f'background:#181818">{"".join(rows)}</table>')
+
+    def _n3_ficha_html_pilar(self, item_name: str) -> str:
+        """Retorna HTML compacto com dados Fase-4 JSON do pilar (Ficha N3 informacional)."""
+        import html as _hl, json as _json
+        if not self._obra:
+            return '<span style="color:#555">sem obra</span>'
+        json_path = os.path.join(
+            'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+            'Fase-4_Sincronizacao', 'JSON_Pilares', f'{item_name}.json'
+        )
+        if not os.path.exists(json_path):
+            return '<span style="color:#555">sem JSON N3</span>'
+        try:
+            with open(json_path, encoding='utf-8') as f:
+                data = _json.load(f)
+            skip = {'_sa_meta', 'numero', 'nome', 'pavimento', 'modo_distribuicao'}
+            entries = []
+            for k, v in data.items():
+                if k in skip:
+                    continue
+                if v in (0, 0.0, '', None):
+                    continue
+                entries.append(
+                    f'<tr><td style="color:#4fc3a1;padding:1px 4px;white-space:nowrap">'
+                    f'{_hl.escape(str(k))}</td>'
+                    f'<td style="padding:1px 4px">{_hl.escape(str(v))}</td></tr>'
+                )
+            if not entries:
+                return '<span style="color:#555">sem dados</span>'
+            return f'<table style="font-size:9px;border-collapse:collapse">{"".join(entries)}</table>'
+        except Exception:
+            return '<span style="color:#555">erro</span>'
+
     def _find_n2_png(self, obra: str, subfolder: str, item_name: str) -> str:
         """Busca render N2 em DADOS-OBRAS/{obra}/Fase-6_Execucao_CAD/{subfolder}/{item}_n2.png."""
         path = os.path.join(
@@ -4263,8 +4599,100 @@ class PreValidationDialog(QDialog):
         except Exception:
             return '<span style="color:#555">erro</span>'
 
-    def _export_html_snapshot(self) -> None:
-        """Gera uma ficha HTML independente para cada aba de dados."""
+    def _render_pilar_dxf_context_b64(self, pilar_pts: list, width: int = 700, height: int = 500) -> str:
+        """
+        Renderiza o contexto DXF ao redor do pilar usando matplotlib (funciona headless).
+        Mostra as linhas estruturais da area + pilar destacado em verde-agua.
+        Retorna string base64 PNG.
+        """
+        if not pilar_pts or not self._dxf_data:
+            return ''
+        try:
+            import io, base64
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            from matplotlib.patches import Polygon as MplPolygon
+
+            xs = [float(p[0]) for p in pilar_pts]
+            ys = [float(p[1]) for p in pilar_pts]
+            pw, ph = max(xs) - min(xs), max(ys) - min(ys)
+            margin = max(pw, ph) * 3.0 + 60
+            vx0, vx1 = min(xs) - margin, max(xs) + margin
+            vy0, vy1 = min(ys) - margin, max(ys) + margin
+
+            dpi = 150
+            fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
+            ax.set_facecolor('#111111')
+            fig.patch.set_facecolor('#111111')
+            ax.set_aspect('equal')
+            ax.set_xlim(vx0, vx1)
+            ax.set_ylim(vy0, vy1)
+            ax.axis('off')
+
+            # Linhas DXF na area de visualizacao
+            for line in self._dxf_data.get('lines', []):
+                s, e = line.get('start'), line.get('end')
+                if not s or not e:
+                    continue
+                if (min(s[0], e[0]) <= vx1 and max(s[0], e[0]) >= vx0 and
+                        min(s[1], e[1]) <= vy1 and max(s[1], e[1]) >= vy0):
+                    ax.plot([s[0], e[0]], [s[1], e[1]], color='#3a5078', lw=0.6, solid_capstyle='round')
+
+            # Polilinhas DXF na area
+            for poly in self._dxf_data.get('polylines', []):
+                pts = poly.get('points', [])
+                if not pts:
+                    continue
+                pxs_p = [p[0] for p in pts]
+                pys_p = [p[1] for p in pts]
+                if (min(pxs_p) <= vx1 and max(pxs_p) >= vx0 and
+                        min(pys_p) <= vy1 and max(pys_p) >= vy0):
+                    ax.plot(pxs_p, pys_p, color='#3a5078', lw=0.6)
+
+            # Todos os textos DXF na área de visualização
+            import re as _re
+            _pilar_pat = _re.compile(r'^P\d', re.IGNORECASE)
+            _laje_pat  = _re.compile(r'^L\d', re.IGNORECASE)
+            _viga_pat  = _re.compile(r'^V\d', re.IGNORECASE)
+            for txt in self._dxf_data.get('texts', []):
+                tx, ty = txt.get('pos', [0, 0])
+                if vx0 <= float(tx) <= vx1 and vy0 <= float(ty) <= vy1:
+                    t = str(txt.get('text', ''))
+                    if not t.strip():
+                        continue
+                    if _pilar_pat.match(t):
+                        col, fsz = '#ff9f43', 7      # pilar: laranja
+                    elif _laje_pat.match(t):
+                        col, fsz = '#4fc3a1', 6      # laje: verde-água
+                    elif _viga_pat.match(t):
+                        col, fsz = '#7eb8f7', 6      # viga: azul
+                    else:
+                        col, fsz = '#aaaaaa', 5      # demais: cinza
+                    ax.text(float(tx), float(ty), t, color=col,
+                            fontsize=fsz, ha='center', va='center', clip_on=True)
+
+            # Pilar destacado
+            poly_patch = MplPolygon(
+                [(float(p[0]), float(p[1])) for p in pilar_pts],
+                closed=True, fill=True,
+                facecolor='#1e3a5f', edgecolor='#4fc3a1', lw=1.8, alpha=0.9, zorder=10
+            )
+            ax.add_patch(poly_patch)
+
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.02,
+                        facecolor='#111111', dpi=dpi)
+            plt.close(fig)
+            buf.seek(0)
+            return base64.b64encode(buf.read()).decode('ascii')
+        except Exception as exc:
+            print(f'[HTML] _render_pilar_dxf_context_b64 falhou: {exc}', flush=True)
+            return ''
+
+    def _export_html_snapshot(self) -> str | None:
+        """Gera uma ficha HTML independente para cada aba de dados.
+        Retorna o output_dir gerado (ou None em caso de erro)."""
         import html
         self._save_analysis_state()   # snapshot JSON para modo headless
         # Pasta fixa por obra: scripts/arete/html_fichas/{obra}/{pavimento}_{ts}/
@@ -4327,16 +4755,59 @@ class PreValidationDialog(QDialog):
             (pillar_rows if row['Formato'] == 'Retangular' else special_rows).append(row)
 
         pillar_headers = ['Nome', 'Classificação', 'Formato', 'Nível', 'Lado A', 'Lado B', 'Lado C', 'Lado D', 'Atenção']
-        _pil_extra_th = '<th>Foto N1</th><th>Foto N4</th><th>Ficha N2</th>'
+        _pil_extra_th = (
+            '<th>Foto N1 (SA)</th>'
+            '<th>N3 Cima</th><th>N3 ABCD</th><th>N3 Grades</th>'
+            '<th>N4 Robot</th>'
+            '<th>Foto N2</th>'
+            '<th>Ficha N1 SA</th><th>Ficha N2</th><th>Ficha N3 (JSON)</th>'
+        )
 
         def _pil_extra_td(row: dict) -> str:
             nome = row['_nome']
-            geo = _photo(row.get('_points') or [])
-            n4  = self._find_n4_png('PIL', nome)
-            n2h = self._n2_ficha_html('PIL', nome)
-            geo_cell = (f'<td><img class="img-geo" src="data:image/png;base64,{geo}" alt="geo"></td>'
-                        if geo else '<td><span class="muted">sem geo</span></td>')
-            return geo_cell + _img_cell(n4) + _html_cell(n2h)
+            pts  = row.get('_points') or []
+
+            # ── Foto N1: contexto DXF estrutural + pilar destacado ────────────
+            geo = self._render_pilar_dxf_context_b64(pts) if pts else ''
+            if not geo:
+                geo = _photo(pts)
+            n1_cell = (f'<td><img class="img-geo" src="data:image/png;base64,{geo}" alt="N1"></td>'
+                       if geo else '<td><span class="muted">sem N1</span></td>')
+
+            # ── N3: 3 vistas DXF N3 (Fase-6 raiz = gerado via N1/Fase-4) ────
+            def _n3_view_cell(view_type: str) -> str:
+                p = self._find_pilar_dxf(view_type, nome, n4=False)
+                b64 = self._render_ezdxf_b64(p, width=750, height=550) if p else ''
+                return (_img_cell(b64, 'img-n3') if b64
+                        else f'<td><span class="muted">sem N3 {view_type}</span></td>')
+
+            n3_cima   = _n3_view_cell('CIMA')
+            n3_abcd   = _n3_view_cell('ABCD')
+            n3_grades = _n3_view_cell('GRADES')
+
+            # ── N4: combined /n4/PL_preview_{nome}.dxf (CE via N2) ───────────
+            n4_path = self._find_pilar_dxf('', nome, n4=True)
+            n4_b64  = self._render_ezdxf_b64(n4_path, width=750, height=850) if n4_path else ''
+            n4_cell = (_img_cell(n4_b64, 'img-n4') if n4_b64
+                       else '<td><span class="muted">sem N4 (rode CE)</span></td>')
+
+            # ── Foto N2: recorte DXF Fase-2 renderizado ───────────────────────
+            n2b64 = self._render_n2_recorte_b64(nome)
+            n2_foto_cell = (_img_cell(n2b64, 'img-n2') if n2b64
+                            else '<td><span class="muted">sem recorte N2</span></td>')
+
+            # ── Fichas informacionais ─────────────────────────────────────────
+            n1_ficha = self._n1_ficha_html_pilar(nome)
+            n2_ficha = self._n2_ficha_html('PIL', nome)
+            n3_ficha = self._n3_ficha_html_pilar(nome)
+
+            return (n1_cell
+                    + n3_cima + n3_abcd + n3_grades
+                    + n4_cell
+                    + n2_foto_cell
+                    + f'<td class="ficha-cell">{n1_ficha}</td>'
+                    + f'<td class="ficha-cell">{n2_ficha}</td>'
+                    + f'<td class="ficha-cell">{n3_ficha}</td>')
 
         reports.append(('pilares', 'Pré-ficha — Pilares', pillar_headers, pillar_rows, _pil_extra_th, _pil_extra_td))
         reports.append(('pilares_especiais', 'Pré-ficha — Pilares Especiais', pillar_headers, special_rows, _pil_extra_th, _pil_extra_td))
@@ -4353,6 +4824,7 @@ class PreValidationDialog(QDialog):
                 'Laje B': cut.get('neigh_laje', '—'),
                 'Altura': cut.get('beam_h', '—'),
                 'Status': status_combo.currentText() if status_combo else 'Válido',
+                'Atenção': self._cut_attention.get(cut['uid'], ''),
                 '_points': cut.get('pts') or [],
             })
         _cut_extra_th = '<th>Foto</th>'
@@ -4364,7 +4836,7 @@ class PreValidationDialog(QDialog):
 
         reports.append((
             'visao_cortes', 'Pré-ficha — Visão de Cortes',
-            ['Viga', 'Confiança', 'Laje A', 'Laje B', 'Altura', 'Status'],
+            ['Viga', 'Confiança', 'Laje A', 'Laje B', 'Altura', 'Status', 'Atenção'],
             cut_rows, _cut_extra_th, _cut_extra_td,
         ))
 
@@ -4389,6 +4861,7 @@ class PreValidationDialog(QDialog):
                     'Lado': segment['side'],
                     'Comportamento': segment['behavior'],
                     'Comprimento': f"{segment['length']:.1f}",
+                    'Largura': segment.get('width') or '—',
                     'Status': combo.currentText() if combo else segment.get('status', 'valid'),
                     'Atenção': self._segment_attention.get(segment['uid'], segment.get('attention', '')),
                     '_points': segment.get('points') or [],
@@ -4398,7 +4871,7 @@ class PreValidationDialog(QDialog):
                 segment_rows.append(seg_r)
 
             seg_headers = (
-                ['Viga', 'Segmento', 'Comprimento', 'Status', 'Atenção']
+                ['Viga', 'Segmento', 'Comprimento', 'Largura', 'Status', 'Atenção']
                 if kind == 'fundo' else
                 ['Viga', 'Segmento', 'Lado', 'Comportamento', 'Comprimento', 'Status', 'Atenção']
             )
@@ -4427,12 +4900,14 @@ class PreValidationDialog(QDialog):
         css = (
             'body{background:#1a1a1a;color:#c8c8c8;font:11px monospace;margin:16px}'
             'h1{color:#7eb8f7;font-size:16px} .meta,.muted{color:#777}'
-            'table{border-collapse:collapse;width:100%}'
+            'table{border-collapse:collapse}'
             'th{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px;white-space:nowrap}'
             'td{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}'
-            '.img-geo{width:280px;height:160px;object-fit:contain;background:#111}'
-            '.img-n4{width:440px;height:260px;object-fit:contain;background:#111}'
-            '.img-n2{width:440px;height:260px;object-fit:contain;background:#111}'
+            '.img-geo{width:700px;height:500px;object-fit:contain;background:#111}'
+            '.img-n3{width:900px;height:600px;object-fit:contain;background:#fff}'
+            '.img-n4{width:900px;height:600px;object-fit:contain;background:#111}'
+            '.img-n2{width:600px;height:400px;object-fit:contain;background:#111}'
+            '.ficha-cell{max-width:380px;overflow:auto}'
             'tr:hover td{background:#222}'
         )
 
@@ -4475,12 +4950,20 @@ class PreValidationDialog(QDialog):
                     f'<h1>Pré-fichas — {html.escape(self._obra)} / {html.escape(self._pavimento)}</h1>'
                     f'<ul>{index_items}</ul></body></html>'
                 )
-            QMessageBox.information(
-                self, "HTMLs Gerados",
-                f"{len(generated)} fichas e índice salvos em:\n{output_dir}",
-            )
+            if self.isVisible():
+                QMessageBox.information(
+                    self, "HTMLs Gerados",
+                    f"{len(generated)} fichas e índice salvos em:\n{output_dir}",
+                )
+            return output_dir
         except Exception as exc:
-            QMessageBox.critical(self, "Erro ao Salvar", str(exc))
+            if self.isVisible():
+                QMessageBox.critical(self, "Erro ao Salvar", str(exc))
+            else:
+                import traceback
+                print(f'[HTML] ERRO ao gerar HTMLs: {exc}', flush=True)
+                traceback.print_exc()
+        return None
 
     # ── Resultado ─────────────────────────────────────────────────────────────
 
@@ -4565,6 +5048,7 @@ class PreValidationDialog(QDialog):
                 'confidence': conf / 100.0,
                 'status':     status,
                 'is_invalid': is_invalid,
+                'attention':  self._cut_attention.get(uid, ''),
             }
 
         segment_decisions: dict[str, dict] = {}

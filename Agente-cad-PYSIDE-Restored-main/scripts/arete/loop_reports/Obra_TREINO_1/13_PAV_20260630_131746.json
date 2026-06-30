@@ -1,0 +1,68 @@
+{
+  "iteration": 0,
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "html_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736",
+  "estado_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_13_PAV.json",
+  "gerado_em": "20260630_131746",
+  "screenshots": [
+    {
+      "slug": "fundo",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_fundo.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\fundo.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:39"
+    },
+    {
+      "slug": "lateral_a_para",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_lateral_a_para.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\lateral_a_para.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:40"
+    },
+    {
+      "slug": "lateral_a_passa",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_lateral_a_passa.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\lateral_a_passa.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:41"
+    },
+    {
+      "slug": "lateral_b_para",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_lateral_b_para.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\lateral_b_para.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:42"
+    },
+    {
+      "slug": "lateral_b_passa",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_lateral_b_passa.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\lateral_b_passa.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:43"
+    },
+    {
+      "slug": "pilares",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_pilares.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\pilares.png",
+      "rows_count": 317,
+      "captured_at": "2026-06-30T13:17:44"
+    },
+    {
+      "slug": "pilares_especiais",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_pilares_especiais.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\pilares_especiais.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:45"
+    },
+    {
+      "slug": "visao_cortes",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\preficha_visao_cortes.html",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_20260630_131736\\screenshots\\visao_cortes.png",
+      "rows_count": 0,
+      "captured_at": "2026-06-30T13:17:46"
+    }
+  ],
+  "total_items": 317,
+  "abas_geradas": 8
+}

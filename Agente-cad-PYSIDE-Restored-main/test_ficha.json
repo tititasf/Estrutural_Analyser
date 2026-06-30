@@ -1,0 +1,197 @@
+{
+  "nome": "L315",
+  "numero": 315,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      855.0,
+      0.0
+    ],
+    [
+      855.0,
+      531.0
+    ],
+    [
+      0.0,
+      531.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "comprimento": 855.0,
+  "largura": 531.0,
+  "area_cm2": 454005.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 204.0,
+      "is_union": false
+    },
+    {
+      "value": 418.0,
+      "is_union": false
+    },
+    {
+      "value": 437.0,
+      "is_union": true
+    },
+    {
+      "value": 681.0,
+      "is_union": false
+    },
+    {
+      "value": 839.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 201.0,
+      "is_union": false
+    },
+    {
+      "value": 220.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [
+    {
+      "x": 418.0,
+      "y": 319.0,
+      "width": 19.0,
+      "height": 100.0,
+      "coords": [
+        [
+          418.0,
+          319.0
+        ],
+        [
+          437.0,
+          319.0
+        ],
+        [
+          437.0,
+          419.0
+        ],
+        [
+          418.0,
+          419.0
+        ],
+        [
+          418.0,
+          319.0
+        ]
+      ]
+    }
+  ],
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "_stog_pose": {
+    "x": 4915.07,
+    "y": 2060.94
+  },
+  "_hlaz": [
+    {
+      "x": 0.0,
+      "y": 122.0,
+      "width": 418.0,
+      "height": 47.0
+    }
+  ],
+  "cotas_paineis": [
+    {
+      "value": 89.5,
+      "x": 511.94,
+      "y": 44.75,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 20.0,
+      "x": 511.97,
+      "y": 99.5,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 244.0,
+      "x": 559.0,
+      "y": 131.94,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 158.0,
+      "x": 760.0,
+      "y": 132.0,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 91.5,
+      "x": 511.94,
+      "y": 155.25,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 607.0,
+      "y": 281.0,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 244.0,
+      "x": 559.0,
+      "y": 320.11,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 174.0,
+      "x": 768.0,
+      "y": 320.11,
+      "rotation": 0.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 47.0,
+      "x": 606.99,
+      "y": 365.5,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 20.0,
+      "x": 606.97,
+      "y": 399.0,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    },
+    {
+      "value": 122.0,
+      "x": 607.0,
+      "y": 470.0,
+      "rotation": 90.0,
+      "height": 9.0,
+      "tipo": "painel"
+    }
+  ],
+  "pontaletes": {}
+}

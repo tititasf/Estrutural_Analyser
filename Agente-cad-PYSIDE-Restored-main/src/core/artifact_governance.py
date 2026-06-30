@@ -765,7 +765,11 @@ def guarded_promote(
         _writable(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     if move and not protected and not headless:
-        os.replace(str(generated), str(output))
+        try:
+            os.replace(str(generated), str(output))
+        except OSError:
+            # os.replace falha entre drives distintos (C: → D:) — usa shutil.move
+            shutil.move(str(generated), str(output))
     else:
         shutil.copy2(generated, output)
         if move:

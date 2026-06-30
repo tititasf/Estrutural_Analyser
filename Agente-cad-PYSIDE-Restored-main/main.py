@@ -11411,6 +11411,7 @@ class MainWindow(QMainWindow):
                     ficha = cut.setdefault('ficha', {})
                     ficha['beam_name'] = assign.get('beam_name') or ''
                     ficha['beam_name_confidence'] = assign.get('confidence', 0.0)
+                    ficha['preficha_attention'] = assign.get('attention') or ''
                     # NÃO marca validated_link_classes aqui — apenas ação humana deve
                     # incrementar essa lista (fonte da % de completude da lista esquerda)
 
