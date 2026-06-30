@@ -65,6 +65,7 @@ from tufup.client import Client
 from pathlib import Path
 import requests
 from src.core.item_attention_store import has_attention, load_attention, save_attention
+from src.mcp.db_bridge import save_human_edit_event
 
 # Tentar importar o robo Lajes (laje_src)
 try:
@@ -3023,7 +3024,6 @@ class MainWindow(QMainWindow):
 
         # --- MÓDULO 0: GERENCIAR PROJETOS (Tab nova — antes era janela flutuante) ---
         self.project_manager = ProjectManager(self.db, self.memory, self.auth_service)
-        self.project_manager.setWindowFlags(Qt.Widget)  # embed como widget inline
         self.project_manager.project_selected.connect(lambda pid, name, path: self._open_project_tab(pid, name))
         self.project_manager.obra_created_globally.connect(self.on_global_obra_created)
         self.project_manager.project_created_globally.connect(self.on_global_project_created)
@@ -11017,6 +11017,7 @@ class MainWindow(QMainWindow):
             canvas=getattr(self, 'canvas', None),
             convention_file=_convention_file,
             db_path=_db_path,
+            dxf_data=getattr(self, 'dxf_data', None),
             parent=self,
         )
 
@@ -11946,6 +11947,94 @@ class MainWindow(QMainWindow):
                     )
             if entry['confidence'] < 0.6 and entry['source_type'] not in ('unknown',):
                 entry['warnings'].append("Confianca baixa na inferencia de nivel")
+
+        # ── 2b. Retry 1: candidatos alternativos de texto (mais próximos) ────────
+        # Varre todos os _nivel_candidates do slab; o primeiro dentro de ±4 da
+        # mediana substitui o valor alucinado.
+        slab_by_name: dict = {
+            (s.get('name') or str(s.get('id') or id(s))): s for s in slabs
+        } if median_level is not None else {}
+
+        if median_level is not None:
+            for name, entry in lajes_report.items():
+                if not any('alucinacao' in w or 'diverge' in w for w in entry['warnings']):
+                    continue
+                slab = slab_by_name.get(name)
+                if not slab:
+                    continue
+                candidates = slab.get('_nivel_candidates', [])
+                for attempt, (alt_txt, alt_t) in enumerate(candidates[1:], start=1):
+                    try:
+                        alt_val = float(str(alt_txt).replace(',', '.').replace('+', ''))
+                    except Exception:
+                        continue
+                    if abs(alt_val - median_level) <= 4.0:
+                        entry['level'] = alt_val
+                        entry['level_str'] = self._format_slab_level_value(alt_val)
+                        entry['source_type'] = 'text_label_retry'
+                        entry['confidence'] = 0.85
+                        entry['warnings'] = []
+                        slab['fields']['laje_nivel'] = alt_txt
+                        links = slab.setdefault('links', {}).setdefault(
+                            'laje_nivel',
+                            {'label': [], 'cut_view_geom': [], 'cut_view_text': []})
+                        links['label'] = [alt_t]
+                        slab.setdefault('_nivel_retry_info', {}).update({
+                            'original': candidates[0][0] if candidates else '?',
+                            'corrected': alt_txt,
+                            'attempt': attempt,
+                        })
+                        break
+
+        # ── 2c. Retry 2: re-inferência via cortes de viga e vizinhos ─────────
+        # Para suspeitos que ainda têm warnings após o retry de candidatos:
+        # limpa o nivel errado e re-chama _infer_slab_levels_from_context.
+        # O inference engine pula slabs com label explícito — ao remover o label
+        # errado, o slab torna-se elegível para receber o nivel de seu vizinho
+        # pelo delta geométrico do corte de viga.
+        if median_level is not None and slab_by_name:
+            still_suspect = [
+                name for name, entry in lajes_report.items()
+                if any('alucinacao' in w or 'diverge' in w for w in entry['warnings'])
+            ]
+            if still_suspect:
+                cleared_slabs: list = []
+                for name in still_suspect:
+                    slab = slab_by_name.get(name)
+                    if not slab:
+                        continue
+                    # Remove nivel errado para liberar a rota de inferência
+                    slab.get('fields', {}).pop('laje_nivel', None)
+                    slab.pop('laje_nivel', None)
+                    lv_links = slab.get('links', {}).get('laje_nivel', {})
+                    if isinstance(lv_links, dict):
+                        lv_links['label'] = []
+                    cleared_slabs.append(slab)
+
+                if cleared_slabs:
+                    # Re-infere: agora os slabs limpos são elegíveis para
+                    # receberem nivel via delta de corte e consenso de vizinhos
+                    self._infer_slab_levels_from_context(slabs)
+
+                    for slab in cleared_slabs:
+                        name = slab.get('name') or str(slab.get('id') or id(slab))
+                        entry = lajes_report.get(name)
+                        if not entry:
+                            continue
+                        src = self._slab_level_source(slab, include_neighbor_context=True)
+                        if src and src['value'] is not None:
+                            alt_val = src['value']
+                            if abs(alt_val - median_level) <= 4.0:
+                                inf = slab.get('level_inference') or {}
+                                entry['level'] = alt_val
+                                entry['level_str'] = self._format_slab_level_value(alt_val)
+                                entry['source_type'] = (
+                                    'cut_view_delta'
+                                    if src.get('kind') == 'cut_view_delta'
+                                    else 'neighbor_inferred'
+                                )
+                                entry['confidence'] = float(inf.get('confidence', 0.60))
+                                entry['warnings'] = []
 
         # ── 3. Pilares ────────────────────────────────────────────────────────
         pr = pillar_report or {}
@@ -14024,6 +14113,162 @@ class MainWindow(QMainWindow):
         except Exception:
             return False
 
+    @staticmethod
+    def _sa_mcp_snapshot(item_data):
+        """Normaliza o estado editavel para comparar e persistir como evidencia."""
+        try:
+            return json.loads(json.dumps(item_data or {}, ensure_ascii=False, sort_keys=True, default=str))
+        except Exception:
+            return {"repr": str(item_data)}
+
+    @staticmethod
+    def _sa_mcp_diff(before, after):
+        keys = sorted(set(before or {}) | set(after or {}))
+        changed = [key for key in keys if (before or {}).get(key) != (after or {}).get(key)]
+        return (
+            {key: (before or {}).get(key) for key in changed},
+            {key: (after or {}).get(key) for key in changed},
+            changed,
+        )
+
+    def _persist_current_sa_item(self, item_data):
+        if not self.current_project_id:
+            raise RuntimeError("Selecione um projeto antes de salvar o item.")
+        item_type = str(item_data.get("type") or "").lower()
+        if "viga" in item_type:
+            self.db.save_beam(item_data, self.current_project_id, trust_current_validation=True)
+        elif "pilar" in item_type or item_type == "pillar":
+            self.db.save_pillar(item_data, self.current_project_id, trust_current_validation=True)
+        elif "laje" in item_type or item_type == "slab":
+            self.db.save_slab(item_data, self.current_project_id, trust_current_validation=True)
+        else:
+            raise RuntimeError(f"Classe de item nao suportada para salvamento: {item_type or 'vazia'}")
+
+    def _set_sa_save_feedback(self, text, error=False):
+        button = getattr(self, "_sa_save_item_button", None)
+        if not button:
+            return
+        button.setText(text)
+        button.setStyleSheet(
+            "QPushButton { min-height: 24px; padding: 2px 12px; border-radius: 3px; "
+            + ("background: #4a1f1f; color: #ff8f8f; border: 1px solid #8a3a3a; }"
+               if error else
+               "background: #153b2b; color: #63e6a6; border: 1px solid #2f7d59; }")
+        )
+        QTimer.singleShot(2200, lambda: self._reset_sa_save_button(button))
+
+    @staticmethod
+    def _reset_sa_save_button(button):
+        try:
+            button.setText("Salvar item")
+            button.setStyleSheet(
+                "QPushButton { min-height: 24px; padding: 2px 12px; border-radius: 3px; "
+                "background: #1269a8; color: white; border: 1px solid #2698d8; font-weight: bold; }"
+                "QPushButton:hover { background: #167fca; }"
+            )
+        except RuntimeError:
+            pass
+
+    def _save_current_sa_item_explicit(self):
+        if not self.current_card:
+            self._set_sa_save_feedback("Nenhum item", error=True)
+            return
+
+        item_data = self.current_card.item_data
+        obra, pav = self._attention_current_obra_pav()
+        cls, item_id = self._sa_attention_class_item(item_data, item_data.get("type"))
+        note_edit = getattr(self, "_sa_attention_edit", None)
+        note = note_edit.toPlainText() if note_edit else str(item_data.get("attention_note") or "")
+        item_data["attention_note"] = note
+
+        try:
+            save_attention(obra, pav, cls, item_id, "SA", bool(note.strip()), note)
+            self._persist_current_sa_item(item_data)
+        except Exception as exc:
+            self.log(f"Erro ao salvar item SA: {exc}")
+            self._set_sa_save_feedback("Falha ao salvar", error=True)
+            return
+
+        after = self._sa_mcp_snapshot(item_data)
+        before = getattr(self, "_sa_edit_baseline", {}) or {}
+        old_fields, new_fields, changed = self._sa_mcp_diff(before, after)
+        if not changed:
+            self._set_sa_save_feedback("Salvo - sem alteracoes")
+            return
+
+        try:
+            user = getattr(self.auth_service, "current_user", None)
+            actor_id = (
+                str(user.get("email") or user.get("id") or "ui_operator")
+                if isinstance(user, dict)
+                else str(getattr(user, "email", None) or getattr(user, "id", None) or "ui_operator")
+            )
+            log_id = save_human_edit_event(
+                obra_id=obra or str(self.current_project_id),
+                classe=cls,
+                item_id=item_id,
+                fase_editada="N1_FICHA",
+                ui_context="StructuralAnalyzer",
+                estado_anterior=old_fields,
+                estado_novo=new_fields,
+                nota_usuario=note or "Salvamento explicito da ficha N1 no Structural Analyzer.",
+                source_agent="structural_analyzer_ui",
+                actor_id=actor_id,
+                correlation_id=f"sa:{obra}:{pav}:{cls}:{item_id}",
+                db_path=Path(self.db.db_path),
+            )
+            self._sa_edit_baseline = after
+            self.log(f"Item {item_id} salvo; evidencia MCP T0 capturada ({log_id[:8]}).")
+            self._set_sa_save_feedback("Salvo + evidencia T0")
+        except Exception as exc:
+            self.log(f"Item salvo, mas a evidencia MCP falhou: {exc}")
+            self._set_sa_save_feedback("Salvo; MCP falhou", error=True)
+
+    def _open_mcp_evidence_from_sa(self):
+        try:
+            self.switch_to_tab(0)
+            self.project_manager.tabs.setCurrentIndex(1)
+            evidence_tabs = self.project_manager.curadoria_rag_tabs
+            for index in range(evidence_tabs.count()):
+                if "Evidencias MCP" in evidence_tabs.tabText(index):
+                    evidence_tabs.setCurrentIndex(index)
+                    break
+            self.project_manager._refresh_curadoria_rag_observer()
+        except Exception as exc:
+            self.log(f"Nao foi possivel abrir Evidencias MCP: {exc}")
+
+    def _build_sa_item_action_bar(self):
+        bar = QFrame()
+        bar.setFixedHeight(34)
+        bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        bar.setStyleSheet("QFrame { background: #111820; border-bottom: 1px solid #2b4558; }")
+        layout = QHBoxLayout(bar)
+        layout.setContentsMargins(6, 4, 6, 4)
+        layout.setSpacing(6)
+
+        self._sa_save_item_button = QPushButton("Salvar item")
+        self._sa_save_item_button.setObjectName("saSaveItemButton")
+        self._reset_sa_save_button(self._sa_save_item_button)
+        self._sa_save_item_button.setToolTip(
+            "Persiste a ficha N1 e registra as alteracoes como evidencia MCP T0. "
+            "Nao valida, nao promove para T1 e nao indexa no RAG global."
+        )
+        self._sa_save_item_button.clicked.connect(self._save_current_sa_item_explicit)
+        layout.addWidget(self._sa_save_item_button)
+
+        evidence_button = QPushButton("Evidencias MCP")
+        evidence_button.setObjectName("saMcpEvidenceButton")
+        evidence_button.setToolTip("Abre Curadoria RAG/MCP > Evidencias MCP.")
+        evidence_button.setStyleSheet(
+            "QPushButton { min-height: 24px; padding: 2px 10px; border-radius: 3px; "
+            "background: #24252b; color: #c9d4df; border: 1px solid #50545c; }"
+            "QPushButton:hover { border-color: #25c7e8; color: #25c7e8; }"
+        )
+        evidence_button.clicked.connect(self._open_mcp_evidence_from_sa)
+        layout.addWidget(evidence_button)
+        layout.addStretch()
+        return bar
+
     def _build_sa_attention_widget(self, display_data):
         obra, pav = self._attention_current_obra_pav()
         cls, item_id = self._sa_attention_class_item(display_data, display_data.get("type"))
@@ -14046,6 +14291,8 @@ class MainWindow(QMainWindow):
         edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         edit.setPlaceholderText("Mensagem/instrucao persistente deste item para o chat...")
         edit.setPlainText(meta.get("note", ""))
+        self._sa_attention_edit = edit
+        display_data["attention_note"] = meta.get("note", "")
         lay.addWidget(edit)
 
         def _save():
@@ -14105,7 +14352,7 @@ class MainWindow(QMainWindow):
                 display_data['name'] = f'FV-{orig_name}.C'
                 display_data['type'] = 'viga_fundo_c'
 
-        # Criar novo card
+        # Criar novo card.
         self.current_card = DetailCard(display_data)
         
         # Conectar Sinais
@@ -14120,7 +14367,10 @@ class MainWindow(QMainWindow):
         self.current_card.training_requested.connect(self.on_train_requested)
         self.current_card.log_requested.connect(self.log)
         
-        self.detail_layout.addWidget(self._build_sa_attention_widget(display_data))
+        attention_widget = self._build_sa_attention_widget(display_data)
+        self._sa_edit_baseline = self._sa_mcp_snapshot(display_data)
+        self.detail_layout.addWidget(self._build_sa_item_action_bar())
+        self.detail_layout.addWidget(attention_widget)
         self.detail_layout.addWidget(self.current_card)
         
         # Atualizar título do painel (opcional)

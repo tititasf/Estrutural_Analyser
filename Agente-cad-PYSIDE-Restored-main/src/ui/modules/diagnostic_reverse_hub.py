@@ -439,13 +439,13 @@ class _LeftPanel(QFrame):
         self.cmb_obra.setPlaceholderText("— selecione a obra —")
         self.cmb_obra.setStyleSheet(f"""
             QComboBox {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px 8px; font-size: 11px;
             }}
             QComboBox::drop-down {{ border: none; }}
             QComboBox QAbstractItemView {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 selection-background-color: {Colors.ACCENT_TEAL};
             }}
         """)
@@ -471,7 +471,7 @@ class _LeftPanel(QFrame):
         self.lst = QListWidget()
         self.lst.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 font-size: 11px;
             }}
@@ -490,12 +490,12 @@ class _LeftPanel(QFrame):
         # Botão Abrir DXF
         btn_abrir_dxf = QPushButton("📂 Abrir")
         btn_abrir_dxf.setStyleSheet(f"""
-            QPushButton {{
-                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+            QPushButton {{ color: white;
+                background: {Colors.BG_CARD}; color: #FFFFFF;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
-            QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
+            QPushButton:hover {{ color: white; }}
         """)
         btn_abrir_dxf.clicked.connect(self._abrir_dxf_item)
         btn_lay.addWidget(btn_abrir_dxf)
@@ -503,12 +503,12 @@ class _LeftPanel(QFrame):
         # Botão Atualizar
         btn_refresh = QPushButton("↻ Atualizar")
         btn_refresh.setStyleSheet(f"""
-            QPushButton {{
-                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+            QPushButton {{ color: white;
+                background: {Colors.BG_CARD}; color: #FFFFFF;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
-            QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
+            QPushButton:hover {{ color: white; }}
         """)
         btn_refresh.clicked.connect(self._refresh_list)
         btn_lay.addWidget(btn_refresh)
@@ -563,12 +563,12 @@ class _LeftPanel(QFrame):
             btn.setChecked(active)
             if active:
                 btn.setStyleSheet(
-                    f"QPushButton {{ background:{color}; color:{Text.BRIGHT}; border-radius:3px; "
+                    f"QPushButton {{ color: white; background:{color}; color: #FFFFFF; border-radius:3px; "
                     f"font-size:9px; font-weight:bold; border-bottom:2px solid {Text.BRIGHT}; }}"
                 )
             else:
                 btn.setStyleSheet(
-                    f"QPushButton {{ background:{Surface.CARD}; color:{Text.SECONDARY}; "
+                    f"QPushButton {{ color: white; background:{Surface.CARD}; color: #FFFFFF; "
                     f"border-radius:3px; font-size:9px; border:1px solid {Border.DEFAULT}; }} "
                     f"QPushButton:hover {{ background:{Surface.BASE}; }}"
                 )
@@ -899,11 +899,11 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
     others = {k: v for k, v in scalars.items()
               if k not in ident and k not in dims and k not in grades and k not in bolts}
 
-    cls_badge = (f'<span style="background:{cls_color};color:{Text.BRIGHT};padding:2px 8px;'
+    cls_badge = (f'<span style="background:{cls_color};color: white;padding:2px 8px;'
                  f'border-radius:3px;font-size:11px;font-weight:bold;">{classe}</span>') if classe else ''
     elem_span = (f'<span style="margin-left:8px;font-size:12px;color:{Text.PRIMARY};'
                  f'font-weight:bold;">{elemento_id}</span>') if elemento_id else ''
-    conf_badge = (f'<span style="background:{conf_color};color:{Text.BRIGHT};padding:2px 7px;'
+    conf_badge = (f'<span style="background:{conf_color};color: white;padding:2px 7px;'
                   f'border-radius:3px;font-size:10px;">{conf_label} confiança</span>')
 
     # Exceções G2 (Arete) pendentes para este item — ver
@@ -1050,7 +1050,7 @@ def _render_obra_html(data: dict) -> str:
     Ficha da Obra ER · {total} fichas · {len(pavimentos)} pavimento(s) · Gerado {gerado_em}
   </div>
   <div style="margin-top:6px;display:inline-block;">
-    <span style="background:{cc};color:{Text.BRIGHT};padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
+    <span style="background:{cc};color: white;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
       {conf_geral*100:.0f}% confiança média — {_conf_label(conf_geral)}
     </span>
   </div>
@@ -1354,11 +1354,11 @@ class _CenterPanel(QFrame):
             b.setFixedHeight(22)
             b.setToolTip(tip)
             b.setStyleSheet(
-                f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
+                f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
                 f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
                 f"font-size:9px; padding:0 7px; }} "
                 f"QPushButton:hover {{ background:{Colors.BG_PANEL}; color:{Colors.TEXT_BRIGHT}; }} "
-                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:{Text.BRIGHT}; }}"
+                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color: white; }}"
             )
             b.setCheckable(True)
             return b
@@ -1367,7 +1367,7 @@ class _CenterPanel(QFrame):
         btn_delete.setFixedHeight(22)
         btn_delete.setToolTip("Remove entidades selecionadas do canvas")
         btn_delete.setStyleSheet(
-            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_DANGER}; "
+            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:rgba(211, 47, 47, 38); }}"
@@ -1378,7 +1378,7 @@ class _CenterPanel(QFrame):
         btn_fit.setToolTip("Ajustar view ao conteúdo")
         btn_fit.setCheckable(False)
         btn_fit.setStyleSheet(
-            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
+            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:{Colors.BG_PANEL}; }}"
@@ -1432,11 +1432,11 @@ class _CenterPanel(QFrame):
             b.setToolTip(tip)
             b.setCheckable(checkable)
             b.setStyleSheet(
-                f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
+                f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
                 f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
                 f"font-size:9px; padding:0 7px; }} "
                 f"QPushButton:hover {{ background:{Colors.BG_PANEL}; color:{Colors.TEXT_BRIGHT}; }} "
-                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:{Text.BRIGHT}; }}"
+                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color: white; }}"
             )
             return b
 
@@ -1445,7 +1445,7 @@ class _CenterPanel(QFrame):
         gbtn_delete.setCheckable(False)
         gbtn_delete.setToolTip("Remove entidades selecionadas do canvas granular")
         gbtn_delete.setStyleSheet(
-            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_DANGER}; "
+            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:rgba(211, 47, 47, 38); }}"
@@ -1456,7 +1456,7 @@ class _CenterPanel(QFrame):
         gbtn_save.setCheckable(False)
         gbtn_save.setToolTip("Salva o DXF granular atual (sobrescreve recorte)")
         gbtn_save.setStyleSheet(
-            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_SUCCESS}; "
+            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:rgba(67, 160, 71, 38); }}"
@@ -1467,7 +1467,7 @@ class _CenterPanel(QFrame):
         gbtn_fit.setCheckable(False)
         gbtn_fit.setToolTip("Ajustar view ao conteúdo")
         gbtn_fit.setStyleSheet(
-            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
+            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:{Colors.BG_PANEL}; }}"
@@ -1555,7 +1555,7 @@ class _CenterPanel(QFrame):
             "Execute a geração de fichas para consolidar a ficha do pavimento atual."
         )
         self._pav_text.setStyleSheet(
-            f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
+            f"background:{Colors.BG_CARD}; color: white; font-size:10px;"
         )
         self._tabs.addTab(self._pav_text, "Ficha Pavimento/Classe [F4]")
 
@@ -1566,7 +1566,7 @@ class _CenterPanel(QFrame):
             "Execute 'Gerar Fichas' para consolidar a ficha global da obra (Base N1)."
         )
         self._obra_text.setStyleSheet(
-            f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
+            f"background:{Colors.BG_CARD}; color: white; font-size:10px;"
         )
         self._tabs.addTab(self._obra_text, "Ficha Obra ER [F6]")
 
@@ -2135,11 +2135,11 @@ class _RecorteItemWidget(QWidget):
         "border-radius:3px; font-size:8px; font-weight:bold; padding:1px 2px;"
     )
     _STYLE_CONF_NONE = f"background:{Border.STRONG}; color:{Text.SECONDARY}; {_BASE_BADGE}"
-    _STYLE_CONF_HIGH = f"background:{Semantic.SUCCESS_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
-    _STYLE_CONF_MED  = f"background:{Semantic.WARNING_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
-    _STYLE_CONF_LOW  = f"background:{Semantic.DANGER_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
-    _STYLE_OK        = f"background:{Semantic.SUCCESS_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
-    _STYLE_AUTO      = f"background:{Accent.INTERACTIVE}; color:{Text.BRIGHT}; {_BASE_BADGE}"
+    _STYLE_CONF_HIGH = f"background:{Semantic.SUCCESS_BG_DARK}; color: white; {_BASE_BADGE}"
+    _STYLE_CONF_MED  = f"background:{Semantic.WARNING_BG_DARK}; color: white; {_BASE_BADGE}"
+    _STYLE_CONF_LOW  = f"background:{Semantic.DANGER_BG_DARK}; color: white; {_BASE_BADGE}"
+    _STYLE_OK        = f"background:{Semantic.SUCCESS_BG_DARK}; color: white; {_BASE_BADGE}"
+    _STYLE_AUTO      = f"background:{Accent.INTERACTIVE}; color: white; {_BASE_BADGE}"
     _STYLE_PEND      = f"background:{Border.DEFAULT}; color:{Text.SECONDARY}; {_BASE_BADGE}"
 
     def __init__(
@@ -2264,7 +2264,7 @@ class _RightPanel(QFrame):
             b = QPushButton(text)
             b.setFixedHeight(h)
             b.setStyleSheet(
-                f"QPushButton {{ background:{bg}; color:{Text.BRIGHT}; border-radius:3px; "
+                f"QPushButton {{ color: white; background:{bg}; color: #FFFFFF; border-radius:3px; "
                 f"font-size:9px; font-weight:bold; padding:2px 4px; }} "
                 f"QPushButton:hover {{ background:{hover}; }} "
                 f"QPushButton:disabled {{ background:{Colors.BORDER_DEFAULT}; color:{Colors.TEXT_DIM}; }}"
@@ -2287,7 +2287,7 @@ class _RightPanel(QFrame):
         self.lst_recortes = QListWidget()
         self.lst_recortes.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 font-size: 10px;
             }}
@@ -2311,8 +2311,8 @@ class _RightPanel(QFrame):
         btn_rec = QPushButton("✂ Recortar")
         btn_rec.setToolTip("Recortar — exporta todas as entidades visíveis do canvas")
         btn_rec.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(180, 120, 0, 160); color: {Colors.ACCENT_WARNING};
+            QPushButton {{ color: white;
+                background: rgba(180, 120, 0, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -2326,8 +2326,8 @@ class _RightPanel(QFrame):
         btn_rec_sel = QPushButton("✂ Recortar Seleção")
         btn_rec_sel.setToolTip("Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas")
         btn_rec_sel.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(120, 60, 180, 160); color: {Contextual.PURPLE};
+            QPushButton {{ color: white;
+                background: rgba(120, 60, 180, 160); color: #FFFFFF;
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -2353,8 +2353,8 @@ class _RightPanel(QFrame):
             b = QPushButton(f"▶ {lbl}")
             b.setToolTip(f"Processar Granulares {lbl}")
             b.setStyleSheet(f"""
-                QPushButton {{
-                    background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+                QPushButton {{ color: white;
+                    background: rgba(0, 180, 180, 160); color: #FFFFFF;
                     border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                     font-size: 11px; font-weight: bold; padding: 3px 6px;
                 }}
@@ -2372,8 +2372,8 @@ class _RightPanel(QFrame):
             "Cada classe usa o DXF correto automaticamente."
         )
         btn_tudo.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+            QPushButton {{ color: white;
+                background: rgba(0, 180, 180, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -2392,8 +2392,8 @@ class _RightPanel(QFrame):
             "- Ficha Obra Engenharia Reversa (F6) consolidada global"
         )
         btn_ficha.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+            QPushButton {{ color: white;
+                background: rgba(0, 180, 180, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -2433,8 +2433,8 @@ class _RightPanel(QFrame):
             btn.setFixedHeight(24)
             cls_color = _cls_colors.get(key, Colors.TEXT_SECONDARY)
             btn.setStyleSheet(f"""
-                QPushButton {{
-                    background: transparent; color: {Colors.TEXT_DIM};
+                QPushButton {{ color: white;
+                    background: transparent; color: #FFFFFF;
                     border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 12px;
                     font-size: 10px; font-weight: normal;
                 }}
@@ -2443,7 +2443,7 @@ class _RightPanel(QFrame):
                     background: {cls_color}; color: {Colors.TEXT_BRIGHT};
                     border: 1px solid {cls_color}; font-weight: bold;
                 }}
-                QPushButton:disabled {{ color: rgba(255, 255, 255, 30); border-color: rgba(255, 255, 255, 20); }}
+                QPushButton:disabled {{ color: white; border-color: white; }}
             """)
             self._cls_group.addButton(btn, i)
             self._cls_radios[key] = btn
@@ -2454,8 +2454,8 @@ class _RightPanel(QFrame):
         # Botão salvar estado do viewer
         btn_salvar = QPushButton("💾 Salvar")
         btn_salvar.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(80, 80, 220, 160); color: {{Accent.INTERACTIVE_HOVER}};
+            QPushButton {{ color: white;
+                background: rgba(80, 80, 220, 160); color: #FFFFFF;
                 border: 1px solid {{Accent.INTERACTIVE_HOVER}}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
@@ -2474,8 +2474,8 @@ class _RightPanel(QFrame):
             "Ensina o recortador por classe; não valida F5/N2 nem N4."
         )
         btn_aprovar.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 200, 120, 160); color: {{Colors.ACCENT_SUCCESS_ALT}};
+            QPushButton {{ color: white;
+                background: rgba(0, 200, 120, 160); color: #FFFFFF;
                 border: 1px solid {{Colors.ACCENT_SUCCESS_ALT}}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
@@ -2487,8 +2487,8 @@ class _RightPanel(QFrame):
 
         btn_excluir = QPushButton("🗑 Excluir")
         btn_excluir.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(255, 80, 80, 160); color: {{Colors.ACCENT_DANGER}};
+            QPushButton {{ color: white;
+                background: rgba(255, 80, 80, 160); color: #FFFFFF;
                 border: 1px solid {{Colors.ACCENT_DANGER}}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
@@ -2506,8 +2506,8 @@ class _RightPanel(QFrame):
             "Use apenas para avançar — revisão humana 1-a-1 gera dados reais."
         )
         btn_auto_aprovar.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 200, 120, 160); color: {{Colors.ACCENT_SUCCESS_ALT}};
+            QPushButton {{ color: white;
+                background: rgba(0, 200, 120, 160); color: #FFFFFF;
                 border: 1px solid {{Colors.ACCENT_SUCCESS_ALT}}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 4px 8px;
             }}
@@ -2658,7 +2658,7 @@ class _RightPanel(QFrame):
         dialog = QDialog(self)
         dialog.setWindowTitle(title)
         dialog.setMinimumWidth(340)
-        dialog.setStyleSheet(f"background:{Colors.BG_PANEL}; color:{Colors.TEXT_PRIMARY};")
+        dialog.setStyleSheet(f"background:{Colors.BG_PANEL}; color: white;")
         dlg_lay = QVBoxLayout(dialog)
         dlg_lay.setSpacing(10)
 
@@ -2667,7 +2667,7 @@ class _RightPanel(QFrame):
         le_id = QLineEdit()
         le_id.setPlaceholderText("ex: PIL-01, VIG-A3, LAJ-P02…")
         le_id.setStyleSheet(
-            f"background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY}; "
+            f"background:{Colors.BG_DEEP}; color: white; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; padding:4px;"
         )
         dlg_lay.addWidget(le_id)

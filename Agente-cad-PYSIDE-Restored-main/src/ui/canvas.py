@@ -2404,6 +2404,40 @@ class CADCanvas(QGraphicsView):
         """Wrapper para Ãºnico link"""
         return self.highlight_multiple_links([link], color, apply_zoom)
 
+    @staticmethod
+    def _iter_renderable_link_slots(slots):
+        """Yield only drawable link dictionaries without mutating source data."""
+        if isinstance(slots, (list, tuple)):
+            renderable = [
+                link for link in slots
+                if isinstance(link, dict) and link.get('type')
+            ]
+            if renderable:
+                yield 'value', renderable
+            return
+
+        if not isinstance(slots, dict):
+            return
+
+        # Legacy format: the field points directly to one drawable link.
+        if slots.get('type'):
+            yield 'value', [slots]
+            return
+
+        for slot_name, payload in slots.items():
+            if isinstance(payload, dict):
+                renderable = [payload] if payload.get('type') else []
+            elif isinstance(payload, (list, tuple)):
+                renderable = [
+                    link for link in payload
+                    if isinstance(link, dict) and link.get('type')
+                ]
+            else:
+                renderable = []
+
+            if renderable:
+                yield slot_name, renderable
+
     def draw_item_links(self, target, destination='focus', clear=True):
         """
         Desenha os vÃ­nculos de um item.
@@ -2448,6 +2482,9 @@ class CADCanvas(QGraphicsView):
         _lv_fv_prefix = _LV_FV_PREFIX_MAP.get(_item_type)
 
         links = target.get('links', {})
+        if not isinstance(links, dict):
+            return
+
         for field_id, slots in links.items():
             # Filtrar por prefixo de sub-tipo de viga
             if _lv_fv_prefix and not field_id.startswith(_lv_fv_prefix):
@@ -2461,13 +2498,7 @@ class CADCanvas(QGraphicsView):
             if destination == 'beam' and field_id != 'viga_segs':
                 continue
                 
-            # Iterate properly to log keys
-            if isinstance(slots, dict):
-                slots_to_process = list(slots.items())
-            else:
-                slots_to_process = [('value', slots)]
-            
-            for slot_name, link_list in slots_to_process:
+            for slot_name, link_list in self._iter_renderable_link_slots(slots):
                 # Custom Pen for specific slab slots to highlight them
                 slot_color = self._semantic_highlight_color(
                     {'_field_id': field_id, '_slot_name': slot_name},

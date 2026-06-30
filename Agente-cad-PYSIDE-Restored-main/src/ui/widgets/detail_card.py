@@ -1774,16 +1774,22 @@ class DetailCard(QWidget):
                 f.setSpacing(1)
                 f.setContentsMargins(2, 5, 2, 2)
                 self._add_linked_row(f, "Nome da Laje:", f'p_s{side}_l{i}_n', "text")
+                # Auto-preenchimento de H e Nível ao vincular o nome da laje
+                _n_fid = f'p_s{side}_l{i}_n'
+                _n_w = self.fields.get(_n_fid)
+                if _n_w and hasattr(_n_w, 'textChanged'):
+                    _n_w.textChanged.connect(
+                        lambda txt, _s=side, _li=i: self._on_panel_slab_name_changed(_s, _li, txt)
+                    )
                 self._add_linked_row(f, "Altura / Espessura (H):", f'p_s{side}_l{i}_h', "text")
                 self._add_linked_row(f, "Nível da Laje:", f'p_s{side}_l{i}_v', "text")
-                
+
                 # Ajuste Laje 2: Pos. -> Laje central e opções Esquerda/Direita
                 if i == 2:
                     self._add_info_row(f, "Posição da Laje C:", f'p_s{side}_l{i}_p', is_combo=True, combo_items=["Esquerda", "Direita"])
                 else:
                     self._add_info_row(f, "Posição da Laje:", f'p_s{side}_l{i}_p', is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
-                
-                self._add_info_row(f, "Distância ao Centro:", f'p_s{side}_l{i}_dist_c')
+
                 self._add_info_row(f, "Distância ao Topo:", f'p_s{side}_l{i}_dist_t')
                 self._add_info_row(f, "Distância Parede Esquerda:", f'p_s{side}_l{i}_dist_esq')
                 self._add_info_row(f, "Distância Parede Direita:", f'p_s{side}_l{i}_dist_dir')
@@ -1793,7 +1799,16 @@ class DetailCard(QWidget):
                     fw = self.fields.get(f'p_s{side}_l{i}_{fd}')
                     if fw and fw.text() == "":
                         fw.setText("0")
-                
+
+                # Auto-fill inicial: H e Nível se nome da laje já está preenchido
+                # (usa singleShot 0 para rodar após a UI estar completamente construída)
+                _init_n = (self.fields[f'p_s{side}_l{i}_n'].text().strip()
+                           if f'p_s{side}_l{i}_n' in self.fields else '')
+                if _init_n:
+                    from PySide6.QtCore import QTimer as _QT
+                    _QT.singleShot(0, lambda _s=side, _li=i, _nm=_init_n:
+                                   self._on_panel_slab_name_changed(_s, _li, _nm))
+
                 tab_l.addWidget(grp)
 
             # ── Nova classe: Vigas Internas / Vigas que passam ──
@@ -2464,6 +2479,92 @@ class DetailCard(QWidget):
             except Exception: pass
             
         return None
+
+    def _on_panel_slab_name_changed(self, side: str, laje_idx: int, slab_name: str):
+        """Auto-preenche Altura e Nível da Laje quando o nome é informado.
+
+        Busca a laje em slabs_found da main window pelo nome e consulta o
+        nivel_report para obter o level_str. Só preenche se o campo estiver vazio.
+        """
+        slab_name = (slab_name or '').strip()
+        if not slab_name:
+            return
+        try:
+            main_win = self.window()
+            slabs = getattr(main_win, 'slabs_found', None) or []
+            slab = next(
+                (s for s in slabs if (s.get('name') or '').strip().upper() == slab_name.upper()),
+                None
+            )
+
+            # ── Auto-fill Altura / Espessura ────────────────────────────────────
+            h_fid = f'p_s{side}_l{laje_idx}_h'
+            h_w = self.fields.get(h_fid)
+            if h_w and hasattr(h_w, 'text') and not h_w.text().strip() and slab:
+                f2 = slab.get('fields') or {}
+                dim_txt = str(f2.get('laje_dim') or slab.get('laje_dim') or '').strip()
+                if dim_txt:
+                    h_w.blockSignals(True)
+                    h_w.setText(dim_txt)
+                    h_w.blockSignals(False)
+                    self.item_data[h_fid] = dim_txt
+
+            # ── Auto-fill Nível da Laje ─────────────────────────────────────────
+            v_fid = f'p_s{side}_l{laje_idx}_v'
+            v_w = self.fields.get(v_fid)
+            if v_w and hasattr(v_w, 'text') and not v_w.text().strip():
+                nivel_str = ''
+                if hasattr(main_win, 'pavimento_nivel_report'):
+                    nr = getattr(main_win, 'pavimento_nivel_report', {}) or {}
+                    entry = (nr.get('lajes') or {}).get(slab_name, {})
+                    nivel_str = entry.get('level_str', '')
+                if not nivel_str and slab:
+                    f2 = slab.get('fields') or {}
+                    nivel_str = str(f2.get('laje_nivel') or slab.get('laje_nivel') or '').strip()
+                if nivel_str:
+                    v_w.blockSignals(True)
+                    v_w.setText(nivel_str)
+                    v_w.blockSignals(False)
+                    self.item_data[v_fid] = nivel_str
+                    self._compute_nivel_saida()
+        except Exception:
+            pass
+
+    def _compute_nivel_saida(self):
+        """Atualiza nivel_saida com o maior nível entre todos os painéis (A-H).
+
+        Considera p_sX_l1_v e p_sX_l2_v para cada lado.
+        Vigas (p_sX_v_int_v) serão consideradas quando tiverem seu nível definido.
+        """
+        import re as _re
+        max_val: float | None = None
+        for fid, w in self.fields.items():
+            if not fid.startswith('p_s'):
+                continue
+            # Captura campos de nível de laje: p_sA_l1_v, p_sB_l2_v, etc.
+            if not _re.search(r'_l\d+_v$', fid):
+                continue
+            if not hasattr(w, 'text'):
+                continue
+            raw = w.text().strip()
+            if not raw:
+                continue
+            try:
+                val = float(raw.replace(',', '.').replace('+', ''))
+                if max_val is None or val > max_val:
+                    max_val = val
+            except (ValueError, TypeError):
+                pass
+
+        if max_val is None:
+            return
+        ns_w = self.fields.get('nivel_saida')
+        if ns_w and hasattr(ns_w, 'text'):
+            ns_str = f'{max_val:.2f}'.rstrip('0').rstrip('.')
+            ns_w.blockSignals(True)
+            ns_w.setText(ns_str)
+            ns_w.blockSignals(False)
+            self.item_data['nivel_saida'] = ns_str
 
     def _calc_field_links_confidence(self, field_id) -> float:
         """Confiança dos vínculos de um campo — escala de 0.0 a 1.0.

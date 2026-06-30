@@ -268,6 +268,7 @@ class PreValidationDialog(QDialog):
         canvas=None,          # CADCanvas (QGraphicsView) para recortes reais
         convention_file: str | None = None,  # path p/ JSON de convenção salva
         db_path: str | None = None,           # SQLite project_data.vision
+        dxf_data: dict | None = None,         # DXF bruto para re-detecção de geometrias
         parent=None,
     ):
         super().__init__(parent)
@@ -307,6 +308,8 @@ class PreValidationDialog(QDialog):
 
         # Cena DXF compartilhada pelos mini viewers (sem grab, sem pixelação)
         self._dxf_scene = getattr(canvas, 'scene', None) if canvas is not None else None
+        # DXF bruto (optional) — usado para re-detectar geometrias de pilares
+        self._dxf_data = dxf_data or {}
 
         # Anti-freeze: suspende repaints do canvas principal enquanto este modal
         # (maximizado, que cobre o canvas) está aberto. Sem isso, os mini-viewers
@@ -361,9 +364,20 @@ class PreValidationDialog(QDialog):
         return result
 
     def _build_slab_nivel_map(self) -> dict[str, str]:
-        """Extrai nivel (level_str) de cada laje via nivel_report."""
+        """Extrai nivel (level_str) de cada laje via nivel_report.
+
+        Lajes com warning de alucinação (após retries) recebem '⚠' em vez do
+        valor suspeito — evita que niveis errados contaminem as colunas Lado-A/B/C/D.
+        """
         lajes_nr = (self._nivel_report or {}).get('lajes', {})
-        return {name: (entry.get('level_str') or '') for name, entry in lajes_nr.items()}
+        result: dict[str, str] = {}
+        for name, entry in lajes_nr.items():
+            is_suspect = any(
+                'alucinacao' in w.lower() or 'diverge' in w.lower()
+                for w in (entry.get('warnings') or [])
+            )
+            result[name] = '⚠' if is_suspect else (entry.get('level_str') or '')
+        return result
 
     def _build_slab_poly_map(self) -> dict[str, list]:
         """Constrói mapa nome_laje → lista de pontos do polígono."""
@@ -485,9 +499,11 @@ class PreValidationDialog(QDialog):
             lines.append('Largura:')
         else:
             lines.append(f'Laje: {ln}')
-        
+
         lines.append(f'Altura: {h}' if h else 'Altura:')
-        lines.append(f'Nivel: {nivel}' if nivel else 'Nivel:')
+        # ⚠ marca nivel suspeito de alucinação (após retries falharam)
+        nivel_disp = '⚠ suspeito' if nivel == '⚠' else nivel
+        lines.append(f'Nivel: {nivel_disp}' if nivel_disp else 'Nivel:')
         return '\n'.join(lines)
 
     _VIGA_CELL_TEXT = 'Viga:\nLargura:\nAltura:\nNivel:'
@@ -1255,8 +1271,10 @@ class PreValidationDialog(QDialog):
         """
         Nível da viga = max(nivel_laje + dist_topo) considerando Lado A e Lado B.
         A laje que atingir o maior nível define o nível da viga.
+        Retorna '⚠' quando ambas as lajes têm nivel suspeito (impossível calcular).
         """
         best: float | None = None
+        has_suspect = False
         for laje_name, dist_top_str in (
             (cut.get('own_laje', ''), cut.get('own_dist_top', '—')),
             (cut.get('neigh_laje', ''), cut.get('neigh_dist_top', '—')),
@@ -1266,6 +1284,9 @@ class PreValidationDialog(QDialog):
             nivel_str = self._slab_nivel_map.get(laje_name, '')
             if not nivel_str:
                 continue
+            if nivel_str == '⚠':
+                has_suspect = True
+                continue
             try:
                 nivel = float(nivel_str)
                 dt = float(dist_top_str) if dist_top_str not in ('—', None, '') else 0.0
@@ -1274,7 +1295,9 @@ class PreValidationDialog(QDialog):
                     best = val
             except (ValueError, TypeError):
                 pass
-        return f"{best:.2f}" if best is not None else '—'
+        if best is not None:
+            return f"{best:.2f}"
+        return '⚠' if has_suspect else '—'
 
     def _build_segmento_viga_widget(self, cut: dict) -> QLabel:
         """
@@ -1378,6 +1401,9 @@ class PreValidationDialog(QDialog):
                 f"&nbsp;&nbsp;&nbsp;{_kv(pos + ':', lv)} {lsfx}",
             ])
 
+        nv_color = Semantic.DANGER if nivel_viga == '⚠' else CM
+        nv_text  = '⚠ suspeito (laje c/ nivel inválido)' if nivel_viga == '⚠' else nivel_viga
+
         sep = f"<hr style='border:none; border-top:1px solid {Border.DEFAULT}; margin:2px 0;'>"
         html = (
             "<div style='font-size:9px; line-height:1.45; padding:3px;'>"
@@ -1386,7 +1412,7 @@ class PreValidationDialog(QDialog):
             f"{_kv('Largura:', str(bw))} cm"
             f"&nbsp;&nbsp;<span style='color:{CL}'>{tipo}</span><br>"
             f"{_kv('Altura:', str(bh))} cm<br>"
-            f"{_kv('Nível viga:', nivel_viga, CM)}"
+            f"{_kv('Nível viga:', nv_text, nv_color)}"
             f"{sep}"
             f"{_side_html('A', laje_a, sh_a, dt_a, df_a, df_cp_a, scp_a, CM)}"
             f"{sep}"
@@ -1731,17 +1757,33 @@ class PreValidationDialog(QDialog):
         nr_sum = (self._nivel_report or {}).get('summary', {})
         n_conf = nr_sum.get('confirmed', 0)
         n_inf = nr_sum.get('inferred', 0)
-        n_hall = nr_sum.get('hallucination_suspects', 0)
 
-        def _chip(text: str, color: str) -> QLabel:
+        # Coleta nomes reais das lajes suspeitas (com warning de alucinação)
+        lajes_nr = (self._nivel_report or {}).get('lajes', {})
+        suspect_names = sorted(
+            name for name, entry in lajes_nr.items()
+            if any('alucinacao' in w.lower() or 'diverge' in w.lower()
+                   for w in (entry.get('warnings') or []))
+        )
+        n_hall = len(suspect_names)
+
+        def _chip(text: str, color: str, tooltip: str = '') -> QLabel:
             lb = QLabel(text)
             lb.setStyleSheet(f"color:{color}; font-size:10px; font-weight:bold; padding:2px 8px;")
+            if tooltip:
+                lb.setToolTip(tooltip)
             return lb
 
         lay.addWidget(_chip(f"{n_lajes} lajes", Semantic.SUCCESS))
         lay.addWidget(_chip(f"{n_conf} níveis confirmados / {n_inf} inferidos", Semantic.SUCCESS))
         if n_hall:
-            lay.addWidget(_chip(f"{n_hall} suspeitos de alucinação", Semantic.DANGER))
+            tip = "Lajes com nível suspeito de alucinação:\n" + "\n".join(
+                f"  • {nm}: {lajes_nr[nm].get('level_str','?')}"
+                for nm in suspect_names
+            )
+            lbl = _chip(f"⚠ {n_hall} suspeitos de nível: {', '.join(suspect_names)}", Semantic.DANGER, tip)
+            lbl.setWordWrap(True)
+            lay.addWidget(lbl)
         lay.addWidget(_chip(f"{n_pilares} pilares", Semantic.WARNING))
         lay.addWidget(_chip(f"{n_cuts} cortes de viga", Text.SECONDARY))
         lay.addStretch()
@@ -1830,8 +1872,119 @@ class PreValidationDialog(QDialog):
         lay = QVBoxLayout(w)
         lay.setContentsMargins(6, 6, 6, 6)
         lay.setSpacing(6)
+
+        # Barra de ações — só exibe se há DXF disponível para re-detecção
+        if self._dxf_data:
+            bar = QHBoxLayout()
+            bar.setContentsMargins(0, 0, 0, 0)
+            self._btn_rebuscar = QPushButton("🔍 Rebuscar Geometrias Erradas")
+            self._btn_rebuscar.setToolTip(
+                "Re-detecta polígonos de pilares para os itens classificados como\n"
+                "'GEOMETRIA ERRADA'. Pilares corrigidos voltam para INDETERMINADO."
+            )
+            self._btn_rebuscar.setStyleSheet(
+                f"QPushButton {{ color:{Semantic.WARNING}; border-color:{Semantic.WARNING}; font-size:10px; }}"
+                f"QPushButton:hover {{ background:{Semantic.WARNING_BG_DARK}; }}"
+            )
+            self._btn_rebuscar.clicked.connect(self._rebuscar_geometrias_erradas)
+            bar.addWidget(self._btn_rebuscar)
+            bar.addStretch()
+            lay.addLayout(bar)
+
         lay.addWidget(self._build_pillar_table(), 1)
         return w
+
+    def _rebuscar_geometrias_erradas(self) -> None:
+        """
+        Re-detecta polígonos de pilar para todos os pilares classificados como
+        'GEOMETRIA ERRADA'. Para cada um, busca uma geometria alternativa no DXF
+        e — se encontrada — atualiza o pillar_report e a linha da tabela.
+        """
+        from src.core.analysis_helpers import detect_pilares_from_polylines
+
+        geom_erradas = {
+            key: pillar
+            for key, pillar in self._pillar_report.items()
+            if pillar.get('classification', '').upper() in _NAO_SE_APLICA_CLASSIFS
+            and 'GEOMETRIA' in pillar.get('classification', '').upper()
+        }
+        if not geom_erradas:
+            return
+
+        polylines = self._dxf_data.get('polylines', [])
+        texts     = self._dxf_data.get('texts', [])
+        if not polylines:
+            return
+
+        # Polígonos já em uso pelos pilares OK (para tentar evitar re-usar os mesmos)
+        used_geo_keys: set = set()
+        for key, p in self._pillar_report.items():
+            if key not in geom_erradas:
+                gk = self._pillar_geo_key(p)
+                if gk:
+                    used_geo_keys.add(gk)
+
+        # Re-detecta todos os pilares do DXF
+        all_detected = detect_pilares_from_polylines(polylines, texts)
+        detected_by_name: dict[str, list] = {}
+        for p in all_detected:
+            nm = (p.get('name') or p.get('fields', {}).get('nome') or '').strip().upper()
+            if nm:
+                detected_by_name.setdefault(nm, []).append(p)
+
+        updated_count = 0
+        for key, pillar in geom_erradas.items():
+            pil_name = (pillar.get('name') or '').strip().upper()
+            candidates = detected_by_name.get(pil_name, [])
+            # Filtra candidatos com geometria diferente da atual
+            current_gk = self._pillar_geo_key(pillar)
+            alts = [c for c in candidates if self._pillar_geo_key(c) != current_gk
+                    and self._pillar_geo_key(c) not in used_geo_keys]
+            if not alts:
+                continue
+
+            best = alts[0]
+            best_gk = self._pillar_geo_key(best)
+            # Atualiza in-place: preserva nome/key, substitui geometria
+            pillar['points']      = best.get('points', pillar.get('points', []))
+            pillar['bbox']        = best.get('bbox', pillar.get('bbox'))
+            pillar['orientation'] = best.get('orientation', pillar.get('orientation'))
+            pillar['area_val']    = best.get('area_val', pillar.get('area_val'))
+            pillar['classification'] = 'INDETERMINADO'
+            pillar['physical_type']  = 'unknown'
+            if best_gk:
+                used_geo_keys.add(best_gk)
+
+            # Atualiza combobox e linha na tabela
+            combo = self._pillar_combos.get(key)
+            if combo:
+                idx = next((i for i, o in enumerate(list(PILLAR_CLASSIFICATION_OPTIONS))
+                            if o == 'INDETERMINADO'), -1)
+                # Bloqueia sinal para não disparar _on_pillar_classif_changed desnecessariamente
+                combo.blockSignals(True)
+                if idx >= 0:
+                    combo.setCurrentIndex(idx)
+                combo.blockSignals(False)
+            row = self._pillar_rows.get(key)
+            if row is not None:
+                self._paint_row(row, 'INDETERMINADO')
+                self._refresh_side_cells(row, key, 'INDETERMINADO')
+                # Atualiza viewer vetorial com nova geometria
+                pts = pillar.get('points', [])
+                if pts:
+                    self._pillar_viewer_data[row] = pts
+                    viewer = self._make_pillar_viewer(pts)
+                    if viewer:
+                        self._pillar_table.setCellWidget(row, self._PIL_COL_FOTO, viewer)
+            updated_count += 1
+
+        if updated_count:
+            self._btn_rebuscar.setText(
+                f"🔍 Rebuscar Geometrias Erradas  ✔ {updated_count} atualizado(s)"
+            )
+            self._btn_rebuscar.setStyleSheet(
+                f"QPushButton {{ color:{Semantic.SUCCESS}; border-color:{Semantic.SUCCESS}; font-size:10px; }}"
+            )
 
     def _build_convention_panel(self) -> QGroupBox:
         grp = QGroupBox("Mapeamento de Terminologia da Obra → Tipo Físico")
@@ -2144,7 +2297,10 @@ class PreValidationDialog(QDialog):
                     cell_text = self._get_side_cell(pillar, side)
                     item = _make_item(cell_text)
                     item.setToolTip(cell_text)
-                    if cell_text.startswith('Viga:'):
+                    if '⚠ suspeito' in cell_text:
+                        item.setForeground(QBrush(QColor(Semantic.DANGER)))
+                        item.setToolTip(cell_text + '\n\n⚠ Nível suspeito de alucinação — revisar vinculação de nivel no DXF.')
+                    elif cell_text.startswith('Viga:'):
                         item.setForeground(QBrush(QColor(Colors.ACCENT_WARNING_ALT)))
                     elif cell_text == 'nulo':
                         item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
@@ -2509,7 +2665,12 @@ class PreValidationDialog(QDialog):
                 rows.append(f"&nbsp;&nbsp;{_kv('Espessura no corte:', sh_cut_raw, _unit(sh_cut_raw))}")
             rows.append(f"&nbsp;&nbsp;{_kv('Dist. topo da viga:', dt, _unit(dt))}")
             rows.append(f"&nbsp;&nbsp;{_kv('Dist. fundo da viga:', df, _unit(df))}")
-            rows.append(f"&nbsp;&nbsp;{_kv('Nível da laje:', _fmt(nivel))}")
+            if nivel == '⚠':
+                rows.append(
+                    f"&nbsp;&nbsp;{_kv('Nível da laje:', '⚠ suspeito', vc=Semantic.DANGER)}"
+                )
+            else:
+                rows.append(f"&nbsp;&nbsp;{_kv('Nível da laje:', _fmt(nivel))}")
             rows.append(f"&nbsp;&nbsp;{_kv('Posição da viga:', dir_clean, vc=color)}")
             rows.append(f"&nbsp;&nbsp;{_kv('Classif. vertical:', pos_clean, vc=color)}")
 
@@ -2949,7 +3110,7 @@ class PreValidationDialog(QDialog):
         # ── Extrai cotas da Elevação Típica ───────────────────────────────────
         from src.core.niveis_extractor import (
             extract_elevacao_tipica, pav_num_from_sa_name,
-            lajes_by_nivel, derive_nome_pav,
+            lajes_by_nivel, derive_nome_pav, filter_laje_niveis,
         )
         elevacao_tipica: list = []
         if niveis_recorte:
@@ -2964,19 +3125,35 @@ class PreValidationDialog(QDialog):
         all_pav_data = self._collect_all_pav_niveis()
 
         # ── Monta lookup SA por pav_num ───────────────────────────────────────
-        sa_by_num: dict[int, tuple] = {}
-        tip_sa: 'tuple | None' = None
-        for sa_nome, laje_list, fonte in all_pav_data:
+        sa_by_num: dict[int, dict] = {}
+        tip_sa: 'dict | None' = None
+        for entry_sa in all_pav_data:
+            sa_nome = entry_sa['nome']
             num = pav_num_from_sa_name(sa_nome)
             if num is None:
                 if _re.search(r'[-_]TIP[-_]', sa_nome, _re.IGNORECASE) and tip_sa is None:
-                    tip_sa = (sa_nome, laje_list, fonte)
+                    tip_sa = entry_sa
             else:
                 if num not in sa_by_num:
-                    sa_by_num[num] = (sa_nome, laje_list, fonte)
+                    sa_by_num[num] = entry_sa
 
         # ── Monta linhas da tabela ────────────────────────────────────────────
         rows: list[dict] = []
+
+        def _make_row(num, sa_entry, nome_pav, chegada, saida, altura):
+            return {
+                'pav_num':    num,
+                'nome_doc':   sa_entry['nome']        if sa_entry else '—',
+                'nome_pav':   nome_pav,
+                'chegada':    chegada,
+                'saida':      saida,
+                'altura':     altura,
+                'laje_list':  sa_entry['laje_niveis']  if sa_entry else [],
+                'pilar_list': sa_entry['pilar_niveis'] if sa_entry else [],
+                'viga_list':  sa_entry['viga_niveis']  if sa_entry else [],
+                'fonte':      sa_entry['fonte']        if sa_entry else '—',
+                'is_current': sa_entry is not None and sa_entry['nome'] == self._pavimento,
+            }
 
         if elevacao_tipica:
             matched_nums: set[int] = set()
@@ -2987,46 +3164,18 @@ class PreValidationDialog(QDialog):
                     sa_info = tip_sa
                 if sa_info:
                     matched_nums.add(num)
-                rows.append({
-                    'pav_num':    num,
-                    'nome_doc':   sa_info[0] if sa_info else '—',
-                    'nome_pav':   entry['pav_raw'],
-                    'chegada':    entry['chegada'],
-                    'saida':      entry['saida'],
-                    'altura':     entry['altura'],
-                    'laje_list':  sa_info[1] if sa_info else [],
-                    'fonte':      sa_info[2] if sa_info else '—',
-                    'is_current': sa_info is not None and sa_info[0] == self._pavimento,
-                })
-            # SA não presentes na Elevação Típica
-            for num, (sa_nome, laje_list, fonte) in sa_by_num.items():
+                rows.append(_make_row(num, sa_info, entry['pav_raw'],
+                                      entry['chegada'], entry['saida'], entry['altura']))
+            for num, sa_entry in sa_by_num.items():
                 if num not in matched_nums:
-                    rows.append({
-                        'pav_num':    num,
-                        'nome_doc':   sa_nome,
-                        'nome_pav':   derive_nome_pav(num),
-                        'chegada':    '?',
-                        'saida':      '?',
-                        'altura':     '?',
-                        'laje_list':  laje_list,
-                        'fonte':      fonte,
-                        'is_current': sa_nome == self._pavimento,
-                    })
+                    rows.append(_make_row(num, sa_entry, derive_nome_pav(num), '?', '?', '?'))
         else:
-            # Sem Elevação Típica — apenas SA
-            for sa_nome, laje_list, fonte in all_pav_data:
-                num = pav_num_from_sa_name(sa_nome)
-                rows.append({
-                    'pav_num':    num if num is not None else 5000,
-                    'nome_doc':   sa_nome,
-                    'nome_pav':   derive_nome_pav(num),
-                    'chegada':    '?',
-                    'saida':      '?',
-                    'altura':     '?',
-                    'laje_list':  laje_list,
-                    'fonte':      fonte,
-                    'is_current': sa_nome == self._pavimento,
-                })
+            for sa_entry in all_pav_data:
+                num = pav_num_from_sa_name(sa_entry['nome'])
+                rows.append(_make_row(
+                    num if num is not None else 5000,
+                    sa_entry, derive_nome_pav(num), '?', '?', '?'
+                ))
 
         rows.sort(key=lambda r: r['pav_num'])
 
@@ -3119,20 +3268,44 @@ class PreValidationDialog(QDialog):
                 item_al.setForeground(_QColor(Colors.TEXT_DIM))
             tbl.setItem(ri, 4, item_al)
 
-            # Col 5: Lajes (agrupadas por nível)
-            laj_txt = lajes_by_nivel(row['laje_list']) if row['laje_list'] else '—'
+            # Col 5: Lajes (agrupadas por nível, com anti-alucinação)
+            if row['laje_list']:
+                validas, suspeitas = filter_laje_niveis(
+                    row['laje_list'], row['chegada'], row['saida']
+                )
+                laj_txt = lajes_by_nivel(validas) if validas else '—'
+                if suspeitas:
+                    laj_txt += f'\n⚠ {len(suspeitas)} suspeito(s) filtrado(s)'
+            else:
+                laj_txt = '—'
             item_laj = QTableWidgetItem(laj_txt)
             item_laj.setToolTip(f"[{row['fonte']}]")
             tbl.setItem(ri, 5, item_laj)
 
-            # Col 6: Pilares (futuro)
-            item_pil = QTableWidgetItem('—')
-            item_pil.setForeground(_QColor(Colors.TEXT_DIM))
+            # Col 6: Pilares (com anti-alucinação)
+            if row.get('pilar_list'):
+                vp, sp = filter_laje_niveis(row['pilar_list'], row['chegada'], row['saida'])
+                pil_txt = lajes_by_nivel(vp) if vp else '—'
+                if sp:
+                    pil_txt += f'\n⚠ {len(sp)} suspeito(s) filtrado(s)'
+            else:
+                pil_txt = '—'
+            item_pil = QTableWidgetItem(pil_txt)
+            if pil_txt == '—':
+                item_pil.setForeground(_QColor(Colors.TEXT_DIM))
             tbl.setItem(ri, 6, item_pil)
 
-            # Col 7: Vigas (futuro)
-            item_vig = QTableWidgetItem('—')
-            item_vig.setForeground(_QColor(Colors.TEXT_DIM))
+            # Col 7: Vigas (com anti-alucinação)
+            if row.get('viga_list'):
+                vv, sv = filter_laje_niveis(row['viga_list'], row['chegada'], row['saida'])
+                vig_txt = lajes_by_nivel(vv) if vv else '—'
+                if sv:
+                    vig_txt += f'\n⚠ {len(sv)} suspeito(s) filtrado(s)'
+            else:
+                vig_txt = '—'
+            item_vig = QTableWidgetItem(vig_txt)
+            if vig_txt == '—':
+                item_vig.setForeground(_QColor(Colors.TEXT_DIM))
             tbl.setItem(ri, 7, item_vig)
 
         tbl.resizeRowsToContents()
@@ -3140,8 +3313,7 @@ class PreValidationDialog(QDialog):
 
         n_com_cota = sum(1 for r in rows if r['chegada'] != '?')
         footer = QLabel(
-            f"{len(rows)} pavimento(s)  |  {n_com_cota} com cotas da Elevação Típica  |  "
-            "Pilares/Vigas disponíveis em versão futura"
+            f"{len(rows)} pavimento(s)  |  {n_com_cota} com cotas da Elevação Típica"
         )
         footer.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:9px;")
         lay.addWidget(footer)
@@ -3171,37 +3343,51 @@ class PreValidationDialog(QDialog):
             pass
         return None
 
-    def _collect_all_pav_niveis(self) -> 'list[tuple[str, list, str]]':
+    def _collect_all_pav_niveis(self) -> 'list[dict]':
         """
         Coleta dados de níveis de todos os pavimentos.
 
-        Retorna lista de (pav_nome, laje_list, fonte_str) onde:
-          - pav_nome: nome do pavimento
-          - laje_list: lista de {name, nivel_str}
-          - fonte_str: origem dos dados ('SA atual' | 'estado JSON' | 'sem dados')
+        Retorna lista de dicts:
+          nome        : str  — nome SA do pavimento
+          laje_niveis : list[{name, nivel_str}]
+          pilar_niveis: list[{name, nivel_str}]  (vazio se não disponível)
+          viga_niveis : list[{name, nivel_str}]  (vazio se não disponível)
+          fonte       : str  — 'SA atual' | 'estado JSON'
 
         Prioridade:
-        1. Pavimento atual → usa self._slabs (SA recém-rodado, mais fresco)
-        2. Outros pavimentos → lê pre_processamento_estado.json (batch SA anterior)
+        1. Pavimento atual → self._slabs (SA) + self._nivel_report (pilares)
+        2. Outros pavimentos → pre_processamento_estado.json
         """
         result: list = []
         seen_pavs: set = set()
 
-        # 1. Pavimento atual (SA recém-rodado)
-        current_laje_list: list = []
+        # 1. Pavimento atual — lajes do SA
+        current_laje: list = []
         for slab in self._slabs:
             name = slab.get('name') or ''
             fields = slab.get('fields') or {}
             nivel_str = (
-                fields.get('laje_nivel') or
-                slab.get('nivel') or
-                slab.get('level') or ''
+                fields.get('laje_nivel') or slab.get('nivel') or slab.get('level') or ''
             )
             if name:
-                current_laje_list.append({'name': name, 'nivel_str': str(nivel_str).strip()})
+                current_laje.append({'name': name, 'nivel_str': str(nivel_str).strip()})
+
+        # 1b. Pilares do pav atual via nivel_report
+        current_pilar: list = []
+        for key, pdata in (self._nivel_report.get('pilares') or {}).items():
+            pname = pdata.get('name') or key
+            lv = pdata.get('level_str') or ''
+            if pname and lv:
+                current_pilar.append({'name': pname, 'nivel_str': lv})
 
         if self._pavimento:
-            result.append((self._pavimento, current_laje_list, 'SA atual'))
+            result.append({
+                'nome':         self._pavimento,
+                'laje_niveis':  current_laje,
+                'pilar_niveis': current_pilar,
+                'viga_niveis':  [],
+                'fonte':        'SA atual',
+            })
             seen_pavs.add(self._pavimento)
 
         # 2. Outros pavimentos → pre_processamento_estado.json
@@ -3218,21 +3404,26 @@ class PreValidationDialog(QDialog):
                     if not pav_nome or pav_nome in seen_pavs:
                         continue
                     laje_niveis = pav.get('laje_niveis', [])
-                    # Fallback se laje_niveis não estiver (estado antigo sem o campo)
                     if not laje_niveis:
                         nc = pav.get('nivel_chegada', 0)
                         ns = pav.get('nivel_saida', 0)
                         laje_niveis = [{'name': '(chegada)', 'nivel_str': str(nc)}]
                         if ns != nc:
                             laje_niveis.append({'name': '(saída)', 'nivel_str': str(ns)})
-                    result.append((pav_nome, laje_niveis, 'estado JSON'))
+                    result.append({
+                        'nome':         pav_nome,
+                        'laje_niveis':  laje_niveis,
+                        'pilar_niveis': pav.get('pilar_niveis', []),
+                        'viga_niveis':  pav.get('viga_niveis', []),
+                        'fonte':        'estado JSON',
+                    })
                     seen_pavs.add(pav_nome)
         except Exception:
             pass
 
-        # Ordena: pavimento atual primeiro, demais por nome
-        current_row = [(n, l, f) for n, l, f in result if n == self._pavimento]
-        others = sorted([(n, l, f) for n, l, f in result if n != self._pavimento], key=lambda x: x[0])
+        current_row = [r for r in result if r['nome'] == self._pavimento]
+        others      = sorted([r for r in result if r['nome'] != self._pavimento],
+                             key=lambda x: x['nome'])
         return current_row + others
 
     def _on_niveis_gabarito_loaded(self, doc) -> None:

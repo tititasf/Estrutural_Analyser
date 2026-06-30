@@ -174,6 +174,7 @@ class PreProcessAllWorker(QThread):
                 process_slab_intelligent,
                 correlate_sides_data,
                 run_sanity_checks,
+                retry_hallucinated_niveis,
             )
         except Exception as exc:
             self.error.emit(f"Erro ao importar motores Fase-3: {exc}")
@@ -376,9 +377,32 @@ class PreProcessAllWorker(QThread):
                 project_id = _get_or_create_project_id(self.obra_name, pav_name)
                 _save_batch(project_id, pav_pilares, pav_vigas, pav_lajes)
 
+            # ── Retry anti-alucinação de niveis ──────────────────────────────
+            # Detecta outliers e tenta revinculá-los a candidatos alternativos
+            # (até 2 tentativas) antes de reportar como suspeito.
+            try:
+                retry_hallucinated_niveis(pav_lajes)
+                # Reconstrói pav_laje_niveis com os valores corrigidos
+                pav_laje_niveis = []
+                pav_niveis = []
+                for s in pav_lajes:
+                    lv = (s.get('fields', {}).get('laje_nivel')
+                          or s.get('level') or s.get('nivel'))
+                    laje_name = s.get('name') or ''
+                    if lv:
+                        lv_str = str(lv).strip()
+                        pav_laje_niveis.append({'name': laje_name, 'nivel_str': lv_str})
+                        try:
+                            pav_niveis.append(
+                                float(lv_str.replace(',', '.').replace('+', '')))
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+
             # ── Pavimento aggregate ───────────────────────────────────────────
             niveis_s = sorted(set(pav_niveis))
-            # Deduplica laje_niveis mantendo a primeira ocorrência por nome
+            # Deduplica laje_niveis
             seen_lj: set = set()
             laje_niveis_dedup: list = []
             for entry in pav_laje_niveis:
@@ -386,6 +410,21 @@ class PreProcessAllWorker(QThread):
                 if k and k not in seen_lj:
                     seen_lj.add(k)
                     laje_niveis_dedup.append(entry)
+
+            # Coleta viga_niveis: nivel_lado_a / nivel_lado_b por viga (se não-zero)
+            seen_vg: set = set()
+            viga_niveis_dedup: list = []
+            for viga in pav_vigas:
+                vname = viga.get('name') or ''
+                if not vname or vname in seen_vg:
+                    continue
+                for field_key in ('nivel_lado_a', 'nivel_lado_b', 'nivel_oposto_a', 'nivel_oposto_b'):
+                    val = viga.get('fields', {}).get(field_key)
+                    if val and val != 0:
+                        viga_niveis_dedup.append({'name': vname, 'nivel_str': str(val)})
+                        seen_vg.add(vname)
+                        break
+
             ficha_pavs.append({
                 'nome':                pav_name,
                 'n_pilares':           len(pav_pilares),
@@ -395,6 +434,8 @@ class PreProcessAllWorker(QThread):
                 'nivel_saida':         niveis_s[-1] if len(niveis_s) > 1 else (niveis_s[0] if niveis_s else 0),
                 'lajes_nivel_distinto': len(niveis_s) > 1,
                 'laje_niveis':         laje_niveis_dedup,
+                'pilar_niveis':        [],   # SA não extrai nivel por pilar; preenchido via nivel_report no dialog
+                'viga_niveis':         viga_niveis_dedup,
                 'status':              pav_status,
                 'torres_count':        len(pav_list),
                 'analysis_mode':        self.analysis_mode,
@@ -720,13 +761,13 @@ class DiagnosticHubModule(QWidget):
         self._combo_obra = QComboBox()
         self._combo_obra.setStyleSheet(f"""
             QComboBox {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px 8px; font-size: 11px;
             }}
             QComboBox::drop-down {{ border: none; }}
             QComboBox QAbstractItemView {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 selection-background-color: {Colors.ACCENT_TEAL};
             }}
         """)
@@ -750,7 +791,7 @@ class DiagnosticHubModule(QWidget):
         self._list_brutos = QListWidget()
         self._list_brutos.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 font-size: 11px;
             }}
@@ -769,12 +810,12 @@ class DiagnosticHubModule(QWidget):
         # Abrir DXF button
         btn_abrir_dxf = QPushButton("📂 Abrir")
         btn_abrir_dxf.setStyleSheet(f"""
-            QPushButton {{
-                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+            QPushButton {{ color: white;
+                background: {Colors.BG_CARD}; color: #FFFFFF;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
-            QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
+            QPushButton:hover {{ color: white; }}
         """)
         btn_abrir_dxf.clicked.connect(self._abrir_dxf_bruto)
         btn_layout.addWidget(btn_abrir_dxf)
@@ -782,12 +823,12 @@ class DiagnosticHubModule(QWidget):
         # Refresh button
         btn_refresh = QPushButton("↻ Atualizar")
         btn_refresh.setStyleSheet(f"""
-            QPushButton {{
-                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+            QPushButton {{ color: white;
+                background: {Colors.BG_CARD}; color: #FFFFFF;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
-            QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
+            QPushButton:hover {{ color: white; }}
         """)
         btn_refresh.clicked.connect(self._populate_obras_combo)
         btn_layout.addWidget(btn_refresh)
@@ -811,7 +852,7 @@ class DiagnosticHubModule(QWidget):
         self._canvas_tabs = QTabWidget()
         self._canvas_tabs.setStyleSheet(f"""
             QTabWidget::pane {{
-                border: none; background: {Colors.BG_DEEP};
+                border: none; background: {Colors.BG_CARD};
             }}
             QTabBar::tab {{
                 background: {Colors.BG_SECONDARY}; color: {Colors.TEXT_SECONDARY};
@@ -820,10 +861,10 @@ class DiagnosticHubModule(QWidget):
                 font-size: 11px; font-weight: bold;
             }}
             QTabBar::tab:selected {{
-                background: {Colors.BG_DEEP}; color: {Colors.ACCENT_TEAL};
+                background: {Colors.BG_CARD}; color: {Colors.ACCENT_TEAL};
                 border-color: {Colors.ACCENT_TEAL};
             }}
-            QTabBar::tab:hover {{ color: {Colors.TEXT_PRIMARY}; }}
+            QTabBar::tab:hover {{ color: white; }}
         """)
         self._canvas_tabs.currentChanged.connect(self._on_canvas_tab_changed)
 
@@ -887,12 +928,12 @@ class DiagnosticHubModule(QWidget):
             btn = QPushButton(f"Modo {i}")
             btn.setFixedWidth(70)
             btn.setStyleSheet(f"""
-                QPushButton {{
-                    background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                QPushButton {{ color: white;
+                    background: {Colors.BG_CARD}; color: #FFFFFF;
                     border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
                     font-size: 10px; padding: 2px 6px;
                 }}
-                QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
+                QPushButton:hover {{ color: white; }}
             """)
             btn.clicked.connect(lambda checked, idx=i: self._on_style_changed(idx))
             tb_layout.addWidget(btn)
@@ -962,8 +1003,8 @@ class DiagnosticHubModule(QWidget):
             "a área desejada antes de clicar."
         )
         self._btn_manual_crop.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(180, 120, 0, 160); color: {Colors.ACCENT_WARNING};
+            QPushButton {{ color: white;
+                background: rgba(180, 120, 0, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -981,8 +1022,8 @@ class DiagnosticHubModule(QWidget):
             "Selecione a área desejada no viewer com o mouse e clique aqui."
         )
         self._btn_selection_crop.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(120, 60, 180, 160); color: {Contextual.PURPLE};
+            QPushButton {{ color: white;
+                background: rgba(120, 60, 180, 160); color: #FFFFFF;
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -996,8 +1037,8 @@ class DiagnosticHubModule(QWidget):
         # Botão processar automático
         self._btn_process_crops = QPushButton("⚙ Processar Auto")
         self._btn_process_crops.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+            QPushButton {{ color: white;
+                background: rgba(0, 180, 180, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -1011,8 +1052,8 @@ class DiagnosticHubModule(QWidget):
         # Botão processar ALL
         self._btn_process_all_crops = QPushButton("⚡ Processar Todos Pav. Auto")
         self._btn_process_all_crops.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 180, 180, 160); color: {Colors.ACCENT_TEAL};
+            QPushButton {{ color: white;
+                background: rgba(0, 180, 180, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
@@ -1057,7 +1098,7 @@ class DiagnosticHubModule(QWidget):
         self._list_recortes = QListWidget()
         self._list_recortes.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_DEEP}; color: white;
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 font-size: 10px;
             }}
@@ -1076,8 +1117,8 @@ class DiagnosticHubModule(QWidget):
             "Use para persistir edições feitas no viewer antes de aprovar."
         )
         self._btn_save_crop.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(80, 80, 220, 160); color: {Accent.INTERACTIVE_HOVER};
+            QPushButton {{ color: white;
+                background: rgba(80, 80, 220, 160); color: #FFFFFF;
                 border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
@@ -1117,9 +1158,9 @@ class DiagnosticHubModule(QWidget):
             btn.setEnabled(False)
             btn.setFixedHeight(24)
             btn.setStyleSheet(f"""
-                QPushButton {{
-                    background: transparent;
-                    color: {cls_color};
+                QPushButton {{ color: white;
+                    background: {cls_color};
+                    color: #FFFFFF;
                     border: 1px solid {cls_color};
                     border-radius: 12px;
                     font-size: 9px; font-weight: bold;
@@ -1129,7 +1170,7 @@ class DiagnosticHubModule(QWidget):
                     background: {cls_color};
                     color: {Surface.DEEP};
                 }}
-                QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 18); }}
+                QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 30); }}
                 QPushButton:disabled {{
                     color: {Colors.TEXT_DIM};
                     border-color: {Colors.TEXT_DIM};
@@ -1156,8 +1197,8 @@ class DiagnosticHubModule(QWidget):
 
         self._btn_approve_crop = QPushButton("✓ Aprovar")
         self._btn_approve_crop.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(0, 200, 120, 160); color: {Colors.ACCENT_SUCCESS_ALT};
+            QPushButton {{ color: white;
+                background: rgba(0, 200, 120, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
@@ -1174,8 +1215,8 @@ class DiagnosticHubModule(QWidget):
             "recorte manual com '✂ Recortar', edite, salve e aprove."
         )
         self._btn_delete_crop.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(255, 80, 80, 160); color: {Colors.ACCENT_DANGER};
+            QPushButton {{ color: white;
+                background: rgba(255, 80, 80, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
@@ -1202,8 +1243,8 @@ class DiagnosticHubModule(QWidget):
             "Preenche a pré-ficha de pavimento de forma complementar."
         )
         self._btn_process_limpo.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(180, 80, 200, 160); color: {Colors.ACCENT_PURPLE};
+            QPushButton {{ color: white;
+                background: rgba(180, 80, 200, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 8px;
             }}
@@ -1231,8 +1272,8 @@ class DiagnosticHubModule(QWidget):
             "e produz a visão coesa da Ficha Global da Obra (F3)."
         )
         self._btn_process_f3.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(180, 80, 200, 160); color: {Contextual.PURPLE};
+            QPushButton {{ color: white;
+                background: rgba(180, 80, 200, 160); color: #FFFFFF;
                 border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 padding: 4px; font-weight: bold; font-size: 11px;
             }}
@@ -1245,8 +1286,8 @@ class DiagnosticHubModule(QWidget):
         # Botão cancelar (oculto até processamento iniciar)
         self._btn_cancel_preprocess = QPushButton("⏹ Cancelar")
         self._btn_cancel_preprocess.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(220, 50, 50, 160); color: {Colors.ACCENT_DANGER};
+            QPushButton {{ color: white;
+                background: rgba(220, 50, 50, 160); color: #FFFFFF;
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; padding: 3px 8px;
             }}
@@ -2728,7 +2769,7 @@ class DiagnosticHubModule(QWidget):
             # Limpa ficha tab
             self._ficha_status_lbl.setText("⏳  Execute '⚡ Interpretar Obra Toda' para gerar a ficha.")
             self._ficha_status_lbl.setStyleSheet(
-                f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
+                f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: {Colors.BG_CARD};"
             )
             return
         try:
@@ -3407,7 +3448,7 @@ class DiagnosticHubModule(QWidget):
         tbl.setWordWrap(True)
         tbl.setStyleSheet(f"""
             QTableWidget {{
-                background: {Colors.BG_SECONDARY}; color: {Colors.TEXT_PRIMARY};
+                background: {Colors.BG_SECONDARY}; color: white;
                 gridline-color: {Colors.BORDER_DEFAULT}; border: none; font-size: 10px;
             }}
             QTableWidget::item:alternate {{ background: {Colors.BG_PANEL}; }}
@@ -3473,7 +3514,7 @@ class DiagnosticHubModule(QWidget):
         # ── Importa helpers ───────────────────────────────────────────────────
         from src.core.niveis_extractor import (
             extract_elevacao_tipica, pav_num_from_sa_name,
-            lajes_by_nivel, derive_nome_pav,
+            lajes_by_nivel, derive_nome_pav, filter_laje_niveis,
         )
 
         # ── Extrai Elevação Típica ────────────────────────────────────────────
@@ -3491,19 +3532,31 @@ class DiagnosticHubModule(QWidget):
         sa_by_num: dict[int, tuple] = {}
         tip_sa: 'tuple | None' = None
         for pav in pavs:
-            sa_nome     = pav.get('nome', '')
-            laje_niveis = pav.get('laje_niveis', [])
+            sa_nome = pav.get('nome', '')
             if not sa_nome:
                 continue
             num = pav_num_from_sa_name(sa_nome)
             if num is None:
                 if _re.search(r'[-_]TIP[-_]', sa_nome, _re.IGNORECASE) and tip_sa is None:
-                    tip_sa = (sa_nome, laje_niveis)
+                    tip_sa = pav
             else:
                 if num not in sa_by_num:
-                    sa_by_num[num] = (sa_nome, laje_niveis)
+                    sa_by_num[num] = pav
 
         # ── Monta linhas ──────────────────────────────────────────────────────
+        def _pav_row(num, pav_entry, nome_pav, chegada, saida, altura):
+            return {
+                'pav_num':    num,
+                'nome_doc':   pav_entry.get('nome', '—') if pav_entry else '—',
+                'nome_pav':   nome_pav,
+                'chegada':    chegada,
+                'saida':      saida,
+                'altura':     altura,
+                'laje_list':  (pav_entry or {}).get('laje_niveis', []),
+                'pilar_list': (pav_entry or {}).get('pilar_niveis', []),
+                'viga_list':  (pav_entry or {}).get('viga_niveis', []),
+            }
+
         rows: list[dict] = []
 
         if elevacao_tipica:
@@ -3515,39 +3568,19 @@ class DiagnosticHubModule(QWidget):
                     sa_info = tip_sa
                 if sa_info:
                     matched.add(num)
-                rows.append({
-                    'pav_num':  num,
-                    'nome_doc': sa_info[0] if sa_info else '—',
-                    'nome_pav': entry['pav_raw'],
-                    'chegada':  entry['chegada'],
-                    'saida':    entry['saida'],
-                    'altura':   entry['altura'],
-                    'laje_list': sa_info[1] if sa_info else [],
-                })
-            for num, (sa_nome, laje_niveis) in sa_by_num.items():
+                rows.append(_pav_row(num, sa_info, entry['pav_raw'],
+                                     entry['chegada'], entry['saida'], entry['altura']))
+            for num, pav_entry in sa_by_num.items():
                 if num not in matched:
-                    rows.append({
-                        'pav_num':  num,
-                        'nome_doc': sa_nome,
-                        'nome_pav': derive_nome_pav(num),
-                        'chegada':  '?',
-                        'saida':    '?',
-                        'altura':   '?',
-                        'laje_list': laje_niveis,
-                    })
+                    rows.append(_pav_row(num, pav_entry, derive_nome_pav(num), '?', '?', '?'))
         else:
             for pav in pavs:
                 sa_nome = pav.get('nome', '—')
                 num = pav_num_from_sa_name(sa_nome)
-                rows.append({
-                    'pav_num':  num if num is not None else 5000,
-                    'nome_doc': sa_nome,
-                    'nome_pav': derive_nome_pav(num),
-                    'chegada':  '?',
-                    'saida':    '?',
-                    'altura':   '?',
-                    'laje_list': pav.get('laje_niveis', []),
-                })
+                rows.append(_pav_row(
+                    num if num is not None else 5000,
+                    pav, derive_nome_pav(num), '?', '?', '?'
+                ))
 
         rows.sort(key=lambda r: r['pav_num'])
 
@@ -3589,19 +3622,35 @@ class DiagnosticHubModule(QWidget):
             )
             tbl.setItem(ri, 4, item_al)
 
-            # Col 5: Lajes agrupadas por nível
-            laj_txt = lajes_by_nivel(row['laje_list']) if row['laje_list'] else '—'
-            item_laj = QTableWidgetItem(laj_txt)
+            def _filtered_col(item_list, chegada, saida):
+                if not item_list:
+                    return '—'
+                vl, sp = filter_laje_niveis(item_list, chegada, saida)
+                txt = lajes_by_nivel(vl) if vl else '—'
+                if sp:
+                    txt += f'\n⚠ {len(sp)} suspeito(s) filtrado(s)'
+                return txt
+
+            # Col 5: Lajes
+            item_laj = QTableWidgetItem(
+                _filtered_col(row['laje_list'], row['chegada'], row['saida'])
+            )
             tbl.setItem(ri, 5, item_laj)
 
-            # Col 6: Pilares (futuro)
-            item_pil = QTableWidgetItem('—')
-            item_pil.setForeground(_QColor(Colors.TEXT_DIM))
+            # Col 6: Pilares
+            item_pil = QTableWidgetItem(
+                _filtered_col(row.get('pilar_list', []), row['chegada'], row['saida'])
+            )
+            if not row.get('pilar_list'):
+                item_pil.setForeground(_QColor(Colors.TEXT_DIM))
             tbl.setItem(ri, 6, item_pil)
 
-            # Col 7: Vigas (futuro)
-            item_vig = QTableWidgetItem('—')
-            item_vig.setForeground(_QColor(Colors.TEXT_DIM))
+            # Col 7: Vigas
+            item_vig = QTableWidgetItem(
+                _filtered_col(row.get('viga_list', []), row['chegada'], row['saida'])
+            )
+            if not row.get('viga_list'):
+                item_vig.setForeground(_QColor(Colors.TEXT_DIM))
             tbl.setItem(ri, 7, item_vig)
 
         tbl.resizeRowsToContents()
@@ -3680,9 +3729,9 @@ class DiagnosticHubModule(QWidget):
                 background: {Colors.BG_SECONDARY};
                 border-top: 1px solid {Colors.ACCENT_BLUE};
             }}
-            QLabel {{ color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_MD}; }}
-            QPushButton {{
-                background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
+            QLabel {{ color: white; font-size: {Fonts.SIZE_MD}; }}
+            QPushButton {{ color: white;
+                background: {Colors.ACCENT_BLUE}; color: #FFFFFF;
                 border-radius: {Radius.MD}; padding: 4px 14px;
                 font-weight: bold; font-size: {Fonts.SIZE_MD};
             }}
@@ -3800,7 +3849,7 @@ class DiagnosticHubModule(QWidget):
 
         self._btn_gerar_dxf = QPushButton("Gerar DXF STOG (Obra)")
         self._btn_gerar_dxf.setStyleSheet(
-            f"QPushButton {{ background: {Surface.RAISED}; color: {Accent.PRIMARY}; border: 1px solid {Accent.PRIMARY}; "
+            f"QPushButton {{ color: white; background: {Surface.RAISED}; color: #FFFFFF; border: 1px solid {Accent.PRIMARY}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: {Surface.BASE}; }} "
             f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
@@ -3815,7 +3864,7 @@ class DiagnosticHubModule(QWidget):
         # CAD-12: Entregar Obra
         self._btn_entregar = QPushButton("Entregar Obra")
         self._btn_entregar.setStyleSheet(
-            f"QPushButton {{ background: {Contextual.FOREST}; color: {Semantic.SUCCESS}; border: 1px solid {Semantic.SUCCESS}; "
+            f"QPushButton {{ color: white; background: {Contextual.FOREST}; color: #FFFFFF; border: 1px solid {Semantic.SUCCESS}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: rgba(30, 106, 30, 1); }} "
             f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
@@ -3827,7 +3876,7 @@ class DiagnosticHubModule(QWidget):
         # CAD-13: Exportar Dados Treino
         self._btn_ml_export = QPushButton("Exportar Dados Treino")
         self._btn_ml_export.setStyleSheet(
-            f"QPushButton {{ background: rgba(160, 112, 255, 0.18); color: {Contextual.PURPLE}; border: 1px solid {Contextual.PURPLE}; "
+            f"QPushButton {{ color: white; background: rgba(160, 112, 255, 0.18); color: #FFFFFF; border: 1px solid {Contextual.PURPLE}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: rgba(160, 112, 255, 0.28); }} "
             f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
@@ -3839,7 +3888,7 @@ class DiagnosticHubModule(QWidget):
         # CAD-14: Importar Todos Pavimentos
         self._btn_multi_pav = QPushButton("Importar Pavimentos")
         self._btn_multi_pav.setStyleSheet(
-            f"QPushButton {{ background: {Semantic.WARNING_BG_DARK}; color: {Semantic.WARNING}; border: 1px solid {Semantic.WARNING}; "
+            f"QPushButton {{ color: white; background: {Semantic.WARNING_BG_DARK}; color: #FFFFFF; border: 1px solid {Semantic.WARNING}; "
             f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
             f"QPushButton:hover {{ background: rgba(90, 58, 26, 1); }} "
             f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"

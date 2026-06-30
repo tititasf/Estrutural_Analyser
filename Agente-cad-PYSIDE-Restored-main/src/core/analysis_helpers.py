@@ -386,16 +386,18 @@ def process_slab_intelligent(
                 found_thick = True
                 continue
 
-            # Nível
+            # Nível — coleta TODOS os candidatos para possível retry anti-alucinação
             is_lvl_cand = (
                 (learned_lvl_lvls and t_layer in learned_lvl_lvls) or
                 (not learned_lvl_lvls)
             )
-            if not found_level and is_lvl_cand:
+            if is_lvl_cand:
                 if ('+' in txt_val or '-' in txt_val or '.' in txt_val) and re_level.search(txt_val):
-                    s['links']['laje_nivel']['label'].append(t)
-                    s['fields']['laje_nivel'] = txt_val
-                    found_level = True
+                    s.setdefault('_nivel_candidates', []).append((txt_val, t))
+                    if not found_level:
+                        s['links']['laje_nivel']['label'].append(t)
+                        s['fields']['laje_nivel'] = txt_val
+                        found_level = True
 
     # 3. Contorno (geometria já encontrada pelo SlabTracer)
     if s.get('points'):
@@ -495,6 +497,87 @@ def correlate_sides_data(pilares: List[Dict], vigas: List[Dict], search_radius: 
                 side_data['v_esq_n'] = best_v.get('name', '')
                 side_data['v_esq_d'] = v_dim
                 side_data['v_esq_v'] = v_level_str
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Retry anti-alucinação de niveis de laje
+# ──────────────────────────────────────────────────────────────────────────────
+
+def retry_hallucinated_niveis(
+    slabs: 'List[Dict]',
+    outlier_threshold: float = 4.0,
+    max_retries: int = 2,
+) -> 'tuple[list[str], list[str]]':
+    """
+    Detecta lajes com nivel alucinado e tenta revinculá-las ao próximo candidato.
+
+    Computa a mediana dos niveis de todas as lajes do pavimento.  Para cada
+    outlier (|val − mediana| > outlier_threshold), tenta os candidatos alternativos
+    armazenados em ``slab['_nivel_candidates']`` (índices 1 e 2, já ordenados por
+    distância ao centroide da laje).
+
+    Se um candidato alternativo for válido (dentro do limiar), atualiza:
+      - ``slab['fields']['laje_nivel']``
+      - ``slab['links']['laje_nivel']['label']``
+      - ``slab['_nivel_retry_info']`` (log da substituição)
+
+    Retorna (nomes_recuperados, nomes_ainda_suspeitos).
+    """
+    import statistics as _st
+
+    def _parse(txt: Any) -> 'float | None':
+        if txt is None:
+            return None
+        try:
+            return float(str(txt).strip().replace(',', '.').replace('+', ''))
+        except Exception:
+            return None
+
+    slab_vals: list[tuple[dict, float]] = []
+    for s in slabs:
+        v = _parse(s.get('fields', {}).get('laje_nivel') or s.get('laje_nivel'))
+        if v is not None:
+            slab_vals.append((s, v))
+
+    if len(slab_vals) < 2:
+        return [], []
+
+    median_lv = _st.median(v for _, v in slab_vals)
+
+    recovered: list[str] = []
+    suspect:   list[str] = []
+
+    for s, init_val in slab_vals:
+        if abs(init_val - median_lv) <= outlier_threshold:
+            continue
+
+        name = s.get('name') or str(s.get('id') or id(s))
+        candidates = s.get('_nivel_candidates', [])
+        fixed = False
+
+        # Varre TODOS os candidatos (não limitado a max_retries sequenciais) para
+        # garantir que valores corretos mais distantes do centroide sejam encontrados.
+        for attempt, (alt_txt, alt_t) in enumerate(candidates[1:], start=1):
+            alt_val = _parse(alt_txt)
+            if alt_val is None:
+                continue
+            if abs(alt_val - median_lv) <= outlier_threshold:
+                s['fields']['laje_nivel'] = alt_txt
+                links = s.setdefault('links', {}).setdefault('laje_nivel', {'label': [], 'cut_view_geom': [], 'cut_view_text': []})
+                links['label'] = [alt_t]
+                s.setdefault('_nivel_retry_info', {}).update({
+                    'original': str(init_val),
+                    'corrected': alt_txt,
+                    'attempt': attempt,
+                })
+                fixed = True
+                recovered.append(name)
+                break
+
+        if not fixed:
+            suspect.append(name)
+
+    return recovered, suspect
 
 
 # ──────────────────────────────────────────────────────────────────────────────

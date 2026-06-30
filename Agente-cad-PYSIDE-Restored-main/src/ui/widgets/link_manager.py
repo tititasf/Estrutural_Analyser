@@ -29,7 +29,6 @@ class LinkManager(QWidget):
     SLOT_CONFIG = {
         '_l1_n': [
             {'id': 'label', 'name': 'Identificador Laje', 'type': 'text', 'prompt': 'Busque textos "L" + numeral próximo ao pilar.', 'help': 'Texto "Lxx". Define qual painel de laje descarrega aqui.'},
-            {'id': 'void_x', 'name': 'Vazio (X)', 'type': 'poly', 'prompt': 'Desenhe as linhas do "X" que indica vazio. [Enter] para finalizar.', 'help': 'Marca este setor como "SEM LAJE" (Vazios/Shafts).'}
         ],
         '_l1_h': [
             {'id': 'thick', 'name': 'Texto de Espessura', 'type': 'text', 'prompt': 'Busque padrões "H=" ou "d=" próximo à laje. regex: ([Hd]=?\\d+)', 'help': 'Texto "H=12" ou "d=12". Define a altura da laje.'}

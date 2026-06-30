@@ -23,7 +23,7 @@ _TER_RE        = re.compile(r'^TER\.?$|^T[EÉ]RREO$', re.IGNORECASE)
 _COTA_RE       = re.compile(r'^(\d{3,}[.,]\d{1,2})$')
 _PAV_NUM_IN_SA = re.compile(r'[-_](\d+)[Pp][Vv]?[-_]')
 
-MAX_FLOOR_HEIGHT = 10.0  # unidade do projeto (ex: metros) — anti-alucinação
+MAX_FLOOR_HEIGHT = 4.0   # unidade do projeto (ex: metros) — anti-alucinação
 
 
 # ── helpers públicos ───────────────────────────────────────────────────────────
@@ -68,6 +68,72 @@ def lajes_by_nivel(laje_list: 'list[dict]') -> str:
         prefix = f'{nivel}:' if nivel else '(sem nível):'
         parts.append(f'{prefix}  {", ".join(sorted(by_nivel[nivel]))}')
     return '\n'.join(parts)
+
+
+def filter_laje_niveis(
+    laje_list: 'list[dict]',
+    chegada:   str   = '?',
+    saida:     str   = '?',
+    conv_tol:  float = 2.0,
+    maj_tol:   float = 5.0,
+) -> 'tuple[list[dict], list[dict]]':
+    """
+    Separa lajes em válidas e suspeitas (anti-alucinação de nivel_str).
+
+    Estratégia 1 — Convenção de Níveis (preferida):
+      Aceita lajes cujo nivel_str ∈ [chegada − conv_tol, saida + conv_tol].
+
+    Estratégia 2 — Maioria (fallback sem convencao_niveis):
+      Encontra o cluster mais populoso (|vi − vj| ≤ maj_tol) e aceita apenas
+      esse cluster; lajes isoladas são suspeitas.
+
+    Retorna (validas, suspeitas).
+    Lajes sem nivel_str numérico são sempre mantidas em válidas.
+    """
+    if not laje_list:
+        return [], []
+
+    parsed:      list[tuple[int, float]] = []
+    unparseable: list[int]               = []
+
+    for idx, e in enumerate(laje_list):
+        raw = (e.get('nivel_str') or '').strip().replace(',', '.')
+        try:
+            parsed.append((idx, float(raw)))
+        except Exception:
+            unparseable.append(idx)
+
+    if not parsed:
+        return laje_list, []
+
+    # ── Estratégia 1: convencao_niveis ────────────────────────────────────────
+    if chegada != '?' and saida != '?':
+        try:
+            c_v = float(chegada.replace(',', '.'))
+            s_v = float(saida.replace(',', '.'))
+            lo  = min(c_v, s_v) - conv_tol
+            hi  = max(c_v, s_v) + conv_tol
+            valid_idx   = {i for i, v in parsed if lo <= v <= hi} | set(unparseable)
+            valid   = [e for i, e in enumerate(laje_list) if i in valid_idx]
+            suspect = [e for i, e in enumerate(laje_list) if i not in valid_idx]
+            return valid, suspect
+        except Exception:
+            pass
+
+    # ── Estratégia 2: maioria ─────────────────────────────────────────────────
+    if len(parsed) < 2:
+        return laje_list, []
+
+    best_cluster_idxs: set[int] = set()
+    for i, (idx_i, v_i) in enumerate(parsed):
+        cluster = {idx_j for idx_j, v_j in parsed if abs(v_j - v_i) <= maj_tol}
+        if len(cluster) > len(best_cluster_idxs):
+            best_cluster_idxs = cluster
+
+    best_cluster_idxs |= set(unparseable)
+    valid   = [e for i, e in enumerate(laje_list) if i in best_cluster_idxs]
+    suspect = [e for i, e in enumerate(laje_list) if i not in best_cluster_idxs]
+    return valid, suspect
 
 
 def pav_num_from_sa_name(sa_name: str) -> 'int | None':

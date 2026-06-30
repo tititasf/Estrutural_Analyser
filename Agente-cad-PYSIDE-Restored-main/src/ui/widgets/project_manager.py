@@ -77,11 +77,9 @@ class ProjectManager(QWidget):
         self._classified_docs_cache: dict = {}
         self._dirty_phases: set = set(range(1, 9))
         
-        # Window Setup
+        # Este componente vive dentro do QStackedWidget da janela principal.
         self.setWindowTitle("Gerenciador de Projetos - Vision AI")
-        self.resize(1400, 900)
-        self.setWindowFlags(Qt.Window)
-        self.setWindowState(Qt.WindowMaximized)
+        self.setWindowFlags(Qt.Widget)
         
         self.apply_styles()
         self.setup_ui()
@@ -261,7 +259,7 @@ class ProjectManager(QWidget):
         
         self.community_tab = QWidget()
         self.setup_community_tab()
-        self.tabs.addTab(self.community_tab, "🛡️ CURADORIA")
+        self.tabs.addTab(self.community_tab, "CURADORIA RAG/MCP")
 
         self.central_tab = CentralControle(self.db, self.memory, self.auth_service)
         self.tabs.addTab(self.central_tab, "CENTRAL DE CONTROLE")
@@ -6089,13 +6087,14 @@ class ProjectManager(QWidget):
         self._curadoria_metric_labels = {}
         self._curadoria_tables = {}
 
+        self.curadoria_rag_tabs.setObjectName("CuradoriaRagTabs")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_map_tab(), "Mapa RAG")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_mcp_evidence_tab(), "Evidencias MCP")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_encyclopedia_tab(), "Enciclopedia")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_corpus_tab(), "Corpus")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_pending_tab(), "Pendencias")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_learning_tab(), "Aprendizado")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_training_pipelines_tab(), "Pipelines de Treino")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_mcp_evidence_tab(), "Evidencias MCP")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_vector_tab(), "Memoria Vetorial")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_db_tab(), "Banco de Dados")
 
