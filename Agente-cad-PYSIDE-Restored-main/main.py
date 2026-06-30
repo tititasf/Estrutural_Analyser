@@ -15302,14 +15302,19 @@ def main():
                            min(1600, screen.width() - 100),
                            min(1000, screen.height() - 100))
                            
-        # --- FIX DE MAXIMIZACAO ---
-        # Exibe em modo normal primeiro para os layouts e abas ocultas calcularem o limite
-        window.show()
+                # --- FIX DE MAXIMIZACAO ---
+        # A pedido do usuario, vamos maximizar, minimizar e maximizar novamente para
+        # recalcular o layout de todas as abas no Windows (Qt bug fallback).
+        window.showMaximized()
         app.processEvents()
         
-        # Maximiza com um leve atraso para forcar o Qt a disparar um ResizeEvent limpo
+        # Minimiza rapidamente
+        window.showMinimized()
+        app.processEvents()
+        
+        # Maximiza novamente com um pequeno delay
         from PySide6.QtCore import QTimer
-        QTimer.singleShot(100, window.showMaximized)
+        QTimer.singleShot(150, window.showMaximized)
         window.raise_()
         window.activateWindow()
         windows['main'] = window
