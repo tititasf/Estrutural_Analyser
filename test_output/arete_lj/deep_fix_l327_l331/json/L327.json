@@ -1,0 +1,188 @@
+{
+  "nome": "L327",
+  "numero": 327,
+  "coordenadas": [
+    [
+      2.5,
+      0.0
+    ],
+    [
+      415.5,
+      0.0
+    ],
+    [
+      415.5,
+      52.0
+    ],
+    [
+      418.0,
+      52.0
+    ],
+    [
+      418.0,
+      71.0
+    ],
+    [
+      0.0,
+      71.0
+    ],
+    [
+      0.0,
+      52.0
+    ],
+    [
+      2.5,
+      52.0
+    ],
+    [
+      2.5,
+      0.0
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 71.0,
+  "area_cm2": 29418.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 238.5,
+      "is_union": false,
+      "exact": true,
+      "segments": [
+        {
+          "y0": 0.0,
+          "y1": 70.9
+        }
+      ]
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 35.4,
+      "is_union": false,
+      "exact": true
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "_stog_pose": {
+    "x": 3167.07,
+    "y": 1578.0
+  },
+  "cotas_paineis": [
+    {
+      "text": "35.5",
+      "value": 35.5,
+      "x": 285.46,
+      "y": 31.01,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "114.4",
+      "value": 114.4,
+      "x": -78.68,
+      "y": 28.77,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "2.5",
+      "value": 2.5,
+      "x": 397.82,
+      "y": 76.34,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "2.5",
+      "value": 2.5,
+      "x": 20.18,
+      "y": 70.56,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "177",
+      "value": 177.0,
+      "x": 327.0,
+      "y": 35.98,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "30.5",
+      "value": 30.5,
+      "x": 51.87,
+      "y": 30.34,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "2.5",
+      "value": 2.5,
+      "x": 457.18,
+      "y": 76.34,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "116.9",
+      "value": 116.9,
+      "x": -77.43,
+      "y": 91.88,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "35.5",
+      "value": 35.5,
+      "x": 265.09,
+      "y": 66.51,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "16.5",
+      "value": 16.5,
+      "x": 414.54,
+      "y": 32.27,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "179.5",
+      "value": 179.5,
+      "x": 328.25,
+      "y": 91.88,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "2.5",
+      "value": 2.5,
+      "x": -39.18,
+      "y": 69.06,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "236",
+      "value": 236.0,
+      "x": 120.5,
+      "y": 36.11,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "238.5",
+      "value": 238.5,
+      "x": 119.25,
+      "y": 91.98,
+      "rotation": 0.0,
+      "height": 9.0
+    }
+  ],
+  "pontaletes": {}
+}

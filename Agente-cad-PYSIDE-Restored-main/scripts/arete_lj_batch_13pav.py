@@ -129,6 +129,13 @@ def clean_ficha(ficha: dict, eid: str) -> dict:
     clean["pavimento"] = PAVIMENTO
     return clean
 
+def _canonical_segments(total: float, lines: list[dict]) -> list[float]:
+    positions = [0.0] + sorted(float(item["value"]) for item in lines) + [float(total)]
+    return [
+        round(round((positions[index + 1] - positions[index]) * 2) / 2, 1)
+        for index in range(len(positions) - 1)
+    ]
+
 
 def abs_outline_bbox(ficha: dict) -> tuple[float, float, float, float] | None:
     coords = ficha.get("coordenadas") or []
@@ -318,6 +325,17 @@ def run(out_root: Path) -> dict:
             n4 = generate_n4(eid, clean_ficha(ref_ficha, eid), n4_dir)
             n4_ficha = extrair_ficha_laje(str(n4), eid, OBRA_NAME)
             ref_fc = canonical(recorte)
+            ref_fc["outline"] = {
+                "comprimento": round(float(ref_ficha.get("comprimento") or 0) * 2) / 2,
+                "largura": round(float(ref_ficha.get("largura") or 0) * 2) / 2,
+                "coordenadas": ref_ficha.get("coordenadas") or [],
+            }
+            ref_fc["linhas_verticais"] = ref_ficha.get("linhas_verticais") or []
+            ref_fc["linhas_horizontais"] = ref_ficha.get("linhas_horizontais") or []
+            ref_fc["cotas_valor"] = sorted(
+                _canonical_segments(ref_ficha.get("comprimento") or 0, ref_fc["linhas_verticais"])
+                + _canonical_segments(ref_ficha.get("largura") or 0, ref_fc["linhas_horizontais"])
+            )
             n4_fc = canonical(n4)
             d = diff(ref_fc, n4_fc)
             ref_bbox = abs_outline_bbox(ref_ficha)

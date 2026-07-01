@@ -1932,22 +1932,12 @@ class DetailCard(QWidget):
                 segs_layout.setSpacing(15)
                 tab_l.addWidget(segs_container)
                 
-                # Lógica de Carga:
-                existing_indices = set([1]) # Sempre garanta pelo menos o 1
-                all_keys = list(self.item_data.keys())
-                if 'fields' in self.item_data and isinstance(self.item_data['fields'], dict):
-                    all_keys.extend(self.item_data['fields'].keys())
-                if 'links' in self.item_data and isinstance(self.item_data['links'], dict):
-                    all_keys.extend(self.item_data['links'].keys())
-                if 'validated_fields' in self.item_data and isinstance(self.item_data['validated_fields'], list):
-                    all_keys.extend(self.item_data['validated_fields'])
-                    
-                for key in all_keys:
-                    if f"{prefix}_seg_" in key:
-                        try:
-                            idx_str = key.split(f"{prefix}_seg_")[1].split('_')[0]
-                            existing_indices.add(int(idx_str))
-                        except: pass
+                # A sublista Para/Passa usa somente os segmentos cujo vínculo
+                # específico continua ativo. Chaves vazias ignoradas na
+                # pré-ficha não geram cartões fantasmas.
+                existing_indices = self._existing_beam_segment_indices(
+                    prefix, is_fundo=False
+                )
                 
                 for i in sorted(list(existing_indices)):
                     self._add_rich_segment_pack(segs_layout, prefix, i)
@@ -1968,22 +1958,11 @@ class DetailCard(QWidget):
                 segs_layout.setSpacing(15)
                 tab_l.addWidget(segs_container)
                 
-                # Carga de Segmentos Existentes
-                existing_indices = set([1]) # Sempre garanta pelo menos o 1
-                all_keys = list(self.item_data.keys())
-                if 'fields' in self.item_data and isinstance(self.item_data['fields'], dict):
-                    all_keys.extend(self.item_data['fields'].keys())
-                if 'links' in self.item_data and isinstance(self.item_data['links'], dict):
-                    all_keys.extend(self.item_data['links'].keys())
-                if 'validated_fields' in self.item_data and isinstance(self.item_data['validated_fields'], list):
-                    all_keys.extend(self.item_data['validated_fields'])
-                    
-                for key in all_keys:
-                    if f"{prefix}_seg_" in key:
-                        try:
-                            idx_str = key.split(f"{prefix}_seg_")[1].split('_')[0]
-                            existing_indices.add(int(idx_str))
-                        except: pass
+                # Fundos ignorados permanecem com a chave para rastreabilidade,
+                # mas contour vazio não deve criar um cartão de segmento.
+                existing_indices = self._existing_beam_segment_indices(
+                    prefix, is_fundo=True
+                )
                 
                 for i in sorted(list(existing_indices)):
                     self._add_fundo_segment_pack(segs_layout, prefix, i)
@@ -2012,6 +1991,57 @@ class DetailCard(QWidget):
             tabs.addTab(cmp_tab, "Comparar")
 
         layout.addWidget(tabs)
+
+    def _existing_beam_segment_indices(self, prefix: str, is_fundo: bool) -> set[int]:
+        """Lista somente segmentos ativos no contexto FV ou LV Para/Passa atual."""
+        links = self.item_data.get('links') or {}
+        if not isinstance(links, dict):
+            links = {}
+
+        active: set[int] = set()
+        source_seen = False
+        if is_fundo:
+            pattern = re.compile(rf'^{re.escape(prefix)}_seg_(\d+)_area_segs$')
+            slot_name = 'contour'
+        else:
+            tipo_comp = str(self.item_data.get('_tipo_comp') or 'passa').lower()
+            suffix = 'comprimento_total' if tipo_comp == 'para' else 'comp_total_passa'
+            pattern = re.compile(rf'^{re.escape(prefix)}_seg_(\d+)_{suffix}$')
+            slot_name = 'seg_side_a' if prefix == 'viga_a' else 'seg_side_b'
+
+        for field_id, slots in links.items():
+            match = pattern.match(str(field_id))
+            if not match:
+                continue
+            source_seen = True
+            values = slots.get(slot_name) if isinstance(slots, dict) else []
+            if any(
+                isinstance(link, dict) and bool(link.get('points'))
+                for link in (values or [])
+            ):
+                active.add(int(match.group(1)))
+
+        # Quando o contrato novo existe, inclusive vazio por decisão de ignorar,
+        # ele é a fonte autoritativa. O botão "Adicionar" continua disponível.
+        if source_seen:
+            return active
+
+        # Compatibilidade para fichas antigas que ainda não possuem as chaves
+        # geométricas novas, mas têm campos/markers de segmentos.
+        legacy: set[int] = set()
+        all_keys = list(self.item_data)
+        fields = self.item_data.get('fields')
+        if isinstance(fields, dict):
+            all_keys.extend(fields)
+        for key in all_keys:
+            match = re.match(rf'^{re.escape(prefix)}_seg_(\d+)', str(key))
+            if not match:
+                continue
+            index = int(match.group(1))
+            marker = self.item_data.get(f'{prefix}_seg_{index}_exists')
+            if marker is not False:
+                legacy.add(index)
+        return legacy or {1}
 
     def _add_rich_segment_pack(self, layout, prefix, idx_override=None):
         """Cria um Box Completo de Segmento com todos os campos de engenharia"""

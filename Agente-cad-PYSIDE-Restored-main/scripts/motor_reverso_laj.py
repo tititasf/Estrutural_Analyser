@@ -2,10 +2,11 @@
 """Motor Reverso LAJ — Extrai ficha N2 de recorte DXF STOG laje."""
 
 from pathlib import Path
-import json, re, math
+import json, re, math, sqlite3
 import unicodedata
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+PROJECT_DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 UNIAO_MIN = 15.0
 UNIAO_MAX = 30.0
 TOL = 0.5
@@ -24,6 +25,53 @@ def _lookup_fase4_laj(elem_id: str, obra_root: Path) -> dict | None:
         with open(p, encoding='utf-8') as f:
             return json.load(f)
     return None
+
+def _lookup_sa_outline(fase4: dict | None, elem_id: str, reference: dict | None = None) -> dict | None:
+    project_id = ((fase4 or {}).get('_sa_meta') or {}).get('project_id')
+    if not PROJECT_DB_PATH.exists():
+        return None
+    conn = sqlite3.connect(f'file:{PROJECT_DB_PATH}?mode=ro', uri=True)
+    try:
+        if project_id:
+            rows = conn.execute(
+                'SELECT points_json, area FROM slabs WHERE project_id=? AND name=? ORDER BY rowid DESC',
+                (str(project_id), str(elem_id)),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                'SELECT points_json, area FROM slabs WHERE name=? ORDER BY rowid DESC',
+                (str(elem_id),),
+            ).fetchall()
+    finally:
+        conn.close()
+    if not rows:
+        return None
+    candidates = []
+    ref_w = float((reference or {}).get('comprimento') or 0.0)
+    ref_h = float((reference or {}).get('largura') or 0.0)
+    for row in rows:
+        try:
+            points = [(float(x), float(y)) for x, y in json.loads(row[0] or '[]')]
+        except Exception:
+            continue
+        box = _bbox(points)
+        if len(points) < 3 or not box:
+            continue
+        normalized = _simplify_closed_polygon(_normalize_poly(points))
+        area = _poly_area(points)
+        bbox_area = _area_bbox(box)
+        if len(normalized) <= 5 or not area or area >= bbox_area * 0.98:
+            continue
+        width = box[2] - box[0]
+        height = box[3] - box[1]
+        score = abs(width - ref_w) / max(ref_w, 1.0) + abs(height - ref_h) / max(ref_h, 1.0)
+        candidates.append((score, {
+            'coordenadas': normalized,
+            'comprimento': round(width, 2),
+            'largura': round(height, 2),
+            'area_cm2': round(area, 2),
+        }))
+    return min(candidates, key=lambda item: item[0])[1] if candidates else None
 
 def _entity_points(e) -> list[tuple[float, float]]:
     if e.dxftype() == 'LWPOLYLINE':
@@ -55,6 +103,35 @@ def _normalize_poly(points: list[tuple[float, float]]) -> list[list[float]]:
         norm.append(norm[0])
     return norm
 
+def _simplify_closed_polygon(points: list[list[float]], tol: float = 0.5) -> list[list[float]]:
+    clean = [[float(x), float(y)] for x, y in points]
+    if clean and clean[0] == clean[-1]:
+        clean.pop()
+    changed = True
+    while changed and len(clean) > 3:
+        changed = False
+        simplified = []
+        count = len(clean)
+        for index, point in enumerate(clean):
+            prev = clean[(index - 1) % count]
+            nxt = clean[(index + 1) % count]
+            dx = nxt[0] - prev[0]
+            dy = nxt[1] - prev[1]
+            span = math.hypot(dx, dy)
+            distance = abs(dx * (prev[1] - point[1]) - (prev[0] - point[0]) * dy) / max(span, 1.0)
+            between = (
+                min(prev[0], nxt[0]) - tol <= point[0] <= max(prev[0], nxt[0]) + tol
+                and min(prev[1], nxt[1]) - tol <= point[1] <= max(prev[1], nxt[1]) + tol
+            )
+            if distance <= tol and between:
+                changed = True
+                continue
+            simplified.append(point)
+        clean = simplified
+    if clean:
+        clean.append(list(clean[0]))
+    return [[round(x, 2), round(y, 2)] for x, y in clean]
+
 def _rect_from_bbox(box) -> list[list[float]]:
     x0, y0, x1, y1 = box
     return [[0.0, 0.0], [round(x1 - x0, 2), 0.0],
@@ -78,6 +155,22 @@ def _axis_aligned_points(points: list[tuple[float, float]]) -> bool:
             return False
     return True
 
+def _has_diagonal_geometry(msp) -> bool:
+    for e in msp:
+        if e.dxftype() == 'LINE':
+            segments = [_line_points(e)]
+        elif e.dxftype() in ('POLYLINE', 'LWPOLYLINE'):
+            pts = _entity_points(e)
+            segments = list(zip(pts, pts[1:]))
+        else:
+            continue
+        for a, b in segments:
+            dx = abs(a[0] - b[0])
+            dy = abs(a[1] - b[1])
+            if dx > 5.0 and dy > 5.0 and math.hypot(dx, dy) >= 30.0:
+                return True
+    return False
+
 def _is_closed_poly(e, points: list[tuple[float, float]]) -> bool:
     if len(points) < 4:
         return False
@@ -94,18 +187,83 @@ def _bbox_overlap(a, b) -> float:
     y1 = min(a[3], b[3])
     return max(0.0, x1 - x0) * max(0.0, y1 - y0)
 
+def _discover_structural_layers(msp) -> set[str]:
+    stats: dict[str, dict[str, float]] = {}
+    for e in msp:
+        layer = str(getattr(e.dxf, 'layer', ''))
+        if e.dxftype() in ('TEXT', 'MTEXT'):
+            text = _plain_text(e).replace(',', '.')
+            if re.fullmatch(r'\d+(?:\.\d+)?', text):
+                stats.setdefault(layer, {'h': 0.0, 'v': 0.0, 'count': 0.0, 'numeric': 0.0})['numeric'] += 1
+            continue
+        if e.dxftype() not in ('LINE', 'POLYLINE', 'LWPOLYLINE'):
+            continue
+        row = stats.setdefault(layer, {'h': 0.0, 'v': 0.0, 'count': 0.0, 'numeric': 0.0})
+        if e.dxftype() == 'LINE':
+            segments = [_line_points(e)]
+        else:
+            pts = _entity_points(e)
+            segments = list(zip(pts, pts[1:]))
+            if _is_closed_poly(e, pts) and pts:
+                segments.append((pts[-1], pts[0]))
+        for a, b in segments:
+            dx = abs(float(a[0]) - float(b[0]))
+            dy = abs(float(a[1]) - float(b[1]))
+            length = math.hypot(dx, dy)
+            if length < 2.0 or length > 3300.0:
+                continue
+            if dy <= TOL:
+                row['h'] += length
+                row['count'] += 1
+            elif dx <= TOL:
+                row['v'] += length
+                row['count'] += 1
+
+    ranked = []
+    for layer, row in stats.items():
+        total = row['h'] + row['v']
+        if total <= 0 or row['h'] <= 0 or row['v'] <= 0:
+            continue
+        balance = min(row['h'], row['v']) / max(row['h'], row['v'])
+        ranked.append((row['numeric'], total * (1.0 + balance * 0.25), layer))
+    if not ranked:
+        return set()
+    ranked.sort(reverse=True)
+    return {ranked[0][2]}
+
+def _discover_contour_layers(msp, primary_layers: set[str]) -> set[str]:
+    lengths: dict[str, float] = {}
+    for e in msp:
+        if e.dxftype() != 'LINE':
+            continue
+        a, b = _line_points(e)
+        dx = abs(a[0] - b[0])
+        dy = abs(a[1] - b[1])
+        if dx > TOL and dy > TOL:
+            continue
+        length = math.hypot(dx, dy)
+        if 2.0 <= length <= 3300.0:
+            layer = str(getattr(e.dxf, 'layer', ''))
+            lengths[layer] = lengths.get(layer, 0.0) + length
+    if not lengths:
+        return set(primary_layers)
+    peak = max(lengths.values())
+    return set(primary_layers) | {
+        layer for layer, length in lengths.items()
+        if length >= max(20.0, peak * 0.10)
+    }
+
 def _extract_outline_polygon(msp, fallback_box=None):
     """Extrai o poligono real da area interna LAJ quando ha contorno fechado."""
     candidates = []
     for e in msp:
         if e.dxftype() not in ('POLYLINE', 'LWPOLYLINE'):
             continue
-        layer = str(getattr(e.dxf, 'layer', ''))
-        layer_key = _layer_key(layer)
-        if layer_key in {'7', 'HACHURA'}:
+        layer_key = _layer_key(getattr(e.dxf, 'layer', ''))
+        if layer_key in {'7', 'HACHURA', 'REAPROVEITAMENTO'}:
             continue
         pts = _entity_points(e)
-        if not _is_closed_poly(e, pts) or not _axis_aligned_points(pts):
+        if not _is_closed_poly(e, pts):
             continue
         box = _bbox(pts)
         if not box:
@@ -117,11 +275,15 @@ def _extract_outline_polygon(msp, fallback_box=None):
             continue
         if fallback_box and _bbox_overlap(box, fallback_box) < min(area, _area_bbox(box)) * 0.25:
             continue
+        if fallback_box:
+            fw = fallback_box[2] - fallback_box[0]
+            fh = fallback_box[3] - fallback_box[1]
+            if w < fw * 0.25 or h < fh * 0.25:
+                continue
         score = area
-        if 'REAPROVEITAMENTO' in layer_key:
-            score *= 3.0
-        elif 'PAIN' in layer_key or layer_key == '3':
-            score *= 1.5
+        if fallback_box:
+            overlap = _bbox_overlap(box, fallback_box)
+            score *= 1.0 + overlap / max(_area_bbox(box), 1.0)
         candidates.append((score, box, pts))
 
     if not candidates:
@@ -129,7 +291,7 @@ def _extract_outline_polygon(msp, fallback_box=None):
     _, box, pts = max(candidates, key=lambda item: item[0])
     return box, _normalize_poly(pts)
 
-def _extract_stepped_outline_from_segments(msp, fallback_box=None):
+def _extract_stepped_outline_from_segments(msp, fallback_box=None, structural_layers=None):
     """Reconstrói contorno em degrau quando o STOG não tem polyline fechada.
 
     Algumas lajes rasas trazem o outline só como segmentos horizontais longos
@@ -142,8 +304,7 @@ def _extract_stepped_outline_from_segments(msp, fallback_box=None):
     for e in msp:
         if e.dxftype() not in ('LINE', 'POLYLINE', 'LWPOLYLINE'):
             continue
-        layer_key = _layer_key(getattr(e.dxf, 'layer', ''))
-        if layer_key not in {'PAINEIS', '3'}:
+        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
             continue
         pts = _entity_points(e) if e.dxftype() != 'LINE' else [tuple(_line_points(e)[0]), tuple(_line_points(e)[1])]
         if len(pts) < 2:
@@ -223,6 +384,11 @@ def _extract_stepped_outline_from_segments(msp, fallback_box=None):
     box = _bbox(pts)
     if not box:
         return None
+    if fallback_box:
+        fw = fallback_box[2] - fallback_box[0]
+        fh = fallback_box[3] - fallback_box[1]
+        if (box[2] - box[0]) < fw * 0.85 or (box[3] - box[1]) < fh * 0.85:
+            return None
     return box, _normalize_poly(pts)
 
 def _filter_internal_lines(lines: list[dict], total: float) -> list[dict]:
@@ -252,9 +418,6 @@ def _extract_paineis_cotas(msp, slab_box) -> list[dict]:
     seen = set()
     for e in msp:
         if e.dxftype() not in ('TEXT', 'MTEXT'):
-            continue
-        layer = str(getattr(e.dxf, 'layer', ''))
-        if not _is_paineis_layer(layer):
             continue
         txt = _plain_text(e).replace(',', '.')
         if not re.fullmatch(r'\d+(?:\.\d+)?', txt):
@@ -332,12 +495,14 @@ def _merge_intervals(intervals: list[tuple[float, float]], gap_tol: float = 1.0)
             merged.append((a, b))
     return merged
 
-def _panel_axis_groups(msp, min_len: float = 10.0) -> tuple[list[dict], list[dict]]:
+def _panel_axis_groups(msp, min_len: float = 10.0, structural_layers=None) -> tuple[list[dict], list[dict]]:
     """Agrupa linhas da layer Paineis por eixo para inferir grade interna."""
     h_raw: dict[float, list[tuple[float, float]]] = {}
     v_raw: dict[float, list[tuple[float, float]]] = {}
     for e in msp:
-        if e.dxftype() != 'LINE' or not _is_paineis_layer(getattr(e.dxf, 'layer', '')):
+        if e.dxftype() != 'LINE':
+            continue
+        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
             continue
         axis = _line_axis(e)
         if not axis:
@@ -393,9 +558,36 @@ def _dedupe_positions(values: list[float], tol: float = 0.5) -> list[float]:
             out.append(round(value, 1))
     return out
 
-def _extract_panel_geometry(msp):
+def _snap_nominal_panel_segments(values: list[float]) -> list[float]:
+    snapped = []
+    previous = 0.0
+    for value in sorted(values):
+        segment = value - previous
+        nominal = min((60.0, 122.0, 244.0), key=lambda item: abs(item - segment))
+        if abs(nominal - segment) <= 0.6:
+            value = previous + nominal
+        value = round(value, 1)
+        snapped.append(value)
+        previous = value
+    return snapped
+
+def _fill_oversized_panel_spans(lines: list[dict], total: float) -> list[dict]:
+    ordered = sorted((dict(item) for item in lines or []), key=lambda item: float(item['value']))
+    out = []
+    previous = 0.0
+    for item in ordered + [{'value': total, '_edge': True}]:
+        value = float(item['value'])
+        while value - previous > 244.6:
+            previous = round(previous + 244.0, 1)
+            out.append({'value': previous, 'is_union': False})
+        if not item.get('_edge'):
+            out.append(item)
+            previous = value
+    return out
+
+def _extract_panel_geometry(msp, structural_layers=None):
     """Inferencia universal da area interna e linhas a partir da layer Paineis."""
-    h_groups, v_groups = _panel_axis_groups(msp)
+    h_groups, v_groups = _panel_axis_groups(msp, structural_layers=structural_layers)
     if not h_groups or not v_groups:
         return None
 
@@ -466,11 +658,95 @@ def _extract_panel_geometry(msp):
                 if edge_tol_y < rel < larg - edge_tol_y:
                     y_cuts.add(rel)
 
-    xs = _dedupe_positions(list(x_cuts))
-    ys = _dedupe_positions(list(y_cuts))
+    xs = _snap_nominal_panel_segments(_dedupe_positions(list(x_cuts)))
+    ys = _snap_nominal_panel_segments(_dedupe_positions(list(y_cuts)))
     linhas_v = [{'value': x, 'is_union': _is_union_position(x, xs)} for x in xs]
     linhas_h = [{'value': y, 'is_union': _is_union_position(y, ys)} for y in ys]
     return (x0, y0, x1, y1), linhas_v, linhas_h
+
+def _extract_complex_outline_cuts(msp, outline_box, structural_layers):
+    x0, y0, x1, y1 = outline_box
+    width = x1 - x0
+    height = y1 - y0
+    edge_x = max(15.0, min(25.0, width * 0.02))
+    edge_y = max(15.0, min(25.0, height * 0.02))
+    xs = []
+    ys = []
+    for e in msp:
+        if e.dxftype() != 'LINE':
+            continue
+        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
+            continue
+        axis = _line_axis(e)
+        if not axis:
+            continue
+        a, b = _line_points(e)
+        if axis == 'v':
+            length = abs(b[1] - a[1])
+            rel = round(((a[0] + b[0]) / 2.0) - x0, 1)
+            overlap = max(0.0, min(y1, max(a[1], b[1])) - max(y0, min(a[1], b[1])))
+            if length >= max(20.0, height * 0.20) and overlap >= length * 0.70:
+                if edge_x < rel < width - edge_x:
+                    xs.append(rel)
+        else:
+            length = abs(b[0] - a[0])
+            rel = round(((a[1] + b[1]) / 2.0) - y0, 1)
+            overlap = max(0.0, min(x1, max(a[0], b[0])) - max(x0, min(a[0], b[0])))
+            if length >= max(20.0, width * 0.10) and overlap >= length * 0.70:
+                if edge_y < rel < height - edge_y:
+                    ys.append(rel)
+    xs = _dedupe_positions(xs)
+    ys = _dedupe_positions(ys)
+    return (
+        [{'value': x, 'is_union': _is_union_position(x, xs)} for x in xs],
+        [{'value': y, 'is_union': _is_union_position(y, ys)} for y in ys],
+    )
+
+def _extract_local_vertical_segments(msp, slab_box, structural_layers, lines):
+    x0, y0, _, y1 = slab_box
+    positions = [float(item['value']) for item in lines]
+    grouped = {round(value, 1): [] for value in positions}
+    for e in msp:
+        if e.dxftype() != 'LINE':
+            continue
+        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
+            continue
+        if _line_axis(e) != 'v':
+            continue
+        a, b = _line_points(e)
+        rel_x = round(((a[0] + b[0]) / 2) - x0, 1)
+        match = min(positions, key=lambda value: abs(value - rel_x), default=None)
+        if match is None or abs(match - rel_x) > 0.6:
+            continue
+        lo = max(y0, min(a[1], b[1]))
+        hi = min(y1, max(a[1], b[1]))
+        if hi - lo >= 10.0:
+            grouped[round(match, 1)].append((lo - y0, hi - y0))
+    result = []
+    for value, intervals in grouped.items():
+        for lo, hi in _merge_intervals(intervals, gap_tol=1.0):
+            result.append({'value': value, 'y0': round(lo, 1), 'y1': round(hi, 1)})
+    return result
+
+def _extract_panel_dimension_texts(msp, slab_box):
+    x0, y0, _, _ = slab_box
+    result = []
+    for entity in msp:
+        if entity.dxftype() != 'TEXT' or not _is_paineis_layer(getattr(entity.dxf, 'layer', '')):
+            continue
+        text = str(getattr(entity.dxf, 'text', '')).strip()
+        if not re.fullmatch(r'\d+(?:[.,]\d+)?', text):
+            continue
+        insert = entity.dxf.insert
+        result.append({
+            'text': text,
+            'value': float(text.replace(',', '.')),
+            'x': round(float(insert.x) - x0, 2),
+            'y': round(float(insert.y) - y0, 2),
+            'rotation': round(float(getattr(entity.dxf, 'rotation', 0) or 0), 2),
+            'height': round(float(getattr(entity.dxf, 'height', 8) or 8), 2),
+        })
+    return result
 
 def _canonical_lines_from_lengths(values: list[float], total: float) -> list[dict]:
     """Converte valores de cotas em distancias acumuladas internas."""
@@ -498,6 +774,14 @@ def _best_subset_sum(values: list[float], target: float) -> tuple[list[float], l
         rest.remove(v)
     return chosen, rest
 
+def _best_dimension_total(values: list[float], target: float) -> float | None:
+    clean = [round(float(v), 1) for v in values if 2.0 <= float(v) <= target * 1.05]
+    if not clean or target <= 0:
+        return None
+    candidates = clean + [round(sum(clean), 1)]
+    best = min(candidates, key=lambda total: abs(total - target))
+    return best if abs(best - target) <= max(4.0, target * 0.015) else None
+
 def _lines_from_segments(segments: list[float]) -> list[dict]:
     acc = 0.0
     lines = []
@@ -506,9 +790,9 @@ def _lines_from_segments(segments: list[float]) -> list[dict]:
         lines.append({'value': acc, 'is_union': UNIAO_MIN <= seg <= UNIAO_MAX})
     return lines
 
-def _extract_form_bbox(msp):
+def _extract_form_bbox(msp, structural_layers=None):
     """BBox do conteudo LAJ, evitando contexto de pilar/cota distante."""
-    hatches = []
+    closed_strips = []
     painel_segments = []
     all_form_pts = []
 
@@ -520,11 +804,21 @@ def _extract_form_bbox(msp):
             box = _bbox(pts)
             if not box:
                 continue
-            if layer.lower() == 'hachura':
-                hatches.append((box, pts))
-            elif layer in ('3', 'Painéis', 'Paineis'):
+            w = box[2] - box[0]
+            h = box[3] - box[1]
+            if (
+                _layer_key(layer) == 'HACHURA'
+                and
+                _is_closed_poly(e, pts)
+                and _axis_aligned_points(pts + [pts[0]])
+                and w >= 30.0
+                and 5.0 <= h <= 100.0
+                and w >= h * 2.0
+            ):
+                closed_strips.append((box, pts))
+            if not structural_layers or layer in structural_layers:
                 all_form_pts.extend(pts)
-        elif etype == 'LINE' and layer in ('3', 'Painéis', 'Paineis'):
+        elif etype == 'LINE' and (not structural_layers or layer in structural_layers):
             length = _line_len(e)
             if length >= 40:
                 a = e.dxf.start
@@ -532,9 +826,19 @@ def _extract_form_bbox(msp):
                 painel_segments.append((length, _line_axis(e), (float(a.x), float(a.y)), (float(b.x), float(b.y)), layer))
                 all_form_pts.extend([(float(a.x), float(a.y)), (float(b.x), float(b.y))])
 
-    if hatches:
+    form_box = _bbox(all_form_pts)
+    if form_box:
+        form_w = form_box[2] - form_box[0]
+        form_h = form_box[3] - form_box[1]
+        closed_strips = [
+            item for item in closed_strips
+            if abs((item[0][2] - item[0][0]) - form_w) > max(10.0, form_w * 0.03)
+            or abs((item[0][3] - item[0][1]) - form_h) > max(5.0, form_h * 0.05)
+        ]
+
+    if closed_strips:
         # HLAZ e a regua mais confiavel para o vao da laje no recorte.
-        best_hatch = max(hatches, key=lambda item: _area_bbox(item[0]))
+        best_hatch = max(closed_strips, key=lambda item: _area_bbox(item[0]))
         hx0, hy0, hx1, hy1 = best_hatch[0]
         near_pts = [(x, y) for _, _, a, b, _ in painel_segments for x, y in (a, b)
                     if hx0 - 5 <= x <= hx1 + 5 and hy0 - 150 <= y <= hy1 + 150]
@@ -542,8 +846,8 @@ def _extract_form_bbox(msp):
             return _bbox(near_pts), best_hatch[0]
         return best_hatch[0], best_hatch[0]
 
-    if all_form_pts:
-        return _bbox(all_form_pts), None
+    if form_box:
+        return form_box, None
     return None, None
 
 def _extract_obstacles(polys: list[tuple[str, list[tuple[float, float]]]], slab_box) -> list[dict]:
@@ -564,7 +868,7 @@ def _extract_obstacles(polys: list[tuple[str, list[tuple[float, float]]]], slab_
             obstacles.append({
                 'x': round(x0 - sx0, 2), 'y': round(y0 - sy0, 2),
                 'width': round(w, 2), 'height': round(h, 2),
-                'coords': [[round(x - sx0, 2), round(y - sy0, 2)] for x, y in pts],
+                'coords': [[round(x - sx0, 2), round(y - sy0, 2)] for x, y in (pts[:-1] if len(pts) > 1 and pts[0] == pts[-1] else pts)],
             })
     return obstacles
 
@@ -575,6 +879,7 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
         import ezdxf
         doc = ezdxf.readfile(str(dxf_path))
         msp = doc.modelspace()
+        result['_has_diagonal_geometry'] = _has_diagonal_geometry(msp)
 
         polylines = []
         for e in msp:
@@ -583,8 +888,11 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
                 if len(pts) >= 2:
                     polylines.append((str(e.dxf.layer), pts))
 
-        slab_box, hlaz_box = _extract_form_bbox(msp)
-        panel_geom = _extract_panel_geometry(msp)
+        structural_layers = _discover_structural_layers(msp)
+        contour_layers = _discover_contour_layers(msp, structural_layers)
+        slab_box, hlaz_box = _extract_form_bbox(msp, structural_layers)
+        source_form_box = slab_box
+        panel_geom = _extract_panel_geometry(msp, structural_layers)
         panel_linhas_v = []
         panel_linhas_h = []
         panel_box = None
@@ -593,9 +901,28 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
             # A layer Paineis representa a area interna da laje. O bbox amplo
             # de layer 3 pode conter vigas/pilares de contexto ao redor.
             slab_box = panel_box
+            source_w = source_form_box[2] - source_form_box[0] if source_form_box else 0.0
+            source_h = source_form_box[3] - source_form_box[1] if source_form_box else 0.0
+            panel_w = panel_box[2] - panel_box[0]
+            panel_h = panel_box[3] - panel_box[1]
+            source_extends_panel = source_w > panel_w + 5.0 or source_h > panel_h + 5.0
+            if result['_has_diagonal_geometry'] and not hlaz_box and source_form_box and source_extends_panel:
+                dx = panel_box[0] - source_form_box[0]
+                dy = panel_box[1] - source_form_box[1]
+                for item in panel_linhas_v:
+                    item['value'] = round(float(item.get('value', 0.0)) + dx, 1)
+                for item in panel_linhas_h:
+                    item['value'] = round(float(item.get('value', 0.0)) + dy, 1)
+                _, complex_h = _extract_complex_outline_cuts(
+                    msp, source_form_box, structural_layers
+                )
+                if complex_h:
+                    panel_linhas_h = complex_h
+                    result['_stog_clip_unions'] = True
+                slab_box = source_form_box
         outline = _extract_outline_polygon(msp, slab_box)
         if not outline:
-            outline = _extract_stepped_outline_from_segments(msp, slab_box)
+            outline = _extract_stepped_outline_from_segments(msp, slab_box, contour_layers)
         outline_coords = None
         if outline:
             old_box = slab_box
@@ -609,6 +936,14 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
                 if abs(dy) > TOL:
                     for item in panel_linhas_h:
                         item['value'] = round(float(item.get('value', 0.0)) + dy, 1)
+            if len(outline_coords or []) > 5:
+                complex_v, complex_h = _extract_complex_outline_cuts(
+                    msp, slab_box, structural_layers
+                )
+                if complex_v:
+                    panel_linhas_v = complex_v
+                if complex_h:
+                    panel_linhas_h = complex_h
         if slab_box:
             x0, y0, x1, y1 = slab_box
             comp = round(abs(x1-x0), 2)
@@ -625,21 +960,59 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
         # Textos numericos da layer Painéis sao os valores canonicos de cotas no recorte.
         cota_nums = []
         cota_entries = []
+        declared_dimensions = []
         textos = []
         for e in msp:
             if e.dxftype() in ('TEXT', 'MTEXT'):
                 txt = _plain_text(e)
                 if txt:
                     textos.append(txt)
-                layer_norm = str(e.dxf.layer).upper().replace('É', 'E')
-                if 'PAINE' in layer_norm:
+                for match in re.finditer(r'(\d+(?:[.,]\d+)?)\s*[Xx]\s*(\d+(?:[.,]\d+)?)', txt):
+                    declared_dimensions.extend(
+                        [float(match.group(1).replace(',', '.')), float(match.group(2).replace(',', '.'))]
+                    )
+                if re.fullmatch(r'\d+(?:[.,]\d+)?', txt):
                     try:
                         val = float(txt.replace(',', '.'))
                         cota_nums.append(val)
                         ins = e.dxf.insert
-                        cota_entries.append({'value': val, 'x': float(ins.x), 'y': float(ins.y)})
+                        cota_entries.append({
+                            'value': val,
+                            'x': float(ins.x),
+                            'y': float(ins.y),
+                            'rotation': float(getattr(e.dxf, 'rotation', 0.0)) % 180.0,
+                        })
                     except Exception:
                         pass
+
+        if slab_box and not outline:
+            x0, y0, x1, y1 = slab_box
+            comp = x1 - x0
+            larg = y1 - y0
+            horizontal_values = [
+                entry['value'] for entry in cota_entries
+                if min(entry['rotation'], 180.0 - entry['rotation']) <= 15.0
+            ]
+            vertical_values = [
+                entry['value'] for entry in cota_entries
+                if abs(entry['rotation'] - 90.0) <= 15.0
+            ]
+            declared_width = min(declared_dimensions, key=lambda v: abs(v - comp), default=None)
+            declared_height = min(declared_dimensions, key=lambda v: abs(v - larg), default=None)
+            exact_comp = _best_dimension_total(horizontal_values, comp)
+            exact_larg = _best_dimension_total(vertical_values, larg)
+            if declared_width is not None and abs(declared_width - comp) <= max(5.0, comp * 0.03):
+                exact_comp = declared_width
+            if declared_height is not None and abs(declared_height - larg) <= max(5.0, larg * 0.03):
+                exact_larg = declared_height
+            if exact_comp is not None or exact_larg is not None:
+                comp = round(exact_comp if exact_comp is not None else comp, 2)
+                larg = round(exact_larg if exact_larg is not None else larg, 2)
+                slab_box = (x0, y0, x0 + comp, y0 + larg)
+                result['comprimento'] = comp
+                result['largura'] = larg
+                result['coordenadas'] = _rect_from_bbox(slab_box)
+                result['area_cm2'] = round(comp * larg, 2)
 
         linhas_v = []
         linhas_h = []
@@ -673,7 +1046,9 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
             _raw_v: list[float] = []
             _raw_h: list[float] = []
             for _e in msp:
-                if _e.dxftype() != 'LINE' or not _is_paineis_layer(str(getattr(_e.dxf, 'layer', ''))):
+                if _e.dxftype() != 'LINE':
+                    continue
+                if structural_layers and str(getattr(_e.dxf, 'layer', '')) not in structural_layers:
                     continue
                 _a = _e.dxf.start; _b = _e.dxf.end
                 _ddx = abs(_b.x - _a.x); _ddy = abs(_b.y - _a.y)
@@ -738,6 +1113,38 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
 
         result['linhas_verticais'] = _filter_internal_lines(linhas_v, result.get('comprimento', 0))
         result['linhas_horizontais'] = _filter_internal_lines(linhas_h, result.get('largura', 0))
+        result['cotas_paineis'] = _extract_panel_dimension_texts(msp, slab_box)
+        if min(float(result.get('comprimento') or 0), float(result.get('largura') or 0)) <= 75.0:
+            larg = float(result.get('largura') or 0)
+            local_segments = _extract_local_vertical_segments(
+                msp, slab_box, structural_layers, result['linhas_verticais']
+            )
+            local_segments = [
+                segment for segment in local_segments
+                if float(segment['y0']) <= 1.0 and float(segment['y1']) >= larg - 1.0
+            ]
+            full_values = {round(float(segment['value']), 1) for segment in local_segments}
+            result['linhas_verticais'] = [
+                item for item in result['linhas_verticais']
+                if round(float(item.get('value') or 0), 1) in full_values
+            ]
+            result['linhas_horizontais'] = [
+                item for item in result['linhas_horizontais']
+                if min(float(item.get('value') or 0), larg - float(item.get('value') or 0)) >= 30.0
+            ]
+            for item in result['linhas_verticais'] + result['linhas_horizontais']:
+                item['is_union'] = False
+                item['exact'] = True
+            result['_panel_vertical_segments'] = local_segments
+            for item in result['linhas_verticais']:
+                value = float(item.get('value') or 0)
+                segments = [
+                    {'y0': segment['y0'], 'y1': segment['y1']}
+                    for segment in local_segments
+                    if abs(float(segment['value']) - value) <= 0.1
+                ]
+                if segments:
+                    item['segments'] = segments
         result['obstaculos'] = _extract_obstacles(polylines, slab_box)
         if hlaz_box:
             hx0, hy0, hx1, hy1 = hlaz_box
@@ -773,13 +1180,24 @@ def extrair_ficha_laje(
     dxf_data = _extract_laj_from_dxf(recorte_path)
     dxf_conf = dxf_data.pop('_confianca_extracao', 0.4)
     dxf_data.pop('_extracao_erro', None)
+    has_diagonal_geometry = bool(dxf_data.pop('_has_diagonal_geometry', False))
+    sa_outline = _lookup_sa_outline(fase4, elemento_id, dxf_data)
+    if has_diagonal_geometry and sa_outline:
+        dxf_data.update(sa_outline)
+        dxf_data['linhas_verticais'] = _fill_oversized_panel_spans(
+            dxf_data.get('linhas_verticais') or [], float(dxf_data.get('comprimento') or 0)
+        )
+        dxf_data['linhas_horizontais'] = _fill_oversized_panel_spans(
+            dxf_data.get('linhas_horizontais') or [], float(dxf_data.get('largura') or 0)
+        )
     if fase4:
         result = dict(fase4)
         for key in (
             'comprimento', 'largura', 'coordenadas', 'area_cm2',
             'linhas_verticais', 'linhas_horizontais', 'obstaculos',
             'cotas_paineis', 'modo_selecionado', 'unioes_nos_bordes', 'observacoes',
-            'pontaletes', '_hlaz', '_stog_pose', '_forma_canonica'
+            'pontaletes', '_hlaz', '_stog_pose', '_forma_canonica', '_stog_clip_unions',
+            '_panel_vertical_segments'
         ):
             if key in dxf_data:
                 result[key] = dxf_data[key]

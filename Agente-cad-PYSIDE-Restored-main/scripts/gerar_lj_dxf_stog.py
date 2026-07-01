@@ -292,7 +292,8 @@ def _normalize_line_positions(lines, total):
     result = []
     seen = set()
     for item in lines or []:
-        value = _snap_panel_line(_line_value(item))
+        raw_value = _line_value(item)
+        value = float(raw_value) if isinstance(item, dict) and item.get('exact') else _snap_panel_line(raw_value)
         if value <= EDGE_DIVISION_MARGIN_CM or value >= total - EDGE_DIVISION_MARGIN_CM:
             continue
         if value in seen:
@@ -388,6 +389,64 @@ def _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg):
     # Fallback: centro do maior trecho horizontal interno, levemente fora das linhas.
     return x0 + comp / 2, y0 + larg * 0.62
 
+def _vertical_dimension_guide(poly_pts, x0, comp, v_positions):
+    edges = _dedupe_sorted([0.0] + list(v_positions) + [comp])
+    candidates = []
+    for a, b in zip(edges, edges[1:]):
+        if b - a <= 2.0:
+            continue
+        x = x0 + (a + b) / 2
+        spans = _axis_segments_in_polygon(poly_pts, 'v', x)
+        if spans:
+            candidates.append((max(hi - lo for lo, hi in spans), x))
+    return max(candidates, default=(0.0, x0 + comp / 2))[1]
+
+def _clip_polygon_to_rect(poly_pts, x_min, y_min, x_max, y_max):
+    points = list(poly_pts)
+    if points and points[0] == points[-1]:
+        points.pop()
+    for inside, intersect in (
+        (lambda p: p[0] >= x_min, lambda a, b: (x_min, a[1] + (b[1] - a[1]) * (x_min - a[0]) / (b[0] - a[0]))),
+        (lambda p: p[0] <= x_max, lambda a, b: (x_max, a[1] + (b[1] - a[1]) * (x_max - a[0]) / (b[0] - a[0]))),
+        (lambda p: p[1] >= y_min, lambda a, b: (a[0] + (b[0] - a[0]) * (y_min - a[1]) / (b[1] - a[1]), y_min)),
+        (lambda p: p[1] <= y_max, lambda a, b: (a[0] + (b[0] - a[0]) * (y_max - a[1]) / (b[1] - a[1]), y_max)),
+    ):
+        source = points
+        points = []
+        if not source:
+            break
+        previous = source[-1]
+        for current in source:
+            if inside(current):
+                if not inside(previous):
+                    points.append(intersect(previous, current))
+                points.append(current)
+            elif inside(previous):
+                points.append(intersect(previous, current))
+            previous = current
+    return points
+
+def _add_narrow_panel_hatches(
+    msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions,
+    v_union_set, h_union_set,
+):
+    x_edges = _dedupe_sorted([0.0] + list(v_positions) + [comp])
+    y_edges = _dedupe_sorted([0.0] + list(h_positions) + [larg])
+    count = 0
+    for xa, xb in zip(x_edges, x_edges[1:]):
+        for ya, yb in zip(y_edges, y_edges[1:]):
+            narrow_x = 1.0 < xb - xa < 30.0 and round(xb, 1) in v_union_set
+            narrow_y = 1.0 < yb - ya < 30.0 and round(yb, 1) in h_union_set
+            if not (narrow_x or narrow_y):
+                continue
+            clipped = _clip_polygon_to_rect(
+                poly_pts, x0 + xa, y0 + ya, x0 + xb, y0 + yb
+            )
+            if len(clipped) >= 3:
+                add_hatch_ansi31(msp, clipped, 'REAPROVEITAMENTO', scale=2.0)
+                count += 1
+    return count
+
 def _add_dim_text(msp, x, y, value, rotation=0.0, height=8.0):
     add_text(msp, x, y, _format_dim_value(value), height=height, layer='Pain\u00e9is', rotation=rotation)
 
@@ -411,8 +470,7 @@ def _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_
 
     # Cotas verticais principais: faixas internas no eixo Y.
     y_edges = [0.0] + list(h_positions) + [larg]
-    guide_x = x0 + (v_positions[0] if v_positions else comp / 2)
-    guide_x += 8.0 if guide_x <= x0 + comp / 2 else -8.0
+    guide_x = _vertical_dimension_guide(poly_pts, x0, comp, v_positions)
     for a, b in zip(y_edges, y_edges[1:]):
         if b - a > 1.0:
             _add_dim_text(msp, guide_x, y0 + (a + b) / 2, b - a, rotation=90.0)
@@ -518,6 +576,19 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
 
     lv = _normalize_line_positions(lv, comp)
     lh = _normalize_line_positions(lh, larg)
+    if min(comp, larg) <= 75.0:
+        lv = [
+            item for item in lv
+            if not item.get('segments') or any(
+                float(segment.get('y0', 0)) <= 1.0
+                and float(segment.get('y1', 0)) >= larg - 1.0
+                for segment in item['segments']
+            )
+        ]
+        lh = [
+            item for item in lh
+            if min(float(item.get('value', 0)), larg - float(item.get('value', 0))) >= 30.0
+        ]
 
     # SmartPanner if no panel divisions
     if not lv and not lh and comp > 0 and larg > 0:
@@ -532,18 +603,6 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
     # ---- Layer 3: structural outline (green LWPOLYLINE) ----
     msp.add_lwpolyline(poly_pts, close=True,
                         dxfattribs={'layer': '3', 'lineweight': 25})
-
-    # ---- Hachura/HLAZ: SOLID fill apenas nas tiras de uniao ----
-    for hz in lj_data.get('_hlaz', []) or []:
-        try:
-            hx = x0 + float(hz.get('x', 0))
-            hy = y0 + float(hz.get('y', 0))
-            hw = float(hz.get('width', 0))
-            hh = float(hz.get('height', 0))
-            if hw > 0 and hh > 0:
-                add_hatch_solid(msp, [(hx, hy), (hx + hw, hy), (hx + hw, hy + hh), (hx, hy + hh)], 'Hachura')
-        except Exception:
-            pass
 
     # ---- Layer 4: Label (TEXT h=15, not MTEXT) ----
     cx, cy = _label_position(poly_pts, v_positions=[], h_positions=[], x0=x0, y0=y0, comp=comp, larg=larg)
@@ -568,20 +627,46 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
         if h.get('is_union', False):
             h_union_set.add(round(float(h.get('value', 0)), 1))
 
+    local_v_segments = lj_data.get('_panel_vertical_segments') or []
+    if not local_v_segments:
+        # No fluxo oficial N4 os campos privados sao filtrados pelo Comparison
+        # Engine. Os trechos locais persistem dentro de linhas_verticais.
+        local_v_segments = [
+            {
+                'value': float(item.get('value', 0)),
+                'y0': float(segment.get('y0', 0)),
+                'y1': float(segment.get('y1', 0)),
+            }
+            for item in lv
+            for segment in (item.get('segments') or [])
+            if isinstance(item, dict) and isinstance(segment, dict)
+        ]
+
     # ---- Layer 3: Paired PLINEs at each division (sarrafo de pressao) ----
+    complex_outline = len(poly_pts) > 4 or bool(lj_data.get('_stog_clip_unions'))
     # Vertical divisions
     prev_xv = 0.0
-    for xv in v_positions:
-        abs_x = x0 + xv
-        is_union = round(xv, 1) in v_union_set
-        if is_union:
-            # Sarrafo: two PLINEs 19cm apart on layer 3
-            gap = max(1.0, xv - prev_xv)
-            add_paired_lines_v(msp, x0 + prev_xv, y0, y_max, gap=gap, layer='3')
-        else:
-            # Single division line on layer 3
-            _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, '3')
-        prev_xv = xv
+    if local_v_segments:
+        for segment in local_v_segments:
+            abs_x = x0 + float(segment['value'])
+            msp.add_line(
+                (abs_x, y0 + float(segment['y0'])),
+                (abs_x, y0 + float(segment['y1'])),
+                dxfattribs={'layer': '3'},
+            )
+    else:
+        for xv in v_positions:
+            abs_x = x0 + xv
+            is_union = round(xv, 1) in v_union_set
+            if is_union and complex_outline:
+                _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, '3')
+            elif is_union:
+                # Sarrafo: two PLINEs 19cm apart on layer 3
+                gap = max(1.0, xv - prev_xv)
+                add_paired_lines_v(msp, x0 + prev_xv, y0, y_max, gap=gap, layer='3')
+            else:
+                _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, '3')
+            prev_xv = xv
 
     # Horizontal divisions
     prev_yh = 0.0
@@ -589,17 +674,29 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
         abs_y = y0 + yh
         is_union = round(yh, 1) in h_union_set
         if is_union:
-            gap = max(1.0, yh - prev_yh)
-            add_paired_lines_h(msp, x0, x_max, y0 + prev_yh, gap=gap, layer='3')
+            if complex_outline:
+                _add_clipped_axis_lines(msp, poly_pts, 'h', abs_y, '3')
+            else:
+                gap = max(1.0, yh - prev_yh)
+                add_paired_lines_h(msp, x0, x_max, y0 + prev_yh, gap=gap, layer='3')
         else:
             _add_clipped_axis_lines(msp, poly_pts, 'h', abs_y, '3')
         prev_yh = yh
 
     # ---- Layer Painéis: panel boundary LINEs ----
     # Vertical panel boundaries
-    for xv in v_positions:
-        abs_x = x0 + xv
-        _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, 'Pain\u00e9is', lineweight=18)
+    if local_v_segments:
+        for segment in local_v_segments:
+            abs_x = x0 + float(segment['value'])
+            msp.add_line(
+                (abs_x, y0 + float(segment['y0'])),
+                (abs_x, y0 + float(segment['y1'])),
+                dxfattribs={'layer': 'Pain\u00e9is', 'lineweight': 18},
+            )
+    else:
+        for xv in v_positions:
+            abs_x = x0 + xv
+            _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, 'Pain\u00e9is', lineweight=18)
 
     # Horizontal panel boundaries
     for yh in h_positions:
@@ -610,7 +707,22 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
     x_edges = [0.0] + v_positions + [comp]
     h_edges = [0.0] + h_positions + [larg]
 
-    _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions)
+    if cotas_paineis:
+        for cota in cotas_paineis:
+            add_text(
+                msp, x0 + float(cota.get('x', 0)), y0 + float(cota.get('y', 0)),
+                str(cota.get('text', '')), height=float(cota.get('height', 8)),
+                layer='Pain\u00e9is', rotation=float(cota.get('rotation', 0)),
+            )
+    elif min(comp, larg) <= 75.0:
+        x_edges = [0.0] + v_positions + [comp]
+        for a, b in zip(x_edges, x_edges[1:]):
+            _add_dim_text(msp, x0 + (a + b) / 2, y0 + larg - 8.0, b - a)
+        y_edges = [0.0] + h_positions + [larg]
+        for a, b in zip(y_edges, y_edges[1:]):
+            _add_dim_text(msp, x0 + comp / 2, y0 + (a + b) / 2, b - a, rotation=90.0)
+    else:
+        _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions)
 
     # ---- Layer 3: dim texts for pilar sizes (e.g. "19/50") ----
     # Positioned near pilar corners where pilars would be
@@ -621,11 +733,15 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
         abs_x = x0 + xv
         is_union = round(xv, 1) in v_union_set
         if is_union:
-            # Vertical SOLID marker (degenerate triangle = line)
-            msp.add_solid(
-                [(abs_x, y0), (abs_x, y0 + min(200, larg)), (abs_x, y0)],
-                dxfattribs={'layer': '9'}
-            )
+            marker_top = y0 + min(200, larg)
+            for seg_lo, seg_hi in _axis_segments_in_polygon(poly_pts, 'v', abs_x):
+                lo = max(seg_lo, y0)
+                hi = min(seg_hi, marker_top)
+                if hi - lo > 0.5:
+                    msp.add_solid(
+                        [(abs_x, lo), (abs_x, hi), (abs_x, lo)],
+                        dxfattribs={'layer': '9'}
+                    )
 
     # ---- Layer 9: escora LINEs (vertical support lines) ----
     # In STOG real, these are spaced ~28cm apart in specific zones
@@ -642,6 +758,11 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
                      dxfattribs={'layer': '1', 'lineweight': 25})
         msp.add_line((x_max, y0), (x0, y_max),
                      dxfattribs={'layer': '1', 'lineweight': 25})
+    else:
+        _add_narrow_panel_hatches(
+            msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions,
+            v_union_set, h_union_set,
+        )
 
     # ---- OBSTACLES (DASHED rectangles on layer 3) ----
     for obs in obstaculos:

@@ -99,7 +99,7 @@ def test_assemble_pl_n5_accepts_zone_previews_and_applies_ini(tmp_path):
     out_doc = ezdxf.readfile(str(result.output_path))
     mlines = list(out_doc.modelspace().query("MLINE"))
     assert len(mlines) == 1
-    assert mlines[0].dxf.scale_factor == 2.2
+    assert mlines[0].dxf.scale_factor == 7.0
     style = out_doc.mline_styles.get("SAR3")
     assert style.dxf.flags & style.FILL
 
@@ -152,3 +152,5 @@ def test_assemble_fv_n5_preserves_existing_mline(tmp_path):
     assert len(mlines) == 1
     style = out_doc.mline_styles.get("SAR3")
     assert style.dxf.flags & style.FILL
+    assert mlines[0].dxf.style_handle == style.dxf.handle
+    assert list(mlines[0].virtual_entities())

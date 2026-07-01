@@ -1,0 +1,1511 @@
+{
+  "items": [
+    {
+      "id": "L301",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L301_motor_178111331366.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L301_motor_178282753604.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        405.5,
+        183.0
+      ],
+      "motor_outline": [
+        405.5,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 405.5,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.0,
+            "is_union": false
+          },
+          {
+            "value": 122.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 2742.57,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L301_approved_vs_motor.png"
+    },
+    {
+      "id": "L302",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L302_motor_178111331368.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L302_motor_178282753605.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.1,
+            "is_union": false
+          },
+          {
+            "value": 122.1,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3167.07,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L302_approved_vs_motor.png"
+    },
+    {
+      "id": "L303",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L303_motor_178111331370.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L303_motor_178282753608.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.1,
+            "is_union": false
+          },
+          {
+            "value": 122.1,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3604.07,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L303_approved_vs_motor.png"
+    },
+    {
+      "id": "L304",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L304_motor_178111331371.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L304_motor_178282753609.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.1,
+            "is_union": false
+          },
+          {
+            "value": 122.1,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4041.07,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L304_approved_vs_motor.png"
+    },
+    {
+      "id": "L305",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L305_motor_178111331373.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L305_motor_178282753612.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.1,
+            "is_union": false
+          },
+          {
+            "value": 122.1,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4478.07,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L305_approved_vs_motor.png"
+    },
+    {
+      "id": "L306",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L306_motor_178111331375.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L306_motor_178282753613.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.1,
+            "is_union": false
+          },
+          {
+            "value": 122.1,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4915.07,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L306_approved_vs_motor.png"
+    },
+    {
+      "id": "L307",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L307_motor_178111331377.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L307_motor_178282753615.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [
+        "linhas_horizontais",
+        "outline"
+      ],
+      "geometry_score": 75,
+      "geometry_gaps": [
+        "largura",
+        "area"
+      ],
+      "approved_outline": [
+        418.0,
+        183.0
+      ],
+      "motor_outline": [
+        418.0,
+        179.5
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 179.68,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 98.6,
+            "is_union": false
+          },
+          {
+            "value": 118.6,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 5352.07,
+          "y": 2609.9
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L307_approved_vs_motor.png"
+    },
+    {
+      "id": "L308",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L308_sel_1781121913.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L308_motor_178282753617.dxf",
+      "approved_confidence": null,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        289.0,
+        183.0
+      ],
+      "motor_outline": [
+        289.0,
+        183.0
+      ],
+      "motor_ficha": {
+        "comprimento": 289.0,
+        "largura": 183.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 102.0,
+            "is_union": false
+          },
+          {
+            "value": 122.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": [
+          {
+            "x": 0.0,
+            "y": 102.0,
+            "width": 289.0,
+            "height": 20.0
+          }
+        ],
+        "_stog_pose": {
+          "x": 5789.07,
+          "y": 2610.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L309",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L309_motor_178111331380.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L309_motor_178282753619.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        405.5,
+        311.0
+      ],
+      "motor_outline": [
+        405.5,
+        311.0
+      ],
+      "motor_ficha": {
+        "comprimento": 405.5,
+        "largura": 311.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 169.0,
+            "is_union": false
+          },
+          {
+            "value": 189.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 2742.57,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L309_approved_vs_motor.png"
+    },
+    {
+      "id": "L310",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L310_motor_178111331382.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L310_motor_178282753622.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 311.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 169.0,
+            "is_union": false
+          },
+          {
+            "value": 189.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3167.07,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L310_approved_vs_motor.png"
+    },
+    {
+      "id": "L311",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L311_motor_178111331384.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L311_motor_178282753624.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 311.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 169.0,
+            "is_union": false
+          },
+          {
+            "value": 189.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3604.07,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L311_approved_vs_motor.png"
+    },
+    {
+      "id": "L312",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L312_sel_1781576266.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L312_motor_178282753626.dxf",
+      "approved_confidence": null,
+      "score": 100,
+      "gaps": [
+        "linhas_verticais",
+        "outline"
+      ],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        122.0
+      ],
+      "motor_outline": [
+        418.0,
+        122.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 122.0,
+        "linhas_verticais": [
+          {
+            "value": 159.4,
+            "is_union": false
+          },
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [],
+        "_hlaz": [
+          {
+            "x": 0.0,
+            "y": 122.0,
+            "width": 418.0,
+            "height": 47.0
+          }
+        ],
+        "_stog_pose": {
+          "x": 4041.07,
+          "y": 2470.0
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L312_approved_vs_motor.png"
+    },
+    {
+      "id": "L313",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L313_motor_178111331388.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L313_motor_178282753627.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 311.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 169.0,
+            "is_union": false
+          },
+          {
+            "value": 189.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4478.07,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS",
+      "png": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\png\\L313_approved_vs_motor.png"
+    },
+    {
+      "id": "L314",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L314_motor_178164519182.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L314_motor_178282753630.dxf",
+      "approved_confidence": 73.3,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_outline": [
+        418.0,
+        311.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 311.0,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 169.0,
+            "is_union": false
+          },
+          {
+            "value": 189.0,
+            "is_union": true
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4915.07,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L315",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L315_sel_1782277668.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L315_motor_178282753632.dxf",
+      "approved_confidence": null,
+      "score": 15,
+      "gaps": [
+        "linhas_horizontais",
+        "modo_selecionado",
+        "outline"
+      ],
+      "geometry_score": 90,
+      "geometry_gaps": [
+        "largura",
+        "area"
+      ],
+      "approved_outline": [
+        418.0,
+        122.0
+      ],
+      "motor_outline": [
+        418.0,
+        120.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 119.9,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 30.4,
+            "is_union": false
+          },
+          {
+            "value": 77.4,
+            "is_union": false
+          },
+          {
+            "value": 97.4,
+            "is_union": true
+          }
+        ],
+        "_hlaz": [
+          {
+            "x": 0.0,
+            "y": 122.0,
+            "width": 418.0,
+            "height": 47.0
+          }
+        ],
+        "_stog_pose": {
+          "x": 5352.07,
+          "y": 2372.5
+        }
+      },
+      "status": "FAIL"
+    },
+    {
+      "id": "L316",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L316_motor_178111331395.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L316_motor_178282753634.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        289.0,
+        311.0
+      ],
+      "motor_outline": [
+        289.0,
+        311.0
+      ],
+      "motor_ficha": {
+        "comprimento": 289.0,
+        "largura": 311.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 141.9,
+            "is_union": true
+          },
+          {
+            "value": 202.4,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 244.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 5789.07,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L317",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L317_sel_1782277704.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L317_motor_178282753636.dxf",
+      "approved_confidence": null,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        97.5,
+        513.0
+      ],
+      "motor_outline": [
+        97.5,
+        513.0
+      ],
+      "motor_ficha": {
+        "comprimento": 97.5,
+        "largura": 513.0,
+        "linhas_verticais": [
+          {
+            "value": 48.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 244.0,
+            "is_union": false
+          },
+          {
+            "value": 366.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 6097.07,
+          "y": 2280.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L318",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L318_sel_1782277738.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L318_motor_178282753637.dxf",
+      "approved_confidence": null,
+      "score": 100,
+      "gaps": [
+        "linhas_horizontais",
+        "outline"
+      ],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        2413.0,
+        152.0
+      ],
+      "motor_outline": [
+        2414.0,
+        153.0
+      ],
+      "motor_ficha": {
+        "comprimento": 2414.03,
+        "largura": 152.93,
+        "linhas_verticais": [
+          {
+            "value": 243.9,
+            "is_union": false
+          },
+          {
+            "value": 320.4,
+            "is_union": false
+          },
+          {
+            "value": 564.4,
+            "is_union": false
+          },
+          {
+            "value": 808.4,
+            "is_union": false
+          },
+          {
+            "value": 1052.4,
+            "is_union": false
+          },
+          {
+            "value": 1251.9,
+            "is_union": false
+          },
+          {
+            "value": 1447.9,
+            "is_union": false
+          },
+          {
+            "value": 1691.9,
+            "is_union": false
+          },
+          {
+            "value": 1935.9,
+            "is_union": false
+          },
+          {
+            "value": 2179.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 61.4,
+            "is_union": false
+          }
+        ],
+        "_hlaz": [
+          {
+            "x": 2413.0,
+            "y": 40.5,
+            "width": 726.0,
+            "height": 20.0
+          }
+        ],
+        "_stog_pose": {
+          "x": 2939.07,
+          "y": 2109.01
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L319",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L319_motor_178164519199.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L319_motor_178282753641.dxf",
+      "approved_confidence": 78.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        406.5,
+        558.0
+      ],
+      "motor_outline": [
+        406.5,
+        558.0
+      ],
+      "motor_ficha": {
+        "comprimento": 406.47,
+        "largura": 558.07,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 142.0,
+            "is_union": true
+          },
+          {
+            "value": 263.9,
+            "is_union": false
+          },
+          {
+            "value": 284.4,
+            "is_union": true
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 143.1,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 2741.6,
+          "y": 1703.87
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L320",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L320_motor_178164519202.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L320_motor_178282753643.dxf",
+      "approved_confidence": 76.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 423.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 148.1,
+            "is_union": true
+          },
+          {
+            "value": 270.1,
+            "is_union": false
+          },
+          {
+            "value": 296.1,
+            "is_union": true
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 244.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3166.98,
+          "y": 1667.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L321",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L321_motor_178164519206.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L321_motor_178282753645.dxf",
+      "approved_confidence": 76.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 423.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 147.9,
+            "is_union": true
+          },
+          {
+            "value": 269.9,
+            "is_union": false
+          },
+          {
+            "value": 295.9,
+            "is_union": true
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 244.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3604.07,
+          "y": 1667.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L322",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L322_motor_178164519215.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L322_motor_178282753647.dxf",
+      "approved_confidence": 80.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 423.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 148.1,
+            "is_union": true
+          },
+          {
+            "value": 270.1,
+            "is_union": false
+          },
+          {
+            "value": 296.1,
+            "is_union": true
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 179.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4040.98,
+          "y": 1667.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L323",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L323_motor_178164519219.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L323_motor_178282753649.dxf",
+      "approved_confidence": 67.3,
+      "score": 100,
+      "gaps": [
+        "linhas_verticais"
+      ],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 423.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 148.1,
+            "is_union": true
+          },
+          {
+            "value": 270.1,
+            "is_union": false
+          },
+          {
+            "value": 296.1,
+            "is_union": true
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 244.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4477.98,
+          "y": 1667.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L324",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L324_motor_178164519223.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L324_motor_178282753652.dxf",
+      "approved_confidence": 78.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_outline": [
+        418.0,
+        423.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 423.0,
+        "linhas_verticais": [
+          {
+            "value": 122.0,
+            "is_union": false
+          },
+          {
+            "value": 148.1,
+            "is_union": true
+          },
+          {
+            "value": 270.1,
+            "is_union": false
+          },
+          {
+            "value": 296.1,
+            "is_union": true
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 244.0,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4914.98,
+          "y": 1667.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L325",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L325_sel_1782277773.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L325_motor_178282753654.dxf",
+      "approved_confidence": null,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        129.0,
+        459.0
+      ],
+      "motor_outline": [
+        129.0,
+        459.0
+      ],
+      "motor_ficha": {
+        "comprimento": 129.0,
+        "largura": 459.0,
+        "linhas_verticais": [
+          {
+            "value": 60.5,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 215.1,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 5352.07,
+          "y": 1582.89
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L326",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L326_motor_178111331413.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L326_motor_178282753656.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        233.5,
+        71.0
+      ],
+      "motor_outline": [
+        233.5,
+        71.0
+      ],
+      "motor_ficha": {
+        "comprimento": 233.74,
+        "largura": 71.0,
+        "linhas_verticais": [
+          {
+            "value": 116.8,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 35.6,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 2914.33,
+          "y": 1577.94
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L327",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L327_sel_1781576357.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L327_motor_178282753657.dxf",
+      "approved_confidence": null,
+      "score": 100,
+      "gaps": [
+        "linhas_verticais",
+        "outline"
+      ],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        415.5,
+        71.0
+      ],
+      "motor_outline": [
+        415.0,
+        71.0
+      ],
+      "motor_ficha": {
+        "comprimento": 415.0,
+        "largura": 71.0,
+        "linhas_verticais": [
+          {
+            "value": 236.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 35.5,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3168.6,
+          "y": 1578.0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L328",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L328_motor_178111331416.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L328_motor_178282753660.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 71.0,
+        "linhas_verticais": [
+          {
+            "value": 199.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 35.6,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 3604.07,
+          "y": 1578.0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L329",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L329_motor_178111331418.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L329_motor_178282753662.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 71.0,
+        "linhas_verticais": [
+          {
+            "value": 204.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 35.6,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4041.07,
+          "y": 1578.0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L330",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L330_motor_178111331421.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L330_motor_178282753664.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 71.0,
+        "linhas_verticais": [
+          {
+            "value": 199.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 35.6,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4478.07,
+          "y": 1578.0
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "L331",
+      "approved_recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13\u00b0 PAV.- LJ - R00\\LAJ_L331_motor_178111331423.dxf",
+      "motor_recorte": "D:\\Agente-cad-PYSIDE\\validacao_visual\\engrev_laj_recorte_loop\\motor_recortes\\LAJ_L331_motor_178282753666.dxf",
+      "approved_confidence": 100.0,
+      "score": 100,
+      "gaps": [],
+      "geometry_score": 100,
+      "geometry_gaps": [],
+      "approved_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_outline": [
+        418.0,
+        71.0
+      ],
+      "motor_ficha": {
+        "comprimento": 418.0,
+        "largura": 71.0,
+        "linhas_verticais": [
+          {
+            "value": 173.9,
+            "is_union": false
+          }
+        ],
+        "linhas_horizontais": [
+          {
+            "value": 35.6,
+            "is_union": false
+          }
+        ],
+        "_hlaz": null,
+        "_stog_pose": {
+          "x": 4915.07,
+          "y": 1578.0
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 31,
+    "refined": true
+  }
+}

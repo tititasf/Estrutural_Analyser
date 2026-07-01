@@ -153,6 +153,7 @@ from src.core.dxf_loader import RenderMode
 import math
 import os
 import base64
+import re
 from src.ui.theme import Colors, Fonts, Radius, Accent, Surface, Semantic, Contextual
 
 class DXFLineItem(QGraphicsLineItem):
@@ -2249,9 +2250,36 @@ class CADCanvas(QGraphicsView):
     # Vigas Laterais — coleta de segmentos e rótulos
     # ------------------------------------------------------------------
 
-    def _collect_lateral_segs(self, b_data: dict) -> list:
-        """Polígonos de footprint de cada segmento lateral (viga_segs.seg_bottom), 1-indexados."""
+    def _collect_lateral_segs(self, b_data: dict, item_data: dict | None = None) -> list:
+        """Coleta segmentos LV do lado e motor Para/Passa selecionados.
+
+        Sem ``item_data`` mantém o footprint global legado usado pelos rótulos
+        da planta inteira.
+        """
         links = b_data.get('links', {})
+        item_type = str((item_data or {}).get('type') or '').lower()
+        side_map = {'viga_lateral_a': 'a', 'viga_lateral_b': 'b'}
+        side = side_map.get(item_type)
+        if side:
+            tipo_comp = str((item_data or {}).get('_tipo_comp') or 'passa').lower()
+            suffix = 'comprimento_total' if tipo_comp == 'para' else 'comp_total_passa'
+            slot = f'seg_side_{side}'
+            pattern = re.compile(rf'^viga_{side}_seg_(\d+)_{suffix}$')
+            result = []
+            for field_id, slots in links.items():
+                match = pattern.match(str(field_id))
+                if not match or not isinstance(slots, dict):
+                    continue
+                for link in slots.get(slot, []) or []:
+                    if isinstance(link, dict) and link.get('points'):
+                        result.append({
+                            **link,
+                            '_seg_num': int(match.group(1)),
+                            '_slot_name': slot,
+                            '_field_id': field_id,
+                        })
+            return sorted(result, key=lambda link: link['_seg_num'])
+
         viga_segs = links.get('viga_segs', {})
         if not isinstance(viga_segs, dict):
             return []
@@ -2294,7 +2322,7 @@ class CADCanvas(QGraphicsView):
     def draw_single_beam_lateral(self, item_data: dict, beam_data: dict):
         """Destaca LV de UMA viga (lado A ou B) com rótulos de segmento por span."""
         self.draw_item_links(item_data)  # limpa e redesenha em beam_visuals
-        seg_list = self._collect_lateral_segs(beam_data)
+        seg_list = self._collect_lateral_segs(beam_data, item_data)
         self._add_seg_labels(seg_list, store_group='beam_visuals')
 
     def draw_focus_beams(self, beams_visual_data: list):
@@ -2438,6 +2466,33 @@ class CADCanvas(QGraphicsView):
             if renderable:
                 yield slot_name, renderable
 
+    @staticmethod
+    def _beam_subtype_link_allowed(target: dict, field_id: str) -> bool:
+        """Filtra simultaneamente face A/B e motor LV Para/Passa."""
+        item_type = str(target.get('type') or '').lower()
+        prefix_map = {
+            'viga_lateral_a': 'viga_a_',
+            'viga_lateral_b': 'viga_b_',
+            'viga_fundo_c': 'viga_fundo_',
+        }
+        prefix = prefix_map.get(item_type)
+        if not prefix:
+            return True
+        if not str(field_id).startswith(prefix):
+            return False
+        if item_type not in {'viga_lateral_a', 'viga_lateral_b'}:
+            return True
+
+        match = re.match(
+            r'^viga_[ab]_seg_\d+_(comprimento_total|comp_total_passa)$',
+            str(field_id),
+        )
+        if not match:
+            return True
+        tipo_comp = str(target.get('_tipo_comp') or 'passa').lower()
+        desired = 'comprimento_total' if tipo_comp == 'para' else 'comp_total_passa'
+        return match.group(1) == desired
+
     def draw_item_links(self, target, destination='focus', clear=True):
         """
         Desenha os vÃ­nculos de um item.
@@ -2473,13 +2528,10 @@ class CADCanvas(QGraphicsView):
         
         # Filtro por sub-tipo de viga (LV-A, LV-B, FV): mostrar apenas links do item selecionado
         # Mapeamento exato evita falsos positivos por substring em nomes futuros
-        _LV_FV_PREFIX_MAP = {
-            'viga_lateral_a': 'viga_a_',
-            'viga_lateral_b': 'viga_b_',
-            'viga_fundo_c':   'viga_fundo_',
-        }
         _item_type = target.get('type', '').lower()
-        _lv_fv_prefix = _LV_FV_PREFIX_MAP.get(_item_type)
+        _lv_fv_prefix = _item_type in {
+            'viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c'
+        }
 
         links = target.get('links', {})
         if not isinstance(links, dict):
@@ -2487,7 +2539,7 @@ class CADCanvas(QGraphicsView):
 
         for field_id, slots in links.items():
             # Filtrar por prefixo de sub-tipo de viga
-            if _lv_fv_prefix and not field_id.startswith(_lv_fv_prefix):
+            if not self._beam_subtype_link_allowed(target, field_id):
                 continue
             # FILTRO: Para visÃµes globais (slab/beam), focar apenas no contorno/geometria principal
             # Evita poluiÃ§Ã£o visual de textos de dimensÃ£o/nome em todos os itens

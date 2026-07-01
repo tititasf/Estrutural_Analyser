@@ -924,67 +924,12 @@ class MotorFase4:
             if not segs:
                 continue
 
-            panels = []
-            dim_w, dim_h = self._parse_dim_pair(data.get("dim"))
-            apoio_ini = apoio_fim = ""
-            for seg in segs:
-                ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
-                length = (
-                    ficha.get("comprimento_total_fundo")
-                    or seg.get("length")
-                    or self._seg_len_from_geometry(seg)
-                )
-                try:
-                    length = float(str(length).replace(",", ".") or 0)
-                except Exception:
-                    length = 0.0
-                if length <= 0:
-                    continue
-                sw = float(seg.get("dim_width") or ficha.get("largura_total_fundo") or dim_w or 0)
-                sh = float(seg.get("dim_height") or ficha.get("altura_total") or dim_h or 0)
-                dim_w = dim_w or sw
-                dim_h = dim_h or sh
-                apoio_ini = apoio_ini or str(seg.get("apoio_inicial") or "")
-                apoio_fim = apoio_fim or str(seg.get("apoio_final") or "")
-                panel = {
-                    "total_width": round(length, 1),
-                    "width": round(length, 1),
-                    "height1": round(sh or dim_h or 0, 1),
-                    "height2": round(sh or dim_h or 0, 1),
-                    "dim_text": seg.get("dim_text") or data.get("dim") or "",
-                    "largura_total_fundo": round(sw or dim_w or 0, 1),
-                    "comprimento_total_fundo": round(length, 1),
-                    "altura_total": round(sh or dim_h or 0, 1),
-                }
-                for k in (
-                    "abertura_especial", "chanfro_esq_top", "chanfro_esq_fun",
-                    "chanfro_dir_top", "chanfro_dir_fun", "abertura_topo_esq",
-                    "abertura_topo_dir", "abertura_fundo_esq", "abertura_fundo_dir",
-                ):
-                    if ficha.get(k) not in (None, ""):
-                        panel[k] = ficha.get(k)
-                panels.append(panel)
+            from src.core.fv_generation_contract import build_fv_generation_contract
 
+            out = build_fv_generation_contract(vname, data, floor=pav)
+            panels = out["segments_rich"]
             if not panels:
                 continue
-
-            number_match = re.search(r"\d+", vname)
-            out = {
-                "number": number_match.group(0) if number_match else vname,
-                "name": vname,
-                "floor": pav,
-                "side": "C",
-                "total_width": round(dim_w or panels[0].get("largura_total_fundo") or 0, 1),
-                "total_height": str(round(dim_h or panels[0].get("altura_total") or 0, 1)),
-                "panels": panels,
-                "segments_rich": panels,
-                "holes": [],
-                "pillar_left": {"active": bool(apoio_ini), "label": apoio_ini, "width": 0.0, "length": 0.0},
-                "pillar_right": {"active": bool(apoio_fim), "label": apoio_fim, "width": 0.0, "length": 0.0},
-                "apoio_inicial": apoio_ini,
-                "apoio_final": apoio_fim,
-                "observations": "Fonte: Structural Analyzer beam_elements FV",
-            }
             out.update(_build_sa_meta(
                 "FV", out,
                 ["number", "name", "floor", "total_width", "total_height", "panels",

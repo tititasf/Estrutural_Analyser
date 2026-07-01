@@ -1,0 +1,148 @@
+{
+  "nome": "L331",
+  "numero": 331,
+  "coordenadas": [
+    [
+      2.5,
+      0.0
+    ],
+    [
+      418.0,
+      0.0
+    ],
+    [
+      418.0,
+      71.0
+    ],
+    [
+      0.0,
+      71.0
+    ],
+    [
+      0.0,
+      52.0
+    ],
+    [
+      2.5,
+      52.0
+    ],
+    [
+      2.5,
+      0.0
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 71.0,
+  "area_cm2": 29548.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 174.0,
+      "is_union": false,
+      "exact": true,
+      "segments": [
+        {
+          "y0": 0.0,
+          "y1": 70.9
+        }
+      ]
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 35.4,
+      "is_union": false,
+      "exact": true
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "_stog_pose": {
+    "x": 4915.07,
+    "y": 1578.0
+  },
+  "cotas_paineis": [
+    {
+      "text": "16.5",
+      "value": 16.5,
+      "x": 34.21,
+      "y": 18.95,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "2.5",
+      "value": 2.5,
+      "x": 20.18,
+      "y": 63.02,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "174",
+      "value": 174.0,
+      "x": 87.0,
+      "y": 78.5,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "244",
+      "value": 244.0,
+      "x": 296.0,
+      "y": 78.5,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "35.5",
+      "value": 35.5,
+      "x": 153.14,
+      "y": 17.69,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "35.5",
+      "value": 35.5,
+      "x": 171.52,
+      "y": 53.19,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "171.5",
+      "value": 171.5,
+      "x": 88.25,
+      "y": 27.06,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "244",
+      "value": 244.0,
+      "x": 296.0,
+      "y": 22.66,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "16.5",
+      "value": 16.5,
+      "x": -20.57,
+      "y": 18.95,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "2.5",
+      "value": 2.5,
+      "x": -39.18,
+      "y": 63.84,
+      "rotation": 0.0,
+      "height": 9.0
+    }
+  ],
+  "pontaletes": {}
+}

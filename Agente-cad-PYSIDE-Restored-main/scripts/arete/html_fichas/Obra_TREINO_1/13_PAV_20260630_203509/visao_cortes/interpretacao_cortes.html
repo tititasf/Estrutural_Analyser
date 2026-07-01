@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Guia de Interpretação da Visão de Cortes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; color: #ccc; font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; }
+  h1 { color: #4fc3a1; font-size: 18px; border-bottom: 2px solid #4fc3a1; padding-bottom: 6px; margin-bottom: 16px; }
+  h2 { color: #7eb8f7; font-size: 14px; margin: 24px 0 8px; border-left: 3px solid #7eb8f7; padding-left: 8px; }
+  h3 { color: #f0b840; font-size: 12px; margin: 16px 0 6px; }
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+  .intro { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; color: #aaa; font-size: 12px; }
+  .intro b { color: #4fc3a1; }
+
+  /* ── Tabela de faces ── */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #1e1e1e; color: #4fc3a1; padding: 6px 10px; text-align: left; border-bottom: 1px solid #333; }
+  td { padding: 5px 10px; border-bottom: 1px solid #222; vertical-align: top; }
+  tr:hover td { background: #181818; }
+  .lbl-A { color: #4fc3a1; font-weight: bold; }
+  .lbl-B { color: #7eb8f7; font-weight: bold; }
+  .lbl-C { color: #c47ef7; font-weight: bold; }
+  .lbl-D { color: #f0b840; font-weight: bold; }
+
+  /* ── Casos ── */
+  .caso { background: #161616; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+  .caso-title { font-size: 13px; font-weight: bold; color: #4fc3a1; margin-bottom: 8px; }
+  .caso-body { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .caso-text { flex: 1; min-width: 200px; font-size: 12px; color: #aaa; }
+  .caso-text ul { margin: 6px 0 0 16px; }
+  .caso-text li { margin: 3px 0; }
+  .caso-diag { flex-shrink: 0; }
+
+  /* Diagrama ASCII melhorado */
+  .ascii { background: #0d0d0d; border: 1px solid #222; border-radius: 4px; padding: 10px 14px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.55; white-space: pre; color: #aaa; font-variant-ligatures: none; -webkit-font-feature-settings: 'liga' 0; font-feature-settings: 'liga' 0; letter-spacing: 0; }
+  .ascii .viga { color: #7eb8f7; }
+  .ascii .laje { color: #4fc3a1; }
+  .ascii .pilar { color: #f0b840; }
+  .ascii .faceC { color: #c47ef7; }
+  .ascii .faceD { color: #f0b840; }
+  .ascii .faceA { color: #4fc3a1; }
+  .ascii .faceB { color: #7eb8f7; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 4px; }
+  .tag-viga { background: #1a2030; color: #7eb8f7; }
+  .tag-laje { background: #102010; color: #4fc3a1; }
+  .tag-nulo { background: #222; color: #666; }
+
+  .result-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .result-face { padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; border-left: 3px solid; }
+  .rf-A { background: #122012; border-color: #4fc3a1; color: #4fc3a1; }
+  .rf-B { background: #12122a; border-color: #7eb8f7; color: #7eb8f7; }
+  .rf-C { background: #2a1228; border-color: #c47ef7; color: #c47ef7; }
+  .rf-D { background: #2a1e10; border-color: #f0b840; color: #f0b840; }
+
+  .rule-box { background: #0d1a0d; border: 1px solid #2a4a2a; border-radius: 4px; padding: 10px 14px; margin: 12px 0; font-size: 12px; }
+  .rule-box .rule-title { color: #4fc3a1; font-weight: bold; margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
+  code { background: #1e1e1e; color: #e67; padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+
+  /* ── Carrossel de exemplos ── */
+  .carousel { display: flex; flex-direction: column; gap: 0; }
+  .carousel-slides { position: relative; }
+  .carousel-slide { display: none; }
+  .carousel-slide.active { display: block; }
+  .slide-label {
+    text-align: center; font-size: 10px; color: #555; margin-top: 4px;
+    font-style: italic; letter-spacing: 0.03em;
+  }
+  .slide-label.real { color: #4fc3a1; }
+  .carousel-nav {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px;
+  }
+  .carousel-btn {
+    background: #1e1e1e; color: #888; border: 1px solid #333;
+    padding: 3px 14px; cursor: pointer; border-radius: 3px;
+    font-size: 16px; line-height: 1; transition: background 0.15s;
+    user-select: none;
+  }
+  .carousel-btn:hover { background: #2a2a2a; color: #ccc; }
+  .carousel-btn:active { background: #333; }
+  .carousel-counter {
+    color: #555; font-size: 11px; min-width: 48px;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .carousel-img { max-width: 100%; border-radius: 4px; border: 1px solid #2a2a2a; display: block; }
+  .slide-placeholder {
+    background: #111; border: 1px dashed #2a2a2a; border-radius: 4px;
+    padding: 28px 40px; text-align: center; color: #333; font-size: 11px;
+    font-style: italic; min-width: 260px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p style="font-size:11px; color:#555; margin-bottom:16px;">
+    <a href="../index.html" style="color:#7eb8f7; text-decoration:none;">&#8592; Voltar ao índice</a>
+  </p>
+
+  <h1>Guia de Interpretação da Visão de Cortes</h1>
+
+  <div class="intro">
+    <b>O que é isso?</b> O corte vertical mostra uma seção do pavimento —
+    pilares e vigas aparecem como retângulos em corte transversal ou longitudinal.
+    Este guia explica como ler cada elemento num corte.
+    <br><br>
+    <b>Quando usar:</b> Ao interpretar qualquer ficha que requer análise de cota
+    vertical (FV, laterais, pilar).
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>1. Elementos num Corte Vertical</h2>
+
+  <div class="ascii"> Corte vertical N-S (olhando para leste)
+
+ nivel topo laje: 852.19
+ <span class="laje">══════════════════════════════════════════════════</span>
+                   │            │             │
+ <span class="viga">viga E-W</span>         │ <span class="pilar">▓▓▓▓▓▓▓▓▓▓▓▓</span> │             │
+ ┌─────────────────┤ <span class="pilar">▓ Pilar P12 ▓</span> ├─────────────┤
+ │     Viga V10    │ <span class="pilar">▓  19×100   ▓</span> │   Viga V11  │
+ │    19 × 60 cm   │ <span class="pilar">▓▓▓▓▓▓▓▓▓▓▓▓</span> │  19 × 55 cm │
+ └─────────────────┘             └─────────────┘
+ nivel fundo viga: 792.19
+                    │            │
+ <span class="laje">══════════════════════════════════════════════════</span>
+ nivel topo laje inferior: 780.00
+
+ <span class="pilar">▓▓▓</span> = pilar (em corte ou em vista)
+ ═══ = laje
+ └──┘ = viga (seção transversal)</div>
+
+  <h2>2. Casos de Leitura</h2>
+  <div class="caso">
+    <div class="caso-title">Caso 1 — Corte de Pilar — leitura da seção transversal</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>No corte passando pelo eixo do pilar, ele aparece como retângulo maciço.
+        As dimensões visíveis correspondem à seção transversal.</p>
+        <ul>
+          <li>Largura visível = dimensão ortogonal ao corte</li>
+          <li>Altura visível = dimensão ao longo do corte</li>
+          <li>Nível de topo = cota da face superior</li>
+          <li>Nível de base = cota da face inferior</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">seção visível = 19 × 100 cm</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="co1">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Corte passando pelo eixo do pilar:
+
+ <span class="laje">════════════════════════════════════</span>  nivel: 852.19
+         │                      │
+         │  <span class="pilar">▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓</span>  │
+         │  <span class="pilar">▓  Pilar P12    ▓</span>  │
+         │  <span class="pilar">▓  largura: 19  ▓</span>  │
+         │  <span class="pilar">▓  altura: 100  ▓</span>  │
+         │  <span class="pilar">▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓</span>  │
+         │                      │
+ <span class="laje">════════════════════════════════════</span>  nivel inferior
+
+ O pilar aparece como retângulo maciço.
+ Dimensões = seção transversal (largura × altura visível)</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('co1')">&#8249;</button>
+            <span class="carousel-counter" id="co1-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('co1')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 2 — Corte de Viga — leitura do sofito (fundo)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>No corte transversal da viga, ela aparece como retângulo de contorno.
+        O ponto inferior = fundo da viga (sofito).</p>
+        <ul>
+          <li>Largura = dimensão horizontal da seção</li>
+          <li>Altura = distância entre topo e fundo</li>
+          <li><code>nivel_fundo</code> = nivel_topo − altura_viga</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">nivel_fundo = 852.19 − 60 = 792.19</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="co2">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Corte transversal da viga (olhando ao longo do eixo):
+
+ <span class="laje">════════════════════════════════════</span>  nivel: 852.19
+                 │        │
+                 │ Viga   │
+                 │ V10    │  largura: 19 cm
+                 │ 19×60  │  altura: 60 cm
+                 └────────┘
+                           ← nivel fundo: 792.19
+ <span class="laje">════════════════════════════════════</span>  nivel laje inferior
+
+ A viga aparece como retângulo oco (contorno).
+ Fundo da viga = nivel topo − altura</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('co2')">&#8249;</button>
+            <span class="carousel-counter" id="co2-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('co2')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 3 — Corte composto — interseção pilar + viga</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Cortes que passam por um pilar e por uma viga no mesmo plano
+        mostram ambos simultaneamente. Cada elemento tem seu nível e seção próprios.</p>
+        <ul>
+          <li>Pilar: retângulo maciço — nível de topo pode ser diferente da viga</li>
+          <li>Viga: retângulo de contorno entre os dois pilares</li>
+          <li>O fundo da viga pode ser diferente do fundo do pilar</li>
+          <li>Verificar cotas individuais de cada elemento</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">Pilar P1 topo = 852.19</div>
+          <div class="result-face rf-B">Viga V9 fundo = 807.19</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="co3">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Corte passando por pilar + viga E-W simultâneos:
+
+ <span class="laje">════════════════════════════════════════════════════</span>
+ │                │              │                  │
+ │  <span class="pilar">▓▓▓▓▓▓▓▓▓▓▓▓</span>   │  <span class="viga">┌──────────┐</span>   │  <span class="pilar">▓▓▓▓▓▓▓▓▓▓</span>  │
+ │  <span class="pilar">▓ Pilar P1  ▓</span>   │  <span class="viga">│  Viga V9 │</span>   │  <span class="pilar">▓ Pilar P2▓</span>  │
+ │  <span class="pilar">▓▓▓▓▓▓▓▓▓▓▓▓</span>   │  <span class="viga">│  19×45   │</span>   │  <span class="pilar">▓▓▓▓▓▓▓▓▓▓</span>  │
+ │                │  <span class="viga">└──────────┘</span>   │                  │
+ │                │              │                  │
+ <span class="laje">════════════════════════════════════════════════════</span>
+
+ Pilares em extremos + viga no meio = corte composto</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('co3')">&#8249;</button>
+            <span class="carousel-counter" id="co3-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('co3')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>3. Síntese de Leitura de Corte</h2>
+
+  <table>
+    <tr><th>Elemento</th><th>Aparência no corte</th><th>Dados a extrair</th></tr>
+    <tr>
+      <td><span class="lbl-A">Pilar</span></td>
+      <td>Retângulo maciço (hatched)</td>
+      <td>seção (l × h), nivel topo, nivel base</td>
+    </tr>
+    <tr>
+      <td><span class="lbl-B">Viga</span></td>
+      <td>Retângulo de contorno</td>
+      <td>largura, altura, nivel topo, nivel fundo</td>
+    </tr>
+    <tr>
+      <td><span class="lbl-C">Laje</span></td>
+      <td>Linha ou faixa horizontal</td>
+      <td>nivel topo, espessura</td>
+    </tr>
+  </table>
+
+</div>
+<script>
+function _carouselMove(id, dir) {
+  const el = document.getElementById(id);
+  const slides = el.querySelectorAll('.carousel-slide');
+  const counter = document.getElementById(id + '-counter');
+  let cur = Array.from(slides).findIndex(s => s.classList.contains('active'));
+  slides[cur].classList.remove('active');
+  cur = (cur + dir + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  counter.textContent = (cur + 1) + ' / ' + slides.length;
+}
+function prevSlide(id) { _carouselMove(id, -1); }
+function nextSlide(id) { _carouselMove(id, +1); }
+</script>
+</body>
+</html>

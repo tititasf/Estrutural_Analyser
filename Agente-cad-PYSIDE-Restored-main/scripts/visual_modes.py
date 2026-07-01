@@ -61,6 +61,8 @@ _LEGACY_COLORS = {
     "SARR_2.2x5": 91,
     "SARR_2.2x3.5": 71,
     "SARR_3.5x7": 7,
+    "SARR_7x7": 100,
+    "MEIOPONTALETE": 160,
     "SARRAFO_PRESSAO": 1,
     "SARRAFO DE PRESSAO": 1,
     "Sarrafo_de_pressao": 1,
@@ -73,8 +75,10 @@ _INI_LAYER_MAP = {
         "painéis": "hachura-chapa",
         "sarrafo": "SARRAFO_2_2X7",
         "sarr_2.2x7": "SARRAFO_2_2X7",
-        "sarr_2.2x10": "SARRAFO_2_2X7",
-        "sarr_3.5x7": "SARRAFO_2_2X7",
+        # GRADES usa classes fisicamente e visualmente distintas. Preservar
+        # essas layers faz a MLINE herdar a cor correta por BYLAYER.
+        "sarr_2.2x10": "SARR_2.2x10",
+        "sarr_3.5x7": "SARR_3.5x7",
         "gravata": "perfil_metalico",
         "perfil metálico": "perfil_metalico",
         "hachura": "barra_ancoragem",
@@ -82,17 +86,18 @@ _INI_LAYER_MAP = {
     },
     "LV": {
         "sarr_2.2x7": "SARRAFO_2_2X7",
-        "sarr_2.2x10": "SARRAFO_2_2X7",
+        "sarr_2.2x10": "SARR_2.2x10",
         "sarr_2.2x5": "SARRAFO_2_2x5",
-        "sarr_2.2x3.5": "SARRAFO_2_2x5",
-        "sarr_3.5x7": "SARRAFO_2_2X7",
+        "sarr_2.2x3.5": "SARR_2.2x3.5",
+        "sarr_3.5x7": "SARR_3.5x7",
         "sarrafo_2_2x7": "SARRAFO_2_2X7",
+        "meiopontalete": "MEIOPONTALETE",
         "5": "DIVISAO",
         "cota": "cota",
     },
     "FV": {
-        "sarr_2.2x7": "SARRAFO_2_2x5",
-        "sarr_2.2x10": "SARRAFO_2_2x5",
+        "sarr_2.2x7": "SARRAFO_2_2X7",
+        "sarr_2.2x10": "SARR_2.2x10",
         "sarr_2.2x5": "SARRAFO_2_2x5",
         "sarr_5cm": "SARRAFO_2_2x5",
         "sarr_contorno_10cm": "SARRAFO_2_2x5",
@@ -148,7 +153,20 @@ def _polyline_vertices(entity) -> list[tuple[float, float]]:
 
 def _is_sarrafo_layer(layer: str) -> bool:
     norm = str(layer or "").casefold()
-    return "sarr" in norm
+    return "sarr" in norm or norm == "meiopontalete"
+
+
+def _is_lv_layer_sentinel(entity) -> bool:
+    """Reconhece as linhas de presenca de layer emitidas fora do desenho."""
+    if entity.dxftype() != "LINE":
+        return False
+    p0, p1 = _line_points(entity)
+    return (
+        max(p0[0], p1[0]) <= -8000.0
+        and abs(p0[1]) <= 1e-6
+        and abs(p1[1]) <= 1e-6
+        and abs(abs(p1[0] - p0[0]) - 10.0) <= 1e-6
+    )
 
 
 def _axis_aligned_rectangle(vertices: list[tuple[float, float]],
@@ -180,6 +198,25 @@ def _centerline_from_bbox(box):
         return [(x0, cy), (x1, cy)], height
     cx = (x0 + x1) / 2.0
     return [(cx, y0), (cx, y1)], width
+
+
+def _centerline_for_visual_class(box, layer: str, robot_class: str):
+    """Resolve secoes cuja orientacao nao pode ser inferida pelo lado maior."""
+    x0, y0, x1, y1 = box
+    width, height = x1 - x0, y1 - y0
+    layer_norm = str(layer or "").casefold()
+    if (
+        robot_class == "LV"
+        and layer_norm == "sarrafo_2_2x7"
+        and width > 0
+        and height > 0
+        and 0.75 <= width / height <= 1.25
+    ):
+        # Na Visao Corte o eixo atravessa os 4 cm do painel e o perfil
+        # SAR3 abre 4.4 cm na vertical, conforme o SCR (_CMLSCALE 4.400).
+        cy = (y0 + y1) / 2.0
+        return [(x0, cy), (x1, cy)], height
+    return _centerline_from_bbox(box)
 
 
 def _line_points(entity):
@@ -237,8 +274,12 @@ def _line_rectangles(lines: list) -> list[tuple[list, tuple]]:
     return found
 
 
-def _width_from_layer(layer: str, vertices) -> float:
+def _width_from_layer(
+    layer: str, vertices, planar_width: bool = False
+) -> float:
     """Fallback para linhas sem retangulo: seção nominal orientada pelo eixo."""
+    if str(layer or "").casefold() == "meiopontalete":
+        return 14.0
     match = __import__("re").search(
         r"(?:SARR(?:AFO)?[_ .-]*)(\d+(?:[._]\d+)?)X(\d+(?:[._]\d+)?)",
         str(layer).upper(),
@@ -247,9 +288,124 @@ def _width_from_layer(layer: str, vertices) -> float:
         return 2.2
     first = float(match.group(1).replace("_", "."))
     second = float(match.group(2).replace("_", "."))
+    if planar_width:
+        return second
     p0, p1 = vertices[0], vertices[-1]
     horizontal = abs(p1[0] - p0[0]) >= abs(p1[1] - p0[1])
     return first if horizontal else second
+
+
+def _panel_boxes(entities: Iterable) -> list[tuple[float, float, float, float]]:
+    """Bounding boxes dos paineis usados para alinhar sarrafos FV/PL."""
+    boxes = []
+    horizontal_groups: dict[tuple[float, float], list[float]] = {}
+    for entity in entities:
+        if "pain" not in str(entity.dxf.get("layer", "")).casefold():
+            continue
+        vertices = _polyline_vertices(entity)
+        if len(vertices) < 2:
+            continue
+        xs = [point[0] for point in vertices]
+        ys = [point[1] for point in vertices]
+        if max(xs) > min(xs) and max(ys) > min(ys):
+            boxes.append((min(xs), min(ys), max(xs), max(ys)))
+        elif (
+            len(vertices) == 2
+            and abs(vertices[0][1] - vertices[1][1]) <= 1e-4
+            and abs(vertices[0][0] - vertices[1][0]) > 1e-4
+        ):
+            key = tuple(sorted((
+                round(vertices[0][0], 4),
+                round(vertices[1][0], 4),
+            )))
+            horizontal_groups.setdefault(key, []).append(vertices[0][1])
+    for (x0, x1), ys in horizontal_groups.items():
+        if len(ys) >= 2 and max(ys) > min(ys):
+            boxes.append((x0, min(ys), x1, max(ys)))
+    return boxes
+
+
+def _pl_cima_madeira_layers(entities: Iterable) -> dict[int, str]:
+    """Classifica as pecas fechadas da grade na vista CIMA.
+
+    O motor desenha todas na layer ``Madeira``: bases/cantos 7x7 e
+    divisores 3.5x7. A relacao entre as espessuras torna a deteccao
+    independente da escala 2x usada pela vista.
+    """
+    rectangles = []
+    for entity in entities:
+        if (
+            str(entity.dxf.get("layer", "")).casefold() != "madeira"
+            or entity.dxftype() != "LWPOLYLINE"
+            or not entity.closed
+        ):
+            continue
+        box = _axis_aligned_rectangle(_polyline_vertices(entity))
+        if box is None:
+            continue
+        x0, y0, x1, y1 = box
+        short_side = min(x1 - x0, y1 - y0)
+        rectangles.append((entity, short_side))
+    if not rectangles:
+        return {}
+
+    full_section = max(short_side for _, short_side in rectangles)
+    return {
+        id(entity): (
+            "SARR_3.5x7"
+            if short_side < full_section * 0.75
+            else "SARR_7x7"
+        )
+        for entity, short_side in rectangles
+    }
+
+
+def _align_panel_centerline(
+    vertices, thickness: float, panel_boxes, edge_extra: float = 0.5
+):
+    """Centraliza a faixa que deve crescer ate a borda externa do painel."""
+    if len(vertices) < 2 or not panel_boxes:
+        return vertices
+    p0, p1 = vertices[0], vertices[-1]
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+    horizontal = abs(dx) >= abs(dy) * 10
+    vertical = abs(dy) >= abs(dx) * 10
+    if not horizontal and not vertical:
+        return vertices
+
+    mx = (p0[0] + p1[0]) / 2.0
+    my = (p0[1] + p1[1]) / 2.0
+    candidates = [
+        box for box in panel_boxes
+        if box[0] - 1 <= mx <= box[2] + 1
+        and box[1] - 1 <= my <= box[3] + 1
+    ]
+    if not candidates:
+        return vertices
+    box = min(candidates, key=lambda value: (
+        abs(mx - (value[0] + value[2]) / 2.0)
+        + abs(my - (value[1] + value[3]) / 2.0)
+    ))
+
+    shift_x = shift_y = 0.0
+    if horizontal:
+        low = abs(my - box[1])
+        high = abs(box[3] - my)
+        if low < high and low <= thickness + edge_extra:
+            shift_y = -thickness / 2.0
+        elif high < low and high <= thickness + edge_extra:
+            shift_y = thickness / 2.0
+    else:
+        low = abs(mx - box[0])
+        high = abs(box[2] - mx)
+        if low < high and low <= thickness + edge_extra:
+            shift_x = -thickness / 2.0
+        elif high < low and high <= thickness + edge_extra:
+            shift_x = thickness / 2.0
+    return [
+        (point[0] + shift_x, point[1] + shift_y)
+        for point in vertices
+    ]
 
 
 def _add_solid_mline(msp, vertices, layer: str, thickness: float) -> None:
@@ -288,10 +444,24 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
     _ensure_sar3_style(doc)
 
     msp = doc.modelspace()
+    original_entities = _iter_modelspace_entities(doc)
+    pl_cima_madeira = (
+        _pl_cima_madeira_layers(original_entities)
+        if cls == "PL"
+        else {}
+    )
+    panel_boxes = (
+        _panel_boxes(original_entities)
+        if cls in ("FV", "PL")
+        else []
+    )
     sarrafo_entities = []
-    for entity in _iter_modelspace_entities(doc):
+    for entity in original_entities:
         old_layer = str(entity.dxf.get("layer", "0"))
-        new_layer = layer_map.get(old_layer.casefold(), old_layer)
+        new_layer = pl_cima_madeira.get(
+            id(entity),
+            layer_map.get(old_layer.casefold(), old_layer),
+        )
         _ensure_layer(doc, new_layer)
 
         if new_layer != old_layer:
@@ -305,6 +475,7 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         if (
             _is_sarrafo_layer(new_layer)
             and entity.dxftype() in ("LINE", "LWPOLYLINE")
+            and not (cls == "LV" and _is_lv_layer_sentinel(entity))
         ):
             sarrafo_entities.append(entity)
 
@@ -318,7 +489,9 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         box = _axis_aligned_rectangle(vertices)
         if box is None:
             continue
-        centerline, thickness = _centerline_from_bbox(box)
+        centerline, thickness = _centerline_for_visual_class(
+            box, entity.dxf.layer, cls
+        )
         _add_solid_mline(msp, centerline, entity.dxf.layer, thickness)
         consumed.add(id(entity))
         stats.mlines_created += 1
@@ -330,7 +503,9 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         if entity.dxftype() == "LINE" and id(entity) not in consumed
     ]
     for group, box in _line_rectangles(line_entities):
-        centerline, thickness = _centerline_from_bbox(box)
+        centerline, thickness = _centerline_for_visual_class(
+            box, group[0].dxf.layer, cls
+        )
         _add_solid_mline(msp, centerline, group[0].dxf.layer, thickness)
         consumed.update(id(entity) for entity in group)
         stats.mlines_created += 1
@@ -346,7 +521,18 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         if entity.dxftype() == "LWPOLYLINE" and entity.closed:
             # Forma fechada não retangular: não há eixo confiável.
             continue
-        thickness = _width_from_layer(entity.dxf.layer, vertices)
+        thickness = _width_from_layer(
+            entity.dxf.layer,
+            vertices,
+            planar_width=(cls in ("FV", "PL", "LV")),
+        )
+        if cls in ("FV", "PL"):
+            vertices = _align_panel_centerline(
+                vertices,
+                thickness,
+                panel_boxes,
+                edge_extra=2.5 if cls == "PL" else 0.5,
+            )
         _add_solid_mline(msp, vertices, entity.dxf.layer, thickness)
         consumed.add(id(entity))
         stats.mlines_created += 1

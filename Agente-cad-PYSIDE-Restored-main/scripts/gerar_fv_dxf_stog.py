@@ -17,7 +17,10 @@ Uso:
   python scripts/gerar_fv_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_1
 """
 import sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if __name__ == '__main__' and hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding='utf-8', errors='replace'
+    )
 import json, argparse, re, math
 from pathlib import Path
 import ezdxf
@@ -32,12 +35,14 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 from src.core.artifact_governance import guarded_saveas
+from src.core.fv_generation_contract import FV_ENGINE_ID, compute_panel_modules
 
-_MOTOR_ID = "ROBOT_FV_N3_N4"
+_MOTOR_ID = FV_ENGINE_ID
 _MOTOR_SOURCES = [
     Path(__file__),
     Path(__file__).with_name("motor_reverso_fv.py"),
     Path(__file__).with_name("fv_l_panel_geometry.py"),
+    _PROJECT_ROOT / "src" / "core" / "fv_generation_contract.py",
 ]
 
 # -- Constants (calibrated from STOG DXFs) ------------------------------------
@@ -839,19 +844,7 @@ def compute_panels(comprimento):
       - Otherwise: n panels of 244 + remainder
       - If remainder < 30: merge into last full panel
     """
-    L = float(comprimento)
-    if L <= 0:
-        return []
-    if L <= PAINEL_MODULO:
-        return [L]
-    n_full = int(L // PAINEL_MODULO)
-    rem = L - n_full * PAINEL_MODULO
-    if rem < 0.5:
-        return [float(PAINEL_MODULO)] * n_full
-    elif rem < PAINEL_MIN:
-        return [float(PAINEL_MODULO)] * (n_full - 1) + [float(PAINEL_MODULO) + rem]
-    else:
-        return [float(PAINEL_MODULO)] * n_full + [rem]
+    return compute_panel_modules(comprimento)
 
 
 def add_text(msp, x, y, text, height, layer, halign=0, valign=0, rotation=0, style='Standard'):
@@ -1764,6 +1757,14 @@ def main():
                              'sem precisar de Fase-4 JSON. Requer também --obra e --item.')
     parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
+    parser.add_argument(
+        '--output-dir', type=str, default=None,
+        help='Diretório isolado para o DXF gerado; não altera o preview da Fase-6.',
+    )
+    parser.add_argument(
+        '--input-dir', type=str, default=None,
+        help='Diretorio isolado com contratos FV N3/N4; substitui JSON_Vigas_Fundo.',
+    )
     args = parser.parse_args()
 
     # -- Modo robot_json: geração direta a partir dos dados do robô ---------------
@@ -1778,7 +1779,11 @@ def main():
             print('[ERRO] robot_json: dados insuficientes (paineis ou altura zerados)'); return
 
         obra_path = Path(args.obra)
-        out_dir   = obra_path / 'Fase-6_Execucao_CAD'
+        out_dir = (
+            Path(args.output_dir)
+            if args.output_dir
+            else obra_path / 'Fase-6_Execucao_CAD'
+        )
         out_dir.mkdir(parents=True, exist_ok=True)
 
         doc = setup_doc()
@@ -1810,9 +1815,17 @@ def main():
         return
 
     obra_path = Path(args.obra)
-    fv_dir    = obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Fundo'
+    fv_dir = (
+        Path(args.input_dir)
+        if args.input_dir
+        else obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Fundo'
+    )
     vs_path   = obra_path / 'Fase-4_Sincronizacao' / 'vigas_salvas.json'
-    out_dir   = obra_path / 'Fase-6_Execucao_CAD'
+    out_dir = (
+        Path(args.output_dir)
+        if args.output_dir
+        else obra_path / 'Fase-6_Execucao_CAD'
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
 
     vigas_salvas = {}

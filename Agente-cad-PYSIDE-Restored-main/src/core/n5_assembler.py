@@ -209,7 +209,10 @@ def _import_doc_entities(
             except Exception:
                 pass
         try:
-            dst_doc.modelspace().add_entity(entity.copy())
+            copied = entity.copy()
+            target_style = dst_doc.mline_styles.get(style_name)
+            copied.dxf.style_handle = target_style.dxf.handle
+            dst_doc.modelspace().add_entity(copied)
             src_doc.modelspace().delete_entity(entity)
         except Exception:
             pass

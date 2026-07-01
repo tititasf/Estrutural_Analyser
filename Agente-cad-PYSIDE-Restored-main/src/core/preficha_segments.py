@@ -50,6 +50,7 @@ _FUNDO_RE = re.compile(r"^viga_fundo_seg_(\d+)_area_segs$")
 _LATERAL_RE = re.compile(
     r"^viga_([ab])_seg_(\d+)_(comprimento_total|comp_total_passa)$"
 )
+_DIMENSION_RE = re.compile(r"-?\d+(?:[.,]\d+)?")
 
 
 def _polyline_length(points: Iterable[Any]) -> float:
@@ -65,6 +66,410 @@ def _polyline_length(points: Iterable[Any]) -> float:
     )
 
 
+def _clean_points(points: Iterable[Any]) -> list[tuple[float, float]]:
+    clean: list[tuple[float, float]] = []
+    for point in points or []:
+        try:
+            clean.append((float(point[0]), float(point[1])))
+        except (TypeError, ValueError, IndexError):
+            continue
+    return clean
+
+
+def _same_geometry(first: Iterable[Any], second: Iterable[Any], tolerance: float = 0.5) -> bool:
+    a = _clean_points(first)
+    b = _clean_points(second)
+    if len(a) < 2 or len(b) < 2:
+        return False
+
+    def signature(points: list[tuple[float, float]]) -> tuple:
+        endpoints = sorted((points[0], points[-1]))
+        return tuple(round(value / tolerance) for point in endpoints for value in point)
+
+    return signature(a) == signature(b)
+
+
+def _lateral_edges_from_contour(points: Iterable[Any]) -> dict[str, list[tuple[float, float]]]:
+    """Extrai as duas bordas longitudinais opostas de um contorno de fundo."""
+    clean = _clean_points(points)
+    if len(clean) < 3:
+        return {}
+    xs = [point[0] for point in clean]
+    ys = [point[1] for point in clean]
+    horizontal = (max(xs) - min(xs)) >= (max(ys) - min(ys))
+    if horizontal:
+        start, end = min(xs), max(xs)
+        return {
+            "a": [(start, max(ys)), (end, max(ys))],
+            "b": [(start, min(ys)), (end, min(ys))],
+        }
+    start, end = min(ys), max(ys)
+    return {
+        "a": [(min(xs), start), (min(xs), end)],
+        "b": [(max(xs), start), (max(xs), end)],
+    }
+
+
+def harmonize_lateral_segment_links(beams: list[dict] | None) -> int:
+    """Repara fallbacks antigos que colocavam A e B sobre a mesma linha de fundo.
+
+    A alteracao e feita nos proprios objetos de link. Assim, a geometria exibida
+    na pre-ficha continua sendo exatamente a geometria consumida depois dela.
+    Links A/B ja distintos, inclusive os editados manualmente, nao sao alterados.
+    """
+    repaired = 0
+
+    for beam in beams or []:
+        if not isinstance(beam, dict):
+            continue
+        links = beam.get("links") or {}
+        if not isinstance(links, dict):
+            continue
+        for fundo_key, fundo_slots in list(links.items()):
+            match = _FUNDO_RE.match(str(fundo_key))
+            if not match or not isinstance(fundo_slots, dict):
+                continue
+            segment_index = int(match.group(1))
+            contours = fundo_slots.get("contour") or []
+            if not contours or not isinstance(contours[0], dict):
+                continue
+            edges = _lateral_edges_from_contour(contours[0].get("points") or [])
+            if not edges:
+                continue
+
+            for suffix in ("comprimento_total", "comp_total_passa"):
+                key_a = f"viga_a_seg_{segment_index}_{suffix}"
+                key_b = f"viga_b_seg_{segment_index}_{suffix}"
+                values_a = (links.get(key_a) or {}).get("seg_side_a") or []
+                values_b = (links.get(key_b) or {}).get("seg_side_b") or []
+                geometry_a = values_a[0].get("points") if values_a and isinstance(values_a[0], dict) else []
+                geometry_b = values_b[0].get("points") if values_b and isinstance(values_b[0], dict) else []
+                same_geometry = bool(geometry_a and geometry_b and _same_geometry(geometry_a, geometry_b))
+                repair_a = same_geometry or (
+                    not geometry_a and preficha_source_status(beam, key_a) != "ignore"
+                )
+                repair_b = same_geometry or (
+                    not geometry_b and preficha_source_status(beam, key_b) != "ignore"
+                )
+                if not repair_a and not repair_b:
+                    continue
+
+                for side, key, slot, tag, current, should_repair in (
+                    ("a", key_a, "seg_side_a", "Lado A", values_a, repair_a),
+                    ("b", key_b, "seg_side_b", "Lado B", values_b, repair_b),
+                ):
+                    if not should_repair:
+                        continue
+                    points_side = edges[side]
+                    if current and isinstance(current[0], dict):
+                        link = current[0]
+                    else:
+                        links.setdefault(key, {}).setdefault(slot, [])
+                        link = {"type": "poly"}
+                        links[key][slot].append(link)
+                    link.update({
+                        "points": points_side,
+                        "len": round(_polyline_length(points_side), 4),
+                        "tag": tag,
+                        "geometry_role": "lateral",
+                        "geometry_source": "fundo_edge_fallback",
+                    })
+                    repaired += 1
+    return repaired
+
+
+def preficha_source_status(beam: dict, source_key: str) -> str:
+    """Retorna a decisão da geometria atual, ignorando históricos de outro ID.
+
+    Em análises incrementais um objeto pode carregar decisões antigas de uma
+    viga homônima. O prefixo do UID impede que esse histórico afete o vínculo
+    pertencente à instância atual.
+    """
+    parsed = _kind_for_link(str(source_key))
+    if not parsed:
+        return ""
+    kind, segment_index, _ = parsed
+    beam_identity = str(beam.get("id") or beam.get("name") or "")
+    uid_prefix = f"{kind}|{beam_identity}|{segment_index}|"
+    stored = beam.get("preficha_segmentos") or {}
+    statuses = [
+        str(decision.get("status") or "")
+        for uid, decision in stored.items()
+        if str(uid).startswith(uid_prefix)
+        and isinstance(decision, dict)
+        and decision.get("source_key") == source_key
+    ]
+    if "ignore" in statuses:
+        return "ignore"
+    if "valid" in statuses:
+        return "valid"
+    return ""
+
+
+def preficha_geometry_policy(beam: dict, source_key: str) -> str:
+    """Política para motores posteriores: ignore, preserve ou infer."""
+    status = preficha_source_status(beam, source_key)
+    if status == "ignore":
+        return "ignore"
+    if status == "valid":
+        return "preserve"
+    return "infer"
+
+
+def _first_value(beam: dict, *keys: str) -> Any:
+    fields = beam.get("fields") or {}
+    for key in keys:
+        for source in (beam, fields):
+            value = source.get(key) if isinstance(source, dict) else None
+            if value not in (None, "", [], {}):
+                return value
+    return ""
+
+
+def _text_from_entity(entity: Any) -> str:
+    if isinstance(entity, str):
+        return entity.strip()
+    if not isinstance(entity, dict):
+        return ""
+    fields = entity.get("fields") or {}
+    for key in ("text", "name", "nome", "label", "id"):
+        value = entity.get(key)
+        if value not in (None, ""):
+            return str(value).strip()
+        value = fields.get(key) if isinstance(fields, dict) else None
+        if value not in (None, ""):
+            return str(value).strip()
+    return ""
+
+
+def _dimension_height(value: Any) -> str:
+    numbers = []
+    for raw in _DIMENSION_RE.findall(str(value or "")):
+        try:
+            numbers.append(float(raw.replace(",", ".")))
+        except ValueError:
+            continue
+    if not numbers:
+        return ""
+    height = max(numbers) if len(numbers) > 1 else numbers[0]
+    return f"{height:g}"
+
+
+def _structural_name(value: Any) -> str:
+    match = re.search(r"\b([PV]\s*\d+[A-Z]?)\b", str(value or ""), re.IGNORECASE)
+    return re.sub(r"\s+", "", match.group(1)).upper() if match else str(value or "").strip()
+
+
+def _support_metadata(
+    name: str,
+    beam_lookup: dict[str, dict],
+    pillar_report: dict | None,
+    nivel_report: dict | None,
+) -> tuple[str, str]:
+    identity = _structural_name(name)
+    if identity.startswith("P"):
+        pillar = (pillar_report or {}).get(identity) or {}
+        points = _clean_points(pillar.get("points") or []) if isinstance(pillar, dict) else []
+        dimension = ""
+        if points:
+            width = max(point[0] for point in points) - min(point[0] for point in points)
+            height = max(point[1] for point in points) - min(point[1] for point in points)
+            dimension = f"{min(width, height):g}x{max(width, height):g}"
+        nr_entry = ((nivel_report or {}).get("pilares") or {}).get(identity) or {}
+        level = (
+            nr_entry.get("level_str") or nr_entry.get("nivel_str")
+            or nr_entry.get("level") or pillar.get("nivel_str") or ""
+        )
+        return dimension, str(level or "")
+
+    beam_identity = re.sub(r"(?<=\d)[AB]$", "", identity) if identity.startswith("V") else identity
+    support_beam = beam_lookup.get(identity) or beam_lookup.get(beam_identity) or {}
+    if support_beam:
+        fields = support_beam.get("fields") or {}
+        dimension = fields.get("dimensao") or support_beam.get("dimensao") or ""
+        if not dimension:
+            contours = ((support_beam.get("links") or {}).get("viga_fundo_seg_1_area_segs") or {}).get("contour") or []
+            ficha = contours[0].get("ficha") if contours and isinstance(contours[0], dict) else {}
+            if ficha:
+                width = ficha.get("largura_total_fundo") or ""
+                height = ficha.get("altura_total") or ""
+                dimension = f"{width}x{height}" if width and height else width or height
+        level = fields.get("nivel_lado_a") or fields.get("nivel_viga") or ""
+        return str(dimension or ""), str(level or "")
+    return "", ""
+
+
+def _support_info(
+    beam: dict,
+    prefix: str,
+    which: str,
+    beam_lookup: dict[str, dict],
+    pillar_report: dict | None,
+    nivel_report: dict | None,
+) -> dict[str, str]:
+    short = "ini" if which == "inicio" else "end"
+    alt = "inicial" if which == "inicio" else "final"
+    match = re.search(r"_seg_(\d+)$", prefix)
+    segment_index = int(match.group(1)) if match else 1
+    name = _first_value(
+        beam,
+        f"{prefix}_{short}_name",
+        f"{prefix}_apoio_{alt}",
+        f"{prefix}_local_{'ini' if which == 'inicio' else 'fim'}",
+        f"viga_fundo_seg_{segment_index}_local_{'ini' if which == 'inicio' else 'fim'}",
+    )
+    support_values = ((beam.get("links") or {}).get("apoios") or {}).get(which) or []
+    support = support_values[0] if support_values and isinstance(support_values[0], dict) else {}
+    name = name or _text_from_entity(support)
+    dimension = _first_value(
+        beam,
+        f"{prefix}_{short}_dim",
+        f"{prefix}_apoio_{alt}_dim",
+    ) or support.get("dimension") or support.get("dimensao") or ""
+    level = _first_value(
+        beam,
+        f"{prefix}_{short}_nivel",
+        f"{prefix}_apoio_{alt}_nivel",
+    ) or support.get("level") or support.get("nivel") or ""
+    inferred_dimension, inferred_level = _support_metadata(
+        str(name or ""), beam_lookup, pillar_report, nivel_report
+    )
+    dimension = dimension or inferred_dimension
+    level = level or inferred_level
+    return {"name": str(name or ""), "dimension": str(dimension or ""), "level": str(level or "")}
+
+
+def _point_in_polygon(point: tuple[float, float], polygon: list[tuple[float, float]]) -> bool:
+    x, y = point
+    inside = False
+    previous = polygon[-1]
+    for current in polygon:
+        x1, y1 = previous
+        x2, y2 = current
+        if (y1 > y) != (y2 > y):
+            crossing = (x2 - x1) * (y - y1) / ((y2 - y1) or 1e-12) + x1
+            if x < crossing:
+                inside = not inside
+        previous = current
+    return inside
+
+
+def _slab_info(slab: dict) -> dict[str, str]:
+    fields = slab.get("fields") or {}
+    name = slab.get("name") or slab.get("laje_name") or fields.get("nome") or ""
+    height_raw = (
+        fields.get("laje_dim") or slab.get("laje_dim") or slab.get("height")
+        or slab.get("altura") or ""
+    )
+    level = fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel") or ""
+    return {
+        "name": str(name),
+        "level": str(level),
+        "height": _dimension_height(height_raw),
+    }
+
+
+def _touching_slabs(points: list, side: str, slabs: list[dict] | None) -> list[dict[str, str]]:
+    line = _clean_points(points)
+    if len(line) < 2:
+        return []
+    first, last = line[0], line[-1]
+    horizontal = abs(last[0] - first[0]) >= abs(last[1] - first[1])
+    if horizontal:
+        normal = (0.0, 1.0 if side == "A" else -1.0)
+    else:
+        normal = (-1.0 if side == "A" else 1.0, 0.0)
+    line_midpoint = ((first[0] + last[0]) / 2.0, (first[1] + last[1]) / 2.0)
+    ranked: list[tuple[int, dict[str, str]]] = []
+    for slab in slabs or []:
+        if not isinstance(slab, dict):
+            continue
+        polygon = _clean_points(slab.get("points") or [])
+        if len(polygon) < 3:
+            continue
+        slab_center = (
+            sum(point[0] for point in polygon) / len(polygon),
+            sum(point[1] for point in polygon) / len(polygon),
+        )
+        # Uma laje que engloba geometricamente a faixa da viga ainda pertence
+        # apenas ao lado onde esta o seu centro. Isso evita repetir a mesma laje
+        # nos lados A e B por causa de contornos SA ligeiramente sobrepostos.
+        if horizontal:
+            on_requested_side = (
+                slab_center[1] >= line_midpoint[1]
+                if side == "A"
+                else slab_center[1] <= line_midpoint[1]
+            )
+        else:
+            on_requested_side = (
+                slab_center[0] <= line_midpoint[0]
+                if side == "A"
+                else slab_center[0] >= line_midpoint[0]
+            )
+        if not on_requested_side:
+            continue
+        score = 0
+        for ratio in (0.15, 0.5, 0.85):
+            base = (
+                first[0] + (last[0] - first[0]) * ratio,
+                first[1] + (last[1] - first[1]) * ratio,
+            )
+            if any(_point_in_polygon(
+                (base[0] + normal[0] * offset, base[1] + normal[1] * offset), polygon
+            ) for offset in (2.0, 8.0, 16.0, 30.0)):
+                score += 1
+        if score:
+            ranked.append((score, _slab_info(slab)))
+    ranked.sort(key=lambda item: (-item[0], _natural_key(item[1]["name"])))
+    unique: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for _, info in ranked:
+        key = info["name"].casefold()
+        if key and key not in seen:
+            seen.add(key)
+            unique.append(info)
+        if len(unique) == 3:
+            break
+    return unique
+
+
+def _linked_side_slabs(beam: dict, side: str) -> list[dict[str, str]]:
+    values = ((beam.get("links") or {}).get("lajes") or {}).get(f"lado_{side.lower()}") or []
+    result: list[dict[str, str]] = []
+    for value in values:
+        if isinstance(value, dict):
+            result.append(_slab_info(value))
+    return result[:3]
+
+
+def _opening_names(beam: dict, prefix: str, entity_type: str) -> list[str]:
+    links = beam.get("links") or {}
+    names: list[str] = []
+    global_values = ((links.get("aberturas") or {}).get(entity_type) or [])
+    for value in global_values:
+        text = _text_from_entity(value)
+        if text:
+            names.append(text)
+    marker = f"{prefix}_abert_{entity_type}_"
+    for key, slots in links.items():
+        if not str(key).startswith(marker) or not isinstance(slots, dict):
+            continue
+        label_values = slots.get("arr_label") or slots.get("label") or []
+        dimension_values = slots.get("arr_dim") or []
+        label = next((_text_from_entity(value) for value in label_values if _text_from_entity(value)), "")
+        dimension = next(
+            (_text_from_entity(value) for value in dimension_values if _text_from_entity(value)), ""
+        )
+        if label:
+            names.append(f"{label} ({dimension})" if dimension else label)
+            continue
+        for values in slots.values():
+            text = next((_text_from_entity(value) for value in values or [] if _text_from_entity(value)), "")
+            if text:
+                names.append(text)
+    return list(dict.fromkeys(names))
+
+
 def _kind_for_link(link_key: str) -> tuple[str, int, str] | None:
     fundo_match = _FUNDO_RE.match(link_key)
     if fundo_match:
@@ -78,14 +483,28 @@ def _kind_for_link(link_key: str) -> tuple[str, int, str] | None:
     return f"lateral_{side}_{behavior}", int(segment_index), f"seg_side_{side}"
 
 
-def collect_preficha_segments(beams: list[dict] | None) -> dict[str, list[dict]]:
+def collect_preficha_segments(
+    beams: list[dict] | None,
+    slabs: list[dict] | None = None,
+    pillar_report: dict | None = None,
+    nivel_report: dict | None = None,
+) -> dict[str, list[dict]]:
     """Normaliza os links SA nas cinco listas de segmentos da pre-ficha.
 
     Cada entrada conserva referencias internas para a viga e para o link. Essas
     referencias nao devem ser serializadas; elas garantem que aplicar uma decisao
     altere exatamente o objeto que foi exibido.
     """
+    harmonize_lateral_segment_links(beams)
     result = {kind: [] for kind in SEGMENT_TAB_SPECS}
+    beam_lookup: dict[str, dict] = {}
+    for support_beam in beams or []:
+        if not isinstance(support_beam, dict):
+            continue
+        for raw_name in (support_beam.get("name"), support_beam.get("parent_name")):
+            identity = _structural_name(raw_name)
+            if identity:
+                beam_lookup.setdefault(identity, support_beam)
     for beam_index, beam in enumerate(beams or []):
         if not isinstance(beam, dict):
             continue
@@ -124,6 +543,48 @@ def collect_preficha_segments(beams: list[dict] | None) -> dict[str, list[dict]]
                     or fields.get(f"viga_fundo_seg_{segment_index}_dim")
                     or ""
                 )
+                side_key = spec["side"].lower()
+                prefix = f"viga_{side_key}_seg_{segment_index}" if kind != "fundo" else ""
+                height = ""
+                details: dict[str, Any] = {}
+                if kind != "fundo":
+                    dimension_raw = _first_value(
+                        beam,
+                        f"{prefix}_h1",
+                        f"{prefix}_dim",
+                        "altura_h1",
+                    )
+                    height = _dimension_height(dimension_raw)
+                    if not height:
+                        fundo_slots = links.get(f"viga_fundo_seg_{segment_index}_area_segs") or {}
+                        fundo_links = fundo_slots.get("contour") or []
+                        fundo_ficha = fundo_links[0].get("ficha") if fundo_links and isinstance(fundo_links[0], dict) else {}
+                        height = _dimension_height((fundo_ficha or {}).get("altura_total"))
+                    linked_slabs = _linked_side_slabs(beam, spec["side"])
+                    touching_slabs = linked_slabs or _touching_slabs(points, spec["side"], slabs)
+                    adjustment_initial = _first_value(beam, f"{prefix}_ajuste_inicial")
+                    adjustment_final = _first_value(beam, f"{prefix}_ajuste_final")
+                    adjustment_total = _first_value(beam, f"{prefix}_ajuste_comprimento")
+                    details = {
+                        "support_start": _support_info(
+                            beam, prefix, "inicio", beam_lookup, pillar_report, nivel_report
+                        ),
+                        "support_end": _support_info(
+                            beam, prefix, "fim", beam_lookup, pillar_report, nivel_report
+                        ),
+                        "beam_level": str(_first_value(
+                            beam, f"{prefix}_nivel_viga", f"nivel_lado_{side_key}"
+                        ) or ""),
+                        "slabs": touching_slabs[:3],
+                        "continuity": str(_first_value(beam, f"{prefix}_continuidade") or ""),
+                        "adjustment": {
+                            "initial": str(adjustment_initial or ""),
+                            "final": str(adjustment_final or ""),
+                            "total": str(adjustment_total or ""),
+                        },
+                        "passing_pillars": _opening_names(beam, prefix, "pilar"),
+                        "beam_openings": _opening_names(beam, prefix, "viga"),
+                    }
                 result[kind].append({
                     "uid": uid,
                     "kind": kind,
@@ -139,10 +600,12 @@ def collect_preficha_segments(beams: list[dict] | None) -> dict[str, list[dict]]
                     "side": spec["side"],
                     "behavior": spec["behavior"],
                     "length": round(length, 2),
+                    "height": str(height),
                     "width": str(width),
                     "points": points,
                     "tag": str(link.get("tag") or spec["side"]),
                     "ficha": ficha,
+                    "details": details,
                     "status": str((previous or {}).get("status") or "valid"),
                     "attention": str((previous or {}).get("attention") or ""),
                     "source_key": str(link_key),
@@ -184,9 +647,13 @@ def apply_preficha_segment_decisions(
             "source_key": entry["source_key"],
             "saved_by": "preficha_sa",
         }
+        link_ref = entry["_link_ref"]
+        link_ref["preficha_reviewed"] = True
+        link_ref["preficha_status"] = status
+        link_ref["preficha_uid"] = entry["uid"]
         reviewed += 1
         if status == "ignore":
-            removals.append((beam, entry["source_key"], entry["_link_ref"]))
+            removals.append((beam, entry["source_key"], link_ref))
 
     for beam, source_key, link_ref in removals:
         slots = (beam.get("links") or {}).get(source_key) or {}

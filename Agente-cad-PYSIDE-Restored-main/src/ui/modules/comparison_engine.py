@@ -1692,44 +1692,34 @@ class Fase8Panel(QFrame):
         self.lbl_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
         outer.addWidget(self.lbl_status)
 
-        # ── Status de Processamento N1/N2/N3 ────
+        # ── Status de Processamento ────
         grp_proc = QGroupBox("Status de Processamento")
         proc_lay = QVBoxLayout(grp_proc)
         proc_lay.setContentsMargins(6, 4, 6, 4)
-        proc_lay.setSpacing(3)
+        proc_lay.setSpacing(4)
 
-        _PROC_LEVELS = [
-            ("N1", "Estrutura Real",   "DXF Fase-1"),
-            ("N2", "Fichas Fase-3",    "Interpretação"),
-            ("N3", "Robot via Ficha SA", "Fase-4"),
-        ]
-        self._proc_status_labels: dict[str, QLabel] = {}
-        for nid, ntitle, ndesc in _PROC_LEVELS:
-            row = QHBoxLayout()
-            row.setSpacing(4)
-
-            dot = QLabel("●")
-            dot.setFixedWidth(12)
-            dot.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px;")
-            dot.setObjectName(f"proc_dot_{nid}")
-            row.addWidget(dot)
-
-            lbl_name = QLabel(f"<b>{nid}</b> {ntitle}")
-            lbl_name.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_SECONDARY};")
-            lbl_name.setFixedWidth(105)
-            row.addWidget(lbl_name)
-
-            lbl_val = QLabel("—")
-            lbl_val.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_DIM};")
-            lbl_val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            row.addWidget(lbl_val, 1)
-
-            self._proc_status_labels[nid] = lbl_val
-            proc_lay.addLayout(row)
-
-            # store dot ref for color update
-            setattr(self, f"_proc_dot_{nid}", dot)
-
+        status_grid = QHBoxLayout()
+        status_grid.setSpacing(3)
+        self._status_qty_labels = {}
+        self._status_pct_labels = {}
+        for t in TIPOS:
+            col = QVBoxLayout()
+            col.setSpacing(1)
+            lbl_t = QLabel(t, alignment=Qt.AlignCenter)
+            lbl_t.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_SECONDARY};")
+            col.addWidget(lbl_t)
+            lbl_qty = QLabel("0/0")
+            lbl_qty.setAlignment(Qt.AlignCenter)
+            lbl_qty.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px;")
+            self._status_qty_labels[t] = lbl_qty
+            col.addWidget(lbl_qty)
+            sl = ScoreLabel("—")
+            sl.setAlignment(Qt.AlignCenter)
+            sl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 13px; font-weight: bold;")
+            self._status_pct_labels[t] = sl
+            col.addWidget(sl)
+            status_grid.addLayout(col)
+        proc_lay.addLayout(status_grid)
         outer.addWidget(grp_proc)
 
         # ── Scores ──────────────────────────────
@@ -1764,15 +1754,7 @@ class Fase8Panel(QFrame):
 
         outer.addWidget(grp_scores)
 
-        # ── Certificar ──────────────────────────
-        self.btn_certify = QPushButton("✅ Certificar Obra")
-        self.btn_certify.setObjectName("certify")
-        self.btn_certify.setEnabled(False)
-        self.btn_certify.clicked.connect(self._on_certify)
-        outer.addWidget(self.btn_certify)
-
-        self.lbl_cert_status = QLabel("")
-        outer.addWidget(self.lbl_cert_status)
+        
 
         # Histórico/Tendência/Comparação — criados mas ocultos (lógica preservada)
         self.tbl_history = QTableWidget(0, 5)
@@ -1910,63 +1892,23 @@ class Fase8Panel(QFrame):
         self._load_scores_for_obra(obra_name)
         self._refresh_processing_status(obra_name)
 
-    def _refresh_processing_status(self, obra_name: str):
-        """Verifica existência de dados em cada nível e atualiza o painel de status."""
-        if not obra_name:
+    def _refresh_processing_status(self, obra_name: str, pav_key: str = None, stats: dict = None):
+        """Atualiza o painel de status com as validações de N3 por classe para a obra/pavimento."""
+        if not stats:
+            for t in TIPOS:
+                if t in self._status_qty_labels:
+                    self._status_qty_labels[t].setText("0/0")
+                    self._status_pct_labels[t].set_score(None)
             return
-        obra_dir = DADOS_OBRAS_ROOT / obra_name
 
-        def _set(nid: str, ok: bool, partial: bool, text: str):
-            lbl = self._proc_status_labels.get(nid)
-            dot = getattr(self, f"_proc_dot_{nid}", None)
-            if lbl:
-                lbl.setText(text)
-            if dot:
-                if ok:
-                    color = Semantic.SUCCESS
-                elif partial:
-                    color = Contextual.GOLD
-                else:
-                    color = Text.MUTED
-                dot.setStyleSheet(f"color: {color}; font-size: 10px;")
-
-        # N1 — DXFs limpos de Fase-2_Triagem (preferencial) ou brutos de Fase-1
-        clean_dir = obra_dir / "Fase-2_Triagem" / "Estruturais_Pavimentos_Limpos"
-        bruto_dir = obra_dir / "Fase-1_Ingestao" / "Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF"
-        n1_clean = len(list(clean_dir.glob("*.dxf"))) if clean_dir.exists() else 0
-        n1_bruto = len(list(bruto_dir.glob("*.dxf"))) if bruto_dir.exists() else 0
-        n1_count = n1_clean or n1_bruto
-        n1_label = f"{n1_clean} limpos" if n1_clean > 0 else (f"{n1_bruto} brutos" if n1_bruto > 0 else "sem dados")
-        _set("N1",
-             ok=(n1_clean > 0),
-             partial=(n1_clean == 0 and n1_bruto > 0),
-             text=n1_label)
-
-        # N2 — Fichas from Fase-3_Interpretacao_Extracao
-        fase3_dir = obra_dir / "Fase-3_Interpretacao_Extracao"
-        n2_count = 0
-        if fase3_dir.exists():
-            for sub in ("Pilares", "Vigas", "Lajes"):
-                sub_dir = fase3_dir / sub
-                if sub_dir.exists():
-                    n2_count += len(list(sub_dir.glob("*.json")))
-        _set("N2",
-             ok=(n2_count > 0),
-             partial=False,
-             text=f"{n2_count} fichas" if n2_count > 0 else "sem dados")
-
-        # N3 — JSON_Pilares/Vigas from Fase-4_Sincronizacao
-        fase4_dir = obra_dir / "Fase-4_Sincronizacao"
-        n3_count = 0
-        if fase4_dir.exists():
-            for sub in ("JSON_Pilares", "JSON_Vigas_Fundo", "JSON_Vigas_Laterais", "JSON_Lajes"):
-                sub_dir = fase4_dir / sub
-                if sub_dir.exists():
-                    n3_count += len(list(sub_dir.glob("*.json")))
-        _set("N3",
-             ok=(n3_count > 0),
-             partial=False,
-             text=f"{n3_count} itens" if n3_count > 0 else "sem dados")
+        for t in TIPOS:
+            val = stats.get(t, {"validated": 0, "total": 0})
+            v = val["validated"]
+            tot = val["total"]
+            if t in self._status_qty_labels:
+                self._status_qty_labels[t].setText(f"{v}/{tot}")
+                pct = (v / tot * 100) if tot > 0 else None
+                self._status_pct_labels[t].set_score(pct)
 
     def _load_scores_for_obra(self, obra_name: str):
         """Carrega scores do JSON consolidado se existir."""
@@ -1996,7 +1938,7 @@ class Fase8Panel(QFrame):
             valid = [v for v in scores.values() if v is not None]
             avg = sum(valid) / len(valid) if valid else None
             self.lbl_avg.set_score(avg)
-            self.btn_certify.setEnabled(avg is not None)
+            self.nav_sidebar.btn_certify.setEnabled(avg is not None)
             self._last_result = data
         except Exception as e:
             self._log(f"Erro ao carregar scores: {e}")
@@ -4938,8 +4880,27 @@ class NavSidebar(QFrame):
 
         self.btn_analise = _mbtn("▶ Análise Geral", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
         self.btn_analise.setToolTip("Processa o DXF estrutural N1 e preenche a lista de itens")
-        self.btn_analise.clicked.connect(lambda: self.analise_requested.emit())
+        self.btn_analise.clicked.connect(lambda: getattr(self, "analise_requested", None).emit() if hasattr(self, "analise_requested") else None)
+        self.btn_analise.setVisible(False)
         lay.addWidget(self.btn_analise)
+
+        self.btn_certify = QPushButton("✅ Certificar Obra")
+        self.btn_certify.setObjectName("certify")
+        self.btn_certify.setEnabled(False)
+        self.btn_certify.setStyleSheet(f'''
+            QPushButton#certify {{
+                background: {Colors.ACCENT_SUCCESS};
+                color: {Colors.BG_DEEP};
+                border-radius: 4px;
+                padding: 4px;
+                font-weight: bold;
+            }}
+            QPushButton#certify:disabled {{
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_DIM};
+            }}
+        ''')
+        lay.addWidget(self.btn_certify)
 
         self.btn_rag_context = _mbtn("Consultar RAG", Colors.BG_CARD, Colors.BG_PANEL)
         self.btn_rag_context.setToolTip("Consulta read-only do RAG global. Usa apenas T1/T2 e regras semanticas; nao escreve nem autocompleta.")
@@ -4948,7 +4909,8 @@ class NavSidebar(QFrame):
 
         self.btn_fase4 = _mbtn("⚙ Fase 4 — Sync", Colors.ACCENT_WARNING, "rgba(245, 124, 0, 1)")
         self.btn_fase4.setToolTip("Executa motor_fase4.py para o pavimento selecionado")
-        self.btn_fase4.clicked.connect(lambda: self.fase4_requested.emit())
+        self.btn_fase4.clicked.connect(lambda: getattr(self, "fase4_requested", None).emit() if hasattr(self, "fase4_requested") else None)
+        self.btn_fase4.setVisible(False)
         lay.addWidget(self.btn_fase4)
 
         self.lbl_status = QLabel("")
@@ -7513,7 +7475,7 @@ class VisualModeSelector(QWidget):
         if not supported:
             self._set_mode("NOVA", emit=False)
             return
-        if self._level in ("N3", "N4"):
+        if self._level in ("N3", "N4", "N5"):
             legacy_n4 = self._settings.value(
                 f"visual_mode/N4/{self._classe}", "NOVA"
             )
@@ -7534,7 +7496,7 @@ class VisualModeSelector(QWidget):
         self._settings.setValue(
             f"visual_mode/{self._level}/{self._classe}", self._mode
         )
-        if self._level in ("N3", "N4"):
+        if self._level in ("N3", "N4", "N5"):
             self._settings.setValue(
                 f"visual_mode/ROBOT/{self._classe}", self._mode
             )
@@ -7558,7 +7520,7 @@ class VisualModeSelector(QWidget):
             self._settings.setValue(
                 f"visual_mode/{self._level}/{self._classe}", self._mode
             )
-            if self._level in ("N3", "N4"):
+            if self._level in ("N3", "N4", "N5"):
                 self._settings.setValue(
                     f"visual_mode/ROBOT/{self._classe}", self._mode
                 )
@@ -7609,6 +7571,7 @@ class ComparisonEngineModule(QWidget):
         self.nav_sidebar.analise_requested.connect(self._on_iniciar_analise)
         self.nav_sidebar.rag_context_requested.connect(self._on_rag_context_requested)
         self.nav_sidebar.fase4_requested.connect(self._on_fase4_sync)
+        self.nav_sidebar.btn_certify.clicked.connect(self.fase8_panel._on_certify)
         self.nav_sidebar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         left_inner_lay.addWidget(self.nav_sidebar, 1)
 
@@ -8043,13 +8006,12 @@ class ComparisonEngineModule(QWidget):
         classe = str(getattr(self.nav_sidebar, "_current_classe", "") or "").upper()
         if classe not in ("PL", "LV", "FV"):
             return
-        if level in ("N3", "N4"):
-            peer = (
-                getattr(self, "_visual_mode_n4", None)
-                if level == "N3"
-                else getattr(self, "_visual_mode_n3", None)
-            )
-            if peer is not None:
+        for peer_level, peer in (
+            ("N3", getattr(self, "_visual_mode_n3", None)),
+            ("N4", getattr(self, "_visual_mode_n4", None)),
+            ("N5", getattr(self, "_visual_mode_n5", None)),
+        ):
+            if peer is not None and peer_level != level:
                 peer.sync_mode(mode)
         self._seq_id += 1
         if level == "N5":
@@ -8071,7 +8033,9 @@ class ComparisonEngineModule(QWidget):
         if level == "N3":
             self._on_gerar_n3(classe, item_id, force_regen=True)
         elif level == "N4":
-            self._on_gerar_n4(classe, item_id)
+            self._on_gerar_n4(
+                classe, item_id, allow_validated_candidate=True
+            )
 
     def _on_classe_changed(self, cls: str):
         """Ao trocar aba de classe, gera/exibe dinamicamente o N5 da classe."""
@@ -8168,6 +8132,15 @@ class ComparisonEngineModule(QWidget):
             obra_dir = str(DADOS_OBRAS_ROOT / obra)
             self.nav_sidebar.set_obra(obra_dir)
             self.nav_sidebar.set_pav(pav)   # filtra lista ER pelo pavimento selecionado
+            
+            stats = {}
+            for t in ["PL", "LV", "FV", "LJ"]:
+                structural = self.nav_sidebar._structural_item_rows(t)
+                tot = len(structural)
+                v = sum(1 for item_data in structural.values() if self.nav_sidebar._row_human_validated(t, item_data))
+                stats[t] = {"validated": v, "total": tot}
+            self.fase8_panel._refresh_processing_status(obra, pav, stats)
+
             # Cancela sequência anterior de item (novo pav = novo contexto)
             self._seq_id += 1
             # Carrega DXF limpo no N1 apenas quando muda obra ou pavimento
@@ -9186,6 +9159,31 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _materialize_lj_n3_json_from_n1 error: {exc}")
             return None
 
+    def _materialize_fv_n3_json_from_n1(self, obra: str, item_id: str) -> "Path | None":
+        """Materializa o contrato FV atual do SA para o motor comum N3/N4."""
+        if not obra or not item_id:
+            return None
+        try:
+            from src.core.fv_generation_contract import materialize_fv_contract_from_db
+
+            project_id = self._project_id_for_obra_pav(obra)
+            if not project_id:
+                return None
+            output_dir = (
+                DADOS_OBRAS_ROOT / obra / "Fase-4_Sincronizacao"
+                / "JSON_Vigas_Fundo"
+            )
+            return materialize_fv_contract_from_db(
+                db_path=r"D:/Agente-cad-PYSIDE/project_data.vision",
+                project_id=str(project_id),
+                item_id=item_id,
+                output_dir=output_dir,
+                floor=str(self._current_pav or "Pavimento"),
+            )
+        except Exception as exc:
+            print(f"[CE] _materialize_fv_n3_json_from_n1 error: {exc}")
+            return None
+
     def _load_human_validated_level(
         self, scope: str, classe: str, item_id: str, obra: str
     ) -> bool:
@@ -9296,8 +9294,30 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(1, 'running', 'Preenchendo ficha...')
             obra_dir = DADOS_OBRAS_ROOT / obra
+            fv_contract_path = None
             if classe == "LJ":
                 self._materialize_lj_n3_json_from_n1(obra, item_id)
+            elif classe == "FV":
+                fv_contract_path = self._materialize_fv_n3_json_from_n1(
+                    obra, item_id
+                )
+                if not fv_contract_path or not Path(fv_contract_path).exists():
+                    col.pipeline.set_step(1, 'error', 'Ficha N1 FV ausente')
+                    col.pipeline.set_step(2, 'error', 'N3 não gerado')
+                    self.nav_sidebar.set_status(
+                        f"❌ N3 FV sem ficha N1 atual — {item_id}",
+                        Colors.ACCENT_DANGER,
+                    )
+                    _ce_log(
+                        f"N3 FV abortado: contrato N1 nao materializado "
+                        f"obra={obra} pav={self._current_pav} item={item_id}"
+                    )
+                    self.nav_sidebar._enable_item_btns()
+                    return
+                _ce_log(
+                    f"N3 FV contrato atual: {fv_contract_path} "
+                    f"motor=ROBOT_FV_N3_N4"
+                )
             n3_dxf   = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
             # FV N3 shares the generator/profile with N4 and must not reuse a
             # preview produced with an older visual/detail contract. Its input
@@ -9329,7 +9349,12 @@ class ComparisonEngineModule(QWidget):
                         item_id, n3_ficha, obra_dir, col, level='N3'
                     )
                 else:
-                    self._start_n3_generation(classe, item_id, col)
+                    self._start_n3_generation(
+                        classe,
+                        item_id,
+                        col,
+                        fv_contract_path=fv_contract_path,
+                    )
 
         except Exception as exc:
             print(f"[CE] _on_gerar_n3 error: {exc}")
@@ -9338,7 +9363,14 @@ class ComparisonEngineModule(QWidget):
             except Exception:
                 pass
 
-    def _start_n3_generation(self, classe: str, item_id: str, col):
+    def _start_n3_generation(
+        self,
+        classe: str,
+        item_id: str,
+        col,
+        *,
+        fv_contract_path: "Path | None" = None,
+    ):
         """Executa o script gerador N3 correto por classe via QProcess."""
         if self._process is not None:
             if self._process.state() == QProcess.Running:
@@ -9380,6 +9412,23 @@ class ComparisonEngineModule(QWidget):
             lambda code, _: self._on_n3_gen_done(code, col, classe, item_id)
         )
         args = [str(script), "--obra", obra_dir, "--item", script_item_id]
+        if classe == "FV":
+            contract_path = Path(fv_contract_path) if fv_contract_path else None
+            if not contract_path or not contract_path.exists():
+                col.pipeline.set_step(2, 'error', 'Contrato FV atual ausente')
+                self.nav_sidebar.set_status(
+                    f"❌ N3 FV sem contrato atual — {item_id}",
+                    Colors.ACCENT_DANGER,
+                )
+                self.nav_sidebar._enable_item_btns()
+                return
+            # Entrada explicita: nunca deixa o gerador reencontrar um JSON
+            # legado/stale em JSON_Vigas_Fundo.
+            args += ["--input-dir", str(contract_path.parent)]
+            _ce_log(
+                f"N3 FV launch script={script.resolve()} "
+                f"input={contract_path.resolve()} item={script_item_id}"
+            )
         if classe in ("PL", "LV", "FV"):
             args += ["--visual-mode", self._visual_mode_for("N3")]
         self._process.start(sys.executable, args)
@@ -9415,7 +9464,13 @@ class ComparisonEngineModule(QWidget):
         except RuntimeError:
             pass  # Widget deletado — ignorar silenciosamente
 
-    def _on_gerar_n4(self, classe: str, item_id: str, seq: int = -1):
+    def _on_gerar_n4(
+        self,
+        classe: str,
+        item_id: str,
+        seq: int = -1,
+        allow_validated_candidate: bool = False,
+    ):
         """Gerar N4: ficha ER → temp JSON → script robô → DXF em Fase-6/n4/.
         Option B: DXF independente do N3, gerado com dados da ficha ER (motor reverso N2).
         Chamado automaticamente após N2 no fluxo ER, ou manualmente via botão ▶ N4."""
@@ -9430,7 +9485,19 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _on_gerar_n4 early error: {exc}")
             return
 
-        if self._load_human_validated_level("N4", classe, item_id, obra):
+        if allow_validated_candidate:
+            # Garante que a politica esteja materializada antes de gerar; o
+            # promote abaixo gravara um candidato sem tocar no validado.
+            is_human_validated(
+                obra,
+                self.fase8_panel.current_pav_key,
+                classe,
+                item_id,
+                "N4",
+            )
+        elif self._load_human_validated_level(
+            "N4", classe, item_id, obra
+        ):
             return
 
         try:
@@ -10616,6 +10683,15 @@ class ComparisonEngineModule(QWidget):
         ficha_clean.setdefault('pillar_right', {'active': False, 'width': 0.0, 'length': 0.0})
         ficha_clean.setdefault('sarrafo_left_id',  0)
         ficha_clean.setdefault('sarrafo_right_id', 0)
+        if classe == "FV":
+            from src.core.fv_generation_contract import (
+                normalize_fv_generation_contract,
+            )
+            ficha_clean = normalize_fv_generation_contract(
+                item_id,
+                ficha_clean,
+                floor=str(ficha_clean.get("floor") or self._current_pav or "Pavimento"),
+            )
         ficha_clean = _ce_plain_value(ficha_clean)
 
         # Para LV: escreve _A.json e _B.json (script lê apenas *_A.json)
@@ -10688,7 +10764,7 @@ class ComparisonEngineModule(QWidget):
                         motor_id=f"ROBOT_{_classe}_N3_N4",
                         source_paths=[script],
                     )
-                    display_path = canon if canon.exists() else promoted
+                    display_path = promoted
                     _ce_log(f"[N4-DONE] display_path={display_path} exists={display_path.exists()}")
                     if _classe == 'LV':
                         lv_zones = self._lv_generated_zone_paths(

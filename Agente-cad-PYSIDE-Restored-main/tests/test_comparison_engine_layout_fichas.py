@@ -1,17 +1,19 @@
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, QTimer
 from PySide6.QtWidgets import QApplication
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import gerar_lv_dxf_stog as lv_generator
 
 from src.ui.modules.comparison_engine import (
+    ComparisonEngineModule,
     LevelColumn,
     DXFVectorView,
     NIVEL_DEFS,
@@ -145,25 +147,43 @@ def test_n3_uses_n4_detail_contract_but_keeps_n1_lineage():
     assert "90%" in values
 
 
-def test_n3_and_n4_load_the_same_robot_visual_profile(app):
+def test_n3_n4_and_n5_load_the_same_class_visual_profile(app):
     settings = QSettings("AgenteCAD", "ComparisonEngine")
-    keys = ["visual_mode/ROBOT/FV", "visual_mode/N3/FV", "visual_mode/N4/FV"]
+    keys = [
+        "visual_mode/ROBOT/FV",
+        "visual_mode/N3/FV",
+        "visual_mode/N4/FV",
+        "visual_mode/N5/FV",
+        "visual_mode/ROBOT/PL",
+    ]
     backup = {
         key: (settings.contains(key), settings.value(key))
         for key in keys
     }
     n3 = VisualModeSelector("N3", "#ff9900")
     n4 = VisualModeSelector("N4", "#aa77ff")
+    n5 = VisualModeSelector("N5", "#44ccff")
     try:
         settings.setValue("visual_mode/ROBOT/FV", "INI")
         n3.set_classe("FV")
         n4.set_classe("FV")
+        n5.set_classe("FV")
         assert n3.mode == "INI"
         assert n4.mode == "INI"
+        assert n5.mode == "INI"
 
         n3.sync_mode("NOVA")
         n4.set_classe("FV")
+        n5.set_classe("FV")
         assert n4.mode == "NOVA"
+        assert n5.mode == "NOVA"
+
+        settings.setValue("visual_mode/ROBOT/FV", "INI")
+        settings.setValue("visual_mode/ROBOT/PL", "NOVA")
+        n5.set_classe("FV")
+        assert n5.mode == "INI"
+        n5.set_classe("PL")
+        assert n5.mode == "NOVA"
     finally:
         for key, (existed, value) in backup.items():
             if existed:
@@ -172,6 +192,145 @@ def test_n3_and_n4_load_the_same_robot_visual_profile(app):
                 settings.remove(key)
         n3.deleteLater()
         n4.deleteLater()
+        n5.deleteLater()
+
+
+def test_n4_visual_change_generates_candidate_and_syncs_n5():
+    synced = []
+    generated = []
+    selector = lambda level: SimpleNamespace(
+        sync_mode=lambda mode, value=level: synced.append((value, mode))
+    )
+    fake = SimpleNamespace(
+        nav_sidebar=SimpleNamespace(
+            _current_classe="FV",
+            _selected_classe="FV",
+            _selected_item="V301",
+        ),
+        _visual_mode_n3=selector("N3"),
+        _visual_mode_n4=selector("N4"),
+        _visual_mode_n5=selector("N5"),
+        _seq_id=0,
+        _on_gerar_n4=lambda *args, **kwargs: generated.append((args, kwargs)),
+    )
+
+    ComparisonEngineModule._on_visual_mode_changed(fake, "N4", "INI")
+
+    assert synced == [("N3", "INI"), ("N5", "INI")]
+    assert generated == [
+        (("FV", "V301"), {"allow_validated_candidate": True})
+    ]
+
+
+def _fake_fv_n3_module(contract_path):
+    pipeline_events = []
+    started = []
+    pipeline = SimpleNamespace(
+        reset=lambda: pipeline_events.append(("reset",)),
+        set_step=lambda *args: pipeline_events.append(args),
+    )
+    column = SimpleNamespace(
+        pipeline=pipeline,
+        set_ficha=lambda *_args: None,
+        load_content=lambda *_args: None,
+    )
+    module = SimpleNamespace(
+        _seq_id=1,
+        _current_pav="13_PAV",
+        _load_human_validated_level=lambda *_args: False,
+        fase8_panel=SimpleNamespace(
+            cmb_obra=SimpleNamespace(
+                currentData=lambda: "Obra_TREINO_1",
+                currentText=lambda: "Obra_TREINO_1",
+            ),
+        ),
+        tri_level=SimpleNamespace(
+            _columns=[None, None, column],
+            _find_n3_dxf=lambda *_args: None,
+            _ficha_n3_for=lambda *_args: [],
+        ),
+        nav_sidebar=SimpleNamespace(
+            set_status=lambda *_args: None,
+            _enable_item_btns=lambda: None,
+        ),
+        _materialize_fv_n3_json_from_n1=lambda *_args: contract_path,
+        _configure_level_attention=lambda *_args: None,
+        _start_n3_generation=lambda *args, **kwargs: started.append((args, kwargs)),
+    )
+    return module, pipeline_events, started
+
+
+def test_fv_n3_refuses_to_generate_from_a_stale_fase4_ficha():
+    fake, events, started = _fake_fv_n3_module(None)
+
+    ComparisonEngineModule._on_gerar_n3(
+        fake, "FV", "V305", seq=1
+    )
+
+    assert started == []
+    assert (1, "error", "Ficha N1 FV ausente") in events
+    assert (2, "error", "N3 não gerado") in events
+
+
+def test_fv_n3_passes_the_fresh_n1_contract_to_the_current_generator(tmp_path):
+    contract_path = tmp_path / "V305_fundo.json"
+    contract_path.write_text("{}", encoding="utf-8")
+    fake, _events, started = _fake_fv_n3_module(contract_path)
+
+    ComparisonEngineModule._on_gerar_n3(
+        fake, "FV", "V305", seq=1
+    )
+
+    assert len(started) == 1
+    args, kwargs = started[0]
+    assert args[0:2] == ("FV", "V305")
+    assert kwargs["fv_contract_path"] == contract_path
+
+
+def test_selecting_structural_fv_automatically_chains_n1_to_n3(monkeypatch):
+    generated = []
+    pipeline = SimpleNamespace(
+        reset=lambda: None,
+        set_step=lambda *_args: None,
+    )
+    image = SimpleNamespace(is_loaded=True)
+    n1_column = SimpleNamespace(
+        pipeline=pipeline,
+        img_widget=image,
+        set_ficha=lambda *_args: None,
+    )
+    fake = SimpleNamespace(
+        _seq_id=7,
+        _analise_cache=SimpleNamespace(has=lambda *_args: True),
+        fase8_panel=SimpleNamespace(
+            current_pav_key="13_PAV",
+            cmb_obra=SimpleNamespace(
+                currentData=lambda: "Obra_TREINO_1",
+                currentText=lambda: "Obra_TREINO_1",
+            ),
+        ),
+        nav_sidebar=SimpleNamespace(
+            _current_flow="estrutural",
+            set_status=lambda *_args: None,
+            _enable_item_btns=lambda: None,
+        ),
+        tri_level=SimpleNamespace(
+            _columns=[n1_column],
+            _get_n1_bbox_for=lambda *_args: None,
+            _ficha_n1_for=lambda *_args: [],
+        ),
+        _refresh_n3_compare_if_active=lambda *_args: None,
+        _on_gerar_n3=lambda *args, **kwargs: generated.append((args, kwargs)),
+    )
+    monkeypatch.setattr(QTimer, "singleShot", lambda _ms, callback: callback())
+
+    ComparisonEngineModule._on_gerar_n1(
+        fake, "FV", "V305", auto_chain=True, seq=7
+    )
+
+    assert generated == [
+        (("FV", "V305"), {"auto_chain": False, "seq": 7})
+    ]
 
 
 def test_lv_uses_three_independent_viewers_and_side_fichas(

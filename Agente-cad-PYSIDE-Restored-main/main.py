@@ -121,6 +121,7 @@ from src.core.slab_tracer import SlabTracer
 from src.core.database import DatabaseManager
 from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
+from src.core.beam_identity import canonical_beam_name, consolidate_beam_identities
 from src.core.context_engine import ContextEngine
 from src.core.pillar_analyzer import PillarAnalyzer
 from src.core.services.auth_service import AuthService
@@ -5672,25 +5673,17 @@ class MainWindow(QMainWindow):
         # ──────────────────────────────────────────────────────────────────
 
         import uuid # Garantir import
-        import re as _re_norm
-
-        def _normalize_beam_name(name: str) -> str:
-            """F.V305.C-1 → FV-V305.C | L.V305.A-1 → LV-V305.A"""
-            if not name or name.startswith('FV-') or name.startswith('LV-'):
-                return name
-            m = _re_norm.match(r'^F\.(.+?)\.C(?:-\d+)?$', name)
-            if m:
-                return f'FV-{m.group(1)}.C'
-            m = _re_norm.match(r'^F\.(.+?)(?:-\d+)?$', name)
-            if m:
-                return f'FV-{m.group(1)}.C'
-            m = _re_norm.match(r'^L\.(.+?)\.([AB])(?:-\d+)?$', name)
-            if m:
-                return f'LV-{m.group(1)}.{m.group(2)}'
-            m = _re_norm.match(r'^L\.(.+?)(?:-\d+)?$', name)
-            if m:
-                return f'LV-{m.group(1)}'
-            return name
+        # Migra resíduos FV/LV usados antigamente como entidades estruturais.
+        # A âncora/textos distinguem registros contaminados antes do snapshot.
+        if hasattr(self, 'beams_found'):
+            self.beams_found, _removed_legacy_ids, _identity_changes = (
+                consolidate_beam_identities(self.beams_found)
+            )
+            if _identity_changes:
+                self.log(
+                    f"🧹 Identidade de vigas: {_identity_changes} registro(s) "
+                    "legado(s) normalizado(s)/consolidado(s)."
+                )
 
         # --- Snapshot de Dados Validados (Modo Incremental Automático) ---
         # Agora a análise geral SEMPRE preserva o que está validado/editado.
@@ -5720,7 +5713,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'beams_found'):
              for b in self.beams_found:
                  if _has_human_validation(b):
-                     preserved_beams[_normalize_beam_name(b.get('name', ''))] = b
+                     preserved_beams[canonical_beam_name(b)] = b
 
         # Snapshot Lajes
         if hasattr(self, 'slabs_found'):
@@ -6029,9 +6022,9 @@ class MainWindow(QMainWindow):
                     visual_obstacles.append({'type': 'VISAO_CORTE', 'bbox': (min(xs), min(ys), max(xs), max(ys))})
         self.beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys, visual_obstacles=visual_obstacles)
 
-        # Normalizar nomes: F.V305.C-1 → FV-V305.C | L.V305.A-1 → LV-V305.A
+        # A entidade estrutural usa somente o identificador V/VF do desenho.
         for _b in self.beams_found:
-            _b['name'] = _normalize_beam_name(_b['name'])
+            _b['name'] = canonical_beam_name(_b)
 
         self.beams_found.sort(key=nat_key)
         
@@ -6102,6 +6095,15 @@ class MainWindow(QMainWindow):
             if name not in detected_beam_names:
                 self.beams_found.append(old_b)
                 self.log(f"🛡️ Mantendo viga validada órfã: {name}")
+
+        self.beams_found, _removed_duplicate_ids, _identity_changes = (
+            consolidate_beam_identities(self.beams_found)
+        )
+        if _identity_changes:
+            self.log(
+                f"🧹 Vigas detectadas: {_identity_changes} identidade(s) "
+                "normalizada(s)/consolidada(s)."
+            )
 
         # Reordenar para incluir as órfãs
         self.beams_found.sort(key=nat_key)
@@ -6594,11 +6596,14 @@ class MainWindow(QMainWindow):
         self.canvas.draw_slabs(self.slabs_found)
         self.canvas.draw_beams(self.beams_found)
         self.hide_progress()
-        self._auto_sync_beams_to_laterais_silent()
+        _sa_read_only = bool(getattr(self, '_sa_read_only_run', False))
+        if not _sa_read_only:
+            self._auto_sync_beams_to_laterais_silent()
         try:
             obra_f7 = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
             pav_f7 = self._current_pavement_name() if hasattr(self, "cmb_pavements") else ""
-            if self.current_project_id and hasattr(self.db, "save_fase3_fichas"):
+            if (not _sa_read_only and self.current_project_id
+                    and hasattr(self.db, "save_fase3_fichas")):
                 n_f7 = self.db.save_fase3_fichas(
                     self.current_project_id,
                     obra_f7,
@@ -6679,15 +6684,19 @@ class MainWindow(QMainWindow):
 
                 # Salva primeiro e remove obsoletos somente após todos os UPSERTs.
                 # Assim uma falha intermediária não deixa o projeto vazio.
-                for p in getattr(self, 'pillars_found', []):
-                    self.db.save_pillar(p, self.current_project_id)
-                for s in getattr(self, 'slabs_found', []):
-                    self.db.save_slab(s, self.current_project_id)
+                if not _sa_read_only:
+                    for p in getattr(self, 'pillars_found', []):
+                        self.db.save_pillar(p, self.current_project_id)
+                    for s in getattr(self, 'slabs_found', []):
+                        self.db.save_slab(s, self.current_project_id)
                 try:
-                    n_lj_json, n_lj_el = self._materialize_slabs_for_n1_n3_and_robo()
+                    if _sa_read_only:
+                        n_lj_json, n_lj_el = 0, 0
+                    else:
+                        n_lj_json, n_lj_el = self._materialize_slabs_for_n1_n3_and_robo()
                     if n_lj_json:
                         self.log(f"🧩 Lajes SA→N1/N3/Robo: {n_lj_json} JSON_Lajes e {n_lj_el} slab_elements atualizados.")
-                    if getattr(self, 'robo_laje', None):
+                    if not _sa_read_only and getattr(self, 'robo_laje', None):
                         # Backup antes do AI automation: processEvents() dentro pode zerar pillars_found
                         _pil_bak = list(self.pillars_found)
                         _slb_bak = list(self.slabs_found)
@@ -6707,6 +6716,7 @@ class MainWindow(QMainWindow):
                     self.log(f"⚠️ Falha ao propagar lajes SA→N1/N3/Robo: {_e_lj_mat}")
                 try:
                     from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv
+                    from src.core.preficha_segments import preficha_geometry_policy
 
                     # FASE 1: Processar dados FV e atualizar links em memória (sem acesso ao DB)
                     _fv_results = []
@@ -6780,13 +6790,30 @@ class MainWindow(QMainWindow):
                                 link_key = f"viga_fundo_seg_{idx}_area_segs"
                                 if link_key not in b['links']:
                                     b['links'][link_key] = {}
+                                preficha_policy = preficha_geometry_policy(b, link_key)
+                                # A decisão humana da pré-ficha é autoritativa:
+                                # ignorado não renasce; válido conserva exatamente
+                                # a geometria mostrada, recebendo apenas ficha/metadata.
+                                if preficha_policy == 'ignore':
+                                    b[f'viga_fundo_seg_{idx}_exists'] = False
+                                    b['links'][link_key]['contour'] = []
+                                    continue
+
                                 # Não sobrescreve contour já populada por _process_beam_intelligent
                                 existing_contour = b['links'][link_key].get('contour', [])
-                                good_contour = next(
-                                    (lk for lk in existing_contour if _is_good_fv_contour(lk)),
-                                    None
-                                )
+                                if preficha_policy == 'preserve' and existing_contour:
+                                    good_contour = existing_contour[0]
+                                else:
+                                    good_contour = next(
+                                        (lk for lk in existing_contour if _is_good_fv_contour(lk)),
+                                        None
+                                    )
                                 if not good_contour:
+                                    if preficha_policy == 'preserve':
+                                        # Um vínculo aprovado nunca é substituído por
+                                        # inferência posterior, mesmo se ficou vazio
+                                        # por uma alteração externa inesperada.
+                                        continue
                                     b['links'][link_key]['contour'] = [{
                                         'points': geom,
                                         'type': 'polygon',
@@ -6821,72 +6848,84 @@ class MainWindow(QMainWindow):
 
                         _fv_results.append(fv_data)
 
+                    # Consumidores read-only usam exatamente o resultado
+                    # calculado pelo mesmo fluxo humano, sem consultar cache.
+                    self._last_fv_results = list(_fv_results)
+
                     # FASE 2: Salvar todos os beams (cada save_beam abre/fecha sua própria conexão)
-                    for b in getattr(self, 'beams_found', []):
-                        self.db.save_beam(b, self.current_project_id)
+                    if not _sa_read_only:
+                        for b in getattr(self, 'beams_found', []):
+                            self.db.save_beam(b, self.current_project_id)
 
                     # FASE 3: Upsert FV na tabela headless (única conexão, sem conflito)
-                    import sqlite3 as _sq3
-                    with _sq3.connect(self.db.db_path) as _fv_conn:
-                        for fv_data in _fv_results:
-                            upsert_beam_element_fv(_fv_conn, self.current_project_id, fv_data["viga_nome"], fv_data["panels_n1"], fv_data)
+                    if not _sa_read_only:
+                        import sqlite3 as _sq3
+                        with _sq3.connect(self.db.db_path) as _fv_conn:
+                            for fv_data in _fv_results:
+                                upsert_beam_element_fv(_fv_conn, self.current_project_id, fv_data["viga_nome"], fv_data["panels_n1"], fv_data)
 
-                    try:
-                        from pathlib import Path as _Path
-                        from scripts.motor_fase4 import MotorFase4
-                        _obra_nome = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
-                        _pav_nome = self._current_pavement_name() if hasattr(self, "_current_pavement_name") else ""
-                        _obra_path = _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / _obra_nome
-                        _m4 = MotorFase4(str(_obra_path), pavimento=_pav_nome)
-                        _n_fv_json = _m4._write_fv_json_from_beam_elements({})
-                        if _n_fv_json:
-                            self.log(f"🧩 Fundos SA→N1/N3/Robo: {_n_fv_json} JSON_Vigas_Fundo atualizados.")
-                    except Exception as _e_fv_f4:
-                        self.log(f"⚠ Falha ao materializar FV SA→N3/Robo: {_e_fv_f4}")
+                    if not _sa_read_only:
+                        try:
+                            from pathlib import Path as _Path
+                            from scripts.motor_fase4 import MotorFase4
+                            _obra_nome = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
+                            _pav_nome = self._current_pavement_name() if hasattr(self, "_current_pavement_name") else ""
+                            _obra_path = _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / _obra_nome
+                            _m4 = MotorFase4(str(_obra_path), pavimento=_pav_nome)
+                            _n_fv_json = _m4._write_fv_json_from_beam_elements({})
+                            if _n_fv_json:
+                                self.log(f"🧩 Fundos SA→N1/N3/Robo: {_n_fv_json} JSON_Vigas_Fundo atualizados.")
+                        except Exception as _e_fv_f4:
+                            self.log(f"⚠ Falha ao materializar FV SA→N3/Robo: {_e_fv_f4}")
 
                 except Exception as _fv_err:
                     import traceback
                     print(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
                     print(traceback.format_exc())
                     self.log(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
-                    for b in getattr(self, 'beams_found', []):
-                        self.db.save_beam(b, self.current_project_id)
+                    if not _sa_read_only:
+                        for b in getattr(self, 'beams_found', []):
+                            self.db.save_beam(b, self.current_project_id)
 
                 # Limpeza pós-save, em uma única transação. Só é alcançada quando
                 # as três coleções já foram persistidas com sucesso/fallback.
-                _conn_clean = self.db._get_conn()
-                try:
-                    for _table, _items in (
-                        ('pillars', getattr(self, 'pillars_found', [])),
-                        ('slabs', getattr(self, 'slabs_found', [])),
-                        ('beams', getattr(self, 'beams_found', [])),
-                    ):
-                        _ids = [str(x.get('id')) for x in _items if x.get('id')]
-                        if _ids:
-                            _marks = ','.join('?' for _ in _ids)
-                            _conn_clean.execute(
-                                f"DELETE FROM {_table} WHERE project_id=? "
-                                f"AND id NOT IN ({_marks})",
-                                [self.current_project_id, *_ids],
-                            )
-                        else:
-                            _conn_clean.execute(
-                                f"DELETE FROM {_table} WHERE project_id=?",
-                                (self.current_project_id,),
-                            )
-                    _conn_clean.commit()
-                except Exception:
-                    _conn_clean.rollback()
-                    raise
-                finally:
-                    _conn_clean.close()
+                if not _sa_read_only:
+                    _conn_clean = self.db._get_conn()
+                    try:
+                        for _table, _items in (
+                            ('pillars', getattr(self, 'pillars_found', [])),
+                            ('slabs', getattr(self, 'slabs_found', [])),
+                            ('beams', getattr(self, 'beams_found', [])),
+                        ):
+                            _ids = [str(x.get('id')) for x in _items if x.get('id')]
+                            if _ids:
+                                _marks = ','.join('?' for _ in _ids)
+                                _conn_clean.execute(
+                                    f"DELETE FROM {_table} WHERE project_id=? "
+                                    f"AND id NOT IN ({_marks})",
+                                    [self.current_project_id, *_ids],
+                                )
+                            else:
+                                _conn_clean.execute(
+                                    f"DELETE FROM {_table} WHERE project_id=?",
+                                    (self.current_project_id,),
+                                )
+                        _conn_clean.commit()
+                    except Exception:
+                        _conn_clean.rollback()
+                        raise
+                    finally:
+                        _conn_clean.close()
                 
-                self.log(
-                    "💾 Autosave Análise Geral: "
-                    f"{len(getattr(self, 'pillars_found', []))} pilares, "
-                    f"{len(getattr(self, 'slabs_found', []))} lajes e "
-                    f"{len(getattr(self, 'beams_found', []))} vigas salvos."
-                )
+                if _sa_read_only:
+                    self.log("Análise Geral em modo somente leitura: nenhuma ficha ou artefato foi persistido.")
+                else:
+                    self.log(
+                        "💾 Autosave Análise Geral: "
+                        f"{len(getattr(self, 'pillars_found', []))} pilares, "
+                        f"{len(getattr(self, 'slabs_found', []))} lajes e "
+                        f"{len(getattr(self, 'beams_found', []))} vigas salvos."
+                    )
         except Exception as ex:
             self.log(f"❌ Erro no autosave da Análise Geral: {ex}")
         print(f"[ANALISE] concluída: PL={len(self.pillars_found)} BM={len(getattr(self,'beams_found',[]))} SL={len(getattr(self,'slabs_found',[]))}", flush=True)
@@ -7926,7 +7965,10 @@ class MainWindow(QMainWindow):
             return
         
         # --- AUTO SYNC FROM ROBOTS ---
-        self._auto_sync_robos_to_db(self.current_project_id)
+        # Exportações automatizadas usam o mesmo carregamento humano, mas em
+        # modo somente leitura: consultar o projeto não pode alterar o DB.
+        if not bool(getattr(self, '_sa_read_only_run', False)):
+            self._auto_sync_robos_to_db(self.current_project_id)
         
         # FIX: Ensure name is consistent
         if self.current_project_name == "Sem Projeto" and self.current_project_id:
@@ -7988,6 +8030,22 @@ class MainWindow(QMainWindow):
         self.pillars_found = self.db.load_pillars(self.current_project_id) or []
         self.slabs_found = self.db.load_slabs(self.current_project_id) or []
         self.beams_found = self.db.load_beams(self.current_project_id) or []
+        self.beams_found, _obsolete_beam_ids, _beam_identity_changes = (
+            consolidate_beam_identities(self.beams_found)
+        )
+        if _beam_identity_changes:
+            # Persiste primeiro os registros canônicos já mesclados; só então
+            # remove as duplicatas legadas, preservando validações existentes.
+            for beam in self.beams_found:
+                self.db.save_beam(
+                    beam, self.current_project_id, trust_current_validation=True
+                )
+            for beam_id in _obsolete_beam_ids:
+                self.db.delete_beam(beam_id)
+            self.log(
+                f"🧹 Banco de vigas migrado: {_beam_identity_changes} "
+                f"registro(s), {len(_obsolete_beam_ids)} duplicata(s) removida(s)."
+            )
         
         # Migração automática de dados de vigas (estrutura antiga → nova)
         for beam in self.beams_found:
@@ -9548,6 +9606,34 @@ class MainWindow(QMainWindow):
             is_h         = b.get('is_h', True)
             beam_pos     = b.get('pos', (0, 0))
 
+            def lateral_edge_from_fundo(segment_index, side, span_min, span_max):
+                """Fallback geometrico: usa a borda real A/B do contorno de fundo.
+
+                O fallback antigo usava ``beam_pos`` para os dois lados, fazendo
+                A e B coincidirem com o eixo/fundo da viga. O contorno de fundo
+                ja separa as duas faces longitudinais com precisao.
+                """
+                area_key = f'viga_fundo_seg_{segment_index}_area_segs'
+                contours = b.get('links', {}).get(area_key, {}).get('contour', [])
+                if not contours or not isinstance(contours[0], dict):
+                    return None
+                contour_points = contours[0].get('points') or []
+                if len(contour_points) < 3:
+                    return None
+                if is_h:
+                    transverse = (
+                        max(float(p[1]) for p in contour_points)
+                        if side == 'a'
+                        else min(float(p[1]) for p in contour_points)
+                    )
+                    return [(span_min, transverse), (span_max, transverse)]
+                transverse = (
+                    min(float(p[0]) for p in contour_points)
+                    if side == 'a'
+                    else max(float(p[0]) for p in contour_points)
+                )
+                return [(transverse, span_min), (transverse, span_max)]
+
             def line_range(ln):
                 if is_h:
                     return min(p[0] for p in ln), max(p[0] for p in ln)
@@ -9581,6 +9667,13 @@ class MainWindow(QMainWindow):
                         if target_key not in b['links']:
                             b['links'][target_key] = {}
                         matched = best_overlap(side_raw, span_min, span_max)
+                        if matched is None:
+                            matched = lateral_edge_from_fundo(
+                                i,
+                                'a' if prefix_key == 'viga_a' else 'b',
+                                span_min,
+                                span_max,
+                            )
                         if matched is not None:
                             p1, p2 = matched[0], matched[-1]
                             seg_len = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
@@ -9627,6 +9720,10 @@ class MainWindow(QMainWindow):
             """Motor LV — Vigas que Passam: popula {prefix}_seg_{i}_comp_total_passa."""
             return _process_lv_base('comp_total_passa')
 
+        # O fundo vem primeiro porque fornece as duas bordas longitudinais para
+        # o fallback LV quando o BeamTracer nao classificou seg_side_a/b.
+        len_f = process_fundo_segments()
+
         # Rodar os dois motores independentes
         len_a_para,  len_b_para  = process_lv_para_segments()
         len_a_passa, len_b_passa = process_lv_passa_segments()
@@ -9634,8 +9731,6 @@ class MainWindow(QMainWindow):
         len_a = len_a_passa
         len_b = len_b_passa
 
-        len_f = process_fundo_segments()
-        
         b['fields']['comprimento_total_a'] = round(len_a, 1)
         b['fields']['comprimento_total_b'] = round(len_b, 1)
         b['fields']['comprimento_total_fundo'] = round(len_f, 1)
@@ -11209,12 +11304,8 @@ class MainWindow(QMainWindow):
             result.append({'text': txt, 'pos': list(pos), 'layer': t.get('layer', '')})
         return result
 
-    def _run_pre_validation_dialog(self) -> bool:
-        """
-        Abre o diálogo de pré-validação (Pilares + Visão de Cortes).
-        Retorna True se o usuário confirmou, False se cancelou.
-        Aplica o resultado diretamente nas estruturas de dados.
-        """
+    def _build_pre_validation_dialog(self, parent=None):
+        """Constrói a mesma pré-ficha usada pelo fluxo humano do SA."""
         from src.ui.widgets.pre_validation_dialog import PreValidationDialog
 
         preproc = getattr(self, 'pavimento_preprocess', {}) or {}
@@ -11234,7 +11325,7 @@ class MainWindow(QMainWindow):
 
         _db_path = getattr(self.db, 'db_path', None)
 
-        dlg = PreValidationDialog(
+        return PreValidationDialog(
             pillar_report=self.pavimento_pillar_report,
             nivel_report=self.pavimento_nivel_report,
             slabs=self.slabs_found,
@@ -11247,8 +11338,16 @@ class MainWindow(QMainWindow):
             db_path=_db_path,
             dxf_data=getattr(self, 'dxf_data', None),
             beams=getattr(self, 'beams_found', None),
-            parent=self,
+            parent=self if parent is None else parent,
         )
+
+    def _run_pre_validation_dialog(self) -> bool:
+        """
+        Abre o diálogo de pré-validação (Pilares + Visão de Cortes).
+        Retorna True se o usuário confirmou, False se cancelou.
+        Aplica o resultado diretamente nas estruturas de dados.
+        """
+        dlg = self._build_pre_validation_dialog()
 
         from PySide6.QtWidgets import QDialog
         dlg.showMaximized()
@@ -14694,11 +14793,20 @@ class MainWindow(QMainWindow):
         lay = QVBoxLayout(box)
         lay.setContentsMargins(6, 4, 6, 4)
         lay.setSpacing(3)
-        lay.addWidget(QLabel("ATENÇÃO"))
+        if cls in {"LV", "FV"}:
+            attention_title = "ATENÇÃO GERAL DA VIGA (TODOS OS SEGMENTOS)"
+            attention_placeholder = (
+                "Observação geral da viga no SA. "
+                "Os feedbacks individuais permanecem na pré-ficha de segmentos."
+            )
+        else:
+            attention_title = "ATENÇÃO GERAL DO ITEM"
+            attention_placeholder = "Mensagem/instrução geral deste item para o chat..."
+        lay.addWidget(QLabel(attention_title))
         edit = QTextEdit()
         edit.setFixedHeight(46)
         edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        edit.setPlaceholderText("Mensagem/instrucao persistente deste item para o chat...")
+        edit.setPlaceholderText(attention_placeholder)
         edit.setPlainText(meta.get("note", ""))
         self._sa_attention_edit = edit
         display_data["attention_note"] = meta.get("note", "")

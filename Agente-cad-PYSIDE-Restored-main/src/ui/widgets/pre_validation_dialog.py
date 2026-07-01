@@ -220,7 +220,288 @@ def _make_item(text: str, align=Qt.AlignLeft, bold: bool = False,
     return item
 
 
+_SEGMENT_DETAIL_SEPARATOR = "────────────────────────"
+
+
+def _pillar_sides_text(side_values: dict[str, str], sides: str) -> str:
+    """Agrupa lados do pilar em blocos ordenados na mesma célula."""
+    sections = []
+    for side in sides:
+        value = str(side_values.get(side) or "nulo")
+        sections.append(f"LADO {side}\n{value}")
+    return f"\n{_SEGMENT_DETAIL_SEPARATOR}\n".join(sections)
+
+
+def _pillar_abcd_text(side_values: dict[str, str]) -> str:
+    return _pillar_sides_text(side_values, "ABCD")
+
+
+def _pillar_abcdefgh_text(side_values: dict[str, str]) -> str:
+    return _pillar_sides_text(side_values, "ABCDEFGH")
+
+
+def _pillar_identity_text(
+    name: str,
+    classification: str,
+    shape: str,
+    confidence: int | float,
+) -> str:
+    """Organiza a identificação completa do pilar na primeira célula."""
+    sections = [
+        f"NOME\n{name or '—'}",
+        f"CLASSIFICAÇÃO SA\n{classification or '—'}",
+        f"FORMATO\n{shape or '—'}",
+        f"CONFIANÇA\n{confidence:g}%",
+    ]
+    return f"\n{_SEGMENT_DETAIL_SEPARATOR}\n".join(sections)
+
+
+def _cut_compact_width(original_width: int) -> int:
+    """Reduz em 40% uma coluna informacional da Visão de Cortes."""
+    return round(original_width * 0.60)
+
+
+def _slab_details_text(
+    slab: dict,
+    *,
+    height: str = "",
+    level: str = "",
+) -> str:
+    """Resume dados técnicos existentes da laje sem criar novas inferências."""
+    fields = slab.get("fields") or {}
+    links = slab.get("links") or {}
+    raw_height = height or fields.get("laje_dim") or slab.get("laje_dim") or "—"
+    raw_level = level or fields.get("laje_nivel") or slab.get("laje_nivel") or "—"
+    points = _slab_outline_points(slab)
+    if len(points) > 1 and points[0] == points[-1]:
+        points = points[:-1]
+
+    area = slab.get("area")
+    try:
+        area_text = f"{float(area):.1f} u²"
+    except (TypeError, ValueError):
+        area_text = "—"
+
+    supports: list[str] = []
+    support_links = (links.get("laje_pilares_apoio") or {}).get("pillar_geom") or []
+    for support in support_links:
+        name = (
+            (support.get("ficha") or {}).get("pillar_name")
+            if isinstance(support, dict)
+            else ""
+        )
+        if name and name not in supports:
+            supports.append(str(name))
+
+    neighbor_lines = []
+    direction_names = {
+        "neighbor_north": "Norte",
+        "neighbor_east": "Leste",
+        "neighbor_south": "Sul",
+        "neighbor_west": "Oeste",
+    }
+    neighbors = links.get("laje_vizinhas_niveis") or {}
+    for key, label in direction_names.items():
+        names: list[str] = []
+        for record in neighbors.get(key) or []:
+            if not isinstance(record, dict):
+                continue
+            candidate = record.get("source_slab")
+            if not candidate:
+                text = str(record.get("text") or "")
+                candidate = (
+                    text
+                    if re.fullmatch(r"L\d+[A-Z]?", text, re.IGNORECASE)
+                    else ""
+                )
+            if candidate and candidate not in names:
+                names.append(str(candidate))
+        neighbor_lines.append(f"{label}: {', '.join(names) or '—'}")
+
+    cuts = (links.get("laje_visao_corte") or {}).get("cut_view_geom") or []
+    confidence = slab.get("confidence_score")
+    if confidence is None:
+        confidence = (slab.get("trace_diagnostics") or {}).get("confidence_score")
+    try:
+        confidence_value = float(confidence)
+        if confidence_value <= 1:
+            confidence_value *= 100
+        confidence_text = f"{confidence_value:.0f}%"
+    except (TypeError, ValueError):
+        confidence_text = "—"
+
+    sections = [
+        [
+            "DIMENSÕES E NÍVEL",
+            f"Altura: {raw_height}",
+            f"Nível: {raw_level}",
+            f"Área geométrica: {area_text}",
+            f"Vértices do contorno: {len(points) or '—'}",
+        ],
+        ["APOIOS", f"Pilares: {', '.join(supports) or '—'}"],
+        ["VIZINHANÇA", *neighbor_lines],
+        [
+            "ANÁLISE",
+            f"Origem: {slab.get('origin') or '—'}",
+            f"Método: {slab.get('method') or '—'}",
+            f"Confiança: {confidence_text}",
+            f"Cortes vinculados: {len(cuts)}",
+            f"Validada: {'Sim' if slab.get('is_validated') else 'Não'}",
+        ],
+    ]
+    return f"\n{_SEGMENT_DETAIL_SEPARATOR}\n".join(
+        "\n".join(section) for section in sections
+    )
+
+
+def _slab_outline_points(slab: dict) -> list:
+    """Obtém o contorno autoritativo da laje, com fallback para o vínculo SA."""
+    points = slab.get("points") or []
+    if points:
+        return list(points)
+    contours = (
+        ((slab.get("links") or {}).get("laje_outline_segs") or {}).get("contour")
+        or []
+    )
+    for contour in contours:
+        if isinstance(contour, dict) and contour.get("points"):
+            return list(contour["points"])
+    return []
+
+
+def _segment_identity_text(segment: dict, is_fundo: bool = False) -> str:
+    """Compacta a identificação segmentar em uma única célula ordenada."""
+    lines = [
+        f"Nome: {segment.get('beam_name') or '—'}",
+        f"Segmento: {segment.get('segment_label') or '—'}",
+    ]
+    if not is_fundo:
+        lines.extend([
+            f"Lado: {segment.get('side') or '—'}",
+            f"Comportamento: {segment.get('behavior') or '—'}",
+        ])
+    return "\n".join(lines)
+
+
+def _segment_details_text(segment: dict, is_fundo: bool = False) -> str:
+    """Organiza dimensões e classes técnicas com separadores visuais."""
+    dimension_lines = [
+        "DIMENSÕES",
+        f"Comprimento: {float(segment.get('length') or 0.0):.1f}",
+    ]
+    if is_fundo:
+        dimension_lines.append(f"Largura: {segment.get('width') or '—'}")
+        return "\n".join(dimension_lines)
+
+    dimension_lines.append(f"Altura: {segment.get('height') or '—'}")
+    details = segment.get('details') or {}
+
+    def support_line(label: str, support: dict | None) -> str:
+        support = support or {}
+        return (
+            f"{label}: {support.get('name') or '—'} | "
+            f"Dim.: {support.get('dimension') or '—'} | "
+            f"Nível: {support.get('level') or '—'}"
+        )
+
+    sections = [
+        dimension_lines,
+        [
+            "APOIOS",
+            f"Vínculo: {segment.get('tag') or '—'}",
+            support_line("Inicial", details.get('support_start')),
+            support_line("Final", details.get('support_end')),
+            f"Nível da viga: {details.get('beam_level') or '—'}",
+        ],
+    ]
+
+    slabs = list(details.get('slabs') or [])[:3]
+    slab_lines = ["LAJES"]
+    for slab_index in range(3):
+        slab = slabs[slab_index] if slab_index < len(slabs) else {}
+        slab_lines.append(
+            f"Laje {slab_index + 1}: {slab.get('name') or '—'} | "
+            f"Nível: {slab.get('level') or '—'} | "
+            f"Altura: {slab.get('height') or '—'}"
+        )
+    sections.append(slab_lines)
+
+    adjustment = details.get('adjustment') or {}
+    sections.extend([
+        [
+            "CONTINUIDADE E AJUSTE",
+            f"Continuidade: {details.get('continuity') or 'A preencher'}",
+            "Ajuste comprimento: "
+            f"{adjustment.get('initial') or 'A preencher'} + "
+            f"{adjustment.get('final') or 'A preencher'} = "
+            f"{adjustment.get('total') or 'A preencher'}",
+        ],
+        [
+            "INTERFERÊNCIAS",
+            "Pilares que passam: "
+            f"{', '.join(details.get('passing_pillars') or []) or '—'}",
+            "Aberturas de viga: "
+            f"{', '.join(details.get('beam_openings') or []) or '—'}",
+        ],
+    ])
+    return f"\n{_SEGMENT_DETAIL_SEPARATOR}\n".join(
+        "\n".join(section) for section in sections
+    )
+
+
 # ── Mini viewer vetorial ───────────────────────────────────────────────────────
+
+def _segment_geometry_metrics(points: list | tuple | None) -> dict:
+    """Resume o contorno SA sem alterar ou simplificar seus vértices."""
+    clean: list[tuple[float, float]] = []
+    for point in points or []:
+        try:
+            clean.append((float(point[0]), float(point[1])))
+        except (TypeError, ValueError, IndexError):
+            continue
+    if not clean:
+        return {
+            "vertex_count": 0,
+            "unique_vertex_count": 0,
+            "bbox": None,
+            "centroid": None,
+            "span_x": 0.0,
+            "span_y": 0.0,
+            "orientation": "indeterminada",
+            "area": 0.0,
+            "closed": False,
+        }
+
+    xs = [point[0] for point in clean]
+    ys = [point[1] for point in clean]
+    bbox = (min(xs), min(ys), max(xs), max(ys))
+    span_x = bbox[2] - bbox[0]
+    span_y = bbox[3] - bbox[1]
+    orientation = (
+        "horizontal" if span_x > span_y
+        else "vertical" if span_y > span_x
+        else "quadrada"
+    )
+    closed = len(clean) > 2 and clean[0] == clean[-1]
+    polygon = clean[:-1] if closed else clean
+    area = 0.0
+    if len(polygon) >= 3:
+        area = abs(sum(
+            x1 * y2 - x2 * y1
+            for (x1, y1), (x2, y2) in zip(polygon, polygon[1:] + polygon[:1])
+        )) / 2.0
+    return {
+        "vertex_count": len(clean),
+        "unique_vertex_count": len(set(clean)),
+        "bbox": bbox,
+        "centroid": ((bbox[0] + bbox[2]) / 2.0, (bbox[1] + bbox[3]) / 2.0),
+        "span_x": span_x,
+        "span_y": span_y,
+        "orientation": orientation,
+        "area": area,
+        "closed": closed,
+    }
+
 
 class _MiniDXFView(QGraphicsView):
     """
@@ -233,11 +514,15 @@ class _MiniDXFView(QGraphicsView):
         x0: float, y0: float, x1: float, y1: float,
         thumb_w: int, thumb_h: int,
         highlight_pts: list | None = None,
+        highlight_closed: bool = False,
+        mute_context: bool = False,
         parent=None,
     ):
         super().__init__(scene, parent)
         self.setFixedSize(thumb_w, thumb_h)
         self._highlight_pts = highlight_pts or []
+        self._highlight_closed = bool(highlight_closed)
+        self._mute_context = bool(mute_context)
         
         self.setStyleSheet(
             f"border:1px solid {Colors.BORDER_DEFAULT}; "
@@ -259,31 +544,6 @@ class _MiniDXFView(QGraphicsView):
         dxf_rect = QRectF(cx - w/2, cy - h/2, w, h)
         self.fitInView(dxf_rect, Qt.KeepAspectRatio)
             
-    def drawForeground(self, painter, rect):
-        if len(self._highlight_pts) >= 2:
-            poly = QPolygonF([QPointF(float(p[0]), float(p[1])) for p in self._highlight_pts])
-            fill = QColor(Accent.PRIMARY)
-            fill.setAlpha(40)
-            painter.setBrush(QBrush(fill))
-            pen = QPen(QColor(Accent.BRAND))
-            pen.setCosmetic(True)
-            pen.setWidth(2)
-            painter.setPen(pen)
-            painter.drawPolygon(poly)
-
-    def wheelEvent(self, event):
-        # Zoom in and zoom out mantendo integridade da funcao de arraste
-        zoom_in_factor = 1.25
-        zoom_out_factor = 1 / zoom_in_factor
-        if event.angleDelta().y() > 0:
-            zoom_factor = zoom_in_factor
-        else:
-            zoom_factor = zoom_out_factor
-        
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.scale(zoom_factor, zoom_factor)
-        event.accept()
-
     # ── Interação ─────────────────────────────────────────────────────────────
 
     def wheelEvent(self, event):
@@ -305,25 +565,35 @@ class _MiniDXFView(QGraphicsView):
     # ── Destaque do item ───────────────────────────────────────────────────────
 
     def drawForeground(self, painter: QPainter, rect):
-        """Sobrepõe o contorno do polígono do item sem alterar a cena compartilhada."""
+        """Destaca somente a geometria vinculada, sem alterar a cena compartilhada."""
         if len(self._highlight_pts) < 2:
             return
         try:
-            poly = QPolygonF([QPointF(float(p[0]), float(p[1]))
-                              for p in self._highlight_pts])
+            points = [QPointF(float(p[0]), float(p[1]))
+                      for p in self._highlight_pts]
         except Exception:
             return
         painter.save()
-        # Fill translúcido para marcar a área
-        fill = QColor(Accent.PRIMARY)
-        fill.setAlpha(40)
-        painter.setBrush(QBrush(fill))
-        # Borda cosmética: largura fixa em pixels independente do zoom
+        if self._mute_context:
+            veil = QColor(Colors.BG_PRIMARY)
+            veil.setAlpha(150)
+            painter.fillRect(rect, veil)
+
+        path = QPainterPath(points[0])
+        for point in points[1:]:
+            path.lineTo(point)
+        if self._highlight_closed:
+            path.closeSubpath()
+            fill = QColor(Accent.PRIMARY)
+            fill.setAlpha(75)
+            painter.setBrush(QBrush(fill))
+        else:
+            painter.setBrush(Qt.NoBrush)
         pen = QPen(QColor(Accent.BRAND))
         pen.setCosmetic(True)
-        pen.setWidth(2)
+        pen.setWidth(4)
         painter.setPen(pen)
-        painter.drawPolygon(poly)
+        painter.drawPath(path)
         painter.restore()
 
 
@@ -405,7 +675,12 @@ class PreValidationDialog(QDialog):
         # DXF bruto (optional) — usado para re-detectar geometrias de pilares
         self._dxf_data = dxf_data or {}
         self._beams = beams or []
-        self._segment_data: dict[str, list[dict]] = collect_preficha_segments(self._beams)
+        self._segment_data: dict[str, list[dict]] = collect_preficha_segments(
+            self._beams,
+            slabs=self._slabs,
+            pillar_report=self._pillar_report,
+            nivel_report=self._nivel_report,
+        )
         self._segment_tables: dict[str, QTableWidget] = {}
         self._segment_viewer_data: dict[str, dict[int, list]] = {}
         self._segment_status_combos: dict[str, QComboBox] = {}
@@ -447,7 +722,7 @@ class PreValidationDialog(QDialog):
         self._pf_history: dict = self._load_pf_history()
         ui_state = self._pf_history.get('ui_state', {})
         try:
-            self._active_tab_index = max(0, min(9, int(ui_state.get('active_tab', 0))))
+            self._active_tab_index = max(0, min(10, int(ui_state.get('active_tab', 0))))
         except (TypeError, ValueError):
             self._active_tab_index = 0
         self._saved_scroll_positions: dict[str, int] = dict(
@@ -629,21 +904,18 @@ class PreValidationDialog(QDialog):
         """
         Retorna o texto para a célula do lado (A/B/C/D) de um pilar.
 
-        Regras estruturais:
-          Lados A e B  → sempre LAJE (face principal: laje encosta direto no pilar)
-          Lados C e D  → VIGA QUE PASSA quando a face está DENTRO do corpo da viga
-                         (proxy: pontos da aresta dentro de polígono de laje);
-                         LAJE quando a face encontra uma laje sem viga atravessando;
-                         NULO se não há nada.
+        Regras estruturais (Casos 1–5 do doc INTERPRETACAO-PILARES-ABCD):
+          Todos os lados: VIGA (wall alinhado) > LAJE (área) > NULO
+          C/D dentro de polígono de laje sem viga → LAJE (Caso 3)
+          Detecção de VIGA por wall requer _beam_poly_map (TODO: implementar)
 
         Estratégias em ordem de prioridade:
         1. Links diretos do SA (pillar['lajes']) → bloco Laje/Altura/Nível
-        2. Pontos da aresta DENTRO de polígono de laje:
-             A/B → LAJE com nome; C/D → VIGA QUE PASSA (face embutida = viga atravessa)
-        3. Aresta colínear com borda do polígono (slab boundary = pilar face):
-             A/B → LAJE com nome; C/D → LAJE com nome (laje abuta a face sem viga)
-        4. Projeção perpendicular para FORA da aresta (slab adjacente exterior):
-             A/B → LAJE com nome; C/D → LAJE com nome (laje do lado, sem viga interna)
+        2. Pontos da aresta DENTRO de polígono de laje → LAJE (A/B/C/D)
+        3. Aresta colínear com borda do polígono → LAJE (A/B/C/D)
+        4. Projeção perpendicular para FORA da aresta com validação direcional de eixo:
+             norte/sul → exige sobreposição em X da laje com a face
+             leste/oeste → exige sobreposição em Y da laje com a face
         5. Nada encontrado → "nulo"
         """
         lajes_entries = [e for e in (pillar.get('lajes') or []) if e.get('side') == side]
@@ -679,12 +951,11 @@ class PreValidationDialog(QDialog):
             )
 
         # ── Estratégia 2: pontos da aresta DENTRO de polígono de laje ─────────
-        # A/B: face principal toca laje → LAJE
-        # C/D: face embutida em polígono → proxy de viga que atravessa → VIGA template
+        # Caso 3: face embutida na área da laje sem wall de viga alinhado → LAJE
         for sn, poly_pts in self._slab_poly_map.items():
             for px, py in samples:
                 if self._point_in_polygon(px, py, poly_pts):
-                    return _laje_block(sn) if is_ab else self._VIGA_CELL_TEXT
+                    return _laje_block(sn)
 
         # ── Estratégia 3: aresta colínear com borda do polígono ───────────────
         # Laje termina exatamente na face → LAJE para ambos os casos (A/B/C/D)
@@ -693,18 +964,44 @@ class PreValidationDialog(QDialog):
                 return _laje_block(sn)
 
         # ── Estratégia 4: projeção perpendicular para fora da aresta ──────────
-        # Encontra laje adjacente exterior → LAJE para todos os lados
+        # Encontra laje adjacente exterior com validação direcional de eixo.
+        # Projeção norte/sul: laje deve ter sobreposição em X com a face.
+        # Projeção leste/oeste: laje deve ter sobreposição em Y com a face.
+        # Evita falsos positivos onde a laje está no quadrante errado mas o polígono
+        # é grande o suficiente para entrar no caminho da projeção.
         horiz = (orientation or '').lower() != 'vertical'
         outward_dirs = {
             True:  {'A': (0.0, -1.0), 'B': (0.0, 1.0), 'C': (-1.0, 0.0), 'D': (1.0, 0.0)},
             False: {'A': (-1.0, 0.0), 'B': (1.0, 0.0), 'C': (0.0, 1.0), 'D': (0.0, -1.0)},
         }
         dx, dy = outward_dirs[horiz].get(side, (0.0, 0.0))
+        face_xmin = min(ex0, ex1)
+        face_xmax = max(ex0, ex1)
+        face_ymin = min(ey0, ey1)
+        face_ymax = max(ey0, ey1)
+        # Cobertura mínima: laje deve cobrir >= 50% do comprimento da face
+        # no eixo perpendicular à projeção. Evita que lajes adjacentes em diagonal
+        # (tocando apenas o canto do pilar) sejam detectadas como laje da face.
+        _MIN_COVERAGE = 0.5
         for delta in (4.0, 12.0, 25.0):
             for px, py in samples:
                 for sn, poly_pts in self._slab_poly_map.items():
-                    if self._point_in_polygon(px + dx * delta, py + dy * delta, poly_pts):
-                        return _laje_block(sn)
+                    if not self._point_in_polygon(px + dx * delta, py + dy * delta, poly_pts):
+                        continue
+                    # Validação direcional por cobertura do eixo perpendicular
+                    if dy != 0.0:  # projeção norte/sul → checar cobertura em X
+                        poly_xs = [float(p[0]) for p in poly_pts]
+                        face_len = face_xmax - face_xmin
+                        overlap  = min(max(poly_xs), face_xmax) - max(min(poly_xs), face_xmin)
+                        if face_len > 0 and overlap < face_len * _MIN_COVERAGE:
+                            continue  # laje cobre menos de 50% da face — falso positivo
+                    elif dx != 0.0:  # projeção leste/oeste → checar cobertura em Y
+                        poly_ys = [float(p[1]) for p in poly_pts]
+                        face_len = face_ymax - face_ymin
+                        overlap  = min(max(poly_ys), face_ymax) - max(min(poly_ys), face_ymin)
+                        if face_len > 0 and overlap < face_len * _MIN_COVERAGE:
+                            continue  # laje cobre menos de 50% da face — falso positivo
+                    return _laje_block(sn)
 
         return 'nulo'
 
@@ -755,6 +1052,8 @@ class PreValidationDialog(QDialog):
         min_margin_dxf: float = 120.0,
         fallback_line: str = Colors.ACCENT_MINT,
         fallback_fill: str = Surface.RAISED,
+        highlight_closed: bool = False,
+        mute_context: bool = False,
     ) -> QWidget | None:
         """
         Cria um _MiniDXFView VIVO (vetorial, com zoom e arraste) que compartilha
@@ -792,10 +1091,15 @@ class PreValidationDialog(QDialog):
                 maxx + marg, maxy + marg,
                 thumb_w, thumb_h,
                 highlight_pts=pts,
+                highlight_closed=highlight_closed,
+                mute_context=mute_context,
             )
 
         # Fallback geométrico se não houver cena
-        pix = self._render_polygon_geometric(pts, thumb_w, thumb_h, fallback_line, fallback_fill)
+        pix = self._render_polygon_geometric(
+            pts, thumb_w, thumb_h, fallback_line, fallback_fill,
+            closed=highlight_closed,
+        )
         if pix is None:
             return None
         lbl = QLabel()
@@ -807,12 +1111,13 @@ class PreValidationDialog(QDialog):
     def _render_polygon_geometric(self, pts: list,
                                    thumb_w: int = 440, thumb_h: int = 210,
                                    line_color: str = Colors.ACCENT_MINT,
-                                   fill_color: str = Surface.RAISED) -> QPixmap | None:
+                                   fill_color: str = Surface.RAISED,
+                                   closed: bool = True) -> QPixmap | None:
         """
         Fallback: desenha o polígono geometricamente (sem canvas disponível).
         Respeita dimensões retangulares thumb_w × thumb_h.
         """
-        if not pts or len(pts) < 3:
+        if not pts or len(pts) < 2:
             return None
         try:
             xs = [float(p[0]) for p in pts]
@@ -838,7 +1143,7 @@ class PreValidationDialog(QDialog):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(QPen(QColor(line_color), 1))
-        painter.setBrush(QBrush(QColor(fill_color)))
+        painter.setBrush(QBrush(QColor(fill_color)) if closed else Qt.NoBrush)
 
         polygon = QPolygonF()
         for x, y in zip(xs, ys):
@@ -846,7 +1151,10 @@ class PreValidationDialog(QDialog):
                 off_x + (x - minx) * scale,
                 thumb_h - off_y - (y - miny) * scale,  # flip Y
             ))
-        painter.drawPolygon(polygon)
+        if closed:
+            painter.drawPolygon(polygon)
+        else:
+            painter.drawPolyline(polygon)
         # Borda
         painter.setPen(QPen(QColor(Colors.BORDER_DEFAULT), 1))
         painter.setBrush(Qt.NoBrush)
@@ -861,6 +1169,7 @@ class PreValidationDialog(QDialog):
             thumb_w=self._PIL_THUMB_W, thumb_h=self._PIL_THUMB_H,
             margin_factor=2.5, min_margin_dxf=100.0,
             fallback_line=Colors.ACCENT_MINT, fallback_fill=Surface.RAISED,
+            highlight_closed=True,
         )
 
     def _make_cut_viewer(self, pts: list) -> QWidget | None:
@@ -870,6 +1179,28 @@ class PreValidationDialog(QDialog):
             thumb_w=self._CUT_THUMB_W, thumb_h=self._CUT_THUMB_H,
             margin_factor=3.0, min_margin_dxf=130.0,
             fallback_line=Semantic.SUCCESS, fallback_fill=Semantic.SUCCESS_BG_DARK,
+        )
+
+    def _make_segment_viewer(self, pts: list, closed: bool = False) -> QWidget | None:
+        """Enquadra de perto e realça exclusivamente o vínculo FV/LV selecionado."""
+        return self._make_mini_viewer(
+            pts,
+            thumb_w=self._SEG_THUMB_W, thumb_h=self._SEG_THUMB_H,
+            margin_factor=0.12, min_margin_dxf=8.0,
+            fallback_line=Accent.BRAND, fallback_fill=Surface.RAISED,
+            highlight_closed=closed,
+            mute_context=True,
+        )
+
+    def _make_slab_viewer(self, pts: list) -> QWidget | None:
+        """Enquadra e destaca exclusivamente o contorno da laje selecionada."""
+        return self._make_mini_viewer(
+            pts,
+            thumb_w=self._SLAB_THUMB_W, thumb_h=self._SLAB_THUMB_H,
+            margin_factor=0.08, min_margin_dxf=8.0,
+            fallback_line=Accent.BRAND, fallback_fill=Surface.RAISED,
+            highlight_closed=True,
+            mute_context=True,
         )
 
     # ── Gabarito — recorte PIL do Motor Reverso ───────────────────────────────
@@ -1314,6 +1645,7 @@ class PreValidationDialog(QDialog):
         table_specs = [
             ('pilares', getattr(self, '_pillar_table', None)),
             ('visao_cortes', getattr(self, '_cut_table', None)),
+            ('lajes', getattr(self, '_slab_table', None)),
         ]
         table_specs.extend((kind, table) for kind, table in self._segment_tables.items())
         for state_key, table in table_specs:
@@ -1821,6 +2153,7 @@ class PreValidationDialog(QDialog):
             "  Segmentos Lateral B Passa  ",
             "  Convenção de Níveis  ",
             "  Pilares Especiais  ",
+            "  Lajes  ",
         ]
         self._tab_loaded: dict[int, bool] = {idx: False for idx in range(len(tab_titles))}
 
@@ -1871,6 +2204,7 @@ class PreValidationDialog(QDialog):
             7: lambda: self._build_segment_tab('lateral_b_passa'),
             8: self._build_niveis_tab,
             9: self._build_especiais_tab,
+            10: self._build_slabs_tab,
         }
         builder = builders.get(index)
         if not builder:
@@ -1931,6 +2265,14 @@ class PreValidationDialog(QDialog):
         # Visão de Corte
         if getattr(self, '_cut_table', None) and self._cut_table.isVisible():
             self._update_dynamic_viewers(self._cut_table, getattr(self, '_cut_viewer_data', {}), self._CUT_COL_FOTO, True)
+        # Lajes
+        if getattr(self, '_slab_table', None) and self._slab_table.isVisible():
+            self._update_dynamic_viewers(
+                self._slab_table,
+                getattr(self, '_slab_viewer_data', {}),
+                self._SLAB_COL_FOTO,
+                'slab',
+            )
         # Segmentos de vigas: cada aba mantem apenas os viewers das linhas visiveis.
         for kind, table in self._segment_tables.items():
             if table.isVisible():
@@ -1938,7 +2280,7 @@ class PreValidationDialog(QDialog):
                     table,
                     self._segment_viewer_data.get(kind, {}),
                     table.property('viewer_column'),
-                    True,
+                    'segment',
                 )
 
     def _dynamic_viewer_tables(self):
@@ -1948,6 +2290,9 @@ class PreValidationDialog(QDialog):
         cut_table = getattr(self, '_cut_table', None)
         if cut_table is not None:
             yield cut_table, getattr(self, '_cut_viewer_data', {}), self._CUT_COL_FOTO
+        slab_table = getattr(self, '_slab_table', None)
+        if slab_table is not None:
+            yield slab_table, getattr(self, '_slab_viewer_data', {}), self._SLAB_COL_FOTO
         for kind, table in self._segment_tables.items():
             yield table, self._segment_viewer_data.get(kind, {}), int(table.property('viewer_column'))
 
@@ -2321,36 +2666,20 @@ class PreValidationDialog(QDialog):
         return "—"
 
     # Índice das colunas da tabela de pilares (retangulares)
-    # Classif.SA e Classif.Override ficam lado a lado (cols 1 e 2)
     _PIL_COL_NOME      = 0
-    _PIL_COL_CLASSIF   = 1
-    _PIL_COL_OVERRIDE  = 2   # ao lado da classificação SA
-    _PIL_COL_PHYS      = 3   # agora: "Formato Pilar" (shape geométrico)
-    _PIL_COL_CONF      = 4
-    _PIL_COL_NIVEL     = 5
-    _PIL_COL_LADO_A    = 6
-    _PIL_COL_LADO_B    = 7
-    _PIL_COL_LADO_C    = 8
-    _PIL_COL_LADO_D    = 9
-    _PIL_COL_ATENCAO   = 10  # nota livre para feedback / gabarito
-    _PIL_COL_FOTO      = 11
+    _PIL_COL_OVERRIDE  = 1
+    _PIL_COL_NIVEL     = 2
+    _PIL_COL_LADOS     = 3
+    _PIL_COL_ATENCAO   = 4   # nota livre para feedback / gabarito
+    _PIL_COL_FOTO      = 5
 
     # Índice das colunas da tabela de pilares especiais (A-H)
     _ESP_COL_NOME      = 0
-    _ESP_COL_CLASSIF   = 1
-    _ESP_COL_OVERRIDE  = 2
-    _ESP_COL_FORMATO   = 3
-    _ESP_COL_CONF      = 4
-    _ESP_COL_NIVEL     = 5
-    _ESP_COL_LADO_A    = 6
-    _ESP_COL_LADO_B    = 7
-    _ESP_COL_LADO_C    = 8
-    _ESP_COL_LADO_D    = 9
-    _ESP_COL_LADO_E    = 10
-    _ESP_COL_LADO_F    = 11
-    _ESP_COL_LADO_G    = 12
-    _ESP_COL_LADO_H    = 13
-    _ESP_COL_FOTO      = 14
+    _ESP_COL_OVERRIDE  = 1
+    _ESP_COL_NIVEL     = 2
+    _ESP_COL_LADOS     = 3
+    _ESP_COL_ATENCAO   = 4
+    _ESP_COL_FOTO      = 5
 
     # Dimensões do mini viewer de pilar
     _PIL_THUMB_W  = 880
@@ -2358,31 +2687,24 @@ class PreValidationDialog(QDialog):
     _PIL_COL_FOTO_W = 890
     _PIL_ROW_H    = 430
 
-    # Largura das colunas Lado-A/B/C/D (−20% de 130)
-    _PIL_LADO_COL_W = 104
-
     def _build_pillar_table(self) -> QTableWidget:
         cols = [
-            "Nome", "Classif. SA", "Classif. Override",
-            "Formato Pilar", "Conf %", "Nível",
-            "Lado-A", "Lado-B", "Lado-C", "Lado-D", "⚑ Atenção / Feedback (editável)", "Foto",
+            "Nome / Classificação / Formato / Confiança",
+            "Classif. Override", "Nível",
+            "Lados ABCD", "⚑ Atenção / Feedback (editável)", "Foto",
         ]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
-        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
-        hdr.setSectionResizeMode(self._PIL_COL_NOME, QHeaderView.Fixed)
-        tbl.setColumnWidth(self._PIL_COL_NOME, 75)
-        for col in (self._PIL_COL_LADO_A, self._PIL_COL_LADO_B,
-                    self._PIL_COL_LADO_C, self._PIL_COL_LADO_D):
-            hdr.setSectionResizeMode(col, QHeaderView.Interactive)
-            tbl.setColumnWidth(col, self._PIL_LADO_COL_W)
-        hdr.setSectionResizeMode(self._PIL_COL_OVERRIDE, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._PIL_COL_OVERRIDE, 180)
-        hdr.setSectionResizeMode(self._PIL_COL_ATENCAO, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._PIL_COL_ATENCAO, 300)
-        hdr.setSectionResizeMode(self._PIL_COL_FOTO, QHeaderView.Fixed)
+        hdr.setSectionResizeMode(QHeaderView.Fixed)
+        hdr.setStretchLastSection(False)
+        tbl.setColumnWidth(self._PIL_COL_NOME, 170)
+        tbl.setColumnWidth(self._PIL_COL_OVERRIDE, 135)
+        tbl.setColumnWidth(self._PIL_COL_NIVEL, 55)
+        tbl.setColumnWidth(self._PIL_COL_LADOS, 250)
+        tbl.setColumnWidth(self._PIL_COL_ATENCAO, 115)
         tbl.setColumnWidth(self._PIL_COL_FOTO, self._PIL_COL_FOTO_W)
+        tbl.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
         # Atenção é editável; demais colunas não
         tbl.setEditTriggers(
@@ -2442,7 +2764,7 @@ class PreValidationDialog(QDialog):
         bg = self._row_bg_for_classif(classif)
         skip = {self._PIL_COL_OVERRIDE, self._PIL_COL_ATENCAO, self._PIL_COL_FOTO}
         for col in range(tbl.columnCount()):
-            if col in skip or col == self._PIL_COL_PHYS:
+            if col in skip:
                 continue
             it = tbl.item(row, col)
             if it:
@@ -2450,21 +2772,6 @@ class PreValidationDialog(QDialog):
                     it.setBackground(QBrush(bg))
                 else:
                     it.setBackground(QBrush())
-        # Tipo Físico é QLabel → atualiza via stylesheet
-        nome_item = tbl.item(row, self._PIL_COL_NOME)
-        key = nome_item.data(Qt.UserRole) if nome_item else None
-        if key and key in self._phys_labels:
-            lbl = self._phys_labels[key]
-            # Preserva a cor do formato; apenas atualiza o background
-            bg_css = bg.name() if bg else 'transparent'
-            cur_ss = lbl.styleSheet()
-            # Substitui apenas a parte background mantendo color existente
-            import re as _re
-            new_ss = _re.sub(r'background:[^;]+;', f'background:{bg_css};', cur_ss)
-            if 'background:' not in new_ss:
-                new_ss += f' background:{bg_css};'
-            lbl.setStyleSheet(new_ss)
-
     @staticmethod
     def _natural_sort_key(s: str):
         """Chave para ordenação alfanumérica natural: P1 P2 … P9 P10 P11 …"""
@@ -2524,7 +2831,6 @@ class PreValidationDialog(QDialog):
 
             p_nr = nr_pilares.get(key, {})
             nivel_str = p_nr.get('level_str') or '—'
-            conf_color = _confidence_color(conf_pct)
 
             # ── Nome: fonte maior + negrito ──────────────────────────────────
             if geo_is_alt:
@@ -2534,10 +2840,6 @@ class PreValidationDialog(QDialog):
             else:
                 nome_display = name
             nome_item = _make_item(nome_display, bold=True)
-            f = nome_item.font()
-            f.setPixelSize(18)
-            f.setBold(True)
-            nome_item.setFont(f)
             if geo_is_alt:
                 nome_item.setForeground(QBrush(QColor(Accent.BRAND)))
                 nome_item.setToolTip(
@@ -2551,9 +2853,6 @@ class PreValidationDialog(QDialog):
                     f'⚠ Geometria desta bbox foi rejeitada anteriormente para "{name}".\n'
                     f'Sem alternativa disponível nesta análise.'
                 )
-            nome_item.setData(Qt.UserRole, key)   # guarda key para lookup dinâmico
-            tbl.setItem(row, self._PIL_COL_NOME, nome_item)
-
             # Classif. SA com sufixo do tipo físico (sólido / visual)
             if phys == 'visual_only':
                 classif_sa_display = f'{classif}  ·  visual'
@@ -2561,43 +2860,53 @@ class PreValidationDialog(QDialog):
                 classif_sa_display = f'{classif}  ·  sólido'
             else:
                 classif_sa_display = classif
-            tbl.setItem(row, self._PIL_COL_CLASSIF, _make_item(classif_sa_display))
-            tbl.setItem(row, self._PIL_COL_CONF,
-                        _make_item(f"{conf_pct}%", Qt.AlignCenter, color=conf_color))
+            identity_text = _pillar_identity_text(
+                nome_display,
+                classif_sa_display,
+                PILLAR_FORMATO_LABELS.get(formato, formato),
+                conf_pct,
+            )
+            contextual_tooltip = nome_item.toolTip()
+            nome_item.setText(identity_text)
+            nome_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            nome_item.setData(Qt.UserRole, key)   # guarda key para lookup dinâmico
+            nome_item.setData(Qt.UserRole + 1, {
+                'name': nome_display,
+                'classification': classif_sa_display,
+                'shape': PILLAR_FORMATO_LABELS.get(formato, formato),
+                'confidence': conf_pct,
+            })
+            nome_item.setToolTip(
+                identity_text
+                + (f"\n\n{contextual_tooltip}" if contextual_tooltip else "")
+            )
+            tbl.setItem(row, self._PIL_COL_NOME, nome_item)
             tbl.setItem(row, self._PIL_COL_NIVEL,
                         _make_item(nivel_str, Qt.AlignCenter))
 
-            # ── Formato Pilar: QLabel colorido por shape ──────────────────────
-            fmt_color = PILLAR_FORMATO_COLORS.get(formato, '#f07070')
-            fmt_lbl = QLabel(PILLAR_FORMATO_LABELS.get(formato, formato))
-            fmt_lbl.setWordWrap(True)
-            fmt_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            fmt_lbl.setStyleSheet(
-                f"color:{fmt_color}; font-size:9px; padding:3px; background:transparent;"
-            )
-            self._phys_labels[key] = fmt_lbl
-            tbl.setCellWidget(row, self._PIL_COL_PHYS, fmt_lbl)
-
-            # ── Colunas Lado-A … Lado-D ──────────────────────────────────────
+            # ── Célula única Lados ABCD ──────────────────────────────────────
             # Se classificação inválida (não é pilar / geometria errada) → "Não se aplica"
             invalid_geom = classif.upper() in _NAO_SE_APLICA_CLASSIFS
-            for col, side in ((self._PIL_COL_LADO_A, 'A'), (self._PIL_COL_LADO_B, 'B'),
-                              (self._PIL_COL_LADO_C, 'C'), (self._PIL_COL_LADO_D, 'D')):
-                if invalid_geom:
-                    item = _make_item('Não se aplica', color=QColor(Colors.TEXT_MUTED))
-                    item.setToolTip('Geometria inválida ou objeto não é pilar')
-                else:
-                    cell_text = self._get_side_cell(pillar, side)
-                    item = _make_item(cell_text)
-                    item.setToolTip(cell_text)
-                    if '⚠ suspeito' in cell_text:
-                        item.setForeground(QBrush(QColor(Semantic.DANGER)))
-                        item.setToolTip(cell_text + '\n\n⚠ Nível suspeito de alucinação — revisar vinculação de nivel no DXF.')
-                    elif cell_text.startswith('Viga:'):
-                        item.setForeground(QBrush(QColor(Colors.ACCENT_WARNING_ALT)))
-                    elif cell_text == 'nulo':
-                        item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
-                tbl.setItem(row, col, item)
+            if invalid_geom:
+                side_values = {side: 'Não se aplica' for side in 'ABCD'}
+            else:
+                side_values = {
+                    side: self._get_side_cell(pillar, side)
+                    for side in 'ABCD'
+                }
+            abcd_text = _pillar_abcd_text(side_values)
+            item = _make_item(abcd_text)
+            item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            item.setToolTip(abcd_text)
+            if invalid_geom or all(value == 'nulo' for value in side_values.values()):
+                item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
+            elif any('⚠ suspeito' in value for value in side_values.values()):
+                item.setForeground(QBrush(QColor(Semantic.DANGER)))
+                item.setToolTip(
+                    abcd_text
+                    + '\n\n⚠ Nível suspeito de alucinação — revisar vinculação de nível no DXF.'
+                )
+            tbl.setItem(row, self._PIL_COL_LADOS, item)
 
             # ── Coluna Atenção (editável) ────────────────────────────────────
             nota = self._atencao_notes.get(key, '')
@@ -2657,7 +2966,7 @@ class PreValidationDialog(QDialog):
         # Gatilho para carregar os viewers visíveis inicialmente
         QTimer.singleShot(150, lambda: self._update_dynamic_viewers(tbl, self._pillar_viewer_data, self._PIL_COL_FOTO, False))
 
-    def _update_dynamic_viewers(self, tbl: QTableWidget, data_dict: dict, col_idx: int, is_cut: bool):
+    def _update_dynamic_viewers(self, tbl: QTableWidget, data_dict: dict, col_idx: int, viewer_mode):
         if not tbl.isVisible():
             return
             
@@ -2678,12 +2987,25 @@ class PreValidationDialog(QDialog):
         # Load visíveis
         for row in range(start_row, end_row + 1):
             if row in data_dict:
-                pts = data_dict[row]
+                payload = data_dict[row]
+                if isinstance(payload, dict):
+                    pts = payload.get('points') or []
+                    closed = bool(payload.get('closed'))
+                else:
+                    pts = payload
+                    closed = False
                 current_widget = tbl.cellWidget(row, col_idx)
                 if current_widget and isinstance(current_widget, _MiniDXFView):
                     continue
-                    
-                viewer = self._make_cut_viewer(pts) if is_cut else self._make_pillar_viewer(pts)
+
+                if viewer_mode == 'segment':
+                    viewer = self._make_segment_viewer(pts, closed=closed)
+                elif viewer_mode == 'slab':
+                    viewer = self._make_slab_viewer(pts)
+                elif viewer_mode:
+                    viewer = self._make_cut_viewer(pts)
+                else:
+                    viewer = self._make_pillar_viewer(pts)
                 if viewer:
                     tbl.setCellWidget(row, col_idx, viewer)
                 else:
@@ -2691,7 +3013,7 @@ class PreValidationDialog(QDialog):
                     del data_dict[row]
                     
         # Unload invisíveis para salvar memória e rendering
-        for row, pts in list(data_dict.items()):
+        for row in list(data_dict):
             if row < start_row or row > end_row:
                 current_widget = tbl.cellWidget(row, col_idx)
                 if current_widget and isinstance(current_widget, _MiniDXFView):
@@ -2702,30 +3024,30 @@ class PreValidationDialog(QDialog):
 
     def _refresh_side_cells(self, row: int, key: str, classif: str):
         """
-        Atualiza as 4 células Lado-A/B/C/D da linha.
+        Atualiza a célula consolidada Lados ABCD da linha.
 
         Se classif estiver em _NAO_SE_APLICA_CLASSIFS (não é pilar ou geometria
-        errada), preenche todas com "Não se aplica" (cinza).
+        errada), preenche os quatro blocos com "Não se aplica" (cinza).
         Caso contrário, recalcula via _get_side_cell.
         """
         tbl = self._pillar_table
         pillar = self._pillar_report.get(key, {})
         invalid = classif.upper() in _NAO_SE_APLICA_CLASSIFS
 
-        for col, side in ((self._PIL_COL_LADO_A, 'A'), (self._PIL_COL_LADO_B, 'B'),
-                          (self._PIL_COL_LADO_C, 'C'), (self._PIL_COL_LADO_D, 'D')):
-            if invalid:
-                it = _make_item('Não se aplica', color=QColor(Colors.TEXT_MUTED))
-                it.setToolTip('Geometria inválida ou objeto não é pilar')
-            else:
-                cell_text = self._get_side_cell(pillar, side)
-                it = _make_item(cell_text)
-                it.setToolTip(cell_text)
-                if cell_text.startswith('Viga:'):
-                    it.setForeground(QBrush(QColor(Colors.ACCENT_WARNING_ALT)))
-                elif cell_text == 'nulo':
-                    it.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
-            tbl.setItem(row, col, it)
+        side_values = (
+            {side: 'Não se aplica' for side in 'ABCD'}
+            if invalid
+            else {side: self._get_side_cell(pillar, side) for side in 'ABCD'}
+        )
+        abcd_text = _pillar_abcd_text(side_values)
+        item = _make_item(abcd_text)
+        item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+        item.setToolTip(abcd_text)
+        if invalid or all(value == 'nulo' for value in side_values.values()):
+            item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
+        elif any('⚠ suspeito' in value for value in side_values.values()):
+            item.setForeground(QBrush(QColor(Semantic.DANGER)))
+        tbl.setItem(row, self._PIL_COL_LADOS, item)
 
     def _on_pillar_classif_changed(self, key: str, combo: QComboBox):
         new_classif = combo.currentText()
@@ -2765,25 +3087,33 @@ class PreValidationDialog(QDialog):
         return STANDARD_TERM_MAP.get(cu, 'unknown')
 
     def _refresh_pillar_table_row_for_term(self, term: str):
-        """Atualiza sufixo de tipo físico na coluna Classif.SA para pilares com esse termo."""
+        """Atualiza o bloco Classificação SA dentro da célula Nome."""
         tbl = self._pillar_table
         phys = self._term_type_map.get(term, 'unknown')
         for row in range(tbl.rowCount()):
-            classif_item = tbl.item(row, self._PIL_COL_CLASSIF)
-            if not classif_item:
+            identity_item = tbl.item(row, self._PIL_COL_NOME)
+            if not identity_item:
                 continue
-            # Compara sem sufixo (o texto pode ser "NASCE  ·  visual")
-            base = classif_item.text().split('  ·  ')[0].strip()
+            metadata = identity_item.data(Qt.UserRole + 1) or {}
+            base = str(metadata.get('classification') or '').split('  ·  ')[0].strip()
             if base.upper() != term.upper():
                 continue
-            # Atualiza sufixo do tipo físico no item de Classif.SA
             if phys == 'visual_only':
                 new_text = f'{term}  ·  visual'
             elif phys == 'solid':
                 new_text = f'{term}  ·  sólido'
             else:
                 new_text = term
-            classif_item.setText(new_text)
+            metadata['classification'] = new_text
+            identity_item.setData(Qt.UserRole + 1, metadata)
+            identity_text = _pillar_identity_text(
+                metadata.get('name', '—'),
+                new_text,
+                metadata.get('shape', '—'),
+                metadata.get('confidence', 0),
+            )
+            identity_item.setText(identity_text)
+            identity_item.setToolTip(identity_text)
 
     # ── Aba Visão de Cortes ────────────────────────────────────────────────────
 
@@ -2817,13 +3147,12 @@ class PreValidationDialog(QDialog):
 
     # ── Colunas da tabela de cortes (layout simplificado) ─────────────────────
     _CUT_COL_VIGA   = 0   # Viga Assoc. (combobox editável)
-    _CUT_COL_CONF   = 1   # Conf %
-    _CUT_COL_DIM    = 2   # H × W da viga
-    _CUT_COL_LAJE1  = 3   # Laje 1 (multilinhas: nome, dir, H, classif, dist)
-    _CUT_COL_LAJE2  = 4   # Laje 2 (idem, ou "Parede")
-    _CUT_COL_STATUS = 5   # Combobox: válido / não é VC / errada
-    _CUT_COL_ATENCAO = 6  # feedback humano editável
-    _CUT_COL_FOTO   = 7   # Mini viewer
+    _CUT_COL_DIM    = 1   # H × W da viga
+    _CUT_COL_LAJE1  = 2   # Laje 1 (multilinhas: nome, dir, H, classif, dist)
+    _CUT_COL_LAJE2  = 3   # Laje 2 (idem, ou "Parede")
+    _CUT_COL_STATUS = 4   # Combobox: válido / não é VC / errada
+    _CUT_COL_ATENCAO = 5  # feedback humano editável
+    _CUT_COL_FOTO   = 6   # Mini viewer
 
     # Opções de status do corte
     _CUT_ST_OK     = '— Válido (é visão de corte) —'
@@ -2989,26 +3318,20 @@ class PreValidationDialog(QDialog):
         return lbl
 
     def _build_cut_view_table(self) -> QTableWidget:
-        cols = ["Viga Assoc.", "Conf %",
-                "Detalhes sobre o Segmento de Viga",
+        cols = ["Viga Assoc.", "Detalhes sobre o Segmento de Viga",
                 "Lajes LADO A", "Lajes LADO B", "Status",
                 "⚑ Atenção / Feedback (editável)", "Foto"]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
-        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
-        hdr.setSectionResizeMode(self._CUT_COL_VIGA, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._CUT_COL_VIGA, 210)
-        hdr.setSectionResizeMode(self._CUT_COL_DIM, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._CUT_COL_DIM, 230)
+        hdr.setSectionResizeMode(QHeaderView.Fixed)
+        hdr.setStretchLastSection(False)
+        tbl.setColumnWidth(self._CUT_COL_VIGA, _cut_compact_width(210))
+        tbl.setColumnWidth(self._CUT_COL_DIM, _cut_compact_width(230))
         for col in (self._CUT_COL_LAJE1, self._CUT_COL_LAJE2):
-            hdr.setSectionResizeMode(col, QHeaderView.Interactive)
-            tbl.setColumnWidth(col, self._CUT_LAJE_COL_W)
-        hdr.setSectionResizeMode(self._CUT_COL_STATUS, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._CUT_COL_STATUS, 220)
-        hdr.setSectionResizeMode(self._CUT_COL_ATENCAO, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._CUT_COL_ATENCAO, 300)
-        hdr.setSectionResizeMode(self._CUT_COL_FOTO, QHeaderView.Fixed)
+            tbl.setColumnWidth(col, _cut_compact_width(self._CUT_LAJE_COL_W))
+        tbl.setColumnWidth(self._CUT_COL_STATUS, _cut_compact_width(220))
+        tbl.setColumnWidth(self._CUT_COL_ATENCAO, _cut_compact_width(300))
         tbl.setColumnWidth(self._CUT_COL_FOTO, self._CUT_COL_FOTO_W)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
         tbl.setEditTriggers(
@@ -3033,8 +3356,7 @@ class PreValidationDialog(QDialog):
     def _on_cut_attention_changed(self, item: QTableWidgetItem) -> None:
         if item.column() != self._CUT_COL_ATENCAO:
             return
-        uid_item = self._cut_table.item(item.row(), self._CUT_COL_CONF)
-        uid = uid_item.data(Qt.UserRole) if uid_item else None
+        uid = item.data(Qt.UserRole)
         if uid:
             self._cut_attention[str(uid)] = item.text().strip()
 
@@ -3054,11 +3376,6 @@ class PreValidationDialog(QDialog):
         """Pinta fundo da linha com base no status + tag histórico/novo."""
         tbl = self._cut_table
         bg_hex = self._CUT_ROW_BG.get((status, is_hist), Surface.RAISED)
-        bg = QColor(bg_hex)
-        # Célula item (Conf %)
-        it = tbl.item(row, self._CUT_COL_CONF)
-        if it:
-            it.setBackground(QBrush(bg))
         # Widgets com fundo dinâmico (Laje A/B e Segmento de Viga)
         for col in (self._CUT_COL_LAJE1, self._CUT_COL_LAJE2, self._CUT_COL_DIM):
             w = tbl.cellWidget(row, col)
@@ -3137,12 +3454,6 @@ class PreValidationDialog(QDialog):
                 beam_combo.setCurrentIndex(1)
             tbl.setCellWidget(row, self._CUT_COL_VIGA, beam_combo)
             self._cut_combos[uid] = beam_combo
-
-            # ── Conf % ──────────────────────────────────────────────────────
-            tbl.setItem(row, self._CUT_COL_CONF,
-                        _make_item(f"{conf_pct}%", Qt.AlignCenter,
-                                   color=_confidence_color(conf_pct)))
-            tbl.item(row, self._CUT_COL_CONF).setData(Qt.UserRole, uid)
 
             # ── Detalhes sobre o Segmento de Viga ───────────────────────────
             seg_widget = self._build_segmento_viga_widget(cut)
@@ -3266,6 +3577,7 @@ class PreValidationDialog(QDialog):
             attention_item.setToolTip(
                 'Clique e escreva sua interpretação; o feedback será salvo no histórico e no HTML.'
             )
+            attention_item.setData(Qt.UserRole, uid)
             tbl.setItem(row, self._CUT_COL_ATENCAO, attention_item)
 
             # ── Mini viewer ──────────────────────────────────────────────────
@@ -3417,41 +3729,28 @@ class PreValidationDialog(QDialog):
 
     def _build_segment_table(self, kind: str) -> QTableWidget:
         is_fundo = kind == 'fundo'
-        if is_fundo:
-            columns = [
-                "Viga", "Segmento", "Comprimento", "Largura", "Status",
-                "⚑ Atenção / Feedback (editável)", "Foto",
-            ]
-            col = {
-                'beam': 0, 'segment': 1, 'length': 2, 'width': 3,
-                'status': 4, 'attention': 5, 'photo': 6,
-            }
-        else:
-            columns = [
-                "Viga", "Segmento", "Lado", "Comportamento", "Comprimento",
-                "Detalhes do Segmento", "Status",
-                "⚑ Atenção / Feedback (editável)", "Foto",
-            ]
-            col = {
-                'beam': 0, 'segment': 1, 'side': 2, 'behavior': 3, 'length': 4,
-                'details': 5, 'status': 6, 'attention': 7, 'photo': 8,
-            }
+        columns = [
+            "Viga", "Detalhes do Segmento", "Status",
+            "⚑ Feedback deste segmento (editável)", "Foto",
+        ]
+        col = {
+            'beam': 0, 'details': 1, 'status': 2, 'attention': 3, 'photo': 4,
+        }
 
         table = QTableWidget(0, len(columns))
         table.setHorizontalHeaderLabels(columns)
         table.setProperty('viewer_column', col['photo'])
         table.setProperty('attention_column', col['attention'])
         header = table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(col['beam'], QHeaderView.Interactive)
-        table.setColumnWidth(col['beam'], 150)
-        header.setSectionResizeMode(col['attention'], QHeaderView.Interactive)
-        table.setColumnWidth(col['attention'], 300)
+        header.setSectionResizeMode(QHeaderView.Fixed)
+        header.setStretchLastSection(False)
+        table.setColumnWidth(col['beam'], 120)
+        table.setColumnWidth(col['details'], 285)
+        table.setColumnWidth(col['status'], 165)
+        table.setColumnWidth(col['attention'], 155)
         header.setSectionResizeMode(col['photo'], QHeaderView.Fixed)
         table.setColumnWidth(col['photo'], self._SEG_THUMB_W + 10)
-        if not is_fundo:
-            header.setSectionResizeMode(col['details'], QHeaderView.Interactive)
-            table.setColumnWidth(col['details'], 240)
+        table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
         table.setEditTriggers(
             QAbstractItemView.CurrentChanged
@@ -3468,7 +3767,7 @@ class PreValidationDialog(QDialog):
         self._segment_viewer_data[kind] = viewer_data
         table.verticalScrollBar().valueChanged.connect(
             lambda _, t=table, d=viewer_data, c=col['photo']:
-                self._update_dynamic_viewers(t, d, c, True)
+                self._update_dynamic_viewers(t, d, c, 'segment')
         )
         table.itemChanged.connect(
             lambda item, t=table: self._on_segment_attention_changed(t, item)
@@ -3479,34 +3778,22 @@ class PreValidationDialog(QDialog):
             row = table.rowCount()
             table.insertRow(row)
             table.setRowHeight(row, self._SEG_ROW_H)
-            beam_item = _make_item(segment['beam_name'], bold=True)
+            identity_text = _segment_identity_text(segment, is_fundo)
+            beam_item = _make_item(identity_text, bold=True)
+            beam_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            beam_item.setToolTip(identity_text)
             beam_item.setData(Qt.UserRole, segment['uid'])
             table.setItem(row, col['beam'], beam_item)
-            table.setItem(row, col['segment'], _make_item(segment['segment_label'], Qt.AlignCenter, bold=True))
-            table.setItem(row, col['length'], _make_item(f"{segment['length']:.1f}", Qt.AlignCenter))
-            if is_fundo:
-                table.setItem(
-                    row, col['width'],
-                    _make_item(segment.get('width') or '—', Qt.AlignCenter),
-                )
-
-            if not is_fundo:
-                table.setItem(row, col['side'], _make_item(segment['side'], Qt.AlignCenter, bold=True))
-                table.setItem(row, col['behavior'], _make_item(segment['behavior'], Qt.AlignCenter))
-                details = segment.get('ficha') or {}
-                detail_lines = [f"Tag: {segment.get('tag') or '—'}"]
-                for key in ('altura_total', 'largura_total_fundo', 'comprimento_total_fundo',
-                            'apoio_inicial', 'apoio_final'):
-                    value = details.get(key)
-                    if value not in (None, ''):
-                        detail_lines.append(f"{key.replace('_', ' ').title()}: {value}")
-                detail_label = QLabel('<br>'.join(detail_lines))
-                detail_label.setWordWrap(True)
-                detail_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-                detail_label.setStyleSheet(
-                    f"color:{Colors.TEXT_SECONDARY}; padding:4px; background:transparent;"
-                )
-                table.setCellWidget(row, col['details'], detail_label)
+            details_text = _segment_details_text(segment, is_fundo)
+            detail_label = QLabel(details_text)
+            detail_label.setTextFormat(Qt.PlainText)
+            detail_label.setWordWrap(True)
+            detail_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            detail_label.setToolTip(details_text)
+            detail_label.setStyleSheet(
+                f"color:{Colors.TEXT_SECONDARY}; padding:5px; background:transparent;"
+            )
+            table.setCellWidget(row, col['details'], detail_label)
 
             status_combo = QComboBox()
             status_combo.addItem("Válido — manter vínculo", "valid")
@@ -3524,12 +3811,15 @@ class PreValidationDialog(QDialog):
             self._segment_attention[segment['uid']] = attention
             attention_item = QTableWidgetItem(attention)
             attention_item.setForeground(QBrush(QColor(Contextual.GOLD)))
-            attention_item.setToolTip("Clique para registrar uma observação desta geometria")
+            attention_item.setToolTip(
+                "Feedback exclusivo deste segmento na pré-ficha. "
+                "Não altera a Atenção Geral da viga no SA."
+            )
             table.setItem(row, col['attention'], attention_item)
 
             points = segment.get('points') or []
             if points:
-                viewer_data[row] = points
+                viewer_data[row] = {'points': points, 'closed': is_fundo}
                 loading = QLabel("⏳ Carregando...")
                 loading.setAlignment(Qt.AlignCenter)
                 loading.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:10px;")
@@ -3542,7 +3832,7 @@ class PreValidationDialog(QDialog):
         QTimer.singleShot(
             150,
             lambda t=table, d=viewer_data, c=col['photo']:
-                self._update_dynamic_viewers(t, d, c, True),
+                self._update_dynamic_viewers(t, d, c, 'segment'),
         )
         self._restore_table_scroll(table, kind)
         return table
@@ -3832,6 +4122,140 @@ class PreValidationDialog(QDialog):
         scroll.setWidget(inner)
         return scroll
 
+    # ── Aba Lajes ───────────────────────────────────────────────────────────────
+
+    _SLAB_COL_NOME = 0
+    _SLAB_COL_DETALHES = 1
+    _SLAB_COL_VH = 2
+    _SLAB_COL_FOTO = 3
+    _SLAB_THUMB_W = 880
+    _SLAB_THUMB_H = 420
+    _SLAB_ROW_H = 430
+
+    def _build_slabs_tab(self) -> QWidget:
+        root = QWidget()
+        layout = QVBoxLayout(root)
+        layout.setContentsMargins(6, 6, 6, 6)
+        layout.setSpacing(4)
+        info = QLabel(
+            f"Lajes — {len(self._slabs)} item(ns). "
+            "O viewer enquadra e destaca exclusivamente o contorno vinculado da laje. "
+            "Verticais/Horizontais permanece reservado e sem preenchimento."
+        )
+        info.setWordWrap(True)
+        info.setStyleSheet(f"font-size:9px; color:{Colors.TEXT_MUTED};")
+        layout.addWidget(info)
+        layout.addWidget(self._build_slab_table(), 1)
+        return root
+
+    def _build_slab_table(self) -> QTableWidget:
+        columns = [
+            "Nome",
+            "Detalhes da Laje",
+            "Verticais / Horizontais",
+            "Foto",
+        ]
+        table = QTableWidget(0, len(columns))
+        table.setHorizontalHeaderLabels(columns)
+        header = table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Fixed)
+        header.setStretchLastSection(False)
+        table.setColumnWidth(self._SLAB_COL_NOME, 100)
+        table.setColumnWidth(self._SLAB_COL_DETALHES, 380)
+        table.setColumnWidth(self._SLAB_COL_VH, 235)
+        table.setColumnWidth(self._SLAB_COL_FOTO, self._SLAB_THUMB_W + 10)
+        table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        table.verticalHeader().setVisible(False)
+        table.setStyleSheet("QTableWidget { font-size:9px; }")
+        table.setMinimumHeight(0)
+
+        self._slab_table = table
+        self._slab_viewer_data: dict[int, list] = {}
+        table.verticalScrollBar().valueChanged.connect(
+            lambda _: self._update_dynamic_viewers(
+                self._slab_table,
+                self._slab_viewer_data,
+                self._SLAB_COL_FOTO,
+                'slab',
+            )
+        )
+
+        table.setUpdatesEnabled(False)
+        slabs = sorted(
+            self._slabs,
+            key=lambda slab: self._natural_sort_key(
+                str(slab.get('name') or slab.get('laje_name') or '')
+            ),
+        )
+        for slab in slabs:
+            row = table.rowCount()
+            table.insertRow(row)
+            table.setRowHeight(row, self._SLAB_ROW_H)
+
+            name = str(
+                slab.get('name')
+                or slab.get('laje_name')
+                or (slab.get('fields') or {}).get('nome')
+                or '—'
+            )
+            name_item = _make_item(name, bold=True)
+            name_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            name_item.setToolTip(name)
+            table.setItem(row, self._SLAB_COL_NOME, name_item)
+
+            details_text = _slab_details_text(
+                slab,
+                height=self._slab_height_map.get(name, ''),
+                level=self._slab_nivel_map.get(name, ''),
+            )
+            details_label = QLabel(details_text)
+            details_label.setTextFormat(Qt.PlainText)
+            details_label.setWordWrap(True)
+            details_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            details_label.setToolTip(details_text)
+            details_label.setStyleSheet(
+                f"color:{Colors.TEXT_SECONDARY}; padding:5px; background:transparent;"
+            )
+            table.setCellWidget(row, self._SLAB_COL_DETALHES, details_label)
+
+            # Reserva explícita: não preencher até o motor V/H ser definido.
+            vh_item = _make_item("")
+            vh_item.setToolTip(
+                "Coluna reservada para Verticais/Horizontais; sem preenchimento nesta etapa."
+            )
+            table.setItem(row, self._SLAB_COL_VH, vh_item)
+
+            points = _slab_outline_points(slab)
+            if points:
+                self._slab_viewer_data[row] = points
+                loading = QLabel("⏳ Carregando...")
+                loading.setAlignment(Qt.AlignCenter)
+                loading.setStyleSheet(
+                    f"color:{Colors.TEXT_MUTED}; font-size:10px;"
+                )
+                table.setCellWidget(row, self._SLAB_COL_FOTO, loading)
+            else:
+                table.setItem(
+                    row,
+                    self._SLAB_COL_FOTO,
+                    _make_item('—', Qt.AlignCenter, color=QColor(Colors.TEXT_MUTED)),
+                )
+
+        table.setUpdatesEnabled(True)
+        QTimer.singleShot(
+            150,
+            lambda: self._update_dynamic_viewers(
+                table,
+                self._slab_viewer_data,
+                self._SLAB_COL_FOTO,
+                'slab',
+            ),
+        )
+        self._restore_table_scroll(table, 'lajes')
+        return table
+
     # ── Aba Pilares Especiais ───────────────────────────────────────────────────
 
     def _build_especiais_tab(self) -> QWidget:
@@ -3854,29 +4278,29 @@ class PreValidationDialog(QDialog):
 
     def _build_especiais_table(self) -> QTableWidget:
         cols = [
-            "Nome", "Classif. SA", "Classif. Override",
-            "Formato Pilar", "Conf %", "Nível",
-            "Lado-A", "Lado-B", "Lado-C", "Lado-D",
-            "Lado-E", "Lado-F", "Lado-G", "Lado-H", "Foto",
+            "Nome / Classificação / Formato / Confiança",
+            "Classif. Override", "Nível", "Lados ABCDEFGH",
+            "⚑ Atenção / Feedback (editável)", "Foto",
         ]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
-        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
-        hdr.setSectionResizeMode(self._ESP_COL_NOME, QHeaderView.Fixed)
-        tbl.setColumnWidth(self._ESP_COL_NOME, 75)
-        for col in (self._ESP_COL_LADO_A, self._ESP_COL_LADO_B,
-                    self._ESP_COL_LADO_C, self._ESP_COL_LADO_D,
-                    self._ESP_COL_LADO_E, self._ESP_COL_LADO_F,
-                    self._ESP_COL_LADO_G, self._ESP_COL_LADO_H):
-            hdr.setSectionResizeMode(col, QHeaderView.Interactive)
-            tbl.setColumnWidth(col, self._PIL_LADO_COL_W)
-        hdr.setSectionResizeMode(self._ESP_COL_OVERRIDE, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._ESP_COL_OVERRIDE, 180)
-        hdr.setSectionResizeMode(self._ESP_COL_FOTO, QHeaderView.Fixed)
+        hdr.setSectionResizeMode(QHeaderView.Fixed)
+        hdr.setStretchLastSection(False)
+        tbl.setColumnWidth(self._ESP_COL_NOME, 170)
+        tbl.setColumnWidth(self._ESP_COL_OVERRIDE, 135)
+        tbl.setColumnWidth(self._ESP_COL_NIVEL, 55)
+        tbl.setColumnWidth(self._ESP_COL_LADOS, 250)
+        tbl.setColumnWidth(self._ESP_COL_ATENCAO, 115)
         tbl.setColumnWidth(self._ESP_COL_FOTO, self._PIL_COL_FOTO_W)
+        tbl.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
-        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        tbl.setEditTriggers(
+            QAbstractItemView.CurrentChanged
+            | QAbstractItemView.SelectedClicked
+            | QAbstractItemView.EditKeyPressed
+            | QAbstractItemView.DoubleClicked
+        )
         tbl.verticalHeader().setVisible(False)
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
         self._especiais_table = tbl
@@ -3887,8 +4311,17 @@ class PreValidationDialog(QDialog):
                 self._especiais_table, self._especiais_viewer_data,
                 self._ESP_COL_FOTO, False)
         )
+        tbl.itemChanged.connect(self._on_especial_attention_changed)
         self._populate_especiais_table()
         return tbl
+
+    def _on_especial_attention_changed(self, item: QTableWidgetItem) -> None:
+        if item.column() != self._ESP_COL_ATENCAO:
+            return
+        nome_item = self._especiais_table.item(item.row(), self._ESP_COL_NOME)
+        key = nome_item.data(Qt.UserRole) if nome_item else None
+        if key:
+            self._atencao_notes[str(key)] = item.text().strip()
 
     def _populate_especiais_table(self):
         if not hasattr(self, '_especiais_table'):
@@ -3926,6 +4359,8 @@ class PreValidationDialog(QDialog):
             hist_pil = self._pf_history.get('pilares', {}).get(geo_key)
             if hist_pil and hist_pil.get('classification'):
                 classif = hist_pil['classification']
+            if hist_pil and hist_pil.get('attention'):
+                self._atencao_notes[key] = str(hist_pil['attention'])
 
             phys = self._physical_type_for(classif)
             conf_pct = 0 if classif == 'INDETERMINADO' else 95
@@ -3934,57 +4369,60 @@ class PreValidationDialog(QDialog):
 
             p_nr = nr_pilares.get(key, {})
             nivel_str = p_nr.get('level_str') or '—'
-            conf_color = _confidence_color(conf_pct)
 
-            # Nome
-            nome_item = _make_item(name, bold=True)
-            f = nome_item.font(); f.setPixelSize(18); f.setBold(True)
-            nome_item.setFont(f)
-            nome_item.setData(Qt.UserRole, key)
-            tbl.setItem(row, self._ESP_COL_NOME, nome_item)
-
-            # Classif. SA com sufixo tipo físico
+            # Identificação consolidada
             if phys == 'visual_only':
                 classif_sa_display = f'{classif}  ·  visual'
             elif phys == 'solid':
                 classif_sa_display = f'{classif}  ·  sólido'
             else:
                 classif_sa_display = classif
-            tbl.setItem(row, self._ESP_COL_CLASSIF, _make_item(classif_sa_display))
-            tbl.setItem(row, self._ESP_COL_CONF,
-                        _make_item(f"{conf_pct}%", Qt.AlignCenter, color=conf_color))
+            shape_display = PILLAR_FORMATO_LABELS.get(formato, formato)
+            identity_text = _pillar_identity_text(
+                name, classif_sa_display, shape_display, conf_pct
+            )
+            nome_item = _make_item(identity_text, bold=True)
+            nome_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            nome_item.setToolTip(identity_text)
+            nome_item.setData(Qt.UserRole, key)
+            nome_item.setData(Qt.UserRole + 1, {
+                'name': name,
+                'classification': classif_sa_display,
+                'shape': shape_display,
+                'confidence': conf_pct,
+            })
+            tbl.setItem(row, self._ESP_COL_NOME, nome_item)
             tbl.setItem(row, self._ESP_COL_NIVEL,
                         _make_item(nivel_str, Qt.AlignCenter))
 
-            # Formato Pilar
-            fmt_color = PILLAR_FORMATO_COLORS.get(formato, '#f07070')
-            fmt_lbl = QLabel(PILLAR_FORMATO_LABELS.get(formato, formato))
-            fmt_lbl.setWordWrap(True)
-            fmt_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            fmt_lbl.setStyleSheet(
-                f"color:{fmt_color}; font-size:9px; padding:3px; background:transparent;"
-            )
-            tbl.setCellWidget(row, self._ESP_COL_FORMATO, fmt_lbl)
-
-            # Lados A-D (mesma lógica dos retangulares)
+            # Célula única Lados A-H
             invalid_geom = classif.upper() in _NAO_SE_APLICA_CLASSIFS
-            for col, side in (
-                (self._ESP_COL_LADO_A, 'A'), (self._ESP_COL_LADO_B, 'B'),
-                (self._ESP_COL_LADO_C, 'C'), (self._ESP_COL_LADO_D, 'D'),
+            if invalid_geom:
+                side_values = {side: 'Não se aplica' for side in 'ABCDEFGH'}
+            else:
+                side_values = {
+                    **{side: self._get_side_cell(pillar, side) for side in 'ABCD'},
+                    **{side: '—' for side in 'EFGH'},
+                }
+            sides_text = _pillar_abcdefgh_text(side_values)
+            sides_item = _make_item(sides_text)
+            sides_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            sides_item.setToolTip(sides_text)
+            if invalid_geom or all(
+                value in {'nulo', '—'} for value in side_values.values()
             ):
-                if invalid_geom:
-                    item = _make_item('Não se aplica', color=QColor(Colors.TEXT_MUTED))
-                else:
-                    cell_text = self._get_side_cell(pillar, side)
-                    item = _make_item(cell_text)
-                    item.setToolTip(cell_text)
-                tbl.setItem(row, col, item)
+                sides_item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
+            elif any('⚠ suspeito' in value for value in side_values.values()):
+                sides_item.setForeground(QBrush(QColor(Semantic.DANGER)))
+            tbl.setItem(row, self._ESP_COL_LADOS, sides_item)
 
-            # Lados E-H (placeholder — conteúdo definido pelo usuário futuramente)
-            for col in (self._ESP_COL_LADO_E, self._ESP_COL_LADO_F,
-                        self._ESP_COL_LADO_G, self._ESP_COL_LADO_H):
-                tbl.setItem(row, col, _make_item('—', Qt.AlignCenter,
-                                                  color=QColor(Colors.TEXT_MUTED)))
+            # Atenção editável, compartilhada com histórico e HTML
+            attention_item = QTableWidgetItem(self._atencao_notes.get(key, ''))
+            attention_item.setForeground(QBrush(QColor(Contextual.GOLD)))
+            attention_item.setToolTip(
+                'Clique para digitar uma nota de atenção — será salva no HTML.'
+            )
+            tbl.setItem(row, self._ESP_COL_ATENCAO, attention_item)
 
             # Override combo
             combo = QComboBox()
@@ -4009,7 +4447,7 @@ class PreValidationDialog(QDialog):
             idx = next((i for i, o in enumerate(options) if o == classif), 0)
             combo.setCurrentIndex(idx)
             combo.currentIndexChanged.connect(
-                lambda _, k=key, c=combo: self._on_pillar_classif_changed(k, c))
+                lambda _, k=key, c=combo: self._on_especial_classif_changed(k, c))
             tbl.setCellWidget(row, self._ESP_COL_OVERRIDE, combo)
             self._pillar_combos[key] = combo   # registra p/ get_result() e _save_pf_history()
 
@@ -4026,7 +4464,11 @@ class PreValidationDialog(QDialog):
 
             # Cor de linha
             bg = self._row_bg_for_classif(classif)
-            skip = {self._ESP_COL_OVERRIDE, self._ESP_COL_FOTO, self._ESP_COL_FORMATO}
+            skip = {
+                self._ESP_COL_OVERRIDE,
+                self._ESP_COL_ATENCAO,
+                self._ESP_COL_FOTO,
+            }
             for col in range(tbl.columnCount()):
                 if col in skip: continue
                 it = tbl.item(row, col)
@@ -4037,6 +4479,43 @@ class PreValidationDialog(QDialog):
         tbl.setUpdatesEnabled(True)
         QTimer.singleShot(150, lambda: self._update_dynamic_viewers(
             tbl, self._especiais_viewer_data, self._ESP_COL_FOTO, False))
+
+    def _on_especial_classif_changed(self, key: str, combo: QComboBox) -> None:
+        self._on_pillar_classif_changed(key, combo)
+        row = getattr(self, '_especiais_rows', {}).get(key)
+        if row is None:
+            return
+        classif = combo.currentText()
+        pillar = self._pillar_report.get(key, {})
+        invalid = classif.upper() in _NAO_SE_APLICA_CLASSIFS
+        side_values = (
+            {side: 'Não se aplica' for side in 'ABCDEFGH'}
+            if invalid
+            else {
+                **{side: self._get_side_cell(pillar, side) for side in 'ABCD'},
+                **{side: '—' for side in 'EFGH'},
+            }
+        )
+        text = _pillar_abcdefgh_text(side_values)
+        item = _make_item(text)
+        item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+        item.setToolTip(text)
+        if invalid or all(value in {'nulo', '—'} for value in side_values.values()):
+            item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
+        self._especiais_table.setItem(row, self._ESP_COL_LADOS, item)
+
+        bg = self._row_bg_for_classif(classif)
+        skip = {
+            self._ESP_COL_OVERRIDE,
+            self._ESP_COL_ATENCAO,
+            self._ESP_COL_FOTO,
+        }
+        for col in range(self._especiais_table.columnCount()):
+            if col in skip:
+                continue
+            row_item = self._especiais_table.item(row, col)
+            if row_item:
+                row_item.setBackground(QBrush(bg) if bg else QBrush())
 
     def _query_niveis_recorte(self) -> 'tuple[str, str] | None':
         """Busca recorte convencao_niveis aprovado para esta obra."""
@@ -4375,30 +4854,180 @@ class PreValidationDialog(QDialog):
 
     def _find_pilar_dxf(self, view_type: str, item_name: str, n4: bool = False) -> str:
         """Retorna path do DXF da vista solicitada.
-        n4=True → /n4/PL_preview_{nome}.dxf (combined gerado pelo CE via N2).
-        n4=False → root Fase-6 com split CIMA/ABCD/GRADES (N3, gerado via Fase-4/N1).
+        n4=True  → split CIMA/ABCD/GRADES em /n4/ (gerado pelo CE via N2 com governance fix)
+                   fallback para raiz Fase-6 (gerado pelo CE antes do governance).
+        n4=False → split CIMA/ABCD/GRADES em raiz Fase-6 (N3, gerado via Fase-4/N1).
         """
         if not self._obra:
             return ''
         base = os.path.join('D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra, 'Fase-6_Execucao_CAD')
-        if n4:
-            # CE gera PL_preview_{nome}.dxf (combined) em /n4/ — não tem split views
-            p = os.path.join(base, 'n4', f'PL_preview_{item_name}.dxf')
-            return p if os.path.exists(p) else ''
-        # N3: split views em root Fase-6
         if view_type == 'CIMA':
-            filenames = [f'PL_CIMA_preview_{item_name}.dxf']
+            split_name = f'PL_CIMA_preview_{item_name}.dxf'
         elif view_type == 'ABCD':
-            filenames = [f'PL_ABCD_preview_{item_name}.dxf']
+            split_name = f'PL_ABCD_preview_{item_name}.dxf'
         elif view_type == 'GRADES':
-            filenames = [f'PL_GRADES_preview_{item_name}.dxf']
+            split_name = f'PL_GRADES_preview_{item_name}.dxf'
         else:
-            filenames = [f'PL_preview_{item_name}.dxf']
-        for fn in filenames:
-            p = os.path.join(base, fn)
+            split_name = f'PL_preview_{item_name}.dxf'
+
+        if n4:
+            # N4: /n4/ subpasta primeiro (após governance fix), depois raiz como fallback
+            candidates = [
+                os.path.join(base, 'n4', split_name),
+                os.path.join(base, split_name),
+            ]
+        else:
+            # N3: raiz Fase-6 (gerado via Fase-4/N1)
+            candidates = [os.path.join(base, split_name)]
+
+        for p in candidates:
             if os.path.exists(p):
                 return p
         return ''
+
+    def _find_beam_dxf(self, class_prefix: str, item_name: str, n4: bool = False) -> str:
+        """Localiza o artefato DXF N3/N4 de uma viga sem misturar os níveis."""
+        if not self._obra:
+            return ''
+        prefix = str(class_prefix or '').upper()
+        if prefix not in {'FV', 'LV'}:
+            return ''
+        base = os.path.join(
+            'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+            'Fase-6_Execucao_CAD',
+        )
+        isolated_n3_dir = str(getattr(self, '_n3_preview_dir', '') or '')
+        if not n4 and isolated_n3_dir:
+            # Exportações comparativas podem fornecer candidatos NOVA isolados.
+            # Quando o diretório foi definido, nunca cair no preview compartilhado
+            # da Fase-6, que pode ter sido sobrescrito pelo modo INI.
+            search_dir = isolated_n3_dir
+        else:
+            search_dir = os.path.join(base, 'n4') if n4 else base
+        candidates = [
+            os.path.join(search_dir, f'{prefix}_preview_{item_name}.dxf'),
+            os.path.join(search_dir, f'{prefix}_preview_{item_name}_fundo.dxf'),
+        ]
+        for path in candidates:
+            if os.path.exists(path):
+                return path
+
+        # Fichas de vigas equivalentes podem compartilhar um único artefato,
+        # por exemplo V313-V315-V317. A associação é por token estrutural
+        # completo; V31 nunca casa acidentalmente com V313.
+        import glob as _glob
+        import re as _re
+        wanted = str(item_name or '').upper()
+        grouped = sorted(_glob.glob(
+            os.path.join(search_dir, f'{prefix}_preview_*.dxf')
+        ))
+        for path in grouped:
+            suffix = os.path.splitext(os.path.basename(path))[0]
+            tokens = {
+                token.upper()
+                for token in _re.findall(r'VF?\d+[A-Z]?', suffix, _re.IGNORECASE)
+            }
+            normalized = {
+                _re.sub(r'(?<=\d)[A-Z]$', '', token) for token in tokens
+            }
+            if wanted in tokens or wanted in normalized:
+                return path
+        return ''
+
+    def _find_n2_recorte_dxf(self, class_prefix: str, item_name: str) -> str:
+        """Localiza o recorte humano N2 mais recente da classe/elemento."""
+        if not self._obra:
+            return ''
+        import glob as _glob
+        prefix = str(class_prefix or '').upper()
+        recortes_base = os.path.join(
+            'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+            'Fase-2_Triagem', 'recortes_reversos',
+        )
+        pattern = os.path.join(
+            recortes_base, '**', f'{prefix}_{item_name}_motor_*.dxf',
+        )
+        matches = sorted(_glob.glob(pattern, recursive=True), reverse=True)
+        if matches:
+            return matches[0]
+
+        import re as _re
+        wanted = str(item_name or '').upper()
+        all_matches = sorted(_glob.glob(
+            os.path.join(recortes_base, '**', f'{prefix}_*_motor_*.dxf'),
+            recursive=True,
+        ), reverse=True)
+        for path in all_matches:
+            filename = os.path.basename(path).split('_motor_', 1)[0]
+            tokens = {
+                token.upper()
+                for token in _re.findall(r'VF?\d+[A-Z]?', filename, _re.IGNORECASE)
+            }
+            normalized = {
+                _re.sub(r'(?<=\d)[A-Z]$', '', token) for token in tokens
+            }
+            if wanted in tokens or wanted in normalized:
+                return path
+        return ''
+
+    def _n3_ficha_html_beam(self, class_prefix: str, item_name: str) -> str:
+        """Expõe todos os campos do JSON Fase-4 usado para gerar o N3."""
+        import html as _hl
+        import json as _json
+        if not self._obra:
+            return '<span style="color:#555">sem obra</span>'
+        prefix = str(class_prefix or '').upper()
+        folder_name = 'JSON_Vigas_Fundo' if prefix == 'FV' else 'JSON_Vigas_Laterais'
+        candidates = []
+        isolated_contract_dir = str(
+            getattr(self, '_n3_contract_dir', '') or ''
+        )
+        if prefix == 'FV' and isolated_contract_dir:
+            candidates.append(os.path.join(
+                isolated_contract_dir, f'{item_name}_fundo.json'
+            ))
+        candidates.extend([
+            os.path.join(
+                'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                'Fase-4_Sincronizacao', folder_name,
+                f'{item_name}_fundo.json' if prefix == 'FV' else f'{item_name}.json',
+            )
+        ])
+        if prefix == 'LV':
+            candidates.extend([
+                os.path.join(
+                    'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                    'Fase-4_Sincronizacao', folder_name, f'{item_name}_A.json',
+                ),
+                os.path.join(
+                    'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                    'Fase-4_Sincronizacao', folder_name, f'{item_name}_B.json',
+                ),
+            ])
+        json_path = next((path for path in candidates if os.path.exists(path)), '')
+        if not json_path:
+            return '<span style="color:#555">sem JSON N3</span>'
+        try:
+            with open(json_path, encoding='utf-8') as file:
+                data = _json.load(file)
+            rows = []
+            for key, value in data.items():
+                if value in (None, '', [], {}):
+                    continue
+                rendered = _json.dumps(value, ensure_ascii=False, indent=2)
+                rows.append(
+                    '<tr>'
+                    f'<td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;'
+                    f'vertical-align:top">{_hl.escape(str(key))}</td>'
+                    f'<td style="padding:2px 5px;white-space:pre-wrap">'
+                    f'{_hl.escape(rendered)}</td></tr>'
+                )
+            return (
+                '<table style="font-size:9px;border-collapse:collapse">'
+                f'{"".join(rows)}</table>'
+            )
+        except Exception as exc:
+            return f'<span style="color:#555">erro: {_hl.escape(str(exc))}</span>'
 
     def _render_n2_recorte_b64(self, item_name: str, width: int = 700, height: int = 500) -> str:
         """Renderiza o DXF recorte N2 mais recente do pilar (Fase-2 triagem)."""
@@ -4424,105 +5053,133 @@ class PreValidationDialog(QDialog):
             return '<span style="color:#555">—</span>'
         nr_entry = (self._nivel_report or {}).get('pilares', {}).get(pilar_key, {})
 
-        def _row(label: str, val, color: str = '#7eb8f7') -> str:
+        FACE_COLORS = {'A': '#ff9f43', 'B': '#4fc3a1', 'C': '#e17055', 'D': '#74b9ff'}
+        CT_COLORS = {'laje': '#4fc3a1', 'viga': '#7eb8f7', 'both': '#e6b400'}
+
+        def _row(label: str, val, color: str = '#7eb8f7', mono: bool = False) -> str:
+            vstyle = 'font-family:monospace;white-space:pre-wrap' if mono else 'white-space:pre-wrap'
             return (f'<tr><td style="color:{color};padding:1px 5px;white-space:nowrap;'
-                    f'font-weight:600">{_hl.escape(str(label))}</td>'
-                    f'<td style="padding:1px 5px">{_hl.escape(str(val))}</td></tr>')
+                    f'font-weight:600;vertical-align:top">{_hl.escape(str(label))}</td>'
+                    f'<td style="padding:1px 5px;{vstyle}">{_hl.escape(str(val))}</td></tr>')
 
         def _sep(label: str) -> str:
-            return (f'<tr><td colspan="2" style="padding:3px 5px 1px;color:#4fc3a1;'
-                    f'font-weight:700;border-top:1px solid #333">{_hl.escape(label)}</td></tr>')
+            return (f'<tr><td colspan="2" style="padding:4px 5px 1px;color:#4fc3a1;'
+                    f'font-weight:700;border-top:1px solid #333;font-size:10px">'
+                    f'{_hl.escape(label)}</td></tr>')
 
         rows = []
-        # ── Identidade ────────────────────────────────────────────────────────
+
+        # ── IDENTIDADE ────────────────────────────────────────────────────────
         rows.append(_sep('IDENTIDADE'))
         rows.append(_row('Nome', pillar.get('name', pilar_key)))
-        rows.append(_row('Classificação', pillar.get('classification', '—')))
-        rows.append(_row('Tipo físico', pillar.get('physical_type', '—')))
+        rows.append(_row('Classificação', pillar.get('classification', '—'),
+                         color='#e6b400' if pillar.get('classification') == 'INDETERMINADO' else '#4fc3a1'))
         rows.append(_row('Shape', pillar.get('shape_type', '—')))
         rows.append(_row('Orientação', pillar.get('orientation', '—')))
         rows.append(_row('Ignora vigas?', 'Sim' if pillar.get('ignore_in_beams') else 'Não'))
         rows.append(_row('Geo. fonte', pillar.get('geometry_source', '—')))
+        if pillar.get('needs_geometry'):
+            rows.append(_row('Geometria', 'NAO RESOLVIDA', color='#e17055'))
+        npos = len(pillar.get('name_positions') or [])
+        if npos:
+            rows.append(_row('Posições texto', str(npos)))
 
-        # ── Geometria ─────────────────────────────────────────────────────────
+        # ── GEOMETRIA ─────────────────────────────────────────────────────────
         rows.append(_sep('GEOMETRIA'))
         pts = pillar.get('points') or []
         if pts:
             xs, ys = [p[0] for p in pts], [p[1] for p in pts]
             w, h_ = max(xs) - min(xs), max(ys) - min(ys)
-            rows.append(_row('Largura DXF', f'{w:.1f}'))
-            rows.append(_row('Altura DXF', f'{h_:.1f}'))
+            rows.append(_row('Comprimento', f'{max(w, h_):.1f}'))
+            rows.append(_row('Largura',     f'{min(w, h_):.1f}'))
             cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
-            rows.append(_row('Centro', f'({cx:.1f}, {cy:.1f})'))
+            rows.append(_row('Centro DXF',  f'({cx:.1f}, {cy:.1f})'))
         bbox = pillar.get('bbox')
         if bbox:
-            rows.append(_row('BBox', f'{bbox[0]:.1f},{bbox[1]:.1f} → {bbox[2]:.1f},{bbox[3]:.1f}'))
+            rows.append(_row('BBox', f'({bbox[0]:.1f},{bbox[1]:.1f}) → ({bbox[2]:.1f},{bbox[3]:.1f})'))
 
-        # ── Nível ─────────────────────────────────────────────────────────────
+        # ── NÍVEL (nivel_report) ───────────────────────────────────────────────
         rows.append(_sep('NÍVEL'))
         if nr_entry:
             for k, v in nr_entry.items():
                 if v not in (None, '', 0, 0.0):
-                    rows.append(_row(k, v))
-        else:
-            rows.append(_row('nivel_str', pillar.get('nivel_str', '—')))
+                    rows.append(_row(k, v, color='#c8e6c9'))
+        nivel_str_pilar = pillar.get('nivel_str', '')
+        if nivel_str_pilar:
+            rows.append(_row('nivel_str', nivel_str_pilar, color='#c8e6c9'))
 
-        # ── Lajes adjacentes (ABCD) ──────────────────────────────────────────
-        rows.append(_sep('LAJES ADJACENTES'))
+        # ── FACES A/B/C/D (output primário do SA) ────────────────────────────
+        rows.append(_sep('FACES A / B / C / D  (SA)'))
+        for face_id in ('A', 'B', 'C', 'D'):
+            try:
+                cell_text = self._get_side_cell(pillar, face_id)
+            except Exception:
+                cell_text = '—'
+            col = FACE_COLORS.get(face_id, '#aaa')
+            rows.append(_row(f'Lado {face_id}', cell_text or 'nulo', color=col, mono=True))
+
+        # ── LAJES ADJACENTES DETALHADAS ───────────────────────────────────────
+        rows.append(_sep('LAJES ADJACENTES (raw SA)'))
         lajes = pillar.get('lajes') or []
         if lajes:
             for lj in lajes:
-                nome_lj = lj.get('laje') or lj.get('laje_name') or '?'
-                side = lj.get('side', '?')
-                face = lj.get('face', '')
-                src  = lj.get('side_source', lj.get('source', ''))
-                dist = lj.get('dist', '')
-                alt  = lj.get('altura', lj.get('alt', ''))
-                niv  = lj.get('nivel_str', lj.get('nivel', ''))
-                detail = f'Side={side}'
+                nome_lj    = lj.get('laje') or '(sem laje)'
+                side       = lj.get('side', '?')
+                face       = lj.get('face', '')
+                src        = lj.get('side_source', lj.get('source', ''))
+                dist       = lj.get('dist', '')
+                ct         = lj.get('content_type', '')
+                viga_info  = lj.get('viga') or {}
+                # Altura e nível vêm dos mapas de slab (não ficam no laje entry)
+                alt  = self._slab_height_map.get(nome_lj, '') if nome_lj != '(sem laje)' else ''
+                niv  = self._slab_nivel_map.get(nome_lj, '')  if nome_lj != '(sem laje)' else ''
+
+                parts = [f'Side={side}']
                 if face and face not in ('AUTO', ''):
-                    detail += f' Face={face}'
+                    parts.append(f'Face={face}')
+                if ct:
+                    parts.append(f'tipo={ct}')
                 if alt:
-                    detail += f' Alt={alt}'
+                    parts.append(f'Alt={alt}cm')
                 if niv:
-                    detail += f' Nív={niv}'
+                    parts.append(f'Nív={niv}')
                 if dist:
-                    detail += f' dist={float(dist):.0f}'
+                    try:
+                        parts.append(f'dist={float(dist):.0f}')
+                    except Exception:
+                        parts.append(f'dist={dist}')
                 if src:
-                    detail += f' [{src}]'
-                col = {'A': '#ff9f43', 'B': '#4fc3a1', 'C': '#e17055', 'D': '#74b9ff'}.get(side, '#aaa')
+                    parts.append(f'[{src}]')
+                if viga_info:
+                    v_name = viga_info.get('name', '?')
+                    v_dim  = viga_info.get('dim', '')
+                    parts.append(f'VIGA={v_name}' + (f'({v_dim})' if v_dim else ''))
+
+                detail = '  '.join(parts)
+                col = FACE_COLORS.get(side, '#aaa')
+                if ct:
+                    col = CT_COLORS.get(ct, col)
                 rows.append(_row(nome_lj, detail, color=col))
         else:
-            rows.append(_row('—', 'sem lajes vinculadas'))
+            rows.append(_row('—', 'sem lajes vinculadas', color='#e17055'))
 
-        # ── Vigas vinculadas ─────────────────────────────────────────────────
-        beams = pillar.get('beams') or []
-        if beams:
-            rows.append(_sep('VIGAS'))
-            for b in beams:
-                bname = b.get('name') or b.get('beam_name', '?')
-                bside = b.get('side', '')
-                btyp  = b.get('type', b.get('behavior', ''))
-                detail = f'lado={bside}' if bside else ''
-                if btyp:
-                    detail += f' tipo={btyp}'
-                rows.append(_row(bname, detail or '—', color='#7eb8f7'))
-
-        # ── Campos extras ────────────────────────────────────────────────────
-        skip = {'name', 'classification', 'physical_type', 'shape_type', 'orientation',
-                'ignore_in_beams', 'geometry_source', 'points', 'lajes', 'beams',
-                'bbox', 'nivel_str', 'lajes_adjacentes', 'preficha_reviewed',
-                'confidence_map', 'links', 'issues', 'needs_geometry',
-                'alt_for_original_key', 'geometry_alt_candidate'}
-        extras = {k: v for k, v in pillar.items() if k not in skip
-                  and v not in (None, '', 0, 0.0, [], {})}
+        # ── CAMPOS EXTRAS (tudo que sobrou no dict) ───────────────────────────
+        skip = {
+            'name', 'classification', 'shape_type', 'orientation', 'ignore_in_beams',
+            'geometry_source', 'points', 'lajes', 'beams', 'bbox', 'nivel_str',
+            'lajes_adjacentes', 'preficha_reviewed', 'confidence_map', 'links',
+            'issues', 'needs_geometry', 'alt_for_original_key', 'geometry_alt_candidate',
+            'name_positions',
+        }
+        extras = {k: v for k, v in pillar.items()
+                  if k not in skip and v not in (None, '', 0, 0.0, [], {})}
         if extras:
-            rows.append(_sep('OUTROS'))
-            for k, v in extras.items():
-                rows.append(_row(k, str(v)[:120]))
+            rows.append(_sep('OUTROS CAMPOS'))
+            for k, v in sorted(extras.items()):
+                rows.append(_row(k, str(v)[:200]))
 
         return (f'<table style="font-size:9px;border-collapse:collapse;'
-                f'background:#181818">{"".join(rows)}</table>')
+                f'background:#181818;min-width:340px">{"".join(rows)}</table>')
 
     def _n3_ficha_html_pilar(self, item_name: str) -> str:
         """Retorna HTML compacto com dados Fase-4 JSON do pilar (Ficha N3 informacional)."""
@@ -4599,11 +5256,16 @@ class PreValidationDialog(QDialog):
         except Exception:
             return '<span style="color:#555">erro</span>'
 
-    def _render_pilar_dxf_context_b64(self, pilar_pts: list, width: int = 700, height: int = 500) -> str:
+    def _render_pilar_dxf_context_b64(
+        self,
+        pilar_pts: list,
+        width: int = 910,
+        height: int = 650,
+        focus_mode: str = 'pillar',
+    ) -> str:
         """
-        Renderiza o contexto DXF ao redor do pilar usando matplotlib (funciona headless).
-        Mostra as linhas estruturais da area + pilar destacado em verde-agua.
-        Retorna string base64 PNG.
+        Renderiza o contexto DXF ao redor do pilar com as cores reais do DXF (ACI/RGB),
+        exatamente como o mini-viewer do SA. Pilar destacado em teal.
         """
         if not pilar_pts or not self._dxf_data:
             return ''
@@ -4617,72 +5279,114 @@ class PreValidationDialog(QDialog):
             xs = [float(p[0]) for p in pilar_pts]
             ys = [float(p[1]) for p in pilar_pts]
             pw, ph = max(xs) - min(xs), max(ys) - min(ys)
-            margin = max(pw, ph) * 3.0 + 60
-            vx0, vx1 = min(xs) - margin, max(xs) + margin
-            vy0, vy1 = min(ys) - margin, max(ys) + margin
+            if focus_mode == 'segment':
+                long_span = max(pw, ph, 1.0)
+                short_span = max(min(pw, ph), 1.0)
+                pad_long = max(25.0, long_span * 0.06)
+                pad_short = max(35.0, short_span * 2.5)
+                if pw >= ph:
+                    vx0, vx1 = min(xs) - pad_long, max(xs) + pad_long
+                    vy0, vy1 = min(ys) - pad_short, max(ys) + pad_short
+                else:
+                    vx0, vx1 = min(xs) - pad_short, max(xs) + pad_short
+                    vy0, vy1 = min(ys) - pad_long, max(ys) + pad_long
+            else:
+                margin = (max(pw, ph) * 3.0 + 60) * 1.3
+                vx0, vx1 = min(xs) - margin, max(xs) + margin
+                vy0, vy1 = min(ys) - margin, max(ys) + margin
+            view_w = max(vx1 - vx0, 1.0)
 
+            BG = '#0d0d0d'
             dpi = 150
             fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
-            ax.set_facecolor('#111111')
-            fig.patch.set_facecolor('#111111')
+            ax.set_facecolor(BG)
+            fig.patch.set_facecolor(BG)
             ax.set_aspect('equal')
             ax.set_xlim(vx0, vx1)
             ax.set_ylim(vy0, vy1)
             ax.axis('off')
 
-            # Linhas DXF na area de visualizacao
+            def _rgb(ent: dict) -> tuple:
+                """Normaliza color (0-255 tuple) do dxf_data para matplotlib (0-1)."""
+                c = ent.get('color')
+                if isinstance(c, (list, tuple)) and len(c) == 3:
+                    r, g, b = c
+                    # ACI 7 (white) armazenado como preto (0,0,0) → forçar branco
+                    if r == 0 and g == 0 and b == 0:
+                        return (0.9, 0.9, 0.9)
+                    return (r / 255.0, g / 255.0, b / 255.0)
+                return (0.55, 0.65, 0.80)   # fallback azul-acinzentado
+
+            # ── Linhas ────────────────────────────────────────────────────────
             for line in self._dxf_data.get('lines', []):
                 s, e = line.get('start'), line.get('end')
                 if not s or not e:
                     continue
-                if (min(s[0], e[0]) <= vx1 and max(s[0], e[0]) >= vx0 and
-                        min(s[1], e[1]) <= vy1 and max(s[1], e[1]) >= vy0):
-                    ax.plot([s[0], e[0]], [s[1], e[1]], color='#3a5078', lw=0.6, solid_capstyle='round')
-
-            # Polilinhas DXF na area
-            for poly in self._dxf_data.get('polylines', []):
-                pts = poly.get('points', [])
-                if not pts:
+                if (min(s[0], e[0]) > vx1 or max(s[0], e[0]) < vx0 or
+                        min(s[1], e[1]) > vy1 or max(s[1], e[1]) < vy0):
                     continue
-                pxs_p = [p[0] for p in pts]
-                pys_p = [p[1] for p in pts]
-                if (min(pxs_p) <= vx1 and max(pxs_p) >= vx0 and
-                        min(pys_p) <= vy1 and max(pys_p) >= vy0):
-                    ax.plot(pxs_p, pys_p, color='#3a5078', lw=0.6)
+                lw = max(0.4, min(1.5, (line.get('lineweight') or 25) / 40.0))
+                ax.plot([s[0], e[0]], [s[1], e[1]],
+                        color=_rgb(line), lw=lw, solid_capstyle='round')
 
-            # Todos os textos DXF na área de visualização
-            import re as _re
-            _pilar_pat = _re.compile(r'^P\d', re.IGNORECASE)
-            _laje_pat  = _re.compile(r'^L\d', re.IGNORECASE)
-            _viga_pat  = _re.compile(r'^V\d', re.IGNORECASE)
+            # ── Polilinhas ────────────────────────────────────────────────────
+            for poly in self._dxf_data.get('polylines', []):
+                pts_p = poly.get('points', [])
+                if not pts_p:
+                    continue
+                pxs_p = [p[0] for p in pts_p]
+                pys_p = [p[1] for p in pts_p]
+                if (min(pxs_p) > vx1 or max(pxs_p) < vx0 or
+                        min(pys_p) > vy1 or max(pys_p) < vy0):
+                    continue
+                lw = max(0.4, min(1.5, (poly.get('lineweight') or 25) / 40.0))
+                ax.plot(pxs_p, pys_p, color=_rgb(poly), lw=lw)
+
+            # ── Textos com cores reais + tamanho proporcional ─────────────────
+            px_per_unit = width / view_w
             for txt in self._dxf_data.get('texts', []):
                 tx, ty = txt.get('pos', [0, 0])
-                if vx0 <= float(tx) <= vx1 and vy0 <= float(ty) <= vy1:
-                    t = str(txt.get('text', ''))
-                    if not t.strip():
-                        continue
-                    if _pilar_pat.match(t):
-                        col, fsz = '#ff9f43', 7      # pilar: laranja
-                    elif _laje_pat.match(t):
-                        col, fsz = '#4fc3a1', 6      # laje: verde-água
-                    elif _viga_pat.match(t):
-                        col, fsz = '#7eb8f7', 6      # viga: azul
-                    else:
-                        col, fsz = '#aaaaaa', 5      # demais: cinza
-                    ax.text(float(tx), float(ty), t, color=col,
-                            fontsize=fsz, ha='center', va='center', clip_on=True)
+                if not (vx0 <= float(tx) <= vx1 and vy0 <= float(ty) <= vy1):
+                    continue
+                t = str(txt.get('text', '')).strip()
+                if not t:
+                    continue
+                h_dxf = float(txt.get('height') or 10)
+                # Converter altura DXF → pt matplotlib: 1pt = dpi/72 px
+                fsz = max(5, min(12, h_dxf * px_per_unit / (dpi / 72)))
+                ax.text(float(tx), float(ty), t,
+                        color=_rgb(txt), fontsize=fsz,
+                        ha='center', va='center', clip_on=True,
+                        fontfamily='monospace')
 
-            # Pilar destacado
+            # ── Pilar destacado (facecolor semi-transparente + borda teal) ────
             poly_patch = MplPolygon(
                 [(float(p[0]), float(p[1])) for p in pilar_pts],
                 closed=True, fill=True,
-                facecolor='#1e3a5f', edgecolor='#4fc3a1', lw=1.8, alpha=0.9, zorder=10
+                facecolor='#ff9800' if focus_mode == 'segment' else '#1e3a5f',
+                edgecolor='#ff3d00' if focus_mode == 'segment' else '#4fc3a1',
+                lw=3.5 if focus_mode == 'segment' else 2.0,
+                alpha=0.42 if focus_mode == 'segment' else 0.85,
+                zorder=10,
             )
             ax.add_patch(poly_patch)
+            if focus_mode == 'segment':
+                ax.scatter(
+                    xs, ys, s=18, c='#fff176', edgecolors='#ff3d00',
+                    linewidths=0.8, zorder=11,
+                )
+                ax.text(
+                    min(xs), max(ys) + max(short_span * 0.35, 8.0),
+                    'SEGMENTO FV', color='#ffcc80', fontsize=8,
+                    ha='left', va='bottom', zorder=12,
+                    bbox={
+                        'facecolor': BG, 'edgecolor': '#ff3d00',
+                        'alpha': 0.85,
+                    },
+                )
 
             buf = io.BytesIO()
-            plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.02,
-                        facecolor='#111111', dpi=dpi)
+            fig.savefig(buf, format='png', facecolor=BG, dpi=dpi)
             plt.close(fig)
             buf.seek(0)
             return base64.b64encode(buf.read()).decode('ascii')
@@ -4758,7 +5462,9 @@ class PreValidationDialog(QDialog):
         _pil_extra_th = (
             '<th>Foto N1 (SA)</th>'
             '<th>N3 Cima</th><th>N3 ABCD</th><th>N3 Grades</th>'
-            '<th>N4 Robot</th>'
+            '<th>Atenção N3</th>'
+            '<th>N4 Cima</th><th>N4 ABCD</th><th>N4 Grades</th>'
+            '<th>Atenção N4</th>'
             '<th>Foto N2</th>'
             '<th>Ficha N1 SA</th><th>Ficha N2</th><th>Ficha N3 (JSON)</th>'
         )
@@ -4768,7 +5474,7 @@ class PreValidationDialog(QDialog):
             pts  = row.get('_points') or []
 
             # ── Foto N1: contexto DXF estrutural + pilar destacado ────────────
-            geo = self._render_pilar_dxf_context_b64(pts) if pts else ''
+            geo = self._render_pilar_dxf_context_b64(pts, width=910, height=650) if pts else ''
             if not geo:
                 geo = _photo(pts)
             n1_cell = (f'<td><img class="img-geo" src="data:image/png;base64,{geo}" alt="N1"></td>'
@@ -4785,11 +5491,34 @@ class PreValidationDialog(QDialog):
             n3_abcd   = _n3_view_cell('ABCD')
             n3_grades = _n3_view_cell('GRADES')
 
-            # ── N4: combined /n4/PL_preview_{nome}.dxf (CE via N2) ───────────
-            n4_path = self._find_pilar_dxf('', nome, n4=True)
-            n4_b64  = self._render_ezdxf_b64(n4_path, width=750, height=850) if n4_path else ''
-            n4_cell = (_img_cell(n4_b64, 'img-n4') if n4_b64
-                       else '<td><span class="muted">sem N4 (rode CE)</span></td>')
+            # ── Atenção N3 (editável, persiste em localStorage) ───────────────
+            _n3_at_key = f'aten_n3_{self._obra}_{self._pavimento}_{nome}'.replace(' ', '_')
+            n3_aten_cell = (
+                f'<td class="atencao-cell" contenteditable="true" '
+                f'data-atkey="{_n3_at_key}" '
+                f'onblur="saveAten(this)" '
+                f'title="Anotação N3 — {nome}"></td>'
+            )
+
+            # ── N4: 3 vistas DXF N4 (CE via N2 — /n4/ subpasta, fallback raiz) ──
+            def _n4_view_cell(view_type: str) -> str:
+                p = self._find_pilar_dxf(view_type, nome, n4=True)
+                b64 = self._render_ezdxf_b64(p, width=750, height=550) if p else ''
+                return (_img_cell(b64, 'img-n4') if b64
+                        else f'<td><span class="muted">sem N4 {view_type}</span></td>')
+
+            n4_cima   = _n4_view_cell('CIMA')
+            n4_abcd   = _n4_view_cell('ABCD')
+            n4_grades = _n4_view_cell('GRADES')
+
+            # ── Atenção N4 (editável, persiste em localStorage) ───────────────
+            _n4_at_key = f'aten_n4_{self._obra}_{self._pavimento}_{nome}'.replace(' ', '_')
+            n4_aten_cell = (
+                f'<td class="atencao-cell" contenteditable="true" '
+                f'data-atkey="{_n4_at_key}" '
+                f'onblur="saveAten(this)" '
+                f'title="Anotação N4 — {nome}"></td>'
+            )
 
             # ── Foto N2: recorte DXF Fase-2 renderizado ───────────────────────
             n2b64 = self._render_n2_recorte_b64(nome)
@@ -4802,8 +5531,8 @@ class PreValidationDialog(QDialog):
             n3_ficha = self._n3_ficha_html_pilar(nome)
 
             return (n1_cell
-                    + n3_cima + n3_abcd + n3_grades
-                    + n4_cell
+                    + n3_cima + n3_abcd + n3_grades + n3_aten_cell
+                    + n4_cima + n4_abcd + n4_grades + n4_aten_cell
                     + n2_foto_cell
                     + f'<td class="ficha-cell">{n1_ficha}</td>'
                     + f'<td class="ficha-cell">{n2_ficha}</td>'
@@ -4867,6 +5596,7 @@ class PreValidationDialog(QDialog):
                     '_points': segment.get('points') or [],
                     '_beam': segment['beam_name'],
                     '_cls': seg_cls,
+                    '_segment': segment,
                 }
                 segment_rows.append(seg_r)
 
@@ -4903,34 +5633,505 @@ class PreValidationDialog(QDialog):
             'table{border-collapse:collapse}'
             'th{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px;white-space:nowrap}'
             'td{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}'
-            '.img-geo{width:700px;height:500px;object-fit:contain;background:#111}'
+            '.img-geo{width:910px;height:650px;object-fit:contain;background:#111}'
             '.img-n3{width:900px;height:600px;object-fit:contain;background:#fff}'
-            '.img-n4{width:900px;height:600px;object-fit:contain;background:#111}'
+            '.img-n4{width:750px;height:550px;object-fit:contain;background:#fff}'
             '.img-n2{width:600px;height:400px;object-fit:contain;background:#111}'
             '.ficha-cell{max-width:380px;overflow:auto}'
             'tr:hover td{background:#222}'
+            '.atencao-cell{'
+            '  min-width:220px;max-width:320px;min-height:50px;'
+            '  background:#1e1b00;color:#f0b840;cursor:text;'
+            '  border-left:2px solid #5a4400;white-space:pre-wrap;'
+            '  font-size:10px;padding:4px 6px'
+            '}'
+            '.atencao-cell:focus{'
+            '  outline:1px solid #f0b840;background:#252300'
+            '}'
+            '.atencao-cell:empty::before{'
+            '  content:attr(title);color:#554400;font-style:italic'
+            '}'
         )
+
+        js = (
+            '<script>'
+            'function saveAten(el){'
+            '  var key=el.dataset.atkey;if(!key)return;'
+            '  var val=el.innerText.trim();'
+            '  if(val){localStorage.setItem(key,val);}else{localStorage.removeItem(key);}'
+            '}'
+            'function loadAllAten(){'
+            '  document.querySelectorAll("[data-atkey]").forEach(function(el){'
+            '    var stored=localStorage.getItem(el.dataset.atkey);'
+            '    if(stored!==null&&stored!=="")el.innerText=stored;'
+            '  });'
+            '}'
+            'document.addEventListener("DOMContentLoaded",loadAllAten);'
+            # Exporta todas as anotações como JSON para Playwright/Claude ler
+            'function exportAnotacoes(){'
+            '  var r={};'
+            '  for(var i=0;i<localStorage.length;i++){'
+            '    var k=localStorage.key(i);'
+            '    if(k&&k.startsWith("aten_"))r[k]=localStorage.getItem(k);'
+            '  }'
+            '  var el=document.getElementById("_aten_export");'
+            '  if(el)el.textContent=JSON.stringify(r,null,2);'
+            '}'
+            '</script>'
+        )
+
+        def _render_td(h: str, row: dict, slug: str) -> str:
+            val = str(row.get(h, ''))
+            if h == 'Atenção':
+                row_key = (row.get('_nome') or str(row.get('Nome') or
+                           row.get('Viga') or row.get('Segmento') or '')).replace(' ', '_')
+                at_key  = f'aten_{slug}_{row_key}'
+                return (
+                    f'<td class="atencao-cell" contenteditable="true" '
+                    f'data-atkey="{html.escape(at_key)}" '
+                    f'data-sa="{html.escape(val)}" '
+                    f'onblur="saveAten(this)" '
+                    f'title="Anotação — clique para editar">'
+                    f'{html.escape(val)}</td>'
+                )
+            return f'<td>{html.escape(val)}</td>'
+
+        # ── CSS adicional para layout sidebar (páginas individuais de pilar) ──
+        import re as _re
+
+        _layout_css = (
+            'body{display:flex;flex-direction:row;margin:0;overflow:hidden;height:100vh}'
+            '.sidebar{width:170px;min-width:130px;overflow-y:auto;background:#111;'
+            '  border-right:1px solid #2a2a2a;padding:6px 0;flex-shrink:0;height:100vh}'
+            '.sidebar h3{color:#4fc3a1;font-size:10px;padding:4px 8px;margin:0 0 4px;'
+            '  border-bottom:1px solid #222}'
+            '.sidebar ul{list-style:none;padding:0;margin:0}'
+            '.sidebar li a{display:block;padding:3px 8px;color:#888;text-decoration:none;'
+            '  font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+            '.sidebar li.active a{color:#f0b840;background:#1e1b00;font-weight:bold}'
+            '.sidebar li a:hover{background:#1a1a1a;color:#ccc}'
+            '.sidebar .grp{font-size:8px;color:#4fc3a1;padding:8px 6px 2px;'
+            '  border-top:1px solid #222;text-transform:uppercase;letter-spacing:1px}'
+            '.main-wrap{flex:1;overflow:auto;height:100vh}'
+            '.main-content{padding:12px 16px;min-width:800px}'
+            '.nav-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;'
+            '  background:#1e1e1e;padding:5px 10px;border-radius:4px;'
+            '  position:sticky;top:0;z-index:5}'
+            '.nav-arrow{color:#7eb8f7;text-decoration:none;font-size:10px;padding:2px 8px;'
+            '  border:1px solid #335;border-radius:3px;white-space:nowrap}'
+            '.nav-arrow:hover{background:#1a2030}'
+            '.nav-pos{color:#aaa;font-size:10px;flex:1;text-align:center}'
+            '.sec{margin:8px 0;border:1px solid #2a2a2a;border-radius:4px}'
+            '.sec-title{background:#1e1e1e;color:#4fc3a1;padding:3px 8px;'
+            '  font-size:10px;font-weight:bold;border-radius:4px 4px 0 0}'
+            '.sec-body{padding:8px}'
+            '.face-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}'
+            '.face-card{border-radius:3px;padding:5px 7px;font-size:10px}'
+            '.face-A{background:#122012;border-left:3px solid #4fc3a1}'
+            '.face-B{background:#12122a;border-left:3px solid #7eb8f7}'
+            '.face-C{background:#2a1228;border-left:3px solid #c47ef7}'
+            '.face-D{background:#2a1e10;border-left:3px solid #f0b840}'
+            '.face-label{color:#666;font-size:9px;margin-bottom:2px}'
+            '.od-wrap{margin:6px 0 10px 0;display:flex;flex-direction:column;align-items:center;gap:0px;font-size:9px;font-family:monospace}'
+            '.od-row{display:flex;align-items:center;justify-content:center;gap:0}'
+            '.od-box{border:2px solid #555;background:#1e1e1e;color:#ddd;padding:6px 18px;'
+            '  text-align:center;font-size:9px;font-weight:bold;min-width:70px;'
+            '  border-radius:2px}'
+            '.od-top{color:#c47ef7;font-weight:bold;padding:2px 0;text-align:center}'
+            '.od-bot{color:#f0b840;font-weight:bold;padding:2px 0;text-align:center}'
+            '.od-side-A{color:#4fc3a1;font-weight:bold;padding:4px 6px}'
+            '.od-side-B{color:#7eb8f7;font-weight:bold;padding:4px 6px}'
+            '.od-side-C{color:#c47ef7;font-weight:bold;padding:4px 6px}'
+            '.od-side-D{color:#f0b840;font-weight:bold;padding:4px 6px}'
+            '.od-hint{color:#555;font-size:8px;text-align:center;margin-top:2px}'
+            '.face-val{white-space:pre-wrap;color:#ccc}'
+            '.img-wrap{text-align:center;background:#0d0d0d;padding:6px;border-radius:3px}'
+            '.views-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}'
+            '.view-block{text-align:center}'
+            '.view-label{font-size:9px;color:#666;margin-bottom:3px}'
+            '.fichas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}'
+            '.ficha-col-title{color:#7eb8f7;font-size:10px;margin-bottom:4px;font-weight:bold}'
+            '.evidence-grid{display:grid;grid-template-columns:1fr;gap:18px}'
+            '.evidence-card{background:#101010;border:1px solid #292929;border-radius:3px;padding:6px}'
+            '.evidence-card img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;background:#111}'
+            '.img-wrap img{display:block;width:100%;height:auto;max-height:none;object-fit:contain}'
+            '.views-row{display:flex;flex-direction:column;gap:18px;align-items:stretch}'
+            '.view-block{width:100%;text-align:center}'
+            '.view-block img{display:block;width:100%;height:auto;max-height:none;object-fit:contain}'
+            '.evidence-title{display:flex;justify-content:space-between;color:#aaa;font-size:9px;margin-bottom:4px}'
+            '.artifact-path{color:#555;font-size:8px;word-break:break-all;margin-top:4px}'
+            '.pipeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}'
+            '.pipeline-stage{background:#111;border:1px solid #292929;border-radius:3px;padding:7px}'
+            '.pipeline-stage.ok{border-left:3px solid #4fc3a1}'
+            '.pipeline-stage.missing{border-left:3px solid #e17055}'
+            '.stage-name{color:#7eb8f7;font-weight:bold;font-size:10px}'
+            '.stage-state{font-size:9px;color:#888;margin:2px 0 5px}'
+            '.vertex-table{max-height:260px;overflow:auto}'
+            '.vertex-table table{font-size:9px}'
+            '.tag{display:inline-block;background:#282828;color:#888;'
+            '  font-size:8px;padding:1px 5px;border-radius:3px;margin-left:5px}'
+        )
+        _page_css = css + _layout_css
+
+        def _classif_slug(c: str) -> str:
+            return _re.sub(r'[^A-Za-z0-9]', '_', (c or 'OUTROS').strip().upper()) or 'OUTROS'
+
+        def _write_pilar_pages(slug: str, title: str, rows: list) -> tuple:
+            """Gera uma página HTML por pilar com sidebar + prev/next."""
+            # nav_entries: [(nome, classif, classif_slug, abs_path)]
+            nav_entries = []
+            for row in rows:
+                nome    = row['_nome']
+                classif = row.get('Classificação') or 'INDETERMINADO'
+                cs      = _classif_slug(classif)
+                abs_p   = os.path.join(output_dir, slug, cs, f'{nome}.html')
+                nav_entries.append((nome, classif, cs, abs_p))
+
+            for _, _, _, abs_p in nav_entries:
+                os.makedirs(os.path.dirname(abs_p), exist_ok=True)
+
+            FACE_CLSS = {'A': 'face-A', 'B': 'face-B', 'C': 'face-C', 'D': 'face-D'}
+
+            # Labels e diagrama ASCII por orientação
+            _VERT_LBLS = {
+                'A': 'A — esquerda (oeste) · face longa',
+                'B': 'B — direita (leste) · face longa',
+                'C': 'C — topo (norte) · face curta',
+                'D': 'D — base (sul) · face curta',
+            }
+            _HORIZ_LBLS = {
+                'A': 'A — base (sul) · face longa',
+                'B': 'B — topo (norte) · face longa',
+                'C': 'C — esquerda (oeste) · face curta',
+                'D': 'D — direita (leste) · face curta',
+            }
+
+            def _orient_diagram(pts: list, nome: str, fmt: str) -> str:
+                """Diagrama HTML mostrando posição de A/B/C/D para este pilar."""
+                # Detectar orientação pela bbox
+                is_vert = True
+                if pts:
+                    try:
+                        xs = [float(p[0]) for p in pts]
+                        ys = [float(p[1]) for p in pts]
+                        pw = max(xs) - min(xs)
+                        ph = max(ys) - min(ys)
+                        is_vert = ph > pw
+                    except Exception:
+                        pass
+                if is_vert:
+                    # VERTICAL: C=norte, D=sul, A=oeste, B=leste
+                    return (
+                        '<div class="od-wrap">'
+                        '<div class="od-top">C — topo / norte</div>'
+                        '<div class="od-row">'
+                        '<span class="od-side-A">A — oeste</span>'
+                        f'<div class="od-box">{html.escape(nome)}</div>'
+                        '<span class="od-side-B">B — leste</span>'
+                        '</div>'
+                        '<div class="od-bot">D — base / sul</div>'
+                        '<div class="od-hint">VERTICAL · C e D = faces curtas · A e B = faces longas</div>'
+                        '</div>'
+                    )
+                else:
+                    # HORIZONTAL: B=norte, A=sul, C=oeste, D=leste
+                    return (
+                        '<div class="od-wrap">'
+                        '<div class="od-top">B — topo / norte</div>'
+                        '<div class="od-row">'
+                        '<span class="od-side-C">C — oeste</span>'
+                        f'<div class="od-box">{html.escape(nome)}</div>'
+                        '<span class="od-side-D">D — leste</span>'
+                        '</div>'
+                        '<div class="od-bot">A — base / sul</div>'
+                        '<div class="od-hint">HORIZONTAL · A e B = faces longas · C e D = faces curtas</div>'
+                        '</div>'
+                    )
+
+            def _page(row: dict, idx: int) -> str:
+                nome    = row['_nome']
+                classif = row.get('Classificação') or 'INDETERMINADO'
+                fmt     = row.get('Formato', '—')
+                nivel   = row.get('Nível', '—')
+                aten    = row.get('Atenção', '')
+                pts     = row.get('_points') or []
+                cur_dir = os.path.dirname(nav_entries[idx][3])
+
+                # Sidebar
+                cur_grp = None
+                sb_items = []
+                for j, (jnome, jclassif, jcs, jabs) in enumerate(nav_entries):
+                    if jclassif != cur_grp:
+                        sb_items.append(
+                            f'<li><div class="grp">{html.escape(jclassif)}</div></li>')
+                        cur_grp = jclassif
+                    try:
+                        rp = os.path.relpath(jabs, cur_dir).replace('\\', '/')
+                    except ValueError:
+                        rp = f'../../{jcs}/{jnome}.html'
+                    act = ' class="active"' if j == idx else ''
+                    sb_items.append(
+                        f'<li{act}><a href="{html.escape(rp)}">{html.escape(jnome)}</a></li>')
+                sidebar = (
+                    f'<aside class="sidebar"><h3>Pilares ({len(rows)})</h3>'
+                    f'<ul>{"".join(sb_items)}</ul></aside>'
+                )
+
+                # Nav bar
+                def _nav_lnk(j: int, label: str) -> str:
+                    if j < 0 or j >= len(nav_entries):
+                        return ''
+                    _, _, jcs, jabs = nav_entries[j]
+                    try:
+                        rp = os.path.relpath(jabs, cur_dir).replace('\\', '/')
+                    except ValueError:
+                        rp = f'../../{jcs}/{nav_entries[j][0]}.html'
+                    return f'<a class="nav-arrow" href="{html.escape(rp)}">{html.escape(label)}</a>'
+
+                prev_lnk = _nav_lnk(idx - 1, f'← {nav_entries[idx-1][0]}') if idx > 0 else ''
+                next_lnk = _nav_lnk(idx + 1, f'{nav_entries[idx+1][0]} →') if idx < len(nav_entries)-1 else ''
+                nav_bar = (
+                    f'<div class="nav-bar">{prev_lnk}'
+                    f'<span class="nav-pos"><b>{html.escape(nome)}</b>'
+                    f' ({idx+1}/{len(rows)})'
+                    f'<span class="tag">{html.escape(classif)}</span>'
+                    f'<span class="tag">{html.escape(fmt)}</span>'
+                    f'<span class="tag">{html.escape(nivel)}</span>'
+                    f'</span>{next_lnk}</div>'
+                )
+
+                # Identidade
+                at_key = f'aten_{slug}_{nome}'.replace(' ', '_')
+                ident_section = (
+                    '<div class="sec"><div class="sec-title">Identidade</div>'
+                    '<div class="sec-body"><table>'
+                    f'<tr><td style="color:#666;width:90px">Nome</td>'
+                    f'<td><b>{html.escape(nome)}</b></td></tr>'
+                    f'<tr><td style="color:#666">Classificação</td>'
+                    f'<td>{html.escape(classif)}</td></tr>'
+                    f'<tr><td style="color:#666">Formato</td>'
+                    f'<td>{html.escape(fmt)}</td></tr>'
+                    f'<tr><td style="color:#666">Nível</td>'
+                    f'<td>{html.escape(nivel)}</td></tr>'
+                    f'<tr><td style="color:#666;vertical-align:top">Atenção</td>'
+                    f'<td><div class="atencao-cell" contenteditable="true" '
+                    f'data-atkey="{html.escape(at_key)}" data-sa="{html.escape(aten)}" '
+                    f'onblur="saveAten(this)" title="Atenção — clique para editar">'
+                    f'{html.escape(aten)}</div></td></tr>'
+                    '</table></div></div>'
+                )
+
+                # Faces ABCD — labels e diagrama adaptados à orientação
+                _is_vert_row = True
+                if pts:
+                    try:
+                        _xs = [float(p[0]) for p in pts]
+                        _ys = [float(p[1]) for p in pts]
+                        _is_vert_row = (max(_ys) - min(_ys)) > (max(_xs) - min(_xs))
+                    except Exception:
+                        pass
+                _lbls = _VERT_LBLS if _is_vert_row else _HORIZ_LBLS
+                face_cards = ''.join(
+                    f'<div class="face-card {FACE_CLSS[fid]}">'
+                    f'<div class="face-label">{html.escape(_lbls[fid])}</div>'
+                    f'<div class="face-val">'
+                    f'{html.escape((row.get(f"Lado {fid}") or "nulo").strip()).replace(chr(10), "<br>")}'
+                    f'</div></div>'
+                    for fid in ('A', 'B', 'C', 'D')
+                )
+                orient_diag = _orient_diagram(pts, nome, fmt)
+                faces_section = (
+                    '<div class="sec"><div class="sec-title">Faces ABCD</div>'
+                    f'<div class="sec-body">{orient_diag}'
+                    f'<div class="face-grid">{face_cards}</div></div></div>'
+                )
+
+                # Foto N1
+                geo_b64 = self._render_pilar_dxf_context_b64(
+                    pts, width=1820, height=1300
+                ) if pts else ''
+                if not geo_b64:
+                    geo_b64 = _photo(pts)
+                foto_n1 = (
+                    '<div class="sec"><div class="sec-title">Foto N1 (SA) — Contexto DXF</div>'
+                    f'<div class="sec-body"><div class="img-wrap">'
+                    f'<img class="img-geo" src="data:image/png;base64,{geo_b64}" alt="N1">'
+                    f'</div></div></div>'
+                ) if geo_b64 else ''
+
+                # N3 / N4
+                def _views_sec(n4: bool) -> str:
+                    tag      = 'N4' if n4 else 'N3'
+                    subtitle = 'Robô via N2 (CE DXF)' if n4 else 'Robô via N1 (Fase-4→DXF)'
+                    img_cls  = 'img-n4' if n4 else 'img-n3'
+                    at_k     = (f'aten_{"n4" if n4 else "n3"}_{self._obra}_{self._pavimento}_{nome}'
+                                ).replace(' ', '_')
+                    views_html = ''
+                    for vt in ('CIMA', 'ABCD', 'GRADES'):
+                        p    = self._find_pilar_dxf(vt, nome, n4=n4)
+                        b64v = self._render_ezdxf_b64(
+                            p, width=1500, height=1100
+                        ) if p else ''
+                        if b64v:
+                            views_html += (
+                                f'<div class="view-block">'
+                                f'<div class="view-label">{vt}</div>'
+                                f'<img class="{img_cls}" src="data:image/png;base64,{b64v}" alt="{vt}">'
+                                f'</div>'
+                            )
+                        else:
+                            views_html += (f'<div class="view-block">'
+                                           f'<div class="view-label" style="color:#444">sem {vt}</div>'
+                                           f'</div>')
+                    aten_v = (
+                        f'<div style="margin-top:8px">'
+                        f'<div style="font-size:9px;color:#666;margin-bottom:2px">Atenção {tag}</div>'
+                        f'<div class="atencao-cell" contenteditable="true" '
+                        f'data-atkey="{html.escape(at_k)}" onblur="saveAten(this)" '
+                        f'title="Anotação {tag} — {html.escape(nome)}"></div></div>'
+                    )
+                    return (
+                        f'<div class="sec"><div class="sec-title">{tag} — {subtitle}</div>'
+                        f'<div class="sec-body">'
+                        f'<div class="views-row">{views_html}</div>'
+                        f'{aten_v}</div></div>'
+                    )
+
+                n3_section = _views_sec(n4=False)
+                n4_section = _views_sec(n4=True)
+
+                # Foto N2
+                n2b64 = self._render_n2_recorte_b64(
+                    nome, width=1400, height=1000
+                )
+                foto_n2 = (
+                    '<div class="sec"><div class="sec-title">Foto N2 — Recorte STOG</div>'
+                    f'<div class="sec-body"><div class="img-wrap">'
+                    f'<img class="img-n2" src="data:image/png;base64,{n2b64}" alt="N2">'
+                    f'</div></div></div>'
+                ) if n2b64 else ''
+
+                # Fichas
+                n1f = self._n1_ficha_html_pilar(nome)
+                n2f = self._n2_ficha_html('PIL', nome)
+                n3f = self._n3_ficha_html_pilar(nome)
+                fichas = (
+                    '<div class="sec"><div class="sec-title">Fichas N1 / N2 / N3</div>'
+                    '<div class="sec-body"><div class="fichas-grid">'
+                    f'<div><div class="ficha-col-title">Ficha N1 (SA)</div>'
+                    f'<div class="ficha-cell">{n1f}</div></div>'
+                    f'<div><div class="ficha-col-title">Ficha N2</div>'
+                    f'<div class="ficha-cell">{n2f}</div></div>'
+                    f'<div><div class="ficha-col-title">Ficha N3 (JSON)</div>'
+                    f'<div class="ficha-cell">{n3f}</div></div>'
+                    '</div></div></div>'
+                )
+
+                main = (nav_bar + ident_section + faces_section +
+                        foto_n1 + n3_section + n4_section + foto_n2 + fichas +
+                        '<pre id="_aten_export" style="display:none"></pre>'
+                        '<button onclick="exportAnotacoes()" style="margin:12px 0;'
+                        'background:#2a2a00;color:#f0b840;border:1px solid #554400;'
+                        'padding:3px 10px;cursor:pointer;font-size:10px">Exportar Anotações</button>')
+
+                return (
+                    f'<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+                    f'<title>{html.escape(nome)} — {html.escape(title)}</title>'
+                    f'<style>{_page_css}</style>{js}</head>'
+                    f'<body>{sidebar}'
+                    f'<div class="main-wrap"><div class="main-content">'
+                    f'<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'
+                    f'{html.escape(nome)}'
+                    f'<span class="tag">{html.escape(classif)}</span>'
+                    f'<span class="tag">{html.escape(fmt)}</span>'
+                    f'</h2>{main}</div></div></body></html>'
+                )
+
+            # Gerar todas as páginas
+            for idx, row in enumerate(rows):
+                nome_r = row['_nome']
+                _, _, _, abs_p = nav_entries[idx]
+                with open(abs_p, 'w', encoding='utf-8') as f:
+                    f.write(_page(row, idx))
+                print(f'[HTML] {slug} {idx+1}/{len(rows)}: {nome_r}', flush=True)
+
+            # index.html do grupo (pilares agrupados por classificação)
+            seen_grp: dict[str, list] = {}
+            for row in rows:
+                c = row.get('Classificação') or 'INDETERMINADO'
+                seen_grp.setdefault(c, []).append(row)
+            groups_html = ''
+            for grp_c, grp_rows in seen_grp.items():
+                cs = _classif_slug(grp_c)
+                items_li = ''.join(
+                    f'<li><a href="{html.escape(cs)}/{html.escape(r["_nome"])}.html">'
+                    f'{html.escape(r["_nome"])}</a>'
+                    f' <span style="color:#555;font-size:10px">'
+                    f'{html.escape(r.get("Formato",""))} | {html.escape(r.get("Nível",""))}'
+                    f'</span></li>'
+                    for r in grp_rows
+                )
+                groups_html += (
+                    f'<h2 style="color:#4fc3a1;font-size:12px;margin:12px 0 4px">'
+                    f'{html.escape(grp_c)} ({len(grp_rows)})</h2>'
+                    f'<ul style="line-height:1.9">{items_li}</ul>'
+                )
+            idx_doc = (
+                '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+                f'<title>Índice — {html.escape(title)}</title>'
+                '<style>body{background:#1a1a1a;color:#c8c8c8;font:12px monospace;margin:16px}'
+                'a{color:#7eb8f7}li{margin:2px 0}</style></head>'
+                f'<body><h1 style="color:#7eb8f7;font-size:14px">Índice — {html.escape(title)}</h1>'
+                f'<p style="color:#777;font-size:10px">Obra: {html.escape(self._obra)} | '
+                f'Pavimento: {html.escape(self._pavimento)} | {len(rows)} itens</p>'
+                f'{groups_html}</body></html>'
+            )
+            idx_path = os.path.join(output_dir, slug, 'index.html')
+            with open(idx_path, 'w', encoding='utf-8') as f:
+                f.write(idx_doc)
+
+            return (f'{slug}/index.html', title, len(rows))
 
         generated: list[tuple[str, str, int]] = []
         try:
             for slug, title, headers, rows, extra_th, extra_td_fn in reports:
+                # Pilares: gera página individual por item
+                if slug in ('pilares', 'pilares_especiais'):
+                    if rows:
+                        generated.append(_write_pilar_pages(slug, title, rows))
+                    continue
+                if slug == 'fundo':
+                    if rows:
+                        from src.ui.widgets.preficha_fundo_html import write_fundo_pages
+                        generated.append(write_fundo_pages(
+                            dialog=self,
+                            title=title,
+                            rows=rows,
+                            output_dir=output_dir,
+                            page_css=_page_css,
+                            javascript=js,
+                            photo_fn=_photo,
+                            metrics_fn=_segment_geometry_metrics,
+                        ))
+                    continue
+
                 body_parts = []
                 for row in rows:
-                    cells = ''.join(
-                        f"<td>{html.escape(str(row.get(h, '')))}</td>"
-                        for h in headers
-                    )
+                    cells = ''.join(_render_td(h, row, slug) for h in headers)
                     extra = extra_td_fn(row) if extra_td_fn else ''
                     body_parts.append(f"<tr>{cells}{extra}</tr>")
                 th_row = ''.join(f'<th>{html.escape(h)}</th>' for h in headers) + (extra_th or '')
                 document = (
                     f'<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
-                    f'<title>{html.escape(title)}</title><style>{css}</style></head>'
+                    f'<title>{html.escape(title)}</title><style>{css}</style>{js}</head>'
                     f'<body><h1>{html.escape(title)}</h1>'
                     f'<div class="meta">Obra: <b>{html.escape(self._obra)}</b> | '
                     f'Pavimento: <b>{html.escape(self._pavimento)}</b> | '
                     f'Gerado: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | '
-                    f'Registros: {len(rows)}</div>'
+                    f'Registros: {len(rows)} | '
+                    f'<button onclick="exportAnotacoes()" style="background:#2a2a00;color:#f0b840;border:1px solid #554400;padding:2px 8px;cursor:pointer">Exportar Anotações</button>'
+                    f'</div>'
+                    f'<pre id="_aten_export" style="display:none"></pre>'
                     f'<table><thead><tr>{th_row}</tr></thead>'
                     f'<tbody>{"".join(body_parts)}</tbody></table></body></html>'
                 )

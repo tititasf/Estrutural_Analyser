@@ -1,22 +1,20 @@
 #!/usr/bin/env python
-"""
-headless_sa_analise.py
-Roda a analise SA completa (DXFLoader -> SlabTracer -> BeamTracer -> pillar_report)
-sem janela visivel, popula o PreValidationDialog headless e gera todos os HTMLs.
+"""Exporta o pack SA usando o mesmo projeto, DXF e motor da interface humana.
 
-Uso:
-    python scripts/arete/headless_sa_analise.py \
-        --obra Obra_TREINO_1 \
-        --pav 13_PAV \
-        --dxf "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-1_Ingestao/Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.dxf"
+O script resolve o registro ``projects`` exibido no Structural Analyzer,
+carrega seu ``dxf_path`` e executa o próprio fluxo da Análise Geral em modo
+offscreen e somente leitura.
 """
 from __future__ import annotations
 
 import os
 import sys
 import re
+import json
 import types
 import argparse
+import subprocess
+import tempfile
 from pathlib import Path
 
 # QT_QPA_PLATFORM=offscreen ANTES de qualquer import Qt
@@ -108,8 +106,19 @@ def _fix_nulo_sides(pillar_report: dict, slabs: list, max_dist: float = 300.0) -
             match = next((info for info in slab_info if info[0] == sn), None)
             if not match:
                 continue
-            scx, scy = match[1], match[2]
-            le['side'] = _derive_side(pcx, pcy, scx, scy, horizontal)
+            _scx, _scy, sx0, sy0, sx1, sy1 = match[1], match[2], match[3], match[4], match[5], match[6]
+            side = _derive_side(pcx, pcy, _scx, _scy, horizontal)
+            # Para C/D, exigir sobreposicao no eixo perpendicular a projecao.
+            # Lajes que toquem apenas o canto do pilar (sem sobreposicao real em X/Y)
+            # sao deixadas com side='NULO' para _get_side_cell tratar geometricamente.
+            if side in ('C', 'D'):
+                if horizontal:
+                    if sy1 < py0 or sy0 > py1:
+                        continue  # laje fora do alcance Y da face curta
+                else:
+                    if sx1 < px0 or sx0 > px1:
+                        continue  # laje fora do alcance X da face curta
+            le['side'] = side
             le['side_source'] = 'relative_position_fallback'
             fixed += 1
 
@@ -129,8 +138,28 @@ def _fix_nulo_sides(pillar_report: dict, slabs: list, max_dist: float = 300.0) -
             continue
         candidates.sort()
         seen_sides: set = set()
-        for dist, sn, scx, scy in candidates[:4]:
+        for dist, sn, scx, scy, sx0, sy0, sx1, sy1 in [
+            (d, s, x, y, i[3], i[4], i[5], i[6])
+            for d, s, x, y in candidates
+            for i in slab_info
+            if i[0] == s
+        ][:4]:
             side = _derive_side(pcx, pcy, scx, scy, horizontal)
+            # Para lados C/D (face curta), exigir sobreposicao de bbox no eixo
+            # perpendicular a projecao. Uma laje que nao sobrepoe o pilar em X
+            # (para VERTICAL) ou em Y (para HORIZONTAL) esta num quadrante errado.
+            if side in ('C', 'D'):
+                # Exige sobreposicao real no eixo perpendicular a projecao.
+                # Uma laje que inicia APOS a borda do pilar (gap > 0) esta no canto
+                # de outro lado (A/B), nao na face C/D.
+                if horizontal:
+                    # HORIZONTAL: C/D = faces W/E; projecao em X → checar sobreposicao em Y
+                    if sy1 < py0 or sy0 > py1:
+                        continue  # laje fora do alcance Y da face curta
+                else:
+                    # VERTICAL: C/D = faces N/S; projecao em Y → checar sobreposicao em X
+                    if sx1 < px0 or sx0 > px1:
+                        continue  # laje fora do alcance X da face curta
             if side in seen_sides:
                 continue  # um lado ja tem laje
             seen_sides.add(side)
@@ -216,7 +245,7 @@ def _bind_mainwindow_methods(runner: HeadlessRunner) -> None:
 # Pipeline principal
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_analysis(
+def _run_legacy_analysis(
     dxf_path: str,
     obra: str,
     pavimento: str,
@@ -329,7 +358,9 @@ def run_analysis(
                                          'bbox': (min(xs), min(ys), max(xs), max(ys))})
 
     runner.beams_found = beam_tracer.detect_beams(
-        texts, all_geo, visual_obstacles=visual_obstacles
+        texts,
+        all_geo,
+        visual_obstacles=visual_obstacles,
     )
 
     # Normalizar nomes
@@ -371,7 +402,14 @@ def run_analysis(
     )
     _db_path = 'D:/Agente-cad-PYSIDE/project_data.vision'
 
-    beam_texts = runner._extract_beam_texts()
+    beam_texts = [
+        {
+            'text': text.get('text', ''),
+            'pos': list(text.get('pos') or [0, 0]),
+            'layer': text.get('layer', ''),
+        }
+        for text in texts
+    ]
 
     from src.ui.widgets.pre_validation_dialog import PreValidationDialog
     dlg = PreValidationDialog(
@@ -412,20 +450,167 @@ def run_analysis(
 # CLI
 # ─────────────────────────────────────────────────────────────────────────────
 
-_DXF_DEFAULT = (
-    'D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/'
-    'Fase-1_Ingestao/Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF/'
-    'TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.dxf'
-)
+_DB_DEFAULT = 'D:/Agente-cad-PYSIDE/project_data.vision'
+
+
+def _generate_fv_n3_nova_previews(
+    obra_dir: Path,
+    fv_results: list[dict],
+    output_dir: Path,
+) -> tuple[list[str], list[str]]:
+    """Gera N3 NOVA com o resultado do fluxo humano, em diretórios isolados."""
+    from src.core.fv_generation_contract import build_fv_generation_contract
+
+    script = _REPO_ROOT / 'scripts' / 'gerar_fv_dxf_stog.py'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    input_dir = output_dir.parent / 'contracts'
+    input_dir.mkdir(parents=True, exist_ok=True)
+    generated: list[str] = []
+    failed: list[str] = []
+    contracts: dict[str, dict] = {}
+    for fv_data in fv_results:
+        if not isinstance(fv_data, dict):
+            continue
+        raw_name = str(fv_data.get('viga_nome') or '')
+        contract = build_fv_generation_contract(raw_name, fv_data)
+        beam_name = str(contract.get('name') or '')
+        if beam_name and contract.get('segments_rich'):
+            contracts[beam_name] = contract
+
+    for beam_name, contract in contracts.items():
+        contract_path = input_dir / f'{beam_name}_fundo.json'
+        contract_path.write_text(
+            json.dumps(contract, ensure_ascii=False, indent=2),
+            encoding='utf-8',
+        )
+        command = [
+            sys.executable,
+            str(script),
+            '--obra', str(obra_dir),
+            '--item', beam_name,
+            '--visual-mode', 'NOVA',
+            '--output-dir', str(output_dir),
+            '--input-dir', str(input_dir),
+        ]
+        result = subprocess.run(
+            command,
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=120,
+            # O destino já é temporário e isolado. Remover a trava aqui evita
+            # que guarded_saveas desvie o candidato para outro diretório.
+            env={
+                key: value for key, value in os.environ.items()
+                if key != 'CAD_MOTOR_HEADLESS'
+            },
+        )
+        expected = output_dir / f'FV_preview_{beam_name}.dxf'
+        if result.returncode == 0 and expected.is_file():
+            generated.append(beam_name)
+        else:
+            failed.append(beam_name)
+            detail = (result.stderr or result.stdout or '').strip()[-300:]
+            print(
+                f'[SA-HUMAN] N3 NOVA ausente para {beam_name}: {detail}',
+                flush=True,
+            )
+    return generated, failed
+
+
+def run_analysis(
+    obra: str,
+    pavimento: str,
+    *,
+    project_id: str | None = None,
+    db_path: str = _DB_DEFAULT,
+) -> dict:
+    """Executa a Análise Geral real do SA e exporta um pack imutável."""
+    from src.core.sa_project_source import resolve_sa_project_from_db
+
+    project = resolve_sa_project_from_db(
+        db_path=db_path,
+        obra=obra,
+        pavimento=pavimento,
+        project_id=project_id,
+    )
+    source_path = project['dxf_path']
+    project_id = str(project['id'])
+    project_name = str(
+        project.get('pavement_name') or project.get('name') or pavimento
+    )
+    print(f'[SA-HUMAN] project_id: {project_id}', flush=True)
+    print(f'[SA-HUMAN] projects.dxf_path: {source_path}', flush=True)
+
+    # Deve existir antes do MainWindow: alguns robôs inicializam durante o
+    # construtor. Qualquer escrita incidental será desviada para candidato.
+    os.environ['CAD_MOTOR_HEADLESS'] = '1'
+    from main import MainWindow
+
+    window = MainWindow()
+    window._sa_read_only_run = True
+    window.current_project_id = project_id
+    window.active_project_id = project_id
+    window.current_project_name = project_name
+    try:
+        window.load_project_action()
+        if not window.dxf_data:
+            raise RuntimeError(
+                f'SA humano não carregou projects.dxf_path: {source_path}'
+            )
+
+        # É o mesmo método ligado ao botão "Iniciar Análise Geral".
+        # O modal não é aberto; decisões humanas persistidas já foram
+        # carregadas pelo projeto e permanecem protegidas na memória.
+        window.process_pillars_action(skip_pre_validation=True)
+        if getattr(window, '_analysis_in_progress', False):
+            raise RuntimeError('Análise Geral humana não foi finalizada')
+
+        obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
+        fv_results = list(getattr(window, '_last_fv_results', []) or [])
+        n3_tmp_root = _REPO_ROOT / 'scripts' / 'arete' / 'tmp'
+        n3_tmp_root.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(
+            prefix='sa_n3_nova_', dir=str(n3_tmp_root)
+        ) as n3_temp:
+            generated, failed = _generate_fv_n3_nova_previews(
+                obra_dir, fv_results, Path(n3_temp) / 'dxf'
+            )
+            print(
+                f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
+                f'{len(failed)} ausente(s)',
+                flush=True,
+            )
+            dialog = window._build_pre_validation_dialog()
+            dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
+            dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
+            html_dir = dialog._export_html_snapshot()
+        print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
+        return {
+            'obra': obra,
+            'pavimento': project_name,
+            'project_id': project_id,
+            'dxf_path': source_path,
+            'n_pilares': len(window.pillars_found),
+            'n_slabs': len(window.slabs_found),
+            'n_beams': len(window.beams_found),
+            'html_dir': str(html_dir) if html_dir else '',
+        }
+    finally:
+        window.close()
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description='Analise SA headless + geracao de HTMLs'
+        description='Exporta HTMLs pelo mesmo fluxo humano do Structural Analyzer'
     )
     ap.add_argument('--obra',  default='Obra_TREINO_1')
     ap.add_argument('--pav',   default='13_PAV')
-    ap.add_argument('--dxf',   default=_DXF_DEFAULT)
+    ap.add_argument(
+        '--project-id', default=None,
+        help='ID exato selecionado no SA; sem ele, usa o primeiro projeto do combo',
+    )
+    ap.add_argument('--db', default=_DB_DEFAULT)
     ap.add_argument('--open',  action='store_true',
                     help='Abrir HTML no navegador apos gerar')
     args = ap.parse_args()
@@ -435,9 +620,10 @@ def main() -> None:
     app = QApplication.instance() or QApplication(sys.argv)
 
     result = run_analysis(
-        dxf_path=args.dxf,
         obra=args.obra,
         pavimento=args.pav,
+        project_id=args.project_id,
+        db_path=args.db,
     )
 
     print('\n' + '=' * 60, flush=True)
@@ -446,6 +632,7 @@ def main() -> None:
     print(f'  Lajes   : {result["n_slabs"]}', flush=True)
     print(f'  Vigas   : {result["n_beams"]}', flush=True)
     print(f'  HTMLs   : {result["html_dir"]}', flush=True)
+    print(f'  Fonte   : {result["dxf_path"]}', flush=True)
     print('=' * 60, flush=True)
 
     if args.open and result['html_dir']:

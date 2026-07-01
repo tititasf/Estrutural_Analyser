@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Guia de Convenção de Níveis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; color: #ccc; font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; }
+  h1 { color: #4fc3a1; font-size: 18px; border-bottom: 2px solid #4fc3a1; padding-bottom: 6px; margin-bottom: 16px; }
+  h2 { color: #7eb8f7; font-size: 14px; margin: 24px 0 8px; border-left: 3px solid #7eb8f7; padding-left: 8px; }
+  h3 { color: #f0b840; font-size: 12px; margin: 16px 0 6px; }
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+  .intro { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; color: #aaa; font-size: 12px; }
+  .intro b { color: #4fc3a1; }
+
+  /* ── Tabela de faces ── */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #1e1e1e; color: #4fc3a1; padding: 6px 10px; text-align: left; border-bottom: 1px solid #333; }
+  td { padding: 5px 10px; border-bottom: 1px solid #222; vertical-align: top; }
+  tr:hover td { background: #181818; }
+  .lbl-A { color: #4fc3a1; font-weight: bold; }
+  .lbl-B { color: #7eb8f7; font-weight: bold; }
+  .lbl-C { color: #c47ef7; font-weight: bold; }
+  .lbl-D { color: #f0b840; font-weight: bold; }
+
+  /* ── Casos ── */
+  .caso { background: #161616; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+  .caso-title { font-size: 13px; font-weight: bold; color: #4fc3a1; margin-bottom: 8px; }
+  .caso-body { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .caso-text { flex: 1; min-width: 200px; font-size: 12px; color: #aaa; }
+  .caso-text ul { margin: 6px 0 0 16px; }
+  .caso-text li { margin: 3px 0; }
+  .caso-diag { flex-shrink: 0; }
+
+  /* Diagrama ASCII melhorado */
+  .ascii { background: #0d0d0d; border: 1px solid #222; border-radius: 4px; padding: 10px 14px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.55; white-space: pre; color: #aaa; font-variant-ligatures: none; -webkit-font-feature-settings: 'liga' 0; font-feature-settings: 'liga' 0; letter-spacing: 0; }
+  .ascii .viga { color: #7eb8f7; }
+  .ascii .laje { color: #4fc3a1; }
+  .ascii .pilar { color: #f0b840; }
+  .ascii .faceC { color: #c47ef7; }
+  .ascii .faceD { color: #f0b840; }
+  .ascii .faceA { color: #4fc3a1; }
+  .ascii .faceB { color: #7eb8f7; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 4px; }
+  .tag-viga { background: #1a2030; color: #7eb8f7; }
+  .tag-laje { background: #102010; color: #4fc3a1; }
+  .tag-nulo { background: #222; color: #666; }
+
+  .result-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .result-face { padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; border-left: 3px solid; }
+  .rf-A { background: #122012; border-color: #4fc3a1; color: #4fc3a1; }
+  .rf-B { background: #12122a; border-color: #7eb8f7; color: #7eb8f7; }
+  .rf-C { background: #2a1228; border-color: #c47ef7; color: #c47ef7; }
+  .rf-D { background: #2a1e10; border-color: #f0b840; color: #f0b840; }
+
+  .rule-box { background: #0d1a0d; border: 1px solid #2a4a2a; border-radius: 4px; padding: 10px 14px; margin: 12px 0; font-size: 12px; }
+  .rule-box .rule-title { color: #4fc3a1; font-weight: bold; margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
+  code { background: #1e1e1e; color: #e67; padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+
+  /* ── Carrossel de exemplos ── */
+  .carousel { display: flex; flex-direction: column; gap: 0; }
+  .carousel-slides { position: relative; }
+  .carousel-slide { display: none; }
+  .carousel-slide.active { display: block; }
+  .slide-label {
+    text-align: center; font-size: 10px; color: #555; margin-top: 4px;
+    font-style: italic; letter-spacing: 0.03em;
+  }
+  .slide-label.real { color: #4fc3a1; }
+  .carousel-nav {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px;
+  }
+  .carousel-btn {
+    background: #1e1e1e; color: #888; border: 1px solid #333;
+    padding: 3px 14px; cursor: pointer; border-radius: 3px;
+    font-size: 16px; line-height: 1; transition: background 0.15s;
+    user-select: none;
+  }
+  .carousel-btn:hover { background: #2a2a2a; color: #ccc; }
+  .carousel-btn:active { background: #333; }
+  .carousel-counter {
+    color: #555; font-size: 11px; min-width: 48px;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .carousel-img { max-width: 100%; border-radius: 4px; border: 1px solid #2a2a2a; display: block; }
+  .slide-placeholder {
+    background: #111; border: 1px dashed #2a2a2a; border-radius: 4px;
+    padding: 28px 40px; text-align: center; color: #333; font-size: 11px;
+    font-style: italic; min-width: 260px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p style="font-size:11px; color:#555; margin-bottom:16px;">
+    <a href="../index.html" style="color:#7eb8f7; text-decoration:none;">&#8592; Voltar ao índice</a>
+  </p>
+
+  <h1>Guia de Convenção de Níveis</h1>
+
+  <div class="intro">
+    <b>O que é isso?</b> Este documento define a hierarquia de cotas (níveis Z) usada
+    em toda a estrutura. Cada elemento tem sua cota de referência: topo da laje,
+    fundo da viga, topo do pilar, etc. Conhecer a hierarquia evita erros de
+    preenchimento das fichas.
+    <br><br>
+    <b>Unidade:</b> todas as cotas em <b>centímetros</b>, relativas ao datum do projeto.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>1. Hierarquia de Níveis — Corte Vertical</h2>
+
+  <div class="ascii"> Seção vertical — hierarquia completa de níveis
+
+ ↑ nivel_topo_pilar = nivel_topo_laje (pav atual)
+ │
+ <span class="laje">═══════════════════════════════════════════</span>  ← nivel_topo_laje  (ex: 852.19)
+ │  Laje: espessura 12 cm
+ <span class="laje">───────────────────────────────────────────</span>  ← nivel_fundo_laje (ex: 840.19)
+ │
+ │  <span class="pilar">│ Pilar │</span>            Viga V10
+ │  <span class="pilar">│       │</span>        ┌──────────────┐  ← nivel_topo_viga = nivel_fundo_laje
+ │  <span class="pilar">│ P12   │</span>        │   19 × 60    │
+ │  <span class="pilar">│       │</span>        │              │
+ │  <span class="pilar">│       │</span>        └──────────────┘  ← nivel_fundo_viga (ex: 792.19)
+ │  <span class="pilar">│       │</span>
+ │
+ <span class="laje">═══════════════════════════════════════════</span>  ← nivel_topo_laje_inf (pav anterior)
+
+ Relações:
+   nivel_fundo_laje  = nivel_topo_laje  − espessura_laje
+   nivel_topo_viga   = nivel_topo_laje  (em geral: viga encosta na laje)
+   nivel_fundo_viga  = nivel_topo_viga  − altura_viga</div>
+
+  <h2>2. Casos e Variações de Nível</h2>
+  <div class="caso">
+    <div class="caso-title">Caso 1 — Padrão — laje e viga no mesmo nível de topo</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O caso mais comum: topo da viga alinhado com o fundo da laje.
+        A laje pousa diretamente sobre a viga.</p>
+        <ul>
+          <li><code>nivel_topo_laje</code> = cota da superfície da laje</li>
+          <li><code>nivel_topo_viga</code> = <code>nivel_fundo_laje</code></li>
+          <li><code>nivel_fundo_viga</code> = nivel_topo_viga − altura_viga</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">topo_laje = 852.19</div>
+          <div class="result-face rf-B">topo_viga = 840.19</div>
+          <div class="result-face rf-C">fundo_viga = 780.19</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="ni1">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Caso padrão — laje + viga alinhadas no mesmo nível:
+
+ <span class="laje">══════════════════════════════════════</span>  852.19  ← nivel_topo_laje
+ │  Laje  12 cm
+ <span class="laje">──────────────────────────────────────</span>  840.19  ← nivel_fundo_laje
+        │  Viga V10  19×60              │  840.19  ← nivel_topo_viga
+        │                               │
+        └───────────────────────────────┘  780.19  ← nivel_fundo_viga
+ <span class="laje">══════════════════════════════════════</span>  768.00  ← laje pav inferior</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('ni1')">&#8249;</button>
+            <span class="carousel-counter" id="ni1-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('ni1')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 2 — Viga rebaixada — topo abaixo do fundo da laje</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A viga tem seu topo abaixo do fundo da laje — há uma folga entre eles.
+        Ocorre em vigas de escalonamento ou em detalhes especiais de projeto.</p>
+        <ul>
+          <li><code>nivel_topo_viga</code> &lt; <code>nivel_fundo_laje</code> → folga entre eles</li>
+          <li>A folga pode ser preenchida com outro elemento ou ser espaço livre</li>
+          <li>Checar cotas separadamente — não assumir que são iguais</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">topo_laje = 852.19</div>
+          <div class="result-face rf-B">fundo_laje = 840.19</div>
+          <div class="result-face rf-C">topo_viga = 825.00 (rebaixado)</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="ni2">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Viga rebaixada — topo da viga abaixo do fundo da laje:
+
+ <span class="laje">══════════════════════════════════════</span>  852.19  ← nivel_topo_laje
+ │  Laje  12 cm
+ <span class="laje">──────────────────────────────────────</span>  840.19  ← nivel_fundo_laje
+
+      ← espaço vazio (folga) →
+
+        │  Viga rebaixada V10b │  825.00  ← nivel_topo_viga (rebaixado)
+        │       19×45          │
+        └──────────────────────┘  780.00  ← nivel_fundo_viga
+
+ <span class="laje">══════════════════════════════════════</span>  768.00  ← laje pav inferior
+
+ Folga = nivel_fundo_laje − nivel_topo_viga = 15 cm</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('ni2')">&#8249;</button>
+            <span class="carousel-counter" id="ni2-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('ni2')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 3 — Pilar stub — topo do pilar diferente do topo da laje</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar pode ter sua cota de topo diferente da laje (stub acima ou
+        encerrado abaixo). Cada elemento tem sua cota própria — não assumir que
+        topo do pilar = topo da laje.</p>
+        <ul>
+          <li><code>nivel_topo_pilar</code> pode estar acima da laje (stub) ou abaixo (pilar curto)</li>
+          <li><code>nivel_base_pilar</code> = cota da fundação ou da laje inferior</li>
+          <li>Para fichas de pilar: usar as cotas próprias do pilar, não da laje</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">topo_pilar = 870.00 (stub)</div>
+          <div class="result-face rf-B">topo_laje = 852.19</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="ni3">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Pilar mais alto que a laje (pilar stub acima da laje):
+
+ <span class="pilar">     │ Stub │</span>                      870.00  ← nivel_topo_pilar (acima laje)
+ <span class="laje">═════╪══════╪═════════════════════</span>  852.19  ← nivel_topo_laje
+ <span class="pilar">     │      │</span> Laje  12 cm
+ <span class="laje">─────╪──────╪─────────────────────</span>  840.19  ← nivel_fundo_laje
+ <span class="pilar">     │ P12  │</span>     Viga V10
+ <span class="pilar">     │      │</span>  ┌────────────┐       840.19  ← nivel_topo_viga
+ <span class="pilar">     │      │</span>  │   19×60    │
+ <span class="pilar">     │      │</span>  └────────────┘       780.19  ← nivel_fundo_viga
+
+ nivel_topo_pilar pode ser diferente (acima ou abaixo) de nivel_topo_laje</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('ni3')">&#8249;</button>
+            <span class="carousel-counter" id="ni3-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('ni3')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>3. Tabela de Referência de Níveis</h2>
+
+  <table>
+    <tr><th>Campo</th><th>Elemento</th><th>Descrição</th><th>Como calcular</th></tr>
+    <tr>
+      <td><code>nivel_topo_laje</code></td>
+      <td>Laje</td>
+      <td>Cota da superfície superior da laje</td>
+      <td>Lido diretamente do DXF</td>
+    </tr>
+    <tr>
+      <td><code>nivel_fundo_laje</code></td>
+      <td>Laje</td>
+      <td>Cota da face inferior da laje</td>
+      <td>nivel_topo_laje − espessura_laje</td>
+    </tr>
+    <tr>
+      <td><code>nivel_topo_viga</code></td>
+      <td>Viga</td>
+      <td>Cota do topo da seção da viga</td>
+      <td>Em geral = nivel_fundo_laje</td>
+    </tr>
+    <tr>
+      <td><code>nivel_fundo_viga</code></td>
+      <td>Viga</td>
+      <td>Cota do sofito (fundo) da viga</td>
+      <td>nivel_topo_viga − altura_viga</td>
+    </tr>
+    <tr>
+      <td><code>nivel_topo_pilar</code></td>
+      <td>Pilar</td>
+      <td>Cota do topo do pilar neste pavimento</td>
+      <td>Lido diretamente do DXF</td>
+    </tr>
+    <tr>
+      <td><code>nivel_base_pilar</code></td>
+      <td>Pilar</td>
+      <td>Cota da base do pilar neste pavimento</td>
+      <td>Lido do DXF ou = nivel_topo_laje_inf</td>
+    </tr>
+  </table>
+
+</div>
+<script>
+function _carouselMove(id, dir) {
+  const el = document.getElementById(id);
+  const slides = el.querySelectorAll('.carousel-slide');
+  const counter = document.getElementById(id + '-counter');
+  let cur = Array.from(slides).findIndex(s => s.classList.contains('active'));
+  slides[cur].classList.remove('active');
+  cur = (cur + dir + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  counter.textContent = (cur + 1) + ' / ' + slides.length;
+}
+function prevSlide(id) { _carouselMove(id, -1); }
+function nextSlide(id) { _carouselMove(id, +1); }
+</script>
+</body>
+</html>

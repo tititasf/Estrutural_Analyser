@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Interpretação ABCD — Pilares</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; color: #ccc; font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; }
+  h1 { color: #4fc3a1; font-size: 18px; border-bottom: 2px solid #4fc3a1; padding-bottom: 6px; margin-bottom: 16px; }
+  h2 { color: #7eb8f7; font-size: 14px; margin: 24px 0 8px; border-left: 3px solid #7eb8f7; padding-left: 8px; }
+  h3 { color: #f0b840; font-size: 12px; margin: 16px 0 6px; }
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+  .intro { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; color: #aaa; font-size: 12px; }
+  .intro b { color: #4fc3a1; }
+
+  /* ── Tabela de faces ── */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #1e1e1e; color: #4fc3a1; padding: 6px 10px; text-align: left; border-bottom: 1px solid #333; }
+  td { padding: 5px 10px; border-bottom: 1px solid #222; vertical-align: top; }
+  tr:hover td { background: #181818; }
+  .lbl-A { color: #4fc3a1; font-weight: bold; }
+  .lbl-B { color: #7eb8f7; font-weight: bold; }
+  .lbl-C { color: #c47ef7; font-weight: bold; }
+  .lbl-D { color: #f0b840; font-weight: bold; }
+
+  /* ── Diagrama de pilar ── */
+  .diagrams { display: flex; gap: 40px; flex-wrap: wrap; margin: 16px 0; align-items: flex-start; }
+  .diag-block { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .diag-title { color: #aaa; font-size: 11px; margin-bottom: 4px; text-align: center; }
+  .diag-grid { display: grid; grid-template-columns: auto auto auto; grid-template-rows: auto auto auto; gap: 0; }
+  .diag-empty { width: 90px; height: 30px; }
+  .diag-top    { grid-column: 2; grid-row: 1; text-align: center; padding: 4px 0; font-weight: bold; font-size: 11px; }
+  .diag-left   { grid-column: 1; grid-row: 2; text-align: right; padding: 0 6px; font-weight: bold; font-size: 11px; display: flex; align-items: center; justify-content: flex-end; }
+  .diag-pillar { grid-column: 2; grid-row: 2; border: 3px solid #555; background: #1e1e1e; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
+  .diag-right  { grid-column: 3; grid-row: 2; text-align: left;  padding: 0 6px; font-weight: bold; font-size: 11px; display: flex; align-items: center; }
+  .diag-bot    { grid-column: 2; grid-row: 3; text-align: center; padding: 4px 0; font-weight: bold; font-size: 11px; }
+  .diag-pillar.vert  { width: 60px; height: 100px; }
+  .diag-pillar.horiz { width: 120px; height: 50px; }
+  .hint { font-size: 10px; color: #555; margin-top: 4px; text-align: center; }
+
+  /* ── Casos ── */
+  .caso { background: #161616; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+  .caso-title { font-size: 13px; font-weight: bold; color: #4fc3a1; margin-bottom: 8px; }
+  .caso-body { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .caso-text { flex: 1; min-width: 200px; font-size: 12px; color: #aaa; }
+  .caso-text ul { margin: 6px 0 0 16px; }
+  .caso-text li { margin: 3px 0; }
+  .caso-diag { flex-shrink: 0; }
+
+  /* Diagrama ASCII melhorado */
+  .ascii { background: #0d0d0d; border: 1px solid #222; border-radius: 4px; padding: 10px 14px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.55; white-space: pre; color: #aaa; font-variant-ligatures: none; -webkit-font-feature-settings: 'liga' 0; font-feature-settings: 'liga' 0; letter-spacing: 0; }
+  .ascii .viga { color: #7eb8f7; }
+  .ascii .laje { color: #4fc3a1; }
+  .ascii .pilar { color: #f0b840; }
+  .ascii .faceC { color: #c47ef7; }
+  .ascii .faceD { color: #f0b840; }
+  .ascii .faceA { color: #4fc3a1; }
+  .ascii .faceB { color: #7eb8f7; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 4px; }
+  .tag-viga { background: #1a2030; color: #7eb8f7; }
+  .tag-laje { background: #102010; color: #4fc3a1; }
+  .tag-nulo { background: #222; color: #666; }
+
+  .result-row { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+  .face-block { border: 1px solid #1a1a1a; border-radius: 4px; overflow: hidden; }
+  .face-hdr { padding: 4px 10px; font-size: 11px; font-weight: bold; letter-spacing: 0.02em; }
+  .fh-A { background: #0a1a0a; color: #4fc3a1; border-left: 3px solid #4fc3a1; }
+  .fh-B { background: #0a1020; color: #7eb8f7; border-left: 3px solid #7eb8f7; }
+  .fh-C { background: #1a0a28; color: #c47ef7; border-left: 3px solid #c47ef7; }
+  .fh-D { background: #20100a; color: #f0b840; border-left: 3px solid #f0b840; }
+  .cat-row { display: flex; align-items: flex-start; gap: 7px; padding: 5px 8px; border-top: 1px solid #141414; flex-wrap: wrap; background: #0d0d0d; cursor: pointer; }
+  .cat-row.approved { background: #0b180b; }
+  .aprovado-cb { width: 14px; height: 14px; margin-top: 3px; accent-color: #4fc3a1; cursor: pointer; flex-shrink: 0; }
+  .aprovado-lbl { font-size: 9px; color: #3a3a3a; min-width: 52px; margin-top: 4px; flex-shrink: 0; letter-spacing: 0.03em; }
+  .cat-row.approved .aprovado-lbl { color: #4fc3a1; }
+  .cat-badge { padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: bold; white-space: nowrap; flex-shrink: 0; border-left: 2px solid; }
+  .cb-laje  { background: #0c1c0c; color: #4fc3a1; border-color: #4fc3a1; }
+  .cb-passa { background: #0e1828; color: #7eb8f7; border-color: #7eb8f7; }
+  .cb-chega { background: #20140a; color: #f0b840; border-color: #f0b840; }
+  .cat-detail { font-size: 10px; color: #666; width: 100%; padding-left: 73px; padding-top: 2px; line-height: 1.6; }
+  .cat-detail .dk { color: #4a4a4a; }
+  .cat-detail .dv { color: #8a8a8a; }
+  .cat-detail .nulo { color: #2a2a2a; font-style: italic; }
+
+  .rule-box { background: #0d1a0d; border: 1px solid #2a4a2a; border-radius: 4px; padding: 10px 14px; margin: 12px 0; font-size: 12px; }
+  .rule-box .rule-title { color: #4fc3a1; font-weight: bold; margin-bottom: 6px; }
+
+  .casos-debug { background: #1a1000; border: 1px solid #3a2a00; border-radius: 6px; padding: 14px 16px; margin-top: 20px; }
+  .casos-debug h2 { color: #f0b840; border-color: #f0b840; }
+  .debug-empty { color: #555; font-size: 12px; font-style: italic; padding: 12px 0; }
+
+  hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
+  code { background: #1e1e1e; color: #e67; padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+
+  /* ── Carrossel de exemplos ── */
+  .carousel { display: flex; flex-direction: column; gap: 0; }
+  .carousel-slides { position: relative; }
+  .carousel-slide { display: none; }
+  .carousel-slide.active { display: block; }
+  .slide-label {
+    text-align: center; font-size: 10px; color: #555; margin-top: 4px;
+    font-style: italic; letter-spacing: 0.03em;
+  }
+  .slide-label.real { color: #4fc3a1; }
+  .carousel-nav {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px;
+  }
+  .carousel-btn {
+    background: #1e1e1e; color: #888; border: 1px solid #333;
+    padding: 3px 14px; cursor: pointer; border-radius: 3px;
+    font-size: 16px; line-height: 1; transition: background 0.15s;
+    user-select: none;
+  }
+  .carousel-btn:hover { background: #2a2a2a; color: #ccc; }
+  .carousel-btn:active { background: #333; }
+  .carousel-counter {
+    color: #555; font-size: 11px; min-width: 48px;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .carousel-img { max-width: 100%; border-radius: 4px; border: 1px solid #2a2a2a; display: block; }
+  .diagram-svg {
+    width: 500px; max-width: 100%; height: auto; display: block;
+    background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 4px;
+  }
+  .slide-placeholder {
+    background: #111; border: 1px dashed #2a2a2a; border-radius: 4px;
+    padding: 28px 40px; text-align: center; color: #333; font-size: 11px;
+    font-style: italic; min-width: 260px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Guia de Interpretação ABCD — Pilares</h1>
+
+  <div class="intro">
+    <b>O que é isso?</b> Este documento é o gabarito visual e evolutivo da interpretação de faces ABCD dos pilares.
+    Cada face (A, B, C, D) do pilar conecta a uma <b>laje</b>, a uma <b>viga</b>, ou é <b>vazia</b>.
+    A atribuição depende da orientação do pilar (VERTICAL vs HORIZONTAL) e da geometria dos elementos adjacentes.
+    <br><br>
+    <b>Como usar:</b> Consulte antes de avaliar qualquer ficha. A seção "Casos Debugados" (em baixo)
+    cresce a cada revisão — adicione prints de exemplos reais conforme formos identificando padrões.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>1. Convenção de Faces por Orientação</h2>
+
+  <div class="diagrams">
+
+    <div class="diag-block">
+      <div class="diag-title">PILAR VERTICAL (altura &gt; largura)<br><small>ex: 19×66 cm</small></div>
+      <div class="diag-grid">
+        <div></div>
+        <div class="diag-top lbl-C">▲ C<br><small style="color:#666">topo / norte<br>face curta</small></div>
+        <div></div>
+        <div class="diag-left lbl-A">A ◄<br><small style="color:#666;text-align:right;display:block">oeste<br>face longa</small></div>
+        <div class="diag-pillar vert">pilar</div>
+        <div class="diag-right lbl-B">► B<br><small style="color:#666">leste<br>face longa</small></div>
+        <div></div>
+        <div class="diag-bot lbl-D">▼ D<br><small style="color:#666">base / sul<br>face curta</small></div>
+        <div></div>
+      </div>
+      <div class="hint">A e B = faces longas (laje encosta direto)<br>C e D = faces curtas (viga passa ou laje flutua)</div>
+    </div>
+
+    <div class="diag-block">
+      <div class="diag-title">PILAR HORIZONTAL (largura &gt; altura)<br><small>ex: 66×19 cm</small></div>
+      <div class="diag-grid">
+        <div></div>
+        <div class="diag-top lbl-B">▲ B<br><small style="color:#666">topo / norte<br>face longa</small></div>
+        <div></div>
+        <div class="diag-left lbl-C">C ◄<br><small style="color:#666;text-align:right;display:block">oeste<br>face curta</small></div>
+        <div class="diag-pillar horiz">pilar</div>
+        <div class="diag-right lbl-D">► D<br><small style="color:#666">leste<br>face curta</small></div>
+        <div></div>
+        <div class="diag-bot lbl-A">▼ A<br><small style="color:#666">base / sul<br>face longa</small></div>
+        <div></div>
+      </div>
+      <div class="hint">A e B = faces longas (laje encosta direto)<br>C e D = faces curtas (viga passa ou laje flutua)</div>
+    </div>
+
+  </div>
+
+  <table>
+    <tr>
+      <th>Face</th><th>Pilar VERTICAL (ph &gt; pw)</th><th>Pilar HORIZONTAL (pw &ge; ph)</th><th>Tipo</th>
+    </tr>
+    <tr>
+      <td><span class="lbl-A">A</span></td>
+      <td>Esquerda — oeste</td>
+      <td>Base — sul</td>
+      <td>Longa</td>
+    </tr>
+    <tr>
+      <td><span class="lbl-B">B</span></td>
+      <td>Direita — leste</td>
+      <td>Topo — norte</td>
+      <td>Longa</td>
+    </tr>
+    <tr>
+      <td><span class="lbl-C">C</span></td>
+      <td>Topo — norte</td>
+      <td>Esquerda — oeste</td>
+      <td>Curta</td>
+    </tr>
+    <tr>
+      <td><span class="lbl-D">D</span></td>
+      <td>Base — sul</td>
+      <td>Direita — leste</td>
+      <td>Curta</td>
+    </tr>
+  </table>
+
+  <div class="rule-box">
+    <div class="rule-title">Regra geral de prioridade para cada face</div>
+    <ol style="margin-left:16px; color:#aaa; font-size:12px;">
+      <li>Há <b style="color:#7eb8f7">parede de VIGA</b> alinhada com a face? → <span class="tag tag-viga">VIGA</span></li>
+      <li>A face está dentro da <b style="color:#4fc3a1">área de uma LAJE</b> sem parede de viga? → <span class="tag tag-laje">LAJE</span></li>
+      <li>Nenhum dos dois? → <span class="tag tag-nulo">nulo</span></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>1b. Notação — "Viga que Passa"</h2>
+
+  <div class="rule-box" style="border-color:#3a2060; background:#0d0a1a;">
+    <div class="rule-title" style="color:#c47ef7;">Quando uma viga corre PARALELA à face longa (A ou B) — "Viga que Passa"</div>
+    <p style="color:#aaa; font-size:12px; margin-bottom:8px;">
+      As faces longas (A e B) do pilar ficam alinhadas com a <b>parede lateral de uma viga N-S</b> (para pilar VERTICAL) ou viga E-W (para pilar HORIZONTAL).
+      Essa viga pode se prolongar em <b>uma ou duas direções</b> a partir do pilar — cada direção recebe um nome composto pela <b>face + direção de saída</b>:
+    </p>
+    <table style="font-size:11px; margin:8px 0;">
+      <tr>
+        <th style="color:#c47ef7;">Notação</th>
+        <th>Face</th>
+        <th>Direção que a viga sai</th>
+        <th>Pilar VERTICAL</th>
+      </tr>
+      <tr><td><b style="color:#4fc3a1;">Viga que passa AC</b></td><td>A (oeste/longa)</td><td>para C (norte)</td><td>viga N-S só vai para cima</td></tr>
+      <tr><td><b style="color:#4fc3a1;">Viga que passa AD</b></td><td>A (oeste/longa)</td><td>para D (sul)</td><td>viga N-S só vai para baixo</td></tr>
+      <tr><td><b style="color:#4fc3a1;">Viga que passa AC+AD</b></td><td>A (oeste/longa)</td><td>para C e D</td><td>viga N-S atravessa dos dois lados</td></tr>
+      <tr><td><b style="color:#7eb8f7;">Viga que passa BC</b></td><td>B (leste/longa)</td><td>para C (norte)</td><td>idem, pelo lado B</td></tr>
+      <tr><td><b style="color:#7eb8f7;">Viga que passa BD / BC+BD</b></td><td>B (leste/longa)</td><td>para D / ambos</td><td>—</td></tr>
+    </table>
+    <p style="color:#aaa; font-size:12px; margin:8px 0 4px;">
+      <b>Para as faces curtas C e D</b> (onde uma viga E-W pode passar paralela à face):
+    </p>
+    <table style="font-size:11px; margin:8px 0;">
+      <tr>
+        <th style="color:#c47ef7;">Notação</th>
+        <th>Face</th>
+        <th>Direção que a viga sai</th>
+      </tr>
+      <tr><td><b style="color:#c47ef7;">Viga que passa CA</b></td><td>C (norte/curta)</td><td>viga E-W só vai para A (oeste)</td></tr>
+      <tr><td><b style="color:#c47ef7;">Viga que passa CB</b></td><td>C (norte/curta)</td><td>viga E-W só vai para B (leste)</td></tr>
+      <tr><td><b style="color:#c47ef7;">Viga que passa CA+CB</b></td><td>C (norte/curta)</td><td>viga E-W atravessa dos dois lados</td></tr>
+      <tr><td><b style="color:#f0b840;">Viga que passa DA / DB / DA+DB</b></td><td>D (sul/curta)</td><td>idem, pelo lado D</td></tr>
+    </table>
+    <p style="color:#888; font-size:11px; margin-top:6px;">
+      ⚠ Quando a viga passa nos <b>dois sentidos com dimensões diferentes</b> (ex: V302 14/55 a oeste e V302 14/70 a leste no mesmo C face),
+      ambas devem ser registradas separadamente: <code>CA: V302 14/55 · CB: V302 14/70</code>
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>2. Exemplos de Interpretação por Face — A, B, C e D</h2>
+  <p style="color:#888; font-size:12px; margin-bottom:4px;">
+    Os exemplos abaixo <b>não são uma lista exaustiva</b> — são gabaritos construídos para treinar a leitura das faces.
+    Cada pilar real pode combinar mais de um padrão, e novos exemplos são adicionados à medida que bugs são encontrados.
+  </p>
+  <p style="color:#666; font-size:11px; margin-bottom:12px;">
+    Todas as quatro faces (A, B, C, D) são interpretadas — embora C e D (faces curtas) apresentem os casos mais complexos,
+    A e B (faces longas) também recebem laje, viga ou nulo dependendo do contexto geométrico do pavimento.
+    Casos 11–12 cobrem os padrões de <b>"viga que passa"</b> em uma ou ambas as direções, com dimensões iguais ou diferentes.
+  </p>
+
+  <!-- CASO 1 -->
+  <div class="caso">
+    <div class="caso-title">Caso 1 — C = VIGA (face topo encosta na lateral da viga acima)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O topo do pilar (face C) encosta na <b>lateral inferior da viga</b> acima. O pilar está dentro de um <b>vão contínuo de laje</b> delimitado por essa viga — o mesmo vão envolve A, B e D.</p>
+        <ul>
+          <li><b>C</b> (topo) = VIGA — a face curta encosta diretamente na lateral da viga acima</li>
+          <li><b>A, B e D</b> = <b>mesma laje</b> (L301) — estão no mesmo vão contínuo; vigas separam lajes, não pilares</li>
+          <li>Se o pilar estiver na <b>borda exterior</b> da construção (sem laje do lado de fora) → A, B e D = <b>nulo</b></li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L115 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L115 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · toda dentro de V108 (E-W)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— dentro do corpo de V108; sem laje em C</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V108 &nbsp;·&nbsp; dim: 24/60 &nbsp;·&nbsp; N: 852.19 &nbsp;→ CA+CB (face curta inteira dentro da viga E-W)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L115 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c1">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+            <svg class="diagram-svg" viewBox="0 0 560 340" role="img" aria-label="Caso 1: pilar VERTICAL, face C (norte/curta) encosta na viga E-W acima">
+              <rect width="560" height="340" fill="#0d0d0d"/>
+              <!-- Laje L115 — vão ao sul -->
+              <rect x="0" y="78" width="560" height="232" fill="#0b180b"/>
+              <!-- Viga E-W ao norte (principal) -->
+              <rect x="0" y="2" width="560" height="76" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+              <text x="280" y="30" fill="#7eb8f7" font-size="13" text-anchor="middle" font-family="sans-serif">V108 — Viga E-W</text>
+              <text x="280" y="52" fill="#5a80aa" font-size="11" text-anchor="middle">24/60 cm — continua para leste e oeste</text>
+              <!-- Vigas N-S laterais (contexto) -->
+              <rect x="0" y="78" width="28" height="232" fill="#101828" stroke="#7eb8f7" stroke-width="1" opacity="0.4"/>
+              <rect x="532" y="78" width="28" height="232" fill="#101828" stroke="#7eb8f7" stroke-width="1" opacity="0.4"/>
+              <!-- Viga E-W ao sul (distante, contexto) -->
+              <rect x="28" y="322" width="504" height="16" fill="#101828" stroke="#7eb8f7" stroke-width="1" opacity="0.3"/>
+              <text x="280" y="334" fill="#7eb8f7" font-size="9" text-anchor="middle" opacity="0.35">viga ao sul (contexto)</text>
+              <!-- Pilar VERTICAL P28: C face toca viga acima (y=78) -->
+              <rect x="248" y="78" width="64" height="126" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+              <line x1="248" y1="92" x2="312" y2="156" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="112" x2="312" y2="176" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="132" x2="312" y2="196" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="152" x2="312" y2="204" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="262" y1="78" x2="312" y2="128" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="280" y1="78" x2="312" y2="110" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="298" y1="78" x2="312" y2="92" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <text x="280" y="136" fill="#f0b840" font-size="13" text-anchor="middle">P28</text>
+              <text x="280" y="151" fill="#aaa" font-size="10" text-anchor="middle">30/80  VERT</text>
+              <!-- C = VIGA (norte/curta) -->
+              <text x="280" y="72" fill="#c47ef7" font-size="13" font-weight="bold" text-anchor="middle">▲  C = VIGA</text>
+              <!-- D = Laje (sul/curta) -->
+              <text x="280" y="228" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">▼  D = L115</text>
+              <!-- A = Laje (oeste/longa) -->
+              <text x="234" y="143" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = L115</text>
+              <!-- B = Laje (leste/longa) -->
+              <text x="326" y="143" fill="#7eb8f7" font-size="12" font-weight="bold">B = L115  ►</text>
+              <!-- Laje label -->
+              <text x="440" y="215" fill="#4fc3a1" font-size="18" text-anchor="middle" opacity="0.75">L115</text>
+              <text x="440" y="235" fill="#4fc3a1" font-size="11" text-anchor="middle" opacity="0.55">h=14</text>
+              <!-- nota -->
+              <text x="280" y="316" fill="#555" font-size="9.5" text-anchor="middle">C (norte/curta) encosta na lateral inferior da viga  ·  A, B, D = mesmo vão de laje</text>
+            </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso1_P102_C_VIGA.png">
+              <div class="slide-label real">P102 60x24 H - C toca V116 N-S (oeste) -> C=VIGA</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso1_P28_C_VIGA.png">
+              <div class="slide-label real">P28 30x80 V - C toca V108 E-W (acima) -> C=VIGA</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c1')">&#8249;</button>
+            <span class="carousel-counter" id="c1-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c1')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 2 -->
+  <div class="caso">
+    <div class="caso-title">Caso 2 — D = VIGA (face base encosta na lateral da viga abaixo)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A base do pilar (face D) encosta na <b>lateral superior da viga</b> abaixo. O pilar está dentro de um <b>vão contínuo de laje</b> delimitado por essa viga — o mesmo vão envolve A, B e C.</p>
+        <ul>
+          <li><b>D</b> (base) = VIGA — a face curta encosta diretamente na lateral da viga abaixo</li>
+          <li><b>A, B e C</b> = <b>mesma laje</b> (L301) — estão no mesmo vão contínuo; vigas separam lajes, não pilares</li>
+          <li>Se o pilar estiver na <b>borda exterior</b> da construção (sem laje do lado de fora) → A, B e C = <b>nulo</b></li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · parede sul de V302 (E-W)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D na parede sul de V302; sem laje em D</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V302 &nbsp;·&nbsp; dim: 24/60 &nbsp;·&nbsp; N: 852.19 &nbsp;→ DA+DB (face D coincide com parede sul de V302; viga E-W passa por DA e DB)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c2">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+            <svg class="diagram-svg" viewBox="0 0 560 340" role="img" aria-label="Caso 2: pilar VERTICAL, face D (sul/curta) encosta na viga E-W abaixo">
+              <rect width="560" height="340" fill="#0d0d0d"/>
+              <!-- Laje L115 — vão ao norte -->
+              <rect x="0" y="0" width="560" height="264" fill="#0b180b"/>
+              <!-- Viga E-W ao sul (principal) -->
+              <rect x="0" y="264" width="560" height="74" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+              <text x="280" y="296" fill="#7eb8f7" font-size="13" text-anchor="middle" font-family="sans-serif">V302 — Viga E-W</text>
+              <text x="280" y="318" fill="#5a80aa" font-size="11" text-anchor="middle">24/60 cm — continua para leste e oeste</text>
+              <!-- Vigas N-S laterais (contexto) -->
+              <rect x="0" y="0" width="28" height="264" fill="#101828" stroke="#7eb8f7" stroke-width="1" opacity="0.4"/>
+              <rect x="532" y="0" width="28" height="264" fill="#101828" stroke="#7eb8f7" stroke-width="1" opacity="0.4"/>
+              <!-- Viga E-W ao norte (distante, contexto) -->
+              <rect x="28" y="2" width="504" height="16" fill="#101828" stroke="#7eb8f7" stroke-width="1" opacity="0.3"/>
+              <text x="280" y="12" fill="#7eb8f7" font-size="9" text-anchor="middle" opacity="0.35">viga ao norte (contexto)</text>
+              <!-- Pilar VERTICAL P28: D face toca viga abaixo (y=264) -->
+              <rect x="248" y="138" width="64" height="126" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+              <line x1="248" y1="152" x2="312" y2="216" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="172" x2="312" y2="236" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="192" x2="312" y2="256" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="212" x2="312" y2="264" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="262" y1="138" x2="312" y2="188" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="280" y1="138" x2="312" y2="170" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="298" y1="138" x2="312" y2="152" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <text x="280" y="196" fill="#f0b840" font-size="13" text-anchor="middle">P28</text>
+              <text x="280" y="211" fill="#aaa" font-size="10" text-anchor="middle">30/80  VERT</text>
+              <!-- C = Laje (norte/curta) -->
+              <text x="280" y="134" fill="#c47ef7" font-size="12" font-weight="bold" text-anchor="middle">▲  C = L115</text>
+              <!-- D = VIGA (sul/curta) -->
+              <text x="280" y="276" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="middle">▼  D = VIGA</text>
+              <!-- A = Laje (oeste/longa) -->
+              <text x="234" y="204" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = L115</text>
+              <!-- B = Laje (leste/longa) -->
+              <text x="326" y="204" fill="#7eb8f7" font-size="12" font-weight="bold">B = L115  ►</text>
+              <!-- Laje label -->
+              <text x="420" y="120" fill="#4fc3a1" font-size="18" text-anchor="middle" opacity="0.75">L115</text>
+              <text x="420" y="140" fill="#4fc3a1" font-size="11" text-anchor="middle" opacity="0.55">h=14</text>
+              <!-- nota -->
+              <text x="280" y="338" fill="#555" font-size="9.5" text-anchor="middle">D (sul/curta) encosta na lateral superior da viga  ·  A, B, C = mesmo vão de laje</text>
+            </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso2_P102_D_VIGA.png">
+              <div class="slide-label real">P102 60x24 H - D toca V116 N-S (leste) -> D=VIGA</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso2_P28_D_VIGA.png">
+              <div class="slide-label real">P28 30x80 V - D toca V108 E-W (abaixo) -> D=VIGA</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c2')">&#8249;</button>
+            <span class="carousel-counter" id="c2-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c2')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 3 -->
+  <div class="caso">
+    <div class="caso-title">Caso 3 — C = LAJE, D = LAJE (pilar flutuando dentro da laje, sem viga alinhada)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar está <b>completamente dentro de um vão de laje</b> — delimitado por vigas em todos os lados, mas sem nenhuma viga alinhada com nenhuma de suas faces. Como não há viga tocando nenhuma face, <b>é sempre laje, sem dúvida</b>.</p>
+        <ul>
+          <li><b>A, B, C e D</b> = Laje — o pilar flutua dentro do vão sem viga em nenhuma direção</li>
+          <li>Todas as 4 faces recebem a <b>mesma laje</b> — o vão é contínuo, delimitado pelas vigas ao redor</li>
+          <li><b>Nunca dois nomes diferentes no mesmo vão</b>: a laje é única entre as vigas que a cercam</li>
+          <li>Nunca é nulo — o pilar está dentro do vão, há laje em todos os lados</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · pilar isolado no vão</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(vão contínuo em todas as direções)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · pilar isolado no vão</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · pilar isolado no vão</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · pilar isolado no vão</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c3">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+            <svg class="diagram-svg" viewBox="0 0 560 340" role="img" aria-label="Caso 3: pilar VERTICAL flutuando no vão de laje, sem viga em nenhuma face — A=B=C=D=LAJE">
+              <rect width="560" height="340" fill="#0d0d0d"/>
+              <!-- Viga E-W ao norte (distante) -->
+              <rect x="0" y="2" width="560" height="48" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+              <text x="280" y="30" fill="#7eb8f7" font-size="12" text-anchor="middle" font-family="sans-serif">Viga — mais longe ao norte</text>
+              <!-- Viga E-W ao sul (distante) -->
+              <rect x="0" y="290" width="560" height="48" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+              <text x="280" y="320" fill="#7eb8f7" font-size="12" text-anchor="middle">Viga — mais longe ao sul</text>
+              <!-- Vigas N-S laterais (distantes) -->
+              <rect x="0" y="50" width="36" height="240" fill="#101828" stroke="#7eb8f7" stroke-width="1.2" opacity="0.5"/>
+              <rect x="524" y="50" width="36" height="240" fill="#101828" stroke="#7eb8f7" stroke-width="1.2" opacity="0.5"/>
+              <!-- Laje L301 — vão contínuo entre as vigas -->
+              <rect x="36" y="50" width="488" height="240" fill="#0b180b"/>
+              <!-- Pilar VERTICAL: flutua no vão, sem tocar viga -->
+              <!-- espaço livre visível em todos os lados -->
+              <rect x="248" y="115" width="64" height="110" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+              <line x1="248" y1="129" x2="312" y2="193" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="149" x2="312" y2="213" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="169" x2="312" y2="225" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="248" y1="189" x2="312" y2="225" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="262" y1="115" x2="312" y2="165" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="280" y1="115" x2="312" y2="147" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="298" y1="115" x2="312" y2="131" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <text x="280" y="165" fill="#f0b840" font-size="12" text-anchor="middle">Pilar</text>
+              <text x="280" y="180" fill="#aaa" font-size="10" text-anchor="middle">19×100 V</text>
+              <!-- Setas indicando espaço livre de laje em todos os lados -->
+              <line x1="280" y1="108" x2="280" y2="55" stroke="#4fc3a1" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.6"/>
+              <line x1="280" y1="232" x2="280" y2="286" stroke="#4fc3a1" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.6"/>
+              <line x1="241" y1="170" x2="44" y2="170" stroke="#4fc3a1" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.6"/>
+              <line x1="319" y1="170" x2="516" y2="170" stroke="#4fc3a1" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.6"/>
+              <!-- Face labels — todas = LAJE -->
+              <text x="280" y="108" fill="#c47ef7" font-size="12" font-weight="bold" text-anchor="middle">▲  C = L301</text>
+              <text x="280" y="250" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">▼  D = L301</text>
+              <text x="232" y="173" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = L301</text>
+              <text x="326" y="173" fill="#7eb8f7" font-size="12" font-weight="bold">B = L301  ►</text>
+              <!-- Laje label -->
+              <text x="440" y="175" fill="#4fc3a1" font-size="17" text-anchor="middle" opacity="0.7">L301</text>
+              <!-- nota -->
+              <text x="280" y="276" fill="#555" font-size="9.5" text-anchor="middle">Pilar flutua no vão — nenhuma viga alinhada com nenhuma face → A=B=C=D=Laje</text>
+            </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso3_P102_flutuando.png">
+              <div class="slide-label real">P102 60x24 H - flutua entre V116 e V117 -> A=B=C=D=L115</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso3_P28_flutuando.png">
+              <div class="slide-label real">P28 30x80 V - flutua entre V108 e V103 -> A=B=C=D=L115</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c3')">&#8249;</button>
+            <span class="carousel-counter" id="c3-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c3')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 4 -->
+  <div class="caso">
+    <div class="caso-title">Caso 4 — TODOS = VIGA (pilar completamente dentro do corpo da viga)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar é <b>mais estreito e mais baixo que a viga</b> que o envolve — fica completamente engolido por ela.
+        Todas as quatro faces, longas e curtas, estão dentro do polígono da viga.</p>
+        <ul>
+          <li><b>A</b> (oeste) = VIGA — face longa esquerda dentro da parede da viga</li>
+          <li><b>B</b> (leste) = VIGA — face longa direita dentro da parede da viga</li>
+          <li><b>C</b> (topo/norte) = VIGA — face curta topo dentro da parede da viga</li>
+          <li><b>D</b> (base/sul) = VIGA — face curta base dentro da parede da viga</li>
+          <li>Raro — ocorre em vigas muito largas ou pilares muito pequenos embutidos</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · dentro do corpo de V323</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face A dentro do corpo de V323; sem laje em A</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ AC+AD (face A inteiramente dentro do corpo da viga)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · dentro do corpo de V323</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face B dentro do corpo de V323; sem laje em B</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ BC+BD (face B inteiramente dentro do corpo da viga)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · dentro do corpo de V323</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C dentro do corpo de V323; sem laje em C</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ CA+CB (face curta dentro do corpo da viga)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · dentro do corpo de V323</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D dentro do corpo de V323; sem laje em D</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ DA+DB (face curta dentro do corpo da viga)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c4">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+            <svg class="diagram-svg" viewBox="0 0 560 340" role="img" aria-label="Caso 4: pilar completamente interno ao corpo de uma viga larga — A=B=C=D=VIGA">
+              <rect width="560" height="340" fill="#0d0d0d"/>
+              <!-- Laje distante — fora da viga (contexto, bordas visíveis) -->
+              <rect x="0" y="0" width="560" height="340" fill="#0b180b"/>
+              <!-- Corpo da viga larga — ocupa a maior parte do espaço -->
+              <rect x="28" y="18" width="504" height="304" fill="#101828" stroke="#7eb8f7" stroke-width="2.5"/>
+              <text x="280" y="42" fill="#7eb8f7" font-size="14" text-anchor="middle" font-family="sans-serif">Viga — corpo largo (ex. 120×100 cm)</text>
+              <!-- Lajes externas pequenas nos cantos (contexto espacial) -->
+              <rect x="0" y="18" width="28" height="304" fill="#0b180b" stroke="#4fc3a1" stroke-width="0.8" opacity="0.5"/>
+              <rect x="532" y="18" width="28" height="304" fill="#0b180b" stroke="#4fc3a1" stroke-width="0.8" opacity="0.5"/>
+              <text x="14" y="175" fill="#4fc3a1" font-size="9" text-anchor="middle" transform="rotate(-90,14,175)" opacity="0.5">laje</text>
+              <text x="546" y="175" fill="#4fc3a1" font-size="9" text-anchor="middle" transform="rotate(-90,546,175)" opacity="0.5">laje</text>
+              <!-- Pilar VERTICAL — completamente dentro da viga -->
+              <rect x="218" y="100" width="124" height="140" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+              <line x1="218" y1="116" x2="342" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="218" y1="140" x2="342" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="218" y1="164" x2="342" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="218" y1="188" x2="342" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="218" y1="212" x2="342" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="218" y1="236" x2="338" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="233" y1="100" x2="342" y2="209" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="257" y1="100" x2="342" y2="185" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="281" y1="100" x2="342" y2="161" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="305" y1="100" x2="342" y2="137" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="329" y1="100" x2="342" y2="113" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <text x="280" y="168" fill="#f0b840" font-size="13" text-anchor="middle">Pilar</text>
+              <text x="280" y="184" fill="#aaa" font-size="10" text-anchor="middle">19×100 V</text>
+              <!-- Face labels — TODAS = VIGA -->
+              <text x="280" y="95" fill="#c47ef7" font-size="12" font-weight="bold" text-anchor="middle">▲  C = VIGA</text>
+              <text x="280" y="258" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">▼  D = VIGA</text>
+              <text x="208" y="173" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = VIGA</text>
+              <text x="352" y="173" fill="#7eb8f7" font-size="12" font-weight="bold">B = VIGA  ►</text>
+              <!-- Dimensões indicativas da viga -->
+              <line x1="32" y1="18" x2="32" y2="322" stroke="#7eb8f7" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.3"/>
+              <line x1="528" y1="18" x2="528" y2="322" stroke="#7eb8f7" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.3"/>
+              <!-- nota -->
+              <text x="280" y="316" fill="#555" font-size="9.5" text-anchor="middle">Pilar mais estreito que a viga em todas as direções → A, B, C e D = VIGA</text>
+            </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso4_P16_vertical.png" alt="Caso 4 — P16 vertical completamente interno à viga">
+              <div class="slide-label real">Exemplo real — P16, viga vertical</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso4_P16_horizontal.png" alt="Caso 4 — P16 horizontal completamente interno à viga">
+              <div class="slide-label real">Exemplo real — P16, viga horizontal</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c4')">&#8249;</button>
+            <span class="carousel-counter" id="c4-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c4')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 5 -->
+  <div class="caso">
+    <div class="caso-title">Caso 5 — Pilar HORIZONTAL como junta entre V325 (oeste, 19/80) e V326 (leste, 19/65) → C = V325 saída oeste · D = V326 saída leste · A/B = Laje + profundidades diferentes (AC≠AD)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar <b>horizontal</b> funciona como <b>junta entre duas vigas E-W distintas</b>: V325 (19/80) sai pela face curta <b>C (oeste)</b> e V326 (19/65) sai pela face curta <b>D (leste)</b>. São vigas <b>independentes com profundidades diferentes</b>. As faces longas A (sul) e B (norte) revelam a <b>transição de profundidade</b>: canto AC (oeste) pertence à V325 com 80cm de altura, canto AD (leste) pertence à V326 com 65cm — parede sul não é uniforme.</p>
+        <ul>
+          <li><b>C</b> (oeste/curta) = <b>VIGA V325</b> — face curta = saída de V325 (dim: 19/80) para o vão a oeste</li>
+          <li><b>D</b> (leste/curta) = <b>VIGA V326</b> — face curta = saída de V326 (dim: 19/65) para o vão a leste — <b>viga diferente de V325!</b></li>
+          <li><b>A</b> (sul/longa) = <b>Laje + Viga</b> — face A mostra <b>duas profundidades</b>: AC = V325 19/80 (mais funda ao oeste) · AD = V326 19/65 (menos funda ao leste)</li>
+          <li><b>B</b> (norte/longa) = <b>Laje + Viga</b> — idem: BC = V325 19/80 · BD = V326 19/65</li>
+          <li>⚠ O pilar é a <b>junta estrutural</b> entre V325 e V326 — não existe viga contínua; cada metade tem altura independente</li>
+          <li>Laje L315 ao sul (face A) · L316 ao norte (face B)</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; sul · face longa · AC = V325 19/80 (oeste) · AD = V326 19/65 (leste) · profundidades diferentes · HORIZONTAL</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L315 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· AC=0cm · AD=0cm (laje ao sul — cobre toda a face A, do canto AC=oeste ao AD=leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">AC = V325 &nbsp;·&nbsp; dim: 19/80 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto oeste da face A, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; AD = V326 &nbsp;·&nbsp; dim: 19/65 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto leste da face A, menos funda) — <b>⚠ profundidades diferentes na mesma parede sul</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; norte · face longa · BC = V325 19/80 (oeste) · BD = V326 19/65 (leste) · profundidades diferentes · HORIZONTAL</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L316 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· BC=0cm · BD=0cm (laje ao norte — cobre toda a face B, do canto BC=oeste ao BD=leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">BC = V325 &nbsp;·&nbsp; dim: 19/80 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto oeste da face B, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; BD = V326 &nbsp;·&nbsp; dim: 19/65 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto leste da face B, menos funda) — <b>⚠ profundidades diferentes na mesma parede norte</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; oeste · face curta · extremidade de V325 (saída oeste, dim: 19/80) · HORIZONTAL</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C = extremidade de V325; sem laje em C (V325 sai para o vão a oeste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V325 &nbsp;·&nbsp; dim: 19/80 &nbsp;·&nbsp; N: 852.19 &nbsp;→ CA+CB (face C = extremidade oeste; V325 sai integralmente pelo vão a oeste — CA=canto sul · CB=canto norte)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; leste · face curta · extremidade de V326 (saída leste, dim: 19/65) · viga DIFERENTE de V325 · HORIZONTAL</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D = extremidade de V326 (viga leste, dim: 19/65); sem laje em D (V326 sai para o vão a leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V326 &nbsp;·&nbsp; dim: 19/65 &nbsp;·&nbsp; N: 852.19 &nbsp;→ DA+DB (face D = extremidade leste; V326 sai pelo vão a leste — <b>dim: 19/65 ≠ V325 19/80</b> — profundidade 15cm menor)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c5">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+            <svg class="diagram-svg" viewBox="0 0 560 340" role="img" aria-label="Caso 5: pilar HORIZONTAL dentro de viga E-W — C (oeste) e D (leste) = VIGA, A (sul) e B (norte) = Laje+Viga">
+              <rect width="560" height="340" fill="#0d0d0d"/>
+              <!-- Laje ao norte (face B) -->
+              <rect x="0" y="0" width="560" height="130" fill="#0b180b"/>
+              <!-- Laje ao sul (face A) -->
+              <rect x="0" y="210" width="560" height="130" fill="#0c1a0a"/>
+              <!-- Viga E-W (corpo, narrow N-S) — band horizontal -->
+              <!-- pilar P15 (100×19) OCUPA a viga inteiramente no eixo N-S -->
+              <!-- a viga continua além do pilar a leste e oeste -->
+              <rect x="0" y="130" width="560" height="80" fill="#101828" stroke="#7eb8f7" stroke-width="2.2"/>
+              <!-- Rótulo da viga, para além do pilar -->
+              <text x="70" y="162" fill="#7eb8f7" font-size="12" text-anchor="middle" font-family="sans-serif">V325</text>
+              <text x="70" y="175" fill="#5a80aa" font-size="9.5" text-anchor="middle">dim: 19/80</text>
+              <text x="70" y="188" fill="#5a80aa" font-size="9.5" text-anchor="middle">N: 852.19 →</text>
+              <text x="490" y="162" fill="#7eb8f7" font-size="12" text-anchor="middle">V326</text>
+              <text x="490" y="175" fill="#5a80aa" font-size="9.5" text-anchor="middle">dim: 19/65</text>
+              <text x="490" y="188" fill="#5a80aa" font-size="9.5" text-anchor="middle">← N: 852.19</text>
+              <!-- Pilar HORIZONTAL P15 (100 E-W × 19 N-S) — preenche a viga N-S exatamente -->
+              <!-- x: 155 a 405 (250px = proporcional a 100cm E-W) -->
+              <!-- y: 130 a 210 (80px = proporcional a 19cm N-S, igual à largura da viga) -->
+              <rect x="155" y="130" width="250" height="80" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+              <line x1="155" y1="144" x2="405" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="155" y1="164" x2="405" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="155" y1="184" x2="405" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="155" y1="204" x2="398" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="175" y1="130" x2="405" y2="190" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="215" y1="130" x2="405" y2="170" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="255" y1="130" x2="405" y2="150" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <line x1="295" y1="130" x2="405" y2="140" stroke="#f0b840" stroke-width="0.9" opacity="0.4"/>
+              <text x="280" y="167" fill="#f0b840" font-size="13" text-anchor="middle">P15  HORIZ</text>
+              <text x="280" y="182" fill="#aaa" font-size="10" text-anchor="middle">19/100 (100 E-W × 19 N-S)</text>
+              <!-- C = VIGA (oeste/curta) — extremidade oeste do pilar, dentro da viga -->
+              <text x="145" y="171" fill="#c47ef7" font-size="13" font-weight="bold" text-anchor="end">◄  C = VIGA</text>
+              <!-- D = VIGA (leste/curta) — extremidade leste do pilar, dentro da viga -->
+              <text x="415" y="171" fill="#f0b840" font-size="13" font-weight="bold">D = VIGA  ►</text>
+              <!-- B = Laje+Viga (norte/longa) — parede norte da viga + laje além -->
+              <text x="280" y="123" fill="#7eb8f7" font-size="12" font-weight="bold" text-anchor="middle">B = Laje L316 + Viga  ▼</text>
+              <!-- A = Laje+Viga (sul/longa) — parede sul da viga + laje além -->
+              <text x="280" y="227" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="middle">▲  A = Laje L315 + Viga</text>
+              <!-- Laje labels -->
+              <text x="420" y="65" fill="#7eb8f7" font-size="14" text-anchor="middle" opacity="0.7">L316  (B / norte)</text>
+              <text x="420" y="79" fill="#7eb8f7" font-size="9" text-anchor="middle" opacity="0.5">esp: 14cm · N: 852.19</text>
+              <text x="420" y="278" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.7">L315  (A / sul)</text>
+              <text x="420" y="292" fill="#4fc3a1" font-size="9" text-anchor="middle" opacity="0.5">esp: 14cm · N: 852.19</text>
+              <!-- nota -->
+              <text x="280" y="330" fill="#555" font-size="9.5" text-anchor="middle">C = V325 19/80 sai oeste · D = V326 19/65 sai leste · A/B = transição de profundidade (AC=80 ≠ AD=65)</text>
+            </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso5_P15_vertical.png" alt="Caso 5 — P15 na configuração vertical">
+              <div class="slide-label real">Exemplo real — P15, configuração vertical</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso5_P15_horizontal.png" alt="Caso 5 — P15 na configuração horizontal">
+              <div class="slide-label real">Exemplo real — P15, configuração horizontal</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c5')">&#8249;</button>
+            <span class="carousel-counter" id="c5-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c5')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 6 -->
+  <div class="caso">
+    <div class="caso-title">Caso 6 — Pilar VERTICAL como junta entre V323 (oeste, 100/120) e V324 (leste, 100/95) → A = V323 saída oeste · B = V324 saída leste · C/D = step de profundidade CA≠CB</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar <b>vertical</b> (P16, 19cm E-W × 100cm N-S) funciona como <b>junta entre duas vigas E-W distintas</b>: V323 (100/120) a oeste e V324 (100/95) a leste. As faces longas A e B são as <b>testas (extremidades) de cada viga — sem laje adjacente</b>: A olha para o interior de V323, B para o interior de V324. As lajes L314 e L315 ficam além das faces curtas C e D (paredes norte e sul). As faces curtas C (norte) e D (sul) revelam o <b>step de profundidade</b>: canto CA pertence à V323 (120cm) e canto CB à V324 (95cm) — parede norte não é uniforme.</p>
+        <ul>
+          <li><b>A</b> (oeste/longa) = <b>VIGA V323 (testa)</b> — extremidade oeste de V323 (100/120); AC+AD = testa da viga; sem laje em A (face A olha para o interior de V323)</li>
+          <li><b>B</b> (leste/longa) = <b>VIGA V324 (testa)</b> — extremidade leste de V324 (100/95); BC+BD = testa da viga; sem laje em B (face B olha para o interior de V324) — <b>viga diferente de A!</b></li>
+          <li><b>C</b> (norte/curta) = <b>VIGA + Laje L314</b> — parede norte; CA = V323 100/120 (oeste) · CB = V324 100/95 (leste) — <b>profundidades diferentes!</b> · Laje L314 ao norte além da parede C (CA=0cm, CB=0cm)</li>
+          <li><b>D</b> (sul/curta) = <b>VIGA + Laje L315</b> — parede sul; DA = V323 100/120 (oeste) · DB = V324 100/95 (leste) — mesma transição · Laje L315 ao sul além da parede D (DA=0cm, DB=0cm)</li>
+          <li>⚠ O pilar é a <b>junta entre V323 e V324</b> — profundidade: 120cm a oeste, 95cm a leste (diferença = 25cm)</li>
+          <li>⚠ Lajes L314 (ao norte, face C) · L315 (ao sul, face D) — acessíveis pelas faces C e D, <b>não</b> pelas faces A e B (que são testas das vigas)</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · testa de V323 (E-W, 100/120) · extremidade oeste · VERTICAL</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face A = testa de V323; sem laje adjacente (A olha para o interior de V323 que continua para oeste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ AC+AD (face A = testa (extremidade) de V323; pilar preenche a seção inteira de V323 a oeste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · testa de V324 (E-W, 100/95) · extremidade leste · viga DIFERENTE de A · VERTICAL</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face B = testa de V324; sem laje adjacente (B olha para o interior de V324 que continua para leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V324 &nbsp;·&nbsp; dim: 100/95 &nbsp;·&nbsp; N: 852.19 &nbsp;→ BC+BD (face B = testa de V324 — <b>viga diferente de V323!</b> dim: 100/<b>95</b> ≠ V323 100/<b>120</b> — 25cm menos funda)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · CA = V323 100/120 (oeste) · CB = V324 100/95 (leste) · step de profundidade na parede norte</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L314 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· CA=0cm · CB=0cm (laje ao norte — cobre toda a face C, do canto CA=oeste ao CB=leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">CA = V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto oeste da parede norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; CB = V324 &nbsp;·&nbsp; dim: 100/95 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto leste da parede norte, menos funda) — <b>⚠ step de profundidade 120→95 na parede norte!</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · DA = V323 100/120 (oeste) · DB = V324 100/95 (leste) · step de profundidade na parede sul</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L315 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· DA=0cm · DB=0cm (laje ao sul — cobre toda a face D, do canto DA=oeste ao DB=leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">DA = V323 &nbsp;·&nbsp; dim: 100/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto oeste da parede sul, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; DB = V324 &nbsp;·&nbsp; dim: 100/95 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto leste da parede sul, menos funda) — <b>⚠ step de profundidade 120→95 na parede sul!</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c6">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+            <svg class="diagram-svg" viewBox="0 0 560 380" role="img" aria-label="Caso 6: pilar VERTICAL P16 dentro de viga E-W larga V323 (100cm N-S) — C/D = parede norte/sul da viga, A/B olham para extremidade da viga + laje além">
+              <rect width="560" height="380" fill="#0d0d0d"/>
+              <!-- ═══ Laje L314 — ao NORTE da viga (acima) ═══ -->
+              <rect x="0" y="0" width="560" height="80" fill="#0b180b"/>
+              <text x="280" y="48" fill="#c47ef7" font-size="15" text-anchor="middle" opacity="0.85">L314</text>
+              <text x="280" y="65" fill="#c47ef7" font-size="10" text-anchor="middle" opacity="0.6">(norte / face C)</text>
+              <!-- ═══ Laje L315 — ao SUL da viga (abaixo) ═══ -->
+              <rect x="0" y="300" width="560" height="80" fill="#0c1a0a"/>
+              <text x="280" y="340" fill="#f0b840" font-size="15" text-anchor="middle" opacity="0.85">L315</text>
+              <text x="280" y="358" fill="#f0b840" font-size="10" text-anchor="middle" opacity="0.6">(sul / face D)</text>
+              <!-- ═══ Viga E-W V323 — LARGA: 100cm N-S (220px) ═══ -->
+              <!-- A viga corre de leste a oeste com corpo muito largo em N-S -->
+              <!-- Mostramos a extremidade oeste (onde laje A é visível) e a leste (laje B) -->
+              <rect x="0" y="80" width="560" height="220" fill="#101828" stroke="#7eb8f7" stroke-width="2.5"/>
+              <!-- Rótulo da viga dentro do corpo, lados do pilar -->
+              <text x="130" y="155" fill="#7eb8f7" font-size="13" text-anchor="middle" opacity="0.8">V323</text>
+              <text x="130" y="172" fill="#5a80aa" font-size="10" text-anchor="middle">100/120 E-W</text>
+              <text x="430" y="155" fill="#7eb8f7" font-size="13" text-anchor="middle" opacity="0.8">V324</text>
+              <text x="430" y="172" fill="#5a80aa" font-size="10" text-anchor="middle">100/95 E-W →</text>
+              <!-- ═══ Pilar VERTICAL P16 (19cm E-W × 100cm N-S) ═══ -->
+              <!-- A viga tem 220px N-S → pilar = mesma altura: preenche exatamente -->
+              <!-- Pilar estreito E-W (19cm = 60px) centralizado no canvas -->
+              <rect x="250" y="80" width="60" height="220" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+              <line x1="250" y1="100" x2="310" y2="160" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="250" y1="128" x2="310" y2="188" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="250" y1="156" x2="310" y2="216" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="250" y1="184" x2="310" y2="244" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="250" y1="212" x2="310" y2="272" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="250" y1="240" x2="310" y2="300" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="260" y1="80" x2="310" y2="130" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <line x1="284" y1="80" x2="310" y2="106" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+              <text x="280" y="188" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="middle">P16</text>
+              <text x="280" y="204" fill="#aaa" font-size="10" text-anchor="middle">19×100 VERT</text>
+              <!-- ═══ Face labels ═══ -->
+              <!-- C = VIGA: face norte (curta, 19cm wide) na parede norte de V323 -->
+              <text x="280" y="73" fill="#c47ef7" font-size="13" font-weight="bold" text-anchor="middle">▲  C = VIGA  (parede norte)</text>
+              <!-- D = VIGA: face sul (curta, 19cm wide) na parede sul de V323 -->
+              <text x="280" y="320" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="middle">▼  D = VIGA  (parede sul)</text>
+              <!-- A = Laje+Viga: face oeste (longa, 100cm) olha para dentro da viga → extremidade E-W + laje além -->
+              <text x="238" y="195" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = VIGA (testa)</text>
+              <text x="238" y="209" fill="#4fc3a1" font-size="9" text-anchor="end">(testa de V323)</text>
+              <!-- B = Laje+Viga: face leste -->
+              <text x="322" y="195" fill="#7eb8f7" font-size="12" font-weight="bold">B = VIGA (testa)  ►</text>
+              <text x="322" y="209" fill="#7eb8f7" font-size="9">(testa de V324)</text>
+              <!-- nota -->
+              <text x="280" y="374" fill="#555" font-size="9.5" text-anchor="middle">A = V323 100/120 (oeste) · B = V324 100/95 (leste) · C/D = step: CA=120 ≠ CB=95 e DA=120 ≠ DB=95</text>
+            </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso6_P16_vertical.png" alt="Caso 6 — P16 e V323 na configuração vertical">
+              <div class="slide-label real">Exemplo real — P16/V323, configuração vertical</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso6_P16_horizontal.png" alt="Caso 6 — P16 e V323 na configuração horizontal">
+              <div class="slide-label real">Exemplo real — P16/V323, configuração horizontal</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c6')">&#8249;</button>
+            <span class="carousel-counter" id="c6-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c6')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 7 -->
+  <div class="caso">
+    <div class="caso-title">Caso 7 — Pilar VERTICAL na interseção: N-S = V316(norte,19/55) × V317(sul,19/45) · E-W = V302(oeste,19/120) × V305(leste,19/90) — quatro vigas distintas</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar P44 (50cm N-S × 19cm E-W) fica no <b>cruzamento de quatro vigas distintas</b>. No eixo N-S: V316 (19/55) vai ao <b>norte</b> e V317 (19/45) vai ao <b>sul</b> — vigas diferentes! No eixo E-W: V302 (19/120) vai a <b>oeste</b> e V305 (19/90) vai a <b>leste</b> — vigas diferentes! Cada face do pilar revela profundidades distintas nos seus dois cantos.</p>
+        <ul>
+          <li><b>A</b> (oeste/longa) = <b>Viga que passa</b> — AC = V316 19/55 (norte) · AD = V317 19/45 (sul) — <b>profundidades diferentes na parede oeste!</b></li>
+          <li><b>B</b> (leste/longa) = <b>Viga que passa</b> — BC = V316 19/55 (norte) · BD = V317 19/45 (sul) — mesma distinção em B</li>
+          <li><b>C</b> (norte/curta) = <b>VIGA</b> — CA = V302 19/120 (oeste) · CB = V305 19/90 (leste) — <b>profundidades diferentes na parede norte!</b></li>
+          <li><b>D</b> (sul/curta) = <b>VIGA</b> — DA = V302 19/120 (oeste) · DB = V305 19/90 (leste) — mesma distinção em D</li>
+          <li>Lajes: L303 (NW) · L304 (NE) · L311 (SW) · L312 (SE) — quatro vãos independentes</li>
+          <li>⚠ Profundidades: norte(55) ≠ sul(45) · oeste(120) ≠ leste(90) — o pilar é junta em dois eixos simultaneamente</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · AC = V316 19/55 (norte) · AD = V317 19/45 (sul) · vigas N-S diferentes · lajes L303/L311</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L303 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· AC=0cm (NW, canto AC) &nbsp;&nbsp;|&nbsp;&nbsp; L311 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· AD=0cm (SW, canto AD)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">AC = V316 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;(norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; AD = V317 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;(sul, menos funda) — <b>⚠ 55→45 cm, vigas N-S diferentes na face A</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · BC = V316 19/55 (norte) · BD = V317 19/45 (sul) · vigas N-S diferentes · lajes L304/L312</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L304 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· BC=0cm (NE, canto BC) &nbsp;&nbsp;|&nbsp;&nbsp; L312 &nbsp;·&nbsp; esp: 13cm &nbsp;·&nbsp; N: 852.19 &nbsp;· BD=0cm (SE, canto BD)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">BC = V316 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;(norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; BD = V317 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;(sul, menos funda) — <b>⚠ mesmo par de vigas que A</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · CA = V302 19/120 (oeste) · CB = V305 19/90 (leste) · vigas E-W diferentes na parede norte</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C dentro das vigas E-W; sem laje em C</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">CA = V302 &nbsp;·&nbsp; dim: 19/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(oeste, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; CB = V305 &nbsp;·&nbsp; dim: 19/90 &nbsp;·&nbsp; N: 852.19 &nbsp;(leste, menos funda) — <b>⚠ 120→90 cm, vigas E-W diferentes na face C</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · DA = V302 19/120 (oeste) · DB = V305 19/90 (leste) · vigas E-W diferentes na parede sul</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D dentro das vigas E-W; sem laje em D</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">DA = V302 &nbsp;·&nbsp; dim: 19/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(oeste, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; DB = V305 &nbsp;·&nbsp; dim: 19/90 &nbsp;·&nbsp; N: 852.19 &nbsp;(leste, menos funda) — <b>⚠ mesmo par E-W que face C</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c7">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <svg class="diagram-svg" viewBox="0 0 560 380" role="img" aria-label="Caso 7: pilar VERTICAL P44 (50/19) na interseção de V302 (E-W) e V316 (N-S) — 4 quadrantes de laje distintos">
+                <rect width="560" height="380" fill="#0d0d0d"/>
+                <!-- ═══ 4 quadrantes de laje ═══ -->
+                <!-- V302 corta em y=162..210, V316 corta em x=256..300 -->
+                <!-- NW: L303 -->
+                <rect x="0" y="0" width="256" height="162" fill="#102010"/>
+                <text x="118" y="80" fill="#4fc3a1" font-size="16" text-anchor="middle" opacity="0.85">L303</text>
+                <text x="118" y="100" fill="#4fc3a1" font-size="10" text-anchor="middle" opacity="0.55">h=12</text>
+                <!-- NE: L304 -->
+                <rect x="300" y="0" width="260" height="162" fill="#0e1a28"/>
+                <text x="430" y="80" fill="#7eb8f7" font-size="16" text-anchor="middle" opacity="0.85">L304</text>
+                <text x="430" y="100" fill="#7eb8f7" font-size="10" text-anchor="middle" opacity="0.55">h=12</text>
+                <!-- SW: L311 -->
+                <rect x="0" y="210" width="256" height="170" fill="#0c1e0c"/>
+                <text x="118" y="295" fill="#4fc3a1" font-size="16" text-anchor="middle" opacity="0.8">L311</text>
+                <text x="118" y="315" fill="#4fc3a1" font-size="10" text-anchor="middle" opacity="0.5">h=12</text>
+                <!-- SE: L312 -->
+                <rect x="300" y="210" width="260" height="170" fill="#0e1825"/>
+                <text x="430" y="295" fill="#7eb8f7" font-size="16" text-anchor="middle" opacity="0.8">L312</text>
+                <text x="430" y="315" fill="#7eb8f7" font-size="10" text-anchor="middle" opacity="0.5">h=13</text>
+                <!-- ═══ Viga E-W V302 (19cm N-S) ═══ -->
+                <rect x="0" y="162" width="560" height="48" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+                <text x="90" y="182" fill="#7eb8f7" font-size="11" text-anchor="middle">V302</text>
+                <text x="90" y="196" fill="#5a80aa" font-size="9" text-anchor="middle">19/120 E-W</text>
+                <text x="470" y="182" fill="#7eb8f7" font-size="11" text-anchor="middle">V305</text>
+                <text x="470" y="196" fill="#5a80aa" font-size="9" text-anchor="middle">19/90 E-W →</text>
+                <!-- ═══ Viga N-S V316 (norte) + V317 (sul) ═══ -->
+                <rect x="256" y="0" width="48" height="380" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+                <text x="280" y="40" fill="#7eb8f7" font-size="11" text-anchor="middle">V316</text>
+                <text x="280" y="54" fill="#5a80aa" font-size="9" text-anchor="middle">19/55 N-S ↑</text>
+                <text x="280" y="355" fill="#7eb8f7" font-size="11" text-anchor="middle">V317</text>
+                <text x="280" y="369" fill="#5a80aa" font-size="9" text-anchor="middle">19/45 N-S ↓</text>
+                <!-- ═══ Pilar VERTICAL P44 (50cm N-S × 19cm E-W) ═══ -->
+                <!-- Preenche V316 na direção E-W (ambos têm 19cm = 48px)            -->
+                <!-- Escala: 19cm → 48px, logo 50cm → 126px N-S                     -->
+                <!-- Centro da interseção: y=186. Pilar: y=186-63=123 até y=186+63=249 -->
+                <!-- O pilar PASSA ALÉM de V302 ao norte (y=162) e ao sul (y=210)   -->
+                <rect x="256" y="123" width="48" height="126" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+                <!-- Hachura diagonal do pilar -->
+                <line x1="256" y1="140" x2="304" y2="188" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="162" x2="304" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="184" x2="304" y2="232" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="206" x2="304" y2="249" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="228" x2="304" y2="249" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="270" y1="123" x2="304" y2="157" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="288" y1="123" x2="304" y2="139" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <!-- Label do pilar -->
+                <text x="280" y="185" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">P44</text>
+                <text x="280" y="200" fill="#aaa" font-size="10" text-anchor="middle">50/19 V</text>
+                <!-- ═══ Face labels ═══ -->
+                <!-- C = VIGA (norte/curta — y=123, dentro de V316 que continua ao norte) -->
+                <text x="248" y="118" fill="#c47ef7" font-size="13" font-weight="bold" text-anchor="end">▲  C = VIGA</text>
+                <line x1="254" y1="123" x2="248" y2="121" stroke="#c47ef7" stroke-width="1.2"/>
+                <!-- D = VIGA (sul/curta — y=249, dentro de V316 que continua ao sul) -->
+                <text x="248" y="270" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="end">▼  D = VIGA</text>
+                <line x1="254" y1="249" x2="248" y2="252" stroke="#f0b840" stroke-width="1.2"/>
+                <!-- A = Laje + Viga (oeste/longa — parede oeste de V316, laje além) -->
+                <text x="242" y="193" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = L303/L311 + Viga</text>
+                <!-- B = Laje + Viga (leste/longa — parede leste de V316, laje além) -->
+                <text x="318" y="193" fill="#7eb8f7" font-size="12" font-weight="bold">B = L304/L312 + Viga  ►</text>
+                <!-- Indicação que o pilar passa além de V302 ao norte e ao sul -->
+                <line x1="308" y1="123" x2="340" y2="100" stroke="#f0b840" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>
+                <text x="345" y="97" fill="#f0b840" font-size="9" opacity="0.8">C face</text>
+                <text x="345" y="108" fill="#555" font-size="8">(passa além de V302)</text>
+                <line x1="308" y1="249" x2="340" y2="272" stroke="#f0b840" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>
+                <text x="345" y="270" fill="#f0b840" font-size="9" opacity="0.8">D face</text>
+                <text x="345" y="281" fill="#555" font-size="8">(passa além de V302)</text>
+                <!-- nota -->
+                <text x="280" y="373" fill="#555" font-size="9.5" text-anchor="middle">N-S: V316(norte,55) ≠ V317(sul,45) · E-W: V302(oeste,120) ≠ V305(leste,90) — junta em dois eixos</text>
+              </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso7_P44_horizontal.png" alt="Caso 7 — P44 com duas lajes, marcador horizontal">
+              <div class="slide-label real">Exemplo real — P44, leitura horizontal</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso7_P44_vertical.png" alt="Caso 7 — P44 com duas lajes, marcador vertical">
+              <div class="slide-label real">Exemplo real — P44, leitura vertical</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c7')">&#8249;</button>
+            <span class="carousel-counter" id="c7-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c7')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 8 -->
+  <div class="caso">
+    <div class="caso-title">Caso 8 — Pilar VERTICAL: N-S = V316(norte,19/55) × V317(sul,19/45) · D alinhado a V302(oeste,19/120)/V305(leste,19/95) · L301 mesma laje A e B</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Similar ao Caso 7, mas os <b>vãos A e B são o mesmo L301 contínuo</b>. No eixo N-S: V316 (19/55) vai ao <b>norte</b> e V317 (19/45) vai ao <b>sul</b> — profundidades diferentes! Na face D (alinhada com a parede sul de V302): V302 (19/120) a <b>oeste</b> e V305 (19/95) a <b>leste</b>. A diferença-chave do Caso 7 está na <b>laje</b> (mesma L301) não na geometria.</p>
+        <ul>
+          <li><b>A</b> (oeste/longa) = <b>Viga que passa</b> — AC = V316 19/55 (norte) · AD = V317 19/45 (sul) — <b>profundidades diferentes na parede oeste!</b></li>
+          <li><b>B</b> (leste/longa) = <b>Viga que passa</b> — BC = V316 19/55 (norte) · BD = V317 19/45 (sul) — <b>mesma laje L301 que A</b> (não é L301 ≠ L301, é o mesmo vão)</li>
+          <li><b>C</b> (norte/curta) = <b>VIGA</b> — dentro de V316; CA+CB = V316 19/55 sai integralmente para norte</li>
+          <li><b>D</b> (sul/curta) = <b>VIGA</b> — alinhado parede sul de V302; DA = V302 19/120 (oeste) · DB = V305 19/95 (leste) — <b>profundidades E-W diferentes!</b></li>
+          <li>⚠ Diferença do Caso 7: laje é <b>uma só (L301)</b>; estrutura das vigas é idêntica — apenas a laje difere</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · AC = V316 19/55 (norte) · AD = V317 19/45 (sul) · profundidades diferentes · laje L301</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· AC=0cm · AD=0cm (mesma laje para AC e AD — vão contínuo L301)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">AC = V316 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;(norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; AD = V317 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;(sul, menos funda) — <b>⚠ 55→45 cm, vigas N-S diferentes na face A</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · BC = V316 19/55 (norte) · BD = V317 19/45 (sul) · profundidades diferentes · mesma L301 que A</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· BC=0cm · BD=0cm &nbsp;<b>(= mesma laje que A — vão contínuo sobre V316; contraste com Caso 7 onde A ≠ B)</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">BC = V316 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;(norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; BD = V317 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;(sul, menos funda) — <b>⚠ mesmo par que A</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · dentro do corpo de V316 (N-S)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C dentro do corpo de V316 N-S; sem laje em C</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V316 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;→ CA+CB (face curta norte dentro do corpo N-S de V316)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · DA = V302 19/120 (oeste) · DB = V305 19/95 (leste) · vigas E-W diferentes na parede sul</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D na parede sul; sem laje em D</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">DA = V302 &nbsp;·&nbsp; dim: 19/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(oeste, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; DB = V305 &nbsp;·&nbsp; dim: 19/95 &nbsp;·&nbsp; N: 852.19 &nbsp;(leste, menos funda) — <b>⚠ 120→95 cm, vigas E-W diferentes na face D</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c8">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <svg class="diagram-svg" viewBox="0 0 560 380" role="img" aria-label="Caso 8: pilar VERTICAL P44 em V316 (N-S) com face D alinhada à parede sul de V302 — A e B veem a MESMA laje L301">
+                <rect width="560" height="380" fill="#0d0d0d"/>
+                <!-- ═══ Geometria: pilar vem de cima por V316, D alinhado com parede sul de V302 ═══ -->
+                <!-- V302: y=162..210  |  Pilar D=y=210 (parede sul V302), C=y=84 (dentro V316) -->
+                <!-- ═══ 4 quadrantes — TODOS L301 (mesma laje) ═══ -->
+                <rect x="0"   y="0"   width="256" height="162" fill="#0c1e0c"/>
+                <rect x="304" y="0"   width="256" height="162" fill="#0c1e0c"/>
+                <rect x="0"   y="210" width="256" height="170" fill="#0c1e0c"/>
+                <rect x="304" y="210" width="256" height="170" fill="#0c1e0c"/>
+                <!-- Rótulos — MESMO L301 nos 4 quadrantes -->
+                <text x="118" y="72"  fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.85">L301</text>
+                <text x="432" y="72"  fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.85">L301</text>
+                <text x="118" y="88"  fill="#4fc3a1" font-size="9"  text-anchor="middle" opacity="0.5">(mesma laje)</text>
+                <text x="432" y="88"  fill="#4fc3a1" font-size="9"  text-anchor="middle" opacity="0.5">(mesma laje)</text>
+                <text x="118" y="295" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.8">L301</text>
+                <text x="432" y="295" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.8">L301</text>
+                <!-- ═══ Viga N-S V316 (48px E-W) — segmento ACIMA do pilar (y=0..84) ═══ -->
+                <rect x="256" y="0"   width="48" height="84"  fill="#101828" stroke="#7eb8f7" stroke-width="1.8"/>
+                <text x="280" y="36"  fill="#7eb8f7" font-size="11" text-anchor="middle">V316</text>
+                <text x="280" y="50"  fill="#5a80aa" font-size="9"  text-anchor="middle">19/55 N-S</text>
+                <!-- ═══ Viga N-S V317 — segmento ABAIXO de V302 (y=210..380) ═══ -->
+                <rect x="256" y="210" width="48" height="170" fill="#101828" stroke="#7eb8f7" stroke-width="1.8"/>
+                <text x="280" y="330" fill="#7eb8f7" font-size="11" text-anchor="middle">V317</text>
+                <text x="280" y="344" fill="#5a80aa" font-size="9"  text-anchor="middle">19/45 N-S ↓</text>
+                <!-- ═══ Viga E-W V302 (48px N-S) — leste e oeste ═══ -->
+                <rect x="0"   y="162" width="256" height="48" fill="#101828" stroke="#7eb8f7" stroke-width="1.8"/>
+                <rect x="304" y="162" width="256" height="48" fill="#101828" stroke="#7eb8f7" stroke-width="1.8"/>
+                <text x="90"  y="182" fill="#7eb8f7" font-size="11" text-anchor="middle">V302</text>
+                <text x="90"  y="196" fill="#5a80aa" font-size="9"  text-anchor="middle">19/120 E-W</text>
+                <text x="470" y="182" fill="#7eb8f7" font-size="11" text-anchor="middle">V305</text>
+                <text x="470" y="196" fill="#5a80aa" font-size="9"  text-anchor="middle">19/95 E-W →</text>
+                <!-- ═══ Pilar VERTICAL P44: y=84..210 (D alinhado à parede sul de V302) ═══ -->
+                <!-- C (norte, y=84) = dentro de V316 que continua para norte = VIGA        -->
+                <!-- D (sul,  y=210) = exatamente na parede sul de V302 = VIGA               -->
+                <rect x="256" y="84"  width="48" height="126" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+                <line x1="256" y1="102" x2="304" y2="150" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="124" x2="304" y2="172" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="146" x2="304" y2="194" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="168" x2="304" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="256" y1="190" x2="304" y2="210" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="268" y1="84"  x2="304" y2="120" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <line x1="286" y1="84"  x2="304" y2="102" stroke="#f0b840" stroke-width="0.9" opacity="0.5"/>
+                <text x="280" y="154" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">P44</text>
+                <text x="280" y="168" fill="#aaa" font-size="10" text-anchor="middle">50/19 V</text>
+                <!-- ═══ Face labels ═══ -->
+                <!-- C = VIGA (norte/curta, y=84, em V316 que continua acima) -->
+                <text x="248" y="79"  fill="#c47ef7" font-size="13" font-weight="bold" text-anchor="end">▲  C = VIGA</text>
+                <!-- D = VIGA (sul/curta, y=210, alinhado com parede sul de V302) -->
+                <text x="248" y="226" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="end">▼  D = VIGA</text>
+                <!-- A = L301 + Viga (oeste) -->
+                <text x="248" y="150" fill="#4fc3a1" font-size="11" font-weight="bold" text-anchor="end">◄  A = L301 + Viga</text>
+                <!-- B = L301 + Viga (leste) -->
+                <text x="312" y="150" fill="#4fc3a1" font-size="11" font-weight="bold">B = L301 + Viga  ►</text>
+                <text x="312" y="163" fill="#4fc3a1" font-size="9">(= mesma laje!)</text>
+                <!-- nota -->
+                <text x="280" y="373" fill="#555" font-size="9.5" text-anchor="middle">N-S: V316(norte,55) ≠ V317(sul,45) · D = V302(oeste,120) ≠ V305(leste,95) · L301 mesma laje A e B</text>
+              </svg>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso8_P44_vertical.png" alt="Caso 8 — P44 com a mesma laje, marcador vertical">
+              <div class="slide-label real">Exemplo real — P44, leitura vertical</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso8_P44_horizontal.png" alt="Caso 8 — P44 com a mesma laje, marcador horizontal">
+              <div class="slide-label real">Exemplo real — P44, leitura horizontal</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c8')">&#8249;</button>
+            <span class="carousel-counter" id="c8-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c8')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 9 -->
+  <div class="caso">
+    <div class="caso-title">Caso 9 — Pilar face A na parede exterior: V322(norte,60/120) ≠ V321(sul,60/95) · face A/B = step norte→sul · C = V322 saída norte · D = V321 saída sul</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Variação do Caso 4: o pilar (P16) tem sua face longa A (oeste) <b>coincidindo com a parede externa oeste</b> da viga N-S. E agora: ao <b>norte</b> do pilar está V322 (60/120, mais funda) e ao <b>sul</b> está V321 (60/95, menos funda). São vigas N-S <b>distintas com profundidades diferentes</b> — o pilar é a junta de transição.</p>
+        <ul>
+          <li><b>A</b> (oeste/longa) = <b>VIGA</b> — face A coincide com a parede oeste; AC = V322 60/120 (norte, mais funda) · AD = V321 60/95 (sul, menos funda) — <b>step de profundidade na parede exterior!</b></li>
+          <li><b>B</b> (leste/longa) = <b>VIGA</b> — interior das vigas; BC = V322 60/120 (norte) · BD = V321 60/95 (sul) — mesma distinção</li>
+          <li><b>C</b> (norte/curta) = <b>VIGA</b> — face C = extremidade de V322; CA+CB = V322 60/120 sai para norte</li>
+          <li><b>D</b> (sul/curta) = <b>VIGA</b> — face D = extremidade de V321; DA+DB = V321 60/95 sai para sul — <b>viga diferente de C!</b></li>
+          <li>⚠ Regra crítica: <b>tocar a parede = VIGA</b> — coincidência exata é suficiente</li>
+          <li>⚠ A e B revelam a transição norte→sul: 120cm (norte) para 95cm (sul), 25cm de diferença de profundidade</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · parede exterior (oeste) · AC = V322 60/120 (norte) · AD = V321 60/95 (sul) · step na parede exterior!</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face A coincide com parede oeste das vigas; sem laje em A (pilar encostado na fachada das vigas)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">AC = V322 &nbsp;·&nbsp; dim: 60/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto norte da face A, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; AD = V321 &nbsp;·&nbsp; dim: 60/95 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto sul da face A, menos funda) — <b>⚠ step 120→95 na própria parede exterior!</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · interior das vigas · BC = V322 60/120 (norte) · BD = V321 60/95 (sul)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face B dentro do corpo das vigas; sem laje em B (pilar não chega à parede leste)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">BC = V322 &nbsp;·&nbsp; dim: 60/120 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto norte da face B, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; BD = V321 &nbsp;·&nbsp; dim: 60/95 &nbsp;·&nbsp; N: 852.19 &nbsp;(canto sul da face B, menos funda) — <b>⚠ mesmo step que A</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · V322 (N-S, 60/120) sai para norte · face C = extremidade norte</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C = extremidade de V322; sem laje em C (V322 sai para o vão ao norte)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V322 &nbsp;·&nbsp; dim: 60/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ CA+CB (face C = extremidade norte; V322 sai integralmente para o vão ao norte — viga da metade norte)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · V321 (N-S, 60/95) sai para sul · viga DIFERENTE de C · menos funda (−25cm)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D = extremidade de V321; sem laje em D (V321 sai para o vão ao sul)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V321 &nbsp;·&nbsp; dim: 60/95 &nbsp;·&nbsp; N: 852.19 &nbsp;→ DA+DB (face D = extremidade sul; V321 sai para o vão ao sul — <b>dim: 60/95 ≠ V322 60/120 — profundidade 25cm menor</b>)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c9">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <svg class="diagram-svg" viewBox="0 0 560 380" role="img" aria-label="Caso 9: pilar VERTICAL interno à viga com face A coincidente com a parede externa — todas as faces = VIGA">
+                <rect width="560" height="380" fill="#0d0d0d"/>
+                <!-- Laje distante — contexto fora da viga -->
+                <rect x="0" y="0" width="130" height="380" fill="#0b180b"/>
+                <text x="65" y="175" fill="#4fc3a1" font-size="12" text-anchor="middle" opacity="0.55" transform="rotate(-90,65,175)">laje (contexto)</text>
+                <!-- Corpo da viga larga: metade norte V322 (60/120), metade sul V321 (60/95) -->
+                <!-- Pilar: y=130..250 → norte: y=18..130 → sul: y=250..362 -->
+                <rect x="130" y="18" width="400" height="344" fill="#101828" stroke="#7eb8f7" stroke-width="2.5"/>
+                <!-- linha de junta (onde os dois segmentos se encontram no pilar) -->
+                <line x1="130" y1="130" x2="530" y2="130" stroke="#f0b840" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.5"/>
+                <line x1="130" y1="250" x2="530" y2="250" stroke="#f0b840" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.5"/>
+                <text x="340" y="42" fill="#7eb8f7" font-size="13" text-anchor="middle">V322 — 60/120 (norte)</text>
+                <text x="340" y="342" fill="#7eb8f7" font-size="13" text-anchor="middle">V321 — 60/95 (sul)</text>
+                <!-- Parede oeste da viga (A coincide aqui) destacada em vermelho -->
+                <line x1="130" y1="18" x2="130" y2="362" stroke="#ff6060" stroke-width="5"/>
+                <!-- Pilar VERTICAL P16 (19 E-W × 100 N-S) -->
+                <!-- Face A (oeste) COINCIDE com a parede oeste da viga (x=130) -->
+                <rect x="130" y="130" width="52" height="120" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+                <line x1="130" y1="144" x2="182" y2="196" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="130" y1="164" x2="182" y2="216" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="130" y1="184" x2="182" y2="236" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="130" y1="204" x2="182" y2="250" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="143" y1="130" x2="182" y2="169" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="160" y1="130" x2="182" y2="152" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="177" y1="130" x2="182" y2="135" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <text x="156" y="187" fill="#f0b840" font-size="12" text-anchor="middle">P16</text>
+                <text x="156" y="202" fill="#aaa" font-size="10" text-anchor="middle">19×100 V</text>
+                <!-- Seta indicando A = coincide com a parede -->
+                <text x="118" y="183" fill="#ff7777" font-size="11" font-weight="bold" text-anchor="end">◄ A =</text>
+                <text x="118" y="197" fill="#ff7777" font-size="11" font-weight="bold" text-anchor="end">VIGA</text>
+                <text x="60" y="215" fill="#ff9999" font-size="10" text-anchor="middle">(face coincide</text>
+                <text x="60" y="228" fill="#ff9999" font-size="10" text-anchor="middle">com a parede)</text>
+                <!-- Outras faces -->
+                <text x="200" y="125" fill="#c47ef7" font-size="12" font-weight="bold">▲ C = VIGA (dentro)</text>
+                <text x="200" y="263" fill="#f0b840" font-size="12" font-weight="bold">▼ D = VIGA (dentro)</text>
+                <text x="196" y="193" fill="#7eb8f7" font-size="12" font-weight="bold">B = VIGA (dentro) ►</text>
+                <!-- nota -->
+                <text x="280" y="372" fill="#555" font-size="9.5" text-anchor="middle">C = V322 60/120 (norte) ≠ D = V321 60/95 (sul) · A/B = step: AC(120) → AD(95); BC(120) → BD(95)</text>
+              </svg>
+              <div class="slide-label">Diagrama de referência — uma face alinhada à parede</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso9_P16_parede_vertical.png" alt="Caso 9 — P16 com uma face na parede da viga vertical">
+              <div class="slide-label real">Exemplo real — parede da viga vertical</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso9_P16_parede_horizontal.png" alt="Caso 9 — P16 com uma face na parede da viga horizontal">
+              <div class="slide-label real">Exemplo real — mesma regra girada 90°</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c9')">&#8249;</button>
+            <span class="carousel-counter" id="c9-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c9')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 10 -->
+  <div class="caso">
+    <div class="caso-title">Caso 10 — Encontro em T: V303(norte,19/55) ≠ V304(sul,19/45) + V302(E-W,19/120) chega em A · C=V303 norte · D=V304 sul · A/B = step AC≠AD</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar P21 (19cm × 86cm VERTICAL) é a junta entre duas vigas N-S distintas: V303 (19/55) ao <b>norte</b> e V304 (19/45) ao <b>sul</b>. Além disso, V302 (E-W, 19/120) <b>chega do oeste pela face A</b> e termina na parede oeste das vigas N-S — encontro em T. A face A revela V303 ao norte (AC) <b>e</b> V304 ao sul (AD) com profundidades diferentes.</p>
+        <ul>
+          <li><b>C</b> (norte/curta) = <b>VIGA V303</b> — face C = extremidade de V303 (19/55); CA+CB sai para norte</li>
+          <li><b>D</b> (sul/curta) = <b>VIGA V304</b> — face D = extremidade de V304 (19/45); DA+DB sai para sul — <b>viga diferente de C!</b></li>
+          <li><b>A</b> (oeste/longa) = <b>Laje + Viga que passa + Viga que chega</b> — AC = V303 19/55 (norte) · AD = V304 19/45 (sul) com profundidades diferentes; <i>e</i> V302 E-W chega pelo oeste (AC=33cm, AD=34cm)</li>
+          <li><b>B</b> (leste/longa) = <b>Laje + Viga que passa</b> — BC = V303 19/55 (norte) · BD = V304 19/45 (sul); sem V302 (não atravessa para B)</li>
+          <li>⚠ Dupla distinção em A: profundidade N-S (55 vs 45) <i>e</i> V302 chegando pelo oeste — caso mais complexo</li>
+          <li>⚠ V302 termina em T — A tem V302+V303/V304, B tem apenas V303/V304</li>
+        </ul>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · AC = V303 19/55 (norte) · AD = V304 19/45 (sul) · + V302 chega em A · Laje + step + chegada</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;· AC=0cm · AD=0cm (laje a oeste das vigas, além da face A)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">AC = V303 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;(norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; AD = V304 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;(sul, menos funda) — <b>⚠ step 55→45 nas vigas N-S da face A</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V302 &nbsp;·&nbsp; dim: 19/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ AC=33cm · AD=34cm &nbsp;(V302 chega do oeste e termina em A; distâncias dos cantos AC e AD)</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · BC = V303 19/55 (norte) · BD = V304 19/45 (sul) · sem V302 · Laje + step</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(laje a leste das vigas; V302 não atravessa V303/V304 para o lado B)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">BC = V303 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;(norte, mais funda) &nbsp;&nbsp;|&nbsp;&nbsp; BD = V304 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;(sul, menos funda) — <b>⚠ mesmo step que A, mas sem V302 em B</b></span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma (V302 não atravessa V303 para o lado B)</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · V303 (N-S, 19/55) sai para norte · face C = extremidade norte (mais funda)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C = extremidade de V303; sem laje em C (V303 sai para o vão ao norte)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V303 &nbsp;·&nbsp; dim: 19/55 &nbsp;·&nbsp; N: 852.19 &nbsp;→ CA+CB (face C = extremidade norte; V303 sai integralmente para o vão ao norte — viga da metade norte, mais funda)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · V304 (N-S, 19/45) sai para sul · viga DIFERENTE de C · menos funda (−10cm)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D = extremidade de V304; sem laje em D (V304 sai para o vão ao sul)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V304 &nbsp;·&nbsp; dim: 19/45 &nbsp;·&nbsp; N: 852.19 &nbsp;→ DA+DB (face D = extremidade sul; V304 sai para o vão ao sul — <b>dim: 19/45 ≠ V303 19/55 — profundidade 10cm menor</b>)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c10">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <svg class="diagram-svg" viewBox="0 0 560 420" role="img" aria-label="Caso 10: pilar VERTICAL P21 (19/86) dentro de viga N-S V303 — viga transversal V302 centralizada no T e termina na parede oeste da viga principal">
+                <rect width="560" height="420" fill="#0d0d0d"/>
+                <!-- ═══ Laje de fundo (vão geral L301) ═══ -->
+                <rect x="0" y="0" width="560" height="420" fill="#0c1c0c"/>
+                <!-- ═══ Viga N-S V303(norte)+V304(sul) — banda vertical, atravessa todo o canvas ═══ -->
+                <!-- 19cm E-W = 60px. Pilar: y=74..346 → C(norte)=y74, D(sul)=y346 -->
+                <rect x="250" y="0" width="60" height="420" fill="#101828" stroke="#7eb8f7" stroke-width="2.2"/>
+                <!-- linha de junta no pilar (C e D) -->
+                <line x1="250" y1="74" x2="310" y2="74" stroke="#f0b840" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5"/>
+                <line x1="250" y1="346" x2="310" y2="346" stroke="#f0b840" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5"/>
+                <!-- Rótulos: V303 acima do pilar (norte), V304 abaixo (sul) -->
+                <text x="280" y="30" fill="#7eb8f7" font-size="11" text-anchor="middle">V303</text>
+                <text x="280" y="44" fill="#5a80aa" font-size="9" text-anchor="middle">19/55 ↑</text>
+                <text x="280" y="395" fill="#7eb8f7" font-size="11" text-anchor="middle">V304</text>
+                <text x="280" y="408" fill="#5a80aa" font-size="9" text-anchor="middle">19/45 ↓</text>
+                <!-- ═══ Viga E-W transversal V302 — CENTRALIZADA no eixo do pilar (y=210) ═══ -->
+                <!-- V302: 19cm N-S = 48px. Centro = y=210 → y=186 a y=234 -->
+                <!-- Só existe a OESTE da viga principal → x=0 a x=250 (termina na parede de V303) -->
+                <rect x="0" y="186" width="250" height="48" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+                <text x="115" y="207" fill="#7eb8f7" font-size="11" text-anchor="middle">V302</text>
+                <text x="115" y="221" fill="#5a80aa" font-size="9" text-anchor="middle">transversal E-W</text>
+                <!-- Destaque da terminação T — linha vermelha na parede oeste da V303 -->
+                <line x1="250" y1="180" x2="250" y2="240" stroke="#ff5555" stroke-width="4"/>
+                <text x="240" y="177" fill="#ff7777" font-size="10" text-anchor="end">⊣ T</text>
+                <!-- ═══ Pilar VERTICAL P21 (19cm E-W × 86cm N-S) ═══ -->
+                <!-- Escala: 19cm = 60px → 86cm = 271px                        -->
+                <!-- Centro em y=210; y_top=210-136=74; y_bot=210+136=346       -->
+                <!-- Largura = 60px = mesma da viga V303 → encaixa perfeitamente -->
+                <rect x="250" y="74" width="60" height="272" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+                <line x1="250" y1="92" x2="310" y2="152" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="120" x2="310" y2="180" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="148" x2="310" y2="208" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="176" x2="310" y2="236" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="204" x2="310" y2="264" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="232" x2="310" y2="292" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="260" x2="310" y2="320" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="288" x2="310" y2="346" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="316" x2="310" y2="346" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="262" y1="74" x2="310" y2="122" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="284" y1="74" x2="310" y2="100" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <text x="280" y="207" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">P21</text>
+                <text x="280" y="221" fill="#aaa" font-size="10" text-anchor="middle">19/86 VERT</text>
+                <!-- ═══ Face labels ═══ -->
+                <!-- C = VIGA (norte/curta, y=74, dentro de V303 que continua ao norte) -->
+                <text x="242" y="69" fill="#c47ef7" font-size="13" font-weight="bold" text-anchor="end">▲  C = VIGA</text>
+                <!-- D = VIGA (sul/curta, y=346, dentro de V303 que continua ao sul) -->
+                <text x="242" y="362" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="end">▼  D = VIGA</text>
+                <!-- A = Laje+Viga (oeste/longa) -->
+                <text x="242" y="208" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = Laje+Viga</text>
+                <!-- B = Laje+Viga (leste/longa) -->
+                <text x="318" y="208" fill="#7eb8f7" font-size="12" font-weight="bold">B = Laje+Viga  ►</text>
+                <!-- Laje label -->
+                <text x="420" y="200" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.7">L301</text>
+                <!-- Seta explicativa do T -->
+                <text x="115" y="270" fill="#ff7777" font-size="10" text-anchor="middle">V302 termina</text>
+                <text x="115" y="283" fill="#ff7777" font-size="10" text-anchor="middle">na parede de V303</text>
+                <line x1="175" y1="263" x2="246" y2="234" stroke="#ff5555" stroke-width="1" stroke-dasharray="3,3"/>
+                <!-- nota -->
+                <text x="280" y="414" fill="#555" font-size="9.5" text-anchor="middle">C = V303 19/55 (norte) ≠ D = V304 19/45 (sul) · A: AC(55)≠AD(45) + V302 chega · B: BC(55)≠BD(45) sem V302</text>
+              </svg>
+              <div class="slide-label">Diagrama de referência — encontro em T</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso10_P21_juncao_T_vertical.png" alt="Caso 10 — P21 em encontro de vigas em T vertical">
+              <div class="slide-label real">Exemplo real — P21, encontro vertical</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso10_P11_juncao_T_horizontal.png" alt="Caso 10 — P11 em encontro de vigas em T horizontal">
+              <div class="slide-label real">Exemplo real — P11, mesma regra girada 90°</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c10')">&#8249;</button>
+            <span class="carousel-counter" id="c10-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c10')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 11 -->
+  <div class="caso">
+    <div class="caso-title">Caso 11 — "Viga que passa AD" (viga N-S passa pelo lado A em UMA só direção)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O pilar fica na <b>extremidade de uma viga N-S</b> — a viga está alinhada com a face A (oeste) mas <b>só continua para sul</b> (direção D). Para norte (direção C) não há viga, só laje. Resultado: <b>A = Viga que passa AD</b>.</p>
+        <ul>
+          <li><b>A</b> = <span style="color:#4fc3a1">Viga que passa AD</span> — V316 (19/120) corre para sul a partir da face D do pilar; face C (norte) da A não tem viga</li>
+          <li><b>B</b> = Laje+Viga ou laje — depende do elemento adjacente a leste; sem viga N-S no lado B</li>
+          <li><b>C</b> (topo/norte) = LAJE — pilar não encostar em nenhuma viga ao norte</li>
+          <li><b>D</b> (base/sul) = VIGA — a extremidade sul do pilar encosta na parede norte de V316</li>
+        </ul>
+        <p style="color:#888; font-size:11px; margin-top:8px;">Contraste com <b>AC+AD</b>: quando a viga passa nos dois lados, o pilar está no meio da viga; aqui ele está na <b>ponta</b> da viga.</p>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · V316 passa apenas no canto AD (ponta norte da viga)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(porção norte da face A onde V316 ainda não existe)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V316 &nbsp;·&nbsp; dim: 19/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ AD only (viga N-S sai para sul apenas pelo canto AD; o canto AC ao norte está livre — sem viga)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · sem viga N-S em B</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(nenhuma viga N-S no lado B)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · laje (pilar não encosta em viga ao norte)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(pilar não encosta em viga ao norte; V316 não vai para AC)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma (V316 está apenas a sul; face curta C está livre)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · ponta norte de V316 (viga termina em D)</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face D encosta na parede norte de V316; sem laje em D</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V316 &nbsp;·&nbsp; dim: 19/120 &nbsp;·&nbsp; N: 852.19 &nbsp;→ DA+DB (face D = ponta norte de V316; viga sai para sul por DA e DB)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c11">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <svg class="diagram-svg" viewBox="0 0 560 420" role="img" aria-label="Caso 11: pilar VERTICAL P4 na extremidade de V316 N-S — A = Viga que passa AD, C = LAJE, D = VIGA">
+                <rect width="560" height="420" fill="#0d0d0d"/>
+                <!-- ═══ Fundo de laje L301 ═══ -->
+                <rect x="0" y="0" width="560" height="420" fill="#0c1e0c"/>
+                <!-- ═══ V316 N-S — só vai para SUL (AD), NÃO vai para norte (AC) ═══ -->
+                <!-- V316 começa em y=260 (D face do pilar) e vai até y=420 -->
+                <rect x="200" y="260" width="48" height="160" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+                <text x="224" y="360" fill="#7eb8f7" font-size="11" text-anchor="middle">V316</text>
+                <text x="224" y="375" fill="#5a80aa" font-size="9"  text-anchor="middle">19/120 N-S</text>
+                <text x="224" y="390" fill="#5a80aa" font-size="9"  text-anchor="middle">↓ continua</text>
+                <!-- ═══ Pilar VERTICAL P4 (19/66) ═══ -->
+                <!-- 19cm=48px → 66cm=166px. y=94..260 -->
+                <rect x="200" y="94" width="48" height="166" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+                <line x1="200" y1="114" x2="248" y2="162" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="200" y1="140" x2="248" y2="188" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="200" y1="166" x2="248" y2="214" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="200" y1="192" x2="248" y2="240" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="200" y1="218" x2="248" y2="260" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="200" y1="244" x2="248" y2="260" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="214" y1="94"  x2="248" y2="128" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="234" y1="94"  x2="248" y2="108" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <text x="224" y="178" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">P4</text>
+                <text x="224" y="193" fill="#aaa" font-size="10" text-anchor="middle">19/66 V</text>
+                <!-- ═══ Indicação visual: V316 NÃO vai para norte ═══ -->
+                <!-- Linha cortada com X mostrando que a viga não continua ao norte do pilar -->
+                <line x1="224" y1="60" x2="224" y2="94" stroke="#7eb8f7" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.35"/>
+                <text x="224" y="50" fill="#5a80aa" font-size="9" text-anchor="middle" opacity="0.5">sem V316</text>
+                <text x="224" y="62" fill="#5a80aa" font-size="9" text-anchor="middle" opacity="0.5">ao norte ✕</text>
+                <!-- ═══ Face labels ═══ -->
+                <!-- C = LAJE (norte/curta, y=94) — nenhuma viga ao norte -->
+                <text x="192" y="88"  fill="#4fc3a1" font-size="13" font-weight="bold" text-anchor="end">▲  C = LAJE</text>
+                <!-- D = VIGA (sul/curta, y=260) — encosta na parede norte de V316 -->
+                <text x="192" y="278" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="end">▼  D = VIGA</text>
+                <!-- A = Viga que passa AD (oeste/longa) — V316 alinhada à esquerda, só vai para sul -->
+                <text x="192" y="172" fill="#4fc3a1" font-size="11" font-weight="bold" text-anchor="end">◄  A =</text>
+                <text x="192" y="185" fill="#4fc3a1" font-size="11" font-weight="bold" text-anchor="end">Viga que passa AD</text>
+                <text x="192" y="198" fill="#4fc3a1" font-size="9" text-anchor="end">(V316 só ao sul)</text>
+                <!-- B = LAJE (leste/longa) -->
+                <text x="258" y="178" fill="#7eb8f7" font-size="11" font-weight="bold">B = LAJE  ►</text>
+                <!-- Laje labels -->
+                <text x="390" y="180" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.7">L301</text>
+                <text x="390" y="340" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.7">L301</text>
+                <text x="100" y="340" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.7">L301</text>
+                <!-- Seta indicando direção única -->
+                <text x="310" y="310" fill="#7eb8f7" font-size="11" text-anchor="middle">↓  V316 vai apenas</text>
+                <text x="310" y="323" fill="#7eb8f7" font-size="11" text-anchor="middle">para sul (AD)</text>
+                <!-- nota -->
+                <text x="280" y="413" fill="#555" font-size="9.5" text-anchor="middle">Pilar na PONTA da viga N-S · A = Viga que passa AD · B = Laje · C = Laje · D = Viga</text>
+              </svg>
+              <div class="slide-label">Diagrama de referência — ponta de viga N-S (AD)</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso11_P4_V316_ponta.png" alt="Caso 11 — P4 na ponta de V316, viga que passa AD" onerror="this.parentElement.innerHTML='<div class=slide-placeholder>Foto do CAD — P4/V316<br>(adicione como caso11_P4_V316_ponta.png)</div>'">
+              <div class="slide-label real">Exemplo real — P4 (19/66) na extremidade de V316</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c11')">&#8249;</button>
+            <span class="carousel-counter" id="c11-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('c11')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASO 12 -->
+  <div class="caso">
+    <div class="caso-title">Caso 12 — "Viga que passa CA + CB" (dois segmentos de viga com dimensões diferentes pelo mesmo lado)</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A face curta <b>C (norte) ou D (sul)</b> do pilar está alinhada com uma <b>viga E-W que se prolonga nos dois sentidos</b> — mas com <b>dimensões diferentes</b> para cada lado. É como um encontro em T onde a viga do eixo principal tem seção diferente à esquerda e à direita.</p>
+        <ul>
+          <li><b>C</b> (topo/norte) = <span style="color:#c47ef7">Viga que passa CA + CB</span> — viga E-W sai para A (oeste) <i>e</i> para B (leste), com dimensões distintas</li>
+          <li><b>CA:</b> V302 <code>14/55</code> → vai para oeste (lado A)</li>
+          <li><b>CB:</b> V302 <code>14/70</code> → vai para leste (lado B) — <b>seção diferente!</b></li>
+          <li><b>A e B</b> (faces longas) = LAJE — a viga está perpendicular a A e B, não paralela</li>
+          <li><b>D</b> (base/sul) = LAJE — vão aberto para sul sem viga no nível D</li>
+        </ul>
+        <p style="color:#888; font-size:11px; margin-top:8px;">
+          ⚠ Quando CA e CB têm <b>mesmo nome de viga mas dimensões diferentes</b>, registre ambos separadamente: <code>CA: V302 14/55 · CB: V302 14/70</code>. Indica que a viga muda de seção ao longo do trecho — informação vital para a forma correta.
+        </p>
+        <div class="result-row">
+          <div class="face-block">
+            <div class="face-hdr fh-A">A &mdash; oeste · face longa · V302 chega perpendicularmente pelo canto AC</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(V302 é perpendicular a A, não paralela; laje ocupa A exceto o canto AC)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma (V302 chega perpendicular, não corre paralela a A)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V302 &nbsp;·&nbsp; dim: 14/55 &nbsp;·&nbsp; N: 852.19 &nbsp;→ AC=0cm (V302 chega pelo canto AC; seção CA da viga; distância do canto AC = 0)</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-B">B &mdash; leste · face longa · V302 chega perpendicularmente pelo canto BC</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(V302 é perpendicular a B, não paralela; laje ocupa B exceto o canto BC)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma (V302 chega perpendicular, não corre paralela a B)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="dk">Viga:</span> <span class="dv">V302 &nbsp;·&nbsp; dim: 14/70 &nbsp;·&nbsp; N: 852.19 &nbsp;→ BC=0cm (V302 chega pelo canto BC; seção CB da viga; distância do canto BC = 0 &nbsp;⚠ dim. diferente de CA)</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-C">C &mdash; norte · face curta · V302 passa com dim. diferentes em CA e CB</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="nulo">— face C dentro do corpo de V302; sem laje em C</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="dk">CA — Viga (oeste):</span> <span class="dv">V302 &nbsp;·&nbsp; dim: 14/55 &nbsp;·&nbsp; N: 852.19 &nbsp;&nbsp;</span><span class="dk">CB — Viga (leste):</span> <span class="dv">V302 &nbsp;·&nbsp; dim: 14/70 &nbsp;·&nbsp; N: 852.19 &nbsp;⚠ mesma viga, altura diferente nos dois lados de C</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+          <div class="face-block">
+            <div class="face-hdr fh-D">D &mdash; sul · face curta · sem viga E-W em D</div>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-laje">Lajes</span><div class="cat-detail"><span class="dk">Laje:</span> <span class="dv">L301 &nbsp;·&nbsp; esp: 14cm &nbsp;·&nbsp; N: 852.19 &nbsp;(sem viga E-W no nível D)</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-passa">Vigas que passam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+            <label class="cat-row"><input type="checkbox" class="aprovado-cb" onchange="toggleAprovado(this)"><span class="aprovado-lbl">Aprovado</span><span class="cat-badge cb-chega">Vigas que chegam</span><div class="cat-detail"><span class="nulo">— nenhuma</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="c12">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <svg class="diagram-svg" viewBox="0 0 560 380" role="img" aria-label="Caso 12: face C com viga que passa CA (14/55 para oeste) e CB (14/70 para leste) — dimensões diferentes nos dois sentidos">
+                <rect width="560" height="380" fill="#0d0d0d"/>
+                <!-- ═══ Laje fundo ═══ -->
+                <rect x="0" y="0" width="560" height="380" fill="#0c1e0c"/>
+                <!-- ═══ Laje norte (acima das vigas) ═══ -->
+                <rect x="0" y="0" width="560" height="60" fill="#0b180b"/>
+                <!-- ═══ Viga E-W V302 — segmento OESTE (CA): x=0..250, y=60..104 ═══ -->
+                <!-- 14cm N-S: se 19cm=60px → 14cm=44px. y=60..104 -->
+                <rect x="0"   y="60" width="250" height="44" fill="#101828" stroke="#7eb8f7" stroke-width="2"/>
+                <text x="118" y="78"  fill="#7eb8f7" font-size="12" text-anchor="middle">V302  ←  CA</text>
+                <text x="118" y="93"  fill="#5a80aa" font-size="10" text-anchor="middle">14/55  (oeste)</text>
+                <!-- ═══ Viga E-W V302 — segmento LESTE (CB): x=310..560, y=60..104 ═══ -->
+                <!-- Mesma largura de planta 14cm = 44px (diferença só na elevação: 14/70) -->
+                <rect x="310" y="60" width="250" height="44" fill="#101828" stroke="#7eb8f7" stroke-width="2.5"/>
+                <text x="432" y="78"  fill="#7eb8f7" font-size="12" text-anchor="middle">CB  →  V302</text>
+                <text x="432" y="93"  fill="#5a80aa" font-size="10" text-anchor="middle">14/70  (leste) ≠</text>
+                <!-- Destaque: seções diferentes! -->
+                <text x="432" y="108" fill="#ff9966" font-size="9" text-anchor="middle">seção diferente ↑</text>
+                <!-- ═══ Pilar VERTICAL P5 (19/66) ═══ -->
+                <!-- C face (norte) em y=104; D (sul) em y=104+165=269 -->
+                <!-- 19cm=60px → 66cm=208px; usar 165px para encaixar -->
+                <rect x="250" y="104" width="60" height="175" fill="#251d0a" stroke="#f0b840" stroke-width="3"/>
+                <line x1="250" y1="122" x2="310" y2="182" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="148" x2="310" y2="208" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="174" x2="310" y2="234" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="200" x2="310" y2="260" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="226" x2="310" y2="279" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="250" y1="252" x2="310" y2="279" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="262" y1="104" x2="310" y2="152" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <line x1="284" y1="104" x2="310" y2="130" stroke="#f0b840" stroke-width="0.9" opacity="0.45"/>
+                <text x="280" y="192" fill="#f0b840" font-size="12" font-weight="bold" text-anchor="middle">P5</text>
+                <text x="280" y="207" fill="#aaa" font-size="10" text-anchor="middle">19/66 V</text>
+                <!-- ═══ Face labels ═══ -->
+                <!-- C = Viga que passa CA + CB (norte/curta, y=104) -->
+                <text x="280" y="55" fill="#c47ef7" font-size="12" font-weight="bold" text-anchor="middle">▲  C = Viga que passa CA + CB</text>
+                <text x="280" y="68" fill="#c47ef7" font-size="10" text-anchor="middle">(V302: 14/55 oeste · 14/70 leste — dimensões diferentes!)</text>
+                <!-- D = LAJE (sul/curta, y=279) -->
+                <text x="280" y="300" fill="#f0b840" font-size="13" font-weight="bold" text-anchor="middle">▼  D = LAJE</text>
+                <!-- A = LAJE (oeste/longa) -->
+                <text x="242" y="192" fill="#4fc3a1" font-size="12" font-weight="bold" text-anchor="end">◄  A = LAJE</text>
+                <!-- B = LAJE (leste/longa) -->
+                <text x="318" y="192" fill="#7eb8f7" font-size="12" font-weight="bold">B = LAJE  ►</text>
+                <!-- Laje labels -->
+                <text x="280" y="348" fill="#4fc3a1" font-size="14" text-anchor="middle" opacity="0.75">L301</text>
+                <text x="100" y="250" fill="#4fc3a1" font-size="13" text-anchor="middle" opacity="0.65">L301</text>
+                <text x="440" y="250" fill="#4fc3a1" font-size="13" text-anchor="middle" opacity="0.65">L301</text>
+                <!-- Seta comparativa de dimensões -->
+                <line x1="250" y1="60" x2="250" y2="104" stroke="#c47ef7" stroke-width="3"/>
+                <line x1="310" y1="60" x2="310" y2="104" stroke="#c47ef7" stroke-width="3" stroke-dasharray="4,2"/>
+                <text x="165" y="120" fill="#5a80aa" font-size="9" text-anchor="middle">h=55cm</text>
+                <text x="440" y="120" fill="#ff9966" font-size="9" text-anchor="middle">h=70cm ≠</text>
+                <!-- nota -->
+                <text x="280" y="373" fill="#555" font-size="9.5" text-anchor="middle">Mesmo nome V302, dimensões distintas CA/CB — registrar ambos com nomes e medidas separadas</text>
+              </svg>
+              <div class="slide-label">Diagrama — C com duas vigas de seções diferentes (CA 14/55 e CB 14/70)</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso12_P5_V302_CA_CB.png" alt="Caso 12 — P5 com V302 CA+CB de dimensões diferentes" onerror="this.parentElement.innerHTML='<div class=slide-placeholder>Foto do CAD — P5 / V302 CA+CB<br>(adicione como caso12_P5_V302_CA_CB.png)</div>'">
+              <div class="slide-label real">Exemplo real — P5 (19/66), V302 14/55 a oeste e 14/70 a leste</div>
+            </div>
+            <div class="carousel-slide">
+              <img class="carousel-img" src="imgs/caso12_P23_V321_V320_AC_AD.png" alt="Caso 12 variação — P23 com V321 (AC) e V320 (AD)" onerror="this.parentElement.innerHTML='<div class=slide-placeholder>Foto do CAD — P23 / V321+V320<br>(adicione como caso12_P23_V321_V320_AC_AD.png)</div>'">
+              <div class="slide-label real">Variação — P23 (19/100): A = Viga que passa AC (V321 19/70) + AD (V320 19/55)</div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('c12')">&#8249;</button>
+            <span class="carousel-counter" id="c12-counter">1 / 3</span>
+            <button class="carousel-btn" onclick="nextSlide('c12')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>3. O que preencher em cada face</h2>
+
+  <table>
+    <tr><th>Resultado</th><th>Campo Laje</th><th>Campo Viga</th><th>Exemplo no HTML</th></tr>
+    <tr>
+      <td><span class="tag tag-laje">LAJE</span></td>
+      <td>Laje: L301<br>Altura: 12<br>Nivel: 852.19</td>
+      <td>—</td>
+      <td><code>Laje: L301\nAltura: 12\nNivel: 852.19</code></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-viga">VIGA</span></td>
+      <td>—</td>
+      <td>Viga: VE301<br>Largura: 19<br>Altura: 55<br>Nivel: 852.19</td>
+      <td><code>Viga: VE301\nLargura: 19\nAltura: 55\nNivel: ...</code></td>
+    </tr>
+    <tr>
+      <td>LAJE + VIGA<br><small>(Caso 5 Extra)</small></td>
+      <td>Laje: L301<br>Altura: 12</td>
+      <td>Viga: VE301<br>Largura: 19</td>
+      <td>Ambos preenchidos</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-nulo">nulo</span></td>
+      <td>—</td>
+      <td>—</td>
+      <td><code>nulo</code></td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>4. Erros Comuns do Algoritmo Atual</h2>
+
+  <div class="rule-box">
+    <div class="rule-title">Limitações conhecidas (2026-06-30)</div>
+    <ul style="margin-left:16px; color:#aaa; font-size:12px;">
+      <li><b>Vigas não detectadas para C/D:</b> O sistema não tem <code>_beam_poly_map</code> ainda.
+        Quando C/D deveria ser VIGA (Caso 1 ou 2), o sistema retorna <code>nulo</code> ou a laje adjacente.</li>
+      <li><b>Lajes diagonais rejeitadas:</b> Fix ativo — laje no canto do pilar sem sobreposição real no eixo da face → ignorada.</li>
+      <li><b>"Viga:" vazio:</b> Foi corrigido. Antes, C/D dentro de polígono de laje gerava template vazio de viga. Agora retorna a laje corretamente (Caso 3).</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <hr>
+  <div class="casos-debug">
+    <h2 style="color:#f0b840; border-color:#f0b840;">5. Casos Debugados — Exemplos Reais</h2>
+    <p style="color:#666; font-size:11px; margin-bottom:12px;">
+      Esta seção é evolutiva. Adicione aqui prints + explicação de cada bug encontrado e sua solução.
+    </p>
+
+    <h3>P43 — C incorreto (Obra_TREINO_1 / 13_PAV)</h3>
+    <div class="caso" style="border-color:#333;">
+      <div class="caso-body">
+        <div class="caso-text">
+          <p><b>Problema:</b> P43 VERTICAL (19×50). C (topo/norte) mostrava <code>Laje: L303</code>.<br>
+          L303 está no quadrante <b>nordeste</b> — tocava apenas o canto superior-direito de P43,
+          sem sobreposição real no eixo X da face C.</p>
+          <p style="margin-top:6px"><b>Causa raiz:</b> O fallback de proximidade (<code>_fix_nulo_sides</code>)
+          usava centroide de L303 (mais ao norte do que a leste) e classificava como C.
+          O algoritmo não verificava sobreposição de bbox no eixo ortogonal.</p>
+          <p style="margin-top:6px"><b>Solução:</b> Pass 1 e 2 do fallback agora exigem
+          que <code>sx1 &ge; px0</code> e <code>sx0 &le; px1</code> para VERTICAL C/D
+          (sobreposição real em X). L303 em x=[2059.40, 2203.80] vs P43 em x=[2040.38, 2059.38]
+          → gap de 0.02 cm → rejeitado → C=nulo.</p>
+          <div class="result-row">
+            <div class="result-face rf-C">C: L303 → nulo ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>P5/P6/P7/P8 — D incorreto (Obra_TREINO_1 / 13_PAV)</h3>
+    <div class="caso" style="border-color:#333;">
+      <div class="caso-body">
+        <div class="caso-text">
+          <p><b>Problema:</b> Pilares na borda sul mostravam <code>Viga: [vazio]</code> para face D.</p>
+          <p style="margin-top:6px"><b>Causa raiz:</b> Estratégia 2 do <code>_get_side_cell</code>
+          retornava template genérico de VIGA quando pontos da face C/D estavam dentro de polígono de laje.
+          Isso contradiz o Caso 3 do doc (dentro de laje = LAJE, não VIGA).</p>
+          <p style="margin-top:6px"><b>Solução:</b> Estratégia 2 agora retorna LAJE para todos os lados (A/B/C/D).
+          D passou de <code>Viga:</code> para <code>Laje: L305</code>.</p>
+          <div class="result-row">
+            <div class="result-face rf-D">D: "Viga:" → Laje ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="debug-empty">
+      — Adicione mais casos aqui conforme forem identificados —
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleAprovado(cb) {
+  const entry = cb.closest('.cat-row') || cb.closest('.result-entry');
+  const lbl = entry.querySelector('.aprovado-lbl');
+  if (cb.checked) {
+    entry.classList.add('approved');
+    lbl.textContent = 'Aprovado ✓';
+  } else {
+    entry.classList.remove('approved');
+    lbl.textContent = 'Aprovado';
+  }
+  if (cb.dataset.cbkey) {
+    localStorage.setItem(cb.dataset.cbkey, cb.checked ? '1' : '0');
+  }
+}
+function initCheckboxes() {
+  const cbs = document.querySelectorAll('.aprovado-cb');
+  cbs.forEach(function(cb, idx) {
+    const key = 'abcd_cb_' + idx;
+    cb.dataset.cbkey = key;
+    if (localStorage.getItem(key) === '1') {
+      cb.checked = true;
+      const entry = cb.closest('.cat-row') || cb.closest('.result-entry');
+      if (entry) {
+        entry.classList.add('approved');
+        const lbl = entry.querySelector('.aprovado-lbl');
+        if (lbl) lbl.textContent = 'Aprovado ✓';
+      }
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', initCheckboxes);
+function _carouselMove(id, dir) {
+  const el = document.getElementById(id);
+  const slides = el.querySelectorAll('.carousel-slide');
+  const counter = document.getElementById(id + '-counter');
+  let cur = Array.from(slides).findIndex(s => s.classList.contains('active'));
+  slides[cur].classList.remove('active');
+  cur = (cur + dir + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  counter.textContent = (cur + 1) + ' / ' + slides.length;
+}
+function prevSlide(id) { _carouselMove(id, -1); }
+function nextSlide(id) { _carouselMove(id, +1); }
+</script>
+</body>
+</html>

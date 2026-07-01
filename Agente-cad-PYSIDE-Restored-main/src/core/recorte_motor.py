@@ -62,7 +62,8 @@ class RecorteMotor:
 
         self._dxf: ezdxf.Drawing | None = None
         self._pkl: dict | None = None
-        self._laj_dimension_hints: dict[str, tuple[float, float]] | None = None
+        self._laj_dimension_hints: dict[str, dict] | None = None
+        self._laj_layer_cache: dict[bool, set[str]] = {}
 
     # ──────────────────────────────────────────────────────────────────────
     # Público: run()
@@ -393,7 +394,6 @@ class RecorteMotor:
         elem_labels: dict[str, list] = {}
         for e in msp:
             if not hasattr(e.dxf, 'layer'): continue
-            if e.dxf.layer != '4': continue
             if e.dxftype() not in ('TEXT', 'MTEXT'): continue
             txt = (e.dxf.text if e.dxftype() == 'TEXT' else e.text).strip()
             if label_pat.match(txt):
@@ -452,11 +452,14 @@ class RecorteMotor:
                     all_centroids=all_centroids,
                 )
             )
-            results.append((eid, pts, [bbox]))
+            bboxes = [bbox]
+            if not _pt_in_bbox(cx, cy, bbox):
+                bboxes.append((cx - 2.0, cy - 2.0, cx + 2.0, cy + 2.0))
+            results.append((eid, pts, bboxes))
 
         return results
 
-    def _load_laj_dimension_hints(self) -> dict[str, tuple[float, float]]:
+    def _load_laj_dimension_hints(self) -> dict[str, dict]:
         if self._laj_dimension_hints is not None:
             return self._laj_dimension_hints
         hints: dict[str, tuple[float, float]] = {}
@@ -476,7 +479,13 @@ class RecorteMotor:
                         comp = float(data.get("comprimento") or 0)
                         larg = float(data.get("largura") or 0)
                         if comp > 0 and larg > 0:
-                            hints[path.stem.upper()] = (comp, larg)
+                            pose = data.get("_stog_pose") or {}
+                            hints[path.stem.upper()] = {
+                                "width": comp,
+                                "height": larg,
+                                "x": pose.get("x"),
+                                "y": pose.get("y"),
+                            }
                     except Exception:
                         continue
         except Exception:
@@ -484,14 +493,80 @@ class RecorteMotor:
         self._laj_dimension_hints = hints
         return hints
 
+    def _laj_geometry_layers(self, *, include_context: bool = False) -> set[str]:
+        if include_context in self._laj_layer_cache:
+            return self._laj_layer_cache[include_context]
+        if not self._pkl:
+            return set()
+        lengths: dict[str, list[float]] = {}
+        numeric: dict[str, int] = {}
+
+        def _add(x0, y0, x1, y1, layer):
+            dx = abs(float(x1) - float(x0))
+            dy = abs(float(y1) - float(y0))
+            length = (dx * dx + dy * dy) ** 0.5
+            if length < 2.0 or length > 3300.0 or (dx > 0.75 and dy > 0.75):
+                return
+            row = lengths.setdefault(str(layer or ""), [0.0, 0.0])
+            row[0 if dy <= 0.75 else 1] += length
+
+        for line in self._pkl.get("lines", []):
+            start, end = line.get("start"), line.get("end")
+            if start and end:
+                _add(start[0], start[1], end[0], end[1], line.get("layer"))
+        for poly in self._pkl.get("polylines", []):
+            points = poly.get("points") or []
+            for start, end in zip(points, points[1:]):
+                _add(start[0], start[1], end[0], end[1], poly.get("layer"))
+        for text in self._pkl.get("texts", []):
+            value = str(text.get("text") or "").strip().replace(",", ".")
+            if re.fullmatch(r"\d+(?:\.\d+)?", value):
+                layer = str(text.get("layer") or "")
+                numeric[layer] = numeric.get(layer, 0) + 1
+
+        candidates = [
+            (numeric.get(layer, 0), sum(axes), layer)
+            for layer, axes in lengths.items()
+            if sum(axes) > 0 and axes[0] > 0 and axes[1] > 0
+        ]
+        if not candidates:
+            result = set()
+        else:
+            candidates.sort(reverse=True)
+            primary = candidates[0][2]
+            result = {primary}
+            if include_context:
+                peak = max(sum(axes) for axes in lengths.values())
+                result.update(
+                    layer for layer, axes in lengths.items()
+                    if sum(axes) >= max(20.0, peak * 0.10)
+                )
+        self._laj_layer_cache[include_context] = result
+        return result
+
     def _laj_bbox_from_dimension_hint(self, eid: str, cx: float, cy: float) -> tuple | None:
         """Escolhe bordas ER locais usando dimensoes N1/SA da mesma laje."""
         hint = self._load_laj_dimension_hints().get(str(eid).upper())
         if not hint or not self._pkl:
             return None
-        exp_w, exp_h = hint
+        exp_w = float(hint.get("width") or 0)
+        exp_h = float(hint.get("height") or 0)
         if exp_w <= 0 or exp_h <= 0:
             return None
+        pose_x = hint.get("x")
+        pose_y = hint.get("y")
+        if pose_x is not None and pose_y is not None and exp_w <= 1250.0 and exp_h <= 850.0:
+            pose_x = float(pose_x)
+            pose_y = float(pose_y)
+            center_x = pose_x + exp_w / 2.0
+            center_y = pose_y + exp_h / 2.0
+            if abs(cx - center_x) <= exp_w * 0.75 + 100.0 and abs(cy - center_y) <= exp_h + 150.0:
+                return (
+                    pose_x - 1.0,
+                    pose_y - 1.0,
+                    pose_x + exp_w + 1.0,
+                    pose_y + exp_h + 1.0,
+                )
 
         def _merged_h_segments(h_segments: list[tuple[float, float, float]]):
             by_y: dict[float, list[tuple[float, float]]] = {}
@@ -601,10 +676,13 @@ class RecorteMotor:
                 return None
             return (x0 - 1.0, y0 - 1.0, x1 + 1.0, y1 + 1.0)
 
-        bbox = _solve({"3", "7"})
-        if bbox:
-            return bbox
-        return _solve({"3", "7", "PAINEIS"})
+        primary_layers = {_layer_key(layer) for layer in self._laj_geometry_layers()}
+        all_layers = {
+            _layer_key(layer)
+            for layer in self._laj_geometry_layers(include_context=True)
+        }
+        bbox = _solve(all_layers - primary_layers)
+        return bbox or _solve(all_layers)
 
     def _laj_bbox_from_structural_edges(self, cx: float, cy: float) -> tuple | None:
         """BBox LAJ fechada por bordas estruturais locais ao redor do label.
@@ -621,7 +699,7 @@ class RecorteMotor:
 
         def _add_seg(xa, ya, xb, yb, layer):
             key = _layer_key(layer)
-            if key not in {"3", "7"}:
+            if key not in {_layer_key(value) for value in self._laj_geometry_layers(include_context=True)}:
                 return
             xa, ya, xb, yb = map(float, (xa, ya, xb, yb))
             w = abs(xb - xa)
@@ -721,6 +799,7 @@ class RecorteMotor:
         margin = 60.0
         pad = 12.0
         candidates = []
+        panel_layers = {_layer_key(value) for value in self._laj_geometry_layers()}
 
         def _add_segment(x0, y0, x1, y1):
             w = abs(x1 - x0)
@@ -735,7 +814,7 @@ class RecorteMotor:
                 candidates.append((min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
 
         for ln in self._pkl.get('lines', []):
-            if _layer_key(ln.get('layer')) != 'PAINEIS':
+            if _layer_key(ln.get('layer')) not in panel_layers:
                 continue
             s = ln.get('start')
             e = ln.get('end')
@@ -744,7 +823,7 @@ class RecorteMotor:
             _add_segment(float(s[0]), float(s[1]), float(e[0]), float(e[1]))
 
         for pl in self._pkl.get('polylines', []):
-            if _layer_key(pl.get('layer')) != 'PAINEIS':
+            if _layer_key(pl.get('layer')) not in panel_layers:
                 continue
             pts = pl.get('points') or []
             for a, b in zip(pts, pts[1:]):
@@ -1079,7 +1158,6 @@ class RecorteMotor:
         final_bbox: tuple | None = None,
     ) -> float:
         """LAJ confidence calibrated against local slab-recorte evidence."""
-        layers = [(e.get('layer') or '').upper() for _, e in ents]
         texts = [
             str(e.get('text') or '').strip()
             for typ, e in ents
@@ -1098,12 +1176,9 @@ class RecorteMotor:
             if re.fullmatch(r'\d+(?:[.,]\d+)?(?:/\d+(?:[.,]\d+)?)?', text)
         )
         has_height = any(re.fullmatch(r'h\s*=\s*\d+(?:[.,]\d+)?', text, re.I) for text in texts)
-        has_panel_layer = any(layer in ('PAINÉIS', 'PAINEIS') for layer in layers)
-        has_form_layer = any(layer in ('3', '4', '7', '1') for layer in layers)
-        contamination_count = sum(
-            1 for layer in layers
-            if layer in ('0', 'REAPROVEITAMENTO') or 'REAPROVEITAMENTO' in layer
-        )
+        has_panel_layer = numeric_count >= 2 and line_count >= 4
+        has_form_layer = line_count + poly_count >= 4
+        contamination_count = other_label_count
 
         pts = _all_pts_from_ents(ents)
         bbox = final_bbox or (_pts_to_bbox(pts) if pts else None)
