@@ -453,6 +453,38 @@ def _run_legacy_analysis(
 _DB_DEFAULT = 'D:/Agente-cad-PYSIDE/project_data.vision'
 
 
+def _run_fv_diagnostic_postprocess(
+    *,
+    obra: str,
+    pavimento: str,
+    state_path: str,
+    db_path: str,
+) -> dict:
+    """Executa o gate numérico FV sem bloquear a revisão humana em caso de falha."""
+    try:
+        from scripts.arete.diagnostico_fv_n1_n2 import run_diagnostic
+
+        report, json_path, jsonl_path = run_diagnostic(
+            obra=obra,
+            pavimento=pavimento,
+            state_path=state_path,
+            db_path=db_path,
+        )
+        print(
+            f'[SA-HUMAN] Diagnóstico FV: {report["resumo"]["alertas"]} alerta(s)',
+            flush=True,
+        )
+        return {
+            'status': 'ok',
+            'json_path': str(json_path),
+            'jsonl_path': str(jsonl_path),
+            'resumo': report['resumo'],
+        }
+    except Exception as exc:
+        print(f'[SA-HUMAN] AVISO diagnóstico FV não gerado: {exc}', flush=True)
+        return {'status': 'erro', 'erro': str(exc)}
+
+
 def _generate_fv_n3_nova_previews(
     obra_dir: Path,
     fv_results: list[dict],
@@ -524,6 +556,7 @@ def run_analysis(
     *,
     project_id: str | None = None,
     db_path: str = _DB_DEFAULT,
+    run_fv_diagnostic: bool = True,
 ) -> dict:
     """Executa a Análise Geral real do SA e exporta um pack imutável."""
     from src.core.sa_project_source import resolve_sa_project_from_db
@@ -585,7 +618,18 @@ def run_analysis(
             dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
             dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
             html_dir = dialog._export_html_snapshot()
+            state_path = dialog._analysis_state_path()
         print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
+        fv_diagnostic = (
+            _run_fv_diagnostic_postprocess(
+                obra=obra,
+                pavimento=pavimento,
+                state_path=state_path,
+                db_path=db_path,
+            )
+            if run_fv_diagnostic
+            else {'status': 'ignorado'}
+        )
         return {
             'obra': obra,
             'pavimento': project_name,
@@ -595,6 +639,7 @@ def run_analysis(
             'n_slabs': len(window.slabs_found),
             'n_beams': len(window.beams_found),
             'html_dir': str(html_dir) if html_dir else '',
+            'fv_diagnostic': fv_diagnostic,
         }
     finally:
         window.close()
@@ -611,6 +656,10 @@ def main() -> None:
         help='ID exato selecionado no SA; sem ele, usa o primeiro projeto do combo',
     )
     ap.add_argument('--db', default=_DB_DEFAULT)
+    ap.add_argument(
+        '--skip-diagnostico-fv', action='store_true',
+        help='Gera os HTMLs sem executar o diagnóstico numérico FV N1×N2',
+    )
     ap.add_argument('--open',  action='store_true',
                     help='Abrir HTML no navegador apos gerar')
     args = ap.parse_args()
@@ -624,6 +673,7 @@ def main() -> None:
         pavimento=args.pav,
         project_id=args.project_id,
         db_path=args.db,
+        run_fv_diagnostic=not args.skip_diagnostico_fv,
     )
 
     print('\n' + '=' * 60, flush=True)
@@ -632,6 +682,13 @@ def main() -> None:
     print(f'  Lajes   : {result["n_slabs"]}', flush=True)
     print(f'  Vigas   : {result["n_beams"]}', flush=True)
     print(f'  HTMLs   : {result["html_dir"]}', flush=True)
+    fv_diag = result['fv_diagnostic']
+    print(f'  Diag. FV: {fv_diag["status"]}', flush=True)
+    if fv_diag.get('json_path'):
+        print(f'  FV JSON : {fv_diag["json_path"]}', flush=True)
+        print(f'  FV JSONL: {fv_diag["jsonl_path"]}', flush=True)
+    elif fv_diag.get('erro'):
+        print(f'  FV aviso: {fv_diag["erro"]}', flush=True)
     print(f'  Fonte   : {result["dxf_path"]}', flush=True)
     print('=' * 60, flush=True)
 

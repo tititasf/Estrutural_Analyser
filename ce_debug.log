@@ -28168,3 +28168,9 @@ Thread 0x00000784 (most recent call first):
 [23:45:22.904] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
 [23:45:26.861] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
 [23:45:29.683] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[23:51:04.005] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[23:51:04.182] N3 FV contrato atual: D:\Agente-cad-PYSIDE\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[23:51:04.183] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[23:51:49.572] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[23:51:49.738] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[23:51:49.739] N1 flow=estrutural classe=FV id=V305 auto_chain=True
