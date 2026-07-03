@@ -39,17 +39,30 @@ NIVEL_SAIDA_REF = 850.00
 NIVEL_TOPO_PADRAO = 852.19  # nivel dominante usado nos 12 casos (dentro de 852-853)
 ALTURA_CM = round((NIVEL_TOPO_PADRAO - NIVEL_SAIDA_REF) * 100)  # = 219cm (~2.19m, <= 3m)
 
-H1_CHAPA = 2.0   # faixa da chapa base (fixo)
-H3_TOPO = 34.0   # secao extra de topo (fixo)
-H2_MEIO = ALTURA_CM - H1_CHAPA - H3_TOPO  # ajustado p/ h1+h2+h3 == ALTURA_CM (fecha sem sobra)
+H1_CHAPA = 2.0     # faixa da chapa base (fixo, igual ficha real Fase-4)
+H_PAR_DEFAULT = 73.0  # "zona de parafuso" -- draw_abcd() usa 73 como default quando
+                       # h_par_{fid} nao vem preenchido; aqui setamos explicito pra
+                       # controlar a formula (nao depender do hardcode do gerador).
+
+# ── Formula real do robo legado (confirmada em Robo_Pilar_ABCD.py:2004-2084 +
+#    reproduzida no ramo fallback de draw_abcd(), gerar_pl_dxf_stog.py:1063-1096):
+#      panel_top_face = h1 + h2_face/2 + h_par_face
+#      (laje/viga)_face preenche exatamente de panel_top_face ate pd
+#    => h1 + h2_face/2 + h_par_face + desconto_face == altura   (fecha sem sobra)
+#    Sem isso, o gerador usa h_par=73 fixo desconectado do desconto real e sobra
+#    um retangulo extra (o "quadrado rosa" reportado visualmente).
+def _h2_para_fechar(altura, desconto_face, h1=H1_CHAPA, h_par=H_PAR_DEFAULT):
+    return 2.0 * (altura - desconto_face - h1 - h_par)
 
 
-def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM):
-    """Ficha minima igual ao fixture tests/fixtures/fase4_samples/P1.json,
-    com h1-h5/larg1-3 default e laje_X=0 em todas as faces (sobrescrito
-    depois por caso). h1+h2+h3 fecha exatamente em `altura` (antes havia um
-    retangulo extra sem cota porque h1+h2+h3=280 do fixture original nao
-    batia com a altura usada aqui)."""
+def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM, desconto=None):
+    """Ficha minima igual ao fixture tests/fixtures/fase4_samples/P1.json.
+    `desconto` = dict opcional {face: cm} com o valor que deve ABRIR no topo do
+    painel daquela face -- espessura de laje (face LAJE) OU profundidade da
+    viga (face VIGA/viga-que-passa, mesmo mecanismo, só que com a medida da
+    viga em vez da laje, a pedido do usuario). 0 = face fecha cheia (Dentro do
+    interior / sem nada acima)."""
+    desconto = desconto or {}
     pj = {
         'numero': str(numero), 'nome': nome,
         'comprimento': comprimento, 'largura': largura, 'altura': altura,
@@ -63,12 +76,14 @@ def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM):
     }
     for f in 'ABCDEFGH':
         larg1 = comprimento if f in ('A', 'B') else largura
+        d = float(desconto.get(f, 0.0))
+        h2 = _h2_para_fechar(altura, d)
         pj.update({
-            f'h1_{f}': H1_CHAPA, f'h2_{f}': H2_MEIO, f'h3_{f}': H3_TOPO,
-            f'h4_{f}': 0.0, f'h5_{f}': 0.0,
+            f'h1_{f}': H1_CHAPA, f'h2_{f}': h2, f'h3_{f}': 0.0,
+            f'h4_{f}': 0.0, f'h5_{f}': 0.0, f'h_par_{f}': H_PAR_DEFAULT,
             f'larg1_{f}': larg1 if f in ('A', 'B', 'C', 'D') else 0.0,
             f'larg2_{f}': 0.0, f'larg3_{f}': 0.0,
-            f'laje_{f}': 0.0, f'posicao_laje_{f}': 0.0,
+            f'laje_{f}': d, f'posicao_laje_{f}': 0.0,
         })
     return pj
 
@@ -76,11 +91,14 @@ def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM):
 # ── Os 12 casos didaticos --------------------------------------------------
 # comprimento/largura extraidos do texto de cada caso (nao do rotulo do SVG,
 # que usa ordens de eixo inconsistentes entre HORIZONTAL/VERTICAL).
-# laje_{A..D} = espessura (cm) da laje citada na linha "Lajes:" daquela face
-# no HTML; 0 quando a face e classificada como VIGA / Dentro do interior /
-# Viga que passa integral (sem laje na propria face).
+# laje_{A..D} = desconto (cm) que abre no topo do painel daquela face:
+#   - espessura da laje citada na linha "Lajes:" daquela face no HTML, OU
+#   - profundidade da viga (2o numero do dim) quando a face e VIGA/viga que
+#     passa que toca parede (mesmo mecanismo, medida diferente -- pedido do
+#     usuario 2026-07-02)
+#   - 0 quando a face e "Dentro do interior" (parede continua, nada abre)
 CASOS = {
-    1:  dict(nome='P28_CASO1',  comprimento=80,  largura=30, laje=dict(A=14, B=14, C=0,  D=14)),
+    1:  dict(nome='P28_CASO1',  comprimento=80,  largura=30, laje=dict(A=14, B=14, C=60, D=14)),  # C: V108 24/60 (viga que passa)
     2:  dict(nome='P_CASO2',    comprimento=80,  largura=30, laje=dict(A=14, B=14, C=14, D=0)),
     3:  dict(nome='P_CASO3',    comprimento=100, largura=19, laje=dict(A=14, B=14, C=14, D=14)),
     4:  dict(nome='P_CASO4',    comprimento=100, largura=19, laje=dict(A=0,  B=0,  C=0,  D=0)),
@@ -97,10 +115,7 @@ CASOS = {
 
 def build_pj(caso_num):
     c = CASOS[caso_num]
-    pj = _base_pj(c['nome'], caso_num, c['comprimento'], c['largura'])
-    for face, esp in c['laje'].items():
-        pj[f'laje_{face}'] = float(esp)
-    return pj
+    return _base_pj(c['nome'], caso_num, c['comprimento'], c['largura'], desconto=c['laje'])
 
 
 def gen_caso(caso_num):
