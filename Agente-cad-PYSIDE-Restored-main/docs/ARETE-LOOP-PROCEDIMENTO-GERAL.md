@@ -319,10 +319,10 @@ infraestrutura:
 |---|---|---|---|---|
 | Geração headless HTML N1-N4 | ✓ `headless_sa_analise.py` | ✓ | ✓ | ? (checar antes de iniciar looping LV) |
 | SVG inline nos cards N1-N4 (leitura via DOM, sem visão) | ✓ (02/07) | ✓ (02/07) | ✓ (02/07) | ✗ — mesma função compartilhada, só falta confirmar se LV usa o mesmo gerador de ficha granular |
-| Checkbox de erro + `localStorage` (`_error_marker_block`) | ✓ `preficha_laje_html.py` | ✗ — criar em `pre_validation_dialog.py`/gerador de páginas de pilar | ✗ — criar em `preficha_fundo_html.py` | ✗ — criar no gerador de páginas LV |
-| Diagnóstico numérico N1×N2 automático | parcial (existe mas preso à UI, nome de arquivo fixo, ver §2A.1) | ✗ | ✗ | ✗ |
-| Log de triagem JSONL | ✓ (schema v1, sem `marcado_por: "auto"` ainda) | ✗ | ✗ | ✗ |
-| Schema v2 do log (dual diagnóstico, `concordancia`) | **a migrar** (este doc) | a criar junto com o resto | a criar | a criar |
+| Checkbox de erro + `localStorage` (`_error_marker_block`) | ✓ `preficha_laje_html.py` | ✓ (02/07) `pre_validation_dialog.py::_error_marker_block_pil` | ✓ (02/07) `preficha_fundo_html.py` | ✗ — criar no gerador de páginas LV |
+| Diagnóstico numérico N1×N2 automático (schema v2 nativo, headless/CLI) | parcial/legado (preso à UI, nome de arquivo fixo, ver §2A.1 — não migrado) | ✓ (02/07) `scripts/arete/diagnostico_pil_n1_n2.py` | ✓ (02/07) `scripts/arete/diagnostico_fv_n1_n2.py` | ✗ |
+| Log de triagem JSONL | ✓ (schema v1 legado, sem `marcado_por: "auto"` ainda — ver item 2 abaixo) | saída própria `triagem_auto_pil.jsonl` já em schema v2; não fundida ao log de triagem humana da classe ainda | saída própria `triagem_auto_fv.jsonl` já em schema v2; idem | ✗ |
+| Schema v2 do log (dual diagnóstico, `concordancia`) | **a migrar** (este doc) | nativo no diagnóstico automático; falta unificar com triagem humana | nativo no diagnóstico automático; falta unificar com triagem humana | a criar |
 
 Itens de infraestrutura pendentes, priorizados:
 
@@ -350,9 +350,24 @@ Itens de infraestrutura pendentes, priorizados:
    (rodar a partir do JSON de saída do `headless_sa_analise.py` ou equivalente), nome de
    arquivo versionado por obra/pav/run em vez do fixo `debug_slab_pav13.json`.
 4. **Script de rollup de concordância** (`scripts/arete/triagem_concordancia.py`, §4.3).
-5. **Levar `_error_marker_block` + diagnóstico numérico para PIL e FV** (LV entra depois,
-   quando o looping de LV começar, conforme o roadmap por classe do
-   `MASTERPLAN-LOOP-TREINO-MOTOR.md` §6).
+5. ~~**Levar `_error_marker_block` + diagnóstico numérico para PIL e FV**~~ — **CONCLUÍDO
+   02/07/2026 para ambas as classes.** PIL: `_error_marker_block_pil` +
+   `_sidebar_error_flags_script_pil` em `pre_validation_dialog.py` (chave
+   `aten_erro_pil_{obra}_{pav}_{nome}`, mesmo padrão de LAJ/FV) + `scripts/arete/
+   diagnostico_pil_n1_n2.py` (compara bbox N1 vs `comprimento`/`largura` do N2 por
+   melhor orientação; pilares não-retangulares — `em L`/`em U`/`Circular`/`Especial`,
+   via `_pilar_formato` reimplementado sem dependência de Qt — ficam
+   deliberadamente fora do diagnóstico de dimensão, porque bbox de planta não-retangular
+   não é comparável a comprimento×largura; ver docstring do módulo). FV:
+   `scripts/arete/diagnostico_fv_n1_n2.py` (já existia antes desta entrada). Ambos os
+   scripts usam `scripts/arete/diagnostico_common.py` (helpers extraídos:
+   `resolve_state_path`, `classify_delta`, deltas, etc. — reuso pronto para quando LV
+   entrar). Testado contra Obra_TREINO_1/13_PAV real: PIL 46 N1 × 35 N2, 24 alertas, 2
+   pilares especiais corretamente excluídos do diagnóstico de dimensão. Testes:
+   `tests/test_diagnostico_pil_n1_n2.py` (7 casos) + `tests/test_diagnostico_fv_n1_n2.py`.
+   Checkbox validado via Playwright real (marcar → `qa_error_review.py read` → limpar),
+   sem regressão nas 63 outras suítes relacionadas. LV segue pendente, quando o looping
+   de LV começar (roadmap por classe do `MASTERPLAN-LOOP-TREINO-MOTOR.md` §6).
 6. **Flag `--secao` em `headless_sa_analise.py`** para gerar só uma classe (hoje sempre
    gera pilares+lajes+vigas juntos, ~3min por rodada mesmo quando só uma classe está em
    loop) — gap de performance já apontado na revisão de qualidade de 20/06, ainda aberto.
@@ -360,8 +375,8 @@ Itens de infraestrutura pendentes, priorizados:
    é o HTML único com grupos por classe e toggle via JS. Cross-classe, não bloqueia
    nenhuma classe individual.
 
-Item 1 concluído (02/07/2026); os outros 6 seguem registrados aqui como próximo passo,
-a executar sob ordem explícita do dono (gating já em vigor para todo o Arete).
+Itens 1 e 5 concluídos (02/07/2026); os outros 5 seguem registrados aqui como próximo
+passo, a executar sob ordem explícita do dono (gating já em vigor para todo o Arete).
 
 ---
 

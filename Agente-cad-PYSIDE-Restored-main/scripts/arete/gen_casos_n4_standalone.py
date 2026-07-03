@@ -85,6 +85,13 @@ def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM, desconto=None
             f'larg2_{f}': 0.0, f'larg3_{f}': 0.0,
             f'laje_{f}': d, f'posicao_laje_{f}': 0.0,
         })
+    # Face C tem um branch hardcoded no gerador (face_uses_262, gerar_pl_dxf_stog.py:841)
+    # que IGNORA h_par_C/laje_C e usa constantes fixas de um lote real especifico
+    # (H_PAR_C=97, H_C_EXTRA=41), sempre que paineis_intervals_C nao existe. Fornecendo
+    # um unico intervalo que fecha exatamente em (altura - desconto_C - h1), a face C
+    # passa a respeitar o mesmo desconto que as outras faces, sem abrir nada extra.
+    d_c = float(desconto.get('C', 0.0))
+    pj['paineis_intervals_C'] = [altura - d_c - H1_CHAPA]
     return pj
 
 
