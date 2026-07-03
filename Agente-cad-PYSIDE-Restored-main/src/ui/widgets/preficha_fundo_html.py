@@ -14,6 +14,8 @@ import re
 import shutil
 from typing import Callable
 
+from src.ui.widgets.svg_embed_utils import embed_visual as _embed_visual
+
 
 def _safe_slug(value: str) -> str:
     clean = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value or ""))
@@ -55,18 +57,88 @@ def _attention(dialog, stage: str, beam: str, label: str) -> str:
     )
 
 
+def _error_marker_block(dialog, beam: str) -> str:
+    key = f"aten_erro_fv_{dialog._obra}_{dialog._pavimento}_{beam}".replace(" ", "_")
+    key_js = json.dumps(key)
+    return (
+        '<div class="sec" style="margin-top:16px;border-color:#5a2020">'
+        '<div class="sec-title" style="color:#e17055">'
+        "Marcação de erro (revisão humana)</div>"
+        '<div class="sec-body">'
+        '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;'
+        'color:#e17055;font-weight:bold">'
+        '<input type="checkbox" id="erro_check" style="width:16px;height:16px">'
+        "Marcar esta ficha como ERRADA</label>"
+        '<textarea id="erro_nota" placeholder='
+        '"Descreva o que está errado (N1, N2, N3 ou N4)..." '
+        'style="width:100%;min-height:70px;margin-top:8px;background:#1a1a1a;'
+        "color:#f0b840;border:1px solid #554400;border-radius:3px;padding:6px;"
+        'font-family:monospace;font-size:11px;box-sizing:border-box"></textarea>'
+        "</div></div>"
+        "<script>(function(){"
+        f"var key={key_js};"
+        "function save(){"
+        '  var chk=document.getElementById("erro_check");'
+        '  var txt=document.getElementById("erro_nota");'
+        "  if(chk.checked||txt.value.trim()){"
+        "    localStorage.setItem(key, JSON.stringify("
+        "{erro:chk.checked, nota:txt.value}));"
+        "  } else { localStorage.removeItem(key); }"
+        "}"
+        "function load(){"
+        "  var stored=localStorage.getItem(key);"
+        "  if(!stored)return;"
+        "  try{"
+        "    var obj=JSON.parse(stored);"
+        '    document.getElementById("erro_check").checked=!!obj.erro;'
+        '    document.getElementById("erro_nota").value=obj.nota||"";'
+        "  }catch(e){}"
+        "}"
+        'document.addEventListener("DOMContentLoaded", function(){'
+        "  load();"
+        '  document.getElementById("erro_check")'
+        '    .addEventListener("change", save);'
+        '  document.getElementById("erro_nota")'
+        '    .addEventListener("input", save);'
+        "});"
+        "})();</script>"
+    )
+
+
+def _sidebar_error_flags_script(dialog) -> str:
+    obra_js = json.dumps(dialog._obra)
+    pav_js = json.dumps(dialog._pavimento)
+    return (
+        "<script>(function(){"
+        f"var obra={obra_js}, pav={pav_js};"
+        'document.querySelectorAll(".sidebar li[data-viga]").forEach('
+        "function(li){"
+        '  var nome=li.getAttribute("data-viga");'
+        '  var key=("aten_erro_fv_"+obra+"_"+pav+"_"+nome).replace(/ /g,"_");'
+        "  var stored=localStorage.getItem(key);"
+        "  if(!stored)return;"
+        "  try{"
+        "    var obj=JSON.parse(stored);"
+        "    if(obj.erro||((obj.nota||'').trim())){"
+        '      var flag=li.querySelector(".erro-flag");'
+        '      if(flag)flag.style.display="inline";'
+        "    }"
+        "  }catch(e){}"
+        "});"
+        "})();</script>"
+    )
+
+
 def _artifact_card(
     stage: str,
     subtitle: str,
     b64_value: str,
     path: str = "",
     image_class: str = "img-n4",
+    fmt: str = "svg",
 ) -> str:
     if b64_value:
-        image = (
-            f'<img class="{image_class}" src="data:image/png;base64,{b64_value}" '
-            f'alt="{html.escape(stage)}">'
-        )
+        image = _embed_visual(b64_value, fmt, image_class, stage)
     else:
         image = (
             '<div style="height:130px;display:flex;align-items:center;'
@@ -156,7 +228,7 @@ def write_fundo_pages(
     photo_fn: Callable[[list], str],
     metrics_fn: Callable[[list], dict],
 ) -> tuple[str, str, int]:
-    """Grava índice e uma ficha granular por segmento FV."""
+    """Grava índice e uma ficha por viga, com N1 granular por segmento."""
     section_dir = os.path.join(output_dir, "fundos_viga")
     os.makedirs(section_dir, exist_ok=True)
     # Evidências em coluna única: cada estágio ocupa toda a largura útil.
@@ -166,73 +238,41 @@ def write_fundo_pages(
         ".evidence-grid{display:grid!important;grid-template-columns:1fr!important;"
         "gap:18px!important}"
         ".evidence-card{width:100%;box-sizing:border-box;padding:10px!important}"
-        ".evidence-card img{display:block;width:100%!important;height:auto!important;"
-        "max-height:none!important;object-fit:contain;background:#111}"
+        ".evidence-card img,.evidence-card svg{display:block;width:100%!important;"
+        "height:auto!important;max-height:none!important;object-fit:contain;background:#111}"
         ".artifact-path{font-size:9px!important}"
     )
 
-    entries: list[tuple[str, str, dict, str]] = []
-    used: set[str] = set()
+    grouped_rows: dict[str, list[dict]] = {}
     for row in rows:
         segment = row.get("_segment") or {}
         beam = str(segment.get("beam_name") or row.get("_beam") or "VIGA")
-        label = str(segment.get("segment_label") or row.get("Segmento") or "1")
-        base_slug = _safe_slug(f"{beam}_{label}")
+        grouped_rows.setdefault(beam, []).append(row)
+
+    entries: list[tuple[str, list[dict], str]] = []
+    used: set[str] = set()
+    for beam, beam_rows in grouped_rows.items():
+        base_slug = _safe_slug(beam)
         page_slug = base_slug
         suffix = 2
         while page_slug in used:
             page_slug = f"{base_slug}_{suffix}"
             suffix += 1
         used.add(page_slug)
-        entries.append((beam, label, row, page_slug))
+        entries.append((beam, beam_rows, page_slug))
 
     def page(index: int) -> str:
-        beam, label, row, _ = entries[index]
-        segment = row.get("_segment") or {}
-        points = segment.get("points") or row.get("_points") or []
-        metrics = metrics_fn(points)
-        raw_beam = _beam_for(dialog, segment)
-        fields = raw_beam.get("fields") or {}
-        segment_index = int(segment.get("segment_index") or 1)
-        field_prefix = f"viga_fundo_seg_{segment_index}"
-        segment_fields = {
-            key: value
-            for key, value in fields.items()
-            if str(key).startswith(field_prefix)
-        }
-        link_slots = (
-            (raw_beam.get("links") or {}).get(segment.get("source_key") or "")
-            or {}
-        )
-
+        beam, beam_rows, _ = entries[index]
         n3_path = dialog._find_beam_dxf("FV", beam, n4=False)
         n4_path = dialog._find_beam_dxf("FV", beam, n4=True)
         n2_path = dialog._find_n2_recorte_dxf("FV", beam)
-        if metrics["orientation"] == "horizontal":
-            context_width, context_height = 2400, 600
-        elif metrics["orientation"] == "vertical":
-            context_width, context_height = 840, 2000
-        else:
-            context_width, context_height = 1800, 1360
-        sa_b64 = (
-            dialog._render_pilar_dxf_context_b64(
-                points,
-                width=context_width,
-                height=context_height,
-                focus_mode="segment",
-            )
-            if points
-            else ""
-        )
-        if not sa_b64:
-            sa_b64 = photo_fn(points)
-        n3_b64 = dialog._render_ezdxf_b64(n3_path, 1900, 1240) if n3_path else ""
-        n4_b64 = dialog._render_ezdxf_b64(n4_path, 1900, 1240) if n4_path else ""
-        n2_b64 = dialog._render_ezdxf_b64(n2_path, 1900, 1240) if n2_path else ""
+        n3_b64 = dialog._render_ezdxf_b64(n3_path, 1900, 1240, fmt="svg") if n3_path else ""
+        n4_b64 = dialog._render_ezdxf_b64(n4_path, 1900, 1240, fmt="svg") if n4_path else ""
+        n2_b64 = dialog._render_ezdxf_b64(n2_path, 1900, 1240, fmt="svg") if n2_path else ""
 
-        previous = f"{entries[index - 1][3]}.html" if index else ""
+        previous = f"{entries[index - 1][2]}.html" if index else ""
         following = (
-            f"{entries[index + 1][3]}.html"
+            f"{entries[index + 1][2]}.html"
             if index + 1 < len(entries)
             else ""
         )
@@ -248,166 +288,227 @@ def write_fundo_pages(
         )
         nav_bar = (
             f'<div class="nav-bar">{previous_link}'
-            f'<span class="nav-pos"><b>{html.escape(beam)} · '
-            f"seg.{html.escape(label)}</b> ({index + 1}/{len(entries)})"
+            f'<span class="nav-pos"><b>{html.escape(beam)}</b> '
+            f"({index + 1}/{len(entries)} vigas)"
             f'<span class="tag">FV</span>'
-            f'<span class="tag">{html.escape(str(row.get("Status") or "valid"))}</span>'
+            f'<span class="tag">{len(beam_rows)} segmento(s)</span>'
             f"</span>{next_link}</div>"
         )
         sidebar_items = "".join(
-            f'<li{" class=\"active\"" if item_index == index else ""}>'
+            f'<li{" class=\"active\"" if item_index == index else ""} '
+            f'data-viga="{html.escape(item_beam)}">'
             f'<a href="{html.escape(item_slug)}.html">'
-            f"{html.escape(item_beam)} · {html.escape(item_label)}</a></li>"
-            for item_index, (item_beam, item_label, _, item_slug)
-            in enumerate(entries)
+            f'<span class="erro-flag" style="display:none">⚠️ </span>'
+            f"{html.escape(item_beam)} ({len(item_rows)})</a></li>"
+            for item_index, (item_beam, item_rows, item_slug) in enumerate(entries)
         )
         sidebar = (
-            f'<aside class="sidebar"><h3>Fundos FV ({len(entries)})</h3>'
+            f'<aside class="sidebar"><h3>Fundos FV ({len(entries)} vigas)</h3>'
             '<a class="sb-back" href="../index.html">← índice geral</a>'
             '<a class="sb-back" href="index.html">← índice FV</a>'
             '<a class="sb-back" href="interpretacao_fundos.html">Guia</a>'
             f"<ul>{sidebar_items}</ul></aside>"
+            + _sidebar_error_flags_script(dialog)
         )
 
-        identity_rows = (
-            _table_sep("IDENTIDADE E DECISÃO SA")
-            + _table_row("UID", segment.get("uid"))
-            + _table_row("Viga", beam)
-            + _table_row("Segmento", label)
-            + _table_row(
-                "Índice / ocorrência",
-                f'{segment.get("segment_index", "—")} / '
-                f'{segment.get("occurrence", "—")}',
+        n1_sections: list[str] = []
+        n1_pipeline: list[str] = []
+        n1_available = 0
+        for row in beam_rows:
+            segment = row.get("_segment") or {}
+            label = str(segment.get("segment_label") or row.get("Segmento") or "1")
+            points = segment.get("points") or row.get("_points") or []
+            metrics = metrics_fn(points)
+            raw_beam = _beam_for(dialog, segment)
+            fields = raw_beam.get("fields") or {}
+            segment_index = int(segment.get("segment_index") or 1)
+            field_prefix = f"viga_fundo_seg_{segment_index}"
+            segment_fields = {
+                key: value
+                for key, value in fields.items()
+                if str(key).startswith(field_prefix)
+            }
+            link_slots = (
+                (raw_beam.get("links") or {}).get(segment.get("source_key") or "")
+                or {}
             )
-            + _table_row(
-                "Classe / lado / comportamento",
-                f'FV / {segment.get("side") or "Fundo"} / '
-                f'{segment.get("behavior") or "Fundo"}',
+            if metrics["orientation"] == "horizontal":
+                context_width, context_height = 2400, 600
+            elif metrics["orientation"] == "vertical":
+                context_width, context_height = 840, 2000
+            else:
+                context_width, context_height = 1800, 1360
+            sa_b64 = (
+                dialog._render_pilar_dxf_context_b64(
+                    points,
+                    width=context_width,
+                    height=context_height,
+                    focus_mode="segment",
+                    fmt="svg",
+                )
+                if points
+                else ""
             )
-            + _table_row(
-                "Status", row.get("Status") or segment.get("status") or "valid"
-            )
-            + _table_row(
-                "Atenção SA",
-                row.get("Atenção") or segment.get("attention") or "—",
-            )
-            + _table_sep("GEOMETRIA EXTRAÍDA")
-            + _table_row("Comprimento declarado", segment.get("length"))
-            + _table_row("Largura declarada", segment.get("width"))
-            + _table_row("Orientação", metrics["orientation"])
-            + _table_row(
-                "Span X / Span Y",
-                f'{metrics["span_x"]:.2f} / {metrics["span_y"]:.2f}',
-            )
-            + _table_row("Área do contorno", f'{metrics["area"]:.2f}')
-            + _table_row(
-                "Vértices / únicos",
-                f'{metrics["vertex_count"]} / {metrics["unique_vertex_count"]}',
-            )
-            + _table_row(
-                "Contorno fechado", "Sim" if metrics["closed"] else "Não"
-            )
-            + _table_row("Centro", metrics["centroid"])
-            + _table_row("BBox", metrics["bbox"])
-            + _table_sep("RASTREABILIDADE DO VÍNCULO")
-            + _table_row("beam_identity", segment.get("beam_identity"))
-            + _table_row("source_key", segment.get("source_key"))
-            + _table_row("source_slot", segment.get("source_slot"))
-            + _table_row("tag", segment.get("tag"))
-            + _table_row("ficha do link", segment.get("ficha") or {})
-            + _table_row("campos SA do segmento", segment_fields)
-            + _table_row("slots vinculados", link_slots)
-        )
-        identity_section = (
-            '<div class="sec"><div class="sec-title">'
-            "Ficha N1/SA — Segmento e rastreabilidade</div>"
-            '<div class="sec-body"><table style="font-size:9px;background:#181818">'
-            f"{identity_rows}</table></div></div>"
-        )
+            sa_fmt = "svg"
+            if not sa_b64:
+                sa_b64 = photo_fn(points)
+                sa_fmt = "png"
+            n1_available += bool(sa_b64)
 
-        vertex_rows = "".join(
-            f"<tr><td>{point_index + 1}</td>"
-            f"<td>{float(point[0]):.3f}</td><td>{float(point[1]):.3f}</td></tr>"
-            for point_index, point in enumerate(points)
-            if isinstance(point, (list, tuple)) and len(point) >= 2
-        )
-        vertices_section = (
-            '<div class="sec"><div class="sec-title">'
-            "N1/SA — Vértices brutos do contorno</div>"
-            '<div class="sec-body"><div class="vertex-table">'
-            "<table><tr><th>#</th><th>X</th><th>Y</th></tr>"
-            f"{vertex_rows}</table></div></div></div>"
-        )
+            identity_rows = (
+                _table_sep("IDENTIDADE E DECISÃO SA")
+                + _table_row("UID", segment.get("uid"))
+                + _table_row("Viga", beam)
+                + _table_row("Segmento", label)
+                + _table_row(
+                    "Índice / ocorrência",
+                    f'{segment.get("segment_index", "—")} / '
+                    f'{segment.get("occurrence", "—")}',
+                )
+                + _table_row(
+                    "Classe / lado / comportamento",
+                    f'FV / {segment.get("side") or "Fundo"} / '
+                    f'{segment.get("behavior") or "Fundo"}',
+                )
+                + _table_row(
+                    "Status", row.get("Status") or segment.get("status") or "valid"
+                )
+                + _table_row(
+                    "Atenção SA",
+                    row.get("Atenção") or segment.get("attention") or "—",
+                )
+                + _table_sep("GEOMETRIA EXTRAÍDA")
+                + _table_row("Comprimento declarado", segment.get("length"))
+                + _table_row("Largura declarada", segment.get("width"))
+                + _table_row("Orientação", metrics["orientation"])
+                + _table_row(
+                    "Span X / Span Y",
+                    f'{metrics["span_x"]:.2f} / {metrics["span_y"]:.2f}',
+                )
+                + _table_row("Área do contorno", f'{metrics["area"]:.2f}')
+                + _table_row(
+                    "Vértices / únicos",
+                    f'{metrics["vertex_count"]} / {metrics["unique_vertex_count"]}',
+                )
+                + _table_row(
+                    "Contorno fechado", "Sim" if metrics["closed"] else "Não"
+                )
+                + _table_row("Centro", metrics["centroid"])
+                + _table_row("BBox", metrics["bbox"])
+                + _table_sep("RASTREABILIDADE DO VÍNCULO")
+                + _table_row("beam_identity", segment.get("beam_identity"))
+                + _table_row("source_key", segment.get("source_key"))
+                + _table_row("source_slot", segment.get("source_slot"))
+                + _table_row("tag", segment.get("tag"))
+                + _table_row("ficha do link", segment.get("ficha") or {})
+                + _table_row("campos SA do segmento", segment_fields)
+                + _table_row("slots vinculados", link_slots)
+            )
+            vertex_rows = "".join(
+                f"<tr><td>{point_index + 1}</td>"
+                f"<td>{float(point[0]):.3f}</td><td>{float(point[1]):.3f}</td></tr>"
+                for point_index, point in enumerate(points)
+                if isinstance(point, (list, tuple)) and len(point) >= 2
+            )
+            segment_checks = [
+                ("contorno com 3+ vértices", metrics["unique_vertex_count"] >= 3),
+                ("área geométrica positiva", metrics["area"] > 0),
+                ("largura declarada", bool(segment.get("width"))),
+            ]
+            segment_check_rows = "".join(
+                f'<tr><td style="color:{"#4fc3a1" if ok else "#e17055"}">'
+                f'{"OK" if ok else "ATENÇÃO"}</td>'
+                f"<td>{html.escape(check_label)}</td></tr>"
+                for check_label, ok in segment_checks
+            )
+            n1_sections.append(
+                '<div class="sec"><div class="sec-title">'
+                f"N1 / SA — {html.escape(beam)} · segmento {html.escape(label)}"
+                '</div><div class="sec-body">'
+                '<div class="evidence-grid">'
+                + _artifact_card(
+                    "N1 / SA",
+                    f"DXF estrutural focado exclusivamente no segmento {label}",
+                    sa_b64,
+                    image_class="img-geo",
+                    fmt=sa_fmt,
+                )
+                + '</div><div class="fichas-grid" style="margin-top:10px">'
+                '<div><div class="ficha-col-title">Ficha N1/SA do segmento</div>'
+                '<div class="ficha-cell"><table>'
+                f"{identity_rows}</table></div></div>"
+                '<div><div class="ficha-col-title">Vértices brutos do contorno</div>'
+                '<div class="ficha-cell vertex-table"><table>'
+                '<tr><th>#</th><th>X</th><th>Y</th></tr>'
+                f"{vertex_rows}</table></div></div>"
+                '<div><div class="ficha-col-title">Quality gates N1</div>'
+                f'<div class="ficha-cell"><table>{segment_check_rows}</table></div></div>'
+                '</div></div></div>'
+            )
+            n1_pipeline.append(
+                _pipeline_stage(
+                    dialog,
+                    "N1 / SA",
+                    bool(sa_b64),
+                    f"Segmentação e vínculo SA do segmento {label}.",
+                    beam,
+                    label,
+                )
+            )
 
-        evidence = (
+        shared_evidence = (
             _artifact_card(
-                "N1 / SA",
-                "DXF estrutural com o segmento destacado",
-                sa_b64,
-                image_class="img-geo",
-            )
-            + _artifact_card(
-                "N2", "Recorte humano usado pelo motor reverso", n2_b64, n2_path
+                "N2", "Recorte humano contendo todos os segmentos da viga", n2_b64, n2_path
             )
             + _artifact_card(
                 "N3 / NOVA",
-                "Robô SA/N1 renderizado explicitamente no modo visual NOVA",
+                "Robô SA/N1 com todos os segmentos da viga no modo visual NOVA",
                 n3_b64,
                 n3_path,
             )
             + _artifact_card(
                 "N4",
-                "Robô gerado a partir da engenharia reversa N2",
+                "Robô com todos os segmentos gerado pela engenharia reversa N2",
                 n4_b64,
                 n4_path,
             )
         )
         evidence_section = (
             '<div class="sec"><div class="sec-title">'
-            "Evidências visuais por etapa</div>"
-            f'<div class="sec-body"><div class="evidence-grid">{evidence}</div>'
+            "Evidências agregadas da viga — N2 / N3 / N4</div>"
+            f'<div class="sec-body"><div class="evidence-grid">{shared_evidence}</div>'
             "</div></div>"
         )
 
-        pipeline = "".join(
-            [
-                _pipeline_stage(
-                    dialog,
-                    "N1 / SA",
-                    bool(sa_b64),
-                    "Segmentação geométrica e vínculo autoritativo do SA.",
-                    beam,
-                    label,
-                ),
+        pipeline = "".join(n1_pipeline + [
                 _pipeline_stage(
                     dialog,
                     "N2 / STOG real",
                     bool(n2_b64),
-                    "Recorte humano e ficha do motor reverso.",
+                    "Recorte humano e ficha agregada da viga.",
                     beam,
-                    label,
+                    "viga",
                 ),
                 _pipeline_stage(
                     dialog,
                     "N3 / Robô SA",
                     bool(n3_b64),
-                    "Resultado produzido pela rota SA/N1 no modo visual NOVA.",
+                    "Resultado agregado produzido pela rota SA/N1.",
                     beam,
-                    label,
+                    "viga",
                 ),
                 _pipeline_stage(
                     dialog,
                     "N4 / Robô ER",
                     bool(n4_b64),
-                    "Resultado produzido pela rota N2.",
+                    "Resultado agregado produzido pela rota N2.",
                     beam,
-                    label,
+                    "viga",
                 ),
-            ]
-        )
+            ])
         pipeline_section = (
             '<div class="sec"><div class="sec-title">'
-            "Diagnóstico da cadeia SA → N3 / N2 → N4</div>"
+            "Diagnóstico da cadeia por viga</div>"
             f'<div class="sec-body"><div class="pipeline-grid">{pipeline}</div>'
             "</div></div>"
         )
@@ -416,10 +517,8 @@ def write_fundo_pages(
         n3_ficha = dialog._n3_ficha_html_beam("FV", beam)
         ficha_section = (
             '<div class="sec"><div class="sec-title">'
-            "Fichas informacionais completas</div>"
+            "Fichas agregadas da viga</div>"
             '<div class="sec-body"><div class="fichas-grid">'
-            '<div><div class="ficha-col-title">N1 / SA</div>'
-            f'<div class="ficha-cell"><table>{identity_rows}</table></div></div>'
             '<div><div class="ficha-col-title">N2 / Motor Reverso</div>'
             f'<div class="ficha-cell">{n2_ficha}</div></div>'
             '<div><div class="ficha-col-title">N3 / JSON Fase-4</div>'
@@ -428,9 +527,7 @@ def write_fundo_pages(
         )
 
         checks = [
-            ("contorno com 3+ vértices", metrics["unique_vertex_count"] >= 3),
-            ("área geométrica positiva", metrics["area"] > 0),
-            ("largura declarada", bool(segment.get("width"))),
+            ("N1 disponível para todos os segmentos", n1_available == len(beam_rows)),
             ("recorte N2 localizado", bool(n2_b64)),
             ("artefato N3 localizado", bool(n3_b64)),
             ("artefato N4 localizado", bool(n4_b64)),
@@ -442,14 +539,13 @@ def write_fundo_pages(
             for check_label, ok in checks
         )
         checks_section = (
-            '<div class="sec"><div class="sec-title">Quality gates da ficha FV</div>'
+            '<div class="sec"><div class="sec-title">Quality gates da viga FV</div>'
             f'<div class="sec-body"><table>{check_rows}</table></div></div>'
         )
 
         main = (
             nav_bar
-            + identity_section
-            + vertices_section
+            + "".join(n1_sections)
             + pipeline_section
             + evidence_section
             + ficha_section
@@ -459,49 +555,50 @@ def write_fundo_pages(
             'background:#2a2a00;color:#f0b840;border:1px solid #554400;'
             'padding:3px 10px;cursor:pointer;font-size:10px">'
             "Exportar Anotações</button>"
+            + _error_marker_block(dialog, beam)
         )
         return (
             '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
-            f"<title>FV — {html.escape(beam)} · {html.escape(label)}</title>"
+            f"<title>FV — {html.escape(beam)}</title>"
             f"<style>{page_css}</style>{javascript}</head><body>{sidebar}"
             '<div class="main-wrap"><div class="main-content">'
             '<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'
-            f"FV — {html.escape(beam)} · segmento {html.escape(label)}</h2>"
+            f"FV — {html.escape(beam)} · {len(beam_rows)} segmento(s)</h2>"
             f"{main}</div></div></body></html>"
         )
 
-    for index, (_, _, _, page_slug) in enumerate(entries):
+    for index, (beam, _, page_slug) in enumerate(entries):
         page_path = os.path.join(section_dir, f"{page_slug}.html")
         with open(page_path, "w", encoding="utf-8") as file:
             file.write(page(index))
         print(
-            f"[HTML] fundos_viga {index + 1}/{len(entries)}: {page_slug}",
+            f"[HTML] fundos_viga {index + 1}/{len(entries)}: {beam}",
             flush=True,
         )
 
     index_rows = "".join(
         "<tr>"
         f"<td>{idx + 1}</td><td>{html.escape(beam)}</td>"
-        f"<td>{html.escape(label)}</td>"
-        f'<td>{html.escape(str(row.get("Comprimento") or "—"))}</td>'
-        f'<td>{html.escape(str(row.get("Largura") or "—"))}</td>'
-        f'<td>{html.escape(str(row.get("Status") or "—"))}</td>'
+        f"<td>{len(beam_rows)}</td>"
+        f'<td>{html.escape(", ".join(str((row.get("_segment") or {}).get("segment_label") or row.get("Segmento") or "—") for row in beam_rows))}</td>'
+        f'<td>{html.escape(", ".join(dict.fromkeys(str(row.get("Status") or "—") for row in beam_rows)))}</td>'
         f'<td><a href="{html.escape(page_slug)}.html">abrir →</a></td>'
         "</tr>"
-        for idx, (beam, label, row, page_slug) in enumerate(entries)
+        for idx, (beam, beam_rows, page_slug) in enumerate(entries)
     )
     index_document = (
         '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
         f"<title>{html.escape(title)}</title><style>{page_css}</style></head>"
         '<body style="margin:16px"><a class="nav-arrow" href="../index.html">'
         "← índice geral</a><h1>Fundos de Viga — Fichas Granulares</h1>"
-        f'<p class="meta">{len(entries)} segmentos · evidências N1/N2/N3/N4</p>'
-        "<table><tr><th>#</th><th>Viga</th><th>Segmento</th>"
-        "<th>Comprimento</th><th>Largura</th><th>Status</th><th></th></tr>"
+        f'<p class="meta">{len(entries)} vigas · {len(rows)} segmentos · '
+        "evidências N1/N2/N3/N4</p>"
+        "<table><tr><th>#</th><th>Viga</th><th>Qtd. segmentos</th>"
+        "<th>Segmentos</th><th>Status</th><th></th></tr>"
         f"{index_rows}</table></body></html>"
     )
     with open(os.path.join(section_dir, "index.html"), "w", encoding="utf-8") as file:
         file.write(index_document)
 
     _copy_latest_guide(output_dir, section_dir)
-    return ("fundos_viga/index.html", title, len(rows))
+    return ("fundos_viga/index.html", title, len(entries))

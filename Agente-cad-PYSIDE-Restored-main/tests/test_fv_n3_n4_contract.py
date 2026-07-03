@@ -6,6 +6,7 @@ from pathlib import Path
 
 import ezdxf
 
+from scripts.motor_fase4 import MotorFase4
 from src.core.fv_generation_contract import (
     FV_ENGINE_ID,
     build_fv_generation_contract,
@@ -60,6 +61,16 @@ def _fingerprint(path: Path):
             values = ()
         result.append((kind, tuple(round(float(v), 4) for v in values)))
     return sorted(result)
+
+
+def _panel_geometry_count(path: Path) -> int:
+    doc = ezdxf.readfile(path)
+    return sum(
+        1
+        for entity in doc.modelspace()
+        if entity.dxftype() in {"LINE", "LWPOLYLINE"}
+        and entity.dxf.layer in {"Painéis", "Paineis"}
+    )
 
 
 def test_contract_preserves_segments_dimensions_and_supports():
@@ -136,6 +147,34 @@ def test_contract_removes_short_transverse_crossing_but_keeps_real_panel():
     assert [s["total_width"] for s in contract["segments_rich"]] == [286, 254]
 
 
+def test_contract_preserves_only_available_short_segment_for_review():
+    source = {
+        "dim_text": "19/60",
+        "segmentos_fundo": [{
+            "length": 30.7,
+            "dim_width": 19,
+            "dim_height": 60,
+            "apoio_inicial": "V309",
+            "apoio_final": "V309",
+        }],
+    }
+
+    contract = build_fv_generation_contract("V307", source)
+
+    assert [s["total_width"] for s in contract["segments_rich"]] == [30.7]
+    assert contract["quality_warnings"]
+
+
+def test_segment_dimensions_override_stale_beam_header_dimensions():
+    source = _source()
+    source["dim_text"] = "14/55"
+
+    contract = build_fv_generation_contract("V305", source)
+
+    assert contract["total_width"] == 19
+    assert contract["total_height"] == 55
+
+
 def test_n1_database_record_materializes_a_filled_n3_ficha(tmp_path):
     db_path = tmp_path / "project_data.vision"
     with sqlite3.connect(db_path) as connection:
@@ -173,6 +212,86 @@ def test_n1_database_record_materializes_a_filled_n3_ficha(tmp_path):
     assert ficha["sarrafo_left_id"] == ficha["sarrafo_right_id"] == 0
 
 
+def test_sa_fase4_sync_resolves_full_cad_pavement_and_writes_fv_contract(
+    tmp_path,
+):
+    obra = tmp_path / "Obra_TREINO_1"
+    db_path = tmp_path / "project_data.vision"
+    project_id = "project-13-current"
+    full_pavement = "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA"
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            "CREATE TABLE projects (id TEXT, work_name TEXT, "
+            "pavement_name TEXT, updated_at TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE beam_elements (project_id TEXT, classe TEXT, "
+            "viga_nome TEXT, n_segmentos INTEGER, campos_json TEXT)"
+        )
+        connection.execute(
+            "INSERT INTO projects VALUES (?, ?, ?, ?)",
+            (project_id, obra.name, full_pavement, "2026-07-01T19:19:40"),
+        )
+        connection.execute(
+            "INSERT INTO beam_elements VALUES (?, 'FV', 'V305.C', 2, ?)",
+            (project_id, json.dumps(_source(), ensure_ascii=False)),
+        )
+
+    motor = MotorFase4(
+        str(obra),
+        pavimento=full_pavement,
+        project_id=project_id,
+        db_path=str(db_path),
+    )
+    written = motor._write_fv_json_from_beam_elements({})
+
+    target = (
+        obra / "Fase-4_Sincronizacao" / "JSON_Vigas_Fundo"
+        / "V305_fundo.json"
+    )
+    assert written == 1
+    ficha = json.loads(target.read_text(encoding="utf-8"))
+    assert ficha["motor_id"] == FV_ENGINE_ID
+    assert ficha["contract_version"] >= 3
+    assert len(ficha["segments_rich"]) == 2
+
+
+def test_sa_fase4_sync_keeps_vf_beam_names(tmp_path):
+    obra = tmp_path / "Obra_TREINO_1"
+    db_path = tmp_path / "project_data.vision"
+    project_id = "project-vf"
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            "CREATE TABLE projects (id TEXT, work_name TEXT, "
+            "pavement_name TEXT, updated_at TEXT)"
+        )
+        connection.execute(
+            "CREATE TABLE beam_elements (project_id TEXT, classe TEXT, "
+            "viga_nome TEXT, n_segmentos INTEGER, campos_json TEXT)"
+        )
+        connection.execute(
+            "INSERT INTO projects VALUES (?, ?, '13_PAV', '2026-07-01')",
+            (project_id, obra.name),
+        )
+        connection.execute(
+            "INSERT INTO beam_elements VALUES (?, 'FV', 'VF202.C', 2, ?)",
+            (project_id, json.dumps(_source(), ensure_ascii=False)),
+        )
+
+    motor = MotorFase4(
+        str(obra), pavimento="13_PAV", project_id=project_id,
+        db_path=str(db_path),
+    )
+
+    assert motor._write_fv_json_from_beam_elements({}) == 1
+    target = (
+        obra / "Fase-4_Sincronizacao" / "JSON_Vigas_Fundo"
+        / "VF202_fundo.json"
+    )
+    assert target.is_file()
+    assert json.loads(target.read_text(encoding="utf-8"))["name"] == "VF202"
+
+
 def test_n3_and_n4_identical_contract_generate_identical_geometry(tmp_path):
     obra = tmp_path / "obra"
     input_n3 = tmp_path / "n3_input"
@@ -206,3 +325,5 @@ def test_n3_and_n4_identical_contract_generate_identical_geometry(tmp_path):
     assert _fingerprint(output_n3 / "FV_preview_V305.dxf") == _fingerprint(
         output_n4 / "FV_preview_V305.dxf"
     )
+    assert _panel_geometry_count(output_n3 / "FV_preview_V305.dxf") > 0
+    assert _panel_geometry_count(output_n4 / "FV_preview_V305.dxf") > 0

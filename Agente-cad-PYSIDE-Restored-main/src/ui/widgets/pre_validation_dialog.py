@@ -35,6 +35,10 @@ from src.core.preficha_segments import (
     collect_preficha_segments,
     serializable_segment,
 )
+from src.ui.widgets.svg_embed_utils import (
+    strip_fixed_size as _svg_strip_fixed_size,
+    embed_visual as _embed_visual,
+)
 
 # ── Logger de diagnóstico de freeze (TEMPORÁRIO) ────────────────────────────────
 _DBG_LOG = os.path.join(
@@ -501,6 +505,85 @@ def _segment_geometry_metrics(points: list | tuple | None) -> dict:
         "area": area,
         "closed": closed,
     }
+
+
+def _error_marker_block_pil(dialog, nome: str) -> str:
+    """Checkbox + nota de erro para a ficha granular de pilar, salvos em
+    localStorage (mesma origem file:// compartilhada por todas as fichas) —
+    mesmo padrão de `_error_marker_block` em preficha_laje_html.py /
+    preficha_fundo_html.py, adaptado ao prefixo `aten_erro_pil_`."""
+    key = f"aten_erro_pil_{dialog._obra}_{dialog._pavimento}_{nome}".replace(" ", "_")
+    key_js = json.dumps(key)
+    return (
+        '<div class="sec" style="margin-top:16px;border-color:#5a2020">'
+        '<div class="sec-title" style="color:#e17055">'
+        "Marcação de erro (revisão humana)</div>"
+        '<div class="sec-body">'
+        '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;'
+        'color:#e17055;font-weight:bold">'
+        '<input type="checkbox" id="erro_check" style="width:16px;height:16px">'
+        "Marcar esta ficha como ERRADA</label>"
+        '<textarea id="erro_nota" placeholder='
+        '"Descreva o que está errado (N1, N2, N3 ou N4)..." '
+        'style="width:100%;min-height:70px;margin-top:8px;background:#1a1a1a;'
+        "color:#f0b840;border:1px solid #554400;border-radius:3px;padding:6px;"
+        'font-family:monospace;font-size:11px;box-sizing:border-box"></textarea>'
+        "</div></div>"
+        "<script>(function(){"
+        f"var key={key_js};"
+        "function save(){"
+        '  var chk=document.getElementById("erro_check");'
+        '  var txt=document.getElementById("erro_nota");'
+        "  if(chk.checked||txt.value.trim()){"
+        "    localStorage.setItem(key, JSON.stringify("
+        "{erro:chk.checked, nota:txt.value}));"
+        "  } else { localStorage.removeItem(key); }"
+        "}"
+        "function load(){"
+        "  var stored=localStorage.getItem(key);"
+        "  if(!stored)return;"
+        "  try{"
+        "    var obj=JSON.parse(stored);"
+        '    document.getElementById("erro_check").checked=!!obj.erro;'
+        '    document.getElementById("erro_nota").value=obj.nota||"";'
+        "  }catch(e){}"
+        "}"
+        'document.addEventListener("DOMContentLoaded", function(){'
+        "  load();"
+        '  document.getElementById("erro_check")'
+        '    .addEventListener("change", save);'
+        '  document.getElementById("erro_nota")'
+        '    .addEventListener("input", save);'
+        "});"
+        "})();</script>"
+    )
+
+
+def _sidebar_error_flags_script_pil(dialog) -> str:
+    """Marca com ⚠️ os itens da sidebar de pilares já revisados como errados —
+    mesmo padrão de `_sidebar_error_flags_script` em preficha_fundo_html.py,
+    adaptado ao seletor `[data-pilar]` e ao prefixo `aten_erro_pil_`."""
+    obra_js = json.dumps(dialog._obra)
+    pav_js = json.dumps(dialog._pavimento)
+    return (
+        "<script>(function(){"
+        f"var obra={obra_js}, pav={pav_js};"
+        'document.querySelectorAll(".sidebar li[data-pilar]").forEach('
+        "function(li){"
+        '  var nome=li.getAttribute("data-pilar");'
+        '  var key=("aten_erro_pil_"+obra+"_"+pav+"_"+nome).replace(/ /g,"_");'
+        "  var stored=localStorage.getItem(key);"
+        "  if(!stored)return;"
+        "  try{"
+        "    var obj=JSON.parse(stored);"
+        "    if(obj.erro||((obj.nota||'').trim())){"
+        '      var flag=li.querySelector(".erro-flag");'
+        '      if(flag)flag.style.display="inline";'
+        "    }"
+        "  }catch(e){}"
+        "});"
+        "})();</script>"
+    )
 
 
 class _MiniDXFView(QGraphicsView):
@@ -4823,8 +4906,16 @@ class PreValidationDialog(QDialog):
         matches = sorted(_glob.glob(pattern), reverse=True)
         return self._file_to_b64(matches[0]) if matches else ''
 
-    def _render_ezdxf_b64(self, dxf_path: str, width: int = 900, height: int = 600) -> str:
-        """Renderiza qualquer DXF com ezdxf+matplotlib (fundo branco). Retorna base64 PNG."""
+    def _render_ezdxf_b64(self, dxf_path: str, width: int = 900, height: int = 600,
+                           fmt: str = 'png') -> str:
+        """Renderiza qualquer DXF com ezdxf+matplotlib (fundo branco).
+
+        fmt='png' (default): retorna base64 PNG, para embutir em <img src="data:...">.
+        fmt='svg': retorna markup SVG cru (texto preservado como <text> real do DOM,
+        ver `_svg_strip_fixed_size`) para embutir inline no HTML — permite ao Playwright
+        ler rótulos/cotas via DOM/accessibility tree sem gastar visão (ARETE-LOOP-
+        PROCEDIMENTO-GERAL.md §5.1).
+        """
         if not os.path.exists(dxf_path):
             return ''
         try:
@@ -4838,15 +4929,19 @@ class PreValidationDialog(QDialog):
             dpi = 150
             doc = ezdxf.readfile(dxf_path)
             msp = doc.modelspace()
-            fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
-            ax = fig.add_axes([0, 0, 1, 1])
-            ctx = RenderContext(doc)
-            out = MatplotlibBackend(ax)
-            Frontend(ctx, out).draw_layout(msp)
-            buf = io.BytesIO()
-            fig.savefig(buf, format='png', dpi=dpi, facecolor='white', bbox_inches='tight')
-            plt.close(fig)
+            rc = {'svg.fonttype': 'none'} if fmt == 'svg' else {}
+            with matplotlib.rc_context(rc):
+                fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
+                ax = fig.add_axes([0, 0, 1, 1])
+                ctx = RenderContext(doc)
+                out = MatplotlibBackend(ax)
+                Frontend(ctx, out).draw_layout(msp)
+                buf = io.BytesIO()
+                fig.savefig(buf, format=fmt, dpi=dpi, facecolor='white', bbox_inches='tight')
+                plt.close(fig)
             buf.seek(0)
+            if fmt == 'svg':
+                return _svg_strip_fixed_size(buf.read().decode('utf-8'))
             return base64.b64encode(buf.read()).decode('ascii')
         except Exception as exc:
             print(f'[HTML] _render_ezdxf_b64 falhou ({dxf_path}): {exc}', flush=True)
@@ -4886,18 +4981,18 @@ class PreValidationDialog(QDialog):
         return ''
 
     def _find_beam_dxf(self, class_prefix: str, item_name: str, n4: bool = False) -> str:
-        """Localiza o artefato DXF N3/N4 de uma viga sem misturar os níveis."""
+        """Localiza o artefato DXF N3/N4 de uma viga ou laje sem misturar os níveis."""
         if not self._obra:
             return ''
         prefix = str(class_prefix or '').upper()
-        if prefix not in {'FV', 'LV'}:
+        if prefix not in {'FV', 'LV', 'LJ'}:
             return ''
         base = os.path.join(
             'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
             'Fase-6_Execucao_CAD',
         )
         isolated_n3_dir = str(getattr(self, '_n3_preview_dir', '') or '')
-        if not n4 and isolated_n3_dir:
+        if not n4 and isolated_n3_dir and prefix == 'FV':
             # Exportações comparativas podem fornecer candidatos NOVA isolados.
             # Quando o diretório foi definido, nunca cair no preview compartilhado
             # da Fase-6, que pode ter sido sobrescrito pelo modo INI.
@@ -4935,11 +5030,44 @@ class PreValidationDialog(QDialog):
         return ''
 
     def _find_n2_recorte_dxf(self, class_prefix: str, item_name: str) -> str:
-        """Localiza o recorte humano N2 mais recente da classe/elemento."""
+        """Localiza o recorte N2 validado por humano (status='aprovado' na
+        tabela reverse_eng_recortes — mesma convenção usada em
+        diagnostic_reverse_hub.py). A tabela é a fonte de verdade; um glob
+        por nome de arquivo pode pegar qualquer tentativa automática do
+        motor (status 'auto_aprovado'/'motor'), não a que um humano validou,
+        já que a ordenação alfabética de pastas não reflete aprovação."""
         if not self._obra:
             return ''
-        import glob as _glob
         prefix = str(class_prefix or '').upper()
+
+        db_path = self._db_path or 'D:/Agente-cad-PYSIDE/project_data.vision'
+        if db_path and os.path.isfile(db_path):
+            try:
+                import sqlite3 as _sql
+                conn = _sql.connect(db_path)
+                row = conn.execute(
+                    "SELECT recorte_path FROM reverse_eng_recortes "
+                    "WHERE obra_name=? AND classe=? AND elemento_id=? "
+                    "AND status='aprovado' ORDER BY created_at DESC LIMIT 1",
+                    (self._obra, prefix, item_name),
+                ).fetchone()
+                if not row:
+                    # Nenhum recorte aprovado ainda — melhor mostrar o
+                    # candidato mais recente do motor do que nada, mas
+                    # nunca preferir isso a um 'aprovado' existente.
+                    row = conn.execute(
+                        "SELECT recorte_path FROM reverse_eng_recortes "
+                        "WHERE obra_name=? AND classe=? AND elemento_id=? "
+                        "ORDER BY created_at DESC LIMIT 1",
+                        (self._obra, prefix, item_name),
+                    ).fetchone()
+                conn.close()
+                if row and row[0] and os.path.isfile(row[0]):
+                    return row[0]
+            except Exception:
+                pass
+
+        import glob as _glob
         recortes_base = os.path.join(
             'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
             'Fase-2_Triagem', 'recortes_reversos',
@@ -5029,7 +5157,8 @@ class PreValidationDialog(QDialog):
         except Exception as exc:
             return f'<span style="color:#555">erro: {_hl.escape(str(exc))}</span>'
 
-    def _render_n2_recorte_b64(self, item_name: str, width: int = 700, height: int = 500) -> str:
+    def _render_n2_recorte_b64(self, item_name: str, width: int = 700, height: int = 500,
+                                fmt: str = 'png') -> str:
         """Renderiza o DXF recorte N2 mais recente do pilar (Fase-2 triagem)."""
         if not self._obra:
             return ''
@@ -5043,7 +5172,7 @@ class PreValidationDialog(QDialog):
         matches = sorted(_glob.glob(pattern, recursive=True), reverse=True)
         if not matches:
             return ''
-        return self._render_ezdxf_b64(matches[0], width=width, height=height)
+        return self._render_ezdxf_b64(matches[0], width=width, height=height, fmt=fmt)
 
     def _n1_ficha_html_pilar(self, pilar_key: str) -> str:
         """Retorna HTML completo com TODOS os campos SA do pilar (Ficha N1 SA)."""
@@ -5262,10 +5391,14 @@ class PreValidationDialog(QDialog):
         width: int = 910,
         height: int = 650,
         focus_mode: str = 'pillar',
+        fmt: str = 'png',
     ) -> str:
         """
         Renderiza o contexto DXF ao redor do pilar com as cores reais do DXF (ACI/RGB),
         exatamente como o mini-viewer do SA. Pilar destacado em teal.
+
+        fmt='png' (default): base64 PNG. fmt='svg': markup SVG cru com texto/cota
+        preservado como <text> real do DOM (ver `_render_ezdxf_b64` para o racional).
         """
         if not pilar_pts or not self._dxf_data:
             return ''
@@ -5273,6 +5406,10 @@ class PreValidationDialog(QDialog):
             import io, base64
             import matplotlib
             matplotlib.use('Agg')
+            if fmt == 'svg':
+                # Sem efeito no backend PNG/Agg — só muda como o backend SVG
+                # embute texto (mantém <text> real em vez de converter p/ path).
+                matplotlib.rcParams['svg.fonttype'] = 'none'
             import matplotlib.pyplot as plt
             from matplotlib.patches import Polygon as MplPolygon
 
@@ -5282,14 +5419,23 @@ class PreValidationDialog(QDialog):
             if focus_mode == 'segment':
                 long_span = max(pw, ph, 1.0)
                 short_span = max(min(pw, ph), 1.0)
-                pad_long = max(25.0, long_span * 0.06)
-                pad_short = max(35.0, short_span * 2.5)
+                pad_long = max(60.0, long_span * 0.20)
+                pad_short = max(90.0, short_span * 5.0)
                 if pw >= ph:
                     vx0, vx1 = min(xs) - pad_long, max(xs) + pad_long
                     vy0, vy1 = min(ys) - pad_short, max(ys) + pad_short
                 else:
                     vx0, vx1 = min(xs) - pad_short, max(xs) + pad_short
                     vy0, vy1 = min(ys) - pad_long, max(ys) + pad_long
+            elif focus_mode == 'slab':
+                # Lajes são áreas (não pontos como pilar nem linhas como
+                # segmento de viga) — margem proporcional ao próprio
+                # tamanho é suficiente para mostrar vizinhança/apoios sem
+                # zoom fora a ponto de virar o mapa inteiro do pavimento.
+                pad_x = max(40.0, pw * 0.35)
+                pad_y = max(40.0, ph * 0.35)
+                vx0, vx1 = min(xs) - pad_x, max(xs) + pad_x
+                vy0, vy1 = min(ys) - pad_y, max(ys) + pad_y
             else:
                 margin = (max(pw, ph) * 3.0 + 60) * 1.3
                 vx0, vx1 = min(xs) - margin, max(xs) + margin
@@ -5386,9 +5532,11 @@ class PreValidationDialog(QDialog):
                 )
 
             buf = io.BytesIO()
-            fig.savefig(buf, format='png', facecolor=BG, dpi=dpi)
+            fig.savefig(buf, format=fmt, facecolor=BG, dpi=dpi)
             plt.close(fig)
             buf.seek(0)
+            if fmt == 'svg':
+                return _svg_strip_fixed_size(buf.read().decode('utf-8'))
             return base64.b64encode(buf.read()).decode('ascii')
         except Exception as exc:
             print(f'[HTML] _render_pilar_dxf_context_b64 falhou: {exc}', flush=True)
@@ -5567,6 +5715,41 @@ class PreValidationDialog(QDialog):
             'visao_cortes', 'Pré-ficha — Visão de Cortes',
             ['Viga', 'Confiança', 'Laje A', 'Laje B', 'Altura', 'Status', 'Atenção'],
             cut_rows, _cut_extra_th, _cut_extra_td,
+        ))
+
+        # ── Report: Lajes ─────────────────────────────────────────────────────
+        slab_rows: list[dict] = []
+        for slab in sorted(
+            self._slabs or [],
+            key=lambda s: self._natural_sort_key(
+                str(s.get('name') or s.get('laje_name') or '')
+            ),
+        ):
+            nome_lj = str(
+                slab.get('name')
+                or slab.get('laje_name')
+                or (slab.get('fields') or {}).get('nome')
+                or '—'
+            )
+            pts_lj = _slab_outline_points(slab)
+            slab_rows.append({
+                'Nome':      nome_lj,
+                'Nível':     self._slab_nivel_map.get(nome_lj) or '—',
+                'Espessura': self._slab_height_map.get(nome_lj) or '—',
+                'Atenção':   self._atencao_notes.get(nome_lj, ''),
+                'Detalhes':  _slab_details_text(
+                    slab,
+                    height=self._slab_height_map.get(nome_lj, ''),
+                    level=self._slab_nivel_map.get(nome_lj, ''),
+                ),
+                '_points':   pts_lj,
+                '_slab':     slab,
+                '_name':     nome_lj,
+            })
+        reports.append((
+            'lajes', 'Pré-ficha — Lajes',
+            ['Nome', 'Nível', 'Espessura', 'Atenção'],
+            slab_rows, '', None,
         ))
 
         # ── Reports: Segmentos de Vigas ──────────────────────────────────────
@@ -5753,8 +5936,8 @@ class PreValidationDialog(QDialog):
             '.ficha-col-title{color:#7eb8f7;font-size:10px;margin-bottom:4px;font-weight:bold}'
             '.evidence-grid{display:grid;grid-template-columns:1fr;gap:18px}'
             '.evidence-card{background:#101010;border:1px solid #292929;border-radius:3px;padding:6px}'
-            '.evidence-card img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;background:#111}'
-            '.img-wrap img{display:block;width:100%;height:auto;max-height:none;object-fit:contain}'
+            '.evidence-card img,.evidence-card svg{display:block;width:100%;height:auto;max-height:none;object-fit:contain;background:#111}'
+            '.img-wrap img,.img-wrap svg{display:block;width:100%;height:auto;max-height:none;object-fit:contain}'
             '.views-row{display:flex;flex-direction:column;gap:18px;align-items:stretch}'
             '.view-block{width:100%;text-align:center}'
             '.view-block img{display:block;width:100%;height:auto;max-height:none;object-fit:contain}'
@@ -5871,10 +6054,14 @@ class PreValidationDialog(QDialog):
                         rp = f'../../{jcs}/{jnome}.html'
                     act = ' class="active"' if j == idx else ''
                     sb_items.append(
-                        f'<li{act}><a href="{html.escape(rp)}">{html.escape(jnome)}</a></li>')
+                        f'<li{act} data-pilar="{html.escape(jnome)}">'
+                        f'<a href="{html.escape(rp)}">'
+                        f'<span class="erro-flag" style="display:none">⚠️ </span>'
+                        f'{html.escape(jnome)}</a></li>')
                 sidebar = (
                     f'<aside class="sidebar"><h3>Pilares ({len(rows)})</h3>'
                     f'<ul>{"".join(sb_items)}</ul></aside>'
+                    + _sidebar_error_flags_script_pil(self)
                 )
 
                 # Nav bar
@@ -5948,14 +6135,16 @@ class PreValidationDialog(QDialog):
 
                 # Foto N1
                 geo_b64 = self._render_pilar_dxf_context_b64(
-                    pts, width=1820, height=1300
+                    pts, width=1820, height=1300, fmt='svg'
                 ) if pts else ''
+                geo_fmt = 'svg'
                 if not geo_b64:
                     geo_b64 = _photo(pts)
+                    geo_fmt = 'png'
                 foto_n1 = (
                     '<div class="sec"><div class="sec-title">Foto N1 (SA) — Contexto DXF</div>'
                     f'<div class="sec-body"><div class="img-wrap">'
-                    f'<img class="img-geo" src="data:image/png;base64,{geo_b64}" alt="N1">'
+                    f'{_embed_visual(geo_b64, geo_fmt, "img-geo", "N1")}'
                     f'</div></div></div>'
                 ) if geo_b64 else ''
 
@@ -5970,13 +6159,13 @@ class PreValidationDialog(QDialog):
                     for vt in ('CIMA', 'ABCD', 'GRADES'):
                         p    = self._find_pilar_dxf(vt, nome, n4=n4)
                         b64v = self._render_ezdxf_b64(
-                            p, width=1500, height=1100
+                            p, width=1500, height=1100, fmt='svg'
                         ) if p else ''
                         if b64v:
                             views_html += (
                                 f'<div class="view-block">'
                                 f'<div class="view-label">{vt}</div>'
-                                f'<img class="{img_cls}" src="data:image/png;base64,{b64v}" alt="{vt}">'
+                                f'{_embed_visual(b64v, "svg", img_cls, vt)}'
                                 f'</div>'
                             )
                         else:
@@ -6002,12 +6191,12 @@ class PreValidationDialog(QDialog):
 
                 # Foto N2
                 n2b64 = self._render_n2_recorte_b64(
-                    nome, width=1400, height=1000
+                    nome, width=1400, height=1000, fmt='svg'
                 )
                 foto_n2 = (
                     '<div class="sec"><div class="sec-title">Foto N2 — Recorte STOG</div>'
                     f'<div class="sec-body"><div class="img-wrap">'
-                    f'<img class="img-n2" src="data:image/png;base64,{n2b64}" alt="N2">'
+                    f'{_embed_visual(n2b64, "svg", "img-n2", "N2")}'
                     f'</div></div></div>'
                 ) if n2b64 else ''
 
@@ -6104,6 +6293,20 @@ class PreValidationDialog(QDialog):
                     if rows:
                         from src.ui.widgets.preficha_fundo_html import write_fundo_pages
                         generated.append(write_fundo_pages(
+                            dialog=self,
+                            title=title,
+                            rows=rows,
+                            output_dir=output_dir,
+                            page_css=_page_css,
+                            javascript=js,
+                            photo_fn=_photo,
+                            metrics_fn=_segment_geometry_metrics,
+                        ))
+                    continue
+                if slug == 'lajes':
+                    if rows:
+                        from src.ui.widgets.preficha_laje_html import write_laje_pages
+                        generated.append(write_laje_pages(
                             dialog=self,
                             title=title,
                             rows=rows,

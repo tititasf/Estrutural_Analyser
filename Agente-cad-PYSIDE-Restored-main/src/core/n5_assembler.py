@@ -146,6 +146,23 @@ def _entity_bbox(doc, skip_fv_helpers: bool = False) -> tuple[float, float, floa
         return None
 
 
+def _lj_panel_bbox(doc) -> tuple[float, float, float, float] | None:
+    """Locate the slab outline, excluding dimensions that extend the item bbox."""
+    candidates: list[tuple[float, tuple[float, float, float, float]]] = []
+    for entity in doc.modelspace().query("LWPOLYLINE"):
+        layer = str(entity.dxf.get("layer", "")).casefold()
+        if layer not in {"paineis", "painéis", "3"}:
+            continue
+        ext = _entity_extents(entity)
+        if not ext:
+            continue
+        width = max(ext[2] - ext[0], 0.0)
+        height = max(ext[3] - ext[1], 0.0)
+        if width > 0 and height > 0:
+            candidates.append((width * height, ext))
+    return max(candidates, key=lambda item: item[0])[1] if candidates else None
+
+
 def _new_doc_like() -> ezdxf.EzDxf:
     doc = ezdxf.new("R2018")
     doc.header["$INSUNITS"] = 0
@@ -303,6 +320,7 @@ def assemble_n5(
     pavimento: str = "",
     row_width: float | None = None,
     visual_mode: str = "NOVA",
+    item_positions: dict[str, tuple[float, float]] | None = None,
 ) -> N5AssemblyResult:
     """Monta um DXF N5 consolidado a partir dos previews N3.
 
@@ -337,8 +355,30 @@ def assemble_n5(
                 continue
             try:
                 src_doc = ezdxf.readfile(str(src_path))
-                count = _import_doc_entities(src_doc, dst, skip_fv_helpers=True)
-                items.append(N5ItemResult(item_id, str(src_path), "ok", f"{count} entidades"))
+                dx = dy = 0.0
+                target = (item_positions or {}).get(item_id)
+                panel_bbox = _lj_panel_bbox(src_doc)
+                if target and panel_bbox:
+                    dx = float(target[0]) - panel_bbox[0]
+                    dy = float(target[1]) - panel_bbox[1]
+                count = _import_doc_entities(
+                    src_doc,
+                    dst,
+                    dx=dx,
+                    dy=dy,
+                    skip_fv_helpers=True,
+                )
+                pose_msg = (
+                    f"; posição SA ({target[0]:.1f}, {target[1]:.1f})"
+                    if target and panel_bbox
+                    else ""
+                )
+                items.append(N5ItemResult(
+                    item_id,
+                    str(src_path),
+                    "ok",
+                    f"{count} entidades{pose_msg}",
+                ))
             except Exception as exc:
                 items.append(N5ItemResult(item_id, str(src_path), "error", str(exc)[:120]))
     else:  # PL, LV e FV: empacota cada item como uma folha/grupo.

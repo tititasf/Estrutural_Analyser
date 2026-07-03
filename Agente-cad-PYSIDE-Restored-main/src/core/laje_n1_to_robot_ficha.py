@@ -43,7 +43,69 @@ def _normalize_points(points: Any) -> list[list[float]]:
     return out
 
 
+def n1_laje_outline_points(n1_laje: dict[str, Any]) -> list[list[float]]:
+    """Return the authoritative absolute slab contour linked by the SA."""
+    outline_links = (
+        (n1_laje.get("links") or {})
+        .get("laje_outline_segs", {})
+    )
+    if isinstance(outline_links, dict):
+        contour_links = outline_links.get("contour") or []
+    elif isinstance(outline_links, list):
+        contour_links = outline_links
+    else:
+        contour_links = []
+
+    candidates: list[list[list[float]]] = []
+    for link in contour_links:
+        if not isinstance(link, dict):
+            continue
+        for key in ("points", "coords", "coordenadas"):
+            points = _normalize_points(link.get(key))
+            if len(points) >= 3:
+                candidates.append(points)
+                break
+
+    if not candidates:
+        return []
+    return max(candidates, key=_shoelace_area)
+
+
+def apply_n1_outline_anchor(
+    ficha: dict[str, Any],
+    n1_laje: dict[str, Any],
+) -> dict[str, Any]:
+    """Keep robot geometry local and anchor it to the absolute SA contour."""
+    outline = n1_laje_outline_points(n1_laje)
+    coords = _normalize_points(ficha.get("coordenadas"))
+    if len(outline) < 3 or len(coords) < 3:
+        return ficha
+
+    anchor_x = min(point[0] for point in outline)
+    anchor_y = min(point[1] for point in outline)
+    local_x = min(point[0] for point in coords)
+    local_y = min(point[1] for point in coords)
+
+    out = dict(ficha)
+    out["coordenadas"] = [
+        [round(point[0] - local_x, 4), round(point[1] - local_y, 4)]
+        for point in coords
+    ]
+    out["_stog_pose"] = {
+        "x": round(anchor_x, 4),
+        "y": round(anchor_y, 4),
+    }
+    meta = dict(out.get("_sa_meta") or {})
+    meta["n3_pose_source"] = "sa_outline_anchor"
+    out["_sa_meta"] = meta
+    return out
+
+
 def _points_from_outline_links(n1_laje: dict[str, Any]) -> list[list[float]]:
+    contour = n1_laje_outline_points(n1_laje)
+    if contour:
+        return contour
+
     links = n1_laje.get("links", {}).get("laje_outline_segs", {})
     if isinstance(links, list):
         link_lists = [links]

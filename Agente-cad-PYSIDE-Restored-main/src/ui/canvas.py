@@ -1345,16 +1345,7 @@ class CADCanvas(QGraphicsView):
                 
                 doc = ezdxf.readfile(source_dxf_path)
                 
-                # FORCE ALL LAYERS AND ENTITIES TO BE VISIBLE
-                for layer in doc.layers:
-                    layer.on()
-                    layer.thaw()
-                    
                 msp = doc.modelspace()
-                for ent in doc.entitydb.values():
-                    if hasattr(ent, 'dxf') and hasattr(ent.dxf, 'invisible'): 
-                        ent.dxf.invisible = 0
-                
                 ctx = RenderContext(doc)
                 out = PyQtBackend(self.scene)
                 
@@ -1364,12 +1355,14 @@ class CADCanvas(QGraphicsView):
                         custom_bg_color="#1A1A1A",  # hardcoded-ok — arg literal para ezdxf BackgroundPolicy
                         color_policy=ColorPolicy.CUSTOM,
                         custom_fg_color=color_override,
+                        pdsize=1,
                     )
                 else:
                     config = Configuration(
                         background_policy=BackgroundPolicy.CUSTOM,
                         custom_bg_color="#1A1A1A",  # hardcoded-ok — arg literal para ezdxf BackgroundPolicy
                         color_policy=ColorPolicy.COLOR,
+                        pdsize=1,
                     )
                 
                 # Otimizações Extremas do Scene (Impede congelamento de UI)

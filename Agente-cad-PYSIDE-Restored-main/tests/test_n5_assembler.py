@@ -29,6 +29,46 @@ def _make_fv_preview(path: Path, x0: float = 1000.0, add_dim: bool = False) -> N
     doc.saveas(path)
 
 
+def _make_lj_preview(path: Path, x0: float = 0.0, y0: float = 0.0) -> None:
+    doc = ezdxf.new("R2018")
+    msp = doc.modelspace()
+    msp.add_lwpolyline(
+        [(x0, y0), (x0 + 418, y0), (x0 + 418, y0 + 122), (x0, y0 + 122)],
+        close=True,
+        dxfattribs={"layer": "PAINEIS"},
+    )
+    # Dimension geometry extends beyond the panel and must not define its anchor.
+    msp.add_line(
+        (x0, y0 - 30),
+        (x0 + 418, y0 - 30),
+        dxfattribs={"layer": "COTA"},
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    doc.saveas(path)
+
+
+def test_assemble_lj_n5_uses_sa_panel_position_not_dimension_bbox(tmp_path):
+    obra = tmp_path / "Obra_TESTE"
+    fase6 = obra / "Fase-6_Execucao_CAD"
+    _make_lj_preview(fase6 / "LJ_preview_L312.dxf", x0=4041.07, y0=2280.94)
+
+    result = assemble_n5(
+        obra,
+        "LJ",
+        item_ids=["L312"],
+        pavimento="13_PAV",
+        item_positions={"L312": (2496.5, 2680.0)},
+    )
+
+    assert result.ok_count == 1
+    out_doc = ezdxf.readfile(str(result.output_path))
+    panel = list(out_doc.modelspace().query('LWPOLYLINE[layer=="PAINEIS"]'))[0]
+    xs = [point[0] for point in panel.vertices()]
+    ys = [point[1] for point in panel.vertices()]
+    assert min(xs) == 2496.5
+    assert min(ys) == 2680.0
+
+
 def test_assemble_fv_n5_ignores_off_frame_sentinel_entities(tmp_path):
     obra = tmp_path / "Obra_TESTE"
     fase6 = obra / "Fase-6_Execucao_CAD"

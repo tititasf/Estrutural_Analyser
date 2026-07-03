@@ -870,7 +870,11 @@ class SlabTracer:
                 if not step_axes or not right_axes or not lower_axes:
                     continue
                 step_x = min(step_axes, key=lambda v: abs(v - x1))
-                right_x = max(right_axes)
+                # Preferir o eixo mais PROXIMO (nao o mais distante): o mais
+                # distante pode pertencer a outra sala/corredor nao
+                # relacionado, fazendo a extensao avancar sobre lajes e
+                # vigas que nao sao desta faixa.
+                right_x = min(right_axes)
                 low_y = min(lower_axes, key=lambda v: abs((y0 - v) - 49.0))
                 if right_x - step_x < 250.0 or y0 - low_y < 25.0:
                     continue
@@ -2446,9 +2450,80 @@ class SlabTracer:
                 slab['trace_diagnostics'] = dict(diag)
             slabs.append(slab)
 
+        # Guarda o contorno bruto (antes das normalizacoes de fileira) para
+        # poder reverter qualquer expansao que produza sobreposicao real
+        # entre lajes -- ver _reject_overlapping_row_expansions.
+        originals = {
+            slab['id']: (list(slab['points']), slab['area'], slab['method'])
+            for slab in slabs
+        }
+
         self._normalize_thin_slab_rows(slabs)
         self._normalize_partial_medium_edge_slabs(slabs)
         self._normalize_medium_row_heights(slabs)
         self._expand_left_chamfered_tall_slabs(slabs)
         self._expand_long_strip_right_step(slabs)
+        self._reject_overlapping_row_expansions(slabs, originals)
         return slabs
+
+    def _reject_overlapping_row_expansions(
+        self, slabs: List[Dict], originals: Dict[str, tuple],
+    ) -> None:
+        """As passagens de normalizacao de fileira (_normalize_thin_slab_rows,
+        _normalize_partial_medium_edge_slabs, _normalize_medium_row_heights,
+        _expand_left_chamfered_tall_slabs, _expand_long_strip_right_step)
+        generalizam por banda numerica de altura/largura sem verificar se o
+        eixo escolhido e realmente a face da viga que separa esta laje da
+        vizinha -- podem avancar sobre o territorio da laje ao lado (ou
+        sobre a viga entre elas). Lajes reais nunca se sobrepoem
+        fisicamente: qualquer overlap real entre duas lajes computadas
+        indica que uma expansao foi longe demais. Reverte a(s) laje(s)
+        que foram MODIFICADAS por essas passagens (nunca a vizinha nao
+        tocada) para o contorno anterior as normalizacoes.
+        """
+        try:
+            polys: Dict[str, Polygon] = {}
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 3:
+                    continue
+                poly = Polygon(pts)
+                if poly.is_valid and poly.area > 0:
+                    polys[slab["id"]] = poly
+
+            expanded_ids = {
+                sid for sid, (orig_pts, _, _) in originals.items()
+                if sid in polys and list(polys[sid].exterior.coords) != orig_pts
+            }
+            if not expanded_ids:
+                return
+
+            reverted = set()
+            for sid in expanded_ids:
+                poly = polys.get(sid)
+                if poly is None:
+                    continue
+                for other_id, other_poly in polys.items():
+                    if other_id == sid or other_id in reverted:
+                        continue
+                    inter_area = poly.intersection(other_poly).area
+                    tolerance = max(25.0, 0.03 * min(poly.area, other_poly.area))
+                    if inter_area <= tolerance:
+                        continue
+                    reverted.add(sid)
+                    break
+
+            if not reverted:
+                return
+            for slab in slabs:
+                if slab["id"] not in reverted:
+                    continue
+                orig_points, orig_area, orig_method = originals[slab["id"]]
+                slab["points"] = orig_points
+                slab["area"] = orig_area
+                slab["method"] = orig_method
+                diag = dict(slab.get("trace_diagnostics") or {})
+                diag["row_expansion_reverted_overlap"] = True
+                slab["trace_diagnostics"] = diag
+        except Exception:
+            return

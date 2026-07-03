@@ -41,6 +41,10 @@ _MOTOR_SOURCES = [Path(__file__)]
 # -- Constants ----------------------------------------------------------------
 SARRAFO_GAP = 19.0   # 19cm gap between paired lines (from STOG real)
 PILAR_HATCH_STEP = 12.0  # diagonal hatch line spacing inside pilars
+UNION_MIN_CM = 15.0
+UNION_MAX_CM = 30.0
+DIM_HORIZONTAL_OFFSET_CM = 28.2697096074757
+DIM_VERTICAL_OFFSET_CM = 30.8595527518608
 
 COLS  = 4
 GAP_X = 80
@@ -52,9 +56,12 @@ LJ_SCALE  = 0.5
 
 # -- Layers matching STOG real ------------------------------------------------
 LAYERS = {
-    'Pain\u00e9is':       200,  # panel boundary lines + DIMENSION
+    'PAINEIS':              6,  # panel boundaries
+    'COTA':               241,  # dimension entities
+    'NOMENCLATURA':         7,  # slab name
     'Hachura':            251,  # SOLID fill HATCH
-    '3':                    3,  # structural outlines, paired sarrafo PLINEs, hatch lines
+    '3':                    2,  # union reference compatibility
+    'Pain\u00e9is':       200,  # legacy cards compatibility
     '4':                    4,  # V{n}/L{n} labels (TEXT h=15)
     '7':                    7,  # pilar rectangles
     '9':                    9,  # SOLID markers + escora LINEs
@@ -69,7 +76,7 @@ LAYERS = {
     '0':                    7,
 }
 
-DIMSTYLE_NAME = 'COTA PAINEL-50'
+DIMSTYLE_NAME = 'cotas'
 
 
 def setup_doc():
@@ -80,20 +87,26 @@ def setup_doc():
         if lname not in doc.layers:
             doc.layers.add(lname, color=color)
 
-    # Dimstyle matching STOG real: COTA PAINEL-50
+    if 'Romans' not in doc.styles:
+        doc.styles.new('Romans', dxfattribs={'font': 'romans.shx', 'height': 12.0})
+    from ezdxf.render import arrows
+    arrows.ARROWS.create_block(doc.blocks, 'OBLIQUE')
+
     if DIMSTYLE_NAME not in doc.dimstyles:
         ds = doc.dimstyles.new(DIMSTYLE_NAME)
         ds.dxf.dimtxt = 9.0
-        ds.dxf.dimasz = 3.0
-        ds.dxf.dimscale = 1.0
-        ds.dxf.dimexo = 3.0
-        ds.dxf.dimexe = 3.0
-        ds.dxf.dimgap = 3.0
+        ds.dxf.dimasz = 2.0
+        ds.dxf.dimexo = 2.0
+        ds.dxf.dimexe = 2.0
+        ds.dxf.dimgap = 2.0
         ds.dxf.dimdec = 1
-        ds.dxf.dimrnd = 0
+        ds.dxf.dimzin = 12
+        ds.dxf.dimtad = 1
         ds.dxf.dimclrd = 4   # cyan arrows
         ds.dxf.dimclre = 4   # cyan extension lines
         ds.dxf.dimclrt = 240  # dim text color
+        ds.dxf.dimblk = '_Oblique'
+        ds.dxf.dimtxsty = 'Romans'
 
     return doc
 
@@ -124,10 +137,13 @@ def add_pline_rect(msp, x0, y0, w, h, layer, lw=None, closed=True):
         return msp.add_lwpolyline(pts, close=False, dxfattribs=attribs)
 
 
-def add_hatch_solid(msp, pts, layer='Hachura'):
+def add_hatch_solid(msp, pts, layer='Hachura', color=None):
     """SOLID fill HATCH on polygon."""
-    hatch = msp.add_hatch(dxfattribs={'layer': layer})
-    hatch.set_solid_fill()
+    attribs = {'layer': layer}
+    if color is not None:
+        attribs['color'] = color
+    hatch = msp.add_hatch(dxfattribs=attribs)
+    hatch.set_solid_fill(color=color if color is not None else 7)
     # Ensure closed polygon (remove duplicate last point if present)
     clean = list(pts)
     if len(clean) > 1 and clean[0] == clean[-1]:
@@ -181,35 +197,33 @@ def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
     Horizontal dimension between p1_x and p2_x.
     """
     try:
-        value = abs(float(p2_x) - float(p1_x))
         d = msp.add_linear_dim(
             base=(p1_x, base_y),
             p1=(p1_x, p_y),
             p2=(p2_x, p_y),
             angle=angle,
             dimstyle=DIMSTYLE_NAME,
-            dxfattribs={'layer': 'Pain\u00e9is'}
+            dxfattribs={'layer': 'COTA'}
         )
-        d.dimension.dxf.text = _format_dim_value(value)
         d.render()
         return d
     except Exception:
         return None
 
 
-def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x):
+def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x, text_location=None):
     """Vertical dimension on Painéis layer."""
     try:
-        value = abs(float(p2_y) - float(p1_y))
         d = msp.add_linear_dim(
             base=(base_x, p1_y),
             p1=(p_x, p1_y),
             p2=(p_x, p2_y),
             angle=90,
             dimstyle=DIMSTYLE_NAME,
-            dxfattribs={'layer': 'Pain\u00e9is'}
+            dxfattribs={'layer': 'COTA'}
         )
-        d.dimension.dxf.text = _format_dim_value(value)
+        if text_location is not None:
+            d.set_location(text_location)
         d.render()
         return d
     except Exception:
@@ -389,6 +403,28 @@ def _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg):
     # Fallback: centro do maior trecho horizontal interno, levemente fora das linhas.
     return x0 + comp / 2, y0 + larg * 0.62
 
+def _label_position_clear_of_dimensions(
+    poly_pts, v_positions, h_positions, x0, y0, comp, larg, panel_x, panel_y,
+):
+    horizontal_text_y = panel_y - DIM_HORIZONTAL_OFFSET_CM + 8.0
+    vertical_text_x = panel_x - DIM_VERTICAL_OFFSET_CM - 8.0
+    xs = [x0] + [x0 + float(value) for value in v_positions] + [x0 + comp]
+    ys = [y0] + [y0 + float(value) for value in h_positions] + [y0 + larg]
+    candidates = []
+    for xa, xb in zip(xs, xs[1:]):
+        for ya, yb in zip(ys, ys[1:]):
+            center = ((xa + xb) / 2, (ya + yb) / 2)
+            if not _point_in_polygon(center, poly_pts):
+                continue
+            if abs(center[1] - horizontal_text_y) < 18.0:
+                continue
+            if abs(center[0] - vertical_text_x) < 18.0:
+                continue
+            candidates.append(((xb - xa) * (yb - ya), center))
+    if candidates:
+        return max(candidates, key=lambda item: item[0])[1]
+    return _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg)
+
 def _vertical_dimension_guide(poly_pts, x0, comp, v_positions):
     edges = _dedupe_sorted([0.0] + list(v_positions) + [comp])
     candidates = []
@@ -446,6 +482,92 @@ def _add_narrow_panel_hatches(
                 add_hatch_ansi31(msp, clipped, 'REAPROVEITAMENTO', scale=2.0)
                 count += 1
     return count
+
+def _union_bands(items, total):
+    positions = sorted(float(item.get('value', 0)) for item in items)
+    bands = []
+    for start, end in zip(positions, positions[1:]):
+        if UNION_MIN_CM <= end - start <= UNION_MAX_CM:
+            bands.append((start, end))
+    for index, item in enumerate(sorted(items, key=_line_value)):
+        if not item.get('is_union', False):
+            continue
+        end = float(item.get('value', 0))
+        start = positions[index - 1] if index else 0.0
+        if 0.0 <= start < end <= total:
+            bands.append((start, end))
+    return sorted(set((round(a, 6), round(b, 6)) for a, b in bands))
+
+def _add_panel_axis(msp, poly_pts, axis, coord, is_union_boundary=False):
+    count = 0
+    for start, end in _axis_segments_in_polygon(poly_pts, axis, coord):
+        points = (
+            [(start, coord), (end, coord)]
+            if axis == 'h'
+            else [(coord, start), (coord, end)]
+        )
+        if is_union_boundary:
+            msp.add_lwpolyline(
+                points, dxfattribs={'layer': 'PAINEIS', 'lineweight': 25}
+            )
+        else:
+            msp.add_line(points[0], points[1], dxfattribs={'layer': 'PAINEIS'})
+        count += 1
+    return count
+
+def _add_union_hatches(msp, poly_pts, x0, y0, comp, larg, v_bands, h_bands):
+    count = 0
+    for start, end in h_bands:
+        clipped = _clip_polygon_to_rect(
+            poly_pts, x0, y0 + start, x0 + comp, y0 + end
+        )
+        if len(clipped) >= 3:
+            add_hatch_solid(msp, clipped, 'Hachura', color=8)
+            count += 1
+    for start, end in v_bands:
+        y_ranges = [(0.0, larg)]
+        for h_start, h_end in h_bands:
+            y_ranges = [
+                interval
+                for a, b in y_ranges
+                for interval in ((a, min(b, h_start)), (max(a, h_end), b))
+                if interval[1] - interval[0] > 0.5
+            ]
+        for ya, yb in y_ranges:
+            clipped = _clip_polygon_to_rect(
+                poly_pts, x0 + start, y0 + ya, x0 + end, y0 + yb
+            )
+            if len(clipped) >= 3:
+                add_hatch_solid(msp, clipped, 'Hachura', color=8)
+                count += 1
+    return count
+
+def _add_reference_dimensions(msp, x0, y0, comp, larg, v_positions, h_positions, h_bands):
+    x_edges = _dedupe_sorted([0.0] + list(v_positions) + [comp])
+    y_edges = _dedupe_sorted([0.0] + list(h_positions) + [larg])
+    guide_x = min(v_positions, key=lambda value: abs(value - comp / 2)) if v_positions else comp / 2
+    if h_bands:
+        guide_y = h_bands[0][0]
+    else:
+        guide_y = min(h_positions, key=lambda value: abs(value - larg / 2)) if h_positions else larg / 2
+    panel_x = x0 + guide_x
+    panel_y = y0 + guide_y
+    for start, end in zip(x_edges, x_edges[1:]):
+        add_dim_on_paineis(
+            msp, x0 + start, x0 + end,
+            panel_y - DIM_HORIZONTAL_OFFSET_CM, panel_y,
+        )
+    vertical_segments = list(reversed(list(zip(y_edges, y_edges[1:]))))
+    for index, (start, end) in enumerate(vertical_segments):
+        text_location = None
+        if index == 0:
+            text_location = (panel_x - DIM_VERTICAL_OFFSET_CM, y0 + (start + end) / 2)
+        add_dim_vertical_on_paineis(
+            msp, y0 + start, y0 + end,
+            panel_x - DIM_VERTICAL_OFFSET_CM, panel_x,
+            text_location=text_location,
+        )
+    return panel_x, panel_y
 
 def _add_dim_text(msp, x, y, value, rotation=0.0, height=8.0):
     add_text(msp, x, y, _format_dim_value(value), height=height, layer='Pain\u00e9is', rotation=rotation)
@@ -524,7 +646,7 @@ def _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_
                 cy += -5.0 if cy > y0 + larg / 2 else 5.0
                 _add_dim_text(msp, cx, cy, length)
 
-def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
+def _draw_laje_planta_legacy(msp, lj_data, distribute_panels_fn, include_context=True):
     """
     Draw a single laje in planta mode (absolute coordinates).
     Returns (nome, comp, larg, x0, y0, n_panels) or None if skipped.
@@ -801,6 +923,133 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
 
     n_panels = (len(x_edges) - 1) * (len(h_edges) - 1)
     return nome, comp, larg, x0, y0, n_panels
+
+
+def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
+    nome = lj_data.get('nome', lj_data.get('name', 'L?'))
+    comp = float(lj_data.get('comprimento', 0))
+    larg = float(lj_data.get('largura', 0))
+    coords = lj_data.get('coordenadas', [])
+    lv = lj_data.get('linhas_verticais', [])
+    lh = lj_data.get('linhas_horizontais', [])
+    obstaculos = lj_data.get('obstaculos', [])
+    reap = lj_data.get('reaproveitamento_dados', {})
+    sobras = lj_data.get('sobras_recebidas', [])
+
+    if len(coords) >= 3:
+        raw_x0 = min(float(c[0]) for c in coords)
+        raw_y0 = min(float(c[1]) for c in coords)
+        pose = lj_data.get('_stog_pose') or {}
+        if pose and abs(raw_x0) <= 0.5 and abs(raw_y0) <= 0.5:
+            off_x = float(pose.get('x', 0.0))
+            off_y = float(pose.get('y', 0.0))
+        else:
+            off_x = 0.0
+            off_y = 0.0
+        poly_pts = [(float(c[0]) + off_x, float(c[1]) + off_y) for c in coords]
+        if len(poly_pts) > 1 and poly_pts[0] == poly_pts[-1]:
+            poly_pts.pop()
+        x0 = min(point[0] for point in poly_pts)
+        y0 = min(point[1] for point in poly_pts)
+        comp = max(point[0] for point in poly_pts) - x0
+        larg = max(point[1] for point in poly_pts) - y0
+    else:
+        x0 = y0 = 0.0
+        poly_pts = [(0.0, 0.0), (comp, 0.0), (comp, larg), (0.0, larg)]
+
+    if comp <= 0 or larg <= 0:
+        return None
+
+    lv = _normalize_line_positions(lv, comp)
+    lh = _normalize_line_positions(lh, larg)
+    if min(comp, larg) <= 75.0:
+        lv = [
+            item for item in lv
+            if not item.get('segments') or any(
+                float(segment.get('y0', 0)) <= 1.0
+                and float(segment.get('y1', 0)) >= larg - 1.0
+                for segment in item['segments']
+            )
+        ]
+        lh = [
+            item for item in lh
+            if min(float(item.get('value', 0)), larg - float(item.get('value', 0))) >= 30.0
+        ]
+    if not lv and not lh:
+        smart = distribute_panels_fn(comp, larg, obstaculos or None)
+        lv = _normalize_line_positions(smart['linhas_verticais'], comp)
+        lh = _normalize_line_positions(smart['linhas_horizontais'], larg)
+
+    v_positions = sorted(_line_value(item) for item in lv)
+    h_positions = sorted(_line_value(item) for item in lh)
+    x_edges = _dedupe_sorted([0.0] + v_positions + [comp])
+    y_edges = _dedupe_sorted([0.0] + h_positions + [larg])
+    v_bands = _union_bands(lv, comp)
+    h_bands = _union_bands(lh, larg)
+
+    _add_union_hatches(msp, poly_pts, x0, y0, comp, larg, v_bands, h_bands)
+    msp.add_lwpolyline(poly_pts, close=True, dxfattribs={'layer': 'PAINEIS'})
+
+    local_segments = [
+        {
+            'value': float(item.get('value', 0)),
+            'y0': float(segment.get('y0', 0)),
+            'y1': float(segment.get('y1', 0)),
+        }
+        for item in lv
+        for segment in (item.get('segments') or [])
+        if isinstance(item, dict) and isinstance(segment, dict)
+    ]
+    if local_segments:
+        for segment in local_segments:
+            msp.add_line(
+                (x0 + segment['value'], y0 + segment['y0']),
+                (x0 + segment['value'], y0 + segment['y1']),
+                dxfattribs={'layer': 'PAINEIS'},
+            )
+    else:
+        union_edges = {edge for band in v_bands for edge in band}
+        for value in v_positions:
+            _add_panel_axis(
+                msp, poly_pts, 'v', x0 + value,
+                is_union_boundary=value in union_edges,
+            )
+
+    union_edges = {edge for band in h_bands for edge in band}
+    for value in h_positions:
+        _add_panel_axis(
+            msp, poly_pts, 'h', y0 + value,
+            is_union_boundary=value in union_edges,
+        )
+
+    panel_x, panel_y = _add_reference_dimensions(
+        msp, x0, y0, comp, larg, v_positions, h_positions, h_bands
+    )
+    label_x, label_y = _label_position_clear_of_dimensions(
+        poly_pts, v_positions, h_positions, x0, y0, comp, larg,
+        panel_x, panel_y,
+    )
+    add_text(msp, label_x, label_y, nome, height=15.0, layer='NOMENCLATURA')
+
+    if reap or sobras:
+        add_hatch_ansi31(msp, poly_pts, 'REAPROVEITAMENTO', scale=2.0)
+
+    for obs in obstaculos:
+        ox = float(obs.get('x', 0))
+        oy = float(obs.get('y', 0))
+        ow = float(obs.get('width', 0))
+        oh = float(obs.get('height', 0))
+        if ow > 0 and oh > 0:
+            msp.add_lwpolyline(
+                [
+                    (x0 + ox, y0 + oy), (x0 + ox + ow, y0 + oy),
+                    (x0 + ox + ow, y0 + oy + oh), (x0 + ox, y0 + oy + oh),
+                ],
+                close=True,
+                dxfattribs={'layer': '3', 'linetype': 'DASHED', 'lineweight': 25},
+            )
+
+    return nome, comp, larg, x0, y0, (len(x_edges) - 1) * (len(y_edges) - 1)
 
 
 # -- Pilar drawing (layer 7) for planta mode ----------------------------------
@@ -1220,7 +1469,8 @@ def main():
                 # Layers condicionais (3, 4, 7, 9, AUX00) NÃO estão aqui:
                 # o prune as remove para obras que usam EST-* ou outras estruturas
                 _LJ_REQUIRED_LAYERS = {
-                    'Painéis', 'Paineis', 'Hachura', 'REAPROVEITAMENTO',
+                    'PAINEIS', 'COTA', 'NOMENCLATURA', 'Hachura',
+                    'Painéis', 'Paineis', 'REAPROVEITAMENTO',
                 }
                 import unicodedata as _uc_lj
                 def _norm_lj(s):

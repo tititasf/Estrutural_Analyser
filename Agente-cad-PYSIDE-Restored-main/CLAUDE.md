@@ -17,6 +17,9 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 > Leia SEMPRE antes de agir:
 > 1. `docs/HANDOFF-ARETE-EXECUTOR.md` — missão, fatos verificados, protocolo de autonomia
 > 2. `docs/MASTERPLAN-ARETE-QUALITY-GATES.md` — gates G0–G6, fases, definição de Arete (§6)
+> 3. `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md` — **como executar o loop de cada classe**
+>    (fichas HTML headless + diagnóstico duplo automático/humano + log de triagem). Este é
+>    o procedimento de execução atual; segui-lo antes de qualquer fix em motor/gerador.
 
 **Fase A em curso:** paridade 100% entre DXF N4 e recorte N2 nos 111 itens do
 **13_PAV da Obra_TREINO_1** (PIL 35 → LV 32 → FV 26 → LAJ 18). Harness em `scripts/arete/`.

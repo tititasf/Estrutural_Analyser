@@ -41,14 +41,18 @@ class _FakeDialog:
         return f"n2_{class_prefix}_{item_name}.dxf"
 
     def _render_pilar_dxf_context_b64(
-        self, points, width=1000, height=680, focus_mode="pillar"
+        self, points, width=1000, height=680, focus_mode="pillar", fmt="png"
     ):
         assert focus_mode == "segment"
         assert (width, height) == (2400, 600)
+        if fmt == "svg":
+            return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
         return "U0E="
 
-    def _render_ezdxf_b64(self, path, width=950, height=620):
+    def _render_ezdxf_b64(self, path, width=950, height=620, fmt="png"):
         assert (width, height) == (1900, 1240)
+        if fmt == "svg":
+            return '<svg viewBox="0 0 10 10"><text>DXF</text></svg>'
         return "RFhG"
 
     def _n2_ficha_html(self, class_prefix, item_name):
@@ -58,32 +62,38 @@ class _FakeDialog:
         return "<table><tr><td>N3 completo</td></tr></table>"
 
 
-def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Path):
-    rows = [{
+def _fundo_row(label: str, segment_index: int, points: list[tuple]) -> dict:
+    return {
         "Comprimento": "10.0",
         "Largura": "4",
         "Status": "valid",
         "Atenção": "",
         "_beam": "V301",
-        "_points": [(0, 0), (10, 0), (10, 4), (0, 4), (0, 0)],
+        "_points": points,
         "_segment": {
-            "uid": "fundo|beam-1|1|1",
+            "uid": f"fundo|beam-1|{segment_index}|1",
             "beam_name": "V301",
             "beam_identity": "beam-1",
-            "segment_label": "1",
-            "segment_index": 1,
+            "segment_label": label,
+            "segment_index": segment_index,
             "occurrence": 1,
             "side": "Fundo",
             "behavior": "Fundo",
             "length": 10.0,
             "width": "4",
-            "points": [(0, 0), (10, 0), (10, 4), (0, 4), (0, 0)],
-            "source_key": "viga_fundo_seg_1_area_segs",
+            "points": points,
+            "source_key": f"viga_fundo_seg_{segment_index}_area_segs",
             "source_slot": "contour",
             "tag": "Fundo",
             "ficha": {"largura_total_fundo": 4},
         },
-    }]
+    }
+
+
+def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Path):
+    rows = [_fundo_row(
+        "1", 1, [(0, 0), (10, 0), (10, 4), (0, 4), (0, 0)]
+    )]
 
     result = write_fundo_pages(
         dialog=_FakeDialog(),
@@ -97,9 +107,9 @@ def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pa
     )
 
     assert result == ("fundos_viga/index.html", "Fundos", 1)
-    page = tmp_path / "fundos_viga" / "V301_1.html"
+    page = tmp_path / "fundos_viga" / "V301.html"
     soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
-    assert len(soup.select(".evidence-card img")) == 4
+    assert len(soup.select(".evidence-card svg")) == 4
     style = soup.style.get_text()
     assert "grid-template-columns:1fr!important" in style
     assert "max-height:none!important" in style
@@ -110,8 +120,53 @@ def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pa
     assert "N3 / NOVA" in text
     assert "N4 / Robô ER" in text
     assert "Vértices brutos do contorno" in text
-    assert "Quality gates da ficha FV" in text
+    assert "Quality gates da viga FV" in text
+    assert "Marcar esta ficha como ERRADA" in text
+    assert soup.select_one("#erro_check") is not None
+    assert soup.select_one("#erro_nota") is not None
+    assert "aten_erro_fv_Obra_TESTE_13_PAV_V301" in page.read_text(encoding="utf-8")
+    sidebar_item = soup.select_one('.sidebar li[data-viga="V301"]')
+    assert sidebar_item is not None
+    assert sidebar_item.select_one(".erro-flag") is not None
     assert len(soup.select("[data-atkey]")) == 4
+
+
+def test_fundo_writer_groups_segments_and_renders_shared_stages_once(tmp_path: Path):
+    rows = [
+        _fundo_row("1", 1, [(0, 0), (10, 0), (10, 4), (0, 4), (0, 0)]),
+        _fundo_row("2", 2, [(10, 0), (20, 0), (20, 4), (10, 4), (10, 0)]),
+    ]
+
+    result = write_fundo_pages(
+        dialog=_FakeDialog(),
+        title="Fundos",
+        rows=rows,
+        output_dir=str(tmp_path),
+        page_css="",
+        javascript="",
+        photo_fn=lambda points: "",
+        metrics_fn=_segment_geometry_metrics,
+    )
+
+    assert result == ("fundos_viga/index.html", "Fundos", 1)
+    section = tmp_path / "fundos_viga"
+    assert (section / "V301.html").is_file()
+    assert not (section / "V301_1.html").exists()
+    assert not (section / "V301_2.html").exists()
+
+    soup = BeautifulSoup(
+        (section / "V301.html").read_text(encoding="utf-8"), "html.parser"
+    )
+    assert len(soup.select('svg[alt="N1 / SA"]')) == 2
+    assert len(soup.select('svg[alt="N2"]')) == 1
+    assert len(soup.select('svg[alt="N3 / NOVA"]')) == 1
+    assert len(soup.select('svg[alt="N4"]')) == 1
+    text = soup.get_text(" ", strip=True)
+    assert "segmento 1" in text
+    assert "segmento 2" in text
+    assert text.count("N2 completo") == 1
+    assert text.count("N3 completo") == 1
+    assert len(soup.select("[data-atkey]")) == 5
 
 
 def test_isolated_n3_directory_never_falls_back_to_shared_preview(tmp_path):

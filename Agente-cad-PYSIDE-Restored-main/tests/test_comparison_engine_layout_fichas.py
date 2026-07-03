@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,10 +18,100 @@ from src.ui.modules.comparison_engine import (
     LevelColumn,
     DXFVectorView,
     NIVEL_DEFS,
+    TriLevelArea,
     VisualModeSelector,
     _n3_structured_ficha_rows,
     _structured_ficha_rows,
 )
+
+
+def test_n1_project_dxf_prefers_latest_duplicate_project(tmp_path, monkeypatch):
+    db_path = tmp_path / "project_data.vision"
+    old_dxf = tmp_path / "EL-Torre-0.dxf"
+    latest_dxf = tmp_path / "torre_1.dxf"
+    old_dxf.write_text("old", encoding="utf-8")
+    latest_dxf.write_text("latest", encoding="utf-8")
+
+    real_connect = sqlite3.connect
+    with real_connect(db_path) as conn:
+        conn.execute(
+            "CREATE TABLE projects ("
+            "id TEXT, work_name TEXT, pavement_name TEXT, dxf_path TEXT, "
+            "created_at TEXT, updated_at TEXT)"
+        )
+        conn.executemany(
+            "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                (
+                    "old",
+                    "Obra_TREINO_1",
+                    "13_PAV",
+                    str(old_dxf),
+                    "2026-06-07 05:00:49",
+                    "2026-06-07 05:00:49",
+                ),
+                (
+                    "latest",
+                    "Obra_TREINO_1",
+                    "13_PAV",
+                    str(latest_dxf),
+                    "2026-06-26 14:03:23",
+                    "2026-07-01 01:22:11",
+                ),
+            ],
+        )
+
+    monkeypatch.setattr(
+        sqlite3, "connect", lambda _database: real_connect(db_path)
+    )
+
+    selected = TriLevelArea._find_n1_project_dxf(
+        "Obra_TREINO_1", "13_PAV"
+    )
+
+    assert selected == latest_dxf
+
+
+def test_compare_n1_keeps_full_map_and_focuses_the_slab(tmp_path):
+    n1_path = tmp_path / "torre_1.dxf"
+    n1_path.write_text("placeholder", encoding="utf-8")
+    bbox = (2476.5, 2660.0, 2934.5, 3011.0)
+    points = [[2496.5, 2680.0], [2914.5, 2680.0], [2914.5, 2991.0]]
+    shown = []
+    focused = []
+
+    compare_view = SimpleNamespace(
+        focus_on_bbox=lambda value, context_factor: focused.append(
+            (value, context_factor)
+        )
+    )
+    n3_column = SimpleNamespace(
+        _n2_above_view=compare_view,
+        show_n2_above=lambda path, **kwargs: shown.append((path, kwargs)),
+    )
+    fake = SimpleNamespace(
+        _btn_comparar_n1=SimpleNamespace(isChecked=lambda: True),
+        nav_sidebar=SimpleNamespace(
+            _selected_classe="LJ",
+            _selected_item="L312",
+        ),
+        tri_level=SimpleNamespace(
+            _columns=[
+                SimpleNamespace(_last_loaded_dxf=str(n1_path)),
+                None,
+                n3_column,
+            ],
+            _get_n1_bbox_for=lambda *_args: bbox,
+            _get_lj_n1_points=lambda *_args: points,
+        ),
+    )
+
+    assert ComparisonEngineModule._refresh_n3_compare_if_active(
+        fake, "LJ", "L312"
+    )
+    assert shown[0][1]["cull_to_bbox"] is False
+    assert shown[0][1]["highlight_points"] == points
+    assert focused == [(bbox, 2.2)]
 
 
 @pytest.fixture(scope="module")
@@ -293,7 +384,11 @@ def test_selecting_structural_fv_automatically_chains_n1_to_n3(monkeypatch):
         reset=lambda: None,
         set_step=lambda *_args: None,
     )
-    image = SimpleNamespace(is_loaded=True)
+    image = SimpleNamespace(
+        is_loaded=True,
+        set_highlight_geometry=lambda *_args: None,
+        fit_all=lambda: None,
+    )
     n1_column = SimpleNamespace(
         pipeline=pipeline,
         img_widget=image,
@@ -317,6 +412,7 @@ def test_selecting_structural_fv_automatically_chains_n1_to_n3(monkeypatch):
         tri_level=SimpleNamespace(
             _columns=[n1_column],
             _get_n1_bbox_for=lambda *_args: None,
+            _get_n1_highlight_points=lambda *_args: [],
             _ficha_n1_for=lambda *_args: [],
         ),
         _refresh_n3_compare_if_active=lambda *_args: None,

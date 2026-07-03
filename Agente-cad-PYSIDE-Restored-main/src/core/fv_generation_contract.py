@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections import Counter
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -138,11 +139,24 @@ def build_fv_generation_contract(
     dim_width, dim_height = _dim_pair(
         source_data.get("dim") or source_data.get("dim_text")
     )
-    source_segments = [
+    all_source_segments = [
         segment for segment in source_data.get("segmentos_fundo", [])
-        if isinstance(segment, dict) and not _is_transverse_contaminant(segment)
+        if isinstance(segment, dict)
     ]
+    longitudinal_segments = [
+        segment for segment in all_source_segments
+        if not _is_transverse_contaminant(segment)
+    ]
+    # Remova cruzamentos curtos somente quando houver uma alternativa melhor.
+    # Se o SA entregou apenas esse trecho, preserve a unica geometria disponivel
+    # para que N1->N3 consiga materializar uma ficha revisavel.
+    contaminant_fallback = bool(
+        all_source_segments and not longitudinal_segments
+    )
+    source_segments = longitudinal_segments or all_source_segments
     segments: list[dict[str, Any]] = []
+    segment_widths: list[float] = []
+    segment_heights: list[float] = []
     first_support = ""
     last_support = ""
 
@@ -161,6 +175,10 @@ def build_fv_generation_contract(
         )
         dim_width = dim_width or width
         dim_height = dim_height or height
+        if width > 0:
+            segment_widths.append(round(width, 3))
+        if height > 0:
+            segment_heights.append(round(height, 3))
         left = str(source.get("apoio_inicial") or "").strip()
         right = str(source.get("apoio_final") or "").strip()
         first_support = first_support or left
@@ -194,6 +212,14 @@ def build_fv_generation_contract(
                 segment[key] = value
         segments.append(segment)
 
+    # A ficha do segmento e mais recente/especifica que o dim_text agregado da
+    # viga. Em obras reais o cabecalho pode conservar 14/55 enquanto o fundo
+    # validado do segmento e 19/55; o motor N4 usa a largura do segmento.
+    if segment_widths:
+        dim_width = Counter(segment_widths).most_common(1)[0][0]
+    if segment_heights:
+        dim_height = Counter(segment_heights).most_common(1)[0][0]
+
     contract = {
         "contract_version": FV_CONTRACT_VERSION,
         "motor_id": FV_ENGINE_ID,
@@ -213,6 +239,11 @@ def build_fv_generation_contract(
         "apoio_final": last_support,
         "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
     }
+    if contaminant_fallback:
+        contract["quality_warnings"] = [
+            "FV N1 possui somente segmento curto com o mesmo apoio; "
+            "geometria preservada para revisao humana"
+        ]
     return normalize_fv_generation_contract(name, contract, floor=floor)
 
 

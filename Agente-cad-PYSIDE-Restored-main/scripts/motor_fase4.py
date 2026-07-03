@@ -645,9 +645,15 @@ class MotorFase4:
     """
 
     def __init__(self, obra_path: str, pavimento: Optional[str] = None,
-                 nivel_chegada: float = 0.0, nivel_saida: float = 280.0):
+                 nivel_chegada: float = 0.0, nivel_saida: float = 280.0,
+                 project_id: Optional[str] = None,
+                 db_path: Optional[str] = None):
         self.obra_path = Path(obra_path)
         self.pavimento = pavimento
+        self.project_id = str(project_id or "").strip() or None
+        self.db_path = Path(
+            db_path or "D:/Agente-cad-PYSIDE/project_data.vision"
+        )
         self.nivel_chegada = nivel_chegada
         self.nivel_saida = nivel_saida
         self.altura_padrao = abs(nivel_saida - nivel_chegada) or 280.0
@@ -837,27 +843,51 @@ class MotorFase4:
     def _project_id_for_beam_elements(self) -> Optional[str]:
         """Resolve o projeto atual no SQLite para ler beam_elements do SA."""
         import sqlite3
-        db_path = Path("D:/Agente-cad-PYSIDE/project_data.vision")
-        if not db_path.exists():
+        if not self.db_path.exists():
             return None
         pav = self.pavimento or ""
-        pav_digits = "".join(re.findall(r"\d+", str(pav)))
         try:
-            conn = sqlite3.connect(str(db_path))
-            if pav_digits:
-                row = conn.execute(
-                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
-                    "ORDER BY updated_at DESC LIMIT 1",
-                    (self.obra_nome, f"%{pav_digits}%"),
-                ).fetchone()
-            else:
+            with sqlite3.connect(str(self.db_path)) as conn:
+                if self.project_id:
+                    row = conn.execute(
+                        "SELECT id FROM projects WHERE id=? AND work_name=? LIMIT 1",
+                        (self.project_id, self.obra_nome),
+                    ).fetchone()
+                    if row:
+                        return str(row[0])
+
+                if pav:
+                    row = conn.execute(
+                        "SELECT id FROM projects "
+                        "WHERE work_name=? AND UPPER(TRIM(pavement_name))="
+                        "UPPER(TRIM(?)) ORDER BY updated_at DESC LIMIT 1",
+                        (self.obra_nome, str(pav)),
+                    ).fetchone()
+                    if row:
+                        return str(row[0])
+
+                    # Abreviacoes como 13_PAV devem selecionar o mesmo registro
+                    # do nome CAD completo usado pelo SA, sem concatenar todos
+                    # os numeros de revisao/arquivo.
+                    from src.core.ficha_utils import canonical_pavimento
+
+                    wanted_floor = canonical_pavimento(pav)
+                    rows = conn.execute(
+                        "SELECT id, pavement_name FROM projects "
+                        "WHERE work_name=? ORDER BY updated_at DESC",
+                        (self.obra_nome,),
+                    ).fetchall()
+                    for candidate_id, pavement_name in rows:
+                        if canonical_pavimento(pavement_name) == wanted_floor:
+                            return str(candidate_id)
+                    return None
+
                 row = conn.execute(
                     "SELECT id FROM projects WHERE work_name=? "
                     "ORDER BY updated_at DESC LIMIT 1",
                     (self.obra_nome,),
                 ).fetchone()
-            conn.close()
-            return row[0] if row else None
+                return str(row[0]) if row else None
         except Exception as exc:
             log.warning(f"[FV-SA] Falha resolvendo projeto beam_elements: {exc}")
             return None
@@ -892,9 +922,8 @@ class MotorFase4:
         project_id = self._project_id_for_beam_elements()
         if not project_id:
             return 0
-        db_path = Path("D:/Agente-cad-PYSIDE/project_data.vision")
         try:
-            conn = sqlite3.connect(str(db_path))
+            conn = sqlite3.connect(str(self.db_path))
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT viga_nome, n_segmentos, campos_json FROM beam_elements "
@@ -912,7 +941,7 @@ class MotorFase4:
         pav = self.pavimento or "Pavimento"
         for row in rows:
             nome = str(row["viga_nome"] or "").strip()
-            m_name = re.search(r"(V\d+[A-Z]?)", nome.upper())
+            m_name = re.search(r"(V[F]?\d+[A-Z]?)", nome.upper())
             if not m_name:
                 continue
             vname = m_name.group(1)

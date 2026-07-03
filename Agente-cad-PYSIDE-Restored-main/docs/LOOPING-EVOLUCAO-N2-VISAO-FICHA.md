@@ -1,5 +1,11 @@
 # LOOPING-EVOLUCAO-N2 — Visão × Ficha Motor × Iteração Humana
 
+> ⚠️ **Parte "como executar" superseded (02/07/2026) por
+> `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md`.** O sistema de fichas HTML headless +
+> Playwright + triagem por checkbox (construído 01–02/07) é a implementação concreta do
+> que este doc descreve em abstrato. Mantido como registro conceitual e histórico de
+> progresso (§5, §7); para executar um loop novo, siga o doc novo.
+
 Versao: 1.0  
 Data: 2026-06-28  
 Autor: Thierry + Agente CLI  

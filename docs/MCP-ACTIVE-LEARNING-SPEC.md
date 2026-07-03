@@ -1,5 +1,41 @@
 # MCP Active Learning - Contrato Seguro
 
+> **Status (2026-07-02): CAPTURA T0 ATIVA; SERVIDOR E PROMOÇÃO INATIVOS.**
+> Os hooks da UI já gravam edições em `human_event_logs` como `CAPTURED/T0`
+> (159 eventos reais e 1 `TEST_QUARANTINED/T0` no snapshot auditado). Isso é
+> captura auditável, não validação nem aprendizado aprovado. O servidor MCP
+> ainda **não está registrado/conectado em nenhuma sessão de agente** (sem
+> `mcpServers` em config), e geração de propostas, aprovação T1 e indexação
+> nunca foram exercitadas ponta a ponta com dado real. Loops 3-6 e o disparo
+> de pipeline continuam stubs `PENDENTE_INTEGRACAO`.
+>
+> O loop de qualidade que está rodando de fato hoje (Arete, por classe:
+> PIL/FV/LV/LAJ) usa um caminho **paralelo e desconectado** deste: fichas
+> HTML headless + log de triagem em JSONL (`scripts/arete/relatorios/
+> triagem_erros/*.jsonl`), sem tocar nesta tabela/pipeline MCP. Ver
+> `Agente-cad-PYSIDE-Restored-main/docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md`
+> para o procedimento em uso.
+>
+> **Gatilho pra ativar servidor/promoção MCP** (decisão do dono): (1) existir
+> orquestração autônoma entre agentes, sem relay manual; (2) a UI precisar
+> operar a triagem; ou (3) obra nova sem N2 precisar consultar conhecimento já
+> aprovado. Até lá, o JSONL Arete é o registro operacional dos achados. Ele
+> **não** deve ser sincronizado integralmente por `save_n4_feedback`, pois essa
+> tabela representa apenas o subconjunto N4. A futura integração seguirá o
+> modelo amplo de achados definido no contrato de harmonização.
+
+> **Contrato de harmonização:** ver
+> `Agente-cad-PYSIDE-Restored-main/docs/ARETE-MCP-RAG-HARMONIZACAO.md` para a separação
+> entre achado Arete, evento MCP, evidência T0 e conhecimento RAG T1/T2.
+>
+> **Não é multiagente hoje:** o dono opera múltiplas sessões de IA manualmente
+> (Claude Code, agente RAG, etc.), relayando contexto entre elas — não existe
+> orquestração autônoma. Ver `ARETE-MCP-RAG-HARMONIZACAO.md` §1.1 antes de
+> interpretar "múltiplos agentes/sessões concorrentes" como gatilho já atingido.
+> Essas sessões manuais ainda podem concorrer por arquivos/SQLite; idempotência,
+> transações e escrita atômica continuam obrigatórias como segurança operacional,
+> sem implicar desenho multiagente.
+
 ## Princípio
 
 `Edição humana != validação humana`.

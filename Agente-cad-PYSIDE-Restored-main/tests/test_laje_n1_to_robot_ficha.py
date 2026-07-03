@@ -1,4 +1,8 @@
-from src.core.laje_n1_to_robot_ficha import n1_laje_to_robot_ficha
+from src.core.laje_n1_to_robot_ficha import (
+    apply_n1_outline_anchor,
+    n1_laje_outline_points,
+    n1_laje_to_robot_ficha,
+)
 
 
 def test_converts_rectangular_n1_laje_to_robot_ficha():
@@ -42,3 +46,43 @@ def test_deformed_laje_keeps_polygon_and_area():
     assert ficha["area_cm2"] == 19600
     assert ficha["linhas_verticais"] == [{"value": 90.0, "is_union": False}]
     assert ficha["linhas_horizontais"] == [{"value": 50.0, "is_union": False}]
+
+
+def test_sa_outline_points_are_absolute_even_when_robot_geometry_is_local():
+    laje = {
+        "coordenadas": [[0, 0], [418, 0], [418, 122], [0, 122]],
+        "links": {
+            "laje_outline_segs": {
+                "contour": [
+                    {
+                        "points": [
+                            [2496.5, 2680.0],
+                            [2914.5, 2680.0],
+                            [2914.5, 2991.0],
+                            [2496.5, 2991.0],
+                        ]
+                    }
+                ]
+            }
+        },
+    }
+
+    assert n1_laje_outline_points(laje) == [
+        [2496.5, 2680.0],
+        [2914.5, 2680.0],
+        [2914.5, 2991.0],
+        [2496.5, 2991.0],
+    ]
+
+    positioned = apply_n1_outline_anchor(
+        {
+            "coordenadas": [[418, 122], [0, 122], [0, 0], [418, 0]],
+            "_stog_pose": {"x": 4041.07, "y": 2280.94},
+        },
+        laje,
+    )
+
+    assert positioned["_stog_pose"] == {"x": 2496.5, "y": 2680.0}
+    assert min(point[0] for point in positioned["coordenadas"]) == 0
+    assert min(point[1] for point in positioned["coordenadas"]) == 0
+    assert positioned["_sa_meta"]["n3_pose_source"] == "sa_outline_anchor"

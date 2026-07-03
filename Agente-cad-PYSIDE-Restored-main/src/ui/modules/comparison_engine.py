@@ -228,52 +228,117 @@ class DXFVectorView(QWidget):
             Qt.KeepAspectRatio,
         )
 
+    def fit_all(self):
+        """Restore and frame the complete DXF while keeping the item highlight."""
+        if not self._is_loaded:
+            return
+        self._dxf_bbox = None
+        self._scene_clip = None
+        for item in self.canvas.scene.items():
+            try:
+                item.setVisible(True)
+            except RuntimeError:
+                continue
+        full_rect = self.canvas.scene.itemsBoundingRect()
+        if full_rect.isEmpty():
+            return
+        self.canvas.scene.setSceneRect(full_rect)
+        self._fit()
+
+    def focus_on_bbox(self, bbox, context_factor: float = 2.2):
+        """Center a region without hiding the surrounding structural map."""
+        if not bbox or not self._is_loaded:
+            return
+        x0, y0, x1, y1 = (float(value) for value in bbox)
+        width = max(abs(x1 - x0), 1.0)
+        height = max(abs(y1 - y0), 1.0)
+        factor = max(float(context_factor), 1.0)
+        center_x = (x0 + x1) / 2.0
+        center_y = (y0 + y1) / 2.0
+        from PySide6.QtCore import QRectF
+        focus_rect = QRectF(
+            center_x - width * factor / 2.0,
+            center_y - height * factor / 2.0,
+            width * factor,
+            height * factor,
+        )
+        self.canvas.fitInView(focus_rect, Qt.KeepAspectRatio)
+
     def set_highlight_bbox(self, bbox):
         self._highlight_bbox = bbox
-        if not bbox: return
-        
         # Remove old highlight
         if hasattr(self, '_h_rect'):
             try:
                 self.canvas.scene.removeItem(self._h_rect)
             except RuntimeError:
                 pass
+        if not bbox:
+            return
             
         x0, y0, x1, y1 = bbox
         w = abs(x1 - x0)
         h = abs(y1 - y0)
         from PySide6.QtCore import QRectF
-        rect = QRectF(x0, -y1, w, h)
+        rect = QRectF(x0, y0, w, h)
         
         from PySide6.QtWidgets import QGraphicsRectItem
-        from PySide6.QtGui import QPen, QColor
+        from PySide6.QtGui import QBrush, QPen, QColor
         self._h_rect = QGraphicsRectItem(rect)
-        self._h_rect.setPen(QPen(QColor(0, 255, 255, 200), 2)) # Cyan
+        color = QColor(255, 70, 70, 230)
+        pen = QPen(color, 3)
+        pen.setCosmetic(True)
+        fill = QColor(color)
+        fill.setAlpha(55)
+        self._h_rect.setPen(pen)
+        self._h_rect.setBrush(QBrush(fill))
+        self._h_rect.setZValue(100000)
         self.canvas.scene.addItem(self._h_rect)
 
     def set_highlight_geometry(self, points):
         self._highlight_points = points
-        if not points: return
-        
         # Remove old highlight
         if hasattr(self, '_h_path'):
             try:
                 self.canvas.scene.removeItem(self._h_path)
             except RuntimeError:
                 pass
+        if not points:
+            return
             
-        from PySide6.QtGui import QPainterPath, QPen, QColor
+        from PySide6.QtGui import QBrush, QPainterPath, QPen, QColor
         from PySide6.QtCore import QPointF
         from PySide6.QtWidgets import QGraphicsPathItem
-        
+
+        # Aceita tanto um único polígono ([x,y], [x,y], ...) quanto uma lista
+        # de polígonos disjuntos ([[x,y],...], [[x,y],...]) — este último é
+        # usado por FV, onde cada segmento de fundo vira um subpath separado
+        # em vez de um único contorno conectando trechos sem relação.
+        first = points[0] if points else None
+        is_multi = (
+            isinstance(first, (list, tuple)) and first
+            and isinstance(first[0], (list, tuple))
+        )
+        polygons = points if is_multi else [points]
+
         path = QPainterPath()
-        if len(points) > 0:
-            path.moveTo(points[0][0], -points[0][1])
-            for pt in points[1:]:
-                path.lineTo(pt[0], -pt[1])
-                
+        for poly in polygons:
+            if not poly:
+                continue
+            path.moveTo(poly[0][0], poly[0][1])
+            for pt in poly[1:]:
+                path.lineTo(pt[0], pt[1])
+            if len(poly) >= 3:
+                path.closeSubpath()
+
         self._h_path = QGraphicsPathItem(path)
-        self._h_path.setPen(QPen(QColor(0, 255, 255, 200), 2))
+        color = QColor(255, 70, 70, 230)
+        pen = QPen(color, 3)
+        pen.setCosmetic(True)
+        fill = QColor(color)
+        fill.setAlpha(55)
+        self._h_path.setPen(pen)
+        self._h_path.setBrush(QBrush(fill))
+        self._h_path.setZValue(100000)
         self.canvas.scene.addItem(self._h_path)
 
     @property
@@ -1363,19 +1428,26 @@ class _OldDXFVectorView(QWidget):
         elif self._highlight_points:
             try:
                 from PySide6.QtGui import QPolygonF
-                pts = [
-                    QPointF(float(pt[0]), float(pt[1]))
-                    for pt in self._highlight_points
-                    if isinstance(pt, (list, tuple)) and len(pt) >= 2
-                ]
-                if len(pts) >= 3:
-                    pen = QPen(QColor(Semantic.WARNING), 0)
-                    pen.setCosmetic(True)
-                    fill = QColor(Semantic.WARNING)
-                    fill.setAlpha(45)
-                    p.setPen(pen)
-                    p.setBrush(fill)
-                    p.drawPolygon(QPolygonF(pts))
+                first = self._highlight_points[0] if self._highlight_points else None
+                is_multi = (
+                    isinstance(first, (list, tuple)) and first
+                    and isinstance(first[0], (list, tuple))
+                )
+                polygons = self._highlight_points if is_multi else [self._highlight_points]
+                pen = QPen(QColor(Semantic.WARNING), 0)
+                pen.setCosmetic(True)
+                fill = QColor(Semantic.WARNING)
+                fill.setAlpha(45)
+                p.setPen(pen)
+                p.setBrush(fill)
+                for poly in polygons:
+                    pts = [
+                        QPointF(float(pt[0]), float(pt[1]))
+                        for pt in (poly or [])
+                        if isinstance(pt, (list, tuple)) and len(pt) >= 2
+                    ]
+                    if len(pts) >= 3:
+                        p.drawPolygon(QPolygonF(pts))
             except Exception:
                 pass
 
@@ -4130,13 +4202,13 @@ class LevelColumn(QFrame):
             if recorte_path and _Path(str(recorte_path)).exists():
                 if hasattr(self, '_n2_above_hdr') and title:
                     self._n2_above_hdr.setText(title)
+                self._n2_above_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
                 if highlight_points:
                     self._n2_above_view.set_highlight_geometry(highlight_points)
                 elif bbox:
                     self._n2_above_view.set_highlight_bbox(bbox)
                 else:
                     self._n2_above_view.set_highlight_geometry(None)
-                self._n2_above_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
                 self._n2_above.setVisible(True)
                 self._apply_compare_viewer_y_ratio()
             else:
@@ -4160,11 +4232,11 @@ class LevelColumn(QFrame):
         n2_view.setMinimumHeight(self.img_widget.minimumHeight())
         n2_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         pv.addWidget(n2_view, 1)
+        n2_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
         if highlight_points:
             n2_view.set_highlight_geometry(highlight_points)
         elif bbox:
             n2_view.set_highlight_bbox(bbox)
-        n2_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
         self._n2_above = panel
         self._n2_above_hdr = hdr
         self._n2_above_view = n2_view
@@ -5453,7 +5525,8 @@ class NavSidebar(QFrame):
 
         obra_name = self._current_obra_dir.name
         row = conn.execute(
-            "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+            "SELECT id FROM projects WHERE work_name=? AND pavement_name=? "
+            "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
             (obra_name, self._current_pav)
         ).fetchone()
         if row:
@@ -5463,7 +5536,7 @@ class NavSidebar(QFrame):
         if pav_digits:
             row = conn.execute(
                 "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
-                "ORDER BY updated_at DESC LIMIT 1",
+                "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
                 (obra_name, f"%{pav_digits}%")
             ).fetchone()
             if row:
@@ -6119,7 +6192,8 @@ class TriLevelArea(QWidget):
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             row = conn.execute(
-                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? "
+                "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
                 (obra_name, self._current_pav)
             ).fetchone()
             if row:
@@ -6130,7 +6204,7 @@ class TriLevelArea(QWidget):
             if pav_digits:
                 row = conn.execute(
                     "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
-                    "ORDER BY updated_at DESC LIMIT 1",
+                    "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
                     (obra_name, f"%{pav_digits}%")
                 ).fetchone()
                 if row:
@@ -6246,6 +6320,13 @@ class TriLevelArea(QWidget):
 
     def _get_lj_n1_points(self, item_id: str) -> list:
         lj = self._get_lj_n1_data(item_id)
+        try:
+            from src.core.laje_n1_to_robot_ficha import n1_laje_outline_points
+            outline = n1_laje_outline_points(lj)
+            if outline:
+                return outline
+        except Exception:
+            pass
         points = lj.get("coordenadas") or lj.get("points") or []
         if not points:
             links = (lj.get("links") or {}).get("laje_outline_segs", {})
@@ -6256,6 +6337,28 @@ class TriLevelArea(QWidget):
                         points = pts
                         break
         return points or []
+
+    def _get_n1_highlight_points(self, item_id: str, classe: str) -> list:
+        """Geometria exata a destacar no N1 — polígono único para LJ,
+        um polígono por segmento de fundo para FV. Vazio para as demais
+        classes (usam bbox aproximado via _get_n1_bbox_for)."""
+        classe_up = str(classe or "").upper()
+        if classe_up == "LJ":
+            return self._get_lj_n1_points(item_id)
+        if classe_up == "FV":
+            return self._get_fv_n1_segments(item_id)
+        return []
+
+    def _get_lj_n1_anchor(self, item_id: str) -> "tuple[float, float] | None":
+        points = self._get_lj_n1_points(item_id)
+        valid = [
+            (float(point[0]), float(point[1]))
+            for point in points
+            if isinstance(point, (list, tuple)) and len(point) >= 2
+        ]
+        if not valid:
+            return None
+        return min(point[0] for point in valid), min(point[1] for point in valid)
 
     def _start_async_scan(self, obra_dir: Path):
         """Inicia scan do DXF estrutural em QThread background — sem bloquear UI.
@@ -6340,13 +6443,17 @@ class TriLevelArea(QWidget):
             from pathlib import Path as _P
             conn = sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             cur = conn.execute(
-                "SELECT dxf_path FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+                "SELECT dxf_path FROM projects WHERE work_name=? AND pavement_name=? "
+                "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
                 (obra_name, pav_name))
             row = cur.fetchone()
             conn.close()
             if row and row[0]:
                 p = _P(row[0])
                 if p.exists():
+                    _ce_log(
+                        f"N1 project dxf obra={obra_name} pav={pav_name}: {p.name}"
+                    )
                     return p
         except Exception as e:
             print(f"[CE] _find_n1_project_dxf error: {e}")
@@ -6559,6 +6666,41 @@ class TriLevelArea(QWidget):
         pad = 35.0
         return (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
 
+    def _get_fv_n1_segments(self, item_id: str) -> list:
+        """Retorna um polígono (4 cantos) por segmento de fundo, na mesma
+        geometria que o SA gravou em beam_elements — não um único bbox
+        agregando todos os segmentos, que borra vãos entre trechos."""
+        data = self._get_n1_fv_data_from_db(item_id)
+        if not data:
+            return []
+        import re as _re
+
+        name = _re.sub(r'\.C$', '', str(item_id).strip(), flags=_re.I)
+        pos = self._est_labels.get(name) or self._est_labels.get(f"{name}.C") or self._est_labels.get(item_id)
+        if not pos:
+            return []
+        dim_width = float(data.get("h_n1") or data.get("h_espessura") or 0) or 20.0
+        is_horizontal = bool(data.get("is_horizontal", True))
+        segments = []
+        for seg in data.get("segmentos_fundo", []) or []:
+            if not isinstance(seg, dict) or not seg.get("coord"):
+                continue
+            try:
+                c0 = float(seg["coord"][0])
+                c1 = float(seg["coord"][1])
+                ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
+                w = float(ficha.get("largura_total_fundo") or seg.get("dim_width") or dim_width or 20.0)
+                half = max(w / 2.0, 4.0)
+                if is_horizontal:
+                    y0, y1 = float(pos[1]) - half, float(pos[1]) + half
+                    segments.append([(c0, y0), (c1, y0), (c1, y1), (c0, y1)])
+                else:
+                    x0, x1 = float(pos[0]) - half, float(pos[0]) + half
+                    segments.append([(x0, c0), (x1, c0), (x1, c1), (x0, c1)])
+            except Exception:
+                continue
+        return segments
+
     def _get_n1_fv_data_from_db(self, item_id: str) -> dict:
         if not self._current_obra or not self._current_pav or not item_id:
             return {}
@@ -6570,20 +6712,28 @@ class TriLevelArea(QWidget):
         name = _re.sub(r'_fundo$', '', name, flags=_re.I)
         name = _re.sub(r'\.C$', '', name, flags=_re.I)
         candidates = [name, f"{name}.C", f"{name}_fundo"]
-        pav_digits = "".join(_re.findall(r"\d+", str(self._current_pav)))
+        pav = str(self._current_pav or "")
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             conn.row_factory = _sqlite3.Row
-            if pav_digits:
-                proj = conn.execute(
-                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? LIMIT 1",
-                    (self._current_obra, f"%{pav_digits}%"),
-                ).fetchone()
-            else:
-                proj = conn.execute(
-                    "SELECT id FROM projects WHERE work_name=? LIMIT 1",
+            # Nome CAD completo do pavimento deve bater exato — concatenar todos os
+            # dígitos (revisão, ano, código) casava com o projeto errado ou nenhum.
+            proj = conn.execute(
+                "SELECT id FROM projects WHERE work_name=? AND UPPER(TRIM(pavement_name))="
+                "UPPER(TRIM(?)) ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
+                (self._current_obra, pav),
+            ).fetchone()
+            if not proj and pav:
+                from src.core.ficha_utils import canonical_pavimento
+                wanted = canonical_pavimento(pav)
+                for row in conn.execute(
+                    "SELECT id, pavement_name FROM projects WHERE work_name=? "
+                    "ORDER BY updated_at DESC, created_at DESC, rowid DESC",
                     (self._current_obra,),
-                ).fetchone()
+                ).fetchall():
+                    if canonical_pavimento(row["pavement_name"]) == wanted:
+                        proj = row
+                        break
             if not proj:
                 conn.close()
                 return {}
@@ -7718,7 +7868,7 @@ class ComparisonEngineModule(QWidget):
                 classe = getattr(self.nav_sidebar, "_selected_classe", "")
                 item_id = getattr(self.nav_sidebar, "_selected_item", "")
                 bbox = self.tri_level._get_n1_bbox_for(item_id, classe) if item_id else None
-                points = self.tri_level._get_lj_n1_points(item_id) if classe == "LJ" and item_id else None
+                points = self.tri_level._get_n1_highlight_points(item_id, classe) if item_id else None
                 col_n3.show_n2_above(
                     n1_path,
                     title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
@@ -7782,7 +7932,14 @@ class ComparisonEngineModule(QWidget):
             title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
             bbox=bbox,
             highlight_points=points,
+            cull_to_bbox=(classe not in ("LJ", "FV")),
         )
+        if classe in ("LJ", "FV") and bbox:
+            compare_view = getattr(
+                self.tri_level._columns[2], "_n2_above_view", None
+            )
+            if compare_view and hasattr(compare_view, "focus_on_bbox"):
+                compare_view.focus_on_bbox(bbox, context_factor=2.2)
         return True
 
     def _refresh_n3_compare_n4_if_active(self, classe: str | None = None,
@@ -8653,10 +8810,15 @@ class ComparisonEngineModule(QWidget):
 
             if col.img_widget.is_loaded:
                 # DXF já carregado — só reposiciona viewport
-                if n1_bbox:
-                    if classe == "LJ" and hasattr(col.img_widget, "set_highlight_geometry"):
-                        col.img_widget.set_highlight_geometry(self.tri_level._get_lj_n1_points(item_id))
-                    elif hasattr(col.img_widget, "set_highlight_bbox"):
+                if classe in ("LJ", "FV"):
+                    col.img_widget.set_highlight_geometry(
+                        self.tri_level._get_n1_highlight_points(item_id, classe)
+                    )
+                    if hasattr(col.img_widget, "fit_all"):
+                        col.img_widget.fit_all()
+                    col.pipeline.set_step(1, 'ok', f'{item_id} (mapa completo)')
+                elif n1_bbox:
+                    if hasattr(col.img_widget, "set_highlight_bbox"):
                         col.img_widget.set_highlight_bbox(n1_bbox)
                     col.img_widget.zoom_to_bbox(n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
@@ -8670,9 +8832,16 @@ class ComparisonEngineModule(QWidget):
                     obra_dir = DADOS_OBRAS_ROOT / obra
                     n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
                 if n1_dxf and n1_dxf.exists():
-                    col.load_content(str(n1_dxf), n1_bbox)
-                    if classe == "LJ" and hasattr(col.img_widget, "set_highlight_geometry"):
-                        col.img_widget.set_highlight_geometry(self.tri_level._get_lj_n1_points(item_id))
+                    col.load_content(
+                        str(n1_dxf),
+                        None if classe in ("LJ", "FV") else n1_bbox,
+                    )
+                    if classe in ("LJ", "FV") and hasattr(col.img_widget, "set_highlight_geometry"):
+                        col.img_widget.set_highlight_geometry(
+                            self.tri_level._get_n1_highlight_points(item_id, classe)
+                        )
+                        if hasattr(col.img_widget, "fit_all"):
+                            col.img_widget.fit_all()
                     elif hasattr(col.img_widget, "set_highlight_bbox"):
                         col.img_widget.set_highlight_bbox(n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
@@ -9145,6 +9314,8 @@ class ComparisonEngineModule(QWidget):
                 ficha = normalize_ficha_pose_coords(ficha)
             except Exception:
                 pass
+            from src.core.laje_n1_to_robot_ficha import apply_n1_outline_anchor
+            ficha = apply_n1_outline_anchor(ficha, n1_laje)
             ficha["_sa_meta"]["n3_source"] = "comparison_engine_n1"
             ficha["_sa_meta"]["n3_teacher"] = None
             out_dir = DADOS_OBRAS_ROOT / obra / "Fase-4_Sincronizacao" / "JSON_Lajes"
@@ -9166,7 +9337,7 @@ class ComparisonEngineModule(QWidget):
         try:
             from src.core.fv_generation_contract import materialize_fv_contract_from_db
 
-            project_id = self._project_id_for_obra_pav(obra)
+            project_id = self.tri_level._project_id_for_obra_pav(obra)
             if not project_id:
                 return None
             output_dir = (
@@ -9178,7 +9349,7 @@ class ComparisonEngineModule(QWidget):
                 project_id=str(project_id),
                 item_id=item_id,
                 output_dir=output_dir,
-                floor=str(self._current_pav or "Pavimento"),
+                floor=str(self.tri_level._current_pav or "Pavimento"),
             )
         except Exception as exc:
             print(f"[CE] _materialize_fv_n3_json_from_n1 error: {exc}")
@@ -9310,7 +9481,7 @@ class ComparisonEngineModule(QWidget):
                     )
                     _ce_log(
                         f"N3 FV abortado: contrato N1 nao materializado "
-                        f"obra={obra} pav={self._current_pav} item={item_id}"
+                        f"obra={obra} pav={self.tri_level._current_pav} item={item_id}"
                     )
                     self.nav_sidebar._enable_item_btns()
                     return
@@ -9638,6 +9809,15 @@ class ComparisonEngineModule(QWidget):
             obra_dir = DADOS_OBRAS_ROOT / obra
             from src.core.n5_assembler import assemble_n5
 
+            item_positions = None
+            if classe == "LJ":
+                self.tri_level._refresh_lj_n1_from_latest_sa()
+                item_positions = {
+                    item_id: anchor
+                    for item_id in item_ids
+                    if (anchor := self.tri_level._get_lj_n1_anchor(item_id))
+                }
+
             col.pipeline.set_step(0, 'ok', f'{len(item_ids)} itens')
             col.pipeline.set_step(1, 'running', 'Consolidando...')
             result = assemble_n5(
@@ -9646,6 +9826,7 @@ class ComparisonEngineModule(QWidget):
                 item_ids=item_ids,
                 pavimento=pav,
                 visual_mode=self._visual_mode_for("N5"),
+                item_positions=item_positions,
             )
             col.pipeline.set_step(1, 'ok', f'{result.ok_count}/{len(result.items)} ok')
 
@@ -10690,7 +10871,7 @@ class ComparisonEngineModule(QWidget):
             ficha_clean = normalize_fv_generation_contract(
                 item_id,
                 ficha_clean,
-                floor=str(ficha_clean.get("floor") or self._current_pav or "Pavimento"),
+                floor=str(ficha_clean.get("floor") or self.tri_level._current_pav or "Pavimento"),
             )
         ficha_clean = _ce_plain_value(ficha_clean)
 

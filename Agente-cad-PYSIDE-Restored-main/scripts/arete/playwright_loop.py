@@ -108,6 +108,138 @@ def capture_html_pages(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Captura de páginas granulares por item (pilares/fundos_viga/lajes)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# As fichas granulares (uma página HTML por pilar/segmento/laje, com sidebar +
+# navegação, geradas por _write_pilar_pages / preficha_fundo_html.py /
+# preficha_laje_html.py) empilham 4+ cards de evidência (N1/N2/N3/N4) e
+# facilmente passam de 2500-3000px de altura total. Isso expõe um bug real do
+# Chromium headless: conteúdo fora do viewport ORIGINAL (o viewport usado no
+# primeiro layout/paint) às vezes não é rasterizado, mesmo que:
+#   - a imagem já esteja com `naturalWidth/naturalHeight` carregados no DOM
+#     (`page.wait_for_function` em "img.complete" não detecta o problema);
+#   - `locator.screenshot()` retorne um PNG do tamanho certo — mas com
+#     blocos pretos/vazios nas seções que estavam abaixo da dobra;
+#   - `page.screenshot(full_page=True)` (mecanismo nativo do Playwright para
+#     página inteira) TAMBÉM pode retornar áreas não pintadas nesse cenário
+#     de layout (cards com `width:100%!important` empilhados em coluna única).
+#
+# Fix verificado: redimensionar o viewport para a altura total do documento
+# (`document.documentElement.scrollHeight`) ANTES de tirar o screenshot do
+# elemento, forçando o Chromium a pintar tudo dentro do viewport "visível".
+# Depois disso `locator.screenshot()` funciona normalmente, sem crop manual.
+#
+# Sintoma característico de quem cair nessa armadilha: screenshots com o
+# tamanho certo, mas 100% pretos ou com o topo ok e o resto cortado — e ao
+# reabrir a mesma página no navegador normal (não headless) tudo aparece
+# certo. Se isso acontecer, é quase certo que é esse bug, não um problema
+# nos dados/HTML.
+
+
+def capture_granular_item_pages(
+    section_dir: Path | str,
+    out_dir: Path | str | None = None,
+    selector: str = '.evidence-grid',
+    exclude_names: tuple[str, ...] = ('index.html',),
+    exclude_prefixes: tuple[str, ...] = ('interpretacao_',),
+    viewport_width: int = 1000,
+    recursive: bool = True,
+) -> list[dict]:
+    """
+    Captura screenshots de páginas granulares por item (uma página HTML por
+    pilar/segmento/laje), aplicando o fix de paint-culling acima.
+
+    Usar para: scripts/arete/html_fichas/{obra}/{pav}/pilares/**/*.html,
+    .../fundos_viga/*.html, .../lajes/*.html — qualquer diretório com páginas
+    HTML individuais que tenham a seção `.evidence-grid` (N1/N2/N3/N4).
+
+    Para os relatórios tabulares antigos (preficha_*.html, uma tabela larga
+    e não muito alta), prefira `capture_html_pages()` — não sofre desse bug
+    e já usa full_page=True com sucesso.
+
+    Retorna lista de { slug, html_path, png_path, captured_at }.
+    """
+    section_dir = Path(section_dir)
+    out_dir = Path(out_dir) if out_dir else section_dir / 'screenshots_qa'
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    pattern = '**/*.html' if recursive else '*.html'
+    htmls = sorted(
+        h for h in section_dir.glob(pattern)
+        if h.name not in exclude_names
+        and not h.name.startswith(exclude_prefixes)
+    )
+    if not htmls:
+        print(f'  [playwright-granular] Nenhum HTML encontrado em {section_dir}')
+        return []
+
+    results: list[dict] = []
+    wait_js = (
+        "Array.from(document.images).every("
+        "img => img.complete && img.naturalHeight > 0)"
+    )
+
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        page = browser.new_page(viewport={'width': viewport_width, 'height': 800})
+
+        for html_path in htmls:
+            slug = html_path.stem
+            png_path = out_dir / f'{slug}.png'
+            try:
+                page.goto(f'file:///{html_path.as_posix()}', timeout=15_000)
+                try:
+                    page.wait_for_function(wait_js, timeout=15_000)
+                except Exception:
+                    pass  # segue mesmo se alguma imagem individual não carregar
+                page.wait_for_timeout(150)
+
+                # Fix de paint-culling: força o viewport a cobrir a página
+                # inteira antes do screenshot do elemento. As páginas
+                # granulares usam layout de duas colunas
+                # (`.sidebar` + `.main-wrap{overflow:auto;height:100vh}`),
+                # então `document.documentElement.scrollHeight` NÃO reflete
+                # o conteúdo real — ele é auto-referente ao viewport (body é
+                # flex-row com filhos limitados a 100vh, então html/body
+                # "scrollHeight" ~= altura do viewport atual, não a altura
+                # do conteúdo). É preciso medir o container com scroll
+                # interno de verdade (`.main-wrap`).
+                height = page.evaluate(
+                    "(() => {"
+                    "  const w = document.querySelector('.main-wrap');"
+                    "  return Math.max("
+                    "    w ? w.scrollHeight : 0,"
+                    "    document.documentElement.scrollHeight,"
+                    "  );"
+                    "})()"
+                )
+                page.set_viewport_size({
+                    'width': viewport_width,
+                    'height': min(int(height) + 100, 32000),
+                })
+                page.wait_for_timeout(150)
+
+                target = page.locator(selector) if selector else page
+                target.screenshot(path=str(png_path))
+                results.append({
+                    'slug':        slug,
+                    'html_path':   str(html_path),
+                    'png_path':    str(png_path),
+                    'captured_at': datetime.now().isoformat(timespec='seconds'),
+                })
+                print(f'  [playwright-granular] {slug:<30} -> {png_path.name}')
+            except Exception as exc:
+                print(f'  [playwright-granular] ERRO {slug}: {exc}')
+
+        browser.close()
+
+    return results
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Captura por linha (per-row screenshot para comparação granular)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -305,9 +437,34 @@ def main() -> None:
     ap.add_argument('--iteration', type=int, default=0, help='Índice do ciclo')
     ap.add_argument('--rows',      action='store_true', help='Capturar também por linha')
     ap.add_argument('--slugs',     nargs='*', help='Filtrar slugs (ex: pilares visao_cortes)')
+    ap.add_argument(
+        '--granular-dir', required=False,
+        help=(
+            'Diretório de páginas granulares por item (ex: .../lajes, '
+            '.../fundos_viga, .../pilares) — usa capture_granular_item_pages '
+            'com o fix de paint-culling em vez de capture_html_pages'
+        ),
+    )
+    ap.add_argument(
+        '--granular-out', required=False,
+        help='Diretório de saída dos PNGs granulares (default: <dir>/screenshots_qa)',
+    )
     args = ap.parse_args()
 
-    if args.html_dir:
+    if args.granular_dir:
+        results = capture_granular_item_pages(
+            Path(args.granular_dir), out_dir=args.granular_out,
+        )
+        print_vision_summary({
+            'iteration': args.iteration,
+            'obra': args.obra or '?',
+            'pavimento': args.pav or '?',
+            'html_dir': args.granular_dir,
+            'screenshots': [
+                {'slug': r['slug'], 'png_path': r['png_path']} for r in results
+            ],
+        })
+    elif args.html_dir:
         # Apenas captura screenshots de diretório HTML existente
         html_dir = Path(args.html_dir)
         screenshots = capture_html_pages(html_dir, slugs=args.slugs)

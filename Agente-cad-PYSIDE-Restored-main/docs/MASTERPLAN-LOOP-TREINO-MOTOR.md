@@ -1,5 +1,12 @@
 # MASTERPLAN — Loop de Treino do Motor (Análise Geral → Gabarito Eng. Reversa)
 
+> ⚠️ **Parte "como executar" superseded (02/07/2026) por
+> `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md`.** Este doc continua valendo como registro da
+> infra de aprendizado no DB (`transformation_rules`, `training_events`, `engrev_*`,
+> princípios §1, roadmap por classe §6) e como histórico de progresso (§2.5, §5.1.2). Para
+> o passo a passo prático de execução do loop (geração headless, diagnóstico duplo
+> automático+humano, log de triagem), siga o doc novo.
+
 **Versão:** 1.0
 **Data:** 2026-06-20
 **Orquestração:** Athena (CEO-Planejamento)

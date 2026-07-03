@@ -168,20 +168,19 @@ def setup_doc():
     return doc
 
 
-def panel_poly(msp, x0, y0, w, h, draw_internal_lines=True):
-    """Draw a panel outline and, when applicable, its legacy internal lines.
+def panel_poly(msp, x0, y0, w, h):
+    """Draw a panel outline.
 
-    Two evenly-spaced slat lines represent the real STOG wood-board pattern without
-    causing overdraw for obras with large-b vigas (b>24cm). Folded L pairs disable
-    them because the source DXF contains only their outlines and real sarrafos.
+    Does not draw internal wood-board lines: those are always rendered
+    afterward by draw_sarr() (layer SARR_2.2x7/SARR_5cm) from the actual
+    sarrafo geometry. An earlier version also drew a fixed h/3-2h/3 pair of
+    "slat" lines here, which duplicated draw_sarr()'s lines at slightly
+    different coordinates (near-overlapping lines, visible as clutter in
+    the fallback compute_panels() path used whenever N1 lacks explicit
+    panel data).
     """
     pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
     msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
-    # 2 fixed slat lines: at h/3 and 2h/3 from bottom edge
-    if draw_internal_lines and h > 6:
-        for frac in (1/3, 2/3):
-            y_slat = y0 + h * frac
-            msp.add_line((x0, y_slat), (x0 + w, y_slat), dxfattribs={'layer': LY_PAINEIS})
 
 
 def panel_divider(msp, x, y0, b):
@@ -1255,12 +1254,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         # Draw panel outlines (LWPOLYLINE) for each sub-panel
         xp = seg_x0
-        has_right_l_pair = (
-            len(sub_panels) >= 2
-            and sub_panel_l_drops[-1]
-            and isinstance(seg_item, dict)
-            and seg_item.get('panels', [])[-1].get('l_side', 'right') == 'right'
-        )
         for i, (pw, ph, is_l_drop, p_texts, p_verts, p_loose) in enumerate(zip(
             sub_panels, sub_panel_heights, sub_panel_l_drops,
             sub_panel_texts, sub_panel_verts, sub_panel_loose,
@@ -1279,21 +1272,10 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     if chanfros:
                         p_obj['chanfros'] = chanfros
             elif is_l_drop:
-                panel_poly(
-                    msp, xp, y0 + b - ph, pw, ph,
-                    draw_internal_lines=not (
-                        has_right_l_pair or is_composite_name
-                    ),
-                )
+                panel_poly(msp, xp, y0 + b - ph, pw, ph)
             else:
                 # Standard rectangular module
-                panel_poly(
-                    msp, xp, y0, pw, ph,
-                    draw_internal_lines=not (
-                        is_composite_name
-                        or (has_right_l_pair and i == len(sub_panels) - 2)
-                    ),
-                )
+                panel_poly(msp, xp, y0, pw, ph)
 
             if isinstance(seg_item, dict):
                 panel_objects = seg_item.get('panels') or []
@@ -1705,8 +1687,16 @@ def _split_legacy_right_l_panels(segments, viga_b):
     for seg in segments:
         if not isinstance(seg, dict):
             continue
+        # Segmentos N1 sem topologia explicita devem chegar intactos ao
+        # fallback compute_panels() do motor. Criar ``panels: []`` aqui fazia
+        # draw_viga() entrar no ramo rico vazio e desenhar apenas o nome.
+        if 'panels' not in seg:
+            continue
+        source_panels = seg.get('panels')
+        if not isinstance(source_panels, list) or not source_panels:
+            continue
         upgraded = []
-        for panel in seg.get('panels', []):
+        for panel in source_panels:
             if not isinstance(panel, dict) or panel.get('is_L_drop'):
                 upgraded.append(panel)
                 continue
@@ -1903,7 +1893,9 @@ def main():
                 'pillar_left': d.get('pillar_left'),
                 'pillar_right': d.get('pillar_right'),
                 'holes': d.get('holes', []),
-                'obs': d.get('observations', ''),
+                # 'observations' e uma nota de auditoria do contrato
+                # (ex.: "Fonte: Structural Analyzer N1..."), nao um rotulo
+                # para desenhar na NOMENCLATURA do DXF.
                 'label_left': d.get('label_left', 'L Esq'),
                 'label_right': d.get('label_right', 'L Dir'),
             }

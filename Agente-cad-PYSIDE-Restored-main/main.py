@@ -6871,7 +6871,12 @@ class MainWindow(QMainWindow):
                             _obra_nome = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
                             _pav_nome = self._current_pavement_name() if hasattr(self, "_current_pavement_name") else ""
                             _obra_path = _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / _obra_nome
-                            _m4 = MotorFase4(str(_obra_path), pavimento=_pav_nome)
+                            _m4 = MotorFase4(
+                                str(_obra_path),
+                                pavimento=_pav_nome,
+                                project_id=self.current_project_id,
+                                db_path=str(self.db.db_path),
+                            )
                             _n_fv_json = _m4._write_fv_json_from_beam_elements({})
                             if _n_fv_json:
                                 self.log(f"🧩 Fundos SA→N1/N3/Robo: {_n_fv_json} JSON_Vigas_Fundo atualizados.")

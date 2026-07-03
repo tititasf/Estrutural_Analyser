@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-01T14:57:12",
+  "gerado_em": "2026-07-02T22:51:12",
   "obra": "Obra_TREINO_1",
   "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
   "db_path": "D:\\Agente-cad-PYSIDE\\project_data.vision",
@@ -583,7 +583,6 @@
           "laje": "L318",
           "side": "A",
           "face": "BAIXO",
-          "source": "canonical_geometry_adjacency",
           "content_type": "laje"
         }
       ],
@@ -976,19 +975,13 @@
           "side": "NULO",
           "face": "NULO",
           "content_type": "laje"
-        },
-        {
-          "laje": "L318",
-          "side": "NULO",
-          "face": "NULO",
-          "content_type": "laje"
         }
       ],
       "nivel_str": "855.12",
-      "lado_A": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_A": "nulo",
       "lado_B": "nulo",
-      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
-      "lado_D": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_C": "nulo",
+      "lado_D": "nulo",
       "atencao": ""
     },
     {
@@ -1501,19 +1494,11 @@
         4552.3825,
         2460.038
       ],
-      "lajes": [
-        {
-          "laje": "L318",
-          "side": "C",
-          "face": "CIMA",
-          "source": "canonical_geometry_adjacency",
-          "content_type": "laje"
-        }
-      ],
-      "nivel_str": "852.19",
+      "lajes": [],
+      "nivel_str": "",
       "lado_A": "nulo",
-      "lado_B": "Laje: L318\nAltura: 12\nNivel: 852.19",
-      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_B": "nulo",
+      "lado_C": "nulo",
       "lado_D": "nulo",
       "atencao": ""
     },
@@ -3279,66 +3264,6 @@
       ]
     },
     {
-      "uid": "L312_2814_2666",
-      "beam_name": "V318",
-      "conf_pct": 85,
-      "own_laje": "L312",
-      "neigh_laje": "L318",
-      "beam_h": "55.0",
-      "status": "Válido",
-      "atencao": "",
-      "pts": [
-        [
-          2799.402733,
-          2710.038
-        ],
-        [
-          2799.402733,
-          2680.038
-        ],
-        [
-          2841.402733,
-          2680.038
-        ],
-        [
-          2841.402733,
-          2661.038
-        ],
-        [
-          2798.402733,
-          2661.038
-        ],
-        [
-          2798.402733,
-          2622.86278
-        ],
-        [
-          2789.402733,
-          2622.86278
-        ],
-        [
-          2786.402733,
-          2622.86278
-        ],
-        [
-          2786.402733,
-          2680.038
-        ],
-        [
-          2789.402733,
-          2680.038
-        ],
-        [
-          2789.402733,
-          2710.038
-        ],
-        [
-          2799.402733,
-          2710.038
-        ]
-      ]
-    },
-    {
       "uid": "L314_3542_3001",
       "beam_name": "V320",
       "conf_pct": 59,
@@ -3539,7 +3464,7 @@
       "beam_name": "V320",
       "conf_pct": 78,
       "own_laje": "L318",
-      "neigh_laje": "L324",
+      "neigh_laje": "L323",
       "beam_h": "55.0",
       "status": "Válido",
       "atencao": "",
@@ -3579,6 +3504,66 @@
         [
           3514.797851,
           2631.038
+        ]
+      ]
+    },
+    {
+      "uid": "L318_2814_2666",
+      "beam_name": "V318",
+      "conf_pct": 85,
+      "own_laje": "L318",
+      "neigh_laje": "L312",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2799.402733,
+          2710.038
+        ],
+        [
+          2799.402733,
+          2680.038
+        ],
+        [
+          2841.402733,
+          2680.038
+        ],
+        [
+          2841.402733,
+          2661.038
+        ],
+        [
+          2798.402733,
+          2661.038
+        ],
+        [
+          2798.402733,
+          2622.86278
+        ],
+        [
+          2789.402733,
+          2622.86278
+        ],
+        [
+          2786.402733,
+          2622.86278
+        ],
+        [
+          2786.402733,
+          2680.038
+        ],
+        [
+          2789.402733,
+          2680.038
+        ],
+        [
+          2789.402733,
+          2710.038
+        ],
+        [
+          2799.402733,
+          2710.038
         ]
       ]
     },
@@ -3935,7 +3920,7 @@
       "beam_name": "V317",
       "conf_pct": 84,
       "own_laje": "L322",
-      "neigh_laje": "L318",
+      "neigh_laje": "L323",
       "beam_h": "55.0",
       "status": "Válido",
       "atencao": "",
@@ -4291,26 +4276,26 @@
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 1264.0,
+        "length": 160.0,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1197.8825,
-            3004.288
+            4533.3825,
+            2460.038
           ],
           [
-            2461.8825,
-            3004.288
+            4533.3825,
+            2601.038
           ],
           [
-            2461.8825,
-            3023.288
+            4552.3825,
+            2601.038
           ],
           [
-            1197.8825,
-            3023.288
+            4552.3825,
+            2460.038
           ]
         ]
       },

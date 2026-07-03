@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-01T14:56:43.909744",
+  "timestamp": "2026-07-02T22:50:44.759743",
   "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
   "total_slabs": 31,
   "validated_count": 0,
@@ -136,7 +136,7 @@
       "confidence": 0.44,
       "confidence_level": "LOW",
       "n2_quality": "RUIM",
-      "dim_delta": 0.355
+      "dim_delta": 0.1821
     },
     {
       "name": "L319",
@@ -1052,21 +1052,21 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_18",
       "validated": false,
       "validated_fields": [],
-      "area": 539955.3600000001,
+      "area": 450811.86000000004,
       "points_count": 7,
       "confidence_score": 0.44,
       "confidence_level": "LOW",
       "n2_teacher_matched": false,
       "outline_source": "?",
-      "polygon_area": 539955.36,
+      "polygon_area": 450811.86,
       "polygon_bounds": [
         1394.38,
         2460.0,
-        4669.0,
+        4225.5,
         2661.0
       ],
       "polygon_dims": {
-        "width": 3274.62,
+        "width": 2831.12,
         "height": 201.0
       },
       "internal_lines": {
@@ -1079,9 +1079,9 @@
         "largura_n2": 152.0,
         "area_n2_cm2": 366776.0,
         "has_coords": true,
-        "dim_delta": 0.355,
+        "dim_delta": 0.1821,
         "match_quality": "RUIM",
-        "detected_width": 3274.62,
+        "detected_width": 2831.12,
         "detected_height": 201.0
       },
       "link_slots": [
