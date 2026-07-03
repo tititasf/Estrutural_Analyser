@@ -5,6 +5,10 @@ alimenta um log estruturado, reutilizável tanto por Claude quanto — no
 futuro — por uma rotina automatizada que leia o mesmo log sem depender de um
 humano reler tudo do zero a cada ciclo.
 
+Este documento define a captura e o ciclo dos achados. Ele não redefine os
+gates: `MASTERPLAN-ARETE-QUALITY-GATES.md` continua sendo a fonte canônica de
+G0–G6, e `ARETE-LOOP-PROCEDIMENTO-GERAL.md` define como executar o diagnóstico.
+
 ## Nome do processo
 
 **Triagem Arete**. O artefato central é o **Log de Triagem**

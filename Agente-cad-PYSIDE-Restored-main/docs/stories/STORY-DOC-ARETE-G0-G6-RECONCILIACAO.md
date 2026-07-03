@@ -1,7 +1,7 @@
 ---
 title: "Story DOC - Reconciliacao Arete G0-G6, MCP e RAG"
 date: 2026-07-02
-status: in-progress
+status: done
 owner: documentation
 ---
 
@@ -15,13 +15,19 @@ indices.
 
 ## Criterios de aceite
 
-- [ ] `MASTERPLAN-ARETE-QUALITY-GATES.md` e a fonte unica da nomenclatura G0-G6.
-- [ ] Procedimento Arete declara escopo atual e dependencia G1/G2 antes de G5.
-- [ ] Triagem usa um achado por causa, com `finding_id` e `run_id`.
-- [ ] Modelo atual pragmatico e separado do event sourcing futuro.
-- [ ] Banner MCP distingue captura T0 ativa de servidor/promocao inativos.
-- [ ] JSONL completo nao e sincronizado diretamente em `n4_attention_feedback`.
-- [ ] Modo atual `human-in-the-CLI` nao presume multiagente autonomo, mas preserva
+- [x] `MASTERPLAN-ARETE-QUALITY-GATES.md` e a fonte unica da nomenclatura G0-G6.
+- [x] Procedimento Arete declara escopo atual e dependencia G1/G2 antes de G5.
+- [x] Triagem usa um achado por causa, com `finding_id` e `run_id`.
+- [x] Modelo atual pragmatico e separado do event sourcing futuro.
+- [x] Banner MCP distingue captura T0 ativa de servidor/promocao inativos.
+- [x] JSONL completo nao e sincronizado diretamente em `n4_attention_feedback`.
+- [x] Modo atual `human-in-the-CLI` nao presume multiagente autonomo, mas preserva
   seguranca basica de concorrencia entre sessoes manuais.
-- [ ] Referencias cruzadas permanecem validas.
+- [x] Referencias cruzadas permanecem validas.
 
+## Validacao
+
+- Contratos obrigatorios encontrados nos quatro documentos.
+- Nomenclaturas paralelas removidas.
+- Frases conflitantes sobre JSONL/MCP removidas.
+- `git diff --check` passou nos arquivos rastreados alterados.

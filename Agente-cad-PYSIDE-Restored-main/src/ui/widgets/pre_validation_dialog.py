@@ -6221,7 +6221,8 @@ class PreValidationDialog(QDialog):
                         '<pre id="_aten_export" style="display:none"></pre>'
                         '<button onclick="exportAnotacoes()" style="margin:12px 0;'
                         'background:#2a2a00;color:#f0b840;border:1px solid #554400;'
-                        'padding:3px 10px;cursor:pointer;font-size:10px">Exportar Anotações</button>')
+                        'padding:3px 10px;cursor:pointer;font-size:10px">Exportar Anotações</button>'
+                        + _error_marker_block_pil(self, nome))
 
                 return (
                     f'<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
