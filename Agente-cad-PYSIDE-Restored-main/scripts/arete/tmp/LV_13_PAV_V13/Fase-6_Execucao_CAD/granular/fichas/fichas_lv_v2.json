@@ -5,9 +5,9 @@
     "h_cm": 44.0,
     "h_B_cm": 44.0,
     "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
+    "laje_sup_cm": 15.0,
     "laje_inf_cm": 0.0,
-    "laje_sup_B_cm": 0.0,
+    "laje_sup_B_cm": 15.0,
     "laje_inf_B_cm": 0.0,
     "h_section_cm": 55.0,
     "h_section_all": [
@@ -1512,7 +1512,8 @@
             "_xl": 7052.952955853571,
             "_xr": 7158.95295585357
           }
-        ]
+        ],
+        "raw_holes": []
       },
       {
         "label": "V13.B",
@@ -1603,7 +1604,8 @@
             "_xl": 7052.952955853571,
             "_xr": 7158.95295585357
           }
-        ]
+        ],
+        "raw_holes": []
       }
     ],
     "segmentos": [

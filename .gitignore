@@ -32,3 +32,6 @@ _ROBOS_ABAS/**/*.zip
 _ROBOS_ABAS/**/*.exe
 _ROBOS_ABAS/**/*.pkg
 /DADOS-OBRAS
+
+# ByteRover local memory, sessions and embedded context-tree repository
+**/.brv/

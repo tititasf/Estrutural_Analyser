@@ -1,7 +1,7 @@
 {
   "number": "332",
   "name": "V332_B",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "B",
   "total_width": 19.0,
   "total_height": 44.0,
@@ -99,8 +99,8 @@
   ],
   "pillar_left": {
     "active": true,
-    "width": 0.0,
-    "length": 60.0
+    "width": 2.7,
+    "length": 55.0
   },
   "pillar_right": {
     "active": false,
@@ -116,7 +116,7 @@
   "h_section_all": [
     55.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 15.0,
   "laje_inf_A": 0.0,
   "laje_sup_B": 0.0,
   "laje_inf_B": 0.0,
@@ -1442,7 +1442,8 @@
           "_xl": 2886.80918103385,
           "_xr": 3057.80918103385
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V332.B",
@@ -1556,7 +1557,8 @@
           "_xl": 2962.83454267599,
           "_xr": 3206.83454267599
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -1701,5 +1703,5 @@
       "_xr": 3206.83454267599
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }

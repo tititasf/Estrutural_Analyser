@@ -30,6 +30,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -66,6 +67,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,

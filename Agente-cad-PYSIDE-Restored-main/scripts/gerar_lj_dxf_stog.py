@@ -506,12 +506,10 @@ def _add_panel_axis(msp, poly_pts, axis, coord, is_union_boundary=False):
             if axis == 'h'
             else [(coord, start), (coord, end)]
         )
+        attribs = {'layer': 'PAINEIS'}
         if is_union_boundary:
-            msp.add_lwpolyline(
-                points, dxfattribs={'layer': 'PAINEIS', 'lineweight': 25}
-            )
-        else:
-            msp.add_line(points[0], points[1], dxfattribs={'layer': 'PAINEIS'})
+            attribs['lineweight'] = 25
+        msp.add_line(points[0], points[1], dxfattribs=attribs)
         count += 1
     return count
 

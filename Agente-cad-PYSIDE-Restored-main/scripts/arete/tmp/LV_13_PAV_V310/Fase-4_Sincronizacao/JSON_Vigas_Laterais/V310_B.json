@@ -1,7 +1,7 @@
 {
   "number": "310",
   "name": "V310_B",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "B",
   "total_width": 19.0,
   "total_height": 38.0,
@@ -66,14 +66,14 @@
     }
   ],
   "pillar_left": {
+    "active": true,
+    "width": 19.4,
+    "length": 60.0
+  },
+  "pillar_right": {
     "active": false,
     "width": 0.0,
     "length": 0.0
-  },
-  "pillar_right": {
-    "active": true,
-    "width": 22.0,
-    "length": 19.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -84,9 +84,9 @@
   "h_section_all": [
     50.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 16.0,
   "laje_inf_A": 0.0,
-  "laje_sup_B": 0.0,
+  "laje_sup_B": 14.0,
   "laje_inf_B": 0.0,
   "tipo_viga": "sarrafeada",
   "section_views": [
@@ -1544,7 +1544,8 @@
           "_xl": 3995.693796664708,
           "_xr": 4166.693796664707
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V310.B",
@@ -1612,7 +1613,8 @@
           "_xl": 4391.466345339597,
           "_xr": 4452.466345339604
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -1688,5 +1690,5 @@
       "_xr": 4452.466345339604
     }
   ],
-  "_confianca": 0.85
+  "_confianca": 0.9
 }

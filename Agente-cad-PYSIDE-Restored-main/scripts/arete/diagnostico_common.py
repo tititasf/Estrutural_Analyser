@@ -45,6 +45,33 @@ def classify_delta(delta: float | None) -> str:
     return "RUIM"
 
 
+def footprint_delta(
+    n1_width: float | None,
+    n1_height: float | None,
+    n2_comprimento: float | None,
+    n2_largura: float | None,
+) -> float | None:
+    """Delta relativo com melhor orientação — a bbox detectada em N1 pode vir
+    girada 90° em relação a comprimento/largura declarados no N2 (a mesma
+    peça, medida com os eixos trocados). Testa as duas correspondências
+    possíveis e usa a de menor erro, em vez de comparar eixo a eixo por
+    posição fixa.
+
+    Extraído de `diagnostico_pil_n1_n2.py` (onde nasceu, comparando bbox de
+    pilar retangular) para reuso em `diagnostico_laj_n1_n2.py` — mesma
+    situação de "footprint com dois lados, orientação não garantida" se
+    aplica a laje. Histórico: essa é a mesma fórmula usada informalmente em
+    `main.py::_debug_works_pavements_documents` (o diagnóstico LAJ legado
+    preso à UI) antes de virar função reutilizável aqui.
+    """
+    if None in (n1_width, n1_height, n2_comprimento, n2_largura):
+        return None
+    same_axis = abs(n1_width - n2_comprimento) + abs(n1_height - n2_largura)
+    swapped_axis = abs(n1_width - n2_largura) + abs(n1_height - n2_comprimento)
+    diff = min(same_axis, swapped_axis)
+    return diff / max(n2_comprimento + n2_largura, 1.0)
+
+
 def natural_key(value: str) -> list[Any]:
     return [
         int(part) if part.isdigit() else part.lower()

@@ -11,8 +11,10 @@ import os
 import sys
 import re
 import json
+import html
 import types
 import argparse
+import importlib
 import subprocess
 import tempfile
 from pathlib import Path
@@ -452,6 +454,58 @@ def _run_legacy_analysis(
 
 _DB_DEFAULT = 'D:/Agente-cad-PYSIDE/project_data.vision'
 
+# Nome da pasta de seção (dentro do html_dir exportado) -> módulo do
+# diagnóstico headless correspondente. FV foi o primeiro a rodar aqui
+# (_run_fv_diagnostic_postprocess); os demais seguem o mesmo contrato
+# run_diagnostic(*, obra, pavimento, state_path, db_path) -> (report, json_path, jsonl_path)
+# (ver docstrings de cada diagnostico_*_n1_n2.py).
+_SECTION_DIAGNOSTIC_MODULES: dict[str, str] = {
+    'pilares': 'scripts.arete.diagnostico_pil_n1_n2',
+    'lajes': 'scripts.arete.diagnostico_laj_n1_n2',
+    'fundos_viga': 'scripts.arete.diagnostico_fv_n1_n2',
+    'laterais_viga': 'scripts.arete.diagnostico_lv_n1_n2',
+}
+_SECTION_LABELS: dict[str, str] = {
+    'pilares': 'PIL',
+    'lajes': 'LAJ',
+    'fundos_viga': 'FV',
+    'laterais_viga': 'LV',
+}
+
+
+def _run_diagnostic_postprocess(
+    module_name: str,
+    *,
+    label: str,
+    obra: str,
+    pavimento: str,
+    state_path: str,
+    db_path: str,
+) -> dict:
+    """Executa o gate numérico de uma classe sem bloquear a revisão humana em caso de falha."""
+    try:
+        module = importlib.import_module(module_name)
+        report, json_path, jsonl_path = module.run_diagnostic(
+            obra=obra,
+            pavimento=pavimento,
+            state_path=state_path,
+            db_path=db_path,
+        )
+        print(
+            f'[SA-HUMAN] Diagnóstico {label}: {report["resumo"]["alertas"]} alerta(s)',
+            flush=True,
+        )
+        return {
+            'status': 'ok',
+            'run_id': report.get('run_id'),
+            'json_path': str(json_path),
+            'jsonl_path': str(jsonl_path),
+            'resumo': report['resumo'],
+        }
+    except Exception as exc:
+        print(f'[SA-HUMAN] AVISO diagnóstico {label} não gerado: {exc}', flush=True)
+        return {'status': 'erro', 'erro': str(exc)}
+
 
 def _run_fv_diagnostic_postprocess(
     *,
@@ -460,29 +514,199 @@ def _run_fv_diagnostic_postprocess(
     state_path: str,
     db_path: str,
 ) -> dict:
-    """Executa o gate numérico FV sem bloquear a revisão humana em caso de falha."""
-    try:
-        from scripts.arete.diagnostico_fv_n1_n2 import run_diagnostic
+    """Executa o gate numérico FV sem bloquear a revisão humana em caso de falha.
 
-        report, json_path, jsonl_path = run_diagnostic(
+    Mantida como wrapper fino de `_run_diagnostic_postprocess` (mesma
+    assinatura/retorno de antes) porque `tests/test_headless_fv_diagnostic_integration.py`
+    monkeypatcha `diagnostico_fv_n1_n2.run_diagnostic` e depende deste nome.
+    """
+    return _run_diagnostic_postprocess(
+        'scripts.arete.diagnostico_fv_n1_n2',
+        label='FV',
+        obra=obra,
+        pavimento=pavimento,
+        state_path=state_path,
+        db_path=db_path,
+    )
+
+
+def _run_section_diagnostics(
+    *,
+    html_dir: str | Path,
+    obra: str,
+    pavimento: str,
+    state_path: str,
+    db_path: str,
+) -> dict[str, dict]:
+    """Roda o diagnóstico de cada classe cuja pasta de seção existe no run.
+
+    Tolerante a falha por classe (mesmo padrão de `_run_fv_diagnostic_postprocess`):
+    uma seção que falhar não impede as demais nem a geração das fichas.
+    """
+    run_dir = Path(html_dir)
+    diagnostics: dict[str, dict] = {}
+    for section, module_name in _SECTION_DIAGNOSTIC_MODULES.items():
+        if not (run_dir / section).is_dir():
+            continue
+        diagnostics[section] = _run_diagnostic_postprocess(
+            module_name,
+            label=_SECTION_LABELS[section],
             obra=obra,
             pavimento=pavimento,
             state_path=state_path,
             db_path=db_path,
         )
-        print(
-            f'[SA-HUMAN] Diagnóstico FV: {report["resumo"]["alertas"]} alerta(s)',
-            flush=True,
-        )
-        return {
-            'status': 'ok',
-            'json_path': str(json_path),
-            'jsonl_path': str(jsonl_path),
-            'resumo': report['resumo'],
+    return diagnostics
+
+
+_ARETE_DIAG_START = '<!-- ARETE_FV_DIAGNOSTIC_START -->'
+_ARETE_DIAG_END = '<!-- ARETE_FV_DIAGNOSTIC_END -->'
+
+
+def _inject_arete_block(path: Path, block: str) -> None:
+    document = path.read_text(encoding='utf-8')
+    document = re.sub(
+        re.escape(_ARETE_DIAG_START) + r'.*?' + re.escape(_ARETE_DIAG_END),
+        '',
+        document,
+        flags=re.DOTALL,
+    )
+    wrapped = f'{_ARETE_DIAG_START}{block}{_ARETE_DIAG_END}'
+    document = document.replace('</body>', f'{wrapped}</body>', 1)
+    path.write_text(document, encoding='utf-8')
+
+
+def _publish_arete_manifest(
+    *,
+    html_dir: str | Path,
+    obra: str,
+    pavimento: str,
+    diagnostics: dict[str, dict],
+) -> Path:
+    """Publica o manifesto Arete e injeta o bloco de diagnóstico nas fichas.
+
+    `diagnostics` é `{section: diagnostic}` — `section` é o nome da pasta
+    dentro de `html_dir` (`fundos_viga`, `lajes`, `pilares`, `laterais_viga`);
+    cada `diagnostic` tem o mesmo formato retornado por
+    `_run_diagnostic_postprocess`. Generalização de uma versão anterior que
+    só existia para FV (agora `_SECTION_DIAGNOSTIC_MODULES` define quais
+    classes participam).
+    """
+    run_dir = Path(html_dir).resolve()
+
+    def relative(target: Path | None, start: Path) -> str | None:
+        return Path(os.path.relpath(target, start)).as_posix() if target else None
+
+    def json_path_of(diagnostic: dict) -> Path | None:
+        return Path(diagnostic['json_path']).resolve() if diagnostic.get('json_path') else None
+
+    manifest_diagnostics: dict[str, dict] = {}
+    run_id = None
+    for section, diagnostic in diagnostics.items():
+        json_path = json_path_of(diagnostic)
+        jsonl_path = Path(diagnostic['jsonl_path']).resolve() if diagnostic.get('jsonl_path') else None
+        manifest_diagnostics[section] = {
+            **diagnostic,
+            'json_relative': relative(json_path, run_dir),
+            'jsonl_relative': relative(jsonl_path, run_dir),
         }
-    except Exception as exc:
-        print(f'[SA-HUMAN] AVISO diagnóstico FV não gerado: {exc}', flush=True)
-        return {'status': 'erro', 'erro': str(exc)}
+        run_id = run_id or diagnostic.get('run_id')
+
+    manifest = {
+        'schema_version': 2,
+        'obra': obra,
+        'pavimento': pavimento,
+        'run_id': run_id,
+        'html_dir': str(run_dir),
+        'diagnosticos': manifest_diagnostics,
+    }
+    manifest_path = run_dir / 'arete_manifest.json'
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8'
+    )
+
+    root_index = run_dir / 'index.html'
+    if root_index.is_file():
+        links = []
+        for section, diagnostic in diagnostics.items():
+            link = relative(json_path_of(diagnostic), root_index.parent)
+            if link:
+                label = _SECTION_LABELS.get(section, section.upper())
+                links.append(f'<a href="{html.escape(link)}">diagnóstico {label} JSON</a>')
+        diagnostic_links = (' · ' + ' · '.join(links)) if links else ''
+        _inject_arete_block(
+            root_index,
+            '<div style="margin:12px;padding:10px;border:1px solid #335;'
+            'background:#151922;color:#aaa">'
+            '<b style="color:#7eb8f7">Arete desta execução</b> · '
+            '<a href="arete_manifest.json">manifesto</a>'
+            f'{diagnostic_links}</div>',
+        )
+
+    for section, diagnostic in diagnostics.items():
+        json_path = json_path_of(diagnostic)
+        report = {}
+        if json_path and json_path.is_file():
+            report = json.loads(json_path.read_text(encoding='utf-8'))
+        label = _SECTION_LABELS.get(section, section.upper())
+
+        section_dir = run_dir / section
+        section_index = section_dir / 'index.html'
+        if section_index.is_file():
+            link = relative(json_path, section_index.parent)
+            alerts = (diagnostic.get('resumo') or {}).get('alertas', 0)
+            _inject_arete_block(
+                section_index,
+                '<div style="margin:12px 0;padding:10px;border:1px solid #554400;'
+                'background:#211d08;color:#f0b840">'
+                f'<b>Diagnóstico automático {label}:</b> {alerts} alerta(s) · '
+                f'<a href="{html.escape(link or "../arete_manifest.json")}">abrir relatório</a>'
+                '<div style="font-size:10px;color:#998b55">Hipótese numérica; '
+                'não substitui a revisão humana.</div></div>',
+            )
+
+        items = {
+            str(item.get('item') or '').upper(): item
+            for item in report.get('itens', [])
+            if isinstance(item, dict)
+        }
+        if not items or not section_dir.is_dir():
+            continue
+        # rglob (não glob) porque pilares/ e laterais_viga/ guardam as fichas
+        # por item em subpastas (ex.: pilares/INDETERMINADO/P12.html,
+        # laterais_viga/a_passa/V301_1.html), diferente de fundos_viga/ e
+        # lajes/ que são planas.
+        for page in section_dir.rglob('*.html'):
+            if page.name == 'index.html' or page.name.startswith('interpretacao_'):
+                continue
+            item = items.get(page.stem.upper())
+            if not item:
+                continue
+            evidence = item.get('evidencia') or {}
+            quality = str(evidence.get('classificacao') or 'INDETERMINADO')
+            cause = str(item.get('causa_raiz') or 'sem alerta numérico')
+            description = str(item.get('causa_descricao') or '')
+            deltas = evidence.get('deltas') or {}
+            delta_values = [value for value in deltas.values() if isinstance(value, (int, float))]
+            max_delta = max(delta_values) if delta_values else None
+            delta_text = f'{max_delta:.2%}' if max_delta is not None else 'indisponível'
+            link = relative(json_path, page.parent)
+            color = '#e17055' if item.get('causa_raiz') else '#4fc3a1'
+            _inject_arete_block(
+                page,
+                '<details class="arete-auto-diagnostic" style="margin:16px 0;'
+                'padding:10px;border:1px solid #554400;background:#171407">'
+                f'<summary style="cursor:pointer;color:{color};font-weight:bold">'
+                f'Diagnóstico automático N1×N2 — {html.escape(quality)}</summary>'
+                '<p style="color:#998b55;font-size:10px">Hipótese numérica automática; '
+                'a marcação humana permanece soberana.</p>'
+                f'<p><b>Causa:</b> {html.escape(cause)}<br>'
+                f'<b>Delta máximo:</b> {html.escape(delta_text)}<br>'
+                f'{html.escape(description)}</p>'
+                f'<a href="{html.escape(link or "../arete_manifest.json")}">'
+                'Abrir evidência oficial JSON</a></details>',
+            )
+    return manifest_path
 
 
 def _generate_fv_n3_nova_previews(
@@ -556,9 +780,15 @@ def run_analysis(
     *,
     project_id: str | None = None,
     db_path: str = _DB_DEFAULT,
-    run_fv_diagnostic: bool = True,
+    run_diagnostics: bool = True,
+    sections: set[str] | None = None,
 ) -> dict:
-    """Executa a Análise Geral real do SA e exporta um pack imutável."""
+    """Executa a Análise Geral real do SA e exporta um pack imutável.
+
+    `sections`: repassado a `PreValidationDialog._export_html_snapshot`.
+    `None` (default) gera todas as classes, como antes. Um subconjunto de
+    `{'pilares', 'lajes', 'fundos_viga'}` gera só essas (ver `--secao`).
+    """
     from src.core.sa_project_source import resolve_sa_project_from_db
 
     project = resolve_sa_project_from_db(
@@ -617,19 +847,31 @@ def run_analysis(
             dialog = window._build_pre_validation_dialog()
             dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
             dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
-            html_dir = dialog._export_html_snapshot()
+            html_dir = dialog._export_html_snapshot(sections=sections)
             state_path = dialog._analysis_state_path()
         print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
-        fv_diagnostic = (
-            _run_fv_diagnostic_postprocess(
+        diagnostics = (
+            _run_section_diagnostics(
+                html_dir=html_dir,
                 obra=obra,
                 pavimento=pavimento,
                 state_path=state_path,
                 db_path=db_path,
             )
-            if run_fv_diagnostic
-            else {'status': 'ignorado'}
+            if run_diagnostics
+            else {}
         )
+        try:
+            manifest_path = _publish_arete_manifest(
+                html_dir=html_dir,
+                obra=obra,
+                pavimento=pavimento,
+                diagnostics=diagnostics,
+            )
+            print(f'[SA-HUMAN] Manifesto Arete: {manifest_path}', flush=True)
+        except Exception as exc:
+            manifest_path = ''
+            print(f'[SA-HUMAN] AVISO manifesto Arete não gerado: {exc}', flush=True)
         return {
             'obra': obra,
             'pavimento': project_name,
@@ -639,10 +881,36 @@ def run_analysis(
             'n_slabs': len(window.slabs_found),
             'n_beams': len(window.beams_found),
             'html_dir': str(html_dir) if html_dir else '',
-            'fv_diagnostic': fv_diagnostic,
+            'diagnostics': diagnostics,
+            'fv_diagnostic': diagnostics.get('fundos_viga', {'status': 'ignorado'}),
+            'arete_manifest': str(manifest_path),
         }
     finally:
         window.close()
+
+
+_VALID_SECTIONS = {'pilares', 'lajes', 'fundos_viga'}
+
+
+def _parse_sections(raw_values: list[str] | None) -> set[str] | None:
+    """`--secao lajes --secao pilares` ou `--secao lajes,pilares` -> {'lajes','pilares'}.
+
+    Sem a flag (`raw_values` vazio/None) -> None (gera tudo, como hoje).
+    """
+    if not raw_values:
+        return None
+    result: set[str] = set()
+    for raw in raw_values:
+        for piece in raw.split(','):
+            piece = piece.strip()
+            if not piece:
+                continue
+            if piece not in _VALID_SECTIONS:
+                raise ValueError(
+                    f"--secao inválido: '{piece}' (válidos: {sorted(_VALID_SECTIONS)})"
+                )
+            result.add(piece)
+    return result or None
 
 
 def main() -> None:
@@ -657,12 +925,27 @@ def main() -> None:
     )
     ap.add_argument('--db', default=_DB_DEFAULT)
     ap.add_argument(
+        '--secao', action='append', default=None,
+        help=(
+            'Gerar só esta(s) classe(s) — repetível ou separado por vírgula '
+            f'(valores: {", ".join(sorted(_VALID_SECTIONS))}). '
+            'Sem a flag = todas as classes (comportamento padrão, inalterado).'
+        ),
+    )
+    ap.add_argument(
         '--skip-diagnostico-fv', action='store_true',
-        help='Gera os HTMLs sem executar o diagnóstico numérico FV N1×N2',
+        help=(
+            'Gera os HTMLs sem executar os diagnósticos numéricos N1×N2 '
+            '(FV, LAJ, PIL, LV — nome do flag preservado por compatibilidade)'
+        ),
     )
     ap.add_argument('--open',  action='store_true',
                     help='Abrir HTML no navegador apos gerar')
     args = ap.parse_args()
+    try:
+        sections = _parse_sections(args.secao)
+    except ValueError as exc:
+        ap.error(str(exc))
 
     # QApplication obrigatorio para PreValidationDialog (mesmo offscreen)
     from PySide6.QtWidgets import QApplication
@@ -673,7 +956,8 @@ def main() -> None:
         pavimento=args.pav,
         project_id=args.project_id,
         db_path=args.db,
-        run_fv_diagnostic=not args.skip_diagnostico_fv,
+        run_diagnostics=not args.skip_diagnostico_fv,
+        sections=sections,
     )
 
     print('\n' + '=' * 60, flush=True)
@@ -682,13 +966,18 @@ def main() -> None:
     print(f'  Lajes   : {result["n_slabs"]}', flush=True)
     print(f'  Vigas   : {result["n_beams"]}', flush=True)
     print(f'  HTMLs   : {result["html_dir"]}', flush=True)
-    fv_diag = result['fv_diagnostic']
-    print(f'  Diag. FV: {fv_diag["status"]}', flush=True)
-    if fv_diag.get('json_path'):
-        print(f'  FV JSON : {fv_diag["json_path"]}', flush=True)
-        print(f'  FV JSONL: {fv_diag["jsonl_path"]}', flush=True)
-    elif fv_diag.get('erro'):
-        print(f'  FV aviso: {fv_diag["erro"]}', flush=True)
+    diagnostics = result['diagnostics']
+    if not diagnostics:
+        print('  Diagnósticos: ignorados (--skip-diagnostico-fv)', flush=True)
+    for section, diag in diagnostics.items():
+        label = _SECTION_LABELS.get(section, section.upper())
+        print(f'  Diag. {label}: {diag["status"]}', flush=True)
+        if diag.get('json_path'):
+            print(f'    JSON : {diag["json_path"]}', flush=True)
+            print(f'    JSONL: {diag["jsonl_path"]}', flush=True)
+        elif diag.get('erro'):
+            print(f'    aviso: {diag["erro"]}', flush=True)
+    print(f'  Manifest: {result["arete_manifest"]}', flush=True)
     print(f'  Fonte   : {result["dxf_path"]}', flush=True)
     print('=' * 60, flush=True)
 

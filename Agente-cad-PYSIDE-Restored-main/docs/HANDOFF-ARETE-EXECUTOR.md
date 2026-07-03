@@ -2,6 +2,14 @@
 **De:** Fable (Estrategista) | **Para:** Sessão executora Cowork (Sonnet)
 **Data:** 2026-06-12 (v1.1 — pós-incidente) | **Modo:** AUTÔNOMO (YOLO — permissões concedidas)
 
+> **⚠️ NOTA DE ESTADO (2026-07-03):** os "fatos verificados" e contagens deste doc são o
+> snapshot de 12/06 e envelheceram (ex.: recortes `aprovado` já passam de 300; contagem
+> real do 13_PAV é 124 itens com LAJ 31). **Status vivo:** rodar
+> `python scripts/arete/gerar_status.py` → `docs/STATUS.md`. O protocolo de autonomia,
+> as restrições e as regras anti-racionalização deste doc CONTINUAM VÁLIDOS.
+> Procedimento de execução atual: `ARETE-LOOP-PROCEDIMENTO-GERAL.md`. Stories prontas
+> para executor: `HANDOFF-PRODUCAO-EXECUTOR.md` + `stories/STORY-EXEC-*.md`.
+
 ---
 
 ## ⚠️ v1.2 — REMEDIAÇÃO DO OVERFIT (2026-06-13) — LEIA PRIMEIRO

@@ -5,9 +5,9 @@
     "h_cm": 38.0,
     "h_B_cm": 40.0,
     "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
+    "laje_sup_cm": 16.0,
     "laje_inf_cm": 0.0,
-    "laje_sup_B_cm": 0.0,
+    "laje_sup_B_cm": 14.0,
     "laje_inf_B_cm": 0.0,
     "h_section_cm": 50.0,
     "h_section_all": [
@@ -1466,7 +1466,8 @@
             "_xl": 3995.693796664708,
             "_xr": 4166.693796664707
           }
-        ]
+        ],
+        "raw_holes": []
       },
       {
         "label": "V310.B",
@@ -1534,7 +1535,8 @@
             "_xl": 4391.466345339597,
             "_xr": 4452.466345339604
           }
-        ]
+        ],
+        "raw_holes": []
       }
     ],
     "segmentos": [
@@ -1602,14 +1604,14 @@
       }
     ],
     "pillar_left": {
+      "active": true,
+      "width": 19.4,
+      "length": 60.0
+    },
+    "pillar_right": {
       "active": false,
       "width": 0.0,
       "length": 0.0
-    },
-    "pillar_right": {
-      "active": true,
-      "width": 22.0,
-      "length": 19.0
     }
   }
 ]

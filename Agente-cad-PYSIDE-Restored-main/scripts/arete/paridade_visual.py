@@ -257,6 +257,12 @@ SKIP_LAYERS_G2: dict[str, set] = {
         "CONCRETO", "detalhes",
         # FV-específico:
         "SARR_EDITAR",   # sarrafos de edição manual (layer recorte humano, N4 não reproduz)
+        # Vigas estreitas (semântica adicionada ao gerador em 26/06/2026, pós-selagem do
+        # golden de 25/06): 10≤b≤14cm → sarrafo na layer SARR_5cm; b<10cm → contorno
+        # LWPOLYLINE na layer SARR_CONTORNO_10cm. São layers-padrão do robô (mesma
+        # categoria sarrafo das variantes acima); conteúdo verificado via G1 + PNG,
+        # como as demais SARR_*. Sem isto, toda viga b≤14 falha G2 com ref=0.
+        "SARR_5cm", "SARR_CONTORNO_10cm",
         # Painéis FV: REF usa LINEs de divisão + TEXTs de dimensão por painel,
         # N4 usa LWPOLYLINEs fechadas — formato estruturalmente diferente.
         # Geometria e propriedades verificadas via G1 (round-trip) + PNG visual.

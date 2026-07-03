@@ -47,55 +47,22 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "structural_analyzer",
-    "project_id": "4869be2b-f17c-410b-a9c8-98a887ec1c95",
-    "id_item": "08",
-    "validated_fields": [
-      "laje_dim",
-      "name",
-      "laje_pilares_apoio",
-      "laje_nivel",
-      "laje_vizinhas_niveis",
-      "laje_visao_corte",
-      "laje_outline_segs",
-      "laje_islands"
-    ],
-    "validated_link_classes": {
-      "laje_dim": [
-        "label"
-      ],
-      "laje_islands": [],
-      "laje_nivel": [
-        "label"
-      ],
-      "laje_outline_segs": [
-        "contour",
-        "acrescimo_borda"
-      ],
-      "laje_pilares_apoio": [
-        "pillar_geom",
-        "pillar_label"
-      ],
-      "laje_visao_corte": [
-        "cut_view_geom"
-      ],
-      "laje_vizinhas_niveis": [
-        "neighbor_north",
-        "neighbor_east",
-        "neighbor_west",
-        "neighbor_south"
-      ],
-      "name": [
-        "label"
-      ]
+    "source": "comparison_engine_n1",
+    "item_id": "L308",
+    "fields": {
+      "nome": "L308",
+      "numero": "08",
+      "laje_dim": "h=13",
+      "laje_nivel": "852.12"
     },
+    "validated_fields": [],
+    "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L308",
     "n3_pattern_score": 0.0,
-    "n3_source": "structural_analyzer_n1",
-    "n3_teacher": null,
-    "ce_sync_source": "slab_elements",
-    "ce_sync_updated_at": "2026-06-24T18:53:07"
+    "n3_exact_geometry_from_validated_pattern": true,
+    "n3_source": "comparison_engine_n1",
+    "n3_teacher": null
   },
   "_hlaz": [
     {
@@ -105,564 +72,46 @@
       "height": 20.0
     }
   ],
-  "laje_dim": "h=13",
-  "laje_nivel": "852.12",
-  "links": {
-    "name": {
-      "label": [
-        {
-          "pos": [
-            4326.042289,
-            3104.862976
-          ],
-          "role": "Identificador Laje",
-          "text": "L308",
-          "type": "text",
-          "validated": true
-        }
-      ]
-    },
-    "laje_dim": {
-      "label": [
-        {
-          "aci": 3,
-          "attachment": null,
-          "color": [
-            0,
-            255,
-            0
-          ],
-          "halign": 0,
-          "height": 10.0,
-          "is_block": false,
-          "layer": "3",
-          "lineweight": 25,
-          "pos": [
-            4334.458745,
-            3090.027208
-          ],
-          "rotation": 0,
-          "text": "h=13",
-          "validated": true,
-          "valign": 0,
-          "width_factor": 1
-        }
-      ]
-    },
-    "laje_visao_corte": {
-      "cut_view_geom": []
-    },
-    "laje_vizinhas_niveis": {
-      "neighbor_east": [
-        {
-          "text": "97.5",
-          "pos": [
-            4582.1325,
-            2750.193591
-          ],
-          "layer": "2",
-          "color": [
-            255,
-            255,
-            0
-          ],
-          "aci": 2,
-          "lineweight": 25,
-          "is_block": false,
-          "rotation": 0,
-          "height": 10.0,
-          "halign": 0,
-          "valign": 0,
-          "attachment": null,
-          "width_factor": 1,
-          "type": "text",
-          "role": "neighbor_east",
-          "source": "orthogonal_neighbor_level",
-          "source_slab": "L317",
-          "source_direction": "right",
-          "distance_to_slab": 19.0,
-          "is_inferred": true
-        },
-        {
-          "text": "L317",
-          "type": "text",
-          "pos": [
-            4572.152761,
-            2800.794396
-          ],
-          "role": "neighbor_east",
-          "source": "orthogonal_neighbor_identity",
-          "source_slab": "L317",
-          "source_direction": "right",
-          "distance_to_slab": 19.0,
-          "is_inferred": true
-        },
-        {
-          "text": "h=13",
-          "pos": [
-            4580.001319,
-            2784.398132
-          ],
-          "layer": "3",
-          "color": [
-            0,
-            255,
-            0
-          ],
-          "aci": 3,
-          "lineweight": 25,
-          "is_block": false,
-          "rotation": 0,
-          "height": 10.0,
-          "halign": 0,
-          "valign": 0,
-          "attachment": null,
-          "width_factor": 1,
-          "role": "neighbor_east",
-          "source": "orthogonal_neighbor_identity",
-          "source_slab": "L317",
-          "source_direction": "right",
-          "distance_to_slab": 19.0,
-          "is_inferred": true
-        }
-      ],
-      "neighbor_north": [],
-      "neighbor_south": [
-        {
-          "distance_to_slab": 19.038,
-          "is_inferred": true,
-          "pos": [
-            4298.991567,
-            2814.880137
-          ],
-          "role": "neighbor_south",
-          "source": "orthogonal_neighbor_identity",
-          "source_direction": "bottom",
-          "source_slab": "L316",
-          "text": "L316",
-          "type": "text",
-          "validated": true
-        },
-        {
-          "aci": 3,
-          "attachment": null,
-          "color": [
-            0,
-            255,
-            0
-          ],
-          "distance_to_slab": 19.038,
-          "halign": 0,
-          "height": 10.0,
-          "is_block": false,
-          "is_inferred": true,
-          "layer": "3",
-          "lineweight": 25,
-          "pos": [
-            4306.925076000001,
-            2797.726042
-          ],
-          "role": "neighbor_south",
-          "rotation": 0,
-          "source": "orthogonal_neighbor_identity",
-          "source_direction": "bottom",
-          "source_slab": "L316",
-          "text": "h=13",
-          "validated": true,
-          "valign": 0,
-          "width_factor": 1
-        },
-        {
-          "aci": 2,
-          "attachment": null,
-          "color": [
-            255,
-            255,
-            0
-          ],
-          "distance_to_slab": 19.038,
-          "halign": 0,
-          "height": 10.0,
-          "is_block": false,
-          "is_inferred": true,
-          "layer": "2",
-          "lineweight": 25,
-          "pos": [
-            4327.6325,
-            2750.193591
-          ],
-          "role": "neighbor_south",
-          "rotation": 0,
-          "source": "orthogonal_neighbor_level",
-          "source_direction": "bottom",
-          "source_slab": "L316",
-          "text": "113.5",
-          "type": "text",
-          "valign": 0,
-          "width_factor": 1
-        }
-      ],
-      "neighbor_west": [
-        {
-          "distance_to_slab": 18.882,
-          "is_inferred": true,
-          "pos": [
-            3990.400336,
-            3107.30444
-          ],
-          "role": "neighbor_west",
-          "source": "orthogonal_neighbor_identity",
-          "source_direction": "left",
-          "source_slab": "L307",
-          "text": "L307",
-          "type": "text",
-          "validated": true
-        },
-        {
-          "aci": 3,
-          "attachment": null,
-          "color": [
-            0,
-            255,
-            0
-          ],
-          "distance_to_slab": 18.882,
-          "halign": 0,
-          "height": 10.0,
-          "is_block": false,
-          "is_inferred": true,
-          "layer": "3",
-          "lineweight": 25,
-          "pos": [
-            3997.173579,
-            3091.346478
-          ],
-          "role": "neighbor_west",
-          "rotation": 0,
-          "source": "orthogonal_neighbor_identity",
-          "source_direction": "left",
-          "source_slab": "L307",
-          "text": "h=12",
-          "validated": true,
-          "valign": 0,
-          "width_factor": 1
-        }
-      ]
-    },
-    "laje_pilares_apoio": {
-      "pillar_geom": [
-        {
-          "distance_to_slab": 0.0,
-          "ficha": {
-            "hatch_description": "NASCE",
-            "pillar_name": "P48",
-            "pillar_orientation": "RETANGULAR HORIZONTAL",
-            "pillar_side": "B",
-            "touch_face": "CIMA"
-          },
-          "ficha_links": {
-            "pillar_name": [
-              {
-                "aci": 4,
-                "attachment": null,
-                "color": [
-                  0,
-                  255,
-                  255
-                ],
-                "halign": 0,
-                "height": 15.0,
-                "is_block": false,
-                "layer": "4",
-                "lineweight": 25,
-                "pos": [
-                  4162.814858,
-                  3049.737923
-                ],
-                "role": "Ficha_pillar_name",
-                "rotation": 0,
-                "text": "P48",
-                "valign": 0,
-                "width_factor": 1
-              }
-            ]
-          },
-          "id": "20a8bfc5-ac83-4871-b5a0-678c2e2ac5fd",
-          "is_inferred": true,
-          "layer": "7",
-          "points": [
-            [
-              4209.8825,
-              2991.038
-            ],
-            [
-              4259.8825,
-              2991.038
-            ],
-            [
-              4259.8825,
-              3010.038
-            ],
-            [
-              4209.8825,
-              3010.038
-            ],
-            [
-              4209.8825,
-              2991.038
-            ]
-          ],
-          "role": "Pillar_support_geom_auto",
-          "source": "compact_geometry_near_slab_boundary",
-          "text": "Pilar de apoio detectado",
-          "type": "poly",
-          "validated": true
-        },
-        {
-          "distance_to_slab": 0.0,
-          "ficha": {
-            "hatch_description": "MORRE",
-            "pillar_name": "P8",
-            "pillar_orientation": "RETANGULAR VERTICAL",
-            "pillar_side": "B",
-            "touch_face": "DIR"
-          },
-          "ficha_links": {
-            "pillar_name": [
-              {
-                "aci": 4,
-                "attachment": null,
-                "color": [
-                  0,
-                  255,
-                  255
-                ],
-                "halign": 0,
-                "height": 15.0,
-                "is_block": false,
-                "layer": "4",
-                "lineweight": 25,
-                "pos": [
-                  4272.915677,
-                  3234.63734
-                ],
-                "role": "Ficha_pillar_name",
-                "rotation": 0,
-                "text": "P8",
-                "valign": 0,
-                "width_factor": 1
-              }
-            ]
-          },
-          "id": "0a73bb33-d203-4b3e-ba27-ec6503f365bf",
-          "is_inferred": true,
-          "layer": "7",
-          "points": [
-            [
-              4225.3825,
-              3141.038
-            ],
-            [
-              4244.3825,
-              3141.038
-            ],
-            [
-              4244.3825,
-              3207.038
-            ],
-            [
-              4225.3825,
-              3207.038
-            ],
-            [
-              4225.3825,
-              3141.038
-            ]
-          ],
-          "role": "Pillar_support_geom_auto",
-          "source": "compact_geometry_near_slab_boundary",
-          "text": "Pilar de apoio detectado",
-          "type": "poly",
-          "validated": true
-        },
-        {
-          "ficha": {
-            "hatch_description": "nasce",
-            "pillar_name": "O49",
-            "pillar_orientation": "vertical",
-            "pillar_side": "nulo",
-            "touch_face": "nulo"
-          },
-          "ficha_links": {
-            "pillar_name": [
-              {
-                "aci": 4,
-                "attachment": null,
-                "color": [
-                  0,
-                  255,
-                  255
-                ],
-                "halign": 0,
-                "height": 15.0,
-                "is_block": false,
-                "layer": "4",
-                "lineweight": 25,
-                "pos": [
-                  4567.544322,
-                  3025.627515
-                ],
-                "role": "Ficha_pillar_name",
-                "rotation": 0,
-                "text": "P49",
-                "valign": 0,
-                "width_factor": 1
-              }
-            ]
-          },
-          "id": "4c6c335f-36f2-49f4-b9e1-0722b7b56424",
-          "points": [
-            [
-              4533.3825,
-              3010.038
-            ],
-            [
-              4552.3825,
-              3010.038
-            ],
-            [
-              4552.3825,
-              2960.038
-            ],
-            [
-              4533.3825,
-              2960.038
-            ],
-            [
-              4533.3825,
-              3010.038
-            ]
-          ],
-          "role": "Pillar_geom",
-          "text": "Polyline",
-          "type": "poly",
-          "validated": true
-        }
-      ],
-      "pillar_label": []
-    },
-    "laje_nivel": {
-      "label": [
-        {
-          "aci": 3,
-          "attachment": null,
-          "color": [
-            0,
-            255,
-            0
-          ],
-          "halign": 0,
-          "height": 10.0,
-          "is_block": false,
-          "layer": "3",
-          "lineweight": 25,
-          "pos": [
-            4353.820775,
-            3144.003105
-          ],
-          "rotation": 0,
-          "text": "852.12",
-          "validated": true,
-          "valign": 0,
-          "width_factor": 1
-        }
-      ]
-    },
-    "laje_outline_segs": {
-      "acrescimo_borda": [],
-      "contour": [
-        {
-          "points": [
-            [
-              4533.3825,
-              3010.038
-            ],
-            [
-              4533.3825,
-              3193.038
-            ],
-            [
-              4244.3825,
-              3193.038
-            ],
-            [
-              4244.3825,
-              3010.038
-            ],
-            [
-              4533.3825,
-              3010.038
-            ]
-          ],
-          "role": "Contour",
-          "text": "Polyline",
-          "type": "poly",
-          "validated": true
-        }
-      ]
-    },
-    "_laje_complex": {
-      "label": [],
-      "dim": [],
-      "cut_view": []
-    }
-  },
-  "fields": {
-    "nome": "L308",
-    "numero": "08",
-    "laje_dim": "h=13",
-    "laje_nivel": "852.12"
-  },
   "cotas_paineis": [
     {
-      "value": 102.0,
-      "x": 109.97,
-      "y": 64.32,
-      "rotation": 0.0,
-      "height": 9.0,
-      "tipo": "painel"
-    },
-    {
-      "value": 122.0,
-      "x": 61.0,
-      "y": 86.37,
-      "rotation": 0.0,
-      "height": 9.0,
-      "tipo": "painel"
-    },
-    {
-      "value": 167.0,
-      "x": 205.5,
-      "y": 86.41,
-      "rotation": 0.0,
-      "height": 9.0,
-      "tipo": "painel"
-    },
-    {
-      "value": 20.0,
-      "x": 109.97,
-      "y": 125.32,
-      "rotation": 0.0,
-      "height": 9.0,
-      "tipo": "painel"
-    },
-    {
+      "text": "61",
       "value": 61.0,
       "x": 109.97,
       "y": 165.82,
       "rotation": 0.0,
-      "height": 9.0,
-      "tipo": "painel"
+      "height": 9.0
+    },
+    {
+      "text": "167",
+      "value": 167.0,
+      "x": 205.5,
+      "y": 86.41,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "20",
+      "value": 20.0,
+      "x": 109.97,
+      "y": 125.32,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "102",
+      "value": 102.0,
+      "x": 109.97,
+      "y": 64.32,
+      "rotation": 0.0,
+      "height": 9.0
+    },
+    {
+      "text": "122",
+      "value": 122.0,
+      "x": 61.0,
+      "y": 86.37,
+      "rotation": 0.0,
+      "height": 9.0
     }
   ],
   "pontaletes": {},
@@ -676,7 +125,8 @@
       61.0,
       102.0,
       122.0,
-      167.0
+      167.0,
+      852.12
     ],
     "textos": [
       "102",

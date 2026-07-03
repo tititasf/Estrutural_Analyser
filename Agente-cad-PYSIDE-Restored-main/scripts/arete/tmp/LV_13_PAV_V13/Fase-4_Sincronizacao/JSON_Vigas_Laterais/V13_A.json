@@ -1,7 +1,7 @@
 {
   "number": "13",
   "name": "V13_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 44.0,
@@ -82,9 +82,9 @@
   "h_section_all": [
     55.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 15.0,
   "laje_inf_A": 0.0,
-  "laje_sup_B": 0.0,
+  "laje_sup_B": 15.0,
   "laje_inf_B": 0.0,
   "tipo_viga": "sarrafeada",
   "section_views": [
@@ -1588,7 +1588,8 @@
           "_xl": 7052.952955853571,
           "_xr": 7158.95295585357
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V13.B",
@@ -1679,7 +1680,8 @@
           "_xl": 7052.952955853571,
           "_xr": 7158.95295585357
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -1824,5 +1826,5 @@
       "_xr": 7158.95295585357
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }

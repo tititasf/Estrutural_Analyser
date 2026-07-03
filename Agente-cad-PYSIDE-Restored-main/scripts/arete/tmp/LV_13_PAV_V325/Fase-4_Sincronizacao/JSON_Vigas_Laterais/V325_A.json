@@ -1,7 +1,7 @@
 {
   "number": "325",
   "name": "V325_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 103.0,
@@ -102,9 +102,9 @@
   "h_section_all": [
     120.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 15.0,
   "laje_inf_A": 0.0,
-  "laje_sup_B": 0.0,
+  "laje_sup_B": 15.0,
   "laje_inf_B": 0.0,
   "tipo_viga": "sarrafeada",
   "section_views": [
@@ -1712,7 +1712,8 @@
           "_xl": 3959.918539020626,
           "_xr": 4067.873398261441
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "",
@@ -1780,7 +1781,8 @@
           "_xl": 4209.183721503066,
           "_xr": 4394.183721503067
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V325.B",
@@ -1848,7 +1850,8 @@
           "_xl": 4045.643741037949,
           "_xr": 4167.643741037949
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "",
@@ -1985,7 +1988,8 @@
           "_xl": 4386.908923520392,
           "_xr": 4429.324225404218
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -2016,7 +2020,7 @@
       "largura_cm": 29.0,
       "width": 29.0,
       "panel_type": "Sarrafeado",
-      "height1": 103.0,
+      "height1": 38.3,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2039,7 +2043,7 @@
       "largura_cm": 28.8,
       "width": 28.8,
       "panel_type": "Sarrafeado",
-      "height1": 103.0,
+      "height1": 38.3,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2085,7 +2089,7 @@
       "largura_cm": 108.0,
       "width": 108.0,
       "panel_type": "Sarrafeado",
-      "height1": 103.0,
+      "height1": 58.1,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2153,5 +2157,5 @@
       "_xr": 4167.643741037949
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }

@@ -1,7 +1,7 @@
 {
   "number": "326",
   "name": "V326_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 54.0,
@@ -59,9 +59,9 @@
     "length": 0.0
   },
   "pillar_right": {
-    "active": true,
+    "active": false,
     "width": 0.0,
-    "length": 60.0
+    "length": 0.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -1101,7 +1101,8 @@
           "_xl": 4685.390187373971,
           "_xr": 4775.390187373971
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V326.B",
@@ -1169,7 +1170,8 @@
           "_xl": 4685.390187373971,
           "_xr": 4775.390187373971
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [

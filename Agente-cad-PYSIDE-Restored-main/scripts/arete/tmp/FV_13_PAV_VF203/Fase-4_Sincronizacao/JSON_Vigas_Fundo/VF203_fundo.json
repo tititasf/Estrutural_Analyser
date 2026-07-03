@@ -44,6 +44,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 5.6,
@@ -65,7 +66,13 @@
               "x": 5.6,
               "y": 14.0
             }
-          ]
+          ],
+          "chanfros": {
+            "te": 5.6,
+            "fe": 0.0,
+            "td": 0.0,
+            "fd": 0.0
+          }
         }
       ],
       "texto_esq": "VF202",
@@ -87,6 +94,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -119,6 +127,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -159,6 +168,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -191,6 +201,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,

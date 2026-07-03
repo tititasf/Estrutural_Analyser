@@ -1,7 +1,7 @@
 {
   "number": "328",
   "name": "V328_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 59.0,
@@ -54,14 +54,14 @@
     }
   ],
   "pillar_left": {
+    "active": true,
+    "width": 25.2,
+    "length": 60.0
+  },
+  "pillar_right": {
     "active": false,
     "width": 0.0,
     "length": 0.0
-  },
-  "pillar_right": {
-    "active": true,
-    "width": 26.8,
-    "length": 60.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -1101,7 +1101,8 @@
           "_xl": 5688.171197706459,
           "_xr": 5826.171197706458
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V328.B",
@@ -1169,7 +1170,8 @@
           "_xl": 5810.171197706459,
           "_xr": 6040.171197706459
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [

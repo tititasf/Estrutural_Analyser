@@ -1,7 +1,7 @@
 {
   "number": "331",
   "name": "V331_B",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "B",
   "total_width": 14.0,
   "total_height": 44.0,
@@ -71,9 +71,9 @@
     "length": 0.0
   },
   "pillar_right": {
-    "active": true,
-    "width": 9.7,
-    "length": 79.0
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -1094,7 +1094,8 @@
           "_xl": 2218.318432062253,
           "_xr": 2297.318432062253
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V331.B",
@@ -1162,7 +1163,8 @@
           "_xl": 2111.527910987519,
           "_xr": 2312.527910987523
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [

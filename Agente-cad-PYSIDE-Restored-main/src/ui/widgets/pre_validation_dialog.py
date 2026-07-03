@@ -4812,6 +4812,11 @@ class PreValidationDialog(QDialog):
                     'name':   s.get('name') or '',
                     'nivel':  (s.get('fields') or {}).get('laje_nivel') or s.get('nivel') or '',
                     'height': (s.get('fields') or {}).get('laje_h') or s.get('height') or '',
+                    # Geometria bruta (antes ausente do snapshot) — necessária para o
+                    # diagnóstico numérico headless N1×N2 comparar bbox sem depender de
+                    # self.slabs_found (só existe com UI aberta). Aditivo: nenhum
+                    # consumidor existente do estado JSON lia essas chaves antes.
+                    'points': s.get('points') or [],
                 }
                 for s in (self._slabs or [])
             ]
@@ -5542,10 +5547,20 @@ class PreValidationDialog(QDialog):
             print(f'[HTML] _render_pilar_dxf_context_b64 falhou: {exc}', flush=True)
             return ''
 
-    def _export_html_snapshot(self) -> str | None:
+    def _export_html_snapshot(self, sections: set[str] | None = None) -> str | None:
         """Gera uma ficha HTML independente para cada aba de dados.
+
+        `sections`: `None` (default) gera tudo, comportamento idêntico ao
+        anterior. Um subconjunto de `{'pilares', 'lajes', 'fundos_viga'}`
+        pula a montagem e a escrita das seções fora do conjunto (perf —
+        ver STORY-EXEC-02-FLAG-SECAO.md). `pilares_especiais` segue
+        `pilares`; `visao_cortes` e as laterais (`laterais_viga`, não
+        selecionável por este flag) só são geradas quando `sections` é
+        `None`.
+
         Retorna o output_dir gerado (ou None em caso de erro)."""
         import html
+        _include = lambda name: sections is None or name in sections  # noqa: E731
         self._save_analysis_state()   # snapshot JSON para modo headless
         # Pasta fixa por obra: scripts/arete/html_fichas/{obra}/{pavimento}_{ts}/
         # Acumula histórico de geração sem sobrescrever runs anteriores.
@@ -5587,7 +5602,11 @@ class PreValidationDialog(QDialog):
         pillar_rows: list[dict] = []
         special_rows: list[dict] = []
         nr_pilares = (self._nivel_report or {}).get('pilares', {})
-        for key, pillar in sorted(self._pillar_report.items(), key=lambda kv: self._natural_sort_key(kv[0])):
+        _pillar_items = (
+            sorted(self._pillar_report.items(), key=lambda kv: self._natural_sort_key(kv[0]))
+            if _include('pilares') else []
+        )
+        for key, pillar in _pillar_items:
             combo = self._pillar_combos.get(key)
             classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
             nome = pillar.get('name') or key
@@ -5690,8 +5709,10 @@ class PreValidationDialog(QDialog):
         reports.append(('pilares_especiais', 'Pré-ficha — Pilares Especiais', pillar_headers, special_rows, _pil_extra_th, _pil_extra_td))
 
         # ── Report: Visão de Cortes ──────────────────────────────────────────
+        # Não é uma seção selecionável por `--secao`: só entra quando a rodada
+        # é completa (sections is None), igual às laterais mais abaixo.
         cut_rows = []
-        for cut in self._cut_view_data:
+        for cut in (self._cut_view_data if sections is None else []):
             combo = self._cut_combos.get(cut['uid'])
             status_combo = self._cut_status_combos.get(cut['uid'])
             cut_rows.append({
@@ -5719,12 +5740,16 @@ class PreValidationDialog(QDialog):
 
         # ── Report: Lajes ─────────────────────────────────────────────────────
         slab_rows: list[dict] = []
-        for slab in sorted(
-            self._slabs or [],
-            key=lambda s: self._natural_sort_key(
-                str(s.get('name') or s.get('laje_name') or '')
-            ),
-        ):
+        _slab_items = (
+            sorted(
+                self._slabs or [],
+                key=lambda s: self._natural_sort_key(
+                    str(s.get('name') or s.get('laje_name') or '')
+                ),
+            )
+            if _include('lajes') else []
+        )
+        for slab in _slab_items:
             nome_lj = str(
                 slab.get('name')
                 or slab.get('laje_name')
@@ -5763,6 +5788,13 @@ class PreValidationDialog(QDialog):
         }
         for kind, spec in SEGMENT_TAB_SPECS.items():
             seg_cls = _seg_class.get(kind, 'LV')
+            # 'fundo' -> seção 'fundos_viga' (selecionável); as 4 laterais não
+            # são selecionáveis por --secao, só entram na rodada completa.
+            if kind == 'fundo':
+                if not _include('fundos_viga'):
+                    continue
+            elif sections is not None:
+                continue
             segment_rows = []
             for raw in self._segment_data.get(kind, []):
                 segment = serializable_segment(raw)
@@ -6284,7 +6316,36 @@ class PreValidationDialog(QDialog):
 
         generated: list[tuple[str, str, int]] = []
         try:
+            # Laterais LV: consolidadas ANTES do loop genérico — as 4 combinações
+            # lado×comportamento (lateral_a_para/b_para/a_passa/b_passa) viram
+            # seções "Lado A"/"Lado B" de UMA página por viga, não 4 relatórios
+            # tabulares separados (ver write_lateral_pages e ARETE-LOOP-
+            # PROCEDIMENTO-GERAL.md §5.2).
+            _lateral_kinds = (
+                'lateral_a_para', 'lateral_b_para',
+                'lateral_a_passa', 'lateral_b_passa',
+            )
+            _lateral_rows_by_kind = {
+                slug: rows
+                for slug, _title, _headers, rows, _extra_th, _extra_td_fn in reports
+                if slug in _lateral_kinds
+            }
+            if any(_lateral_rows_by_kind.get(k) for k in _lateral_kinds):
+                from src.ui.widgets.preficha_lateral_html import write_lateral_pages
+                generated.append(write_lateral_pages(
+                    dialog=self,
+                    title='Laterais de Viga',
+                    rows_by_kind=_lateral_rows_by_kind,
+                    output_dir=output_dir,
+                    page_css=_page_css,
+                    javascript=js,
+                    photo_fn=_photo,
+                    metrics_fn=_segment_geometry_metrics,
+                ))
+
             for slug, title, headers, rows, extra_th, extra_td_fn in reports:
+                if slug in _lateral_kinds:
+                    continue
                 # Pilares: gera página individual por item
                 if slug in ('pilares', 'pilares_especiais'):
                     if rows:
@@ -6317,6 +6378,12 @@ class PreValidationDialog(QDialog):
                             photo_fn=_photo,
                             metrics_fn=_segment_geometry_metrics,
                         ))
+                    continue
+                if slug == 'visao_cortes' and sections is not None:
+                    # Não selecionável por --secao; cai aqui no bloco genérico
+                    # (sem guarda de `rows`, ao contrário de pilares/lajes/fundo),
+                    # então precisa de exclusão explícita para não sobrar um
+                    # preficha_visao_cortes.html vazio numa rodada filtrada.
                     continue
 
                 body_parts = []

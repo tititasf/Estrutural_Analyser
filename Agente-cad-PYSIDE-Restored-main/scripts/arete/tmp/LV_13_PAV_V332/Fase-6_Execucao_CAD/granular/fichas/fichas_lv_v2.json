@@ -5,7 +5,7 @@
     "h_cm": 44.0,
     "h_B_cm": 59.0,
     "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
+    "laje_sup_cm": 15.0,
     "laje_inf_cm": 0.0,
     "laje_sup_B_cm": 0.0,
     "laje_inf_B_cm": 0.0,
@@ -1332,7 +1332,8 @@
             "_xl": 2886.80918103385,
             "_xr": 3057.80918103385
           }
-        ]
+        ],
+        "raw_holes": []
       },
       {
         "label": "V332.B",
@@ -1446,7 +1447,8 @@
             "_xl": 2962.83454267599,
             "_xr": 3206.83454267599
           }
-        ]
+        ],
+        "raw_holes": []
       }
     ],
     "segmentos": [
@@ -1575,8 +1577,8 @@
     ],
     "pillar_left": {
       "active": true,
-      "width": 0.0,
-      "length": 60.0
+      "width": 2.7,
+      "length": 55.0
     },
     "pillar_right": {
       "active": false,

@@ -44,6 +44,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -80,6 +81,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -123,6 +125,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -159,6 +162,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -183,6 +187,7 @@
           ]
         }
       ],
+      "_multiplier": 6,
       "texto_esq": "P2",
       "texto_dir": "P8"
     },
@@ -202,6 +207,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -238,6 +244,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -313,57 +320,58 @@
   "_n_linhas_folha": 1,
   "_confianca": 0.9,
   "_fase4_ref": {
-    "number": "301",
-    "name": "VF301_A",
-    "floor": "13",
-    "side": "A",
+    "contract_version": 3,
+    "motor_id": "ROBOT_FV_N3_N4",
+    "name": "VF301",
+    "floor": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+    "side": "C",
     "total_width": 19.0,
-    "total_height": "66.0",
+    "total_height": 120.0,
     "panels": [
       {
-        "width": 66.0,
-        "height1": 66.0,
-        "height2": 66.0,
-        "grade_h1": "66.0",
-        "grade_h2": "66.0"
+        "total_width": 131.0,
+        "width": 131.0,
+        "dim_text": "19/120",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 131.0,
+        "altura_total": 120.0,
+        "texto_esq": "V301",
+        "texto_dir": "P1",
+        "row_break": false
       }
     ],
-    "holes": [
+    "segments_rich": [
       {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
+        "total_width": 131.0,
+        "width": 131.0,
+        "dim_text": "19/120",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 131.0,
+        "altura_total": 120.0,
+        "texto_esq": "V301",
+        "texto_dir": "P1",
+        "row_break": false
       }
     ],
+    "holes": [],
+    "label_left": "V301",
+    "label_right": "P1",
     "pillar_left": {
-      "active": false,
+      "active": true,
+      "label": "V301",
       "width": 0.0,
       "length": 0.0
     },
     "pillar_right": {
-      "active": false,
+      "active": true,
+      "label": "P1",
       "width": 0.0,
       "length": 0.0
     },
+    "apoio_inicial": "V301",
+    "apoio_final": "P1",
+    "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+    "number": "301",
     "sarrafo_left_id": 0,
     "sarrafo_right_id": 0
   }

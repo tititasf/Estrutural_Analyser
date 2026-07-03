@@ -1035,7 +1035,8 @@
             "_xl": 5295.255069712784,
             "_xr": 5429.255069712784
           }
-        ]
+        ],
+        "raw_holes": []
       },
       {
         "label": "V327.B",
@@ -1103,7 +1104,8 @@
             "_xl": 5295.255069712784,
             "_xr": 5433.255069712784
           }
-        ]
+        ],
+        "raw_holes": []
       }
     ],
     "segmentos": [
@@ -1191,9 +1193,9 @@
       }
     ],
     "pillar_left": {
-      "active": true,
+      "active": false,
       "width": 0.0,
-      "length": 60.0
+      "length": 0.0
     },
     "pillar_right": {
       "active": false,

@@ -1,7 +1,7 @@
 {
   "number": "308",
   "name": "V308_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 59.0,
@@ -3106,7 +3106,8 @@
           "_xl": 2688.394402533993,
           "_xr": 2884.894402533993
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V308.B",
@@ -3308,7 +3309,8 @@
           "_xl": 2799.408311030251,
           "_xr": 2920.408311030258
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -3558,7 +3560,7 @@
       "largura_cm": 121.0,
       "width": 121.0,
       "panel_type": "Sarrafeado",
-      "height1": 59.0,
+      "height1": 14.4,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,

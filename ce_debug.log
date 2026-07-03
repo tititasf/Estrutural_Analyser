@@ -28180,3 +28180,39 @@ Thread 0x00000784 (most recent call first):
 [23:59:27.210] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
 [23:59:27.384] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
 [23:59:27.386] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[00:43:38.800] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[00:43:38.866] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[00:43:42.617] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[00:43:45.401] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[00:57:50.127] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[00:57:50.302] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[00:57:50.304] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[09:51:03.013] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[09:51:03.083] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[09:51:07.150] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[09:51:10.210] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[10:00:50.058] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[10:00:50.246] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[10:00:50.247] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[10:23:00.109] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[10:23:00.406] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[10:23:00.407] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[11:52:17.626] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[11:52:17.696] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[11:52:21.592] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[11:52:24.536] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:03:21.815] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[12:03:22.130] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[12:03:22.132] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[12:13:35.686] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[12:13:35.749] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:13:39.454] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:13:42.294] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:15:57.516] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[12:15:57.568] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:16:01.268] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:16:04.166] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:17:47.260] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[12:17:47.312] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:17:50.947] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[12:17:53.808] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf

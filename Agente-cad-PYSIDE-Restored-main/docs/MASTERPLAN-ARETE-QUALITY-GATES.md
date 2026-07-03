@@ -5,6 +5,13 @@
 **Status:** ATIVO — Fase A (13º PAV Obra_TREINO_1)
 **Complementa:** `MASTERPLAN-ENGENHARIA-REVERSA.md` v1.2 (EPICs ER-3/ER-6 — este doc define COMO validar o que aqueles EPICs constroem)
 
+> **⚠️ NOTA DE ESTADO (2026-07-03):** o §2 "Estado Real Verificado" é snapshot de 12/06
+> e as contagens envelheceram (13_PAV real = 124 itens, LAJ 31; recortes aprovados > 300).
+> **Status vivo:** `python scripts/arete/gerar_status.py` → `docs/STATUS.md`. Gates,
+> Regra de Ouro, modelo de partes e definição de Arete (§6) continuam canônicos.
+> Mapa entre estes gates (G0–G6) e a taxonomia G-* da harmonização:
+> `MASTERPLAN-PRODUCAO-SOBERANIA.md` §9. Missão de produto paralela: mesmo doc.
+
 ---
 
 > # 🥇 REGRA DE OURO (acima de todos os gates e fases)

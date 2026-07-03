@@ -1,15 +1,15 @@
 {
   "number": "330",
   "name": "V330_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
-  "total_height": 25.0,
+  "total_height": 58.0,
   "panels": [
     {
       "width": 22.6,
-      "height1": 25.0,
-      "height2": 25.0,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -18,8 +18,8 @@
     },
     {
       "width": 20.9,
-      "height1": 25.0,
-      "height2": 25.0,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -27,9 +27,9 @@
       "panel_type": "Grade"
     },
     {
-      "width": 140.0,
-      "height1": 25.0,
-      "height2": 25.0,
+      "width": 97.7,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -37,9 +37,9 @@
       "panel_type": "Grade"
     },
     {
-      "width": 244.0,
-      "height1": 25.0,
-      "height2": 25.0,
+      "width": 14.3,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -47,9 +47,9 @@
       "panel_type": "Grade"
     },
     {
-      "width": 244.0,
-      "height1": 25.0,
-      "height2": 25.0,
+      "width": 28.0,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -57,9 +57,9 @@
       "panel_type": "Grade"
     },
     {
-      "width": 25.2,
-      "height1": 25.0,
-      "height2": 25.0,
+      "width": 187.9,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -67,9 +67,9 @@
       "panel_type": "Grade"
     },
     {
-      "width": 25.9,
-      "height1": 25.0,
-      "height2": 25.0,
+      "width": 10.1,
+      "height1": 58.0,
+      "height2": 58.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
@@ -104,9 +104,9 @@
     }
   ],
   "pillar_left": {
-    "active": false,
-    "width": 0.0,
-    "length": 0.0
+    "active": true,
+    "width": 13.8,
+    "length": 55.0
   },
   "pillar_right": {
     "active": false,
@@ -115,7 +115,7 @@
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
-  "h_A": 25.0,
+  "h_A": 58.0,
   "h_B": 107.0,
   "b_geom": 19.0,
   "h_section": 71.0,
@@ -125,7 +125,7 @@
   ],
   "laje_sup_A": 0.0,
   "laje_inf_A": 0.0,
-  "laje_sup_B": 0.0,
+  "laje_sup_B": 17.0,
   "laje_inf_B": 0.0,
   "tipo_viga": "gradeada",
   "section_views": [
@@ -2413,8 +2413,8 @@
     }
   ],
   "continuation": "",
-  "text_left": "VF301",
-  "text_right": "P18",
+  "text_left": "",
+  "text_right": "",
   "face_units": [
     {
       "label": "V330.A",
@@ -2424,24 +2424,43 @@
       "label_source": "text",
       "bbox": {
         "x_left": 7260.4,
-        "x_right": 7989.0,
-        "y_bot": 2302.0,
-        "y_top": 2327.0
+        "x_right": 7644.9,
+        "y_bot": 2340.0,
+        "y_top": 2398.0
       },
-      "h_body": 25.0,
-      "h_total": 25.0,
+      "h_body": 58.0,
+      "h_total": 58.0,
       "laje_sup": 0.0,
       "laje_inf": 0.0,
-      "pontaletes_face": 0,
-      "grade_layer_style": "paineis",
+      "pontaletes_face": [
+        {
+          "x_offset": 106.2,
+          "y_offset": 28.3,
+          "count": 5,
+          "text": "5 1/2pont",
+          "layer": "texto",
+          "color": 2,
+          "height": 8.0
+        },
+        {
+          "x_offset": 302.0,
+          "y_offset": 52.3,
+          "count": 8,
+          "text": "8 1/2pont",
+          "layer": "texto",
+          "color": 2,
+          "height": 8.0
+        }
+      ],
+      "grade_layer_style": "native",
       "segments_count": 7,
       "panels": [
         {
           "largura_cm": 22.6,
           "width": 22.6,
           "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
+          "height1": 58.0,
+          "height2": 58.0,
           "grade_h1": 0.0,
           "grade_h2": 0.0,
           "laje_central_alt": 0.0,
@@ -2463,8 +2482,8 @@
           "largura_cm": 20.9,
           "width": 20.9,
           "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
+          "height1": 58.0,
+          "height2": 58.0,
           "grade_h1": 55.8,
           "grade_h2": 0.0,
           "laje_central_alt": 0.0,
@@ -2472,7 +2491,7 @@
           "laje_inf_local": 0.0,
           "slab_top": 0.0,
           "slab_bottom": 0.0,
-          "slab_center": 0.0,
+          "slab_center": 7.0,
           "is_first": false,
           "is_last": false,
           "holes": [],
@@ -2480,14 +2499,14 @@
           "reuse_regions": [],
           "codigos_forma": [],
           "_xl": 7285.978349964977,
-          "_xr": 7306.892765456161
+          "_xr": 7306.892765456158
         },
         {
-          "largura_cm": 140.0,
-          "width": 140.0,
+          "largura_cm": 97.7,
+          "width": 97.7,
           "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
+          "height1": 58.0,
+          "height2": 58.0,
           "grade_h1": 104.8,
           "grade_h2": 0.0,
           "laje_central_alt": 0.0,
@@ -2502,61 +2521,15 @@
           "reuse": false,
           "reuse_regions": [],
           "codigos_forma": [],
-          "_xl": 7306.892765456161,
-          "_xr": 7446.892765456158
+          "_xl": 7306.892765456158,
+          "_xr": 7404.55019542381
         },
         {
-          "largura_cm": 244.0,
-          "width": 244.0,
+          "largura_cm": 14.3,
+          "width": 14.3,
           "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
-          "grade_h1": 107.8,
-          "grade_h2": 0.0,
-          "laje_central_alt": 0.0,
-          "laje_sup_local": 0.0,
-          "laje_inf_local": 0.0,
-          "slab_top": 0.0,
-          "slab_bottom": 0.0,
-          "slab_center": 0.0,
-          "is_first": false,
-          "is_last": false,
-          "holes": [],
-          "reuse": false,
-          "reuse_regions": [],
-          "codigos_forma": [],
-          "_xl": 7446.892765456158,
-          "_xr": 7690.892765456158
-        },
-        {
-          "largura_cm": 244.0,
-          "width": 244.0,
-          "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
-          "grade_h1": 107.8,
-          "grade_h2": 0.0,
-          "laje_central_alt": 0.0,
-          "laje_sup_local": 0.0,
-          "laje_inf_local": 0.0,
-          "slab_top": 0.0,
-          "slab_bottom": 0.0,
-          "slab_center": 0.0,
-          "is_first": false,
-          "is_last": false,
-          "holes": [],
-          "reuse": false,
-          "reuse_regions": [],
-          "codigos_forma": [],
-          "_xl": 7690.892765456158,
-          "_xr": 7934.892765456158
-        },
-        {
-          "largura_cm": 25.2,
-          "width": 25.2,
-          "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
+          "height1": 58.0,
+          "height2": 58.0,
           "grade_h1": 104.8,
           "grade_h2": 0.0,
           "laje_central_alt": 0.0,
@@ -2571,15 +2544,61 @@
           "reuse": false,
           "reuse_regions": [],
           "codigos_forma": [],
-          "_xl": 7934.892765456158,
-          "_xr": 7960.088473100364
+          "_xl": 7404.55019542381,
+          "_xr": 7418.892765456151
         },
         {
-          "largura_cm": 25.9,
-          "width": 25.9,
+          "largura_cm": 28.0,
+          "width": 28.0,
           "panel_type": "Grade",
-          "height1": 25.0,
-          "height2": 25.0,
+          "height1": 58.0,
+          "height2": 58.0,
+          "grade_h1": 104.8,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": false,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 7418.892765456151,
+          "_xr": 7446.892765456154
+        },
+        {
+          "largura_cm": 187.9,
+          "width": 187.9,
+          "panel_type": "Grade",
+          "height1": 58.0,
+          "height2": 58.0,
+          "grade_h1": 104.8,
+          "grade_h2": 0.0,
+          "laje_central_alt": 0.0,
+          "laje_sup_local": 0.0,
+          "laje_inf_local": 0.0,
+          "slab_top": 0.0,
+          "slab_bottom": 0.0,
+          "slab_center": 0.0,
+          "is_first": false,
+          "is_last": false,
+          "holes": [],
+          "reuse": false,
+          "reuse_regions": [],
+          "codigos_forma": [],
+          "_xl": 7446.892765456154,
+          "_xr": 7634.755892926088
+        },
+        {
+          "largura_cm": 10.1,
+          "width": 10.1,
+          "panel_type": "Grade",
+          "height1": 58.0,
+          "height2": 58.0,
           "grade_h1": 0.0,
           "grade_h2": 0.0,
           "laje_central_alt": 0.0,
@@ -2594,10 +2613,11 @@
           "reuse": false,
           "reuse_regions": [],
           "codigos_forma": [],
-          "_xl": 7960.088473100364,
-          "_xr": 7985.9708155349
+          "_xl": 7634.755892926088,
+          "_xr": 7644.89276545616
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V330.B",
@@ -2808,7 +2828,8 @@
           "_xl": 7865.871235696646,
           "_xr": 7963.528665664266
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -2848,7 +2869,7 @@
       "laje_inf_local": 0.0,
       "slab_top": 0.0,
       "slab_bottom": 0.0,
-      "slab_center": 0.0,
+      "slab_center": 7.0,
       "is_first": false,
       "is_last": false,
       "holes": [],
@@ -2856,11 +2877,11 @@
       "reuse_regions": [],
       "codigos_forma": [],
       "_xl": 7285.978349964977,
-      "_xr": 7306.892765456161
+      "_xr": 7306.892765456158
     },
     {
-      "largura_cm": 140.0,
-      "width": 140.0,
+      "largura_cm": 97.7,
+      "width": 97.7,
       "panel_type": "Grade",
       "height1": 0.0,
       "height2": 0.0,
@@ -2878,58 +2899,12 @@
       "reuse": false,
       "reuse_regions": [],
       "codigos_forma": [],
-      "_xl": 7306.892765456161,
-      "_xr": 7446.892765456158
+      "_xl": 7306.892765456158,
+      "_xr": 7404.55019542381
     },
     {
-      "largura_cm": 244.0,
-      "width": 244.0,
-      "panel_type": "Grade",
-      "height1": 0.0,
-      "height2": 0.0,
-      "grade_h1": 107.8,
-      "grade_h2": 0.0,
-      "laje_central_alt": 0.0,
-      "laje_sup_local": 0.0,
-      "laje_inf_local": 0.0,
-      "slab_top": 0.0,
-      "slab_bottom": 0.0,
-      "slab_center": 0.0,
-      "is_first": false,
-      "is_last": false,
-      "holes": [],
-      "reuse": false,
-      "reuse_regions": [],
-      "codigos_forma": [],
-      "_xl": 7446.892765456158,
-      "_xr": 7690.892765456158
-    },
-    {
-      "largura_cm": 244.0,
-      "width": 244.0,
-      "panel_type": "Grade",
-      "height1": 0.0,
-      "height2": 0.0,
-      "grade_h1": 107.8,
-      "grade_h2": 0.0,
-      "laje_central_alt": 0.0,
-      "laje_sup_local": 0.0,
-      "laje_inf_local": 0.0,
-      "slab_top": 0.0,
-      "slab_bottom": 0.0,
-      "slab_center": 0.0,
-      "is_first": false,
-      "is_last": false,
-      "holes": [],
-      "reuse": false,
-      "reuse_regions": [],
-      "codigos_forma": [],
-      "_xl": 7690.892765456158,
-      "_xr": 7934.892765456158
-    },
-    {
-      "largura_cm": 25.2,
-      "width": 25.2,
+      "largura_cm": 14.3,
+      "width": 14.3,
       "panel_type": "Grade",
       "height1": 0.0,
       "height2": 0.0,
@@ -2947,12 +2922,58 @@
       "reuse": false,
       "reuse_regions": [],
       "codigos_forma": [],
-      "_xl": 7934.892765456158,
-      "_xr": 7960.088473100364
+      "_xl": 7404.55019542381,
+      "_xr": 7418.892765456151
     },
     {
-      "largura_cm": 25.9,
-      "width": 25.9,
+      "largura_cm": 28.0,
+      "width": 28.0,
+      "panel_type": "Grade",
+      "height1": 0.0,
+      "height2": 0.0,
+      "grade_h1": 104.8,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "reuse_regions": [],
+      "codigos_forma": [],
+      "_xl": 7418.892765456151,
+      "_xr": 7446.892765456154
+    },
+    {
+      "largura_cm": 187.9,
+      "width": 187.9,
+      "panel_type": "Grade",
+      "height1": 0.0,
+      "height2": 0.0,
+      "grade_h1": 104.8,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "reuse_regions": [],
+      "codigos_forma": [],
+      "_xl": 7446.892765456154,
+      "_xr": 7634.755892926088
+    },
+    {
+      "largura_cm": 10.1,
+      "width": 10.1,
       "panel_type": "Grade",
       "height1": 0.0,
       "height2": 0.0,
@@ -2970,8 +2991,8 @@
       "reuse": false,
       "reuse_regions": [],
       "codigos_forma": [],
-      "_xl": 7960.088473100364,
-      "_xr": 7985.9708155349
+      "_xl": 7634.755892926088,
+      "_xr": 7644.89276545616
     }
   ],
   "panels_B": [
@@ -3137,5 +3158,5 @@
       "_xr": 7963.528665664266
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }

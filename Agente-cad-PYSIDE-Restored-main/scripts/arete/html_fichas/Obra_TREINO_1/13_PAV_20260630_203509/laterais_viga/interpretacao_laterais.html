@@ -286,18 +286,18 @@ PASSA — paredes A/B atravessam continuamente o pilar central:
           <div class="draw-style-col">
             <h4>Lado A</h4>
             <div class="check-grid check-grid--single">
-              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_lajes"><span class="check-label">Lajes (1 de até 3)</span><span class="check-value"><b>L301</b><br>Espessura: 12 cm · Nível: 852,19<br>Posição: topo (nível da laje = nível do topo da viga)<br>Distância ao topo: 0 cm</span></label>
-              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_ab_esq"><span class="check-label">Abertura de viga esquerda</span><span class="check-value"><b>VE301</b><br>Dimensão: 20/55 cm<br>Nível: 852,19</span></label>
-              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_ab_dir"><span class="check-label">Abertura de viga direita</span><span class="check-value"><b>VE302</b><br>Dimensão: 20/70 cm<br>Nível: 852,19</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_lajes"><span class="check-label">Lajes (1 de até 3)</span><span class="check-value"><b>L301</b><br>Espessura: 12 cm · Nível: 852,19<br>Posição: topo (nível da laje = nível do topo da viga)<br>Distância ao topo: 0 cm<br>Regra hardcoded: +2 cm de folga de desenho — aplicada sempre que a laje não estiver no fundo (posição invertida)</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_ab_esq"><span class="check-label">Abertura de viga esquerda</span><span class="check-value"><b>VE301</b><br>Dimensão: 20/55 cm · Nível: 852,19<br>Gera abertura — profundidade 55 cm menor que a da viga (60 cm): lateral prolonga-se sob o VE301, exigindo recorte de 28 cm</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_ab_dir"><span class="check-label">Abertura de viga direita</span><span class="check-value"><b>VE302</b><br>Dimensão: 20/70 cm · Nível: 852,19<br>Sem abertura — profundidade 70 cm maior que a da viga (60 cm): lateral apenas termina na face do VE302, sem recorte</span></label>
               <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_pilares"><span class="check-label">Pilares que passa (1 encontrado)</span><span class="check-value"><b>P12</b><br>Comprimento: 100+22=<b>122 cm</b><br>Distância extremidade esquerda: 180−11=<b>169 cm</b><br>Distância extremidade direita: 220−11=<b>209 cm</b></span></label>
             </div>
           </div>
           <div class="draw-style-col">
             <h4>Lado B</h4>
             <div class="check-grid check-grid--single">
-              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_lajes"><span class="check-label">Lajes (1 de até 3)</span><span class="check-value"><b>L302</b><br>Espessura: 15 cm · Nível: 852,19<br>Posição: topo (nível da laje = nível do topo da viga)<br>Distância ao topo: 0 cm</span></label>
-              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_ab_esq"><span class="check-label">Abertura de viga esquerda</span><span class="check-value"><b>VE301</b><br>Dimensão: 20/55 cm<br>Nível: 852,19<br>(mesmo elemento do lado A — não muda de posição entre faces)</span></label>
-              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_ab_dir"><span class="check-label">Abertura de viga direita</span><span class="check-value"><b>VE302</b><br>Dimensão: 20/70 cm<br>Nível: 852,19<br>(mesmo elemento do lado A — não muda de posição entre faces)</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_lajes"><span class="check-label">Lajes (1 de até 3)</span><span class="check-value"><b>L302</b><br>Espessura: 15 cm · Nível: 852,19<br>Posição: topo (nível da laje = nível do topo da viga)<br>Distância ao topo: 0 cm<br>Regra hardcoded: +2 cm de folga de desenho — aplicada sempre que a laje não estiver no fundo (posição invertida)</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_ab_esq"><span class="check-label">Abertura de viga esquerda</span><span class="check-value"><b>VE302</b><br>Dimensão: 20/70 cm · Nível: 852,19<br>Sem abertura — profundidade 70 cm maior que a da viga (60 cm): lateral apenas termina na face do VE302, sem recorte<br>(no Lado A este é o elemento à direita — desenho espelhado)</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_ab_dir"><span class="check-label">Abertura de viga direita</span><span class="check-value"><b>VE301</b><br>Dimensão: 20/55 cm · Nível: 852,19<br>Gera abertura — profundidade 55 cm menor que a da viga (60 cm): lateral prolonga-se sob o VE301, exigindo recorte de 28 cm<br>(no Lado A este é o elemento à esquerda — mesma abertura, aparece espelhada aqui)</span></label>
               <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_pilares"><span class="check-label">Pilares que passa (1 encontrado)</span><span class="check-value"><b>P12</b><br>Comprimento: 100+22=<b>122 cm</b><br>Distância extremidade esquerda: 180−11=<b>169 cm</b><br>Distância extremidade direita: 220−11=<b>209 cm</b><br>(mesmo pilar do lado A — não muda de posição entre faces)</span></label>
             </div>
           </div>
@@ -321,18 +321,21 @@ PASSA — paredes A/B atravessam continuamente o pilar central:
             <div class="rule-box" style="margin-top:0;">
               <div class="rule-title">Resumo da interpretação — Lado A</div>
               A laje <b>L301</b> (12 cm, N 852,19) define a faixa de textura do topo do painel; com +2 cm
-              de folga de desenho na junção com a fôrma, ela ocupa <b>14 cm</b> da altura desenhada. A altura
-              real da viga (60 cm) recebe +4 cm de folga → <b>64 cm</b> desenhados no total, valor fixo para os
-              dois lados; como a laje consome 14 cm, sobram <b>50 cm</b> para o corpo do painel (sarrafo/grade).
-              O comprimento (<b>500 cm</b>) é a mesma cota do segmento já validada acima. As duas aberturas
-              para as vigas incidentes seguem a regra +4 cm de altura / +8 cm de largura: <b>VE301</b>
-              (55→59 cm de altura, 20→28 cm de largura) e <b>VE302</b> (70→74 cm de altura, 20→28 cm de
-              largura). No pilar, a regra hardcoded −11 cm por face define as distâncias até as extremidades
-              do segmento (180−11=<b>169 cm</b> até VE301, 220−11=<b>209 cm</b> até VE302) e +22 cm o
-              comprimento do próprio pilar (100→<b>122 cm</b>) — é essa abertura de 122 cm que aparece
-              sarrafeada/gradeada no centro do painel. No gradeado, essa mesma abertura ganha montantes
-              verticais de 3,5 cm junto às faces do pilar, mais um par central e um par flanqueando a linha de
-              união em pillarFaceB, todos fechados no topo por um sarrafo de 2,2 cm.
+              de folga de desenho — regra hardcoded aplicada sempre que a laje não está no fundo — ela ocupa
+              <b>14 cm</b> da altura desenhada. A altura real da viga (60 cm) recebe +4 cm de folga →
+              <b>64 cm</b> desenhados no total, valor fixo para os dois lados; como a laje consome 14 cm,
+              sobram <b>50 cm</b> para o corpo do painel (sarrafo/grade). O comprimento (<b>500 cm</b>) é a
+              mesma cota do segmento já validada acima. Das duas vigas incidentes, só o <b>VE301</b> gera
+              abertura real no painel: sua profundidade (55 cm) é menor que a da V310 (60 cm), então a
+              lateral precisa prolongar-se por baixo dele — isso cria o recorte de <b>28 cm</b> de largura
+              (20+8 cm de folga) visível no canto esquerdo. Já o <b>VE302</b>, mais profundo (70 cm > 60 cm),
+              não gera abertura: a lateral simplesmente termina na face dele, por isso o lado direito do painel
+              é liso, sem recorte. No pilar, a regra hardcoded −11 cm por face define as distâncias até as
+              extremidades do segmento (180−11=<b>169 cm</b> até VE301, 220−11=<b>209 cm</b> até VE302) e
+              +22 cm o comprimento do próprio pilar (100→<b>122 cm</b>) — é essa abertura de 122 cm que
+              aparece sarrafeada/gradeada no centro do painel. No gradeado, essa mesma abertura ganha
+              montantes verticais de 3,5 cm junto às faces do pilar, mais um par central e um par flanqueando
+              a linha de união em pillarFaceB, todos fechados no topo por um sarrafo de 2,2 cm.
             </div>
           </div>
           <div class="draw-style-col">
@@ -342,14 +345,16 @@ PASSA — paredes A/B atravessam continuamente o pilar central:
             <div class="rule-box" style="margin-top:0;">
               <div class="rule-title">Resumo da interpretação — Lado B</div>
               Mesma lógica do Lado A, mas com a laje <b>L302</b> (15 cm, N 852,19), que ocupa <b>17 cm</b> da
-              altura desenhada (15+2 de folga). Como o total desenhado continua fixo em 64 cm, o corpo do
-              painel encolhe para <b>47 cm</b> (64−17). <b>VE301</b> e <b>VE302</b> mantêm as mesmas dimensões
-              desenhadas do Lado A (59×28 cm e 74×28 cm) e o pilar mantém as mesmas distâncias
-              (169/122/209 cm), pois nenhum desses elementos muda de posição entre as faces — só a leitura é
+              altura desenhada (15+2 de folga, mesma regra hardcoded de topo). Como o total desenhado
+              continua fixo em 64 cm, o corpo do painel encolhe para <b>47 cm</b> (64−17). O pilar mantém as
+              mesmas distâncias (169/122/209 cm), pois não muda de posição entre as faces — só a leitura é
               espelhada: o Lado B é o Lado A espelhado no eixo X, confirmado pelas coordenadas do DXF real
-              (<code>LATERAIS.dxf</code>). Por isso, na tela do Lado B, VE301 aparece à direita e VE302 à
-              esquerda, com os montantes, o sarrafo de 2,2 cm e os pares de sarrafos verdes (central e
-              flanqueando a união em pillarFaceA) todos espelhados na mesma proporção.
+              (<code>LATERAIS.dxf</code>). Isso também espelha a abertura: continua sendo só o <b>VE301</b>
+              quem gera o recorte real (mesma razão — profundidade 55 cm menor que a da viga), mas como o
+              desenho é espelhado ele aparece agora do lado <b>direito</b> do painel; o <b>VE302</b> continua
+              sem abertura e, espelhado, aparece à esquerda. Os montantes, o sarrafo de 2,2 cm e os pares de
+              sarrafos verdes (central e flanqueando a união em pillarFaceA) seguem a mesma inversão de
+              posição.
             </div>
           </div>
         </div>

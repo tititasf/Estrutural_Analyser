@@ -108,7 +108,22 @@ def _error_marker_block(dialog, name: str) -> str:
     """Checkbox + nota de erro, salvos em localStorage (mesma origem file://
     compartilhada por todas as fichas), para triagem humana rápida: o usuário
     marca visualmente o que está errado e Claude só precisa revisar os itens
-    marcados, lendo a nota escrita — sem reler todas as fichas do zero."""
+    marcados, lendo a nota escrita — sem reler todas as fichas do zero.
+
+    Nota de nomenclatura (auditoria 03/07/2026): a chave usa o código `lj`
+    (mesma abreviação de `_find_beam_dxf("LJ", ...)` e dos arquivos
+    `LJ_preview_*.dxf`), enquanto o banco usa `classe='LAJ'`
+    (`reverse_eng_fichas`) e os scripts de diagnóstico automático
+    (`scripts/arete/diagnostico_laj_n1_n2.py`) usam `laj`. São duas
+    convenções pré-existentes e independentes (DB/diagnóstico vs.
+    checkbox/DXF) — NÃO unificar por rename: já existem marcações humanas
+    reais em localStorage com a chave `aten_erro_lj_*` (ver
+    `scripts/arete/relatorios/triagem_erros/Obra_TREINO_1_13_PAV_lajes.jsonl`)
+    e `reverse_eng_fichas.classe='LAJ'` tem centenas de linhas em produção;
+    renomear qualquer um dos dois arrisca perder/quebrar dado real sem
+    ganho funcional (`qa_error_review.py` já casa por prefixo genérico
+    `aten_erro_*`, então a duplicidade de código não quebra nada na prática).
+    """
     key = f"aten_erro_lj_{dialog._obra}_{dialog._pavimento}_{name}".replace(" ", "_")
     key_js = json.dumps(key)
     return (

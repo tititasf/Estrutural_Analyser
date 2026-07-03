@@ -44,6 +44,7 @@ if str(_REPO_ROOT) not in sys.path:
 from scripts.arete.diagnostico_common import (  # noqa: E402
     as_float,
     classify_delta,
+    footprint_delta,
     natural_key,
     resolve_state_path,
     same_pavimento,
@@ -121,23 +122,6 @@ def _bbox_dims(bbox: list | tuple | None) -> tuple[float, float] | tuple[None, N
         return maxx - minx, maxy - miny
     except (TypeError, ValueError):
         return None, None
-
-
-def _footprint_delta(
-    n1_width: float | None,
-    n1_height: float | None,
-    n2_comprimento: float | None,
-    n2_largura: float | None,
-) -> float | None:
-    """Delta relativo com melhor orientação (bbox pode vir rotacionado 90°
-    em relação a comprimento/largura do N2) — mesma fórmula usada
-    historicamente para LAJ em `main.py::_debug_works_pavements_documents`."""
-    if None in (n1_width, n1_height, n2_comprimento, n2_largura):
-        return None
-    same_axis = abs(n1_width - n2_comprimento) + abs(n1_height - n2_largura)
-    swapped_axis = abs(n1_width - n2_largura) + abs(n1_height - n2_comprimento)
-    diff = min(same_axis, swapped_axis)
-    return diff / max(n2_comprimento + n2_largura, 1.0)
 
 
 def _faces_preenchidas_n1(pillar: dict) -> int:
@@ -235,7 +219,7 @@ def diagnose_item(
     generated_at: str,
 ) -> dict:
     formato = (n1 or {}).get("formato")
-    dim_delta = _footprint_delta(
+    dim_delta = footprint_delta(
         (n1 or {}).get("largura_bbox"),
         (n1 or {}).get("comprimento_bbox"),
         (n2 or {}).get("comprimento"),

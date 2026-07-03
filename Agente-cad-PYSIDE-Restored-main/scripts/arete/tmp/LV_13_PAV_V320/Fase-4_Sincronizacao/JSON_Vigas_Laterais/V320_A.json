@@ -1,7 +1,7 @@
 {
   "number": "320",
   "name": "V320_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 103.0,
@@ -99,9 +99,9 @@
     "length": 0.0
   },
   "pillar_right": {
-    "active": true,
-    "width": 0.4,
-    "length": 100.0
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -112,9 +112,9 @@
   "h_section_all": [
     120.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 15.0,
   "laje_inf_A": 0.0,
-  "laje_sup_B": 0.0,
+  "laje_sup_B": 15.0,
   "laje_inf_B": 0.0,
   "tipo_viga": "sarrafeada",
   "section_views": [
@@ -2020,7 +2020,8 @@
           "_xl": 6119.684602827845,
           "_xr": 6126.63946206866
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "",
@@ -2134,7 +2135,8 @@
           "_xl": 6448.949785310285,
           "_xr": 6482.949785310286
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V320.B",
@@ -2248,7 +2250,8 @@
           "_xl": 6164.096806876649,
           "_xr": 6257.096806876649
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "",
@@ -2385,7 +2388,8 @@
           "_xl": 6450.674987327609,
           "_xr": 6479.674987327611
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -2416,7 +2420,7 @@
       "largura_cm": 29.0,
       "width": 29.0,
       "panel_type": "Sarrafeado",
-      "height1": 103.0,
+      "height1": 37.7,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2439,7 +2443,7 @@
       "largura_cm": 28.8,
       "width": 28.8,
       "panel_type": "Sarrafeado",
-      "height1": 103.0,
+      "height1": 37.7,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2485,7 +2489,7 @@
       "largura_cm": 105.0,
       "width": 105.0,
       "panel_type": "Sarrafeado",
-      "height1": 103.0,
+      "height1": 55.1,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2533,7 +2537,7 @@
       "largura_cm": 34.0,
       "width": 34.0,
       "panel_type": "Sarrafeado",
-      "height1": 110.0,
+      "height1": 45.1,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2556,7 +2560,7 @@
       "largura_cm": 23.8,
       "width": 23.8,
       "panel_type": "Sarrafeado",
-      "height1": 110.0,
+      "height1": 45.1,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2579,7 +2583,7 @@
       "largura_cm": 186.2,
       "width": 186.2,
       "panel_type": "Sarrafeado",
-      "height1": 110.0,
+      "height1": 58.4,
       "height2": 0.0,
       "grade_h1": 0.0,
       "grade_h2": 0.0,
@@ -2622,5 +2626,5 @@
       "_xr": 6257.096806876649
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }

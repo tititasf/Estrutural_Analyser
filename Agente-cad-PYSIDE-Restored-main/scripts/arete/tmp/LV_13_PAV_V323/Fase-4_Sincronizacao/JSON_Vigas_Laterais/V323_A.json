@@ -1,7 +1,7 @@
 {
   "number": "323",
   "name": "V323_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 40.0,
@@ -59,9 +59,9 @@
     "length": 0.0
   },
   "pillar_right": {
-    "active": true,
+    "active": false,
     "width": 0.0,
-    "length": 60.0
+    "length": 0.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -72,7 +72,7 @@
   "h_section_all": [
     50.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 15.0,
   "laje_inf_A": 0.0,
   "laje_sup_B": 0.0,
   "laje_inf_B": 0.0,
@@ -1369,7 +1369,8 @@
           "_xl": 7738.821473302303,
           "_xr": 7982.821473302303
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V323.B",
@@ -1437,7 +1438,8 @@
           "_xl": 7665.821473302303,
           "_xr": 7787.821473302303
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -1536,5 +1538,5 @@
       "_xr": 7787.821473302303
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }

@@ -310,6 +310,52 @@ A visão macro com layers toggláveis em si (1 HTML, grupos por classe) ainda n�
 construída — isso ficou como item 7 do checklist, depende deste item mas é entrega
 separada.
 
+## 5.2 — Estado real de LV (auditoria 03/07/2026)
+
+Antes de abrir o looping de LV, uma auditoria do estado atual encontrou uma situação
+diferente da de PIL/FV (que só precisavam de 2 entregas incrementais em cima de um harness
+já harmonizado). LV está em outro patamar: **não existe harness granular nenhum ainda.**
+
+- **O que funciona:** `self._segment_data['lateral_a_para'|'lateral_b_para'|
+  'lateral_a_passa'|'lateral_b_passa']` chega populado no headless (dados reais, todas as
+  vigas do 13_PAV aparecem). Mas cai no branch **genérico** de `_export_html_snapshot`
+  (`pre_validation_dialog.py`, ~L6322-6345 — o mesmo "1 página com N linhas de tabela" que
+  `lajes`/`fundo` usavam antes de ganhar `write_laje_pages`/`write_fundo_pages`), gerando
+  `preficha_lateral_{a,b}_{para,passa}.html` — 4 páginas tabulares, uma por combinação.
+- **Imagens estáticas, não vivas:** essas 4 páginas usam `_find_n4_png`/`_find_n2_png`
+  (~L4898/L5345), que buscam PNG **pré-renderizado** em
+  `scripts/arete/relatorios/{timestamp}/png/LV_*.png` — o lote mais recente é de
+  **24/06/2026**, ou seja, as imagens de N4/N2 mostradas hoje têm mais de uma semana e não
+  refletem nenhum fix feito desde então. Só o card N1 (via `_photo()`, Qt/QPainter) é
+  renderizado ao vivo. Nenhum destes três é SVG.
+- **Existe um protótipo abandonado, não confundir com harness ativo:** em
+  `scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260630_203509/laterais_viga/` há uma
+  estrutura `{a_para,a_passa,b_para,b_passa}/{VIGA}_{N}.html` com sidebar+nav+cards por
+  segmento — **mas o script Python que a gerou não existe mais no repo** (não achado por
+  grep de nenhuma string/classe CSS distintiva desse HTML) e ela não é regenerada por
+  nenhum run desde 30/06. O CSS/layout dela (`.sb-list`, `.kv`, `.badge-src`, `.src-n1`
+  etc.) diverge completamente do padrão LAJ/FV/PIL (`.evidence-card`, `.img-geo`, `.sec`).
+  **Não ressuscitar essa arquitetura** — ela criaria uma 4ª linguagem visual em vez de
+  consolidar numa só. Serve só como referência histórica de uma ideia de agrupamento
+  (por side, com segmentos dentro), não como base de código.
+- **⚠️ Proteger `interpretacao_laterais.html`** (mesma pasta do protótipo acima) — é um
+  guia de interpretação com diagramas SVG feitos à mão em sessão anterior (sarrafo
+  gradeado × sarrafeado, cotas, etc.), analogamente a `interpretacao_abcd.html` do PIL.
+  **Não sobrescrever, não regenerar, não tocar.**
+- **A plumbing de DXF já suporta LV** — `_find_beam_dxf('LV', item_name, n4=...)` e
+  `_find_n2_recorte_dxf('LV', item_name)` (`pre_validation_dialog.py`) já aceitam `'LV'`
+  como `class_prefix` genericamente. Confirmado por evidência real de arquivo
+  (`DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/`): DXFs existem como
+  `LV_preview_{VIGA}.dxf` (bare), `LV_preview_{VIGA}_A.dxf`, `LV_preview_{VIGA}_B.dxf`
+  (por lado) e variantes `_CORTE`/`_VIEW_A`/`_VIEW_B` (visão de corte — 3ª ficha ainda não
+  criada, ver `HANDOFF-ARETE-EXECUTOR.md` v1.1 item 6; **fora de escopo desta rodada**,
+  focar só em Face A/Face B).
+- **Granularidade correta do N2 é por VIGA, não por lado** — `reverse_eng_fichas` (classe
+  `LV`, 32 fichas no 13_PAV) tem `elemento_id` = nome bare da viga (`V301`), e o
+  `campos_json` já contém `panels_A`/`panels_B`/`h_A`/`h_B`/`laje_sup_A`/`laje_sup_B`
+  juntos numa ficha só. Ou seja: **uma ficha N2 cobre os dois lados** — o diagnóstico
+  numérico futuro deve comparar por viga (como FV/LAJ), não duplicar por lado.
+
 ## 6. Checklist de generalização por classe
 
 O que LAJ já tem e as outras classes ainda não, para chegar na mesma paridade de
@@ -317,12 +363,12 @@ infraestrutura:
 
 | Peça | LAJ | PIL | FV | LV |
 |---|---|---|---|---|
-| Geração headless HTML N1-N4 | ✓ `headless_sa_analise.py` | ✓ | ✓ | ? (checar antes de iniciar looping LV) |
-| SVG inline nos cards N1-N4 (leitura via DOM, sem visão) | ✓ (02/07) | ✓ (02/07) | ✓ (02/07) | ✗ — mesma função compartilhada, só falta confirmar se LV usa o mesmo gerador de ficha granular |
-| Checkbox de erro + `localStorage` (`_error_marker_block`) | ✓ `preficha_laje_html.py` | ✓ (02/07) `pre_validation_dialog.py::_error_marker_block_pil` | ✓ (02/07) `preficha_fundo_html.py` | ✗ — criar no gerador de páginas LV |
-| Diagnóstico numérico N1×N2 automático (schema v2 nativo, headless/CLI) | parcial/legado (preso à UI, nome de arquivo fixo, ver §2A.1 — não migrado) | ✓ (02/07) `scripts/arete/diagnostico_pil_n1_n2.py` | ✓ (02/07) `scripts/arete/diagnostico_fv_n1_n2.py` | ✗ |
-| Log de triagem JSONL | ✓ (schema v1 legado, sem `marcado_por: "auto"` ainda — ver item 2 abaixo) | saída própria `triagem_auto_pil.jsonl` já em schema v2; não fundida ao log de triagem humana da classe ainda | saída própria `triagem_auto_fv.jsonl` já em schema v2; idem | ✗ |
-| Schema v2 do log (dual diagnóstico, `concordancia`) | **a migrar** (este doc) | nativo no diagnóstico automático; falta unificar com triagem humana | nativo no diagnóstico automático; falta unificar com triagem humana | a criar |
+| Geração headless HTML N1-N4 | ✓ `headless_sa_analise.py` | ✓ | ✓ | ✓ (03/07) `preficha_lateral_html.py` — 1 página por VIGA com seções Lado A/Lado B (ver §5.2 e item 5 abaixo) |
+| SVG inline nos cards N1-N4 (leitura via DOM, sem visão) | ✓ (02/07) | ✓ (02/07) | ✓ (02/07) | ✓ (03/07) — nasceu direto em SVG, sem retrofit |
+| Checkbox de erro + `localStorage` (`_error_marker_block`) | ✓ `preficha_laje_html.py` | ✓ (02/07) `pre_validation_dialog.py::_error_marker_block_pil` | ✓ (02/07) `preficha_fundo_html.py` | ✓ (03/07) `preficha_lateral_html.py`, chave `aten_erro_lv_...` |
+| Diagnóstico numérico N1×N2 automático (schema v2 nativo, headless/CLI) | ✓ (03/07) `scripts/arete/diagnostico_laj_n1_n2.py` — legado (`main.py::_debug_works_pavements_documents`) mantido só como histórico, não usar mais | ✓ (02/07) `scripts/arete/diagnostico_pil_n1_n2.py` | ✓ (02/07) `scripts/arete/diagnostico_fv_n1_n2.py` | ✓ (03/07) `scripts/arete/diagnostico_lv_n1_n2.py` — causa `schema_gap` com confiança média (0.6), não `extractor_bug`; ver achado não resolvido no docstring do módulo |
+| Log de triagem JSONL | schema v1 legado (16 achados humanos, 02/07) + saída própria `triagem_auto_laj.jsonl` (03/07) já em schema v2; não fundidos ainda | saída própria `triagem_auto_pil.jsonl` já em schema v2; não fundida ao log de triagem humana da classe ainda | saída própria `triagem_auto_fv.jsonl` já em schema v2; idem | saída própria `triagem_auto_lv.jsonl` já em schema v2; idem |
+| Schema v2 do log (dual diagnóstico, `concordancia`) | nativo no diagnóstico automático (03/07); reconciliação manual já rodada uma vez (ver item 2 abaixo) | nativo no diagnóstico automático; falta unificar com triagem humana | nativo no diagnóstico automático; falta unificar com triagem humana | nativo no diagnóstico automático; falta unificar com triagem humana |
 
 Itens de infraestrutura pendentes, priorizados:
 
@@ -343,40 +389,157 @@ Itens de infraestrutura pendentes, priorizados:
    não convertido (pipeline Qt/QPainter, não matplotlib; baixo uso, é só fallback). Relatório
    antigo tabular de PIL (`_pil_extra_td`) também não convertido — fora do padrão de ficha
    granular N1-N4, baixa prioridade.
-2. **Migrar o log de LAJ para o schema v2 pragmático** (§4) — gerar uma linha por causa,
-   adicionar `finding_id`/`run_id`/`updated_at` e `confianca`/`evidencia`/`concordancia`.
-   Preservar as linhas existentes como legado; novas escritas seguem o schema atual.
-3. **Headlessizar o diagnóstico numérico de LAJ** — tirar a dependência de `self.slabs_found`
-   (rodar a partir do JSON de saída do `headless_sa_analise.py` ou equivalente), nome de
-   arquivo versionado por obra/pav/run em vez do fixo `debug_slab_pav13.json`.
-4. **Script de rollup de concordância** (`scripts/arete/triagem_concordancia.py`, §4.3).
+2. ~~**Migrar o log de LAJ para o schema v2 pragmático**~~ / ~~**Headlessizar o
+   diagnóstico numérico de LAJ**~~ (itens 2 e 3 antigos, fechados juntos em 03/07/2026 —
+   mesmo trabalho). `scripts/arete/diagnostico_laj_n1_n2.py` novo, substituindo
+   `main.py::_debug_works_pavements_documents` (mantido só como histórico, não chamar
+   mais): lê geometria N1 do estado headless (`estado_*.json → slabs[].points` — chave
+   que precisou ser ADICIONADA ao snapshot, antes só tinha name/nivel/height; mudança
+   aditiva de 4 linhas em `pre_validation_dialog.py::_export_html_snapshot`, bloco
+   `slabs_serial`), lê N2 direto de `reverse_eng_fichas` (classe='LAJ', não mais o cache
+   `projects_repo/.../obras.json`), saída JSON+JSONL versionada por run (nunca mais o
+   `debug_slab_pav13.json` fixo). Reusa `diagnostico_common.footprint_delta` (extraída de
+   `diagnostico_pil_n1_n2.py` nesta mesma entrada — `_footprint_delta` local do PIL virou
+   duplicata depois disso, removida, PIL agora importa a versão compartilhada; testes de
+   PIL continuam 7/7 passando, sem regressão).
+
+   **Testado contra Obra_TREINO_1/13_PAV real: 31 N1 × 31 N2 (única classe com
+   cobertura 100%), 4 alertas** (L312, L315 novos; L318 RUIM 0.18; L319 REGULAR 0.058 —
+   os dois já conhecidos do caso do §7).
+
+   **Reconciliação com a triagem humana (16 achados de 02/07) — rodada uma vez,
+   manualmente, achado real:** dos 16 itens marcados `n1_overlap_viga` pelo humano, **14
+   já aparecem EXCELENTE/BOM no diagnóstico automático de hoje** (L303, L308, L310, L327-
+   331 em EXCELENTE delta≤0.005; L317, L321-325 em BOM delta≈0.02-0.03) — ou seja, o fix
+   `_reject_overlapping_row_expansions` (aplicado em `slab_tracer.py` antes desta entrada,
+   ver §7) parece ter corrigido a dimensão desses 14 itens depois que a nota humana foi
+   escrita. **Verificado visualmente (não só pelo número) em 1 amostra — L303:**
+   screenshot da ficha confere N1/N2/N3/N4 mostrando o mesmo retângulo limpo
+   (418×183, sem sobreposição de pilar/viga), confirmando que não é coincidência
+   numérica. Só L318 e L319 continuam divergentes nos dois lados (`concordancia:
+   "diverge"` — humano diz `n1_overlap_viga`, específico; automático diz
+   `extractor_bug`, genérico — ver docstring do módulo sobre por que essa distinção
+   ainda não é automática). **Ação recomendada, NÃO executada aqui** (não é decisão de
+   um diagnóstico automático sozinho, é o próprio dono ou uma sessão de triagem visual
+   que deve confirmar): reabrir a ficha desses 14 itens em `qa_error_review.py`,
+   confirmar visualmente, e só então gravar uma nova entrada `status: "verificado"` no
+   log (append-only, não editar as 16 linhas existentes). L312/L315 (novos, sem nota
+   humana) e L318/L319 (já sabidos, ainda quebrados) são os que realmente precisam de
+   atenção agora. Teste: `tests/test_diagnostico_laj_n1_n2.py` (6 casos, incluindo um
+   caso que reproduz literalmente a geometria real do L318). Suíte completa (73 testes
+   relacionados) sem regressão.
+4. ~~**Script de rollup de concordância**~~ — **CONCLUÍDO 03/07/2026**
+   (`STORY-EXEC-05-RECONCILIACAO-CONCORDANCIA.md`, ver
+   `docs/HANDOFF-PRODUCAO-EXECUTOR.md`). `scripts/arete/triagem_concordancia.py`: lê o
+   run mais recente de cada `triagem_auto_{classe}.jsonl` + todos os `triagem_erros/
+   *.jsonl` humanos, agrupa por classe/causa_raiz, calcula `taxa_concordancia` (só entre
+   itens com par nos dois lados — sem par vira `None`, não zero) e lista `abertos_reais`.
+   2 testes em `tests/test_triagem_concordancia.py`. Reconciliação aplicada a PIL (24
+   alertas → 13 abertos reais + 11 estruturais/sem cobertura N2), FV (34 → 22 + 12,
+   destaque: 6 itens já fechados por `STORY-EXEC-01-FV-SARR5CM.md` continuam abertos
+   NESTE eixo — aquele fix resolveu um problema de config do comparador G2 visual,
+   diferente da divergência de dimensão N1×N2 medida aqui) e LV (20 → 14 + 6). Achado
+   lateral relevante: durante a reconciliação, outra sessão concorrente fechou
+   `STORY-EXEC-04-LAJ-LINHAS-HORIZONTAIS.md` e seus 23 itens corroboraram
+   independentemente 2 dos achados novos desta rodada (L312, L315) — dois diagnósticos
+   diferentes convergindo no mesmo item é sinal forte de achado real. Nenhum motor foi
+   tocado; todos os "abertos reais" ficaram listados (não corrigidos) em
+   `scripts/arete/relatorios/triagem_erros/RECONCILIACAO-2026-07-03.md`, prontos para
+   virarem story própria cada um.
 5. ~~**Levar `_error_marker_block` + diagnóstico numérico para PIL e FV**~~ — **CONCLUÍDO
-   02/07/2026 para ambas as classes.** PIL: `_error_marker_block_pil` +
-   `_sidebar_error_flags_script_pil` em `pre_validation_dialog.py` (chave
-   `aten_erro_pil_{obra}_{pav}_{nome}`, mesmo padrão de LAJ/FV) + `scripts/arete/
-   diagnostico_pil_n1_n2.py` (compara bbox N1 vs `comprimento`/`largura` do N2 por
-   melhor orientação; pilares não-retangulares — `em L`/`em U`/`Circular`/`Especial`,
-   via `_pilar_formato` reimplementado sem dependência de Qt — ficam
-   deliberadamente fora do diagnóstico de dimensão, porque bbox de planta não-retangular
-   não é comparável a comprimento×largura; ver docstring do módulo). FV:
+   02/07/2026 para PIL e FV, 03/07/2026 para LV (as 4 classes fecham este item).** PIL:
+   `_error_marker_block_pil` + `_sidebar_error_flags_script_pil` em
+   `pre_validation_dialog.py` (chave `aten_erro_pil_{obra}_{pav}_{nome}`, mesmo padrão de
+   LAJ/FV) + `scripts/arete/diagnostico_pil_n1_n2.py` (compara bbox N1 vs
+   `comprimento`/`largura` do N2 por melhor orientação; pilares não-retangulares — `em
+   L`/`em U`/`Circular`/`Especial`, via `_pilar_formato` reimplementado sem dependência de
+   Qt — ficam deliberadamente fora do diagnóstico de dimensão, porque bbox de planta
+   não-retangular não é comparável a comprimento×largura; ver docstring do módulo). FV:
    `scripts/arete/diagnostico_fv_n1_n2.py` (já existia antes desta entrada). Ambos os
    scripts usam `scripts/arete/diagnostico_common.py` (helpers extraídos:
-   `resolve_state_path`, `classify_delta`, deltas, etc. — reuso pronto para quando LV
-   entrar). Testado contra Obra_TREINO_1/13_PAV real: PIL 46 N1 × 35 N2, 24 alertas, 2
+   `resolve_state_path`, `classify_delta`, deltas, etc.).
+   Testado contra Obra_TREINO_1/13_PAV real: PIL 46 N1 × 35 N2, 24 alertas, 2
    pilares especiais corretamente excluídos do diagnóstico de dimensão. Testes:
    `tests/test_diagnostico_pil_n1_n2.py` (7 casos) + `tests/test_diagnostico_fv_n1_n2.py`.
    Checkbox validado via Playwright real (marcar → `qa_error_review.py read` → limpar),
-   sem regressão nas 63 outras suítes relacionadas. LV segue pendente, quando o looping
-   de LV começar (roadmap por classe do `MASTERPLAN-LOOP-TREINO-MOTOR.md` §6).
+   sem regressão nas 63 outras suítes relacionadas.
+
+   **LV (03/07/2026) — a mais trabalhosa das três**, porque diferente de PIL/FV, LV **não
+   tinha harness algum** (ver §5.2): as 4 combinações lado×comportamento caíam num
+   relatório tabular genérico com PNGs estáticos de 24/06. Construído do zero:
+   `src/ui/widgets/preficha_lateral_html.py` (`write_lateral_pages`) — 1 página por VIGA
+   (não por lado, não por lado×comportamento) com seções "Lado A"/"Lado B", cada uma
+   reunindo os segmentos Para+Passa daquele lado; decisão baseada em evidência real de
+   arquivo (ficha N2 é uma por viga com `panels_A`/`panels_B` juntos; DXFs N3/N4 são por
+   lado — `LV_preview_{VIGA}_A.dxf`/`_B.dxf`). Nasceu direto em SVG + checkbox (sem
+   retrofit, diferente de LAJ/FV/PIL que precisaram de conversão depois). Wire-up em
+   `pre_validation_dialog.py::_export_html_snapshot`: as 4 `reports` de
+   `lateral_{a,b}_{para,passa}` são consolidadas ANTES do loop de dispatch genérico (não
+   viram 4 páginas/sidebars separados).
+   `scripts/arete/diagnostico_lv_n1_n2.py`: comparação por viga (não por lado, mesma
+   razão da ficha N2); método de comparação **deliberadamente por conjunto de números,
+   não por posição** — o campo `width` do N1 é uma string tipo `"19/55"` cuja ordem
+   NÃO é estável entre vigas (confirmado com dado real: a maioria é `"b/h"`, mas `V308`
+   é `"h/b"` invertido). Achado não resolvido, registrado no docstring do módulo: em
+   14/30 vigas do 13_PAV, o número `120` aparece no N1 sem corresponder a nenhum campo
+   numérico da ficha N2 (nem `h_section`/`h_section_all`, nem alturas de painel
+   `panels_A/B`) — causa-raiz gravada como `schema_gap` com confiança 0.6 (não
+   `extractor_bug` — não afirma que o motor está errado, só que a correspondência de
+   campos ainda não foi confirmada por humano lendo o recorte). Testado contra
+   Obra_TREINO_1/13_PAV real: 34 vigas N1 × 32 N2, 20 alertas. Testes:
+   `tests/test_preficha_lateral_html.py` (2 casos) + `tests/test_diagnostico_lv_n1_n2.py`
+   (7 casos). Checkbox validado via Playwright real (mesmo protocolo de PIL/FV). Suíte
+   completa (67 testes relacionados) sem regressão. **NÃO integrado** ao
+   auto-diagnóstico embutido em `headless_sa_analise.py` (`_run_fv_diagnostic_postprocess`
+   / `_publish_arete_manifest`, que hoje só chama o diagnóstico de FV automaticamente) —
+   isso ficou fora de escopo desta entrada, é infraestrutura nova que a FV introduziu
+   depois do meu trabalho original em PIL; PIL também não está integrado lá. Ver item 8.
 6. **Flag `--secao` em `headless_sa_analise.py`** para gerar só uma classe (hoje sempre
    gera pilares+lajes+vigas juntos, ~3min por rodada mesmo quando só uma classe está em
    loop) — gap de performance já apontado na revisão de qualidade de 20/06, ainda aberto.
 7. **Visão macro do estrutural com layers toggláveis** (§5.1) — depende do item 1 (SVG);
    é o HTML único com grupos por classe e toggle via JS. Cross-classe, não bloqueia
    nenhuma classe individual.
+8. **Estender o auto-diagnóstico embutido no headless para PIL e LV** (achado 03/07,
+   descoberto ao concluir o item 5 para LV) — `headless_sa_analise.py` hoje só chama
+   automaticamente `diagnostico_fv_n1_n2.py` + publica `arete_manifest.json` no final da
+   rodada (`_run_fv_diagnostic_postprocess`/`_publish_arete_manifest`); PIL e LV têm
+   scripts de diagnóstico prontos e testados, mas ainda rodam só manualmente via CLI.
+   Generalizar essas duas funções pra aceitar lista de classes, em vez de hardcode em FV.
 
-Itens 1 e 5 concluídos (02/07/2026); os outros 5 seguem registrados aqui como próximo
-passo, a executar sob ordem explícita do dono (gating já em vigor para todo o Arete).
+## 6.1 — Auditoria de consistência cross-classe (03/07/2026)
+
+Depois de fechar o item 5 nas 4 classes, comparação linha a linha dos 4 diagnósticos e
+das 4 fichas granulares — resultado: **o núcleo (SVG, checkbox, schema v2 de saída,
+CLI) está de fato idêntico entre LAJ/PIL/FV/LV** (mesmos argumentos, mesmos campos de
+schema, mesma convenção de pasta). Dois furos reais encontrados e já fechados:
+
+1. ~~**Inconsistência `lj` vs `laj`**~~ — **NÃO é bug introduzido por nenhuma sessão
+   recente; é pré-existente e não deve ser "corrigido" por rename.** O checkbox de LAJ
+   (`preficha_laje_html.py::_error_marker_block`) e `_find_beam_dxf("LJ", ...)`/arquivos
+   `LJ_preview_*.dxf` usam o código `lj`; o banco (`reverse_eng_fichas.classe='LAJ'`,
+   centenas de linhas em produção) e os scripts de diagnóstico automático usam `laj`.
+   São duas convenções independentes, cada uma com dado real dependente do nome atual
+   (marcações humanas já gravadas em localStorage com `aten_erro_lj_*`; fichas de
+   produção no DB com `classe='LAJ'`) — renomear qualquer uma arrisca perder/quebrar
+   dado sem ganho funcional (`qa_error_review.py` já casa por prefixo genérico
+   `aten_erro_*`, então a duplicidade não quebra nada na prática). **Ajuste feito:**
+   nota de nomenclatura cruzada adicionada nas docstrings de
+   `_error_marker_block` (`preficha_laje_html.py`) e do módulo
+   `diagnostico_laj_n1_n2.py`, para o próximo leitor não se confundir.
+2. ~~**PIL sem teste unitário dedicado**~~ — **CONCLUÍDO.** LAJ/FV/LV cada um tem seu
+   `tests/test_preficha_{classe}_html.py` testando a página inteira, porque cada um tem
+   gerador em módulo próprio. PIL não tem módulo próprio (`_write_pilar_pages` é uma
+   função aninhada dentro de `_export_html_snapshot`, não isolável sem mockar dezenas de
+   atributos do dialog) — por isso o teste novo, `tests/test_pilar_error_marker.py` (3
+   casos), cobre diretamente as duas funções puras e independentes que compõem o
+   checkbox de PIL (`_error_marker_block_pil`, `_sidebar_error_flags_script_pil`), sem
+   tentar montar a página inteira. Suíte completa (76 testes relacionados) sem
+   regressão.
+
+Itens 1, 2, 3, 4 e 5 concluídos (02/07 PIL/FV; 03/07 LV, LAJ e a reconciliação
+cross-classe); os outros 3 (6, 7, 8) seguem registrados aqui como próximo passo, a
+executar sob ordem explícita do dono (gating já em vigor para todo o Arete).
 
 ---
 

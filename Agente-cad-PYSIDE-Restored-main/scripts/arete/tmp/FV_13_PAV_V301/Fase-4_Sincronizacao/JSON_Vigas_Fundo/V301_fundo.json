@@ -135,6 +135,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -171,6 +172,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -213,6 +215,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -255,6 +258,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 100.0,
@@ -297,6 +301,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 74.0,
@@ -333,6 +338,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -375,6 +381,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -411,6 +418,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -453,6 +461,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -497,6 +506,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 100.0,
@@ -540,6 +550,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 74.0,
@@ -578,6 +589,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -620,6 +632,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -656,6 +669,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -700,6 +714,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -742,6 +757,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 100.0,
@@ -784,6 +800,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 74.0,
@@ -822,6 +839,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -866,6 +884,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -902,6 +921,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -947,6 +967,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -989,6 +1010,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 41.5,
@@ -1031,6 +1053,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 125.5,
@@ -1067,6 +1090,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -1204,57 +1228,80 @@
   "_n_linhas_folha": 3,
   "_confianca": 0.9,
   "_fase4_ref": {
-    "number": "301",
-    "name": "V301_A",
-    "floor": "13",
-    "side": "A",
+    "contract_version": 3,
+    "motor_id": "ROBOT_FV_N3_N4",
+    "name": "V301",
+    "floor": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+    "side": "C",
     "total_width": 19.0,
-    "total_height": "55.0",
+    "total_height": 55.0,
     "panels": [
       {
-        "width": 55.0,
-        "height1": 55.0,
-        "height2": 55.0,
-        "grade_h1": "55.0",
-        "grade_h2": "55.0"
+        "total_width": 1264.0,
+        "width": 1264.0,
+        "dim_text": "19/55",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 1264.0,
+        "altura_total": 55.0,
+        "texto_esq": "P41",
+        "texto_dir": "P44",
+        "row_break": false
+      },
+      {
+        "total_width": 1713.5,
+        "width": 1713.5,
+        "dim_text": "19/55",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 1713.5,
+        "altura_total": 55.0,
+        "texto_esq": "P44",
+        "texto_dir": "P48",
+        "row_break": true
       }
     ],
-    "holes": [
+    "segments_rich": [
       {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
+        "total_width": 1264.0,
+        "width": 1264.0,
+        "dim_text": "19/55",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 1264.0,
+        "altura_total": 55.0,
+        "texto_esq": "P41",
+        "texto_dir": "P44",
+        "row_break": false
       },
       {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
+        "total_width": 1713.5,
+        "width": 1713.5,
+        "dim_text": "19/55",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 1713.5,
+        "altura_total": 55.0,
+        "texto_esq": "P44",
+        "texto_dir": "P48",
+        "row_break": true
       }
     ],
+    "holes": [],
+    "label_left": "P41",
+    "label_right": "P48",
     "pillar_left": {
-      "active": false,
+      "active": true,
+      "label": "P41",
       "width": 0.0,
       "length": 0.0
     },
     "pillar_right": {
-      "active": false,
+      "active": true,
+      "label": "P48",
       "width": 0.0,
       "length": 0.0
     },
+    "apoio_inicial": "P41",
+    "apoio_final": "P48",
+    "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+    "number": "301",
     "sarrafo_left_id": 0,
     "sarrafo_right_id": 0
   }

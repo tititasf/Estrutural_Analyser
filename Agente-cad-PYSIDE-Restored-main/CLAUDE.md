@@ -20,10 +20,21 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 > 3. `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md` — **como executar o loop de cada classe**
 >    (fichas HTML headless + diagnóstico duplo automático/humano + log de triagem). Este é
 >    o procedimento de execução atual; segui-lo antes de qualquer fix em motor/gerador.
+> 4. `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` — **missão paralela de produto** (2026-07):
+>    portal da equipe, gates P0–P6, decisões DP-1..9. Intercalada com o Arete; em
+>    conflito de tempo, qualidade (Arete) vence.
 
-**Fase A em curso:** paridade 100% entre DXF N4 e recorte N2 nos 111 itens do
-**13_PAV da Obra_TREINO_1** (PIL 35 → LV 32 → FV 26 → LAJ 18). Harness em `scripts/arete/`.
-Estado/progresso: `scripts/arete/relatorios/` (relatório mais recente = onde paramos).
+**Escopo Fase A:** 13_PAV da Obra_TREINO_1 = **124 itens** (PIL 35, LV 32, FV 26, LAJ 31).
+Números escritos à mão envelhecem: a fonte de verdade de status é
+`python scripts/arete/gerar_status.py` → `docs/STATUS.md` (+ relatório mais recente em
+`scripts/arete/relatorios/` e o golden). Fatos datados (03/07): FV 26/26, LAJ 31/31 e PIL 35/35 no 13_PAV — verdes e re-selados
+(fixes: comparador `SARR_5cm` p/ FV; `gerar_lj_dxf_stog.py` uniões LWPOLYLINE→LINE p/
+LAJ, STORY-EXEC-04 concluída). Pendentes: **LV 21/32** (trabalho in-flight da sessão
+LV), pavimentos além do 13_PAV (baselines de junho, Fase B) e o **backlog N1
+(interpretação do SA)** consolidado pela reconciliação de 03/07: LAJ 17 + PIL 13 +
+FV 22 + LV 14 achados reais — lista com evidência em
+`scripts/arete/relatorios/triagem_erros/RECONCILIACAO-2026-07-03.md`.
+Harness em `scripts/arete/`.
 
 ## Ambiente Python — OBRIGATÓRIO Python 3.12
 

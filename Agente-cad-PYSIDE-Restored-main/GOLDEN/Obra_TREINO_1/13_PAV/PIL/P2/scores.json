@@ -11,11 +11,11 @@
       "CIMA": "PASS",
       "GRADES": "N/A"
     },
-    "n_diffs_ent": 9,
+    "n_diffs_ent": 7,
     "n_diffs_geom": 2,
     "n_diffs_txt": 0
   },
-  "n4_sha256": "31914ad81a26404de5d63880ddfd5e50e646a9e3e4cb3b25a01221008567a322",
-  "selado_em": "2026-06-24T20:11:59.477938",
+  "n4_sha256": "6b3997bfd243734e255ac41fdff47df648fce6582a305b5f22884ff503d17671",
+  "selado_em": "2026-07-03T11:46:39.825168",
   "proveniencia": "draft"
 }

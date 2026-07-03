@@ -40,19 +40,25 @@ NIVEL_TOPO_PADRAO = 852.19  # nivel dominante usado nos 12 casos (dentro de 852-
 ALTURA_CM = round((NIVEL_TOPO_PADRAO - NIVEL_SAIDA_REF) * 100)  # = 219cm (~2.19m, <= 3m)
 
 H1_CHAPA = 2.0     # faixa da chapa base (fixo, igual ficha real Fase-4)
-H_PAR_DEFAULT = 73.0  # "zona de parafuso" -- draw_abcd() usa 73 como default quando
-                       # h_par_{fid} nao vem preenchido; aqui setamos explicito pra
-                       # controlar a formula (nao depender do hardcode do gerador).
 
-# ── Formula real do robo legado (confirmada em Robo_Pilar_ABCD.py:2004-2084 +
-#    reproduzida no ramo fallback de draw_abcd(), gerar_pl_dxf_stog.py:1063-1096):
-#      panel_top_face = h1 + h2_face/2 + h_par_face
-#      (laje/viga)_face preenche exatamente de panel_top_face ate pd
-#    => h1 + h2_face/2 + h_par_face + desconto_face == altura   (fecha sem sobra)
-#    Sem isso, o gerador usa h_par=73 fixo desconectado do desconto real e sobra
-#    um retangulo extra (o "quadrado rosa" reportado visualmente).
-def _h2_para_fechar(altura, desconto_face, h1=H1_CHAPA, h_par=H_PAR_DEFAULT):
-    return 2.0 * (altura - desconto_face - h1 - h_par)
+# ── Mecanismo N2-fiel (paineis_intervals + abertura) usado em TODAS as faces ──
+# draw_abcd() so calcula _sarr_lim_esq/_sarr_lim_dir (onde cortar o sarrafo
+# vertical) a partir de `_aberturas` (gerar_pl_dxf_stog.py:1128-1131). Quando
+# altura < 280 o pilar entra em "is_short" (linha 826) e o sarrafo, se nao
+# houver abertura, vai direto ate y_top ignorando panel_top_face -- e isso que
+# fazia o sarrafo "invadir" a zona de laje/viga. Corrigido fornecendo, pra toda
+# face com desconto>0, DUAS aberturas full-width (esquerdo+direito) na mesma
+# altura -- aciona o caminho "_has_dual" (linhas 993-1008), que fecha as
+# paredes exatamente em panel_top_face e limita os dois sarrafos verticais.
+def _face_fields(altura, desconto_face, h1=H1_CHAPA):
+    d = float(desconto_face)
+    panel_top_rel = altura - d - h1   # altura de paineis_intervals[0], relativo a y0+h1
+    fields = {'laje': d, 'intervals': [panel_top_rel]}
+    if d > 0:
+        y_rel = panel_top_rel
+        fields['abertura_1'] = {'lado': 'esquerdo', 'largura': 1.0, 'y_rel': y_rel, 'altura': d, 'x_offset': 0.0}
+        fields['abertura_2'] = {'lado': 'direito',  'largura': 1.0, 'y_rel': y_rel, 'altura': d, 'x_offset': 0.0}
+    return fields
 
 
 def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM, desconto=None):
@@ -66,7 +72,11 @@ def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM, desconto=None
     pj = {
         'numero': str(numero), 'nome': nome,
         'comprimento': comprimento, 'largura': largura, 'altura': altura,
-        'pavimento': 'CASO_DIDATICO', 'nivel_chegada': 0.0, 'nivel_saida': altura,
+        'pavimento': 'CASO_DIDATICO', 'nivel_chegada': 0.0,
+        # nivel_saida so afeta o texto "CENARIOS/NIVEL DE SAIDA" (nao a geometria,
+        # que usa `altura`) -- setado pro valor absoluto pedido (850.00), na MESMA
+        # escala das cotas "N:" do resto da ficha.
+        'nivel_saida': NIVEL_SAIDA_REF * 100,
         'modo_distribuicao': 'NOVA',
         'grade_1': comprimento, 'grade_2': 0.0, 'grade_3': 0.0,
         'distancia_1': 14.0, 'distancia_2': 0.0,
@@ -77,21 +87,19 @@ def _base_pj(nome, numero, comprimento, largura, altura=ALTURA_CM, desconto=None
     for f in 'ABCDEFGH':
         larg1 = comprimento if f in ('A', 'B') else largura
         d = float(desconto.get(f, 0.0))
-        h2 = _h2_para_fechar(altura, d)
         pj.update({
-            f'h1_{f}': H1_CHAPA, f'h2_{f}': h2, f'h3_{f}': 0.0,
-            f'h4_{f}': 0.0, f'h5_{f}': 0.0, f'h_par_{f}': H_PAR_DEFAULT,
+            f'h1_{f}': H1_CHAPA, f'h2_{f}': 0.0, f'h3_{f}': 0.0,
+            f'h4_{f}': 0.0, f'h5_{f}': 0.0,
             f'larg1_{f}': larg1 if f in ('A', 'B', 'C', 'D') else 0.0,
             f'larg2_{f}': 0.0, f'larg3_{f}': 0.0,
             f'laje_{f}': d, f'posicao_laje_{f}': 0.0,
         })
-    # Face C tem um branch hardcoded no gerador (face_uses_262, gerar_pl_dxf_stog.py:841)
-    # que IGNORA h_par_C/laje_C e usa constantes fixas de um lote real especifico
-    # (H_PAR_C=97, H_C_EXTRA=41), sempre que paineis_intervals_C nao existe. Fornecendo
-    # um unico intervalo que fecha exatamente em (altura - desconto_C - h1), a face C
-    # passa a respeitar o mesmo desconto que as outras faces, sem abrir nada extra.
-    d_c = float(desconto.get('C', 0.0))
-    pj['paineis_intervals_C'] = [altura - d_c - H1_CHAPA]
+        if f in ('A', 'B', 'C', 'D'):
+            ff = _face_fields(altura, d)
+            pj[f'paineis_intervals_{f}'] = ff['intervals']
+            if 'abertura_1' in ff:
+                pj[f'abertura_{f}_1'] = ff['abertura_1']
+                pj[f'abertura_{f}_2'] = ff['abertura_2']
     return pj
 
 

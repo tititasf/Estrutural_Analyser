@@ -58,6 +58,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -101,6 +102,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -133,6 +135,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -172,6 +175,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -204,6 +208,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -247,6 +252,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -267,48 +273,38 @@
           ]
         },
         {
-          "width": 193.0,
-          "height": 29.0,
+          "width": 174.0,
+          "height": 19.0,
           "is_L_drop": false,
           "texts": [],
           "sarrafos": {
             "padrao": {
-              "vertical": "1x 29x7",
-              "horizontal": "2x 186x7"
+              "vertical": "1x 19x7",
+              "horizontal": "2x 167x7"
             },
             "aberturas": [],
             "chanfros": []
           },
-          "vertices": [
-            {
-              "x": 0.0,
-              "y": 19.0
-            },
-            {
-              "x": 193.0,
-              "y": 19.0
-            },
-            {
-              "x": 193.0,
-              "y": -10.0
-            },
-            {
-              "x": 174.0,
-              "y": -10.0
-            },
-            {
-              "x": 174.0,
-              "y": -0.0
-            },
-            {
-              "x": 0.0,
-              "y": -0.0
-            },
-            {
-              "x": 0.0,
-              "y": 19.0
-            }
+          "is_liso": false,
+          "panel_dividers": [
+            174.0
           ]
+        },
+        {
+          "width": 19.0,
+          "height": 29.0,
+          "is_L_drop": true,
+          "l_side": "right",
+          "l_drop_depth": 10.0,
+          "texts": [],
+          "sarrafos": {
+            "padrao": {
+              "vertical": "1x 19x7",
+              "horizontal": "2x 22x7"
+            },
+            "aberturas": [],
+            "chanfros": []
+          }
         }
       ],
       "row_break": true
@@ -331,6 +327,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -351,51 +348,40 @@
           ]
         },
         {
-          "width": 193.0,
-          "height": 49.0,
+          "width": 174.0,
+          "height": 19.0,
           "is_L_drop": false,
           "texts": [],
           "sarrafos": {
             "padrao": {
-              "vertical": "1x 49x7",
-              "horizontal": "2x 186x7"
+              "vertical": "1x 19x7",
+              "horizontal": "2x 167x7"
             },
             "aberturas": [],
             "chanfros": []
           },
-          "vertices": [
-            {
-              "x": 0.0,
-              "y": 19.0
-            },
-            {
-              "x": 193.0,
-              "y": 19.0
-            },
-            {
-              "x": 193.0,
-              "y": -30.0
-            },
-            {
-              "x": 174.0,
-              "y": -30.0
-            },
-            {
-              "x": 174.0,
-              "y": -0.0
-            },
-            {
-              "x": 0.0,
-              "y": -0.0
-            },
-            {
-              "x": 0.0,
-              "y": 19.0
-            }
+          "is_liso": false,
+          "panel_dividers": [
+            174.0
           ]
+        },
+        {
+          "width": 19.0,
+          "height": 49.0,
+          "is_L_drop": true,
+          "l_side": "right",
+          "l_drop_depth": 30.0,
+          "texts": [],
+          "sarrafos": {
+            "padrao": {
+              "vertical": "1x 19x7",
+              "horizontal": "2x 42x7"
+            },
+            "aberturas": [],
+            "chanfros": []
+          }
         }
       ],
-      "_multiplier": 2,
       "texto_dir": "P24"
     }
   ],
@@ -446,57 +432,58 @@
   "_n_linhas_folha": 2,
   "_confianca": 0.9,
   "_fase4_ref": {
-    "number": "303",
-    "name": "V303_A",
-    "floor": "13",
-    "side": "A",
-    "total_width": 14.0,
-    "total_height": "50.0",
+    "contract_version": 3,
+    "motor_id": "ROBOT_FV_N3_N4",
+    "name": "V303",
+    "floor": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+    "side": "C",
+    "total_width": 19.0,
+    "total_height": 55.0,
     "panels": [
       {
-        "width": 113.0,
-        "height1": 50.0,
-        "height2": 50.0,
-        "grade_h1": "113.0",
-        "grade_h2": "113.0"
+        "total_width": 2427.0,
+        "width": 2427.0,
+        "dim_text": "19/55",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 2427.0,
+        "altura_total": 55.0,
+        "texto_esq": "V310",
+        "texto_dir": "V304",
+        "row_break": false
       }
     ],
-    "holes": [
+    "segments_rich": [
       {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
+        "total_width": 2427.0,
+        "width": 2427.0,
+        "dim_text": "19/55",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 2427.0,
+        "altura_total": 55.0,
+        "texto_esq": "V310",
+        "texto_dir": "V304",
+        "row_break": false
       }
     ],
+    "holes": [],
+    "label_left": "V310",
+    "label_right": "V304",
     "pillar_left": {
-      "active": false,
+      "active": true,
+      "label": "V310",
       "width": 0.0,
       "length": 0.0
     },
     "pillar_right": {
-      "active": false,
+      "active": true,
+      "label": "V304",
       "width": 0.0,
       "length": 0.0
     },
+    "apoio_inicial": "V310",
+    "apoio_final": "V304",
+    "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+    "number": "303",
     "sarrafo_left_id": 0,
     "sarrafo_right_id": 0
   }

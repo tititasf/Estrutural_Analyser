@@ -65,6 +65,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -106,6 +107,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -149,6 +151,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -185,6 +188,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -228,6 +232,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 244.0,
@@ -264,6 +269,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -310,6 +316,10 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
+          "panel_dividers": [
+            244.0
+          ],
           "tiers": [
             [
               244.0,
@@ -335,6 +345,10 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
+          "panel_dividers": [
+            244.0
+          ],
           "tiers": [
             [
               244.0,
@@ -382,6 +396,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -427,6 +442,7 @@
             "aberturas": [],
             "chanfros": []
           },
+          "is_liso": false,
           "vertices": [
             {
               "x": 0.0,
@@ -502,57 +518,58 @@
   "_n_linhas_folha": 2,
   "_confianca": 0.9,
   "_fase4_ref": {
-    "number": "302",
-    "name": "V302_A",
-    "floor": "13",
-    "side": "A",
+    "contract_version": 3,
+    "motor_id": "ROBOT_FV_N3_N4",
+    "name": "V302",
+    "floor": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+    "side": "C",
     "total_width": 19.0,
-    "total_height": "60.0",
+    "total_height": 120.0,
     "panels": [
       {
-        "width": 52.0,
-        "height1": 60.0,
-        "height2": 60.0,
-        "grade_h1": "52.0",
-        "grade_h2": "52.0"
+        "total_width": 320.5,
+        "width": 320.5,
+        "dim_text": "19/120",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 320.5,
+        "altura_total": 120.0,
+        "texto_esq": "V309A",
+        "texto_dir": "V301",
+        "row_break": false
       }
     ],
-    "holes": [
+    "segments_rich": [
       {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
-      },
-      {
-        "active": false,
-        "width": 0.0,
-        "height": 0.0,
-        "position": 0.0
+        "total_width": 320.5,
+        "width": 320.5,
+        "dim_text": "19/120",
+        "largura_total_fundo": 19.0,
+        "comprimento_total_fundo": 320.5,
+        "altura_total": 120.0,
+        "texto_esq": "V309A",
+        "texto_dir": "V301",
+        "row_break": false
       }
     ],
+    "holes": [],
+    "label_left": "V309A",
+    "label_right": "V301",
     "pillar_left": {
-      "active": false,
+      "active": true,
+      "label": "V309A",
       "width": 0.0,
       "length": 0.0
     },
     "pillar_right": {
-      "active": false,
+      "active": true,
+      "label": "V301",
       "width": 0.0,
       "length": 0.0
     },
+    "apoio_inicial": "V309A",
+    "apoio_final": "V301",
+    "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+    "number": "302",
     "sarrafo_left_id": 0,
     "sarrafo_right_id": 0
   }

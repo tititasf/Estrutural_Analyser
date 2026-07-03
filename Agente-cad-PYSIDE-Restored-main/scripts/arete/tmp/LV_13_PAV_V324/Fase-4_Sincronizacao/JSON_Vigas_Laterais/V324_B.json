@@ -1,7 +1,7 @@
 {
   "number": "324",
   "name": "V324_B",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "B",
   "total_width": 19.0,
   "total_height": 54.0,
@@ -66,9 +66,9 @@
     }
   ],
   "pillar_left": {
-    "active": true,
-    "width": 12.9,
-    "length": 19.0
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
   },
   "pillar_right": {
     "active": false,
@@ -1113,7 +1113,8 @@
           "_xl": 3137.222222362307,
           "_xr": 3227.222222362307
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V324.B",
@@ -1181,7 +1182,8 @@
           "_xl": 3137.222222362307,
           "_xr": 3227.222222362307
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [

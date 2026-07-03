@@ -10,12 +10,17 @@
 | `SCRIPTS_ROBOS/`, `_ROBOS_ABAS/` | Robôs geradores SCR legados (referência de semântica). |
 | `BASE_DWG_PARA_COMANDOS_SCRIPTS.dwg` | MOLDE correto para automação AutoCAD COM. |
 
-## Missão atual — Arete Quality Gates (2026-06)
+## Missões ativas (duas, intercaladas — qualidade manda)
 
-Leia antes de agir:
+**1. Arete Quality Gates (2026-06 →)** — qualidade dos motores. Leia antes de agir:
 1. `Agente-cad-PYSIDE-Restored-main/CLAUDE.md` — regras inegociáveis + fatos do ambiente
 2. `Agente-cad-PYSIDE-Restored-main/docs/HANDOFF-ARETE-EXECUTOR.md` — missão + protocolo
 3. `Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-ARETE-QUALITY-GATES.md` — gates G0–G6
+
+**2. Produção & Soberania (2026-07 →)** — levar o sistema ao uso real da equipe (3–5),
+sem distribuir binário: servidor na workstation do dono + VPN + portal web mínimo.
+Plano, gates P0–P6 e decisões DP-1..9:
+`Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-PRODUCAO-SOBERANIA.md`.
 
 Progresso/retomada: `Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/` (mais recente).
 

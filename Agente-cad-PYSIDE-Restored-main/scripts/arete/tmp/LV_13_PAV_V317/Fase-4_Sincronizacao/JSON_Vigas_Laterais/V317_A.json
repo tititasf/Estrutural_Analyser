@@ -1,7 +1,7 @@
 {
   "number": "317",
   "name": "V317_A",
-  "floor": "Pavimento",
+  "floor": "13",
   "side": "A",
   "total_width": 19.0,
   "total_height": 44.0,
@@ -64,14 +64,14 @@
     }
   ],
   "pillar_left": {
-    "active": true,
-    "width": 45.3,
-    "length": 24.0
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
   },
   "pillar_right": {
-    "active": true,
-    "width": 28.3,
-    "length": 19.0
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
   },
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
@@ -82,9 +82,9 @@
   "h_section_all": [
     55.0
   ],
-  "laje_sup_A": 0.0,
+  "laje_sup_A": 15.0,
   "laje_inf_A": 0.0,
-  "laje_sup_B": 0.0,
+  "laje_sup_B": 15.0,
   "laje_inf_B": 0.0,
   "tipo_viga": "sarrafeada",
   "section_views": [
@@ -1588,7 +1588,8 @@
           "_xl": 3886.279874776415,
           "_xr": 3992.279874776416
         }
-      ]
+      ],
+      "raw_holes": []
     },
     {
       "label": "V317.B",
@@ -1679,7 +1680,8 @@
           "_xl": 3884.279874776423,
           "_xr": 3992.279874776423
         }
-      ]
+      ],
+      "raw_holes": []
     }
   ],
   "panels_A": [
@@ -1824,5 +1826,5 @@
       "_xr": 3992.279874776423
     }
   ],
-  "_confianca": 0.9299999999999999
+  "_confianca": 0.93
 }
