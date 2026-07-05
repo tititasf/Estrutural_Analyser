@@ -1,7 +1,7 @@
 # MASTERPLAN — Produção & Soberania: do laboratório ao uso real da equipe
-**Versão:** 1.1 — adenda §1-A (DP-10 a DP-14: ingestão via Drive, definição de N5, governança de liberação, MVP enxuto); P2 e arquitetura (§3) ajustados
-**Data:** 2026-07-03 (v1.0) / 2026-07-05 (v1.1)
-**Autor:** Fable (Consultor/Estrategista) — decisões de produto confirmadas pelo dono em 2026-07-03 e 2026-07-05
+**Versão:** 1.2 — §11 adiciona handoffs de 5 especialistas (Architect/UX/Data Engineer/QA/DevOps) orquestrados por Athena (CEO-Planejamento), destravando P1-P5 com desenho concreto em vez de prosa de alto nível
+**Data:** 2026-07-03 (v1.0) / 2026-07-05 (v1.1, v1.2)
+**Autor:** Fable (Consultor/Estrategista) — decisões de produto confirmadas pelo dono em 2026-07-03 e 2026-07-05; handoffs orquestrados por Athena em 2026-07-05
 **Status:** ATIVO — complementa `MASTERPLAN-ARETE-QUALITY-GATES.md` (qualidade) e
 `ARETE-MCP-RAG-HARMONIZACAO.md` (dados). Este doc cobre o eixo que faltava: **produto**.
 
@@ -255,7 +255,54 @@ Duas nomenclaturas coexistem nos docs; equivalência oficial:
   medido, não declarado.
 - **Quantitativos v1:** P6 PASS nas classes certificadas.
 
+## 11. Handoffs de Squads Especializados (2026-07-05)
+
+Os gates P1-P5 (§4) definiam O QUE precisa existir mas não COMO — risco real de o
+`@dev` implementar o portal com decisões de baixo nível improvisadas (schema ad-hoc,
+UX inconsistente, zero estratégia de teste, deploy manual sem rede de segurança).
+Athena (CEO-Planejamento) orquestrou 5 especialistas em paralelo — cada um leu este
+masterplan por inteiro e o código real do repo antes de escrever, sem relitigar
+nenhuma decisão DP-* já fechada. Nenhum especialista implementou código; cada
+documento é insumo direto para o `@dev` nos gates P1-P3.
+
+| Especialista | Handoff | Cobre | Gate(s) que destrava |
+|---|---|---|---|
+| Architect (Aria) | `docs/HANDOFF-ARCHITECT-PORTAL.md` | Estrutura FastAPI isolada (nunca importa PySide6, aciona pipeline via subprocess), poller do Drive com dedup `file_id+md5`, fila via `single_instance.py` reusado com `--wait`, auth simples por sessão, diagrama ponta a ponta | P1, P2, P3 |
+| UX (Uma) | `docs/HANDOFF-UX-PORTAL.md` | Mapa de navegação das 6 etapas, wireframes ASCII com 4 estados por tela, componente `<ClassBadge>` certificado/beta onipresente (fecha R9), reaproveitamento do `_error_marker_block` existente para comentários, checklist WCAG AA | P2, P4 |
+| Data Engineer (Dara) | `docs/HANDOFF-DATAENGINEER-PORTAL.md` | `portal_data.db` SQLite fisicamente separado de `project_data.vision` (nunca viola a regra de fronteira §3), 6 tabelas incl. snapshot congelado de certificação no `n5_releases` (fecha R9), migrations SQL numeradas | P2, P5 |
+| QA (Quinn) | `docs/HANDOFF-QA-PORTAL.md` | 7 suítes (poller, parsing R6, fila estendendo `test_single_instance.py`, E2E com baseline hash/contagem, segurança R6/R8, invariante R9, smoke P3/P5) com matriz teste→gate | P1, P3, P5 |
+| DevOps (Gage) | `docs/HANDOFF-DEVOPS-PORTAL.md` | Tailscale ACL + firewall (zero porta pública), NSSM para portal+poller sobreviverem a reboot, rotina de atualização com rollback automático (fetch+merge, nunca reset --hard), backup diário do SQLite com prova de restaurabilidade, heartbeat com alerta | P3, P5 |
+
+**Achados que os especialistas fixaram sem precisar de nova decisão do dono
+(marcados como suposição registrada em cada doc, não pergunta aberta):** FastAPI+Uvicorn
+como framework; SQLite (não Postgres) para o portal — anti-escopo §7 já proibia
+infra desproporcional; fila em thread única no mesmo processo (não Celery/Redis) —
+volume de 3-5 usuários não justifica; export de comentário `equipe:*` para o funil
+de curadoria do Arete acontece pela cabine PySide6 do dono, nunca pelo processo do
+portal — preserva a fronteira §3 sem exceção.
+
+**Quality scorecard (Arete Framework, Athena) após os 5 handoffs:**
+
+| Dimensão | Antes (só P0-P6 em prosa) | Depois (com handoffs) |
+|---|---|---|
+| Security | 6 — regras gerais, sem desenho de auth/parsing | 9 — auth concreta, ezdxf-only, VPN+firewall dupla camada |
+| Maintainability | 6 — schema e módulos não definidos | 8 — schema com migrations, FastAPI isolado do monólito |
+| Testability | 4 — nenhuma estratégia de teste existia | 8 — 7 suítes mapeadas a gate |
+| Accessibility | 3 — não mencionado | 7 — checklist WCAG AA nas 6 telas |
+| UX Excellence | 5 — fluxo descrito em prosa, sem estados | 8 — wireframes com 4 estados por tela |
+| Time to Market | 7 — plano de 30 dias existia | 7 — inalterado, handoffs não adicionam etapas novas |
+
+Média ponderada sobe de ~5.2 para ~7.8 — acima do piso de 7.0 exigido para handoff
+a `@dev`. Nenhuma dimensão fica abaixo do mínimo individual do Arete Framework.
+
+**Protocolo de handoff para `@dev`:** ler este §11 → abrir os 5 documentos na ordem
+Architect → Data Engineer → UX → QA → DevOps (arquitetura e dados primeiro, porque
+UX/QA/DevOps dependem deles) → implementar P1 primeiro (pipeline headless E2E, zero
+UI) antes de tocar em qualquer código de portal, conforme a ordem de gates já fixada
+em §4/§6.
+
 ---
 
-*Fable (Consultor/Estrategista) — 2026-07-03*
+*Fable (Consultor/Estrategista) — 2026-07-03, adenda 2026-07-05 (§1-A, §11)*
+*Athena (CEO-Planejamento) — orquestração dos 5 handoffs especializados, 2026-07-05*
 *Revisão deste plano: ao fim do piloto P4 ou em qualquer mudança de decisão DP-*.*
