@@ -1,0 +1,821 @@
+{
+  "classe": "LAJ",
+  "pavimento": "13_PAV",
+  "par": "n2xn4",
+  "gate": "G2-V",
+  "backends": [
+    "cli"
+  ],
+  "timestamp": "20260705_113311",
+  "resumo": {
+    "total": 31,
+    "pass": 10,
+    "fail": 21,
+    "suspeito": 0
+  },
+  "itens": [
+    {
+      "classe": "LAJ",
+      "elemento_id": "L301",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L301_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L302",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L302_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L303",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L303_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L304",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L304_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L305",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L305_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L306",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L306_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L307",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L307_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L308",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L308_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L309",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L309_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L310",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L310_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L311",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L311_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L312",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L312_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L313",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L313_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L314",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L314_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "PASS",
+          "confianca": 0.96,
+          "achados": [],
+          "resumo": "PASS: N4 preserva o contorno, as linhas de painel, a faixa HLAZ e as cotas sem sobreposição visual relevante; o N2 não apresenta hachura diagonal de apoio a reproduzir neste recorte."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L315",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L315_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L316",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L316_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L317",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L317_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L318",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L318_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            },
+            {
+              "categoria": "sobreposicao",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "gerador",
+              "descricao": "O N4 mantém uma projeção retangular extra na extremidade direita inferior, sem correspondência clara no contorno do N2.",
+              "severidade": "media"
+            }
+          ],
+          "resumo": "FAIL: falta hachura de apoio e permanece a projeção retangular extra indicada na nota humana."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L319",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L319_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L320",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L320_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            },
+            {
+              "categoria": "cota_sobreposta",
+              "parte": "laje_inteira",
+              "direcao": "divergente",
+              "motor_suspeito": "gerador",
+              "descricao": "O rótulo L320 colide com a cota vertical 244 no N4, prejudicando a legibilidade.",
+              "severidade": "media"
+            }
+          ],
+          "resumo": "FAIL: falta hachura de apoio e há colisão visual entre rótulo e cota."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L321",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L321_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            },
+            {
+              "categoria": "cota_sobreposta",
+              "parte": "laje_inteira",
+              "direcao": "divergente",
+              "motor_suspeito": "gerador",
+              "descricao": "O rótulo L321 colide com a cota vertical 244 no N4, prejudicando a legibilidade.",
+              "severidade": "media"
+            }
+          ],
+          "resumo": "FAIL: falta hachura de apoio e há colisão visual entre rótulo e cota."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L322",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L322_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L323",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L323_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L324",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L324_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L325",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L325_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L326",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L326_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.99,
+          "achados": [
+            {
+              "categoria": "cota_sobreposta",
+              "parte": "laje_inteira",
+              "direcao": "divergente",
+              "motor_suspeito": "gerador",
+              "descricao": "As cotas verticais centrais do N4 se sobrepõem entre si e à cota horizontal, tornando vários valores ilegíveis.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: o contorno inclinado foi reproduzido, mas a cotagem continua sobreposta e ilegível."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L327",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L327_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L328",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L328_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L329",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L329_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L330",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L330_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L331",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113311\\LAJ_L331_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "FAIL",
+          "confianca": 0.97,
+          "achados": [
+            {
+              "categoria": "hachura_ausente",
+              "parte": "laje_inteira",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "gerador",
+              "descricao": "A hachura diagonal de apoio visível no N2 não foi reproduzida no N4.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "FAIL: a hachura de apoio do N2 está ausente no N4."
+        }
+      },
+      "erro": null
+    }
+  ]
+}
+

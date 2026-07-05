@@ -71,6 +71,7 @@ CARD_GAP        = 100
 CARD_Y_GAP      = 200
 SARR_LAYER      = 'SARR_2.2x7'
 SARR_MAX_GAP    = 21     # max gap between sarrafo bands (cm)
+SARR_MAX_LEN    = 300    # max length of a single horizontal sarrafo bar (cm, 3m stock)
 
 # -- Layers (matching real STOG FV DXF) ---------------------------------------
 LAYERS = {
@@ -168,8 +169,14 @@ def setup_doc():
     return doc
 
 
-def panel_poly(msp, x0, y0, w, h):
-    """Draw a panel outline.
+def panel_poly(msp, x0, y0, w, h, draw_left=True, draw_right=True):
+    """Draw a panel outline as independent LINE entities (STOG ground truth:
+    real panel rectangles are 4 LINEs, not a single closed LWPOLYLINE).
+
+    draw_left/draw_right: suppress the vertical edge at a panel union when
+    the neighboring panel already owns that same line (via panel_divider()),
+    so adjacent panels don't stack 2-3 overlapping vertical LINEs on top of
+    each other at the same x — the union is represented by exactly 1 line.
 
     Does not draw internal wood-board lines: those are always rendered
     afterward by draw_sarr() (layer SARR_2.2x7/SARR_5cm) from the actual
@@ -179,13 +186,70 @@ def panel_poly(msp, x0, y0, w, h):
     the fallback compute_panels() path used whenever N1 lacks explicit
     panel data).
     """
-    pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
-    msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+    msp.add_line((x0, y0), (x0 + w, y0), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+    msp.add_line((x0 + w, y0 + h), (x0, y0 + h), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+    if draw_left:
+        msp.add_line((x0, y0 + h), (x0, y0), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+    if draw_right:
+        msp.add_line((x0 + w, y0), (x0 + w, y0 + h), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+
+
+def draw_poly_as_lines(msp, pts, layer):
+    """Draw a closed polygon as N independent LINE entities (ground truth:
+    real STOG panel outlines are separate LINEs, never a closed LWPOLYLINE).
+
+    Some ficha vertex lists carry an explicit closing point (pts[-1] ==
+    pts[0]), left over from the old LWPOLYLINE(close=True) convention.
+    Closing the loop again on top of that produces a zero-length LINE —
+    invisible in a closed LWPOLYLINE but a stray "dot" once drawn as its
+    own LINE entity. Strip it, and skip any other zero-length edge.
+    """
+    if len(pts) > 1 and math.isclose(pts[0][0], pts[-1][0], abs_tol=1e-6) \
+            and math.isclose(pts[0][1], pts[-1][1], abs_tol=1e-6):
+        pts = pts[:-1]
+    n = len(pts)
+    for i in range(n):
+        p1, p2 = pts[i], pts[(i + 1) % n]
+        if math.isclose(p1[0], p2[0], abs_tol=1e-6) and math.isclose(p1[1], p2[1], abs_tol=1e-6):
+            continue
+        msp.add_line(p1, p2, dxfattribs={'layer': layer, 'lineweight': -1})
 
 
 def panel_divider(msp, x, y0, b):
     """Draw vertical LINE divider between adjacent panels on Paineis layer."""
     msp.add_line((x, y0), (x, y0 + b), dxfattribs={'layer': LY_PAINEIS})
+
+
+def dedupe_panel_lines(msp, layer=None, tol=0.05):
+    """Remove exact-duplicate and zero-length LINE entities on the panel layer.
+
+    A panel union between two adjacent panels must be exactly 1 LINE, never
+    the same edge drawn 2-3 times (once per panel's own outline plus
+    panel_divider()'s dedicated union line). Panel outlines can come from
+    panel_poly(), draw_poly_as_lines() (custom trapezoid/vertices path) or
+    panel_divider() — coincident endpoints are only produced when the edges
+    truly overlap, so this never touches an intentionally distinct (e.g.
+    chanfro-angled) edge. Also drops zero-length LINEs (start == end), which
+    render as a stray "dot" at panel corners/unions instead of a real edge.
+    """
+    target_layer = layer or LY_PAINEIS
+    seen = set()
+    dupes = []
+    for e in msp.query('LINE'):
+        if e.dxf.layer != target_layer:
+            continue
+        p1 = (round(e.dxf.start.x / tol) * tol, round(e.dxf.start.y / tol) * tol)
+        p2 = (round(e.dxf.end.x / tol) * tol, round(e.dxf.end.y / tol) * tol)
+        if p1 == p2:
+            dupes.append(e)
+            continue
+        key = tuple(sorted((p1, p2)))
+        if key in seen:
+            dupes.append(e)
+        else:
+            seen.add(key)
+    for e in dupes:
+        msp.delete_entity(e)
 
 
 def _tier_panel_dividers(panel, panel_width):
@@ -521,7 +585,10 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     divider, e.g. x=244 for a 286cm viga). The previous per-panel-segment
     breaking logic was an unverified assumption and is WRONG — ground
     truth has 4 lines total regardless of how many STOG-module sub-panels
-    the beam splits into.
+    the beam splits into, AS LONG AS the run stays under SARR_MAX_LEN
+    (300cm): real sarrafo stock comes in ~3m bars, so any horizontal run
+    longer than that must be split into separate LINE entities at the
+    panel-union boundaries it crosses (never at an arbitrary midpoint).
 
     SARR_EDITAR (vertical lines at the absolute outer edges x0/x0+total)
     was also previously drawn unconditionally here, but ground truth shows
@@ -615,6 +682,16 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
             })
         panel_x += pw
 
+    # Panel-union x-boundaries (interior only), used to split horizontal
+    # sarrafo runs longer than SARR_MAX_LEN — real sarrafo bars come in
+    # ~3m stock, so a run spanning multiple panels beyond that length must
+    # be joined exactly at a panel union, never at an arbitrary midpoint.
+    panel_boundaries = []
+    boundary_x = 0.0
+    for pw in panel_widths[:-1]:
+        boundary_x += pw
+        panel_boundaries.append(boundary_x)
+
     for offset in h_offsets:
         frac = offset / b
         xl = fe + (te - fe) * frac + SARR_RECUO
@@ -626,11 +703,14 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
             xr = total_width - fd - (td - fd) * frac - SARR_RECUO
         if xr <= xl:
             continue
-        cuts = sorted(
+        cuts = [
             (float(op['x1']), float(op['x2']))
             for op in openings
             if float(op['y1']) <= offset <= float(op['y2'])
-        )
+        ]
+        if xr - xl > SARR_MAX_LEN:
+            cuts.extend((pb, pb) for pb in panel_boundaries if xl < pb < xr)
+        cuts.sort()
         cursor = xl
         for cut_start, cut_end in cuts:
             if cut_start > cursor:
@@ -1253,6 +1333,14 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             continue
 
         # Draw panel outlines (LWPOLYLINE) for each sub-panel
+        # is_standard: plain rectangular panels (no L-drop, no custom trapezoid).
+        # Between two standard neighbors, only panel_divider() below owns the
+        # shared vertical edge — panel_poly() skips it to avoid 2-3 overlapping
+        # LINEs stacked at the same union.
+        is_standard = [
+            not is_l_drop and not _has_items(p_verts)
+            for is_l_drop, p_verts in zip(sub_panel_l_drops, sub_panel_verts)
+        ]
         xp = seg_x0
         for i, (pw, ph, is_l_drop, p_texts, p_verts, p_loose) in enumerate(zip(
             sub_panels, sub_panel_heights, sub_panel_l_drops,
@@ -1261,7 +1349,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             if _has_items(p_verts):
                 # Custom trapezoid defined by top/bottom end setbacks.
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
-                msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+                draw_poly_as_lines(msp, pts, LY_PAINEIS)
                 p_obj = seg_item['panels'][i]
                 if not p_obj.get('angled_l'):
                     angled_l = detect_left_angled_l_panel(p_verts)
@@ -1274,8 +1362,14 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             elif is_l_drop:
                 panel_poly(msp, xp, y0 + b - ph, pw, ph)
             else:
-                # Standard rectangular module
-                panel_poly(msp, xp, y0, pw, ph)
+                # Standard rectangular module. Skip the shared vertical edge
+                # towards a neighboring standard panel — panel_divider() draws
+                # that single union line below.
+                draw_left = not (i > 0 and is_standard[i - 1] and is_standard[i])
+                draw_right = not (
+                    i < len(sub_panels) - 1 and is_standard[i + 1] and is_standard[i]
+                )
+                panel_poly(msp, xp, y0, pw, ph, draw_left=draw_left, draw_right=draw_right)
 
             if isinstance(seg_item, dict):
                 panel_objects = seg_item.get('panels') or []
@@ -1796,6 +1890,7 @@ def main():
             out_name = f'FV_preview_{viga_nome}.dxf'
 
         out_path = out_dir / out_name
+        dedupe_panel_lines(msp)
         apply_visual_mode(doc, args.visual_mode, 'FV')
         out_path = guarded_saveas(
             doc, out_path,
@@ -2118,6 +2213,7 @@ def main():
         else:
             out_name = f'FV_preview_{args.item}.dxf'
         out_dxf  = out_dir / out_name
+        dedupe_panel_lines(msp)
         apply_visual_mode(doc, args.visual_mode, 'FV')
         out_dxf = guarded_saveas(
             doc, out_dxf,
@@ -2277,6 +2373,7 @@ def main():
 
     out_name = 'FV_stog_quality.dxf'
     out_dxf = out_dir / out_name
+    dedupe_panel_lines(msp)
     apply_visual_mode(doc, args.visual_mode, 'FV')
     out_dxf = guarded_saveas(
         doc, out_dxf,

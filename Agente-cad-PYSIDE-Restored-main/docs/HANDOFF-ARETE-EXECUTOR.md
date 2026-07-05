@@ -89,6 +89,12 @@ no 13_PAV (dados da ficha sobrevivem ao ciclo — válido e mantido).
   hipóteses + pergunta se ambíguo.
 - PROIBIDO expandir escopo antes do step atual atingir 100%.
 - G1 PASS ≠ pronto. Arete = G1 E G2 (por parte) PASS.
+- **G2 numérico sozinho ≠ selagem (decisão do dono, 03/07 — `docs/LOOPING-CANONICO.md`
+  §1.5).** G2 é a validação de mais baixo nível: cego para cota em cima de texto, painel
+  torto, sobreposição. "100% PASS" sem veredito visual (G2-V) registrado é candidato, não
+  golden. **G2-V compara sempre o recorte N2 (humano) × o DXF N4 (robô)** — mesmo par do
+  G2 numérico, agora lido/renderizado. Selar exige G2-V no mínimo; ver hierarquia Nível
+  0–3 no doc citado.
 
 ---
 

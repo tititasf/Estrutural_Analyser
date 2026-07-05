@@ -1,0 +1,196 @@
+{
+  "resultado": "FAIL",
+  "ref": {
+    "outline": {
+      "comprimento": 233.5,
+      "largura": 71.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          233.74,
+          0.0
+        ],
+        [
+          233.74,
+          71.0
+        ],
+        [
+          0.0,
+          71.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 117.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 35.5,
+        "is_union": false
+      }
+    ],
+    "cotas_valor": [
+      35.5,
+      35.5,
+      117.0,
+      117.0
+    ],
+    "hlaz": [],
+    "cotas_paineis_info": [
+      2.5,
+      42.0,
+      79.5,
+      114.5
+    ],
+    "nomes": [
+      "L326"
+    ],
+    "contexto_ignorado": [
+      "114.4",
+      "14/55",
+      "14/55",
+      "24/80",
+      "h=10"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "n4": {
+    "outline": {
+      "comprimento": 233.5,
+      "largura": 71.0,
+      "coordenadas": [
+        [
+          0.0,
+          71.0
+        ],
+        [
+          233.74,
+          71.0
+        ],
+        [
+          233.74,
+          66.0
+        ],
+        [
+          231.24,
+          66.0
+        ],
+        [
+          231.24,
+          0.0
+        ],
+        [
+          75.01,
+          0.0
+        ],
+        [
+          0.0,
+          71.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 117.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 35.5,
+        "is_union": false
+      }
+    ],
+    "cotas_valor": [
+      35.5,
+      35.5,
+      117.0,
+      117.0
+    ],
+    "hlaz": [],
+    "cotas_paineis_info": [],
+    "nomes": [
+      "L326"
+    ],
+    "contexto_ignorado": [],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "pass": false,
+  "diffs": {
+    "outline": {
+      "ref": {
+        "comprimento": 233.5,
+        "largura": 71.0,
+        "coordenadas": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            233.74,
+            0.0
+          ],
+          [
+            233.74,
+            71.0
+          ],
+          [
+            0.0,
+            71.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "n4": {
+        "comprimento": 233.5,
+        "largura": 71.0,
+        "coordenadas": [
+          [
+            0.0,
+            71.0
+          ],
+          [
+            233.74,
+            71.0
+          ],
+          [
+            233.74,
+            66.0
+          ],
+          [
+            231.24,
+            66.0
+          ],
+          [
+            231.24,
+            0.0
+          ],
+          [
+            75.01,
+            0.0
+          ],
+          [
+            0.0,
+            71.0
+          ]
+        ]
+      }
+    }
+  },
+  "png_path": "scripts\\arete\\relatorios\\20260703_etapa2_baseline\\canonico_L326.png"
+}

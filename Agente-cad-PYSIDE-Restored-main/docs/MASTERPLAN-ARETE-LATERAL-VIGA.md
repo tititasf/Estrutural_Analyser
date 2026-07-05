@@ -108,6 +108,11 @@ Escopo: 32 fichas LV do 13_PAV. Paridade canônica **por divisão** (VC e Lados 
 (`_ROBOS_ABAS/Robo_Laterais_de_Vigas`); fix POR FÓRMULA em `gerar_lv_dxf_stog.py` ou
 `motor_reverso_lv.py`; preview PNG → inspeção visual → arete → regenera lote. Um fix por causa.
 
+> **G2 numérico sozinho não autoriza "golden selado" (decisão do dono, 03/07 —
+> `docs/LOOPING-CANONICO.md` §1.5).** "PASS" nas stories acima significa G2 canônico
+> (numérico); a selagem de golden exige também G2-V (veredito visual registrado —
+> render do recorte N2 humano × DXF N4 do robô, os dois sempre juntos).
+
 **Atenção LV-específica:** Lado A deve sair idêntico ao Lado B (validar invariante). VC tem forma
 livre (não force "T") — derive do nº de lajes e níveis. Cruzamento viga×viga gera quebra de
 segmento POR GEOMETRIA, nunca hardcode.

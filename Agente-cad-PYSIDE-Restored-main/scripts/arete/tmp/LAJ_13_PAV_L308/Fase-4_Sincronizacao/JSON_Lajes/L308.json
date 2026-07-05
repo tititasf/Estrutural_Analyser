@@ -61,6 +61,7 @@
     "n3_pattern_nome": "L308",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
+    "n3_pose_source": "sa_outline_anchor",
     "n3_source": "comparison_engine_n1",
     "n3_teacher": null
   },
@@ -72,6 +73,10 @@
       "height": 20.0
     }
   ],
+  "_stog_pose": {
+    "x": 5789.07,
+    "y": 2610.94
+  },
   "cotas_paineis": [
     {
       "text": "61",
@@ -115,10 +120,6 @@
     }
   ],
   "pontaletes": {},
-  "_stog_pose": {
-    "x": 5789.07,
-    "y": 2610.94
-  },
   "_forma_canonica": {
     "cotas_valor": [
       20.0,

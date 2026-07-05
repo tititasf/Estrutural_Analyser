@@ -1,0 +1,59 @@
+{
+  "classe": "LAJ",
+  "pavimento": "13_PAV",
+  "rodada_ts": "20260703_140546",
+  "total": 1,
+  "pass": 1,
+  "fail": 0,
+  "blocked": 0,
+  "arete_pct": 100.0,
+  "itens": [
+    {
+      "elemento_id": "L318",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L318_sel_1782277738.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L318",
+        "campos_comparados": 55,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L318.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L318: 3275x201cm  pos=(2939,2061)  panels=64\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L318\\Fase-6_Execucao_CAD\\LJ_preview_L318.dxf\nTotal panels: 64\n\n=== Entity Summary (41 total) ===\n  COTA                          20\n  PAINEIS                       19\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                20\n  LINE                     18\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 476,
+          "total_n4": 41
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_140546\\png\\LAJ_L318.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L318",
+        "n4_sha256": "f7557b65aafe4c4fca9c2b40799e1439680eca51186db9e10473de57a83a7166"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    }
+  ]
+}

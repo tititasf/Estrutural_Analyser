@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Guia de Identificação das Lajes (LAJ)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; color: #ccc; font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; }
+  h1 { color: #4fc3a1; font-size: 18px; border-bottom: 2px solid #4fc3a1; padding-bottom: 6px; margin-bottom: 16px; }
+  h2 { color: #7eb8f7; font-size: 14px; margin: 24px 0 8px; border-left: 3px solid #7eb8f7; padding-left: 8px; }
+  h3 { color: #f0b840; font-size: 12px; margin: 16px 0 6px; }
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+  .intro { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; color: #aaa; font-size: 12px; }
+  .intro b { color: #4fc3a1; }
+
+  /* ── Tabela de faces ── */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #1e1e1e; color: #4fc3a1; padding: 6px 10px; text-align: left; border-bottom: 1px solid #333; }
+  td { padding: 5px 10px; border-bottom: 1px solid #222; vertical-align: top; }
+  tr:hover td { background: #181818; }
+  .lbl-A { color: #4fc3a1; font-weight: bold; }
+  .lbl-B { color: #7eb8f7; font-weight: bold; }
+  .lbl-C { color: #c47ef7; font-weight: bold; }
+  .lbl-D { color: #f0b840; font-weight: bold; }
+
+  /* ── Casos ── */
+  .caso { background: #161616; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+  .caso-title { font-size: 13px; font-weight: bold; color: #4fc3a1; margin-bottom: 8px; }
+  .caso-body { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .caso-text { flex: 1; min-width: 200px; font-size: 12px; color: #aaa; }
+  .caso-text ul { margin: 6px 0 0 16px; }
+  .caso-text li { margin: 3px 0; }
+  .caso-diag { flex-shrink: 0; }
+
+  /* Diagrama ASCII melhorado */
+  .ascii { background: #0d0d0d; border: 1px solid #222; border-radius: 4px; padding: 10px 14px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.55; white-space: pre; color: #aaa; font-variant-ligatures: none; -webkit-font-feature-settings: 'liga' 0; font-feature-settings: 'liga' 0; letter-spacing: 0; }
+  .ascii .viga { color: #7eb8f7; }
+  .ascii .laje { color: #4fc3a1; }
+  .ascii .pilar { color: #f0b840; }
+  .ascii .faceC { color: #c47ef7; }
+  .ascii .faceD { color: #f0b840; }
+  .ascii .faceA { color: #4fc3a1; }
+  .ascii .faceB { color: #7eb8f7; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 4px; }
+  .tag-viga { background: #1a2030; color: #7eb8f7; }
+  .tag-laje { background: #102010; color: #4fc3a1; }
+  .tag-nulo { background: #222; color: #666; }
+
+  .result-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .result-face { padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; border-left: 3px solid; }
+  .rf-A { background: #122012; border-color: #4fc3a1; color: #4fc3a1; }
+  .rf-B { background: #12122a; border-color: #7eb8f7; color: #7eb8f7; }
+  .rf-C { background: #2a1228; border-color: #c47ef7; color: #c47ef7; }
+  .rf-D { background: #2a1e10; border-color: #f0b840; color: #f0b840; }
+
+  .rule-box { background: #0d1a0d; border: 1px solid #2a4a2a; border-radius: 4px; padding: 10px 14px; margin: 12px 0; font-size: 12px; }
+  .rule-box .rule-title { color: #4fc3a1; font-weight: bold; margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
+  code { background: #1e1e1e; color: #e67; padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+
+  /* ── Carrossel de exemplos ── */
+  .carousel { display: flex; flex-direction: column; gap: 0; }
+  .carousel-slides { position: relative; }
+  .carousel-slide { display: none; }
+  .carousel-slide.active { display: block; }
+  .slide-label {
+    text-align: center; font-size: 10px; color: #555; margin-top: 4px;
+    font-style: italic; letter-spacing: 0.03em;
+  }
+  .slide-label.real { color: #4fc3a1; }
+  .carousel-nav {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px;
+  }
+  .carousel-btn {
+    background: #1e1e1e; color: #888; border: 1px solid #333;
+    padding: 3px 14px; cursor: pointer; border-radius: 3px;
+    font-size: 16px; line-height: 1; transition: background 0.15s;
+    user-select: none;
+  }
+  .carousel-btn:hover { background: #2a2a2a; color: #ccc; }
+  .carousel-btn:active { background: #333; }
+  .carousel-counter {
+    color: #555; font-size: 11px; min-width: 48px;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .carousel-img { max-width: 100%; border-radius: 4px; border: 1px solid #2a2a2a; display: block; }
+  .slide-placeholder {
+    background: #111; border: 1px dashed #2a2a2a; border-radius: 4px;
+    padding: 28px 40px; text-align: center; color: #333; font-size: 11px;
+    font-style: italic; min-width: 260px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p style="font-size:11px; color:#555; margin-bottom:16px;">
+    <a href="../index.html" style="color:#7eb8f7; text-decoration:none;">&#8592; Voltar ao índice</a>
+  </p>
+
+  <h1>Guia de Identificação das Lajes (LAJ)</h1>
+
+  <div class="intro">
+    <b>O que é isso?</b> Este documento explica como identificar e nomear lajes no pavimento.
+    Uma laje é <b>delimitada por vigas</b> — o pilar interno NÃO divide lajes.
+    A nomenclatura segue o padrão <b>L</b> + número do pavimento + sequência (ex: L301).
+    <br><br>
+    <b>Regra fundamental:</b> Todo ponto dentro do mesmo vão (mesma área entre vigas)
+    pertence à <b>mesma laje</b>, independentemente de pilares internos.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>1. Convenção de Nomenclatura e Delimitação</h2>
+
+  <div class="ascii"> Visão de planta — pavimento 3
+
+ ╔═══════════════════╦═══════════════════╦═══════════════╗
+ ║                   ║                   ║               ║
+ ║     <span class="laje">L 3 0 1</span>           ║     <span class="laje">L 3 0 2</span>           ║   <span class="laje">L 3 0 3</span>       ║
+ ║    (vão inteiro)  ║    (vão inteiro)  ║               ║
+ ║                   ║                   ║               ║
+ ║       [P12]       ║                   ║               ║
+ ║    pilar interno  ║                   ║               ║
+ ║   (NÃO divide     ║                   ║               ║
+ ║    a laje!)       ║                   ║               ║
+ ║                   ║                   ║               ║
+ ╠═══════════════════╬═══════════════════╩═══════════════╣
+ ║                   ║                                   ║
+ ║     <span class="laje">L 3 0 4</span>           ║         <span class="laje">L 3 0 5</span>                   ║
+ ║                   ║    (laje grande — sem viga interna)║
+ ╚═══════════════════╩═══════════════════════════════════╝
+
+ ═══  = viga (limita / separa lajes)
+ [P12] = pilar (NÃO limita lajes — a laje L301 passa por cima)</div>
+
+  <h2>2. Casos de Identificação</h2>
+  <div class="caso">
+    <div class="caso-title">Caso 1 — Laje padrão — delimitada por vigas nos 4 lados</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A laje mais comum: 4 vigas formam um retângulo fechado.
+        Todo o interior desse retângulo é <b>uma única laje</b> com o mesmo nome.</p>
+        <ul>
+          <li>Viga ao norte, sul, leste e oeste → define exatamente o vão</li>
+          <li>Pilares internos NÃO dividem — L301 cobre todo o retângulo</li>
+          <li>Nomenclatura: L + nº pavimento + sequência (301, 302…)</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">L301 — vão fechado nos 4 lados</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="laj1">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> ╔════════════════════╦═══════════════════╗
+ ║  Viga N (norte)    ║  Viga N (norte)   ║
+ ╠════════════════════╬═══════════════════╣
+ ║                    ║                   ║
+ ║     <span class="laje">L 3 0 1</span>          ║    <span class="laje">L 3 0 2</span>          ║
+ ║  4 vigas (N/S/E/W) ║                   ║
+ ║                    ║                   ║
+ ╠════════════════════╬═══════════════════╣
+ ║  Viga S (sul)      ║  Viga S (sul)     ║
+ ╚════════════════════╩═══════════════════╝
+
+ L301 = delimitada por 4 vigas ortogonais (caso padrão)</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('laj1')">&#8249;</button>
+            <span class="carousel-counter" id="laj1-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('laj1')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 2 — Laje de borda — 2 lados com vigas, 2 lados = borda exterior</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Lajes na periferia do edifício têm 2 lados delimitados por vigas
+        e 2 lados abertos (borda/fachada). O vão é definido pelas vigas presentes.</p>
+        <ul>
+          <li>L301: limitada ao sul e leste por vigas; norte e oeste = borda</li>
+          <li>A laje se estende até a borda do edifício nesse lado</li>
+          <li>Nomenclatura: mesmo padrão L3XX</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">L301 — borda norte + oeste livres</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="laj2">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> Exterior (sem viga — borda livre)
+ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ ╔═══════════════════════════════════════════╗
+ ║                                           ║  Viga sul
+ ╠══════════════════╦════════════════════════╣
+ ║     <span class="laje">L 3 0 1</span>         ║     <span class="laje">L 3 0 2</span>           ║
+ ║  2 lados = vigas ║                        ║
+ ║  2 lados = borda ║                        ║
+ ╚══════════════════╩════════════════════════╝
+   Viga oeste          Viga este</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('laj2')">&#8249;</button>
+            <span class="carousel-counter" id="laj2-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('laj2')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 3 — Laje grande com pilar interno — pilar NÃO divide a laje</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Mesmo com pilares dentro do vão, a laje é <b>uma só</b> porque
+        nenhuma viga cruza o vão para dividi-lo. O pilar simplesmente apoia a laje,
+        sem criar fronteira entre vãos.</p>
+        <ul>
+          <li>P15 e P16 estão dentro do vão de L301 → L301 continua ao redor deles</li>
+          <li><b>Regra de ouro:</b> somente uma viga pode separar duas lajes</li>
+          <li>Situação comum em lajes planas de grandes vãos</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">L301 — inteira, inclui área com pilares</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="laj3">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> ╔═══════════════════════════════════════════╗
+ ║                                           ║
+ ║                 <span class="laje">L 3 0 1</span>                   ║
+ ║                                           ║
+ ║        [P15]                 [P16]        ║
+ ║     pilar interno          pilar interno  ║
+ ║   (NÃO divide L301)       (NÃO divide!)  ║
+ ║                                           ║
+ ║                 <span class="laje">L 3 0 1</span>                   ║  ← mesma laje!
+ ║                                           ║
+ ╚═══════════════════════════════════════════╝
+
+ A laje L301 é CONTÍNUA acima de P15 e P16.
+ Pilares nunca dividem lajes — apenas vigas dividem.</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('laj3')">&#8249;</button>
+            <span class="carousel-counter" id="laj3-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('laj3')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 4 — Duas lajes diferentes — separadas por uma viga</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Quando uma viga cruza o espaço, ela <b>divide obrigatoriamente</b> as lajes
+        em dois vãos distintos. Cada vão recebe um nome diferente.</p>
+        <ul>
+          <li>L301 e L304 são diferentes porque a viga E-W as separa</li>
+          <li>L302 e L303 são diferentes pela viga E-W do lado direito</li>
+          <li>Sem a viga → seria uma única laje grande</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">L301 ≠ L304 (viga separa)</div>
+          <div class="result-face rf-B">L302 ≠ L303 (viga separa)</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="laj4">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"> ╔═══════════════╦═══════════════════════════════╗
+ ║               ║                               ║
+ ║   <span class="laje">L 3 0 1</span>       ║          <span class="laje">L 3 0 2</span>             ║
+ ║               ║                               ║
+ ╠═══════════════╣       (vão maior)              ║
+ ║  Viga E-W     ╠═══════════════════════════════╣
+ ║  divide aqui  ║                               ║
+ ╠═══════════════╣          <span class="laje">L 3 0 3</span>             ║
+ ║   <span class="laje">L 3 0 4</span>       ║                               ║
+ ╚═══════════════╩═══════════════════════════════╝
+
+ A viga E-W central (esquerda) divide L301 / L304.
+ A viga E-W direita divide L302 / L303.</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('laj4')">&#8249;</button>
+            <span class="carousel-counter" id="laj4-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('laj4')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>3. Campos da Ficha de Laje</h2>
+
+  <table>
+    <tr><th>Campo</th><th>Descrição</th><th>Exemplo</th></tr>
+    <tr>
+      <td><code>nome</code></td>
+      <td>Identificador da laje (L + pavimento + sequência)</td>
+      <td>L301, L302</td>
+    </tr>
+    <tr>
+      <td><code>nivel</code></td>
+      <td>Cota (z) do topo da laje em cm</td>
+      <td>852.19</td>
+    </tr>
+    <tr>
+      <td><code>espessura</code></td>
+      <td>Espessura da laje em cm</td>
+      <td>12, 15, 20</td>
+    </tr>
+    <tr>
+      <td><code>tipo</code></td>
+      <td>Tipo construtivo da laje</td>
+      <td>maciça, nervurada, protendida</td>
+    </tr>
+  </table>
+
+</div>
+<script>
+function _carouselMove(id, dir) {
+  const el = document.getElementById(id);
+  const slides = el.querySelectorAll('.carousel-slide');
+  const counter = document.getElementById(id + '-counter');
+  let cur = Array.from(slides).findIndex(s => s.classList.contains('active'));
+  slides[cur].classList.remove('active');
+  cur = (cur + dir + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  counter.textContent = (cur + 1) + ' / ' + slides.length;
+}
+function prevSlide(id) { _carouselMove(id, -1); }
+function nextSlide(id) { _carouselMove(id, +1); }
+</script>
+</body>
+</html>

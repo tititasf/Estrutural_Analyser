@@ -293,6 +293,7 @@ def roundtrip_item(classe: str, elemento_id: str,
 
     obra_dir, _ = materializar_item(row, campos_override=campos_override)
     ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
+    print(f"DEBUG: log={log}")
     result["log_gerador"] = log
 
     if not ok_gen:

@@ -850,7 +850,28 @@ def _extract_form_bbox(msp, structural_layers=None):
         return form_box, None
     return None, None
 
-def _extract_obstacles(polys: list[tuple[str, list[tuple[float, float]]]], slab_box) -> list[dict]:
+def _point_in_polygon(point: tuple[float, float], polygon) -> bool:
+    x, y = point
+    points = [(float(px), float(py)) for px, py in (polygon or [])]
+    if len(points) < 3:
+        return False
+    inside = False
+    previous = points[-1]
+    for current in points:
+        x1, y1 = previous
+        x2, y2 = current
+        if (y1 > y) != (y2 > y):
+            x_cross = (x2 - x1) * (y - y1) / ((y2 - y1) or 1e-9) + x1
+            if x < x_cross:
+                inside = not inside
+        previous = current
+    return inside
+
+def _extract_obstacles(
+    polys: list[tuple[str, list[tuple[float, float]]]],
+    slab_box,
+    slab_outline=None,
+) -> list[dict]:
     if not slab_box:
         return []
     sx0, sy0, sx1, sy1 = slab_box
@@ -865,12 +886,34 @@ def _extract_obstacles(polys: list[tuple[str, list[tuple[float, float]]]], slab_
         if w <= 1 or h <= 1:
             continue
         if x0 > sx0 + TOL and y0 > sy0 + TOL and x1 < sx1 - TOL and y1 < sy1 - TOL:
+            center_local = (
+                (x0 + x1) / 2 - sx0,
+                (y0 + y1) / 2 - sy0,
+            )
+            if slab_outline and not _point_in_polygon(center_local, slab_outline):
+                continue
             obstacles.append({
                 'x': round(x0 - sx0, 2), 'y': round(y0 - sy0, 2),
                 'width': round(w, 2), 'height': round(h, 2),
                 'coords': [[round(x - sx0, 2), round(y - sy0, 2)] for x, y in (pts[:-1] if len(pts) > 1 and pts[0] == pts[-1] else pts)],
             })
     return obstacles
+
+def _filter_obstacles_by_outline(obstacles: list[dict], outline) -> list[dict]:
+    if not outline:
+        return list(obstacles or [])
+    valid = []
+    for obstacle in obstacles or []:
+        try:
+            center = (
+                float(obstacle.get('x', 0)) + float(obstacle.get('width', 0)) / 2,
+                float(obstacle.get('y', 0)) + float(obstacle.get('height', 0)) / 2,
+            )
+        except (TypeError, ValueError):
+            continue
+        if _point_in_polygon(center, outline):
+            valid.append(obstacle)
+    return valid
 
 def _extract_laj_from_dxf(dxf_path: str) -> dict:
     """Extrai campos LAJ do DXF recorte."""
@@ -1145,7 +1188,9 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
                 ]
                 if segments:
                     item['segments'] = segments
-        result['obstaculos'] = _extract_obstacles(polylines, slab_box)
+        result['obstaculos'] = _extract_obstacles(
+            polylines, slab_box, result.get('coordenadas')
+        )
         if hlaz_box:
             hx0, hy0, hx1, hy1 = hlaz_box
             result['_hlaz'] = [{'x': round(hx0 - slab_box[0], 2), 'y': round(hy0 - slab_box[1], 2),
@@ -1214,6 +1259,9 @@ def extrair_ficha_laje(
         }
         result['_er_meta'] = {'source': 'dxf_extract', 'dxf_path': str(recorte_path), 'confianca': dxf_conf}
         result['_confianca'] = dxf_conf
+    result['obstaculos'] = _filter_obstacles_by_outline(
+        result.get('obstaculos') or [], result.get('coordenadas')
+    )
     return result
 
 

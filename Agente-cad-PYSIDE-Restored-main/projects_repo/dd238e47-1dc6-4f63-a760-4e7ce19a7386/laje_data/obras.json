@@ -5670,7 +5670,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -5725,7 +5725,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -5796,7 +5796,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -5851,7 +5851,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -5906,7 +5906,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -5961,7 +5961,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6016,7 +6016,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6071,7 +6071,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6130,7 +6130,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6189,7 +6189,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6248,7 +6248,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6294,7 +6294,7 @@
               ],
               "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6353,7 +6353,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6412,7 +6412,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6458,7 +6458,7 @@
               ],
               "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -6572,7 +6572,7 @@
                 }
               ],
               "obstaculos": [],
-              "modo_selecionado": 0,
+              "modo_selecionado": 1,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],

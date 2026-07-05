@@ -586,7 +586,11 @@ def _proximo_fail(fails: list) -> str:
     g1  = r.get("g1", {})
     g2  = r.get("g2", {})
     if g1.get("resultado") == "FAIL":
-        d  = g1.get("diffs", [{}])[0]
+        diffs = g1.get("diffs") or []
+        if not diffs:
+            erro = g1.get("erro") or g1.get("log_gerador") or "falha sem diff de campo"
+            return f"Atacar G1-FAIL em {eid}: {erro}."
+        d = diffs[0]
         return (f"Atacar G1-FAIL em {eid}: campo `{d.get('campo')}` "
                 f"diverge N2={d.get('n2')} vs N2′={d.get('n2p')} [{d.get('tipo')}].")
     if g2.get("resultado") == "FAIL":

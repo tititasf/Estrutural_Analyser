@@ -103,11 +103,16 @@ def setup_doc():
         if lname not in doc.layers:
             doc.layers.add(lname, color=color)
 
-    # Linetypes
-    try:
-        doc.linetypes.add('DASHED', pattern=[5.0, -2.0], description='Dashed')
-    except Exception:
-        pass
+    # Linetypes explicitamente referenciados pelas entidades. O ezdxf tolera
+    # uma referencia ausente, mas o AutoCAD rejeita o DXF inteiro como
+    # incompleto (por exemplo: ``Bad linetype name HIDDEN``).
+    linetypes = {
+        'DASHED': ([5.0, -2.0], 'Dashed'),
+        'HIDDEN': ([9.525, 6.35, -3.175], 'Hidden __ __ __'),
+    }
+    for name, (pattern, description) in linetypes.items():
+        if name not in doc.linetypes:
+            doc.linetypes.add(name, pattern=pattern, description=description)
 
     # ── Dimstyles ────────────────────────────────────────────────────────────
     # cotax2: used in CIMA zone (text height scaled for 2x)
@@ -743,8 +748,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # fallback: min(larg, 19) per historical SCR convention
     larg_a = comp + 22
     larg_b = comp + 22
-    _larg_c_raw = pj.get('larg_c_geom') or (min(larg, 19) if larg >= 19 else larg)
-    larg_c = float(_larg_c_raw)
+    larg_c = float(larg)
     larg_d = larg_c
 
     x_a = base_x + X_OFFSET

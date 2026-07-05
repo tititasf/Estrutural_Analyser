@@ -65,7 +65,7 @@
       "nome": "L326",
       "numero": "26",
       "laje_dim": "h=10",
-      "laje_nivel": "161.8"
+      "laje_nivel": "852.12"
     },
     "validated_fields": [],
     "validated_link_classes": {},
@@ -73,6 +73,7 @@
     "n3_pattern_nome": "L326",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
+    "n3_pose_source": "sa_outline_anchor",
     "n3_source": "comparison_engine_n1",
     "n3_teacher": null
   },

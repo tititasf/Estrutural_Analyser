@@ -1,7 +1,7 @@
 # MASTERPLAN — Produção & Soberania: do laboratório ao uso real da equipe
-**Versão:** 1.0
-**Data:** 2026-07-03
-**Autor:** Fable (Consultor/Estrategista) — decisões de produto confirmadas pelo dono em 2026-07-03
+**Versão:** 1.1 — adenda §1-A (DP-10 a DP-14: ingestão via Drive, definição de N5, governança de liberação, MVP enxuto); P2 e arquitetura (§3) ajustados
+**Data:** 2026-07-03 (v1.0) / 2026-07-05 (v1.1)
+**Autor:** Fable (Consultor/Estrategista) — decisões de produto confirmadas pelo dono em 2026-07-03 e 2026-07-05
 **Status:** ATIVO — complementa `MASTERPLAN-ARETE-QUALITY-GATES.md` (qualidade) e
 `ARETE-MCP-RAG-HARMONIZACAO.md` (dados). Este doc cobre o eixo que faltava: **produto**.
 
@@ -31,6 +31,24 @@
 | DP-8 | **Horizonte: ~30 dias para a primeira obra real da equipe no portal.** | Agressivo e assumido. Se conflitar com qualidade, o portal desliza — a qualidade não (DP-9). |
 | DP-9 | **Execução intercalada: Arete é o trabalho principal; portal entra em janelas curtas.** | A infra do portal é pequena (fichas já existem); a qualidade é o produto de verdade. |
 
+## 1-A. Adenda (2026-07-05) — Ingestão, N5 e Governança de Liberação
+
+Decisões que faltavam em §1 para fechar o P2 (transporte de arquivo, definição exata
+de N5, quem libera o entregável final, forma do MVP):
+
+| ID | Decisão | Racional |
+|----|---------|----------|
+| DP-10 | **Transporte de obra = Google Drive real (API, service account), 1 pasta por usuário.** NÃO é upload direto no portal. | Escolha explícita do dono contra a recomendação (upload direto via VPN seria mais simples/soberano). Motivo aceito: equipe já usa Drive, sync automático, funciona com servidor offline. Custo: dependência externa + cotas de API — mitigar reaproveitando R5 (degradar, não bloquear, se o Drive estiver indisponível). |
+| DP-11 | **Detecção de obra nova = polling periódico da API do Drive** (não webhook, não botão manual de "sincronizar"). | MVP: zero infra extra, sem endpoint público exposto (mantém regra de fronteira §3 — nenhuma porta pública). Latência de minutos é aceitável para um pipeline que leva dias. |
+| DP-12 | **N5 usa a definição que já existe no código** (`src/core/n5_assembler.py::assemble_n5`, label da UI: *"N5 consolida previews N3 → 1 DXF final por classe suportada"*) — **1 DXF por classe+pavimento**, montado a partir dos previews N3 de cada item. NÃO é promoção de status do N3, nem prancha única multi-classe com carimbo. | Erro de generalização cometido na sessão de 2026-07-03/05 (perguntado como se fosse conceito novo do produto) — é conceito **já implementado**, o portal só expõe o que existe. |
+| DP-13 | **Selo final do N5 = self-service do próprio usuário**, liberado ao concluir as validações de interpretação (N1) e desenho (N3) que competem a ele. | Evita o dono virar gargalo de cada obra. Reconciliar com R3 (rótulo `certificado`/`beta`): self-service libera o *download*, mas o rótulo de certificação Arete da classe continua vindo do funil do dono — o usuário nunca confunde "eu validei minha parte" com "o motor está certificado". |
+| DP-14 | **MVP = fluxo completo enxuto.** Todas as 6 etapas (upload/triagem/recortes/SA/validação/N5) entram desde a v1, com UX simples (listas de aprovação, ficha+viewer básico) — nada fica cortado para uma v2. | Decisão do dono contra as alternativas mais conservadoras ("MVP até o processamento" ou "MVP das validações primeiro"); aceita mais superfície agora em troca de não reabrir escopo depois. |
+
+**Tensão registrada, não resolvida:** DP-10 (Drive como transporte) e a redação original do
+gate P2 (§4, "upload de obra" direto no portal) descrevem mecanismos diferentes. P2 abaixo
+já foi ajustado para refletir DP-10/DP-11 — se uma sessão futura reabrir o transporte,
+atualizar ali e aqui juntos.
+
 ## 2. O insight central: o portal já está ~80% construído
 
 A infra criada para QA interno do Arete **É** a interface da equipe:
@@ -49,12 +67,15 @@ fichas por HTTP, login, e trocar `localStorage` por persistência server-side.
 ## 3. Arquitetura alvo
 
 ```
-[Equipe 3–5]  ──VPN (Tailscale)──►  [Workstation do dono = SERVIDOR]
-  • upload DWG/DXF da obra            • Portal web (FastAPI): login, jobs, resultados
-  • baixa DXFs de formas              • Fila de jobs → pipeline headless (CLI, sem UI)
-  • navega fichas HTML                • Motores: SA, motor_reverso_*, geradores STOG
-  • comenta erros (T0 assinado)       • ODA File Converter (DWG→DXF, sem AutoCAD)
-                                      • SQLite project_data.vision + LanceDB (RAG/NIM)
+[Equipe 3–5]  ──Google Drive (API)──►  [Workstation do dono = SERVIDOR]
+  • sobe DWG/DXF na pasta pessoal        • Poller Drive (DP-11): varre pastas por usuário,
+    do Drive (fora da VPN)                 detecta obra nova, baixa via service account
+                                          • Portal web (FastAPI, na VPN): login, jobs,
+[Equipe 3–5]  ──VPN (Tailscale)──►         resultados, self-service do N5 (DP-13)
+  • acessa portal                        • Fila de jobs → pipeline headless (CLI, sem UI)
+  • baixa N5 (DXF por classe, DP-12)     • Motores: SA, motor_reverso_*, geradores STOG
+  • navega fichas HTML                   • ODA File Converter (DWG→DXF, sem AutoCAD)
+  • comenta erros (T0 assinado)          • SQLite project_data.vision + LanceDB (RAG/NIM)
 [Dono — local, fora do portal]
   • App PySide6 = cabine de governança (curadoria, aprovação, Hub)
   • Claude Code = evolução dos motores (loop Arete continua)
@@ -86,14 +107,21 @@ Usuário, escopo, entregáveis, governança e anti-escopo definidos e registrado
   idênticas às geradas pelo caminho atual (hash/contagem).
 
 ### P2 — Portal mínimo (modo mono-usuário: só o dono)
-- [ ] Serviço web local (FastAPI ou equivalente): login básico, upload de obra, fila de
-      jobs (1 job por vez — respeita a restrição de nunca paralelizar accoreconsole
-      enquanto ele existir), página de resultados servindo as fichas HTML existentes,
-      download dos DXFs N3.
+- [ ] Poller do Google Drive (DP-10/DP-11): service account, 1 pasta por usuário,
+      varredura periódica detecta obra nova e baixa para a área de trabalho do servidor.
+- [ ] Serviço web local (FastAPI ou equivalente): login básico, lista as obras
+      detectadas pelo poller, fila de jobs (1 job por vez — respeita a restrição de
+      nunca paralelizar accoreconsole enquanto ele existir), página de resultados
+      servindo as fichas HTML existentes e as 6 etapas do fluxo enxuto (DP-14),
+      download self-service do N5 por classe+pavimento (DP-12/DP-13). **Reusar
+      `scripts/arete/single_instance.py`** (trava anti-OOM criada 03/07, já ativa no
+      headless: lock de arquivo liberado pelo SO mesmo em crash — testes em
+      `tests/test_single_instance.py`) como base da exclusão mútua da fila.
 - [ ] Comentários persistidos server-side (substituem `localStorage`), gravados no
       modelo de eventos com autor, `run_id` e `engine_version`.
-- **PASS:** o dono roda o fluxo completo (upload → resultado → comentário) via navegador,
-  na própria máquina, sem tocar na app PySide6.
+- **PASS:** uma obra colocada na pasta do Drive de um usuário de teste é detectada pelo
+  poller, processada, e o usuário consegue navegar as fichas e liberar seu próprio N5
+  via navegador, na VPN, sem o dono tocar em nada no meio.
 
 ### P3 — Acesso remoto seguro
 - [ ] VPN instalada (Tailscale ou equivalente), portal acessível apenas dentro dela.
@@ -198,6 +226,8 @@ de LV pode reivindicá-lo).
 | R5 | NIM fora do ar / custo | Baixa | RAG é camada opcional: pipeline processa sem consulta RAG; fila degrada, não quebra |
 | R6 | Upload malicioso/lixo no portal | Baixa | Só VPN + login; parsing exclusivamente via ezdxf (nunca executar conteúdo); limite de tamanho; quarentena de job com erro |
 | R7 | Comentários da equipe poluírem a triagem | Média | Namespace próprio (`equipe:*`) no funil T0; dono tria antes de virar causa-raiz — mesmo fluxo humano já existente |
+| R8 | Google Drive API fora do ar, cota estourada, ou revogação de credencial (DP-10) | Baixa | Poller loga e reagenda, não derruba o serviço (mesmo padrão de degradação do R5); obra fica "aguardando ingestão" no portal em vez de erro |
+| R9 | Usuário libera N5 self-service (DP-13) de uma classe ainda `beta` sem perceber | Média | Rótulo `certificado`/`beta` (R3) fica visível também na tela de liberação do N5, não só na listagem de resultado |
 
 ## 9. Mapa de taxonomias de gates (resolve deriva documental)
 

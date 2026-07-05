@@ -1,0 +1,30 @@
+{
+  "classe": "LAJ",
+  "pavimento": "13_PAV",
+  "backends": [
+    "nim"
+  ],
+  "timestamp": "20260703_201753",
+  "itens": [
+    {
+      "classe": "LAJ",
+      "elemento_id": "L329",
+      "pavimento": "13_PAV",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L329_motor_178111331418.dxf",
+      "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L329.dxf",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260703_201753\\LAJ_L329_g2v.png",
+      "vereditos": {
+        "nim": {
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "N4 reproduz conteúdo semântico do recorte N2 sem problemas",
+          "_backend": "nim",
+          "_model": "meta/llama-3.2-90b-vision-instruct",
+          "_latencia_s": 5.3
+        }
+      },
+      "erro": null
+    }
+  ]
+}

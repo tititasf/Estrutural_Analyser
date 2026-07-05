@@ -1,0 +1,41 @@
+{
+  "nome": "L305",
+  "numero": 305,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      418.0,
+      0.0
+    ],
+    [
+      418.0,
+      183.0
+    ],
+    [
+      0.0,
+      183.0
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 183.0,
+  "area_cm2": 76494.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 2933.5,
+    "y": 3010.0
+  }
+}

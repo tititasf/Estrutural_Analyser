@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
+import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -294,6 +296,28 @@ def _pp_key(obra: str, pavimento: str, classe: str, item_id: str) -> str:
     return "|".join([_norm(obra), _norm(pavimento), _norm(classe).upper(), _norm(item_id)])
 
 
+def canonical_pavimento(pavimento: str) -> str:
+    """Converte nomes de projeto/aliases para a chave usada pelas fichas N2."""
+    raw = _norm(pavimento)
+    normalized = unicodedata.normalize("NFKD", raw)
+    normalized = "".join(
+        char for char in normalized if not unicodedata.combining(char)
+    ).upper()
+    if "TERREO" in normalized or re.search(r"[-_ ]TER[-_ ]", normalized):
+        return "TERREO"
+    if "COB" in normalized:
+        return "COBERTURA"
+    matches = re.findall(r"(\d+)\s*_?PAV", normalized)
+    if matches:
+        return f"{matches[-1]}_PAV"
+    matches = re.findall(r"[-_ ](\d{1,2})P(?:V)?(?:[-_ ]|$)", normalized)
+    if matches:
+        return f"{matches[-1]}_PAV"
+    if "TIPO" in normalized or re.search(r"[-_ ]TIP[-_ ]", normalized):
+        return "TIPO"
+    return raw
+
+
 def save_para_passa(
     obra: str,
     pavimento: str,
@@ -328,11 +352,19 @@ def load_para_passa(
     """Retorna 'para', 'passa' ou ''."""
     try:
         _ensure_para_passa_table(db_path)
-        key = _pp_key(obra, pavimento, classe, item_id)
+        pavimentos = [_norm(pavimento)]
+        canonical = canonical_pavimento(pavimento)
+        if canonical and canonical not in pavimentos:
+            pavimentos.append(canonical)
         with sqlite3.connect(str(db_path)) as conn:
-            row = conn.execute(
-                "SELECT tipo FROM lv_para_passa WHERE id=?", (key,)
-            ).fetchone()
+            row = None
+            for candidate in pavimentos:
+                key = _pp_key(obra, candidate, classe, item_id)
+                row = conn.execute(
+                    "SELECT tipo FROM lv_para_passa WHERE id=?", (key,)
+                ).fetchone()
+                if row:
+                    break
         return (row[0] or "").strip().lower() if row else ""
     except Exception:
         return ""

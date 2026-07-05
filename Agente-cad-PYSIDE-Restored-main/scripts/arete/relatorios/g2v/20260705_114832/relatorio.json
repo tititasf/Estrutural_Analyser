@@ -1,0 +1,103 @@
+{
+  "classe": "LAJ",
+  "pavimento": "13_PAV",
+  "par": "n1xn2",
+  "gate": "N1-V",
+  "backends": [
+    "cli"
+  ],
+  "timestamp": "20260705_114832",
+  "resumo": {
+    "total": 3,
+    "pass": 0,
+    "fail": 0,
+    "suspeito": 3
+  },
+  "itens": [
+    {
+      "classe": "LAJ",
+      "elemento_id": "L318",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114832\\LAJ_L318_n1xn2.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "SUSPEITO",
+          "confianca": 0.76,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "laje_inteira",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "O contorno destacado N1 acompanha a faixa longa do N2, mas o card N1 não mostra a grade interna; as divergências G4 em linhas verticais/horizontais não podem ser descartadas visualmente.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "SUSPEITO: contorno global compatível, porém a divergência algorítmica de grade permanece sem prova visual de correção."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L319",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114832\\LAJ_L319_n1xn2.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "SUSPEITO",
+          "confianca": 0.8,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "laje_inteira",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "A forma poligonal com chanfro e ressalto aparece nos dois lados, mas as divergências G4 de coordenadas e linhas internas não são resolvidas pelo screenshot.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "SUSPEITO: a gestalt do contorno coincide, mas os deltas (a)/(b) do G4 continuam abertos."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "LAJ",
+      "elemento_id": "L320",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114832\\LAJ_L320_n1xn2.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "veredito": "SUSPEITO",
+          "confianca": 0.78,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "laje_inteira",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 e N2 são retangulares e não mostram invasão de viga, porém cada card usa escala própria; a divergência G4 de largura e área não é verificável por este enquadramento.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "SUSPEITO: sem sobreposição visual, mas a diferença de escala/dimensão do G4 permanece aberta."
+        }
+      },
+      "erro": null
+    }
+  ]
+}
+

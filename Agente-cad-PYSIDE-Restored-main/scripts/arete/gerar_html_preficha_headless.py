@@ -386,7 +386,44 @@ def main() -> None:
     ap.add_argument('--obra',   help='Nome da obra (ex: Obra_TREINO_1)')
     ap.add_argument('--pav',    help='Pavimento (ex: 13_PAV). Omitir = todos')
     ap.add_argument('--estado', help='Caminho direto ao estado JSON')
+    ap.add_argument('--wait', action='store_true',
+                    help='Se outro headless estiver rodando, aguardar a vez '
+                         'em vez de abortar (recomendado para agentes)')
+    ap.add_argument('--legacy', action='store_true',
+                    help='Confirma o uso direto deste re-gerador (ciente do '
+                         'risco de estado velho). Sem esta flag, o CLI aborta '
+                         'e aponta para o headless canônico.')
     args = ap.parse_args()
+
+    # DESCONTINUADO como ponto de entrada (harmonização 2026-07-03):
+    # este script re-renderiza a partir de estado SALVO — após um fix de motor,
+    # as fichas sairiam com dados velhos parecendo novos. O ponto de entrada
+    # canônico é scripts/arete/headless_sa_analise.py (analisa E renderiza).
+    # Como BIBLIOTECA (generate_html_fichas, usada pelo playwright_loop) segue
+    # válido — este gate afeta só o uso direto por CLI.
+    if not args.legacy:
+        print('[FICHAS] Este CLI foi descontinuado como ponto de entrada.', flush=True)
+        print('[FICHAS] Use: python scripts/arete/headless_sa_analise.py '
+              '--obra X --pav Y [--secao classe] --wait', flush=True)
+        print('[FICHAS] (Re-render a partir de estado salvo arrisca ficha com dado '
+              'velho pós-fix de motor. Se souber o que faz: --legacy.)', flush=True)
+        sys.exit(3)
+
+    # Mesma trava anti-OOM do headless_sa_analise (mesmo nome de lock = mesma
+    # fila): este script também renderiza matplotlib pesado e escreve nas
+    # mesmas pastas de saída — nunca rodar em paralelo com a análise completa.
+    try:
+        from scripts.arete.single_instance import acquire_lock, wait_for_lock
+    except ImportError:
+        from single_instance import acquire_lock, wait_for_lock
+    _lock, _holder = (wait_for_lock if args.wait else acquire_lock)('headless_sa')
+    if _lock is None:
+        print('[FICHAS] ABORTADO: outro headless em execução (proteção anti-OOM).', flush=True)
+        if _holder:
+            print(f'[FICHAS] Instância ativa: {_holder}', flush=True)
+        print('[FICHAS] Use --wait para aguardar a vez automaticamente. '
+              'NÃO finalize o processo detentor.', flush=True)
+        sys.exit(2)
 
     estados: list[Path] = []
     if args.estado:

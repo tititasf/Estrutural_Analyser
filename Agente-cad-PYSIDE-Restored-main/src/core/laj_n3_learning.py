@@ -382,12 +382,19 @@ def predict_lines(
     nome: str | None = None,
     patterns: list[dict[str, Any]] | None = None,
     max_score: float = 0.18,
+    allow_gabarito_patterns: bool = True,
 ) -> dict[str, Any] | None:
     comp = _as_float(comprimento)
     larg = _as_float(largura)
     if comp <= 0 or larg <= 0:
         return None
     patterns = patterns if patterns is not None else load_patterns()
+    if not allow_gabarito_patterns:
+        blocked_prefixes = ("n4_dxf:", "n2/n4:", "n2/n4_validated")
+        patterns = [
+            pattern for pattern in patterns
+            if not str(pattern.get("source") or "").lower().startswith(blocked_prefixes)
+        ]
     if not patterns:
         return None
     target_aspect = comp / larg if larg else 0.0
@@ -432,7 +439,12 @@ def predict_lines(
             _normalize_hlaz(best.get("_hlaz") or [], src_comp, src_larg)
             if use_exact_geometry else _scale_hlaz(best.get("_hlaz") or [], src_comp, src_larg, comp, larg)
         ),
-        "source": "learned_n4_patterns",
+        "source": (
+            "learned_n4_patterns"
+            if str(best.get("source") or "").lower().startswith(("n4_dxf:", "n2/n4:"))
+            else "learned_algorithmic_patterns"
+        ),
+        "pattern_source": best.get("source"),
         "pattern_nome": best.get("nome"),
         "pattern_score": round(best_score, 4),
         "exact_geometry": use_exact_geometry,
@@ -444,6 +456,7 @@ def apply_learning_to_ficha(
     *,
     teacher: dict[str, Any] | None = None,
     record_teacher: bool = True,
+    allow_gabarito_patterns: bool = True,
 ) -> dict[str, Any]:
     out = dict(ficha)
     if teacher and record_teacher:
@@ -454,6 +467,7 @@ def apply_learning_to_ficha(
         out.get("obstaculos"),
         nome=str(out.get("nome") or out.get("elemento_id") or ""),
         max_score=1.0 if teacher else 0.18,
+        allow_gabarito_patterns=allow_gabarito_patterns,
     )
     if pred:
         if pred.get("exact_geometry"):
@@ -472,6 +486,7 @@ def apply_learning_to_ficha(
         meta.update({
             "n3_line_source": pred["source"],
             "n3_pattern_nome": pred.get("pattern_nome"),
+            "n3_pattern_source": pred.get("pattern_source"),
             "n3_pattern_score": pred.get("pattern_score"),
             "n3_exact_geometry_from_validated_pattern": bool(pred.get("exact_geometry")),
         })

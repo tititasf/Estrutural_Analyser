@@ -1,0 +1,1469 @@
+{
+  "classe": "LAJ",
+  "pavimento": "13_PAV",
+  "rodada_ts": "20260703_164543",
+  "total": 31,
+  "pass": 31,
+  "fail": 0,
+  "blocked": 0,
+  "arete_pct": 100.0,
+  "itens": [
+    {
+      "elemento_id": "L301",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L301_motor_178111331366.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L301",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L301.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L301: 406x183cm  pos=(2743,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L301\\Fase-6_Execucao_CAD\\LJ_preview_L301.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 61,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L301.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L301",
+        "n4_sha256": "9126813154b8bf419ec84b1bc1f59e2f37decc520617f4e3381b03490400cc3d"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L302",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L302_motor_178111331368.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L302",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L302.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L302: 418x183cm  pos=(3167,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L302\\Fase-6_Execucao_CAD\\LJ_preview_L302.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 98,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L302.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L302",
+        "n4_sha256": "a81659689ed840dde23bf7e774a0a3f613e1a048e4083d2323ad0d6659b11ec0"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L303",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L303_motor_178111331370.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L303",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L303.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L303: 418x183cm  pos=(3604,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L303\\Fase-6_Execucao_CAD\\LJ_preview_L303.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 61,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L303.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L303",
+        "n4_sha256": "b0f55a16f413a786d030b4efdafc8b16500462920df6e4bb4c4ddd50466ffd1f"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L304",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L304_motor_178111331371.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L304",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L304.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L304: 418x183cm  pos=(4041,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L304\\Fase-6_Execucao_CAD\\LJ_preview_L304.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 98,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L304.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L304",
+        "n4_sha256": "7fa69ac56815f16190ab3dad2c784746f2eda58bd9beb2a2a624f7c66817e179"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L305",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L305_motor_178111331373.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L305",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L305.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L305: 418x183cm  pos=(4478,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L305\\Fase-6_Execucao_CAD\\LJ_preview_L305.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 61,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L305.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L305",
+        "n4_sha256": "7f2c33f37a7e9afc0a53ad8ef2cfaccb32e8e145b1be114410f1b92cef686438"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L306",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L306_motor_178111331375.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L306",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L306.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L306: 418x183cm  pos=(4915,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L306\\Fase-6_Execucao_CAD\\LJ_preview_L306.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 97,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L306.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L306",
+        "n4_sha256": "eb77502030fac1e5792f66fc17183997ad1ee40f40309526499abb2494505af7"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L307",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L307_motor_178111331377.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L307",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L307.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L307: 418x183cm  pos=(5352,2607)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L307\\Fase-6_Execucao_CAD\\LJ_preview_L307.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 62,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L307.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L307",
+        "n4_sha256": "13e7237dcc3b85bc56ba47096e21f38a1cdd3333b97b610993696e41326f154b"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L308",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L308_sel_1781121913.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L308",
+        "campos_comparados": 25,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L308.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L308: 289x183cm  pos=(5789,2611)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L308\\Fase-6_Execucao_CAD\\LJ_preview_L308.dxf\nTotal panels: 6\n\n=== Entity Summary (11 total) ===\n  COTA                           5\n  PAINEIS                        4\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 92,
+          "total_n4": 11
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L308.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L308",
+        "n4_sha256": "d52142a00999cd5f32a73e6a22a3cb7ebb311aa7074127a9b465c6729414200d"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L309",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L309_motor_178111331380.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L309",
+        "campos_comparados": 22,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L309.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L309: 406x311cm  pos=(2743,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L309\\Fase-6_Execucao_CAD\\LJ_preview_L309.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 124,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L309.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L309",
+        "n4_sha256": "9dd86e9a6816f1e165f290f9e36497429b2c537fa7c9b20f626be9048c28aa0b"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L310",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L310_motor_178111331382.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L310",
+        "campos_comparados": 22,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L310.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L310: 418x311cm  pos=(3167,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L310\\Fase-6_Execucao_CAD\\LJ_preview_L310.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 74,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L310.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L310",
+        "n4_sha256": "0c424e6f34c4e85babaeebbdc7711f7aded6664c80d9f6588b39606ebb4cb10c"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L311",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L311_motor_178111331384.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L311",
+        "campos_comparados": 22,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L311.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L311: 418x311cm  pos=(3604,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L311\\Fase-6_Execucao_CAD\\LJ_preview_L311.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 114,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L311.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L311",
+        "n4_sha256": "5cdc29ee6a7e0d82f13636dee3045dc2fada9c8303420eb8f44c67c5ff38209d"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L312",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L312_sel_1781576266.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L312",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L312.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L312: 418x311cm  pos=(4041,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L312\\Fase-6_Execucao_CAD\\LJ_preview_L312.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 84,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L312.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L312",
+        "n4_sha256": "ba9b1305123d341f4d50ff7f61187f26af1c95423b3fe9b6d1b8a0eea8341c74"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L313",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L313_motor_178111331388.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L313",
+        "campos_comparados": 22,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L313.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L313: 418x311cm  pos=(4478,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L313\\Fase-6_Execucao_CAD\\LJ_preview_L313.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 117,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L313.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L313",
+        "n4_sha256": "2950912b62d81e2ecfb7c6d6845ec16cd5002c62fd68a5a2aac425ce7f2e690f"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L314",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L314_motor_178164519182.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L314",
+        "campos_comparados": 22,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L314.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L314: 418x311cm  pos=(4915,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L314\\Fase-6_Execucao_CAD\\LJ_preview_L314.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 90,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L314.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L314",
+        "n4_sha256": "fb83c03e6a99ca60194c4249380a5fb71c3cd6ff864c7fa6739ea32833fafa64"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L315",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L315_sel_1782277668.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L315",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L315.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L315: 418x311cm  pos=(5352,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L315\\Fase-6_Execucao_CAD\\LJ_preview_L315.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 130,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L315.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L315",
+        "n4_sha256": "e7a45bb0d601025d1bfc1975448a77ed976a8a61f4508f212747eb041cb28459"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L316",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L316_motor_178111331395.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L316",
+        "campos_comparados": 22,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L316.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L316: 289x311cm  pos=(5789,2281)  panels=8\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L316\\Fase-6_Execucao_CAD\\LJ_preview_L316.dxf\nTotal panels: 8\n\n=== Entity Summary (13 total) ===\n  COTA                           6\n  PAINEIS                        5\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 6\n  LINE                      4\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 73,
+          "total_n4": 13
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L316.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L316",
+        "n4_sha256": "d61b88575069d4aed1c3ca8e989ee166803bcbfac85124983987ba9cb4c82e11"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L317",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L317_sel_1782277704.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L317",
+        "campos_comparados": 20,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L317.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L317: 98x513cm  pos=(6097,2281)  panels=6\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L317\\Fase-6_Execucao_CAD\\LJ_preview_L317.dxf\nTotal panels: 6\n\n=== Entity Summary (10 total) ===\n  COTA                           5\n  PAINEIS                        4\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 5\n  LINE                      3\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 65,
+          "total_n4": 10
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L317.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L317",
+        "n4_sha256": "6554168602619b3f197ffda94f5b1ae878c5622c81b8146963f2195d5bf6d901"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L318",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L318_sel_1782277738.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L318",
+        "campos_comparados": 55,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L318.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L318: 3275x201cm  pos=(2939,2061)  panels=64\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L318\\Fase-6_Execucao_CAD\\LJ_preview_L318.dxf\nTotal panels: 64\n\n=== Entity Summary (41 total) ===\n  COTA                          20\n  PAINEIS                       19\n  Hachura                        1\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                20\n  LINE                     18\n  HATCH                     1\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 476,
+          "total_n4": 41
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L318.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L318",
+        "n4_sha256": "fb69ebc8d92e9656006ec972768f1f9330bbd04689ad7f7535ce7e93a895a4a1"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L319",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L319_motor_178164519199.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L319",
+        "campos_comparados": 31,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L319.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L319: 406x613cm  pos=(2742,1668)  panels=25\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L319\\Fase-6_Execucao_CAD\\LJ_preview_L319.dxf\nTotal panels: 25\n\n=== Entity Summary (22 total) ===\n  COTA                          10\n  PAINEIS                        9\n  Hachura                        2\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                10\n  LINE                      8\n  HATCH                     2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 170,
+          "total_n4": 22
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L319.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L319",
+        "n4_sha256": "55a64cd426573ee764118ab63a9bad340100ff469720c439d4c778dd8f3a3b0d"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L320",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L320_motor_178164519202.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L320",
+        "campos_comparados": 24,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L320.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L320: 418x423cm  pos=(3167,1668)  panels=10\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L320\\Fase-6_Execucao_CAD\\LJ_preview_L320.dxf\nTotal panels: 10\n\n=== Entity Summary (16 total) ===\n  COTA                           7\n  PAINEIS                        6\n  Hachura                        2\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 7\n  LINE                      5\n  HATCH                     2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 84,
+          "total_n4": 16
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L320.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L320",
+        "n4_sha256": "9c23602a713a29a489587e4fe314c89fcb2ed0170919c5065653f8b765632928"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L321",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L321_motor_178164519206.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L321",
+        "campos_comparados": 24,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L321.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L321: 418x423cm  pos=(3604,1668)  panels=10\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L321\\Fase-6_Execucao_CAD\\LJ_preview_L321.dxf\nTotal panels: 10\n\n=== Entity Summary (16 total) ===\n  COTA                           7\n  PAINEIS                        6\n  Hachura                        2\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 7\n  LINE                      5\n  HATCH                     2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 120,
+          "total_n4": 16
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L321.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L321",
+        "n4_sha256": "f7cb6c896514a0266d0e06f68c05a0e86c26874fb59413f9639b469110590340"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L322",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L322_motor_178164519215.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L322",
+        "campos_comparados": 24,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L322.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L322: 418x423cm  pos=(4041,1668)  panels=10\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L322\\Fase-6_Execucao_CAD\\LJ_preview_L322.dxf\nTotal panels: 10\n\n=== Entity Summary (16 total) ===\n  COTA                           7\n  PAINEIS                        6\n  Hachura                        2\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 7\n  LINE                      5\n  HATCH                     2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 77,
+          "total_n4": 16
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L322.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L322",
+        "n4_sha256": "f10ca935be78810a71edbab039dbc5c6aeadc8428759ac6c1d30623d84feda1c"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L323",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L323_motor_178164519219.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L323",
+        "campos_comparados": 26,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L323.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L323: 418x423cm  pos=(4478,1668)  panels=12\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L323\\Fase-6_Execucao_CAD\\LJ_preview_L323.dxf\nTotal panels: 12\n\n=== Entity Summary (18 total) ===\n  COTA                           8\n  PAINEIS                        7\n  Hachura                        2\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 8\n  LINE                      6\n  HATCH                     2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 150,
+          "total_n4": 18
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L323.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L323",
+        "n4_sha256": "41435410da19420797f70463271aff9899bb9f8eb8fac4d348df5a4f3b56dff4"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L324",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L324_motor_178164519223.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L324",
+        "campos_comparados": 24,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L324.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L324: 418x423cm  pos=(4915,1668)  panels=10\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L324\\Fase-6_Execucao_CAD\\LJ_preview_L324.dxf\nTotal panels: 10\n\n=== Entity Summary (16 total) ===\n  COTA                           7\n  PAINEIS                        6\n  Hachura                        2\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 7\n  LINE                      5\n  HATCH                     2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 130,
+          "total_n4": 16
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L324.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L324",
+        "n4_sha256": "543ccce59bdccf48b51e93d531aaabf241e71a8b3d9896d1d01384c7c6e63f4c"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L325",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L325_sel_1782277773.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L325",
+        "campos_comparados": 18,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L325.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L325: 129x459cm  pos=(5352,1583)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L325\\Fase-6_Execucao_CAD\\LJ_preview_L325.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 100,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L325.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L325",
+        "n4_sha256": "b72e5a747e263bd8fb9d5f4c8a81a7a788b6f6bc4fbaa85e8814ea719cd96fad"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L326",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L326_motor_178111331413.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L326",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L326.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L326: 234x71cm  pos=(2914,1578)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L326\\Fase-6_Execucao_CAD\\LJ_preview_L326.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 62,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L326.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L326",
+        "n4_sha256": "a26b3180d30ae61bc3ee06e789a4167c27d629d20654ce6a88a0188709455851"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L327",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L327_sel_1781576357.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L327",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L327.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L327: 418x71cm  pos=(3167,1578)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L327\\Fase-6_Execucao_CAD\\LJ_preview_L327.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 164,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L327.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L327",
+        "n4_sha256": "af6379253ab4ad71e8a79d9b86a435fd921eb448140e80c699740b82b0b47c2e"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L328",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L328_motor_178111331416.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L328",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L328.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L328: 418x71cm  pos=(3604,1578)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L328\\Fase-6_Execucao_CAD\\LJ_preview_L328.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 114,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L328.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L328",
+        "n4_sha256": "a8909a4cc37ffbdeeda394d281736ffd3a750138f14c063a18a1710851cc2c90"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L329",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L329_motor_178111331418.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L329",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L329.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L329: 418x71cm  pos=(4041,1578)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L329\\Fase-6_Execucao_CAD\\LJ_preview_L329.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 163,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L329.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L329",
+        "n4_sha256": "2839ff8093321a7a1d67f2f25b38262a70bc01009468b0f960f8514440e0e50e"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L330",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L330_motor_178111331421.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L330",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L330.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L330: 418x71cm  pos=(4478,1578)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L330\\Fase-6_Execucao_CAD\\LJ_preview_L330.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 129,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L330.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L330",
+        "n4_sha256": "e175f00ed6dcb2e9c10a14ad3848b9ddf627b78d1c72fd358be43baca125ea78"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "L331",
+      "classe": "LAJ",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L331_motor_178111331423.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LAJ",
+        "elemento_id": "L331",
+        "campos_comparados": 27,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L331.dxf",
+        "log_gerador": "Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)\n  [ 1] L331: 418x71cm  pos=(4915,1578)  panels=4\n\nDXF (planta): D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L331\\Fase-6_Execucao_CAD\\LJ_preview_L331.dxf\nTotal panels: 4\n\n=== Entity Summary (8 total) ===\n  COTA                           4\n  PAINEIS                        3\n  NOMENCLATURA                   1\n\n=== Types ===\n  DIMENSION                 4\n  LINE                      2\n  LWPOLYLINE                1\n  TEXT                      1\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 127,
+          "total_n4": 8
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_164543\\png\\LAJ_L331.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LAJ\\L331",
+        "n4_sha256": "27f2c58619dad5efca2eaabc9659baac2ad6d7ab64072ed68539619e47890171"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    }
+  ]
+}

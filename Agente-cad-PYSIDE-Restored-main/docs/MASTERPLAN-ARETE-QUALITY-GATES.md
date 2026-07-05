@@ -312,6 +312,23 @@ OU no extrator — e o diff aponta exatamente qual campo. Não há como o erro s
 (fôrma com tamanhos ±0.5cm e contagem exata; cotas com mesmos valores e contagem; textos
 com mesmos conteúdos e contagem). **PASS da classe:** 100% dos itens não-BLOCKED.
 
+> **Hierarquia de validação — G2 sozinho NÃO fecha Arete (decisão do dono, 03/07,
+> ver `docs/LOOPING-CANONICO.md` §1.5):** G2 é a validação de **mais baixo nível** —
+> confere matemática semântica (contagens, valores) mas é estruturalmente CEGO para
+> cota em cima de texto, painel torto, sobreposição — tudo que um humano vê em 2s.
+> "G2 100% PASS" sem veredito visual registrado (G2-V) é **candidato**, não selagem.
+> **G2-V compara os dois lados sempre: o recorte N2 (humano) × o DXF N4 (robô)** —
+> mesmo par de artefatos do G2 numérico, agora lido/renderizado, não só medido.
+> Selar golden exige G2-V no mínimo; ver hierarquia completa (Nível 0–3) no doc citado.
+>
+> **FERRAMENTA OBRIGATÓRIA do G2-V (não improvisar leitura de imagem):**
+> `python scripts/arete/g2v_harness.py --classe X --par n2xn4 --backend cli` — gera a
+> imagem canônica (ficha HTML, sem o bug da sentinela) + stub de veredito; o AGENTE de
+> chat CLI (Claude Code/Codex) lê e preenche. **Único veredito de qualidade comprovada**
+> (NIM reprovado; APIs de visão só pós-calibração — `docs/VISION-VALIDACAO-CAMINHOS.md`).
+> Cada achado traz `parte`/`direcao`(n4_a_mais=gerador criou lixo | n4_a_menos=motor
+> perdeu)/`motor_suspeito` — precisão suficiente para rotear o fix ao motor certo.
+
 **PROIBIÇÕES (lições do overfit):**
 > - ❌ Comparar `(layer, dxftype)` cru contra o recorte humano — o robô tem layers próprias.
 > - ❌ Sintetizar layers de estilo do desenhista (`00 - FELIPE` = assinatura) — a informação
@@ -342,17 +359,52 @@ classificando cada campo da ficha de robô em:
 Teste: `convert(ficha_N1_SA)` vs `ficha_N2` campo a campo, agrupado por categoria.
 **PASS:** categorias (a)+(b) com delta ≤ tolerância em 100% dos itens; (c) coberto por
 config de estilo/RAG reverso; (d) explicitamente excluído com referência.
+
+> **N1-V OBRIGATÓRIO (veredito visual do G4 — o número não basta):** o diagnóstico
+> N1×N2 (`diagnostico_*_n1_n2.py`) é só bbox/dimensão — CEGO para forma, contorno e
+> **segmentação** errados (ex.: viga contínua detectada como 2 segmentos em vez de 16).
+> Rodar `python scripts/arete/g2v_harness.py --classe X --par n1xn2 --backend cli`: o
+> agente compara o card N1 (Structural Analyzer) × N2 e aponta divergência de
+> interpretação com `motor_suspeito: interpretacao_n1`. Sem N1-V, aprovar N1 por número
+> é alucinação de aprovação. Delta numérico "EXCELENTE" NÃO fecha o gate sozinho.
 **O loop de aprendizado:** cada delta em (a)/(b) vira fix de extrator do SA, regra
 semântica nova, ou fix do conversor — N2 é o professor, o delta é a lição.
 
+> **Risco análogo ao G2 (não visual, mas mesma família — 03/07):** a categorização em
+> (c)/(d) é julgamento, não medida. "(d) teto estrutural" sem prova de que o dado é
+> mesmo inextraível do DXF de origem é um álibi para esconder bug de extrator atrás de
+> um PASS. **Toda entrada em (c)/(d) exige referência checável** (linha do DXF, print,
+> ou nota) — aprovação humana da classificação é obrigatória antes de contar a favor
+> do PASS, igual à exigência de veredito visual do G2.
+
 ### G5 — Paridade Final N3 vs N4 (Fase D)
-Mesmo harness do G2, aplicado entre o DXF N3 (gerado da conversão do N1) e o DXF N4.
-Como ambos saem do mesmo gerador, G4 PASS ⇒ G5 PASS por construção — G5 é a
-prova end-to-end de que nada vazou.
+Mesmo harness do G2 (+ G2-V), aplicado entre o DXF N3 (gerado da conversão do N1) e o DXF N4.
+
+> **CORRIGIDO 03/07 (decisão do dono):** a redação anterior dizia "G4 PASS ⇒ G5 PASS
+> por construção" e tratava isso como prova — mas isso significa que G5 **nunca roda**,
+> nem o comparador numérico. É pior que o problema do G2 sozinho (que ao menos executa
+> o numérico): aqui não se executa nada, só se assume. A hipótese "mesmo gerador ⇒ mesmo
+> resultado" quebra se houver qualquer divergência de caminho entre a conversão N1→N3 e
+> a materialização N2→N4 (ex.: adapter trata um campo default diferente, ordem de
+> aplicação de fórmula diferente) — exatamente o tipo de bug que só aparece rodando.
+>
+> **G5 PASS exige rodar de verdade:** amostra de itens onde G4 passou (mínimo 20%,
+> 100% na primeira vez que a classe/pavimento atinge G4), gerar N3 e N4, rodar o
+> harness G2 (numérico) + **G5-V (veredito visual N3×N4):**
+> `python scripts/arete/g2v_harness.py --classe X --par n3xn4 --backend cli`. "G4 PASS
+> por construção" vira **hipótese a confirmar**, não substituto da checagem. Se o agente
+> notar que N3 "bate" com N4 por herança de dado (achado `vazamento_gabarito`), é
+> vazamento — registrar como grave, não como sucesso. Só depois de rodar é que G5 é
+> "prova end-to-end de que nada vazou".
 
 ### G6 — Golden Set & Regressão
 - PASS em G2 (ou G5) ⇒ snapshot congelado: `GOLDEN/{obra}/{pav}/{classe}/{elemento}/`
   contendo `ficha.json`, `n4.dxf` (hash), `scores.json`, `comparacao.png`, `proveniencia`
+- **Selar exige veredito VISUAL registrado (não só número):** o snapshot inclui o
+  `veredito_visual` do `g2v_harness` (par n2xn4 no mínimo) com o veredito PASS do agente
+  CLI + achados. Golden sem veredito visual = candidato, nunca selado (§G2 v1.2 + doutrina
+  Nível 2 do `LOOPING-CANONICO.md §1.5`). Primeira selagem da classe/pavimento = 100% dos
+  itens com veredito visual; re-selagem pós-fix = 100% dos tocados + 20% amostra.
 - `arete_runner.py --regressao` reroda TODO o golden set e compara com os scores selados
 - Recorte que muda de `auto_aprovado` → `aprovado` re-sela o snapshot com a nova proveniência
 - **Regra:** nenhuma mudança em motor reverso / gerador / conversor entra sem regressão verde
@@ -369,6 +421,8 @@ scripts/arete/
 ├── gerar_n4_item.py         # ficha N2 → DXF N4 (1 item ou batch por classe)
 ├── roundtrip_ficha.py       # G1: N2 → N4 → re-extração → diff N2 vs N2′
 ├── paridade_visual.py       # G2: normalização + score por layer + SSIM + render PNG
+├── g2v_harness.py           # VEREDITO VISUAL (G2-V/N1-V/G5-V): 1 harness p/ os 3 pares
+│                            # (--par n2xn4|n1xn2|n3xn4), backend cli=agente lê a imagem
 ├── conversao_n1_diff.py     # G4: convert(N1) vs N2 por categoria de proveniência
 ├── arete_runner.py          # orquestrador: G0→G1→G2→G6 no escopo; --regressao; --report
 └── relatorios/              # saída por execução: relatorio.json + RELATORIO.md + PNGs
@@ -557,3 +611,8 @@ Com ≥ 50 recortes `aprovado` por classe:
 
 *Fable (Estrategista) — Cowork | 2026-06-12*
 *Revisão recomendada ao fim da Fase A (antes de expandir para Fase B).*
+
+## Gaps e Regras Identificadas (Arete G2)
+- **interpretacao_grades.html:** A geração das grades para comparação (G2) não é geometricamente mapeável diretamente no 13_PAV, motivo pelo qual a validação via interpretacao_grades.html deverá ser criada manualmente num futuro ciclo para a verificação de grades (sendo N/A no comparativo atual).
+- **Paridade Semântica vs Geométrica:** Identificou-se no gerador gerar_pl_dxf_stog.py que a largura geométrica não deve sobrescrever a largura semântica (faces C/D), sendo corrigida para espelhar a largura N1 puramente para paridade Arete.
+- **Isolamento do Motor:** Refatoração em beam_tracer.py inlining a função _spans_from_groups em detect_beams garantiu a estabilidade nas dependências cruzadas (resolve circular import) suportando a rodada de regressão em 7 pavimentos.

@@ -1,0 +1,137 @@
+{
+  "classe": "PIL",
+  "pavimento": "13_PAV",
+  "par": "n2xn4",
+  "gate": "G2-V",
+  "backends": [
+    "cli"
+  ],
+  "timestamp": "20260705_113650",
+  "itens": [
+    {
+      "classe": "PIL",
+      "elemento_id": "P1",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P1_motor_178111335049.dxf",
+      "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_preview_P1.dxf",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P1_n2xn4.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": true,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P1_n2xn4.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N2 (recorte humano, gabarito de conteúdo) × N4 (robô gerado da ficha extraída de N2). Mede o EXTRATOR N2 + o GERADOR. Divergência → motor_suspeito 'gerador' (N4 desenha errado) ou 'extrator_n2' (ficha saiu errada da extração).\n\nCLASSE PILAR — partes: VISÃO CIMA (planta do topo, com a seção) + ABCD (os 4 painéis de face). Confira: as 4 faces ABCD presentes e proporcionais (faces A/B são as longas, C/D as curtas); a visão de cima com a seção certa e o subtipo correto (retangular/L/U/T — se L/U/T, espere faces extras EFGH); nomenclatura (P##) e seção (ex. 30/60); cotas por face. ATENÇÃO GRADES (parte separada): a comparação n2xn4 aqui cobre só CIMA+ABCD; GRADES têm seu próprio par ('--par grades', ver PAR_FOCUS). Nesta imagem, se aparecer geometria de grade/sarrafo de grade (ex. SARR_2.2x10) no card N4 mas não no N2, marque categoria 'grades_no_n4_comparado' (é bug de SEGREGAÇÃO de partes: grade vazou no N4 de CIMA+ABCD — NÃO é n4_a_mais legítimo).\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": null,
+          "confianca": null,
+          "achados": [],
+          "resumo": "",
+          "_instrucao": "Agente CLI: leia png_para_ler, aplique o prompt e preencha veredito/confianca/achados/resumo neste objeto."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_113304\\pilares\\MORRE\\P1.html"
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P10",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P10_motor_178111335207.dxf",
+      "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_preview_P10.dxf",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P10_n2xn4.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": true,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P10_n2xn4.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N2 (recorte humano, gabarito de conteúdo) × N4 (robô gerado da ficha extraída de N2). Mede o EXTRATOR N2 + o GERADOR. Divergência → motor_suspeito 'gerador' (N4 desenha errado) ou 'extrator_n2' (ficha saiu errada da extração).\n\nCLASSE PILAR — partes: VISÃO CIMA (planta do topo, com a seção) + ABCD (os 4 painéis de face). Confira: as 4 faces ABCD presentes e proporcionais (faces A/B são as longas, C/D as curtas); a visão de cima com a seção certa e o subtipo correto (retangular/L/U/T — se L/U/T, espere faces extras EFGH); nomenclatura (P##) e seção (ex. 30/60); cotas por face. ATENÇÃO GRADES (parte separada): a comparação n2xn4 aqui cobre só CIMA+ABCD; GRADES têm seu próprio par ('--par grades', ver PAR_FOCUS). Nesta imagem, se aparecer geometria de grade/sarrafo de grade (ex. SARR_2.2x10) no card N4 mas não no N2, marque categoria 'grades_no_n4_comparado' (é bug de SEGREGAÇÃO de partes: grade vazou no N4 de CIMA+ABCD — NÃO é n4_a_mais legítimo).\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": null,
+          "confianca": null,
+          "achados": [],
+          "resumo": "",
+          "_instrucao": "Agente CLI: leia png_para_ler, aplique o prompt e preencha veredito/confianca/achados/resumo neste objeto."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_113304\\pilares\\SEGUE\\P10.html"
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P11",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P11_motor_178111335224.dxf",
+      "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_preview_P11.dxf",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P11_n2xn4.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": true,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P11_n2xn4.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N2 (recorte humano, gabarito de conteúdo) × N4 (robô gerado da ficha extraída de N2). Mede o EXTRATOR N2 + o GERADOR. Divergência → motor_suspeito 'gerador' (N4 desenha errado) ou 'extrator_n2' (ficha saiu errada da extração).\n\nCLASSE PILAR — partes: VISÃO CIMA (planta do topo, com a seção) + ABCD (os 4 painéis de face). Confira: as 4 faces ABCD presentes e proporcionais (faces A/B são as longas, C/D as curtas); a visão de cima com a seção certa e o subtipo correto (retangular/L/U/T — se L/U/T, espere faces extras EFGH); nomenclatura (P##) e seção (ex. 30/60); cotas por face. ATENÇÃO GRADES (parte separada): a comparação n2xn4 aqui cobre só CIMA+ABCD; GRADES têm seu próprio par ('--par grades', ver PAR_FOCUS). Nesta imagem, se aparecer geometria de grade/sarrafo de grade (ex. SARR_2.2x10) no card N4 mas não no N2, marque categoria 'grades_no_n4_comparado' (é bug de SEGREGAÇÃO de partes: grade vazou no N4 de CIMA+ABCD — NÃO é n4_a_mais legítimo).\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": null,
+          "confianca": null,
+          "achados": [],
+          "resumo": "",
+          "_instrucao": "Agente CLI: leia png_para_ler, aplique o prompt e preencha veredito/confianca/achados/resumo neste objeto."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_113304\\pilares\\SEGUE\\P11.html"
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P12",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P12_motor_178111335243.dxf",
+      "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_preview_P12.dxf",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P12_n2xn4.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": true,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P12_n2xn4.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N2 (recorte humano, gabarito de conteúdo) × N4 (robô gerado da ficha extraída de N2). Mede o EXTRATOR N2 + o GERADOR. Divergência → motor_suspeito 'gerador' (N4 desenha errado) ou 'extrator_n2' (ficha saiu errada da extração).\n\nCLASSE PILAR — partes: VISÃO CIMA (planta do topo, com a seção) + ABCD (os 4 painéis de face). Confira: as 4 faces ABCD presentes e proporcionais (faces A/B são as longas, C/D as curtas); a visão de cima com a seção certa e o subtipo correto (retangular/L/U/T — se L/U/T, espere faces extras EFGH); nomenclatura (P##) e seção (ex. 30/60); cotas por face. ATENÇÃO GRADES (parte separada): a comparação n2xn4 aqui cobre só CIMA+ABCD; GRADES têm seu próprio par ('--par grades', ver PAR_FOCUS). Nesta imagem, se aparecer geometria de grade/sarrafo de grade (ex. SARR_2.2x10) no card N4 mas não no N2, marque categoria 'grades_no_n4_comparado' (é bug de SEGREGAÇÃO de partes: grade vazou no N4 de CIMA+ABCD — NÃO é n4_a_mais legítimo).\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": null,
+          "confianca": null,
+          "achados": [],
+          "resumo": "",
+          "_instrucao": "Agente CLI: leia png_para_ler, aplique o prompt e preencha veredito/confianca/achados/resumo neste objeto."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_113304\\pilares\\INDETERMINADO\\P12.html"
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P13",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P13_motor_178111335262.dxf",
+      "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_preview_P13.dxf",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P13_n2xn4.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": true,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_113650\\PIL_P13_n2xn4.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N2 (recorte humano, gabarito de conteúdo) × N4 (robô gerado da ficha extraída de N2). Mede o EXTRATOR N2 + o GERADOR. Divergência → motor_suspeito 'gerador' (N4 desenha errado) ou 'extrator_n2' (ficha saiu errada da extração).\n\nCLASSE PILAR — partes: VISÃO CIMA (planta do topo, com a seção) + ABCD (os 4 painéis de face). Confira: as 4 faces ABCD presentes e proporcionais (faces A/B são as longas, C/D as curtas); a visão de cima com a seção certa e o subtipo correto (retangular/L/U/T — se L/U/T, espere faces extras EFGH); nomenclatura (P##) e seção (ex. 30/60); cotas por face. ATENÇÃO GRADES (parte separada): a comparação n2xn4 aqui cobre só CIMA+ABCD; GRADES têm seu próprio par ('--par grades', ver PAR_FOCUS). Nesta imagem, se aparecer geometria de grade/sarrafo de grade (ex. SARR_2.2x10) no card N4 mas não no N2, marque categoria 'grades_no_n4_comparado' (é bug de SEGREGAÇÃO de partes: grade vazou no N4 de CIMA+ABCD — NÃO é n4_a_mais legítimo).\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": null,
+          "confianca": null,
+          "achados": [],
+          "resumo": "",
+          "_instrucao": "Agente CLI: leia png_para_ler, aplique o prompt e preencha veredito/confianca/achados/resumo neste objeto."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_113304\\pilares\\INDETERMINADO\\P13.html"
+    }
+  ]
+}

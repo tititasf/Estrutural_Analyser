@@ -451,26 +451,35 @@ def _collect_dxf_segments(dxf_path: str | Path):
     segments = []
     texts    = []
     all_xs, all_ys = [], []
+    admin_layers = {"folhas", "carimbo", "carimbo_layer"}
 
     for e in msp:
         layer = _safe_layer(e)
+        if layer.strip().lower() in admin_layers:
+            continue
         dt    = e.dxftype()
         try:
             if dt == "LINE":
                 s, en = e.dxf.start, e.dxf.end
                 xs, ys = [s.x, en.x], [s.y, en.y]
+                if any(x < -5000 for x in xs):
+                    continue
                 segments.append((xs, ys, layer))
                 all_xs.extend(xs); all_ys.extend(ys)
             elif dt in ("LWPOLYLINE", "POLYLINE"):
                 pts = list(e.get_points())
                 xs  = [p[0] for p in pts]
                 ys  = [p[1] for p in pts]
+                if any(x < -5000 for x in xs):
+                    continue
                 if e.closed and pts:
                     xs.append(xs[0]); ys.append(ys[0])
                 segments.append((xs, ys, layer))
                 all_xs.extend(xs); all_ys.extend(ys)
             elif dt in ("TEXT", "MTEXT"):
                 ins = e.dxf.insert
+                if ins.x < -5000:
+                    continue
                 txt = e.dxf.text if dt == "TEXT" else e.plain_mtext()
                 texts.append((ins.x, ins.y, txt[:20]))
                 all_xs.append(ins.x); all_ys.append(ins.y)
@@ -542,7 +551,9 @@ def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None 
 
 def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
                       out_png: str | Path,
-                      diffs: dict | None = None) -> bool:
+                      diffs: dict | None = None,
+                      ref_label: str = "Recorte N2 (gabarito)",
+                      candidate_label: str = "N4 gerado") -> bool:
     """
     Gera PNG side-by-side: recorte | N4 | overlay diff.
     Cada DXF é normalizado ao próprio bounding box (transladado para origem)
@@ -559,18 +570,21 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
     segs_n4,  txts_n4,  bbox_n4  = _collect_dxf_segments(n4_path)
 
     # Painel 1: recorte N2 (normalizado ao próprio bbox)
-    _render_dxf_ax(axes[0], recorte_path, "Recorte N2 (gabarito)",
+    _render_dxf_ax(axes[0], recorte_path, ref_label,
                    segs_precomp=segs_ref, txts_precomp=txts_ref, bbox_precomp=bbox_ref)
 
     # Painel 2: N4 gerado (normalizado ao próprio bbox)
-    _render_dxf_ax(axes[1], n4_path, "N4 gerado",
+    _render_dxf_ax(axes[1], n4_path, candidate_label,
                    segs_precomp=segs_n4, txts_precomp=txts_n4, bbox_precomp=bbox_n4)
 
     # Painel 3: overlay — ambos normalizados individualmente para [0,1]×[0,1]
     # Isso permite comparar forma/proporção independente de escala/posição absoluta.
     axes[2].set_facecolor("#0a0a14")
     axes[2].set_aspect("equal")
-    axes[2].set_title("Overlay normalizado (verde=ref, vermelho=N4)", color="#ccccff", fontsize=8)
+    axes[2].set_title(
+        f"Overlay normalizado (verde={ref_label}, vermelho={candidate_label})",
+        color="#ccccff", fontsize=8,
+    )
 
     segs_ref_n, _, _, _ = _norm_coords(segs_ref, txts_ref, bbox_ref)
     segs_n4_n,  _, _, _ = _norm_coords(segs_n4,  txts_n4,  bbox_n4)
@@ -581,8 +595,8 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
         axes[2].plot(xs, ys, color="#ff4444", linewidth=0.4, alpha=0.7)
 
     legend = [
-        mpatches.Patch(color="#44ff44", label="Recorte N2"),
-        mpatches.Patch(color="#ff4444", label="N4 gerado"),
+        mpatches.Patch(color="#44ff44", label=ref_label),
+        mpatches.Patch(color="#ff4444", label=candidate_label),
     ]
     axes[2].legend(handles=legend, loc="upper right",
                    fontsize=6, facecolor="#1a1a2a", labelcolor="white")

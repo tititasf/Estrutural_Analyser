@@ -31,6 +31,7 @@ melhorar" nada que a story não pediu.
 | Harness Arete | `scripts/arete/` (runner: `arete_runner.py`; relatórios: `scripts/arete/relatorios/`) |
 | Golden set | `GOLDEN/{obra}/{pav}/{classe}/` — NUNCA selar com FAIL |
 | Log de triagem | `scripts/arete/relatorios/triagem_erros/*.jsonl` — LER antes de qualquer fix |
+| Headless: 1 por vez | Trava anti-OOM ativa. Rode SEMPRE com `--wait` em automação; se abortar dizendo "já existe execução", aguarde — **PROIBIDO matar o processo detentor** |
 
 ## 4. Proibições globais (valem em TODA story, sem exceção)
 
@@ -63,7 +64,12 @@ melhorar" nada que a story não pediu.
 | ~~`STORY-EXEC-01-FV-SARR5CM.md`~~ | **CONCLUÍDA 03/07 (Fable):** fix no comparador (`SKIP_LAYERS_G2['FV']` + `SARR_5cm`/`SARR_CONTORNO_10cm`); FV 26/26, golden re-selado | — |
 | ~~`STORY-EXEC-04-LAJ-LINHAS-HORIZONTAIS.md`~~ | **CONCLUÍDA 03/07:** gerador emitia uniões como LWPOLYLINE, motor reextrai como LINE; fix de 8 linhas em `gerar_lj_dxf_stog.py` (~L501), motor intocado. LAJ 31/31 + regressão FV 26/26 e PIL 35/35; golden re-selado; JSONL atualizado (23 verificados) | — |
 | ~~`STORY-EXEC-05-RECONCILIACAO-CONCORDANCIA.md`~~ | **CONCLUÍDA 03/07:** PIL 24→13 reais, FV 34→22, LV 20→14 (resto estrutural); achados N1 com evidência visual em `RECONCILIACAO-2026-07-03.md`; `triagem_concordancia.py` entregue com testes; convergência dupla em L312/L315 | — |
-| `STORY-EXEC-02-FLAG-SECAO.md` | Flag `--secao` no headless (gerar só uma classe) | Médio — toca arquivo de UI compartilhado, exige sessão dedicada |
+| ~~`STORY-EXEC-02-FLAG-SECAO.md`~~ | **CONCLUÍDA 03/07:** `_export_html_snapshot(sections=None)` (default idêntico, provado por diff vazio vs rodada de referência) + `--secao` no headless com fail-fast; ~100s vs ~315s (3x); 12/12 testes | — |
+
+> **Follow-up de performance anotado (não é story ainda):** `_generate_fv_n3_nova_previews`
+> (subprocessos N3 NOVA por viga FV) ainda roda incondicionalmente mesmo com
+> `--secao lajes` — é o próximo gargalo óbvio se quiserem espremer mais velocidade.
+> Fora do escopo da EXEC-02 por decisão correta do executor.
 | ~~`STORY-EXEC-03-DIAG-LAJ-HEADLESS.md`~~ | **CONCLUÍDA 03/07:** pós-processo generalizado (`_run_section_diagnostics`, manifesto schema v2 com as 4 classes, bloco injetado até em subpastas via rglob); 5/5 testes; run real confirmado | — |
 
 ---

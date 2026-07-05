@@ -1,0 +1,1516 @@
+{
+  "classe": "LV",
+  "pavimento": "13_PAV",
+  "rodada_ts": "20260703_163222",
+  "total": 32,
+  "pass": 32,
+  "fail": 0,
+  "blocked": 0,
+  "arete_pct": 100.0,
+  "itens": [
+    {
+      "elemento_id": "V13",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V13_motor_178111332818.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V13",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V13.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V13     : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V13\\Fase-6_Execucao_CAD\\LV_preview_V13.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V13\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 251,
+          "total_n4": 190
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V13.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V13",
+        "n4_sha256": "b123b06877f080f5e7025a1dbe209735ba6cb6c54bcb2fc15f67d9d969b55bfb"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V301",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V301_motor_178111332829.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V301",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V301.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V301    : face_units=20  sections=2  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V301\\Fase-6_Execucao_CAD\\LV_preview_V301.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V301\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 1975,
+          "total_n4": 2575
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V301.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V301",
+        "n4_sha256": "74baf012723d9e4bd7b495af807c728a3f43489056fc5a810e76fb72599b0533"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V302",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V302_motor_178111332849.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V302",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V302.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V302    : face_units=15  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V302\\Fase-6_Execucao_CAD\\LV_preview_V302.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V302\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 991,
+          "total_n4": 787
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V302.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V302",
+        "n4_sha256": "b2e8e6e25ac839d3fbc07552a881f222094e744340aec8467120cd4630537fcd"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V303",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V303_motor_178111332862.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V303",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V303.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V303    : face_units=8  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V303\\Fase-6_Execucao_CAD\\LV_preview_V303.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V303\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 722,
+          "total_n4": 389
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V303.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V303",
+        "n4_sha256": "5208d783fe6673528e2bdf806e9bb336feae3ecc14d3c71d1f61b3a278d5088b"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V304",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V304_motor_178111332873.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V304",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V304.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V304    : face_units=3  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V304\\Fase-6_Execucao_CAD\\LV_preview_V304.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V304\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 366,
+          "total_n4": 529
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V304.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V304",
+        "n4_sha256": "6fa5e51fc1cc12b98c15ad1a3024121697d3891c226612a7c9853d610c380ba3"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V305",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V305_motor_178111332881.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V305",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V305.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V305    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V305\\Fase-6_Execucao_CAD\\LV_preview_V305.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V305\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 198,
+          "total_n4": 180
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V305.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V305",
+        "n4_sha256": "c8e2524b848891777d35c53cf0d39ac23d35e43c0e8b9d75dfd51dadb9e01279"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V306",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V306_motor_178111332891.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V306",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V306.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V306    : face_units=9  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V306\\Fase-6_Execucao_CAD\\LV_preview_V306.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V306\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 869,
+          "total_n4": 443
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V306.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V306",
+        "n4_sha256": "eec00c1bf15c760ec124f979ae089c41ce04c70fd71749ff78cefeeab373eeae"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V308",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V308_motor_178111332904.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V308",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V308.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V308    : face_units=2  sections=2  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V308\\Fase-6_Execucao_CAD\\LV_preview_V308.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V308\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 367,
+          "total_n4": 299
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V308.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V308",
+        "n4_sha256": "4d5e264615ad29527cfef9597f68650811f60c819658ea190ee37ee734dc451a"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V310",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V310_motor_178111332912.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V310",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V310.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V310    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V310\\Fase-6_Execucao_CAD\\LV_preview_V310.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V310\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 199,
+          "total_n4": 147
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V310.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V310",
+        "n4_sha256": "6bc365ef7da7dca8fb58bb0396ed48c97120b386a7ab712ab3135eb9bf870640"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V311",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V311_motor_178111332923.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V311",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V311.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V311    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V311\\Fase-6_Execucao_CAD\\LV_preview_V311.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V311\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 183,
+          "total_n4": 162
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V311.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V311",
+        "n4_sha256": "53da6dfe51f8a487205176f0fece614094529d5cb73e9e8c337f7f31e8d59831"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V312",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V312_motor_178111332933.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V312",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V312.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V312    : face_units=4  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V312\\Fase-6_Execucao_CAD\\LV_preview_V312.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V312\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 360,
+          "total_n4": 466
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V312.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V312",
+        "n4_sha256": "a8db2a7f7706845217a6f1a44315b3e5a72c83d14e76fe3df320eb4153afc6e7"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V314",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V314_motor_178111332943.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V314",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V314.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V314    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V314\\Fase-6_Execucao_CAD\\LV_preview_V314.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V314\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 469,
+          "total_n4": 540
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V314.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V314",
+        "n4_sha256": "41d825f5204be8b095be2ad6f92628acda7a39035b6304e16c00b8cc4cd3b87d"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V315",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V315_motor_178111332954.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V315",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V315.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V315    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V315\\Fase-6_Execucao_CAD\\LV_preview_V315.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V315\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 220,
+          "total_n4": 190
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V315.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V315",
+        "n4_sha256": "62bf54db6322cc9b732427d15fd058a1ae437d3436dd4b7b4d360f5ca9a7b276"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V316",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V316_motor_178111332965.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V316",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V316.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V316    : face_units=4  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V316\\Fase-6_Execucao_CAD\\LV_preview_V316.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V316\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 404,
+          "total_n4": 522
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V316.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V316",
+        "n4_sha256": "c2bef2aedc765d992707bc51ce369f52631764d70fee3029e046941db3eb3c35"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V317",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V317_motor_178111332975.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V317",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V317.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V317    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V317\\Fase-6_Execucao_CAD\\LV_preview_V317.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V317\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 250,
+          "total_n4": 190
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V317.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V317",
+        "n4_sha256": "0476393b7ede90b8e258be67863514603c47e1c0715b2eb45e303c1e45431fbe"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V318",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V318_motor_178111332987.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V318",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V318.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V318    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V318\\Fase-6_Execucao_CAD\\LV_preview_V318.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V318\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 493,
+          "total_n4": 540
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V318.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V318",
+        "n4_sha256": "83ea0fae7abb1610e304be58bb785a6d9992d58e05ff2c8cb39bac63fc664800"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V319",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V319_motor_178111332999.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V319",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V319.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V319    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V319\\Fase-6_Execucao_CAD\\LV_preview_V319.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V319\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 206,
+          "total_n4": 190
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V319.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V319",
+        "n4_sha256": "f795bd44cad964fe3dda3e006275d6c8c9f755550e7c99751725d6f0f3704b1b"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V320",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V320_motor_178111333024.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V320",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V320.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V320    : face_units=4  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V320\\Fase-6_Execucao_CAD\\LV_preview_V320.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V320\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 424,
+          "total_n4": 523
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V320.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V320",
+        "n4_sha256": "40fa7ed49d7e0657184c6c9966bf79bbced6da88a27c73a03d58aa81c3a00680"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V321",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V321_motor_178111333036.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V321",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V321.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V321    : face_units=4  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V321\\Fase-6_Execucao_CAD\\LV_preview_V321.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V321\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 289,
+          "total_n4": 211
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V321.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V321",
+        "n4_sha256": "b0cf68a31350807b2e915fcae5b8770e88c5887a09c252b6a30be4335b124032"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V322",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V322_motor_178111333046.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V322",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V322.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V322    : face_units=3  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V322\\Fase-6_Execucao_CAD\\LV_preview_V322.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V322\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 496,
+          "total_n4": 398
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V322.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V322",
+        "n4_sha256": "bd7d6da33d3b24f4b798666d29c652228169ee77644148c85a5174bd2e5248bd"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V323",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V323_motor_178111333057.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V323",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V323.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V323    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V323\\Fase-6_Execucao_CAD\\LV_preview_V323.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V323\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 159,
+          "total_n4": 153
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V323.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V323",
+        "n4_sha256": "cba4d2dee243f4a571111741f50c45d0db06fb62777d585fd7bbd56e0b05eee5"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V324",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V324_motor_178111333066.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V324",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V324.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V324    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V324\\Fase-6_Execucao_CAD\\LV_preview_V324.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V324\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 133,
+          "total_n4": 138
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V324.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V324",
+        "n4_sha256": "350cdbef87c10a85358685c694366898ec86edb3ec6ca3efa6417238c22ef0f7"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V325",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V325_motor_178111333077.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V325",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V325.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V325    : face_units=4  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V325\\Fase-6_Execucao_CAD\\LV_preview_V325.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V325\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 359,
+          "total_n4": 428
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V325.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V325",
+        "n4_sha256": "b69894e5644b4bbe1556e05be1eafad34663ad292c56902900d8e2fe14bd465e"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V326",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V326_motor_178111333086.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V326",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V326.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V326    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V326\\Fase-6_Execucao_CAD\\LV_preview_V326.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V326\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 131,
+          "total_n4": 138
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V326.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V326",
+        "n4_sha256": "dc7075494b1e135cead0efd14a41bcb9cdb25981f6430ad15dde9e95214aa302"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V327",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V327_motor_178111333096.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V327",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V327.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V327    : face_units=2  sections=1  b=14\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V327\\Fase-6_Execucao_CAD\\LV_preview_V327.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V327\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 131,
+          "total_n4": 138
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V327.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V327",
+        "n4_sha256": "a757141eae14424323124349c487c1235beea7257906157cac2c7db67ba93963"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V328",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V328_motor_178111333106.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V328",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V328.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V328    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V328\\Fase-6_Execucao_CAD\\LV_preview_V328.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V328\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 133,
+          "total_n4": 138
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V328.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V328",
+        "n4_sha256": "d7887e72786e4a07688f9f2e4d3cad4c5bd78dd939670065b72295a59722c8b2"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V329",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V329_motor_178111333116.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V329",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V329.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V329    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V329\\Fase-6_Execucao_CAD\\LV_preview_V329.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V329\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 245,
+          "total_n4": 154
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V329.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V329",
+        "n4_sha256": "447ee2d3db81720831b805d0203702aa641a8fc9ffedcc41be361971b4742357"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V330",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V330_motor_178111333126.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V330",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V330.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V330    : face_units=2  sections=2  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V330\\Fase-6_Execucao_CAD\\LV_preview_V330.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V330\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 433,
+          "total_n4": 427
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V330.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V330",
+        "n4_sha256": "ee0c8dbebede8b29e214e2ba0c7c66c63c80402eaa8f8a53c2b8b9eb2a62d770"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V331",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V331_motor_178111333134.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V331",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V331.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V331    : face_units=2  sections=1  b=14\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V331\\Fase-6_Execucao_CAD\\LV_preview_V331.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V331\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 138,
+          "total_n4": 137
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V331.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V331",
+        "n4_sha256": "4fe7b3a839358876c0c26e2c2d36fa670b46aa9f69f1a96412ba966e14b3229a"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "V332",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V332_motor_178111333143.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "V332",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_V332.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  V332    : face_units=2  sections=1  b=19\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V332\\Fase-6_Execucao_CAD\\LV_preview_V332.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_V332\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 216,
+          "total_n4": 182
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_V332.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\V332",
+        "n4_sha256": "0c436ac7b97aecb87203b55234085cab95bc245d91e870e4e12ab03d7946ba47"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "VF203",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_VF203_motor_178111333151.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "VF203",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_VF203.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  VF203   : face_units=5  sections=1  b=14\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_VF203\\Fase-6_Execucao_CAD\\LV_preview_VF203.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_VF203\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 443,
+          "total_n4": 326
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_VF203.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\VF203",
+        "n4_sha256": "fffedced7a81e2908b9a5ceac823636929a492896e8615bf3483ce141b45e9cc"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    },
+    {
+      "elemento_id": "VF301",
+      "classe": "LV",
+      "g0": {
+        "pass": true,
+        "resultado": "PASS",
+        "erros": [],
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_VF301_motor_178111333160.dxf",
+        "proveniencia": "draft"
+      },
+      "g1": {
+        "gate": "G1",
+        "resultado": "PASS",
+        "classe": "LV",
+        "elemento_id": "VF301",
+        "campos_comparados": 35,
+        "diffs": [],
+        "n4_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LV_preview_VF301.dxf",
+        "log_gerador": "  [fichas_lv_v2] 1 vigas | h_cm=1 | b_cm=1 | segs_widths=1\nProcessando 1 vigas laterais -> LV_stog_quality.dxf\n  [SKIP-LAYERS] pulando layers ausentes no STOG: ['Cota SeÃ§Ã£o (2x)', 'SCO-___-LAJ', 'TENSOR', 'Texto SeÃ§Ã£o', 'barrote', 'presilha']\n  VF301   : face_units=4  sections=1  b=14\n  [BOOST] skip â€” modo item granular (boost apenas no pavimento completo)\n\nDXF: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_VF301\\Fase-6_Execucao_CAD\\LV_preview_VF301.dxf\nPreview: D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LV_13_PAV_VF301\\Fase-6_Execucao_CAD\\LV_stog_quality.png\n",
+        "erro": "",
+        "modo": "dinamico"
+      },
+      "g2": {
+        "gate": "G2",
+        "resultado": "PASS",
+        "scores": {
+          "entidades_ok": true,
+          "geometria_ok": true,
+          "textos_ok": true,
+          "hatches_ok": true,
+          "total_ref": 335,
+          "total_n4": 275
+        },
+        "diffs_entidades": [],
+        "diffs_geometria": [],
+        "diffs_textos": [],
+        "diffs_hatches": [],
+        "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\20260703_163222\\png\\LV_VF301.png",
+        "erro": ""
+      },
+      "g6": {
+        "golden_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\GOLDEN\\Obra_TREINO_1\\13_PAV\\LV\\VF301",
+        "n4_sha256": "ee4fb25b4a7bfa3f4288d9409b481ac6d5c1bf8ccd59a1325f9a3a6a1cc6351a"
+      },
+      "resultado_final": "PASS",
+      "golden_selado": true
+    }
+  ]
+}

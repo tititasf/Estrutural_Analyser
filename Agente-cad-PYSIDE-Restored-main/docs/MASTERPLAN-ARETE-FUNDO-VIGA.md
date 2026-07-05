@@ -87,6 +87,11 @@ Escopo: 26 fundos de viga do 13_PAV. Paridade canônica (§G2 v1.2), **1 parte**
 (`_ROBOS_ABAS/Robo_Fundos_de_Vigas`); fix POR FÓRMULA em `gerar_fv_dxf_stog.py` ou
 `motor_reverso_fv.py`; preview PNG → inspeção visual → arete → regenera lote. Um fix por causa.
 
+> **G2 numérico sozinho não autoriza "golden selado" (decisão do dono, 03/07 —
+> `docs/LOOPING-CANONICO.md` §1.5).** "PASS" nas stories acima significa G2 canônico
+> (numérico); a selagem de golden exige também G2-V (veredito visual registrado —
+> render do recorte N2 humano × DXF N4 do robô, os dois sempre juntos).
+
 **Atenção FV-específica:** a segmentação do contorno (onde abre por causa de pilar cruzado) deve
 sair da geometria (pilares adjacentes), POR FÓRMULA — nunca hardcodar a abertura de uma viga.
 Vigas de fundação (VF*) podem não ter cobertura no DXF → BLOCKED documentado (teto estrutural).

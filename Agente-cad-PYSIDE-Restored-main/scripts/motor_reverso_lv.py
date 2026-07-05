@@ -348,6 +348,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
             best_confirmed:  dict | None = None
             best_full_floor: dict | None = None
+            cover_pair:      dict | None = None
 
             for y_top, xl_t, xr_t in tops:
                 top_w = max(xr_t - xl_t, 1.0)
@@ -359,7 +360,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 # H-lines espúrias mais profundas na mesma zona.
                 covered_intervals: list = []   # [(xl, xr)] já cobertos
                 cover_depth: float = 0.0       # profundidade máxima do cover
-                cover_pair: dict | None = None # par que atingiu cover_depth
 
                 for y_bot, xl_b, xr_b, w_b in sorted(
                         ys, key=lambda t: t[0], reverse=True):  # menor h primeiro
@@ -595,14 +595,19 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
         found_by_label = False
         if my_labels:
+            print(f"DEBUG {elem_prefix}: my_labels = {my_labels}")
             for lx, ly, txt, side in my_labels:
                 pair = _find_pair_for_label(lx, ly)
+                print(f"DEBUG {elem_prefix}: label {txt} at ({lx}, {ly}) -> pair = {pair}")
                 if side == 'A' and pair:
                     face_A = pair
                     found_by_label = True
                 elif side == 'B' and pair:
                     face_B = pair
                     found_by_label = True
+
+        print(f"DEBUG {elem_prefix}: face_A = {face_A}")
+        print(f"DEBUG {elem_prefix}: face_B = {face_B}")
 
         # Fallback: sem labels — usar pares com mesmo x_left (mesma coluna de desenho)
         if face_A is None and face_B is None and all_pairs:
@@ -2063,6 +2068,7 @@ def extrair_ficha_lateral_viga(
     source = 'dxf_geom' if conf >= 0.55 else 'dxf_geom_parcial'
     if err:
         source = 'dxf_geom_erro'
+        print(f"DEBUG EXCEPTION: {err}")
     result['_er_meta'] = {
         'source':    source,
         'dxf_path':  str(recorte_path),

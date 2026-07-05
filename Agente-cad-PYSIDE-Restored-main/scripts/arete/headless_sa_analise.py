@@ -829,6 +829,31 @@ def run_analysis(
         if getattr(window, '_analysis_in_progress', False):
             raise RuntimeError('Análise Geral humana não foi finalizada')
 
+        html_dir = None
+        diagnostics = {}
+        try:
+            dialog = window._build_pre_validation_dialog()
+            if dialog:
+                html_dir = dialog._export_html_snapshot(sections=sections)
+                # `_export_html_snapshot` salva em `run_dir` local e retorna o Path
+                print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
+
+                diagnostics = (
+                    _run_section_diagnostics(
+                        html_dir=html_dir,
+                        obra=obra,
+                        pavimento=pavimento,
+                        state_path=dialog._analysis_state_path(),
+                        db_path=db_path,
+                    )
+                    if run_diagnostics
+                    else {}
+                )
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print(f"[ERROR] Exception during HTML/diagnostics generation: {e}", flush=True)
+
         obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
         fv_results = list(getattr(window, '_last_fv_results', []) or [])
         n3_tmp_root = _REPO_ROOT / 'scripts' / 'arete' / 'tmp'
@@ -889,7 +914,7 @@ def run_analysis(
         window.close()
 
 
-_VALID_SECTIONS = {'pilares', 'lajes', 'fundos_viga'}
+_VALID_SECTIONS = {'pilares', 'lajes', 'fundos_viga', 'laterais_viga'}
 
 
 def _parse_sections(raw_values: list[str] | None) -> set[str] | None:
@@ -941,11 +966,36 @@ def main() -> None:
     )
     ap.add_argument('--open',  action='store_true',
                     help='Abrir HTML no navegador apos gerar')
+    ap.add_argument('--wait', action='store_true',
+                    help='Se outro headless estiver rodando, aguardar a vez '
+                         '(poll 10s, timeout 30min) em vez de abortar — '
+                         'recomendado para agentes/automacao')
     args = ap.parse_args()
     try:
         sections = _parse_sections(args.secao)
     except ValueError as exc:
         ap.error(str(exc))
+
+    # Trava anti-OOM: duas execuções simultâneas do headless (SA+matplotlib)
+    # esgotam a RAM da workstation. O lock é liberado pelo SO ao fim do
+    # processo (mesmo em crash) — nunca fica órfão; basta aguardar e rerodar.
+    try:
+        from scripts.arete.single_instance import acquire_lock, wait_for_lock
+    except ImportError:
+        from single_instance import acquire_lock, wait_for_lock
+    if args.wait:
+        _instance_lock, _holder = wait_for_lock('headless_sa')
+    else:
+        _instance_lock, _holder = acquire_lock('headless_sa')
+    if _instance_lock is None:
+        print('[SA] ABORTADO: já existe uma execução do headless em andamento '
+              '(proteção anti-OOM — 1 headless por vez nesta máquina).', flush=True)
+        if _holder:
+            print(f'[SA] Instância ativa: {_holder}', flush=True)
+        print('[SA] O que fazer: rode novamente com --wait para aguardar '
+              'automaticamente a vez, ou aguarde a execução atual terminar. '
+              'NÃO finalize o processo detentor — ele está trabalhando.', flush=True)
+        sys.exit(2)
 
     # QApplication obrigatorio para PreValidationDialog (mesmo offscreen)
     from PySide6.QtWidgets import QApplication

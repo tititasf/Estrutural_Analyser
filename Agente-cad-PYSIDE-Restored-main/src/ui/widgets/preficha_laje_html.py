@@ -286,6 +286,21 @@ def write_laje_pages(
         ".kv-table{width:100%;box-sizing:border-box}"
     )
 
+    import glob
+    import json
+    arete_dados = {}
+    relatorios = glob.glob(os.path.join("scripts", "arete", "relatorios", "*", "relatorio.json"))
+    if relatorios:
+        relatorios.sort()
+        try:
+            with open(relatorios[-1], "r", encoding="utf-8") as f:
+                rel = json.load(f)
+                if rel.get("classe") == "LAJ":
+                    for item in rel.get("itens", []):
+                        arete_dados[item["elemento_id"]] = item
+        except Exception:
+            pass
+
     entries: list[tuple[str, dict, str]] = []
     used: set[str] = set()
     for row in rows:
@@ -518,6 +533,44 @@ def write_laje_pages(
             "</div></div>"
         )
 
+        arete_item = arete_dados.get(name)
+        arete_section = ""
+        if arete_item:
+            g1 = arete_item.get("g1", {})
+            g2 = arete_item.get("g2", {})
+            
+            def badge(res):
+                c = "#4fc3a1" if res == "PASS" else "#e17055"
+                return f'<span style="color:{c};font-weight:bold;">{res}</span>'
+                
+            g1_res = g1.get("resultado", "NONE")
+            g2_res = g2.get("resultado", "NONE")
+            
+            diffs_g1 = g1.get("diffs", [])
+            diffs_html = ""
+            for d in diffs_g1:
+                diffs_html += f"<li style='color:#e17055;margin-bottom:4px;'><b>{html.escape(d.get('campo', ''))} diverge:</b> N2={d.get('n2')} vs N2p={d.get('n2p')}</li>"
+            
+            if diffs_html:
+                diffs_html = f"<ul style='font-size:11px;'>{diffs_html}</ul>"
+                
+            g1_erro = g1.get("erro", "")
+            if g1_erro:
+                diffs_html += f"<p style='color:#e17055;font-size:11px;'>{html.escape(g1_erro)}</p>"
+                
+            g2_erro = g2.get("erro", "")
+            g2_erro_html = f"<p style='color:#e17055;font-size:11px;'>{html.escape(g2_erro)}</p>" if g2_erro else ""
+                
+            arete_section = (
+                '<div class="sec"><div class="sec-title" style="color:#f0b840;">Comparison Engine (N3×N4) - Paridade</div>'
+                f'<div class="sec-body" style="background:#1a1a1a;">'
+                f'<p style="font-size:12px;margin:4px 0;"><b>G1 (Convergência Semântica):</b> {badge(g1_res)}</p>'
+                f'{diffs_html}'
+                f'<p style="font-size:12px;margin:4px 0;margin-top:10px;"><b>G2 (Paridade Canônica DXF):</b> {badge(g2_res)}</p>'
+                f'{g2_erro_html}'
+                f'</div></div>'
+            )
+
         main = (
             nav_bar
             + identity_section
@@ -525,6 +578,7 @@ def write_laje_pages(
             + pipeline_section
             + evidence_section
             + ficha_section
+            + arete_section
             + checks_section
             + '<pre id="_aten_export" style="display:none"></pre>'
             + '<button onclick="exportAnotacoes()" style="margin:12px 0;'

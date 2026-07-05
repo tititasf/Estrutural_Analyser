@@ -191,7 +191,7 @@ def add_paired_lines_h(msp, x_left, x_right, y, gap=SARRAFO_GAP, layer='3'):
     return [p1, p2]
 
 
-def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
+def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0, text_override=None):
     """
     Add DIMENSION on layer Painéis with dimstyle COTA PAINEL-50.
     Horizontal dimension between p1_x and p2_x.
@@ -203,6 +203,7 @@ def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
             p2=(p2_x, p_y),
             angle=angle,
             dimstyle=DIMSTYLE_NAME,
+            text=text_override if text_override is not None else "<>",
             dxfattribs={'layer': 'COTA'}
         )
         d.render()
@@ -211,7 +212,7 @@ def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
         return None
 
 
-def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x, text_location=None):
+def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x, text_location=None, text_override=None):
     """Vertical dimension on Painéis layer."""
     try:
         d = msp.add_linear_dim(
@@ -220,6 +221,7 @@ def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x, text_location=None
             p2=(p_x, p2_y),
             angle=90,
             dimstyle=DIMSTYLE_NAME,
+            text=text_override if text_override is not None else "<>",
             dxfattribs={'layer': 'COTA'}
         )
         if text_location is not None:
@@ -437,6 +439,18 @@ def _vertical_dimension_guide(poly_pts, x0, comp, v_positions):
             candidates.append((max(hi - lo for lo, hi in spans), x))
     return max(candidates, default=(0.0, x0 + comp / 2))[1]
 
+def _horizontal_dimension_guide(poly_pts, y0, larg, h_positions):
+    edges = _dedupe_sorted([0.0] + list(h_positions) + [larg])
+    candidates = []
+    for a, b in zip(edges, edges[1:]):
+        if b - a <= 2.0:
+            continue
+        y = y0 + (a + b) / 2
+        spans = _axis_segments_in_polygon(poly_pts, 'h', y)
+        if spans:
+            candidates.append((max(hi - lo for lo, hi in spans), y))
+    return max(candidates, default=(0.0, y0 + larg / 2))[1]
+
 def _clip_polygon_to_rect(poly_pts, x_min, y_min, x_max, y_max):
     points = list(poly_pts)
     if points and points[0] == points[-1]:
@@ -573,20 +587,18 @@ def _add_dim_text(msp, x, y, value, rotation=0.0, height=8.0):
 def _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions):
     """Gera cotas internas no estilo N4, sem copiar a posição dos textos STOG."""
     x_edges = [0.0] + list(v_positions) + [comp]
-    y_guides = [h_positions[0]] if h_positions else [larg / 2]
-    # Cotas horizontais principais: uma linha-guia interna por faixa.
-    for guide in y_guides:
-        abs_y = y0 + float(guide)
-        segments = _axis_segments_in_polygon(poly_pts, 'h', abs_y)
-        if not segments:
-            continue
+    
+    # Cotas horizontais principais: uma linha-guia interna por faixa (no centro do melhor painel)
+    guide_y = _horizontal_dimension_guide(poly_pts, y0, larg, h_positions)
+    segments = _axis_segments_in_polygon(poly_pts, 'h', guide_y)
+    if segments:
         for xa, xb in segments:
             local_edges = [xa - x0, xb - x0]
             local_edges.extend(v for v in x_edges[1:-1] if xa - x0 + 0.5 < v < xb - x0 - 0.5)
             local_edges = _dedupe_sorted(local_edges)
             for a, b in zip(local_edges, local_edges[1:]):
                 if b - a > 1.0:
-                    _add_dim_text(msp, x0 + (a + b) / 2, abs_y - 2.5, b - a)
+                    _add_dim_text(msp, x0 + (a + b) / 2, guide_y, b - a)
 
     # Cotas verticais principais: faixas internas no eixo Y.
     y_edges = [0.0] + list(h_positions) + [larg]
@@ -616,6 +628,28 @@ def _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_
                 for a, b in zip(local_edges, local_edges[1:]):
                     if b - a > 1.0:
                         _add_dim_text(msp, x0 + (a + b) / 2, guide_y, b - a)
+
+    # Cotas verticais de bordas deformadas: quando esq/dir têm spans distintos.
+    xs = sorted({round(p[0], 1) for p in poly_pts})
+    v_edge_spans = []
+    for xx in (xs[0], xs[-1]):
+        segs = _axis_segments_in_polygon(poly_pts, 'v', xx + (0.01 if xx == xs[0] else -0.01))
+        if segs:
+            ya, yb = max(segs, key=lambda s: s[1] - s[0])
+            v_edge_spans.append((xx, ya, yb))
+    if len(v_edge_spans) == 2:
+        _, ya0, yb0 = v_edge_spans[0]
+        _, ya1, yb1 = v_edge_spans[1]
+        v_is_deformed_span = abs(ya0 - ya1) > 1.0 or abs(yb0 - yb1) > 1.0
+        if v_is_deformed_span:
+            for xx, ya, yb in v_edge_spans:
+                guide_x = xx - 8.0 if xx > x0 + comp / 2 else xx + 8.0
+                local_edges = [ya - y0, yb - y0]
+                local_edges.extend(h for h in y_edges[1:-1] if ya - y0 + 0.5 < h < yb - y0 - 0.5)
+                local_edges = _dedupe_sorted(local_edges)
+                for a, b in zip(local_edges, local_edges[1:]):
+                    if b - a > 1.0:
+                        _add_dim_text(msp, guide_x, y0 + (a + b) / 2, b - a, rotation=90.0)
 
     # Cotas de degrau: pequenos offsets horizontais e alturas verticais dos recortes.
     pts = list(poly_pts)
@@ -836,11 +870,13 @@ def _draw_laje_planta_legacy(msp, lj_data, distribute_panels_fn, include_context
             )
     elif min(comp, larg) <= 75.0:
         x_edges = [0.0] + v_positions + [comp]
-        for a, b in zip(x_edges, x_edges[1:]):
-            _add_dim_text(msp, x0 + (a + b) / 2, y0 + larg - 8.0, b - a)
         y_edges = [0.0] + h_positions + [larg]
+        guide_y = y0 + ((y_edges[-2] + y_edges[-1]) / 2 if len(y_edges) > 1 else larg / 2)
+        for a, b in zip(x_edges, x_edges[1:]):
+            _add_dim_text(msp, x0 + (a + b) / 2, guide_y, b - a)
+        guide_x = x0 + ((x_edges[0] + x_edges[1]) / 2 if len(x_edges) > 1 else comp / 2)
         for a, b in zip(y_edges, y_edges[1:]):
-            _add_dim_text(msp, x0 + comp / 2, y0 + (a + b) / 2, b - a, rotation=90.0)
+            _add_dim_text(msp, guide_x, y0 + (a + b) / 2, b - a, rotation=90.0)
     else:
         _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions)
 
@@ -1078,7 +1114,7 @@ def draw_pilars_for_lajes(msp, laje_list):
     pilar_w, pilar_h = 24.0, 66.0  # typical pilar dims (from STOG: 24x66, 24x80 etc.)
     drawn = 0
     for (px, py), cnt in corners.items():
-        if cnt >= 2 or len(laje_list) <= 3:
+        if cnt >= 2:
             # Center pilar at the corner
             add_pline_rect(msp, px - pilar_w/2, py - pilar_h/2,
                           pilar_w, pilar_h, '7', closed=False)
@@ -1181,17 +1217,10 @@ def draw_laje_card(msp, lj_data, card_x, card_y, scale, distribute_panels_fn):
             (lx, abs_y), (lx + w_s, abs_y),
             dxfattribs={'layer': 'Pain\u00e9is', 'lineweight': 18})
 
-    # Panel rects on Painéis
+    # Panel rects on Painéis were drawing yellow rectangles (hallucination)
+    # They are removed. We only keep the lines.
     x_edges = [0.0] + v_positions + [comp]
     y_edges = [0.0] + h_positions + [larg]
-    for i in range(len(x_edges) - 1):
-        for j in range(len(y_edges) - 1):
-            px0 = lx + x_edges[i] * scale
-            py0 = ly + y_edges[j] * scale
-            pw = (x_edges[i+1] - x_edges[i]) * scale
-            ph = (y_edges[j+1] - y_edges[j]) * scale
-            if pw > 1 and ph > 1:
-                add_pline_rect(msp, px0, py0, pw, ph, 'Pain\u00e9is', lw=18)
 
     # AUX00 MTEXT per segment
     for i in range(len(x_edges) - 1):
@@ -1213,9 +1242,10 @@ def draw_laje_card(msp, lj_data, card_x, card_y, scale, distribute_panels_fn):
             add_dim_on_paineis(msp,
                                lx + x_edges[i] * scale,
                                lx + x_edges[i+1] * scale,
-                               dim_y, ly)
+                               dim_y, ly,
+                               text_override=f"{seg_w:g}")
     if len(x_edges) > 2:
-        add_dim_on_paineis(msp, lx, lx + w_s, dim_y - 20, ly)
+        add_dim_on_paineis(msp, lx, lx + w_s, dim_y - 20, ly, text_override=f"{comp:g}")
 
     dim_x = lx + w_s + PAD + 5
     for j in range(len(y_edges) - 1):
@@ -1224,7 +1254,8 @@ def draw_laje_card(msp, lj_data, card_x, card_y, scale, distribute_panels_fn):
             add_dim_vertical_on_paineis(msp,
                                          ly + y_edges[j] * scale,
                                          ly + y_edges[j+1] * scale,
-                                         dim_x, lx + w_s)
+                                         dim_x, lx + w_s,
+                                         text_override=f"{seg_h:g}")
 
     # REAPROVEITAMENTO
     if reap or sobras:

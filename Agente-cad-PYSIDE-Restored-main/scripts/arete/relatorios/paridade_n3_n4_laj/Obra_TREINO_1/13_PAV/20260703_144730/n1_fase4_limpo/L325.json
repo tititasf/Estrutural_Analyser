@@ -1,0 +1,41 @@
+{
+  "nome": "L325",
+  "numero": 325,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      129.0,
+      0.0
+    ],
+    [
+      129.0,
+      478.0
+    ],
+    [
+      0.0,
+      478.0
+    ]
+  ],
+  "comprimento": 129.0,
+  "largura": 478.0,
+  "area_cm2": 61662.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 3807.5,
+    "y": 1982.038
+  }
+}

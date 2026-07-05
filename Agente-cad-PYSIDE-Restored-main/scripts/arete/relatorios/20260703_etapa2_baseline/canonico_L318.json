@@ -1,0 +1,722 @@
+{
+  "resultado": "FAIL",
+  "ref": {
+    "outline": {
+      "comprimento": 1130.0,
+      "largura": 539.5,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1130.09,
+          0.0
+        ],
+        [
+          1130.09,
+          539.5
+        ],
+        [
+          0.0,
+          539.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 122.0,
+        "is_union": false
+      },
+      {
+        "value": 148.0,
+        "is_union": true
+      },
+      {
+        "value": 244.0,
+        "is_union": false
+      },
+      {
+        "value": 270.0,
+        "is_union": true
+      },
+      {
+        "value": 296.0,
+        "is_union": true
+      },
+      {
+        "value": 418.0,
+        "is_union": false
+      },
+      {
+        "value": 437.0,
+        "is_union": true
+      },
+      {
+        "value": 559.0,
+        "is_union": false
+      },
+      {
+        "value": 585.0,
+        "is_union": true
+      },
+      {
+        "value": 681.0,
+        "is_union": false
+      },
+      {
+        "value": 690.5,
+        "is_union": false
+      },
+      {
+        "value": 707.0,
+        "is_union": true
+      },
+      {
+        "value": 733.0,
+        "is_union": true
+      },
+      {
+        "value": 855.0,
+        "is_union": false
+      },
+      {
+        "value": 874.0,
+        "is_union": true
+      },
+      {
+        "value": 996.0,
+        "is_union": false
+      },
+      {
+        "value": 1022.0,
+        "is_union": true
+      },
+      {
+        "value": 1118.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 32.0,
+        "is_union": false
+      },
+      {
+        "value": 36.5,
+        "is_union": false
+      },
+      {
+        "value": 90.0,
+        "is_union": false
+      },
+      {
+        "value": 310.0,
+        "is_union": false
+      },
+      {
+        "value": 498.0,
+        "is_union": false
+      }
+    ],
+    "cotas_valor": [
+      4.5,
+      9.5,
+      12.0,
+      16.5,
+      19.0,
+      19.0,
+      26.0,
+      26.0,
+      26.0,
+      26.0,
+      26.0,
+      26.0,
+      32.0,
+      41.5,
+      53.5,
+      96.0,
+      96.0,
+      96.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      188.0,
+      219.5
+    ],
+    "hlaz": [],
+    "cotas_paineis_info": [
+      26.0,
+      26.0,
+      26.0,
+      26.0,
+      26.0,
+      60.5,
+      60.5,
+      91.5,
+      91.5,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      174.0,
+      174.0,
+      179.0,
+      196.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "nomes": [
+      "L318"
+    ],
+    "contexto_ignorado": [
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/55",
+      "19/86",
+      "19/86",
+      "19/86",
+      "19/98",
+      "19/98",
+      "19/98",
+      "50/19",
+      "852.19",
+      "P12",
+      "P13",
+      "P14",
+      "P20",
+      "P21",
+      "P22",
+      "P50",
+      "h=12"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 0
+  },
+  "n4": {
+    "outline": {
+      "comprimento": 3274.5,
+      "largura": 201.0,
+      "coordenadas": [
+        [
+          0.0,
+          49.0
+        ],
+        [
+          2413.12,
+          49.0
+        ],
+        [
+          2413.12,
+          0.0
+        ],
+        [
+          3274.62,
+          0.0
+        ],
+        [
+          3274.62,
+          201.0
+        ],
+        [
+          0.0,
+          201.0
+        ],
+        [
+          0.0,
+          49.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 244.0,
+        "is_union": false
+      },
+      {
+        "value": 320.0,
+        "is_union": false
+      },
+      {
+        "value": 564.0,
+        "is_union": false
+      },
+      {
+        "value": 808.0,
+        "is_union": false
+      },
+      {
+        "value": 1052.0,
+        "is_union": false
+      },
+      {
+        "value": 1252.0,
+        "is_union": false
+      },
+      {
+        "value": 1448.0,
+        "is_union": false
+      },
+      {
+        "value": 1692.0,
+        "is_union": false
+      },
+      {
+        "value": 1936.0,
+        "is_union": false
+      },
+      {
+        "value": 2180.0,
+        "is_union": false
+      },
+      {
+        "value": 2413.0,
+        "is_union": false
+      },
+      {
+        "value": 2657.0,
+        "is_union": false
+      },
+      {
+        "value": 2815.0,
+        "is_union": false
+      },
+      {
+        "value": 2973.0,
+        "is_union": false
+      },
+      {
+        "value": 3217.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 49.0,
+        "is_union": false
+      },
+      {
+        "value": 89.5,
+        "is_union": false
+      },
+      {
+        "value": 109.5,
+        "is_union": true
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      40.5,
+      49.0,
+      57.5,
+      76.0,
+      91.5,
+      158.0,
+      158.0,
+      196.0,
+      200.0,
+      233.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0
+    ],
+    "hlaz": [
+      {
+        "x": 0.0,
+        "y": 89.5,
+        "width": 3274.5,
+        "height": 20.0
+      }
+    ],
+    "cotas_paineis_info": [],
+    "nomes": [
+      "L318"
+    ],
+    "contexto_ignorado": [],
+    "obstaculos": [
+      {
+        "x": 178.5,
+        "y": 30.0,
+        "width": 80.0,
+        "height": 19.0,
+        "coords": [
+          [
+            178.5,
+            30.0
+          ],
+          [
+            258.5,
+            30.0
+          ],
+          [
+            258.5,
+            49.0
+          ],
+          [
+            178.5,
+            49.0
+          ]
+        ]
+      }
+    ],
+    "modo_selecionado": 0
+  },
+  "pass": false,
+  "diffs": {
+    "outline": {
+      "ref": {
+        "comprimento": 1130.0,
+        "largura": 539.5,
+        "coordenadas": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1130.09,
+            0.0
+          ],
+          [
+            1130.09,
+            539.5
+          ],
+          [
+            0.0,
+            539.5
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "n4": {
+        "comprimento": 3274.5,
+        "largura": 201.0,
+        "coordenadas": [
+          [
+            0.0,
+            49.0
+          ],
+          [
+            2413.12,
+            49.0
+          ],
+          [
+            2413.12,
+            0.0
+          ],
+          [
+            3274.62,
+            0.0
+          ],
+          [
+            3274.62,
+            201.0
+          ],
+          [
+            0.0,
+            201.0
+          ],
+          [
+            0.0,
+            49.0
+          ]
+        ]
+      }
+    },
+    "linhas_verticais": {
+      "ref": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 148.0,
+          "is_union": true
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        },
+        {
+          "value": 270.0,
+          "is_union": true
+        },
+        {
+          "value": 296.0,
+          "is_union": true
+        },
+        {
+          "value": 418.0,
+          "is_union": false
+        },
+        {
+          "value": 437.0,
+          "is_union": true
+        },
+        {
+          "value": 559.0,
+          "is_union": false
+        },
+        {
+          "value": 585.0,
+          "is_union": true
+        },
+        {
+          "value": 681.0,
+          "is_union": false
+        },
+        {
+          "value": 690.5,
+          "is_union": false
+        },
+        {
+          "value": 707.0,
+          "is_union": true
+        },
+        {
+          "value": 733.0,
+          "is_union": true
+        },
+        {
+          "value": 855.0,
+          "is_union": false
+        },
+        {
+          "value": 874.0,
+          "is_union": true
+        },
+        {
+          "value": 996.0,
+          "is_union": false
+        },
+        {
+          "value": 1022.0,
+          "is_union": true
+        },
+        {
+          "value": 1118.0,
+          "is_union": false
+        }
+      ],
+      "n4": [
+        {
+          "value": 244.0,
+          "is_union": false
+        },
+        {
+          "value": 320.0,
+          "is_union": false
+        },
+        {
+          "value": 564.0,
+          "is_union": false
+        },
+        {
+          "value": 808.0,
+          "is_union": false
+        },
+        {
+          "value": 1052.0,
+          "is_union": false
+        },
+        {
+          "value": 1252.0,
+          "is_union": false
+        },
+        {
+          "value": 1448.0,
+          "is_union": false
+        },
+        {
+          "value": 1692.0,
+          "is_union": false
+        },
+        {
+          "value": 1936.0,
+          "is_union": false
+        },
+        {
+          "value": 2180.0,
+          "is_union": false
+        },
+        {
+          "value": 2413.0,
+          "is_union": false
+        },
+        {
+          "value": 2657.0,
+          "is_union": false
+        },
+        {
+          "value": 2815.0,
+          "is_union": false
+        },
+        {
+          "value": 2973.0,
+          "is_union": false
+        },
+        {
+          "value": 3217.0,
+          "is_union": false
+        }
+      ]
+    },
+    "linhas_horizontais": {
+      "ref": [
+        {
+          "value": 32.0,
+          "is_union": false
+        },
+        {
+          "value": 36.5,
+          "is_union": false
+        },
+        {
+          "value": 90.0,
+          "is_union": false
+        },
+        {
+          "value": 310.0,
+          "is_union": false
+        },
+        {
+          "value": 498.0,
+          "is_union": false
+        }
+      ],
+      "n4": [
+        {
+          "value": 49.0,
+          "is_union": false
+        },
+        {
+          "value": 89.5,
+          "is_union": false
+        },
+        {
+          "value": 109.5,
+          "is_union": true
+        }
+      ]
+    },
+    "cotas_valor": {
+      "ref": [
+        4.5,
+        9.5,
+        12.0,
+        16.5,
+        19.0,
+        19.0,
+        26.0,
+        26.0,
+        26.0,
+        26.0,
+        26.0,
+        26.0,
+        32.0,
+        41.5,
+        53.5,
+        96.0,
+        96.0,
+        96.0,
+        122.0,
+        122.0,
+        122.0,
+        122.0,
+        122.0,
+        188.0,
+        219.5
+      ],
+      "n4": [
+        20.0,
+        40.5,
+        49.0,
+        57.5,
+        76.0,
+        91.5,
+        158.0,
+        158.0,
+        196.0,
+        200.0,
+        233.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0
+      ]
+    },
+    "hlaz": {
+      "ref": [],
+      "n4": [
+        {
+          "x": 0.0,
+          "y": 89.5,
+          "width": 3274.5,
+          "height": 20.0
+        }
+      ]
+    },
+    "obstaculos": {
+      "ref": [],
+      "n4": [
+        {
+          "x": 178.5,
+          "y": 30.0,
+          "width": 80.0,
+          "height": 19.0,
+          "coords": [
+            [
+              178.5,
+              30.0
+            ],
+            [
+              258.5,
+              30.0
+            ],
+            [
+              258.5,
+              49.0
+            ],
+            [
+              178.5,
+              49.0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "png_path": "scripts\\arete\\relatorios\\20260703_etapa2_baseline\\canonico_L318.png"
+}

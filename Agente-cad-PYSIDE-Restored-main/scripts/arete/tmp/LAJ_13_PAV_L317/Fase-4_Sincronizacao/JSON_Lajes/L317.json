@@ -53,7 +53,7 @@
       "nome": "L317",
       "numero": "17",
       "laje_dim": "h=13",
-      "laje_nivel": "97.5"
+      "laje_nivel": "855.12"
     },
     "validated_fields": [],
     "validated_link_classes": {},
@@ -61,8 +61,13 @@
     "n3_pattern_nome": "L317",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
+    "n3_pose_source": "sa_outline_anchor",
     "n3_source": "comparison_engine_n1",
     "n3_teacher": null
+  },
+  "_stog_pose": {
+    "x": 6097.07,
+    "y": 2280.94
   },
   "cotas_paineis": [
     {
@@ -115,10 +120,6 @@
     }
   ],
   "pontaletes": {},
-  "_stog_pose": {
-    "x": 6097.07,
-    "y": 2280.94
-  },
   "_forma_canonica": {
     "cotas_valor": [
       48.8,

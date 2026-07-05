@@ -1,7 +1,7 @@
 {
   "items": {
     "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:FV:V301:N4": {
-      "revoked_at": "2026-06-29T00:40:39.692828+00:00",
+      "revoked_at": "2026-07-03T17:26:38.276507+00:00",
       "revoked_by": "human",
       "revoked_reason": "comparison_engine_human_unchecked",
       "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:FV:V301:N4",
@@ -352,5 +352,5 @@
     }
   },
   "schema_version": 1,
-  "updated_at": "2026-07-02T17:27:43.870163+00:00"
+  "updated_at": "2026-07-03T17:26:38.276507+00:00"
 }

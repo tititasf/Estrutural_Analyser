@@ -50,20 +50,36 @@ nomenclatura pertencem ao `MASTERPLAN-ARETE-QUALITY-GATES.md`:
 ```text
 G0 Sanidade do gabarito
   → G1 Round-trip N2 → N4 → N2'
-  → G2 Paridade canônica N4 × recorte N2
+  → G2 Paridade canônica N4 × recorte N2 (numérico — ver nota abaixo)
+  → G2-V Veredito visual: render N2 (humano) × N4 (robô), lido/renderizado ← NÃO PULAR
   → G6 Golden set/regressão
 
 G3 UI/persistência é transversal.
 
-G4 Convergência N1 × N2
-  → G5 Paridade N3 × N4
+G4 Convergência N1 × N2 (numérico — categorização (c)/(d) exige referência checável)
+  → G5 Paridade N3 × N4 — RODA de verdade (G2 + G2-V na amostra), não "por construção"
   → G6 Golden set/regressão
 ```
 
+> **G2 sozinho NÃO autoriza G6 (decisão do dono, 03/07 — `docs/LOOPING-CANONICO.md` §1.5
+> e `MASTERPLAN-ARETE-QUALITY-GATES.md` §4).** G2 é matemática semântica (contagens,
+> valores) — cego para cota em cima de texto, painel torto, sobreposição. "100% PASS"
+> sem G2-V (veredito visual registrado, não só "olhei depois") é candidato, não golden.
+> **G2-V compara sempre o mesmo par: recorte N2 (humano) × DXF N4 (robô).** Primeira
+> selagem de classe/pavimento = varredura visual de 100% dos itens; re-selagem pós-fix =
+> 100% dos itens tocados + amostra de 20% dos demais.
+>
+> **G5 não é mais "por construção" (fix 03/07 — `MASTERPLAN-ARETE-QUALITY-GATES.md`
+> §4, gate G5).** A redação antiga assumia G5 PASS automaticamente de G4 PASS, sem rodar
+> nada — pior que o problema do G2 (nem o numérico rodava). Agora G5 exige rodar o
+> harness G2+G2-V de fato entre N3 e N4 numa amostra (100% na primeira vez que a
+> classe/pavimento atinge G4; 20% depois).
+
 **Escopo atual:** as fichas e a triagem já ajudam a investigar qualquer card N1–N4, mas
-o fechamento do robô reverso ocorre primeiro em G0/G1/G2. N4 não é gabarito visual antes
-de G1/G2 PASS. G5 só é válido depois de N4 certificado em G1/G2 e da conversão N1 passar
-G4. O aprendizado de recorte é um trilho CROP separado e não recebe novo número G0–G6.
+o fechamento do robô reverso ocorre primeiro em G0/G1/G2/G2-V. N4 não é gabarito visual
+antes de G1/G2 PASS. G5 só é válido depois de N4 certificado em G1/G2/G2-V e da conversão
+N1 passar G4. O aprendizado de recorte é um trilho CROP separado e não recebe novo número
+G0–G6.
 
 ---
 

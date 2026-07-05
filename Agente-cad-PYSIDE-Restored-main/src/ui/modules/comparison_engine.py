@@ -79,6 +79,45 @@ def _lv_base_from_stem(stem: str) -> str:
     m = _lv_re.match(r'^(V\d+[A-Z]?)_[AB]$', stem, _lv_re.IGNORECASE)
     return m.group(1).upper() if m else stem
 
+
+def _resolve_open_dxf_paths(
+    col_index: int,
+    obra_dir: "Path | None",
+    classe: str,
+    item_id: str,
+    last_loaded_dxf: str = "",
+    selected_recorte_path: str = "",
+) -> list[Path]:
+    """Resolve os artefatos que o botao ``Abrir DXF`` deve abrir.
+
+    PIL/N4 prioriza o DXF combinado, que contem CIMA+ABCD+GRADES lado a
+    lado. Se ele estiver ausente, abre os tres splits N4 existentes, sem
+    cair em artefatos N3 da raiz. N2 prioriza sempre o recorte selecionado.
+    """
+    if col_index == 1:
+        recorte = Path(selected_recorte_path) if selected_recorte_path else None
+        if recorte and recorte.exists():
+            return [recorte]
+
+    if col_index == 3 and str(classe).upper() == "PL" and obra_dir:
+        clean_item = re.sub(
+            r"_(?:Para|Passa)$", "", str(item_id), flags=re.IGNORECASE
+        )
+        n4_dir = Path(obra_dir) / "Fase-6_Execucao_CAD" / "n4"
+        combined = n4_dir / f"PL_preview_{clean_item}.dxf"
+        if combined.exists():
+            return [combined]
+        splits = [
+            n4_dir / f"PL_{zone}_preview_{clean_item}.dxf"
+            for zone in ("CIMA", "ABCD", "GRADES")
+        ]
+        existing = [path for path in splits if path.exists()]
+        if existing:
+            return existing
+
+    fallback = Path(last_loaded_dxf) if last_loaded_dxf else None
+    return [fallback] if fallback and fallback.exists() else []
+
 # ───────────────────────────────────────────────────────────────────────────
 
 class DXFVectorView(QWidget):
@@ -3566,7 +3605,7 @@ class LevelColumn(QFrame):
         )
         att_inline_lay.addWidget(self._attention_text)
 
-        # Linha 3: Para/Passa (exibido apenas para PIL e LAJ em N2)
+        # Linha 3: Para/Passa (N2 em PIL/LAJ/LV; N4 sincronizado em PIL/LV)
         self._para_passa_row = QWidget()
         self._para_passa_row.setVisible(False)
         self._para_passa_row.setStyleSheet("background: transparent;")
@@ -6226,34 +6265,10 @@ class TriLevelArea(QWidget):
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             conn.row_factory = _sqlite3.Row
-            rows_el = conn.execute(
-                "SELECT laje_nome, campos_json, is_validated, updated_at FROM slab_elements "
-                "WHERE project_id=? AND classe='LAJ' "
-                "ORDER BY updated_at DESC",
-                (project_id,)
-            ).fetchall()
-            lajes = {}
-            for row in rows_el:
-                try:
-                    data = _json.loads(row["campos_json"] or "{}")
-                except Exception:
-                    data = {}
-                if not isinstance(data, dict):
-                    continue
-                name = data.get("nome") or row["laje_nome"]
-                if not name:
-                    continue
-                data.setdefault("nome", name)
-                data.setdefault("name", name)
-                data["_ce_n1_source"] = "slab_elements"
-                data["_ce_n1_updated_at"] = row["updated_at"]
-                if row["is_validated"] is not None:
-                    data.setdefault("is_validated", bool(row["is_validated"]))
-                lajes[str(name)] = data
-            if lajes:
-                conn.close()
-                return lajes
-
+            # N1 deve vir da interpretação bruta do Structural Analyzer.
+            # ``slab_elements.campos_json`` é saída N3 materializada e pode
+            # conter enriquecimento aprendido de N2/N4; usá-la aqui fecha um
+            # ciclo de vazamento de gabarito e invalida G4/G5.
             rows = conn.execute(
                 "SELECT * FROM slabs WHERE project_id=? ORDER BY "
                 "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
@@ -7772,6 +7787,11 @@ class ComparisonEngineModule(QWidget):
             )
             return b
 
+        # N2 header: abrir o recorte STOG humano selecionado
+        _btn_open_n2 = _hdr_btn("Abrir DXF", _N2_FG)
+        _btn_open_n2.clicked.connect(lambda: self._on_abrir_dxf(1))
+        self.tri_level._columns[1]._badge_row.addWidget(_btn_open_n2)
+
         # N3 header: Comparar com N1 | Abrir DXF
         _btn_cmp_n1 = _hdr_btn("Comparar com N1", _N3_FG, checkable=True)
         _btn_cmp_n1.clicked.connect(self._on_comparar_n1_toggled)
@@ -8066,12 +8086,26 @@ class ComparisonEngineModule(QWidget):
             self._btn_comparar_n5.setChecked(False)
 
     def _on_abrir_dxf(self, col_index: int):
-        """Abre o último DXF carregado na coluna col_index no aplicativo padrão do SO."""
+        """Abre o recorte N2 ou os artefatos reais da coluna no aplicativo do SO."""
         import os as _os
-        path = self.tri_level._columns[col_index]._last_loaded_dxf or ""
-        if path and Path(path).exists():
+        classe = getattr(self.nav_sidebar, "_selected_classe", "")
+        item_id = getattr(self.nav_sidebar, "_selected_item", "")
+        paths = _resolve_open_dxf_paths(
+            col_index=col_index,
+            obra_dir=getattr(self.nav_sidebar, "_current_obra_dir", None),
+            classe=classe,
+            item_id=item_id,
+            last_loaded_dxf=(
+                self.tri_level._columns[col_index]._last_loaded_dxf or ""
+            ),
+            selected_recorte_path=(
+                getattr(self.nav_sidebar, "_selected_recorte_path", "") or ""
+            ),
+        )
+        if paths:
             try:
-                _os.startfile(path)
+                for path in paths:
+                    _os.startfile(str(path))
             except Exception as exc:
                 self.nav_sidebar.set_status(f"Erro ao abrir: {exc}", Colors.ACCENT_DANGER)
         else:
@@ -8082,9 +8116,9 @@ class ComparisonEngineModule(QWidget):
         from .ficha_pdf_generator import gerar_ficha_pdf, abrir_pdf
         from PySide6.QtWidgets import QMessageBox
 
-        obra_dir = self._current_obra_dir
-        classe   = (self._selected_classe or "").upper()
-        item_id  = self._selected_item or ""
+        obra_dir = getattr(self.nav_sidebar, "_current_obra_dir", None)
+        classe   = (getattr(self.nav_sidebar, "_selected_classe", "") or "").upper()
+        item_id  = getattr(self.nav_sidebar, "_selected_item", "") or ""
 
         if not obra_dir or not classe or not item_id:
             self.nav_sidebar.set_status(
@@ -8092,7 +8126,7 @@ class ComparisonEngineModule(QWidget):
             return
 
         obra = obra_dir.name if obra_dir else ""
-        pav  = getattr(self, "_current_pav", "") or ""
+        pav  = self.fase8_panel.current_pav_key or ""
 
         self.nav_sidebar.set_status("Gerando ficha PDF…", Colors.TEXT_DIM)
 
@@ -8567,7 +8601,7 @@ class ComparisonEngineModule(QWidget):
                 meta.get("human_validated", False),
                 lambda ok, s=scope, c=classe, iid=item_id: self._save_level_human_validation(s, c, iid, ok),
             )
-            # Para LV: exibe Para/Passa em N3 e N4 sincronizado com N2
+            # LV exibe Para/Passa em N3/N4. PIL exibe em N4 e sincroniza com N2.
             if classe == "LV":
                 tipo = _lv_pp_from_id(item_id) or load_para_passa(
                     obra, pav, "LV", _lv_elem_id(item_id))
@@ -8575,6 +8609,12 @@ class ComparisonEngineModule(QWidget):
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
+                )
+            elif classe == "PL" and scope == "N4":
+                tipo = load_para_passa(obra, pav, "PIL", item_id)
+                col.set_para_passa(
+                    tipo,
+                    lambda t, iid=item_id: self._save_pil_para_passa_and_sync(iid, t),
                 )
             elif col._para_passa_row.isVisible():
                 # limpa apenas se estava visível (evita ocultar attention_inline por engano)
@@ -8658,9 +8698,14 @@ class ComparisonEngineModule(QWidget):
             if classe in ("PL", "LJ"):
                 db_cls = "PIL" if classe == "PL" else "LAJ"
                 tipo = load_para_passa(obra, pav, db_cls, item_id)
+                callback = (
+                    (lambda t, iid=item_id: self._save_pil_para_passa_and_sync(iid, t))
+                    if db_cls == "PIL"
+                    else (lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t))
+                )
                 col.set_para_passa(
                     tipo,
-                    lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t),
+                    callback,
                 )
             elif classe == "LV":
                 # Para IDs virtuais "V301_A_Para", extrai pp do ID e viga_base sem face/pp
@@ -8713,6 +8758,35 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_lv_para_passa_and_sync error: {exc}")
+
+    def _save_pil_para_passa_and_sync(self, item_id: str, tipo: str):
+        """Salva a classificacao PIL uma vez e espelha os botoes N2/N4."""
+        try:
+            obra = (
+                self.fase8_panel.cmb_obra.currentData()
+                or self.fase8_panel.cmb_obra.currentText()
+            )
+            pav = self.fase8_panel.current_pav_key
+            save_para_passa(obra, pav, "PIL", item_id, tipo)
+            for index in (1, 3):
+                col = self.tri_level._columns[index]
+                if not col._para_passa_row.isVisible():
+                    continue
+                col._attention_loading = True
+                try:
+                    col._para_btn.setChecked(tipo == "para")
+                    col._passa_btn.setChecked(tipo == "passa")
+                finally:
+                    col._attention_loading = False
+            suffix = "-Vigas Passam" if tipo == "passa" else (
+                "-Vigas Param" if tipo == "para" else ""
+            )
+            self.nav_sidebar.set_status(
+                f"PIL {item_id}{suffix} classificado", Colors.ACCENT_SUCCESS
+            )
+            self.nav_sidebar.refresh_tree()
+        except Exception as exc:
+            print(f"[CE] _save_pil_para_passa_and_sync error: {exc}")
 
     def _on_item_selected(self, classe: str, item_id: str):
         """Auto-dispara N1 → N2 → N3 em sequência ao selecionar item.
@@ -9310,7 +9384,12 @@ class ComparisonEngineModule(QWidget):
             }
             try:
                 from src.core.laj_n3_learning import apply_learning_to_ficha, normalize_ficha_pose_coords
-                ficha = apply_learning_to_ficha(ficha, teacher=None, record_teacher=False)
+                ficha = apply_learning_to_ficha(
+                    ficha,
+                    teacher=None,
+                    record_teacher=False,
+                    allow_gabarito_patterns=False,
+                )
                 ficha = normalize_ficha_pose_coords(ficha)
             except Exception:
                 pass
@@ -10501,6 +10580,32 @@ class ComparisonEngineModule(QWidget):
         results: dict = {}
         official_n4 = obra_dir / "Fase-6_Execucao_CAD" / "n4"
         official_n4.mkdir(parents=True, exist_ok=True)
+
+        # O botao "Abrir DXF" usa o combinado para mostrar CIMA+ABCD+GRADES
+        # lado a lado no mesmo desenho. Ele precisa nascer da mesma ficha N2 e
+        # no mesmo ciclo dos splits; reutilizar um combinado antigo pode abrir
+        # geometria stale ou ate um DXF incompatível com o AutoCAD.
+        combined_expected = out_dir_n4 / f"PL_preview_{item_id}.dxf"
+        if script.exists():
+            try:
+                _sp.run(
+                    [sys.executable, str(script),
+                     "--obra", str(tmp_dir),
+                     "--item", item_id,
+                     "--visual-mode", self._visual_mode_for("N4")],
+                    capture_output=True, timeout=30,
+                )
+            except Exception as _e:
+                print(f"[CE] PIL N4 combined gen error: {_e}")
+        if combined_expected.exists():
+            combined_canonical = official_n4 / combined_expected.name
+            guarded_promote(
+                combined_expected,
+                combined_canonical,
+                motor_id="ROBOT_PL_N3_N4",
+                source_paths=[script],
+            )
+
         for zone in zones:
             expected = out_dir_n4 / f"PL_{zone}_preview_{item_id}.dxf"
             if script.exists():

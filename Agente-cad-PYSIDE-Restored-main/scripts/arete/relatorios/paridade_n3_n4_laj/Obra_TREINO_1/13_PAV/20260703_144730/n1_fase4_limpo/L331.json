@@ -1,0 +1,41 @@
+{
+  "nome": "L331",
+  "numero": 331,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      418.0,
+      0.0
+    ],
+    [
+      418.0,
+      71.0
+    ],
+    [
+      0.0,
+      71.0
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 71.0,
+  "area_cm2": 29678.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 3376.4248,
+    "y": 1977.038
+  }
+}

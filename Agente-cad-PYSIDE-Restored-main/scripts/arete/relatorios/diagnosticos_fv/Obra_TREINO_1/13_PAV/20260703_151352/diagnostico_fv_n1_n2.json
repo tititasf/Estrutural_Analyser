@@ -1,0 +1,1786 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-03T18:17:56.707351+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260703_151352",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "7e2de28b85b4ba2e537293fc534872ca9527a00b3c2dc2de1a7a7ffc8234e43b",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision"
+  },
+  "resumo": {
+    "itens": 36,
+    "n1_itens": 34,
+    "n2_itens": 26,
+    "alertas": 34,
+    "classificacoes": {
+      "EXCELENTE": 2,
+      "INDETERMINADO": 12,
+      "REGULAR": 3,
+      "RUIM": 19
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V301",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.414896939412867,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.414896939412867
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 1873.5,
+          "comprimentos": [
+            160.0,
+            1713.5
+          ],
+          "comprimento_geometrico_total": 1854.4999999999995,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 3202.0,
+          "segmentos": 16,
+          "furos_ativos": 13,
+          "ficha_id": 758,
+          "status": "extracted",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V302",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.8576504552520542,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.8576504552520542
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 320.5,
+          "comprimentos": [
+            320.5
+          ],
+          "comprimento_geometrico_total": 320.5,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 2251.5,
+          "segmentos": 6,
+          "furos_ativos": 4,
+          "ficha_id": 966,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V303",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 1.4473824786324787,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 1.4473824786324787
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 4581.5,
+          "comprimentos": [
+            2427.0,
+            2154.5
+          ],
+          "comprimento_geometrico_total": 4581.5,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 1872.0,
+          "segmentos": 5,
+          "furos_ativos": 3,
+          "ficha_id": 967,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V304",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.16468253968253968,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.16468253968253968
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0,
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 880.5,
+          "comprimentos": [
+            451.5,
+            49.0,
+            118.0,
+            262.0
+          ],
+          "comprimento_geometrico_total": 880.5,
+          "segmentos": 4,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 756.0,
+          "segmentos": 3,
+          "furos_ativos": 2,
+          "ficha_id": 968,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V305",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.85,
+      "evidencia": {
+        "classificacao": "REGULAR",
+        "delta_relativo_max": 0.06643356643356643,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.06643356643356643
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 305.0,
+          "comprimentos": [
+            19.0,
+            286.0
+          ],
+          "comprimento_geometrico_total": 306.0,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 286.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 969,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V306",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.621875,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.621875
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 254.1,
+          "comprimentos": [
+            254.1
+          ],
+          "comprimento_geometrico_total": 254.10370599999987,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 672.0,
+          "segmentos": 2,
+          "furos_ativos": 1,
+          "ficha_id": 970,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V307",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.8798983183418068,
+        "deltas": {
+          "largura": 0.4632768361581921,
+          "comprimento_total": 0.8798983183418068
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 30.71,
+          "comprimentos": [
+            30.71
+          ],
+          "comprimento_geometrico_total": 30.708850999999868,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 35.4,
+          "comprimento_total": 255.7,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 971,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V308",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.9650735294117647,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.9650735294117647
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 19.0,
+          "comprimentos": [
+            19.0
+          ],
+          "comprimento_geometrico_total": 20.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 544.0,
+          "segmentos": 2,
+          "furos_ativos": 1,
+          "ficha_id": 972,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V309",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 1.440625,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 1.440625
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 781.0,
+          "comprimentos": [
+            320.0,
+            461.0
+          ],
+          "comprimento_geometrico_total": 781.0,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 320.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 973,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V309A",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N2; falta representação FV no estado N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": null,
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 461.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 974,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V310",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.35714285714285715,
+        "deltas": {
+          "largura": 0.35714285714285715,
+          "comprimento_total": 0.26644736842105265
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 192.5,
+          "comprimentos": [
+            192.5
+          ],
+          "comprimento_geometrico_total": 192.5,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 152.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 976,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V311",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.85,
+      "evidencia": {
+        "classificacao": "REGULAR",
+        "delta_relativo_max": 0.053691275167785234,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.053691275167785234
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 423.0,
+          "comprimentos": [
+            423.0
+          ],
+          "comprimento_geometrico_total": 423.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 447.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 977,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V312",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "delta_relativo_max": 0.0,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.0
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 461.0,
+          "comprimentos": [
+            461.0
+          ],
+          "comprimento_geometrico_total": 461.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 461.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 978,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V313",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 855.0,
+          "comprimentos": [
+            855.0
+          ],
+          "comprimento_geometrico_total": 855.0000000000002,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V314",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 738.0,
+          "comprimentos": [
+            356.0,
+            382.0
+          ],
+          "comprimento_geometrico_total": 738.0,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V315",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 855.0,
+          "comprimentos": [
+            855.0
+          ],
+          "comprimento_geometrico_total": 855.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V316",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 738.0,
+          "comprimentos": [
+            356.0,
+            382.0
+          ],
+          "comprimento_geometrico_total": 738.0,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V317",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 855.0,
+          "comprimentos": [
+            855.0
+          ],
+          "comprimento_geometrico_total": 855.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V318",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 738.0,
+          "comprimentos": [
+            356.0,
+            382.0
+          ],
+          "comprimento_geometrico_total": 738.0,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V319",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 2.03988603988604,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 2.03988603988604
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 1067.0,
+          "comprimentos": [
+            874.0,
+            193.0
+          ],
+          "comprimento_geometrico_total": 1066.9999999999995,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 351.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 979,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V320",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 5.606578947368421,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 5.606578947368421
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 2510.5,
+          "comprimentos": [
+            375.0,
+            2135.5
+          ],
+          "comprimento_geometrico_total": 2510.5,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 380.0,
+          "segmentos": 2,
+          "furos_ativos": 1,
+          "ficha_id": 980,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V321",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.8103015075376885,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.8103015075376885
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 75.5,
+          "comprimentos": [
+            75.5
+          ],
+          "comprimento_geometrico_total": 75.5,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 398.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 981,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V322",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 1.1171052631578948,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 1.1171052631578948
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 804.5,
+          "comprimentos": [
+            804.5
+          ],
+          "comprimento_geometrico_total": 804.4999999999995,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 380.0,
+          "segmentos": 2,
+          "furos_ativos": 1,
+          "ficha_id": 982,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V323",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 279.0,
+          "comprimentos": [
+            279.0
+          ],
+          "comprimento_geometrico_total": 260.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V324",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 286.0,
+          "comprimentos": [
+            286.0
+          ],
+          "comprimento_geometrico_total": 286.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V325",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 1.700650759219089,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 1.700650759219089
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 1245.0,
+          "comprimentos": [
+            871.0,
+            374.0
+          ],
+          "comprimento_geometrico_total": 1244.9999999999995,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 461.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 983,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V326",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 199.0,
+          "comprimentos": [
+            199.0
+          ],
+          "comprimento_geometrico_total": 180.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V327",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.38461538461538464,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.38461538461538464
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 14.0,
+          "larguras": [
+            14.0
+          ],
+          "comprimento_total": 160.0,
+          "comprimentos": [
+            160.0
+          ],
+          "comprimento_geometrico_total": 141.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 260.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 984,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V328",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 297.06,
+          "comprimentos": [
+            37.06,
+            260.0
+          ],
+          "comprimento_geometrico_total": 297.05963499999984,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V329",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.1347517730496454,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.1347517730496454
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 160.0,
+          "comprimentos": [
+            160.0
+          ],
+          "comprimento_geometrico_total": 141.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 141.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 985,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V330",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.4331983805668016,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.4331983805668016
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 280.0,
+          "comprimentos": [
+            280.0
+          ],
+          "comprimento_geometrico_total": 280.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 494.0,
+          "segmentos": 2,
+          "furos_ativos": 1,
+          "ficha_id": 986,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V331",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.85,
+      "evidencia": {
+        "classificacao": "REGULAR",
+        "delta_relativo_max": 0.0945273631840796,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.0945273631840796
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 14.0,
+          "larguras": [
+            14.0
+          ],
+          "comprimento_total": 220.0,
+          "comprimentos": [
+            220.0
+          ],
+          "comprimento_geometrico_total": 220.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 201.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 987,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V332",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "delta_relativo_max": 0.0,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.0
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 442.0,
+          "comprimentos": [
+            442.0
+          ],
+          "comprimento_geometrico_total": 442.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 442.0,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 988,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "VF202",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 18.887540453074436,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 18.887540453074436
+        },
+        "segmentos_match": true,
+        "n1": {
+          "largura": 14.0,
+          "larguras": [
+            14.0
+          ],
+          "comprimento_total": 2458.1,
+          "comprimentos": [
+            2458.1
+          ],
+          "comprimento_geometrico_total": 2458.103706,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 123.6,
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 1023,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "VF203",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N2; falta representação FV no estado N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "n1": null,
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 990.3,
+          "segmentos": 3,
+          "furos_ativos": 2,
+          "ficha_id": 1024,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-03T18:17:56.707351+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "VF301",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.8934092758340114,
+        "deltas": {
+          "largura": 0.35714285714285715,
+          "comprimento_total": 0.8934092758340114
+        },
+        "segmentos_match": false,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 131.0,
+          "comprimentos": [
+            131.0
+          ],
+          "comprimento_geometrico_total": 131.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 1229.0,
+          "segmentos": 3,
+          "furos_ativos": 2,
+          "ficha_id": 1026,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

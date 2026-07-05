@@ -1,6 +1,6 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-03 12:23:13  
+**Gerado em:** 2026-07-05 13:18:07  
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 
@@ -8,12 +8,12 @@
 
 | Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |
 |--------|-----|-----|------|------|---------|---------|---------------|--------|
-| FV | 13_PAV | 20260703_114409 | 26 | 0 | 0 | 100.0% | 26 |  |
-| LAJ | 13_PAV | 20260703_114248 | 31 | 0 | 0 | 100.0% | 31 |  |
-| LV | 13_PAV | 20260703_101652 | 21 | 11 | 0 | 65.6% | 32 | ❌ FAIL aberto · ⚠ golden (32) > última rodada (21) — REGRESSÃO vs selado |
+| FV | 13_PAV | 20260703_164825 | 26 | 0 | 0 | 100.0% | 26 |  |
+| LAJ | 13_PAV | 20260703_171707 | 31 | 0 | 0 | 100.0% | 31 |  |
+| LV | 13_PAV | 20260703_164510 | 32 | 0 | 0 | 100.0% | 32 |  |
 | LV | 14_PAV | 20260626_194156 | 10 | 17 | 0 | 37.0% | 10 | ❌ FAIL aberto |
 | PIL | 12_PAV | 20260613_180530 | 31 | 4 | 0 | 88.6% | 31 | ❌ FAIL aberto |
-| PIL | 13_PAV | 20260703_114452 | 35 | 0 | 0 | 100.0% | 35 |  |
+| PIL | 13_PAV | 20260703_163658 | 35 | 0 | 0 | 100.0% | 35 |  |
 | PIL | 14_PAV | 20260613_180945 | 22 | 5 | 0 | 81.5% | 22 | ❌ FAIL aberto |
 | PIL | 1_PAV | 20260613_175011 | 31 | 6 | 0 | 83.8% | 31 | ❌ FAIL aberto |
 | PIL | 2_PAV | 20260613_180110 | 30 | 5 | 0 | 85.7% | 30 | ❌ FAIL aberto |
@@ -40,8 +40,9 @@
 
 | Arquivo | Total | Por status | Por autor |
 |---------|-------|------------|-----------|
-| Obra_TREINO_1_13_PAV_fundos_viga.jsonl | 6 | verificado: 6 | auto: 6 |
-| Obra_TREINO_1_13_PAV_lajes.jsonl | 40 | aberto: 17, verificado: 23 | auto: 23, humano: 17 |
+| Obra_TREINO_1_13_PAV_fundos_viga.jsonl | 29 | aberto: 23, verificado: 6 | auto: 29 |
+| Obra_TREINO_1_13_PAV_lajes.jsonl | 95 | aberto: 41, verificado: 54 | auto: 78, humano: 17 |
+| Obra_TREINO_1_13_PAV_pilares.jsonl | 37 | aberto: 2, verificado: 35 | auto: 37 |
 
 ## Banco de dados (read-only)
 

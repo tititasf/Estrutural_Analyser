@@ -20,6 +20,8 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 > 3. `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md` — **como executar o loop de cada classe**
 >    (fichas HTML headless + diagnóstico duplo automático/humano + log de triagem). Este é
 >    o procedimento de execução atual; segui-lo antes de qualquer fix em motor/gerador.
+>    **Mapa do que é canônico vs legado: `docs/LOOPING-CANONICO.md`** — se um script de
+>    loop/headless não está na seção 1 dele, NÃO usar (contaminação por geração antiga).
 > 4. `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` — **missão paralela de produto** (2026-07):
 >    portal da equipe, gates P0–P6, decisões DP-1..9. Intercalada com o Arete; em
 >    conflito de tempo, qualidade (Arete) vence.
@@ -65,6 +67,9 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 | Motores reversos | `scripts/motor_reverso_{pil,lv,fv,laj,obra}.py` |
 | Conversão N1→robô | `DADOS-OBRAS/{obra}/Fase-4_Sincronizacao/JSON_*/` |
 | Render/scoring ref | `scripts/validar_granular_nim.py` (reusar lógica; NIM vision BANIDO como scorer) |
+| Veredito visual (G2-V/N1-V/G5-V) | `scripts/arete/g2v_harness.py --backend cli` (agente lê a imagem) é OBRIGATÓRIO antes de selar/avançar qualquer gate visual — número sozinho = alucinação de aprovação (`docs/LOOPING-CANONICO.md §1.5`). **Ordem do dono (03/07): backends de API (claude/gemini/nim) DESLIGADOS/bloqueados no código** — só com `--permitir-api` + calibração. |
+| Headless de fichas — SÓ UM | **Único ponto de entrada = `scripts/arete/headless_sa_analise.py`** (análise SA completa + fichas 4 classes + diagnósticos). `gerar_html_preficha_headless.py` foi DESCONTINUADO como CLI (aborta sem `--legacy`; risco de ficha com estado velho) — segue vivo só como biblioteca do `playwright_loop`. Os demais `*headless*.py` em `scripts/` são bibliotecas/utilitários de OUTROS pipelines (`analise_geral_headless` é importado pelo próprio `main.py`) — não são alternativas de fichas. |
+| Headless — 1 por vez | Os dois de fichas compartilham trava anti-OOM (instância única, mesma fila). Em automação use SEMPRE `--wait` (aguarda a vez sozinho). Se abortar com "já existe execução": aguarde. **NUNCA finalize o processo detentor.** |
 
 ## Regras inegociáveis
 
@@ -81,6 +86,16 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
    steps. Nunca processar tudo de uma vez.
 7. AutoCAD batch via `accoreconsole.exe` — NUNCA pipelines em paralelo.
 8. Git: sem push para main; commits na branch de sessão.
+
+## Multi-agente (Claude Code + Codex + Antigravity) — 1 fonte de verdade
+
+- **Este CLAUDE.md é a fonte única do projeto.** `AGENTS.md` (Codex/Antigravity) e
+  `GEMINI.md` são ponteiros consolidados em 2026-07-03 que resumem os invariantes e
+  mandam ler este arquivo — **não adicionar regra nova neles; regra nova entra AQUI**
+  (e, se for invariante, refletir no resumo do AGENTS.md).
+- Regras comportamentais que valem para TODOS os agentes (proibição de restaurar
+  backups antigos, proibição de simulação falsa/prints de sucesso fictícios):
+  `.agents/AGENTS.md`.
 
 ## Modo de trabalho
 

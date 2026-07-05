@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-03T12:18:42",
+  "gerado_em": "2026-07-05T13:44:58",
   "obra": "Obra_TREINO_1",
   "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
   "db_path": "D:\\Agente-cad-PYSIDE\\project_data.vision",
@@ -5074,7 +5074,7 @@
     "fundo": [
       {
         "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|1|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
@@ -5103,6 +5103,64 @@
       },
       {
         "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|2|1",
+        "beam_name": "LV-V301.A Para",
+        "segment_label": "2",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 1713.5,
+        "width": "19.0",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2511.8825,
+            2991.038
+          ],
+          [
+            2914.3825,
+            2991.038
+          ],
+          [
+            4225.3825,
+            3010.038
+          ],
+          [
+            3807.3825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|1|1",
+        "beam_name": "V301",
+        "segment_label": "1",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 1264.0,
+        "width": "19.0",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1197.8825,
+            3004.288
+          ],
+          [
+            2461.8825,
+            3004.288
+          ],
+          [
+            2461.8825,
+            3023.288
+          ],
+          [
+            1197.8825,
+            3023.288
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|2|1",
         "beam_name": "V301",
         "segment_label": "2",
         "side": "Fundo",
@@ -5131,7 +5189,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
         "beam_name": "V302",
         "segment_label": "1",
         "side": "Fundo",
@@ -5142,30 +5200,30 @@
         "atencao": "",
         "points": [
           [
-            1191.183606,
+            1197.8825,
             2680.038
           ],
           [
-            1210.183606,
+            1197.8825,
+            2991.038
+          ],
+          [
+            1217.8825,
+            2991.038
+          ],
+          [
+            1217.8825,
             2680.038
-          ],
-          [
-            1210.183606,
-            3000.538
-          ],
-          [
-            1191.183606,
-            3000.538
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
         "beam_name": "V303",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 2427.0,
+        "length": 1971.0,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
@@ -5175,11 +5233,11 @@
             2505.788
           ],
           [
-            3807.3825,
+            3351.3825,
             2505.788
           ],
           [
-            3807.3825,
+            3351.3825,
             2519.788
           ],
           [
@@ -5189,13 +5247,13 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
         "beam_name": "V303",
         "segment_label": "2",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 2154.5,
-        "width": "19",
+        "length": 387.5,
+        "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
@@ -5205,6 +5263,122 @@
           ],
           [
             2040.3825,
+            2490.038
+          ],
+          [
+            2040.3825,
+            2509.038
+          ],
+          [
+            1652.8825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "beam_name": "V303",
+        "segment_label": "3",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 418.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.3825,
+            2490.038
+          ],
+          [
+            2477.3825,
+            2490.038
+          ],
+          [
+            2477.3825,
+            2509.038
+          ],
+          [
+            2059.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "beam_name": "V303",
+        "segment_label": "4",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 418.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2496.3825,
+            2490.038
+          ],
+          [
+            2914.3825,
+            2490.038
+          ],
+          [
+            2914.3825,
+            2509.038
+          ],
+          [
+            2496.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|5|1",
+        "beam_name": "V303",
+        "segment_label": "5",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 418.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2933.3825,
+            2490.038
+          ],
+          [
+            3351.3825,
+            2490.038
+          ],
+          [
+            3360.8825,
+            2509.038
+          ],
+          [
+            2933.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|6|1",
+        "beam_name": "V303",
+        "segment_label": "6",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 418.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3370.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
             2490.038
           ],
           [
@@ -5218,7 +5392,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
         "beam_name": "V304",
         "segment_label": "1",
         "side": "Fundo",
@@ -5247,7 +5421,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
         "beam_name": "V304",
         "segment_label": "2",
         "side": "Fundo",
@@ -5276,7 +5450,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|3|1",
         "beam_name": "V304",
         "segment_label": "3",
         "side": "Fundo",
@@ -5305,7 +5479,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|4|1",
         "beam_name": "V304",
         "segment_label": "4",
         "side": "Fundo",
@@ -5334,38 +5508,9 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
         "beam_name": "V305",
         "segment_label": "1",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 19.0,
-        "width": "19.0",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1178.8825,
-            2211.99086
-          ],
-          [
-            1197.8825,
-            2211.99086
-          ],
-          [
-            1197.8825,
-            2231.99086
-          ],
-          [
-            1178.8825,
-            2231.99086
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
-        "beam_name": "V305",
-        "segment_label": "2",
         "side": "Fundo",
         "behavior": "Fundo",
         "length": 286.0,
@@ -5392,12 +5537,12 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
         "beam_name": "V306",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 254.1,
+        "length": 251.6,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
@@ -5407,11 +5552,11 @@
             2063.788
           ],
           [
-            1603.3825,
+            1600.8825,
             2063.788
           ],
           [
-            1603.3825,
+            1600.8825,
             2077.788
           ],
           [
@@ -5421,7 +5566,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
         "beam_name": "V307",
         "segment_label": "1",
         "side": "Fundo",
@@ -5450,36 +5595,65 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
         "beam_name": "V308",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 19.0,
+        "length": 38.0,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            3885.195027,
+            3885.695027,
             1963.038
           ],
           [
-            3905.195027,
+            3904.695027,
             1963.038
           ],
           [
-            3905.195027,
+            3904.695027,
+            1963.038
+          ],
+          [
+            3885.695027,
+            1963.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "beam_name": "V308",
+        "segment_label": "2",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 38.0,
+        "width": "19.0",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3885.695027,
             1982.038
           ],
           [
-            3885.195027,
+            3904.695027,
+            1982.038
+          ],
+          [
+            3904.695027,
+            1982.038
+          ],
+          [
+            3885.695027,
             1982.038
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
         "beam_name": "V309",
         "segment_label": "1",
         "side": "Fundo",
@@ -5490,25 +5664,25 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1288.0324999999998,
             2300.038
           ],
           [
-            1178.8825,
-            2620.038
-          ],
-          [
-            1198.8825,
-            2620.038
-          ],
-          [
-            1198.8825,
+            1308.0324999999998,
             2300.038
+          ],
+          [
+            1308.0324999999998,
+            2620.038
+          ],
+          [
+            1288.0324999999998,
+            2620.038
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|2|1",
         "beam_name": "V309",
         "segment_label": "2",
         "side": "Fundo",
@@ -5519,12 +5693,12 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1197.8825,
             2680.038
           ],
           [
-            1178.8825,
-            3000.538
+            1197.8825,
+            2991.038
           ],
           [
             1197.8825,
@@ -5537,7 +5711,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
         "beam_name": "V310",
         "segment_label": "1",
         "side": "Fundo",
@@ -5566,7 +5740,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
         "beam_name": "V311",
         "segment_label": "1",
         "side": "Fundo",
@@ -5595,7 +5769,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
         "beam_name": "V312",
         "segment_label": "1",
         "side": "Fundo",
@@ -5624,18 +5798,18 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
         "beam_name": "V313",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 855.0,
+        "length": 852.5,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
+            1624.8825,
             2072.538
           ],
           [
@@ -5647,13 +5821,13 @@
             2091.538
           ],
           [
-            1622.3825,
+            1624.8825,
             2091.538
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
         "beam_name": "V314",
         "segment_label": "1",
         "side": "Fundo",
@@ -5682,36 +5856,65 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
         "beam_name": "V314",
         "segment_label": "2",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 382.0,
+        "length": 66.44,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            2026.856186,
+            2039.2753571428598,
             2759.038
           ],
           [
-            2045.856186,
+            2059.27535714286,
             2759.038
           ],
           [
-            2045.856186,
-            3141.038
+            2059.27535714286,
+            2825.473324
           ],
           [
-            2026.856186,
-            3141.038
+            2039.2753571428598,
+            2825.473324
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
+        "beam_name": "V314",
+        "segment_label": "3",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 289.67,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2040.3825,
+            2759.038
+          ],
+          [
+            2040.3825,
+            2991.038
+          ],
+          [
+            2059.3825,
+            3141.038
+          ],
+          [
+            2059.3825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
         "beam_name": "V315",
         "segment_label": "1",
         "side": "Fundo",
@@ -5740,7 +5943,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
         "beam_name": "V316",
         "segment_label": "1",
         "side": "Fundo",
@@ -5769,36 +5972,65 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|2|1",
         "beam_name": "V316",
         "segment_label": "2",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 382.0,
+        "length": 66.44,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            2464.41076,
+            2448.601250000001,
             2759.038
           ],
           [
-            2483.41076,
+            2468.601250000001,
             2759.038
           ],
           [
-            2483.41076,
-            3141.038
+            2468.601250000001,
+            2825.473324
           ],
           [
-            2464.41076,
-            3141.038
+            2448.601250000001,
+            2825.473324
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|3|1",
+        "beam_name": "V316",
+        "segment_label": "3",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 289.67,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2477.3825,
+            2759.038
+          ],
+          [
+            2477.3825,
+            2991.038
+          ],
+          [
+            2496.3825,
+            3141.038
+          ],
+          [
+            2496.3825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
         "beam_name": "V317",
         "segment_label": "1",
         "side": "Fundo",
@@ -5827,7 +6059,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
         "beam_name": "V318",
         "segment_label": "1",
         "side": "Fundo",
@@ -5856,41 +6088,70 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
         "beam_name": "V318",
         "segment_label": "2",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 382.0,
+        "length": 66.44,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            2901.438002,
+            2911.8430263157943,
             2759.038
           ],
           [
-            2920.438002,
+            2931.8430263157943,
             2759.038
           ],
           [
-            2920.438002,
-            3141.038
+            2931.8430263157943,
+            2825.473324
           ],
           [
-            2901.438002,
-            3141.038
+            2911.8430263157943,
+            2825.473324
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|3|1",
+        "beam_name": "V318",
+        "segment_label": "3",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 289.67,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2914.3825,
+            2759.038
+          ],
+          [
+            2914.3825,
+            2991.038
+          ],
+          [
+            2933.3825,
+            3141.038
+          ],
+          [
+            2933.3825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
         "beam_name": "V319",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 874.0,
+        "length": 855.0,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
@@ -5900,11 +6161,11 @@
             2072.538
           ],
           [
-            3807.3825,
+            3788.3825,
             2072.538
           ],
           [
-            3807.3825,
+            3788.3825,
             2091.538
           ],
           [
@@ -5914,7 +6175,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
         "beam_name": "V319",
         "segment_label": "2",
         "side": "Fundo",
@@ -5967,7 +6228,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
         "beam_name": "V320",
         "segment_label": "1",
         "side": "Fundo",
@@ -5996,7 +6257,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|2|1",
         "beam_name": "V320",
         "segment_label": "2",
         "side": "Fundo",
@@ -6025,7 +6286,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
         "beam_name": "V321",
         "segment_label": "1",
         "side": "Fundo",
@@ -6036,25 +6297,25 @@
         "atencao": "",
         "points": [
           [
-            3777.278996,
+            3788.3825,
             1982.038
           ],
           [
-            3791.278996,
+            3788.3825,
+            2048.038
+          ],
+          [
+            3808.3825,
+            2048.038
+          ],
+          [
+            3808.3825,
             1982.038
-          ],
-          [
-            3791.278996,
-            2057.538
-          ],
-          [
-            3777.278996,
-            2057.538
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
         "beam_name": "V322",
         "segment_label": "1",
         "side": "Fundo",
@@ -6083,12 +6344,12 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
         "beam_name": "V323",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 279.0,
+        "length": 260.0,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
@@ -6112,7 +6373,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
         "beam_name": "V324",
         "segment_label": "1",
         "side": "Fundo",
@@ -6141,7 +6402,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
         "beam_name": "V325",
         "segment_label": "1",
         "side": "Fundo",
@@ -6170,7 +6431,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|2|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|2|1",
         "beam_name": "V325",
         "segment_label": "2",
         "side": "Fundo",
@@ -6199,12 +6460,12 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
         "beam_name": "V326",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 199.0,
+        "length": 180.0,
         "width": "19.0",
         "status": "valid",
         "atencao": "",
@@ -6228,7 +6489,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
         "beam_name": "V327",
         "segment_label": "1",
         "side": "Fundo",
@@ -6257,38 +6518,9 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
         "beam_name": "V328",
         "segment_label": "1",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 37.06,
-        "width": "19.0",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4519.524684,
-            1655.102865
-          ],
-          [
-            4538.524684,
-            1655.102865
-          ],
-          [
-            4538.524684,
-            1692.1625
-          ],
-          [
-            4519.524684,
-            1692.1625
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|2|1",
-        "beam_name": "V328",
-        "segment_label": "2",
         "side": "Fundo",
         "behavior": "Fundo",
         "length": 260.0,
@@ -6315,7 +6547,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
         "beam_name": "V329",
         "segment_label": "1",
         "side": "Fundo",
@@ -6344,7 +6576,7 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
         "beam_name": "V330",
         "segment_label": "1",
         "side": "Fundo",
@@ -6373,36 +6605,65 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
         "beam_name": "V331",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 220.0,
+        "length": 19.0,
+        "width": "19.0",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4611.643095,
+            2441.038
+          ],
+          [
+            4630.643095,
+            2441.038
+          ],
+          [
+            4630.643095,
+            2460.038
+          ],
+          [
+            4611.643095,
+            2460.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|2|1",
+        "beam_name": "V331",
+        "segment_label": "2",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 201.0,
         "width": "14.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4601.3825,
-            2441.038
+            4611.643095,
+            2460.038
           ],
           [
-            4601.3825,
+            4630.643095,
+            2460.038
+          ],
+          [
+            4630.643095,
             2661.038
           ],
           [
-            4621.3825,
+            4611.643095,
             2661.038
-          ],
-          [
-            4621.3825,
-            2441.038
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
         "beam_name": "V332",
         "segment_label": "1",
         "side": "Fundo",
@@ -6431,36 +6692,181 @@
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|1|1",
         "beam_name": "VF202",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 2458.1,
+        "length": 251.6,
         "width": "14.0",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1349.278794,
-            2026.233516
+            2048.038
           ],
           [
-            3807.3825,
-            2026.233516
+            1603.3825,
+            2048.038
           ],
           [
-            3807.3825,
-            2040.233516
+            1603.3825,
+            2068.038
           ],
           [
             1349.278794,
-            2040.233516
+            2068.038
           ]
         ]
       },
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_35|1|1",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|2|1",
+        "beam_name": "VF202",
+        "segment_label": "2",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 413.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1622.3825,
+            2048.038
+          ],
+          [
+            2040.3825,
+            2048.038
+          ],
+          [
+            2040.3825,
+            2068.038
+          ],
+          [
+            1622.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|3|1",
+        "beam_name": "VF202",
+        "segment_label": "3",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 413.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.3825,
+            2048.038
+          ],
+          [
+            2477.3825,
+            2048.038
+          ],
+          [
+            2477.3825,
+            2068.038
+          ],
+          [
+            2059.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|4|1",
+        "beam_name": "VF202",
+        "segment_label": "4",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 413.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2496.3825,
+            2048.038
+          ],
+          [
+            2914.3825,
+            2048.038
+          ],
+          [
+            2914.3825,
+            2068.038
+          ],
+          [
+            2496.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|5|1",
+        "beam_name": "VF202",
+        "segment_label": "5",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 413.0,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2933.3825,
+            2048.038
+          ],
+          [
+            3351.3825,
+            2048.038
+          ],
+          [
+            3351.3825,
+            2068.038
+          ],
+          [
+            2933.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|6|1",
+        "beam_name": "VF202",
+        "segment_label": "6",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 415.5,
+        "width": "19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3370.3825,
+            2048.038
+          ],
+          [
+            3788.3825,
+            2048.038
+          ],
+          [
+            3788.3825,
+            2068.038
+          ],
+          [
+            3370.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_36|1|1",
         "beam_name": "VF301",
         "segment_label": "1",
         "side": "Fundo",
@@ -6492,7 +6898,7 @@
     "lateral_a_para": [
       {
         "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|1|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
@@ -6513,7 +6919,7 @@
       },
       {
         "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|2|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
@@ -6534,6 +6940,48 @@
       },
       {
         "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|1|1",
+        "beam_name": "V301",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Para",
+        "length": 1264.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1197.8825,
+            3010.038
+          ],
+          [
+            2461.8825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|2|1",
+        "beam_name": "V301",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Para",
+        "length": 1713.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2511.8825,
+            3010.038
+          ],
+          [
+            4225.3825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
         "beam_name": "V302",
         "segment_label": "1",
         "side": "A",
@@ -6544,17 +6992,17 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1197.8825,
             2680.038
           ],
           [
-            1178.8825,
+            1197.8825,
             3000.538
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
         "beam_name": "V303",
         "segment_label": "1",
         "side": "A",
@@ -6575,12 +7023,12 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
         "beam_name": "V303",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
-        "length": 2154.5,
+        "length": 387.5,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -6590,55 +7038,151 @@
             2509.038
           ],
           [
-            3807.3825,
-            2509.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
-        "beam_name": "V304",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 322.5,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3788.3825,
-            2057.538
-          ],
-          [
-            3788.3825,
-            2380.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
-        "beam_name": "V304",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Para",
-        "length": 49.0,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3807.3825,
-            2460.038
-          ],
-          [
-            3807.3825,
+            2040.3825,
             2509.038
           ]
         ]
       },
       {
         "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "beam_name": "V303",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Para",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.3825,
+            2509.038
+          ],
+          [
+            2477.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "beam_name": "V303",
+        "segment_label": "4",
+        "side": "A",
+        "behavior": "Para",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2496.3825,
+            2509.038
+          ],
+          [
+            2914.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|5|1",
+        "beam_name": "V303",
+        "segment_label": "5",
+        "side": "A",
+        "behavior": "Para",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2933.3825,
+            2509.038
+          ],
+          [
+            3351.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|6|1",
+        "beam_name": "V303",
+        "segment_label": "6",
+        "side": "A",
+        "behavior": "Para",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3370.3825,
+            2509.038
+          ],
+          [
+            3788.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "beam_name": "V304",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Para",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3788.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
+        "beam_name": "V304",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Para",
+        "length": 30.0,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3788.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2460.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|3|1",
         "beam_name": "V304",
         "segment_label": "3",
         "side": "A",
@@ -6659,7 +7203,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|4|1",
         "beam_name": "V304",
         "segment_label": "4",
         "side": "A",
@@ -6680,30 +7224,9 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
         "beam_name": "V305",
         "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 19.0,
-        "width": "19/60",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1178.8825,
-            2231.99086
-          ],
-          [
-            1197.8825,
-            2231.99086
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
-        "beam_name": "V305",
-        "segment_label": "2",
         "side": "A",
         "behavior": "Para",
         "length": 286.0,
@@ -6722,14 +7245,14 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
         "beam_name": "V306",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 254.1,
+        "length": 251.6,
         "width": "19/55",
-        "status": "valid",
+        "status": "ignore",
         "atencao": "",
         "points": [
           [
@@ -6737,34 +7260,34 @@
             2067.038
           ],
           [
-            1603.3825,
+            1600.8825,
             2067.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
         "beam_name": "V307",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 30.71,
+        "length": 22.53,
         "width": "19/60",
-        "status": "ignore",
+        "status": "valid",
         "atencao": "",
         "points": [
           [
-            1178.8825,
-            2209.329149
+            1197.8825,
+            2217.506423
           ],
           [
-            1178.8825,
+            1197.8825,
             2240.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
         "beam_name": "V308",
         "segment_label": "1",
         "side": "A",
@@ -6775,17 +7298,38 @@
         "atencao": "",
         "points": [
           [
-            3885.195027,
+            3885.695027,
             1963.038
           ],
           [
-            3885.195027,
+            3904.695027,
+            1963.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "beam_name": "V308",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Para",
+        "length": 19.0,
+        "width": "100/19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3885.695027,
+            1982.038
+          ],
+          [
+            3904.695027,
             1982.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
         "beam_name": "V309",
         "segment_label": "1",
         "side": "A",
@@ -6796,17 +7340,17 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1288.0324999999998,
             2300.038
           ],
           [
-            1178.8825,
+            1288.0324999999998,
             2620.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|2|1",
         "beam_name": "V309",
         "segment_label": "2",
         "side": "A",
@@ -6817,17 +7361,17 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1197.8825,
             2680.038
           ],
           [
-            1178.8825,
+            1197.8825,
             3141.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
         "beam_name": "V310",
         "segment_label": "1",
         "side": "A",
@@ -6848,7 +7392,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
         "beam_name": "V311",
         "segment_label": "1",
         "side": "A",
@@ -6869,7 +7413,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
         "beam_name": "V312",
         "segment_label": "1",
         "side": "A",
@@ -6890,18 +7434,18 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
         "beam_name": "V313",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 855.0,
+        "length": 852.5,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
+            1624.8825,
             2091.538
           ],
           [
@@ -6911,40 +7455,73 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
         "beam_name": "V314",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            2040.3825,
-            2067.038
+            1915.3825,
+            2490.038
           ],
           [
             2040.3825,
-            2423.038
+            2490.038
+          ],
+          [
+            2040.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
+            2490.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
         "beam_name": "V314",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2039.2753571428598,
+            2759.038
+          ],
+          [
+            2039.2753571428598,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
+        "beam_name": "V314",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Para",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2040.3825,
-            2759.038
+            2851.36895
           ],
           [
             2040.3825,
@@ -6953,7 +7530,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
         "beam_name": "V315",
         "segment_label": "1",
         "side": "A",
@@ -6974,7 +7551,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
         "beam_name": "V316",
         "segment_label": "1",
         "side": "A",
@@ -6995,19 +7572,40 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|2|1",
         "beam_name": "V316",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2448.601250000001,
+            2759.038
+          ],
+          [
+            2448.601250000001,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|3|1",
+        "beam_name": "V316",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Para",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2477.3825,
-            2759.038
+            2851.36895
           ],
           [
             2477.3825,
@@ -7016,7 +7614,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
         "beam_name": "V317",
         "segment_label": "1",
         "side": "A",
@@ -7037,40 +7635,85 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
         "beam_name": "V318",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2914.3825,
-            2067.038
+            2290.038
+          ],
+          [
+            2789.3825,
+            2290.038
+          ],
+          [
+            2789.3825,
+            2490.038
           ],
           [
             2914.3825,
-            2423.038
+            2490.038
+          ],
+          [
+            2914.3825,
+            2290.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
         "beam_name": "V318",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
-        "length": 382.0,
+        "length": 0.0,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2709.3825,
+            2805.038
+          ],
+          [
+            2914.3825,
+            2805.038
+          ],
+          [
+            2914.3825,
+            2680.038
+          ],
+          [
+            2709.3825,
+            2680.038
+          ],
+          [
+            2709.3825,
+            2805.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|3|1",
+        "beam_name": "V318",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Para",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2914.3825,
-            2759.038
+            2851.36895
           ],
           [
             2914.3825,
@@ -7079,12 +7722,12 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
         "beam_name": "V319",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 874.0,
+        "length": 855.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -7094,13 +7737,13 @@
             2091.538
           ],
           [
-            3807.3825,
+            3788.3825,
             2091.538
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
         "beam_name": "V319",
         "segment_label": "2",
         "side": "A",
@@ -7121,49 +7764,73 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
         "beam_name": "V320",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 375.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1197.8825,
-            2704.538
+            2805.038
           ],
           [
-            1572.8825,
-            2704.538
+            1402.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
+            2680.038
+          ],
+          [
+            1197.8825,
+            2680.038
+          ],
+          [
+            1197.8825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|2|1",
         "beam_name": "V320",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
-        "length": 2135.5,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1652.8825,
-            2704.538
+            3138.3825,
+            2805.038
           ],
           [
-            3788.3825,
-            2704.538
+            2933.3825,
+            2805.038
+          ],
+          [
+            2933.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
         "beam_name": "V321",
         "segment_label": "1",
         "side": "A",
@@ -7184,7 +7851,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
         "beam_name": "V322",
         "segment_label": "1",
         "side": "A",
@@ -7205,19 +7872,19 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
         "beam_name": "V323",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 279.0,
+        "length": 260.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             3936.3825,
-            1963.038
+            1982.038
           ],
           [
             3936.3825,
@@ -7226,7 +7893,7 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
         "beam_name": "V324",
         "segment_label": "1",
         "side": "A",
@@ -7238,16 +7905,16 @@
         "points": [
           [
             4101.3825,
-            2285.538
+            2261.038
           ],
           [
             4387.3825,
-            2285.538
+            2261.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
         "beam_name": "V325",
         "segment_label": "1",
         "side": "A",
@@ -7268,40 +7935,52 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|2|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|2|1",
         "beam_name": "V325",
         "segment_label": "2",
         "side": "A",
         "behavior": "Para",
-        "length": 374.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4294.8825,
+            4408.3825,
             2680.038
           ],
           [
-            4668.8825,
+            4533.3825,
+            2680.038
+          ],
+          [
+            4533.3825,
+            2880.038
+          ],
+          [
+            4408.3825,
+            2880.038
+          ],
+          [
+            4408.3825,
             2680.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
         "beam_name": "V326",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 199.0,
+        "length": 180.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4334.3825,
-            2242.038
+            2261.038
           ],
           [
             4334.3825,
@@ -7310,12 +7989,12 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
         "beam_name": "V327",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 279.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
@@ -7326,35 +8005,14 @@
           ],
           [
             4387.3825,
-            2261.038
+            2242.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
         "beam_name": "V328",
         "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 37.06,
-        "width": "60/19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4533.3825,
-            1655.102865
-          ],
-          [
-            4533.3825,
-            1692.1625
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|2|1",
-        "beam_name": "V328",
-        "segment_label": "2",
         "side": "A",
         "behavior": "Para",
         "length": 260.0,
@@ -7373,19 +8031,19 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
         "beam_name": "V329",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 160.0,
+        "length": 141.0,
         "width": "19/60",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4533.3825,
-            2441.038
+            2460.038
           ],
           [
             4533.3825,
@@ -7394,49 +8052,82 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
         "beam_name": "V330",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 280.0,
+        "length": 0.0,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
+          [
+            4408.3825,
+            2680.038
+          ],
           [
             4533.3825,
             2680.038
           ],
           [
             4533.3825,
-            2960.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
-        "beam_name": "V331",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 220.0,
-        "width": "14/40",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4601.3825,
-            2441.038
+            2880.038
           ],
           [
-            4601.3825,
-            2661.038
+            4408.3825,
+            2880.038
+          ],
+          [
+            4408.3825,
+            2680.038
           ]
         ]
       },
       {
         "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
+        "beam_name": "V331",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Para",
+        "length": 107.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4649.8825,
+            2680.038
+          ],
+          [
+            4542.8825,
+            2680.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|2|1",
+        "beam_name": "V331",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Para",
+        "length": 201.0,
+        "width": "14/40",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4611.643095,
+            2460.038
+          ],
+          [
+            4611.643095,
+            2661.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
         "beam_name": "V332",
         "segment_label": "1",
         "side": "A",
@@ -7457,28 +8148,133 @@
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|1|1",
         "beam_name": "VF202",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 2458.1,
+        "length": 251.6,
         "width": "14/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1349.278794,
-            2040.233516
+            2068.038
           ],
           [
-            3807.3825,
-            2040.233516
+            1600.8825,
+            2068.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_35|1|1",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|2|1",
+        "beam_name": "VF202",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1624.8825,
+            2068.038
+          ],
+          [
+            2037.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|3|1",
+        "beam_name": "VF202",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2061.8825,
+            2068.038
+          ],
+          [
+            2474.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|4|1",
+        "beam_name": "VF202",
+        "segment_label": "4",
+        "side": "A",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2498.8825,
+            2068.038
+          ],
+          [
+            2911.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|5|1",
+        "beam_name": "VF202",
+        "segment_label": "5",
+        "side": "A",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2935.8825,
+            2068.038
+          ],
+          [
+            3348.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|6|1",
+        "beam_name": "VF202",
+        "segment_label": "6",
+        "side": "A",
+        "behavior": "Para",
+        "length": 415.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3372.8825,
+            2068.038
+          ],
+          [
+            3788.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_36|1|1",
         "beam_name": "VF301",
         "segment_label": "1",
         "side": "A",
@@ -7502,7 +8298,7 @@
     "lateral_b_para": [
       {
         "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|1|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
@@ -7523,7 +8319,7 @@
       },
       {
         "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|2|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "2",
         "side": "B",
         "behavior": "Para",
@@ -7544,69 +8340,267 @@
       },
       {
         "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|1|1",
+        "beam_name": "V301",
+        "segment_label": "1",
+        "side": "B",
+        "behavior": "Para",
+        "length": 1264.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1197.8825,
+            2991.038
+          ],
+          [
+            2461.8825,
+            2991.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|2|1",
+        "beam_name": "V301",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Para",
+        "length": 1713.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2511.8825,
+            2991.038
+          ],
+          [
+            4225.3825,
+            2991.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
         "beam_name": "V302",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 320.5,
+        "length": 0.0,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1197.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
             2680.038
           ],
           [
             1197.8825,
-            3000.538
+            2680.038
+          ],
+          [
+            1197.8825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
         "beam_name": "V303",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 192.5,
+        "length": 14.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1380.3825,
-            2490.038
+            2509.038
           ],
           [
-            1572.8825,
-            2490.038
+            1394.3825,
+            2509.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
         "beam_name": "V303",
         "segment_label": "2",
         "side": "B",
         "behavior": "Para",
-        "length": 2154.5,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1652.8825,
+            1915.3825,
             2490.038
           ],
           [
-            3807.3825,
+            2040.3825,
+            2490.038
+          ],
+          [
+            2040.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
             2490.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "beam_name": "V303",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Para",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.3825,
+            2490.038
+          ],
+          [
+            2184.3825,
+            2490.038
+          ],
+          [
+            2184.3825,
+            2290.038
+          ],
+          [
+            2059.3825,
+            2290.038
+          ],
+          [
+            2059.3825,
+            2490.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "beam_name": "V303",
+        "segment_label": "4",
+        "side": "B",
+        "behavior": "Para",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2914.3825,
+            2290.038
+          ],
+          [
+            2789.3825,
+            2290.038
+          ],
+          [
+            2789.3825,
+            2490.038
+          ],
+          [
+            2914.3825,
+            2490.038
+          ],
+          [
+            2914.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|5|1",
+        "beam_name": "V303",
+        "segment_label": "5",
+        "side": "B",
+        "behavior": "Para",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2933.3825,
+            2290.038
+          ],
+          [
+            3058.3825,
+            2290.038
+          ],
+          [
+            3058.3825,
+            2490.038
+          ],
+          [
+            2933.3825,
+            2490.038
+          ],
+          [
+            2933.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|6|1",
+        "beam_name": "V303",
+        "segment_label": "6",
+        "side": "B",
+        "behavior": "Para",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3788.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
         "beam_name": "V304",
         "segment_label": "1",
         "side": "B",
@@ -7627,7 +8621,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
         "beam_name": "V304",
         "segment_label": "2",
         "side": "B",
@@ -7648,7 +8642,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|3|1",
         "beam_name": "V304",
         "segment_label": "3",
         "side": "B",
@@ -7669,7 +8663,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|4|1",
         "beam_name": "V304",
         "segment_label": "4",
         "side": "B",
@@ -7690,30 +8684,9 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
         "beam_name": "V305",
         "segment_label": "1",
-        "side": "B",
-        "behavior": "Para",
-        "length": 19.0,
-        "width": "19/60",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1178.8825,
-            2211.99086
-          ],
-          [
-            1197.8825,
-            2211.99086
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
-        "beam_name": "V305",
-        "segment_label": "2",
         "side": "B",
         "behavior": "Para",
         "length": 286.0,
@@ -7732,12 +8705,12 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
         "beam_name": "V306",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 254.1,
+        "length": 251.6,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -7747,13 +8720,13 @@
             2048.038
           ],
           [
-            1603.3825,
+            1600.8825,
             2048.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
         "beam_name": "V307",
         "segment_label": "1",
         "side": "B",
@@ -7774,7 +8747,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
         "beam_name": "V308",
         "segment_label": "1",
         "side": "B",
@@ -7785,17 +8758,38 @@
         "atencao": "",
         "points": [
           [
-            3905.195027,
+            3885.695027,
             1963.038
           ],
           [
-            3905.195027,
+            3904.695027,
+            1963.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "beam_name": "V308",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Para",
+        "length": 19.0,
+        "width": "100/19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3885.695027,
+            1982.038
+          ],
+          [
+            3904.695027,
             1982.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
         "beam_name": "V309",
         "segment_label": "1",
         "side": "B",
@@ -7806,59 +8800,71 @@
         "atencao": "",
         "points": [
           [
-            1198.8825,
+            1197.8825,
             2300.038
           ],
           [
-            1198.8825,
+            1197.8825,
             2620.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|2|1",
         "beam_name": "V309",
         "segment_label": "2",
         "side": "B",
         "behavior": "Para",
-        "length": 461.0,
+        "length": 0.0,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1197.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
             2680.038
           ],
           [
             1197.8825,
-            3141.038
+            2680.038
+          ],
+          [
+            1197.8825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
         "beam_name": "V310",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 192.5,
+        "length": 14.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1380.3825,
-            2490.038
+            2509.038
           ],
           [
-            1572.8825,
-            2490.038
+            1394.3825,
+            2509.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
         "beam_name": "V311",
         "segment_label": "1",
         "side": "B",
@@ -7879,7 +8885,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
         "beam_name": "V312",
         "segment_label": "1",
         "side": "B",
@@ -7900,18 +8906,18 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
         "beam_name": "V313",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 855.0,
+        "length": 852.5,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
+            1624.8825,
             2072.538
           ],
           [
@@ -7921,40 +8927,73 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
         "beam_name": "V314",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2059.3825,
-            2067.038
+            2490.038
+          ],
+          [
+            2184.3825,
+            2490.038
+          ],
+          [
+            2184.3825,
+            2290.038
           ],
           [
             2059.3825,
-            2423.038
+            2290.038
+          ],
+          [
+            2059.3825,
+            2490.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
         "beam_name": "V314",
         "segment_label": "2",
         "side": "B",
         "behavior": "Para",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.27535714286,
+            2759.038
+          ],
+          [
+            2059.27535714286,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
+        "beam_name": "V314",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Para",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2059.3825,
-            2759.038
+            2851.36895
           ],
           [
             2059.3825,
@@ -7963,7 +9002,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
         "beam_name": "V315",
         "segment_label": "1",
         "side": "B",
@@ -7984,7 +9023,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
         "beam_name": "V316",
         "segment_label": "1",
         "side": "B",
@@ -8005,19 +9044,40 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|2|1",
         "beam_name": "V316",
         "segment_label": "2",
         "side": "B",
         "behavior": "Para",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2468.601250000001,
+            2759.038
+          ],
+          [
+            2468.601250000001,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|3|1",
+        "beam_name": "V316",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Para",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2496.3825,
-            2759.038
+            2851.36895
           ],
           [
             2496.3825,
@@ -8026,7 +9086,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
         "beam_name": "V317",
         "segment_label": "1",
         "side": "B",
@@ -8047,40 +9107,85 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
         "beam_name": "V318",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2933.3825,
-            2067.038
+            2290.038
+          ],
+          [
+            3058.3825,
+            2290.038
+          ],
+          [
+            3058.3825,
+            2490.038
           ],
           [
             2933.3825,
-            2423.038
+            2490.038
+          ],
+          [
+            2933.3825,
+            2290.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
         "beam_name": "V318",
         "segment_label": "2",
         "side": "B",
         "behavior": "Para",
-        "length": 382.0,
+        "length": 0.0,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3138.3825,
+            2805.038
+          ],
+          [
+            2933.3825,
+            2805.038
+          ],
+          [
+            2933.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2805.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|3|1",
+        "beam_name": "V318",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Para",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2933.3825,
-            2759.038
+            2851.36895
           ],
           [
             2933.3825,
@@ -8089,12 +9194,12 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
         "beam_name": "V319",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 874.0,
+        "length": 855.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -8104,13 +9209,13 @@
             2072.538
           ],
           [
-            3807.3825,
+            3788.3825,
             2072.538
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
         "beam_name": "V319",
         "segment_label": "2",
         "side": "B",
@@ -8131,7 +9236,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
         "beam_name": "V320",
         "segment_label": "1",
         "side": "B",
@@ -8143,16 +9248,16 @@
         "points": [
           [
             1197.8825,
-            2685.538
+            2680.038
           ],
           [
             1572.8825,
-            2685.538
+            2680.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|2|1",
         "beam_name": "V320",
         "segment_label": "2",
         "side": "B",
@@ -8164,16 +9269,16 @@
         "points": [
           [
             1652.8825,
-            2685.538
+            2680.038
           ],
           [
             3788.3825,
-            2685.538
+            2680.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
         "beam_name": "V321",
         "segment_label": "1",
         "side": "B",
@@ -8184,17 +9289,17 @@
         "atencao": "",
         "points": [
           [
-            3807.3825,
+            3808.3825,
             1982.038
           ],
           [
-            3807.3825,
+            3808.3825,
             2057.538
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
         "beam_name": "V322",
         "segment_label": "1",
         "side": "B",
@@ -8215,19 +9320,19 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
         "beam_name": "V323",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 279.0,
+        "length": 260.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             3955.3825,
-            1963.038
+            1982.038
           ],
           [
             3955.3825,
@@ -8236,28 +9341,28 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
         "beam_name": "V324",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 286.0,
+        "length": 19.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4101.3825,
-            2266.538
+            4154.3825,
+            2261.038
           ],
           [
-            4387.3825,
-            2266.538
+            4135.3825,
+            2261.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
         "beam_name": "V325",
         "segment_label": "1",
         "side": "B",
@@ -8278,7 +9383,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|2|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|2|1",
         "beam_name": "V325",
         "segment_label": "2",
         "side": "B",
@@ -8299,19 +9404,19 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
         "beam_name": "V326",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 199.0,
+        "length": 180.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4353.3825,
-            2242.038
+            2261.038
           ],
           [
             4353.3825,
@@ -8320,12 +9425,12 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
         "beam_name": "V327",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 279.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
@@ -8336,35 +9441,14 @@
           ],
           [
             4401.3825,
-            2261.038
+            2242.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
         "beam_name": "V328",
         "segment_label": "1",
-        "side": "B",
-        "behavior": "Para",
-        "length": 37.06,
-        "width": "60/19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4601.901521,
-            1655.102865
-          ],
-          [
-            4601.901521,
-            1692.1625
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|2|1",
-        "beam_name": "V328",
-        "segment_label": "2",
         "side": "B",
         "behavior": "Para",
         "length": 260.0,
@@ -8383,19 +9467,19 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
         "beam_name": "V329",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 160.0,
+        "length": 141.0,
         "width": "19/60",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4552.3825,
-            2441.038
+            2460.038
           ],
           [
             4552.3825,
@@ -8404,7 +9488,7 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
         "beam_name": "V330",
         "segment_label": "1",
         "side": "B",
@@ -8425,28 +9509,49 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
         "beam_name": "V331",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 220.0,
+        "length": 19.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4611.643095,
+            2441.038
+          ],
+          [
+            4630.643095,
+            2441.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|2|1",
+        "beam_name": "V331",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Para",
+        "length": 201.0,
         "width": "14/40",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4621.3825,
-            2441.038
+            4630.643095,
+            2460.038
           ],
           [
-            4621.3825,
+            4630.643095,
             2661.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
         "beam_name": "V332",
         "segment_label": "1",
         "side": "B",
@@ -8467,28 +9572,133 @@
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|1|1",
         "beam_name": "VF202",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 2458.1,
+        "length": 251.6,
         "width": "14/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1349.278794,
-            2026.233516
+            2048.038
           ],
           [
-            3807.3825,
-            2026.233516
+            1600.8825,
+            2048.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_35|1|1",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|2|1",
+        "beam_name": "VF202",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1624.8825,
+            2048.038
+          ],
+          [
+            2037.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|3|1",
+        "beam_name": "VF202",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2061.8825,
+            2048.038
+          ],
+          [
+            2474.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|4|1",
+        "beam_name": "VF202",
+        "segment_label": "4",
+        "side": "B",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2498.8825,
+            2048.038
+          ],
+          [
+            2911.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|5|1",
+        "beam_name": "VF202",
+        "segment_label": "5",
+        "side": "B",
+        "behavior": "Para",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2935.8825,
+            2048.038
+          ],
+          [
+            3348.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|6|1",
+        "beam_name": "VF202",
+        "segment_label": "6",
+        "side": "B",
+        "behavior": "Para",
+        "length": 415.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3372.8825,
+            2048.038
+          ],
+          [
+            3788.3825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_36|1|1",
         "beam_name": "VF301",
         "segment_label": "1",
         "side": "B",
@@ -8512,7 +9722,7 @@
     "lateral_a_passa": [
       {
         "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|1|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
@@ -8533,7 +9743,7 @@
       },
       {
         "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|2|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
@@ -8554,6 +9764,48 @@
       },
       {
         "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|1|1",
+        "beam_name": "V301",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 1264.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1197.8825,
+            3010.038
+          ],
+          [
+            2461.8825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|2|1",
+        "beam_name": "V301",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 1713.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2511.8825,
+            3010.038
+          ],
+          [
+            4225.3825,
+            3010.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
         "beam_name": "V302",
         "segment_label": "1",
         "side": "A",
@@ -8564,17 +9816,17 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1197.8825,
             2680.038
           ],
           [
-            1178.8825,
+            1197.8825,
             3000.538
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
         "beam_name": "V303",
         "segment_label": "1",
         "side": "A",
@@ -8595,12 +9847,12 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
         "beam_name": "V303",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
-        "length": 2154.5,
+        "length": 387.5,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -8610,55 +9862,151 @@
             2509.038
           ],
           [
-            3807.3825,
-            2509.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
-        "beam_name": "V304",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 322.5,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3788.3825,
-            2057.538
-          ],
-          [
-            3788.3825,
-            2380.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
-        "beam_name": "V304",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 49.0,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3807.3825,
-            2460.038
-          ],
-          [
-            3807.3825,
+            2040.3825,
             2509.038
           ]
         ]
       },
       {
         "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "beam_name": "V303",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.3825,
+            2509.038
+          ],
+          [
+            2477.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "beam_name": "V303",
+        "segment_label": "4",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2496.3825,
+            2509.038
+          ],
+          [
+            2914.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|5|1",
+        "beam_name": "V303",
+        "segment_label": "5",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2933.3825,
+            2509.038
+          ],
+          [
+            3351.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|6|1",
+        "beam_name": "V303",
+        "segment_label": "6",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 418.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3370.3825,
+            2509.038
+          ],
+          [
+            3788.3825,
+            2509.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "beam_name": "V304",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3788.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
+        "beam_name": "V304",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 30.0,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3788.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2460.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|3|1",
         "beam_name": "V304",
         "segment_label": "3",
         "side": "A",
@@ -8679,7 +10027,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|4|1",
         "beam_name": "V304",
         "segment_label": "4",
         "side": "A",
@@ -8700,30 +10048,9 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
         "beam_name": "V305",
         "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 19.0,
-        "width": "19/60",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1178.8825,
-            2231.99086
-          ],
-          [
-            1197.8825,
-            2231.99086
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
-        "beam_name": "V305",
-        "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
         "length": 286.0,
@@ -8742,12 +10069,12 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
         "beam_name": "V306",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 254.1,
+        "length": 251.6,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -8757,34 +10084,34 @@
             2067.038
           ],
           [
-            1603.3825,
+            1600.8825,
             2067.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
         "beam_name": "V307",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 30.71,
+        "length": 22.53,
         "width": "19/60",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1178.8825,
-            2209.329149
+            1197.8825,
+            2217.506423
           ],
           [
-            1178.8825,
+            1197.8825,
             2240.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
         "beam_name": "V308",
         "segment_label": "1",
         "side": "A",
@@ -8795,17 +10122,38 @@
         "atencao": "",
         "points": [
           [
-            3885.195027,
+            3885.695027,
             1963.038
           ],
           [
-            3885.195027,
+            3904.695027,
+            1963.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "beam_name": "V308",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 19.0,
+        "width": "100/19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3885.695027,
+            1982.038
+          ],
+          [
+            3904.695027,
             1982.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
         "beam_name": "V309",
         "segment_label": "1",
         "side": "A",
@@ -8816,17 +10164,17 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1288.0324999999998,
             2300.038
           ],
           [
-            1178.8825,
+            1288.0324999999998,
             2620.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|2|1",
         "beam_name": "V309",
         "segment_label": "2",
         "side": "A",
@@ -8837,17 +10185,17 @@
         "atencao": "",
         "points": [
           [
-            1178.8825,
+            1197.8825,
             2680.038
           ],
           [
-            1178.8825,
+            1197.8825,
             3141.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
         "beam_name": "V310",
         "segment_label": "1",
         "side": "A",
@@ -8868,7 +10216,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
         "beam_name": "V311",
         "segment_label": "1",
         "side": "A",
@@ -8889,7 +10237,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
         "beam_name": "V312",
         "segment_label": "1",
         "side": "A",
@@ -8910,18 +10258,18 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
         "beam_name": "V313",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 855.0,
+        "length": 852.5,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
+            1624.8825,
             2091.538
           ],
           [
@@ -8931,40 +10279,73 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
         "beam_name": "V314",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            2040.3825,
-            2067.038
+            1915.3825,
+            2490.038
           ],
           [
             2040.3825,
-            2423.038
+            2490.038
+          ],
+          [
+            2040.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
+            2490.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
         "beam_name": "V314",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2039.2753571428598,
+            2759.038
+          ],
+          [
+            2039.2753571428598,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
+        "beam_name": "V314",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2040.3825,
-            2759.038
+            2851.36895
           ],
           [
             2040.3825,
@@ -8973,7 +10354,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
         "beam_name": "V315",
         "segment_label": "1",
         "side": "A",
@@ -8994,7 +10375,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
         "beam_name": "V316",
         "segment_label": "1",
         "side": "A",
@@ -9015,19 +10396,40 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|2|1",
         "beam_name": "V316",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2448.601250000001,
+            2759.038
+          ],
+          [
+            2448.601250000001,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|3|1",
+        "beam_name": "V316",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2477.3825,
-            2759.038
+            2851.36895
           ],
           [
             2477.3825,
@@ -9036,7 +10438,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
         "beam_name": "V317",
         "segment_label": "1",
         "side": "A",
@@ -9057,40 +10459,85 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
         "beam_name": "V318",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2914.3825,
-            2067.038
+            2290.038
+          ],
+          [
+            2789.3825,
+            2290.038
+          ],
+          [
+            2789.3825,
+            2490.038
           ],
           [
             2914.3825,
-            2423.038
+            2490.038
+          ],
+          [
+            2914.3825,
+            2290.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
         "beam_name": "V318",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
-        "length": 382.0,
+        "length": 0.0,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2709.3825,
+            2805.038
+          ],
+          [
+            2914.3825,
+            2805.038
+          ],
+          [
+            2914.3825,
+            2680.038
+          ],
+          [
+            2709.3825,
+            2680.038
+          ],
+          [
+            2709.3825,
+            2805.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|3|1",
+        "beam_name": "V318",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2914.3825,
-            2759.038
+            2851.36895
           ],
           [
             2914.3825,
@@ -9099,12 +10546,12 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
         "beam_name": "V319",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 874.0,
+        "length": 855.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -9114,13 +10561,13 @@
             2091.538
           ],
           [
-            3807.3825,
+            3788.3825,
             2091.538
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
         "beam_name": "V319",
         "segment_label": "2",
         "side": "A",
@@ -9141,49 +10588,73 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
         "beam_name": "V320",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 375.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1197.8825,
-            2704.538
+            2805.038
           ],
           [
-            1572.8825,
-            2704.538
+            1402.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
+            2680.038
+          ],
+          [
+            1197.8825,
+            2680.038
+          ],
+          [
+            1197.8825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|2|1",
         "beam_name": "V320",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
-        "length": 2135.5,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1652.8825,
-            2704.538
+            3138.3825,
+            2805.038
           ],
           [
-            3788.3825,
-            2704.538
+            2933.3825,
+            2805.038
+          ],
+          [
+            2933.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
         "beam_name": "V321",
         "segment_label": "1",
         "side": "A",
@@ -9204,7 +10675,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
         "beam_name": "V322",
         "segment_label": "1",
         "side": "A",
@@ -9225,19 +10696,19 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
         "beam_name": "V323",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 279.0,
+        "length": 260.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             3936.3825,
-            1963.038
+            1982.038
           ],
           [
             3936.3825,
@@ -9246,7 +10717,7 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
         "beam_name": "V324",
         "segment_label": "1",
         "side": "A",
@@ -9258,16 +10729,16 @@
         "points": [
           [
             4101.3825,
-            2285.538
+            2261.038
           ],
           [
             4387.3825,
-            2285.538
+            2261.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
         "beam_name": "V325",
         "segment_label": "1",
         "side": "A",
@@ -9288,40 +10759,52 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|2|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|2|1",
         "beam_name": "V325",
         "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
-        "length": 374.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4294.8825,
+            4408.3825,
             2680.038
           ],
           [
-            4668.8825,
+            4533.3825,
+            2680.038
+          ],
+          [
+            4533.3825,
+            2880.038
+          ],
+          [
+            4408.3825,
+            2880.038
+          ],
+          [
+            4408.3825,
             2680.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
         "beam_name": "V326",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 199.0,
+        "length": 180.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4334.3825,
-            2242.038
+            2261.038
           ],
           [
             4334.3825,
@@ -9330,12 +10813,12 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
         "beam_name": "V327",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 279.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
@@ -9346,35 +10829,14 @@
           ],
           [
             4387.3825,
-            2261.038
+            2242.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
         "beam_name": "V328",
         "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 37.06,
-        "width": "60/19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4533.3825,
-            1655.102865
-          ],
-          [
-            4533.3825,
-            1692.1625
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|2|1",
-        "beam_name": "V328",
-        "segment_label": "2",
         "side": "A",
         "behavior": "Passa",
         "length": 260.0,
@@ -9393,19 +10855,19 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
         "beam_name": "V329",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 160.0,
+        "length": 141.0,
         "width": "19/60",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4533.3825,
-            2441.038
+            2460.038
           ],
           [
             4533.3825,
@@ -9414,49 +10876,82 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
         "beam_name": "V330",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 280.0,
+        "length": 0.0,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
+          [
+            4408.3825,
+            2680.038
+          ],
           [
             4533.3825,
             2680.038
           ],
           [
             4533.3825,
-            2960.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
-        "beam_name": "V331",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 220.0,
-        "width": "14/40",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4601.3825,
-            2441.038
+            2880.038
           ],
           [
-            4601.3825,
-            2661.038
+            4408.3825,
+            2880.038
+          ],
+          [
+            4408.3825,
+            2680.038
           ]
         ]
       },
       {
         "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
+        "beam_name": "V331",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 107.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4649.8825,
+            2680.038
+          ],
+          [
+            4542.8825,
+            2680.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|2|1",
+        "beam_name": "V331",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 201.0,
+        "width": "14/40",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4611.643095,
+            2460.038
+          ],
+          [
+            4611.643095,
+            2661.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
         "beam_name": "V332",
         "segment_label": "1",
         "side": "A",
@@ -9477,28 +10972,133 @@
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|1|1",
         "beam_name": "VF202",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 2458.1,
+        "length": 251.6,
         "width": "14/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1349.278794,
-            2040.233516
+            2068.038
           ],
           [
-            3807.3825,
-            2040.233516
+            1600.8825,
+            2068.038
           ]
         ]
       },
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_35|1|1",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|2|1",
+        "beam_name": "VF202",
+        "segment_label": "2",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1624.8825,
+            2068.038
+          ],
+          [
+            2037.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|3|1",
+        "beam_name": "VF202",
+        "segment_label": "3",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2061.8825,
+            2068.038
+          ],
+          [
+            2474.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|4|1",
+        "beam_name": "VF202",
+        "segment_label": "4",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2498.8825,
+            2068.038
+          ],
+          [
+            2911.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|5|1",
+        "beam_name": "VF202",
+        "segment_label": "5",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2935.8825,
+            2068.038
+          ],
+          [
+            3348.8825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|6|1",
+        "beam_name": "VF202",
+        "segment_label": "6",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 415.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3372.8825,
+            2068.038
+          ],
+          [
+            3788.3825,
+            2068.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_36|1|1",
         "beam_name": "VF301",
         "segment_label": "1",
         "side": "A",
@@ -9522,7 +11122,7 @@
     "lateral_b_passa": [
       {
         "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|1|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
@@ -9543,7 +11143,7 @@
       },
       {
         "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1|2|1",
-        "beam_name": "V301",
+        "beam_name": "LV-V301.A Para",
         "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
@@ -9564,69 +11164,267 @@
       },
       {
         "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|1|1",
+        "beam_name": "V301",
+        "segment_label": "1",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 1264.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1197.8825,
+            2991.038
+          ],
+          [
+            2461.8825,
+            2991.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2|2|1",
+        "beam_name": "V301",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 1713.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2511.8825,
+            2991.038
+          ],
+          [
+            4225.3825,
+            2991.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
         "beam_name": "V302",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 320.5,
+        "length": 0.0,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1197.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
             2680.038
           ],
           [
             1197.8825,
-            3000.538
+            2680.038
+          ],
+          [
+            1197.8825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
         "beam_name": "V303",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 192.5,
+        "length": 14.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1380.3825,
-            2490.038
+            2509.038
           ],
           [
-            1572.8825,
-            2490.038
+            1394.3825,
+            2509.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
         "beam_name": "V303",
         "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
-        "length": 2154.5,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1652.8825,
+            1915.3825,
             2490.038
           ],
           [
-            3807.3825,
+            2040.3825,
+            2490.038
+          ],
+          [
+            2040.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
+            2290.038
+          ],
+          [
+            1915.3825,
             2490.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "beam_name": "V303",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.3825,
+            2490.038
+          ],
+          [
+            2184.3825,
+            2490.038
+          ],
+          [
+            2184.3825,
+            2290.038
+          ],
+          [
+            2059.3825,
+            2290.038
+          ],
+          [
+            2059.3825,
+            2490.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "beam_name": "V303",
+        "segment_label": "4",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2914.3825,
+            2290.038
+          ],
+          [
+            2789.3825,
+            2290.038
+          ],
+          [
+            2789.3825,
+            2490.038
+          ],
+          [
+            2914.3825,
+            2490.038
+          ],
+          [
+            2914.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|5|1",
+        "beam_name": "V303",
+        "segment_label": "5",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2933.3825,
+            2290.038
+          ],
+          [
+            3058.3825,
+            2290.038
+          ],
+          [
+            3058.3825,
+            2490.038
+          ],
+          [
+            2933.3825,
+            2490.038
+          ],
+          [
+            2933.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|6|1",
+        "beam_name": "V303",
+        "segment_label": "6",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 0.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3788.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2290.038
+          ],
+          [
+            3663.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2490.038
+          ],
+          [
+            3788.3825,
+            2290.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
         "beam_name": "V304",
         "segment_label": "1",
         "side": "B",
@@ -9647,7 +11445,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
         "beam_name": "V304",
         "segment_label": "2",
         "side": "B",
@@ -9668,7 +11466,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|3|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|3|1",
         "beam_name": "V304",
         "segment_label": "3",
         "side": "B",
@@ -9689,7 +11487,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4|4|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|4|1",
         "beam_name": "V304",
         "segment_label": "4",
         "side": "B",
@@ -9710,30 +11508,9 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
         "beam_name": "V305",
         "segment_label": "1",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 19.0,
-        "width": "19/60",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1178.8825,
-            2211.99086
-          ],
-          [
-            1197.8825,
-            2211.99086
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5|2|1",
-        "beam_name": "V305",
-        "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
         "length": 286.0,
@@ -9752,12 +11529,12 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
         "beam_name": "V306",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 254.1,
+        "length": 251.6,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -9767,13 +11544,13 @@
             2048.038
           ],
           [
-            1603.3825,
+            1600.8825,
             2048.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
         "beam_name": "V307",
         "segment_label": "1",
         "side": "B",
@@ -9794,7 +11571,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
         "beam_name": "V308",
         "segment_label": "1",
         "side": "B",
@@ -9805,17 +11582,38 @@
         "atencao": "",
         "points": [
           [
-            3905.195027,
+            3885.695027,
             1963.038
           ],
           [
-            3905.195027,
+            3904.695027,
+            1963.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "beam_name": "V308",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 19.0,
+        "width": "100/19",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3885.695027,
+            1982.038
+          ],
+          [
+            3904.695027,
             1982.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
         "beam_name": "V309",
         "segment_label": "1",
         "side": "B",
@@ -9826,59 +11624,71 @@
         "atencao": "",
         "points": [
           [
-            1198.8825,
+            1197.8825,
             2300.038
           ],
           [
-            1198.8825,
+            1197.8825,
             2620.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|2|1",
         "beam_name": "V309",
         "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
-        "length": 461.0,
+        "length": 0.0,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1197.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
+            2805.038
+          ],
+          [
+            1402.8825,
             2680.038
           ],
           [
             1197.8825,
-            3141.038
+            2680.038
+          ],
+          [
+            1197.8825,
+            2805.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
         "beam_name": "V310",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 192.5,
+        "length": 14.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1380.3825,
-            2490.038
+            2509.038
           ],
           [
-            1572.8825,
-            2490.038
+            1394.3825,
+            2509.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
         "beam_name": "V311",
         "segment_label": "1",
         "side": "B",
@@ -9899,7 +11709,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
         "beam_name": "V312",
         "segment_label": "1",
         "side": "B",
@@ -9920,18 +11730,18 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
         "beam_name": "V313",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 855.0,
+        "length": 852.5,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
+            1624.8825,
             2072.538
           ],
           [
@@ -9941,40 +11751,73 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
         "beam_name": "V314",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2059.3825,
-            2067.038
+            2490.038
+          ],
+          [
+            2184.3825,
+            2490.038
+          ],
+          [
+            2184.3825,
+            2290.038
           ],
           [
             2059.3825,
-            2423.038
+            2290.038
+          ],
+          [
+            2059.3825,
+            2490.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
         "beam_name": "V314",
         "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2059.27535714286,
+            2759.038
+          ],
+          [
+            2059.27535714286,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
+        "beam_name": "V314",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2059.3825,
-            2759.038
+            2851.36895
           ],
           [
             2059.3825,
@@ -9983,7 +11826,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
         "beam_name": "V315",
         "segment_label": "1",
         "side": "B",
@@ -10004,7 +11847,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
         "beam_name": "V316",
         "segment_label": "1",
         "side": "B",
@@ -10025,19 +11868,40 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|2|1",
         "beam_name": "V316",
         "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
-        "length": 382.0,
+        "length": 66.44,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2468.601250000001,
+            2759.038
+          ],
+          [
+            2468.601250000001,
+            2825.473324
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|3|1",
+        "beam_name": "V316",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2496.3825,
-            2759.038
+            2851.36895
           ],
           [
             2496.3825,
@@ -10046,7 +11910,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
         "beam_name": "V317",
         "segment_label": "1",
         "side": "B",
@@ -10067,40 +11931,85 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
         "beam_name": "V318",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 356.0,
+        "length": 0.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2933.3825,
-            2067.038
+            2290.038
+          ],
+          [
+            3058.3825,
+            2290.038
+          ],
+          [
+            3058.3825,
+            2490.038
           ],
           [
             2933.3825,
-            2423.038
+            2490.038
+          ],
+          [
+            2933.3825,
+            2290.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
         "beam_name": "V318",
         "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
-        "length": 382.0,
+        "length": 0.0,
+        "width": "19/120",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3138.3825,
+            2805.038
+          ],
+          [
+            2933.3825,
+            2805.038
+          ],
+          [
+            2933.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2680.038
+          ],
+          [
+            3138.3825,
+            2805.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|3|1",
+        "beam_name": "V318",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 289.67,
         "width": "19/120",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             2933.3825,
-            2759.038
+            2851.36895
           ],
           [
             2933.3825,
@@ -10109,12 +12018,12 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
         "beam_name": "V319",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 874.0,
+        "length": 855.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
@@ -10124,13 +12033,13 @@
             2072.538
           ],
           [
-            3807.3825,
+            3788.3825,
             2072.538
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
         "beam_name": "V319",
         "segment_label": "2",
         "side": "B",
@@ -10151,7 +12060,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
         "beam_name": "V320",
         "segment_label": "1",
         "side": "B",
@@ -10163,16 +12072,16 @@
         "points": [
           [
             1197.8825,
-            2685.538
+            2680.038
           ],
           [
             1572.8825,
-            2685.538
+            2680.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|2|1",
         "beam_name": "V320",
         "segment_label": "2",
         "side": "B",
@@ -10184,16 +12093,16 @@
         "points": [
           [
             1652.8825,
-            2685.538
+            2680.038
           ],
           [
             3788.3825,
-            2685.538
+            2680.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
         "beam_name": "V321",
         "segment_label": "1",
         "side": "B",
@@ -10204,17 +12113,17 @@
         "atencao": "",
         "points": [
           [
-            3807.3825,
+            3808.3825,
             1982.038
           ],
           [
-            3807.3825,
+            3808.3825,
             2057.538
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
         "beam_name": "V322",
         "segment_label": "1",
         "side": "B",
@@ -10235,19 +12144,19 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
         "beam_name": "V323",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 279.0,
+        "length": 260.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             3955.3825,
-            1963.038
+            1982.038
           ],
           [
             3955.3825,
@@ -10256,28 +12165,28 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
         "beam_name": "V324",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 286.0,
+        "length": 19.0,
         "width": "19/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4101.3825,
-            2266.538
+            4154.3825,
+            2261.038
           ],
           [
-            4387.3825,
-            2266.538
+            4135.3825,
+            2261.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
         "beam_name": "V325",
         "segment_label": "1",
         "side": "B",
@@ -10298,7 +12207,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25|2|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|2|1",
         "beam_name": "V325",
         "segment_label": "2",
         "side": "B",
@@ -10319,19 +12228,19 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
         "beam_name": "V326",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 199.0,
+        "length": 180.0,
         "width": "19/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4353.3825,
-            2242.038
+            2261.038
           ],
           [
             4353.3825,
@@ -10340,12 +12249,12 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
         "beam_name": "V327",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 279.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
@@ -10356,35 +12265,14 @@
           ],
           [
             4401.3825,
-            2261.038
+            2242.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
         "beam_name": "V328",
         "segment_label": "1",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 37.06,
-        "width": "60/19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4601.901521,
-            1655.102865
-          ],
-          [
-            4601.901521,
-            1692.1625
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|2|1",
-        "beam_name": "V328",
-        "segment_label": "2",
         "side": "B",
         "behavior": "Passa",
         "length": 260.0,
@@ -10403,19 +12291,19 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
         "beam_name": "V329",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 160.0,
+        "length": 141.0,
         "width": "19/60",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             4552.3825,
-            2441.038
+            2460.038
           ],
           [
             4552.3825,
@@ -10424,7 +12312,7 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
         "beam_name": "V330",
         "segment_label": "1",
         "side": "B",
@@ -10445,28 +12333,49 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
         "beam_name": "V331",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 220.0,
+        "length": 19.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4611.643095,
+            2441.038
+          ],
+          [
+            4630.643095,
+            2441.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|2|1",
+        "beam_name": "V331",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 201.0,
         "width": "14/40",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            4621.3825,
-            2441.038
+            4630.643095,
+            2460.038
           ],
           [
-            4621.3825,
+            4630.643095,
             2661.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
         "beam_name": "V332",
         "segment_label": "1",
         "side": "B",
@@ -10487,28 +12396,133 @@
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|1|1",
         "beam_name": "VF202",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 2458.1,
+        "length": 251.6,
         "width": "14/55",
         "status": "valid",
         "atencao": "",
         "points": [
           [
             1349.278794,
-            2026.233516
+            2048.038
           ],
           [
-            3807.3825,
-            2026.233516
+            1600.8825,
+            2048.038
           ]
         ]
       },
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_35|1|1",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|2|1",
+        "beam_name": "VF202",
+        "segment_label": "2",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            1624.8825,
+            2048.038
+          ],
+          [
+            2037.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|3|1",
+        "beam_name": "VF202",
+        "segment_label": "3",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2061.8825,
+            2048.038
+          ],
+          [
+            2474.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|4|1",
+        "beam_name": "VF202",
+        "segment_label": "4",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2498.8825,
+            2048.038
+          ],
+          [
+            2911.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|5|1",
+        "beam_name": "VF202",
+        "segment_label": "5",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 413.0,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            2935.8825,
+            2048.038
+          ],
+          [
+            3348.8825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34|6|1",
+        "beam_name": "VF202",
+        "segment_label": "6",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 415.5,
+        "width": "19/55",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            3372.8825,
+            2048.038
+          ],
+          [
+            3788.3825,
+            2048.038
+          ]
+        ]
+      },
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_36|1|1",
         "beam_name": "VF301",
         "segment_label": "1",
         "side": "B",

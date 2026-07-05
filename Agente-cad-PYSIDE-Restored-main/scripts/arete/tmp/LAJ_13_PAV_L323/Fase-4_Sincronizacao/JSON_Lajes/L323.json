@@ -73,8 +73,13 @@
     "n3_pattern_nome": "L323",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
+    "n3_pose_source": "sa_outline_anchor",
     "n3_source": "comparison_engine_n1",
     "n3_teacher": null
+  },
+  "_stog_pose": {
+    "x": 4478.07,
+    "y": 1667.94
   },
   "cotas_paineis": [
     {
@@ -199,10 +204,6 @@
     }
   ],
   "pontaletes": {},
-  "_stog_pose": {
-    "x": 4478.07,
-    "y": 1667.94
-  },
   "_forma_canonica": {
     "cotas_valor": [
       2.5,

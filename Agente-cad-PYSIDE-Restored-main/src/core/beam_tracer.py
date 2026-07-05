@@ -234,14 +234,52 @@ class BeamTracer:
                         if (cx, cy) not in seen_centers:
                             seen_centers.add((cx, cy))
                             master_beam['geometry']['classified']['seg_bottom'].append(seg)
+                            
+                # Collect side segments
+                master_beam['geometry']['classified']['seg_side_a'].extend(b['geometry']['classified'].get('seg_side_a', []))
+                master_beam['geometry']['classified']['seg_side_b'].extend(b['geometry']['classified'].get('seg_side_b', []))
+                
             master_beam['is_h'] = bool(beam_list[0]['is_h'])
-            final_beams.append(master_beam)
             
-        # 3. Recalcular merged_bottom_lengths e merged_bottom_groups_coords
-        for b in final_beams:
-            lengths, coords = self._group_bottom_lengths_and_coords(b['geometry']['classified']['seg_bottom'], b['is_h'])
-            b['geometry']['classified']['merged_bottom_lengths'] = lengths
-            b['geometry']['classified']['merged_bottom_groups_coords'] = coords
+            # Combine the properly classified spans from sub-parts
+            all_coords = []
+            for b in beam_list:
+                all_coords.extend(b['geometry']['classified'].get('merged_bottom_groups_coords', []))
+            
+            all_coords.sort(key=lambda x: x[0])
+            merged_coords = []
+            if all_coords:
+                c_min, c_max = all_coords[0]
+                for p_min, p_max in all_coords[1:]:
+                    is_narrow_1 = (c_max - c_min) < 30
+                    is_narrow_2 = (p_max - p_min) < 30
+                    if p_min <= c_max - 5:
+                        # Significant overlap (same panel/divisor captured by multiple parts)
+                        c_max = max(c_max, p_max)
+                    elif is_narrow_1 and is_narrow_2 and (p_min - c_max) <= 30:
+                        # Close divisores -> merge
+                        c_max = max(c_max, p_max)
+                    else:
+                        merged_coords.append((c_min, c_max))
+                        c_min, c_max = p_min, p_max
+                merged_coords.append((c_min, c_max))
+                
+            master_beam['geometry']['classified']['merged_bottom_groups_coords'] = merged_coords
+            
+            # Recalculate lengths
+            if all_coords and (all_coords[0][1] - all_coords[0][0]) < 30:
+                # If they are divisores (MODO DIVISOR), the lengths are the spans between them!
+                spans = []
+                for i in range(len(merged_coords) - 1):
+                    span = merged_coords[i + 1][0] - merged_coords[i][1]
+                    if span > 10.0:
+                        spans.append(span)
+                master_beam['geometry']['classified']['merged_bottom_lengths'] = spans
+            else:
+                # MODO PAINEL: lengths are just the widths of the panels
+                master_beam['geometry']['classified']['merged_bottom_lengths'] = [end - start for start, end in merged_coords]
+
+            final_beams.append(master_beam)
             
         return final_beams
 
@@ -322,7 +360,7 @@ class BeamTracer:
                 q.append(s)
                 res_lines.append(s['points'])
                 
-        while q and len(res_lines) < 2000:
+        while q and len(res_lines) < 5000:
             curr = q.pop(0)
             for pt in curr['points']:
                 if not (cbox[0] <= pt[0] <= cbox[2] and cbox[1] <= pt[1] <= cbox[3]):
@@ -377,12 +415,19 @@ class BeamTracer:
             else:
                 spans.append((min(p[1] for p in s), max(p[1] for p in s)))
                 
-        # Merge overlapping or close spans (gap <= 50)
+        # Merge overlapping spans, but preserve distinct adjacent panels
         spans.sort(key=lambda x: x[0])
         merged = []
         cur_min, cur_max = spans[0]
         for start, end in spans[1:]:
-            if start - cur_max <= 30:
+            is_narrow_1 = (cur_max - cur_min) < 30
+            is_narrow_2 = (end - start) < 30
+            
+            if start <= cur_max - 5:
+                # Signficant overlap (same panel captured multiple times)
+                cur_max = max(cur_max, end)
+            elif is_narrow_1 and is_narrow_2 and (start - cur_max) <= 30:
+                # Close divisores (pillars/obstacles) -> merge
                 cur_max = max(cur_max, end)
             else:
                 merged.append((cur_min, cur_max))
@@ -500,14 +545,20 @@ class BeamTracer:
                 # Tolerância apertada (25u) para não capturar vigas vizinhas.
                 # A largura transversal deve ser < 5u (linha realmente reta, não diagonal).
                 label_ref = label_pos or center
-                if dx > dy and dy < 5:  # linha horizontal reta
-                    dist_to_label = abs(lc[1] - label_ref[1])
-                    if dist_to_label < 25.0:
-                        is_valid_bottom = True
-                elif dy > dx and dx < 5:  # linha vertical reta
-                    dist_to_label = abs(lc[0] - label_ref[0])
-                    if dist_to_label < 25.0:
-                        is_valid_bottom = True
+                if is_horizontal:
+                    if dx > dy and dy < 5:  # horizontal panel
+                        if abs(lc[1] - label_ref[1]) < 25.0:
+                            is_valid_bottom = True
+                    elif dy > dx and dx < 5:  # vertical height step
+                        if abs(lc[1] - label_ref[1]) < 25.0:
+                            is_valid_bottom = True
+                else:
+                    if dy > dx and dx < 5:  # vertical panel
+                        if abs(lc[0] - label_ref[0]) < 25.0:
+                            is_valid_bottom = True
+                    elif dx > dy and dy < 5:  # horizontal height step
+                        if abs(lc[0] - label_ref[0]) < 25.0:
+                            is_valid_bottom = True
             
             if is_valid_bottom:
                 bottom_candidates.append(item)
@@ -637,8 +688,34 @@ class BeamTracer:
                 classified['merged_bottom_lengths'] = _spans_from_groups(groups)
                 classified['merged_bottom_groups_coords'] = groups
             else:
-                # MODO PAINEL: largura de cada grupo (comportamento original)
-                final_groups = _apply_obstacles_to_panels(groups, visual_obstacles)
+                # MODO PAINEL: largura de cada grupo
+                # O painel contém divisores internos (linhas perpendiculares curtas) que representam degraus de altura (Caso 2).
+                # Eles DEVEM quebrar os painéis contínuos!
+                
+                painel_items = [it for it in raw_bottoms if ax_max(it) - ax_min(it) > 30]
+                divisor_items = [it for it in raw_bottoms if ax_max(it) - ax_min(it) <= 30]
+                
+                if not painel_items:
+                    painel_items = raw_bottoms
+                
+                base_panels = _merge_axis(painel_items, ax_min, ax_max)
+                
+                div_pos = []
+                for d in divisor_items:
+                    div_pos.append((ax_min(d) + ax_max(d)) / 2.0)
+                div_pos.sort()
+                
+                split_panels = []
+                for p_min, p_max in base_panels:
+                    curr_min = p_min
+                    for d_p in div_pos:
+                        if curr_min + 5 < d_p < p_max - 5:
+                            split_panels.append((curr_min, d_p))
+                            curr_min = d_p
+                    if curr_min < p_max:
+                        split_panels.append((curr_min, p_max))
+                
+                final_groups = _apply_obstacles_to_panels(split_panels, visual_obstacles)
                 classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)
                 classified['merged_bottom_groups_coords'] = final_groups
         else:

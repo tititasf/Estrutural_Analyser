@@ -215,7 +215,7 @@ def n1_laje_to_robot_ficha(
 
     mode = modo_selecionado
     if mode is None:
-        mode = _field(n1_laje, "modo_selecionado", 0)
+        mode = _field(n1_laje, "modo_selecionado", None)
 
     linhas_v = _normalize_lines(
         _field(n1_laje, "linhas_verticais", _field(n1_laje, "laje_linhas_v_count", [])),
@@ -225,6 +225,26 @@ def n1_laje_to_robot_ficha(
         _field(n1_laje, "linhas_horizontais", _field(n1_laje, "laje_linhas_h_count", [])),
         largura,
     )
+    if not linhas_v and not linhas_h and comprimento > 0 and largura > 0:
+        # Categoria (b) do G4: a grade é algorítmica. O N2/N4 não participa
+        # desta chamada; ele é apenas o gabarito externo do gate.
+        try:
+            from scripts.smart_panner import distribute_panels
+
+            distribution = distribute_panels(
+                comprimento,
+                largura,
+                _field(n1_laje, "obstaculos", []) or None,
+            )
+            linhas_v = _normalize_lines(distribution.get("linhas_verticais"), comprimento)
+            linhas_h = _normalize_lines(distribution.get("linhas_horizontais"), largura)
+        except (ImportError, TypeError, ValueError):
+            pass
+
+    if mode is None:
+        # Mesmo contrato semântico usado pelo comparador canônico: orientação
+        # deriva da grade calculada, não de informação do gabarito.
+        mode = 1 if len(linhas_h) > len(linhas_v) else 0
 
     return {
         "nome": nome.upper(),

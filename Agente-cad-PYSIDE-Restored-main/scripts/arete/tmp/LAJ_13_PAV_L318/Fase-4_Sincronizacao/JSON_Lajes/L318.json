@@ -111,32 +111,7 @@
       "is_union": true
     }
   ],
-  "obstaculos": [
-    {
-      "x": 178.5,
-      "y": 30.0,
-      "width": 80.0,
-      "height": 19.0,
-      "coords": [
-        [
-          178.5,
-          30.0
-        ],
-        [
-          258.5,
-          30.0
-        ],
-        [
-          258.5,
-          49.0
-        ],
-        [
-          178.5,
-          49.0
-        ]
-      ]
-    }
-  ],
+  "obstaculos": [],
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
@@ -146,7 +121,7 @@
       "nome": "L318",
       "numero": "18",
       "laje_dim": "h=12",
-      "laje_nivel": "402.5"
+      "laje_nivel": "822.19"
     },
     "validated_fields": [],
     "validated_link_classes": {},
@@ -154,6 +129,7 @@
     "n3_pattern_nome": "L318",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
+    "n3_pose_source": "sa_outline_anchor",
     "n3_source": "comparison_engine_n1",
     "n3_teacher": null
   },

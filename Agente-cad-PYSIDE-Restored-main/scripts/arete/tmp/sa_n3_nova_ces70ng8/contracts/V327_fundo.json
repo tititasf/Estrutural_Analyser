@@ -1,0 +1,56 @@
+{
+  "contract_version": 3,
+  "motor_id": "ROBOT_FV_N3_N4",
+  "name": "V327",
+  "floor": "Pavimento",
+  "side": "C",
+  "total_width": 14.0,
+  "total_height": 50.0,
+  "panels": [
+    {
+      "total_width": 279.0,
+      "width": 279.0,
+      "dim_text": "14/50",
+      "largura_total_fundo": 14.0,
+      "comprimento_total_fundo": 279.0,
+      "altura_total": 50.0,
+      "texto_esq": "V328",
+      "texto_dir": "V326",
+      "row_break": false
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 279.0,
+      "width": 279.0,
+      "dim_text": "14/50",
+      "largura_total_fundo": 14.0,
+      "comprimento_total_fundo": 279.0,
+      "altura_total": 50.0,
+      "texto_esq": "V328",
+      "texto_dir": "V326",
+      "row_break": false
+    }
+  ],
+  "holes": [],
+  "label_left": "V328",
+  "label_right": "V326",
+  "pillar_left": {
+    "active": true,
+    "label": "V328",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": true,
+    "label": "V326",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "apoio_inicial": "V328",
+  "apoio_final": "V326",
+  "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+  "number": "327",
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0
+}

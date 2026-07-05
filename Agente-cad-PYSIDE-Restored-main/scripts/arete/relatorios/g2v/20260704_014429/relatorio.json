@@ -1,0 +1,23 @@
+{
+  "classe": "PIL",
+  "pavimento": "13_PAV",
+  "par": "grades",
+  "gate": "GRADES-V",
+  "backends": [
+    "cli"
+  ],
+  "timestamp": "20260704_014429",
+  "itens": [
+    {
+      "classe": "PIL",
+      "elemento_id": "P1",
+      "pavimento": "13_PAV",
+      "par": "grades",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- PL - R00\\PIL_P1_motor_178111335049.dxf",
+      "n4_path": null,
+      "png_path": null,
+      "vereditos": {},
+      "erro": "par 'grades' precisa da ficha HTML (mostra os 4 cards); render DXF cru só faz n2xn4. Gere a ficha HTML antes."
+    }
+  ]
+}

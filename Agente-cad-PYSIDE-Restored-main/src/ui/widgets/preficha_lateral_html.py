@@ -1,10 +1,11 @@
 """Gerador granular das páginas HTML de laterais de viga (LV).
 
 Mantém lado a lado as evidências das quatro etapas usadas para depurar LV:
-N1/SA, N2 humano, N3 robô via SA e N4 robô via engenharia reversa. Uma
-página por viga (não por lado nem por combinação lado×comportamento) — a
-página tem uma seção "Lado A" e uma "Lado B", cada uma reunindo os
-segmentos Para e Passa daquele lado.
+N1/SA, N2 humano, N3 robô via SA e N4 robô via engenharia reversa. O pack
+preserva as duas listas do Structural Analyzer em pastas independentes:
+``LV-PARA/V301-Para.html`` e ``LV-PASSA/V301-Passa.html``. Cada página
+reúne todos os segmentos do Lado A e todos os segmentos do Lado B da lista
+correspondente.
 
 Essa granularidade foi decidida com base em evidência real de arquivo (ver
 `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md` §5.2):
@@ -25,6 +26,7 @@ import json
 import os
 import re
 import shutil
+import sqlite3
 from typing import Callable
 
 from src.ui.widgets.svg_embed_utils import embed_visual as _embed_visual
@@ -33,6 +35,17 @@ from src.ui.widgets.svg_embed_utils import embed_visual as _embed_visual
 def _safe_slug(value: str) -> str:
     clean = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value or ""))
     return clean.strip("._") or "item"
+
+
+def _canonical_beam_name(value: str) -> str:
+    """Normaliza rótulos do SA para o ID bare da viga.
+
+    O estado headless pode trazer tanto ``V301`` quanto rótulos de árvore como
+    ``LV-V301.A Para``. Agrupar pelo rótulo cru duplicava V301 no índice.
+    """
+    text = str(value or "").strip().upper()
+    match = re.search(r"\b(VF?\d+[A-Z]?)\b", text)
+    return match.group(1) if match else (text or "VIGA")
 
 
 def _table_row(label: str, value, color: str = "#7eb8f7") -> str:
@@ -70,8 +83,11 @@ def _attention(dialog, stage: str, beam: str, label: str) -> str:
     )
 
 
-def _error_marker_block(dialog, beam: str) -> str:
-    key = f"aten_erro_lv_{dialog._obra}_{dialog._pavimento}_{beam}".replace(" ", "_")
+def _error_marker_block(dialog, beam: str, behavior: str) -> str:
+    key = (
+        f"aten_erro_lv_{behavior.lower()}_"
+        f"{dialog._obra}_{dialog._pavimento}_{beam}"
+    ).replace(" ", "_")
     key_js = json.dumps(key)
     return (
         '<div class="sec" style="margin-top:16px;border-color:#5a2020">'
@@ -118,16 +134,18 @@ def _error_marker_block(dialog, beam: str) -> str:
     )
 
 
-def _sidebar_error_flags_script(dialog) -> str:
+def _sidebar_error_flags_script(dialog, behavior: str) -> str:
     obra_js = json.dumps(dialog._obra)
     pav_js = json.dumps(dialog._pavimento)
+    behavior_js = json.dumps(behavior.lower())
     return (
         "<script>(function(){"
-        f"var obra={obra_js}, pav={pav_js};"
+        f"var obra={obra_js}, pav={pav_js}, behavior={behavior_js};"
         'document.querySelectorAll(".sidebar li[data-viga]").forEach('
         "function(li){"
         '  var nome=li.getAttribute("data-viga");'
-        '  var key=("aten_erro_lv_"+obra+"_"+pav+"_"+nome).replace(/ /g,"_");'
+        '  var key=("aten_erro_lv_"+behavior+"_"+obra+"_"+pav+"_"+nome)'
+        '.replace(/ /g,"_");'
         "  var stored=localStorage.getItem(key);"
         "  if(!stored)return;"
         "  try{"
@@ -247,14 +265,16 @@ def write_lateral_pages(
     javascript: str,
     photo_fn: Callable[[list], str],
     metrics_fn: Callable[[list], dict],
+    classification_fn: Callable[[str], str] | None = None,
+    reverse_beams_fn: Callable[[], list[str]] | None = None,
 ) -> tuple[str, str, int]:
-    """Grava índice e uma ficha por viga, com seções Lado A / Lado B.
+    """Grava índices Para/Passa e uma ficha por viga em cada lista.
 
     `rows_by_kind` = {'lateral_a_para': [...], 'lateral_b_para': [...],
     'lateral_a_passa': [...], 'lateral_b_passa': [...]} — mesmas linhas já
     construídas pelo loop de `_export_html_snapshot` para os relatórios
-    tabulares genéricos (mesmo `row['_segment']`/`row['_points']`/
-    `row['Status']` usados por FV), só que aqui consolidadas por viga.
+    tabulares genéricos. A consolidação preserva comportamento e viga:
+    uma página Para e outra Passa, ambas com seções Lado A / Lado B.
     """
     section_dir = os.path.join(output_dir, "laterais_viga")
     os.makedirs(section_dir, exist_ok=True)
@@ -268,34 +288,83 @@ def write_lateral_pages(
         ".side-block{border:1px solid #223;border-radius:5px;margin:14px 0;padding:10px}"
         ".side-block h3{color:#f0b840;font-size:11px;margin:0 0 8px;"
         "text-transform:uppercase;letter-spacing:.04em}"
+        ".classification-banner{padding:8px 10px;margin:8px 0;border-radius:4px;"
+        "background:#151515;border:1px solid #333;color:#aaa}"
+        ".classification-banner.match{border-left:4px solid #4fc3a1}"
+        ".classification-banner.reference{border-left:4px solid #f0b840}"
     )
 
-    grouped_rows: dict[str, list[dict]] = {}
-    for rows in rows_by_kind.values():
-        for row in rows:
-            segment = row.get("_segment") or {}
-            beam = str(segment.get("beam_name") or row.get("_beam") or "VIGA")
-            grouped_rows.setdefault(beam, []).append(row)
+    if classification_fn is None:
+        from src.core.item_attention_store import load_para_passa
 
-    entries: list[tuple[str, list[dict], str]] = []
-    used: set[str] = set()
-    for beam, beam_rows in grouped_rows.items():
-        base_slug = _safe_slug(beam)
-        page_slug = base_slug
-        suffix = 2
-        while page_slug in used:
-            page_slug = f"{base_slug}_{suffix}"
-            suffix += 1
-        used.add(page_slug)
-        beam_rows_sorted = sorted(
-            beam_rows,
-            key=lambda row: (
-                str((row.get("_segment") or {}).get("side") or "A"),
-                int((row.get("_segment") or {}).get("segment_index") or 1),
-                int((row.get("_segment") or {}).get("occurrence") or 1),
-            ),
+        classification_fn = lambda beam: load_para_passa(  # noqa: E731
+            dialog._obra, dialog._pavimento, "LV", beam
         )
-        entries.append((beam, beam_rows_sorted, page_slug))
+
+    if reverse_beams_fn is None:
+        from src.core.item_attention_store import canonical_pavimento
+
+        def reverse_beams_fn() -> list[str]:
+            db_path = getattr(dialog, "_db_path", "")
+            if not db_path or not os.path.isfile(db_path):
+                return []
+            pavimento = canonical_pavimento(dialog._pavimento)
+            try:
+                with sqlite3.connect(db_path) as conn:
+                    rows = conn.execute(
+                        "SELECT elemento_id FROM reverse_eng_fichas "
+                        "WHERE obra_name=? AND pavimento=? AND classe='LV' "
+                        "ORDER BY elemento_id",
+                        (dialog._obra, pavimento),
+                    ).fetchall()
+                return [_canonical_beam_name(row[0]) for row in rows if row[0]]
+            except sqlite3.Error:
+                return []
+
+    reverse_beams = list(dict.fromkeys(reverse_beams_fn()))
+    behavior_kinds = {
+        "Para": ("lateral_a_para", "lateral_b_para"),
+        "Passa": ("lateral_a_passa", "lateral_b_passa"),
+    }
+    entries_by_behavior: dict[str, list[tuple[str, list[dict], str]]] = {}
+    for behavior, kinds in behavior_kinds.items():
+        grouped_rows: dict[str, list[dict]] = {}
+        for kind in kinds:
+            for source_row in rows_by_kind.get(kind) or []:
+                row = dict(source_row)
+                segment = dict(row.get("_segment") or {})
+                segment["behavior"] = behavior
+                beam = _canonical_beam_name(
+                    segment.get("beam_name") or row.get("_beam") or "VIGA"
+                )
+                segment["beam_name"] = beam
+                row["_beam"] = beam
+                row["_segment"] = segment
+                grouped_rows.setdefault(beam, []).append(row)
+
+        # O Comparison Engine alinha pela união N1/N3 × N2/N4. Itens que só
+        # existem no reverso (ex.: V13 no 13_PAV) também precisam de página,
+        # mas apenas na lista persistida para o N2/N4.
+        for beam in reverse_beams:
+            if str(classification_fn(beam) or "").strip().lower() == behavior.lower():
+                grouped_rows.setdefault(beam, [])
+
+        entries: list[tuple[str, list[dict], str]] = []
+        for beam in sorted(grouped_rows, key=lambda item: [
+            int(part) if part.isdigit() else part
+            for part in re.split(r"(\d+)", item)
+        ]):
+            beam_rows_sorted = sorted(
+                grouped_rows[beam],
+                key=lambda row: (
+                    str((row.get("_segment") or {}).get("side") or "A"),
+                    int((row.get("_segment") or {}).get("segment_index") or 1),
+                    int((row.get("_segment") or {}).get("occurrence") or 1),
+                ),
+            )
+            page_slug = f"{_safe_slug(beam)}-{behavior}"
+            entries.append((beam, beam_rows_sorted, page_slug))
+        entries_by_behavior[behavior] = entries
 
     def _n1_card_for_segment(row: dict, beam: str) -> tuple[str, bool]:
         segment = row.get("_segment") or {}
@@ -447,8 +516,31 @@ def write_lateral_pages(
         )
         return card_html, bool(sa_b64)
 
-    def page(index: int) -> str:
+    def page(
+        index: int,
+        entries: list[tuple[str, list[dict], str]],
+        behavior: str,
+    ) -> str:
         beam, beam_rows, _ = entries[index]
+        classification = str(classification_fn(beam) or "").strip().lower()
+        behavior_key = behavior.lower()
+        classification_matches = classification == behavior_key
+        classification_label = classification.capitalize() if classification else "não classificado"
+        if classification_matches:
+            classification_detail = (
+                f"N2/N4 classificados como {classification_label}; "
+                f"gabarito aplicável à lista {behavior}."
+            )
+        elif classification:
+            classification_detail = (
+                f"N2/N4 classificados como {classification_label}; nesta lista "
+                f"{behavior}, aparecem somente como referência cruzada e exigem "
+                "validação humana."
+            )
+        else:
+            classification_detail = (
+                "N2/N4 ainda não classificados; não usar como aprovação automática."
+            )
 
         n2_path = dialog._find_n2_recorte_dxf("LV", beam)
         n2_b64 = dialog._render_ezdxf_b64(n2_path, 1900, 1240, fmt="svg") if n2_path else ""
@@ -476,9 +568,10 @@ def write_lateral_pages(
         )
         nav_bar = (
             f'<div class="nav-bar">{previous_link}'
-            f'<span class="nav-pos"><b>{html.escape(beam)}</b> '
+            f'<span class="nav-pos"><b>{html.escape(beam)}-{behavior}</b> '
             f"({index + 1}/{len(entries)} vigas)"
             f'<span class="tag">LV</span>'
+            f'<span class="tag">{html.escape(behavior)}</span>'
             f'<span class="tag">{len(beam_rows)} segmento(s)</span>'
             f"</span>{next_link}</div>"
         )
@@ -491,12 +584,14 @@ def write_lateral_pages(
             for item_index, (item_beam, item_rows, item_slug) in enumerate(entries)
         )
         sidebar = (
-            f'<aside class="sidebar"><h3>Laterais LV ({len(entries)} vigas)</h3>'
-            '<a class="sb-back" href="../index.html">← índice geral</a>'
-            '<a class="sb-back" href="index.html">← índice LV</a>'
-            '<a class="sb-back" href="interpretacao_laterais.html">Guia</a>'
+            f'<aside class="sidebar"><h3>LV-{html.escape(behavior.upper())} '
+            f"({len(entries)} vigas)</h3>"
+            '<a class="sb-back" href="../../index.html">← índice geral</a>'
+            '<a class="sb-back" href="../index.html">← listas LV</a>'
+            '<a class="sb-back" href="index.html">← índice da lista</a>'
+            '<a class="sb-back" href="../interpretacao_laterais.html">Guia</a>'
             f"<ul>{sidebar_items}</ul></aside>"
-            + _sidebar_error_flags_script(dialog)
+            + _sidebar_error_flags_script(dialog, behavior)
         )
 
         n1_available = 0
@@ -520,7 +615,9 @@ def write_lateral_pages(
 
             side_evidence = (
                 _artifact_card(
-                    "N2", "Recorte humano da viga (compartilhado entre os lados)",
+                    "N2",
+                    "Recorte humano da viga (compartilhado entre os lados). "
+                    + classification_detail,
                     n2_b64, n2_path,
                 )
                 + _artifact_card(
@@ -528,11 +625,13 @@ def write_lateral_pages(
                     n3_b64, n3_path,
                 )
                 + _artifact_card(
-                    f"N4 · Lado {side}", "Robô via engenharia reversa N2, específico do lado",
+                    f"N4 · Lado {side}",
+                    "Robô via engenharia reversa N2, específico do lado. "
+                    + classification_detail,
                     n4_b64, n4_path,
                 )
             )
-            if side_rows or n3_b64 or n4_b64:
+            if side_rows or n2_b64 or n3_b64 or n4_b64:
                 side_sections.append(
                     f'<div class="side-block"><h3>Lado {side} — '
                     f'{len(side_rows)} segmento(s)</h3>'
@@ -553,18 +652,21 @@ def write_lateral_pages(
             _pipeline_stage(
                 dialog, f"N1 · Lado {side}",
                 side_checks[side]["n1_ok"] and side_checks[side]["rows"] > 0,
-                f"{side_checks[side]['rows']} segmento(s) no lado {side}.",
-                beam, f"lado_{side.lower()}",
+                f"{side_checks[side]['rows']} segmento(s) {behavior} no lado {side}.",
+                beam, f"{behavior_key}_lado_{side.lower()}",
             )
             for side in ("A", "B")
         ) + _pipeline_stage(
             dialog, "N2 / STOG real", bool(n2_b64),
-            "Recorte humano da viga (ambos os lados).", beam, "viga",
+            "Recorte humano da viga (ambos os lados). "
+            + classification_detail,
+            beam, f"{behavior_key}_viga",
         ) + "".join(
             _pipeline_stage(
                 dialog, f"N3/N4 · Lado {side}",
                 side_checks[side]["n3_ok"] or side_checks[side]["n4_ok"],
-                f"Artefatos gerados do lado {side}.", beam, f"lado_{side.lower()}",
+                f"Artefatos gerados do lado {side}.",
+                beam, f"{behavior_key}_lado_{side.lower()}",
             )
             for side in ("A", "B")
         )
@@ -581,7 +683,8 @@ def write_lateral_pages(
             '<div class="sec"><div class="sec-title">'
             "Fichas agregadas da viga</div>"
             '<div class="sec-body"><div class="fichas-grid">'
-            '<div><div class="ficha-col-title">N2 / Motor Reverso (ambos os lados)</div>'
+            '<div><div class="ficha-col-title">N2 / Motor Reverso '
+            f'(ambos os lados; {html.escape(classification_label)})</div>'
             f'<div class="ficha-cell">{n2_ficha}</div></div>'
             '<div><div class="ficha-col-title">N3 / JSON Fase-4 '
             '(limitação conhecida: mostra só 1 lado, A prioritário — '
@@ -591,12 +694,19 @@ def write_lateral_pages(
         )
 
         checks = [
-            ("N1 disponível para todos os segmentos", n1_available == n1_total),
+            (
+                "N1 disponível para todos os segmentos",
+                n1_total > 0 and n1_available == n1_total,
+            ),
             ("recorte N2 (viga) localizado", bool(n2_b64)),
             ("artefato N3 Lado A ou B localizado",
              side_checks["A"]["n3_ok"] or side_checks["B"]["n3_ok"]),
             ("artefato N4 Lado A ou B localizado",
              side_checks["A"]["n4_ok"] or side_checks["B"]["n4_ok"]),
+            (
+                f"N2/N4 classificados para a lista {behavior}",
+                classification_matches,
+            ),
         ]
         check_rows = "".join(
             f'<tr><td style="color:{"#4fc3a1" if ok else "#e17055"}">'
@@ -611,6 +721,12 @@ def write_lateral_pages(
 
         main = (
             nav_bar
+            + (
+                '<div class="classification-banner '
+                f'{"match" if classification_matches else "reference"}">'
+                f"<b>Lista {html.escape(behavior)}:</b> "
+                f"{html.escape(classification_detail)}</div>"
+            )
             + "".join(side_sections)
             + pipeline_section
             + ficha_section
@@ -620,51 +736,88 @@ def write_lateral_pages(
             'background:#2a2a00;color:#f0b840;border:1px solid #554400;'
             'padding:3px 10px;cursor:pointer;font-size:10px">'
             "Exportar Anotações</button>"
-            + _error_marker_block(dialog, beam)
+            + _error_marker_block(dialog, beam, behavior)
         )
         return (
             '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
-            f"<title>LV — {html.escape(beam)}</title>"
+            f"<title>LV — {html.escape(beam)}-{html.escape(behavior)}</title>"
             f"<style>{page_css}</style>{javascript}</head><body>{sidebar}"
             '<div class="main-wrap"><div class="main-content">'
             '<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'
-            f"LV — {html.escape(beam)} · {len(beam_rows)} segmento(s)</h2>"
+            f"LV — {html.escape(beam)}-{html.escape(behavior)} · "
+            f"{len(beam_rows)} segmento(s)</h2>"
             f"{main}</div></div></body></html>"
         )
 
-    for index, (beam, _, page_slug) in enumerate(entries):
-        page_path = os.path.join(section_dir, f"{page_slug}.html")
-        with open(page_path, "w", encoding="utf-8") as file:
-            file.write(page(index))
-        print(
-            f"[HTML] laterais_viga {index + 1}/{len(entries)}: {beam}",
-            flush=True,
-        )
+    list_summaries: list[tuple[str, int, int]] = []
+    total_pages = 0
+    for behavior, entries in entries_by_behavior.items():
+        folder_name = f"LV-{behavior.upper()}"
+        behavior_dir = os.path.join(section_dir, folder_name)
+        os.makedirs(behavior_dir, exist_ok=True)
+        for index, (beam, _, page_slug) in enumerate(entries):
+            page_path = os.path.join(behavior_dir, f"{page_slug}.html")
+            with open(page_path, "w", encoding="utf-8") as file:
+                file.write(page(index, entries, behavior))
+            print(
+                f"[HTML] {folder_name} {index + 1}/{len(entries)}: "
+                f"{beam}-{behavior}",
+                flush=True,
+            )
 
-    index_rows = "".join(
-        "<tr>"
-        f"<td>{idx + 1}</td><td>{html.escape(beam)}</td>"
-        f"<td>{len(beam_rows)}</td>"
-        f'<td>{html.escape(", ".join(dict.fromkeys(str((row.get("_segment") or {}).get("side") or "—") for row in beam_rows)))}</td>'
-        f'<td>{html.escape(", ".join(dict.fromkeys(str(row.get("Status") or "—") for row in beam_rows)))}</td>'
-        f'<td><a href="{html.escape(page_slug)}.html">abrir →</a></td>'
-        "</tr>"
-        for idx, (beam, beam_rows, page_slug) in enumerate(entries)
+        index_rows = "".join(
+            "<tr>"
+            f"<td>{idx + 1}</td><td>{html.escape(beam)}-{behavior}</td>"
+            f"<td>{len(beam_rows)}</td>"
+            f'<td>{html.escape(", ".join(dict.fromkeys(str((row.get("_segment") or {}).get("side") or "—") for row in beam_rows)))}</td>'
+            f'<td>{html.escape(", ".join(dict.fromkeys(str(row.get("Status") or "—") for row in beam_rows)))}</td>'
+            f'<td><a href="{html.escape(page_slug)}.html">abrir →</a></td>'
+            "</tr>"
+            for idx, (beam, beam_rows, page_slug) in enumerate(entries)
+        )
+        behavior_segments = sum(len(beam_rows) for _, beam_rows, _ in entries)
+        index_document = (
+            '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+            f"<title>LV-{html.escape(behavior.upper())}</title>"
+            f"<style>{page_css}</style></head>"
+            '<body style="margin:16px"><a class="nav-arrow" href="../index.html">'
+            "← listas LV</a>"
+            f"<h1>Laterais de Viga — LV-{html.escape(behavior.upper())}</h1>"
+            f'<p class="meta">{len(entries)} vigas · {behavior_segments} '
+            f"segmentos {html.escape(behavior)} · evidências N1/N2/N3/N4</p>"
+            "<table><tr><th>#</th><th>Item</th><th>Qtd. segmentos</th>"
+            "<th>Lados</th><th>Status</th><th></th></tr>"
+            f"{index_rows}</table></body></html>"
+        )
+        with open(
+            os.path.join(behavior_dir, "index.html"), "w", encoding="utf-8"
+        ) as file:
+            file.write(index_document)
+        list_summaries.append((behavior, len(entries), behavior_segments))
+        total_pages += len(entries)
+
+    summary_cards = "".join(
+        '<div class="sec"><div class="sec-title">'
+        f"LV-{html.escape(behavior.upper())}</div>"
+        '<div class="sec-body">'
+        f"<b>{count}</b> vigas · <b>{segments}</b> segmentos {behavior}<br>"
+        f'<a class="nav-arrow" href="LV-{behavior.upper()}/index.html">'
+        f"Abrir lista LV-{behavior.upper()} →</a></div></div>"
+        for behavior, count, segments in list_summaries
     )
-    total_segments = sum(len(rows) for rows in rows_by_kind.values())
-    index_document = (
+    root_index = (
         '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
         f"<title>{html.escape(title)}</title><style>{page_css}</style></head>"
         '<body style="margin:16px"><a class="nav-arrow" href="../index.html">'
-        "← índice geral</a><h1>Laterais de Viga — Fichas Granulares</h1>"
-        f'<p class="meta">{len(entries)} vigas · {total_segments} segmentos · '
-        "evidências N1/N2/N3/N4</p>"
-        "<table><tr><th>#</th><th>Viga</th><th>Qtd. segmentos</th>"
-        "<th>Lados</th><th>Status</th><th></th></tr>"
-        f"{index_rows}</table></body></html>"
+        "← índice geral</a><h1>Laterais de Viga — Listas Para/Passa</h1>"
+        "<p class=\"meta\">Duas listas independentes do Structural Analyzer; "
+        "cada item reúne todos os segmentos A e B.</p>"
+        f"{summary_cards}"
+        '<p><a class="nav-arrow" href="interpretacao_laterais.html">'
+        "Abrir ficha de interpretação →</a></p></body></html>"
     )
     with open(os.path.join(section_dir, "index.html"), "w", encoding="utf-8") as file:
-        file.write(index_document)
+        file.write(root_index)
 
     _copy_latest_guide(output_dir, section_dir)
-    return ("laterais_viga/index.html", title, len(entries))
+    return ("laterais_viga/index.html", title, total_pages)

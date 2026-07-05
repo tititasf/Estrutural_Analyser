@@ -1,0 +1,63 @@
+{
+  "nome": "L320",
+  "numero": 320,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      418.0,
+      0.0
+    ],
+    [
+      418.0,
+      425.5
+    ],
+    [
+      0.0,
+      425.5
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 425.5,
+  "area_cm2": 177859.0,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    },
+    {
+      "value": 148.0,
+      "is_union": true
+    },
+    {
+      "value": 270.0,
+      "is_union": false
+    },
+    {
+      "value": 296.0,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 1622.5,
+    "y": 2067.0
+  }
+}

@@ -1,0 +1,780 @@
+{
+  "schema_version": 2,
+  "classe": "PIL",
+  "pavimento": "13_PAV",
+  "par": "n2xn4",
+  "gate": "G2-V",
+  "backends": [
+    "cli"
+  ],
+  "timestamp": "20260705_114358",
+  "source_html_run": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_163243",
+  "itens": [
+    {
+      "classe": "PIL",
+      "elemento_id": "P1",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P1_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P2",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P2_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P3",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P3_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P4",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P4_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P5",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P5_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P6",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P6_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P7",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P7_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P8",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P8_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P9",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P9_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P10",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P10_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P11",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P11_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P12",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P12_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P13",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P13_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P14",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P14_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P15",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P15_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P16",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P16_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P17",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P17_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P18",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P18_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P19",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P19_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P20",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P20_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P21",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P21_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P22",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P22_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P23",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P23_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P24",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P24_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P25",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P25_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P26",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P26_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "FAIL",
+          "confianca": 0.99,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "CIMA+EFGH",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "extrator_n2",
+              "descricao": "P26 é subtipo em L no HTML/N2, mas o N4 usa seção retangular e emite apenas ABCD; faces EFGH não foram extraídas/geradas.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "Subtipo em L perdeu a geometria não retangular e as faces EFGH no caminho N2→N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P27",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P27_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "FAIL",
+          "confianca": 0.99,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "CIMA+EFGH",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "extrator_n2",
+              "descricao": "P27 é subtipo em L no HTML/N2, mas o N4 usa seção retangular e emite apenas ABCD; faces EFGH não foram extraídas/geradas.",
+              "severidade": "alta"
+            }
+          ],
+          "resumo": "Subtipo em L perdeu a geometria não retangular e as faces EFGH no caminho N2→N4."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P28",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P28_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P29",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P29_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P30",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P30_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P31",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P31_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P32",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P32_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P33",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P33_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P34",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P34_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    },
+    {
+      "classe": "PIL",
+      "elemento_id": "P35",
+      "pavimento": "13_PAV",
+      "par": "n2xn4",
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114358\\PIL_P35_n2xn4.png",
+      "fonte_imagem": "html_ficha",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "avaliado_por": "Codex CLI",
+          "avaliado_em": "2026-07-05T11:55:00-03:00",
+          "veredito": "PASS",
+          "confianca": 0.95,
+          "achados": [],
+          "resumo": "CIMA+ABCD equivalentes visualmente em conteúdo, proporções, cotas e gestalt; diferenças apenas de estilo SCR."
+        }
+      },
+      "erro": null
+    }
+  ],
+  "resumo_visual": {
+    "itens_inspecionados": 35,
+    "pass": 33,
+    "fail": 2,
+    "suspeito": 0,
+    "achados_reais": 2,
+    "itens_com_achado": [
+      "P26",
+      "P27"
+    ],
+    "segregacao_grades": "PASS — a subvista GRADES foi excluída do par n2xn4; nenhuma geometria de grade apareceu em CIMA+ABCD.",
+    "lacuna_guia": "interpretacao_abcd.html não especifica EFGH para subtipo em L; fórmula/aceite da extensão depende do dono."
+  }
+}

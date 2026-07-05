@@ -40,8 +40,8 @@ NOM_ABOVE      = 9      # y = painel_top + NOM_ABOVE -> NOMENCLATURA
 DIM_BELOW      = 37     # y = painel_bottom - DIM_BELOW -> cotas paineis individuais
 DIM_TOTAL_BELOW= 60     # y = painel_bottom - DIM_TOTAL_BELOW -> cota total
 DIM_H_RIGHT    = 28     # x = painel_right + DIM_H_RIGHT -> cota h_lateral vertical
-GAP_AB         = 50     # gap horizontal entre Face A (right) e Face B (left)
-LV_UNIT_GAP    = 50.0   # gap entre continuacoes/face_units no viewer dedicado
+GAP_AB     = 200    # gap horizontal entre Face A (right) e Face B (left)
+LV_UNIT_GAP    = 200.0  # gap entre continuacoes/face_units no viewer dedicado
 NOM_H          = 16.5   # altura texto NOMENCLATURA
 PID_H          = 12.0   # altura texto panel-ID interno
 
@@ -1429,6 +1429,7 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                      pontaletes_face=pontaletes_A)
 
     x_B = x_A + comp_A + GAP_AB if view == 'ALL' else x_origin
+    print(f"DEBUG gerar_lv: x_A={x_A}, comp_A={comp_A}, GAP_AB={GAP_AB}, x_B={x_B}")
     y0_B = y_top - h_B
     if view in {'ALL', 'B'}:
         draw_lv_face(msp, x_B, y0_B, panels_B, h_B, f'{viga_nome}.B',

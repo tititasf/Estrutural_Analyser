@@ -1,0 +1,869 @@
+{
+  "classe": "FV",
+  "pavimento": "13_PAV",
+  "par": "n1xn2",
+  "gate": "N1-V",
+  "backends": [
+    "cli"
+  ],
+  "timestamp": "20260705_114426",
+  "itens": [
+    {
+      "classe": "FV",
+      "elemento_id": "V301",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V301_motor_178111331094.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V301_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V301_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 reduz a viga cont?nua a 2 cards, enquanto o N2 cont?m 16 pain?is em tr?s linhas.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_subdetectada",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 16
+              }
+            }
+          ],
+          "resumo": "N1 reduz a viga cont?nua a 2 cards, enquanto o N2 cont?m 16 pain?is em tr?s linhas."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V301.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V302",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V302_motor_178111331098.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V302_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V302_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 mostra 1 trecho cont?nuo; N2 exige 6 pain?is com fronteiras em apoios/mudan?as.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_subdetectada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 6
+              }
+            }
+          ],
+          "resumo": "N1 mostra 1 trecho cont?nuo; N2 exige 6 pain?is com fronteiras em apoios/mudan?as."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V302.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V303",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V303_motor_178111331100.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V303_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V303_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 cont?m um trecho agregado sobreposto aos trechos locais: 6 cards para 5 pain?is N2, com comprimentos divergentes.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 6,
+                "n2_paineis": 5
+              }
+            }
+          ],
+          "resumo": "N1 cont?m um trecho agregado sobreposto aos trechos locais: 6 cards para 5 pain?is N2, com comprimentos divergentes."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V303.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V304",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V304_motor_178111331103.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V304_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V304_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 cria 4 trechos para 3 pain?is N2; h? um trecho diagonal/extra incompat?vel com o conjunto do gabarito.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 4,
+                "n2_paineis": 3
+              }
+            }
+          ],
+          "resumo": "N1 cria 4 trechos para 3 pain?is N2; h? um trecho diagonal/extra incompat?vel com o conjunto do gabarito."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V304.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V305",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V305_motor_178111331105.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V305_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V305_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "Contagem coincide, mas o comprimento N1 (~260) diverge do painel N2 (286).",
+              "severidade": "alta",
+              "causa_raiz": "n1_dimensao_geometria_divergente",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "Contagem coincide, mas o comprimento N1 (~260) diverge do painel N2 (286)."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V305.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V306",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V306_motor_178111331106.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V306_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V306_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 colapsa a continuidade em 1 trecho longo; N2 registra 2 tipos de painel, incluindo repeti??o 5x.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_subdetectada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 2
+              }
+            }
+          ],
+          "resumo": "N1 colapsa a continuidade em 1 trecho longo; N2 registra 2 tipos de painel, incluindo repeti??o 5x."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V306.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V307",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V307_motor_178111331108.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V307_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V307_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 preserva apenas um toco retangular junto ao pilar; N2 mostra fundo longo com chanfro diagonal (caso 3 do guia).",
+              "severidade": "alta",
+              "causa_raiz": "n1_geometria_diagonal_perdida",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 preserva apenas um toco retangular junto ao pilar; N2 mostra fundo longo com chanfro diagonal (caso 3 do guia)."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V307.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V308",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V308_motor_178111331109.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V308_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V308_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "Dois cards N1 repetem o mesmo pequeno trecho; N2 cont?m dois pain?is distintos de 253 e 291.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_divergente",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 2
+              }
+            }
+          ],
+          "resumo": "Dois cards N1 repetem o mesmo pequeno trecho; N2 cont?m dois pain?is distintos de 253 e 291."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V308.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V309",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V309_motor_178111331111.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V309_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V309_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 atribui 2 trechos ? viga, incluindo um trecho de outra continuidade; N2 possui 1 painel de 320.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 atribui 2 trechos ? viga, incluindo um trecho de outra continuidade; N2 possui 1 painel de 320."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V309.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V310",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V310_motor_178111331113.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V310_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V310_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "Contagem coincide, mas comprimento/largura N1 (~192,5 x 19) divergem do N2 (152 x 14).",
+              "severidade": "alta",
+              "causa_raiz": "n1_dimensao_geometria_divergente",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "Contagem coincide, mas comprimento/largura N1 (~192,5 x 19) divergem do N2 (152 x 14)."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V310.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V311",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V311_motor_178111331114.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V311_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V311_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "Contagem coincide, mas o trecho N1 n?o converge ao painel V311.C de 447; o recorte tamb?m inclui V312.C.",
+              "severidade": "alta",
+              "causa_raiz": "n1_dimensao_geometria_divergente",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            },
+            {
+              "categoria": "contaminacao_recorte",
+              "parte": "geral",
+              "direcao": "na",
+              "motor_suspeito": "extrator_n2",
+              "descricao": "O card N2 de V311 cont?m tamb?m um painel completo rotulado V312.C.",
+              "severidade": "media",
+              "causa_raiz": "n2_recorte_multiviga",
+              "evidencia": {
+                "rotulo_extra": "V312.C"
+              }
+            }
+          ],
+          "resumo": "Contagem coincide, mas o trecho N1 n?o converge ao painel V311.C de 447; o recorte tamb?m inclui V312.C."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V311.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V319",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111331116.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V319_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V319_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 cont?m um trecho agregado longo e um trecho vertical indevido; N2 possui 1 painel V319.C de 351.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 cont?m um trecho agregado longo e um trecho vertical indevido; N2 possui 1 painel V319.C de 351."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V319.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V320",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V320_motor_178111331118.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V320_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V320_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "Contagem 2?2 coincide s? nominalmente: um card N1 ? uma continuidade inteira indevida, n?o os pain?is N2 de 120,5 e 259,5.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_divergente",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 2
+              }
+            }
+          ],
+          "resumo": "Contagem 2?2 coincide s? nominalmente: um card N1 ? uma continuidade inteira indevida, n?o os pain?is N2 de 120,5 e 259,5."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V320.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V321",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V321_motor_178111331120.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V321_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V321_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 detecta toco de ~71; N2 exige painel ?nico de 398 entre P33 e P24.",
+              "severidade": "alta",
+              "causa_raiz": "n1_dimensao_geometria_divergente",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 detecta toco de ~71; N2 exige painel ?nico de 398 entre P33 e P24."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V321.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V322",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111331121.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V322_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V322_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 colapsa dois pain?is N2 (118 e 262) em uma continuidade longa ?nica.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_subdetectada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 2
+              }
+            }
+          ],
+          "resumo": "N1 colapsa dois pain?is N2 (118 e 262) em uma continuidade longa ?nica."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V322.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V325",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V325_motor_178111331123.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V325_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V325_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 cont?m 2 cards sobrepostos/derivados de uma continuidade maior; N2 possui 1 painel de 461.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 cont?m 2 cards sobrepostos/derivados de uma continuidade maior; N2 possui 1 painel de 461."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V325.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V327",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V327_motor_178111331125.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V327_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V327_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "O card N1 mostra o encontro P18/V329/V331, n?o o fundo V327 entre V308 e V305 (260).",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmento_atribuido_viga_errada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "O card N1 mostra o encontro P18/V329/V331, n?o o fundo V327 entre V308 e V305 (260)."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V327.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V329",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V329_motor_178111331126.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V329_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V329_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "gestalt_geral",
+              "parte": "segmento_1",
+              "direcao": "divergente",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "O card N1 repete o encontro P18/V329/V331 e n?o representa o painel N2 de 141 entre P27 e P18.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmento_atribuido_viga_errada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "O card N1 repete o encontro P18/V329/V331 e n?o representa o painel N2 de 141 entre P27 e P18."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V329.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V330",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V330_motor_178111331128.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V330_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V330_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 entrega 1 segmento vertical cont?nuo; N2 exige 2 pain?is separados de 311 e 183.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_subdetectada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 2
+              }
+            }
+          ],
+          "resumo": "N1 entrega 1 segmento vertical cont?nuo; N2 exige 2 pain?is separados de 311 e 183."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V330.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "V331",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V331_motor_178111331129.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V331_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_V331_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 entrega 2 trechos verticais atribu?dos ? continuidade V330/V332; N2 possui 1 painel de 201 entre V304 e V302.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 2,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 entrega 2 trechos verticais atribu?dos ? continuidade V330/V332; N2 possui 1 painel de 201 entre V304 e V302."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\V331.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "VF202",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_VF202_motor_178111331132.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_VF202_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_VF202_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_mais",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 atribui 6 trechos retil?neos de outra continuidade; N2 ? 1 painel chanfrado/trapezoidal de 123,6.",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_sobredetectada",
+              "evidencia": {
+                "n1_segmentos": 6,
+                "n2_paineis": 1
+              }
+            }
+          ],
+          "resumo": "N1 atribui 6 trechos retil?neos de outra continuidade; N2 ? 1 painel chanfrado/trapezoidal de 123,6."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\VF202.html"
+    },
+    {
+      "classe": "FV",
+      "elemento_id": "VF301",
+      "pavimento": "13_PAV",
+      "par": "n1xn2",
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_VF301_motor_178111331136.dxf",
+      "n4_path": null,
+      "png_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_VF301_n1xn2.png",
+      "vereditos": {
+        "cli": {
+          "_backend": "cli",
+          "aguardando_agente": false,
+          "png_para_ler": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260705_114426\\FV_VF301_n1xn2.png",
+          "prompt": "Você está dando o VEREDITO VISUAL (Nível 2) da validação Arete — o julgamento que o comparador numérico não consegue dar sozinho (ele é cego para posição, sobreposição, esquadro e gestalt).\n\nALVO: N1 (Structural Analyzer lendo o DXF estrutural limpo, SEM ver N2) × N2 (gabarito humano). Mede se a INTERPRETAÇÃO do SA entendeu o desenho: contorno, posição, forma e SEGMENTAÇÃO detectados. Foque em geometria/quantidade de segmentos/forma — NÃO em cotagem de estilo. Divergência → motor_suspeito 'interpretacao_n1' (Structural Analyzer / beam_tracer / slab_tracer).\n\nCLASSE FUNDO DE VIGA — parte única, mas SEGMENTAÇÃO é o ponto crítico: uma viga contínua longa deve ter MÚLTIPLOS segmentos (fronteira em cada mudança de profundidade/apoio — caso de referência V301, ~16 painéis). Se o N1/N4 mostra 1-2 segmentos onde o N2 mostra muitos, é subdetecção (categoria 'segmentacao', direcao 'n4_a_menos', motor_suspeito 'interpretacao_n1'). Confira também sarrafos (SARR_5cm em viga estreita b<=14) e largura.\n\nA imagem pode vir em 2 formatos:\n(a) 3 painéis lado a lado: [1] recorte N2 | [2] N4 | [3] overlay (verde=N2, vermelho=N4).\n(b) Cartões empilhados (ficha HTML): [N1] contexto do Structural Analyzer | [N2] recorte\n    humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO\n    acima; os outros cards são contexto.\n\nRegra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha\nno estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho\naproximado de painéis/sarrafos/chapas, valores de cota (não a geometria do traço),\ntextos, e hachura presente onde deve (ausente onde não deve).\n\nProcure o que o número não vê: cota/texto sobreposto (ilegível), elemento torto/fora de\nesquadro, sobreposição indevida, hachura ausente/extra, gestalt errado. Se o card do\ngabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), é\ncontaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do\nelemento avaliado.\n\nPRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):\n- parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral\n- direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou\n  lixo) | 'n4_a_menos' (falta no candidato o que o gabarito tem → extrator/motor perdeu)\n  | 'divergente' (existe nos dois mas diferente) | 'na'\n- motor_suspeito: gerador | extrator_n2 | interpretacao_n1 | conversao_n1 | indefinido\n\nResponda APENAS com JSON válido, sem texto fora do JSON:\n{\n  \"veredito\": \"PASS ou FAIL ou SUSPEITO\",\n  \"confianca\": 0.0 a 1.0,\n  \"achados\": [\n    {\"categoria\": \"cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro\",\n      \"parte\": \"...\", \"direcao\": \"n4_a_mais|n4_a_menos|divergente|na\",\n      \"motor_suspeito\": \"gerador|extrator_n2|interpretacao_n1|conversao_n1|indefinido\",\n      \"descricao\": \"texto curto\", \"severidade\": \"baixa|media|alta\"}\n  ],\n  \"resumo\": \"1-2 frases\"\n}",
+          "veredito": "FAIL",
+          "confianca": 0.98,
+          "achados": [
+            {
+              "categoria": "segmentacao",
+              "parte": "geral",
+              "direcao": "n4_a_menos",
+              "motor_suspeito": "interpretacao_n1",
+              "descricao": "N1 reduz a continuidade a 1 trecho P1?V301; N2 exige 3 pain?is (405,5 / 418 repetido / 405,5).",
+              "severidade": "alta",
+              "causa_raiz": "n1_segmentacao_subdetectada",
+              "evidencia": {
+                "n1_segmentos": 1,
+                "n2_paineis": 3
+              }
+            }
+          ],
+          "resumo": "N1 reduz a continuidade a 1 trecho P1?V301; N2 exige 3 pain?is (405,5 / 418 repetido / 405,5)."
+        }
+      },
+      "erro": null,
+      "fonte_imagem": "html_ficha",
+      "html_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260703_172156\\fundos_viga\\VF301.html"
+    }
+  ],
+  "resumo_visual_cli": {
+    "veredito": "FAIL",
+    "itens_avaliados": 22,
+    "pass": 0,
+    "fail": 22,
+    "suspeito": 0,
+    "achados": 23,
+    "observacao": "Leitura manual dos PNGs N1?N2 via backend CLI; 22/22 alertas s?o diverg?ncias visuais reais de interpreta??o."
+  }
+}

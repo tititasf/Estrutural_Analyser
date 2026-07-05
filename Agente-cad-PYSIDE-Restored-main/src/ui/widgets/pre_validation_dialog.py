@@ -6330,7 +6330,7 @@ class PreValidationDialog(QDialog):
                 for slug, _title, _headers, rows, _extra_th, _extra_td_fn in reports
                 if slug in _lateral_kinds
             }
-            if any(_lateral_rows_by_kind.get(k) for k in _lateral_kinds):
+            if _include('laterais_viga') and any(_lateral_rows_by_kind.get(k) for k in _lateral_kinds):
                 from src.ui.widgets.preficha_lateral_html import write_lateral_pages
                 generated.append(write_lateral_pages(
                     dialog=self,

@@ -93,7 +93,7 @@ def _lateral_row(side: str, behavior: str, segment_index: int, points: list[tupl
     }
 
 
-def test_lateral_writer_creates_one_page_per_beam_with_side_a_and_side_b(tmp_path: Path):
+def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_path: Path):
     points = [(0, 0), (10, 0)]
     rows_by_kind = {
         "lateral_a_para": [_lateral_row("A", "Para", 1, points)],
@@ -111,19 +111,22 @@ def test_lateral_writer_creates_one_page_per_beam_with_side_a_and_side_b(tmp_pat
         javascript="",
         photo_fn=lambda points: "",
         metrics_fn=_segment_geometry_metrics,
+        classification_fn=lambda beam: "passa",
     )
 
     assert result == ("laterais_viga/index.html", "Laterais de Viga", 1)
-    page = tmp_path / "laterais_viga" / "V301.html"
+    page = tmp_path / "laterais_viga" / "LV-PARA" / "V301-Para.html"
     assert page.is_file()
     soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
 
-    # 1 página só por viga, não por lado nem por lado×comportamento.
-    assert len(list((tmp_path / "laterais_viga").glob("V301*.html"))) == 1
+    # 1 página por viga dentro da lista; nunca uma página separada por lado.
+    assert len(list((tmp_path / "laterais_viga" / "LV-PARA").glob("V301*.html"))) == 1
 
     text = soup.get_text(" ", strip=True)
     assert "Lado A" in text
     assert "Lado B" in text
+    assert "V301-Para" in text
+    assert "referência cruzada" in text
     assert "N2 completo (ambos os lados)" in text
     assert "N3 completo (1 lado)" in text
     assert "limitação conhecida" in text.lower()
@@ -136,7 +139,7 @@ def test_lateral_writer_creates_one_page_per_beam_with_side_a_and_side_b(tmp_pat
     textarea = soup.select_one("#erro_nota")
     assert checkbox is not None and checkbox.get("type") == "checkbox"
     assert textarea is not None
-    assert "aten_erro_lv_Obra_TESTE_13_PAV_V301" in page.read_text(encoding="utf-8")
+    assert "aten_erro_lv_para_Obra_TESTE_13_PAV_V301" in page.read_text(encoding="utf-8")
 
     # sidebar expõe data-viga + flag de erro oculta
     sidebar_item = soup.select_one('.sidebar li[data-viga="V301"]')
@@ -172,7 +175,95 @@ def test_lateral_writer_marks_missing_n4_side_as_ausente(tmp_path: Path):
         javascript="",
         photo_fn=lambda points: "",
         metrics_fn=_segment_geometry_metrics,
+        classification_fn=lambda beam: "passa",
     )
 
-    page_html = (tmp_path / "laterais_viga" / "V301.html").read_text(encoding="utf-8")
+    page_html = (
+        tmp_path / "laterais_viga" / "LV-PARA" / "V301-Para.html"
+    ).read_text(encoding="utf-8")
     assert "artefato ausente" in page_html
+
+
+def test_lateral_writer_splits_para_and_passa_without_mixing_segments(tmp_path: Path):
+    points = [(0, 0), (10, 0)]
+    para_a = _lateral_row("A", "Para", 1, points)
+    # Rótulo real observado no headless: deve consolidar na viga V301.
+    para_a["_segment"]["beam_name"] = "LV-V301.A Para"
+    rows_by_kind = {
+        "lateral_a_para": [para_a],
+        "lateral_b_para": [_lateral_row("B", "Para", 1, points)],
+        "lateral_a_passa": [_lateral_row("A", "Passa", 2, points)],
+        "lateral_b_passa": [_lateral_row("B", "Passa", 2, points)],
+    }
+
+    result = write_lateral_pages(
+        dialog=_FakeDialog(),
+        title="Laterais de Viga",
+        rows_by_kind=rows_by_kind,
+        output_dir=str(tmp_path),
+        page_css="",
+        javascript="",
+        photo_fn=lambda points: "",
+        metrics_fn=_segment_geometry_metrics,
+        classification_fn=lambda beam: "passa",
+    )
+
+    assert result == ("laterais_viga/index.html", "Laterais de Viga", 2)
+    para_page = tmp_path / "laterais_viga" / "LV-PARA" / "V301-Para.html"
+    passa_page = tmp_path / "laterais_viga" / "LV-PASSA" / "V301-Passa.html"
+    assert para_page.is_file()
+    assert passa_page.is_file()
+    assert not (tmp_path / "laterais_viga" / "LV-V301.A_Para.html").exists()
+
+    para_text = BeautifulSoup(
+        para_page.read_text(encoding="utf-8"), "html.parser"
+    ).get_text(" ", strip=True)
+    passa_text = BeautifulSoup(
+        passa_page.read_text(encoding="utf-8"), "html.parser"
+    ).get_text(" ", strip=True)
+    assert "segmento 1 (Para)" in para_text
+    assert "segmento 2 (Passa)" not in para_text
+    assert "segmento 2 (Passa)" in passa_text
+    assert "segmento 1 (Para)" not in passa_text
+    assert "gabarito aplicável à lista Passa" in passa_text
+
+
+def test_lateral_writer_includes_reverse_only_beam_in_persisted_list(tmp_path: Path):
+    class _ReverseOnlyDialog(_FakeDialog):
+        def _find_beam_dxf(self, class_prefix, item_name, n4=False):
+            assert item_name in ("V13_A", "V13_B")
+            return ""
+
+        def _find_n2_recorte_dxf(self, class_prefix, item_name):
+            assert item_name == "V13"
+            return "n2_V13.dxf"
+
+        def _n2_ficha_html(self, class_prefix, item_name):
+            return "<table><tr><td>N2 V13</td></tr></table>"
+
+        def _n3_ficha_html_beam(self, class_prefix, item_name):
+            return "<span>sem N3</span>"
+
+    result = write_lateral_pages(
+        dialog=_ReverseOnlyDialog(),
+        title="Laterais de Viga",
+        rows_by_kind={},
+        output_dir=str(tmp_path),
+        page_css="",
+        javascript="",
+        photo_fn=lambda points: "",
+        metrics_fn=_segment_geometry_metrics,
+        classification_fn=lambda beam: "passa",
+        reverse_beams_fn=lambda: ["V13"],
+    )
+
+    assert result == ("laterais_viga/index.html", "Laterais de Viga", 1)
+    page = tmp_path / "laterais_viga" / "LV-PASSA" / "V13-Passa.html"
+    assert page.is_file()
+    text = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser").get_text(
+        " ", strip=True
+    )
+    assert "V13-Passa" in text
+    assert "Lado A — 0 segmento(s)" in text
+    assert "Lado B — 0 segmento(s)" in text
+    assert "N2 V13" in text
