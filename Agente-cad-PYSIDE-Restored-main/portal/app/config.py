@@ -87,6 +87,13 @@ class Settings:
     poll_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_POLL_ENABLED", False))
     max_obra_mb: int = field(default_factory=lambda: _env_int("PORTAL_MAX_OBRA_MB", 200))
     auto_triagem: bool = field(default_factory=lambda: _env_bool("PORTAL_AUTO_TRIAGEM", False))
+    # Pasta-mae na raiz do Drive do dono onde as subpastas por membro sao criadas
+    # dinamicamente ao cadastrar um membro (2026-07-06 — ver seed.py). So' faz
+    # sentido com credencial OAuth de usuario (drive_oauth_json) — o Drive
+    # "pertence" ao dono, membros nao compartilham pasta propria com robo.
+    drive_pasta_raiz_nome: str = field(
+        default_factory=lambda: os.environ.get("PORTAL_DRIVE_PASTA_RAIZ", "Portal-Obras")
+    )
 
     # --- Pipeline / subprocess ---
     # Diretorio onde o poller baixa obras e onde o headless procura --obra.

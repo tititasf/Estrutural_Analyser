@@ -20,3 +20,6 @@ itsdangerous>=2.2.0
 bcrypt>=4.1.0
 jinja2>=3.1.6
 python-multipart>=0.0.9
+google-api-python-client>=2.100.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.2.0   # so' o script portal/ops/reautorizar_drive.py usa isso

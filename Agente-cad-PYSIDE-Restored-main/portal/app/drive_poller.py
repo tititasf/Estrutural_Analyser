@@ -51,7 +51,8 @@ class DriveFile:
 # --------------------------------------------------------------------------- #
 
 class DriveClient(ABC):
-    """Contrato do poller. Implementacoes: GoogleDriveClient, FakeDriveClient."""
+    """Contrato do poller. Implementacoes: GoogleDriveClient, GoogleDriveOAuthClient,
+    FakeDriveClient."""
 
     @abstractmethod
     def list_new_files(self, pasta_id: str) -> list[DriveFile]:
@@ -60,6 +61,14 @@ class DriveClient(ABC):
     @abstractmethod
     def download_file(self, file_id: str, dest: Path) -> Path:
         """Baixa o conteudo do arquivo para `dest`. Retorna o path escrito."""
+
+    @abstractmethod
+    def obter_ou_criar_pasta(self, nome: str, pasta_pai_id: Optional[str] = None) -> str:
+        """Acha (por nome, sob `pasta_pai_id`) ou cria a pasta. Retorna o id.
+
+        Idempotente: chamar 2x com o mesmo (nome, pai) devolve o MESMO id — nunca
+        cria duplicata. `pasta_pai_id=None` procura/cria na raiz do Drive da conta
+        (2026-07-06 — criacao dinamica de pasta por membro, ver seed.py)."""
 
 
 # --------------------------------------------------------------------------- #
@@ -109,6 +118,36 @@ class _GoogleDriveServiceMixin:
             while not done:
                 _status, done = downloader.next_chunk()
         return dest
+
+    def obter_ou_criar_pasta(
+        self, nome: str, pasta_pai_id: Optional[str] = None
+    ) -> str:  # pragma: no cover - I/O externo
+        """Busca por nome+pai (idempotente); cria só se não achar.
+
+        [2026-07-06] Base da criação dinâmica de pasta por membro (§ seed.py):
+        1 pasta-mãe "Portal-Obras" na raiz do Drive do dono + 1 subpasta por
+        membro. `nome` nunca é interpolado cru na query — aspas simples são
+        escapadas (Drive API usa sintaxe de query própria, não SQL, mas o
+        mesmo cuidado de escaping se aplica).
+        """
+        pai = pasta_pai_id or "root"
+        nome_escapado = nome.replace("'", "\\'")
+        q = (
+            f"name = '{nome_escapado}' and '{pai}' in parents and "
+            "mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+        )
+        resp = self._service.files().list(q=q, fields="files(id,name)").execute()
+        achadas = resp.get("files", [])
+        if achadas:
+            return achadas[0]["id"]
+
+        corpo = {
+            "name": nome,
+            "mimeType": "application/vnd.google-apps.folder",
+            "parents": [pai],
+        }
+        criada = self._service.files().create(body=corpo, fields="id").execute()
+        return criada["id"]
 
 
 class GoogleDriveClient(_GoogleDriveServiceMixin, DriveClient):
@@ -247,6 +286,13 @@ class FakeDriveClient(DriveClient):
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(src, dest)
         return dest
+
+    def obter_ou_criar_pasta(self, nome: str, pasta_pai_id: Optional[str] = None) -> str:
+        """Paridade com o real: `pasta_id` aqui e' so' o path relativo a `raiz`."""
+        base = self._pasta(pasta_pai_id) if pasta_pai_id else self.raiz
+        alvo = base / nome
+        alvo.mkdir(parents=True, exist_ok=True)
+        return str(alvo.relative_to(self.raiz)).replace("\\", "/")
 
 
 # --------------------------------------------------------------------------- #

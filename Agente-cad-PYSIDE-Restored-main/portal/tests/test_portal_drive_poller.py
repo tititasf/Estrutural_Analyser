@@ -64,6 +64,9 @@ class DriveQuebrado(DriveClient):
     def download_file(self, file_id, dest):  # pragma: no cover - nunca chega aqui
         raise AssertionError("download não deveria ser chamado num cliente quebrado")
 
+    def obter_ou_criar_pasta(self, nome, pasta_pai_id=None):  # pragma: no cover - nao usado aqui
+        raise AssertionError("obter_ou_criar_pasta não deveria ser chamado neste teste")
+
 
 def _membro(conn, login: str, folder: str) -> dict:
     mid = repo.criar_membro(conn, login=login, nome=login.title(),
@@ -338,3 +341,32 @@ def test_varrer_ciclo_abre_propria_conexao(settings, tmp_path):
     total = c2.execute("SELECT COUNT(*) FROM portal_obras").fetchone()[0]
     c2.close()
     assert total == 1
+
+
+# --------------------------------------------------------------------------- #
+# obter_ou_criar_pasta — criação dinâmica de pasta por membro (2026-07-06)
+# --------------------------------------------------------------------------- #
+
+def test_obter_ou_criar_pasta_idempotente(tmp_path):
+    """2ª chamada com o mesmo (nome, pai) devolve o MESMO id — nunca duplica."""
+    client = FakeDriveClient(tmp_path / "drive")
+
+    raiz_id = client.obter_ou_criar_pasta("Portal-Obras")
+    raiz_id_2 = client.obter_ou_criar_pasta("Portal-Obras")
+    assert raiz_id == raiz_id_2
+
+    membro_id_1 = client.obter_ou_criar_pasta("joao", pasta_pai_id=raiz_id)
+    membro_id_2 = client.obter_ou_criar_pasta("joao", pasta_pai_id=raiz_id)
+    assert membro_id_1 == membro_id_2
+    assert membro_id_1 != raiz_id
+    assert membro_id_1.startswith("Portal-Obras/")
+
+
+def test_obter_ou_criar_pasta_nomes_diferentes_sob_mesmo_pai(tmp_path):
+    """Dois membros sob o mesmo pai recebem pastas (ids) diferentes."""
+    client = FakeDriveClient(tmp_path / "drive")
+    raiz_id = client.obter_ou_criar_pasta("Portal-Obras")
+
+    id_joao = client.obter_ou_criar_pasta("joao", pasta_pai_id=raiz_id)
+    id_maria = client.obter_ou_criar_pasta("maria", pasta_pai_id=raiz_id)
+    assert id_joao != id_maria
