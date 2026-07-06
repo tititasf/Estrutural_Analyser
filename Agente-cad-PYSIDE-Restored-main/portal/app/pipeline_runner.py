@@ -7,6 +7,30 @@ filho — se estourar RAM/travar, nao derruba o web server). A etapa 6 (N5) impo
 
 `dry_run=True` (default nos testes) NAO dispara subprocess — retorna o comando que
 seria executado. O codigo de producao chama de verdade (dry_run=False).
+
+[FIX 2026-07-06] Achado auditando antes do dono testar: "triagem" e "recortes"
+disparavam o MESMO comando `headless_sa_analise.py --wait` — nao eram passos
+distintos de verdade (rodava o pipeline inteiro 3x). Corrigido usando o que
+REALMENTE existe no repo para cada etapa (pesquisa confirmou via leitura de
+codigo, nao suposicao):
+  - TRIAGEM = conversao de entrada (DWG->DXF via `converter_dwg_dxf_accore.py`,
+    reusa accoreconsole ja instalado — ODA File Converter e' WS-C, ainda nao
+    fechado) + validacao de sanidade ezdxf (R6). Bate com a definicao literal
+    do HANDOFF-ARCHITECT-PORTAL.md §1.2 ("Conversao de entrada + validacao de
+    sanidade ezdxf"), que e' diferente do conceito de "triagem manual" do app
+    PySide6 (aquele e' outra coisa, feito no diagnostic_hub.py com mouse).
+  - RECORTES = `src.core.recorte_motor.RecorteMotor` (motor real, ja usado em
+    producao por `scripts/engrev_laj_recorte_loop.py`, sem depender de UI).
+  - SA completo continua sendo o unico que roda `headless_sa_analise.py`.
+
+Residual NAO resolvido aqui (fora do escopo seguro pra eu mexer sozinho): o
+motor `headless_sa_analise.py`/`ficha_adapter.get_recorte_path` tem um
+fallback hardcoded pra `Obra_TREINO_1` (`scripts/arete/arete_config.py::
+RECORTES_ROOT`) — nao confirmei se ele acha os recortes de uma obra NOVA
+(fora do treino) so' pelo path dinamico. Isso e' terreno do motor Arete em si
+(outra sessao esta ativa nele agora — main.py/beam_tracer.py mudando ao vivo),
+nao do portal. So' um teste real com obra nova revela se funciona ponta a
+ponta; documentado, nao escondido.
 """
 
 from __future__ import annotations
@@ -91,6 +115,145 @@ def _tail(texto: str, linhas: int = 40) -> str:
     return "\n".join((texto or "").splitlines()[-linhas:])
 
 
+_EXT_DWG = ".dwg"
+_CLASSES_RECORTE = ("PIL", "LV", "FV", "LAJ")
+
+
+def _arquivo_entrada(obra_dir: Path, obra: dict) -> Optional[Path]:
+    """Localiza o arquivo original da obra dentro de obra_dir/entrada/ (poller)."""
+    nome = obra.get("arquivo_nome")
+    if nome:
+        candidato = obra_dir / "entrada" / nome
+        if candidato.exists():
+            return candidato
+    pasta = obra_dir / "entrada"
+    if pasta.exists():
+        achados = sorted(pasta.glob("*.dwg")) + sorted(pasta.glob("*.dxf"))
+        if achados:
+            return achados[0]
+    return None
+
+
+def executar_triagem(
+    settings: Settings, obra: dict, *, dry_run: bool = True, log_path: Optional[Path] = None,
+) -> ResultadoEtapa:
+    """Etapa 2: conversao de entrada (DWG->DXF se preciso) + sanidade ezdxf (R6).
+
+    NAO roda o pipeline pesado (isso e' etapa 4/SA). So' garante que existe um DXF
+    valido e legivel pro resto do fluxo — leve e rapido, como o HANDOFF descreve.
+    """
+    obra_dir = _obra_dir(settings, obra)
+    entrada = _arquivo_entrada(obra_dir, obra)
+    comando_desc = ["triagem(conversao+sanidade)", str(obra_dir)]
+    if dry_run:
+        return ResultadoEtapa(etapa="triagem", ok=True, dry_run=True, comando=comando_desc)
+
+    if entrada is None:
+        msg = f"nenhum arquivo .dwg/.dxf encontrado em {obra_dir / 'entrada'}"
+        return ResultadoEtapa(etapa="triagem", ok=False, comando=comando_desc, log_tail=msg)
+
+    dxf_path = entrada
+    saida_log: list[str] = []
+
+    if entrada.suffix.lower() == _EXT_DWG:
+        dxf_path = entrada.with_suffix(".dxf")
+        try:
+            from scripts.converter_dwg_dxf_accore import convert_dwg_to_dxf  # type: ignore
+        except ImportError as exc:
+            return ResultadoEtapa(
+                etapa="triagem", ok=False, comando=comando_desc,
+                log_tail=f"conversor DWG->DXF (accoreconsole) indisponivel: {exc}",
+            )
+        saida_log.append(f"convertendo {entrada.name} -> {dxf_path.name} via accoreconsole")
+        try:
+            ok = convert_dwg_to_dxf(entrada, dxf_path)
+        except Exception as exc:  # noqa: BLE001 - accoreconsole pode falhar de varias formas
+            return ResultadoEtapa(etapa="triagem", ok=False, comando=comando_desc,
+                                  log_tail=f"conversao DWG->DXF falhou: {exc}")
+        if not ok:
+            return ResultadoEtapa(etapa="triagem", ok=False, comando=comando_desc,
+                                  log_tail="\n".join(saida_log + ["conversao retornou falha"]))
+
+    # Sanidade ezdxf (R6): garante que o DXF (convertido ou ja original) e' legivel
+    # e nao e' conteudo malicioso/corrompido — nunca executa o arquivo, so' parseia.
+    try:
+        import ezdxf
+
+        doc = ezdxf.readfile(str(dxf_path))
+        n_entidades = len(doc.modelspace())
+        saida_log.append(f"sanidade ezdxf OK: {dxf_path.name} ({n_entidades} entidades)")
+    except Exception as exc:  # noqa: BLE001 - ezdxf levanta varios tipos de erro de parse
+        return ResultadoEtapa(etapa="triagem", ok=False, comando=comando_desc,
+                              log_tail="\n".join(saida_log + [f"sanidade ezdxf falhou: {exc}"]))
+
+    texto = "\n".join(saida_log)
+    if log_path is not None:
+        try:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(log_path).write_text(texto, encoding="utf-8", errors="replace")
+        except OSError:
+            pass
+
+    return ResultadoEtapa(
+        etapa="triagem", ok=True, comando=comando_desc, returncode=0,
+        log_tail=_tail(texto), artefatos={"dxf_entrada": str(dxf_path)},
+    )
+
+
+def executar_recortes(
+    settings: Settings, obra: dict, *, dry_run: bool = True, log_path: Optional[Path] = None,
+) -> ResultadoEtapa:
+    """Etapa 3: segmentacao/crop via RecorteMotor (src/core/recorte_motor.py).
+
+    Motor real (nao GUI) — ja usado em producao por scripts/engrev_laj_recorte_loop.py.
+    Roda as 4 classes (PIL/LV/FV/LAJ); classe que nao encontrar elemento so' fica
+    com results=[] (nao e' falha — a obra pode nao ter aquela classe).
+    """
+    obra_dir = _obra_dir(settings, obra)
+    output_dir = obra_dir / "Fase-2_Triagem" / "recortes_reversos"
+    comando_desc = ["RecorteMotor.run", str(obra_dir), "classes=" + ",".join(_CLASSES_RECORTE)]
+    if dry_run:
+        return ResultadoEtapa(etapa="recortes", ok=True, dry_run=True, comando=comando_desc)
+
+    entrada = _arquivo_entrada(obra_dir, obra)
+    dxf_path = entrada.with_suffix(".dxf") if entrada and entrada.suffix.lower() == _EXT_DWG else entrada
+    if dxf_path is None or not dxf_path.exists():
+        msg = f"nenhum DXF encontrado em {obra_dir / 'entrada'} — rode a triagem primeiro"
+        return ResultadoEtapa(etapa="recortes", ok=False, comando=comando_desc, log_tail=msg)
+
+    try:
+        from src.core.recorte_motor import RecorteMotor
+    except ImportError as exc:
+        return ResultadoEtapa(etapa="recortes", ok=False, comando=comando_desc,
+                              log_tail=f"RecorteMotor indisponivel: {exc}")
+
+    total_elementos = 0
+    linhas_log: list[str] = []
+    for classe in _CLASSES_RECORTE:
+        try:
+            motor = RecorteMotor(str(dxf_path), er_type=classe)
+            resultados = motor.run(output_dir, overwrite=True)
+        except Exception as exc:  # noqa: BLE001 - motor pode nao achar frame p/ essa classe
+            linhas_log.append(f"{classe}: erro ({exc})")
+            continue
+        linhas_log.append(f"{classe}: {len(resultados)} elemento(s)")
+        total_elementos += len(resultados)
+
+    texto = "\n".join(linhas_log)
+    if log_path is not None:
+        try:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(log_path).write_text(texto, encoding="utf-8", errors="replace")
+        except OSError:
+            pass
+
+    return ResultadoEtapa(
+        etapa="recortes", ok=True, comando=comando_desc, returncode=0,
+        log_tail=_tail(texto),
+        artefatos={"recortes_dir": str(output_dir), "total_elementos": total_elementos},
+    )
+
+
 def executar_etapa(
     settings: Settings,
     etapa: str,
@@ -101,16 +264,23 @@ def executar_etapa(
     dry_run: bool = True,
     log_path: Optional[Path] = None,
 ) -> ResultadoEtapa:
-    """Executa uma etapa de pipeline (triagem/recortes/sa) via subprocess.
+    """Executa uma etapa de pipeline (triagem/recortes/sa).
 
     N5 NAO passa por aqui — usa executar_n5(). validacao NAO passa por aqui — so DB.
     dry_run=True devolve o comando sem disparar (default seguro para testes).
+
+    triagem/recortes NAO chamam mais o headless (achado 2026-07-06 — eram o MESMO
+    comando repetido 3x). So' 'sa' de fato dispara o subprocess pesado.
     """
     if etapa not in ETAPAS_SUBPROCESS:
         raise ValueError(f"etapa {etapa!r} nao e' de subprocess (validas: {ETAPAS_SUBPROCESS})")
 
-    # triagem e recortes usam o mesmo CLI (fases anteriores do pipeline); MVP dispara
-    # o headless que ja encadeia as fases. --secao restringe classe quando informado.
+    if etapa == "triagem":
+        return executar_triagem(settings, obra, dry_run=dry_run, log_path=log_path)
+    if etapa == "recortes":
+        return executar_recortes(settings, obra, dry_run=dry_run, log_path=log_path)
+
+    # etapa == "sa": unico caminho que dispara headless_sa_analise.py de verdade.
     cmd = montar_comando_headless(settings, obra, secao=secao, pav=pav)
 
     if dry_run:
