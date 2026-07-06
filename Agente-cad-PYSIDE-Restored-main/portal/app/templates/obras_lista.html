@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge %}
+{% block titulo %}Minhas obras — Portal de Formas{% endblock %}
+
+{% block conteudo %}
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+  <h1>Minhas obras</h1>
+  <a class="btn-sec btn" href="/app/obras" title="Re-consulta o servidor (o poller do Drive já roda sozinho)">
+    Atualizar lista ↻
+  </a>
+</div>
+
+{% if drive != 'ok' %}
+<div class="faixa faixa-aviso" role="alert">
+  <span aria-hidden="true">⚠</span> O Google Drive está indisponível no momento —
+  novas obras podem demorar a aparecer. As obras já baixadas seguem acessíveis.
+</div>
+{% endif %}
+
+{% if not obras %}
+<div class="card">
+  <p>Nenhuma obra ainda. Envie um arquivo DWG/DXF para sua pasta do Google Drive —
+  ela aparecerá aqui em alguns minutos.</p>
+</div>
+{% else %}
+<div class="stack">
+  {% for o in obras %}
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <h2 style="margin:0 0 4px">{{ o.nome }}</h2>
+        <div style="margin-bottom:6px">{{ status_badge(o.estado) }}</div>
+        <p class="meta" style="margin:0">
+          {{ o.arquivo_nome or '—' }}
+          {% if o.created_at %}· detectada {{ o.created_at[:16].replace('T',' ') }}{% endif %}
+        </p>
+        {% if o.estado == 'erro' and o.erro_msg %}
+        <p class="meta" style="color:#b91c1c;margin:6px 0 0">
+          <span aria-hidden="true">🔴</span> {{ o.erro_msg }}
+        </p>
+        {% endif %}
+      </div>
+      <a class="btn" href="/app/obras/{{ o.id }}">Abrir →</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

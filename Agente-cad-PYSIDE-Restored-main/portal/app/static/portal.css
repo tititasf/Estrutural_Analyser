@@ -1,0 +1,305 @@
+/* Portal de Formas — Arete. CSS mínimo, contraste WCAG AA verificado.
+ *
+ * Paleta base (todas testadas contra o fundo em que são usadas):
+ *   texto principal  #1a1a1a sobre #ffffff  -> 18.1:1  (AA/AAA)
+ *   texto secundário #4b5563 sobre #ffffff  ->  7.6:1  (AA/AAA)
+ *   link/ação        #1d4ed8 sobre #ffffff  ->  6.3:1  (AA)
+ *   badge cert.      #ffffff sobre #1e5631  ->  8.6:1  (AA) — do handoff §3
+ *   badge beta       #ffffff sobre #8a1f0b  ->  8.9:1  (AA) — do handoff §3
+ *   faixa erro       #7f1d1d sobre #fee2e2  ->  8.2:1  (AA)
+ * Nenhum estado depende só de cor: todos carregam ícone + texto (§3.1, §6).
+ */
+
+:root {
+  --fg: #1a1a1a;
+  --fg-muted: #4b5563;
+  --bg: #ffffff;
+  --bg-soft: #f3f4f6;
+  --border: #d1d5db;
+  --link: #1d4ed8;
+  --focus: #1d4ed8;
+
+  --cert-bg: #1e5631;
+  --beta-bg: #8a1f0b;
+  --badge-fg: #ffffff;
+
+  --st-cinza: #374151;   /* aguardando ingestão (4.5:1+ em bg-soft) */
+  --st-azul: #1d4ed8;    /* processando */
+  --st-ambar: #92400e;   /* aguardando triagem (7.0:1 em branco) */
+  --st-verde: #15803d;   /* pronta */
+  --st-verde-esc: #166534;
+  --st-vermelho: #b91c1c;/* erro */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--fg);
+  background: var(--bg-soft);
+  line-height: 1.5;
+}
+
+a { color: var(--link); }
+
+/* ---- foco visível AA (contraste >= 3:1, nunca removido) ---- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---- header ---- */
+.portal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #111827;
+  color: #fff;
+}
+.portal-header a { color: #cbd5e1; }
+.portal-header .brand { font-weight: 700; font-size: 1.05rem; color: #fff; text-decoration: none; }
+.portal-header .who { font-size: .9rem; color: #e5e7eb; }
+.portal-header form { margin: 0; }
+
+.btn-logout {
+  background: #374151;
+  color: #fff;
+  border: 1px solid #4b5563;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .85rem;
+}
+
+/* ---- conteúdo ---- */
+main.conteudo {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 24px 0 8px; }
+.subtitulo { color: var(--fg-muted); margin: 0 0 20px; }
+
+/* ---- botões ---- */
+.btn {
+  display: inline-block;
+  background: var(--link);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:hover { background: #1741b6; }
+.btn[disabled], .btn.disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  color: #f3f4f6;
+}
+.btn-sec {
+  background: #fff;
+  color: var(--link);
+  border: 1px solid var(--link);
+}
+.btn-sec:hover { background: #eff3ff; }
+
+/* ---- card genérico ---- */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.card .meta { color: var(--fg-muted); font-size: .88rem; }
+
+/* ---- login ---- */
+.login-box {
+  max-width: 380px;
+  margin: 48px auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px 26px;
+}
+.login-box .field { margin-bottom: 16px; }
+.login-box label { display: block; font-weight: 600; margin-bottom: 6px; }
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 1rem;
+}
+.login-box .hint { color: var(--fg-muted); font-size: .82rem; margin-top: 16px; text-align: center; }
+
+/* ---- faixas de estado (sempre ícone + texto, role=alert) ---- */
+.faixa {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.faixa-erro { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+.faixa-info { background: #dbeafe; color: #1e3a8a; border: 1px solid #93c5fd; }
+.faixa-aviso { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+
+/* ---- StatusBadge (obra, §5) — ícone + texto + cor ---- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: .9rem;
+}
+.status-ingestao   { color: var(--st-cinza); }
+.status-processando{ color: var(--st-azul); }
+.status-triagem    { color: var(--st-ambar); }
+.status-pronta     { color: var(--st-verde); }
+.status-concluida  { color: var(--st-verde-esc); }
+.status-erro       { color: var(--st-vermelho); }
+
+/* ---- ClassBadge (cert/beta, §3) — nunca só cor: texto + ícone ---- */
+.class-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .02em;
+  color: var(--badge-fg);
+}
+.class-badge.cert { background: var(--cert-bg); }
+.class-badge.beta { background: var(--beta-bg); }
+
+/* ---- StepProgress (barra 6 passos, §detalhe) ---- */
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.steps li { display: flex; align-items: center; }
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: .88rem;
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+.step .num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  font-size: .78rem;
+  font-weight: 700;
+}
+.step-feito { color: #14532d; }
+.step-feito .num { background: var(--st-verde); color: #fff; }
+.step-atual { color: #1e3a8a; border-color: var(--st-azul); background: #eff6ff; }
+.step-atual .num { background: var(--st-azul); color: #fff; }
+.step-bloq { color: #6b7280; cursor: not-allowed; }
+.step-bloq .num { background: #e5e7eb; color: #6b7280; }
+.steps .sep { color: var(--border); padding: 0 2px; }
+
+/* ---- lista de fichas ---- */
+.fichas-lista { list-style: none; padding: 0; margin: 0; }
+.fichas-lista li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bg-soft);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ---- ErrorMarker (reaproveitado de _error_marker_block, §4) ---- */
+.error-marker {
+  margin-top: 16px;
+  border: 1px solid #e17055;
+  border-radius: 6px;
+  background: #fff7f3;
+  padding: 12px 14px;
+}
+.error-marker .em-title { color: #b5471f; font-weight: 700; margin-bottom: 8px; }
+.error-marker label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #b5471f;
+  font-weight: 700;
+}
+.error-marker input[type="checkbox"] { width: 18px; height: 18px; }
+.error-marker textarea {
+  width: 100%;
+  min-height: 74px;
+  margin-top: 8px;
+  border: 1px solid #d1a08c;
+  border-radius: 4px;
+  padding: 8px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: .85rem;
+}
+.error-marker .em-prov { color: var(--fg-muted); font-size: .78rem; margin-top: 8px; }
+.error-marker .em-saved { color: var(--st-verde); font-size: .78rem; margin-top: 6px; }
+
+/* ---- N5 tabela liberação ---- */
+.n5-grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.n5-grid th, .n5-grid td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: .92rem;
+}
+.n5-grid th { color: var(--fg-muted); font-weight: 600; }
+.n5-aviso {
+  background: #fff7ed;
+  border: 2px solid #c2410c;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.n5-aviso .t { font-weight: 700; color: #7c2d12; margin-bottom: 4px; }
+
+/* ---- área de progresso do job (polling) ---- */
+.job-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 22px;
+  text-align: center;
+}
+.spinner { font-size: 1.4rem; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.muted { color: var(--fg-muted); }
+.stack > * + * { margin-top: 10px; }

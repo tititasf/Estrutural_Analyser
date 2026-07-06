@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Portal de Formas — Arete{% endblock %}</title>
+  <link rel="stylesheet" href="/static/portal.css">
+</head>
+<body>
+  {% if membro %}
+  <header class="portal-header">
+    <a class="brand" href="/app/obras">Portal de Formas — Arete</a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="who">Membro: <strong>{{ membro.nome or membro.login }}</strong></span>
+      <form id="logout-form">
+        <button type="submit" class="btn-logout">Sair</button>
+      </form>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  {% if membro %}
+  <script>
+    // logout: chama POST /logout e volta ao login (progressive enhancement)
+    document.getElementById('logout-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      fetch('/logout', { method: 'POST' }).finally(function () {
+        window.location.href = '/login';
+      });
+    });
+  </script>
+  {% endif %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>

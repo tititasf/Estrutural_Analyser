@@ -1,0 +1,70 @@
+{#
+  Átomos reutilizáveis do portal (HANDOFF §7 Atomic Design):
+  class_badge (§3), status_badge (§5), step_progress (barra 6 passos).
+  Nenhum depende só de cor: sempre texto + ícone (§3.1, §6).
+#}
+
+{# ---- ClassBadge (cert/beta, §3) ---- #}
+{% macro class_badge(classe, rotulo) %}
+  {%- set cert = (rotulo == 'certificado') -%}
+  <span class="class-badge {{ 'cert' if cert else 'beta' }}"
+        role="status"
+        aria-label="{% if cert %}Classe {{ classe }}: certificada pelo Arete{% else %}Classe {{ classe }}: beta, motor ainda em treino, confira o resultado{% endif %}">
+    <span aria-hidden="true">{{ '✔' if cert else '⚠' }}</span>
+    {{ 'CERTIFICADO' if cert else 'BETA' }}
+  </span>
+{% endmacro %}
+
+{# ---- StatusBadge (obra, §5). Um enum -> ícone+cor+texto ---- #}
+{% macro status_badge(estado) %}
+  {%- set mapa = {
+    'aguardando_ingestao': ('status-ingestao', '⏳', 'Aguardando ingestão (Drive)'),
+    'processando':         ('status-processando', '◐', 'Processando (SA)'),
+    'aguardando_triagem':  ('status-triagem', '🟡', 'Aguardando triagem'),
+    'pronta':              ('status-pronta', '🟢', 'Pronta para validação'),
+    'concluida':           ('status-concluida', '✅', 'Concluída · N5 liberável'),
+    'erro':                ('status-erro', '🔴', 'Erro reportado'),
+  } -%}
+  {%- set cls, icon, texto = mapa.get(estado, ('status-ingestao', '•', estado)) -%}
+  <span class="status-badge {{ cls }}" role="status" aria-label="Estado da obra: {{ texto }}">
+    <span aria-hidden="true">{{ icon }}</span> {{ texto }}
+  </span>
+{% endmacro %}
+
+{# ---- StepProgress (barra 6 passos). etapa_atual = índice 1..5 ---- #}
+{% macro step_progress(obra_id, etapa_atual) %}
+  {%- set passos = [
+      (1, 'Triagem'), (2, 'Recortes'), (3, 'SA'),
+      (4, 'Validação'), (5, 'N5')
+  ] -%}
+  <nav aria-label="Progresso da obra">
+    <ol class="steps">
+      {% for num, nome in passos %}
+        {%- if num < etapa_atual -%}{%- set st = 'feito' -%}
+        {%- elif num == etapa_atual -%}{%- set st = 'atual' -%}
+        {%- else -%}{%- set st = 'bloq' -%}{%- endif -%}
+        <li>
+          {% if st == 'feito' %}
+            <a class="step step-feito" href="/app/obras/{{ obra_id }}?etapa={{ num }}"
+               {% if num == etapa_atual %}aria-current="step"{% endif %}>
+              <span class="num" aria-hidden="true">{{ num }}</span>{{ nome }}
+              <span class="sr-only">(concluída)</span>
+            </a>
+          {% elif st == 'atual' %}
+            <span class="step step-atual" aria-current="step">
+              <span class="num" aria-hidden="true">{{ num }}</span>{{ nome }}
+              <span class="sr-only">(etapa atual)</span>
+            </span>
+          {% else %}
+            <span class="step step-bloq" aria-disabled="true"
+                  title="Conclua a etapa anterior">
+              <span class="num" aria-hidden="true">{{ num }}</span>{{ nome }}
+              <span class="sr-only">(bloqueada — conclua a etapa anterior)</span>
+            </span>
+          {% endif %}
+        </li>
+        {% if not loop.last %}<li class="sep" aria-hidden="true">—</li>{% endif %}
+      {% endfor %}
+    </ol>
+  </nav>
+{% endmacro %}

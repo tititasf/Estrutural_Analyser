@@ -1,0 +1,92 @@
+{% from "_macros.html" import class_badge %}
+{#
+  Liberação self-service do N5 (DP-13). O rótulo cert/beta é ONIPRESENTE e
+  NÃO IGNORÁVEL aqui (R9): o bloco de aviso fixo aparece ANTES de qualquer botão
+  de baixar. Usável como include no detalhe (etapa 5) e como página standalone.
+#}
+<section aria-labelledby="n5-h">
+  <h2 id="n5-h">Liberar N5 — DXF consolidado por classe e pavimento</h2>
+
+  {% if not validacao_concluida %}
+  <div class="faixa faixa-aviso" role="alert">
+    <span aria-hidden="true">⚠</span> Conclua a validação (etapa 4) para liberar o N5.
+    <a href="/app/obras/{{ obra.id }}?etapa=4">Ir para validação</a>
+  </div>
+  {% else %}
+  <p class="subtitulo">Sua validação está concluída. Você pode baixar os arquivos.</p>
+
+  {# R9 — aviso fixo, não ignorável, ANTES dos botões #}
+  <div class="n5-aviso" role="note">
+    <div class="t"><span aria-hidden="true">⚠</span> Entenda antes de baixar</div>
+    <p style="margin:0">
+      <strong>“CERTIFICADO”</strong> = o motor daquela classe passou nos gates de
+      qualidade do Arete. <strong>“BETA”</strong> = ainda em treino: confira o DXF
+      antes de usar em obra. Você validou <em>sua</em> parte — isso não certifica o motor.
+    </p>
+  </div>
+
+  <table class="n5-grid">
+    <thead>
+      <tr><th>Classe</th><th>Certificação</th><th>Arquivo</th><th>Ação</th></tr>
+    </thead>
+    <tbody>
+      {% for classe, rotulo in rotulos.items() %}
+      <tr>
+        <td><strong>{{ classe }}</strong></td>
+        <td>{{ class_badge(classe, rotulo) }}</td>
+        <td class="muted">N5_{{ classe }}_{{ (pavimento or 'GERAL') }}.dxf</td>
+        <td>
+          <button class="btn btn-sec" data-n5="{{ classe }}"
+                  data-obra="{{ obra.id }}"
+                  {% if rotulo != 'certificado' %}
+                  title="Classe {{ classe }} em treino (beta) — confira o DXF antes de usar"
+                  aria-label="Baixar N5 da classe {{ classe }} (beta, motor em treino — confira)"
+                  {% else %}
+                  aria-label="Baixar N5 da classe {{ classe }} (certificada)"
+                  {% endif %}>
+            ⬇ Baixar
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted" style="margin-top:12px">
+    Classes: PL = Pilar · LJ = Laje · LV = Lat. Viga · FV = Fundo Viga
+  </p>
+  {% endif %}
+</section>
+
+<div id="n5-resultado" role="status" aria-live="polite"></div>
+
+<script>
+  (function () {
+    document.querySelectorAll('button[data-n5]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var classe = btn.getAttribute('data-n5');
+        var obra = btn.getAttribute('data-obra');
+        var res = document.getElementById('n5-resultado');
+        btn.disabled = true;
+        res.className = 'faixa faixa-info';
+        res.textContent = 'Montando N5 de ' + classe + '…';
+        // 1) monta/registra o release (gated por validação no backend)
+        fetch('/obras/' + obra + '/n5', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ classe: classe, pavimento: {{ (pavimento or 'GERAL')|tojson }} }),
+        }).then(function (r) {
+          if (!r.ok) throw new Error('n5 ' + r.status);
+          // 2) dispara o download do DXF consolidado
+          window.location.href = '/obras/' + obra + '/n5/' + classe + '/download';
+          res.className = 'faixa faixa-info';
+          res.textContent = 'Download iniciado para ' + classe + '.';
+        }).catch(function () {
+          res.className = 'faixa faixa-erro';
+          res.setAttribute('role', 'alert');
+          res.innerHTML = '<span aria-hidden="true">⚠</span> Falha ao montar este N5 — o responsável foi notificado.';
+          btn.disabled = false;
+        });
+      });
+    });
+  })();
+</script>

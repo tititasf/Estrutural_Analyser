@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% from "_macros.html" import class_badge, step_progress %}
+{% block titulo %}{{ obra.nome }} — Portal de Formas{% endblock %}
+
+{% block conteudo %}
+<p><a href="/obras">← Obras</a></p>
+<h1>{{ obra.nome }}</h1>
+<p class="subtitulo">{{ obra.arquivo_nome or '—' }} · enviada por {{ obra.enviada_por or membro.login }}</p>
+
+{{ step_progress(obra.id, etapa_atual) }}
+
+{# ------------------------------------------------------------------ #}
+{# Etapa 3 (SA) — só progresso: polling de job ativo                    #}
+{# ------------------------------------------------------------------ #}
+{% if etapa_atual == 3 or job_ativo %}
+<section class="job-panel" aria-labelledby="job-h">
+  <h2 id="job-h" style="margin-top:0">
+    <span class="spinner" aria-hidden="true">◐</span> Processando a obra (SA completo)
+  </h2>
+  <p id="job-estado" role="status" aria-live="polite">
+    Consultando o servidor…
+  </p>
+  <p class="muted">Você pode fechar esta página — avisaremos na lista quando a
+  validação estiver pronta.</p>
+  <p><a class="btn btn-sec" href="/obras">Voltar à lista</a></p>
+</section>
+{% if job_ativo %}
+<script>
+  (function () {
+    var jobId = {{ job_ativo|tojson }};
+    var alvo = document.getElementById('job-estado');
+    var mapa = {
+      queued: 'Na fila — começa em breve.',
+      running: 'Processando… isso costuma levar alguns minutos.',
+      done: 'Concluído. Recarregando…',
+      error: 'O processamento falhou nesta obra. O responsável foi notificado.'
+    };
+    function poll() {
+      fetch('/jobs/' + jobId).then(function (r) { return r.json(); })
+        .then(function (j) {
+          alvo.textContent = mapa[j.estado] || j.estado;
+          if (j.estado === 'done') { setTimeout(function () { location.reload(); }, 1200); }
+          else if (j.estado === 'error') { /* para o polling */ }
+          else { setTimeout(poll, 4000); }
+        }).catch(function () { setTimeout(poll, 6000); });
+    }
+    poll();
+  })();
+</script>
+{% endif %}
+{% endif %}
+
+{# ------------------------------------------------------------------ #}
+{# Ações por etapa (chamam a API via fetch)                            #}
+{# ------------------------------------------------------------------ #}
+{% if etapa_atual == 1 %}
+<section aria-labelledby="et1">
+  <h2 id="et1">Triagem</h2>
+  <p>Confira a classificação dos documentos. Ao confirmar, o processamento avança.</p>
+  <button class="btn" data-acao="triagem" data-obra="{{ obra.id }}">Confirmar triagem →</button>
+</section>
+{% elif etapa_atual == 2 %}
+<section aria-labelledby="et2">
+  <h2 id="et2">Recortes</h2>
+  <p>Aprove os recortes gerados. Concluir dispara o SA completo (etapa 3).</p>
+  <button class="btn" data-acao="recortes" data-obra="{{ obra.id }}">Concluir recortes →</button>
+</section>
+{% elif etapa_atual == 4 %}
+<section aria-labelledby="et4">
+  <h2 id="et4">Validação</h2>
+  <p>Revise as fichas N1–N4 abaixo e marque erros. Ao concluir sua validação,
+  a liberação do N5 é destravada.</p>
+  {% for classe, rotulo in rotulos.items() %}
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <span><strong>{{ classe }}</strong> {{ class_badge(classe, rotulo) }}</span>
+      <button class="btn btn-sec" data-acao="validacao" data-obra="{{ obra.id }}"
+              data-classe="{{ classe }}">Concluir validação de {{ classe }} →</button>
+    </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+<div id="acao-resultado" role="status" aria-live="polite"></div>
+
+{# ------------------------------------------------------------------ #}
+{# Fichas HTML N1–N4 (viewer) — link para abrir                        #}
+{# ------------------------------------------------------------------ #}
+<section aria-labelledby="fichas-h">
+  <h2 id="fichas-h">Fichas N1–N4</h2>
+  {% if not fichas %}
+    <p class="muted">Nenhuma ficha disponível ainda para esta obra.</p>
+  {% else %}
+    <ul class="fichas-lista">
+      {% for f in fichas %}
+      <li>
+        <a href="/obras/{{ obra.id }}/fichas/{{ f.rel }}" target="_blank"
+           rel="noopener">{{ f.nome }}</a>
+        <span class="muted">{{ (f.tamanho // 1024) }} KB</span>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+
+{# ------------------------------------------------------------------ #}
+{# Liberação do N5 (self-service) — só quando etapa 5                   #}
+{# ------------------------------------------------------------------ #}
+{% if etapa_atual >= 5 %}
+  {% include "n5_liberacao.html" %}
+{% endif %}
+
+{# ------------------------------------------------------------------ #}
+{# ErrorMarker — comentário de erro (reaproveitado de §4)              #}
+{# Chave estável = aten_erro_{classe}_{obra}_{pav}_{item}              #}
+{# save/load agora batem em POST/GET /obras/{id}/comentarios           #}
+{# ------------------------------------------------------------------ #}
+<section class="error-marker" aria-labelledby="em-h">
+  <div class="em-title" id="em-h">Marcação de erro (revisão humana)</div>
+  <label for="erro_check">
+    <input type="checkbox" id="erro_check">
+    Marcar esta ficha como ERRADA
+  </label>
+  <textarea id="erro_nota"
+    placeholder="Descreva o que está errado (N1, N2, N3 ou N4)…"></textarea>
+  <p class="em-saved" id="em_saved" role="status" aria-live="polite" hidden>Salvo ✔</p>
+  <div id="em_prov" class="em-prov"></div>
+</section>
+
+{% if comentarios %}
+<section aria-labelledby="coments-h">
+  <h2 id="coments-h">Marcações já registradas</h2>
+  <ul class="fichas-lista">
+    {% for c in comentarios %}
+    <li>
+      <span>
+        {% if c.tipo == 'erro' %}<span aria-hidden="true">⚑</span>{% endif %}
+        {{ c.texto }}
+        {% if c.classe %}<span class="muted">· {{ c.classe }}</span>{% endif %}
+      </span>
+      <span class="muted">equipe:{{ c.membro_login or membro.login }}
+        {% if c.created_at %}· {{ c.created_at[:16].replace('T',' ') }}{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var OBRA_ID = {{ obra.id|tojson }};
+
+  // --- ações de etapa (triagem/recortes/validacao) ---
+  document.querySelectorAll('button[data-acao]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var acao = btn.getAttribute('data-acao');
+      var res = document.getElementById('acao-resultado');
+      btn.disabled = true;
+      var body = {};
+      var url = '/obras/' + OBRA_ID + '/' + acao;
+      if (acao === 'validacao') {
+        body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
+      } else if (acao === 'sa') {
+        body = {};
+      }
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      }).then(function () {
+        res.className = 'faixa faixa-info';
+        res.textContent = 'Etapa registrada. Atualizando…';
+        setTimeout(function () { location.reload(); }, 900);
+      }).catch(function () {
+        res.className = 'faixa faixa-erro';
+        res.setAttribute('role', 'alert');
+        res.innerHTML = '<span aria-hidden="true">⚠</span> Não foi possível concluir. Tente de novo.';
+        btn.disabled = false;
+      });
+    });
+  });
+
+  // --- ErrorMarker religado à API (§4). Chave estável mantida. ---
+  (function () {
+    var PAV = {{ (pavimento or 'GERAL')|tojson }};
+    var CLASSE = {{ (classe_ativa or 'GERAL')|tojson }};
+    var ITEM = {{ (item_id or 'ficha')|tojson }};
+    var chave = ('aten_erro_' + CLASSE + '_' + OBRA_ID + '_' + PAV + '_' + ITEM)
+      .replace(/ /g, '_');
+    var chk = document.getElementById('erro_check');
+    var txt = document.getElementById('erro_nota');
+    var saved = document.getElementById('em_saved');
+    var prov = document.getElementById('em_prov');
+    var t = null;
+
+    function save() {
+      clearTimeout(t);
+      t = setTimeout(function () {
+        if (!chk.checked && !txt.value.trim()) return;
+        fetch('/obras/' + OBRA_ID + '/comentarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            texto: (txt.value || '(marcada como errada, sem nota)'),
+            tipo: chk.checked ? 'erro' : 'observacao',
+            classe: CLASSE === 'GERAL' ? null : CLASSE,
+            pavimento: PAV === 'GERAL' ? null : PAV,
+            item_id: chave,
+          }),
+        }).then(function (r) {
+          if (r.ok) {
+            saved.hidden = false;
+            return r.json();
+          }
+        }).then(function (j) {
+          if (j) prov.textContent = 'marcado por ' + j.marcado_por;
+        }).catch(function () { /* silencioso: autosave */ });
+      }, 600);
+    }
+    chk.addEventListener('change', save);
+    txt.addEventListener('input', save);
+  })();
+</script>
+{% endblock %}
