@@ -173,3 +173,92 @@ def test_i2_5_reconciliacao_reenfileira_orfaos(db_path):
     # nada "some": o job continua consumível
     assert repo.consumir_job(conn)["id"] == job_id
     conn.close()
+
+
+# --------------------------------------------------------------------------- #
+# Regressão 2026-07-06 — DEADLOCK real achado rodando SA pela 1a vez contra
+# Obra_TREINO_1: o worker segurava 'headless_sa' ANTES de lançar o subprocess
+# `headless_sa_analise.py --wait`, que por sua vez tenta adquirir a MESMA trava
+# internamente — o filho esperava o próprio pai soltar, o que só aconteceria
+# quando o filho terminasse. Travou 30min (timeout default de wait_for_lock)
+# até o filho desistir e sair com erro. Fix: 'sa' não trava mais no worker —
+# quem serializa é o próprio subprocess via --wait. 'triagem'/'recortes'
+# continuam travando no worker (não têm serialização própria).
+# --------------------------------------------------------------------------- #
+
+class _AppStateFake:
+    def __init__(self, settings, db_conn):
+        self.settings = settings
+        self.db = db_conn
+        self.job_meta = {}
+
+
+def _job_pronto_para_processar(conn):
+    membro = repo.criar_membro(conn, login="ana", nome="Ana", senha_hash="h", drive_folder_id="f")
+    obra_id = repo.criar_obra(conn, membro_id=membro, nome="O", pasta_drive_id="p")
+    job_id = repo.enfileirar_job(conn, obra_id=obra_id)
+    job = repo.consumir_job(conn)
+    assert job["id"] == job_id
+    return job
+
+
+def test_sa_nao_chama_wait_for_lock_no_worker(settings, monkeypatch):
+    """etapa='sa': processar_um_job NÃO deve chamar wait_for_lock/release_lock —
+    é exatamente essa chamada, feita ANTES do subprocess (que já tem seu próprio
+    --wait), que causava o deadlock."""
+    from portal.app import jobs as jobs_mod
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    job = _job_pronto_para_processar(conn)
+
+    chamadas = {"wait_for_lock": 0, "release_lock": 0}
+    monkeypatch.setattr(jobs_mod, "wait_for_lock",
+                        lambda *a, **k: (chamadas.__setitem__("wait_for_lock", chamadas["wait_for_lock"] + 1), (object(), None))[1])
+    monkeypatch.setattr(jobs_mod, "release_lock",
+                        lambda *a, **k: chamadas.__setitem__("release_lock", chamadas["release_lock"] + 1))
+    monkeypatch.setattr(
+        jobs_mod.pipeline_runner, "executar_etapa",
+        lambda *a, **k: type("R", (), {"ok": True, "log_tail": "", "artefatos": {}})(),
+    )
+
+    app_state = _AppStateFake(settings, conn)
+    app_state.job_meta[job["id"]] = {"etapa": "sa"}
+    jobs_mod.processar_um_job(app_state, job)
+
+    assert chamadas["wait_for_lock"] == 0, "worker NÃO deve travar para 'sa' (subprocess já tem --wait)"
+    assert chamadas["release_lock"] == 0
+    row = conn.execute("SELECT status FROM portal_jobs WHERE id=?", (job["id"],)).fetchone()
+    assert row["status"] == "concluido"
+    conn.close()
+
+
+def test_triagem_ainda_chama_wait_for_lock_no_worker(settings, monkeypatch):
+    """etapa='triagem': accoreconsole NÃO tem serialização própria — o worker
+    PRECISA continuar travando aqui (protege contra o dono rodando SA na app
+    PySide6 ao mesmo tempo). Regressão: só 'sa' foi isento pelo fix acima."""
+    from portal.app import jobs as jobs_mod
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    job = _job_pronto_para_processar(conn)
+
+    chamadas = {"wait_for_lock": 0, "release_lock": 0}
+    monkeypatch.setattr(jobs_mod, "wait_for_lock",
+                        lambda *a, **k: (chamadas.__setitem__("wait_for_lock", chamadas["wait_for_lock"] + 1), (object(), None))[1])
+    monkeypatch.setattr(jobs_mod, "release_lock",
+                        lambda *a, **k: chamadas.__setitem__("release_lock", chamadas["release_lock"] + 1))
+    monkeypatch.setattr(
+        jobs_mod.pipeline_runner, "executar_etapa",
+        lambda *a, **k: type("R", (), {"ok": True, "log_tail": "", "artefatos": {}})(),
+    )
+
+    app_state = _AppStateFake(settings, conn)
+    app_state.job_meta[job["id"]] = {"etapa": "triagem"}
+    jobs_mod.processar_um_job(app_state, job)
+
+    assert chamadas["wait_for_lock"] == 1, "worker DEVE travar para 'triagem' (accoreconsole sem --wait próprio)"
+    assert chamadas["release_lock"] == 1
+    row = conn.execute("SELECT status FROM portal_jobs WHERE id=?", (job["id"],)).fetchone()
+    assert row["status"] == "concluido"
+    conn.close()

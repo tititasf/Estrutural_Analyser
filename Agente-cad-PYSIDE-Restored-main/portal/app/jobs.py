@@ -83,13 +83,35 @@ def processar_um_job(app_state, job: dict) -> None:
 
     log_path = Path(settings.logs_dir) / f"job_{job['id']}.log"
     try:
+        etapa_efetiva = etapa if etapa in pipeline_runner.ETAPAS_SUBPROCESS else "sa"
+
         if etapa == "n5":
             resultado = pipeline_runner.executar_n5(
                 settings, obra, classe=meta.get("classe", "PL"),
                 pavimento=meta.get("pavimento", "GERAL"), dry_run=False,
             )
+        elif etapa_efetiva == "sa":
+            # [FIX 2026-07-06] achado real rodando SA pela 1a vez de verdade contra
+            # uma obra nova: DEADLOCK. Este branch ANTES tambem chamava
+            # wait_for_lock(_LOCK_NAME) aqui, no processo do WORKER, e so' depois
+            # rodava o subprocess `headless_sa_analise.py --wait` — mas esse
+            # subprocesso TAMBEM chama wait_for_lock(_LOCK_NAME) internamente (e' o
+            # que --wait faz). Como o worker ja' segurava a trava, o filho esperava
+            # o PROPRIO PAI liberar — o que so' aconteceria quando o filho
+            # terminasse. Travou por 30min (o timeout default de wait_for_lock)
+            # ate o filho desistir e sair com erro, so' ai' o pai destravava.
+            # Reproduzido de verdade com Obra_TREINO_1 antes deste fix.
+            # Correcao: SA nao trava aqui — o subprocess `--wait` JA' e' a
+            # serializacao (contra o dono na app PySide6 e contra outros jobs).
+            resultado = pipeline_runner.executar_etapa(
+                settings, "sa", obra, secao=meta.get("secao"), pav=meta.get("pav"),
+                dry_run=False, log_path=log_path,
+            )
         else:
-            # etapa pesada: garante 1 headless por maquina inteira (dono + portal).
+            # triagem/recortes: nao tem `--wait` interno proprio (accoreconsole e'
+            # chamado direto, RecorteMotor e' Python puro) — o worker precisa
+            # segurar a trava aqui mesmo, senao dono+portal podem rodar accoreconsole
+            # ou o motor ao mesmo tempo (protecao anti-OOM real).
             lock, holder = wait_for_lock(_LOCK_NAME, timeout_s=settings.subprocess_timeout_s)
             if lock is None:
                 repo.finalizar_job(conn, job["id"], "falhou",
@@ -97,8 +119,7 @@ def processar_um_job(app_state, job: dict) -> None:
                 return
             try:
                 resultado = pipeline_runner.executar_etapa(
-                    settings, etapa if etapa in pipeline_runner.ETAPAS_SUBPROCESS else "sa",
-                    obra, secao=meta.get("secao"), pav=meta.get("pav"),
+                    settings, etapa_efetiva, obra, secao=meta.get("secao"), pav=meta.get("pav"),
                     dry_run=False, log_path=log_path,
                 )
             finally:
