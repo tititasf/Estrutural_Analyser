@@ -86,6 +86,19 @@ def test_criar_e_listar_membros(conn):
     assert repo.obter_membro_por_login(conn, "joao")["nome"] == "João"
 
 
+def test_atualizar_drive_folder_membro(conn):
+    """[2026-07-06] membro cadastrado sem pasta (--sem-drive) ganha uma depois,
+    sem precisar recriar o membro (preserva id)."""
+    membro_id = repo.criar_membro(conn, login="dono1", nome="Dono", senha_hash="h", papel="dono")
+    assert repo.obter_membro_por_login(conn, "dono1")["drive_folder_id"] is None
+
+    repo.atualizar_drive_folder_membro(conn, membro_id, "Portal-Obras/dono1")
+
+    membro = repo.obter_membro_por_login(conn, "dono1")
+    assert membro["id"] == membro_id  # mesmo id — não recriou
+    assert membro["drive_folder_id"] == "Portal-Obras/dono1"
+
+
 # --------------------------------------------------------------------------- #
 # Obras
 # --------------------------------------------------------------------------- #

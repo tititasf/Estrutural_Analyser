@@ -20,6 +20,9 @@ Uso:
         # nao mexe no Drive (drive_folder_id fica NULL)
     python -m portal.app.seed --login thierry --nome "Thierry" --senha ... --papel dono --sem-drive
         # papel='dono': ve TODAS as obras de TODOS os membros (portal/app/access.py)
+    python -m portal.app.seed --login thierry --atualizar-drive
+        # membro JA existente (ex.: cadastrado com --sem-drive): cria/acha a
+        # pasta no Drive agora e associa — nao recria o membro (preserva id/jobs)
     python -m portal.app.seed --listar
 """
 
@@ -82,6 +85,11 @@ def main(argv: list[str] | None = None) -> int:
         help="'dono' [2026-07-06] enxerga TODAS as obras de TODOS os membros "
              "(portal/app/access.py); 'membro' (default) so' as proprias",
     )
+    ap.add_argument(
+        "--atualizar-drive", action="store_true",
+        help="membro (--login) JA existente: cria/acha a pasta no Drive e associa, "
+             "sem recriar o membro (preserva id/jobs/comentarios ja ligados)",
+    )
     ap.add_argument("--db", default=None, help="path do portal_data.db (default: raiz do repo)")
     ap.add_argument("--listar", action="store_true", help="lista membros e sai")
     args = ap.parse_args(argv)
@@ -92,8 +100,21 @@ def main(argv: list[str] | None = None) -> int:
             for m in repo.listar_membros(conn):
                 print(f"{m['login']:<16} {m['papel']:<8} folder={m['drive_folder_id']}")
             return 0
+
+        if args.atualizar_drive:
+            if not args.login:
+                ap.error("--atualizar-drive precisa de --login")
+            membro = repo.obter_membro_por_login(conn, args.login)
+            if membro is None:
+                print(f"membro '{args.login}' nao existe — cadastre primeiro", file=sys.stderr)
+                return 1
+            folder_id = args.drive_folder_id or _criar_pasta_drive(args.login)
+            repo.atualizar_drive_folder_membro(conn, membro["id"], folder_id)
+            print(f"pasta do Drive atualizada para '{args.login}': {folder_id}")
+            return 0
+
         if not (args.login and args.nome and args.senha):
-            ap.error("--login, --nome e --senha sao obrigatorios (ou use --listar)")
+            ap.error("--login, --nome e --senha sao obrigatorios (ou use --listar/--atualizar-drive)")
         if repo.obter_membro_por_login(conn, args.login):
             print(f"membro '{args.login}' ja existe", file=sys.stderr)
             return 1

@@ -73,6 +73,25 @@ def obter_membro_por_login(
     return _row_to_dict(row)
 
 
+def atualizar_drive_folder_membro(
+    conn: sqlite3.Connection, membro_id: str, drive_folder_id: str
+) -> None:
+    """[2026-07-06] Associa/troca a pasta do Drive de um membro JA existente.
+
+    seed.py só sabia CRIAR membro com pasta; o dono também quer pasta própria
+    depois de já ter sido cadastrado (--sem-drive) — sem isso teria que apagar
+    e recriar o membro (perderia o id, jobs, comentários já ligados a ele).
+    """
+    conn.execute(
+        """UPDATE portal_membros
+           SET drive_folder_id = ?,
+               updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (drive_folder_id, membro_id),
+    )
+    conn.commit()
+
+
 # --------------------------------------------------------------------------- #
 # Obras
 # --------------------------------------------------------------------------- #
