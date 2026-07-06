@@ -37,6 +37,23 @@ def _templates(request: Request):
     return request.app.state.templates
 
 
+def _render(request: Request, template_name: str, ctx: dict):
+    """Chama TemplateResponse com a assinatura que ESTA versao do starlette exige.
+
+    [FIX 2026-07-06] bug real, achado rodando (nao só lendo código): as 4 rotas de
+    página chamavam `TemplateResponse(request, nome, ctx)` (convenção nova, request
+    primeiro) — mas `starlette` 0.27.0 instalado tem a assinatura ANTIGA
+    `TemplateResponse(name: str, context: dict, ...)`, sem `request` posicional.
+    O resultado: TODA página HTML do portal (login, lista, detalhe) quebrava com
+    `ValueError: context must include a "request" key` no primeiro acesso via
+    navegador — nenhum teste anterior tinha feito um GET real numa página HTML
+    (só nas rotas JSON), então isso nunca foi pego antes de agora. Centralizado
+    aqui para as 4 chamadas nunca mais divergirem da assinatura real instalada.
+    """
+    ctx = {**ctx, "request": request}
+    return _templates(request).TemplateResponse(template_name, ctx)
+
+
 def _membro_da_sessao(request: Request, conn: sqlite3.Connection) -> Optional[dict]:
     settings = request.app.state.settings
     valor = request.cookies.get(settings.session_cookie_name, "")
@@ -90,7 +107,7 @@ def raiz(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)):
 def pagina_login(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)):
     if _membro_da_sessao(request, conn) is not None:
         return RedirectResponse("/app/obras", status_code=303)
-    return _templates(request).TemplateResponse(request, "login.html", {})
+    return _render(request, "login.html", {})
 
 
 # --------------------------------------------------------------------------- #
@@ -108,10 +125,7 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
         else repo.listar_obras_por_membro(conn, membro["id"])
     )
     drive = request.app.state.estado_global.get("drive", "ok")
-    return _templates(request).TemplateResponse(
-        request, "obras_lista.html",
-        {"membro": membro, "obras": obras, "drive": drive},
-    )
+    return _render(request, "obras_lista.html", {"membro": membro, "obras": obras, "drive": drive})
 
 
 # --------------------------------------------------------------------------- #
@@ -183,7 +197,42 @@ def pagina_obra_detalhe(
         "classe_ativa": None,
         "item_id": None,
     }
-    return _templates(request).TemplateResponse(request, "obra_detalhe.html", ctx)
+    return _render(request, "obra_detalhe.html", ctx)
+
+
+# --------------------------------------------------------------------------- #
+# /status — publica docs/STATUS.md no portal (P5, achado pendente no DevOps
+# handoff: "rota /status nao existe no app" — 2026-07-06).
+# --------------------------------------------------------------------------- #
+
+@router.get("/app/status", response_class=HTMLResponse)
+def pagina_status(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)):
+    """STATUS.md (gerado por scripts/arete/gerar_status.py) servido como HTML.
+
+    So' LEITURA — o portal nunca escreve nesse arquivo. Visivel a qualquer membro
+    logado (mesma info de certificacao ja exposta por classe nas obras; nada novo
+    exposto). Sem STATUS.md ainda gerado -> mensagem clara, nao erro.
+    """
+    membro = _membro_da_sessao(request, conn)
+    if membro is None:
+        return RedirectResponse("/login", status_code=303)
+
+    settings = request.app.state.settings
+    status_path = Path(settings.status_md_path)
+    if not status_path.exists():
+        html_corpo = (
+            "<p><em>docs/STATUS.md ainda não foi gerado. Rode "
+            "<code>python scripts/arete/gerar_status.py</code> no servidor.</em></p>"
+        )
+        gerado_em = None
+    else:
+        import markdown as _markdown
+
+        texto = status_path.read_text(encoding="utf-8", errors="replace")
+        html_corpo = _markdown.markdown(texto, extensions=["tables"])
+        gerado_em = status_path.stat().st_mtime
+
+    return _render(request, "status.html", {"membro": membro, "html_corpo": html_corpo, "gerado_em": gerado_em})
 
 
 def setup_templates(app) -> None:

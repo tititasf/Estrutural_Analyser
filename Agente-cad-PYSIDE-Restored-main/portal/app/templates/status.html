@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Status do Arete — Portal de Formas{% endblock %}
+
+{% block conteudo %}
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+  <h1>Status do Arete</h1>
+  <a class="btn-sec btn" href="/app/status" title="Reconsulta docs/STATUS.md no servidor">
+    Atualizar ↻
+  </a>
+</div>
+<p class="meta">
+  Fonte: <code>docs/STATUS.md</code> — gerado por <code>scripts/arete/gerar_status.py</code>
+  no servidor (o portal só lê, nunca escreve aqui).
+  {% if gerado_em %}
+  <br>Última geração: {{ gerado_em | int | string }} (epoch) — rode o script de novo no
+  servidor para atualizar antes de reconsultar.
+  {% endif %}
+</p>
+<div class="card status-md">
+  {{ html_corpo | safe }}
+</div>
+{% endblock %}

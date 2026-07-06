@@ -23,3 +23,4 @@ python-multipart>=0.0.9
 google-api-python-client>=2.100.0
 google-auth>=2.23.0
 google-auth-oauthlib>=1.2.0   # so' o script portal/ops/reautorizar_drive.py usa isso
+markdown>=3.5.0   # renderiza docs/STATUS.md em /app/status

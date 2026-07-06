@@ -184,3 +184,43 @@ async def test_obra_de_outro_membro_403(settings):
         await client.post("/login", json={"login": "ana", "senha": "segredo123"})
         r = await client.get(f"/obras/{obra_bruno}")
         assert r.status_code == 403
+
+
+# --------------------------------------------------------------------------- #
+# /app/status — publica STATUS.md no portal (achado do DevOps handoff: rota
+# não existia — 2026-07-06).
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.asyncio
+async def test_status_sem_arquivo_mostra_mensagem_clara(settings):
+    """settings de teste aponta status_md_path pra um arquivo que não existe."""
+    async with _app_cliente(settings) as (_app, client):
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.get("/app/status")
+        assert r.status_code == 200
+        assert "ainda não foi gerado" in r.text
+
+
+@pytest.mark.asyncio
+async def test_status_renderiza_tabela_do_status_md(settings, tmp_path):
+    """Com STATUS.md real presente, a tabela markdown vira <table> HTML de verdade."""
+    settings.status_md_path.write_text(
+        "## Última rodada Arete por classe\n\n"
+        "| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |\n"
+        "|---|---|---|---|---|---|---|---|---|\n"
+        "| PIL | 13_PAV | x | 35 | 0 | 0 | 100.0% | sim | |\n",
+        encoding="utf-8",
+    )
+    async with _app_cliente(settings) as (_app, client):
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.get("/app/status")
+        assert r.status_code == 200
+        assert "<table>" in r.text
+        assert "PIL" in r.text and "100.0%" in r.text
+
+
+@pytest.mark.asyncio
+async def test_status_exige_sessao(settings):
+    async with _app_cliente(settings) as (_app, client):
+        r = await client.get("/app/status", follow_redirects=False)
+        assert r.status_code == 303  # redireciona pro /login, não 401 (página HTML)

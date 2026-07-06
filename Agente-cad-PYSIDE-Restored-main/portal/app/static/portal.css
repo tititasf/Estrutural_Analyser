@@ -126,6 +126,13 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
 }
 .card .meta { color: var(--fg-muted); font-size: .88rem; }
 
+/* ---- /app/status (tabela do STATUS.md renderizada via markdown) ---- */
+.status-md table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+.status-md th, .status-md td {
+  border: 1px solid var(--border); padding: 6px 10px; text-align: left;
+}
+.status-md th { background: #f3f4f6; }
+
 /* ---- login ---- */
 .login-box {
   max-width: 380px;
