@@ -22,7 +22,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from .. import auth, certification
+from .. import access, auth, certification
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -102,7 +102,11 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
     membro = _membro_da_sessao(request, conn)
     if membro is None:
         return RedirectResponse("/login", status_code=303)
-    obras = repo.listar_obras_por_membro(conn, membro["id"])
+    obras = (
+        repo.listar_todas_obras(conn)
+        if access.eh_dono(membro)
+        else repo.listar_obras_por_membro(conn, membro["id"])
+    )
     drive = request.app.state.estado_global.get("drive", "ok")
     return _templates(request).TemplateResponse(
         request, "obras_lista.html",
@@ -126,7 +130,7 @@ def pagina_obra_detalhe(
         return RedirectResponse("/login", status_code=303)
 
     obra = repo.obter_obra(conn, obra_id)
-    if obra is None or obra["membro_id"] != membro["id"]:
+    if obra is None or not access.pode_ver_obra(obra, membro):
         return RedirectResponse("/app/obras", status_code=303)
 
     settings = request.app.state.settings

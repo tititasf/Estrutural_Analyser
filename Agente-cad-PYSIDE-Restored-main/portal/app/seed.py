@@ -18,6 +18,8 @@ Uso:
         --drive-folder-id <folderId>   # usa um folder ID ja existente, sem criar
     python -m portal.app.seed --login joao --nome "Joao" --senha segredo --sem-drive
         # nao mexe no Drive (drive_folder_id fica NULL)
+    python -m portal.app.seed --login thierry --nome "Thierry" --senha ... --papel dono --sem-drive
+        # papel='dono': ve TODAS as obras de TODOS os membros (portal/app/access.py)
     python -m portal.app.seed --listar
 """
 
@@ -75,6 +77,11 @@ def main(argv: list[str] | None = None) -> int:
         "--sem-drive", action="store_true",
         help="nao cria/associa pasta no Drive (drive_folder_id fica NULL)",
     )
+    ap.add_argument(
+        "--papel", default="membro", choices=("membro", "dono"),
+        help="'dono' [2026-07-06] enxerga TODAS as obras de TODOS os membros "
+             "(portal/app/access.py); 'membro' (default) so' as proprias",
+    )
     ap.add_argument("--db", default=None, help="path do portal_data.db (default: raiz do repo)")
     ap.add_argument("--listar", action="store_true", help="lista membros e sai")
     args = ap.parse_args(argv)
@@ -99,9 +106,9 @@ def main(argv: list[str] | None = None) -> int:
         membro_id = repo.criar_membro(
             conn, login=args.login, nome=args.nome,
             senha_hash=auth.hash_senha(args.senha), email=args.email,
-            drive_folder_id=drive_folder_id,
+            papel=args.papel, drive_folder_id=drive_folder_id,
         )
-        print(f"membro criado: {args.login} (id={membro_id})")
+        print(f"membro criado: {args.login} (papel={args.papel}, id={membro_id})")
         return 0
     finally:
         conn.close()

@@ -141,6 +141,23 @@ def listar_obras_por_membro(
     return [dict(r) for r in rows]
 
 
+def listar_todas_obras(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Q1-ADMIN [2026-07-06]: obras de TODOS os membros (papel='dono' só).
+
+    Junta login/nome do membro dono da obra — a tela do dono precisa saber
+    de quem é cada obra, não só ver tudo misturado.
+    """
+    rows = conn.execute(
+        """SELECT portal_obras.*,
+                  portal_membros.login AS membro_login,
+                  portal_membros.nome AS membro_nome
+           FROM portal_obras
+           JOIN portal_membros ON portal_membros.id = portal_obras.membro_id
+           ORDER BY portal_obras.created_at DESC, portal_obras.id"""
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def obter_obra_por_hash(
     conn: sqlite3.Connection, arquivo_hash: str
 ) -> Optional[dict[str, Any]]:

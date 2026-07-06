@@ -24,7 +24,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from .. import auth, certification, n5_release, pipeline_runner
+from .. import access, auth, certification, n5_release, pipeline_runner
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -35,7 +35,7 @@ def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dic
     obra = repo.obter_obra(conn, obra_id)
     if obra is None:
         raise HTTPException(status_code=404, detail="obra nao encontrada")
-    if obra["membro_id"] != membro["id"]:
+    if not access.pode_ver_obra(obra, membro):
         raise HTTPException(status_code=403, detail="obra de outro membro")
     return obra
 
@@ -188,7 +188,7 @@ def obter_job(job_id: str, request: Request, membro: dict = Depends(auth.exige_l
         raise HTTPException(status_code=404, detail="job nao encontrado")
     job = dict(row)
     obra = repo.obter_obra(conn, job["obra_id"])
-    if obra is None or obra["membro_id"] != membro["id"]:
+    if obra is None or not access.pode_ver_obra(obra, membro):
         raise HTTPException(status_code=403, detail="job de outro membro")
     meta = request.app.state.job_meta.get(job_id, {})
     # mapa status DB -> estado do contrato (HANDOFF §1.3)

@@ -13,7 +13,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 
-from .. import auth
+from .. import access, auth
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -30,7 +30,7 @@ def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dic
     obra = repo.obter_obra(conn, obra_id)
     if obra is None:
         raise HTTPException(status_code=404, detail="obra nao encontrada")
-    if obra["membro_id"] != membro["id"]:
+    if not access.pode_ver_obra(obra, membro):
         raise HTTPException(status_code=403, detail="obra de outro membro")
     return obra
 

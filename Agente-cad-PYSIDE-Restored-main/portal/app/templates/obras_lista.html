@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% from "_macros.html" import status_badge %}
-{% block titulo %}Minhas obras — Portal de Formas{% endblock %}
+{% block titulo %}{{ 'Todas as obras' if membro.papel == 'dono' else 'Minhas obras' }} — Portal de Formas{% endblock %}
 
 {% block conteudo %}
 <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
-  <h1>Minhas obras</h1>
+  <h1>{{ 'Todas as obras (visão do dono)' if membro.papel == 'dono' else 'Minhas obras' }}</h1>
   <a class="btn-sec btn" href="/app/obras" title="Re-consulta o servidor (o poller do Drive já roda sozinho)">
     Atualizar lista ↻
   </a>
@@ -29,7 +29,12 @@
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
         <h2 style="margin:0 0 4px">{{ o.nome }}</h2>
-        <div style="margin-bottom:6px">{{ status_badge(o.estado) }}</div>
+        <div style="margin-bottom:6px">
+          {{ status_badge(o.estado) }}
+          {% if o.membro_nome %}
+          <span class="meta" style="margin-left:8px">· de <strong>{{ o.membro_nome }}</strong></span>
+          {% endif %}
+        </div>
         <p class="meta" style="margin:0">
           {{ o.arquivo_nome or '—' }}
           {% if o.created_at %}· detectada {{ o.created_at[:16].replace('T',' ') }}{% endif %}

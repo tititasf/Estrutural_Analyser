@@ -6,7 +6,7 @@ import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from .. import auth, certification
+from .. import access, auth, certification
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -19,10 +19,15 @@ def listar_obras(
     membro: dict = Depends(auth.exige_login),
     conn: sqlite3.Connection = Depends(get_db_conn),
 ):
-    """Etapa 1 (Upload): lista as obras do membro detectadas pelo poller."""
-    obras = repo.listar_obras_por_membro(conn, membro["id"])
+    """Etapa 1 (Upload): lista as obras do membro (ou de TODOS, se dono — 2026-07-06)."""
+    obras = (
+        repo.listar_todas_obras(conn)
+        if access.eh_dono(membro)
+        else repo.listar_obras_por_membro(conn, membro["id"])
+    )
     return {
         "membro": membro["login"],
+        "papel": membro["papel"],
         "drive": request.app.state.estado_global.get("drive", "ok"),
         "obras": obras,
     }
@@ -38,7 +43,7 @@ def obter_obra(
     obra = repo.obter_obra(conn, obra_id)
     if obra is None:
         raise HTTPException(status_code=404, detail="obra nao encontrada")
-    if obra["membro_id"] != membro["id"]:
+    if not access.pode_ver_obra(obra, membro):
         raise HTTPException(status_code=403, detail="obra de outro membro")
     settings = request.app.state.settings
     jobs = repo.listar_jobs_por_obra(conn, obra_id)
