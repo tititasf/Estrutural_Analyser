@@ -5,9 +5,6 @@
 {% block conteudo %}
 <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
   <h1>{{ 'Todas as obras (visão do dono)' if membro.papel == 'dono' else 'Minhas obras' }}</h1>
-  <a class="btn-sec btn" href="/app/obras" title="Re-consulta o servidor (o poller do Drive já roda sozinho)">
-    Atualizar lista ↻
-  </a>
 </div>
 
 {% if drive != 'ok' %}
@@ -17,10 +14,34 @@
 </div>
 {% endif %}
 
+<div class="upload-card">
+  <h2><span aria-hidden="true">📤</span> Enviar uma obra nova</h2>
+  <ol class="passos">
+    <li>Abra sua pasta do Google Drive (botão abaixo).</li>
+    <li>Arraste o arquivo <strong>.dwg</strong> ou <strong>.dxf</strong> da obra para dentro dela.</li>
+    <li>Clique em <strong>"Verificar agora"</strong> (ou aguarde alguns minutos — o portal confere sozinho).</li>
+  </ol>
+  <div class="upload-actions">
+    {% if drive_folder_url %}
+    <a class="btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener">
+      Abrir minha pasta no Drive ↗
+    </a>
+    {% else %}
+    <span class="faixa faixa-aviso" style="margin:0">
+      <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
+    </span>
+    {% endif %}
+    <button type="button" id="btn-verificar" class="btn-sec btn">Verificar agora ↻</button>
+    <span id="verificar-status" class="status-verificar" role="status" aria-live="polite"></span>
+  </div>
+</div>
+
+<h2 style="margin-top:28px">{{ 'Obras' if obras else '' }}</h2>
+
 {% if not obras %}
 <div class="card">
-  <p>Nenhuma obra ainda. Envie um arquivo DWG/DXF para sua pasta do Google Drive —
-  ela aparecerá aqui em alguns minutos.</p>
+  <p class="muted">Nenhuma obra detectada ainda. Depois de enviar o arquivo pro Drive, ele aparece aqui
+  — clique em "Verificar agora" acima para conferir sem esperar.</p>
 </div>
 {% else %}
 <div class="stack">
@@ -51,4 +72,36 @@
   {% endfor %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('btn-verificar').addEventListener('click', function () {
+    var btn = this;
+    var status = document.getElementById('verificar-status');
+    btn.disabled = true;
+    btn.textContent = 'Verificando…';
+    status.textContent = '';
+    fetch('/obras/verificar-drive', { method: 'POST' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('falha');
+        return r.json();
+      })
+      .then(function (data) {
+        if (data.novas_obras > 0) {
+          status.textContent = data.novas_obras + ' obra(s) nova(s) encontrada(s) — atualizando…';
+          setTimeout(function () { window.location.reload(); }, 900);
+        } else {
+          status.textContent = 'Nenhuma obra nova por enquanto.';
+          btn.disabled = false;
+          btn.textContent = 'Verificar agora ↻';
+        }
+      })
+      .catch(function () {
+        status.textContent = 'Não foi possível verificar agora — tente de novo em instantes.';
+        btn.disabled = false;
+        btn.textContent = 'Verificar agora ↻';
+      });
+  });
+</script>
 {% endblock %}

@@ -55,36 +55,83 @@ textarea:focus-visible,
   border-radius: 2px;
 }
 
-/* ---- header ---- */
-.portal-header {
+/* ---- layout shell: sidebar + área principal (2026-07-06 — antes só header) ---- */
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 232px;
+  flex: 0 0 232px;
+  background: #111827;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.sidebar .brand {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 20px;
-  background: #111827;
+  gap: 8px;
   color: #fff;
+  font-weight: 700;
+  font-size: 1.02rem;
+  text-decoration: none;
+  padding: 6px 8px 18px;
+  border-bottom: 1px solid #1f2937;
+  margin-bottom: 12px;
 }
-.portal-header a { color: #cbd5e1; }
-.portal-header .brand { font-weight: 700; font-size: 1.05rem; color: #fff; text-decoration: none; }
-.portal-header .who { font-size: .9rem; color: #e5e7eb; }
-.portal-header form { margin: 0; }
+.brand-mark { color: #60a5fa; font-size: 1.1rem; }
+
+.nav-lista { list-style: none; margin: 0; padding: 0; flex: 1; }
+.nav-lista li { margin-bottom: 2px; }
+.nav-lista a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: .94rem;
+  font-weight: 500;
+}
+.nav-lista a:hover { background: #1f2937; color: #fff; }
+.nav-lista a.ativo { background: #1d4ed8; color: #fff; }
+
+.nav-rodape {
+  border-top: 1px solid #1f2937;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+.nav-rodape .who { display: flex; flex-direction: column; margin-bottom: 10px; }
+.nav-rodape .who-nome { color: #fff; font-weight: 600; font-size: .92rem; }
+.nav-rodape .who-papel { color: #9ca3af; font-size: .78rem; }
+.nav-rodape form { margin: 0; }
+.nav-rodape .btn-logout { width: 100%; }
 
 .btn-logout {
   background: #374151;
   color: #fff;
   border: 1px solid #4b5563;
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: .85rem;
 }
+.btn-logout:hover { background: #4b5563; }
+
+.area-principal { flex: 1; min-width: 0; }
 
 /* ---- conteúdo ---- */
 main.conteudo {
-  max-width: 940px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 24px 20px 60px;
+  padding: 28px 32px 60px;
 }
 
 h1 { font-size: 1.5rem; margin: 0 0 4px; }
@@ -115,6 +162,28 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
   border: 1px solid var(--link);
 }
 .btn-sec:hover { background: #eff3ff; }
+
+/* ---- cartão "enviar obra" (2026-07-06 — onde começar, sem isso a tela era só lista vazia) ---- */
+.upload-card {
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin-bottom: 22px;
+}
+.upload-card h2 { margin: 0 0 6px; font-size: 1.15rem; }
+.upload-card .passos {
+  margin: 12px 0 16px;
+  padding-left: 20px;
+  color: var(--fg-muted);
+  font-size: .92rem;
+}
+.upload-card .passos li { margin-bottom: 4px; }
+.upload-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.upload-actions .status-verificar {
+  font-size: .86rem;
+  color: var(--fg-muted);
+}
 
 /* ---- card genérico ---- */
 .card {
@@ -310,3 +379,21 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
 
 .muted { color: var(--fg-muted); }
 .stack > * + * { margin-top: 10px; }
+
+/* ---- responsivo: sidebar vira barra superior em telas estreitas ---- */
+@media (max-width: 760px) {
+  .shell { flex-direction: column; }
+  .sidebar {
+    width: auto; flex: 0 0 auto; height: auto; position: static;
+    flex-direction: row; align-items: center; flex-wrap: wrap; padding: 10px 14px;
+  }
+  .sidebar .brand { border-bottom: none; padding: 0 12px 0 0; margin: 0; }
+  .nav-lista { display: flex; flex: 0 0 auto; }
+  .nav-lista a { padding: 8px 10px; }
+  .nav-rodape {
+    border-top: none; margin: 0 0 0 auto; padding: 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-rodape .who { display: none; }
+  main.conteudo { padding: 18px 16px 40px; }
+}

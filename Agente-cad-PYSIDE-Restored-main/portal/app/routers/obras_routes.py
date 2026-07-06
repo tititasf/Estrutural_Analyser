@@ -6,7 +6,7 @@ import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from .. import access, auth, certification
+from .. import access, auth, certification, drive_poller
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -31,6 +31,28 @@ def listar_obras(
         "drive": request.app.state.estado_global.get("drive", "ok"),
         "obras": obras,
     }
+
+
+@router.post("/verificar-drive")
+def verificar_drive_agora(
+    request: Request,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Dispara 1 varredura do Drive AGORA (2026-07-06) — sem esperar o poller de fundo.
+
+    Membro comum: so' varre a PROPRIA pasta. Dono: varre TODOS (ja' ve' tudo mesmo).
+    Cliente novo por chamada (nao reusa app.state.drive_client) — mesma disciplina
+    de thread-safety do poller de fundo (fix 2026-07-05, cross-thread sqlite/creds).
+    """
+    settings = request.app.state.settings
+    cliente = drive_poller.montar_drive_client(settings)
+    membros_alvo = None if access.eh_dono(membro) else [membro]
+    try:
+        novas = drive_poller.varrer_uma_vez(conn, cliente, settings, membros=membros_alvo)
+    except Exception as exc:  # noqa: BLE001 - mesma degradacao R8 do poller de fundo
+        raise HTTPException(status_code=502, detail=f"Drive indisponivel agora: {exc}") from exc
+    return {"novas_obras": len(novas), "drive_modo": type(cliente).__name__}
 
 
 @router.get("/{obra_id}")

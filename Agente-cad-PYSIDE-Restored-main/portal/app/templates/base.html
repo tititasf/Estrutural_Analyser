@@ -8,25 +8,45 @@
 </head>
 <body>
   {% if membro %}
-  <header class="portal-header">
-    <a class="brand" href="/app/obras">Portal de Formas — Arete</a>
-    <div style="display:flex;align-items:center;gap:14px">
-      <a href="/app/status" class="btn-sec btn" style="padding:4px 10px">Status</a>
-      <span class="who">Membro: <strong>{{ membro.nome or membro.login }}</strong></span>
-      <form id="logout-form">
-        <button type="submit" class="btn-logout">Sair</button>
-      </form>
-    </div>
-  </header>
-  {% endif %}
+  <div class="shell">
+    <nav class="sidebar" aria-label="Navegação principal">
+      <a class="brand" href="/app/obras">
+        <span class="brand-mark" aria-hidden="true">◆</span>
+        <span>Portal de Formas</span>
+      </a>
+      <ul class="nav-lista">
+        <li><a href="/app/obras" class="{{ 'ativo' if nav_ativo == 'obras' else '' }}">
+          <span aria-hidden="true">🗂</span> Obras
+        </a></li>
+        <li><a href="/app/status" class="{{ 'ativo' if nav_ativo == 'status' else '' }}">
+          <span aria-hidden="true">📊</span> Status Arete
+        </a></li>
+      </ul>
+      <div class="nav-rodape">
+        <div class="who">
+          <span class="who-nome">{{ membro.nome or membro.login }}</span>
+          <span class="who-papel">{{ 'Dono — vê tudo' if membro.papel == 'dono' else 'Membro' }}</span>
+        </div>
+        <form id="logout-form">
+          <button type="submit" class="btn-logout">Sair</button>
+        </form>
+      </div>
+    </nav>
 
+    <div class="area-principal">
+      <main class="conteudo">
+        {% block conteudo %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% else %}
   <main class="conteudo">
-    {% block conteudo %}{% endblock %}
+    {% block conteudo_publico %}{% endblock %}
   </main>
+  {% endif %}
 
   {% if membro %}
   <script>
-    // logout: chama POST /logout e volta ao login (progressive enhancement)
     document.getElementById('logout-form').addEventListener('submit', function (e) {
       e.preventDefault();
       fetch('/logout', { method: 'POST' }).finally(function () {

@@ -54,7 +54,8 @@ async def test_pagina_obras_vazia_renderiza(settings):
         r = await client.get("/app/obras")
         assert r.status_code == 200
         assert "Minhas obras" in r.text
-        assert "Nenhuma obra ainda" in r.text  # estado vazio real
+        assert "Nenhuma obra detectada ainda" in r.text  # estado vazio real (copy 2026-07-06)
+        assert "Enviar uma obra nova" in r.text  # cartão de upload/verificar (achado do dono: UI sem isso)
 
 
 @pytest.mark.asyncio

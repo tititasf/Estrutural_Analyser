@@ -125,7 +125,14 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
         else repo.listar_obras_por_membro(conn, membro["id"])
     )
     drive = request.app.state.estado_global.get("drive", "ok")
-    return _render(request, "obras_lista.html", {"membro": membro, "obras": obras, "drive": drive})
+    drive_folder_url = (
+        f"https://drive.google.com/drive/folders/{membro['drive_folder_id']}"
+        if membro.get("drive_folder_id") else None
+    )
+    return _render(request, "obras_lista.html", {
+        "membro": membro, "obras": obras, "drive": drive,
+        "drive_folder_url": drive_folder_url, "nav_ativo": "obras",
+    })
 
 
 # --------------------------------------------------------------------------- #
@@ -196,6 +203,7 @@ def pagina_obra_detalhe(
         "pavimento": settings.pav_default,
         "classe_ativa": None,
         "item_id": None,
+        "nav_ativo": "obras",
     }
     return _render(request, "obra_detalhe.html", ctx)
 
@@ -232,7 +240,9 @@ def pagina_status(request: Request, conn: sqlite3.Connection = Depends(get_db_co
         html_corpo = _markdown.markdown(texto, extensions=["tables"])
         gerado_em = status_path.stat().st_mtime
 
-    return _render(request, "status.html", {"membro": membro, "html_corpo": html_corpo, "gerado_em": gerado_em})
+    return _render(request, "status.html", {
+        "membro": membro, "html_corpo": html_corpo, "gerado_em": gerado_em, "nav_ativo": "status",
+    })
 
 
 def setup_templates(app) -> None:
