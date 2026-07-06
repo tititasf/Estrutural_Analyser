@@ -16,20 +16,32 @@
 
 <div class="upload-card">
   <h2><span aria-hidden="true">📤</span> Enviar uma obra nova</h2>
-  <ol class="passos">
-    <li>Abra sua pasta do Google Drive (botão abaixo).</li>
-    <li>Arraste o arquivo <strong>.dwg</strong> ou <strong>.dxf</strong> da obra para dentro dela.</li>
-    <li>Clique em <strong>"Verificar agora"</strong> (ou aguarde alguns minutos — o portal confere sozinho).</li>
-  </ol>
+
+  {% if drive_folder_url %}
+  <div class="upload-drop" id="upload-drop">
+    <input type="file" id="input-arquivo" accept=".dwg,.dxf" hidden>
+    <p class="upload-drop-texto">
+      <strong>Arraste o arquivo aqui</strong> ou
+      <button type="button" id="btn-escolher" class="btn-link">escolha no computador</button>
+    </p>
+    <p class="meta">.dwg ou .dxf — vai direto para sua pasta no Drive, sem você precisar abri-la.</p>
+  </div>
+  <div id="upload-progresso" class="upload-progresso" hidden>
+    <div class="upload-progresso-barra"><div id="upload-barra-fill"></div></div>
+    <span id="upload-progresso-texto" class="meta">Enviando…</span>
+  </div>
+  <div id="upload-resultado" role="status" aria-live="polite"></div>
+  {% else %}
+  <p class="faixa faixa-aviso" style="margin:0 0 14px">
+    <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
+  </p>
+  {% endif %}
+
   <div class="upload-actions">
     {% if drive_folder_url %}
-    <a class="btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener">
-      Abrir minha pasta no Drive ↗
+    <a class="btn-sec btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener" style="font-size:.86rem">
+      Ou abra a pasta no Drive direto ↗
     </a>
-    {% else %}
-    <span class="faixa faixa-aviso" style="margin:0">
-      <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
-    </span>
     {% endif %}
     <button type="button" id="btn-verificar" class="btn-sec btn">Verificar agora ↻</button>
     <span id="verificar-status" class="status-verificar" role="status" aria-live="polite"></span>
@@ -76,6 +88,83 @@
 
 {% block scripts %}
 <script>
+  // --- upload direto (drag-and-drop ou escolher arquivo) — 2026-07-06 ---
+  (function () {
+    var drop = document.getElementById('upload-drop');
+    if (!drop) return;  // membro sem pasta de Drive configurada
+    var input = document.getElementById('input-arquivo');
+    var btnEscolher = document.getElementById('btn-escolher');
+    var progresso = document.getElementById('upload-progresso');
+    var barra = document.getElementById('upload-barra-fill');
+    var progTexto = document.getElementById('upload-progresso-texto');
+    var resultado = document.getElementById('upload-resultado');
+
+    function enviarArquivo(arquivo) {
+      if (!arquivo) return;
+      var extensoesValidas = ['.dwg', '.dxf'];
+      var nomeMinusculo = arquivo.name.toLowerCase();
+      var extensaoOk = extensoesValidas.some(function (ext) { return nomeMinusculo.endsWith(ext); });
+      if (!extensaoOk) {
+        resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+          '<span aria-hidden="true">⚠</span> Só aceita .dwg ou .dxf.</p>';
+        return;
+      }
+
+      resultado.innerHTML = '';
+      progresso.hidden = false;
+      barra.style.width = '0%';
+      progTexto.textContent = 'Enviando ' + arquivo.name + '…';
+
+      var formData = new FormData();
+      formData.append('arquivo', arquivo);
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/obras/upload');
+      xhr.upload.addEventListener('progress', function (e) {
+        if (e.lengthComputable) {
+          var pct = Math.round((e.loaded / e.total) * 100);
+          barra.style.width = pct + '%';
+          progTexto.textContent = 'Enviando ' + arquivo.name + '… ' + pct + '%';
+        }
+      });
+      xhr.onload = function () {
+        progresso.hidden = true;
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var data = JSON.parse(xhr.responseText);
+          resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
+            '<span aria-hidden="true">✓</span> Enviado! ' +
+            (data.novas_obras > 0 ? 'Já apareceu na lista abaixo.' : 'Confirmando…') + '</p>';
+          setTimeout(function () { window.location.reload(); }, 1000);
+        } else {
+          var msg = 'Falha ao enviar.';
+          try { msg = JSON.parse(xhr.responseText).detail || msg; } catch (e2) {}
+          resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+            '<span aria-hidden="true">⚠</span> ' + msg + '</p>';
+        }
+      };
+      xhr.onerror = function () {
+        progresso.hidden = true;
+        resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+          '<span aria-hidden="true">⚠</span> Falha de rede ao enviar.</p>';
+      };
+      xhr.send(formData);
+    }
+
+    btnEscolher.addEventListener('click', function () { input.click(); });
+    input.addEventListener('change', function () { enviarArquivo(input.files[0]); });
+
+    drop.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      drop.classList.add('upload-drop-ativo');
+    });
+    drop.addEventListener('dragleave', function () { drop.classList.remove('upload-drop-ativo'); });
+    drop.addEventListener('drop', function (e) {
+      e.preventDefault();
+      drop.classList.remove('upload-drop-ativo');
+      if (e.dataTransfer.files.length) enviarArquivo(e.dataTransfer.files[0]);
+    });
+  })();
+
   document.getElementById('btn-verificar').addEventListener('click', function () {
     var btn = this;
     var status = document.getElementById('verificar-status');

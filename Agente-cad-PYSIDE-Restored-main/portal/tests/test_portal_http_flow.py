@@ -224,3 +224,70 @@ async def test_status_exige_sessao(settings):
     async with _app_cliente(settings) as (_app, client):
         r = await client.get("/app/status", follow_redirects=False)
         assert r.status_code == 303  # redireciona pro /login, não 401 (página HTML)
+
+
+# --------------------------------------------------------------------------- #
+# POST /obras/upload — upload direto pelo portal (2026-07-06, usuário não abre o Drive)
+# --------------------------------------------------------------------------- #
+
+def _dxf_bytes() -> bytes:
+    import io
+
+    import ezdxf
+
+    doc = ezdxf.new()
+    doc.modelspace().add_line((0, 0), (1, 1))
+    buf = io.StringIO()
+    doc.write(buf)
+    return buf.getvalue().encode("utf-8")
+
+
+@pytest.mark.asyncio
+async def test_upload_registra_obra_na_hora(settings):
+    """Upload de verdade (multipart) -> vai pro FakeDriveClient -> aparece em GET /obras
+    sem esperar o poller (o endpoint já dispara varrer_uma_vez)."""
+    async with _app_cliente(settings) as (_app, client):
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+
+        r = await client.post(
+            "/obras/upload",
+            files={"arquivo": ("obra_upload.dxf", _dxf_bytes(), "application/octet-stream")},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["novas_obras"] == 1
+
+        r = await client.get("/obras")
+        nomes = [o["arquivo_nome"] for o in r.json()["obras"]]
+        assert "obra_upload.dxf" in nomes
+
+
+@pytest.mark.asyncio
+async def test_upload_extensao_invalida_e_recusado(settings):
+    async with _app_cliente(settings) as (_app, client):
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.post(
+            "/obras/upload",
+            files={"arquivo": ("obra.txt", b"nao e' cad", "text/plain")},
+        )
+        assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_upload_sem_pasta_drive_e_recusado(settings):
+    """Membro sem drive_folder_id configurado não pode enviar (peça ao dono)."""
+    c = connection.init_db(settings.db_path)
+    repo.criar_membro(
+        c, login="sem-pasta", nome="Sem Pasta",
+        senha_hash=auth.hash_senha("segredo123"), drive_folder_id=None,
+    )
+    c.close()
+
+    async with _app_cliente(settings) as (_app, client):
+        await client.post("/login", json={"login": "sem-pasta", "senha": "segredo123"})
+        r = await client.post(
+            "/obras/upload",
+            files={"arquivo": ("obra.dxf", _dxf_bytes(), "application/octet-stream")},
+        )
+        assert r.status_code == 422
+        assert "pasta" in r.json()["detail"].lower()

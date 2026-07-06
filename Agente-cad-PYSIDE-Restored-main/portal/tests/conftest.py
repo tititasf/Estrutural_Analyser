@@ -51,6 +51,14 @@ def settings(tmp_path, db_path):
     """Settings de teste: db em tmp, poller off, dados/logs em tmp, STATUS.md inexistente.
 
     poll_enabled=False é o default de produção também — o loop do poller não sobe.
+
+    [FIX 2026-07-06] drive_oauth_json/drive_sa_json APONTADOS PARA TMP (inexistentes)
+    de propósito: esta máquina TEM uma credencial OAuth real do Drive em
+    portal/.secrets/gdrive-oauth.json (reautorizada em 2026-07-06). Sem este
+    isolamento, qualquer teste que chame montar_drive_client() cairia no Drive
+    REAL em vez de FakeDriveClient — mesma classe de bug já corrigida uma vez em
+    test_lifespan_com_poller_habilitado_cria_task, agora fechada na fonte (a
+    fixture compartilhada) para nenhum teste futuro repetir o erro.
     """
     from portal.app.config import load_settings
 
@@ -60,6 +68,8 @@ def settings(tmp_path, db_path):
         dados_obras_dir=tmp_path / "DADOS-OBRAS",
         logs_dir=tmp_path / "logs",
         status_md_path=tmp_path / "STATUS.md",  # não existe -> tudo vira 'beta' (fail-safe)
+        drive_oauth_json=tmp_path / "sem-credencial-oauth.json",
+        drive_sa_json=tmp_path / "sem-credencial-sa.json",
     )
 
 

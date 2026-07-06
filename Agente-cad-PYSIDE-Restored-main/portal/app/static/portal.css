@@ -185,6 +185,43 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
   color: var(--fg-muted);
 }
 
+/* ---- área de arrastar-e-soltar (2026-07-06 — upload direto pelo portal) ---- */
+.upload-drop {
+  background: #fff;
+  border: 2px dashed #93c5fd;
+  border-radius: 8px;
+  padding: 22px;
+  text-align: center;
+  margin-bottom: 14px;
+  transition: border-color .15s, background .15s;
+}
+.upload-drop-ativo { border-color: var(--link); background: #eff6ff; }
+.upload-drop-texto { margin: 0 0 4px; font-size: 1rem; }
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--link);
+  text-decoration: underline;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.upload-progresso { margin-bottom: 14px; }
+.upload-progresso-barra {
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+#upload-barra-fill {
+  height: 100%;
+  width: 0;
+  background: var(--link);
+  transition: width .2s;
+}
+
 /* ---- card genérico ---- */
 .card {
   background: #fff;

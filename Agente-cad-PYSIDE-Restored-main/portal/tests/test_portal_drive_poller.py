@@ -67,6 +67,9 @@ class DriveQuebrado(DriveClient):
     def obter_ou_criar_pasta(self, nome, pasta_pai_id=None):  # pragma: no cover - nao usado aqui
         raise AssertionError("obter_ou_criar_pasta não deveria ser chamado neste teste")
 
+    def enviar_arquivo(self, pasta_id, origem_local, nome_remoto):  # pragma: no cover - nao usado
+        raise AssertionError("enviar_arquivo não deveria ser chamado neste teste")
+
 
 def _membro(conn, login: str, folder: str) -> dict:
     mid = repo.criar_membro(conn, login=login, nome=login.title(),
@@ -370,3 +373,38 @@ def test_obter_ou_criar_pasta_nomes_diferentes_sob_mesmo_pai(tmp_path):
     id_joao = client.obter_ou_criar_pasta("joao", pasta_pai_id=raiz_id)
     id_maria = client.obter_ou_criar_pasta("maria", pasta_pai_id=raiz_id)
     assert id_joao != id_maria
+
+
+# --------------------------------------------------------------------------- #
+# enviar_arquivo — upload direto pelo portal (2026-07-06)
+# --------------------------------------------------------------------------- #
+
+def test_enviar_arquivo_grava_na_pasta_certa(tmp_path):
+    """Round-trip real: envia um arquivo local -> aparece na listagem da pasta."""
+    client = FakeDriveClient(tmp_path / "drive")
+    pasta_id = client.obter_ou_criar_pasta("joao")
+
+    origem = tmp_path / "upload_origem" / "obra_teste.dxf"
+    _dxf_valido(origem)
+
+    file_id = client.enviar_arquivo(pasta_id, origem, "obra_teste.dxf")
+    assert file_id
+
+    listados = client.list_new_files(pasta_id)
+    assert len(listados) == 1
+    assert listados[0].name == "obra_teste.dxf"
+
+
+def test_enviar_arquivo_conteudo_preservado(tmp_path):
+    """O conteudo enviado bate com o original (nao e' so' o nome que 'chega')."""
+    client = FakeDriveClient(tmp_path / "drive")
+    pasta_id = client.obter_ou_criar_pasta("joao")
+
+    origem = tmp_path / "upload_origem" / "obra.dxf"
+    _dxf_valido(origem)
+    conteudo_original = origem.read_bytes()
+
+    file_id = client.enviar_arquivo(pasta_id, origem, "obra.dxf")
+    baixado = tmp_path / "verificacao.dxf"
+    client.download_file(file_id, baixado)
+    assert baixado.read_bytes() == conteudo_original

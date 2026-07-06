@@ -63,6 +63,14 @@ class DriveClient(ABC):
         """Baixa o conteudo do arquivo para `dest`. Retorna o path escrito."""
 
     @abstractmethod
+    def enviar_arquivo(self, pasta_id: str, origem_local: Path, nome_remoto: str) -> str:
+        """[2026-07-06] Upload direto pelo portal — usuario nunca abre o Drive.
+
+        `origem_local` ja' esta' em disco (o endpoint grava o upload ali por stream,
+        nunca carrega o arquivo inteiro em memoria — CAD pode ter centenas de MB).
+        Retorna o file_id remoto."""
+
+    @abstractmethod
     def obter_ou_criar_pasta(self, nome: str, pasta_pai_id: Optional[str] = None) -> str:
         """Acha (por nome, sob `pasta_pai_id`) ou cria a pasta. Retorna o id.
 
@@ -118,6 +126,16 @@ class _GoogleDriveServiceMixin:
             while not done:
                 _status, done = downloader.next_chunk()
         return dest
+
+    def enviar_arquivo(
+        self, pasta_id: str, origem_local: Path, nome_remoto: str
+    ) -> str:  # pragma: no cover - I/O externo
+        from googleapiclient.http import MediaFileUpload  # type: ignore
+
+        media = MediaFileUpload(str(origem_local), resumable=True)
+        corpo = {"name": nome_remoto, "parents": [pasta_id]}
+        criado = self._service.files().create(body=corpo, media_body=media, fields="id").execute()
+        return criado["id"]
 
     def obter_ou_criar_pasta(
         self, nome: str, pasta_pai_id: Optional[str] = None
@@ -293,6 +311,13 @@ class FakeDriveClient(DriveClient):
         alvo = base / nome
         alvo.mkdir(parents=True, exist_ok=True)
         return str(alvo.relative_to(self.raiz)).replace("\\", "/")
+
+    def enviar_arquivo(self, pasta_id: str, origem_local: Path, nome_remoto: str) -> str:
+        pasta = self._pasta(pasta_id)
+        pasta.mkdir(parents=True, exist_ok=True)
+        destino = pasta / nome_remoto
+        shutil.copyfile(origem_local, destino)
+        return str(destino.relative_to(self.raiz)).replace("\\", "/")
 
 
 # --------------------------------------------------------------------------- #
