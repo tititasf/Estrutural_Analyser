@@ -4,8 +4,10 @@ Tudo vem de variaveis de ambiente com defaults sensatos (HANDOFF §1.1). Nenhum
 segredo hardcoded: SESSION_SECRET default e' um valor DEV explicito e avisado; em
 producao o dono seta PORTAL_SESSION_SECRET.
 
-[ASSUMPTION] O handoff cita `portal/.secrets/drive-sa.json`. Mantido esse default,
-mas configuravel por PORTAL_DRIVE_SA_JSON para o dono apontar a chave real depois.
+[ASSUMPTION] O handoff cita `portal/.secrets/drive-sa.json` (service account). O
+dono decidiu (2026-07-06) reusar a credencial OAuth ja existente do DVC em vez de
+criar uma service account nova — ver `drive_oauth_json` abaixo e `GoogleDriveClient`
+em drive_poller.py. `drive_sa_json` fica mantido como caminho alternativo futuro.
 """
 
 from __future__ import annotations
@@ -59,6 +61,20 @@ class Settings:
     port: int = field(default_factory=lambda: _env_int("PORTAL_PORT", 21380))
 
     # --- Poller do Drive (DP-10/DP-11) ---
+    # [FIX 2026-07-06] o repo so tinha credencial OAuth de usuario (a mesma que o
+    # DVC usa pro remote 'gdrive' — client_id/secret proprios + refresh_token ja
+    # autorizado), nao service account. Decisao do dono: reusar essa credencial
+    # em vez de criar service account nova. drive_oauth_json e' o caminho
+    # preferido (checado primeiro); drive_sa_json fica como caminho alternativo
+    # caso uma service account seja criada no futuro (ver GoogleDriveClient).
+    drive_oauth_json: Path = field(
+        default_factory=lambda: Path(
+            os.environ.get(
+                "PORTAL_DRIVE_OAUTH_JSON",
+                str(REPO_ROOT / "portal" / ".secrets" / "gdrive-oauth.json"),
+            )
+        )
+    )
     drive_sa_json: Path = field(
         default_factory=lambda: Path(
             os.environ.get(
@@ -105,7 +121,7 @@ class Settings:
 
 # campos que sao Path (coeragem de overrides str -> Path)
 _PATH_FIELDS = {
-    "db_path", "repo_root", "drive_sa_json", "dados_obras_dir",
+    "db_path", "repo_root", "drive_oauth_json", "drive_sa_json", "dados_obras_dir",
     "logs_dir", "status_md_path",
 }
 

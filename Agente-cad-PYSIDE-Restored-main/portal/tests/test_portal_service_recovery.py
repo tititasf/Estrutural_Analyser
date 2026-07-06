@@ -47,7 +47,14 @@ async def test_lifespan_sobe_e_desce_sem_erro(settings):
 async def test_lifespan_com_poller_habilitado_cria_task(tmp_path):
     """poll_enabled=True cria a task do poller; shutdown a cancela sem vazar exceção.
 
-    Usa FakeDriveClient (montar_drive_client cai nele sem credencial) -> nenhuma rede.
+    Usa FakeDriveClient — força drive_oauth_json/drive_sa_json para paths que
+    NAO existem (tmp_path), isolando o teste do disco real. [FIX 2026-07-06]
+    antes dependia implicitamente de "nenhuma credencial existe no ambiente",
+    que quebrou quando portal/.secrets/gdrive-oauth.json passou a existir de
+    verdade (credencial OAuth do Drive reusada do DVC, decisão do dono) —
+    montar_drive_client() corretamente escolheu GoogleDriveOAuthClient nesse
+    caso. Isolamento explícito é o jeito certo de não depender de estado
+    ambiente alheio ao teste.
     """
     from portal.app.config import load_settings
 
@@ -55,6 +62,8 @@ async def test_lifespan_com_poller_habilitado_cria_task(tmp_path):
         db_path=tmp_path / "portal_data.db", poll_enabled=True,
         poll_interval_s=1, dados_obras_dir=tmp_path / "DADOS-OBRAS",
         logs_dir=tmp_path / "logs", status_md_path=tmp_path / "STATUS.md",
+        drive_oauth_json=tmp_path / "sem-credencial-oauth.json",
+        drive_sa_json=tmp_path / "sem-credencial-sa.json",
     )
     app = create_app(settings)
     async with app.router.lifespan_context(app):

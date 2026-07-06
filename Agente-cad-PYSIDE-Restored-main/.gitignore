@@ -71,3 +71,10 @@ releases/
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 .env
+
+# Portal soberano (docs/HANDOFF-*-PORTAL.md) — nunca versionar segredo nem DB de runtime
+portal/.secrets/
+portal_data.db
+portal_data.db-wal
+portal_data.db-shm
+portal/logs/

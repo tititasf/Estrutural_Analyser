@@ -24,7 +24,7 @@ import shutil
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from ..db import connection as db_conn
 from ..db import repository as repo
@@ -63,40 +63,18 @@ class DriveClient(ABC):
 
 
 # --------------------------------------------------------------------------- #
-# Implementacao real (Google Drive)
+# Implementacao real — base comum (monta o `service` googleapiclient)
 # --------------------------------------------------------------------------- #
 
-class GoogleDriveClient(DriveClient):
-    """Cliente real via service account (drive.readonly).
+class _GoogleDriveServiceMixin:
+    """Metodos de list/download comuns as duas variantes de credencial real.
 
-    Para plugar as credenciais depois: aponte Settings.drive_sa_json para o JSON da
-    service account e compartilhe cada pasta pessoal do Drive com o e-mail dela como
-    leitor (HANDOFF §2.1). Sem o JSON, o construtor levanta erro claro — o portal
-    escolhe o FakeDriveClient enquanto nao houver credencial (ver montar_drive_client).
+    A diferenca entre `GoogleDriveClient` (service account) e
+    `GoogleDriveOAuthClient` (OAuth de usuario) esta so em COMO `self._service`
+    e' construido (`_build_service`); a chamada de API e' identica.
     """
 
-    _SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
-
-    def __init__(self, sa_json_path: Path):
-        self._sa_json_path = Path(sa_json_path)
-        if not self._sa_json_path.exists():
-            raise FileNotFoundError(
-                f"credencial da service account nao encontrada: {self._sa_json_path}. "
-                "Coloque o JSON da service account ai (drive.readonly) e compartilhe "
-                "as pastas do Drive com o e-mail dela, ou use FakeDriveClient em dev."
-            )
-        try:
-            from google.oauth2 import service_account  # type: ignore
-            from googleapiclient.discovery import build  # type: ignore
-        except ImportError as exc:  # pragma: no cover - depende de lib externa
-            raise NotImplementedError(
-                "google-api-python-client/google-auth nao instalados. "
-                "Instale-os para usar o Drive real, ou use FakeDriveClient em dev."
-            ) from exc
-        creds = service_account.Credentials.from_service_account_file(
-            str(self._sa_json_path), scopes=self._SCOPES
-        )
-        self._service = build("drive", "v3", credentials=creds, cache_discovery=False)
+    _service: Any
 
     def list_new_files(self, pasta_id: str) -> list[DriveFile]:  # pragma: no cover - I/O externo
         q = f"'{pasta_id}' in parents and trashed=false"
@@ -131,6 +109,100 @@ class GoogleDriveClient(DriveClient):
             while not done:
                 _status, done = downloader.next_chunk()
         return dest
+
+
+class GoogleDriveClient(_GoogleDriveServiceMixin, DriveClient):
+    """Cliente real via service account (drive.readonly) — caminho alternativo futuro.
+
+    Para plugar: aponte Settings.drive_sa_json para o JSON da service account e
+    compartilhe cada pasta pessoal do Drive com o e-mail dela como leitor
+    (HANDOFF §2.1). NAO e' o caminho usado hoje — ver GoogleDriveOAuthClient e a
+    decisao do dono em montar_drive_client().
+    """
+
+    _SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
+
+    def __init__(self, sa_json_path: Path):
+        self._sa_json_path = Path(sa_json_path)
+        if not self._sa_json_path.exists():
+            raise FileNotFoundError(
+                f"credencial da service account nao encontrada: {self._sa_json_path}. "
+                "Coloque o JSON da service account ai (drive.readonly) e compartilhe "
+                "as pastas do Drive com o e-mail dela, ou use FakeDriveClient em dev."
+            )
+        try:
+            from google.oauth2 import service_account  # type: ignore
+            from googleapiclient.discovery import build  # type: ignore
+        except ImportError as exc:  # pragma: no cover - depende de lib externa
+            raise NotImplementedError(
+                "google-api-python-client/google-auth nao instalados. "
+                "Instale-os para usar o Drive real, ou use FakeDriveClient em dev."
+            ) from exc
+        creds = service_account.Credentials.from_service_account_file(
+            str(self._sa_json_path), scopes=self._SCOPES
+        )
+        self._service = build("drive", "v3", credentials=creds, cache_discovery=False)
+
+
+class GoogleDriveOAuthClient(_GoogleDriveServiceMixin, DriveClient):
+    """Cliente real via credencial OAuth de USUARIO (nao service account).
+
+    [FIX 2026-07-06] O repo so tinha credencial OAuth (a mesma que o DVC usa pro
+    remote 'gdrive' — client_id/client_secret proprios + refresh_token ja
+    autorizado, escopo 'drive'+'drive.appdata'). Decisao do dono: reusar essa
+    credencial em vez de criar service account nova (mais rapido). Diferenca de
+    modelo: aqui o portal enxerga o Drive COMO o dono (nao ha "compartilhar
+    pasta com robo") — os `drive_folder_id` de cada membro devem ser subpastas
+    dentro do proprio Drive do dono (ex.: uma pasta-mae "Portal-Obras" com uma
+    subpasta por membro), nao pastas pessoais de terceiros.
+
+    Formato esperado do JSON (`Settings.drive_oauth_json`) — minimo necessario
+    para reconstruir `google.oauth2.credentials.Credentials`:
+        {"client_id": "...", "client_secret": "...", "refresh_token": "...",
+         "token_uri": "https://oauth2.googleapis.com/token",
+         "scopes": ["https://www.googleapis.com/auth/drive"]}
+    O refresh e' automatico (google-auth troca o refresh_token por access_token
+    novo a cada chamada quando o cache expira) — nunca commitar este arquivo
+    (portal/.gitignore ja cobre `portal/.secrets/`).
+    """
+
+    def __init__(self, oauth_json_path: Path):
+        self._oauth_json_path = Path(oauth_json_path)
+        if not self._oauth_json_path.exists():
+            raise FileNotFoundError(
+                f"credencial OAuth do Drive nao encontrada: {self._oauth_json_path}. "
+                "Copie os campos client_id/client_secret/refresh_token/token_uri/"
+                "scopes para esse arquivo (ex.: a partir da credencial do DVC), ou "
+                "use FakeDriveClient em dev."
+            )
+        try:
+            from google.oauth2.credentials import Credentials  # type: ignore
+            from googleapiclient.discovery import build  # type: ignore
+        except ImportError as exc:  # pragma: no cover - depende de lib externa
+            raise NotImplementedError(
+                "google-api-python-client/google-auth nao instalados. "
+                "Instale-os para usar o Drive real, ou use FakeDriveClient em dev."
+            ) from exc
+
+        import json
+
+        dados = json.loads(self._oauth_json_path.read_text(encoding="utf-8"))
+        campos_obrigatorios = ("client_id", "client_secret", "refresh_token", "token_uri")
+        faltando = [c for c in campos_obrigatorios if not dados.get(c)]
+        if faltando:
+            raise ValueError(
+                f"credencial OAuth incompleta em {self._oauth_json_path}: "
+                f"faltam os campos {faltando}."
+            )
+        creds = Credentials(
+            token=dados.get("access_token"),
+            refresh_token=dados["refresh_token"],
+            token_uri=dados["token_uri"],
+            client_id=dados["client_id"],
+            client_secret=dados["client_secret"],
+            scopes=dados.get("scopes") or ["https://www.googleapis.com/auth/drive"],
+        )
+        self._service = build("drive", "v3", credentials=creds, cache_discovery=False)
 
 
 # --------------------------------------------------------------------------- #
@@ -197,11 +269,20 @@ def _safe_slug(nome: str) -> str:
 
 
 def montar_drive_client(settings: Settings) -> DriveClient:
-    """Escolhe a implementacao: real se a credencial existir, senao FakeDriveClient.
+    """Escolhe a implementacao: OAuth > service account > FakeDriveClient.
 
-    Reason: o portal sobe em dev/CI sem credencial de Drive; nesse caso o poller opera
-    sobre uma pasta local (settings.dados_obras_dir / '_drive_fake'), sem quebrar.
+    [FIX 2026-07-06] OAuth (drive_oauth_json) e' o caminho preferido — e' a
+    credencial que o dono ja tem (reusada do DVC). Service account
+    (drive_sa_json) fica como alternativa futura, se um dia for criada.
+    Reason do fallback: o portal sobe em dev/CI sem nenhuma credencial de
+    Drive; nesse caso o poller opera sobre uma pasta local
+    (settings.dados_obras_dir / '_drive_fake'), sem quebrar.
     """
+    if settings.drive_oauth_json.exists():
+        try:
+            return GoogleDriveOAuthClient(settings.drive_oauth_json)
+        except (NotImplementedError, FileNotFoundError, ValueError) as exc:
+            log.warning("Drive OAuth indisponivel (%s) — tentando service account", exc)
     if settings.drive_sa_json.exists():
         try:
             return GoogleDriveClient(settings.drive_sa_json)
