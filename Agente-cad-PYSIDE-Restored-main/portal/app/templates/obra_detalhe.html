@@ -847,6 +847,7 @@
         grupo.itens.forEach(function (it) {
           var li = document.createElement('li');
           li.className = classePavPar;
+          li.style.display = 'none';
           li.setAttribute('data-bruto-recorte', rec.brutoId);
           var a = document.createElement('button');
           a.type = 'button';
@@ -893,7 +894,7 @@
             var classePavPar = i % 2 === 0 ? 'pavimento-par' : 'pavimento-impar';
             var pav = bruto.pavimento || 'Indeterminado';
             var cabPav = document.createElement('li');
-            cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar;
+            cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar + ' pavimento-fechado';
             cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
             cabPav.style.cursor = 'pointer';
             cabPav.addEventListener('click', function() {
@@ -930,7 +931,7 @@
         var classePavPar = pavIndice % 2 === 0 ? 'pavimento-par' : 'pavimento-impar';
         var gruposDoTipo = grupos[pav] || {};
         var cabPav = document.createElement('li');
-        cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar;
+        cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar + ' pavimento-fechado';
         cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
         cabPav.style.cursor = 'pointer';
             cabPav.addEventListener('click', function() {
@@ -975,6 +976,7 @@
           itens.forEach(function (d) {
             var li = document.createElement('li');
             li.className = classePavPar;
+            li.style.display = 'none';
             var a = document.createElement('button');
             a.type = 'button';
             a.className = 'n1-item-link docs-item';
