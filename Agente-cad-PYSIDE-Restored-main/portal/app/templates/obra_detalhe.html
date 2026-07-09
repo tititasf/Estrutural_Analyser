@@ -50,34 +50,73 @@
 
 {% block conteudo %}
 <div class="shell-obra">
-  <nav class="painel-2" aria-label="Etapas da obra">
-    <div class="painel2-secao">
-      <button type="button" class="painel2-tab-btn" data-tab="sa">
-        {% if sa_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} SA / N1
-      </button>
-      <div class="painel2-aninhado" id="n1-classes" hidden>
-        <button class="btn btn-sec painel2-acao-btn" data-acao="sa" data-obra="{{ obra.id }}" {{ 'disabled' if job_ativo }}>
-          {{ 'Job em andamento…' if job_ativo else 'Rodar SA →' }}
+    <nav class="painel-2" aria-label="Etapas da obra" style="display: flex; flex-direction: column;">
+    <!-- Fases da Obra Global -->
+    <div class="painel-fases-obra" style="padding: 15px; border-bottom: 1px solid var(--border-color); background: #262626;">
+      <h3 style="margin-top:0; font-size: 0.95rem; color: #fff;">Status de Processamento da Obra</h3>
+      <ul style="list-style: none; padding-left: 0; font-size: 0.8rem; color: #aaa; margin-bottom: 0; line-height: 1.4;">
+        <li><span id="fase1-icon" aria-hidden="true">⏳</span> <b>Fase 1:</b> Ingestão e Triagem</li>
+        <li><span id="fase2-icon" aria-hidden="true">⏳</span> <b>Fase 2:</b> Aprovação de Recortes</li>
+        <li><span id="fase3-icon" aria-hidden="true">⏳</span> <b>Fase 3:</b> Aprovação de N1 → N3</li>
+        <li><span id="fase4-icon" aria-hidden="true">⏳</span> <b>Fase 4:</b> Aprovação de N3 → N5</li>
+        <li><span id="fase5-icon" aria-hidden="true">⏳</span> <b>Fase 5:</b> Certificação e Download</li>
+      </ul>
+    </div>
+
+    <div id="painel2-estado-vazio" style="padding: 20px; text-align: center; color: #888; font-size: 0.85rem;">
+      <p>Selecione um <b>Pavimento</b> na Triagem (Painel Esquerdo) para ver as etapas e gerar processamentos.</p>
+    </div>
+
+    <!-- Container do Pavimento Selecionado -->
+    <div id="painel2-pavimento-conteudo" hidden>
+      <div style="padding: 10px 15px; background: #333; border-bottom: 1px solid var(--border-color); color: var(--accent-color); font-weight: bold; font-size: 0.9rem;" id="painel2-pavimento-titulo">
+        Pavimento Selecionado
+      </div>
+      
+      <div class="painel2-secao">
+        <button type="button" class="painel2-tab-btn" data-tab="sa">
+          {% if sa_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} SA / N1
         </button>
-        {% if not recortes_feito %}
-        <p class="painel2-meta">⏳ os recortes ainda não terminaram</p>
-        {% endif %}
-        <div id="n1-classes-lista"></div>
+        <div class="painel2-aninhado" id="n1-classes" hidden>
+          <div style="padding: 10px; background: #2a2a2a; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; border: 1px solid #444;">
+            <div style="margin-bottom: 5px; color: #ddd;"><b>Status de Processamento do Pavimento</b></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <span>Aprovação de Recortes:</span>
+              <strong id="progresso-recortes-pavimento">0%</strong>
+            </div>
+            <div class="progress-bar-bg" style="background: #111; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+              <div id="progresso-recortes-barra" style="background: var(--accent-color); height: 100%; width: 0%;"></div>
+            </div>
+            <button class="btn btn-sec painel2-acao-btn" data-acao="sa" data-obra="{{ obra.id }}" id="btn-rodar-sa" style="width: 100%; font-size: 0.75rem;" {{ 'disabled' if job_ativo }}>
+              {{ 'Job em andamento…' if job_ativo else 'Processar SA/N1 (Pavimento) →' }}
+            </button>
+          </div>
+          <div id="n1-classes-lista"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="painel2-secao">
-      <button type="button" class="painel2-tab-btn" data-tab="n3">N3</button>
-      <div class="painel2-aninhado" id="n3-classes" hidden>
-        <p class="painel2-meta">Robô gerado a partir do N1 (cobertura parcial por classe).</p>
-        <div id="n3-classes-lista"></div>
+      <div class="painel2-secao">
+        <button type="button" class="painel2-tab-btn" data-tab="n3">N3</button>
+        <div class="painel2-aninhado" id="n3-classes" hidden>
+          <div style="padding: 10px; background: #2a2a2a; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; border: 1px solid #444;">
+            <div style="margin-bottom: 5px; color: #ddd;"><b>Status de Processamento do Pavimento</b></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <span>Aprovação de N1:</span>
+              <strong id="progresso-n1-pavimento">0%</strong>
+            </div>
+            <div class="progress-bar-bg" style="background: #111; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+              <div id="progresso-n1-barra" style="background: var(--accent-color); height: 100%; width: 0%;"></div>
+            </div>
+          </div>
+          <div id="n3-classes-lista"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="painel2-secao">
-      <button type="button" class="painel2-tab-btn" data-tab="n5">
-        {% if n5_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} N5
-      </button>
+      <div class="painel2-secao">
+        <button type="button" class="painel2-tab-btn" data-tab="n5">
+          {% if n5_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} N5
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -859,6 +898,7 @@
             cabPav.style.cursor = 'pointer';
             cabPav.addEventListener('click', function() {
               var isFechado = cabPav.classList.toggle('pavimento-fechado');
+              selecionarPavimento(pav);
               var next = cabPav.nextElementSibling;
               while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
                 next.style.display = isFechado ? 'none' : '';
@@ -895,6 +935,7 @@
         cabPav.style.cursor = 'pointer';
             cabPav.addEventListener('click', function() {
               var isFechado = cabPav.classList.toggle('pavimento-fechado');
+              selecionarPavimento(pav);
               var next = cabPav.nextElementSibling;
               while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
                 next.style.display = isFechado ? 'none' : '';
@@ -1072,6 +1113,7 @@
       var body = {};
       var url = '/obras/' + OBRA_ID + '/' + acao;
       if (acao === 'validacao') body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
+      if (acao === 'sa') body = { secao: 'tudo', pav: _pavimentoSelecionado };
       fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       }).then(function (r) {
@@ -1097,6 +1139,107 @@
   // fosse a do último clique — token monotônico só aplica a resposta mais
   // recente.
   var _n1ClassesCarregado = false;
+
+  var _pavimentoSelecionado = null;
+
+  function atualizarProgressoRecortesPavimento(pav) {
+    if (!pav) return;
+    var total = 0;
+    var validados = 0;
+    // Iterate over all brutos and count the items belonging to this pavement
+    if (_recortesBrutosCache && _recortesItensPorBruto) {
+      _recortesBrutosCache.forEach(function(bruto) {
+        var brutoPav = (bruto.pavimento || 'Indeterminado').trim();
+        // Normaliza o nome do pavimento da mesma forma que a montagem da lista
+        var pavNome = brutoPav === 'Indeterminado' ? 'Indeterminado' : (/^pavimento /i.test(brutoPav) ? brutoPav : 'Pavimento ' + brutoPav);
+        if (pavNome === pav) {
+          var itens = _recortesItensPorBruto[bruto.bruto_id] || [];
+          total += itens.length;
+          itens.forEach(function(item) {
+            // Conta como validado se tem validado=true (e não foi invalidado localmente)
+            var chave = bruto.bruto_id + '_' + item.item_id;
+            if (statusValidacaoRecorte(bruto.bruto_id, item.item_id) && !_recortesInvalidadosLocal[chave]) {
+              validados++;
+            }
+          });
+        }
+      });
+    }
+    var perc = total === 0 ? 0 : Math.round((validados / total) * 100);
+    var pText = document.getElementById('progresso-recortes-pavimento');
+    var pBar = document.getElementById('progresso-recortes-barra');
+    if (pText) pText.textContent = perc + '% (' + validados + '/' + total + ')';
+    if (pBar) pBar.style.width = perc + '%';
+    return perc;
+  }
+
+  function selecionarPavimento(pav) {
+    _pavimentoSelecionado = pav;
+    document.getElementById('painel2-estado-vazio').hidden = true;
+    document.getElementById('painel2-pavimento-conteudo').hidden = false;
+    document.getElementById('painel2-pavimento-titulo').textContent = pav === 'Indeterminado' ? 'Docs Gerais' : pav;
+    
+    // Encontrar o bruto associado e exibir
+    if (_recortesBrutosCache) {
+      var brutoEncontrado = _recortesBrutosCache.find(function(b) {
+         var bp = (b.pavimento || 'Indeterminado').trim();
+         var pNome = bp === 'Indeterminado' ? 'Indeterminado' : (/^pavimento /i.test(bp) ? bp : 'Pavimento ' + bp);
+         return pNome === pav;
+      });
+      if (brutoEncontrado) {
+         // Carrega o bruto no painel central!
+         var detalhePainel = document.getElementById('docs-detalhe');
+         if (detalhePainel) {
+             detalhePainel.innerHTML = '<div class="recorte-viewer" id="recorte-viewer-bruto"></div>';
+             var v = document.getElementById('recorte-viewer-bruto');
+             renderizarFotoRecorte(v, '/obras/' + OBRA_ID + '/recortes/brutos/' + brutoEncontrado.bruto_id + '/foto', 'Planta Completa');
+         }
+      }
+    }
+    
+    // Atualiza progresso local
+    atualizarProgressoRecortesPavimento(pav);
+
+    // Reseta flags e recarrega os dados N1 para o pavimento
+    _n1ClassesCarregado = false;
+    // Se a aba SA/N1 estiver ativa, forçar recarregamento agora
+    var abaAtiva = document.querySelector('.painel2-tab-btn.ativo');
+    if (abaAtiva && abaAtiva.getAttribute('data-tab') === 'sa') {
+      carregarClassesN1SeNecessario();
+    }
+  }
+
+  function selecionarTriagemGeral() {
+    _pavimentoSelecionado = null;
+    document.getElementById('painel2-estado-vazio').hidden = false;
+    document.getElementById('painel2-pavimento-conteudo').hidden = true;
+    mostrarDetalhe('triagem');
+  }
+
+  window.excluirRecorteAtual = function(brutoId, itemId) {
+    if(!confirm("Tem certeza que deseja excluir este recorte? Ele sumirá desta lista e do servidor.")) return;
+    
+    fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + brutoId + '/' + itemId, {
+        method: 'DELETE'
+    }).then(function(res) {
+        if (!res.ok) throw new Error("Falha ao excluir");
+        return res.json();
+    }).then(function(data) {
+        alert("Excluído com sucesso.");
+        // Remove do array local
+        if (_recortesItensPorBruto && _recortesItensPorBruto[brutoId]) {
+           _recortesItensPorBruto[brutoId] = _recortesItensPorBruto[brutoId].filter(function(i) { return i.item_id !== itemId; });
+        }
+        // Refaz a lista e atualiza progressos
+        montarLista();
+        if (_pavimentoSelecionado) atualizarProgressoRecortesPavimento(_pavimentoSelecionado);
+        var detalhePainel = document.getElementById('docs-detalhe');
+        if (detalhePainel) detalhePainel.innerHTML = '<p class="muted">Recorte excluído.</p>';
+    }).catch(function(err) {
+        alert("Erro ao excluir: " + err.message);
+    });
+  };
+
   var _n3ClassesCarregado = false;
   var _painel3Estado = { stage: null, classe: null, itens: [], indice: 0 };
   var _classeItensReqToken = 0;
@@ -1116,7 +1259,7 @@
 
   function carregarClassesGenerico(stage, container) {
     container.innerHTML = '<p class="muted">Carregando…</p>';
-    fetch('/obras/' + OBRA_ID + '/n1/classes').then(function (r) { return r.json(); })
+    fetch('/obras/' + OBRA_ID + '/n1/classes' + (_pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : '')).then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data.pavimento_atual) {
           container.innerHTML = '<p class="muted">Ainda não há resultado de SA para esta obra.</p>';
