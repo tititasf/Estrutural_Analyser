@@ -649,7 +649,8 @@
     function renderizarDetalhe(d) {
       var det = document.getElementById('docs-detalhe');
       if (!d) {
-        det.innerHTML = '<div id="docs-cabecalho-slot"></div><div id="docs-intro-slot"></div><p class="muted">Envie o primeiro documento acima.</p>';
+        var txt = (typeof documentos !== 'undefined' && documentos && documentos.length > 0) ? 'Selecione um documento ou pavimento na lista à esquerda.' : 'Envie o primeiro documento acima.';
+        det.innerHTML = '<div id="docs-cabecalho-slot"></div><div id="docs-intro-slot"></div><p class="muted" style="text-align: center; margin-top: 30px;">' + txt + '</p>';
         moverIntroParaSlot(det);
         return;
       }
@@ -1007,7 +1008,7 @@
           });
         });
       });
-      var alvo = documentos.find(function (d) { return d.id === _docEstado.docId; }) || documentos[0];
+      var alvo = documentos.find(function (d) { return d.id === _docEstado.docId; });
       if (alvo) {
         _docEstado.docId = alvo.id;
         var btnAlvo = lista.querySelector('[data-doc-id="' + alvo.id + '"]');
@@ -1213,6 +1214,7 @@
 
   function selecionarTriagemGeral() {
     _pavimentoSelecionado = null;
+    _docEstado.docId = null;
     document.getElementById('painel2-estado-vazio').hidden = false;
     document.getElementById('painel2-pavimento-conteudo').hidden = true;
     mostrarDetalhe('triagem');
