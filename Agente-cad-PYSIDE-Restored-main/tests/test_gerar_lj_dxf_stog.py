@@ -39,6 +39,9 @@ def test_short_vertical_segments_move_dimension_chain_outside(monkeypatch):
     assert all(call[0][3] < 100.0 for call in calls)
     assert all(call[0][4] == 100.0 for call in calls)
     assert calls[0][1]["text_location"][0] != calls[1][1]["text_location"][0]
+    assert abs(
+        calls[0][1]["text_location"][0] - calls[1][1]["text_location"][0]
+    ) >= 24.0
 
 
 def test_regular_vertical_segments_keep_internal_dimension_chain(monkeypatch):

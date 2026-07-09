@@ -10,25 +10,26 @@
   {% if membro %}
   <div class="shell">
     <nav class="sidebar" aria-label="Navegação principal">
-      <a class="brand" href="/app/obras">
+      <a class="brand" href="/app/obras" title="Portal de Formas">
         <span class="brand-mark" aria-hidden="true">◆</span>
-        <span>Portal de Formas</span>
+        <span class="nav-texto">Portal de Formas</span>
       </a>
       <ul class="nav-lista">
-        <li><a href="/app/obras" class="{{ 'ativo' if nav_ativo == 'obras' else '' }}">
-          <span aria-hidden="true">🗂</span> Obras
+        <li><a href="/app/status" class="nav-status-btn {{ 'ativo' if nav_ativo == 'status' else '' }}" title="Status Arete">
+          <span aria-hidden="true">📊</span><span class="nav-texto">Status Arete</span>
         </a></li>
-        <li><a href="/app/status" class="{{ 'ativo' if nav_ativo == 'status' else '' }}">
-          <span aria-hidden="true">📊</span> Status Arete
+        <li><a href="/app/obras" class="{{ 'ativo' if nav_ativo == 'obras' else '' }}" title="Obras">
+          <span aria-hidden="true">🗂</span><span class="nav-texto">Obras</span>
         </a></li>
+        {% block sidebar_obras_extra %}{% endblock %}
       </ul>
       <div class="nav-rodape">
         <div class="who">
-          <span class="who-nome">{{ membro.nome or membro.login }}</span>
-          <span class="who-papel">{{ 'Dono — vê tudo' if membro.papel == 'dono' else 'Membro' }}</span>
+          <span class="who-nome nav-texto">{{ membro.nome or membro.login }}</span>
+          <span class="who-papel nav-texto">{{ 'Dono — vê tudo' if membro.papel == 'dono' else 'Membro' }}</span>
         </div>
         <form id="logout-form">
-          <button type="submit" class="btn-logout">Sair</button>
+          <button type="submit" class="btn-logout" title="Sair"><span class="nav-texto">Sair</span><span class="nav-icone-compacto" aria-hidden="true">⏻</span></button>
         </form>
       </div>
     </nav>

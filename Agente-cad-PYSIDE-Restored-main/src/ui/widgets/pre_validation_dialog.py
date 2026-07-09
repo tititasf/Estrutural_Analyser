@@ -5622,6 +5622,7 @@ class PreValidationDialog(QDialog):
                 'Atenção': self._atencao_notes.get(key, ''),
                 '_points': pillar.get('points') or [],
                 '_nome': nome,
+                '_key': key,
             }
             (pillar_rows if row['Formato'] == 'Retangular' else special_rows).append(row)
 
@@ -5887,11 +5888,27 @@ class PreValidationDialog(QDialog):
             '  var r={};'
             '  for(var i=0;i<localStorage.length;i++){'
             '    var k=localStorage.key(i);'
-            '    if(k&&k.startsWith("aten_"))r[k]=localStorage.getItem(k);'
+            '    if(k&&(k.startsWith("aten_")||k.startsWith("val_")))r[k]=localStorage.getItem(k);'
             '  }'
             '  var el=document.getElementById("_aten_export");'
             '  if(el)el.textContent=JSON.stringify(r,null,2);'
             '}'
+            'function toggleValidacao(cb){'
+            '  var row=cb.closest(".valid-row")||cb.closest(".mode-row");'
+            '  if(!row)return;'
+            '  var lbl=row.querySelector(".valid-lbl");'
+            '  if(cb.checked){row.classList.add("approved");if(lbl)lbl.textContent="Aprovado ✓";}'
+            '  else{row.classList.remove("approved");if(lbl)lbl.textContent="Aprovado";}'
+            '  if(cb.dataset.cbkey)localStorage.setItem(cb.dataset.cbkey,cb.checked?"1":"0");'
+            '}'
+            'function loadAllValidacoes(){'
+            '  document.querySelectorAll(".validacao-cb[data-cbkey]").forEach(function(cb){'
+            '    if(localStorage.getItem(cb.dataset.cbkey)==="1"){'
+            '      cb.checked=true;toggleValidacao(cb);'
+            '    }'
+            '  });'
+            '}'
+            'document.addEventListener("DOMContentLoaded",loadAllValidacoes);'
             '</script>'
         )
 
@@ -5947,6 +5964,34 @@ class PreValidationDialog(QDialog):
             '.face-C{background:#2a1228;border-left:3px solid #c47ef7}'
             '.face-D{background:#2a1e10;border-left:3px solid #f0b840}'
             '.face-label{color:#666;font-size:9px;margin-bottom:2px}'
+            '.valid-grid{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:8px}'
+            '.valid-card{background:#101010;border:1px solid #292929;border-radius:4px;overflow:hidden}'
+            '.valid-card-title{padding:5px 8px;font-weight:bold;font-size:10px;background:#171717}'
+            '.valid-card-title.face-A{color:#4fc3a1}.valid-card-title.face-B{color:#7eb8f7}'
+            '.valid-card-title.face-C{color:#c47ef7}.valid-card-title.face-D{color:#f0b840}'
+            '.valid-row,.mode-row{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;'
+            '  border-top:1px solid #1d1d1d;background:#0d0d0d}'
+            '.valid-row.approved,.mode-row.approved{background:#0b180b}'
+            '.validacao-cb{width:14px;height:14px;margin-top:2px;accent-color:#4fc3a1;cursor:pointer;flex-shrink:0}'
+            '.valid-lbl{font-size:9px;color:#4a4a4a;min-width:28px;margin-top:2px;flex-shrink:0}'
+            '.approved .valid-lbl{color:#4fc3a1}'
+            '.valid-badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:10px;'
+            '  font-weight:bold;border-left:2px solid;white-space:nowrap;flex-shrink:0}'
+            '.vb-sa{background:#102010;color:#4fc3a1;border-color:#4fc3a1}'
+            '.vb-passa{background:#0e1828;color:#7eb8f7;border-color:#7eb8f7}'
+            '.vb-para{background:#20140a;color:#f0b840;border-color:#f0b840}'
+            '.vb-grade{background:#1a0a20;color:#d47ef7;border-color:#d47ef7}'
+            '.vb-cima{background:#1b1b1b;color:#aaa;border-color:#777}'
+            '.valid-detail{font-size:10px;color:#888;line-height:1.55;white-space:pre-wrap;flex:1}'
+            '.valid-detail .muted{color:#4d4d4d}.valid-detail b{color:#ccc}'
+            '.mode-grid{display:grid;grid-template-columns:repeat(2,minmax(320px,1fr));gap:8px}'
+            '.mode-card{background:#101010;border:1px solid #2a2a2a;border-radius:4px;overflow:hidden}'
+            '.mode-title{padding:5px 8px;font-size:10px;font-weight:bold;background:#171717;color:#7eb8f7}'
+            '.mode-title.para{color:#f0b840}.mode-title.passa{color:#7eb8f7}.mode-title.cima{color:#aaa}'
+            '.mode-note{font-size:10px;color:#666;padding:5px 8px;border-top:1px solid #1d1d1d;line-height:1.5}'
+            '.field-table{width:100%;border-collapse:collapse;font-size:9px;margin-top:5px}'
+            '.field-table td{border-top:1px solid #1a1a1a;padding:2px 5px;vertical-align:top}'
+            '.field-table td:first-child{color:#666;white-space:nowrap;width:86px}'
             '.od-wrap{margin:6px 0 10px 0;display:flex;flex-direction:column;align-items:center;gap:0px;font-size:9px;font-family:monospace}'
             '.od-row{display:flex;align-items:center;justify-content:center;gap:0}'
             '.od-box{border:2px solid #555;background:#1e1e1e;color:#ddd;padding:6px 18px;'
@@ -6063,6 +6108,1018 @@ class PreValidationDialog(QDialog):
                         '</div>'
                     )
 
+            def _fmt_num(v) -> str:
+                try:
+                    fv = float(v)
+                    return str(int(fv)) if abs(fv - int(fv)) < 1e-6 else f'{fv:.1f}'
+                except Exception:
+                    return str(v) if v not in (None, '') else '—'
+
+            def _pillar_dims(pts: list) -> tuple[float, float]:
+                if not pts:
+                    return 0.0, 0.0
+                try:
+                    xs = [float(p[0]) for p in pts]
+                    ys = [float(p[1]) for p in pts]
+                    w, h = max(xs) - min(xs), max(ys) - min(ys)
+                    return max(w, h), min(w, h)
+                except Exception:
+                    return 0.0, 0.0
+
+            def _face_len(face_id: str, comp: float, larg: float) -> float:
+                return comp if face_id in ('A', 'B') else larg
+
+            def _face_kind(cell_text: str) -> str:
+                t = (cell_text or '').strip().lower()
+                if not t or t == 'nulo':
+                    return 'NULO'
+                if 'viga:' in t:
+                    return 'VIGA'
+                if 'laje:' in t:
+                    return 'LAJE'
+                return 'MISTO'
+
+            def _entries_for_side(pillar: dict, side: str) -> list[dict]:
+                return [e for e in (pillar.get('lajes') or []) if e.get('side') == side]
+
+            def _entry_laje_detail(e: dict) -> str:
+                ln = e.get('laje') or '?'
+                h = self._slab_height_map.get(ln) or ''
+                nv = self._slab_nivel_map.get(ln) or ''
+                bits = [f'Laje: {ln}']
+                if h:
+                    bits.append(f'esp: {h}cm')
+                if nv:
+                    bits.append(f'N: {nv}')
+                src = e.get('side_source') or e.get('source') or ''
+                if src:
+                    bits.append(f'fonte: {src}')
+                return '  ·  '.join(bits)
+
+            def _entry_viga_detail(e: dict) -> str:
+                vg = e.get('viga') or {}
+                if not vg:
+                    return ''
+                bits = [f'Viga: {vg.get("name", "?")}']
+                if vg.get('dim'):
+                    bits.append(f'dim: {vg.get("dim")}')
+                if vg.get('nivel') or vg.get('n'):
+                    bits.append(f'N: {vg.get("nivel") or vg.get("n")}')
+                src = e.get('side_source') or e.get('source') or ''
+                if src:
+                    bits.append(f'fonte: {src}')
+                return '  ·  '.join(bits)
+
+            def _interval_overlap(a0: float, a1: float, b0: float, b1: float) -> float:
+                return max(0.0, min(max(a0, a1), max(b0, b1)) - max(min(a0, a1), min(b0, b1)))
+
+            def _interval_gap(a0: float, a1: float, b0: float, b1: float) -> float:
+                if max(a0, a1) < min(b0, b1):
+                    return min(b0, b1) - max(a0, a1)
+                if max(b0, b1) < min(a0, a1):
+                    return min(a0, a1) - max(b0, b1)
+                return 0.0
+
+            def _as_point(obj) -> tuple[float, float] | None:
+                if isinstance(obj, (list, tuple)) and len(obj) >= 2:
+                    try:
+                        return float(obj[0]), float(obj[1])
+                    except Exception:
+                        return None
+                return None
+
+            def _segment_bbox(points: list) -> tuple[float, float, float, float] | None:
+                pts = [_as_point(p) for p in (points or [])]
+                pts = [p for p in pts if p is not None]
+                if len(pts) < 2:
+                    return None
+                xs = [p[0] for p in pts]
+                ys = [p[1] for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                if max(x1 - x0, y1 - y0) < 5.0:
+                    return None
+                return x0, y0, x1, y1
+
+            def _beam_segment_bboxes(beam: dict) -> list[tuple[str, tuple[float, float, float, float]]]:
+                out: list[tuple[str, tuple[float, float, float, float]]] = []
+
+                def _scan(label: str, obj, depth: int = 0) -> None:
+                    if depth > 4:
+                        return
+                    if isinstance(obj, dict):
+                        for k, v in obj.items():
+                            if k in ('texts', 'dimension_texts', 'links', 'fields'):
+                                continue
+                            if k.startswith('seg') or 'seg_' in k or k in ('classified', 'geometry'):
+                                _scan(k, v, depth + 1)
+                        return
+                    if not isinstance(obj, list):
+                        return
+                    bb = _segment_bbox(obj)
+                    if bb:
+                        out.append((label, bb))
+                        return
+                    for item in obj:
+                        _scan(label, item, depth + 1)
+
+                _scan('geometry', (beam.get('geometry') or {}).get('classified') or {})
+                for key in ('seg_a', 'seg_b', 'seg_c', 'seg_bottom'):
+                    if key in beam:
+                        _scan(key, beam.get(key))
+
+                dedup: list[tuple[str, tuple[float, float, float, float]]] = []
+                seen: set[tuple] = set()
+                for label, bb in out:
+                    sig = (label,) + tuple(round(v, 2) for v in bb)
+                    if sig in seen:
+                        continue
+                    seen.add(sig)
+                    dedup.append((label, bb))
+                return dedup
+
+            def _beam_dim_near(beam: dict, bb: tuple[float, float, float, float] | None = None) -> str:
+                if beam.get('lv_dimension_override'):
+                    return str(beam.get('lv_dimension_override'))
+                candidates: list[tuple[float, str]] = []
+                cx = cy = None
+                if bb:
+                    cx = (bb[0] + bb[2]) / 2.0
+                    cy = (bb[1] + bb[3]) / 2.0
+                for txt in (beam.get('texts') or []):
+                    raw = str(txt.get('text') or '').strip()
+                    if not re.match(r'^\d+(?:[.,]\d+)?\s*/\s*\d+(?:[.,]\d+)?$', raw):
+                        continue
+                    pos = txt.get('pos') or []
+                    dist = 0.0
+                    if cx is not None and len(pos) >= 2:
+                        try:
+                            dist = math.hypot(float(pos[0]) - cx, float(pos[1]) - cy)
+                        except Exception:
+                            dist = 0.0
+                    candidates.append((dist, raw.replace(' ', '')))
+                if candidates:
+                    return sorted(candidates, key=lambda x: x[0])[0][1]
+                dim_txt = ((beam.get('geometry') or {}).get('lv_dimension_text') or {}).get('text')
+                return str(dim_txt or '')
+
+            def _beam_local_name(beam: dict, bb: tuple[float, float, float, float] | None) -> str:
+                if not bb:
+                    return ''
+                cx = (bb[0] + bb[2]) / 2.0
+                cy = (bb[1] + bb[3]) / 2.0
+                candidates: list[tuple[float, str]] = []
+                beam_name_re = re.compile(r'^(?:V|VF|F\.|LV|L\.)\s*[A-Z]?\d+', re.IGNORECASE)
+
+                def _norm(raw: str) -> str:
+                    s = raw.strip().replace(' ', '')
+                    m = re.match(r'^F\.(.+?)(?:\.C)?(?:-\d+)?$', s, re.IGNORECASE)
+                    if m:
+                        return 'VF' + re.sub(r'[^A-Za-z0-9]', '', m.group(1))
+                    m = re.match(r'^L\.(.+?)(?:\.[AB])?(?:-\d+)?$', s, re.IGNORECASE)
+                    if m:
+                        return 'LV' + re.sub(r'[^A-Za-z0-9]', '', m.group(1))
+                    return s.upper()
+
+                for txt in list(self._beam_texts or []) + list(beam.get('texts') or []):
+                    raw = str(txt.get('text') or '').strip()
+                    if not beam_name_re.match(raw):
+                        continue
+                    pos = txt.get('pos') or []
+                    if len(pos) < 2:
+                        continue
+                    try:
+                        dist = math.hypot(float(pos[0]) - cx, float(pos[1]) - cy)
+                    except Exception:
+                        continue
+                    if dist <= 220.0:
+                        candidates.append((dist, _norm(raw)))
+                if not candidates:
+                    return ''
+                return sorted(candidates, key=lambda x: x[0])[0][1]
+
+            def _beam_detail(beam: dict, bb: tuple[float, float, float, float] | None, note: str) -> str:
+                local_name = _beam_local_name(beam, bb)
+                if not local_name:
+                    return ''
+                bits = [f'Viga: {local_name}']
+                dim = _beam_dim_near(beam, bb)
+                if dim:
+                    bits.append(f'dim: {dim}')
+                bits.append(note)
+                return '  ·  '.join(bits)
+
+            def _dynamic_face_interpretation(row: dict, pillar: dict) -> dict[str, dict[str, list[str]]]:
+                pts = row.get('_points') or pillar.get('points') or []
+                if not pts:
+                    return {
+                        fid: {'lajes': [], 'passa': [], 'chega': [], 'interior': []}
+                        for fid in ('A', 'B', 'C', 'D')
+                    }
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                px0, px1 = min(xs), max(xs)
+                py0, py1 = min(ys), max(ys)
+                pw, ph = px1 - px0, py1 - py0
+                vertical_pillar = ph > pw
+                face_len = {'A': ph, 'B': ph, 'C': pw, 'D': pw} if vertical_pillar else {'A': pw, 'B': pw, 'C': ph, 'D': ph}
+                tol = max(6.0, min(max(pw, ph) * 0.12, 18.0))
+                influence = max(160.0, max(pw, ph) * 2.2)
+                result = {
+                    fid: {'lajes': [], 'passa': [], 'chega': [], 'interior': []}
+                    for fid in ('A', 'B', 'C', 'D')
+                }
+
+                for fid in ('A', 'B', 'C', 'D'):
+                    entries = _entries_for_side(pillar, fid)
+                    lajes = [
+                        _entry_laje_detail(e) for e in entries
+                        if (e.get('content_type') or 'laje') in ('laje', 'both') and e.get('laje')
+                    ]
+                    result[fid]['lajes'].extend(lajes)
+
+                def _add(fid: str, kind: str, text: str) -> None:
+                    if not text:
+                        return
+                    m = re.match(r'^Viga:\s*([^·]+)', text)
+                    if m:
+                        name = m.group(1).strip()
+                        if any(existing.startswith(f'Viga: {name}  ') or existing == f'Viga: {name}' for existing in result[fid][kind]):
+                            return
+                    if text not in result[fid][kind]:
+                        result[fid][kind].append(text)
+
+                def _seg_bbox(seg: dict) -> tuple[float, float, float, float] | None:
+                    pts = [_as_point(p) for p in (seg.get('points') or [])]
+                    pts = [p for p in pts if p is not None]
+                    if len(pts) < 2:
+                        return None
+                    xs_ = [p[0] for p in pts]
+                    ys_ = [p[1] for p in pts]
+                    return min(xs_), min(ys_), max(xs_), max(ys_)
+
+                def _seg_detail(seg: dict, note: str) -> str:
+                    name = str(seg.get('beam_name') or '').strip()
+                    if not name:
+                        name = 'SEM_NOME'
+                    bits = [f'Viga: {name}']
+                    width = str(seg.get('width') or '').strip()
+                    if width:
+                        bits.append(f'dim: {width}')
+                    bits.append(note)
+                    return '  ·  '.join(bits)
+
+                # Fonte preferencial para nome de viga: segmentos já consolidados
+                # para FV/LV. Eles carregam beam_name por trecho; texto próximo fica
+                # apenas como fallback bruto mais abaixo.
+                segment_groups = getattr(self, '_segment_data', {}) or {}
+                for group_name in (
+                    'lateral_a_passa', 'lateral_b_passa',
+                    'fundo',
+                ):
+                    for seg in segment_groups.get(group_name, []) or []:
+                        bb = _seg_bbox(seg)
+                        if not bb:
+                            continue
+                        bx0, by0, bx1, by1 = bb
+                        bw, bh = bx1 - bx0, by1 - by0
+                        is_vert_seg = bh >= max(10.0, bw * 3.0)
+                        is_horiz_seg = bw >= max(10.0, bh * 3.0)
+
+                        if vertical_pillar:
+                            if is_vert_seg:
+                                gap_y = _interval_gap(by0, by1, py0, py1)
+                                if gap_y <= tol:
+                                    touches_a = min(abs(bx0 - px0), abs(bx1 - px0)) <= tol or (bx0 <= px0 <= bx1)
+                                    touches_b = min(abs(bx0 - px1), abs(bx1 - px1)) <= tol or (bx0 <= px1 <= bx1)
+                                    overlaps_width = _interval_overlap(bx0, bx1, px0, px1) >= max(1.0, min(pw * 0.45, tol))
+                                    if touches_a:
+                                        _add('A', 'passa', _seg_detail(seg, 'corre ao longo da face A'))
+                                    if touches_b:
+                                        _add('B', 'passa', _seg_detail(seg, 'corre ao longo da face B'))
+                                    # Se o mesmo trecho vertical toca o pilar e continua
+                                    # para fora pelo eixo, a face curta vira interior.
+                                    if (touches_a or touches_b or overlaps_width) and by1 >= py1 + tol:
+                                        _add('C', 'interior', _seg_detail(seg, 'face C é limite interno; viga continua no eixo do pilar'))
+                                    if (touches_a or touches_b or overlaps_width) and by0 <= py0 - tol:
+                                        _add('D', 'interior', _seg_detail(seg, 'face D é limite interno; viga continua no eixo do pilar'))
+                            if is_horiz_seg:
+                                gap_x = _interval_gap(bx0, bx1, px0, px1)
+                                if gap_x <= tol:
+                                    if min(abs(by0 - py1), abs(by1 - py1)) <= tol or (by0 <= py1 <= by1):
+                                        _add('C', 'passa', _seg_detail(seg, 'corre ao longo da face C'))
+                                    if min(abs(by0 - py0), abs(by1 - py0)) <= tol or (by0 <= py0 <= by1):
+                                        _add('D', 'passa', _seg_detail(seg, 'corre ao longo da face D'))
+                                # Viga perpendicular chegando/atravessando a faixa do
+                                # pilar: para faces longas A/B, registrar chegada sem
+                                # inventar nome por texto local.
+                                gap_y = _interval_gap(by0, by1, py0, py1)
+                                if gap_y <= influence and _interval_overlap(bx0, bx1, px0, px1) > 0:
+                                    _add('A', 'chega', _seg_detail(seg, 'chega perpendicularmente na face A'))
+                                    _add('B', 'chega', _seg_detail(seg, 'chega perpendicularmente na face B'))
+                                elif gap_y <= influence:
+                                    if min(abs(bx0 - px0), abs(bx1 - px0)) <= tol and min(bx0, bx1) < px0 - tol:
+                                        _add('A', 'chega', _seg_detail(seg, 'chega perpendicularmente na face A'))
+                                    if min(abs(bx0 - px1), abs(bx1 - px1)) <= tol and max(bx0, bx1) > px1 + tol:
+                                        _add('B', 'chega', _seg_detail(seg, 'chega perpendicularmente na face B'))
+                        else:
+                            if is_horiz_seg:
+                                gap_x = _interval_gap(bx0, bx1, px0, px1)
+                                if gap_x <= tol:
+                                    touches_a = min(abs(by0 - py0), abs(by1 - py0)) <= tol or (by0 <= py0 <= by1)
+                                    touches_b = min(abs(by0 - py1), abs(by1 - py1)) <= tol or (by0 <= py1 <= by1)
+                                    overlaps_height = _interval_overlap(by0, by1, py0, py1) >= max(1.0, min(ph * 0.45, tol))
+                                    if touches_a:
+                                        _add('A', 'passa', _seg_detail(seg, 'corre ao longo da face A'))
+                                    if touches_b:
+                                        _add('B', 'passa', _seg_detail(seg, 'corre ao longo da face B'))
+                                    if (touches_a or touches_b or overlaps_height) and bx0 <= px0 - tol:
+                                        _add('C', 'interior', _seg_detail(seg, 'face C é limite interno; viga continua no eixo do pilar'))
+                                    if (touches_a or touches_b or overlaps_height) and bx1 >= px1 + tol:
+                                        _add('D', 'interior', _seg_detail(seg, 'face D é limite interno; viga continua no eixo do pilar'))
+                            if is_vert_seg:
+                                gap_y = _interval_gap(by0, by1, py0, py1)
+                                if gap_y <= tol:
+                                    if min(abs(bx0 - px0), abs(bx1 - px0)) <= tol or (bx0 <= px0 <= bx1):
+                                        _add('C', 'passa', _seg_detail(seg, 'corre ao longo da face C'))
+                                    if min(abs(bx0 - px1), abs(bx1 - px1)) <= tol or (bx0 <= px1 <= bx1):
+                                        _add('D', 'passa', _seg_detail(seg, 'corre ao longo da face D'))
+
+                def _retag_viga_detail(text: str, note: str) -> str:
+                    m = re.match(r'^Viga:\s*([^·]+?)(?:\s*·\s*dim:\s*([^·]+?))?(?:\s*·|$)', text)
+                    if not m:
+                        return text
+                    bits = [f'Viga: {m.group(1).strip()}']
+                    if m.group(2):
+                        bits.append(f'dim: {m.group(2).strip()}')
+                    bits.append(note)
+                    return '  ·  '.join(bits)
+
+                # Em pilares verticais seriados (P2/P3...), a face C pode depender
+                # dos mesmos vínculos de A/B: uma viga passa no eixo do pilar e outra
+                # cruza perpendicularmente. Só derivar quando C ainda não teve
+                # segmento horizontal explícito, para não contaminar casos como P1.
+                if vertical_pillar and not result['C']['passa']:
+                    for source in (
+                        result['A']['passa'] + result['B']['passa'] +
+                        result['A']['chega'] + result['B']['chega']
+                    ):
+                        _add(
+                            'C',
+                            'passa',
+                            _retag_viga_detail(source, 'vínculo derivado de A/B para validação da face C'),
+                        )
+
+                for beam in self._beams:
+                    bname = str(beam.get('name') or '')
+                    if not bname or bname.upper().startswith('LV-'):
+                        continue
+                    segments = _beam_segment_bboxes(beam)
+                    if not segments:
+                        continue
+
+                    # Linhas paralelas ao eixo maior do pilar, encostadas nas faces longas.
+                    # Um mesmo beam do SA pode carregar ocorrencias vizinhas. Para nao
+                    # contaminar a ficha, guardamos so o segmento local de menor gap.
+                    left_cand = right_cand = bottom_cand = top_cand = None
+
+                    def _prefer_segment(current, score: tuple[float, float], bb):
+                        if current is None or score < current[0]:
+                            return score, bb
+                        return current
+                    for _label, bb in segments:
+                        bx0, by0, bx1, by1 = bb
+                        bw, bh = bx1 - bx0, by1 - by0
+                        is_vert_seg = bh >= max(10.0, bw * 3.0)
+                        is_horiz_seg = bw >= max(10.0, bh * 3.0)
+
+                        if vertical_pillar:
+                            if is_vert_seg:
+                                gap_y = _interval_gap(by0, by1, py0, py1)
+                                if gap_y <= tol:
+                                    score = (gap_y, abs(((by0 + by1) / 2.0) - ((py0 + py1) / 2.0)))
+                                    if min(abs(bx0 - px0), abs(bx1 - px0)) <= tol:
+                                        left_cand = _prefer_segment(left_cand, score, bb)
+                                    if min(abs(bx0 - px1), abs(bx1 - px1)) <= tol:
+                                        right_cand = _prefer_segment(right_cand, score, bb)
+                            if is_horiz_seg and py0 - influence <= (by0 + by1) / 2.0 <= py1 + influence:
+                                touches_a = min(abs(bx0 - px0), abs(bx1 - px0)) <= tol
+                                touches_b = min(abs(bx0 - px1), abs(bx1 - px1)) <= tol
+                                if touches_a and min(bx0, bx1) < px0 - tol:
+                                    _add('A', 'chega', _beam_detail(beam, bb, 'chega perpendicularmente na face A'))
+                                if touches_b and max(bx0, bx1) > px1 + tol:
+                                    _add('B', 'chega', _beam_detail(beam, bb, 'chega perpendicularmente na face B'))
+                        else:
+                            if is_horiz_seg:
+                                gap_x = _interval_gap(bx0, bx1, px0, px1)
+                                if gap_x <= tol:
+                                    score = (gap_x, abs(((bx0 + bx1) / 2.0) - ((px0 + px1) / 2.0)))
+                                    if min(abs(by0 - py0), abs(by1 - py0)) <= tol:
+                                        bottom_cand = _prefer_segment(bottom_cand, score, bb)
+                                    if min(abs(by0 - py1), abs(by1 - py1)) <= tol:
+                                        top_cand = _prefer_segment(top_cand, score, bb)
+                            if is_vert_seg and px0 - influence <= (bx0 + bx1) / 2.0 <= px1 + influence:
+                                touches_c = min(abs(by0 - py0), abs(by1 - py0)) <= tol
+                                touches_d = min(abs(by0 - py1), abs(by1 - py1)) <= tol
+                                if touches_c and min(by0, by1) < py0 - tol:
+                                    _add('C', 'chega', _beam_detail(beam, bb, 'chega perpendicularmente na face C'))
+                                if touches_d and max(by0, by1) > py1 + tol:
+                                    _add('D', 'chega', _beam_detail(beam, bb, 'chega perpendicularmente na face D'))
+
+                    if vertical_pillar:
+                        left_bb = left_cand[1] if left_cand else None
+                        right_bb = right_cand[1] if right_cand else None
+                        if left_bb and not result['A']['passa']:
+                            _add('A', 'passa', _beam_detail(beam, left_bb, 'corre ao longo da face A'))
+                        if right_bb and not result['B']['passa']:
+                            _add('B', 'passa', _beam_detail(beam, right_bb, 'corre ao longo da face B'))
+                        if left_bb and right_bb and not (result['C']['interior'] or result['D']['interior']):
+                            # Mesma seção do pilar seguindo no eixo N-S: face curta vira limite interno.
+                            sel_y0 = min(left_bb[1], right_bb[1])
+                            sel_y1 = max(left_bb[3], right_bb[3])
+                            ref_bb = left_bb or right_bb
+                            if sel_y1 >= py1 + tol:
+                                _add('C', 'interior', _beam_detail(beam, ref_bb, 'face C é limite interno; viga continua no eixo do pilar'))
+                            if sel_y0 <= py0 - tol:
+                                _add('D', 'interior', _beam_detail(beam, ref_bb, 'face D é limite interno; viga continua no eixo do pilar'))
+                    else:
+                        bottom_bb = bottom_cand[1] if bottom_cand else None
+                        top_bb = top_cand[1] if top_cand else None
+                        if bottom_bb and not result['A']['passa']:
+                            _add('A', 'passa', _beam_detail(beam, bottom_bb, 'corre ao longo da face A'))
+                        if top_bb and not result['B']['passa']:
+                            _add('B', 'passa', _beam_detail(beam, top_bb, 'corre ao longo da face B'))
+                        if bottom_bb and top_bb and not (result['C']['interior'] or result['D']['interior']):
+                            sel_x0 = min(bottom_bb[0], top_bb[0])
+                            sel_x1 = max(bottom_bb[2], top_bb[2])
+                            ref_bb = bottom_bb or top_bb
+                            if sel_x0 <= px0 - tol:
+                                _add('C', 'interior', _beam_detail(beam, ref_bb, 'face C é limite interno; viga continua no eixo do pilar'))
+                            if sel_x1 >= px1 + tol:
+                                _add('D', 'interior', _beam_detail(beam, ref_bb, 'face D é limite interno; viga continua no eixo do pilar'))
+
+                return result
+
+            def _none_msg(text: str) -> str:
+                return f'<span class="muted">— {html.escape(text)}</span>'
+
+            def _laje_answer_detail(laje_detail: str, has_laje: bool) -> str:
+                return laje_detail
+
+            def _passa_answer_detail(viga_detail: str, has_viga: bool, fid: str) -> str:
+                return viga_detail
+
+            def _chega_answer_detail(viga_detail: str, has_viga: bool, fid: str) -> str:
+                return viga_detail
+
+            def _interior_answer_detail(viga_detail: str, has_viga: bool, fid: str) -> str:
+                return viga_detail if has_viga else _none_msg('nenhuma')
+
+            def _valid_row(base_key: str, suffix: str, badge: str, cls: str, detail: str) -> str:
+                cb_key = f'val_{base_key}_{suffix}'.replace(' ', '_')
+                return (
+                    '<label class="valid-row">'
+                    f'<input type="checkbox" class="validacao-cb" '
+                    f'data-cbkey="{html.escape(cb_key)}" onchange="toggleValidacao(this)">'
+                    '<span class="valid-lbl">Aprovado</span>'
+                    f'<span class="valid-badge {cls}">{html.escape(badge)}</span>'
+                    f'<div class="valid-detail">{detail}</div>'
+                    '</label>'
+                )
+
+            def _mode_row(base_key: str, suffix: str, badge: str, cls: str, detail: str) -> str:
+                cb_key = f'val_{base_key}_{suffix}'.replace(' ', '_')
+                return (
+                    '<label class="mode-row">'
+                    f'<input type="checkbox" class="validacao-cb" '
+                    f'data-cbkey="{html.escape(cb_key)}" onchange="toggleValidacao(this)">'
+                    '<span class="valid-lbl">Aprovado</span>'
+                    f'<span class="valid-badge {cls}">{html.escape(badge)}</span>'
+                    f'<div class="valid-detail">{detail}</div>'
+                    '</label>'
+                )
+
+            def _field_table(rows_: list[tuple[str, str]]) -> str:
+                return '<table class="field-table">' + ''.join(
+                    f'<tr><td>{html.escape(k)}</td><td>{v}</td></tr>' for k, v in rows_
+                ) + '</table>'
+
+            def _face_validation_section(row: dict, pillar: dict, lbls: dict, base_key: str) -> str:
+                comp, larg = _pillar_dims(row.get('_points') or [])
+                cards = []
+                for fid in ('A', 'B', 'C', 'D'):
+                    cell = (row.get(f'Lado {fid}') or 'nulo').strip() or 'nulo'
+                    entries = _entries_for_side(pillar, fid)
+                    lajes = [
+                        _entry_laje_detail(e) for e in entries
+                        if (e.get('content_type') or 'laje') in ('laje', 'both') and e.get('laje')
+                    ]
+                    vigas = [
+                        _entry_viga_detail(e) for e in entries
+                        if (e.get('content_type') or '') in ('viga', 'both') and e.get('viga')
+                    ]
+                    laje_detail = (
+                        '<br>'.join(html.escape(x) for x in lajes)
+                        if lajes else '<span class="muted">— nenhuma</span>'
+                    )
+                    viga_detail = (
+                        '<br>'.join(html.escape(x) for x in vigas)
+                        if vigas else '<span class="muted">— nenhuma</span>'
+                    )
+                    has_laje = bool(lajes)
+                    has_viga = bool(vigas)
+                    interior_row = (
+                        _valid_row(
+                            base_key, f'{fid}_dentro_interior', 'Dentro do interior', 'vb-grade',
+                            _interior_answer_detail(viga_detail, has_viga, fid)
+                        )
+                        if has_viga else ''
+                    )
+                    cards.append(
+                        f'<div class="valid-card">'
+                        f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
+                        + _valid_row(
+                            base_key, f'{fid}_lajes', 'Lajes', 'vb-sa',
+                            _laje_answer_detail(laje_detail, has_laje)
+                        )
+                        + _valid_row(
+                            base_key, f'{fid}_vigas_passa', 'Vigas que passam', 'vb-passa',
+                            _passa_answer_detail(viga_detail, has_viga, fid)
+                        )
+                        + _valid_row(
+                            base_key, f'{fid}_vigas_para', 'Vigas que chegam', 'vb-para',
+                            _chega_answer_detail(viga_detail, has_viga, fid)
+                        )
+                        + interior_row
+                        + f'</div>'
+                    )
+                return (
+                    '<div class="sec"><div class="sec-title">Validação N1 — Interpretação ABCD por face</div>'
+                    '<div class="sec-body">'
+                    '<div style="font-size:10px;color:#777;margin-bottom:7px">'
+                    'Checklist humano no formato do guia interpretacao_abcd.html: cada checkbox aprova diretamente a resposta da categoria abaixo.</div>'
+                    f'<div class="valid-grid">{"".join(cards)}</div></div></div>'
+                )
+
+            def _cima_section(row: dict, base_key: str) -> str:
+                comp, larg = _pillar_dims(row.get('_points') or [])
+                detail = _field_table([
+                    ('comprimento', html.escape(_fmt_num(comp)) + ' cm'),
+                    ('largura', html.escape(_fmt_num(larg)) + ' cm'),
+                    ('formato', html.escape(str(row.get('Formato') or '—'))),
+                    ('fonte', 'bbox/pontos SA + Foto N1'),
+                ])
+                return (
+                    '<div class="sec"><div class="sec-title">CIMA — validação única</div>'
+                    '<div class="sec-body"><div class="mode-card">'
+                    '<div class="mode-title cima">Visão CIMA não separa PARA/PASSA</div>'
+                    + _mode_row(base_key, 'cima_unico', 'CIMA', 'vb-cima', detail)
+                    + '<div class="mode-note">Use esta validação única para o topo do pilar. '
+                    'A separação em dois modos começa em ABCD e GRADES.</div>'
+                    '</div></div></div>'
+                )
+
+            def _modes_section(row: dict, base_key: str) -> str:
+                comp, larg = _pillar_dims(row.get('_points') or [])
+                face_rows = []
+                for fid in ('A', 'B', 'C', 'D'):
+                    cell = (row.get(f'Lado {fid}') or 'nulo').strip() or 'nulo'
+                    face_rows.append((
+                        f'Lado {fid}',
+                        f'{html.escape(_face_kind(cell))} · '
+                        f'{html.escape("longa" if fid in ("A", "B") else "curta")} · '
+                        f'{html.escape(_fmt_num(_face_len(fid, comp, larg)))}cm<br>'
+                        f'<span class="muted">{html.escape(cell).replace(chr(10), "<br>")}</span>'
+                    ))
+                common = _field_table(face_rows)
+                para_detail = (
+                    common
+                    + '<div class="mode-note">Modo PARA: usar quando a lista/comparison engine classificar '
+                        'a viga como chegada/terminando no pilar. ABCD deve representar abertura/recorte de chegada '
+                        'ou “Para no canto” em Modo Ini/Nova; '
+                    'GRADES segue a mesma interpretação de painéis, com alturas locais.</div>'
+                )
+                passa_detail = (
+                    common
+                    + '<div class="mode-note">Modo PASSA: usar quando a viga passa ao longo da face/parede lateral, '
+                    'ou quando a interpretação for continuidade/engolimento (“Dentro do interior”). '
+                    'ABCD deve preservar essa continuidade; GRADES acompanha os painéis resultantes '
+                    'sem mudar a visão CIMA.</div>'
+                )
+                grade_base = _field_table([
+                    ('A/B', 'gerar grade normalmente nas faces longas quando houver painel'),
+                    ('C/D', 'gerar somente se a largura da face curta for superior a 50cm'),
+                    ('topo', 'sarrafos verticais terminam 15cm abaixo do topo local do painel'),
+                    ('largura', 'cada grade usa a largura do respectivo painel/trecho'),
+                    ('extremos', 'sarrafos externos 7cm; internos/encontros/distâncias 3,5cm'),
+                ])
+                grades_para = grade_base + '<div class="mode-note">GRADES PARA: compatibilizar com o ABCD modo PARA; se a viga cria abertura/recorte, cada vertical recebe altura isolada.</div>'
+                grades_passa = grade_base + '<div class="mode-note">GRADES PASSA: compatibilizar com o ABCD modo PASSA; preservar continuidade/engolimento e separar grades por trecho real do painel.</div>'
+                return (
+                    '<div class="sec"><div class="sec-title">Saídas N3 por modo — ABCD e GRADES</div>'
+                    '<div class="sec-body"><div class="mode-grid">'
+                    '<div class="mode-card"><div class="mode-title para">ABCD — caso a viga PARE</div>'
+                    + _mode_row(base_key, 'abcd_para', 'ABCD PARA', 'vb-para', para_detail)
+                    + '</div>'
+                    '<div class="mode-card"><div class="mode-title passa">ABCD — caso a viga PASSE</div>'
+                    + _mode_row(base_key, 'abcd_passa', 'ABCD PASSA', 'vb-passa', passa_detail)
+                    + '</div>'
+                    '<div class="mode-card"><div class="mode-title para">GRADES — caso a viga PARE</div>'
+                    + _mode_row(base_key, 'grades_para', 'GRADES PARA', 'vb-grade', grades_para)
+                    + '</div>'
+                    '<div class="mode-card"><div class="mode-title passa">GRADES — caso a viga PASSE</div>'
+                    + _mode_row(base_key, 'grades_passa', 'GRADES PASSA', 'vb-grade', grades_passa)
+                    + '</div>'
+                    '</div></div></div>'
+                )
+
+            def _load_n3_pilar_json(item_name: str) -> dict:
+                if not self._obra:
+                    return {}
+                try:
+                    import json as _json
+                    json_path = os.path.join(
+                        'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                        'Fase-4_Sincronizacao', 'JSON_Pilares', f'{item_name}.json'
+                    )
+                    if not os.path.exists(json_path):
+                        return {}
+                    with open(json_path, encoding='utf-8') as f:
+                        return _json.load(f) or {}
+                except Exception:
+                    return {}
+
+            def _segments_label(values: list) -> str:
+                vals = [_fmt_num(v) for v in (values or [])]
+                return ' | '.join(vals) if vals else '—'
+
+            def _whole_and_fraction_local(value, tolerance=1e-6):
+                value = max(0.0, float(value))
+                nearest = round(value)
+                if abs(value - nearest) <= tolerance:
+                    return int(nearest), 0.0
+                whole = math.floor(value)
+                return whole, round(value - whole, 6)
+
+            def _balanced_segments_local(total, count):
+                if count <= 0:
+                    return []
+                whole, fraction = _whole_and_fraction_local(total)
+                base, remainder = divmod(whole, count)
+                parts = [float(base)] * count
+                for index in range(count - remainder, count):
+                    if 0 <= index < count:
+                        parts[index] += 1.0
+                if fraction:
+                    parts[-1] += fraction
+                return parts
+
+            def _integer_segments_local(total_w, offsets, preferred=None, count=4, tol=3.0, max_shift=20.0):
+                total_w = float(total_w)
+                if total_w <= 0 or count <= 0:
+                    return []
+                whole, fraction = _whole_and_fraction_local(total_w)
+                if whole < count:
+                    return _balanced_segments_local(total_w, count)
+                ideal = total_w / count
+                low = max(1, int(math.floor(ideal - max_shift)))
+                high = max(low, int(math.ceil(ideal + max_shift)))
+                preferred = [float(v) for v in (preferred or []) if float(v) > 0]
+                if len(preferred) != count or abs(sum(preferred) - total_w) > 0.5:
+                    preferred = []
+                offsets = [float(value) for value in (offsets or [])]
+                best = None
+                fraction_indexes = [count - 1] if not fraction else list(range(count))
+                for first in range(low, high + 1):
+                    for second in range(low, high + 1):
+                        for third in range(low, high + 1):
+                            integers = [first, second, third]
+                            last = whole - sum(integers)
+                            if last < low or last > high:
+                                continue
+                            integers.append(last)
+                            for fraction_index in fraction_indexes:
+                                segments = [float(value) for value in integers]
+                                if fraction:
+                                    segments[fraction_index] += fraction
+                                boundaries = []
+                                cumulative = 0.0
+                                for segment in segments[:-1]:
+                                    cumulative += segment
+                                    boundaries.append(cumulative)
+                                penetrations = [
+                                    tol - abs(boundary - offset)
+                                    for boundary in boundaries
+                                    for offset in offsets
+                                    if abs(boundary - offset) <= tol
+                                ]
+                                conflict_count = len(penetrations)
+                                conflict_depth = round(sum(value + 1e-6 for value in penetrations), 6)
+                                balance = round(sum((value - ideal) ** 2 for value in segments), 6)
+                                preferred_delta = (
+                                    round(sum(abs(a - b) for a, b in zip(segments, preferred)), 6)
+                                    if preferred else balance
+                                )
+                                fraction_rank = 0 if fraction_index == count - 1 else 1
+                                score = (
+                                    conflict_count,
+                                    conflict_depth,
+                                    preferred_delta,
+                                    balance,
+                                    fraction_rank,
+                                    tuple(segments),
+                                )
+                                if best is None or score < best[0]:
+                                    best = (score, segments)
+                if best:
+                    return best[1]
+                return _balanced_segments_local(total_w, count)
+
+            def _bolt_offsets_from_pj_local(pj: dict, grade_w: float) -> list:
+                bolt_xs = []
+                bx = -1.0
+                limit = float(grade_w) + 1.0
+                for i in range(1, 9):
+                    sp = float(pj.get(f'par_{i}_{i+1}') or 0)
+                    if sp <= 0:
+                        break
+                    bx += sp
+                    if bx >= limit - 1.0:
+                        break
+                    bolt_xs.append(bx)
+                return bolt_xs
+
+            def _cima_info_card(row: dict, base_key: str) -> str:
+                pj = _load_n3_pilar_json(row.get('_nome') or '')
+                comp_geo, larg_geo = _pillar_dims(row.get('_points') or [])
+                comp = float(pj.get('comprimento') or comp_geo or 0)
+                larg = float(pj.get('largura') or larg_geo or 0)
+                fallback_total = comp + 22.0
+                grade_widths = [
+                    float(pj.get(f'grade_{i}') or 0)
+                    for i in range(1, 4)
+                    if float(pj.get(f'grade_{i}') or 0) > 0
+                ]
+                if not grade_widths:
+                    grade_widths = [fallback_total]
+                gaps = [
+                    float(pj.get(f'distancia_{i}') or 0)
+                    for i in range(1, len(grade_widths))
+                    if float(pj.get(f'distancia_{i}') or 0) > 0
+                ]
+                total_externo = sum(grade_widths) + sum(gaps)
+                bolt_offsets = _bolt_offsets_from_pj_local(pj, total_externo)
+                divs = []
+                cursor = 0.0
+                for index, grade_w in enumerate(grade_widths):
+                    local_bolts = [
+                        offset - cursor
+                        for offset in bolt_offsets
+                        if cursor - 3.0 <= offset <= cursor + grade_w + 3.0
+                    ]
+                    preferred = pj.get(f'grade_{index + 1}_div_a') or []
+                    divs.append(_integer_segments_local(grade_w, local_bolts, preferred=preferred))
+                    if index < len(gaps):
+                        cursor += grade_w + gaps[index]
+                bolt_chain = [0.0] + [float(x) for x in bolt_offsets] + [total_externo]
+                bolt_spans = [b - a for a, b in zip(bolt_chain[:-1], bolt_chain[1:])]
+                divs_a = divs or [[]]
+                divs_b = [list(reversed(d)) for d in reversed(divs_a)]
+                grade_label = ' + '.join(_fmt_num(w) for w in grade_widths)
+                rows_cima = [
+                    ('comprimento interno', f'{html.escape(_fmt_num(comp))} cm'),
+                    ('largura interna', f'{html.escape(_fmt_num(larg))} cm'),
+                    ('comprimento +22', f'{html.escape(_fmt_num(comp))} + 22 = <b>{html.escape(_fmt_num(total_externo))} cm</b>'),
+                    ('parafusos', f'offsets: {html.escape(_segments_label(bolt_offsets))} cm'),
+                    ('cotas parafusos', f'{html.escape(_segments_label(bolt_spans))} cm'),
+                    ('layout grades', f'{len(grade_widths)} grade(s): {html.escape(grade_label)} cm; gaps {html.escape(_segments_label(gaps))}'),
+                    ('quadradinhos A', html.escape(' ; '.join(f'G{i+1}: {_segments_label(d)}' for i, d in enumerate(divs_a)))),
+                    ('quadradinhos B', html.escape(' ; '.join(f'G{i+1}: {_segments_label(d)}' for i, d in enumerate(divs_b))) + ' <span class="muted">(espelhado do A)</span>'),
+                ]
+                detail = _field_table(rows_cima)
+                return (
+                    '<div class="mode-card">'
+                    '<div class="mode-title cima">CIMA — parafusos + grades em planta</div>'
+                    + _mode_row(base_key, 'cima_unico', 'CIMA', 'vb-cima', detail)
+                    + '<div class="mode-note">Valida o desenho em planta: comprimento externo (+22), '
+                    'cadeia de parafusos e espaçamentos dos sarrafos verticais das grades. '
+                    'Em pilares especiais esta mesma lógica será aberta por face A/B/C/D/E/F/G/H.</div>'
+                    '</div>'
+                )
+
+            def _face_mode_rows(row: dict, mode: str) -> str:
+                comp, larg = _pillar_dims(row.get('_points') or [])
+                face_rows = []
+                for fid in ('A', 'B', 'C', 'D'):
+                    cell = (row.get(f'Lado {fid}') or 'nulo').strip() or 'nulo'
+                    mode_hint = (
+                        'chegada/recorte · guia: Vigas que chegam/Para no canto'
+                        if mode == 'para'
+                        else 'passagem/continuidade · guia: Vigas que passam/Dentro do interior'
+                    )
+                    face_rows.append((
+                        f'Lado {fid}',
+                        f'{html.escape(_face_kind(cell))} · '
+                        f'{html.escape("longa" if fid in ("A", "B") else "curta")} · '
+                        f'{html.escape(_fmt_num(_face_len(fid, comp, larg)))}cm · {mode_hint}<br>'
+                        f'<span class="muted">{html.escape(cell).replace(chr(10), "<br>")}</span>'
+                    ))
+                return _field_table(face_rows)
+
+            def _abcd_info_card(row: dict, base_key: str, mode: str) -> str:
+                is_para = mode == 'para'
+                title = 'ABCD — caso a viga PARE' if is_para else 'ABCD — caso a viga PASSE'
+                badge = 'ABCD PARA' if is_para else 'ABCD PASSA'
+                cls = 'vb-para' if is_para else 'vb-passa'
+                note = (
+                    'Modo PARA: validar aberturas/recortes quando a viga chega perpendicularmente e termina no pilar; '
+                    'equivale às categorias “Vigas que chegam” e “Para no canto” (Modo Ini/Nova) do guia ABCD.'
+                    if is_para else
+                    'Modo PASSA: validar parede lateral/maior profundidade quando a viga passa ao longo da face, '
+                    'e validar engolimento quando a face é “Dentro do interior” no guia ABCD.'
+                )
+                detail = _face_mode_rows(row, mode) + f'<div class="mode-note">{note}</div>'
+                return (
+                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
+                    + _mode_row(base_key, f'abcd_{mode}', badge, cls, detail)
+                    + '</div>'
+                )
+
+            def _grades_info_card(row: dict, base_key: str, mode: str) -> str:
+                comp, larg = _pillar_dims(row.get('_points') or [])
+                is_para = mode == 'para'
+                title = 'GRADES — caso a viga PARE' if is_para else 'GRADES — caso a viga PASSE'
+                badge = 'GRADES PARA' if is_para else 'GRADES PASSA'
+                face_rows = []
+                for fid in ('A', 'B', 'C', 'D'):
+                    width = _face_len(fid, comp, larg)
+                    eligible = fid in ('A', 'B') or width > 50.0
+                    face_rows.append((
+                        f'Lado {fid}',
+                        f'largura {_fmt_num(width)}cm · '
+                        f'{"gera grade" if eligible else "não gera grade automática"} · '
+                        f'{"face longa" if fid in ("A", "B") else "face curta >50cm exigida"}'
+                    ))
+                detail = _field_table(face_rows + [
+                    ('topo local', 'cada sarrafo vertical termina 15cm abaixo do topo local do painel'),
+                    ('largura grade', 'usa a largura do painel/trecho; se houver múltiplas grades, gaps são cotados'),
+                    ('sarrafos', 'extremos isolados 7cm; centros/encontros/distância_1/distância_2 = 3,5cm'),
+                    ('modo', 'abertura/recorte de chegada' if is_para else 'continuidade/engolimento preservado'),
+                ])
+                return (
+                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
+                    + _mode_row(base_key, f'grades_{mode}', badge, 'vb-grade', detail)
+                    + '</div>'
+                )
+
+            def _abcd_info_card(row: dict, pillar: dict, lbls: dict, base_key: str, mode: str) -> str:
+                is_para = mode == 'para'
+                title = 'ABCD — caso a viga PARE' if is_para else 'ABCD — caso a viga PASSE'
+                cards = []
+                for fid in ('A', 'B', 'C', 'D'):
+                    entries = _entries_for_side(pillar, fid)
+                    lajes = [
+                        _entry_laje_detail(e) for e in entries
+                        if (e.get('content_type') or 'laje') in ('laje', 'both') and e.get('laje')
+                    ]
+                    vigas = [
+                        _entry_viga_detail(e) for e in entries
+                        if (e.get('content_type') or '') in ('viga', 'both') and e.get('viga')
+                    ]
+                    laje_detail = (
+                        '<br>'.join(html.escape(x) for x in lajes)
+                        if lajes else '<span class="muted">— nenhuma</span>'
+                    )
+                    viga_detail = (
+                        '<br>'.join(html.escape(x) for x in vigas)
+                        if vigas else '<span class="muted">— nenhuma</span>'
+                    )
+                    interior_row = (
+                        _valid_row(
+                            base_key, f'abcd_{mode}_{fid}_dentro_interior',
+                            'Dentro do interior', 'vb-grade', viga_detail
+                        )
+                        if vigas else ''
+                    )
+                    cards.append(
+                        f'<div class="valid-card">'
+                        f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
+                        + _valid_row(base_key, f'abcd_{mode}_{fid}_lajes', 'Lajes', 'vb-sa', laje_detail)
+                        + _valid_row(base_key, f'abcd_{mode}_{fid}_vigas_passa', 'Vigas que passam', 'vb-passa', viga_detail)
+                        + _valid_row(base_key, f'abcd_{mode}_{fid}_vigas_chegam', 'Vigas que chegam', 'vb-para', viga_detail)
+                        + interior_row
+                        + '</div>'
+                    )
+                return (
+                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
+                    '<div class="mode-note">Formato igual ao guia ABCD: checkbox + categoria + texto interpretado.</div>'
+                    f'<div class="valid-grid">{"".join(cards)}</div>'
+                    '</div>'
+                )
+
+            def _grades_info_card(row: dict, base_key: str, mode: str) -> str:
+                comp, larg = _pillar_dims(row.get('_points') or [])
+                is_para = mode == 'para'
+                title = 'GRADES — caso a viga PARE' if is_para else 'GRADES — caso a viga PASSE'
+                badge = 'GRADES PARA' if is_para else 'GRADES PASSA'
+                rows_html = ''
+                for fid in ('A', 'B', 'C', 'D'):
+                    width = _face_len(fid, comp, larg)
+                    eligible = fid in ('A', 'B') or width > 50.0
+                    detail = (
+                        f'Lado {fid}: largura {_fmt_num(width)}cm  ·  '
+                        f'{"gera grade" if eligible else "não gera grade automática"}  ·  '
+                        f'{"face longa" if fid in ("A", "B") else "face curta: exige largura superior a 50cm"}'
+                    )
+                    rows_html += _mode_row(
+                        base_key, f'grades_{mode}_{fid}', f'Lado {fid}', 'vb-grade',
+                        html.escape(detail)
+                    )
+                rows_html += _mode_row(
+                    base_key, f'grades_{mode}_topo', 'Topo local', 'vb-grade',
+                    'cada sarrafo vertical termina 15cm abaixo do topo local do painel'
+                )
+                rows_html += _mode_row(
+                    base_key, f'grades_{mode}_largura', 'Largura da grade', 'vb-grade',
+                    'cada grade usa a largura do respectivo painel/trecho; quando houver múltiplas grades, as distâncias entre grades também são cotadas'
+                )
+                rows_html += _mode_row(
+                    base_key, f'grades_{mode}_sarrafos', 'Sarrafos', 'vb-grade',
+                    'extremos isolados = 7cm; centros, encontros, distância_1 e distância_2 = 3,5cm'
+                )
+                rows_html += _mode_row(
+                    base_key, f'grades_{mode}_modo', 'Modo', 'vb-grade',
+                    'abertura/recorte de chegada' if is_para else 'continuidade/engolimento preservado'
+                )
+                return (
+                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
+                    f'<div class="mode-note">{badge}: checkbox + item de regra + texto interpretado.</div>'
+                    f'{rows_html}</div>'
+                )
+
+            def _face_card_grid(row: dict, pillar: dict, lbls: dict, base_key: str, prefix: str = '') -> str:
+                face_interp = _dynamic_face_interpretation(row, pillar)
+                cards = []
+                for fid in ('A', 'B', 'C', 'D'):
+                    data = face_interp.get(fid, {})
+                    lajes = data.get('lajes') or []
+                    passa = data.get('passa') or []
+                    chega = data.get('chega') or []
+                    interior = data.get('interior') or []
+                    laje_detail = (
+                        '<br>'.join(html.escape(x) for x in lajes)
+                        if lajes else '<span class="muted">— nenhuma</span>'
+                    )
+                    passa_detail = (
+                        '<br>'.join(html.escape(x) for x in passa)
+                        if passa else '<span class="muted">— nenhuma</span>'
+                    )
+                    chega_detail = (
+                        '<br>'.join(html.escape(x) for x in chega)
+                        if chega else '<span class="muted">— nenhuma</span>'
+                    )
+                    interior_detail = (
+                        '<br>'.join(html.escape(x) for x in interior)
+                        if interior else '<span class="muted">— nenhuma</span>'
+                    )
+                    key_prefix = f'{prefix}_{fid}' if prefix else fid
+                    interior_row = (
+                        _valid_row(
+                            base_key, f'{key_prefix}_dentro_interior',
+                            'Dentro do interior', 'vb-grade', interior_detail
+                        )
+                        if interior else ''
+                    )
+                    cards.append(
+                        f'<div class="valid-card">'
+                        f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
+                        + _valid_row(base_key, f'{key_prefix}_lajes', 'Lajes', 'vb-sa', laje_detail)
+                        + _valid_row(base_key, f'{key_prefix}_vigas_passa', 'Vigas que passam', 'vb-passa', passa_detail)
+                        + _valid_row(base_key, f'{key_prefix}_vigas_chegam', 'Vigas que chegam', 'vb-para', chega_detail)
+                        + interior_row
+                        + '</div>'
+                    )
+                return f'<div class="valid-grid">{"".join(cards)}</div>'
+
+            def _face_validation_section(row: dict, pillar: dict, lbls: dict, base_key: str) -> str:
+                return (
+                    '<div class="sec"><div class="sec-title">Validação N1 — Interpretação ABCD por face</div>'
+                    '<div class="sec-body">'
+                    '<div style="font-size:10px;color:#777;margin-bottom:7px">'
+                    'Checklist humano no formato do guia interpretacao_abcd.html: viga tem prioridade sobre laje quando há parede/chegada geométrica.</div>'
+                    f'{_face_card_grid(row, pillar, lbls, base_key)}</div></div>'
+                )
+
+            def _abcd_info_card(row: dict, pillar: dict, lbls: dict, base_key: str, mode: str) -> str:
+                is_para = mode == 'para'
+                title = 'ABCD — caso a viga PARE' if is_para else 'ABCD — caso a viga PASSE'
+                return (
+                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
+                    '<div class="mode-note">Mesmo motor dinâmico da ficha N1: separa lajes, vigas que passam, vigas que chegam e dentro do interior.</div>'
+                    f'{_face_card_grid(row, pillar, lbls, base_key, f"abcd_{mode}")}'
+                    '</div>'
+                )
+
             def _page(row: dict, idx: int) -> str:
                 nome    = row['_nome']
                 classif = row.get('Classificação') or 'INDETERMINADO'
@@ -6070,6 +7127,8 @@ class PreValidationDialog(QDialog):
                 nivel   = row.get('Nível', '—')
                 aten    = row.get('Atenção', '')
                 pts     = row.get('_points') or []
+                pkey    = row.get('_key') or nome
+                pillar  = self._pillar_report.get(pkey) or self._pillar_report.get(nome, {})
                 cur_dir = os.path.dirname(nav_entries[idx][3])
 
                 # Sidebar
@@ -6164,6 +7223,8 @@ class PreValidationDialog(QDialog):
                     f'<div class="sec-body">{orient_diag}'
                     f'<div class="face-grid">{face_cards}</div></div></div>'
                 )
+                valid_base_key = f'{self._obra}_{self._pavimento}_{slug}_{nome}'.replace(' ', '_')
+                face_validation_section = _face_validation_section(row, pillar, _lbls, valid_base_key)
 
                 # Foto N1
                 geo_b64 = self._render_pilar_dxf_context_b64(
@@ -6188,7 +7249,18 @@ class PreValidationDialog(QDialog):
                     at_k     = (f'aten_{"n4" if n4 else "n3"}_{self._obra}_{self._pavimento}_{nome}'
                                 ).replace(' ', '_')
                     views_html = ''
-                    for vt in ('CIMA', 'ABCD', 'GRADES'):
+                    view_specs = (
+                        [
+                            ('CIMA', 'CIMA', _cima_info_card(row, valid_base_key)),
+                            ('ABCD', 'ABCD — modo PARA', _abcd_info_card(row, pillar, _lbls, valid_base_key, 'para')),
+                            ('ABCD', 'ABCD — modo PASSA', _abcd_info_card(row, pillar, _lbls, valid_base_key, 'passa')),
+                            ('GRADES', 'GRADES — modo PARA', _grades_info_card(row, valid_base_key, 'para')),
+                            ('GRADES', 'GRADES — modo PASSA', _grades_info_card(row, valid_base_key, 'passa')),
+                        ]
+                        if not n4 else
+                        [(vt, vt, '') for vt in ('CIMA', 'ABCD', 'GRADES')]
+                    )
+                    for vt, view_label, prefix_html in view_specs:
                         p    = self._find_pilar_dxf(vt, nome, n4=n4)
                         b64v = self._render_ezdxf_b64(
                             p, width=1500, height=1100, fmt='svg'
@@ -6196,13 +7268,15 @@ class PreValidationDialog(QDialog):
                         if b64v:
                             views_html += (
                                 f'<div class="view-block">'
-                                f'<div class="view-label">{vt}</div>'
+                                f'{prefix_html}'
+                                f'<div class="view-label">{html.escape(view_label)}</div>'
                                 f'{_embed_visual(b64v, "svg", img_cls, vt)}'
                                 f'</div>'
                             )
                         else:
                             views_html += (f'<div class="view-block">'
-                                           f'<div class="view-label" style="color:#444">sem {vt}</div>'
+                                           f'{prefix_html}'
+                                           f'<div class="view-label" style="color:#444">sem {html.escape(view_label)}</div>'
                                            f'</div>')
                     aten_v = (
                         f'<div style="margin-top:8px">'
@@ -6249,6 +7323,7 @@ class PreValidationDialog(QDialog):
                 )
 
                 main = (nav_bar + ident_section + faces_section +
+                        face_validation_section +
                         foto_n1 + n3_section + n4_section + foto_n2 + fichas +
                         '<pre id="_aten_export" style="display:none"></pre>'
                         '<button onclick="exportAnotacoes()" style="margin:12px 0;'

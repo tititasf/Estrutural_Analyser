@@ -1,6 +1,6 @@
 # MASTERPLAN — Arete LATERAL DE VIGA (LV): N2→N4 → N2↔N1 → N1→N3
-**Versão:** 1.0
-**Data:** 2026-06-14
+**Versão:** 1.1
+**Data:** 2026-06-14 | **Atualizado:** 2026-07-05
 **Autor:** Fable (Estrategista) — Cowork
 **Status:** ATIVO — frente paralela (não conflita com PIL/LAJ/FV)
 **Complementa:** `MASTERPLAN-ARETE-QUALITY-GATES.md` (gates G0–G6, paridade canônica §G2 v1.2,
@@ -121,6 +121,25 @@ segmento POR GEOMETRIA, nunca hardcode.
 
 ## 5. FASE LV-B — N2 ↔ N1 (aprender a interpretar)
 
+### Contrato arquitetural N1 de LV (ativo desde 2026-07-05)
+
+LV possui quatro contratos independentes: lado A Para, lado B Para, lado A Passa e
+lado B Passa. Cada contrato escreve somente no slot do seu lado e comportamento.
+Código geométrico auxiliar pode ser compartilhado, mas uma correção em A não pode
+preencher B e uma correção em Para não pode preencher Passa.
+
+`BeamTracer` fica limitado à topologia e geometria bruta compartilhadas. A seleção e
+a escrita das laterais pertencem aos quatro interpretadores LV. Dimensão lateral só
+pode ser propagada entre vínculos LV da mesma viga; FV nunca é fallback. A fonte de
+verdade da decisão e da matriz de regressão é
+`ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md`.
+
+**Persistência N1:** A Para, B Para, A Passa e B Passa têm topologias validadas
+independentes. Quando um contrato recebe validação real de segmento, a reanálise
+não adiciona nem remove segmentos desse contrato; os outros três continuam
+evoluindo. Campos internos ainda não validados são atualizados. Ver
+`PERSISTENCIA-HEADLESS-SA.md`.
+
 Pré-requisito: seção LV na **Tabela de Proveniência de Campos**:
 - **(a) extraível do N1** — b/h da viga (texto "30/60"), comprimento, pilares de extremo,
   cruzamentos, níveis das lajes adjacentes (para a VC)
@@ -132,7 +151,7 @@ Pré-requisito: seção LV na **Tabela de Proveniência de Campos**:
 |-------|---------|
 | LV-B.1 | Seção LV (incl. VC) na Tabela de Proveniência (a/b/c/d) |
 | LV-B.2 | `conversao_n1_diff` LV: convert(campos_N1_SA) vs 3 fichas N2 (VC/A/B) por categoria, no 13_PAV |
-| LV-B.3 | Loop de fixes: deltas (a)/(b) → extratores SA / conversor N1→ficha-robô |
+| LV-B.3 | Loop de fixes: deltas (a)/(b) → interpretador LV dono (A/B × Para/Passa); tocar `BeamTracer` somente para topologia bruta compartilhada; conversor N1→ficha-robô quando o delta for de conversão |
 | LV-B.4 | Campos (c) por estilo/RAG reverso; (d) excluídos com referência |
 
 **Meta:** delta médio (a)+(b) ≤ tolerância em 100% das vigas do 13_PAV (VC + A + B).

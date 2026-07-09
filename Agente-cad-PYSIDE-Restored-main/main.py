@@ -6006,7 +6006,11 @@ class MainWindow(QMainWindow):
         # 1. Pilares consolidados no report
         if hasattr(self, 'pavimento_pillar_report'):
             for p_name, p_data in self.pavimento_pillar_report.items():
-                if p_data.get('classification') == 'NASCE' or p_data.get('is_invalid'):
+                if (
+                    p_data.get('ignore_in_beams')
+                    or p_data.get('classification') == 'NASCE'
+                    or p_data.get('is_invalid')
+                ):
                     continue
                 bbox = p_data.get('bbox')
                 if bbox:
@@ -6038,9 +6042,23 @@ class MainWindow(QMainWindow):
             # Processamento Inteligente Inicial
             self._process_beam_intelligent(b)
 
+            # FV é área, nunca parede/linha. Corrige apenas candidatos
+            # automáticos; vínculos validados permanecem intocados.
+            from src.core.beam_interpreters import FundoVigaInterpreter
+            FundoVigaInterpreter.repair_area_links(b, context_beams=self.beams_found)
+
             # RESTAURAÇÃO (Incremental)
             if incremental and b['name'] in preserved_beams:
                  old = preserved_beams[b['name']]
+                 from src.core.preficha_segments import (
+                     restore_locked_fundo_topology,
+                 )
+                 _fv_topology_restored = restore_locked_fundo_topology(b, old)
+                 if _fv_topology_restored:
+                     print(
+                         f"DEBUG: Fundo validado de {b['name']} restaurado "
+                         "sem permitir novos segmentos."
+                     )
                  
                  # 1. Se VALIDADO, restaura tudo
                  if old.get('is_validated', False):
@@ -6088,6 +6106,17 @@ class MainWindow(QMainWindow):
                                  b['links'][f] = old_links[f]
                      
                      print(f"DEBUG: Viga {b['name']} re-analisada (Nao validada).")
+
+            self._repair_fundo_support_fields(b)
+
+        # Segunda passada FV com contexto completo. Necessária para fundos
+        # chanfrados cuja continuação física foi classificada na viga vizinha
+        # conectada (ex.: V307). Vínculos/segmentos validados continuam
+        # preservados pelo próprio intérprete.
+        from src.core.beam_interpreters import FundoVigaInterpreter
+        for b in self.beams_found:
+            FundoVigaInterpreter.repair_area_links(b, context_beams=self.beams_found)
+            self._repair_fundo_support_fields(b)
 
         # 1.0a Preservar Vigas Validadas Órfãs (que sumiram do DXF)
         detected_beam_names = {b['name'] for b in self.beams_found}
@@ -6720,8 +6749,22 @@ class MainWindow(QMainWindow):
 
                     # FASE 1: Processar dados FV e atualizar links em memória (sem acesso ao DB)
                     _fv_results = []
+                    _fv_ignored_support_labels = {
+                        str(p_name or '').strip().upper()
+                        for p_name, p_data in (getattr(self, 'pavimento_pillar_report', None) or {}).items()
+                        if isinstance(p_data, dict)
+                        and (
+                            p_data.get('ignore_in_beams')
+                            or p_data.get('is_invalid')
+                            or str(p_data.get('classification') or '').strip().upper() == 'NASCE'
+                        )
+                    }
                     for b in getattr(self, 'beams_found', []):
-                        fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
+                        b['_fv_ignored_support_labels'] = sorted(_fv_ignored_support_labels)
+                        try:
+                            fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
+                        finally:
+                            b.pop('_fv_ignored_support_labels', None)
 
                         if 'links' not in b:
                             b['links'] = {}
@@ -8799,6 +8842,176 @@ class MainWindow(QMainWindow):
         
         self.log(f"✅ Item {name} ({elem_type}) validado e arquivado.")
 
+    def _repair_fundo_support_fields(self, b: Dict):
+        def _pillar_is_ignored(pillar: dict, fallback_name: str = '') -> bool:
+            if not isinstance(pillar, dict):
+                return False
+            label = str(
+                pillar.get('name')
+                or pillar.get('label')
+                or pillar.get('id_item')
+                or fallback_name
+                or ''
+            ).strip()
+            return (
+                bool(pillar.get('ignore_in_beams'))
+                or bool(pillar.get('is_invalid'))
+                or str(pillar.get('classification') or '').strip().upper() == 'NASCE'
+                or self.is_pillar_nasce(label)
+            )
+
+        def _support_text_is_ignored(text: str) -> bool:
+            label = str(text or '').strip().upper()
+            if not label.startswith('P'):
+                return False
+            report = self.get_pillar_report()
+            entry = report.get(label) if isinstance(report, dict) else None
+            return (
+                bool(entry and _pillar_is_ignored(entry, label))
+                or self.is_pillar_nasce(label)
+            )
+
+        pillars = [
+            item for item in list(getattr(self, 'pillars_found', None) or [])
+            if not _pillar_is_ignored(item)
+        ]
+        for report_key, report_pillar in (getattr(self, 'pavimento_pillar_report', None) or {}).items():
+            if isinstance(report_pillar, dict):
+                item = dict(report_pillar)
+                item.setdefault('name', report_key)
+                if not _pillar_is_ignored(item, report_key):
+                    pillars.append(item)
+        support_beams = [
+            other for other in (getattr(self, 'beams_found', None) or [])
+            if isinstance(other, dict) and other is not b and other.get('name') != b.get('name')
+        ]
+        links = b.get('links') or {}
+        fields = b.setdefault('fields', {})
+        validated = set(b.get('validated_fields') or [])
+
+        def _field_or_link_text(field_key: str) -> str:
+            val = fields.get(field_key)
+            if val:
+                return str(val)
+            slot = links.get(field_key)
+            labels = slot.get('label') if isinstance(slot, dict) else []
+            if labels and isinstance(labels[0], dict):
+                return str(labels[0].get('text') or '')
+            return ''
+
+        def _points(link):
+            pts = link.get('points') if isinstance(link, dict) else []
+            out = [
+                (float(p[0]), float(p[1]))
+                for p in pts or []
+                if isinstance(p, (list, tuple)) and len(p) >= 2
+            ]
+            if out:
+                return out
+            bbox = link.get('bbox') if isinstance(link, dict) else None
+            if isinstance(bbox, (list, tuple)) and len(bbox) >= 4:
+                x0, y0, x1, y1 = (float(v) for v in bbox[:4])
+                return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+            return []
+
+        def _beam_candidate_geometries(other):
+            other_links = other.get('links') or {}
+            for link_key, slot in other_links.items():
+                if not (isinstance(link_key, str) and link_key.startswith('viga_fundo_seg_') and link_key.endswith('_area_segs')):
+                    continue
+                for contour in (slot.get('contour') if isinstance(slot, dict) else []) or []:
+                    pts = _points(contour)
+                    if pts:
+                        yield pts
+            classified = ((other.get('geometry') or {}).get('classified') or {})
+            for group_key in ('seg_bottom', 'seg_side_a', 'seg_side_b'):
+                for line in classified.get(group_key) or []:
+                    pts = _points({'points': line})
+                    if pts:
+                        yield pts
+
+        def _support_at(point, contour_points, is_start):
+            if not point or not contour_points:
+                return None
+            xs = [p[0] for p in contour_points]
+            ys = [p[1] for p in contour_points]
+            is_h = (max(xs) - min(xs)) >= (max(ys) - min(ys))
+            span_min, span_max = (min(xs), max(xs)) if is_h else (min(ys), max(ys))
+            width_min, width_max = (min(ys), max(ys)) if is_h else (min(xs), max(xs))
+            endpoint_axis = span_min if is_start else span_max
+            candidates = []
+            for pillar in pillars:
+                pts = _points({'points': pillar.get('points') or pillar.get('outline') or []})
+                if not pts:
+                    continue
+                pxs = [p[0] for p in pts]
+                pys = [p[1] for p in pts]
+                p_axis_min, p_axis_max = (min(pxs), max(pxs)) if is_h else (min(pys), max(pys))
+                p_width_min, p_width_max = (min(pys), max(pys)) if is_h else (min(pxs), max(pxs))
+                axis_gap = min(abs(endpoint_axis - p_axis_min), abs(endpoint_axis - p_axis_max))
+                width_overlap = min(width_max, p_width_max) - max(width_min, p_width_min)
+                if axis_gap <= 2.0 and width_overlap >= max(1.0, (width_max - width_min) * 0.45):
+                    center_axis = (p_axis_min + p_axis_max) / 2.0
+                    if (center_axis <= endpoint_axis if is_start else center_axis >= endpoint_axis):
+                        candidates.append((axis_gap, -width_overlap, pillar, pts))
+            for other in support_beams:
+                label = str(other.get('name') or '').strip()
+                if not label:
+                    continue
+                for pts in _beam_candidate_geometries(other):
+                    pxs = [p[0] for p in pts]
+                    pys = [p[1] for p in pts]
+                    p_axis_min, p_axis_max = (min(pxs), max(pxs)) if is_h else (min(pys), max(pys))
+                    p_width_min, p_width_max = (min(pys), max(pys)) if is_h else (min(pxs), max(pxs))
+                    width_overlap = min(width_max, p_width_max) - max(width_min, p_width_min)
+                    endpoint_inside = p_axis_min - 2.0 <= endpoint_axis <= p_axis_max + 2.0
+                    axis_gap = 0.0 if endpoint_inside else min(abs(endpoint_axis - p_axis_min), abs(endpoint_axis - p_axis_max))
+                    if axis_gap <= 2.0 and width_overlap >= max(1.0, (width_max - width_min) * 0.35):
+                        candidates.append((axis_gap, -width_overlap, other, pts))
+            if not candidates:
+                return None
+            _, _, support, pts = min(candidates, key=lambda item: item[:2])
+            label = str(support.get('name') or support.get('label') or support.get('id_item') or '').strip()
+            if not label:
+                return None
+            return {
+                'text': label,
+                'type': 'pillar' if label.upper().startswith('P') else 'beam',
+                'points': pts,
+                'role': 'Apoio fundo de viga',
+            }
+
+        for key, slots in list(links.items()):
+            if not (isinstance(key, str) and key.startswith('viga_fundo_seg_') and key.endswith('_area_segs')):
+                continue
+            contours = slots.get('contour') if isinstance(slots, dict) else []
+            if not contours:
+                continue
+            pts = _points(contours[0])
+            if len(pts) < 2:
+                continue
+            xs = [p[0] for p in pts]
+            ys = [p[1] for p in pts]
+            is_h = (max(xs) - min(xs)) >= (max(ys) - min(ys))
+            seg_prefix = key[:-len('_area_segs')]
+            start_key = f'{seg_prefix}_local_ini'
+            end_key = f'{seg_prefix}_local_fim'
+            start_pt = min(pts, key=lambda p: p[0] if is_h else p[1])
+            end_pt = max(pts, key=lambda p: p[0] if is_h else p[1])
+            for field_key, support in (
+                (start_key, _support_at(start_pt, pts, True)),
+                (end_key, _support_at(end_pt, pts, False)),
+            ):
+                if field_key not in validated and _support_text_is_ignored(_field_or_link_text(field_key)):
+                    fields.pop(field_key, None)
+                    b.pop(field_key, None)
+                    links.pop(field_key, None)
+                if not support or field_key in validated:
+                    continue
+                fields[field_key] = support['text']
+                b[field_key] = support['text']
+                links[field_key] = {'label': [support]}
+
     def _process_beam_intelligent(self, b: Dict):
         """
         Segue a ordem rigorosa de interpretação solicitada pelo usuário.
@@ -8845,6 +9058,21 @@ class MainWindow(QMainWindow):
                     return str(val)
             return ''
 
+        def _support_is_ignored_for_fundo(s) -> bool:
+            label = _support_label(s).strip().upper()
+            if not label.startswith('P'):
+                return False
+            report = self.get_pillar_report()
+            entry = report.get(label) if isinstance(report, dict) else None
+            return (
+                bool(entry and (
+                    entry.get('ignore_in_beams')
+                    or entry.get('is_invalid')
+                    or str(entry.get('classification') or '').strip().upper() == 'NASCE'
+                ))
+                or self.is_pillar_nasce(label)
+            )
+
         def _link_points(link):
             pts = link.get('points') if isinstance(link, dict) else []
             return [tuple(p) for p in pts or [] if isinstance(p, (list, tuple)) and len(p) >= 2]
@@ -8872,6 +9100,8 @@ class MainWindow(QMainWindow):
             if not txt or _parse_dim_pair_text(txt):
                 return False
             if txt == str(b.get('name') or '').upper():
+                return False
+            if txt.startswith('P') and _support_is_ignored_for_fundo({'text': txt}):
                 return False
             return bool(re.match(r'^(?:P|V|VF|VP|CONT)[A-Z0-9_.-]*\d[A-Z0-9_.-]*$', txt))
 
@@ -8944,6 +9174,63 @@ class MainWindow(QMainWindow):
             out['role'] = 'Dimensao fundo de viga'
             return {'link': out, 'width': pair[0], 'height': pair[1], 'text': out.get('text', '')}
 
+        def _pillar_support_at_endpoint(point, contour_points, is_start):
+            pillars = list(getattr(self, 'pillars_found', None) or [])
+            for report_key, report_pillar in (getattr(self, 'pavimento_pillar_report', None) or {}).items():
+                if isinstance(report_pillar, dict):
+                    item = dict(report_pillar)
+                    item.setdefault('name', report_key)
+                    pillars.append(item)
+            if not point or not contour_points or not pillars:
+                return None
+            is_h = b.get('is_h', True)
+            xs = [float(p[0]) for p in contour_points]
+            ys = [float(p[1]) for p in contour_points]
+            span_min, span_max = (min(xs), max(xs)) if is_h else (min(ys), max(ys))
+            width_min, width_max = (min(ys), max(ys)) if is_h else (min(xs), max(xs))
+            endpoint_axis = span_min if is_start else span_max
+            candidates = []
+            for pillar in pillars:
+                pillar_label = str(
+                    pillar.get('name')
+                    or pillar.get('label')
+                    or pillar.get('id_item')
+                    or ''
+                ).strip()
+                if _support_is_ignored_for_fundo(pillar):
+                    continue
+                raw_points = pillar.get('points') or pillar.get('outline') or []
+                pts = [
+                    (float(p[0]), float(p[1]))
+                    for p in raw_points
+                    if isinstance(p, (list, tuple)) and len(p) >= 2
+                ]
+                if not pts:
+                    continue
+                pxs = [p[0] for p in pts]
+                pys = [p[1] for p in pts]
+                p_axis_min, p_axis_max = (min(pxs), max(pxs)) if is_h else (min(pys), max(pys))
+                p_width_min, p_width_max = (min(pys), max(pys)) if is_h else (min(pxs), max(pxs))
+                axis_gap = min(abs(endpoint_axis - p_axis_min), abs(endpoint_axis - p_axis_max))
+                width_overlap = min(width_max, p_width_max) - max(width_min, p_width_min)
+                if axis_gap <= 2.0 and width_overlap >= max(1.0, (width_max - width_min) * 0.45):
+                    center_axis = (p_axis_min + p_axis_max) / 2.0
+                    side_ok = center_axis <= endpoint_axis if is_start else center_axis >= endpoint_axis
+                    if side_ok:
+                        candidates.append((axis_gap, -width_overlap, pillar, pts))
+            if not candidates:
+                return None
+            _, _, pillar, pts = min(candidates, key=lambda item: item[:2])
+            label = str(pillar.get('name') or pillar.get('label') or pillar.get('id_item') or '').strip()
+            if not label:
+                return None
+            return {
+                'text': label,
+                'type': 'pillar',
+                'points': pts,
+                'role': 'Apoio fundo de viga',
+            }
+
         def _fundo_geometry_metrics(points, length_hint=None):
             if not points:
                 return _dim_width_hint(), length_hint or 0.0
@@ -8951,13 +9238,10 @@ class MainWindow(QMainWindow):
             ys = [float(p[1]) for p in points]
             dx = max(xs) - min(xs) if xs else 0.0
             dy = max(ys) - min(ys) if ys else 0.0
-            is_h = b.get('is_h', dx >= dy)
-            largura = dy if is_h else dx
-            comprimento = dx if is_h else dy
-            if largura <= 0.1:
+            comprimento = max(dx, dy)
+            largura = min(dx, dy)
+            if largura <= 0.05:
                 largura = _dim_width_hint() or largura
-            if length_hint:
-                comprimento = float(length_hint)
             return largura, comprimento
 
         def _corner_flags(points):
@@ -9063,6 +9347,12 @@ class MainWindow(QMainWindow):
                     end_pt = max(pts, key=lambda p: p[0] if is_h_pts else p[1])
                     start_text = _nearest_text_to_point(start_pt, _is_support_text)
                     end_text = _nearest_text_to_point(end_pt, _is_support_text)
+                    start_pillar = _pillar_support_at_endpoint(start_pt, pts, True)
+                    end_pillar = _pillar_support_at_endpoint(end_pt, pts, False)
+                    if start_pillar:
+                        start_text = start_pillar
+                    if end_pillar:
+                        end_text = end_pillar
                     if start_text:
                         fields[ini_key] = start_text.get('text', '')
                         links[ini_key] = {'label': [start_text]}
@@ -9070,16 +9360,95 @@ class MainWindow(QMainWindow):
                         fields[fim_key] = end_text.get('text', '')
                         links[fim_key] = {'label': [end_text]}
                 if apoios.get('inicio'):
-                    fields[ini_key] = ', '.join(filter(None, [_support_label(s) for s in apoios.get('inicio', [])]))
-                    links.setdefault(ini_key, _field_link_for_support(apoios['inicio'][0]))
+                    inicio_solido = [s for s in apoios.get('inicio', []) if not _support_is_ignored_for_fundo(s)]
+                    if inicio_solido:
+                        fields[ini_key] = ', '.join(filter(None, [_support_label(s) for s in inicio_solido]))
+                        links.setdefault(ini_key, _field_link_for_support(inicio_solido[0]))
                 if apoios.get('fim'):
-                    fields[fim_key] = ', '.join(filter(None, [_support_label(s) for s in apoios.get('fim', [])]))
-                    links.setdefault(fim_key, _field_link_for_support(apoios['fim'][0]))
+                    fim_solido = [s for s in apoios.get('fim', []) if not _support_is_ignored_for_fundo(s)]
+                    if fim_solido:
+                        fields[fim_key] = ', '.join(filter(None, [_support_label(s) for s in fim_solido]))
+                        links.setdefault(fim_key, _field_link_for_support(fim_solido[0]))
 
         def _run_lv_motors_patch():
             """Roda os motores LV Para e Passa para vigas já processadas que ainda não têm
             as chaves comprimento_total, ou que têm mais segmentos do que spans do bottom
             (fallback antigo criava 1 segmento por linha lateral em vez de 1 por span)."""
+            from src.core.beam_interpreters import (
+                LateralVigaAPassaInterpreter,
+                LateralVigaAParaInterpreter,
+                LateralVigaBPassaInterpreter,
+                LateralVigaBParaInterpreter,
+            )
+
+            _contract_version = 2
+            _lv_lengths = classified.get(
+                'lv_merged_bottom_lengths',
+                classified.get('merged_bottom_lengths', []),
+            )
+            _expected_lv = len(_lv_lengths) if _lv_lengths else 1
+            _existing_lv = [
+                key for key in b.get('links', {})
+                if ('comprimento_total' in key or 'comp_total_passa' in key)
+                and 'viga_' in key
+            ]
+            _existing_a_para = [
+                key for key in _existing_lv
+                if 'viga_a' in key and 'comprimento_total' in key
+            ]
+            _has_lv_data = any(
+                any(bool(value) for value in b['links'].get(key, {}).values())
+                for key in _existing_lv
+            )
+            if (
+                b.get('lv_interpreter_contract_version') == _contract_version
+                and len(_existing_a_para) == _expected_lv
+                and _has_lv_data
+            ):
+                return
+
+            for key in _existing_lv:
+                del b['links'][key]
+            for key in list(b):
+                if (
+                    '_seg_' in key
+                    and '_exists' in key
+                    and ('viga_a' in key or 'viga_b' in key)
+                ):
+                    del b[key]
+
+            LateralVigaAParaInterpreter().interpret(b, classified)
+            LateralVigaBParaInterpreter().interpret(b, classified)
+            LateralVigaAPassaInterpreter().interpret(b, classified)
+            LateralVigaBPassaInterpreter().interpret(b, classified)
+            b['lv_interpreter_contract_version'] = _contract_version
+
+            # Compatibilidade para registros legados sem candidato lateral:
+            # copia somente quando Para ficou vazio e Passa já possuía vínculo.
+            _links_now = b.get('links', {})
+            _para_empty = not any(
+                any(bool(value) for value in _links_now.get(key, {}).values())
+                for key in _links_now
+                if 'comprimento_total' in key and 'viga_' in key
+            )
+            if _para_empty:
+                for key, slots in list(_links_now.items()):
+                    if (
+                        'comp_total_passa' not in key
+                        or 'viga_' not in key
+                        or not any(bool(value) for value in slots.values())
+                    ):
+                        continue
+                    para_key = key.replace(
+                        'comp_total_passa', 'comprimento_total'
+                    )
+                    _links_now[para_key] = {
+                        slot: list(values)
+                        for slot, values in slots.items()
+                    }
+            _refresh_fundo_link_fichas()
+            return
+
             _lengths_check = classified.get('merged_bottom_lengths', [])
             _expected_segs = len(_lengths_check) if _lengths_check else 1
             _existing_para = [k for k in b.get('links', {}) if 'comprimento_total' in k and 'viga_a' in k]
@@ -9323,7 +9692,100 @@ class MainWindow(QMainWindow):
                         entry = {'type': 'poly', 'points': synth, 'len': length_i, 'tag': 'Fundo'}
                         b['links'][area_key]['contour'].append(entry)
                         b['links']['viga_segs']['seg_bottom'].append(entry)
-                    
+
+            if not b['links']['viga_segs']['seg_bottom']:
+                # Fallback por pares de laterais: quando o BeamTracer já identificou as
+                # duas faces A/B de uma viga, mas não classificou uma linha inferior
+                # explícita, o fundo é a área fechada entre essas faces. Isso evita o
+                # erro visual de tratar fundo como uma linha/parede e cobre vigas
+                # verticais/horizontais sem depender do nome do item.
+                side_a_raw_i = [
+                    list(line) for line in classified_inner.get('seg_side_a', [])
+                    if len(line) >= 2
+                ]
+                side_b_raw_i = [
+                    list(line) for line in classified_inner.get('seg_side_b', [])
+                    if len(line) >= 2
+                ]
+                if side_a_raw_i and side_b_raw_i:
+                    axis = 0 if is_h_i else 1
+                    transverse_axis = 1 - axis
+
+                    def _hp_span(line):
+                        values = [float(point[axis]) for point in line]
+                        return min(values), max(values)
+
+                    def _hp_transverse(line):
+                        values = [float(point[transverse_axis]) for point in line]
+                        return sum(values) / len(values)
+
+                    def _hp_clip_line(line, span_min, span_max):
+                        trans = _hp_transverse(line)
+                        if is_h_i:
+                            return [(span_min, trans), (span_max, trans)]
+                        return [(trans, span_min), (trans, span_max)]
+
+                    def _hp_close_pair(line_a, line_b, span_min, span_max):
+                        clipped_a = _hp_clip_line(line_a, span_min, span_max)
+                        clipped_b = _hp_clip_line(line_b, span_min, span_max)
+                        if is_h_i:
+                            if clipped_a[0][0] > clipped_a[-1][0]:
+                                clipped_a = list(reversed(clipped_a))
+                            if clipped_b[0][0] > clipped_b[-1][0]:
+                                clipped_b = list(reversed(clipped_b))
+                        else:
+                            if clipped_a[0][1] > clipped_a[-1][1]:
+                                clipped_a = list(reversed(clipped_a))
+                            if clipped_b[0][1] > clipped_b[-1][1]:
+                                clipped_b = list(reversed(clipped_b))
+                        if _hp_transverse(clipped_a) > _hp_transverse(clipped_b):
+                            clipped_a, clipped_b = clipped_b, clipped_a
+                        return clipped_a + list(reversed(clipped_b))
+
+                    used_b = set()
+                    seg_idx = 0
+                    for line_a in side_a_raw_i:
+                        a_min, a_max = _hp_span(line_a)
+                        a_len = a_max - a_min
+                        if a_len <= 0.01:
+                            continue
+                        candidates = []
+                        for idx_b, line_b in enumerate(side_b_raw_i):
+                            if idx_b in used_b:
+                                continue
+                            b_min, b_max = _hp_span(line_b)
+                            b_len = b_max - b_min
+                            if b_len <= 0.01:
+                                continue
+                            overlap = min(a_max, b_max) - max(a_min, b_min)
+                            overlap_ratio = overlap / max(min(a_len, b_len), 1e-9)
+                            gap = abs(_hp_transverse(line_a) - _hp_transverse(line_b))
+                            if overlap_ratio >= 0.85 and 2.0 <= gap <= 120.0:
+                                candidates.append((overlap_ratio, -gap, idx_b, line_b))
+                        if not candidates:
+                            continue
+                        _, _, idx_b, line_b = max(candidates, key=lambda item: item[:2])
+                        used_b.add(idx_b)
+                        span_min = max(a_min, _hp_span(line_b)[0])
+                        span_max = min(a_max, _hp_span(line_b)[1])
+                        length_i = span_max - span_min
+                        if length_i <= 0.01:
+                            continue
+                        seg_idx += 1
+                        b[f'viga_fundo_seg_{seg_idx}_exists'] = True
+                        area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
+                        if area_key not in b['links']:
+                            b['links'][area_key] = {'contour': []}
+                        pts = _hp_close_pair(line_a, line_b, span_min, span_max)
+                        entry = {
+                            'type': 'poly',
+                            'points': pts,
+                            'len': length_i,
+                            'tag': 'Fundo',
+                        }
+                        b['links'][area_key]['contour'] = [entry]
+                        b['links']['viga_segs']['seg_bottom'].append(entry)
+
             b['seg_c'] = len(b['links']['viga_segs']['seg_bottom'])
             _run_lv_motors_patch()
             return
@@ -9447,6 +9909,34 @@ class MainWindow(QMainWindow):
             coords_list = classified.get('merged_bottom_groups_coords', [])
             seg_bottom_raw = classified.get('seg_bottom', [])
             is_h = b.get('is_h', True)
+            bottom_runs = classified.get('bottom_runs', [])
+            mixed_orientations = len({
+                bool(run.get('is_h', is_h))
+                for run in bottom_runs
+            }) > 1
+            use_bottom_runs = (
+                mixed_orientations
+                or bool(b.get('fv_is_h', is_h)) != bool(is_h)
+            )
+            segment_orientations = [is_h] * len(lengths_list)
+            segment_positions = [b.get('pos', (0, 0))] * len(lengths_list)
+            if use_bottom_runs:
+                lengths_list = []
+                coords_list = []
+                segment_orientations = []
+                segment_positions = []
+                for run in bottom_runs:
+                    run_lengths = run.get('lengths', [])
+                    run_coords = run.get('coords', [])
+                    usable = min(len(run_lengths), len(run_coords))
+                    lengths_list.extend(run_lengths[:usable])
+                    coords_list.extend(run_coords[:usable])
+                    segment_orientations.extend(
+                        [bool(run.get('is_h', is_h))] * usable
+                    )
+                    segment_positions.extend(
+                        [run.get('pos', b.get('pos', (0, 0)))] * usable
+                    )
 
             # Altura da viga para criar retângulo quando só 1 linha é encontrada.
             # Aceita "19/55" e "19x55" — group(1) = largura (dimensão transversal no plano).
@@ -9460,7 +9950,7 @@ class MainWindow(QMainWindow):
             for _sk in ('seg_side_a', 'seg_side_b'):
                 for _seg in classified.get(_sk, []):
                     _lat_pts.extend(_seg)
-            if _lat_pts:
+            if _lat_pts and not use_bottom_runs:
                 _lat_tol = 2.0  # aceita linhas dentro das faces reais ±2u (precisão DXF)
                 if is_h:
                     _lat_t_min = min(p[1] for p in _lat_pts) - _lat_tol
@@ -9475,6 +9965,8 @@ class MainWindow(QMainWindow):
                 # Caminho preferencial: usar os comprimentos/coords já calculados
                 total_len = 0.0
                 for i, length in enumerate(lengths_list, start=1):
+                    segment_is_h = segment_orientations[i - 1]
+                    segment_pos = segment_positions[i - 1]
                     total_len += length
 
                     b[f'viga_fundo_seg_{i}_exists'] = True
@@ -9489,7 +9981,7 @@ class MainWindow(QMainWindow):
                         for raw_line in seg_bottom_raw:
                             if len(raw_line) < 2:
                                 continue
-                            if is_h:
+                            if segment_is_h:
                                 line_min = min(p[0] for p in raw_line)
                                 line_max = max(p[0] for p in raw_line)
                             else:
@@ -9503,8 +9995,23 @@ class MainWindow(QMainWindow):
                     # Filtrar matching_lines pelo intervalo transversal das faces laterais.
                     # Linhas da condição-3 do classificador (próximas ao label, deslocadas)
                     # ficam fora dos limites reais da viga e causam polígono deslocado.
-                    if matching_lines and _lat_t_min is not None:
-                        if is_h:
+                    if matching_lines and use_bottom_runs:
+                        transverse = (
+                            float(segment_pos[1])
+                            if segment_is_h
+                            else float(segment_pos[0])
+                        )
+                        matching_lines = [
+                            line for line in matching_lines
+                            if abs(
+                                sum(
+                                    point[1 if segment_is_h else 0]
+                                    for point in line
+                                ) / len(line) - transverse
+                            ) <= 50.0
+                        ]
+                    elif matching_lines and _lat_t_min is not None:
+                        if segment_is_h:
                             matching_lines = [
                                 ln for ln in matching_lines
                                 if _lat_t_min <= (sum(p[1] for p in ln) / len(ln)) <= _lat_t_max
@@ -9517,7 +10024,11 @@ class MainWindow(QMainWindow):
 
                     if matching_lines:
                         # Fechar 2+ linhas em 1 polígono; 1 linha → retângulo com h_beam
-                        pts = _close_lines_to_polygon(matching_lines, is_h, beam_offset=h_beam)
+                        pts = _close_lines_to_polygon(
+                            matching_lines,
+                            segment_is_h,
+                            beam_offset=h_beam,
+                        )
                         link_entry = {'type': 'poly', 'points': pts, 'len': length, 'tag': 'Fundo'}
                         b['links'][area_key]['contour'] = [link_entry]
                         b['links']['viga_segs']['seg_bottom'].append(link_entry)
@@ -9538,15 +10049,24 @@ class MainWindow(QMainWindow):
                         for _sk in ('seg_side_a', 'seg_side_b'):
                             for _seg in classified.get(_sk, []):
                                 _side_pts.extend(_seg)
-                        if _side_pts:
-                            trans_c = (sum(p[1] for p in _side_pts) / len(_side_pts) if is_h
+                        if use_bottom_runs:
+                            trans_c = (
+                                float(segment_pos[1])
+                                if segment_is_h
+                                else float(segment_pos[0])
+                            )
+                        elif _side_pts:
+                            trans_c = (sum(p[1] for p in _side_pts) / len(_side_pts) if segment_is_h
                                        else sum(p[0] for p in _side_pts) / len(_side_pts))
                         else:
-                            _bp = b.get('pos', (0, 0))
-                            trans_c = _bp[1] if is_h else _bp[0]
+                            trans_c = (
+                                segment_pos[1]
+                                if segment_is_h
+                                else segment_pos[0]
+                            )
 
                         half_h = h_beam / 2.0
-                        if is_h:
+                        if segment_is_h:
                             synth_line = [
                                 (span_min, trans_c - half_h),
                                 (span_max, trans_c - half_h),
@@ -9596,6 +10116,73 @@ class MainWindow(QMainWindow):
                     b['links']['viga_segs']['seg_bottom'].append(link_entry)
                 return total_len
             else:
+                side_a_raw = [
+                    list(line) for line in classified.get('seg_side_a', [])
+                    if len(line) >= 2
+                ]
+                side_b_raw = [
+                    list(line) for line in classified.get('seg_side_b', [])
+                    if len(line) >= 2
+                ]
+                if side_a_raw and side_b_raw:
+                    axis = 0 if is_h else 1
+                    transverse_axis = 1 - axis
+
+                    def _span(line):
+                        values = [float(point[axis]) for point in line]
+                        return min(values), max(values)
+
+                    def _transverse(line):
+                        values = [float(point[transverse_axis]) for point in line]
+                        return sum(values) / len(values)
+
+                    used_b = set()
+                    total_len = 0.0
+                    seg_idx = 0
+                    for line_a in side_a_raw:
+                        a_min, a_max = _span(line_a)
+                        a_len = a_max - a_min
+                        if a_len <= 0.01:
+                            continue
+                        candidates = []
+                        for idx_b, line_b in enumerate(side_b_raw):
+                            if idx_b in used_b:
+                                continue
+                            b_min, b_max = _span(line_b)
+                            b_len = b_max - b_min
+                            if b_len <= 0.01:
+                                continue
+                            overlap = min(a_max, b_max) - max(a_min, b_min)
+                            overlap_ratio = overlap / max(min(a_len, b_len), 1e-9)
+                            gap = abs(_transverse(line_a) - _transverse(line_b))
+                            if overlap_ratio >= 0.85 and 2.0 <= gap <= 120.0:
+                                candidates.append((overlap_ratio, -gap, idx_b, line_b))
+                        if not candidates:
+                            continue
+                        _, _, idx_b, line_b = max(candidates, key=lambda item: item[:2])
+                        used_b.add(idx_b)
+                        seg_idx += 1
+                        span_min = max(a_min, _span(line_b)[0])
+                        span_max = min(a_max, _span(line_b)[1])
+                        length = span_max - span_min
+                        if length <= 0.01:
+                            continue
+                        b[f'viga_fundo_seg_{seg_idx}_exists'] = True
+                        area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
+                        if area_key not in b['links']:
+                            b['links'][area_key] = {'contour': []}
+                        pts = _close_lines_to_polygon([line_a, line_b], is_h)
+                        link_entry = {
+                            'type': 'poly',
+                            'points': pts,
+                            'len': length,
+                            'tag': 'Fundo',
+                        }
+                        b['links'][area_key]['contour'] = [link_entry]
+                        b['links']['viga_segs']['seg_bottom'].append(link_entry)
+                        total_len += length
+                    if seg_idx:
+                        return total_len
                 return 0.0
 
         def _process_lv_base(target_suffix):
@@ -9718,12 +10305,26 @@ class MainWindow(QMainWindow):
             return total_a, total_b
 
         def process_lv_para_segments():
-            """Motor LV — Vigas que Param: popula {prefix}_seg_{i}_comprimento_total."""
-            return _process_lv_base('comprimento_total')
+            """Motores isolados LV A/B Para."""
+            from src.core.beam_interpreters import (
+                LateralVigaAParaInterpreter,
+                LateralVigaBParaInterpreter,
+            )
+            return (
+                LateralVigaAParaInterpreter().interpret(b, classified),
+                LateralVigaBParaInterpreter().interpret(b, classified),
+            )
 
         def process_lv_passa_segments():
-            """Motor LV — Vigas que Passam: popula {prefix}_seg_{i}_comp_total_passa."""
-            return _process_lv_base('comp_total_passa')
+            """Motores isolados LV A/B Passa."""
+            from src.core.beam_interpreters import (
+                LateralVigaAPassaInterpreter,
+                LateralVigaBPassaInterpreter,
+            )
+            return (
+                LateralVigaAPassaInterpreter().interpret(b, classified),
+                LateralVigaBPassaInterpreter().interpret(b, classified),
+            )
 
         # O fundo vem primeiro porque fornece as duas bordas longitudinais para
         # o fallback LV quando o BeamTracer nao classificou seg_side_a/b.
@@ -9732,6 +10333,7 @@ class MainWindow(QMainWindow):
         # Rodar os dois motores independentes
         len_a_para,  len_b_para  = process_lv_para_segments()
         len_a_passa, len_b_passa = process_lv_passa_segments()
+        b['lv_interpreter_contract_version'] = 2
         # Comprimento de referência: usar Passa como primário (tem vínculo geométrico)
         len_a = len_a_passa
         len_b = len_b_passa
@@ -9885,6 +10487,8 @@ class MainWindow(QMainWindow):
         supports = geo.get('support_candidates', [])
         if supports:
             for s in supports:
+                if _support_is_ignored_for_fundo(s):
+                    continue
                 # Se o pilar intersecta a viga mas não é apoio de extremidade, é uma interferência/abertura
                 is_start = s in b['links']['apoios']['inicio']
                 is_end = s in b['links']['apoios']['fim']
@@ -11557,15 +12161,65 @@ class MainWindow(QMainWindow):
             os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'DADOS-OBRAS')
         )
         pav_slug = _re.sub(r'[^\w\-]', '_', pavimento)[:60]
-        history_path = os.path.join(_dados_root, obra, f'preficha_history_{pav_slug}.json')
+        obra_dir = os.path.join(_dados_root, obra)
+        exact_history_path = os.path.join(obra_dir, f'preficha_history_{pav_slug}.json')
 
-        if not os.path.isfile(history_path):
+        def _geo_key_from_entry(entry: dict) -> str:
+            pts = entry.get('points') or []
+            if not pts:
+                return ''
+            try:
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                return f'{round(min(xs),1)},{round(min(ys),1)},{round(max(xs),1)},{round(max(ys),1)}'
+            except Exception:
+                return ''
+
+        report_geo_keys = {
+            geo_key
+            for geo_key in (_geo_key_from_entry(entry) for entry in pillar_report.values())
+            if geo_key
+        }
+
+        candidate_paths: list[str] = []
+        if os.path.isfile(exact_history_path):
+            candidate_paths.append(exact_history_path)
+        elif os.path.isdir(obra_dir):
+            try:
+                candidate_paths.extend(
+                    os.path.join(obra_dir, name)
+                    for name in os.listdir(obra_dir)
+                    if name.startswith('preficha_history_') and name.endswith('.json')
+                )
+            except Exception:
+                candidate_paths = []
+
+        if not candidate_paths:
             return
 
-        try:
-            with open(history_path, encoding='utf-8') as fh:
-                hist = _json.load(fh)
-        except Exception:
+        hist = None
+        history_path = ''
+        best_overlap = -1
+        for path in candidate_paths:
+            try:
+                with open(path, encoding='utf-8') as fh:
+                    candidate = _json.load(fh)
+            except Exception:
+                continue
+            pilares_hist = candidate.get('pilares', {}) if isinstance(candidate, dict) else {}
+            overlap = len(report_geo_keys.intersection(pilares_hist.keys()))
+            if path == exact_history_path:
+                hist = candidate
+                history_path = path
+                break
+            if overlap > best_overlap:
+                hist = candidate
+                history_path = path
+                best_overlap = overlap
+
+        if not hist:
+            return
+        if history_path != exact_history_path and best_overlap <= 0:
             return
 
         rejected_pilares = hist.get('pilares', {})
@@ -11577,28 +12231,64 @@ class MainWindow(QMainWindow):
             'GEOMETRIA ERRADA — ATUAL SÓLIDA', 'GEOMETRIA ERRADA — ATUAL APENAS VISUAL',
         }
 
+        def _physical_type_for_history(classification: str, physical_type: str = '') -> str:
+            physical_type = (physical_type or '').strip()
+            if physical_type:
+                return physical_type
+            normalized = (classification or '').strip().upper()
+            if normalized == 'NASCE':
+                return 'visual_only'
+            if 'APENAS VISUAL' in normalized:
+                return 'visual_noise'
+            if 'OBJETO' in normalized and 'SÓLIDO' in normalized:
+                return 'obstacle_solid'
+            if normalized in {'MORRE', 'CONTINUA', 'SEGUE', 'PASSA'}:
+                return 'solid'
+            return 'unknown'
+
+        def _ignore_beams_for_history(classification: str, physical_type: str = '') -> bool:
+            physical_type = _physical_type_for_history(classification, physical_type)
+            return physical_type in {'visual_only', 'visual_noise'} or (
+                (classification or '').strip().upper() == 'NASCE'
+            )
+
+        # Restaura toda classificação persistida na pré-ficha antes de qualquer
+        # uso do relatório por vigas/fundos. Em especial, NASCE é somente visual
+        # neste pavimento e não pode bloquear contorno nem virar apoio de FV.
+        for key, entry in list(pillar_report.items()):
+            geo_key = _geo_key_from_entry(entry)
+            if not geo_key:
+                continue
+            hist_entry = rejected_pilares.get(geo_key)
+            if not hist_entry:
+                continue
+            classification = (hist_entry.get('classification') or '').strip()
+            if not classification:
+                continue
+            physical_type = _physical_type_for_history(
+                classification,
+                hist_entry.get('physical_type') or '',
+            )
+            entry['classification'] = classification
+            entry['physical_type'] = physical_type
+            entry['ignore_in_beams'] = _ignore_beams_for_history(classification, physical_type)
+            entry['preficha_reviewed'] = True
+            entry['preficha_history_path'] = history_path
+            if hist_entry.get('attention') is not None:
+                entry['preficha_attention'] = hist_entry.get('attention') or ''
+
         # Mapa: nome_pilar → lista de (geo_key, entry) para busca de alternativa
         name_to_entries: dict[str, list[tuple[str, dict]]] = {}
         for key, entry in pillar_report.items():
-            pts = entry.get('points') or []
-            if not pts:
-                continue
-            try:
-                xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
-                gk = f'{round(min(xs),1)},{round(min(ys),1)},{round(max(xs),1)},{round(max(ys),1)}'
-            except Exception:
+            gk = _geo_key_from_entry(entry)
+            if not gk:
                 continue
             name = (entry.get('name') or key).strip().upper()
             name_to_entries.setdefault(name, []).append((gk, key, entry))
 
         for key, entry in list(pillar_report.items()):
-            pts = entry.get('points') or []
-            if not pts:
-                continue
-            try:
-                xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
-                geo_key = f'{round(min(xs),1)},{round(min(ys),1)},{round(max(xs),1)},{round(max(ys),1)}'
-            except Exception:
+            geo_key = _geo_key_from_entry(entry)
+            if not geo_key:
                 continue
 
             hist_entry = rejected_pilares.get(geo_key)
@@ -11812,8 +12502,15 @@ class MainWindow(QMainWindow):
         if not report or not beams:
             return
 
+        from src.core.beam_interpreters import (
+            PilarComVigaParaInterpreter,
+            PilarComVigaPassaInterpreter,
+        )
+
         TOL_ALIGN = 4.0
         MIN_OV = 1.0
+        pilar_para = PilarComVigaParaInterpreter()
+        pilar_passa = PilarComVigaPassaInterpreter()
 
         beam_info = []
         for beam in beams:
@@ -11833,6 +12530,10 @@ class MainWindow(QMainWindow):
                 'dim': (beam.get('fields') or {}).get('dimensao', '') or beam.get('dim', ''),
                 'x0': min(bxs), 'x1': max(bxs),
                 'y0': min(bys), 'y1': max(bys),
+                'is_h': bool(beam.get(
+                    'is_h',
+                    (max(bxs) - min(bxs)) >= (max(bys) - min(bys)),
+                )),
             })
 
         for _nm, entry in report.items():
@@ -11848,6 +12549,33 @@ class MainWindow(QMainWindow):
             py0, py1 = min(pys), max(pys)
             pw, ph = px1 - px0, py1 - py0
             horizontal = pw >= ph
+            pillar_bbox = (px0, py0, px1, py1)
+
+            beam_relations = []
+            for bi in beam_info:
+                beam_bbox = (bi['x0'], bi['y0'], bi['x1'], bi['y1'])
+                relation = None
+                if pilar_passa.matches(
+                    pillar_bbox, beam_bbox, bi['is_h'], TOL_ALIGN
+                ):
+                    relation = 'passa'
+                elif pilar_para.matches(
+                    pillar_bbox, beam_bbox, bi['is_h'], TOL_ALIGN
+                ):
+                    relation = 'para'
+                if relation:
+                    beam_relations.append({**bi, 'behavior': relation})
+
+            # Saidas independentes: consumidores de PIL nao precisam ler nem
+            # inferir os segmentos FV/LV.
+            entry[pilar_para.contract.output_slot] = [
+                {'name': bi['name'], 'dim': bi['dim']}
+                for bi in beam_relations if bi['behavior'] == 'para'
+            ]
+            entry[pilar_passa.contract.output_slot] = [
+                {'name': bi['name'], 'dim': bi['dim']}
+                for bi in beam_relations if bi['behavior'] == 'passa'
+            ]
 
             if horizontal:
                 face_coords = {
@@ -13284,11 +14012,25 @@ class MainWindow(QMainWindow):
             # Contar concluídos desta categoria
             total_done = 0
             if 'name' in done_fields: total_done += 1
-            if 'viga_segs' in done_fields: total_done += 1
+            count_field = {
+                'viga_lateral_a': 'viga_count_a',
+                'viga_lateral_b': 'viga_count_b',
+                'viga_fundo_c': 'viga_count_c',
+            }.get(itype)
+            if 'viga_segs' in done_fields or (count_field and count_field in done_fields):
+                total_done += 1
             
-            for f in done_fields:
-                if f.startswith(prefix):
-                    total_done += 1
+            if itype == 'viga_fundo_c':
+                expected_fundo_fields = {
+                    f'viga_fundo_seg_{idx}_{suffix}'
+                    for idx in range(1, seg_count + 1)
+                    for suffix in ('area_segs', 'dim', 'local_ini', 'local_fim')
+                }
+                total_done += len(done_fields & expected_fundo_fields)
+            else:
+                for f in done_fields:
+                    if f.startswith(prefix):
+                        total_done += 1
                     
             if total_expected <= 0: return 100.0
             pct = (total_done / total_expected) * 100
@@ -13524,8 +14266,6 @@ class MainWindow(QMainWindow):
         sorted_groups = OrderedDict(sorted(groups.items(), key=lambda x: nat_key(x[0])))
             
         for p_name, segments in sorted_groups.items():
-            parent_item = QTreeWidgetItem(tree_widget)
-            
             clean_name = p_name
             if clean_name.startswith('F.'): clean_name = clean_name[2:]
             elif clean_name.startswith('L.'): clean_name = clean_name[2:]
@@ -13533,9 +14273,12 @@ class MainWindow(QMainWindow):
             elif clean_name.startswith('LV-'): clean_name = clean_name[3:]
             
             prefix = "FV-" if list_type == 'fundo' else "LV-"
-            parent_item.setText(1, f"📁 {prefix}{clean_name}")
-            parent_item.setExpanded(True)
-            parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable)
+            parent_item = None
+            if list_type != 'fundo':
+                parent_item = QTreeWidgetItem(tree_widget)
+                parent_item.setText(1, f"📁 {prefix}{clean_name}")
+                parent_item.setExpanded(True)
+                parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable)
             
             for b in segments:
                 # Status
@@ -13571,6 +14314,8 @@ class MainWindow(QMainWindow):
                         child_a.setData(0, Qt.UserRole, str(b.get('id')))
                         child_a.setData(0, Qt.UserRole + 1, 'viga_lateral_a')
                         child_a.setData(0, Qt.UserRole + 2, tipo_comp)
+                        if b.get('id'):
+                            self.tree_item_map.setdefault(b.get('id'), []).append(child_a)
 
                         child_b = QTreeWidgetItem(_parent)
                         child_b.setText(0, str(b.get('id_item', '00')))
@@ -13580,15 +14325,24 @@ class MainWindow(QMainWindow):
                         child_b.setData(0, Qt.UserRole, str(b.get('id')))
                         child_b.setData(0, Qt.UserRole + 1, 'viga_lateral_b')
                         child_b.setData(0, Qt.UserRole + 2, tipo_comp)
+                        if b.get('id'):
+                            self.tree_item_map.setdefault(b.get('id'), []).append(child_b)
                 else:
                     # Fundo
-                    child_f = QTreeWidgetItem(parent_item)
+                    child_f = QTreeWidgetItem(tree_widget)
+                    fundo_label = (
+                        f"{prefix}{clean_name}"
+                        if str(clean_name).upper().endswith('.C')
+                        else f"{prefix}{clean_name}.C"
+                    )
                     child_f.setText(0, str(b.get('id_item', '00')))
-                    child_f.setText(1, f"{prefix}{clean_name}.C")
+                    child_f.setText(1, fundo_label)
                     child_f.setText(2, str(status))
                     child_f.setText(3, f"{int(self._calculate_completion(b, subtype='viga_fundo_c'))}%")
                     child_f.setData(0, Qt.UserRole, str(b.get('id')))
                     child_f.setData(0, Qt.UserRole + 1, 'viga_fundo_c')
+                    if b.get('id'):
+                        self.tree_item_map.setdefault(b.get('id'), []).append(child_f)
 
     def open_detail_window(self, item_data):
         """Abre a janela de detalhamento completa."""
@@ -15054,82 +15808,81 @@ class MainWindow(QMainWindow):
     def delete_item_action(self, list_widget, item_type: str, is_library: bool):
         """Exclui o item selecionado da lista e da memória/banco."""
         selected_items = list_widget.selectedItems()
+        if not selected_items and item_type == 'beam' and not is_library:
+            active_tree = (
+                self.list_beams_para
+                if self._lv_analysis_tabs.currentIndex() == 0
+                else self.list_beams_passa
+            )
+            selected_items = active_tree.selectedItems()
         if not selected_items:
             QMessageBox.warning(self, "Exclusão", "Selecione um item para excluir.")
             return
 
         item = selected_items[0]
-        # Agora todos usam QTreeWidget
         item_id = item.data(0, Qt.UserRole)
-        
-        reply = QMessageBox.question(self, "Confirmar Exclusão", 
-                                   f"Tem certeza que deseja excluir este item ({item.text(1)})?",
-                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        entity_type = 'beam' if item_type == 'beam_fundo' else item_type
+        target_list = {
+            'pillar': self.pillars_found,
+            'beam': self.beams_found,
+            'slab': self.slabs_found,
+        }.get(entity_type)
+        record = next(
+            (value for value in target_list or [] if str(value.get('id')) == str(item_id)),
+            None,
+        )
+        if record is None:
+            QMessageBox.warning(self, "Exclusão", "O item selecionado não foi encontrado no projeto.")
+            return
+
+        def contains_validation(value):
+            if isinstance(value, dict):
+                return value.get('validated') is True or any(contains_validation(v) for v in value.values())
+            if isinstance(value, (list, tuple)):
+                return any(contains_validation(v) for v in value)
+            return False
+
+        links = record.get('links') or {}
+        has_links = any(bool(value) for value in links.values())
+        has_validations = bool(
+            record.get('is_validated')
+            or record.get('is_fully_validated')
+            or record.get('validated_fields')
+            or record.get('validated_link_classes')
+            or contains_validation(links)
+        )
+        if has_links or has_validations:
+            confirmation = (
+                f"O item {item.text(1)} possui dados vinculados"
+                + (" e validações humanas" if has_validations else "")
+                + ".\n\nA exclusão é definitiva e removerá também todos os vínculos "
+                  "e todas as validações gravadas nesse item.\n\nConfirma a exclusão completa?"
+            )
+        else:
+            confirmation = f"Tem certeza que deseja excluir este item ({item.text(1)})?"
+        reply = QMessageBox.question(
+            self, "Confirmar Exclusão", confirmation,
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
+        )
         if reply != QMessageBox.Yes:
             return
 
-        # 1. Identificar listas envolvidas para limpeza simultânea
-        lists_to_clean = []
-        if item_type == 'pillar':
-            lists_to_clean = [self.list_pillars, self.list_pillars_valid]
-        elif item_type == 'beam':
-            lists_to_clean = [self.list_beams, self.list_beams_valid]
-        elif item_type == 'slab':
-            lists_to_clean = [self.list_slabs, self.list_slabs_valid]
+        try:
+            getattr(self.db, f'delete_{entity_type}')(item_id)
+        except Exception as exc:
+            self.log(f"⚠️ Erro ao remover do Banco de Dados: {exc}")
+            QMessageBox.critical(self, "Erro na exclusão", f"O item não foi excluído.\n\n{exc}")
+            return
 
-        # 2. Remover da UI (Ambas as listas: Análise e Biblioteca)
-        from PySide6.QtWidgets import QTreeWidgetItemIterator
-        for lw in lists_to_clean:
-            # Tree Widget removal logic
-            it = QTreeWidgetItemIterator(lw)
-            to_remove = []
-            while it.value():
-                x = it.value()
-                if x.data(0, Qt.UserRole) == item_id:
-                     to_remove.append(x)
-                it += 1
-            
-            for r in to_remove:
-                # Remove from parent if exists
-                if r.parent():
-                    r.parent().removeChild(r)
-                else:
-                    # Top level
-                    idx = lw.indexOfTopLevelItem(r)
-                    if idx >= 0: lw.takeTopLevelItem(idx)
-
-        # 3. Remover da Memória (Shared lists)
-        target_list = None
-        if item_type == 'pillar':
-             target_list = self.pillars_found
-        elif item_type == 'beam':
-             target_list = self.beams_found
-        elif item_type == 'slab':
-             target_list = self.slabs_found
-             
-        if target_list is not None:
-            start_count = len(target_list)
-            target_list[:] = [x for x in target_list if x['id'] != item_id]
-            
-            if len(target_list) < start_count:
-                # 4. Remover do Banco de Dados (Persistência)
-                try:
-                    if item_type == 'pillar':
-                        self.db.delete_pillar(item_id)
-                    elif item_type == 'beam':
-                        self.db.delete_beam(item_id)
-                    elif item_type == 'slab':
-                        self.db.delete_slab(item_id)
-                    self.log(f"🗑️ Item {item_id} removido da memória, das listas e do Banco de Dados.")
-                except Exception as e:
-                    self.log(f"⚠️ Erro ao remover do Banco de Dados: {e}")
-
-                if item_type == 'pillar':
-                    self.canvas.draw_interactive_pillars(self.pillars_found)
-                elif item_type == 'slab':
-                    self.canvas.draw_slabs(self.slabs_found)
-                elif item_type == 'beam':
-                    self.canvas.draw_beams(self.beams_found)
+        target_list[:] = [value for value in target_list if str(value.get('id')) != str(item_id)]
+        self._update_all_lists_ui()
+        if entity_type == 'pillar':
+            self.canvas.draw_interactive_pillars(self.pillars_found)
+        elif entity_type == 'slab':
+            self.canvas.draw_slabs(self.slabs_found)
+        else:
+            self.canvas.draw_beams(self.beams_found)
+        self.log(f"🗑️ Item {item_id} e seus vínculos/validações foram excluídos.")
 
     def _get_scripts_dir(self):
         """Retorna o diretório onde os scripts devem ser salvos (SCRIPTS_ROBOS)."""

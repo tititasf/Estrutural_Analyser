@@ -39,11 +39,7 @@
       "is_union": false
     },
     {
-      "value": 169.0,
-      "is_union": false
-    },
-    {
-      "value": 189.0,
+      "value": 142.0,
       "is_union": true
     }
   ],
@@ -51,28 +47,75 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L311",
-    "fields": {
-      "nome": "L311",
-      "numero": "11",
-      "laje_dim": "h=12",
-      "laje_nivel": "852.19"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "11",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L311",
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L311",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
-  "_stog_pose": {
-    "x": 3604.07,
-    "y": 2280.94
-  },
+  "apoios_hachurados": [
+    {
+      "x1": -19.0,
+      "y1": 69.57,
+      "x2": -9.57,
+      "y2": 79.0
+    },
+    {
+      "x1": -19.0,
+      "y1": 57.55,
+      "x2": 0.0,
+      "y2": 76.55
+    },
+    {
+      "x1": -19.0,
+      "y1": 45.53,
+      "x2": 0.0,
+      "y2": 64.53
+    },
+    {
+      "x1": -19.0,
+      "y1": 33.51,
+      "x2": 0.0,
+      "y2": 52.51
+    },
+    {
+      "x1": -19.0,
+      "y1": 21.49,
+      "x2": 0.0,
+      "y2": 40.49
+    },
+    {
+      "x1": -19.0,
+      "y1": 9.47,
+      "x2": 0.0,
+      "y2": 28.47
+    },
+    {
+      "x1": -19.0,
+      "y1": -2.55,
+      "x2": 0.0,
+      "y2": 16.45
+    },
+    {
+      "x1": -19.0,
+      "y1": -14.57,
+      "x2": 0.0,
+      "y2": 4.43
+    },
+    {
+      "x1": -11.41,
+      "y1": -19.0,
+      "x2": 0.0,
+      "y2": -7.59
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "174",
@@ -124,6 +167,10 @@
     }
   ],
   "pontaletes": {},
+  "_stog_pose": {
+    "x": 3604.07,
+    "y": 2280.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       20.0,

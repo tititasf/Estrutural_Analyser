@@ -1,6 +1,6 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-05 13:18:07  
+**Gerado em:** 2026-07-08 18:06:08  
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 
@@ -9,40 +9,42 @@
 | Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |
 |--------|-----|-----|------|------|---------|---------|---------------|--------|
 | FV | 13_PAV | 20260703_164825 | 26 | 0 | 0 | 100.0% | 26 |  |
-| LAJ | 13_PAV | 20260703_171707 | 31 | 0 | 0 | 100.0% | 31 |  |
+| LAJ | 13_PAV | 20260708_120831 | 31 | 0 | 0 | 100.0% | 31 |  |
 | LV | 13_PAV | 20260703_164510 | 32 | 0 | 0 | 100.0% | 32 |  |
 | LV | 14_PAV | 20260626_194156 | 10 | 17 | 0 | 37.0% | 10 | ❌ FAIL aberto |
-| PIL | 12_PAV | 20260613_180530 | 31 | 4 | 0 | 88.6% | 31 | ❌ FAIL aberto |
-| PIL | 13_PAV | 20260703_163658 | 35 | 0 | 0 | 100.0% | 35 |  |
-| PIL | 14_PAV | 20260613_180945 | 22 | 5 | 0 | 81.5% | 22 | ❌ FAIL aberto |
-| PIL | 1_PAV | 20260613_175011 | 31 | 6 | 0 | 83.8% | 31 | ❌ FAIL aberto |
-| PIL | 2_PAV | 20260613_180110 | 30 | 5 | 0 | 85.7% | 30 | ❌ FAIL aberto |
-| PIL | COBERTURA | 20260613_181539 | 24 | 5 | 0 | 82.8% | 24 | ❌ FAIL aberto |
-| PIL | TERREO | 20260613_181301 | 12 | 10 | 0 | 54.5% | 12 | ❌ FAIL aberto |
+| PIL | 12_PAV | 20260705_213717 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
+| PIL | 13_PAV | 20260706_161845 | 35 | 0 | 0 | 100.0% | 35 |  |
+| PIL | 14_PAV | 20260705_214228 | 27 | 1 | 0 | 96.4% | 27 | ❌ FAIL aberto |
+| PIL | 1_PAV | 20260705_214623 | 15 | 23 | 0 | 39.5% | 34 | ❌ FAIL aberto · ⚠ golden (34) > última rodada (15) — REGRESSÃO vs selado |
+| PIL | 2_PAV | 20260705_215126 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
+| PIL | COBERTURA | 20260705_215925 | 6 | 23 | 0 | 20.7% | 25 | ❌ FAIL aberto · ⚠ golden (25) > última rodada (6) — REGRESSÃO vs selado |
+| PIL | TERREO | 20260705_215627 | 18 | 5 | 0 | 78.3% | 20 | ❌ FAIL aberto · ⚠ golden (20) > última rodada (18) — REGRESSÃO vs selado |
 
 ## Golden selado (todas as obras/pavimentos)
 
 | Obra | Pavimento | Classe | Itens selados |
 |------|-----------|--------|---------------|
-| Obra_TREINO_1 | 12_PAV | PIL | 31 |
+| Obra_TREINO_1 | 12_PAV | PIL | 34 |
 | Obra_TREINO_1 | 13_PAV | FV | 26 |
 | Obra_TREINO_1 | 13_PAV | LAJ | 31 |
 | Obra_TREINO_1 | 13_PAV | LV | 32 |
 | Obra_TREINO_1 | 13_PAV | PIL | 35 |
 | Obra_TREINO_1 | 14_PAV | LV | 10 |
-| Obra_TREINO_1 | 14_PAV | PIL | 22 |
-| Obra_TREINO_1 | 1_PAV | PIL | 31 |
-| Obra_TREINO_1 | 2_PAV | PIL | 30 |
-| Obra_TREINO_1 | COBERTURA | PIL | 24 |
-| Obra_TREINO_1 | TERREO | PIL | 12 |
+| Obra_TREINO_1 | 14_PAV | PIL | 27 |
+| Obra_TREINO_1 | 1_PAV | PIL | 34 |
+| Obra_TREINO_1 | 2_PAV | PIL | 34 |
+| Obra_TREINO_1 | COBERTURA | PIL | 25 |
+| Obra_TREINO_1 | TERREO | PIL | 20 |
 
 ## Triagem de erros (JSONL)
 
 | Arquivo | Total | Por status | Por autor |
 |---------|-------|------------|-----------|
-| Obra_TREINO_1_13_PAV_fundos_viga.jsonl | 29 | aberto: 23, verificado: 6 | auto: 29 |
-| Obra_TREINO_1_13_PAV_lajes.jsonl | 95 | aberto: 41, verificado: 54 | auto: 78, humano: 17 |
-| Obra_TREINO_1_13_PAV_pilares.jsonl | 37 | aberto: 2, verificado: 35 | auto: 37 |
+| Obra_TREINO_1_13_PAV_fundos_viga.jsonl | 31 | aberto: 25, verificado: 6 | auto: 31 |
+| Obra_TREINO_1_13_PAV_fundos_viga_posfix_20260707.jsonl | 9 | aberto: 5, corrigido_codigo_headless_pendente: 1, em_correcao: 1, verificado: 2 | auto: 9 |
+| Obra_TREINO_1_13_PAV_fv_contaminacao_validacao.jsonl | 3 | corrigido_codigo_dados_historicos_pendentes: 1, corrigido_verificado: 1, corrigido_verificado_visual: 1 | auto: 2, humano: 1 |
+| Obra_TREINO_1_13_PAV_lajes.jsonl | 144 | aberto: 64, verificado: 80 | auto: 111, dono: 16, humano: 17 |
+| Obra_TREINO_1_13_PAV_pilares.jsonl | 42 | aberto: 5, verificado: 37 | auto: 39, humano: 3 |
 
 ## Banco de dados (read-only)
 

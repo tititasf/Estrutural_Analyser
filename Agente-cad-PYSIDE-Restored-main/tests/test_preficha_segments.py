@@ -2,8 +2,15 @@ from src.core.preficha_segments import (
     SEGMENT_TAB_SPECS,
     apply_preficha_segment_decisions,
     collect_preficha_segments,
+    fundo_topology_is_locked,
+    lock_fundo_topology,
     preficha_geometry_policy,
     preficha_source_status,
+    restore_locked_fundo_topology,
+)
+from scripts.analise_geral_headless import (
+    _filter_fv_visual_obstacles,
+    process_beam_fv,
 )
 
 
@@ -50,6 +57,57 @@ def test_collects_all_five_segment_tabs_from_sa_contract():
     assert collected["lateral_b_passa"][0]["source_slot"] == "seg_side_b"
 
 
+def test_lateral_link_dimension_does_not_reuse_fv_segment_ficha():
+    beam = _beam()
+    link = beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]
+    link["lv_dimensao"] = "19/55"
+
+    collected = collect_preficha_segments([beam])
+
+    assert collected["fundo"][0]["width"] == "20"
+    assert collected["lateral_a_para"][0]["width"] == "19/55"
+
+
+def test_fundo_preficha_length_and_width_use_bbox_not_stale_len():
+    beam = _beam()
+    link = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    link["points"] = [(0, 0), (19, 0), (19, 259.5), (0, 259.5), (0, 0)]
+    link["len"] = 109.5
+    link["ficha"] = {"largura_total_fundo": "999"}
+
+    collected = collect_preficha_segments([beam])["fundo"][0]
+
+    assert collected["length"] == 259.5
+    assert collected["width"] == "19"
+
+
+def test_fundo_preficha_special_diagonal_uses_canonical_measure_length():
+    beam = _beam()
+    link = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    link["points"] = [
+        (0, 0), (19, 0), (19, 35), (255, 35), (255, 16), (30, 16), (0, 0)
+    ]
+    link["fv_measure_length"] = 255.7
+    link["fv_measure_width"] = 19
+    link["fv_measure_source"] = "special_diagonal_longest_edge"
+
+    collected = collect_preficha_segments([beam])["fundo"][0]
+
+    assert collected["length"] == 255.7
+    assert collected["width"] == "19"
+    assert collected["measure_source"] == "special_diagonal_longest_edge"
+
+
+def test_lateral_dimension_override_propagates_to_sibling_links():
+    beam = _beam()
+    first = beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]
+    first["lv_dimensao"] = "19/55"
+
+    collected = collect_preficha_segments([beam])
+
+    assert collected["lateral_b_passa"][0]["width"] == "19/55"
+
+
 def test_ignored_segment_removes_the_exact_link_shown_in_preficha():
     beam = _beam()
     collected = collect_preficha_segments([beam])
@@ -61,7 +119,7 @@ def test_ignored_segment_removes_the_exact_link_shown_in_preficha():
         {target["uid"]: {"status": "ignore", "attention": "Geometria indevida"}},
     )
 
-    assert summary == {"reviewed": 5, "removed": 1}
+    assert summary == {"reviewed": 1, "removed": 1}
     assert beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"] == []
     assert beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"] == [untouched]
     assert beam["preficha_segmentos"][target["uid"]]["attention"] == "Geometria indevida"
@@ -83,7 +141,7 @@ def test_saved_segment_review_is_restored_on_next_collection():
     assert restored["attention"] == "Conferir apoio inicial"
 
 
-def test_valid_decision_marks_the_exact_link_as_preficha_authoritative():
+def test_preficha_decision_marks_link_but_does_not_freeze_topology():
     beam = _beam()
     target = collect_preficha_segments([beam])["fundo"][0]
 
@@ -99,6 +157,162 @@ def test_valid_decision_marks_the_exact_link_as_preficha_authoritative():
     assert link["preficha_uid"] == target["uid"]
     assert preficha_source_status(beam, target["source_key"]) == "valid"
     assert preficha_geometry_policy(beam, target["source_key"]) == "preserve"
+    assert fundo_topology_is_locked(beam) is False
+    assert "preficha_fundo_locked_source_keys" not in beam
+
+
+def test_locked_fundo_restoration_discards_newly_inferred_segments():
+    validated = _beam()
+    validated["id"] = "project_b_1"
+    target = _beam()
+    target["id"] = "project_b_1"
+    target["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["points"] = [
+        (0, 0), (999, 0), (999, 20), (0, 20)
+    ]
+    target["links"]["viga_fundo_seg_2_area_segs"] = {
+        "contour": [{
+            "points": [(100, 0), (200, 0), (200, 20), (100, 20)],
+            "len": 100,
+        }]
+    }
+    validated_link = validated["links"][
+        "viga_fundo_seg_1_area_segs"
+    ]["contour"][0]
+    validated_link["validated"] = True
+
+    assert restore_locked_fundo_topology(target, validated) is True
+    assert "viga_fundo_seg_2_area_segs" not in target["links"]
+    assert target["links"]["viga_fundo_seg_1_area_segs"] == (
+        validated["links"]["viga_fundo_seg_1_area_segs"]
+    )
+
+
+def test_lock_excludes_unvalidated_contour_added_after_human_validation():
+    beam = _beam()
+    beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0][
+        "validated"
+    ] = True
+    beam["links"]["viga_fundo_seg_2_area_segs"] = {
+        "contour": [{
+            "points": [(100, 0), (200, 0), (200, 20), (100, 20)],
+            "len": 100,
+        }]
+    }
+
+    # Simula registro antigo sem snapshot v2.
+    beam.pop("preficha_fundo_locked", None)
+    beam.pop("preficha_fundo_locked_version", None)
+    beam.pop("preficha_fundo_locked_source_keys", None)
+    result = process_beam_fv(beam)
+
+    assert beam["preficha_fundo_locked_source_keys"] == [
+        "viga_fundo_seg_1_area_segs"
+    ]
+    assert result["panels_n1"] == 1
+
+
+def test_partial_real_validation_prunes_every_unvalidated_contour():
+    beam = _beam()
+    beam["links"]["viga_fundo_seg_2_area_segs"] = {
+        "contour": [{
+            "points": [(100, 0), (200, 0), (200, 20), (100, 20)],
+            "len": 100,
+        }]
+    }
+    beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0][
+        "validated"
+    ] = True
+    lock_fundo_topology(beam)
+
+    assert beam["preficha_fundo_locked_source_keys"] == [
+        "viga_fundo_seg_1_area_segs"
+    ]
+    assert "viga_fundo_seg_2_area_segs" not in beam["links"]
+    assert collect_preficha_segments([beam])["fundo"][0]["segment_index"] == 1
+    assert len(collect_preficha_segments([beam])["fundo"]) == 1
+
+
+def test_auxiliary_fundo_field_without_contour_does_not_lock_topology():
+    beam = _beam()
+    beam["links"].pop("viga_fundo_seg_1_area_segs")
+    beam["validated_fields"] = [
+        "viga_fundo_seg_1_dim",
+        "viga_fundo_seg_1_local_fim",
+    ]
+
+    assert fundo_topology_is_locked(beam) is False
+
+
+def test_stale_locked_fundo_source_without_contour_does_not_lock_topology():
+    beam = _beam()
+    beam["links"]["viga_fundo_seg_1_area_segs"]["contour"] = []
+    beam["preficha_fundo_locked"] = True
+    beam["preficha_fundo_locked_version"] = 2
+    beam["preficha_fundo_locked_source_keys"] = [
+        "viga_fundo_seg_1_area_segs",
+    ]
+
+    assert fundo_topology_is_locked(beam) is False
+
+
+def test_full_validation_after_ignoring_every_fundo_locks_zero_segments():
+    beam = _beam()
+    decision = collect_preficha_segments([beam])["fundo"][0]
+    apply_preficha_segment_decisions(
+        [beam],
+        {decision["uid"]: {"status": "ignore"}},
+    )
+    assert fundo_topology_is_locked(beam) is False
+
+    beam["is_validated"] = True
+    assert fundo_topology_is_locked(beam) is True
+    assert process_beam_fv(beam)["panels_n1"] == 0
+    assert beam["preficha_fundo_locked_source_keys"] == []
+
+
+def test_locked_fundo_processing_uses_only_human_validated_contours():
+    beam = _beam()
+    beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0][
+        "validated"
+    ] = True
+    beam["geometry"] = {
+        "classified": {
+            "merged_bottom_lengths": [10.0, 20.0, 30.0],
+            "merged_bottom_groups_coords": [(0, 10), (10, 30), (30, 60)],
+        }
+    }
+
+    result = process_beam_fv(beam)
+
+    assert result["topologia_origem"] == "validacao_humana_bloqueada"
+    assert result["panels_n1"] == 1
+    assert result["segmentos_fundo"][0]["length"] == 100.0
+
+
+def test_locked_fundo_processing_uses_bbox_instead_of_stale_len():
+    beam = _beam()
+    link = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    link["validated"] = True
+    link["points"] = [(0, 0), (19, 0), (19, 259.5), (0, 259.5), (0, 0)]
+    link["len"] = 999.0
+
+    result = process_beam_fv(beam)
+
+    assert result["segmentos_fundo"][0]["length"] == 259.5
+    assert result["comprimento_fundo"] == 259.5
+    assert link["len"] == 259.5
+    assert link["ficha"]["comprimento_total_fundo"] == "259.5"
+    assert link["ficha"]["largura_total_fundo"] == "19"
+
+
+def test_fv_visual_obstacles_ignore_nasce_pillars():
+    filtered = _filter_fv_visual_obstacles([
+        {"type": "NASCE", "bbox": (0, 0, 10, 10)},
+        {"type": "PILAR_SOLIDO", "bbox": (20, 0, 30, 10)},
+        {"type": "VISAO_CORTE", "bbox": (40, 0, 50, 10)},
+    ])
+
+    assert [item["type"] for item in filtered] == ["PILAR_SOLIDO", "VISAO_CORTE"]
 
 
 def test_stale_decision_from_another_beam_id_does_not_block_harmonization():

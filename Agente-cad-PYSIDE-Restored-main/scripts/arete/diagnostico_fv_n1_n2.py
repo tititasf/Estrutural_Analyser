@@ -19,6 +19,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 DEFAULT_STATE_ROOT = SCRIPT_DIR / "html_fichas"
 DEFAULT_OUTPUT_ROOT = SCRIPT_DIR / "relatorios" / "diagnosticos_fv"
+SEGMENT_LENGTH_TOLERANCE_CM = 0.05
 
 
 def _slug(value: str) -> str:
@@ -37,6 +38,42 @@ def _relative_delta(detected: float | None, expected: float | None) -> float | N
     if detected is None or expected is None:
         return None
     return abs(detected - expected) / max(abs(expected), 1e-9)
+
+
+def _compare_segment_measures(
+    detected: list[float],
+    expected: list[float],
+    tolerance: float = SEGMENT_LENGTH_TOLERANCE_CM,
+) -> dict:
+    """Compara o multiconjunto de comprimentos físicos dos segmentos.
+
+    A ordem de emissão no estado N1 não é contrato. Por isso os comprimentos são
+    ordenados antes do pareamento; posição e sequência permanecem sob o N1-V.
+    """
+    n1_values = sorted(float(value) for value in detected)
+    n2_values = sorted(float(value) for value in expected)
+    pairs = []
+    for index in range(max(len(n1_values), len(n2_values))):
+        n1_value = n1_values[index] if index < len(n1_values) else None
+        n2_value = n2_values[index] if index < len(n2_values) else None
+        delta = (
+            abs(n1_value - n2_value)
+            if n1_value is not None and n2_value is not None
+            else None
+        )
+        pairs.append({
+            "n1_cm": n1_value,
+            "n2_cm": n2_value,
+            "delta_abs_cm": delta,
+            "passa": delta is not None and delta <= tolerance,
+        })
+    return {
+        "tolerancia_cm": tolerance,
+        "metodo": "multiconjunto_ordenado",
+        "match": len(n1_values) == len(n2_values)
+        and all(pair["passa"] for pair in pairs),
+        "pares": pairs,
+    }
 
 
 def classify_delta(delta: float | None) -> str:
@@ -113,6 +150,34 @@ def _geometry_long_span(points: list | tuple | None) -> float | None:
     return max(max(xs) - min(xs), max(ys) - min(ys))
 
 
+def _segment_physical_length(segment: dict) -> float | None:
+    if str(segment.get("measure_source") or "").startswith("special_diagonal"):
+        measured = _float(segment.get("measure_length"))
+        if measured is None:
+            measured = _float(segment.get("length"))
+        if measured is not None:
+            return measured
+    declared = _float(segment.get("length"))
+    bbox = _geometry_long_span(segment.get("points"))
+    points = segment.get("points") or []
+    if (
+        declared is not None
+        and bbox is not None
+        and len(points) >= 6
+        and bbox > declared * 1.15
+    ):
+        return declared
+    return _geometry_long_span(segment.get("points"))
+
+
+def _segment_physical_width(segment: dict) -> float | None:
+    if str(segment.get("measure_source") or "").startswith("special_diagonal"):
+        measured = _float(segment.get("measure_width"))
+        if measured is not None:
+            return measured
+    return _float(segment.get("width"))
+
+
 def load_n1_beams(state_path: str | Path) -> tuple[dict, dict[str, dict]]:
     path = Path(state_path)
     state = json.loads(path.read_text(encoding="utf-8"))
@@ -129,17 +194,27 @@ def load_n1_beams(state_path: str | Path) -> tuple[dict, dict[str, dict]]:
     beams: dict[str, dict] = {}
     for name, segments in grouped.items():
         lengths = [value for value in (_float(item.get("length")) for item in segments) if value is not None]
-        widths = [value for value in (_float(item.get("width")) for item in segments) if value is not None]
-        geometry_spans = [
+        widths = [
             value
-            for value in (_geometry_long_span(item.get("points")) for item in segments)
+            for value in (_segment_physical_width(item) for item in segments)
             if value is not None
         ]
+        geometry_spans = [
+            value
+            for value in (_segment_physical_length(item) for item in segments)
+            if value is not None
+        ]
+        physical_lengths = (
+            geometry_spans
+            if len(geometry_spans) == len(segments)
+            else lengths
+        )
         beams[name] = {
             "largura": statistics.median(widths) if widths else None,
             "larguras": widths,
-            "comprimento_total": sum(lengths) if lengths else None,
-            "comprimentos": lengths,
+            "comprimento_total": sum(physical_lengths) if physical_lengths else None,
+            "comprimentos": physical_lengths,
+            "comprimento_declarado_total": sum(lengths) if lengths else None,
             "comprimento_geometrico_total": sum(geometry_spans) if geometry_spans else None,
             "segmentos": len(segments),
             "furos_ativos": None,
@@ -193,10 +268,20 @@ def load_n2_beams(
         except json.JSONDecodeError:
             continue
         segments = data.get("segments_rich") or data.get("panels") or []
+        segment_lengths = [
+            value
+            for value in (
+                _float(segment.get("total_width") or segment.get("width"))
+                for segment in segments
+                if isinstance(segment, dict)
+            )
+            if value is not None
+        ]
         holes = data.get("holes") or []
         beams[name] = {
             "largura": _float(data.get("total_width") or data.get("largura_total_fundo")),
             "comprimento_total": _n2_length(data),
+            "comprimentos": segment_lengths,
             "segmentos": len(segments),
             "furos_ativos": sum(
                 1 for hole in holes if isinstance(hole, dict) and hole.get("active")
@@ -231,6 +316,18 @@ def diagnose_item(
         and n2 is not None
         and n1.get("segmentos") == n2.get("segmentos")
     )
+    segment_measure_comparison = (
+        _compare_segment_measures(
+            list(n1.get("comprimentos") or []),
+            list(n2.get("comprimentos") or []),
+        )
+        if n1 is not None and n2 is not None
+        else None
+    )
+    segment_measures_match = bool(
+        segment_measure_comparison
+        and segment_measure_comparison["match"]
+    )
 
     if n1 is None or n2 is None:
         cause = "schema_gap"
@@ -240,18 +337,25 @@ def diagnose_item(
             else "Item presente apenas no N1; falta ficha FV correspondente no N2."
         )
         confidence = 0.99
+    elif not segments_match:
+        cause = "schema_gap"
+        description = (
+            "A quantidade física de segmentos do fundo diverge entre N1 e N2."
+        )
+        confidence = 0.95
+    elif not segment_measures_match:
+        cause = "extractor_bug"
+        description = (
+            "A quantidade de segmentos coincide, mas uma ou mais medidas individuais "
+            "divergem além de ±0,05 cm."
+        )
+        confidence = 0.95
     elif quality in {"REGULAR", "RUIM"}:
         cause = "extractor_bug"
         description = (
             "Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2."
         )
         confidence = 0.95 if quality == "RUIM" else 0.85
-    elif not segments_match:
-        cause = "schema_gap"
-        description = (
-            "As dimensões principais são compatíveis, mas a quantidade de segmentos N1 e N2 diverge."
-        )
-        confidence = 0.75
     else:
         cause = None
         description = "Sem divergência numérica relevante entre N1 e N2."
@@ -265,6 +369,8 @@ def diagnose_item(
             "comprimento_total": length_delta,
         },
         "segmentos_match": segments_match,
+        "medidas_segmentos_match": segment_measures_match,
+        "comparacao_medidas_segmentos": segment_measure_comparison,
         "n1": n1,
         "n2": n2,
     }
@@ -323,6 +429,19 @@ def run_diagnostic(
     ]
     quality_counts = Counter(item["evidencia"]["classificacao"] for item in items)
     alerts = [item for item in items if item["causa_raiz"]]
+    comparable_segments = [
+        item for item in items
+        if item["evidencia"]["n1"] is not None
+        and item["evidencia"]["n2"] is not None
+    ]
+    segment_count_pass = sum(
+        bool(item["evidencia"]["segmentos_match"])
+        for item in comparable_segments
+    )
+    segment_measure_pass = sum(
+        bool(item["evidencia"]["medidas_segmentos_match"])
+        for item in comparable_segments
+    )
     state_hash = hashlib.sha256(resolved_state.read_bytes()).hexdigest()
     report = {
         "schema_version": 2,
@@ -341,6 +460,14 @@ def run_diagnostic(
             "n2_itens": len(n2_beams),
             "alertas": len(alerts),
             "classificacoes": dict(sorted(quality_counts.items())),
+            "segmentacao": {
+                "comparaveis": len(comparable_segments),
+                "quantidade_pass": segment_count_pass,
+                "quantidade_fail": len(comparable_segments) - segment_count_pass,
+                "medidas_pass": segment_measure_pass,
+                "medidas_fail": len(comparable_segments) - segment_measure_pass,
+                "tolerancia_medida_cm": SEGMENT_LENGTH_TOLERANCE_CM,
+            },
         },
         "itens": items,
     }

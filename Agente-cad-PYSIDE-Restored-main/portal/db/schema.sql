@@ -26,10 +26,15 @@ CREATE TABLE IF NOT EXISTS portal_membros (
 );
 
 -- 2.2 portal_obras — obras enviadas e seu estado.
+-- [2026-07-06] obra virou CONTAINER de documentos (ver 2.2b portal_documentos e
+-- migrations/002_documentos.sql) — arquivo_nome/arquivo_hash/arquivo_drive_id
+-- ficam como campos LEGADO (obra de teste criada antes da migration 002 os usa);
+-- obras do novo fluxo (POST /obras/criar) deixam esses 3 campos NULL.
 CREATE TABLE IF NOT EXISTS portal_obras (
     id             TEXT PRIMARY KEY,
     membro_id      TEXT NOT NULL REFERENCES portal_membros(id),
     nome           TEXT NOT NULL,
+    descricao      TEXT,
     pasta_drive_id TEXT NOT NULL,
     arquivo_drive_id TEXT,
     arquivo_nome   TEXT,
@@ -38,10 +43,35 @@ CREATE TABLE IF NOT EXISTS portal_obras (
                    CHECK (estado IN ('aguardando_ingestao','processando','pronta','erro')),
     erro_msg       TEXT,
     local_path     TEXT,
+    -- [2026-07-06, migrations/003] última etapa (triagem/recortes/sa) concluída
+    -- com sucesso — `estado` sozinho não distingue "só a triagem rodou" de
+    -- "o SA completo rodou" (achado real testando o modo rápido: toda etapa
+    -- bem-sucedida marcava 'pronta', pulando visualmente recortes/SA na UI).
+    etapa_concluida TEXT,
     created_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
     detectada_em   TEXT,
     processada_em  TEXT,
     updated_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
+-- 2.2b portal_documentos — documentos individuais dentro de uma obra (2026-07-06).
+-- Um por (pavimento x classe) enviado — ex.: "...- 13° PAV.- PL - R00.dxf".
+CREATE TABLE IF NOT EXISTS portal_documentos (
+    id                    TEXT PRIMARY KEY,
+    obra_id               TEXT NOT NULL REFERENCES portal_obras(id),
+    arquivo_nome          TEXT NOT NULL,
+    arquivo_drive_id      TEXT,
+    arquivo_hash          TEXT,
+    local_path            TEXT,
+    classe_sugerida       TEXT,
+    pavimento_sugerido    TEXT,
+    classe_confirmada     TEXT,
+    pavimento_confirmado  TEXT,
+    status                TEXT NOT NULL DEFAULT 'pendente'
+                          CHECK (status IN ('pendente','classificado','revisar','erro')),
+    erro_msg              TEXT,
+    created_at            TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+    updated_at            TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
 
 -- 2.3 portal_jobs — fila de processamento (1 por vez; exclusão real via single_instance.py).
@@ -118,6 +148,8 @@ CREATE TABLE IF NOT EXISTS portal_n5_releases (
 CREATE INDEX IF NOT EXISTS idx_obras_membro_estado ON portal_obras(membro_id, estado, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_obras_pasta_arquivo ON portal_obras(pasta_drive_id, created_at DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_obras_hash ON portal_obras(arquivo_hash) WHERE arquivo_hash IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_documentos_obra_hash ON portal_documentos(obra_id, arquivo_hash) WHERE arquivo_hash IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_documentos_obra_status ON portal_documentos(obra_id, status, created_at);
 CREATE INDEX IF NOT EXISTS idx_jobs_fila ON portal_jobs(status, prioridade DESC, enfileirado_em) WHERE status = 'na_fila';
 CREATE INDEX IF NOT EXISTS idx_jobs_obra ON portal_jobs(obra_id, enfileirado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_coment_export ON portal_comentarios_equipe(exportado_triagem, created_at) WHERE exportado_triagem = 0;

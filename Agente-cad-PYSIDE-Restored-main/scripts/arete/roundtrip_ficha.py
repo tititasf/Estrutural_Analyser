@@ -118,6 +118,11 @@ SKIP_G1: dict[str, set] = {
         # modo_selecionado: modo de seleção de painéis (0=vertical, 1=horizontal)
         # detectado pelo motor com base em heurística do DXF. Pode diferir do N2.
         "modo_selecionado",
+        # apoios_hachurados: contexto externo de apoio/vizinho extraído do recorte.
+        # N4 isolado desenha só a laje para não contaminar a área de comparação.
+        # A presença/ausência de apoio é verificada visualmente no G2-V quando
+        # o contexto estiver habilitado, não no round-trip geométrico da laje.
+        "apoios_hachurados",
     },
 }
 
@@ -310,8 +315,14 @@ def roundtrip_item(classe: str, elemento_id: str,
     if obra_name:
         real_path = get_real_n4_path(obra_name, classe, elemento_id)
         real_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(dxf_path, real_path)
-        result["n4_path"] = str(real_path)
+        try:
+            shutil.copy2(dxf_path, real_path)
+            result["n4_path"] = str(real_path)
+        except OSError as exc:
+            # A UI pode manter o DXF exibido aberto. A regressão continua sobre
+            # o artefato isolado recém-gerado, sem encerrar o processo do dono.
+            result["n4_publish_blocked"] = str(exc)
+            result["n4_path"] = str(dxf_path)
     else:
         result["n4_path"] = str(dxf_path)
 

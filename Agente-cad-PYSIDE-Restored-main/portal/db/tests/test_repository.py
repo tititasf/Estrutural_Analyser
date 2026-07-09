@@ -19,6 +19,7 @@ TABELAS_ESPERADAS = {
     "portal_drive_sync_state",
     "portal_comentarios_equipe",
     "portal_n5_releases",
+    "portal_documentos",  # migration 002 (2026-07-06)
 }
 
 
@@ -48,9 +49,11 @@ def test_init_db_cria_as_6_tabelas(conn):
     ).fetchall()
     nomes = {r["name"] for r in rows}
     assert TABELAS_ESPERADAS.issubset(nomes)
-    # tabela de versão registrou a migration 001
+    # tabela de versão registrou as migrations 001+002+003+004+005
+    # (2026-07-06: portal_documentos + etapa_concluida; 2026-07-07: cabeçalho
+    # da obra + tipo_documento)
     ver = conn.execute("SELECT MAX(version) FROM portal_schema_version").fetchone()[0]
-    assert ver == 1
+    assert ver == 5
 
 
 def test_init_db_idempotente(tmp_path):
@@ -60,7 +63,7 @@ def test_init_db_idempotente(tmp_path):
     # rodar de novo não duplica versão nem quebra
     c2 = connection.init_db(db_path)
     n = c2.execute("SELECT COUNT(*) FROM portal_schema_version").fetchone()[0]
-    assert n == 1
+    assert n == 5  # 001..005, cada migration registra 1 linha
     c2.close()
 
 
@@ -291,3 +294,177 @@ def test_n5_rejeita_classe_invalida(conn, membro_id):
             conn, obra_id=obra_id, classe="XX", liberado_por=membro_id,
             status_certificacao="beta",
         )
+
+
+# --------------------------------------------------------------------------- #
+# portal_documentos — obra vira container de N documentos (2026-07-06)
+# --------------------------------------------------------------------------- #
+
+def test_criar_obra_com_descricao_sem_arquivo(conn, membro_id):
+    """Fluxo novo: obra criada só com nome+descricao, sem arquivo nenhum ainda."""
+    obra_id = repo.criar_obra(
+        conn, membro_id=membro_id, nome="Edificio Aurora",
+        descricao="Torre residencial 14 pavimentos", pasta_drive_id="pasta-obra-1",
+    )
+    obra = repo.obter_obra(conn, obra_id)
+    assert obra["nome"] == "Edificio Aurora"
+    assert obra["descricao"] == "Torre residencial 14 pavimentos"
+    assert obra["arquivo_nome"] is None  # nenhum arquivo — é só o container
+
+
+def test_criar_e_listar_documentos_de_uma_obra(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra X", pasta_drive_id="p")
+    d1 = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="13_PAV_PL.dxf",
+        classe_sugerida="PIL", pavimento_sugerido="13_PAV", status="classificado",
+    )
+    d2 = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="13_PAV_LV.dxf",
+        classe_sugerida="LV", pavimento_sugerido="13_PAV", status="classificado",
+    )
+    docs = repo.listar_documentos_por_obra(conn, obra_id)
+    assert len(docs) == 2
+    assert {d["id"] for d in docs} == {d1, d2}
+    assert {d["arquivo_nome"] for d in docs} == {"13_PAV_PL.dxf", "13_PAV_LV.dxf"}
+
+
+def test_documento_dedup_por_hash_dentro_da_mesma_obra(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Y", pasta_drive_id="p")
+    repo.criar_documento(conn, obra_id=obra_id, arquivo_nome="a.dxf", arquivo_hash="h1")
+    assert repo.obter_documento_por_hash(conn, obra_id, "h1") is not None
+    assert repo.obter_documento_por_hash(conn, obra_id, "h-inexistente") is None
+
+
+def test_documento_mesmo_hash_em_obras_diferentes_nao_colide(conn, membro_id):
+    """Dedup é por (obra_id, hash) — o MESMO arquivo pode ir para obras diferentes."""
+    obra_1 = repo.criar_obra(conn, membro_id=membro_id, nome="Obra A", pasta_drive_id="p1")
+    obra_2 = repo.criar_obra(conn, membro_id=membro_id, nome="Obra B", pasta_drive_id="p2")
+    repo.criar_documento(conn, obra_id=obra_1, arquivo_nome="a.dxf", arquivo_hash="h-comum")
+    # não deve levantar (UNIQUE é por obra_id+hash, não só hash)
+    repo.criar_documento(conn, obra_id=obra_2, arquivo_nome="a.dxf", arquivo_hash="h-comum")
+    assert repo.obter_documento_por_hash(conn, obra_1, "h-comum") is not None
+    assert repo.obter_documento_por_hash(conn, obra_2, "h-comum") is not None
+
+
+def test_atualizar_classificacao_documento_confirma_sem_apagar_o_resto(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Z", pasta_drive_id="p")
+    doc_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="x.dxf",
+        classe_sugerida="FV", pavimento_sugerido=None, status="revisar",
+    )
+    # humano confirma o pavimento que faltava, sem re-informar a classe
+    repo.atualizar_classificacao_documento(
+        conn, doc_id, pavimento_confirmado="TERREO", status="classificado",
+    )
+    doc = repo.obter_documento(conn, doc_id)
+    assert doc["classe_sugerida"] == "FV"  # preservado
+    assert doc["pavimento_confirmado"] == "TERREO"
+    assert doc["status"] == "classificado"
+
+
+# --------------------------------------------------------------------------- #
+# tipo_documento (migration 005, 2026-07-07) — eixo novo Bruto/Detalhe/PDF
+# --------------------------------------------------------------------------- #
+
+def test_criar_documento_grava_tipo_documento_sugerido(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Tipo", pasta_drive_id="p")
+    doc_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="memorial.pdf", tipo_documento_sugerido="PDF",
+    )
+    doc = repo.obter_documento(conn, doc_id)
+    assert doc["tipo_documento_sugerido"] == "PDF"
+    assert doc["tipo_documento_confirmado"] is None
+
+
+def test_criar_documento_com_confirmado_direto_no_upload(conn, membro_id):
+    """[2026-07-07] usuário escolhe tipo/pavimento padrão no momento do
+    upload (lote inteiro) — grava direto como confirmado, sem esperar a
+    triagem revisar depois."""
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Lote Padrao", pasta_drive_id="p")
+    doc_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="a.dxf",
+        tipo_documento_confirmado="Detalhe", pavimento_confirmado="13_PAV",
+    )
+    doc = repo.obter_documento(conn, doc_id)
+    assert doc["tipo_documento_confirmado"] == "Detalhe"
+    assert doc["pavimento_confirmado"] == "13_PAV"
+    assert doc["tipo_documento_sugerido"] is None  # nenhuma sugestão automática rodou aqui
+
+
+def test_atualizar_classificacao_documento_confirma_tipo_documento(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Tipo2", pasta_drive_id="p")
+    doc_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="det.dxf", tipo_documento_sugerido="Detalhe",
+    )
+    repo.atualizar_classificacao_documento(conn, doc_id, tipo_documento_confirmado="Bruto")
+    doc = repo.obter_documento(conn, doc_id)
+    assert doc["tipo_documento_sugerido"] == "Detalhe"  # sugestão original preservada
+    assert doc["tipo_documento_confirmado"] == "Bruto"  # correção humana
+
+
+def test_mover_documento_para_indeterminado_limpa_pavimento_e_tipo(conn, membro_id):
+    """[2026-07-07] Drag-and-drop devolvendo um doc a "Indeterminado" — LIMPA
+    de verdade (diferente de atualizar_classificacao_documento, que só
+    preserva quando recebe None)."""
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Indet", pasta_drive_id="p")
+    doc_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="x.dxf",
+        pavimento_sugerido="13_PAV", tipo_documento_sugerido="Bruto",
+    )
+    repo.atualizar_classificacao_documento(
+        conn, doc_id, pavimento_confirmado="13_PAV", tipo_documento_confirmado="Bruto",
+    )
+    repo.mover_documento_para_indeterminado(conn, doc_id)
+    doc = repo.obter_documento(conn, doc_id)
+    assert doc["pavimento_confirmado"] is None
+    assert doc["tipo_documento_confirmado"] is None
+    assert doc["pavimento_sugerido"] == "13_PAV"  # sugestão original nunca se apaga
+
+
+def test_contar_documentos_por_status(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra W", pasta_drive_id="p")
+    repo.criar_documento(conn, obra_id=obra_id, arquivo_nome="a.dxf", status="classificado")
+    repo.criar_documento(conn, obra_id=obra_id, arquivo_nome="b.dxf", status="classificado")
+    repo.criar_documento(conn, obra_id=obra_id, arquivo_nome="c.dxf", status="revisar")
+    contagem = repo.contar_documentos_por_status(conn, obra_id)
+    assert contagem == {"classificado": 2, "revisar": 1}
+
+
+# --------------------------------------------------------------------------- #
+# Cabeçalho da obra + nome de exibição do documento (migration 004, 2026-07-07)
+# --------------------------------------------------------------------------- #
+
+def test_atualizar_cabecalho_obra_grava_todos_os_campos(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Y", pasta_drive_id="p")
+    repo.atualizar_cabecalho_obra(
+        conn, obra_id,
+        nome="Processamento Torre Norte", cliente="Construtora Aurora",
+        data_solicitacao="2026-07-01", data_entrega="2026-07-20",
+        criterios_cliente="NBR 6118, tolerância 2cm", observacoes="Urgente",
+    )
+    obra = repo.obter_obra(conn, obra_id)
+    assert obra["nome"] == "Processamento Torre Norte"
+    assert obra["cliente"] == "Construtora Aurora"
+    assert obra["data_solicitacao"] == "2026-07-01"
+    assert obra["data_entrega"] == "2026-07-20"
+    assert obra["criterios_cliente"] == "NBR 6118, tolerância 2cm"
+    assert obra["observacoes"] == "Urgente"
+
+
+def test_atualizar_cabecalho_obra_parcial_preserva_o_resto(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Z", pasta_drive_id="p")
+    repo.atualizar_cabecalho_obra(conn, obra_id, cliente="Cliente A")
+    repo.atualizar_cabecalho_obra(conn, obra_id, observacoes="Nota qualquer")
+    obra = repo.obter_obra(conn, obra_id)
+    assert obra["cliente"] == "Cliente A"  # preservado da 1a chamada
+    assert obra["observacoes"] == "Nota qualquer"
+    assert obra["nome"] == "Obra Z"  # nunca tocado, preservado
+
+
+def test_atualizar_nome_exibicao_documento(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Nome Doc", pasta_drive_id="p")
+    doc_id = repo.criar_documento(conn, obra_id=obra_id, arquivo_nome="13_PAV_PL_v3_final2.dxf")
+    repo.atualizar_nome_exibicao_documento(conn, doc_id, "Pilares - 13o pavimento")
+    doc = repo.obter_documento(conn, doc_id)
+    assert doc["nome_exibicao"] == "Pilares - 13o pavimento"
+    assert doc["arquivo_nome"] == "13_PAV_PL_v3_final2.dxf"  # arquivo real intocado

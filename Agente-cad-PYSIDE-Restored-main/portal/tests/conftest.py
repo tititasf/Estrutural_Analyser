@@ -70,6 +70,11 @@ def settings(tmp_path, db_path):
         status_md_path=tmp_path / "STATUS.md",  # não existe -> tudo vira 'beta' (fail-safe)
         drive_oauth_json=tmp_path / "sem-credencial-oauth.json",
         drive_sa_json=tmp_path / "sem-credencial-sa.json",
+        # [FIX 2026-07-06] sa_db_path APONTADO PRA TMP de propósito — mesmo motivo
+        # do drive_oauth_json acima: sem isso, qualquer teste que registre um
+        # project (auto-registro antes do SA) escreveria no project_data.vision
+        # REAL (1.4GB, ativamente usado por outra sessão rodando SA de verdade).
+        sa_db_path=tmp_path / "project_data_teste.vision",
     )
 
 

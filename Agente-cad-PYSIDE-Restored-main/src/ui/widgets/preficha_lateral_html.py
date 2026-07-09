@@ -30,6 +30,7 @@ import sqlite3
 from typing import Callable
 
 from src.ui.widgets.svg_embed_utils import embed_visual as _embed_visual
+from src.ui.widgets.svg_embed_utils import strip_fixed_size as _strip_fixed_size
 
 
 def _safe_slug(value: str) -> str:
@@ -46,6 +47,183 @@ def _canonical_beam_name(value: str) -> str:
     text = str(value or "").strip().upper()
     match = re.search(r"\b(VF?\d+[A-Z]?)\b", text)
     return match.group(1) if match else (text or "VIGA")
+
+
+def _lv_zone_bboxes(
+    dxf_path: str,
+    beam: str,
+    ficha: dict,
+) -> dict[str, tuple[float, float, float, float]]:
+    """Calcula crops Corte/A/B equivalentes aos três viewers LV do CE."""
+    import ezdxf
+    from ezdxf import bbox as ezbbox
+
+    b_cm = float(ficha.get("b_cm", ficha.get("b_geom", 19)) or 19)
+    h_a = float(ficha.get("h_cm", ficha.get("h_A", 45)) or 45)
+    h_section = max(
+        55.0,
+        float(
+            ficha.get(
+                "h_section_cm", ficha.get("h_section", 55)
+            ) or 55
+        ),
+    )
+    section_total = max(190, int(b_cm) + 178, 1800)
+    section_center = max(40.0, float(section_total) - 124.0 - b_cm)
+    section_y0 = -h_a
+    bar_half = (140.0 + b_cm) / 2.0
+    cut = (
+        section_center - bar_half - 35.0,
+        section_y0 - 55.0,
+        min(section_center + bar_half + b_cm + 35.0, section_total - 50.0),
+        section_y0 + h_section + 55.0,
+    )
+
+    doc = ezdxf.readfile(dxf_path)
+    modelspace = doc.modelspace()
+    side_x: dict[str, list[float]] = {"A": [], "B": []}
+    cut_anchors: list[tuple[float, float]] = []
+    beam_pattern = re.escape(beam)
+    for entity in modelspace:
+        if entity.dxftype() not in {"TEXT", "MTEXT"}:
+            continue
+        text = (
+            entity.dxf.text
+            if entity.dxftype() == "TEXT"
+            else entity.text
+        )
+        for side in ("A", "B"):
+            if re.search(
+                rf"\b{beam_pattern}\.{side}\b", str(text), re.IGNORECASE
+            ):
+                side_x[side].append(float(entity.dxf.insert.x))
+        if str(text).strip().casefold() in {"a", "b", "c", "pontalete"}:
+            insert = entity.dxf.insert
+            if float(insert.x) > -1000:
+                cut_anchors.append((float(insert.x), float(insert.y)))
+
+    if cut_anchors:
+        anchor_x = [point[0] for point in cut_anchors]
+        anchor_y = [point[1] for point in cut_anchors]
+        cut = (
+            min(anchor_x) - 90.0,
+            min(anchor_y) - 80.0,
+            max(anchor_x) + 90.0,
+            max(anchor_y) + 80.0,
+        )
+
+    x_max = float(section_total + 1000)
+    for entity in modelspace:
+        try:
+            bounds = ezbbox.extents([entity], fast=True)
+        except Exception:
+            continue
+        if not bounds.has_data or bounds.extmax.x < -1000:
+            continue
+        x_max = max(x_max, float(bounds.extmax.x))
+
+    face_start = float(section_total) - 10.0
+    if side_x["A"] and side_x["B"]:
+        boundary = (max(side_x["A"]) + min(side_x["B"])) / 2.0
+    else:
+        boundary = face_start + max(x_max - face_start, 2.0) / 2.0
+    boundary = max(face_start + 1.0, min(boundary, x_max - 1.0))
+    side_y_min = cut[1] - 120.0
+    side_y_max = cut[3] + 120.0
+    return {
+        "Visão Corte": cut,
+        "Lateral A": (face_start, side_y_min, boundary, side_y_max),
+        "Lateral B": (boundary, side_y_min, x_max + 20.0, side_y_max),
+    }
+
+
+def _visible_dxf_bbox(
+    dxf_path: str,
+) -> tuple[float, float, float, float] | None:
+    """Extents de um split DXF ignorando a sentinela legada em x=-9000."""
+    import ezdxf
+    from ezdxf import bbox as ezbbox
+
+    document = ezdxf.readfile(dxf_path)
+    values = [float("inf"), float("inf"), float("-inf"), float("-inf")]
+    for entity in document.modelspace():
+        try:
+            bounds = ezbbox.extents([entity], fast=True)
+        except Exception:
+            continue
+        if (
+            not bounds.has_data
+            or bounds.extmin.x < -1000
+            or bounds.extmax.x < -1000
+        ):
+            continue
+        values[0] = min(values[0], float(bounds.extmin.x))
+        values[1] = min(values[1], float(bounds.extmin.y))
+        values[2] = max(values[2], float(bounds.extmax.x))
+        values[3] = max(values[3], float(bounds.extmax.y))
+    if values[0] == float("inf"):
+        return None
+    width = max(values[2] - values[0], 1.0)
+    height = max(values[3] - values[1], 1.0)
+    pad_x = max(10.0, width * 0.04)
+    pad_y = max(10.0, height * 0.08)
+    return (
+        values[0] - pad_x,
+        values[1] - pad_y,
+        values[2] + pad_x,
+        values[3] + pad_y,
+    )
+
+
+def _render_dxf_zone_svg(
+    dialog,
+    dxf_path: str,
+    bbox: tuple[float, float, float, float] | None,
+) -> str:
+    """Renderiza um DXF inteiro ou um crop preservando texto como SVG."""
+    if not dxf_path or not os.path.isfile(dxf_path):
+        return ""
+    if bbox is None:
+        return dialog._render_ezdxf_b64(
+            dxf_path, 1900, 1240, fmt="svg"
+        )
+    try:
+        import io
+        import ezdxf
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from ezdxf.addons.drawing import Frontend, RenderContext
+        from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
+
+        dpi = 150
+        document = ezdxf.readfile(dxf_path)
+        with matplotlib.rc_context({"svg.fonttype": "none"}):
+            figure = plt.figure(figsize=(1900 / dpi, 1240 / dpi), dpi=dpi)
+            axes = figure.add_axes([0, 0, 1, 1])
+            Frontend(
+                RenderContext(document), MatplotlibBackend(axes)
+            ).draw_layout(document.modelspace())
+            axes.set_xlim(bbox[0], bbox[2])
+            axes.set_ylim(bbox[1], bbox[3])
+            axes.set_aspect("equal", adjustable="box")
+            axes.axis("off")
+            buffer = io.BytesIO()
+            figure.savefig(
+                buffer,
+                format="svg",
+                dpi=dpi,
+                facecolor="white",
+                bbox_inches="tight",
+            )
+            plt.close(figure)
+        return _strip_fixed_size(buffer.getvalue().decode("utf-8"))
+    except Exception as exc:
+        print(
+            f"[HTML] crop LV falhou ({dxf_path}, bbox={bbox}): {exc}",
+            flush=True,
+        )
+        return ""
 
 
 def _table_row(label: str, value, color: str = "#7eb8f7") -> str:
@@ -267,6 +445,8 @@ def write_lateral_pages(
     metrics_fn: Callable[[list], dict],
     classification_fn: Callable[[str], str] | None = None,
     reverse_beams_fn: Callable[[], list[str]] | None = None,
+    ficha_data_fn: Callable[[str], dict] | None = None,
+    zone_render_fn: Callable[[object, str, tuple | None], str] | None = None,
 ) -> tuple[str, str, int]:
     """Grava índices Para/Passa e uma ficha por viga em cada lista.
 
@@ -292,6 +472,10 @@ def write_lateral_pages(
         "background:#151515;border:1px solid #333;color:#aaa}"
         ".classification-banner.match{border-left:4px solid #4fc3a1}"
         ".classification-banner.reference{border-left:4px solid #f0b840}"
+        ".evidence-grid.zone-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;"
+        "align-items:start}"
+        "@media(max-width:1200px){.evidence-grid.zone-grid{"
+        "grid-template-columns:1fr!important}}"
     )
 
     if classification_fn is None:
@@ -301,6 +485,7 @@ def write_lateral_pages(
             dialog._obra, dialog._pavimento, "LV", beam
         )
 
+    reverse_ficha_cache: dict[str, dict] = {}
     if reverse_beams_fn is None:
         from src.core.item_attention_store import canonical_pavimento
 
@@ -312,16 +497,32 @@ def write_lateral_pages(
             try:
                 with sqlite3.connect(db_path) as conn:
                     rows = conn.execute(
-                        "SELECT elemento_id FROM reverse_eng_fichas "
+                        "SELECT elemento_id, campos_json "
+                        "FROM reverse_eng_fichas "
                         "WHERE obra_name=? AND pavimento=? AND classe='LV' "
                         "ORDER BY elemento_id",
                         (dialog._obra, pavimento),
                     ).fetchall()
-                return [_canonical_beam_name(row[0]) for row in rows if row[0]]
+                beams = []
+                for elemento_id, campos_json in rows:
+                    if not elemento_id:
+                        continue
+                    beam = _canonical_beam_name(elemento_id)
+                    beams.append(beam)
+                    try:
+                        reverse_ficha_cache[beam] = json.loads(
+                            campos_json or "{}"
+                        )
+                    except (TypeError, json.JSONDecodeError):
+                        reverse_ficha_cache[beam] = {}
+                return beams
             except sqlite3.Error:
                 return []
 
     reverse_beams = list(dict.fromkeys(reverse_beams_fn()))
+    if ficha_data_fn is None:
+        ficha_data_fn = lambda beam: reverse_ficha_cache.get(beam, {})  # noqa: E731
+    zone_render_fn = zone_render_fn or _render_dxf_zone_svg
     behavior_kinds = {
         "Para": ("lateral_a_para", "lateral_b_para"),
         "Passa": ("lateral_a_passa", "lateral_b_passa"),
@@ -516,6 +717,8 @@ def write_lateral_pages(
         )
         return card_html, bool(sa_b64)
 
+    zone_render_cache: dict[tuple, str] = {}
+
     def page(
         index: int,
         entries: list[tuple[str, list[dict], str]],
@@ -598,12 +801,66 @@ def write_lateral_pages(
         n1_total = len(beam_rows)
         side_sections: list[str] = []
         side_checks: dict[str, dict] = {}
+        ficha_data = ficha_data_fn(beam) or {}
+
+        zone_suffixes = {
+            "Visão Corte": "CORTE",
+            "Lateral A": "VIEW_A",
+            "Lateral B": "VIEW_B",
+        }
+        zone_artifacts: dict[str, dict[str, dict[str, str]]] = {
+            "N3": {},
+            "N4": {},
+        }
+        for stage, is_n4 in (("N3", False), ("N4", True)):
+            combined_path = dialog._find_beam_dxf(
+                "LV", beam, n4=is_n4
+            )
+            combined_bboxes: dict[
+                str, tuple[float, float, float, float]
+            ] = {}
+            if combined_path:
+                try:
+                    combined_bboxes = _lv_zone_bboxes(
+                        combined_path, beam, ficha_data
+                    )
+                except Exception as exc:
+                    print(
+                        f"[HTML] bboxes LV {stage} {beam} falharam: {exc}",
+                        flush=True,
+                    )
+            for zone, suffix in zone_suffixes.items():
+                dedicated_path = dialog._find_beam_dxf(
+                    "LV", f"{beam}_{suffix}", n4=is_n4
+                )
+                dedicated_crop = None
+                if dedicated_path and os.path.isfile(dedicated_path):
+                    try:
+                        dedicated_crop = _visible_dxf_bbox(dedicated_path)
+                    except Exception as exc:
+                        print(
+                            f"[HTML] bbox split LV {stage} {beam} {zone} "
+                            f"falhou: {exc}",
+                            flush=True,
+                        )
+                if dedicated_path and dedicated_crop:
+                    path = dedicated_path
+                    crop = dedicated_crop
+                else:
+                    path = combined_path
+                    crop = combined_bboxes.get(zone)
+                cache_key = (stage, beam, zone, path or "", crop)
+                if cache_key not in zone_render_cache:
+                    zone_render_cache[cache_key] = zone_render_fn(
+                        dialog, path, crop
+                    )
+                zone_artifacts[stage][zone] = {
+                    "path": path or "",
+                    "b64": zone_render_cache[cache_key],
+                }
+
         for side in ("A", "B"):
             side_rows = rows_by_side.get(side) or []
-            n3_path = dialog._find_beam_dxf("LV", f"{beam}_{side}", n4=False)
-            n4_path = dialog._find_beam_dxf("LV", f"{beam}_{side}", n4=True)
-            n3_b64 = dialog._render_ezdxf_b64(n3_path, 1900, 1240, fmt="svg") if n3_path else ""
-            n4_b64 = dialog._render_ezdxf_b64(n4_path, 1900, 1240, fmt="svg") if n4_path else ""
 
             n1_cards = []
             side_available = 0
@@ -613,40 +870,51 @@ def write_lateral_pages(
                 side_available += bool(has_geo)
             n1_available += side_available
 
-            side_evidence = (
-                _artifact_card(
-                    "N2",
-                    "Recorte humano da viga (compartilhado entre os lados). "
-                    + classification_detail,
-                    n2_b64, n2_path,
-                )
-                + _artifact_card(
-                    f"N3 · Lado {side}", "Robô via N1 (Fase-4 → DXF), específico do lado",
-                    n3_b64, n3_path,
-                )
-                + _artifact_card(
-                    f"N4 · Lado {side}",
-                    "Robô via engenharia reversa N2, específico do lado. "
-                    + classification_detail,
-                    n4_b64, n4_path,
-                )
+            side_sections.append(
+                f'<div class="side-block"><h3>Lado {side} — '
+                f'{len(side_rows)} segmento(s)</h3>'
+                + "".join(n1_cards)
+                + "</div>"
             )
-            if side_rows or n2_b64 or n3_b64 or n4_b64:
-                side_sections.append(
-                    f'<div class="side-block"><h3>Lado {side} — '
-                    f'{len(side_rows)} segmento(s)</h3>'
-                    + "".join(n1_cards)
-                    + '<div class="sec"><div class="sec-title">'
-                    f"Evidências do Lado {side} — N2 / N3 / N4</div>"
-                    f'<div class="sec-body"><div class="evidence-grid">{side_evidence}</div>'
-                    "</div></div></div>"
-                )
             side_checks[side] = {
                 "n1_ok": side_available == len(side_rows) if side_rows else True,
-                "n3_ok": bool(n3_b64),
-                "n4_ok": bool(n4_b64),
                 "rows": len(side_rows),
             }
+
+        n2_section = (
+            '<div class="sec"><div class="sec-title">'
+            "N2 / STOG real — recorte humano compartilhado</div>"
+            '<div class="sec-body"><div class="evidence-grid">'
+            + _artifact_card(
+                "N2",
+                "Recorte humano da viga (A/B no mesmo gabarito). "
+                + classification_detail,
+                n2_b64,
+                n2_path,
+            )
+            + "</div></div></div>"
+        )
+        stage_sections = []
+        for stage, source_label in (
+            ("N3", "Robô via N1 / Structural Analyzer"),
+            ("N4", "Robô via ficha N2 / engenharia reversa"),
+        ):
+            cards = "".join(
+                _artifact_card(
+                    f"{stage} · {zone}",
+                    f"{source_label} — viewer independente {zone}. "
+                    + (classification_detail if stage == "N4" else ""),
+                    zone_artifacts[stage][zone]["b64"],
+                    zone_artifacts[stage][zone]["path"],
+                )
+                for zone in zone_suffixes
+            )
+            stage_sections.append(
+                '<div class="sec"><div class="sec-title">'
+                f"{stage} — Visão Corte / Lateral A / Lateral B</div>"
+                '<div class="sec-body"><div class="evidence-grid zone-grid">'
+                f"{cards}</div></div></div>"
+            )
 
         pipeline = "".join(
             _pipeline_stage(
@@ -663,12 +931,15 @@ def write_lateral_pages(
             beam, f"{behavior_key}_viga",
         ) + "".join(
             _pipeline_stage(
-                dialog, f"N3/N4 · Lado {side}",
-                side_checks[side]["n3_ok"] or side_checks[side]["n4_ok"],
-                f"Artefatos gerados do lado {side}.",
-                beam, f"{behavior_key}_lado_{side.lower()}",
+                dialog, f"{stage} · 3 viewers",
+                all(
+                    zone_artifacts[stage][zone]["b64"]
+                    for zone in zone_suffixes
+                ),
+                "Visão Corte + Lateral A + Lateral B.",
+                beam, f"{behavior_key}_{stage.lower()}_3viewers",
             )
-            for side in ("A", "B")
+            for stage in ("N3", "N4")
         )
         pipeline_section = (
             '<div class="sec"><div class="sec-title">'
@@ -699,10 +970,20 @@ def write_lateral_pages(
                 n1_total > 0 and n1_available == n1_total,
             ),
             ("recorte N2 (viga) localizado", bool(n2_b64)),
-            ("artefato N3 Lado A ou B localizado",
-             side_checks["A"]["n3_ok"] or side_checks["B"]["n3_ok"]),
-            ("artefato N4 Lado A ou B localizado",
-             side_checks["A"]["n4_ok"] or side_checks["B"]["n4_ok"]),
+            (
+                "N3 com Visão Corte + Lateral A + Lateral B",
+                all(
+                    zone_artifacts["N3"][zone]["b64"]
+                    for zone in zone_suffixes
+                ),
+            ),
+            (
+                "N4 com Visão Corte + Lateral A + Lateral B",
+                all(
+                    zone_artifacts["N4"][zone]["b64"]
+                    for zone in zone_suffixes
+                ),
+            ),
             (
                 f"N2/N4 classificados para a lista {behavior}",
                 classification_matches,
@@ -728,6 +1009,8 @@ def write_lateral_pages(
                 f"{html.escape(classification_detail)}</div>"
             )
             + "".join(side_sections)
+            + n2_section
+            + "".join(stage_sections)
             + pipeline_section
             + ficha_section
             + checks_section

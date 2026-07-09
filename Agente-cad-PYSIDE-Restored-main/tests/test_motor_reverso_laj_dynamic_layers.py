@@ -75,7 +75,7 @@ def test_full_shallow_slab_is_not_classified_as_hlaz(tmp_path):
         "segments": [{"y0": 0.0, "y1": 71.0}],
     }]
     assert ficha["linhas_horizontais"] == [{
-        "value": 35.5, "is_union": False, "exact": True,
+        "value": 35.0, "is_union": False, "exact": True,
     }]
 
 
@@ -108,6 +108,80 @@ def test_reuse_panels_do_not_replace_full_slab_outline(tmp_path):
     assert ficha["largura"] == 311.0
     assert ficha["area_cm2"] == 129998.0
     assert [line["value"] for line in ficha["linhas_horizontais"]] == [122.0, 169.0, 189.0]
+    assert [line["is_union"] for line in ficha["linhas_horizontais"]] == [False, False, True]
+
+
+def test_simple_rectangular_slab_replaces_sub_60_panel_cut(tmp_path):
+    doc = ezdxf.new("R2018")
+    msp = doc.modelspace()
+    layer = "Painéis"
+    _add_rect_lines(msp, layer, 418.0, 311.0)
+    msp.add_line((244, 0), (244, 311), dxfattribs={"layer": layer})
+    for y in (122, 169, 189):
+        msp.add_line((0, y), (418, y), dxfattribs={"layer": layer})
+    path = tmp_path / "simple_311.dxf"
+    doc.saveas(path)
+
+    ficha = _extract_laj_from_dxf(str(path))
+
+    assert [line["value"] for line in ficha["linhas_horizontais"]] == [122.0, 142.0]
+    assert [line["is_union"] for line in ficha["linhas_horizontais"]] == [False, True]
+
+
+def test_extracts_support_hatch_lines_relative_to_slab(tmp_path):
+    doc = ezdxf.new("R2018")
+    msp = doc.modelspace()
+    _add_rect_lines(msp, "Painéis", 418.0, 311.0)
+    for offset in (0.0, 12.0, 24.0):
+        msp.add_line(
+            (-19.0, -31.0 + offset),
+            (0.0, -12.0 + offset),
+            dxfattribs={"layer": "3"},
+        )
+    # Setas de cota em outra layer não são hachura de apoio.
+    msp.add_line((100.0, 20.0), (103.0, 23.0), dxfattribs={"layer": "Painéis"})
+    path = tmp_path / "support_hatch.dxf"
+    doc.saveas(path)
+
+    ficha = _extract_laj_from_dxf(str(path))
+
+    assert ficha["apoios_hachurados"] == [
+        {"x1": -19.0, "y1": -31.0, "x2": 0.0, "y2": -12.0},
+        {"x1": -19.0, "y1": -19.0, "x2": 0.0, "y2": 0.0},
+        {"x1": -19.0, "y1": -7.0, "x2": 0.0, "y2": 12.0},
+    ]
+
+
+def test_filters_neighbor_support_hatch_outside_local_slab_window():
+    local = [
+        {"x1": -19.0, "y1": -31.0, "x2": 0.0, "y2": -12.0},
+        {"x1": -19.0, "y1": -19.0, "x2": 0.0, "y2": 0.0},
+        {"x1": -19.0, "y1": -7.0, "x2": 0.0, "y2": 12.0},
+    ]
+    neighbor = [
+        {"x1": 650.0, "y1": 0.0, "x2": 669.0, "y2": 19.0},
+        {"x1": 650.0, "y1": 12.0, "x2": 669.0, "y2": 31.0},
+        {"x1": 650.0, "y1": 24.0, "x2": 669.0, "y2": 43.0},
+    ]
+
+    assert laj_motor._filter_support_hatch_lines(local + neighbor, 418.0, 311.0) == local
+
+
+def test_diagonal_gate_ignores_reuse_marks_and_support_hatch():
+    doc = ezdxf.new("R2018")
+    msp = doc.modelspace()
+    msp.add_line((0.0, 0.0), (50.0, 19.0), dxfattribs={"layer": "1"})
+    for offset in (0.0, 12.0, 24.0):
+        msp.add_line(
+            (100.0, offset), (124.0, offset + 24.0),
+            dxfattribs={"layer": "3"},
+        )
+
+    assert not laj_motor._has_diagonal_geometry(msp)
+
+    # O gerador canônico grava o contorno estrutural na layer PAINEIS.
+    msp.add_line((0.0, 0.0), (90.0, 85.0), dxfattribs={"layer": "PAINEIS"})
+    assert laj_motor._has_diagonal_geometry(msp)
 
 
 def test_vertical_dimensions_use_tallest_side_and_narrow_panels_get_hatch():
@@ -132,6 +206,58 @@ def test_vertical_dimensions_use_tallest_side_and_narrow_panels_get_hatch():
     )
 
     assert count_y == 1
+
+
+def test_panel_rectangles_reconstruct_stepped_outline_and_local_hlaz(tmp_path):
+    doc = ezdxf.new("R2018")
+    msp = doc.modelspace()
+    for x0, y0, width, height in (
+        (0.0, 49.0, 2413.0, 152.0),
+        (2413.0, 0.0, 726.0, 89.5),
+        (2413.0, 109.5, 726.0, 91.5),
+    ):
+        msp.add_lwpolyline(
+            [(x0, y0), (x0 + width, y0), (x0 + width, y0 + height), (x0, y0 + height)],
+            close=True,
+            dxfattribs={"layer": "REAPROVEITAMENTO"},
+        )
+    msp.add_lwpolyline(
+        [(2413.0, 89.5), (3139.0, 89.5), (3139.0, 109.5), (2413.0, 109.5)],
+        close=True,
+        dxfattribs={"layer": "Hachura"},
+    )
+    msp.add_line((0.0, 109.5), (3139.0, 109.5), dxfattribs={"layer": "Painéis"})
+    msp.add_line((2413.0, 89.5), (3139.0, 89.5), dxfattribs={"layer": "Painéis"})
+    for x in (0.0, 244.0, 2413.0, 3139.0):
+        y0 = 49.0 if x < 2413.0 else 0.0
+        msp.add_line((x, y0), (x, 201.0), dxfattribs={"layer": "Painéis"})
+    outline = laj_motor._extract_panel_union_outline(
+        msp, (0.0, 0.0, 3139.0, 201.0)
+    )
+
+    assert outline is not None
+    box, coordinates = outline
+    assert box == (0.0, 0.0, 3139.0, 201.0)
+    assert coordinates == [
+        [2413.0, 0.0], [2413.0, 49.0], [0.0, 49.0], [0.0, 201.0],
+        [3139.0, 201.0], [3139.0, 0.0], [2413.0, 0.0],
+    ]
+
+
+def test_long_noisy_panel_axis_is_canonicalized_to_preferred_modules():
+    noisy = [
+        {"value": value, "is_union": False}
+        for value in (58.0, 244.0, 320.5, 564.5, 769.0, 808.5, 1052.5)
+    ]
+
+    result = laj_motor._canonicalize_long_panel_axis(noisy, 3139.0, 201.0)
+    positions = [line["value"] for line in result]
+
+    assert positions[:4] == [244.0, 488.0, 732.0, 976.0]
+    assert positions[-1] == 2928.0
+    lengths = laj_motor._axis_panel_lengths(positions, 3139.0)
+    assert lengths.count(244.0) == 12
+    assert lengths[-1] == 211.0
 
 
 def test_complex_sa_outline_replaces_rectangular_fallback(tmp_path, monkeypatch):

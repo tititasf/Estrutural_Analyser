@@ -101,6 +101,32 @@
   "par_6_7": 0.0,
   "par_7_8": 0.0,
   "par_8_9": 0.0,
+  "h1_geom_A": 0.0,
+  "paineis_intervals_A": [
+    112.0
+  ],
+  "h1_geom_B": 0.0,
+  "paineis_intervals_B": [
+    114.0,
+    14.0,
+    25.0
+  ],
+  "abertura_B": {
+    "lado": "esquerdo",
+    "largura": 29.0,
+    "y_rel": 128.0,
+    "altura": 25.0
+  },
+  "h1_geom_D": 0.0,
+  "paineis_intervals_D": [
+    25.0
+  ],
+  "h1_geom_C": 0.0,
+  "paineis_intervals_C": [
+    114.0
+  ],
+  "larg_c_geom": 24.0,
+  "comprimento_geom": 49.0,
   "_er_meta": {
     "source": "fase4",
     "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\NOVA - ALIMONTI - PARAISO - COBERTURA E DECK - PL - R00\\PIL_P31_motor_178111363584.dxf",
@@ -189,6 +215,36 @@
       "larg3_H": 0.0,
       "laje_H": 0.0,
       "posicao_laje_H": 0.0,
+      "h1_geom_A": 0.0,
+      "paineis_intervals_A": [
+        112.0
+      ],
+      "h_par_A": 41.0,
+      "h1_geom_B": 0.0,
+      "paineis_intervals_B": [
+        114.0,
+        14.0,
+        25.0
+      ],
+      "abertura_B": {
+        "lado": "esquerdo",
+        "largura": 29.0,
+        "y_rel": 128.0,
+        "altura": 25.0
+      },
+      "h_par_B": 14.0,
+      "h1_geom_D": 0.0,
+      "paineis_intervals_D": [
+        25.0
+      ],
+      "h_par_D": 25.0,
+      "h1_geom_C": 0.0,
+      "paineis_intervals_C": [
+        114.0
+      ],
+      "larg_c_geom": 24.0,
+      "h_par_C": 39.0,
+      "comprimento_geom": 49.0,
       "grade_2": 0.0,
       "grade_3": 0.0,
       "distancia_1": 14.0,

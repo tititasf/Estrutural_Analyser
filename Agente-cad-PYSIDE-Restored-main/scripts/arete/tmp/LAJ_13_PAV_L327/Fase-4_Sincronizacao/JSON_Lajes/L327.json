@@ -58,7 +58,7 @@
   ],
   "linhas_horizontais": [
     {
-      "value": 35.4,
+      "value": 35.0,
       "is_union": false,
       "exact": true
     }
@@ -67,28 +67,121 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L327",
-    "fields": {
-      "nome": "L327",
-      "numero": "27",
-      "laje_dim": "h=10",
-      "laje_nivel": "852.12"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "27",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L327",
-    "n3_pattern_score": 0.0,
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L327",
+    "n3_pattern_score": 0.004,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
   "_stog_pose": {
     "x": 3167.07,
     "y": 1578.0
   },
+  "apoios_hachurados": [
+    {
+      "x1": 415.5,
+      "y1": 24.72,
+      "x2": 439.5,
+      "y2": 48.72
+    },
+    {
+      "x1": -21.5,
+      "y1": -3.57,
+      "x2": 2.5,
+      "y2": 20.43
+    },
+    {
+      "x1": 415.5,
+      "y1": 36.74,
+      "x2": 430.7,
+      "y2": 51.94
+    },
+    {
+      "x1": 415.5,
+      "y1": 0.68,
+      "x2": 439.5,
+      "y2": 24.68
+    },
+    {
+      "x1": -21.5,
+      "y1": 32.49,
+      "x2": 2.5,
+      "y2": 56.49
+    },
+    {
+      "x1": 415.5,
+      "y1": 48.76,
+      "x2": 418.68,
+      "y2": 51.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 8.45,
+      "x2": 2.5,
+      "y2": 32.45
+    },
+    {
+      "x1": 415.5,
+      "y1": 12.7,
+      "x2": 439.5,
+      "y2": 36.7
+    },
+    {
+      "x1": 436.82,
+      "y1": -14.06,
+      "x2": 439.5,
+      "y2": -11.38
+    },
+    {
+      "x1": 424.8,
+      "y1": -14.06,
+      "x2": 439.5,
+      "y2": 0.64
+    },
+    {
+      "x1": -7.95,
+      "y1": -14.06,
+      "x2": 2.5,
+      "y2": -3.61
+    },
+    {
+      "x1": -19.97,
+      "y1": -14.06,
+      "x2": 2.5,
+      "y2": 8.41
+    },
+    {
+      "x1": 415.5,
+      "y1": -11.34,
+      "x2": 439.5,
+      "y2": 12.66
+    },
+    {
+      "x1": -21.5,
+      "y1": 20.47,
+      "x2": 2.5,
+      "y2": 44.47
+    },
+    {
+      "x1": -21.5,
+      "y1": 56.53,
+      "x2": -12.09,
+      "y2": 65.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 44.51,
+      "x2": -0.07,
+      "y2": 65.94
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "35.5",

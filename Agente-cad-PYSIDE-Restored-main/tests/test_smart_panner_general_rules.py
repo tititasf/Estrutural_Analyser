@@ -13,12 +13,11 @@ def test_minor_span_anchors_small_panel_and_union_at_end():
     ]
 
 
-def test_two_edge_panels_keep_central_union():
+def test_311_span_prefers_single_large_residual_over_sub_60_cut():
     result = distribute_panels(405.5, 311.0)
     assert _signature(result["linhas_horizontais"]) == [
         (122.0, False),
-        (169.0, False),
-        (189.0, True),
+        (142.0, True),
     ]
 
 
@@ -35,4 +34,9 @@ def test_three_medium_panels_share_union_gaps():
 def test_narrow_strip_is_bisected_on_both_axes_when_short_enough():
     result = distribute_panels(233.74, 71.0)
     assert _signature(result["linhas_verticais"]) == [(116.9, False)]
-    assert _signature(result["linhas_horizontais"]) == [(35.5, False)]
+    assert _signature(result["linhas_horizontais"]) == [(35.0, False)]
+
+
+def test_narrow_strip_prefers_multiple_of_five_and_residual():
+    result = distribute_panels(233.74, 75.7)
+    assert _signature(result["linhas_horizontais"]) == [(40.0, False)]

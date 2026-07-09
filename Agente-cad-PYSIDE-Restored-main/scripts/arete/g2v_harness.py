@@ -59,6 +59,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import re
 import sys
@@ -186,6 +187,12 @@ gabarito contiver elementos de OUTRO item (nome de viga/pilar/laje diferente), �
 contaminação da EXTRAÇÃO DA IMAGEM (categoria 'contaminacao_recorte'), não defeito do
 elemento avaliado.
 
+REGRA DE VETO: PASS exige confirmar TODOS os itens do checklist_visual. Para LAJ,
+contorno/área interna, quantidade e POSIÇÃO de cada cota, legibilidade, linhas de
+painel, HLAZ e hachuras são independentes. Acertar somente comprimento×largura ou o
+bbox nunca basta. Qualquer campo falso/não verificável, nota humana ainda visível,
+contaminação ou fonte desatualizada proíbe PASS.
+
 PRECISÃO PARA AJUSTE DE MOTOR (obrigatória em cada achado):
 - parte: onde está o defeito — CIMA/ABCD/face_A/face_B/segmento_N/laje_inteira/geral
 - direcao: 'n4_a_mais' (o candidato tem elemento que o gabarito NÃO tem → gerador criou
@@ -197,6 +204,17 @@ Responda APENAS com JSON válido, sem texto fora do JSON:
 {{
   "veredito": "PASS ou FAIL ou SUSPEITO",
   "confianca": 0.0 a 1.0,
+  "checklist_visual": {{
+    "fonte_atual_confirmada": true ou false,
+    "recorte_alvo_preciso": true ou false,
+    "contorno_area_interna": true ou false,
+    "cotas_valores": true ou false,
+    "cotas_posicao_legibilidade": true ou false,
+    "linhas_paineis": true ou false,
+    "hlaz": true ou false,
+    "hachuras_apoio": true ou false,
+    "sem_contaminacao_vizinha": true ou false
+  }},
   "achados": [
     {{"categoria": "cota_sobreposta|painel_torto|sobreposicao|hachura_ausente|hachura_extra|segmentacao|gestalt_geral|contaminacao_recorte|vazamento_gabarito|outro",
       "parte": "...", "direcao": "n4_a_mais|n4_a_menos|divergente|na",
@@ -252,8 +270,20 @@ def avaliar_cli(png_path: Path, prompt: str, model: str = "") -> dict:
         "png_para_ler": str(png_path),
         "prompt": prompt,
         "veredito": None, "confianca": None, "achados": [], "resumo": "",
+        "checklist_visual": {
+            "fonte_atual_confirmada": None,
+            "recorte_alvo_preciso": None,
+            "contorno_area_interna": None,
+            "cotas_valores": None,
+            "cotas_posicao_legibilidade": None,
+            "linhas_paineis": None,
+            "hlaz": None,
+            "hachuras_apoio": None,
+            "sem_contaminacao_vizinha": None,
+        },
         "_instrucao": "Agente CLI: leia png_para_ler, aplique o prompt e preencha "
-                      "veredito/confianca/achados/resumo neste objeto.",
+                      "checklist_visual/veredito/confianca/achados/resumo. PASS com "
+                      "qualquer checklist diferente de true é inválido.",
     }
 
 
@@ -544,6 +574,55 @@ def screenshot_evidence_grid(html_path: Path, out_png: Path,
 # 5. Núcleo — 1 item, N backends
 # ═════════════════════════════════════════════════════════════════════════════
 
+def _file_evidence(path: Path) -> dict:
+    stat = path.stat()
+    return {
+        "path": str(path),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "size": stat.st_size,
+        "mtime_ns": stat.st_mtime_ns,
+    }
+
+
+def _laj_reference_geometry(recorte_path: Path, elemento_id: str, obra_name: str):
+    """Retorna polígono absoluto N2 e halo controlado para leitura das cotas."""
+    scripts_dir = str(ARETE_ROOT.parent)
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    from motor_reverso_laj import extrair_ficha_laje
+
+    ficha = extrair_ficha_laje(str(recorte_path), elemento_id, obra_name)
+    coords = ficha.get("coordenadas") or []
+    if len(coords) < 3:
+        return None, None
+    xs = [float(point[0]) for point in coords]
+    ys = [float(point[1]) for point in coords]
+    pose = ficha.get("_stog_pose") or {}
+    off_x = float(pose.get("x", 0.0)) if abs(min(xs)) <= 0.5 else 0.0
+    off_y = float(pose.get("y", 0.0)) if abs(min(ys)) <= 0.5 else 0.0
+    outline = [(x + off_x, y + off_y) for x, y in zip(xs, ys)]
+    abs_xs = [point[0] for point in outline]
+    abs_ys = [point[1] for point in outline]
+    bbox = (
+        min(abs_xs) - 70.0, min(abs_ys) - 105.0,
+        max(abs_xs) + 70.0, max(abs_ys) + 105.0,
+    )
+    return outline, bbox
+
+
+def validar_veredito_cli(veredito: dict) -> tuple[bool, str]:
+    """Veto mecânico mínimo para impedir PASS sem inspeção campo a campo."""
+    verdict = str(veredito.get("veredito") or "").upper()
+    checklist = veredito.get("checklist_visual") or {}
+    if verdict == "PASS":
+        missing = [key for key, value in checklist.items() if value is not True]
+        if not checklist or missing:
+            return False, f"PASS inválido; checklist pendente/falso: {missing or ['todos']}"
+    if verdict == "FAIL" and not (veredito.get("achados") or []):
+        return False, "FAIL inválido; registre ao menos um achado acionável"
+    return verdict in {"PASS", "FAIL", "SUSPEITO"}, ""
+
+
 def avaliar_item(row: dict, backends: list[str], out_dir: Path,
                  fonte_imagem: str = "html", par: str = "n2xn4",
                  n3_dir: Path | None = None, lista_lv: str = "passa") -> dict:
@@ -576,6 +655,10 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
             resultado["erro"] = f"N4 não encontrado: {n4_path} (gerar N4 antes de avaliar)"
             return resultado
         resultado["n4_path"] = str(n4_path)
+        resultado["evidencia_fontes"] = {
+            "n2": _file_evidence(recorte_path),
+            "n4": _file_evidence(n4_path),
+        }
 
     n3_path = None
     if par == "n3xn4" and n3_dir is not None:
@@ -595,8 +678,18 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
     out_dir.mkdir(parents=True, exist_ok=True)
     png_path = out_dir / f"{classe}_{elemento_id}_{par}.png"
     ok = False
+    precise_laj = classe == "LAJ" and par == "n2xn4"
+    laj_outline = laj_bbox = None
+    if precise_laj:
+        laj_outline, laj_bbox = _laj_reference_geometry(
+            recorte_path, elemento_id, obra_name
+        )
+        resultado["roi_n2"] = {
+            "outline": laj_outline,
+            "bbox_com_halo_cotas": laj_bbox,
+        }
 
-    if fonte_imagem == "html":
+    if fonte_imagem == "html" and not precise_laj:
         html_path = resolver_html_ficha(
             obra_name, classe, elemento_id, lista_lv=lista_lv
         )
@@ -622,8 +715,15 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
                                  f"render DXF cru só faz n2xn4. Gere a ficha HTML antes.")
             return resultado
         else:
-            ok = render_comparacao(recorte_path, n4_path, png_path)
-            resultado["fonte_imagem"] = "dxf_render"
+            ok = render_comparacao(
+                recorte_path, n4_path, png_path,
+                ref_bbox_override=laj_bbox,
+                ref_outline=laj_outline,
+                high_resolution=precise_laj,
+            )
+            resultado["fonte_imagem"] = (
+                "dxf_render_roi_laj" if precise_laj else "dxf_render"
+            )
 
     if not ok:
         resultado["erro"] = "Falha ao gerar imagem (nem ficha HTML nem render_comparacao)"
@@ -742,7 +842,7 @@ def main():
         else:
             for backend, v in r["vereditos"].items():
                 if v.get("aguardando_agente"):
-                    print(f"  {r['classe']} {r['elemento_id']} [cli]: imagem pronta → "
+                    print(f"  {r['classe']} {r['elemento_id']} [cli]: imagem pronta -> "
                           f"{v['png_para_ler']} (agente lê e preenche)")
                 else:
                     print(f"  {r['classe']} {r['elemento_id']} [{backend}]: "

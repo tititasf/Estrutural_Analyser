@@ -856,6 +856,15 @@
             var cabPav = document.createElement('li');
             cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar;
             cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
+            cabPav.style.cursor = 'pointer';
+            cabPav.addEventListener('click', function() {
+              var isFechado = cabPav.classList.toggle('pavimento-fechado');
+              var next = cabPav.nextElementSibling;
+              while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
+                next.style.display = isFechado ? 'none' : '';
+                next = next.nextElementSibling;
+              }
+            });
             lista.appendChild(cabPav);
             var todos = _recortesItensPorBruto[bruto.bruto_id] || [];
             var rec = {
@@ -883,7 +892,16 @@
         var cabPav = document.createElement('li');
         cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar;
         cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
-        lista.appendChild(cabPav);
+        cabPav.style.cursor = 'pointer';
+            cabPav.addEventListener('click', function() {
+              var isFechado = cabPav.classList.toggle('pavimento-fechado');
+              var next = cabPav.nextElementSibling;
+              while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
+                next.style.display = isFechado ? 'none' : '';
+                next = next.nextElementSibling;
+              }
+            });
+            lista.appendChild(cabPav);
         TIPOS_ORDEM.concat(['Indeterminado']).forEach(function (tipo) {
           var itens = gruposDoTipo[tipo] || [];
           // [novo, a pedido do dono] classes com 0 itens (ex.: "PDFs (0)")
@@ -1284,21 +1302,36 @@
   function renderizarFotoRecorte(container, src, alt, forcarRecarga) {
     var meuToken = ++_fotoRecorteReqToken;
     container.innerHTML = '<p class="muted">Carregando foto em alta resolução…</p>';
-    var img = new Image();
-    img.alt = alt;
-    img.onload = function () {
+    var url = forcarRecarga ? src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now() : src;
+    
+    fetch(url).then(function(res) {
+      if (!res.ok) throw new Error('Falha na rede');
+      return res.text();
+    }).then(function(text) {
       if (meuToken !== _fotoRecorteReqToken) return;
       container.innerHTML = '<div class="zoom-pan-viewport"></div><p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
-      container.querySelector('.zoom-pan-viewport').appendChild(img);
+      
+      var vp = container.querySelector('.zoom-pan-viewport');
+      if (text.trim().toLowerCase().startsWith('<svg')) {
+        vp.innerHTML = text;
+        var svgEl = vp.querySelector('svg');
+        if (svgEl) {
+          svgEl.style.width = '100%';
+          svgEl.style.height = 'auto';
+          // Para garantir que o pan/zoom não separe as camadas, SVG deve ser display:block
+          svgEl.style.display = 'block';
+        }
+      } else {
+        var img = new Image();
+        img.alt = alt;
+        img.src = url;
+        vp.appendChild(img);
+      }
       ativarZoomEmContainer(container);
-    };
-    img.onerror = function () {
+    }).catch(function(err) {
       if (meuToken !== _fotoRecorteReqToken) return;
       container.innerHTML = '<p class="muted">Falha ao renderizar esta foto.</p>';
-    };
-    // [novo, a pedido do dono] só quebra cache quando vem de um "Regenerar"
-    // explícito — senão, cada troca de item re-baixaria a mesma foto à toa.
-    img.src = forcarRecarga ? src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now() : src;
+    });
   }
 
   function statusValidacaoRecorte(brutoId, itemId) {

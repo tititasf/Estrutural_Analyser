@@ -101,6 +101,30 @@
   "par_6_7": 0.0,
   "par_7_8": 0.0,
   "par_8_9": 0.0,
+  "h1_geom_A": 0.0,
+  "paineis_intervals_A": [
+    122.0,
+    122.0
+  ],
+  "h1_geom_B": 2.0,
+  "paineis_intervals_B": [
+    139.0,
+    113.0
+  ],
+  "h1_geom_C": 2.0,
+  "paineis_intervals_C": [
+    139.0,
+    105.0,
+    8.0
+  ],
+  "larg_c_geom": 42.9,
+  "h1_geom_D": 0.0,
+  "paineis_intervals_D": [
+    122.0,
+    45.0,
+    85.0
+  ],
+  "comprimento_geom": 80.0,
   "_er_meta": {
     "source": "fase4",
     "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 1° PAV.- PL - R00\\PIL_P16_motor_178111344218.dxf",
@@ -189,6 +213,34 @@
       "larg3_H": 0.0,
       "laje_H": 0.0,
       "posicao_laje_H": 0.0,
+      "h1_geom_A": 0.0,
+      "paineis_intervals_A": [
+        122.0,
+        122.0
+      ],
+      "h_par_A": 122.0,
+      "h1_geom_B": 2.0,
+      "paineis_intervals_B": [
+        139.0,
+        113.0
+      ],
+      "h_par_B": 94.0,
+      "h1_geom_C": 2.0,
+      "paineis_intervals_C": [
+        139.0,
+        105.0,
+        8.0
+      ],
+      "larg_c_geom": 42.9,
+      "h_par_C": 254.0,
+      "h1_geom_D": 0.0,
+      "paineis_intervals_D": [
+        122.0,
+        45.0,
+        85.0
+      ],
+      "h_par_D": 254.0,
+      "comprimento_geom": 80.0,
       "grade_2": 0.0,
       "grade_3": 0.0,
       "distancia_1": 14.0,

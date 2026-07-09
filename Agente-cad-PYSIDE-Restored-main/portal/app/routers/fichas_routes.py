@@ -1,29 +1,37 @@
 """Rotas de fichas HTML: serve os HTML N1-N4 ja gerados pelo pipeline (HANDOFF §1.1).
 
-O portal SO LE estes artefatos (regra de fronteira §3) — nunca escreve neles. As
-fichas ficam em <obra_dir>/Fase-6_Execucao_CAD/. O portal lista e serve o HTML como
-estatico, com protecao de path traversal (nunca sai do diretorio da obra).
+O portal SO LE estes artefatos (regra de fronteira §3) — nunca escreve neles.
+
+[FIX 2026-07-06] achado rodando o SA de verdade pela 1a vez contra uma obra
+nova do portal: as fichas ficam em <obra_dir>/<pavimento>_<run_id>/ (timestamp
+por rodada), NAO em <obra_dir>/Fase-6_Execucao_CAD/ (esse path fixo era
+suposicao — nenhuma obra do portal tinha chegado ate' aqui pra revelar isso
+antes). Resolvido via pipeline_runner.encontrar_dir_fichas (pega a rodada mais
+recente, identificada pelo arete_manifest.json). O portal lista e serve o HTML
+como estatico, com protecao de path traversal (nunca sai do diretorio da obra).
 """
 
 from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 
-from .. import access, auth
+from .. import access, auth, pipeline_runner
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
 router = APIRouter(prefix="/obras", tags=["fichas"])
 
 
-def _obra_dir(request: Request, obra: dict) -> Path:
+def _dir_fichas(request: Request, obra: dict) -> Optional[Path]:
     settings = request.app.state.settings
     lp = obra.get("local_path")
-    return Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra")
+    obra_dir = Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra")
+    return pipeline_runner.encontrar_dir_fichas(obra_dir)
 
 
 def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dict:
@@ -40,9 +48,9 @@ def listar_fichas(obra_id: str, request: Request, membro: dict = Depends(auth.ex
                   conn: sqlite3.Connection = Depends(get_db_conn)):
     """Lista os HTML de ficha disponiveis para a obra (viewer basico)."""
     obra = _obra_do_membro(conn, obra_id, membro)
-    base = _obra_dir(request, obra) / "Fase-6_Execucao_CAD"
+    base = _dir_fichas(request, obra)
     fichas = []
-    if base.exists():
+    if base is not None:
         for p in sorted(base.rglob("*.html")):
             fichas.append({
                 "nome": p.name,
@@ -58,7 +66,10 @@ def servir_ficha(obra_id: str, rel_path: str, request: Request,
                  conn: sqlite3.Connection = Depends(get_db_conn)):
     """Serve um HTML de ficha especifico (com guarda contra path traversal)."""
     obra = _obra_do_membro(conn, obra_id, membro)
-    base = (_obra_dir(request, obra) / "Fase-6_Execucao_CAD").resolve()
+    base_dir = _dir_fichas(request, obra)
+    if base_dir is None:
+        raise HTTPException(status_code=404, detail="nenhuma ficha gerada ainda para esta obra")
+    base = base_dir.resolve()
     alvo = (base / rel_path).resolve()
     # guarda: alvo tem que estar DENTRO de base (nunca sobe com ../)
     if base not in alvo.parents and alvo != base:

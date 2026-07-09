@@ -66,23 +66,28 @@ def _membro_da_sessao(request: Request, conn: sqlite3.Connection) -> Optional[di
     return membro
 
 
-def _etapa_atual(obra: dict, jobs: list[dict], n5_releases: list[dict]) -> int:
-    """Deriva a etapa (1..5) do estado da obra (o enum do schema tem 4 valores).
+# [FIX 2026-07-06] etapa (1..5) derivada de `etapa_concluida` (migration 003),
+# NAO mais so' de `estado` — achado real testando o modo rapido: toda etapa
+# bem-sucedida (inclusive so' a triagem) marcava estado='pronta', fazendo
+# `_etapa_atual` pular direto pra 4 (Validacao) mesmo sem recortes/SA terem
+# rodado. `etapa_concluida` guarda precisamente qual foi a ULTIMA etapa do
+# pipeline (triagem/recortes/sa) que terminou com sucesso.
+_PROXIMA_ETAPA = {None: 1, "triagem": 2, "recortes": 3, "sa": 4}
 
-    aguardando_ingestao -> 1 (aguardando triagem quando baixada)
-    processando          -> 3 (SA em progresso)
-    pronta               -> 4 (pronta para validação)
-    erro                 -> 1 (mostra o erro no topo da lista)
-    Se já houver release N5 registrado, avança para 5.
+
+def _etapa_atual(obra: dict, jobs: list[dict], n5_releases: list[dict]) -> int:
+    """Deriva a etapa (1..5) da obra a partir de `etapa_concluida` + `estado`.
+
+    A etapa retornada e' sempre "a proxima depois da ultima concluida" —
+    vale tanto para o passo ainda nao iniciado (estado idle/processando)
+    quanto para o passo que FALHOU (estado='erro': mostra o erro na propria
+    etapa que quebrou, nao sempre na etapa 1).
+    Se já houver release N5 registrado, avança para 5 (checado primeiro —
+    mais autoritativo que qualquer coisa em `etapa_concluida`).
     """
     if n5_releases:
         return 5
-    estado = obra.get("estado")
-    if estado == "processando":
-        return 3
-    if estado == "pronta":
-        return 4
-    return 1
+    return _PROXIMA_ETAPA.get(obra.get("etapa_concluida"), 1)
 
 
 def _job_ativo(jobs: list[dict]) -> Optional[str]:
@@ -155,19 +160,36 @@ def pagina_obra_detalhe(
         return RedirectResponse("/app/obras", status_code=303)
 
     settings = request.app.state.settings
+    # faixa fina de obras (2o nivel de navegacao) — mesma lista de /app/obras,
+    # so' que compactada ao lado do painel de abas desta obra especifica.
+    obras_do_membro = (
+        repo.listar_todas_obras(conn)
+        if access.eh_dono(membro)
+        else repo.listar_obras_por_membro(conn, membro["id"])
+    )
     jobs = repo.listar_jobs_por_obra(conn, obra_id)
     n5_releases = repo.listar_n5_releases_por_obra(conn, obra_id)
     comentarios = repo.listar_comentarios_por_obra(conn, obra_id)
+    documentos = repo.listar_documentos_por_obra(conn, obra_id)
+    resumo_documentos = repo.contar_documentos_por_status(conn, obra_id)
+    # [2026-07-06] "rápida" = upload legado de 1 arquivo (arquivo_nome preenchido,
+    # sem linhas em portal_documentos) — pula triagem/recortes, vai direto pra SA.
+    # "container" (novo modelo) tem documentos e nunca popula arquivo_nome.
+    eh_obra_rapida = bool(obra.get("arquivo_nome")) and not documentos
     rotulos = {
         c: certification.classificar_certificacao(settings.status_md_path, c)
         for c in ("PL", "LV", "FV", "LJ")
     }
-    # fichas HTML disponíveis (viewer)
+    # fichas HTML disponíveis (viewer) — [FIX 2026-07-06] ver
+    # pipeline_runner.encontrar_dir_fichas: o SA real grava em
+    # <obra_dir>/<pavimento>_<run_id>/, nao em "Fase-6_Execucao_CAD".
+    from .. import pipeline_runner as _pipeline_runner
+
     fichas: list[dict] = []
     lp = obra.get("local_path")
-    base = (Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra"))
-    base = base / "Fase-6_Execucao_CAD"
-    if base.exists():
+    obra_dir = (Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra"))
+    base = _pipeline_runner.encontrar_dir_fichas(obra_dir)
+    if base is not None:
         for p in sorted(base.rglob("*.html")):
             fichas.append({
                 "nome": p.name,
@@ -192,13 +214,20 @@ def pagina_obra_detalhe(
     ctx = {
         "membro": membro,
         "obra": obra,
+        "obras_do_membro": obras_do_membro,
         "jobs": jobs,
         "fichas": fichas,
         "comentarios": comentarios,
+        "documentos": documentos,
+        "resumo_documentos": resumo_documentos,
+        "eh_obra_rapida": eh_obra_rapida,
         "n5_releases": n5_releases,
         "rotulos": rotulos,
         "etapa_atual": etapa_atual,
-        "job_ativo": _job_ativo(jobs) if etapa_atual == 3 else None,
+        # [FIX 2026-07-06] antes so' calculava com etapa_atual==3 (assumia que
+        # "processando" so' acontecia na etapa SA) — agora triagem/recortes
+        # tambem tem job proprio rodando em qualquer etapa (1/2/3).
+        "job_ativo": _job_ativo(jobs),
         "validacao_concluida": validacao_concluida,
         "pavimento": settings.pav_default,
         "classe_ativa": None,

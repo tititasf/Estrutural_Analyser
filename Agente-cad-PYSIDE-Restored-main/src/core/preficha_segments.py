@@ -8,6 +8,7 @@ referencia que permanece no objeto de viga depois da confirmacao.
 
 from __future__ import annotations
 
+import copy
 import math
 import re
 from typing import Any, Iterable
@@ -64,6 +65,28 @@ def _polyline_length(points: Iterable[Any]) -> float:
         math.hypot(x2 - x1, y2 - y1)
         for (x1, y1), (x2, y2) in zip(clean, clean[1:])
     )
+
+
+def _bbox_dimensions(points: Iterable[Any]) -> tuple[float, float]:
+    """Retorna (comprimento, largura) pelo envelope do contorno.
+
+    Para fundo de viga, comprimento não é perímetro nem soma de segmentos:
+    é o maior eixo do contorno; largura é o menor eixo.
+    """
+    clean = _clean_points(points)
+    if not clean:
+        return 0.0, 0.0
+    xs = [point[0] for point in clean]
+    ys = [point[1] for point in clean]
+    dx = max(xs) - min(xs)
+    dy = max(ys) - min(ys)
+    return max(dx, dy), min(dx, dy)
+
+
+def _format_measure(value: float) -> str:
+    if abs(value - round(value)) <= 1e-9:
+        return str(int(round(value)))
+    return str(round(value, 2))
 
 
 def _clean_points(points: Iterable[Any]) -> list[tuple[float, float]]:
@@ -214,6 +237,211 @@ def preficha_geometry_policy(beam: dict, source_key: str) -> str:
     if status == "valid":
         return "preserve"
     return "infer"
+
+
+def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
+    """Retorna se houve validação humana real e os contornos autoritativos.
+
+    ``preficha_segmentos``/``preficha_reviewed`` são somente triagem anterior à
+    análise e não congelam geometria. A autoridade vem do selo do item, de campo,
+    de slot ou do próprio link validado no card.
+    """
+    validated = False
+    source_keys: set[str] = set()
+    links = beam.get("links") or {}
+
+    def _has_authoritative_contour(source_key: str) -> bool:
+        slots = links.get(source_key) or {}
+        return (
+            isinstance(slots, dict)
+            and bool(slots.get("contour"))
+        )
+
+    if beam.get("is_validated"):
+        validated = True
+        source_keys.update(
+            str(key)
+            for key, slots in links.items()
+            if _FUNDO_RE.match(str(key))
+            and isinstance(slots, dict)
+            and bool(slots.get("contour"))
+        )
+
+    for key, slots in links.items():
+        source_key = str(key)
+        if not _FUNDO_RE.match(source_key) or not isinstance(slots, dict):
+            continue
+        for link in slots.get("contour") or []:
+            if not isinstance(link, dict):
+                continue
+            if link.get("validated"):
+                validated = True
+                source_keys.add(source_key)
+
+    for field in beam.get("validated_fields") or []:
+        field_name = str(field)
+        match = re.match(r"^viga_fundo_seg_(\d+)_", field_name)
+        if match:
+            area_key = f"viga_fundo_seg_{match.group(1)}_area_segs"
+            # Campos auxiliares (dim/local_ini/local_fim) validam aquele valor,
+            # mas não congelam a topologia se a área ainda não existe. Isso
+            # permite a reanálise preencher geometria ausente sem sobrescrever
+            # o que o humano já validou. A topologia só trava quando há contorno
+            # autoritativo ou o próprio campo de área foi validado.
+            if field_name == area_key or _has_authoritative_contour(area_key):
+                validated = True
+                source_keys.add(area_key)
+
+    validated_links = beam.get("validated_link_classes") or {}
+    if isinstance(validated_links, dict):
+        for field, slots in validated_links.items():
+            field_name = str(field)
+            match = re.match(r"^viga_fundo_seg_(\d+)_", field_name)
+            if match and slots:
+                area_key = f"viga_fundo_seg_{match.group(1)}_area_segs"
+                if field_name == area_key or _has_authoritative_contour(area_key):
+                    validated = True
+                    source_keys.add(area_key)
+
+    return validated, sorted(source_keys)
+
+
+def fundo_topology_is_locked(beam: dict) -> bool:
+    """Uma revisão humana FV fecha a topologia inteira daquela viga."""
+    if beam.get("preficha_fundo_locked"):
+        source_keys = [
+            str(key)
+            for key in beam.get("preficha_fundo_locked_source_keys") or []
+            if _FUNDO_RE.match(str(key))
+        ]
+        if not source_keys:
+            # Lock zero segmentos: caso explicito apos o humano ignorar todos
+            # os fundos e validar o item. Deve continuar congelando vazio.
+            return True
+        links = beam.get("links") or {}
+        has_authoritative_contour = any(
+            isinstance(links.get(source_key), dict)
+            and bool((links.get(source_key) or {}).get("contour"))
+            for source_key in source_keys
+        )
+        if has_authoritative_contour:
+            return True
+        # Historico contaminado: lock aponta para area_segs, mas o contorno
+        # salvo esta vazio/ausente. Nao congelar a topologia, pois isso impede
+        # o motor de preencher a geometria faltante sem proteger dado humano.
+        return False
+    validated, _ = _reviewed_fundo_topology(beam)
+    return validated
+
+
+def lock_fundo_topology(beam: dict) -> None:
+    """Registra o conjunto completo de segmentos FV aprovado pelo humano."""
+    _, source_keys = _reviewed_fundo_topology(beam)
+    allowed = set(source_keys)
+    links = beam.get("links") or {}
+    for key in list(links):
+        source_match = re.match(r"^(viga_fundo_seg_\d+)_", str(key))
+        if not source_match:
+            continue
+        area_key = f"{source_match.group(1)}_area_segs"
+        if area_key not in allowed:
+            links.pop(key, None)
+
+    authoritative_contours = []
+    for source_key in source_keys:
+        authoritative_contours.extend(
+            (links.get(source_key) or {}).get("contour") or []
+        )
+    links.setdefault("viga_segs", {})["seg_bottom"] = authoritative_contours
+
+    for container in (beam, beam.get("fields") or {}):
+        for key in list(container):
+            source_match = re.match(r"^(viga_fundo_seg_\d+)_", str(key))
+            if not source_match:
+                continue
+            area_key = f"{source_match.group(1)}_area_segs"
+            if area_key not in allowed:
+                container.pop(key, None)
+
+    beam["preficha_fundo_locked"] = True
+    beam["preficha_fundo_locked_version"] = 2
+    beam["preficha_fundo_locked_source_keys"] = source_keys
+
+
+def restore_locked_fundo_topology(target: dict, validated: dict) -> bool:
+    """Substitui qualquer FV recém-inferido pelo conjunto humano preservado."""
+    if not fundo_topology_is_locked(validated):
+        return False
+
+    target_links = target.setdefault("links", {})
+    validated_links = validated.get("links") or {}
+    if int(validated.get("preficha_fundo_locked_version") or 0) >= 2:
+        source_keys = {
+            str(key)
+            for key in validated.get("preficha_fundo_locked_source_keys") or []
+            if _FUNDO_RE.match(str(key))
+        }
+    else:
+        _, reviewed_source_keys = _reviewed_fundo_topology(validated)
+        source_keys = set(reviewed_source_keys)
+
+    for key in list(target_links):
+        if _FUNDO_RE.match(str(key)) or str(key).startswith("viga_fundo_seg_"):
+            target_links.pop(key, None)
+    for key, value in validated_links.items():
+        source_match = re.match(r"^(viga_fundo_seg_\d+)_", str(key))
+        area_key = (
+            f"{source_match.group(1)}_area_segs" if source_match else ""
+        )
+        if area_key in source_keys:
+            target_links[key] = copy.deepcopy(value)
+
+    # A geometria bruta pode conter segmentos acrescentados depois da revisão.
+    # O consumidor FV bloqueado usa somente os contornos autoritativos acima.
+    target_links.setdefault("viga_segs", {})["seg_bottom"] = []
+
+    for key in list(target):
+        if str(key).startswith("viga_fundo_seg_"):
+            target.pop(key, None)
+    for key, value in validated.items():
+        source_match = re.match(r"^(viga_fundo_seg_\d+)_", str(key))
+        area_key = (
+            f"{source_match.group(1)}_area_segs" if source_match else ""
+        )
+        if area_key in source_keys:
+            target[key] = copy.deepcopy(value)
+
+    target_fields = target.setdefault("fields", {})
+    validated_fields = validated.get("fields") or {}
+    for key in list(target_fields):
+        if str(key).startswith("viga_fundo_seg_"):
+            target_fields.pop(key, None)
+    for key, value in validated_fields.items():
+        source_match = re.match(r"^(viga_fundo_seg_\d+)_", str(key))
+        area_key = (
+            f"{source_match.group(1)}_area_segs" if source_match else ""
+        )
+        if area_key in source_keys:
+            target_fields[key] = copy.deepcopy(value)
+
+    for key in (
+        "preficha_fundo_locked",
+        "preficha_fundo_locked_version",
+        "preficha_fundo_locked_source_keys",
+        "preficha_segmentos",
+        "seg_c",
+        "seg_bottom",
+    ):
+        if key in validated:
+            target[key] = copy.deepcopy(validated[key])
+    if "comprimento_total_fundo" in validated_fields:
+        target_fields["comprimento_total_fundo"] = copy.deepcopy(
+            validated_fields["comprimento_total_fundo"]
+        )
+    target["preficha_fundo_locked"] = True
+    target["preficha_fundo_locked_version"] = 2
+    target["preficha_fundo_locked_source_keys"] = sorted(source_keys)
+    return True
 
 
 def _first_value(beam: dict, *keys: str) -> Any:
@@ -514,6 +742,18 @@ def collect_preficha_segments(
         links = beam.get("links") or {}
         if not isinstance(links, dict):
             continue
+        lv_dimension_override = next(
+            (
+                str(link.get("lv_dimensao"))
+                for slots in links.values()
+                if isinstance(slots, dict)
+                for values in slots.values()
+                if isinstance(values, list)
+                for link in values
+                if isinstance(link, dict) and link.get("lv_dimensao")
+            ),
+            "",
+        )
 
         for link_key, slots in links.items():
             parsed = _kind_for_link(str(link_key))
@@ -530,15 +770,62 @@ def collect_preficha_segments(
                 points = link.get("points") or []
                 uid = f"{kind}|{beam_identity}|{segment_index}|{occurrence}"
                 previous = stored.get(uid) if isinstance(stored, dict) else {}
-                length = link.get("len")
-                try:
-                    length = float(length)
-                except (TypeError, ValueError):
-                    length = _polyline_length(points)
+                if kind == "fundo":
+                    length, envelope_width = _bbox_dimensions(points)
+                    measure_length = link.get("fv_measure_length")
+                    try:
+                        measure_length = float(measure_length)
+                    except (TypeError, ValueError):
+                        measure_length = 0.0
+                    measure_width = link.get("fv_measure_width")
+                    try:
+                        measure_width = float(measure_width)
+                    except (TypeError, ValueError):
+                        measure_width = 0.0
+                    if measure_length > 0.05:
+                        length = measure_length
+                    special_measure = str(link.get("fv_measure_source") or "").startswith(
+                        "special_diagonal"
+                    )
+                    measure_width_text = (
+                        _format_measure(measure_width) if measure_width > 0.05 else ""
+                    )
+                    envelope_width_text = (
+                        _format_measure(envelope_width) if envelope_width else ""
+                    )
+                else:
+                    envelope_width = 0.0
+                    envelope_width_text = ""
+                    measure_width_text = ""
+                    special_measure = False
+                    length = link.get("len")
+                    try:
+                        length = float(length)
+                    except (TypeError, ValueError):
+                        length = _polyline_length(points)
                 ficha = dict(link.get("ficha") or {})
                 fields = beam.get("fields") or {}
                 width = (
-                    ficha.get("largura_total_fundo")
+                    (
+                        link.get("lv_dimensao")
+                        if kind != "fundo"
+                        else None
+                    )
+                    or (lv_dimension_override if kind != "fundo" else None)
+                    or (measure_width_text if special_measure else None)
+                    or (ficha.get("largura_total_fundo") if special_measure else None)
+                    or (
+                        fields.get(f"viga_fundo_seg_{segment_index}_largura")
+                        if special_measure
+                        else None
+                    )
+                    or (
+                        fields.get(f"viga_fundo_seg_{segment_index}_dim")
+                        if special_measure
+                        else None
+                    )
+                    or envelope_width_text
+                    or (ficha.get("largura_total_fundo") if kind == "fundo" else None)
                     or fields.get(f"viga_fundo_seg_{segment_index}_largura")
                     or fields.get(f"viga_fundo_seg_{segment_index}_dim")
                     or ""
@@ -603,6 +890,7 @@ def collect_preficha_segments(
                     "height": str(height),
                     "width": str(width),
                     "points": points,
+                    "measure_source": str(link.get("fv_measure_source") or ""),
                     "tag": str(link.get("tag") or spec["side"]),
                     "ficha": ficha,
                     "details": details,
@@ -637,6 +925,8 @@ def apply_preficha_segment_decisions(
     # Remover por identidade em uma segunda passagem evita deslocamento de indices.
     removals: list[tuple[dict, str, dict]] = []
     for entry in entries:
+        if entry["uid"] not in decisions:
+            continue
         decision = decisions.get(entry["uid"], {})
         status = str(decision.get("status") or entry.get("status") or "valid")
         attention = str(decision.get("attention") or "").strip()

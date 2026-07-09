@@ -29,7 +29,7 @@
   "modo_selecionado": 1,
   "linhas_verticais": [
     {
-      "value": 48.9,
+      "value": 60.0,
       "is_union": false
     }
   ],
@@ -57,18 +57,47 @@
     },
     "validated_fields": [],
     "validated_link_classes": {},
-    "n3_line_source": "learned_n4_patterns",
-    "n3_pattern_nome": "L317",
-    "n3_pattern_score": 0.0,
-    "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
     "n3_source": "comparison_engine_n1",
     "n3_teacher": null
   },
-  "_stog_pose": {
-    "x": 6097.07,
-    "y": 2280.94
-  },
+  "apoios_hachurados": [
+    {
+      "x1": -19.0,
+      "y1": -57.97,
+      "x2": 0.0,
+      "y2": -38.97
+    },
+    {
+      "x1": -19.0,
+      "y1": -69.99,
+      "x2": 0.0,
+      "y2": -50.99
+    },
+    {
+      "x1": -19.0,
+      "y1": -9.88,
+      "x2": -9.12,
+      "y2": -0.0
+    },
+    {
+      "x1": -19.0,
+      "y1": -45.94,
+      "x2": 0.0,
+      "y2": -26.94
+    },
+    {
+      "x1": -19.0,
+      "y1": -21.9,
+      "x2": 0.0,
+      "y2": -2.9
+    },
+    {
+      "x1": -19.0,
+      "y1": -33.92,
+      "x2": 0.0,
+      "y2": -14.92
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "81.5",
@@ -120,6 +149,10 @@
     }
   ],
   "pontaletes": {},
+  "_stog_pose": {
+    "x": 6097.07,
+    "y": 2280.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       48.8,

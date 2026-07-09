@@ -50,7 +50,7 @@
   ],
   "linhas_horizontais": [
     {
-      "value": 35.4,
+      "value": 35.0,
       "is_union": false,
       "exact": true
     }
@@ -59,28 +59,91 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L331",
-    "fields": {
-      "nome": "L331",
-      "numero": "31",
-      "laje_dim": "h=10",
-      "laje_nivel": "852.12"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "31",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L331",
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L331",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
   "_stog_pose": {
     "x": 4915.07,
     "y": 1578.0
   },
+  "apoios_hachurados": [
+    {
+      "x1": 418.0,
+      "y1": -3.86,
+      "x2": 426.8,
+      "y2": 4.94
+    },
+    {
+      "x1": 419.82,
+      "y1": -14.06,
+      "x2": 438.82,
+      "y2": 4.94
+    },
+    {
+      "x1": 431.84,
+      "y1": -14.06,
+      "x2": 450.84,
+      "y2": 4.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 49.49,
+      "x2": -19.05,
+      "y2": 51.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 37.47,
+      "x2": -7.03,
+      "y2": 51.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 25.45,
+      "x2": 2.5,
+      "y2": 49.45
+    },
+    {
+      "x1": -21.5,
+      "y1": 13.43,
+      "x2": 2.5,
+      "y2": 37.43
+    },
+    {
+      "x1": -21.5,
+      "y1": 1.41,
+      "x2": 2.5,
+      "y2": 25.41
+    },
+    {
+      "x1": -21.5,
+      "y1": -10.61,
+      "x2": 2.5,
+      "y2": 13.39
+    },
+    {
+      "x1": -12.93,
+      "y1": -14.06,
+      "x2": 2.5,
+      "y2": 1.37
+    },
+    {
+      "x1": -0.91,
+      "y1": -14.06,
+      "x2": 2.5,
+      "y2": -10.65
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "16.5",

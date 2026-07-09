@@ -418,6 +418,18 @@ def varrer_uma_vez(
                     md5 = _md5_arquivo(dest)
                     if repo.obter_obra_por_hash(conn, md5) is not None:
                         continue
+                # [FIX] achado comparando com o histórico recuperado: uma
+                # tentativa (incompleta) de implementar "modo rápido vira
+                # Pavimento único" tinha reescrito isto pra criar a obra SEM
+                # arquivo_nome + 1 portal_documentos, mas movia o arquivo pra
+                # <obra>/docs/<doc_id>/ em vez de <obra>/entrada/ (a
+                # convenção real usada por TODO o resto do pipeline —
+                # _entrada_dxf/_arquivo_entrada só acham o DXF em entrada/).
+                # Isso quebrava recortes/SA de verdade pra obras vindas do
+                # Drive, além de quebrar 4 testes que validam este contrato.
+                # Revertido pro modelo legado estável (1 obra = 1 arquivo,
+                # arquivo_nome setado); "Pavimento único" fica pendente,
+                # implementado depois com cuidado.
                 obra_id = repo.criar_obra(
                     conn, membro_id=membro["id"], nome=slug,
                     pasta_drive_id=pasta_id, arquivo_drive_id=arq.file_id,

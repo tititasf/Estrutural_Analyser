@@ -217,6 +217,13 @@
       "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L315:N4",
       "superseded_by_id": null
     },
+    "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L316:N4": {
+      "revoked_at": "2026-07-06T21:31:14.974756+00:00",
+      "revoked_by": "human",
+      "revoked_reason": "comparison_engine_human_unchecked",
+      "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L316:N4",
+      "superseded_by_id": null
+    },
     "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L317:N3": {
       "revoked_at": "2026-07-01T16:38:11.492561+00:00",
       "revoked_by": "human",
@@ -225,10 +232,24 @@
       "superseded_by_id": null
     },
     "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L317:N4": {
-      "revoked_at": "2026-07-01T16:31:14.973206+00:00",
+      "revoked_at": "2026-07-08T15:16:11.628297+00:00",
       "revoked_by": "human",
       "revoked_reason": "comparison_engine_human_unchecked",
       "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L317:N4",
+      "superseded_by_id": null
+    },
+    "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L318:N4": {
+      "revoked_at": "2026-07-08T22:19:57.122130+00:00",
+      "revoked_by": "human",
+      "revoked_reason": "comparison_engine_human_unchecked",
+      "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L318:N4",
+      "superseded_by_id": null
+    },
+    "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L319:N4": {
+      "revoked_at": "2026-07-08T22:21:03.766282+00:00",
+      "revoked_by": "human",
+      "revoked_reason": "comparison_engine_human_unchecked",
+      "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L319:N4",
       "superseded_by_id": null
     },
     "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L320:N3": {
@@ -281,7 +302,7 @@
       "superseded_by_id": null
     },
     "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L323:N4": {
-      "revoked_at": "2026-07-01T16:33:46.458323+00:00",
+      "revoked_at": "2026-07-08T14:54:13.903773+00:00",
       "revoked_by": "human",
       "revoked_reason": "comparison_engine_human_unchecked",
       "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L323:N4",
@@ -309,7 +330,7 @@
       "superseded_by_id": null
     },
     "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L326:N4": {
-      "revoked_at": "2026-07-01T16:33:54.562017+00:00",
+      "revoked_at": "2026-07-08T14:43:59.155457+00:00",
       "revoked_by": "human",
       "revoked_reason": "comparison_engine_human_unchecked",
       "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L326:N4",
@@ -352,5 +373,5 @@
     }
   },
   "schema_version": 1,
-  "updated_at": "2026-07-03T17:26:38.276507+00:00"
+  "updated_at": "2026-07-08T22:21:03.766282+00:00"
 }

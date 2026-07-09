@@ -31,6 +31,7 @@
     </thead>
     <tbody>
       {% for classe, rotulo in rotulos.items() %}
+      {% set ja_liberado = n5_releases | selectattr('classe', 'equalto', classe) | list %}
       <tr>
         <td><strong>{{ classe }}</strong></td>
         <td>{{ class_badge(classe, rotulo) }}</td>
@@ -46,8 +47,17 @@
                   {% endif %}>
             ⬇ Baixar
           </button>
+          {% if ja_liberado %}
+          <button type="button" class="btn-sec btn" data-n5-foto="{{ classe }}" data-obra="{{ obra.id }}"
+                  style="margin-left:6px">Ver foto</button>
+          {% endif %}
         </td>
       </tr>
+      {% if ja_liberado %}
+      <tr class="n5-foto-linha" data-n5-foto-linha="{{ classe }}" hidden>
+        <td colspan="4"><div class="n1-foto-card" style="max-width:480px"></div></td>
+      </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>
@@ -61,6 +71,22 @@
 
 <script>
   (function () {
+    document.querySelectorAll('button[data-n5-foto]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var classe = btn.getAttribute('data-n5-foto');
+        var obraId = btn.getAttribute('data-obra');
+        var linha = document.querySelector('[data-n5-foto-linha="' + classe + '"]');
+        var card = linha.querySelector('.n1-foto-card');
+        if (!linha.hidden) { linha.hidden = true; return; }
+        linha.hidden = false;
+        if (!card.querySelector('img')) {
+          card.innerHTML = '<h4>N5 — ' + classe + '</h4><div class="zoom-pan-viewport"><img alt="N5 ' + classe + '" src="/obras/' + obraId + '/n5/' + classe + '/foto"></div>' +
+            '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
+          if (window.ativarZoomEmContainer) window.ativarZoomEmContainer(card);
+        }
+      });
+    });
+
     document.querySelectorAll('button[data-n5]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var classe = btn.getAttribute('data-n5');

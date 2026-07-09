@@ -6547,11 +6547,11 @@
                 ],
                 [
                   4650.0,
-                  3207.038
+                  3193.0
                 ],
                 [
                   4552.5,
-                  3207.038
+                  3193.0
                 ]
               ],
               "area_cm2": 50017.5,
@@ -6874,11 +6874,11 @@
               "coordenadas": [
                 [
                   2496.5,
-                  2048.0
+                  2067.0
                 ],
                 [
                   2914.5,
-                  2048.0
+                  2067.0
                 ],
                 [
                   2914.5,
@@ -6937,11 +6937,11 @@
               "coordenadas": [
                 [
                   2933.5,
-                  2048.0
+                  2067.0
                 ],
                 [
                   3351.5,
-                  2048.0
+                  2067.0
                 ],
                 [
                   3351.5,
@@ -7004,11 +7004,11 @@
               "coordenadas": [
                 [
                   3370.5,
-                  2048.0
+                  2067.0
                 ],
                 [
                   3788.5,
-                  2048.0
+                  2067.0
                 ],
                 [
                   3788.5,
@@ -7075,11 +7075,11 @@
                 ],
                 [
                   3936.5,
-                  2460.038
+                  2441.0
                 ],
                 [
                   3807.5,
-                  2460.038
+                  2441.0
                 ]
               ],
               "area_cm2": 59211.0,
@@ -19019,6 +19019,20 @@
               "observacoes": ""
             }
           ],
+          "fornecimento": "novo",
+          "sobras_paineis": [],
+          "ultimo_reaproveitamento": {},
+          "paineis_utilizados": [],
+          "paineis_passados_adiante": []
+        }
+      ]
+    },
+    {
+      "nome": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03",
+      "pavimentos": [
+        {
+          "nome": "13_PAV",
+          "lajes": [],
           "fornecimento": "novo",
           "sobras_paineis": [],
           "ultimo_reaproveitamento": {},

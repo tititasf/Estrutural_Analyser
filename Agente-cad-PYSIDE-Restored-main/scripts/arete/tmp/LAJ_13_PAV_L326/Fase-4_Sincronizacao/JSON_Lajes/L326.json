@@ -50,7 +50,7 @@
   ],
   "linhas_horizontais": [
     {
-      "value": 35.6,
+      "value": 35.0,
       "is_union": false,
       "exact": true
     }
@@ -59,28 +59,73 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L326",
-    "fields": {
-      "nome": "L326",
-      "numero": "26",
-      "laje_dim": "h=10",
-      "laje_nivel": "852.12"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "26",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L326",
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L326",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
   "_stog_pose": {
     "x": 2914.33,
     "y": 1577.94
   },
+  "apoios_hachurados": [
+    {
+      "x1": 231.24,
+      "y1": 56.59,
+      "x2": 240.64,
+      "y2": 66.0
+    },
+    {
+      "x1": 231.24,
+      "y1": 44.57,
+      "x2": 252.66,
+      "y2": 66.0
+    },
+    {
+      "x1": 231.24,
+      "y1": 32.55,
+      "x2": 255.24,
+      "y2": 56.55
+    },
+    {
+      "x1": 231.24,
+      "y1": 20.53,
+      "x2": 255.24,
+      "y2": 44.53
+    },
+    {
+      "x1": 231.24,
+      "y1": 8.51,
+      "x2": 255.24,
+      "y2": 32.51
+    },
+    {
+      "x1": 231.24,
+      "y1": -3.51,
+      "x2": 255.24,
+      "y2": 20.49
+    },
+    {
+      "x1": 232.77,
+      "y1": -14.0,
+      "x2": 255.24,
+      "y2": 8.47
+    },
+    {
+      "x1": 244.79,
+      "y1": -14.0,
+      "x2": 255.24,
+      "y2": -3.55
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "79.4",

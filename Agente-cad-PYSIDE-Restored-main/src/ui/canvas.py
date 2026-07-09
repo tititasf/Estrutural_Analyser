@@ -643,6 +643,7 @@ class CADCanvas(QGraphicsView):
         self.snap_points = state['snap_points']
         self.snap_segments = state['snap_segments']
         self.persistent_links = state['persistent_links']
+        self._rebuild_snap_grid()
         
         self.viewport().update()
         
@@ -1181,6 +1182,7 @@ class CADCanvas(QGraphicsView):
              project_data['canvas_interactive_items'] = {}
              project_data['canvas_item_groups'] = {k: [] for k in ['pillar', 'slab', 'beam', 'link']}
              project_data['canvas_snap_points'] = []
+             project_data['canvas_snap_segments'] = []
              project_data['canvas_beam_visuals'] = []
              project_data['snap_markers'] = {}
              project_data['instruction_text'] = None
@@ -1201,9 +1203,11 @@ class CADCanvas(QGraphicsView):
         self.interactive_items = project_data['canvas_interactive_items']
         self.item_groups = project_data['canvas_item_groups']
         self.snap_points = project_data['canvas_snap_points']
+        self.snap_segments = project_data.get('canvas_snap_segments', self.snap_segments)
         self.beam_visuals = project_data['canvas_beam_visuals']
         self.snap_markers = project_data['snap_markers']
         self.instruction_text = project_data.get('instruction_text') # Pode ser None
+        self._rebuild_snap_grid()
         
         # Se a cena jÃ¡ foi renderizada mas faltam auxiliares, regeneramos no contexto correto
         if not self.snap_markers and project_data.get('scene_rendered'):
@@ -1222,6 +1226,7 @@ class CADCanvas(QGraphicsView):
             'canvas_interactive_items': self.interactive_items,
             'canvas_item_groups': self.item_groups,
             'canvas_snap_points': self.snap_points,
+            'canvas_snap_segments': self.snap_segments,
             'canvas_beam_visuals': self.beam_visuals,
             'snap_markers': self.snap_markers,
             'instruction_text': self.instruction_text
@@ -1258,6 +1263,18 @@ class CADCanvas(QGraphicsView):
         if key not in self.snap_grid:
             self.snap_grid[key] = []
         self.snap_grid[key].append(s_data)
+
+    def _rebuild_snap_grid(self):
+        """Reconstrói o índice espacial dos snaps ativos."""
+        self.snap_grid = {}
+        for s_data in self.snap_points or []:
+            try:
+                pt = s_data['pos']
+                gx = int(pt[0] // self.SNAP_GRID_SIZE)
+                gy = int(pt[1] // self.SNAP_GRID_SIZE)
+            except (TypeError, ValueError, KeyError, IndexError):
+                continue
+            self.snap_grid.setdefault((gx, gy), []).append(s_data)
 
     def _calculate_intersections(self, lines):
         """Calcula intersecÃ§Ãµes entre todas as linhas (N^2 simplificado)."""
@@ -1972,6 +1989,7 @@ class CADCanvas(QGraphicsView):
         # 4. Regenerar Snaps a partir da base (Remove fantasmas de pilares)
         self.snap_points = self.base_snap_points.copy()
         self.snap_segments = self.base_snap_segments.copy()
+        self._rebuild_snap_grid()
         # Nota: Se houver outros itens ativos (lajes/vigas), eles serÃ£o regerados pelo draw()
         
         self.scene.update()
@@ -2029,6 +2047,7 @@ class CADCanvas(QGraphicsView):
         # 4. Regenerar Snaps a partir da base (Remove fantasmas de lajes)
         self.snap_points = self.base_snap_points.copy()
         self.snap_segments = self.base_snap_segments.copy()
+        self._rebuild_snap_grid()
         
         # 5. Force Scene Update (Critical for Ghost removal)
         self.scene.update()
@@ -2077,6 +2096,7 @@ class CADCanvas(QGraphicsView):
         # por viga; sem essa restauração, snap_points cresce a cada navegação até crash
         self.snap_points = self.base_snap_points.copy()
         self.snap_segments = self.base_snap_segments.copy()
+        self._rebuild_snap_grid()
         self.scene.update()
 
     def draw_beams(self, beams_data: list):
@@ -3115,7 +3135,7 @@ class CADCanvas(QGraphicsView):
         if not best_snap:
             # PERFORMANCE GUARD: Skip checking 10k segments if drawing is huge or zoomed out
             # 60FPS target allows ~16ms. 3000 segments in Python is risky.
-            if len(self.snap_segments) > 3000 or view_scale < 0.2:
+            if len(self.snap_segments) > 3000 and view_scale < 0.05:
                 return None
 
             # Check nearest lines (simplified)
@@ -3138,8 +3158,6 @@ class CADCanvas(QGraphicsView):
                     min_dist = dist_seg
                     best_snap = {'pos': (proj_x, proj_y), 'type': 'nearest'}
 
-        return best_snap
-        
         near_segments = []
         for s, e in self.snap_segments:
             px, py = pos.x(), pos.y()

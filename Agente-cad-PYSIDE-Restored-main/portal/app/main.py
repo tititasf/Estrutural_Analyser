@@ -25,8 +25,10 @@ from .routers import (
     comentarios_routes,
     fichas_routes,
     jobs_routes,
+    n1_routes,
     obras_routes,
     paginas_routes,
+    recortes_routes,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -109,6 +111,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(obras_routes.router)
     app.include_router(jobs_routes.router)
     app.include_router(fichas_routes.router)
+    app.include_router(n1_routes.router)
+    app.include_router(recortes_routes.router)
     app.include_router(comentarios_routes.router)
     app.include_router(paginas_routes.router)
 

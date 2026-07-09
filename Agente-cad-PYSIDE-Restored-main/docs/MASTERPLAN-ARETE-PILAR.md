@@ -1,7 +1,7 @@
 # MASTERPLAN ARETE - PILAR
 
 ## Status
-Versao: 0.1 - consolidacao operacional inicial.
+Versao: 0.2 - arquitetura N1 isolada registrada em 2026-07-05.
 
 Este documento nao e verdade absoluta da classe PIL. Ele organiza o que ja existe para
 execucao correta dos ciclos CROP, A, B e C. Qualquer regra de campo so vira conhecimento
@@ -96,6 +96,26 @@ Objetivo:
 - aproximar F7/N1 de F5/N2 por campo;
 - derivar equivalencia de vocabulario N1 <-> N2.
 
+### Contrato arquitetural N1 de PIL (ativo desde 2026-07-05)
+
+**Persistência N1 granular:** geometria, nome, dimensão, níveis, relações com
+lajes/vigas e demais campos mantêm validações independentes. A reanálise preserva
+somente campo/slot/vínculo validado e substitui o restante. Validar `pilar_segs`
+também preserva a geometria raiz `points`. Ver `PERSISTENCIA-HEADLESS-SA.md`.
+
+As relações entre pilar e viga são interpretadas por dois contratos independentes e
+mutuamente exclusivos:
+
+- `PilarComVigaParaInterpreter` escreve somente em `viga_que_para` quando uma
+  extremidade do eixo termina no volume do pilar;
+- `PilarComVigaPassaInterpreter` escreve somente em `viga_que_passa` quando o eixo
+  continua além das duas faces do pilar.
+
+`BeamTracer` fornece bbox, eixo, orientação e continuidade bruta; não decide o slot
+PIL final. Toda evolução deve testar também a negação do contrato oposto para impedir
+dupla classificação. A fonte de verdade compartilhada com FV e LV é
+`ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md`.
+
 Campos e partes criticas:
 - nome do pilar;
 - dimensoes;
@@ -108,6 +128,7 @@ Campos e partes criticas:
 
 Gate:
 - F7/N1 converge para F5/N2 sem sobrescrever o gabarito;
+- `viga_que_para` e `viga_que_passa` permanecem exclusivos por relação geométrica;
 - divergencias recebem aprovacao, rejeicao, N/A ou nota humana;
 - regra global so nasce depois de evidencia T1/T2.
 

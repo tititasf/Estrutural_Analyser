@@ -90,6 +90,23 @@ def processar_um_job(app_state, job: dict) -> None:
                 settings, obra, classe=meta.get("classe", "PL"),
                 pavimento=meta.get("pavimento", "GERAL"), dry_run=False,
             )
+        elif etapa == "converter_dwg":
+            # [novo, a pedido do dono] conversao avulsa DWG->DXF, fora do fluxo
+            # normal triagem/recortes/sa — mesma trava de maquina inteira
+            # (accoreconsole nao paraleliza), mas NAO e' uma etapa formal do
+            # pipeline (nao mexe em etapa_concluida la' embaixo).
+            lock, holder = wait_for_lock(_LOCK_NAME, timeout_s=settings.subprocess_timeout_s)
+            if lock is None:
+                repo.finalizar_job(conn, job["id"], "falhou",
+                                   erro_msg=f"lock ocupado (timeout): {holder}")
+                return
+            try:
+                documentos = repo.listar_documentos_por_obra(conn, obra["id"])
+                resultado = pipeline_runner.executar_conversao_dwg(
+                    settings, obra, documentos, dry_run=False, log_path=log_path,
+                )
+            finally:
+                release_lock(lock)
         elif etapa_efetiva == "sa":
             # [FIX 2026-07-06] achado real rodando SA pela 1a vez de verdade contra
             # uma obra nova: DEADLOCK. Este branch ANTES tambem chamava
@@ -118,23 +135,87 @@ def processar_um_job(app_state, job: dict) -> None:
                                    erro_msg=f"lock ocupado (timeout): {holder}")
                 return
             try:
-                resultado = pipeline_runner.executar_etapa(
-                    settings, etapa_efetiva, obra, secao=meta.get("secao"), pav=meta.get("pav"),
-                    dry_run=False, log_path=log_path,
-                )
+                # [2026-07-06] obra-como-container: se ha' portal_documentos para
+                # esta obra, a triagem roda em LOTE (1 job classifica/valida todos
+                # os docs pendentes) — modelo novo. Obras legadas (1 arquivo, sem
+                # linhas em portal_documentos) seguem no fluxo antigo, inalterado.
+                documentos = repo.listar_documentos_por_obra(conn, obra["id"])
+                if etapa_efetiva == "triagem" and documentos:
+                    pendentes = [d for d in documentos if d["status"] == "pendente"]
+                    por_id = {d["id"]: d for d in pendentes}
+                    resultado = pipeline_runner.executar_triagem_documentos(
+                        settings, obra, pendentes, dry_run=False, log_path=log_path,
+                    )
+                    for item in resultado.artefatos.get("documentos", []):
+                        if not item["ok"]:
+                            repo.atualizar_classificacao_documento(
+                                conn, item["doc_id"], status="erro",
+                                erro_msg=item.get("erro_msg"),
+                            )
+                            continue
+                        # arquivo valido (converteu/abriu ok) — promove pra
+                        # 'classificado' (auto-confirma sugestao do upload) SO' se
+                        # classe+pavimento ja' eram inequivocos; senao 'revisar'
+                        # (humano decide na tela da obra, arquivo em si esta' ok).
+                        doc = por_id[item["doc_id"]]
+                        inequivoco = bool(doc["classe_sugerida"] and doc["pavimento_sugerido"])
+                        repo.atualizar_classificacao_documento(
+                            conn, item["doc_id"],
+                            status="classificado" if inequivoco else "revisar",
+                            classe_confirmada=doc["classe_sugerida"] if inequivoco else None,
+                            pavimento_confirmado=doc["pavimento_sugerido"] if inequivoco else None,
+                        )
+                else:
+                    resultado = pipeline_runner.executar_etapa(
+                        settings, etapa_efetiva, obra, secao=meta.get("secao"), pav=meta.get("pav"),
+                        dry_run=False, log_path=log_path,
+                    )
             finally:
                 release_lock(lock)
 
         if resultado.ok:
             repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
-            repo.atualizar_estado_obra(conn, obra["id"], "pronta",
-                                       processada_em=_agora())
+            if etapa == "converter_dwg":
+                # [novo] conversao avulsa NAO e' etapa formal do pipeline —
+                # so' devolve a obra pro estado "processando" (nao mexe em
+                # etapa_concluida, que fica preservado via COALESCE) pra nao
+                # regredir etapa_atual (_PROXIMA_ETAPA nao conhece essa chave).
+                repo.atualizar_estado_obra(conn, obra["id"], "processando")
+            elif etapa == "n5" or etapa_efetiva == "sa":
+                repo.atualizar_estado_obra(conn, obra["id"], "pronta", processada_em=_agora(),
+                                           etapa_concluida=None if etapa == "n5" else "sa")
+            else:
+                # [FIX 2026-07-06] achado real testando o modo rapido: ANTES,
+                # QUALQUER job bem-sucedido (inclusive triagem sozinha) marcava
+                # a obra "pronta" (etapa 4, Validacao) — a UI mostrava "Recortes
+                # (concluida)" e "SA (concluida)" mesmo sem nenhum dos dois ter
+                # rodado. triagem/recortes NAO terminam o pipeline (falta SA);
+                # continua "processando" (pipeline em andamento, so' registra
+                # qual etapa concluiu) em vez de "pronta".
+                repo.atualizar_estado_obra(conn, obra["id"], "processando",
+                                           etapa_concluida=etapa_efetiva)
+                # [novo, a pedido do dono] Triagem + Recortes: nao quer 2
+                # botoes separados — apos a triagem terminar com sucesso,
+                # encadeia AUTOMATICAMENTE um job de recortes (classifica os
+                # brutos), sem o usuario precisar clicar de novo. O worker
+                # (thread unica) so' pega esse job na proxima volta do loop,
+                # entao nao ha' concorrencia com o job de triagem que acabou
+                # de liberar a trava.
+                if etapa_efetiva == "triagem":
+                    ev = pipeline_runner.engine_version(settings.repo_root)
+                    proximo_job_id = repo.enfileirar_job(conn, obra_id=obra["id"], engine_version=ev)
+                    app_state.job_meta[proximo_job_id] = {"etapa": "recortes"}
         else:
+            # [FIX] `log_tail` já é só as últimas linhas do processo (ver
+            # `_tail()` em pipeline_runner.py); fatiar com `[:500]` (primeiros
+            # 500 caracteres) cortava exatamente a linha final da exceção
+            # quando o traceback tinha mais que isso — o erro mostrado na tela
+            # sempre terminava no meio de um `File "..."`, nunca mostrando o
+            # `XxxError: ...` de verdade. `[-500:]` preserva o final real.
+            erro_tail = resultado.log_tail[-500:] or "etapa falhou"
             repo.finalizar_job(conn, job["id"], "falhou",
-                               erro_msg=resultado.log_tail[:500] or "etapa falhou",
-                               log_path=str(log_path))
-            repo.atualizar_estado_obra(conn, obra["id"], "erro",
-                                       erro_msg=(resultado.log_tail[:500] or "etapa falhou"))
+                               erro_msg=erro_tail, log_path=str(log_path))
+            repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=erro_tail)
     except Exception as exc:  # noqa: BLE001 - quarentena (R6): job com erro nao para a fila
         log.exception("job %s falhou", job["id"])
         repo.finalizar_job(conn, job["id"], "falhou", erro_msg=str(exc)[:500])

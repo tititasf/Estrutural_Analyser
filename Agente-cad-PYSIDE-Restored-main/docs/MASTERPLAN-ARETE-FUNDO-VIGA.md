@@ -1,6 +1,6 @@
 # MASTERPLAN — Arete FUNDO DE VIGA (FV): N2→N4 → N2↔N1 → N1→N3
-**Versão:** 1.0
-**Data:** 2026-06-14
+**Versão:** 1.1
+**Data:** 2026-06-14 | **Atualizado:** 2026-07-05
 **Autor:** Fable (Estrategista) — Cowork
 **Status:** ATIVO — frente paralela (não conflita com PIL/LAJ/LV)
 **Complementa:** `MASTERPLAN-ARETE-QUALITY-GATES.md` (gates G0–G6, paridade canônica §G2 v1.2,
@@ -100,6 +100,40 @@ Vigas de fundação (VF*) podem não ter cobertura no DXF → BLOCKED documentad
 
 ## 4. FASE FV-B — N2 ↔ N1 (aprender a interpretar)
 
+### Contrato arquitetural N1 de FV (ativo desde 2026-07-05)
+
+FV evolui pelo contrato exclusivo `FundoVigaInterpreter`. `BeamTracer` fornece a
+topologia bruta compartilhada, mas a decisão de consolidar ou separar painéis do
+fundo pertence somente a FV e escreve em `seg_bottom`. Regras de lateral ou de
+relação pilar-viga não podem ser usadas como atalho para fechar o delta FV.
+
+O caminho harmonizado, os sete contratos e a matriz de regressão estão em
+`ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md`. Para FV, a próxima evolução é
+classificar por fórmula os cinco tipos de encontro do guia de aceitação e então
+ativar a segmentação atômica. V301 permanece caso de prova aberto; é proibido criar
+exceção por nome de viga.
+
+**Invariante geométrico de área FV (ativo desde 2026-07-06):** cada vínculo
+`viga_fundo_seg_N_area_segs.contour` representa a superfície interna do fundo,
+nunca uma parede/linha. O contorno deve ser um polígono explicitamente fechado
+(`points[0] == points[-1]`) e com área maior que zero. Linhas colineares
+sobrepostas não são duas bordas: nesse caso o interpretador usa o vão axial e a
+largura estrutural do próprio segmento para reconstruir a área. Chanfros,
+recortes, obstáculos e qualquer polígono não degenerado são preservados. O gate
+headless rejeita contorno automático aberto ou de área zero antes de produzir
+diagnóstico ou persistir no DB; vínculos humanos validados nunca são alterados.
+
+**Invariante de validação humana da topologia FV:** a validação real no card
+(`is_validated`, campo/slot validado ou `link.validated`) fecha o conjunto completo
+de fundos daquela viga. A pré-ficha é somente triagem e não congela geometria.
+Uma reanálise pode preservar os contornos explicitamente validados, mas nunca
+acrescentar novos contornos inferidos. Se a validação real ocorrer após todos os
+contornos serem ignorados, a topologia humana válida é o conjunto vazio.
+O snapshot é registrado por `preficha_fundo_locked_version=2` e consumido pelo
+N1 sem consultar N2/N4. Históricos anteriores ao snapshot devem ser saneados uma
+viga por vez com inspeção visual; não é permitido inferir automaticamente qual
+contorno antigo representava a decisão humana.
+
 Pré-requisito: seção FV na **Tabela de Proveniência de Campos** (`docs/PROVENIENCIA-CAMPOS.md`):
 - **(a) extraível do N1** — b_viga (texto "30/60"), comprimento (vão entre apoios), pilares cruzados
 - **(b) algorítmico** — segmentação em painéis (módulo ~244), escoras, posição de divisores
@@ -110,7 +144,7 @@ Pré-requisito: seção FV na **Tabela de Proveniência de Campos** (`docs/PROVE
 |-------|---------|
 | FV-B.1 | Seção FV na Tabela de Proveniência (a/b/c/d) |
 | FV-B.2 | `conversao_n1_diff` FV: convert(campos_N1_SA) vs ficha N2 por categoria, no 13_PAV |
-| FV-B.3 | Loop de fixes: deltas (a)/(b) → fixes nos extratores SA / conversor N1→ficha-robô |
+| FV-B.3 | Loop de fixes: deltas (a)/(b) → `FundoVigaInterpreter`; tocar `BeamTracer` somente se a topologia bruta compartilhada estiver errada; conversor N1→ficha-robô quando o delta for de conversão |
 | FV-B.4 | Campos (c) por estilo/RAG reverso; (d) excluídos com referência |
 
 **Meta:** delta médio (a)+(b) ≤ tolerância em 100% das vigas do 13_PAV.
@@ -131,7 +165,9 @@ FV-B PASS (a+b) ⇒ FV-C PASS por construção (mesmo gerador).
 
 ## 6. Critérios de Arete FV
 
-1. b_fv e comprimento batem (±0,5cm); 2. painéis: mesma contagem + cada um ±0,5cm; divisores
+1. b_fv e comprimento batem (±0,05cm; 0,10cm reprova), e cada segmento possui
+contorno interno fechado com área positiva — linha de parede reprova; 2. painéis: mesma contagem +
+cada um ±0,05cm; divisores
 no lugar; 3. aberturas (pilar cruzado) coincidem em posição/largura; 4. escoras conforme recorte;
 5. cotas-valor + textos batem em conteúdo e contagem; 6. estilo do robô (layers-padrão), nada de
 layer humana sintetizada; 7. veredito visual Claude sem divergência semântica.

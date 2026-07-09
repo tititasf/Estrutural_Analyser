@@ -47,28 +47,20 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L305",
-    "fields": {
-      "nome": "L305",
-      "numero": "05",
-      "laje_dim": "h=12",
-      "laje_nivel": "852.12"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "05",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L305",
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L305",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
-  "_stog_pose": {
-    "x": 4478.07,
-    "y": 2610.94
-  },
+  "apoios_hachurados": [],
   "cotas_paineis": [
     {
       "text": "174",
@@ -112,6 +104,10 @@
     }
   ],
   "pontaletes": {},
+  "_stog_pose": {
+    "x": 4478.07,
+    "y": 2610.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       20.0,

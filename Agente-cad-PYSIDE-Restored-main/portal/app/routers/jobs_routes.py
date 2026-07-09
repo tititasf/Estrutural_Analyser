@@ -66,6 +66,30 @@ class N5In(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
+# Conversão avulsa DWG->DXF (2026-07-08, a pedido do dono) — separada da
+# Triagem: lista os .dwg da obra com status "possui DXF" (checado em disco,
+# convenção <stem>.dxf na mesma pasta entrada/) e converte todos de uma vez
+# só os que ainda não têm par, reusando o MESMO conversor da ingestão.
+# --------------------------------------------------------------------------- #
+
+@router.get("/obras/{obra_id}/documentos/dwgs")
+def listar_dwgs(obra_id: str, request: Request, membro: dict = Depends(auth.exige_login),
+                conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = _obra_do_membro(conn, obra_id, membro)
+    documentos = repo.listar_documentos_por_obra(conn, obra_id)
+    dwgs = pipeline_runner.listar_dwgs_com_status(request.app.state.settings, obra, documentos)
+    return {"obra_id": obra_id, "dwgs": dwgs}
+
+
+@router.post("/obras/{obra_id}/documentos/converter-dwg")
+def converter_dwg(obra_id: str, request: Request, membro: dict = Depends(auth.exige_login),
+                   conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = _obra_do_membro(conn, obra_id, membro)
+    job_id = _enfileirar(request, conn, obra, {"etapa": "converter_dwg"})
+    return {"job_id": job_id, "obra_id": obra_id, "etapa": "converter_dwg", "estado": "queued"}
+
+
+# --------------------------------------------------------------------------- #
 # Etapa 2 — Triagem
 # --------------------------------------------------------------------------- #
 
@@ -174,6 +198,38 @@ def n5_download(obra_id: str, classe: str, request: Request,
         alvo["dxf_path"], filename=_P(alvo["dxf_path"]).name,
         media_type="application/dxf", headers={"X-Certificacao": rotulo},
     )
+
+
+@router.get("/obras/{obra_id}/n5/{classe}/foto")
+def n5_foto(obra_id: str, classe: str, request: Request,
+            membro: dict = Depends(auth.exige_login),
+            conn: sqlite3.Connection = Depends(get_db_conn)):
+    """Foto (PNG) do DXF final do N5 mais recente dessa classe — [2026-07-06]
+    N5 so' tinha download de DXF, sem preview visual nenhum; aqui usa o mesmo
+    `dxf_preview` (ezdxf.addons.drawing) ja usado pelo viewer de Recortes."""
+    from fastapi.responses import Response as _Response
+    from pathlib import Path as _P
+
+    from .. import dxf_preview
+
+    obra = _obra_do_membro(conn, obra_id, membro)
+    releases = repo.listar_n5_releases_por_obra(conn, obra_id)
+    alvo = next((r for r in releases if r["classe"] == classe.upper() and r.get("dxf_path")), None)
+    if alvo is None:
+        raise HTTPException(status_code=404, detail="nenhum N5 liberado para esta classe")
+    dxf_path = _P(alvo["dxf_path"])
+    if not dxf_path.exists():
+        raise HTTPException(status_code=410, detail="DXF do N5 nao esta mais disponivel")
+
+    settings = request.app.state.settings
+    lp = obra.get("local_path")
+    obra_dir = _P(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra")
+    cache_dir = obra_dir / ".previews"
+    try:
+        svg = dxf_preview.renderizar_dxf_svg_cacheado(dxf_path, cache_dir)
+    except Exception as exc:  # noqa: BLE001 - DXF pode ter geometria que o renderer nao suporta
+        raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
+    return _Response(content=svg, media_type="image/svg+xml")
 
 
 # --------------------------------------------------------------------------- #

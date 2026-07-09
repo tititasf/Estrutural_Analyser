@@ -9982,6 +9982,640 @@ Q 379.990167 54.679235 380.621465 54.679235
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <hr>
+  <section id="regras-grades-pilares">
+    <style>
+      #regras-grades-pilares .grades-intro {
+        background:#101b18; border:1px solid #2f6b59; border-radius:6px;
+        padding:14px 16px; margin:10px 0 16px; color:#b8c9c3;
+      }
+      #regras-grades-pilares .grades-grid {
+        display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;
+      }
+      #regras-grades-pilares .grade-case {
+        background:#141414; border:1px solid #303030; border-radius:6px;
+        padding:12px; min-width:0;
+      }
+      #regras-grades-pilares .grade-case h3 {
+        margin:0 0 6px; color:#f0b840; font-size:12px;
+      }
+      #regras-grades-pilares .grade-case p,
+      #regras-grades-pilares .grade-case li {
+        color:#aaa; font-size:11px;
+      }
+      #regras-grades-pilares .grade-case ul {
+        margin:6px 0 8px 17px;
+      }
+      #regras-grades-pilares .grade-diagram {
+        width:100%; height:auto; display:block; margin-top:8px;
+        background:#0c0f10; border:1px solid #292929; border-radius:4px;
+      }
+      #regras-grades-pilares .grades-legend {
+        display:flex; flex-wrap:wrap; gap:12px; margin:8px 0 12px;
+        color:#888; font-size:10px;
+      }
+      #regras-grades-pilares .lg {
+        display:inline-flex; align-items:center; gap:5px;
+      }
+      #regras-grades-pilares .sw {
+        width:18px; height:5px; border-radius:2px; display:inline-block;
+      }
+      #regras-grades-pilares .grade-review {
+        margin-top:10px; padding-top:8px; border-top:1px dashed #333;
+      }
+      #regras-grades-pilares .grade-review label {
+        color:#4fc3a1; font-size:10px; cursor:pointer;
+      }
+      #regras-grades-pilares .grade-review textarea {
+        width:100%; min-height:54px; margin-top:6px; resize:vertical;
+        background:#0d0d0d; color:#f0b840; border:1px solid #4a3b13;
+        border-radius:3px; padding:6px; font:10px monospace;
+      }
+      #regras-grades-pilares .grades-review-summary {
+        background:#171407; border:1px solid #554400; border-radius:6px;
+        padding:12px; margin-top:16px;
+      }
+      #regras-grades-pilares .grade-mode-grid {
+        display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;
+        margin:12px 0;
+      }
+      #regras-grades-pilares .grade-mode-card {
+        background:#101419; border:1px solid #33485d; border-radius:6px;
+        padding:12px; min-width:0;
+      }
+      #regras-grades-pilares .grade-mode-card h3 {
+        color:#7eb8f7; font-size:13px; margin:0 0 7px;
+      }
+      #regras-grades-pilares .grade-mode-table {
+        width:100%; border-collapse:collapse; color:#bbb; font-size:10px;
+      }
+      #regras-grades-pilares .grade-mode-table th,
+      #regras-grades-pilares .grade-mode-table td {
+        border:1px solid #2c3640; padding:5px 6px; text-align:left;
+        vertical-align:top;
+      }
+      #regras-grades-pilares .grade-mode-table th {
+        color:#f0b840; background:#171b20; width:31%;
+      }
+      #regras-grades-pilares .grade-dimension-rule {
+        background:#171126; border:1px solid #60417a; border-radius:6px;
+        padding:12px 14px; margin:12px 0 16px; color:#c8b9d7;
+      }
+      #regras-grades-pilares .grade-dimension-rule code { color:#f0b840; }
+      #grades-review-export {
+        white-space:pre-wrap; max-height:260px; overflow:auto; margin-top:8px;
+        background:#0d0d0d; color:#c8c8c8; padding:8px; border-radius:3px;
+        font:10px monospace;
+      }
+      @media (max-width:1100px) {
+        #regras-grades-pilares .grades-grid { grid-template-columns:1fr; }
+        #regras-grades-pilares .grade-mode-grid { grid-template-columns:1fr; }
+      }
+    </style>
+
+    <h2 style="color:#4fc3a1; border-color:#4fc3a1;">
+      6. Regra de GRADES dos painéis A/B/C/D — decisão do dono (05/07/2026)
+    </h2>
+
+    <div class="grades-intro">
+      <p>
+        Esta seção especifica o <b>conjunto de sarrafos da grade associado a cada painel</b>.
+        A grade não deve ser desenhada como um retângulo genérico de altura uniforme: cada
+        sarrafo vertical acompanha o topo real do trecho de painel ao qual pertence.
+      </p>
+      <div class="rule-box" style="margin:10px 0 0;">
+        <div class="rule-title">Fórmulas e decisões obrigatórias</div>
+        <ol style="margin-left:18px; color:#aaa; font-size:12px;">
+          <li>
+            <b>Topo local:</b> para cada sarrafo vertical <code>i</code>,
+            <code>topo_sarrafo_i = topo_local_painel_i − 15cm</code>.
+            Aberturas, recortes e degraus podem produzir alturas diferentes na mesma grade.
+          </li>
+          <li>
+            <b>Faces:</b> A e B recebem grade por padrão. C e D recebem grade quando
+            a largura do respectivo painel for <b>igual ou maior que 50cm</b>. Somente abaixo
+            de 50cm não gerar.
+          </li>
+          <li>
+            <b>Largura:</b> a largura externa da grade é igual à largura do painel da face
+            correspondente. Não redistribuir nem “embelezar” a medida.
+          </li>
+          <li>
+            <b>Perfis verticais:</b> somente as duas extremidades livres do conjunto usam
+            sarrafo de <b>7cm</b>. Todos os verticais internos usam <b>3,5cm</b>.
+          </li>
+          <li>
+            <b>Uma a três grades:</b> quando existirem grade 1, grade 2 e/ou grade 3,
+            os montantes voltados para <code>distância_1</code> e <code>distância_2</code>
+            continuam internos e, portanto, têm <b>3,5cm</b>. Não duplicar 7cm nos encontros.
+          </li>
+          <li>
+            <b>Harmonia com VISÃO CIMA:</b> as posições dos sarrafos internos devem reutilizar
+            exatamente as mesmas divisões/espaçamentos indicados pelos quadradinhos e
+            parafusos da visão de cima. A face B respeita seu espelhamento, sem recalcular
+            espaçamentos por estética.
+          </li>
+          <li>
+            <b>Sarrafo central:</b> quando a grade tiver um único montante interno central,
+            ele deve ficar geometricamente centralizado na largura de sua respectiva grade.
+          </li>
+          <li>
+            <b>Horizontais configuráveis:</b> as distâncias verticais entre as travessas
+            horizontais não são uma constante da geometria. N3 e N4 usam a configuração
+            visual de GRADES do modo ativo, com perfis independentes para <b>INI</b> e
+            <b>NOVA</b>. A primeira medida vai da base da grade ao primeiro horizontal;
+            as seguintes vão de um horizontal ao próximo. Os desenhos abaixo são
+            ilustrativos e não substituem esses valores configurados.
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="grade-mode-grid">
+      <div class="grade-mode-card">
+        <h3>Modo INI — perfil visual independente</h3>
+        <table class="grade-mode-table">
+          <tr><th>Posições desde a base</th><td><code>60, 170, 280, 390, 500, 610, 720, 830, 940cm</code></td></tr>
+          <tr><th>Intervalos configurados</th><td><code>60, 110, 110, 110, 110, 110, 110, 110, 110cm</code></td></tr>
+          <tr><th>Grade com 280cm</th><td>Cabem H1 em 60cm e H2 em 170cm. H3 começaria em 280cm e sua espessura de 10cm ultrapassaria o topo; portanto não entra.</td></tr>
+          <tr><th>Cadeia vertical</th><td>Base→H1 = 60; H1 = 10; vão livre = 100; H2 = 10; H2→topo = 100cm.</td></tr>
+        </table>
+      </div>
+      <div class="grade-mode-card">
+        <h3>Modo NOVA — perfil visual independente</h3>
+        <table class="grade-mode-table">
+          <tr><th>Posições desde a base</th><td><code>30, 120, 210, 300, 390, 480, 720, 830, 940cm</code></td></tr>
+          <tr><th>Intervalos configurados</th><td><code>30, 90, 90, 90, 90, 90, 240, 110, 110cm</code></td></tr>
+          <tr><th>Grade com 280cm</th><td>Cabem H1 em 30cm, H2 em 120cm e H3 em 210cm. H4 começaria em 300cm; portanto não entra.</td></tr>
+          <tr><th>Cadeia vertical</th><td>Base→H1 = 30; H1 = 10; vão = 80; H2 = 10; vão = 80; H3 = 10; H3→topo = 60cm.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="grade-dimension-rule">
+      <div class="rule-title">Como interpretar e cotar verticalmente</div>
+      <ol style="margin:7px 0 0 18px; color:#c8b9d7; font-size:11px;">
+        <li><b>Referência:</b> toda posição configurada é medida da linha-base da grade até a <b>borda inferior</b> do horizontal.</li>
+        <li><b>Espessura:</b> cada horizontal ocupa 10cm. Por isso, o vão livre é <code>posição_seguinte − posição_atual − 10cm</code>.</li>
+        <li><b>Filtro de altura:</b> desenhar Hn somente quando <code>posição_Hn + 10cm ≤ altura_disponível</code>. Nunca cortar uma travessa ao meio para fazê-la caber.</li>
+        <li><b>Topo final:</b> a última cota é da borda superior do último horizontal até o topo útil do sarrafo vertical daquele trecho.</li>
+        <li><b>Recorte/abertura:</b> cada vertical tem sua própria cota: <code>altura_sarrafo_i = topo_local_painel_i − 15cm − linha_base_grade</code>. Não usar uma única altura global quando os topos locais forem diferentes.</li>
+        <li><b>Coerência:</b> INI/NOVA mudam somente as elevações horizontais configuradas. A abertura não recentraliza as travessas e não muda os eixos horizontais que ainda cabem no trecho.</li>
+      </ol>
+    </div>
+
+    <div class="grades-legend">
+      <span class="lg"><span class="sw" style="background:#2ec4b6"></span>painel</span>
+      <span class="lg"><span class="sw" style="background:#ff8c42"></span>extremidade 7cm</span>
+      <span class="lg"><span class="sw" style="background:#7bdc65"></span>interno 3,5cm</span>
+      <span class="lg"><span class="sw" style="background:#f0d84a"></span>travessa da grade</span>
+      <span class="lg"><span class="sw" style="background:#c47ef7"></span>referência/cota</span>
+    </div>
+
+    <div class="grades-grid">
+      <article class="grade-case" data-grade-case="1">
+        <h3>Caso 1 — Faces A e B padrão, uma grade</h3>
+        <p>
+          A e B recebem grade mesmo quando C/D são estreitas. Cada grade tem a largura do
+          painel da própria face. Somente os dois montantes externos são de 7cm.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 300" role="img"
+             aria-label="Painéis A e B com uma grade cada">
+          <rect x="35" y="25" width="690" height="245" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="180" y="48" fill="#7eb8f7" font-size="15" text-anchor="middle">PAINEL A — largura 80</text>
+          <rect x="60" y="65" width="240" height="160" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <line x1="60" y1="65" x2="300" y2="65" stroke="#c47ef7" stroke-dasharray="6 5"/>
+          <line x1="315" y1="65" x2="315" y2="90" stroke="#c47ef7"/>
+          <line x1="308" y1="65" x2="322" y2="65" stroke="#c47ef7"/>
+          <line x1="308" y1="90" x2="322" y2="90" stroke="#c47ef7"/>
+          <text x="330" y="82" fill="#c47ef7" font-size="12">15cm</text>
+          <rect x="60" y="90" width="17" height="135" fill="#ff8c42"/>
+          <rect x="139" y="90" width="9" height="135" fill="#7bdc65"/>
+          <rect x="215" y="90" width="9" height="135" fill="#7bdc65"/>
+          <rect x="283" y="90" width="17" height="135" fill="#ff8c42"/>
+          <rect x="60" y="120" width="240" height="10" fill="#f0d84a"/>
+          <rect x="60" y="180" width="240" height="10" fill="#f0d84a"/>
+          <text x="180" y="247" fill="#aaa" font-size="12" text-anchor="middle">grade A = 80cm</text>
+
+          <text x="555" y="48" fill="#7eb8f7" font-size="15" text-anchor="middle">PAINEL B — espelho</text>
+          <rect x="435" y="65" width="240" height="160" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="435" y="90" width="17" height="135" fill="#ff8c42"/>
+          <rect x="511" y="90" width="9" height="135" fill="#7bdc65"/>
+          <rect x="587" y="90" width="9" height="135" fill="#7bdc65"/>
+          <rect x="658" y="90" width="17" height="135" fill="#ff8c42"/>
+          <rect x="435" y="120" width="240" height="10" fill="#f0d84a"/>
+          <rect x="435" y="180" width="240" height="10" fill="#f0d84a"/>
+          <text x="555" y="247" fill="#aaa" font-size="12" text-anchor="middle">mesmas divisões, ordem espelhada</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 1..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="2">
+        <h3>Caso 2 — Abertura ou recorte: alturas independentes</h3>
+        <p>
+          A referência de 15cm é local. Um recorte no topo do painel reduz somente os
+          sarrafos que passam por aquele trecho; os demais permanecem mais altos.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 300" role="img"
+             aria-label="Grade com sarrafos verticais de alturas diferentes">
+          <rect x="35" y="25" width="690" height="245" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="195" y="48" fill="#7eb8f7" font-size="15" text-anchor="middle">PAINEL A COM RECORTE</text>
+          <path d="M65 65 H145 V105 H225 V65 H325 V230 H65 Z"
+                fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <line x1="65" y1="65" x2="145" y2="65" stroke="#c47ef7" stroke-dasharray="6 5"/>
+          <line x1="145" y1="105" x2="225" y2="105" stroke="#c47ef7" stroke-dasharray="6 5"/>
+          <line x1="225" y1="65" x2="325" y2="65" stroke="#c47ef7" stroke-dasharray="6 5"/>
+          <text x="195" y="126" fill="#c47ef7" font-size="11" text-anchor="middle">topos locais diferentes</text>
+
+          <text x="545" y="48" fill="#7eb8f7" font-size="15" text-anchor="middle">GRADE RESULTANTE</text>
+          <line x1="415" y1="230" x2="675" y2="230" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="415" y="80" width="17" height="150" fill="#ff8c42"/>
+          <rect x="492" y="120" width="9" height="110" fill="#7bdc65"/>
+          <rect x="571" y="80" width="9" height="150" fill="#7bdc65"/>
+          <rect x="658" y="80" width="17" height="150" fill="#ff8c42"/>
+          <rect x="415" y="155" width="260" height="10" fill="#f0d84a"/>
+          <rect x="415" y="205" width="260" height="10" fill="#f0d84a"/>
+          <line x1="395" y1="65" x2="395" y2="80" stroke="#c47ef7"/>
+          <line x1="388" y1="65" x2="402" y2="65" stroke="#c47ef7"/>
+          <line x1="388" y1="80" x2="402" y2="80" stroke="#c47ef7"/>
+          <text x="382" y="77" fill="#c47ef7" font-size="11" text-anchor="end">15</text>
+          <line x1="475" y1="105" x2="475" y2="120" stroke="#c47ef7"/>
+          <line x1="468" y1="105" x2="482" y2="105" stroke="#c47ef7"/>
+          <line x1="468" y1="120" x2="482" y2="120" stroke="#c47ef7"/>
+          <text x="462" y="117" fill="#c47ef7" font-size="11" text-anchor="end">15</text>
+          <text x="545" y="252" fill="#aaa" font-size="12" text-anchor="middle">cada vertical termina 15cm abaixo do seu topo local</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 2..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="3">
+        <h3>Caso 3 — Limite das faces C/D: 50cm gera grade</h3>
+        <p>
+          C ou D com 50cm exatos já recebe grade. Somente uma largura abaixo de 50cm
+          fica sem grade. A/B continuam seguindo sua regra normal.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 300" role="img"
+             aria-label="Face C com 50cm e grade; face D abaixo de 50cm sem grade">
+          <rect x="35" y="25" width="690" height="245" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="200" y="50" fill="#c47ef7" font-size="15" text-anchor="middle">FACE C — 50cm</text>
+          <rect x="110" y="70" width="180" height="150" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <line x1="90" y1="230" x2="310" y2="230" stroke="#c47ef7"/>
+          <text x="200" y="250" fill="#c47ef7" font-size="13" text-anchor="middle">50cm</text>
+          <rect x="110" y="85" width="17" height="135" fill="#ff8c42"/>
+          <rect x="196" y="85" width="9" height="135" fill="#7bdc65"/>
+          <rect x="273" y="85" width="17" height="135" fill="#ff8c42"/>
+          <rect x="110" y="125" width="180" height="10" fill="#f0d84a"/>
+          <rect x="110" y="180" width="180" height="10" fill="#f0d84a"/>
+          <text x="200" y="150" fill="#fff" font-size="14" text-anchor="middle">COM GRADE</text>
+
+          <text x="555" y="50" fill="#f0b840" font-size="15" text-anchor="middle">FACE D — 42cm</text>
+          <rect x="480" y="70" width="150" height="150" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <line x1="465" y1="230" x2="645" y2="230" stroke="#c47ef7"/>
+          <text x="555" y="250" fill="#c47ef7" font-size="13" text-anchor="middle">42cm</text>
+          <line x1="495" y1="85" x2="615" y2="205" stroke="#ff6b6b" stroke-width="7"/>
+          <line x1="615" y1="85" x2="495" y2="205" stroke="#ff6b6b" stroke-width="7"/>
+          <text x="555" y="150" fill="#fff" font-size="18" text-anchor="middle">SEM GRADE</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 3..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="4">
+        <h3>Caso 4 — Faces C/D com largura ≥ 50cm: gerar grade</h3>
+        <p>
+          Quando C ou D atinge 50cm, a grade passa a existir e sua largura coincide
+          exatamente com a largura do painel curto. Havendo um único sarrafo central,
+          seu eixo coincide com o centro da respectiva grade.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 300" role="img"
+             aria-label="Faces C e D largas com grades próprias">
+          <rect x="35" y="25" width="690" height="245" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="195" y="48" fill="#c47ef7" font-size="15" text-anchor="middle">FACE C — painel 72cm</text>
+          <rect x="65" y="65" width="260" height="165" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="65" y="80" width="17" height="150" fill="#ff8c42"/>
+          <rect x="147" y="80" width="9" height="150" fill="#7bdc65"/>
+          <rect x="234" y="80" width="9" height="150" fill="#7bdc65"/>
+          <rect x="308" y="80" width="17" height="150" fill="#ff8c42"/>
+          <rect x="65" y="130" width="260" height="10" fill="#f0d84a"/>
+          <rect x="65" y="190" width="260" height="10" fill="#f0d84a"/>
+          <text x="195" y="252" fill="#aaa" font-size="12" text-anchor="middle">grade C = painel C = 72cm</text>
+
+          <text x="560" y="48" fill="#f0b840" font-size="15" text-anchor="middle">FACE D — painel 58cm</text>
+          <rect x="455" y="65" width="210" height="165" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="455" y="80" width="17" height="150" fill="#ff8c42"/>
+          <rect x="556" y="80" width="9" height="150" fill="#7bdc65"/>
+          <rect x="648" y="80" width="17" height="150" fill="#ff8c42"/>
+          <rect x="455" y="130" width="210" height="10" fill="#f0d84a"/>
+          <rect x="455" y="190" width="210" height="10" fill="#f0d84a"/>
+          <text x="560" y="252" fill="#aaa" font-size="12" text-anchor="middle">grade D = painel D = 58cm</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 4..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="5">
+        <h3>Caso 5 — Duas grades com distância_1</h3>
+        <p>
+          Em duas grades, somente as extremidades livres do conjunto são 7cm. Os dois
+          montantes voltados para <code>distância_1</code> são internos de 3,5cm.
+          O sarrafo central de cada grade fica centralizado em sua própria largura.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 300" role="img"
+             aria-label="Duas grades separadas por distancia 1">
+          <rect x="35" y="25" width="690" height="245" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="380" y="48" fill="#7eb8f7" font-size="15" text-anchor="middle">CONJUNTO DA FACE A — 2 GRADES</text>
+          <rect x="75" y="75" width="250" height="155" fill="#153036" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="435" y="75" width="250" height="155" fill="#153036" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="75" y="90" width="17" height="140" fill="#ff8c42"/>
+          <rect x="196" y="90" width="9" height="140" fill="#7bdc65"/>
+          <rect x="316" y="90" width="9" height="140" fill="#7bdc65"/>
+          <rect x="435" y="90" width="9" height="140" fill="#7bdc65"/>
+          <rect x="556" y="90" width="9" height="140" fill="#7bdc65"/>
+          <rect x="668" y="90" width="17" height="140" fill="#ff8c42"/>
+          <rect x="75" y="135" width="250" height="10" fill="#f0d84a"/>
+          <rect x="75" y="195" width="250" height="10" fill="#f0d84a"/>
+          <rect x="435" y="135" width="250" height="10" fill="#f0d84a"/>
+          <rect x="435" y="195" width="250" height="10" fill="#f0d84a"/>
+          <line x1="325" y1="62" x2="435" y2="62" stroke="#c47ef7"/>
+          <line x1="325" y1="56" x2="325" y2="68" stroke="#c47ef7"/>
+          <line x1="435" y1="56" x2="435" y2="68" stroke="#c47ef7"/>
+          <text x="380" y="58" fill="#c47ef7" font-size="12" text-anchor="middle">distância_1</text>
+          <text x="205" y="252" fill="#aaa" font-size="11" text-anchor="middle">7 externo · internos 3,5</text>
+          <text x="555" y="252" fill="#aaa" font-size="11" text-anchor="middle">internos 3,5 · 7 externo</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 5..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="6">
+        <h3>Caso 6 — Três grades e vínculo com VISÃO CIMA</h3>
+        <p>
+          Nas três grades, somente a primeira borda esquerda e a última borda direita são
+          7cm. Todos os demais verticais são 3,5cm. Suas posições repetem os quadradinhos
+          da visão de cima, mantendo <code>distância_1</code> e <code>distância_2</code>.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 360" role="img"
+             aria-label="Três grades vinculadas às divisões da visão de cima">
+          <rect x="35" y="25" width="690" height="305" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="380" y="48" fill="#7eb8f7" font-size="15" text-anchor="middle">VISÃO CIMA — quadradinhos definem os eixos</text>
+          <rect x="155" y="65" width="450" height="48" fill="#153036" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="175" y="78" width="16" height="16" fill="none" stroke="#f0d84a" stroke-width="3"/>
+          <rect x="270" y="78" width="16" height="16" fill="none" stroke="#f0d84a" stroke-width="3"/>
+          <rect x="380" y="78" width="16" height="16" fill="none" stroke="#f0d84a" stroke-width="3"/>
+          <rect x="490" y="78" width="16" height="16" fill="none" stroke="#f0d84a" stroke-width="3"/>
+          <rect x="570" y="78" width="16" height="16" fill="none" stroke="#f0d84a" stroke-width="3"/>
+          <line x1="183" y1="113" x2="183" y2="145" stroke="#777" stroke-dasharray="4 4"/>
+          <line x1="278" y1="113" x2="278" y2="145" stroke="#777" stroke-dasharray="4 4"/>
+          <line x1="388" y1="113" x2="388" y2="145" stroke="#777" stroke-dasharray="4 4"/>
+          <line x1="498" y1="113" x2="498" y2="145" stroke="#777" stroke-dasharray="4 4"/>
+          <line x1="578" y1="113" x2="578" y2="145" stroke="#777" stroke-dasharray="4 4"/>
+
+          <rect x="70" y="145" width="175" height="145" fill="#153036" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="292" y="145" width="175" height="145" fill="#153036" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="514" y="145" width="175" height="145" fill="#153036" stroke="#2ec4b6" stroke-width="2"/>
+          <rect x="70" y="160" width="17" height="130" fill="#ff8c42"/>
+          <rect x="158" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="236" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="292" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="379" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="458" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="514" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="600" y="160" width="9" height="130" fill="#7bdc65"/>
+          <rect x="672" y="160" width="17" height="130" fill="#ff8c42"/>
+          <rect x="70" y="205" width="175" height="9" fill="#f0d84a"/>
+          <rect x="70" y="260" width="175" height="9" fill="#f0d84a"/>
+          <rect x="292" y="205" width="175" height="9" fill="#f0d84a"/>
+          <rect x="292" y="260" width="175" height="9" fill="#f0d84a"/>
+          <rect x="514" y="205" width="175" height="9" fill="#f0d84a"/>
+          <rect x="514" y="260" width="175" height="9" fill="#f0d84a"/>
+          <line x1="245" y1="132" x2="292" y2="132" stroke="#c47ef7"/>
+          <line x1="467" y1="132" x2="514" y2="132" stroke="#c47ef7"/>
+          <text x="268" y="128" fill="#c47ef7" font-size="10" text-anchor="middle">dist. 1</text>
+          <text x="490" y="128" fill="#c47ef7" font-size="10" text-anchor="middle">dist. 2</text>
+          <text x="380" y="314" fill="#aaa" font-size="11" text-anchor="middle">7cm somente nas extremidades livres · todo o interior = 3,5cm</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 6..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="7">
+        <h3>Caso 7 — Modo INI: posições e cadeia de cotas verticais</h3>
+        <p>
+          Exemplo com altura útil de 280cm. As posições configuradas são medidas até a
+          borda inferior de cada horizontal. A espessura de 10cm aparece como uma cota
+          separada; por isso um intervalo configurado de 110cm deixa vão livre de 100cm.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 340" role="img"
+             aria-label="Modo INI com horizontais em 60 e 170 centímetros e cadeia vertical de cotas">
+          <rect x="35" y="20" width="690" height="295" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="230" y="42" fill="#7eb8f7" font-size="15" text-anchor="middle">INI · altura útil 280cm</text>
+          <rect x="80" y="45" width="300" height="240" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="80" y="45" width="17" height="240" fill="#ff8c42"/>
+          <rect x="226" y="45" width="9" height="240" fill="#7bdc65"/>
+          <rect x="363" y="45" width="17" height="240" fill="#ff8c42"/>
+          <rect x="80" y="220" width="300" height="9" fill="#f0d84a"/>
+          <rect x="80" y="126" width="300" height="9" fill="#f0d84a"/>
+          <line x1="80" y1="285" x2="380" y2="285" stroke="#f0d84a" stroke-width="4"/>
+          <text x="230" y="304" fill="#aaa" font-size="11" text-anchor="middle">H1=60 · H2=170 · H3=280 não cabe com 10cm</text>
+
+          <text x="550" y="42" fill="#c47ef7" font-size="13" text-anchor="middle">COTA VERTICAL PUBLICADA</text>
+          <line x1="500" y1="45" x2="500" y2="285" stroke="#c47ef7"/>
+          <g stroke="#c47ef7">
+            <line x1="490" y1="285" x2="510" y2="285"/><line x1="490" y1="229" x2="510" y2="229"/>
+            <line x1="490" y1="220" x2="510" y2="220"/><line x1="490" y1="135" x2="510" y2="135"/>
+            <line x1="490" y1="126" x2="510" y2="126"/><line x1="490" y1="45" x2="510" y2="45"/>
+          </g>
+          <text x="520" y="260" fill="#c47ef7" font-size="12">60 base→H1</text>
+          <text x="520" y="227" fill="#f0d84a" font-size="11">10 H1</text>
+          <text x="520" y="181" fill="#c47ef7" font-size="12">100 vão livre</text>
+          <text x="520" y="133" fill="#f0d84a" font-size="11">10 H2</text>
+          <text x="520" y="88" fill="#c47ef7" font-size="12">100 até topo</text>
+          <line x1="660" y1="229" x2="660" y2="135" stroke="#7eb8f7"/>
+          <line x1="652" y1="229" x2="668" y2="229" stroke="#7eb8f7"/>
+          <line x1="652" y1="135" x2="668" y2="135" stroke="#7eb8f7"/>
+          <text x="675" y="186" fill="#7eb8f7" font-size="11">110 configurado</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 7..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="8">
+        <h3>Caso 8 — Modo NOVA: posições e cadeia de cotas verticais</h3>
+        <p>
+          Na mesma altura útil de 280cm, o perfil NOVA admite três horizontais. Entre
+          posições consecutivas de 90cm existe um vão livre de 80cm, porque cada
+          travessa ocupa 10cm na vertical.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 340" role="img"
+             aria-label="Modo NOVA com horizontais em 30, 120 e 210 centímetros e cadeia vertical de cotas">
+          <rect x="35" y="20" width="690" height="295" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="230" y="42" fill="#7eb8f7" font-size="15" text-anchor="middle">NOVA · altura útil 280cm</text>
+          <rect x="80" y="45" width="300" height="240" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="80" y="45" width="17" height="240" fill="#ff8c42"/>
+          <rect x="226" y="45" width="9" height="240" fill="#7bdc65"/>
+          <rect x="363" y="45" width="17" height="240" fill="#ff8c42"/>
+          <rect x="80" y="246" width="300" height="9" fill="#f0d84a"/>
+          <rect x="80" y="169" width="300" height="9" fill="#f0d84a"/>
+          <rect x="80" y="92" width="300" height="9" fill="#f0d84a"/>
+          <line x1="80" y1="285" x2="380" y2="285" stroke="#f0d84a" stroke-width="4"/>
+          <text x="230" y="304" fill="#aaa" font-size="11" text-anchor="middle">H1=30 · H2=120 · H3=210 · H4=300 não entra</text>
+
+          <text x="550" y="42" fill="#c47ef7" font-size="13" text-anchor="middle">COTA VERTICAL PUBLICADA</text>
+          <line x1="500" y1="45" x2="500" y2="285" stroke="#c47ef7"/>
+          <g stroke="#c47ef7">
+            <line x1="490" y1="285" x2="510" y2="285"/><line x1="490" y1="255" x2="510" y2="255"/>
+            <line x1="490" y1="246" x2="510" y2="246"/><line x1="490" y1="178" x2="510" y2="178"/>
+            <line x1="490" y1="169" x2="510" y2="169"/><line x1="490" y1="101" x2="510" y2="101"/>
+            <line x1="490" y1="92" x2="510" y2="92"/><line x1="490" y1="45" x2="510" y2="45"/>
+          </g>
+          <text x="520" y="274" fill="#c47ef7" font-size="11">30 base→H1</text>
+          <text x="520" y="253" fill="#f0d84a" font-size="10">10 H1</text>
+          <text x="520" y="215" fill="#c47ef7" font-size="11">80 vão</text>
+          <text x="520" y="176" fill="#f0d84a" font-size="10">10 H2</text>
+          <text x="520" y="138" fill="#c47ef7" font-size="11">80 vão</text>
+          <text x="520" y="99" fill="#f0d84a" font-size="10">10 H3</text>
+          <text x="520" y="68" fill="#c47ef7" font-size="11">60 até topo</text>
+          <text x="655" y="210" fill="#7eb8f7" font-size="11" text-anchor="middle">Δ configurado = 90</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 8..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="9">
+        <h3>Caso 9 — Recorte superior: cada vertical recebe sua própria cota</h3>
+        <p>
+          O topo do painel muda por trecho. Cada sarrafo termina 15cm abaixo do topo local
+          e é cotado isoladamente desde a mesma linha-base. Não existe uma “altura média”
+          nem uma única cota vertical válida para toda a grade.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 350" role="img"
+             aria-label="Painel com topo recortado e quatro sarrafos verticais de alturas cotadas independentemente">
+          <rect x="35" y="20" width="690" height="305" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="380" y="42" fill="#7eb8f7" font-size="15" text-anchor="middle">TOPO LOCAL DO PAINEL ≠ TOPO ÚNICO DA GRADE</text>
+          <path d="M70 55 H185 V105 H335 V78 H510 V132 H680 V285 H70 Z"
+                fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <line x1="70" y1="285" x2="680" y2="285" stroke="#f0d84a" stroke-width="5"/>
+          <rect x="83" y="69" width="17" height="216" fill="#ff8c42"/>
+          <rect x="253" y="119" width="9" height="166" fill="#7bdc65"/>
+          <rect x="418" y="92" width="9" height="193" fill="#7bdc65"/>
+          <rect x="650" y="146" width="17" height="139" fill="#ff8c42"/>
+          <rect x="70" y="218" width="610" height="9" fill="#f0d84a"/>
+          <rect x="70" y="173" width="440" height="9" fill="#f0d84a"/>
+
+          <g stroke="#c47ef7" stroke-dasharray="4 3">
+            <line x1="91" y1="55" x2="91" y2="69"/><line x1="257" y1="105" x2="257" y2="119"/>
+            <line x1="422" y1="78" x2="422" y2="92"/><line x1="658" y1="132" x2="658" y2="146"/>
+          </g>
+          <g fill="#c47ef7" font-size="10" text-anchor="middle">
+            <text x="112" y="66">15</text><text x="278" y="116">15</text>
+            <text x="443" y="89">15</text><text x="679" y="143">15</text>
+          </g>
+          <g stroke="#c47ef7">
+            <line x1="120" y1="69" x2="120" y2="285"/><line x1="112" y1="69" x2="128" y2="69"/><line x1="112" y1="285" x2="128" y2="285"/>
+            <line x1="285" y1="119" x2="285" y2="285"/><line x1="277" y1="119" x2="293" y2="119"/><line x1="277" y1="285" x2="293" y2="285"/>
+            <line x1="450" y1="92" x2="450" y2="285"/><line x1="442" y1="92" x2="458" y2="92"/><line x1="442" y1="285" x2="458" y2="285"/>
+            <line x1="625" y1="146" x2="625" y2="285"/><line x1="617" y1="146" x2="633" y2="146"/><line x1="617" y1="285" x2="633" y2="285"/>
+          </g>
+          <g fill="#fff" font-size="11" text-anchor="middle">
+            <text x="138" y="181">altura_1</text><text x="303" y="206">altura_2</text>
+            <text x="468" y="192">altura_3</text><text x="607" y="219">altura_4</text>
+          </g>
+          <text x="380" y="309" fill="#aaa" font-size="11" text-anchor="middle">todas as alturas partem da mesma linha-base · cada topo é local</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 9..."></textarea>
+        </div>
+      </article>
+
+      <article class="grade-case" data-grade-case="10">
+        <h3>Caso 10 — Duas grades, abertura e cotagem completa</h3>
+        <p>
+          A largura de cada grade e a distância_1 são cotadas horizontalmente. Na vertical,
+          cada montante usa o seu topo local menos 15cm; as travessas mantêm as elevações
+          do modo ativo e só aparecem nos trechos em que cabem inteiras.
+        </p>
+        <svg class="grade-diagram" viewBox="0 0 760 370" role="img"
+             aria-label="Duas grades separadas por distância um, com abertura superior e cotas horizontais e verticais">
+          <rect x="35" y="20" width="690" height="325" rx="5" fill="#101719" stroke="#263438"/>
+          <text x="380" y="42" fill="#7eb8f7" font-size="15" text-anchor="middle">GRADE 1 COM ABERTURA + GRADE 2 SEM RECORTE</text>
+          <path d="M65 62 H145 V112 H245 V82 H315 V285 H65 Z" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="425" y="62" width="270" height="223" fill="#153036" stroke="#2ec4b6" stroke-width="3"/>
+          <rect x="65" y="76" width="17" height="209" fill="#ff8c42"/>
+          <rect x="186" y="126" width="9" height="159" fill="#7bdc65"/>
+          <rect x="306" y="96" width="9" height="189" fill="#7bdc65"/>
+          <rect x="425" y="76" width="9" height="209" fill="#7bdc65"/>
+          <rect x="556" y="76" width="9" height="209" fill="#7bdc65"/>
+          <rect x="678" y="76" width="17" height="209" fill="#ff8c42"/>
+          <rect x="65" y="225" width="250" height="9" fill="#f0d84a"/>
+          <rect x="65" y="164" width="250" height="9" fill="#f0d84a"/>
+          <rect x="425" y="225" width="270" height="9" fill="#f0d84a"/>
+          <rect x="425" y="164" width="270" height="9" fill="#f0d84a"/>
+          <rect x="425" y="103" width="270" height="9" fill="#f0d84a"/>
+          <line x1="65" y1="285" x2="315" y2="285" stroke="#f0d84a" stroke-width="5"/>
+          <line x1="425" y1="285" x2="695" y2="285" stroke="#f0d84a" stroke-width="5"/>
+
+          <g stroke="#c47ef7" stroke-dasharray="4 3">
+            <line x1="73" y1="62" x2="73" y2="76"/><line x1="190" y1="112" x2="190" y2="126"/>
+            <line x1="310" y1="82" x2="310" y2="96"/><line x1="686" y1="62" x2="686" y2="76"/>
+          </g>
+          <g fill="#c47ef7" font-size="10">
+            <text x="82" y="73">15</text><text x="199" y="123">15</text><text x="319" y="93">15</text><text x="695" y="73">15</text>
+          </g>
+
+          <g stroke="#c47ef7">
+            <line x1="65" y1="318" x2="315" y2="318"/><line x1="65" y1="309" x2="65" y2="327"/><line x1="315" y1="309" x2="315" y2="327"/>
+            <line x1="315" y1="305" x2="425" y2="305"/><line x1="425" y1="296" x2="425" y2="314"/>
+            <line x1="425" y1="332" x2="695" y2="332"/><line x1="695" y1="323" x2="695" y2="341"/>
+            <line x1="335" y1="96" x2="335" y2="285"/><line x1="327" y1="96" x2="343" y2="96"/><line x1="327" y1="285" x2="343" y2="285"/>
+            <line x1="715" y1="76" x2="715" y2="285"/><line x1="707" y1="76" x2="723" y2="76"/><line x1="707" y1="285" x2="723" y2="285"/>
+          </g>
+          <g fill="#c47ef7" font-size="11" text-anchor="middle">
+            <text x="190" y="315">largura grade_1</text><text x="370" y="302">distância_1</text><text x="560" y="329">largura grade_2</text>
+          </g>
+          <text x="350" y="194" fill="#fff" font-size="10" transform="rotate(-90 350 194)" text-anchor="middle">altura local grade_1</text>
+          <text x="730" y="185" fill="#fff" font-size="10" transform="rotate(-90 730 185)" text-anchor="middle">altura grade_2</text>
+          <text x="380" y="355" fill="#aaa" font-size="10" text-anchor="middle">extremos globais 7cm · encontros e centros 3,5cm · cotas verticais independentes</text>
+        </svg>
+        <div class="grade-review">
+          <label><input type="checkbox" class="grades-rule-cb"> Regra validada pelo dono</label>
+          <textarea class="grades-rule-note" placeholder="Comentário/correção do Caso 10..."></textarea>
+        </div>
+      </article>
+    </div>
+
+    <div class="grades-review-summary">
+      <div style="color:#f0b840; font-weight:bold;">Validação e comentários do dono</div>
+      <p style="color:#888; font-size:11px; margin:5px 0;">
+        As marcações e notas ficam salvas neste navegador. Use o botão para consolidar
+        os dez casos e copiar o JSON para o log de triagem humano.
+      </p>
+      <button onclick="exportGradesReview()" style="background:#2a2a00;color:#f0b840;border:1px solid #665500;padding:5px 12px;cursor:pointer;border-radius:3px;">
+        Consolidar comentários de GRADES
+      </button>
+      <pre id="grades-review-export">Nenhum comentário consolidado ainda.</pre>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -10028,6 +10662,47 @@ function _carouselMove(id, dir) {
 }
 function prevSlide(id) { _carouselMove(id, -1); }
 function nextSlide(id) { _carouselMove(id, +1); }
+
+function _gradesReviewKey(caseId, field) {
+  return 'interpretacao_grades_regra_' + caseId + '_' + field;
+}
+function initGradesReview() {
+  document.querySelectorAll('.grade-case[data-grade-case]').forEach(function(card) {
+    const caseId = card.dataset.gradeCase;
+    const cb = card.querySelector('.grades-rule-cb');
+    const note = card.querySelector('.grades-rule-note');
+    cb.checked = localStorage.getItem(_gradesReviewKey(caseId, 'validada')) === '1';
+    note.value = localStorage.getItem(_gradesReviewKey(caseId, 'comentario')) || '';
+    cb.addEventListener('change', function() {
+      localStorage.setItem(_gradesReviewKey(caseId, 'validada'), cb.checked ? '1' : '0');
+    });
+    note.addEventListener('input', function() {
+      localStorage.setItem(_gradesReviewKey(caseId, 'comentario'), note.value);
+    });
+  });
+}
+function exportGradesReview() {
+  const result = {
+    fonte: 'interpretacao_abcd.html#regras-grades-pilares',
+    marcado_por: 'humano',
+    regra: 'grades_pilares_abcd',
+    casos: []
+  };
+  document.querySelectorAll('.grade-case[data-grade-case]').forEach(function(card) {
+    result.casos.push({
+      caso: Number(card.dataset.gradeCase),
+      titulo: card.querySelector('h3').textContent.trim(),
+      validada: card.querySelector('.grades-rule-cb').checked,
+      comentario: card.querySelector('.grades-rule-note').value.trim()
+    });
+  });
+  const text = JSON.stringify(result, null, 2);
+  document.getElementById('grades-review-export').textContent = text;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(function(){});
+  }
+}
+document.addEventListener('DOMContentLoaded', initGradesReview);
 </script>
 </body>
 </html>

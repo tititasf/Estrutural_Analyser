@@ -1,2 +1,2 @@
 
-pid=18192 inicio=2026-07-05T13:39:09 cmd=scripts/arete/headless_sa_analise.py --obra Obra_TREINO_1 --pav 13_PAV --wait
+pid=25120 inicio=2026-07-09T15:09:25 cmd=scripts\arete\headless_sa_analise.py --obra Obra-Teste-Inicial --pav Indeterminado --skip-diagnostico-fv

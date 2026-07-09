@@ -132,6 +132,12 @@ recorte, o fix é no **algoritmo de cálculo** (`calcular_modo1` / lógica de un
 
 ## 4. FASE LJ-B — N2 ↔ N1 (aprender a interpretar)
 
+**Persistência N1 granular:** contorno, dimensão, nível, pilares de apoio, visão de
+corte e demais campos mantêm validações independentes. A reanálise preserva somente
+campo/slot/vínculo validado e substitui o restante pelo candidato novo. Validar
+`laje_outline_segs` também congela a geometria raiz `points`. Ver
+`PERSISTENCIA-HEADLESS-SA.md`.
+
 **Objetivo:** preencher os campos do **Structural Analyzer (N1)** com a mesma informação que
 o N2 tem, usando o motor de interpretação do N1 sobre o **estrutural limpo** — e treinar os
 campos/vínculos comparando contra o N2 (gabarito).

@@ -39,11 +39,7 @@
       "is_union": false
     },
     {
-      "value": 169.0,
-      "is_union": false
-    },
-    {
-      "value": 189.0,
+      "value": 142.0,
       "is_union": true
     }
   ],
@@ -51,28 +47,105 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L309",
-    "fields": {
-      "nome": "L309",
-      "numero": "09",
-      "laje_dim": "h=13",
-      "laje_nivel": "852.19"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "09",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L309",
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L309",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
-  "_stog_pose": {
-    "x": 2742.57,
-    "y": 2280.94
-  },
+  "apoios_hachurados": [
+    {
+      "x1": 375.0,
+      "y1": -1.24,
+      "x2": 376.24,
+      "y2": -0.0
+    },
+    {
+      "x1": 375.0,
+      "y1": -13.26,
+      "x2": 388.26,
+      "y2": -0.0
+    },
+    {
+      "x1": 381.28,
+      "y1": -19.0,
+      "x2": 400.28,
+      "y2": -0.0
+    },
+    {
+      "x1": 393.3,
+      "y1": -19.0,
+      "x2": 412.3,
+      "y2": -0.0
+    },
+    {
+      "x1": 405.32,
+      "y1": -19.0,
+      "x2": 424.32,
+      "y2": -0.0
+    },
+    {
+      "x1": 417.34,
+      "y1": -19.0,
+      "x2": 436.34,
+      "y2": -0.0
+    },
+    {
+      "x1": 429.37,
+      "y1": -19.0,
+      "x2": 448.37,
+      "y2": -0.0
+    },
+    {
+      "x1": 441.39,
+      "y1": -19.0,
+      "x2": 455.0,
+      "y2": -5.39
+    },
+    {
+      "x1": -19.0,
+      "y1": -10.57,
+      "x2": -8.43,
+      "y2": -0.0
+    },
+    {
+      "x1": -19.0,
+      "y1": -22.6,
+      "x2": 0.0,
+      "y2": -3.6
+    },
+    {
+      "x1": -19.0,
+      "y1": -34.62,
+      "x2": 0.0,
+      "y2": -15.62
+    },
+    {
+      "x1": -19.0,
+      "y1": -46.64,
+      "x2": 0.0,
+      "y2": -27.64
+    },
+    {
+      "x1": -19.0,
+      "y1": -58.66,
+      "x2": 0.0,
+      "y2": -39.66
+    },
+    {
+      "x1": -8.32,
+      "y1": -60.0,
+      "x2": 0.0,
+      "y2": -51.68
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "161.5",
@@ -132,6 +205,10 @@
     }
   ],
   "pontaletes": {},
+  "_stog_pose": {
+    "x": 2742.57,
+    "y": 2280.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       20.0,

@@ -153,23 +153,34 @@ def _choose_segment_dim(seg_dim: dict | None, dim_text: str | None, h_n1: float 
     }
 
 
-def _is_support_label(text: str, current_beam: str = "") -> bool:
+def _is_support_label(
+    text: str,
+    current_beam: str = "",
+    ignored_labels: set[str] | None = None,
+) -> bool:
     txt = str(text or "").strip().upper()
     if not txt or _parse_dim_pair(txt):
         return False
     if current_beam and txt == current_beam.upper():
         return False
+    if ignored_labels and txt in ignored_labels:
+        return False
     return bool(re.match(r"^(?:P|V|VF|VP|CONT)[A-Z0-9_.-]*\d[A-Z0-9_.-]*$", txt))
 
 
-def _find_support_text(endpoint: tuple, spatial_index, current_beam: str = "") -> dict | None:
+def _find_support_text(
+    endpoint: tuple,
+    spatial_index,
+    current_beam: str = "",
+    ignored_labels: set[str] | None = None,
+) -> dict | None:
     if not endpoint or not spatial_index:
         return None
     radius = 320.0
     bbox = (endpoint[0] - radius, endpoint[1] - radius, endpoint[0] + radius, endpoint[1] + radius)
     candidates = []
     for t in _query_texts(spatial_index, bbox):
-        if not _is_support_label(t.get("text", ""), current_beam):
+        if not _is_support_label(t.get("text", ""), current_beam, ignored_labels):
             continue
         pos = t.get("pos")
         if not pos:
@@ -187,6 +198,39 @@ def _find_support_text(endpoint: tuple, spatial_index, current_beam: str = "") -
 
 def _seg_length_2pts(p1, p2) -> float:
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
+
+
+def _bbox_length_width(points: list | tuple | None) -> tuple[float, float]:
+    """Retorna (comprimento, largura) pelo envelope físico do contorno FV."""
+    clean: list[tuple[float, float]] = []
+    for point in points or []:
+        try:
+            clean.append((float(point[0]), float(point[1])))
+        except (TypeError, ValueError, IndexError):
+            continue
+    if not clean:
+        return 0.0, 0.0
+    xs = [point[0] for point in clean]
+    ys = [point[1] for point in clean]
+    dx = max(xs) - min(xs)
+    dy = max(ys) - min(ys)
+    return max(dx, dy), min(dx, dy)
+
+
+def _format_measure(value: float) -> str:
+    value = float(value)
+    if abs(value - round(value)) <= 0.05:
+        return str(int(round(value)))
+    return f"{value:.2f}".rstrip("0").rstrip(".")
+
+
+def _filter_fv_visual_obstacles(obstacles: list[dict] | None) -> list[dict]:
+    """FV ignora pilares NASCE: convenção visual, não sólido neste pavimento."""
+    return [
+        obstacle
+        for obstacle in (obstacles or [])
+        if str((obstacle or {}).get("type") or "").strip().upper() != "NASCE"
+    ]
 
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
@@ -245,7 +289,132 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
     - panels_n1: len(merged_bottom_lengths)
     - bridging: obstáculos visuais (Pilares NASCE, Visão Corte) são superados fundindo spans adjacentes
     """
+    from src.core.preficha_segments import fundo_topology_is_locked
+
+    if fundo_topology_is_locked(b):
+        import re as _re_locked
+
+        segmentos_fundo = []
+        links = b.get("links") or {}
+        fields = b.get("fields") or {}
+        allowed_source_keys = set(
+            b.get("preficha_fundo_locked_source_keys") or []
+        )
+        if int(b.get("preficha_fundo_locked_version") or 0) < 2:
+            from src.core.preficha_segments import lock_fundo_topology
+            lock_fundo_topology(b)
+            allowed_source_keys = set(
+                b.get("preficha_fundo_locked_source_keys") or []
+            )
+        for key in sorted(allowed_source_keys):
+            slots = links.get(key) or {}
+            match = _re_locked.match(
+                r"^viga_fundo_seg_(\d+)_area_segs$", str(key)
+            )
+            if not match or not isinstance(slots, dict):
+                continue
+            contours = slots.get("contour") or []
+            if not contours or not isinstance(contours[0], dict):
+                continue
+            link = contours[0]
+            points = []
+            for point in link.get("points") or []:
+                try:
+                    points.append((float(point[0]), float(point[1])))
+                except (TypeError, ValueError, IndexError):
+                    continue
+            if len(points) < 2:
+                continue
+            xs = [point[0] for point in points]
+            ys = [point[1] for point in points]
+            horizontal = (max(xs) - min(xs)) >= (max(ys) - min(ys))
+            coord = (
+                (min(xs), max(xs))
+                if horizontal
+                else (min(ys), max(ys))
+            )
+            length, _width = _bbox_length_width(points)
+            measure_source = str(link.get("fv_measure_source") or "")
+            try:
+                measure_length = float(link.get("fv_measure_length") or 0.0)
+            except (TypeError, ValueError):
+                measure_length = 0.0
+            try:
+                measure_width = float(link.get("fv_measure_width") or 0.0)
+            except (TypeError, ValueError):
+                measure_width = 0.0
+            is_special_measure = (
+                measure_source.startswith("special_diagonal")
+                and measure_length > 0.05
+            )
+            if is_special_measure:
+                length = measure_length
+            if length <= 0.05:
+                length = abs(coord[1] - coord[0])
+            if length > 0.05:
+                link["len"] = length
+                ficha = dict(link.get("ficha") or {})
+                ficha["comprimento_total_fundo"] = _format_measure(length)
+                if is_special_measure and measure_width > 0.05:
+                    ficha["largura_total_fundo"] = _format_measure(measure_width)
+                elif _width > 0.05:
+                    ficha["largura_total_fundo"] = _format_measure(_width)
+                link["ficha"] = ficha
+            segment_index = int(match.group(1))
+            segment = {
+                "seg_index": segment_index,
+                "length": length,
+                "coord": coord,
+                "geometry": points,
+                "logical": True,
+                "dim_text": fields.get(
+                    f"viga_fundo_seg_{segment_index}_dim", ""
+                ),
+                "apoio_inicial": fields.get(
+                    f"viga_fundo_seg_{segment_index}_local_ini", ""
+                ),
+                "apoio_final": fields.get(
+                    f"viga_fundo_seg_{segment_index}_local_fim", ""
+                ),
+                "ficha": dict(link.get("ficha") or {}),
+            }
+            if is_special_measure:
+                segment["measure_source"] = measure_source
+                segment["measure_length"] = measure_length
+                if measure_width > 0.05:
+                    segment["measure_width"] = measure_width
+            segmentos_fundo.append(segment)
+        segmentos_fundo.sort(key=lambda item: item["seg_index"])
+        dim_text = str(fields.get("dimensao") or "")
+        viga_nome = str(b.get("name") or "?")
+        if viga_nome != "?":
+            if viga_nome.endswith("-1"):
+                viga_nome = viga_nome[:-2] + ".C"
+            elif not viga_nome.endswith(".C"):
+                viga_nome += ".C"
+        return {
+            "viga_nome": viga_nome,
+            "panels_n1": len(segmentos_fundo),
+            "comprimento_fundo": round(
+                sum(float(seg.get("length") or 0.0) for seg in segmentos_fundo),
+                3,
+            ),
+            "dim_text": dim_text,
+            "h_n1": _parse_h(dim_text),
+            "is_horizontal": bool(b.get("fv_is_h", b.get("is_h", True))),
+            "merged_groups_count": 0,
+            "merged_lengths_count": len(segmentos_fundo),
+            "seg_bottom_raw_count": len(segmentos_fundo),
+            "segmentos_fundo": segmentos_fundo,
+            "topologia_origem": "validacao_humana_bloqueada",
+        }
+
     visual_obstacles = visual_obstacles or []
+    ignored_support_labels = {
+        str(label or "").strip().upper()
+        for label in (b.get("_fv_ignored_support_labels") or [])
+        if str(label or "").strip()
+    }
     geo = b.get("geometry", {})
     classified = geo.get("classified", {})
     beam_pos = b.get("pos")
@@ -369,6 +538,10 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                     return str(s.get(key))
             return ""
 
+        supports = [
+            s for s in supports
+            if _support_label(s).strip().upper() not in ignored_support_labels
+        ]
         ordered = sorted(supports, key=_support_key)
         apoio_inicial = _support_label(ordered[0]) if ordered else ""
         apoio_final = _support_label(ordered[-1]) if len(ordered) > 1 else ""
@@ -380,6 +553,10 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 seg_len = abs(float(seg["coord"][1]) - float(seg["coord"][0]))
             except Exception:
                 seg_len = 0.0
+        if seg.get("geometry"):
+            geometry_length, _geometry_width = _bbox_length_width(seg.get("geometry"))
+            if geometry_length > 0.05:
+                seg_len = geometry_length
 
         seg_dim = _find_segment_dim(seg, beam_pos, is_horizontal, spatial_index) if beam_pos else None
         chosen_dim = _choose_segment_dim(seg_dim, dim_text, h_n1, seg_len)
@@ -391,8 +568,18 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         if seg.get("coord") and beam_pos:
             start_pt = _axis_point(float(seg["coord"][0]), beam_pos, is_horizontal)
             end_pt = _axis_point(float(seg["coord"][1]), beam_pos, is_horizontal)
-            start_link = _find_support_text(start_pt, spatial_index, b.get("name", ""))
-            end_link = _find_support_text(end_pt, spatial_index, b.get("name", ""))
+            start_link = _find_support_text(
+                start_pt,
+                spatial_index,
+                b.get("name", ""),
+                ignored_support_labels,
+            )
+            end_link = _find_support_text(
+                end_pt,
+                spatial_index,
+                b.get("name", ""),
+                ignored_support_labels,
+            )
 
         seg["dim_text"] = seg_dim_text
         if chosen_dim.get("link"):
@@ -512,7 +699,7 @@ def run(
     print("  Carregando obstáculos visuais do DB...")
     try:
         from scripts.motor_reverso_fv import _get_visual_obstacles
-        visual_obstacles = _get_visual_obstacles(str(project_id))
+        visual_obstacles = _filter_fv_visual_obstacles(_get_visual_obstacles(str(project_id)))
         print(f"  Obstáculos visuais encontrados: {len(visual_obstacles)}")
     except Exception as e:
         print(f"  [WARN] Falha ao carregar obstáculos visuais: {e}")

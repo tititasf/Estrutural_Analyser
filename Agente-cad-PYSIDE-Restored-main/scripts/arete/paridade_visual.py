@@ -512,7 +512,8 @@ def _norm_coords(segments, texts, bbox):
 
 
 def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None = None,
-                   segs_precomp=None, txts_precomp=None, bbox_precomp=None):
+                   segs_precomp=None, txts_precomp=None, bbox_precomp=None,
+                   fixed_view: bool = False):
     """
     Renderiza DXF num Axes com coordenadas normalizadas ao bounding box próprio.
     Aceita segmentos pré-computados (segs_precomp) para evitar re-leitura.
@@ -545,6 +546,9 @@ def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None 
     for x, y, txt in txts_n:
         ax.text(x, y, txt, fontsize=3, color="#ffff88", alpha=0.8)
 
+    if fixed_view:
+        ax.set_xlim(0.0, w_n)
+        ax.set_ylim(0.0, h_n)
     ax.set_title(title, color="#ccccff", fontsize=8)
     ax.tick_params(colors="#555577", labelsize=6)
 
@@ -553,7 +557,10 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
                       out_png: str | Path,
                       diffs: dict | None = None,
                       ref_label: str = "Recorte N2 (gabarito)",
-                      candidate_label: str = "N4 gerado") -> bool:
+                      candidate_label: str = "N4 gerado",
+                      ref_bbox_override=None,
+                      ref_outline=None,
+                      high_resolution: bool = False) -> bool:
     """
     Gera PNG side-by-side: recorte | N4 | overlay diff.
     Cada DXF é normalizado ao próprio bounding box (transladado para origem)
@@ -563,15 +570,32 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
     if not MATPLOTLIB_OK:
         return False
 
-    fig, axes = plt.subplots(1, 3, figsize=(24, 8), facecolor="#0a0a14")
+    figsize = (24, 12) if high_resolution else (24, 8)
+    fig, axes = plt.subplots(1, 3, figsize=figsize, facecolor="#0a0a14")
 
     # Coletar segmentos dos dois DXFs
     segs_ref, txts_ref, bbox_ref = _collect_dxf_segments(recorte_path)
     segs_n4,  txts_n4,  bbox_n4  = _collect_dxf_segments(n4_path)
 
     # Painel 1: recorte N2 (normalizado ao próprio bbox)
-    _render_dxf_ax(axes[0], recorte_path, ref_label,
-                   segs_precomp=segs_ref, txts_precomp=txts_ref, bbox_precomp=bbox_ref)
+    ref_view_bbox = ref_bbox_override or bbox_ref
+    _render_dxf_ax(
+        axes[0], recorte_path, ref_label,
+        segs_precomp=segs_ref, txts_precomp=txts_ref,
+        bbox_precomp=ref_view_bbox,
+        fixed_view=bool(ref_bbox_override),
+    )
+    if ref_outline and ref_view_bbox:
+        rx0, ry0, rx1, ry1 = ref_view_bbox
+        rscale = max(rx1 - rx0, ry1 - ry0, 1e-6)
+        outline = list(ref_outline)
+        if outline and outline[0] != outline[-1]:
+            outline.append(outline[0])
+        axes[0].plot(
+            [(float(x) - rx0) / rscale for x, _ in outline],
+            [(float(y) - ry0) / rscale for _, y in outline],
+            color="#ff3333", linewidth=1.5, alpha=0.95,
+        )
 
     # Painel 2: N4 gerado (normalizado ao próprio bbox)
     _render_dxf_ax(axes[1], n4_path, candidate_label,
@@ -580,14 +604,14 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
     # Painel 3: overlay — ambos normalizados individualmente para [0,1]×[0,1]
     # Isso permite comparar forma/proporção independente de escala/posição absoluta.
     axes[2].set_facecolor("#0a0a14")
-    axes[2].set_aspect("equal")
+    axes[2].set_aspect("auto")
     axes[2].set_title(
         f"Overlay normalizado (verde={ref_label}, vermelho={candidate_label})",
         color="#ccccff", fontsize=8,
     )
 
-    segs_ref_n, _, _, _ = _norm_coords(segs_ref, txts_ref, bbox_ref)
-    segs_n4_n,  _, _, _ = _norm_coords(segs_n4,  txts_n4,  bbox_n4)
+    segs_ref_n, _, ref_w_n, ref_h_n = _norm_coords(segs_ref, txts_ref, ref_view_bbox)
+    segs_n4_n,  _, n4_w_n, n4_h_n = _norm_coords(segs_n4, txts_n4, bbox_n4)
 
     for xs, ys, _ in segs_ref_n:
         axes[2].plot(xs, ys, color="#44ff44", linewidth=0.4, alpha=0.7)
@@ -600,6 +624,8 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
     ]
     axes[2].legend(handles=legend, loc="upper right",
                    fontsize=6, facecolor="#1a1a2a", labelcolor="white")
+    axes[2].set_xlim(0.0, max(ref_w_n, n4_w_n, 1e-6))
+    axes[2].set_ylim(0.0, max(ref_h_n, n4_h_n, 1e-6))
     axes[2].tick_params(colors="#555577", labelsize=6)
 
     # Anotação de resultado
@@ -613,7 +639,8 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
 
     plt.tight_layout()
     try:
-        plt.savefig(str(out_png), dpi=100, bbox_inches="tight", facecolor="#0a0a14")
+        dpi = 130 if high_resolution else 100
+        plt.savefig(str(out_png), dpi=dpi, bbox_inches="tight", facecolor="#0a0a14")
         plt.close()
         return True
     except Exception:

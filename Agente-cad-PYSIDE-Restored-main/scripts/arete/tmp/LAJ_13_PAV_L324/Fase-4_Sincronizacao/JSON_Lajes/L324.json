@@ -55,28 +55,129 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L324",
-    "fields": {
-      "nome": "L324",
-      "numero": "24",
-      "laje_dim": "h=13",
-      "laje_nivel": "852.19"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "24",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L324",
-    "n3_pattern_score": 0.0,
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L324",
+    "n3_pattern_score": 0.0285,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
-  "_stog_pose": {
-    "x": 4915.07,
-    "y": 1667.94
-  },
+  "apoios_hachurados": [
+    {
+      "x1": -19.0,
+      "y1": 406.82,
+      "x2": -12.82,
+      "y2": 413.0
+    },
+    {
+      "x1": -19.0,
+      "y1": 394.8,
+      "x2": -0.8,
+      "y2": 413.0
+    },
+    {
+      "x1": -19.0,
+      "y1": 382.78,
+      "x2": 0.0,
+      "y2": 401.78
+    },
+    {
+      "x1": -19.0,
+      "y1": 370.76,
+      "x2": 0.0,
+      "y2": 389.76
+    },
+    {
+      "x1": -19.0,
+      "y1": 358.74,
+      "x2": 0.0,
+      "y2": 377.74
+    },
+    {
+      "x1": -19.0,
+      "y1": 346.72,
+      "x2": 0.0,
+      "y2": 365.72
+    },
+    {
+      "x1": -19.0,
+      "y1": 334.7,
+      "x2": 0.0,
+      "y2": 353.7
+    },
+    {
+      "x1": -19.0,
+      "y1": 322.68,
+      "x2": 0.0,
+      "y2": 341.68
+    },
+    {
+      "x1": -16.66,
+      "y1": 313.0,
+      "x2": 0.0,
+      "y2": 329.66
+    },
+    {
+      "x1": -4.64,
+      "y1": 313.0,
+      "x2": 0.0,
+      "y2": 317.64
+    },
+    {
+      "x1": 418.0,
+      "y1": 387.03,
+      "x2": 423.97,
+      "y2": 393.0
+    },
+    {
+      "x1": 418.0,
+      "y1": 375.01,
+      "x2": 435.99,
+      "y2": 393.0
+    },
+    {
+      "x1": 418.0,
+      "y1": 362.99,
+      "x2": 437.0,
+      "y2": 381.99
+    },
+    {
+      "x1": 418.0,
+      "y1": 350.97,
+      "x2": 437.0,
+      "y2": 369.97
+    },
+    {
+      "x1": 418.0,
+      "y1": 338.95,
+      "x2": 437.0,
+      "y2": 357.95
+    },
+    {
+      "x1": 418.0,
+      "y1": 326.93,
+      "x2": 437.0,
+      "y2": 345.93
+    },
+    {
+      "x1": 418.0,
+      "y1": 314.91,
+      "x2": 437.0,
+      "y2": 333.91
+    },
+    {
+      "x1": 428.11,
+      "y1": 313.0,
+      "x2": 437.0,
+      "y2": 321.89
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "174",
@@ -152,6 +253,10 @@
     }
   ],
   "pontaletes": {},
+  "_stog_pose": {
+    "x": 4915.07,
+    "y": 1667.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       26.0,

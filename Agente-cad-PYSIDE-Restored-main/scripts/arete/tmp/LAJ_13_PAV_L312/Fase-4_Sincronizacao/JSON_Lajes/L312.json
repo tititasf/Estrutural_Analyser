@@ -7,16 +7,16 @@
       0.0
     ],
     [
-      418.0,
-      0.0
-    ],
-    [
-      418.0,
-      311.0
-    ],
-    [
       0.0,
       311.0
+    ],
+    [
+      418.0,
+      311.0
+    ],
+    [
+      418.0,
+      0.0
     ],
     [
       0.0,
@@ -51,23 +51,17 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L312",
-    "fields": {
-      "nome": "L312",
-      "numero": "12",
-      "laje_dim": "h=13",
-      "laje_nivel": "852.16"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "12",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L312",
-    "n3_pattern_score": 0.0,
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L312",
+    "n3_pattern_score": 0.4051,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_special_case": "top_edge_hlaz_without_extra_horizontal_line",
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
   "_stog_pose": {
@@ -76,10 +70,72 @@
   },
   "_hlaz": [
     {
-      "x": 0.0,
+      "x": -0.0,
       "y": 122.0,
       "width": 418.0,
       "height": 47.0
+    }
+  ],
+  "apoios_hachurados": [
+    {
+      "x1": 418.0,
+      "y1": 66.05,
+      "x2": 430.94,
+      "y2": 79.0
+    },
+    {
+      "x1": 418.0,
+      "y1": 29.99,
+      "x2": 437.0,
+      "y2": 48.99
+    },
+    {
+      "x1": 418.0,
+      "y1": 17.97,
+      "x2": 437.0,
+      "y2": 36.97
+    },
+    {
+      "x1": 418.0,
+      "y1": 42.01,
+      "x2": 437.0,
+      "y2": 61.01
+    },
+    {
+      "x1": 418.0,
+      "y1": 5.95,
+      "x2": 437.0,
+      "y2": 24.95
+    },
+    {
+      "x1": 418.0,
+      "y1": -6.07,
+      "x2": 437.0,
+      "y2": 12.93
+    },
+    {
+      "x1": 418.0,
+      "y1": 78.07,
+      "x2": 418.92,
+      "y2": 79.0
+    },
+    {
+      "x1": 418.0,
+      "y1": 54.03,
+      "x2": 437.0,
+      "y2": 73.03
+    },
+    {
+      "x1": 429.11,
+      "y1": -19.0,
+      "x2": 437.0,
+      "y2": -11.11
+    },
+    {
+      "x1": 418.0,
+      "y1": -18.09,
+      "x2": 437.0,
+      "y2": 0.91
     }
   ],
   "cotas_paineis": [
@@ -111,14 +167,14 @@
       "text": "174",
       "value": 174.0,
       "x": 331.0,
-      "y": 113.43,
+      "y": 113.42,
       "rotation": 0.0,
       "height": 9.0
     },
     {
       "text": "20",
       "value": 20.0,
-      "x": 169.97,
+      "x": 169.96,
       "y": 192.32,
       "rotation": 0.0,
       "height": 9.0
@@ -127,7 +183,7 @@
       "text": "244",
       "value": 244.0,
       "x": 122.0,
-      "y": 113.43,
+      "y": 113.42,
       "rotation": 0.0,
       "height": 9.0
     }

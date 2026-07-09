@@ -28,6 +28,19 @@ SOBRA_MIN      =  60.0
 LIMIAR_MENOR   = 200.0
 
 
+def _distribute_narrow_strip(length):
+    """Divide tiras ate 75 cm sem gerar meia-medida desnecessaria."""
+    if length <= PAINEL_PEQUENO:
+        return []
+    half = length / 2.0
+    split = round(half / 5.0) * 5.0
+    split = max(30.0, min(split, length - 30.0))
+    split = round(split, 1)
+    if abs(split - round(split)) < 1e-6:
+        split = float(int(round(split)))
+    return [{"value": split, "is_union": False}]
+
+
 def _distribute_244_rule(total_length):
     """Eixo maior: distribui 244 em 244. Se sobra < 60, troca último 244 por 122."""
     if total_length <= 0.01:
@@ -57,10 +70,10 @@ def _distribute_small_side(length):
     if length <= PAINEL_PEQUENO:
         return []
 
-    # Faixas muito estreitas não comportam chapa padrão mais união. A regra
-    # geométrica estável é bipartir o vão, evitando um recorte residual mínimo.
-    if length <= 105.0:
-        return [{"value": round(length / 2.0, 1), "is_union": False}]
+    # Faixas estreitas ate 90 cm usam uma divisao limpa perto do meio; acima
+    # disso ja cabe preferir um painel de 60 cm e deixar a sobra no vizinho.
+    if length <= 90.0:
+        return _distribute_narrow_strip(length)
 
     # Quando o vão comporta uma faixa pequena de 61 cm e uma união, ancora
     # essas duas faixas na borda final. Isso preserva uma peça ampla no início.
@@ -127,13 +140,14 @@ def _try_align_deformity(length, obstaculos, axis):
 
 def _distribute_elastic(total_length, obstaculos=None, axis='x'):
     """Regra elástica: painéis 122/60 com uniões 15-30cm, score otimizado."""
-    # Dois painéis médios nas bordas; a sobra fica antes da união central.
+    # Um painel médio, união e um recorte residual único. Para vãos como 311 cm,
+    # a regra antiga criava 122 + 47 + união 20 + 122: duas chapas boas, mas uma
+    # peça de 47 cm que foge da regra mínima de 60. A preferência de montagem é
+    # aceitar um único residual amplo após a união.
     if 304.0 <= total_length < 366.0:
-        remainder = total_length - 2 * PAINEL_MEDIO - GAP_UNION
         return [
             {"value": PAINEL_MEDIO, "is_union": False},
-            {"value": round(PAINEL_MEDIO + remainder, 1), "is_union": False},
-            {"value": round(PAINEL_MEDIO + remainder + GAP_UNION, 1), "is_union": True},
+            {"value": round(PAINEL_MEDIO + GAP_UNION, 1), "is_union": True},
         ]
 
     # Um painel médio, união e painel pequeno; o recorte residual fecha o vão.
@@ -258,11 +272,11 @@ def distribute_panels(comprimento, largura=0.0, obstaculos=None):
                 [{"value": round(comprimento / 2.0, 1), "is_union": False}]
                 if comprimento <= PAINEL_GRANDE else _distribute_244_rule(comprimento)
             ),
-            'linhas_horizontais': [{"value": round(largura / 2.0, 1), "is_union": False}],
+            'linhas_horizontais': _distribute_narrow_strip(largura),
         }
     if 0 < comprimento <= 75.0:
         return {
-            'linhas_verticais': [{"value": round(comprimento / 2.0, 1), "is_union": False}],
+            'linhas_verticais': _distribute_narrow_strip(comprimento),
             'linhas_horizontais': (
                 [{"value": round(largura / 2.0, 1), "is_union": False}]
                 if largura <= PAINEL_GRANDE else _distribute_244_rule(largura)

@@ -25,6 +25,7 @@
 | `linhas_horizontais` | b | mesma regra da grade vertical | posições e `is_union` dentro de 0,5 cm | mesmas referências de `linhas_verticais` |
 | `modo_selecionado` | b | orientação derivada da quantidade de linhas da grade, salvo modo N1 explícito | igualdade exata | `src/core/laje_n1_to_robot_ficha.py:216-218,243-245,252` |
 | `obstaculos` | b | interseções/vínculos estruturais N1 filtrados pelo contorno da laje | igualdade canônica; qualquer valor deve nascer do N1 | `src/core/laje_n1_to_robot_ficha.py:230-234,255`; `scripts/motor_reverso_laj.py:870-915` |
+| `apoios_hachurados` | b | N4: sequências de `LINE` diagonais da layer estrutural `3`, normalizadas pelo contorno; N3: somente interpretação equivalente originada no N1 | igualdade geométrica e G2-V/G5-V; nunca herdar de N2/N4 no N3 | `scripts/motor_reverso_laj.py::_extract_support_hatch_lines`; `scripts/gerar_lj_dxf_stog.py::draw_laje_planta` |
 | `unioes_nos_bordes` | b | derivado da grade e da regra geral de montagem | comparação booleana; `[]` e `false` equivalem | `src/core/laje_n1_to_robot_ficha.py:260`; `scripts/arete/conversao_n1_diff.py:284-288` |
 | `pontaletes` | b | cálculo de montagem quando aplicável | igualdade canônica; ausência atual é `{}`, não autorização para copiar N2 | `scripts/arete/conversao_n1_diff.py:50,288-290`; `scripts/motor_reverso_laj.py:1201` |
 | `cotas_paineis` | c | posição, rotação, altura e texto como convenção gráfica do projetista | não bloqueia G4. Os **valores** de cota devem ser regeneráveis pela geometria/grade (b); a posição visual é julgada em G5‑V pelo dono/agente | `scripts/gerar_lj_dxf_stog.py:864-881`; `scripts/arete/conversao_n1_diff.py:51` |
@@ -65,4 +66,3 @@
 - G4 numérico não substitui N1‑V.
 - G5 deve gerar N3 e N4 de verdade para 100% dos itens na primeira rodada.
 - G5‑V continua obrigatório; igualdade por herança é vazamento, não sucesso.
-

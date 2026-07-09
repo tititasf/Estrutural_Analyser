@@ -101,6 +101,40 @@
   "par_6_7": 0.0,
   "par_7_8": 0.0,
   "par_8_9": 0.0,
+  "h1_geom_A": 0.0,
+  "paineis_intervals_A": [
+    122.0,
+    97.0,
+    40.0
+  ],
+  "abertura_A": {
+    "lado": "direito",
+    "largura": 29.0,
+    "y_rel": 219.0,
+    "altura": 40.0
+  },
+  "h1_geom_B": 0.0,
+  "paineis_intervals_B": [
+    122.0,
+    97.0,
+    40.0
+  ],
+  "abertura_B": {
+    "lado": "esquerdo",
+    "largura": 29.0,
+    "y_rel": 219.0,
+    "altura": 40.0
+  },
+  "h1_geom_C": 0.0,
+  "paineis_intervals_C": [
+    219.0
+  ],
+  "larg_c_geom": 24.0,
+  "h1_geom_D": 0.0,
+  "paineis_intervals_D": [
+    219.0
+  ],
+  "comprimento_geom": 66.0,
   "_er_meta": {
     "source": "fase4",
     "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00\\PIL_P31_motor_178111353775.dxf",
@@ -189,6 +223,44 @@
       "larg3_H": 0.0,
       "laje_H": 0.0,
       "posicao_laje_H": 0.0,
+      "h1_geom_A": 0.0,
+      "paineis_intervals_A": [
+        122.0,
+        97.0,
+        40.0
+      ],
+      "abertura_A": {
+        "lado": "direito",
+        "largura": 29.0,
+        "y_rel": 219.0,
+        "altura": 40.0
+      },
+      "h_par_A": 137.0,
+      "h1_geom_B": 0.0,
+      "paineis_intervals_B": [
+        122.0,
+        97.0,
+        40.0
+      ],
+      "abertura_B": {
+        "lado": "esquerdo",
+        "largura": 29.0,
+        "y_rel": 219.0,
+        "altura": 40.0
+      },
+      "h_par_B": 137.0,
+      "h1_geom_C": 0.0,
+      "paineis_intervals_C": [
+        219.0
+      ],
+      "larg_c_geom": 24.0,
+      "h_par_C": 59.0,
+      "h1_geom_D": 0.0,
+      "paineis_intervals_D": [
+        219.0
+      ],
+      "h_par_D": 59.0,
+      "comprimento_geom": 66.0,
       "grade_2": 0.0,
       "grade_3": 0.0,
       "distancia_1": 14.0,

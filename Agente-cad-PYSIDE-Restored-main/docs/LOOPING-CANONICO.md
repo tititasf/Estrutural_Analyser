@@ -1,6 +1,6 @@
 # LOOPING CANÔNICO — o único loop válido (e a quarentena dos obsoletos)
 
-**Data:** 2026-07-03 | **Status:** CANÔNICO — consolidação pedida pelo dono após
+**Data:** 2026-07-03 | **Atualizado:** 2026-07-05 | **Status:** CANÔNICO — consolidação pedida pelo dono após
 múltiplas transições/refinamentos dos loops. **Se um script/procedimento de loop não
 está na seção 1 deste doc, NÃO use sem ordem explícita do dono.**
 
@@ -33,6 +33,21 @@ python scripts/arete/triagem_concordancia.py
 
 # 4. Corrigir causa-raiz no motor (1 fix por causa) → regenerar (passo 1) → reverificar
 ```
+
+#### Roteamento arquitetural obrigatório para N1 de FV, LV e PIL
+
+Antes do passo 4, identificar o dono do erro conforme
+`ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md`:
+
+- `BeamTracer`: somente captura de topologia/geometria bruta compartilhada;
+- FV: `FundoVigaInterpreter`;
+- LV: quatro contratos isolados — A Para, B Para, A Passa e B Passa;
+- PIL: dois contratos isolados e exclusivos — Viga Para e Viga Passa.
+
+Fix específico de uma classe não entra no `BeamTracer` e não pode escrever no slot de
+outro contrato. Mudança legítima no `BeamTracer` exige regressão headless completa das
+quatro classes, comparação das contagens de alerta e N1-V da classe afetada. O schema
+N1 permanece imutável e N2/N4 nunca são entrada de interpretação.
 
 ### Sempre, ao fim de qualquer rodada
 ```bash
@@ -103,7 +118,7 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 
 | Script (`scripts/arete/`) | Papel |
 |---|---|
-| `headless_sa_analise.py` | ÚNICO entry point de fichas (4 classes, `--secao`, `--wait`, trava anti-OOM) |
+| `headless_sa_analise.py` | ÚNICO entry point de fichas (4 classes, `--secao`, `--wait`, trava anti-OOM). Padrão read-only; `--persist-db` somente em execução completa, com os 4 diagnósticos OK e commit único conforme `PERSISTENCIA-HEADLESS-SA.md` |
 | `arete_runner.py` (+ `roundtrip_ficha`, `paridade_visual`, `ficha_adapter`, `gerar_n4_item`) | Gates N2→N4 + golden |
 | `diagnostico_{pil,fv,lv,laj}_n1_n2.py` + `diagnostico_common.py` | Diagnóstico NUMÉRICO N1×N2 (já rodam DENTRO do headless; CLI avulso só p/ debug) — **cego, exige N1-V** |
 | `g2v_harness.py` | **VEREDITO VISUAL obrigatório** de todo gate visual: `--par n2xn4`(G2-V) / `n1xn2`(N1-V) / `n3xn4`(G5-V), `--backend cli` (agente lê a imagem). Ver §1.5 e `VISION-VALIDACAO-CAMINHOS.md` |

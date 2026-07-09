@@ -10,6 +10,27 @@
  * Nenhum estado depende só de cor: todos carregam ícone + texto (§3.1, §6).
  */
 
+/* [FIX 2026-07-07] atributo `hidden` tem a mesma especificidade de uma
+   classe (.cab-grid, .painel-3 etc); quando essa classe seta display:grid/
+   flex, ela silenciosamente vence o `[hidden]{display:none}` do UA
+   stylesheet (origem de cascata mais baixa, perde até em empate de
+   especificidade) — achado ao vivo: form.cab-grid[hidden] continuava visível.
+   !important garante que hidden SEMPRE esconde, não importa a classe. */
+[hidden] { display: none !important; }
+
+/* [novo, a pedido do dono] some com a scrollbar cinza padrão do SO nos
+   painéis escuros — continuam roláveis (mouse/trackpad), só sem a barra
+   visível o tempo todo. */
+.sidebar, .painel-2, .painel-3 {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge/IE legado */
+}
+.sidebar::-webkit-scrollbar,
+.painel-2::-webkit-scrollbar,
+.painel-3::-webkit-scrollbar {
+  display: none; /* Chrome/Edge/Safari */
+}
+
 :root {
   --fg: #1a1a1a;
   --fg-muted: #4b5563;
@@ -62,8 +83,8 @@ textarea:focus-visible,
 }
 
 .sidebar {
-  width: 232px;
-  flex: 0 0 232px;
+  width: 280px;
+  flex: 0 0 280px;
   background: #111827;
   color: #e5e7eb;
   display: flex;
@@ -72,6 +93,7 @@ textarea:focus-visible,
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
 }
 .sidebar .brand {
   display: flex;
@@ -103,6 +125,31 @@ textarea:focus-visible,
 .nav-lista a:hover { background: #1f2937; color: #fff; }
 .nav-lista a.ativo { background: #1d4ed8; color: #fff; }
 
+/* [revertido v5, achado ao vivo com o dono] a navegação da obra (lista de
+   obras + Triagem da obra atual) mora AGORA dentro da própria sidebar
+   global, entre "Obras" e "Status Arete" (bloco sidebar_obras_extra em
+   base.html/obra_detalhe.html) — não mais numa coluna .obras-strip
+   separada, que antes "ficava à direita" da sidebar em vez de fazer parte
+   dela mesma. */
+.sidebar-obras-arvore { margin: 2px 0; }
+.arvore-obras-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.arvore-obra-atual { display: flex; flex-direction: column; gap: 2px; }
+.arvore-triagem-titulo {
+  font-weight: 600;
+  font-size: .78rem;
+  color: #9ca3af;
+  padding: 8px 10px 2px;
+}
+.arvore-obra-atual .n1-lista-itens {
+  flex: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-height: none;
+  overflow: visible;
+}
+
 .nav-rodape {
   border-top: 1px solid #1f2937;
   padding-top: 12px;
@@ -113,6 +160,8 @@ textarea:focus-visible,
 .nav-rodape .who-papel { color: #9ca3af; font-size: .78rem; }
 .nav-rodape form { margin: 0; }
 .nav-rodape .btn-logout { width: 100%; }
+
+.nav-icone-compacto { display: none; }
 
 .btn-logout {
   background: #374151;
@@ -162,6 +211,13 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
   border: 1px solid var(--link);
 }
 .btn-sec:hover { background: #eff3ff; }
+
+/* [novo, a pedido do dono] Validar/Invalidar recorte — nunca só cor: o botão
+   ativo também troca de texto/ícone real (✔/✖ já fazem parte do label). */
+#recorte-invalidar-btn { border-color: var(--st-vermelho); color: var(--st-vermelho); }
+#recorte-invalidar-btn:hover { background: #fef2f2; }
+.recorte-validacao-btn.ativo#recorte-validar-btn { background: var(--st-verde); border-color: var(--st-verde); color: #fff; }
+.recorte-validacao-btn.ativo#recorte-invalidar-btn { background: var(--st-vermelho); border-color: var(--st-vermelho); color: #fff; }
 
 /* ---- cartão "enviar obra" (2026-07-06 — onde começar, sem isso a tela era só lista vazia) ---- */
 .upload-card {
@@ -215,12 +271,42 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
   overflow: hidden;
   margin-bottom: 6px;
 }
-#upload-barra-fill {
+#upload-barra-fill, #docs-barra-fill {
   height: 100%;
   width: 0;
   background: var(--link);
   transition: width .2s;
 }
+
+/* [novo, a pedido do dono] lista simples de DWGs (seção Documentos) — status
+   "possui DXF" bem visível (nunca só cor: ícone + texto, mesma disciplina
+   AA do resto do app). */
+.dwgs-tabela { margin-bottom: 16px; }
+.dwg-status { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: .85rem; }
+.dwg-status-sim { color: var(--st-verde); }
+.dwg-status-nao { color: var(--st-ambar); }
+
+/* ---- documentos da obra (2026-07-06 — obra-como-container) ---- */
+.docs-tabela { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.docs-tabela th, .docs-tabela td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.docs-tabela select.doc-classe, .docs-tabela input.doc-pavimento {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: .86rem;
+}
+.docs-tabela input.doc-pavimento { width: 100px; }
+.doc-status { font-size: .84rem; white-space: nowrap; }
+.doc-status-classificado { color: var(--st-verde); }
+.doc-status-revisar { color: var(--st-ambar); }
+.doc-status-erro { color: var(--st-vermelho); }
+.doc-status-pendente { color: var(--st-cinza); }
 
 /* ---- card genérico ---- */
 .card {
@@ -231,6 +317,19 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
   margin-bottom: 14px;
 }
 .card .meta { color: var(--fg-muted); font-size: .88rem; }
+
+/* ---- cabeçalho do processamento + detalhe de doc (2026-07-07) ---- */
+.cab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 20px;
+  font-size: .88rem;
+}
+.cab-grid label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; font-weight: 600; color: var(--fg-muted); }
+.cab-grid input, .cab-grid textarea {
+  font: inherit; font-size: .88rem; font-weight: 400; color: var(--fg);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
+}
 
 /* ---- /app/status (tabela do STATUS.md renderizada via markdown) ---- */
 .status-md table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -417,6 +516,332 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
 .muted { color: var(--fg-muted); }
 .stack > * + * { margin-top: 10px; }
 
+/* ---- shell da obra: colunas em cascata estilo Miller columns (2026-07-07 v2) ----
+   Achado com o dono (feedback direto no screenshot): v1 tinha uma FAIXA
+   BRANCA entre a sidebar global e as colunas escuras, porque `main.conteudo`
+   tem padding+max-width — as colunas ficavam "flutuando" no meio da página em
+   vez de encostadas na sidebar, e só eram altas quanto o conteúdo (não a
+   coluna inteira). Correção: `main.conteudo:has(.shell-obra)` zera o
+   padding/max-width SÓ nesta página (:has() suportado no Chrome, navegador
+   alvo), e a cadeia inteira de flex containers usa `align-items:stretch` +
+   `flex:1` (não `flex-start`) pra cada coluna encher 100% da altura
+   disponível com sua cor de fundo, não só a altura do próprio conteúdo. */
+main.conteudo:has(.shell-obra) {
+  max-width: none;
+  padding: 0;
+  min-height: calc(100vh - 0px);
+}
+
+.shell-obra { display: flex; gap: 0; align-items: stretch; min-height: 100vh; }
+
+/* [FIX] achado comparando com o histórico recuperado: a regra base tinha
+   ganhado `background: #1d4ed8` (o MESMO azul sólido do `.ativo`) — toda
+   obra da lista ficava indistinguível da obra atualmente aberta. O pedido
+   real (item 2/3 do histórico) era: obras NÃO selecionadas ganham uma caixa
+   também (não só texto solto), só que num azul CLARO/sutil — diferente do
+   azul sólido da obra ativa. */
+.obras-strip-item {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: .8rem;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, .16);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #bfdbfe;
+  text-decoration: none;
+  cursor: pointer;
+}
+.obras-strip-item:hover { background: rgba(59, 130, 246, .28); color: #fff; }
+.obras-strip-item.ativo { background: #1d4ed8; color: #fff; }
+
+.painel-obra {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.painel-obra-cabecalho { padding: 24px 28px 0; }
+.painel-obra-corpo { padding: 0 28px 28px; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.painel-obra-corpo > .conteudo-secao:not([hidden]) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.aba-check { color: #4ade80; font-weight: 700; }
+
+/* [revertido v5, achado ao vivo com o dono] painel 2 (substitui o antigo
+   obras-strip): Recortes (árvore Pavimento→Tipo→Bruto→Torre, sempre aberta,
+   aninhando pra baixo) + botões SA/N1, N3, N5 — clicar num desses expande
+   as 9 classes aninhadas pra baixo, DENTRO deste mesmo painel (nunca uma
+   coluna nova). Painel 3 (mais abaixo) só aparece quando uma classe é
+   selecionada, com a lista de itens daquela classe. */
+.painel-2 {
+  flex: 0 0 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #111827;
+  color: #cbd5e1;
+  border-right: 1px solid #1f2937;
+  padding: 10px 8px;
+  overflow-y: auto;
+}
+.painel2-secao { border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 8px; }
+.painel2-secao:last-child { border-bottom: none; margin-bottom: 0; }
+.painel2-secao-titulo {
+  font-weight: 600;
+  font-size: .82rem;
+  color: #e5e7eb;
+  padding: 8px 10px 2px;
+}
+.painel2-tab-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 10px;
+  font: inherit;
+  font-weight: 600;
+  font-size: .82rem;
+  color: #9ca3af;
+  cursor: pointer;
+}
+.painel2-tab-btn:hover { background: #1f2937; color: #fff; }
+.painel2-tab-btn.ativo { background: #1d4ed8; color: #fff; }
+.painel2-meta { font-size: .74rem; padding: 0 10px; margin: 4px 0; color: #9ca3af; }
+.painel2-acao-btn {
+  display: block;
+  width: calc(100% - 4px);
+  margin: 4px 2px 8px;
+  text-align: center;
+  font-size: .8rem;
+  padding: 7px 10px;
+}
+.painel2-aninhado { padding: 2px 0 4px 10px; }
+
+.painel-2 .n1-lista-itens {
+  flex: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+/* painel 3 — só aparece quando uma classe (SA/N1 ou N3) é selecionada;
+   mesma paleta escura, encostado sem gap no painel 2. */
+.painel-3 {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  background: #111827;
+  color: #cbd5e1;
+  border-right: 1px solid #1f2937;
+  padding: 10px 8px;
+  overflow-y: auto;
+}
+.painel-3 .n1-lista-itens {
+  flex: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+/* #docs-detalhe-painel/#recortes-detalhe-painel/#n1-detalhe-painel/
+   #n3-detalhe-painel = painel claro de conteúdo à direita — só um visível
+   por vez (.conteudo-secao), trocado conforme o que foi clicado em
+   qualquer um dos 3 painéis escuros. */
+#docs-detalhe-painel { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#docs-detalhe-painel > .n1-detalhe { flex: 1; min-width: 0; }
+
+/* [refinado, a pedido do dono: "mais vida e cor" + destaque no nome do
+   pavimento, que é o que mais importa pra navegar a Triagem] fonte maior,
+   negrito forte, branco quase puro, com uma faixa de destaque (barra
+   colorida à esquerda + leve gradiente) — bem mais proeminente que o resto
+   da lista, que é secundário. */
+/* [FIX] prefixo `#docs-lista` só pra ganhar especificidade de
+   `.n1-lista-cabecalho` (mesma classe base, definida mais abaixo no
+   arquivo) — sem isso, cor/peso/tamanho da regra genérica venciam por
+   ordem de cascata (as duas são seletor de 1 classe só). */
+#docs-lista .docs-cabecalho-pavimento {
+  font-size: .88rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: .01em;
+  padding: 10px 10px 8px 12px;
+  margin-top: 10px;
+  border-left: 3px solid #3b82f6;
+  background: linear-gradient(90deg, #1e3a8a, transparent 85%);
+}
+#docs-lista .docs-cabecalho-pavimento:first-child { margin-top: 2px; }
+#docs-lista .docs-cabecalho-tipo {
+  padding-left: 20px;
+  font-size: .66rem;
+  color: #7dd3fc;
+}
+.docs-item { padding-left: 24px; cursor: grab; }
+.docs-item:active { cursor: grabbing; }
+
+/* [novo, a pedido do dono] Recortes (Torres Limpas/Detalhes e Convenções)
+   aninhados debaixo do próprio Bruto que os gerou — 1 degrau a mais de
+   indentação que o cabeçalho de tipo (Brutos/Detalhes/PDFs), pra ficar claro
+   que são produtos exclusivos daquele documento, não do pavimento inteiro. */
+.docs-recorte-subclasse { padding-left: 34px; font-size: .64rem; opacity: .9; }
+.docs-recorte-item.docs-item { padding-left: 44px; }
+
+/* [refinado, a pedido do dono: "pouco contraste entre elas" + "degradê:
+   título mais escuro, itens mais claros"] 3 degraus de luminosidade por
+   bloco de pavimento — título (mais escuro) → classe/tipo (meio) → item
+   (mais claro) — igual pras 2 famílias de cor (par=azul, impar=roxo), bem
+   mais afastadas uma da outra que antes pra não confundir qual pavimento é
+   qual. */
+#docs-lista li.pavimento-par { background: #1e3a5f; border-radius: 4px; }
+#docs-lista li.pavimento-impar { background: #3d2359; border-radius: 4px; }
+
+#docs-lista li.pavimento-par.docs-cabecalho-tipo { background: #16283f; border-radius: 4px; color: #7dd3fc; }
+#docs-lista li.pavimento-impar.docs-cabecalho-tipo { background: #2a1740; border-radius: 4px; color: #d8b4fe; }
+#docs-lista li.pavimento-par.docs-cabecalho-pavimento { border-left-color: #3b82f6; background: #0c1a2e; }
+#docs-lista li.pavimento-impar.docs-cabecalho-pavimento { border-left-color: #a78bfa; background: #1a0e2e; }
+
+/* [2026-07-07] cabeçalho de grupo vira zona de soltar (drag-and-drop) —
+   feedback visual claro quando um item arrastado passa por cima. */
+.docs-drop-alvo { transition: background-color .1s ease; }
+.docs-drop-alvo.docs-drop-hover {
+  background: rgba(29, 78, 216, .35);
+  outline: 1px dashed #60a5fa;
+  outline-offset: -1px;
+}
+
+.n1-lista-itens {
+  flex: 0 0 190px;
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  border: none;
+  border-right: 1px solid #1f2937;
+  border-radius: 0;
+  background: #111827;
+  color: #cbd5e1;
+  /* hide scrollbar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+.n1-lista-itens::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+.n1-item-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: .82rem;
+  cursor: pointer;
+  color: #cbd5e1;
+}
+.n1-item-link:hover { background: #1f2937; color: #fff; }
+.n1-item-link.ativo { background: #1d4ed8; color: #fff; }
+.n1-detalhe { flex: 1; min-width: 0; min-height: 0; padding: 14px 18px; background: #fff; overflow-y: auto; }
+.zoom-pan-viewport {
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  background: #000;
+  border-radius: 8px;
+  height: 60vh;
+  max-height: 640px;
+}
+.zoom-pan-viewport.arrastando { cursor: grabbing; }
+.zoom-pan-viewport img,
+.zoom-pan-viewport svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+.zoom-pan-dica {
+  font-size: .72rem;
+  color: var(--fg-muted, #888);
+  margin: 4px 0 0;
+}
+.n1-lista-cabecalho {
+  padding: 8px 10px 4px;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #6b7280;
+}
+
+/* [2026-07-07] slot onde a intro (Cabeçalho do processamento / dropzone de
+   Documentos) da Triagem é movida — passa a fazer parte da coluna de
+   conteúdo, alinhada com o topo da lista, em vez de ficar acima empurrando
+   tudo pra baixo. Recortes/SA-N1/N3 não precisam mais disso: os botões de
+   ação (Rodar recortes/Rodar SA) ficam fixos no painel 2, perto da lista. */
+#docs-cabecalho-slot:not(:empty),
+#docs-intro-slot:not(:empty) {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.n1-detalhe-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.n1-detalhe-corpo { display: flex; gap: 16px; flex-wrap: wrap; }
+.n1-campos { flex: 1 1 260px; min-width: 220px; }
+.n1-campo {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .85rem;
+}
+.n1-campo-label { color: var(--fg-muted); font-weight: 600; }
+.n1-campo-valor { text-align: right; white-space: pre-wrap; }
+.n1-fotos { flex: 1 1 340px; min-width: 280px; display: flex; flex-wrap: wrap; gap: 12px; }
+.n1-foto-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  max-width: 100%;
+}
+.n1-foto-card h4 { margin: 0 0 6px; font-size: .78rem; color: var(--fg-muted); }
+.n1-foto-card { min-width: 320px; }
+.n1-foto-card svg { width: 100%; max-width: 480px; height: auto; display: block; }
+.n1-foto-ausente { color: var(--fg-muted); font-size: .82rem; }
+
+/* [FIX 2026-07-07] breakpoint desceu de 900px pra 640px (mobile de verdade)
+   — achado ao vivo: em telas médias (640-900px) é melhor rolar
+   horizontalmente (já funciona) do que um empilhamento incompleto. */
+@media (max-width: 640px) {
+  .shell-obra { flex-direction: column; }
+  .painel-2, .painel-3 { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
+  .n1-detalhe-corpo { flex-direction: column; }
+}
+
 /* ---- responsivo: sidebar vira barra superior em telas estreitas ---- */
 @media (max-width: 760px) {
   .shell { flex-direction: column; }
@@ -433,4 +858,17 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
   }
   .nav-rodape .who { display: none; }
   main.conteudo { padding: 18px 16px 40px; }
+}
+
+.nav-status-btn {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  margin-bottom: 8px;
+}
+.nav-status-btn:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+}
+.nav-status-btn.ativo {
+  background: #10b981 !important;
+  color: #fff !important;
 }

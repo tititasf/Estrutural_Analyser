@@ -58,7 +58,7 @@
   ],
   "linhas_horizontais": [
     {
-      "value": 35.4,
+      "value": 35.0,
       "is_union": false,
       "exact": true
     }
@@ -67,28 +67,115 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L328",
-    "fields": {
-      "nome": "L328",
-      "numero": "28",
-      "laje_dim": "h=10",
-      "laje_nivel": "852.19"
-    },
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "28",
     "validated_fields": [],
     "validated_link_classes": {},
     "n3_line_source": "learned_n4_patterns",
     "n3_pattern_nome": "L328",
+    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L328",
     "n3_pattern_score": 0.0,
     "n3_exact_geometry_from_validated_pattern": true,
-    "n3_pose_source": "sa_outline_anchor",
-    "n3_source": "comparison_engine_n1",
+    "n3_source": "structural_analyzer_n1",
     "n3_teacher": null
   },
   "_stog_pose": {
     "x": 3604.07,
     "y": 1578.0
   },
+  "apoios_hachurados": [
+    {
+      "x1": 415.5,
+      "y1": 40.99,
+      "x2": 426.45,
+      "y2": 51.94
+    },
+    {
+      "x1": 415.5,
+      "y1": 28.97,
+      "x2": 438.47,
+      "y2": 51.94
+    },
+    {
+      "x1": 415.5,
+      "y1": 16.95,
+      "x2": 439.5,
+      "y2": 40.95
+    },
+    {
+      "x1": 415.5,
+      "y1": 4.93,
+      "x2": 439.5,
+      "y2": 28.93
+    },
+    {
+      "x1": 415.5,
+      "y1": -7.09,
+      "x2": 439.5,
+      "y2": 16.91
+    },
+    {
+      "x1": 420.55,
+      "y1": -14.06,
+      "x2": 439.5,
+      "y2": 4.89
+    },
+    {
+      "x1": 432.57,
+      "y1": -14.06,
+      "x2": 439.5,
+      "y2": -7.13
+    },
+    {
+      "x1": -21.5,
+      "y1": 48.76,
+      "x2": -18.32,
+      "y2": 51.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 36.74,
+      "x2": -6.3,
+      "y2": 51.94
+    },
+    {
+      "x1": -21.5,
+      "y1": 24.72,
+      "x2": 2.5,
+      "y2": 48.72
+    },
+    {
+      "x1": -21.5,
+      "y1": 12.7,
+      "x2": 2.5,
+      "y2": 36.7
+    },
+    {
+      "x1": -21.5,
+      "y1": 0.68,
+      "x2": 2.5,
+      "y2": 24.68
+    },
+    {
+      "x1": -21.5,
+      "y1": -11.34,
+      "x2": 2.5,
+      "y2": 12.66
+    },
+    {
+      "x1": -12.2,
+      "y1": -14.06,
+      "x2": 2.5,
+      "y2": 0.64
+    },
+    {
+      "x1": -0.18,
+      "y1": -14.06,
+      "x2": 2.5,
+      "y2": -11.38
+    }
+  ],
   "cotas_paineis": [
     {
       "text": "16.5",

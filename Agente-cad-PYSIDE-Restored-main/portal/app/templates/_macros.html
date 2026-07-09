@@ -19,7 +19,7 @@
 {% macro status_badge(estado) %}
   {%- set mapa = {
     'aguardando_ingestao': ('status-ingestao', '⏳', 'Aguardando ingestão (Drive)'),
-    'processando':         ('status-processando', '◐', 'Processando (SA)'),
+    'processando':         ('status-processando', '◐', 'Processando (triagem/recortes/SA)'),
     'aguardando_triagem':  ('status-triagem', '🟡', 'Aguardando triagem'),
     'pronta':              ('status-pronta', '🟢', 'Pronta para validação'),
     'concluida':           ('status-concluida', '✅', 'Concluída · N5 liberável'),

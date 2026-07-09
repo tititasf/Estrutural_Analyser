@@ -15,38 +15,63 @@
 {% endif %}
 
 <div class="upload-card">
-  <h2><span aria-hidden="true">📤</span> Enviar uma obra nova</h2>
+  <h2><span aria-hidden="true">🏗️</span> Criar obra nova</h2>
+  <p class="meta" style="margin:0 0 12px">
+    Uma obra é uma pasta que recebe vários documentos (PIL, LV, FV, LAJ, GF…).
+    Dê um nome e uma descrição — os documentos entram depois, um por um ou em lote.
+  </p>
 
   {% if drive_folder_url %}
-  <div class="upload-drop" id="upload-drop">
-    <input type="file" id="input-arquivo" accept=".dwg,.dxf" hidden>
-    <p class="upload-drop-texto">
-      <strong>Arraste o arquivo aqui</strong> ou
-      <button type="button" id="btn-escolher" class="btn-link">escolha no computador</button>
-    </p>
-    <p class="meta">.dwg ou .dxf — vai direto para sua pasta no Drive, sem você precisar abri-la.</p>
-  </div>
-  <div id="upload-progresso" class="upload-progresso" hidden>
-    <div class="upload-progresso-barra"><div id="upload-barra-fill"></div></div>
-    <span id="upload-progresso-texto" class="meta">Enviando…</span>
-  </div>
-  <div id="upload-resultado" role="status" aria-live="polite"></div>
+  <form id="form-criar-obra" class="upload-actions" style="flex-direction:column;align-items:stretch;gap:10px">
+    <input type="text" id="criar-nome" placeholder="Nome da obra (ex.: Edifício Paraíso)" required
+           style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font:inherit">
+    <textarea id="criar-descricao" placeholder="Descrição (opcional)" rows="2"
+              style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;resize:vertical"></textarea>
+    <button type="submit" class="btn" id="btn-criar-obra" style="align-self:flex-start">Criar obra →</button>
+  </form>
+  <div id="criar-obra-resultado" role="status" aria-live="polite"></div>
   {% else %}
   <p class="faixa faixa-aviso" style="margin:0 0 14px">
     <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
   </p>
   {% endif %}
 
-  <div class="upload-actions">
+  <div class="upload-actions" style="margin-top:14px">
     {% if drive_folder_url %}
     <a class="btn-sec btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener" style="font-size:.86rem">
-      Ou abra a pasta no Drive direto ↗
+      Ou abra sua pasta no Drive direto ↗
     </a>
     {% endif %}
     <button type="button" id="btn-verificar" class="btn-sec btn">Verificar agora ↻</button>
     <span id="verificar-status" class="status-verificar" role="status" aria-live="polite"></span>
   </div>
 </div>
+
+<details style="margin-top:12px">
+  <summary class="meta" style="cursor:pointer">⚡ Processamento rápido de um único pavimento ↓</summary>
+  <div class="upload-card" style="margin-top:10px">
+    <p class="meta" style="margin:0 0 12px">
+      Já é 1 pavimento pronto (sem precisar separar por classe)? Ainda passa pela
+      triagem (conversão/sanidade) e pelo recorte (limpeza e convenções do pavimento)
+      antes da Análise Estrutural (SA) — só pula a tela de separar documentos por classe.
+    </p>
+    {% if drive_folder_url %}
+    <div class="upload-drop" id="upload-drop">
+      <input type="file" id="input-arquivo" accept=".dwg,.dxf" hidden>
+      <p class="upload-drop-texto">
+        <strong>Arraste o arquivo aqui</strong> ou
+        <button type="button" id="btn-escolher" class="btn-link">escolha no computador</button>
+      </p>
+      <p class="meta">.dwg ou .dxf — cria 1 obra com esse único arquivo (1 pavimento).</p>
+    </div>
+    <div id="upload-progresso" class="upload-progresso" hidden>
+      <div class="upload-progresso-barra"><div id="upload-barra-fill"></div></div>
+      <span id="upload-progresso-texto" class="meta">Enviando…</span>
+    </div>
+    <div id="upload-resultado" role="status" aria-live="polite"></div>
+    {% endif %}
+  </div>
+</details>
 
 <h2 style="margin-top:28px">{{ 'Obras' if obras else '' }}</h2>
 
@@ -64,10 +89,16 @@
         <h2 style="margin:0 0 4px">{{ o.nome }}</h2>
         <div style="margin-bottom:6px">
           {{ status_badge(o.estado) }}
+          {% if o.arquivo_nome %}
+          <span class="meta" style="margin-left:8px">⚡ Pavimento único (rápido)</span>
+          {% else %}
+          <span class="meta" style="margin-left:8px">📁 Container de documentos</span>
+          {% endif %}
           {% if o.membro_nome %}
           <span class="meta" style="margin-left:8px">· de <strong>{{ o.membro_nome }}</strong></span>
           {% endif %}
         </div>
+        {% if o.descricao %}<p class="meta" style="margin:0 0 2px">{{ o.descricao }}</p>{% endif %}
         <p class="meta" style="margin:0">
           {{ o.arquivo_nome or '—' }}
           {% if o.created_at %}· detectada {{ o.created_at[:16].replace('T',' ') }}{% endif %}
@@ -88,6 +119,47 @@
 
 {% block scripts %}
 <script>
+  // --- criar obra (nome + descrição) — 2026-07-06, fluxo principal ---
+  (function () {
+    var form = document.getElementById('form-criar-obra');
+    if (!form) return;  // membro sem pasta de Drive configurada
+    var resultado = document.getElementById('criar-obra-resultado');
+    var btn = document.getElementById('btn-criar-obra');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nome = document.getElementById('criar-nome').value.trim();
+      var descricao = document.getElementById('criar-descricao').value.trim();
+      if (!nome) return;
+      btn.disabled = true;
+      btn.textContent = 'Criando…';
+      resultado.innerHTML = '';
+      fetch('/obras/criar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: nome, descricao: descricao || null }),
+      }).then(function (r) {
+        return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+      }).then(function (res) {
+        if (res.ok) {
+          resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
+            '<span aria-hidden="true">✓</span> Obra criada! Indo para a página dela…</p>';
+          window.location.href = '/app/obras/' + res.data.obra_id;
+        } else {
+          resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+            '<span aria-hidden="true">⚠</span> ' + (res.data.detail || 'Falha ao criar obra.') + '</p>';
+          btn.disabled = false;
+          btn.textContent = 'Criar obra →';
+        }
+      }).catch(function () {
+        resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+          '<span aria-hidden="true">⚠</span> Falha de rede ao criar obra.</p>';
+        btn.disabled = false;
+        btn.textContent = 'Criar obra →';
+      });
+    });
+  })();
+
   // --- upload direto (drag-and-drop ou escolher arquivo) — 2026-07-06 ---
   (function () {
     var drop = document.getElementById('upload-drop');

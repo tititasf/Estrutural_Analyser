@@ -35,7 +35,17 @@ def get_connection(db_path: str | Path | None = None) -> sqlite3.Connection:
             "get_connection() nunca abre o banco da curadoria "
             f"({_ARETE_DB_NAME}) — regra de fronteira HANDOFF §3."
         )
-    conn = sqlite3.connect(str(path))
+    # [FIX 2026-07-07] check_same_thread=False: FastAPI resolve dependencias
+    # `yield` sincronas e roda o corpo do endpoint em chamadas SEPARADAS de
+    # run_in_threadpool — o anyio pode entregar threads DIFERENTES do pool pra
+    # cada chamada dentro da MESMA request (nunca concorrentes entre si, so'
+    # sequenciais: abre -> usa -> fecha). Sem essa flag, sqlite3 recusa com
+    # "SQLite objects created in a thread can only be used in that same
+    # thread" — confirmado ao vivo quando 3 fotos (bruto/limpo/detalhes) do
+    # viewer de Recortes disparam requests concorrentes. Seguro aqui porque
+    # cada request abre sua PRÓPRIA conexão (nunca compartilhada entre
+    # requests), então não há acesso concorrente real ao mesmo objeto.
+    conn = sqlite3.connect(str(path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")

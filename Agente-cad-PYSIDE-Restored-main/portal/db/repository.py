@@ -107,18 +107,154 @@ def criar_obra(
     arquivo_hash: Optional[str] = None,
     estado: str = "aguardando_ingestao",
     local_path: Optional[str] = None,
+    descricao: Optional[str] = None,
 ) -> str:
+    """[2026-07-06] `descricao` novo — obra virou CONTAINER de documentos
+    (portal_documentos), não mais "1 arquivo = 1 obra". `arquivo_*` seguem
+    aceitos por compat (fluxo legado / obras já existentes antes da migration
+    002), mas o fluxo novo (POST /obras/criar) não os popula."""
     obra_id = _new_id()
     conn.execute(
         """INSERT INTO portal_obras
-           (id, membro_id, nome, pasta_drive_id, arquivo_drive_id,
+           (id, membro_id, nome, descricao, pasta_drive_id, arquivo_drive_id,
             arquivo_nome, arquivo_hash, estado, local_path)
-           VALUES (?,?,?,?,?,?,?,?,?)""",
-        (obra_id, membro_id, nome, pasta_drive_id, arquivo_drive_id,
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (obra_id, membro_id, nome, descricao, pasta_drive_id, arquivo_drive_id,
          arquivo_nome, arquivo_hash, estado, local_path),
     )
     conn.commit()
     return obra_id
+
+
+# --------------------------------------------------------------------------- #
+# Documentos (portal_documentos) — 2026-07-06: obra vira container de N docs.
+# --------------------------------------------------------------------------- #
+
+def criar_documento(
+    conn: sqlite3.Connection,
+    *,
+    obra_id: str,
+    arquivo_nome: str,
+    arquivo_drive_id: Optional[str] = None,
+    arquivo_hash: Optional[str] = None,
+    local_path: Optional[str] = None,
+    classe_sugerida: Optional[str] = None,
+    pavimento_sugerido: Optional[str] = None,
+    tipo_documento_sugerido: Optional[str] = None,
+    pavimento_confirmado: Optional[str] = None,
+    tipo_documento_confirmado: Optional[str] = None,
+    status: str = "pendente",
+) -> str:
+    """`*_confirmado` no momento da criação [2026-07-07] — quando o usuário já
+    escolhe tipo/pavimento no upload (em vez de só confirmar depois na
+    triagem), grava direto como confirmado, não como sugestão."""
+    doc_id = _new_id()
+    conn.execute(
+        """INSERT INTO portal_documentos
+           (id, obra_id, arquivo_nome, arquivo_drive_id, arquivo_hash, local_path,
+            classe_sugerida, pavimento_sugerido, tipo_documento_sugerido,
+            pavimento_confirmado, tipo_documento_confirmado, status)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (doc_id, obra_id, arquivo_nome, arquivo_drive_id, arquivo_hash, local_path,
+         classe_sugerida, pavimento_sugerido, tipo_documento_sugerido,
+         pavimento_confirmado, tipo_documento_confirmado, status),
+    )
+    conn.commit()
+    return doc_id
+
+
+def obter_documento(conn: sqlite3.Connection, doc_id: str) -> Optional[dict[str, Any]]:
+    row = conn.execute("SELECT * FROM portal_documentos WHERE id = ?", (doc_id,)).fetchone()
+    return _row_to_dict(row)
+
+
+def obter_documento_por_hash(
+    conn: sqlite3.Connection, obra_id: str, arquivo_hash: str
+) -> Optional[dict[str, Any]]:
+    """Dedup: mesmo arquivo (hash) já enviado para ESTA obra."""
+    row = conn.execute(
+        "SELECT * FROM portal_documentos WHERE obra_id = ? AND arquivo_hash = ?",
+        (obra_id, arquivo_hash),
+    ).fetchone()
+    return _row_to_dict(row)
+
+
+def listar_documentos_por_obra(
+    conn: sqlite3.Connection, obra_id: str
+) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        "SELECT * FROM portal_documentos WHERE obra_id = ? ORDER BY created_at, id",
+        (obra_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def contar_documentos_por_status(conn: sqlite3.Connection, obra_id: str) -> dict[str, int]:
+    """Resumo pra tela da obra (ex.: "3 classificados, 1 a revisar")."""
+    rows = conn.execute(
+        "SELECT status, COUNT(*) AS n FROM portal_documentos WHERE obra_id = ? GROUP BY status",
+        (obra_id,),
+    ).fetchall()
+    return {r["status"]: r["n"] for r in rows}
+
+
+def atualizar_classificacao_documento(
+    conn: sqlite3.Connection,
+    doc_id: str,
+    *,
+    classe_confirmada: Optional[str] = None,
+    pavimento_confirmado: Optional[str] = None,
+    tipo_documento_confirmado: Optional[str] = None,
+    status: Optional[str] = None,
+    erro_msg: Optional[str] = None,
+) -> None:
+    """Confirma/edita a classificação de UM documento (triagem manual ou em lote).
+
+    Só atualiza os campos passados (COALESCE preserva o resto) — permite chamar
+    só com `status` (ex.: marcar 'erro') sem apagar uma classificação já feita.
+    `None` = "não mexeu" (contrato original, testado); pra LIMPAR um campo de
+    propósito pra NULL (drag-and-drop devolvendo um doc a "Indeterminado"),
+    use `mover_documento_para_indeterminado` abaixo.
+    """
+    conn.execute(
+        """UPDATE portal_documentos
+           SET classe_confirmada = COALESCE(?, classe_confirmada),
+               pavimento_confirmado = COALESCE(?, pavimento_confirmado),
+               tipo_documento_confirmado = COALESCE(?, tipo_documento_confirmado),
+               status = COALESCE(?, status),
+               erro_msg = COALESCE(?, erro_msg),
+               updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (classe_confirmada, pavimento_confirmado, tipo_documento_confirmado, status, erro_msg, doc_id),
+    )
+    conn.commit()
+
+
+def mover_documento_para_indeterminado(conn: sqlite3.Connection, doc_id: str) -> None:
+    # [FIX] usava '' (string vazia) em vez de NULL — quebrava o contrato
+    # testado (pavimento_confirmado/tipo_documento_confirmado devem virar
+    # None de verdade). A docstring da função vizinha (atualizar_classificacao_
+    # documento) já dizia que a intenção era NULL.
+    conn.execute(
+        """UPDATE portal_documentos
+           SET pavimento_confirmado = NULL, tipo_documento_confirmado = NULL,
+               updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (doc_id,),
+    )
+    conn.commit()
+
+
+def atualizar_nome_exibicao_documento(conn: sqlite3.Connection, doc_id: str, nome_exibicao: str) -> None:
+    """[2026-07-07, migration 004] Nome de exibição editável do documento —
+    diferente de arquivo_nome (o nome real do arquivo em disco, imutável)."""
+    conn.execute(
+        """UPDATE portal_documentos
+           SET nome_exibicao = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (nome_exibicao, doc_id),
+    )
+    conn.commit()
 
 
 def atualizar_estado_obra(
@@ -128,16 +264,53 @@ def atualizar_estado_obra(
     *,
     erro_msg: Optional[str] = None,
     processada_em: Optional[str] = None,
+    etapa_concluida: Optional[str] = None,
 ) -> None:
-    """Atualiza o estado da obra. erro_msg preenchido quando estado='erro' (R6)."""
+    """Atualiza o estado da obra. erro_msg preenchido quando estado='erro' (R6).
+
+    `etapa_concluida` [2026-07-06, migration 003] — só sobrescreve quando
+    passada (COALESCE); é a última etapa (triagem/recortes/sa) que terminou
+    com sucesso, usada por `_etapa_atual` pra saber precisamente em qual passo
+    a obra está (o enum `estado` sozinho não distingue os passos intermediários).
+    """
     conn.execute(
         """UPDATE portal_obras
            SET estado = ?,
                erro_msg = ?,
                processada_em = COALESCE(?, processada_em),
+               etapa_concluida = COALESCE(?, etapa_concluida),
                updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
            WHERE id = ?""",
-        (estado, erro_msg, processada_em, obra_id),
+        (estado, erro_msg, processada_em, etapa_concluida, obra_id),
+    )
+    conn.commit()
+
+
+def atualizar_cabecalho_obra(
+    conn: sqlite3.Connection,
+    obra_id: str,
+    *,
+    nome: Optional[str] = None,
+    cliente: Optional[str] = None,
+    data_solicitacao: Optional[str] = None,
+    data_entrega: Optional[str] = None,
+    criterios_cliente: Optional[str] = None,
+    observacoes: Optional[str] = None,
+) -> None:
+    """[2026-07-07, migration 004] Cabeçalho de referência do processamento —
+    quem pediu, prazo, critérios do cliente. Só atualiza os campos passados
+    (COALESCE preserva o resto), mesmo padrão de atualizar_classificacao_documento."""
+    conn.execute(
+        """UPDATE portal_obras
+           SET nome = COALESCE(?, nome),
+               cliente = COALESCE(?, cliente),
+               data_solicitacao = COALESCE(?, data_solicitacao),
+               data_entrega = COALESCE(?, data_entrega),
+               criterios_cliente = COALESCE(?, criterios_cliente),
+               observacoes = COALESCE(?, observacoes),
+               updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (nome, cliente, data_solicitacao, data_entrega, criterios_cliente, observacoes, obra_id),
     )
     conn.commit()
 

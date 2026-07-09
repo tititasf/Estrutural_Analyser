@@ -3,7 +3,8 @@
 
 O script resolve o registro ``projects`` exibido no Structural Analyzer,
 carrega seu ``dxf_path`` e executa o próprio fluxo da Análise Geral em modo
-offscreen e somente leitura.
+offscreen. O padrão é somente leitura; ``--persist-db`` habilita commit
+transacional depois dos quatro diagnósticos.
 """
 from __future__ import annotations
 
@@ -12,6 +13,7 @@ import sys
 import re
 import json
 import html
+import copy
 import types
 import argparse
 import importlib
@@ -378,9 +380,22 @@ def _run_legacy_analysis(
         b['project_id'] = 'headless_01'
         try:
             runner._process_beam_intelligent(b)
+            # Mesmo contrato da GUI: FV precisa ser uma área fechada. O
+            # reparador preserva contornos válidos/validados e corrige apenas
+            # candidatos automáticos degenerados antes dos diagnósticos.
+            from src.core.beam_interpreters import FundoVigaInterpreter
+            FundoVigaInterpreter.repair_area_links(
+                b, context_beams=runner.beams_found
+            )
         except Exception as exc:
             print(f'[WARN] _process_beam_intelligent falhou para {b.get("name")}: {exc}',
                   flush=True)
+
+    from src.core.beam_interpreters import FundoVigaInterpreter
+    for b in runner.beams_found:
+        FundoVigaInterpreter.repair_area_links(
+            b, context_beams=runner.beams_found
+        )
 
     print(f'[SA] Vigas: {len(runner.beams_found)}', flush=True)
 
@@ -782,6 +797,7 @@ def run_analysis(
     db_path: str = _DB_DEFAULT,
     run_diagnostics: bool = True,
     sections: set[str] | None = None,
+    persist_db: bool = False,
 ) -> dict:
     """Executa a Análise Geral real do SA e exporta um pack imutável.
 
@@ -821,6 +837,11 @@ def run_analysis(
             raise RuntimeError(
                 f'SA humano não carregou projects.dxf_path: {source_path}'
             )
+        old_snapshot = {
+            'pillars': copy.deepcopy(getattr(window, 'pillars_found', []) or []),
+            'slabs': copy.deepcopy(getattr(window, 'slabs_found', []) or []),
+            'beams': copy.deepcopy(getattr(window, 'beams_found', []) or []),
+        }
 
         # É o mesmo método ligado ao botão "Iniciar Análise Geral".
         # O modal não é aberto; decisões humanas persistidas já foram
@@ -828,6 +849,43 @@ def run_analysis(
         window.process_pillars_action(skip_pre_validation=True)
         if getattr(window, '_analysis_in_progress', False):
             raise RuntimeError('Análise Geral humana não foi finalizada')
+
+        # O mesmo merge alimenta os HTMLs/gates e, quando autorizado, o DB.
+        # Assim não existe diferença entre o que foi inspecionado e o commit.
+        from src.core.sa_db_persistence import fv_area_errors, merge_analysis_snapshot
+        merged, merge_stats = merge_analysis_snapshot(
+            old_pillars=old_snapshot['pillars'],
+            old_slabs=old_snapshot['slabs'],
+            old_beams=old_snapshot['beams'],
+            new_pillars=list(getattr(window, 'pillars_found', []) or []),
+            new_slabs=list(getattr(window, 'slabs_found', []) or []),
+            new_beams=list(getattr(window, 'beams_found', []) or []),
+            project_id=project_id,
+        )
+        window.pillars_found = merged['pillars']
+        window.slabs_found = merged['slabs']
+        window.beams_found = merged['beams']
+        # O merge pode restaurar contornos automáticos antigos de quatro
+        # vértices. Normalize-os somente depois da proteção granular, para o
+        # objeto efetivamente diagnosticado/persistido obedecer ao contrato.
+        from src.core.beam_interpreters import FundoVigaInterpreter
+        for beam in window.beams_found:
+            FundoVigaInterpreter.repair_area_links(
+                beam, context_beams=window.beams_found
+            )
+        invalid_fv_areas = fv_area_errors(window.beams_found)
+        if invalid_fv_areas:
+            raise RuntimeError(
+                'Gate FV recusou contorno sem área fechada: '
+                + '; '.join(invalid_fv_areas[:10])
+            )
+        print(
+            '[SA-HUMAN] Merge granular pronto: '
+            f"{len(window.pillars_found)} PIL, "
+            f"{len(window.slabs_found)} LAJ, "
+            f"{len(window.beams_found)} vigas.",
+            flush=True,
+        )
 
         html_dir = None
         diagnostics = {}
@@ -897,6 +955,44 @@ def run_analysis(
         except Exception as exc:
             manifest_path = ''
             print(f'[SA-HUMAN] AVISO manifesto Arete não gerado: {exc}', flush=True)
+        persistence = {'status': 'READ_ONLY'}
+        if persist_db:
+            required_sections = set(_SECTION_DIAGNOSTIC_MODULES)
+            missing = required_sections - set(diagnostics)
+            errors = {
+                section: diagnostic.get('erro', 'erro desconhecido')
+                for section, diagnostic in diagnostics.items()
+                if diagnostic.get('status') != 'ok'
+            }
+            if missing or errors or not html_dir or not Path(html_dir).is_dir():
+                raise RuntimeError(
+                    'Persistência recusada pelo gate: '
+                    f'seções ausentes={sorted(missing)}, erros={errors}, '
+                    f'html_dir={html_dir!s}'
+                )
+            run_id = next(
+                (
+                    str(diagnostic.get('run_id'))
+                    for diagnostic in diagnostics.values()
+                    if diagnostic.get('run_id')
+                ),
+                Path(html_dir).name.rsplit('_', 1)[-1],
+            )
+            from src.core.sa_db_persistence import persist_analysis_snapshot
+            persistence = persist_analysis_snapshot(
+                db_path=db_path,
+                project_id=project_id,
+                collections=merged,
+                run_id=f'sa-{project_id}-{run_id}',
+                html_dir=str(html_dir),
+                source_dxf=source_path,
+                merge_stats=merge_stats,
+            )
+            print(
+                '[SA-HUMAN] DB COMMIT transacional: '
+                f"{persistence['before']} -> {persistence['after']}",
+                flush=True,
+            )
         return {
             'obra': obra,
             'pavimento': project_name,
@@ -909,6 +1005,8 @@ def run_analysis(
             'diagnostics': diagnostics,
             'fv_diagnostic': diagnostics.get('fundos_viga', {'status': 'ignorado'}),
             'arete_manifest': str(manifest_path),
+            'merge_stats': merge_stats,
+            'persistence': persistence,
         }
     finally:
         window.close()
@@ -966,6 +1064,13 @@ def main() -> None:
     )
     ap.add_argument('--open',  action='store_true',
                     help='Abrir HTML no navegador apos gerar')
+    ap.add_argument(
+        '--persist-db', action='store_true',
+        help=(
+            'Após análise completa + diagnósticos OK, atualizar PIL/LAJ/FV/LV '
+            'no DB em uma única transação, preservando validações granulares.'
+        ),
+    )
     ap.add_argument('--wait', action='store_true',
                     help='Se outro headless estiver rodando, aguardar a vez '
                          '(poll 10s, timeout 30min) em vez de abortar — '
@@ -975,6 +1080,10 @@ def main() -> None:
         sections = _parse_sections(args.secao)
     except ValueError as exc:
         ap.error(str(exc))
+    if args.persist_db and sections is not None:
+        ap.error('--persist-db exige execução completa, sem --secao')
+    if args.persist_db and args.skip_diagnostico_fv:
+        ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
 
     # Trava anti-OOM: duas execuções simultâneas do headless (SA+matplotlib)
     # esgotam a RAM da workstation. O lock é liberado pelo SO ao fim do
@@ -1008,6 +1117,7 @@ def main() -> None:
         db_path=args.db,
         run_diagnostics=not args.skip_diagnostico_fv,
         sections=sections,
+        persist_db=args.persist_db,
     )
 
     print('\n' + '=' * 60, flush=True)
@@ -1029,6 +1139,11 @@ def main() -> None:
             print(f'    aviso: {diag["erro"]}', flush=True)
     print(f'  Manifest: {result["arete_manifest"]}', flush=True)
     print(f'  Fonte   : {result["dxf_path"]}', flush=True)
+    persistence = result.get('persistence') or {}
+    print(f'  DB      : {persistence.get("status", "READ_ONLY")}', flush=True)
+    if persistence.get('status') == 'COMMITTED':
+        print(f'    Antes : {persistence["before"]}', flush=True)
+        print(f'    Depois: {persistence["after"]}', flush=True)
     print('=' * 60, flush=True)
 
     if args.open and result['html_dir']:

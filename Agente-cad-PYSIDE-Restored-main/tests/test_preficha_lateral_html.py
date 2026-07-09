@@ -21,9 +21,12 @@ class _FakeDialog:
 
     def _find_beam_dxf(self, class_prefix, item_name, n4=False):
         assert class_prefix == "LV"
-        # item_name deve vir com sufixo _A/_B (granularidade real dos DXFs
-        # N3/N4 de LV, ver docstring de write_lateral_pages)
-        assert item_name in ("V301_A", "V301_B")
+        assert item_name in (
+            "V301",
+            "V301_CORTE",
+            "V301_VIEW_A",
+            "V301_VIEW_B",
+        )
         return f'{"n4" if n4 else "n3"}_{item_name}.dxf'
 
     def _find_n2_recorte_dxf(self, class_prefix, item_name):
@@ -93,6 +96,10 @@ def _lateral_row(side: str, behavior: str, segment_index: int, points: list[tupl
     }
 
 
+def _zone_renderer(_dialog, path, _bbox):
+    return '<svg viewBox="0 0 10 10"><text>ZONE</text></svg>' if path else ""
+
+
 def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_path: Path):
     points = [(0, 0), (10, 0)]
     rows_by_kind = {
@@ -112,6 +119,7 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
         photo_fn=lambda points: "",
         metrics_fn=_segment_geometry_metrics,
         classification_fn=lambda beam: "passa",
+        zone_render_fn=_zone_renderer,
     )
 
     assert result == ("laterais_viga/index.html", "Laterais de Viga", 1)
@@ -131,8 +139,17 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
     assert "N3 completo (1 lado)" in text
     assert "limitação conhecida" in text.lower()
 
-    # N1 por segmento (2: um em cada lado) + N2/N3/N4 por lado (3 x 2 lados) = 8
-    assert len(soup.select(".evidence-card svg")) == 8
+    # N1 por segmento (2) + N2 compartilhado (1) + três N3 + três N4 = 9.
+    assert len(soup.select(".evidence-card svg")) == 9
+    titles = [
+        item.get_text(" ", strip=True)
+        for item in soup.select(".evidence-title b")
+    ]
+    assert len([title for title in titles if title.startswith("N3 ·")]) == 3
+    assert len([title for title in titles if title.startswith("N4 ·")]) == 3
+    assert "N3 · Visão Corte" in titles
+    assert "N4 · Lateral A" in titles
+    assert "N4 · Lateral B" in titles
 
     # checkbox de erro presente e com a chave certa
     checkbox = soup.select_one("#erro_check")
@@ -154,7 +171,7 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
 def test_lateral_writer_marks_missing_n4_side_as_ausente(tmp_path: Path):
     class _DialogMissingN4B(_FakeDialog):
         def _find_beam_dxf(self, class_prefix, item_name, n4=False):
-            if n4 and item_name == "V301_B":
+            if n4:
                 return ""
             return super()._find_beam_dxf(class_prefix, item_name, n4=n4)
 
@@ -176,6 +193,7 @@ def test_lateral_writer_marks_missing_n4_side_as_ausente(tmp_path: Path):
         photo_fn=lambda points: "",
         metrics_fn=_segment_geometry_metrics,
         classification_fn=lambda beam: "passa",
+        zone_render_fn=_zone_renderer,
     )
 
     page_html = (
@@ -206,6 +224,7 @@ def test_lateral_writer_splits_para_and_passa_without_mixing_segments(tmp_path: 
         photo_fn=lambda points: "",
         metrics_fn=_segment_geometry_metrics,
         classification_fn=lambda beam: "passa",
+        zone_render_fn=_zone_renderer,
     )
 
     assert result == ("laterais_viga/index.html", "Laterais de Viga", 2)
@@ -231,7 +250,12 @@ def test_lateral_writer_splits_para_and_passa_without_mixing_segments(tmp_path: 
 def test_lateral_writer_includes_reverse_only_beam_in_persisted_list(tmp_path: Path):
     class _ReverseOnlyDialog(_FakeDialog):
         def _find_beam_dxf(self, class_prefix, item_name, n4=False):
-            assert item_name in ("V13_A", "V13_B")
+            assert item_name in (
+                "V13",
+                "V13_CORTE",
+                "V13_VIEW_A",
+                "V13_VIEW_B",
+            )
             return ""
 
         def _find_n2_recorte_dxf(self, class_prefix, item_name):
@@ -255,6 +279,7 @@ def test_lateral_writer_includes_reverse_only_beam_in_persisted_list(tmp_path: P
         metrics_fn=_segment_geometry_metrics,
         classification_fn=lambda beam: "passa",
         reverse_beams_fn=lambda: ["V13"],
+        zone_render_fn=_zone_renderer,
     )
 
     assert result == ("laterais_viga/index.html", "Laterais de Viga", 1)

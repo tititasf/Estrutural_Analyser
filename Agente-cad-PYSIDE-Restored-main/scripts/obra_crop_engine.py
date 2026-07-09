@@ -135,6 +135,7 @@ def detect_regions(
     n_torres: int = 1,
     eps_factor: float = 0.025,
     min_samples: int = 8,
+    bad_bboxes: list[list[float]] | None = None,
 ) -> dict:
     """
     Detecta regiões de torre e detalhes por densidade de entidades (DBSCAN).
@@ -214,6 +215,23 @@ def detect_regions(
             "count": count,
             "score": score,
         })
+
+    # ── 4.5 Penalizar clusters inválidos (Anti-Repetição) ────────────────────
+    if bad_bboxes:
+        def _iou(bA, bB):
+            xA = max(bA[0], bB[0]); yA = max(bA[1], bB[1])
+            xB = min(bA[2], bB[2]); yB = min(bA[3], bB[3])
+            iA = max(0, xB - xA) * max(0, yB - yA)
+            if iA == 0: return 0.0
+            aA = (bA[2] - bA[0]) * (bA[3] - bA[1])
+            aB = (bB[2] - bB[0]) * (bB[3] - bB[1])
+            return iA / float(aA + aB - iA)
+            
+        for c in clusters:
+            for bad in bad_bboxes:
+                if _iou(c["bbox"], bad) > 0.5:
+                    c["score"] = -1  # Força a virar detalhe, nunca torre
+                    break
 
     # ── 5. Ordenar por score (maior primeiro) ─────────────────────────────────
     clusters.sort(key=lambda c: c["score"], reverse=True)

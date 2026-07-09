@@ -30,3 +30,19 @@ def test_resolver_html_ficha_uses_selected_lv_list(
     assert g2v_harness.resolver_html_ficha(
         "Obra_TREINO_1", "LV", "V301", lista_lv="para"
     ) == para
+
+
+def test_cli_pass_requires_every_visual_check():
+    verdict = g2v_harness.avaliar_cli(Path(__file__), "prompt")
+    verdict["veredito"] = "PASS"
+
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+
+    assert not valid
+    assert "checklist" in reason
+    verdict["checklist_visual"] = {
+        key: True for key in verdict["checklist_visual"]
+    }
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert valid
+    assert reason == ""

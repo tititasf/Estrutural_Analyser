@@ -12,11 +12,19 @@ Uso:
   python scripts/gerar_pl_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_1 --max 5
 """
 import sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if __name__ == '__main__' and hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding='utf-8', errors='replace'
+    )
 import json, argparse, math
 from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
+from pl_grade_visual_config import (
+    CONFIG_PATH as PL_GRADE_VISUAL_CONFIG_PATH,
+    positions_for_mode as grade_horizontal_positions_for_mode,
+    validate_positions as validate_grade_horizontal_positions,
+)
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
@@ -24,7 +32,11 @@ if str(_PROJECT_ROOT) not in sys.path:
 from src.core.artifact_governance import guarded_saveas
 
 _MOTOR_ID = "ROBOT_PL_N3_N4"
-_MOTOR_SOURCES = [Path(__file__)]
+_MOTOR_SOURCES = [
+    Path(__file__),
+    Path(__file__).with_name("pl_grade_visual_config.py"),
+    PL_GRADE_VISUAL_CONFIG_PATH,
+]
 
 # GradeCalculator — robô legado (calcular_grades, calculate_details_legacy)
 try:
@@ -324,23 +336,120 @@ def _bolt_offsets_from_pj(pj, grade_w):
     return bolt_xs
 
 
+def _whole_and_fraction(value, tolerance=1e-6):
+    """Separa uma medida positiva em parte inteira e uma única fração estável."""
+    value = max(0.0, float(value))
+    nearest = round(value)
+    if abs(value - nearest) <= tolerance:
+        return int(nearest), 0.0
+    whole = math.floor(value)
+    return whole, round(value - whole, 6)
+
+
+def _balanced_parts_with_single_fraction(total, count, fraction_last=True):
+    """Particiona ``total`` sem espalhar sua fração por vários vãos."""
+    if count <= 0:
+        return []
+    whole, fraction = _whole_and_fraction(total)
+    base, remainder = divmod(whole, count)
+    parts = [float(base)] * count
+    # Os centímetros inteiros excedentes ficam nos últimos vãos. Isso deixa
+    # a leitura encadeada previsível e preserva o início da grade em inteiros.
+    for index in range(count - remainder, count):
+        if 0 <= index < count:
+            parts[index] += 1.0
+    if fraction:
+        index = count - 1 if fraction_last else 0
+        parts[index] += fraction
+    return parts
+
+
+def _integer_segments_with_avoidance(
+    total_w, offsets, preferred=None, count=4, tol=3.0, max_shift=20.0,
+):
+    """Distribui vãos inteiros e evita parafusos sem criar meios centímetros.
+
+    Se ``total_w`` for fracionário, exatamente um vão carrega essa fração.
+    Colisão tem prioridade sobre simetria e proximidade da divisão anterior.
+    """
+    total_w = float(total_w)
+    if total_w <= 0 or count <= 0:
+        return []
+    whole, fraction = _whole_and_fraction(total_w)
+    if whole < count:
+        return _balanced_parts_with_single_fraction(total_w, count)
+
+    ideal = total_w / count
+    low = max(1, int(math.floor(ideal - max_shift)))
+    high = max(low, int(math.ceil(ideal + max_shift)))
+    preferred = [float(v) for v in (preferred or []) if float(v) > 0]
+    if len(preferred) != count or abs(sum(preferred) - total_w) > 0.5:
+        preferred = []
+    offsets = [float(value) for value in (offsets or [])]
+
+    best = None
+    fraction_indexes = [count - 1] if not fraction else list(range(count))
+    for first in range(low, high + 1):
+        for second in range(low, high + 1):
+            for third in range(low, high + 1):
+                integers = [first, second, third]
+                last = whole - sum(integers)
+                if last < low or last > high:
+                    continue
+                integers.append(last)
+                for fraction_index in fraction_indexes:
+                    segments = [float(value) for value in integers]
+                    if fraction:
+                        segments[fraction_index] += fraction
+                    boundaries = []
+                    cumulative = 0.0
+                    for segment in segments[:-1]:
+                        cumulative += segment
+                        boundaries.append(cumulative)
+
+                    penetrations = [
+                        tol - abs(boundary - offset)
+                        for boundary in boundaries
+                        for offset in offsets
+                        if abs(boundary - offset) <= tol
+                    ]
+                    conflict_count = len(penetrations)
+                    conflict_depth = round(sum(value + 1e-6 for value in penetrations), 6)
+                    balance = round(sum((value - ideal) ** 2 for value in segments), 6)
+                    preferred_delta = (
+                        round(sum(abs(a - b) for a, b in zip(segments, preferred)), 6)
+                        if preferred else balance
+                    )
+                    # Em largura fracionária, o último vão recebe a fração por
+                    # padrão; ela muda de posição apenas para eliminar colisão.
+                    fraction_rank = 0 if fraction_index == count - 1 else 1
+                    score = (
+                        conflict_count,
+                        conflict_depth,
+                        preferred_delta,
+                        balance,
+                        fraction_rank,
+                        tuple(segments),
+                    )
+                    if best is None or score < best[0]:
+                        best = (score, segments)
+    if best:
+        return best[1]
+    return _balanced_parts_with_single_fraction(total_w, count)
+
+
 def _grade_boundaries_with_avoidance(total_w, offsets, tol=3.0, step=5.0, max_shift=20.0):
-    """3 fronteiras intermediárias (4 módulos) com desvio de colisão grade×parafuso.
-    Porta da lógica do robô CIMA: ±3cm tolerância, passos ±5cm até ±20cm."""
-    def bounds(b2):
-        return [b2 / 2.0, b2, (total_w + b2) / 2.0]
-    def conflict(bnds):
-        return any(abs(b - o) <= tol for b in bnds for o in offsets)
-    b2 = total_w / 2.0
-    if not offsets or not conflict(bounds(b2)):
-        return bounds(b2)
-    n = 1
-    while n * step <= max_shift:
-        for cand in (b2 - n * step, b2 + n * step):
-            if 0 < cand < total_w and not conflict(bounds(cand)):
-                return bounds(cand)
-        n += 1
-    return bounds(b2)
+    """Compatibilidade: fronteiras derivadas da distribuição inteira oficial."""
+    del step
+    segments = _integer_segments_with_avoidance(
+        total_w, offsets, tol=tol, max_shift=max_shift,
+    )
+    cumulative = 0.0
+    boundaries = []
+    for segment in segments[:-1]:
+        cumulative += segment
+        boundaries.append(cumulative)
+    return boundaries
 
 
 def _segments_from_boundaries(boundaries, total_w):
@@ -349,17 +458,95 @@ def _segments_from_boundaries(boundaries, total_w):
     return [b1 - b0 for b0, b1 in zip(bnds[:-1], bnds[1:])]
 
 
-def _div_segments(pj, grade_w, div_key='grade_1_div_a'):
-    """Fonte única de div_a/div_b: Fase-4 se sum≈grade_w, senão bolt-avoidance.
-    Garante que CIMA e GRADES usem exatamente os mesmos segmentos."""
+def _div_segments(pj, grade_w, div_key='grade_1_div_a', bolt_offsets=None):
+    """Fonte única de CIMA/GRADES com vãos inteiros e anticolisão.
+
+    A divisão persistida é preferência geométrica, não autorização para
+    espalhar frações. O resultado sempre obedece à regra humana atual.
+    """
     raw = pj.get(div_key) or []
-    if raw:
-        s = sum(float(v) for v in raw if v)
-        if abs(s - grade_w) < 0.5:
-            return [float(v) for v in raw if v]
-    bolt_offs = _bolt_offsets_from_pj(pj, grade_w)
-    bnds = _grade_boundaries_with_avoidance(grade_w, bolt_offs)
-    return _segments_from_boundaries(bnds, grade_w)
+    preferred = [float(v) for v in raw if v]
+    if not preferred or abs(sum(preferred) - grade_w) >= 0.5:
+        preferred = None
+    if bolt_offsets is None:
+        bolt_offsets = _bolt_offsets_from_pj(pj, grade_w)
+    return _integer_segments_with_avoidance(
+        grade_w, bolt_offsets, preferred=preferred,
+    )
+
+
+def _grade_starts(grade_width, gaps):
+    starts = []
+    cursor = 0.0
+    for index in range(len(gaps) + 1):
+        starts.append(cursor)
+        if index < len(gaps):
+            cursor += grade_width + gaps[index]
+    return starts
+
+
+def _normalized_grade_layout(total_width, legacy_layout):
+    """Mantém grades inteiras e concentra eventual fração em um único gap."""
+    total_width = float(total_width)
+    ng, legacy_width, _legacy_gap = legacy_layout
+    ng = max(1, int(ng))
+    if ng == 1:
+        return 1, total_width, []
+
+    gap_count = ng - 1
+    candidates = []
+    max_width = min(106, int(math.floor(total_width / ng)))
+    for grade_width in range(1, max_width + 1):
+        gap_total = total_width - ng * grade_width
+        if gap_total <= 0:
+            continue
+        gaps = _balanced_parts_with_single_fraction(gap_total, gap_count)
+        if not all(1.0 <= gap <= 15.0 for gap in gaps):
+            continue
+        score = (
+            abs(grade_width - float(legacy_width)),
+            max(gaps) - min(gaps),
+            -grade_width,
+        )
+        candidates.append((score, float(grade_width), gaps))
+    if candidates:
+        _score, grade_width, gaps = min(candidates, key=lambda item: item[0])
+        return ng, grade_width, gaps
+
+    # Salvaguarda para dimensões fora da faixa do legado.
+    grade_width = float(max(1, round(float(legacy_width))))
+    gaps = _balanced_parts_with_single_fraction(
+        total_width - ng * grade_width, gap_count,
+    )
+    return ng, grade_width, gaps
+
+
+def _grade_layout_from_inner(inner_width):
+    total_width = float(inner_width) + 22.0
+    if _GradeCalculator:
+        legacy = _GradeCalculator.calcular_grades(inner_width)
+    else:
+        legacy = (1, total_width, 0.0)
+    return _normalized_grade_layout(total_width, legacy)
+
+
+def _grade_divisions(pj, total_width, ng, grade_width, gaps):
+    """Divisões por grade com offsets globais dos parafusos convertidos em locais."""
+    global_bolts = _bolt_offsets_from_pj(pj, total_width)
+    divisions = []
+    for index, start in enumerate(_grade_starts(grade_width, gaps)):
+        local_bolts = [
+            offset - start
+            for offset in global_bolts
+            if start - 3.0 <= offset <= start + grade_width + 3.0
+        ]
+        divisions.append(_div_segments(
+            pj,
+            grade_width,
+            f'grade_{index + 1}_div_a',
+            bolt_offsets=local_bolts,
+        ))
+    return divisions
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -494,20 +681,11 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
     # Para ng=1: gw_c = chapa_full_w, dg_c = 0 → compatível com código anterior.
     # Para ng=2: gw_c < chapa_full_w, duas grades lado a lado com gap dg_c.
     # Mesma lógica de draw_grades (fonte única: GradeCalculator + _div_segments).
-    if _GradeCalculator:
-        ng_c, gw_c, dg_c = _GradeCalculator.calcular_grades(comp)
-    else:
-        ng_c, gw_c, dg_c = 1, chapa_full_w, 0.0
-
-    # div_a por grade (soma = gw_c); grade_1_div_a soma gw_c, não chapa_full_w
-    div_a = _div_segments(pj, gw_c)
-
-    # Fronteiras cumulativas dentro de 1 grade (escala 0..gw_c)
-    _bounds_pg = []
-    _cs2 = 0.0
-    for _d in div_a[:-1]:
-        _cs2 += _d
-        _bounds_pg.append(_cs2)
+    ng_c, gw_c, gaps_c = _grade_layout_from_inner(comp)
+    starts_c = _grade_starts(gw_c, gaps_c)
+    divisions_c = _grade_divisions(
+        pj, chapa_full_w, ng_c, gw_c, gaps_c,
+    )
 
     # ── 3b/3d. Madeira por grade (lado C = topo, lado A = fundo) ─────────────
     # Cada uma das ng_c grades recebe: fundo + canto_esq + canto_dir + N divisores.
@@ -516,13 +694,16 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
 
     def _draw_madeira_row(y_m):
         n0 = len(entities)
-        for gi in range(ng_c):
-            gx0 = corner_l + gi * (gw_c + dg_c)
+        for gi, grade_start in enumerate(starts_c):
+            gx0 = corner_l + grade_start
             gx1 = gx0 + gw_c
             rp(gx0, y_m, gw_c, madeira_h, 'Madeira')                        # fundo
             rp(gx0, y_m, CORNER_W, madeira_h, 'Madeira')                     # canto esq
             rp(gx1 - CORNER_W, y_m, CORNER_W, madeira_h, 'Madeira')         # canto dir
-            for off in _bounds_pg:
+            cumulative = 0.0
+            for segment in divisions_c[gi][:-1]:
+                cumulative += segment
+                off = cumulative
                 cx_mid = gx0 + off
                 rp(cx_mid - CORNER_W / 4.0, y_m, CORNER_W / 2.0, madeira_h, 'Madeira')
         for e in entities[n0:]:
@@ -547,18 +728,15 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
         e.dxf.color = 224
 
     # ── 3f. COTA de subdivisões — repetida para cada uma das ng_c grades ──────
-    def _place_div_dim(values, y_base, offset):
-        nums = [float(v) for v in values if v and float(v) > 0]
-        if not nums:
-            return
-        total = sum(nums)
-        if total <= 0:
-            return
-        for gi in range(ng_c):
-            gx0 = corner_l + gi * (gw_c + dg_c)
+    def _place_div_dims(values_by_grade, y_base, offset):
+        for gi, values in enumerate(values_by_grade):
+            nums = [float(v) for v in values if v and float(v) > 0]
+            if not nums:
+                continue
+            gx0 = corner_l + starts_c[gi]
             cumsum = 0.0
             for v in nums:
-                w = v / total * gw_c
+                w = v
                 x0 = gx0 + cumsum
                 x1 = min(gx0 + cumsum + w, gx0 + gw_c)
                 if x1 - x0 > 0.01:
@@ -566,13 +744,13 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
                     entities.append(dim_h(msp, x0, x1, y_base, 'COTA', 'cotax2', offset=offset, text=txt))
                 cumsum += w
 
-    _place_div_dim(div_a, madeira_y0_a, offset=20)
+    _place_div_dims(divisions_c, madeira_y0_a, offset=20)
 
-    # cota do gap dg_c entre grupos de Madeira (só quando ng_c > 1)
-    if ng_c > 1 and dg_c > 0.01:
-        for gi in range(ng_c - 1):
-            gap_x0 = corner_l + gi * (gw_c + dg_c) + gw_c
-            gap_x1 = gap_x0 + dg_c
+    # Eventual fração da largura total fica em um único gap entre grades.
+    for gi, gap in enumerate(gaps_c):
+        if gap > 0.01:
+            gap_x0 = corner_l + starts_c[gi] + gw_c
+            gap_x1 = gap_x0 + gap
             entities.append(dim_h(msp, gap_x0, gap_x1, madeira_y0_a,
                                   'COTA', 'cotax2', offset=20))
 
@@ -1325,209 +1503,312 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
 # GRADES — Grade rectangles with LINE entities
 # ═════════════════════════════════════════════════════════════════════════════
 
-def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome, pj):
-    """
-    Zona GRADES — motor universal baseado em GradeCalculator + _div_segments.
+def _grade_face_openings(pj: dict, face: str) -> list[dict]:
+    """Normaliza abertura_FACE ou abertura_FACE_1..N para coordenadas locais."""
+    raw = []
+    direct = pj.get(f'abertura_{face}')
+    if isinstance(direct, dict) and direct:
+        raw.append(direct)
+    idx = 1
+    while True:
+        item = pj.get(f'abertura_{face}_{idx}')
+        if not item:
+            break
+        if isinstance(item, dict):
+            raw.append(item)
+        idx += 1
+    return raw
 
-    Anatomia (ROBO_GRADES.py ground truth):
-      - Grupo A (div_a) e Grupo B (div_b) separados por GROUP_GAP=22 (padrão robot).
-      - Por grupo: base SARR_2.2x7 (h=2.2) + sarrafos verticais SARR_2.2x7 (w=7)
-        + sarrafos centrais SARR_3.5x7 (w=3.5) nas fronteiras div.
-      - Horizontais: posições [30, 90, 150, …] step=60, todos em SARR_2.2x10,
-        desenhados enquanto posicao_relativa <= altura-10.
-      - Labels: {nome}.A em Grupo A e {nome}.B em Grupo B (layer NOMENCLATURA).
-      - Cotas verticais segmentadas no lado direito do Grupo B (total em +50, segs em +30).
-      - Cotas horizontais por segmento em y=base_y-12.8; cota total em y=base_y-40.
-      - div_a = _div_segments(pj, gw_each): MESMA fonte que draw_cima (fonte única).
-      - div_b = reversed(div_a) sempre — B é espelho de A (grade_1_div_b são offsets de parafusos).
+
+def _grade_face_panel_top(pj: dict, face: str, fallback_height: float) -> float:
+    """Topo do painel na mesma convenção usada por draw_abcd, em cm locais."""
+    pd = float(pj.get('pd_pavimento_cm') or fallback_height)
+    intervals = pj.get(f'paineis_intervals_{face}') or []
+    if intervals:
+        h1 = float(pj.get(f'h1_geom_{face}', pj.get(f'h1_{face}', 0.0)) or 0.0)
+        measured = h1 + sum(float(value) for value in intervals if value is not None)
+        return max(0.0, min(measured, pd))
+    return max(0.0, min(float(fallback_height), pd))
+
+
+def _grade_vertical_height(
+    pj: dict,
+    face: str,
+    x_rel: float,
+    panel_width: float,
+    fallback_height: float,
+    base_height: float = 2.2,
+    top_clearance: float = 15.0,
+) -> float:
+    """Altura útil de um montante, respeitando recortes superiores da face.
+
+    A posição ``x_rel`` vem das mesmas divisões usadas em CIMA. Aberturas que
+    alcançam o topo reduzem apenas os montantes cuja posição cai dentro de sua
+    largura. A cota final deixa 15 cm até o topo local do painel.
+    """
+    panel_top = _grade_face_panel_top(pj, face, fallback_height)
+    local_top = panel_top
+    h1 = float(pj.get(f'h1_geom_{face}', pj.get(f'h1_{face}', 0.0)) or 0.0)
+    tolerance = 0.5
+    for opening in _grade_face_openings(pj, face):
+        side = str(opening.get('lado') or '').strip().lower()
+        width = max(0.0, float(opening.get('largura') or 0.0))
+        y_bottom = h1 + float(opening.get('y_rel') or 0.0)
+        y_top = y_bottom + max(0.0, float(opening.get('altura') or 0.0))
+        if y_top < panel_top - 1.0:
+            continue  # abertura interna não altera o topo local do montante
+        if side == 'esquerdo':
+            affected = x_rel <= width + tolerance
+        elif side == 'direito':
+            affected = x_rel >= panel_width - width - tolerance
+        elif side == 'meio':
+            x0 = float(opening.get('x_offset') or 0.0)
+            affected = x0 - tolerance <= x_rel <= x0 + width + tolerance
+        else:
+            affected = False
+        if affected:
+            local_top = min(local_top, y_bottom)
+    return round(max(0.0, local_top - top_clearance - base_height), 4)
+
+
+def _grade_layout_for_panel_width(panel_width: float):
+    """Segmenta uma largura externa exata em uma a três grades."""
+    panel_width = float(panel_width)
+    if panel_width <= 0:
+        return 0, 0.0, []
+    if _GradeCalculator and panel_width > 22.0:
+        # GradeCalculator soma 22 cm ao valor recebido; retirar antes preserva
+        # exatamente a largura externa do painel C/D.
+        legacy = _GradeCalculator.calcular_grades(panel_width - 22.0)
+        return _normalized_grade_layout(panel_width, legacy)
+    return 1, panel_width, []
+
+
+def draw_grades(
+    msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome, pj,
+    visual_mode="NOVA", horizontal_positions=None,
+):
+    """
+    Zona GRADES coerente com ABCD + CIMA.
+
+    - A/B usam a mesma largura e as mesmas divisões da VISÃO CIMA.
+    - C/D existem somente com largura >= 50 cm e mantêm a largura do painel.
+    - Apenas as extremidades globais usam 7 cm; encontros e internos usam 3,5 cm.
+    - Cada montante recebe altura local da face, 15 cm abaixo do topo do painel.
+    - Horizontais usam o perfil INI/NOVA e só entram até o menor montante da grade.
+    - Cada montante recebe cota vertical independente.
     """
     BASE_H      = 2.2
     SARR_LW     = 7.0
     SARR_CW     = 3.5
     SARR_HH     = 10.0
     GROUP_GAP   = 40.0   # espaçamento visual entre Grupo A e Grupo B
-    HORIZ_STEP  = 60.0
-    HORIZ_FIRST = 30.0
-
-    if _GradeCalculator:
-        ng, gw_each, dist_g = _GradeCalculator.calcular_grades(comp)
+    if horizontal_positions is None:
+        horizontal_positions = grade_horizontal_positions_for_mode(visual_mode)
     else:
-        gw_each = comp + 22.0
-        ng = 1
-        dist_g = 0.0
-    if ng <= 0 or gw_each <= 0:
-        return 0
+        horizontal_positions = validate_grade_horizontal_positions(horizontal_positions)
 
-    div_a = _div_segments(pj, gw_each)
-    # Grupo B é sempre o espelho de A — grade_1_div_b contém offsets de parafusos
-    # da face B (geometria diferente), não divisões de grade.
-    div_b = list(reversed(div_a))
-
-    def draw_group(gx_start, divs):
-        """Desenha todos os ng grades do grupo; retorna lista de posições relativas dos horizontais."""
-        horiz_ys = []
-        for gi in range(ng):
-            gx = gx_start + gi * (gw_each + dist_g)
-            # base rect
-            rect_lines(msp, gx, base_y, gw_each, BASE_H, 'SARR_2.2x7')
-            # left vert
-            rect_lines(msp, gx, base_y + BASE_H, SARR_LW, altura, 'SARR_2.2x7')
-            # center sarrafos at div boundaries (not last)
-            cumsum = 0.0
-            for d in divs[:-1]:
-                cumsum += d
-                bx = gx + cumsum
-                rect_lines(msp, bx - SARR_CW / 2, base_y + BASE_H, SARR_CW, altura, 'SARR_3.5x7')
-            # right vert
-            rect_lines(msp, gx + gw_each - SARR_LW, base_y + BASE_H, SARR_LW, altura, 'SARR_2.2x7')
-            # horizontal sarrafos — todos SARR_2.2x10 (robot usa mesmo layer em todas posições)
-            y_max = base_y + BASE_H + altura
-            y_h = base_y + BASE_H + HORIZ_FIRST
-            while y_h + SARR_HH <= y_max + 0.1:
-                rect_lines(msp, gx, y_h, gw_each, SARR_HH, 'SARR_2.2x10')
-                rel = round(y_h - (base_y + BASE_H), 4)
-                if rel not in horiz_ys:
-                    horiz_ys.append(rel)
-                y_h += HORIZ_STEP
-            # cotas horizontais por segmento
-            x_seg = gx
-            for d in divs:
-                try:
-                    e = msp.add_linear_dim(
-                        base=(x_seg + d / 2, base_y - 17.8),
-                        p1=(x_seg, base_y - 12.8),
-                        p2=(x_seg + d, base_y - 12.8),
-                        angle=0, dimstyle='PAINEL-NOVA',
-                        dxfattribs={'layer': 'COTA'})
-                    e.render()
-                except Exception:
-                    pass
-                x_seg += d
-            # cota total horizontal
-            try:
-                t = msp.add_linear_dim(
-                    base=(gx + gw_each / 2, base_y - 40),
-                    p1=(gx, base_y), p2=(gx + gw_each, base_y),
-                    angle=0, dimstyle='PAINEL-NOVA',
-                    dxfattribs={'layer': 'COTA'})
-                t.render()
-            except Exception:
-                pass
-            # cota do gap entre grades consecutivas (só quando ng > 1)
-            if gi < ng - 1 and dist_g > 0.01:
-                try:
-                    g = msp.add_linear_dim(
-                        base=(gx + gw_each + dist_g / 2, base_y - 40),
-                        p1=(gx + gw_each, base_y),
-                        p2=(gx + gw_each + dist_g, base_y),
-                        angle=0, dimstyle='PAINEL-NOVA',
-                        dxfattribs={'layer': 'COTA'})
-                    g.render()
-                except Exception:
-                    pass
-            # GRA-E: apex esq → inserir em gx; GRA-D: apex dir → inserir em gx+gw-7
-            for bname, bx in (('GRA-E', gx), ('GRA-D', gx + gw_each - 7)):
-                try:
-                    msp.add_blockref(bname, (bx, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
-                except Exception:
-                    pass
-        return horiz_ys
-
-    group_total_w = ng * gw_each + (ng - 1) * dist_g
-    gx_b = base_x + group_total_w + GROUP_GAP
-
-    # Label Grupo A
-    msp.add_text(f'{nome}.A', dxfattribs={
-        'layer': 'NOMENCLATURA',
-        'insert': (base_x - 10, base_y),
-        'height': 14,
-        'rotation': 90,
-    })
-    draw_group(base_x, div_a)
-
-    # Label Grupo B
-    msp.add_text(f'{nome}.B', dxfattribs={
-        'layer': 'NOMENCLATURA',
-        'insert': (gx_b - 10, base_y),
-        'height': 14,
-        'rotation': 90,
-    })
-    horiz_ys = draw_group(gx_b, div_b)
-
-    # ── Cotas verticais no lado direito do Grupo B (última grade do conjunto) ──
-    x_right = gx_b + group_total_w
-    y0      = base_y + BASE_H          # fundo dos sarrafos verticais
-    y_top   = base_y + BASE_H + altura # topo dos sarrafos verticais
-
-    # Cota total em +50
-    try:
-        e = msp.add_linear_dim(
-            base=(x_right + 50, y0 + altura / 2),
-            p1=(x_right, y0), p2=(x_right, y_top),
-            angle=90, dimstyle='PAINEL-NOVA',
-            dxfattribs={'layer': 'COTA'})
-        e.render()
-    except Exception:
-        pass
-
-    # Cotas segmentadas em +30
-    if horiz_ys:
-        hy_sorted = sorted(set(horiz_ys))
-
-        # base → primeiro horizontal
-        fh = hy_sorted[0]
+    def add_vertical_dimension(x_center, height, ordinal):
+        if height <= 0.1:
+            return
+        y0 = base_y + BASE_H
+        offset = 7.0 if ordinal % 2 == 0 else -7.0
         try:
-            e = msp.add_linear_dim(
-                base=(x_right + 30, y0 + fh / 2),
-                p1=(x_right, y0), p2=(x_right, y0 + fh),
+            dim = msp.add_linear_dim(
+                base=(x_center + offset, y0 + height / 2),
+                p1=(x_center, y0), p2=(x_center, y0 + height),
                 angle=90, dimstyle='PAINEL-NOVA',
-                dxfattribs={'layer': 'COTA'})
-            e.render()
+                dxfattribs={'layer': 'COTA'},
+            )
+            dim.render()
         except Exception:
             pass
 
-        for idx, hy in enumerate(hy_sorted):
-            y_h_abs = y0 + hy
-            # espessura do horizontal (10cm)
+    def draw_face_group(face, gx_start, panel_width, ng, gw_each, gaps):
+        group_horiz = []
+        group_heights = []
+        grade_starts = _grade_starts(gw_each, gaps)
+        group_total_w = ng * gw_each + sum(gaps)
+        if face in ('A', 'B'):
+            divisions = _grade_divisions(
+                pj, panel_width, ng, gw_each, gaps,
+            )
+        else:
+            divisions = [
+                _integer_segments_with_avoidance(gw_each, [])
+                for _ in range(ng)
+            ]
+        msp.add_text(f'{nome}.{face}', dxfattribs={
+            'layer': 'NOMENCLATURA', 'insert': (gx_start - 10, base_y),
+            'height': 14, 'rotation': 90,
+        })
+
+        ordinal = 0
+        for gi, grade_start in enumerate(grade_starts):
+            gx = gx_start + grade_start
+            divs = divisions[gi]
+            if face == 'B':
+                divs = list(reversed(divs))
+
+            rect_lines(msp, gx, base_y, gw_each, BASE_H, 'SARR_2.2x7')
+            global_grade_x = grade_start
+
+            verticals = []
+            left_w = SARR_LW if gi == 0 else SARR_CW
+            left_x = gx
+            verticals.append((left_x, left_w, global_grade_x + left_w / 2.0))
+            cumulative = 0.0
+            for segment in divs[:-1]:
+                cumulative += segment
+                verticals.append((
+                    gx + cumulative - SARR_CW / 2.0,
+                    SARR_CW,
+                    global_grade_x + cumulative,
+                ))
+            right_w = SARR_LW if gi == ng - 1 else SARR_CW
+            right_x = gx + gw_each - right_w
+            verticals.append((
+                right_x, right_w,
+                global_grade_x + gw_each - right_w / 2.0,
+            ))
+
+            heights = []
+            for vx, width, x_rel in verticals:
+                local_height = _grade_vertical_height(
+                    pj, face, x_rel, panel_width, altura,
+                    base_height=BASE_H, top_clearance=15.0,
+                )
+                heights.append(local_height)
+                group_heights.append(local_height)
+                layer = 'SARR_2.2x7' if width >= SARR_LW - 0.1 else 'SARR_3.5x7'
+                if local_height > 0.1:
+                    rect_lines(msp, vx, base_y + BASE_H, width, local_height, layer)
+                    add_vertical_dimension(vx + width / 2.0, local_height, ordinal)
+                ordinal += 1
+
+            min_height = min((h for h in heights if h > 0.1), default=0.0)
+            for rel_pos in horizontal_positions:
+                if rel_pos + SARR_HH > min_height + 0.1:
+                    continue
+                y_h = base_y + BASE_H + rel_pos
+                rect_lines(msp, gx, y_h, gw_each, SARR_HH, 'SARR_2.2x10')
+                if rel_pos not in group_horiz:
+                    group_horiz.append(rel_pos)
+
+            x_seg = gx
+            for segment in divs:
+                try:
+                    dim = msp.add_linear_dim(
+                        base=(x_seg + segment / 2.0, base_y - 17.8),
+                        p1=(x_seg, base_y - 12.8),
+                        p2=(x_seg + segment, base_y - 12.8),
+                        angle=0, dimstyle='PAINEL-NOVA',
+                        dxfattribs={'layer': 'COTA'},
+                    )
+                    dim.render()
+                except Exception:
+                    pass
+                x_seg += segment
             try:
-                e = msp.add_linear_dim(
-                    base=(x_right + 30, y_h_abs + SARR_HH / 2),
-                    p1=(x_right, y_h_abs), p2=(x_right, y_h_abs + SARR_HH),
-                    angle=90, dimstyle='PAINEL-NOVA',
-                    dxfattribs={'layer': 'COTA'})
-                e.render()
+                total_dim = msp.add_linear_dim(
+                    base=(gx + gw_each / 2.0, base_y - 40),
+                    p1=(gx, base_y), p2=(gx + gw_each, base_y),
+                    angle=0, dimstyle='PAINEL-NOVA',
+                    dxfattribs={'layer': 'COTA'},
+                )
+                total_dim.render()
             except Exception:
                 pass
-            # gap até o próximo horizontal
-            if idx < len(hy_sorted) - 1:
-                next_y = y0 + hy_sorted[idx + 1]
-                gap = next_y - (y_h_abs + SARR_HH)
-                if gap > 0.1:
-                    try:
-                        e = msp.add_linear_dim(
-                            base=(x_right + 30, y_h_abs + SARR_HH + gap / 2),
-                            p1=(x_right, y_h_abs + SARR_HH), p2=(x_right, next_y),
-                            angle=90, dimstyle='PAINEL-NOVA',
-                            dxfattribs={'layer': 'COTA'})
-                        e.render()
-                    except Exception:
-                        pass
+            if gi < ng - 1 and gaps[gi] > 0.01:
+                gap = gaps[gi]
+                try:
+                    gap_dim = msp.add_linear_dim(
+                        base=(gx + gw_each + gap / 2.0, base_y - 40),
+                        p1=(gx + gw_each, base_y),
+                        p2=(gx + gw_each + gap, base_y),
+                        angle=0, dimstyle='PAINEL-NOVA',
+                        dxfattribs={'layer': 'COTA'},
+                    )
+                    gap_dim.render()
+                except Exception:
+                    pass
 
-        # último horizontal → topo
-        y_last_top = y0 + hy_sorted[-1] + SARR_HH
-        top_gap = y_top - y_last_top
-        if top_gap > 0.1:
-            try:
-                e = msp.add_linear_dim(
-                    base=(x_right + 30, y_last_top + top_gap / 2),
-                    p1=(x_right, y_last_top), p2=(x_right, y_top),
-                    angle=90, dimstyle='PAINEL-NOVA',
-                    dxfattribs={'layer': 'COTA'})
-                e.render()
-            except Exception:
-                pass
+            # Blocos e sarrafos de 7 cm existem somente nas extremidades globais.
+            if gi == 0:
+                try:
+                    msp.add_blockref('GRA-E', (gx, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
+                except Exception:
+                    pass
+            if gi == ng - 1:
+                try:
+                    msp.add_blockref('GRA-D', (gx + gw_each - SARR_LW, base_y),
+                                     dxfattribs={'layer': 'SARR_2.2x7'})
+                except Exception:
+                    pass
+        return {
+            'x_right': gx_start + group_total_w,
+            'width': group_total_w,
+            'horizontals': sorted(group_horiz),
+            'max_height': max(group_heights, default=0.0),
+        }
 
-    return 1
+    ng_ab, gw_ab, gaps_ab = _grade_layout_from_inner(comp)
+    if ng_ab <= 0 or gw_ab <= 0:
+        return 0
+
+    cursor_x = base_x
+    drawn = []
+    panel_ab = comp + 22.0
+    for face in ('A', 'B'):
+        info = draw_face_group(face, cursor_x, panel_ab, ng_ab, gw_ab, gaps_ab)
+        drawn.append(info)
+        cursor_x = info['x_right'] + GROUP_GAP
+
+    # Faces curtas só recebem grade a partir de 50 cm, conforme decisão do dono.
+    if larg >= 50.0:
+        ng_cd, gw_cd, gaps_cd = _grade_layout_for_panel_width(larg)
+        for face in ('C', 'D'):
+            info = draw_face_group(face, cursor_x, larg, ng_cd, gw_cd, gaps_cd)
+            drawn.append(info)
+            cursor_x = info['x_right'] + GROUP_GAP
+
+    # Cadeia das travessas no lado direito do último grupo desenhado.
+    last = drawn[-1]
+    x_right = last['x_right']
+    y0 = base_y + BASE_H
+    y_top = y0 + last['max_height']
+    if last['max_height'] > 0.1:
+        try:
+            total = msp.add_linear_dim(
+                base=(x_right + 50, y0 + last['max_height'] / 2.0),
+                p1=(x_right, y0), p2=(x_right, y_top),
+                angle=90, dimstyle='PAINEL-NOVA', dxfattribs={'layer': 'COTA'},
+            )
+            total.render()
+        except Exception:
+            pass
+    horizontals = [
+        pos for pos in last['horizontals']
+        if pos + SARR_HH <= last['max_height'] + 0.1
+    ]
+    chain_points = [0.0]
+    for pos in horizontals:
+        chain_points.extend([pos, pos + SARR_HH])
+    chain_points.append(last['max_height'])
+    chain_points = sorted(set(round(value, 4) for value in chain_points))
+    for start, end in zip(chain_points[:-1], chain_points[1:]):
+        if end - start <= 0.1:
+            continue
+        try:
+            segment_dim = msp.add_linear_dim(
+                base=(x_right + 30, y0 + (start + end) / 2.0),
+                p1=(x_right, y0 + start), p2=(x_right, y0 + end),
+                angle=90, dimstyle='PAINEL-NOVA', dxfattribs={'layer': 'COTA'},
+            )
+            segment_dim.render()
+        except Exception:
+            pass
+    return len(drawn)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1714,7 +1995,9 @@ def draw_efgh(msp, base_x, base_y, pj: dict) -> int:
 # Zone generator — gera UMA zona por pilar em msp isolado (x=0)
 # ═════════════════════════════════════════════════════════════════════════════
 
-def generate_pilar_zone(msp, pj: dict, zone: str, row_y: float = 0) -> int:
+def generate_pilar_zone(
+    msp, pj: dict, zone: str, row_y: float = 0, visual_mode: str = "NOVA",
+) -> int:
     """
     Gera apenas a zona indicada para um pilar, com x-origem em 0.
     Retorna contagem de entidades, ou -1 se zona é omitida (grade_1=0, EFGH).
@@ -1740,7 +2023,10 @@ def generate_pilar_zone(msp, pj: dict, zone: str, row_y: float = 0) -> int:
     elif zone == 'grades':
         if comp <= 0:
             return -1
-        return draw_grades(msp, 0, row_y, grade_1, grade_2, comp, larg, altura, nome, pj)
+        return draw_grades(
+            msp, 0, row_y, grade_1, grade_2, comp, larg, altura, nome, pj,
+            visual_mode=visual_mode,
+        )
     elif zone == 'efgh':
         larg1_E = float(pj.get('larg1_E', 0.0))
         larg1_F = float(pj.get('larg1_F', 0.0))
@@ -1754,7 +2040,7 @@ def generate_pilar_zone(msp, pj: dict, zone: str, row_y: float = 0) -> int:
 # Main generator — 3 zones per pilar
 # ═════════════════════════════════════════════════════════════════════════════
 
-def generate_pilar(msp, pj, row_y_offset):
+def generate_pilar(msp, pj, row_y_offset, visual_mode="NOVA"):
     """
     Generate all zones for a single pilar at the appropriate Y offset.
     Reads `subtipo_pil` from pj (RETANGULAR | U | ESPECIAL).
@@ -1781,7 +2067,7 @@ def generate_pilar(msp, pj, row_y_offset):
 
     # ── ZONE 3: GRADES (X:4000) ──────────────────────────────────────────────
     n = draw_grades(msp, ZONE_GRADES_X, row_y_offset, grade_1, grade_2,
-                    comp, larg, altura, nome, pj)
+                    comp, larg, altura, nome, pj, visual_mode=visual_mode)
     total_entities += n
 
     # ── ZONE 4: EFGH (X:8000) — apenas subtipo U ─────────────────────────────
@@ -1861,7 +2147,9 @@ def main():
 
             doc_z = setup_doc()
             msp_z = doc_z.modelspace()
-            n = generate_pilar_zone(msp_z, pj, zone)
+            n = generate_pilar_zone(
+                msp_z, pj, zone, visual_mode=args.visual_mode,
+            )
 
             if n < 0:
                 if zone == 'grades':
@@ -1891,6 +2179,8 @@ def main():
     print(f'  ABCD zone: X={ZONE_ABCD_X}')
     print(f'  CIMA zone: X={ZONE_CIMA_X}')
     print(f'  GRADES zone: X={ZONE_GRADES_X}')
+    print(f'  GRADES horizontais [{args.visual_mode}]: '
+          f'{grade_horizontal_positions_for_mode(args.visual_mode)} cm')
     print()
 
     doc = setup_doc()
@@ -1912,7 +2202,7 @@ def main():
         larg_v = pj.get('largura', '?')
         altura = float(pj.get('altura', 280))
 
-        n = generate_pilar(msp, pj, row_y)
+        n = generate_pilar(msp, pj, row_y, visual_mode=args.visual_mode)
         total_entities += n
 
         subtipo = pj.get('subtipo_pil', 'RETANGULAR')

@@ -4,7 +4,7 @@
   "comprimento": 100.0,
   "largura": 19.0,
   "altura": 280.0,
-  "pavimento": "Pavimento",
+  "pavimento": "13",
   "nivel_chegada": 0.0,
   "nivel_saida": 280.0,
   "modo_distribuicao": "NOVA",
@@ -101,5 +101,31 @@
   "par_6_7": 0.0,
   "par_7_8": 0.0,
   "par_8_9": 0.0,
-  "pd_pavimento_cm": 323.0
+  "h1_geom_A": 0.0,
+  "paineis_intervals_A": [
+    122.0,
+    97.0,
+    87.0
+  ],
+  "h1_geom_B": 2.0,
+  "paineis_intervals_B": [
+    122.0,
+    97.0,
+    87.0
+  ],
+  "h1_geom_C": 2.0,
+  "paineis_intervals_C": [
+    122.0,
+    122.0,
+    18.0
+  ],
+  "larg_c_geom": 42.9,
+  "h1_geom_D": 0.0,
+  "paineis_intervals_D": [
+    122.0,
+    85.0,
+    55.0
+  ],
+  "comprimento_geom": 100.0,
+  "_confianca": 0.95
 }

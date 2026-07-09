@@ -37,7 +37,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QSplitter, QGroupBox, QTextEdit, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QSizePolicy,
     QListWidget, QListWidgetItem, QApplication, QLineEdit, QDialog,
-    QRadioButton, QButtonGroup,
+    QRadioButton, QButtonGroup, QDoubleSpinBox,
 )
 from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent, QSettings
 from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, QPixmap, QTransform
@@ -45,6 +45,15 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, Q
 from src.ui.components.organisms import DualCanvasManager
 
 from src.ui.theme import Colors, Semantic, Contextual, Text, Surface, Border, Accent
+from scripts.pl_grade_visual_config import (
+    CONFIG_PATH as PL_GRADE_VISUAL_CONFIG_PATH,
+    DEFAULT_PROFILES as PL_GRADE_DEFAULT_PROFILES,
+    VALID_MODES as PL_GRADE_VISUAL_MODES,
+    distances_to_positions as pl_grade_distances_to_positions,
+    load_profiles as load_pl_grade_visual_profiles,
+    positions_to_distances as pl_grade_positions_to_distances,
+    save_profiles as save_pl_grade_visual_profiles,
+)
 
 # ── Helpers LV (acesso por todas as classes do módulo) ─────────────────────
 import re as _lv_re
@@ -311,6 +320,11 @@ class DXFVectorView(QWidget):
                 self.canvas.scene.removeItem(self._h_rect)
             except RuntimeError:
                 pass
+        if hasattr(self, '_h_path'):
+            try:
+                self.canvas.scene.removeItem(self._h_path)
+            except RuntimeError:
+                pass
         if not bbox:
             return
             
@@ -339,6 +353,11 @@ class DXFVectorView(QWidget):
         if hasattr(self, '_h_path'):
             try:
                 self.canvas.scene.removeItem(self._h_path)
+            except RuntimeError:
+                pass
+        if hasattr(self, '_h_rect'):
+            try:
+                self.canvas.scene.removeItem(self._h_rect)
             except RuntimeError:
                 pass
         if not points:
@@ -1763,8 +1782,7 @@ class Fase8Panel(QFrame):
         row_obra = QHBoxLayout()
         row_obra.addWidget(QLabel("Obra:"))
         self.cmb_obra = QComboBox()
-        self.cmb_obra.setMinimumHeight(24)
-        self.cmb_obra.setMaximumHeight(24)
+        self._compact_combo(self.cmb_obra, min_chars=12)
         self.cmb_obra.currentTextChanged.connect(self._on_obra_changed)
         row_obra.addWidget(self.cmb_obra, 1)
         sel_lay.addLayout(row_obra)
@@ -1772,8 +1790,7 @@ class Fase8Panel(QFrame):
         row_pav = QHBoxLayout()
         row_pav.addWidget(QLabel("Pav:"))
         self.cmb_pav = QComboBox()
-        self.cmb_pav.setMinimumHeight(24)
-        self.cmb_pav.setMaximumHeight(24)
+        self._compact_combo(self.cmb_pav, min_chars=14)
         row_pav.addWidget(self.cmb_pav, 1)
         sel_lay.addLayout(row_pav)
 
@@ -1890,6 +1907,27 @@ class Fase8Panel(QFrame):
         # Preencher obras
         self._populate_obras()
 
+    @staticmethod
+    def _obra_display_label(value: str) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return ""
+        if "\\" in text or "/" in text:
+            return Path(text).name or text
+        return text
+
+    @staticmethod
+    def _compact_combo(combo: QComboBox, min_chars: int = 10):
+        combo.setMinimumHeight(24)
+        combo.setMaximumHeight(24)
+        combo.setMinimumWidth(0)
+        combo.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        combo.setMinimumContentsLength(min_chars)
+        try:
+            combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        except AttributeError:
+            combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+
     # ─────────────────────────────────────────────
     # Population
     # ─────────────────────────────────────────────
@@ -1911,7 +1949,9 @@ class Fase8Panel(QFrame):
             works = []
 
         for o in works:
-            self.cmb_obra.addItem(f"📁 {o}", o)
+            label = self._obra_display_label(o)
+            self.cmb_obra.addItem(f"📁 {label}", o)
+            self.cmb_obra.setItemData(self.cmb_obra.count() - 1, str(o), Qt.ToolTipRole)
         self.cmb_obra.blockSignals(False)
 
         if works:
@@ -3467,21 +3507,21 @@ def _n3_structured_ficha_rows(
 class LevelColumn(QFrame):
     """Coluna de nível (N1/N2/N3): badge + header, viewer, pipeline steps, ficha."""
 
-    COL_W = 540   # largura fixa da coluna (pixels)
-    VIEWER_Y_REDUCTION = 0.25
-    MAIN_VIEWER_MIN_HEIGHT = 120   # 160px * 0.75
-    SINGLE_VIEWER_SIZES = (525, 475)   # viewer 70% -> 52.5%
+    COL_W = 540   # largura minima preferida da coluna (pixels)
+    MAIN_VIEWER_MIN_HEIGHT = 156   # 120px * 1.30
+    FICHA_VIEWER_MIN_HEIGHT = 104  # 80px * 1.30
+    SINGLE_VIEWER_SIZES = (683, 618)   # 525/475 * 1.30
     SINGLE_VIEWER_STRETCH = (21, 19)
-    COMPARE_OUTER_STRETCH = (21, 47)
-    COMPARE_INNER_STRETCH = (21, 26)
+    COMPARE_OUTER_STRETCH = (27, 61)   # 21/47 * 1.30
+    COMPARE_INNER_STRETCH = (27, 34)   # 21/26 * 1.30
 
     def __init__(self, nivel_id: str, titulo: str, bg_color: str,
                  accent: str, descricao: str, mode: str = 'png'):
         super().__init__()
         self.nivel_id = nivel_id
         self._mode    = mode   # 'dxf' ou 'png'
-        self.setFixedWidth(self.COL_W)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.setMinimumWidth(self.COL_W)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setStyleSheet(f"""
             QFrame {{
                 background: {Colors.BG_SECONDARY};
@@ -3705,7 +3745,7 @@ class LevelColumn(QFrame):
         self._ficha_accent = accent
         ficha_scroll = QScrollArea()
         ficha_scroll.setWidgetResizable(True)
-        ficha_scroll.setMinimumHeight(80)
+        ficha_scroll.setMinimumHeight(self.FICHA_VIEWER_MIN_HEIGHT)
         ficha_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         ficha_scroll.setStyleSheet(f"""
             QScrollArea {{ background: transparent; border: none; }}
@@ -4259,7 +4299,7 @@ class LevelColumn(QFrame):
         pv = QVBoxLayout(panel)
         pv.setContentsMargins(2, 2, 2, 2)
         pv.setSpacing(2)
-        hdr = QLabel("DXF N2 — Recorte")
+        hdr = QLabel(title or "DXF N2 — Recorte")
         hdr.setAlignment(Qt.AlignCenter)
         hdr.setFixedHeight(18)
         hdr.setStyleSheet(
@@ -4349,12 +4389,17 @@ class DxfVisualConfigDialog(QDialog):
     }
     _COMMON_TEMPLATE_FILE = SCRIPTS_DIR.parent / "config" / "dxf_visual_templates.json"
 
-    def __init__(self, classe: str, script_path: Path, robot_widget=None, parent=None):
+    def __init__(
+        self, classe: str, script_path: Path, robot_widget=None, parent=None,
+        level: str = "",
+    ):
         super().__init__(parent)
         self.classe = str(classe or "").upper()
+        self.level = str(level or "").upper()
         self.script_path = Path(script_path)
         self.robot_widget = robot_widget
-        self.setWindowTitle(f"Configuracao Visual DXF - {self.classe}")
+        level_suffix = f" {self.level}" if self.level else ""
+        self.setWindowTitle(f"Configuracao Visual DXF{level_suffix} - {self.classe}")
         self.resize(980, 720)
         self.setStyleSheet(f"""
             QDialog {{ background:{Colors.BG_PRIMARY}; color:{Colors.TEXT_PRIMARY}; }}
@@ -4368,7 +4413,9 @@ class DxfVisualConfigDialog(QDialog):
         main.setContentsMargins(10, 10, 10, 10)
         main.setSpacing(8)
 
-        hdr = QLabel(f"{self.classe} - templates do robo + template do motor DXF atual")
+        hdr = QLabel(
+            f"{self.classe}{level_suffix} - templates do robo + template do motor DXF atual"
+        )
         hdr.setStyleSheet(f"color:{Colors.ACCENT_BLUE}; font-weight:bold; font-size:13px;")
         main.addWidget(hdr)
 
@@ -4378,6 +4425,8 @@ class DxfVisualConfigDialog(QDialog):
         self.current_template = self._extract_current_motor_template()
         self._persist_current_template_if_supported()
         self._add_native_config_tab()
+        if self.classe == "PL":
+            self._add_pl_grade_positions_tab()
         self._add_current_template_tab()
         self._add_robot_templates_tab()
         self._add_robot_config_tab()
@@ -4625,6 +4674,124 @@ class DxfVisualConfigDialog(QDialog):
             lay.addWidget(empty)
         lay.addStretch()
         self.tabs.addTab(tab, "Configs Nativas")
+
+    def _add_pl_grade_positions_tab(self):
+        """Editor dos intervalos horizontais de GRADES, separado por INI/NOVA."""
+        tab = QWidget()
+        lay = QVBoxLayout(tab)
+        lay.setContentsMargins(14, 14, 14, 14)
+        lay.setSpacing(9)
+
+        title = QLabel("GRADES — distâncias entre sarrafos horizontais")
+        title.setStyleSheet(
+            f"color:{Colors.ACCENT_BLUE}; font-weight:bold; font-size:13px;"
+        )
+        lay.addWidget(title)
+
+        info = QLabel(
+            "Configuração compartilhada pelos geradores N3 e N4. "
+            "Cada coluna pertence a um modo visual. A primeira medida vai da "
+            "base da grade ao H1; as demais vão de um horizontal ao seguinte. "
+            "Ao gerar, somente posições que cabem na altura do painel são usadas."
+        )
+        info.setWordWrap(True)
+        info.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:11px;")
+        lay.addWidget(info)
+
+        profiles = load_pl_grade_visual_profiles()
+        distances_by_mode = {
+            mode: pl_grade_positions_to_distances(
+                profiles["modos"][mode]["horizontal_positions_cm"]
+            )
+            for mode in PL_GRADE_VISUAL_MODES
+        }
+        row_count = max(len(values) for values in distances_by_mode.values())
+        table = QTableWidget(row_count, 3)
+        table.setHorizontalHeaderLabels(["Trecho", "INI (cm)", "NOVA (cm)"])
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        table.verticalHeader().setVisible(False)
+        table.setAlternatingRowColors(True)
+        table.setSelectionMode(QTableWidget.NoSelection)
+
+        self._pl_grade_distance_spins = {mode: [] for mode in PL_GRADE_VISUAL_MODES}
+        for row in range(row_count):
+            start = "Base" if row == 0 else f"H{row}"
+            end = f"H{row + 1}"
+            segment = QTableWidgetItem(f"{start} → {end}")
+            segment.setFlags(segment.flags() & ~Qt.ItemIsEditable)
+            table.setItem(row, 0, segment)
+            for column, mode in enumerate(PL_GRADE_VISUAL_MODES, start=1):
+                spin = QDoubleSpinBox()
+                spin.setDecimals(1)
+                spin.setRange(0.1, 2000.0)
+                spin.setSingleStep(5.0)
+                spin.setSuffix(" cm")
+                values = distances_by_mode[mode]
+                spin.setValue(values[row] if row < len(values) else 100.0)
+                spin.setToolTip(
+                    f"{mode}: distância {start} → {end}, medida entre bordas inferiores"
+                )
+                table.setCellWidget(row, column, spin)
+                self._pl_grade_distance_spins[mode].append(spin)
+        table.resizeRowsToContents()
+        lay.addWidget(table, 1)
+
+        path_label = QLabel(f"Arquivo: {PL_GRADE_VISUAL_CONFIG_PATH}")
+        path_label.setWordWrap(True)
+        path_label.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:10px;")
+        lay.addWidget(path_label)
+
+        actions = QHBoxLayout()
+        btn_restore = QPushButton("Restaurar referência do robô")
+        btn_restore.clicked.connect(self._restore_pl_grade_reference)
+        actions.addWidget(btn_restore)
+        actions.addStretch()
+        btn_save = QPushButton("Salvar distâncias INI/NOVA")
+        btn_save.setStyleSheet(
+            f"background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; "
+            "font-weight:bold; padding:5px 12px;"
+        )
+        btn_save.clicked.connect(self._save_pl_grade_positions)
+        actions.addWidget(btn_save)
+        lay.addLayout(actions)
+
+        self.tabs.addTab(tab, "GRADES INI/NOVA")
+
+    def _restore_pl_grade_reference(self):
+        for mode in PL_GRADE_VISUAL_MODES:
+            positions = PL_GRADE_DEFAULT_PROFILES["modos"][mode][
+                "horizontal_positions_cm"
+            ]
+            distances = pl_grade_positions_to_distances(positions)
+            for spin, value in zip(self._pl_grade_distance_spins[mode], distances):
+                spin.setValue(value)
+
+    def _save_pl_grade_positions(self):
+        try:
+            profiles = load_pl_grade_visual_profiles()
+            for mode in PL_GRADE_VISUAL_MODES:
+                distances = [
+                    spin.value() for spin in self._pl_grade_distance_spins[mode]
+                ]
+                profiles["modos"][mode]["horizontal_positions_cm"] = (
+                    pl_grade_distances_to_positions(distances)
+                )
+            saved_path = save_pl_grade_visual_profiles(profiles)
+            QMessageBox.information(
+                self,
+                "Configuração Visual — GRADES",
+                "Distâncias salvas para INI e NOVA.\n\n"
+                "A nova geometria será aplicada na próxima geração N3/N4.\n"
+                f"{saved_path}",
+            )
+        except (TypeError, ValueError, OSError) as exc:
+            QMessageBox.warning(
+                self,
+                "Configuração Visual — GRADES",
+                f"Não foi possível salvar as distâncias:\n{exc}",
+            )
 
     def _load_robot_templates(self) -> dict:
         templates = {}
@@ -4875,6 +5042,8 @@ class NavSidebar(QFrame):
         self.tbl_items.setSelectionBehavior(QTableWidget.SelectItems)
         self.tbl_items.setSelectionMode(QTableWidget.SingleSelection)
         self.tbl_items.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.tbl_items.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.tbl_items.setWordWrap(False)
         self.tbl_items.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.tbl_items.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.tbl_items.setStyleSheet(f"""
@@ -6104,7 +6273,10 @@ class TriLevelArea(QWidget):
         ]
         for i, (nivel_id, titulo, bg, accent, desc, mode) in enumerate(NIVEL_DEFS):
             col = LevelColumn(nivel_id, titulo, bg, accent, desc, mode)
-            col.setFixedWidth(16777215)   # remove largura fixa — ocupa tela cheia
+            # Nunca usar largura fixa "infinita": isso aumenta o minimumSizeHint
+            # do QTabWidget e cria scroll horizontal gigante no dashboard. A aba
+            # deve ocupar o viewport disponível e encolher junto com o splitter.
+            col.setMinimumWidth(0)
             col.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self._columns.append(col)
             tab_accent, _ = _tab_colors[i]
@@ -6850,8 +7022,8 @@ class TriLevelArea(QWidget):
         return (min(all_xs)-pad, min(all_ys)-pad,
                 max(all_xs)+pad, min(cy+180, max(all_ys)+pad))
 
-    def _get_lj_content_bbox_for(self, item_id: str, pad: float = 45.0):
-        """BBox da área interna LAJ em coordenadas STOG, com folga para cotas."""
+    def _get_lj_content_points_for(self, item_id: str):
+        """Polígono exato da área interna LAJ, derivado somente do recorte N2."""
         try:
             import re as _re
             import sys as _sys
@@ -6859,7 +7031,7 @@ class TriLevelArea(QWidget):
             recortes_dir = (DADOS_OBRAS_ROOT / self._current_obra /
                             "Fase-2_Triagem" / "recortes_reversos")
             if not recortes_dir.exists():
-                return None
+                return []
 
             pat_sel = _re.compile(rf"^LAJ_{_re.escape(item_id)}_sel_\d+\.dxf$", _re.I)
             pat_motor = _re.compile(rf"^LAJ_{_re.escape(item_id)}_motor_\d+\.dxf$", _re.I)
@@ -6885,7 +7057,7 @@ class TriLevelArea(QWidget):
                 None
             )
             if not dxf_path:
-                return None
+                return []
 
             scripts_dir = str(SCRIPTS_DIR)
             if scripts_dir not in _sys.path:
@@ -6895,7 +7067,7 @@ class TriLevelArea(QWidget):
             ficha = extrair_ficha_laje(str(dxf_path), item_id, self._current_obra)
             coords = ficha.get("coordenadas") or []
             if len(coords) < 3:
-                return None
+                return []
 
             xs = [float(c[0]) for c in coords]
             ys = [float(c[1]) for c in coords]
@@ -6905,10 +7077,16 @@ class TriLevelArea(QWidget):
             off_y = float(pose.get("y", 0.0)) if pose and abs(raw_y0) <= 0.5 else 0.0
             abs_xs = [x + off_x for x in xs]
             abs_ys = [y + off_y for y in ys]
-            return (min(abs_xs) - pad, min(abs_ys) - pad,
-                    max(abs_xs) + pad, max(abs_ys) + pad)
+            return list(zip(abs_xs, abs_ys))
         except Exception:
+            return []
+
+    def _get_lj_content_bbox_for(self, item_id: str, pad: float = 0.0):
+        """BBox justo do polígono interno LAJ; sem contexto de lajes vizinhas."""
+        points = self._get_lj_content_points_for(item_id)
+        if not points:
             return None
+        return self._points_bbox(points, pad=pad)
 
     def _ficha_generic(self, classe: str, item_id: str) -> list:
         """Lê JSON de Fase-4_Sincronizacao para qualquer classe."""
@@ -7713,7 +7891,9 @@ class ComparisonEngineModule(QWidget):
         # Conteúdo interno (sem largura fixa — deixa o scroll controlar)
         left_inner = QFrame()
         left_inner.setStyleSheet(f"background: {Colors.BG_SECONDARY};")
-        left_inner.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        left_inner.setMinimumWidth(0)
+        left_inner.setMaximumWidth(340)
+        left_inner.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
         left_inner_lay = QVBoxLayout(left_inner)
         left_inner_lay.setContentsMargins(0, 0, 0, 0)
         left_inner_lay.setSpacing(0)
@@ -7765,7 +7945,28 @@ class ComparisonEngineModule(QWidget):
 
         # 3. Área central 3 níveis (flex)
         self.tri_level = TriLevelArea()
-        layout.addWidget(self.tri_level, 1)
+        self.tri_level.setMinimumHeight(1180)
+        self.tri_level_scroll = QScrollArea()
+        self.tri_level_scroll.setWidget(self.tri_level)
+        self.tri_level_scroll.setWidgetResizable(True)
+        self.tri_level_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.tri_level_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.tri_level_scroll.setStyleSheet(f"""
+            QScrollArea {{
+                background: {Colors.BG_SECONDARY};
+                border: none;
+            }}
+            QScrollBar:vertical {{
+                background: {Colors.BG_DEEP}; width: 8px;
+            }}
+            QScrollBar::handle:vertical {{
+                background: {Colors.BORDER_DEFAULT}; border-radius: 4px; min-height: 28px;
+            }}
+            QScrollBar::handle:vertical:hover {{
+                background: {Colors.ACCENT_PRIMARY};
+            }}
+        """)
+        layout.addWidget(self.tri_level_scroll, 1)
 
         # Conectar obra/pav da Fase8 ao TriLevelArea (CE-004)
         self.fase8_panel.cmb_obra.currentTextChanged.connect(self._on_obra_pav_changed)
@@ -7922,7 +8123,7 @@ class ComparisonEngineModule(QWidget):
         col = self.tri_level._columns[3]
         if checked:
             recorte = getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
-            if not recorte or not self._refresh_n4_compare_if_active(recorte, cull_to_bbox=False):
+            if not recorte or not self._refresh_n4_compare_if_active(recorte, cull_to_bbox=True):
                 self.nav_sidebar.set_status("Sem recorte N2 para este item", Colors.TEXT_DIM)
                 self._btn_comparar_n2.setChecked(False)
             return
@@ -7946,7 +8147,10 @@ class ComparisonEngineModule(QWidget):
         classe = classe or getattr(self.nav_sidebar, "_selected_classe", "")
         item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
         bbox = self.tri_level._get_n1_bbox_for(item_id, classe) if item_id else None
-        points = self.tri_level._get_lj_n1_points(item_id) if classe == "LJ" and item_id else None
+        points = (
+            self.tri_level._get_n1_highlight_points(item_id, classe)
+            if classe in ("LJ", "FV") and item_id else None
+        )
         self.tri_level._columns[2].show_n2_above(
             n1_path,
             title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
@@ -8000,10 +8204,15 @@ class ComparisonEngineModule(QWidget):
         item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
         if bbox is None and item_id:
             bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
+        highlight_points = (
+            self.tri_level._get_lj_content_points_for(item_id)
+            if classe == "LJ" and item_id else None
+        )
         self.tri_level._columns[3].show_n2_above(
             path,
             title=f"DXF N2 - {item_id}" if item_id else "DXF N2",
             bbox=bbox,
+            highlight_points=highlight_points,
             cull_to_bbox=cull_to_bbox,
         )
         return True
@@ -8173,12 +8382,15 @@ class ComparisonEngineModule(QWidget):
         """Abre painel de configuracao visual do DXF para N3/N4/N5."""
         try:
             classe = getattr(self.nav_sidebar, "_current_classe", "") or "FV"
+            level = {2: "N3", 3: "N4", 4: "N5"}.get(col_index, "")
             script = self._script_for_visual_config(classe, col_index)
             robot = self._robot_widget_for_classe(classe)
             if not script.exists():
                 self.nav_sidebar.set_status(f"Script DXF nao encontrado: {script.name}", Colors.ACCENT_DANGER)
                 return
-            dlg = DxfVisualConfigDialog(classe, script, robot_widget=robot, parent=self)
+            dlg = DxfVisualConfigDialog(
+                classe, script, robot_widget=robot, parent=self, level=level,
+            )
             dlg.exec()
         except Exception as exc:
             self.nav_sidebar.set_status(f"Erro Config Visual: {str(exc)[:80]}", Colors.ACCENT_DANGER)

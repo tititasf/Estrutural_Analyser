@@ -115,6 +115,19 @@ class Settings:
     # Pavimento default passado ao headless quando o cliente nao informa.
     pav_default: str = field(default_factory=lambda: os.environ.get("PORTAL_PAV_DEFAULT", "13_PAV"))
 
+    # [2026-07-06] project_data.vision — banco de CURADORIA do app desktop (`projects`,
+    # `works` etc). Mesmo _DB_DEFAULT hardcoded em scripts/arete/headless_sa_analise.py
+    # (o subprocess do SA nao recebe --db do portal, entao usa esse default — tem que
+    # ser o MESMO arquivo). Decisao explicita do dono (2026-07-06): o portal PODE
+    # escrever aqui via DatabaseManager.create_project() (API oficial, mesma do app
+    # desktop) pra auto-registrar o projeto antes do SA — sem isso, obra nova enviada
+    # pelo portal nunca acha `select_sa_project` (LookupError real, achado rodando).
+    sa_db_path: Path = field(
+        default_factory=lambda: Path(
+            os.environ.get("PORTAL_SA_DB_PATH", "D:/Agente-cad-PYSIDE/project_data.vision")
+        )
+    )
+
     # STATUS.md — fonte read-only do rotulo certificado/beta por classe (R9).
     status_md_path: Path = field(
         default_factory=lambda: Path(
@@ -129,7 +142,7 @@ class Settings:
 # campos que sao Path (coeragem de overrides str -> Path)
 _PATH_FIELDS = {
     "db_path", "repo_root", "drive_oauth_json", "drive_sa_json", "dados_obras_dir",
-    "logs_dir", "status_md_path",
+    "logs_dir", "status_md_path", "sa_db_path",
 }
 
 
