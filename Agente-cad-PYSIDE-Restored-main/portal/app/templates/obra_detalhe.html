@@ -883,6 +883,7 @@
       ].forEach(function (grupo) {
         if (!grupo.itens.length) return;
         var cab = document.createElement('li');
+        cab.style.display = 'none';
         cab.className = 'n1-lista-cabecalho docs-cabecalho-tipo docs-recorte-subclasse ' + classePavPar;
         cab.textContent = grupo.label + ' (' + grupo.itens.length + ')';
         cab.setAttribute('data-bruto-recorte', rec.brutoId);
