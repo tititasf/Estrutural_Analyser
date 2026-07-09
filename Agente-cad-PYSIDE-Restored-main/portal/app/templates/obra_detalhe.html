@@ -517,7 +517,20 @@
   // se esteja.
   (function () {
     var btn = document.getElementById('obra-atual-btn');
-    if (btn) btn.addEventListener('click', function () { mostrarDetalhe('triagem'); });
+    if (btn) btn.addEventListener('click', function () { 
+       var triagemTitulo = document.querySelector('.arvore-triagem-titulo');
+       var docsViewer = document.getElementById('docs-viewer');
+       if (docsViewer) {
+           if (docsViewer.style.display === 'none') {
+               if (triagemTitulo) triagemTitulo.style.display = 'block';
+               docsViewer.style.display = 'block';
+           } else {
+               if (triagemTitulo) triagemTitulo.style.display = 'none';
+               docsViewer.style.display = 'none';
+           }
+       }
+       mostrarDetalhe('triagem'); 
+    });
   })();
 
   // --- painel 2: SA/N1 e N3 alternam a lista de 9 classes aninhada logo

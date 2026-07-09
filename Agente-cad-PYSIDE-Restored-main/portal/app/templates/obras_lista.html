@@ -2,6 +2,17 @@
 {% from "_macros.html" import status_badge %}
 {% block titulo %}{{ 'Todas as obras' if membro.papel == 'dono' else 'Minhas obras' }} — Portal de Formas{% endblock %}
 
+
+{% block sidebar_obras_extra %}
+<li class="sidebar-obras-arvore">
+  <ul class="arvore-obras-lista">
+    {% for o in obras %}
+      <li><a href="/app/obras/{{ o.id }}" class="obras-strip-item" title="{{ o.nome }}">{{ o.nome }}</a></li>
+    {% endfor %}
+  </ul>
+</li>
+{% endblock %}
+
 {% block conteudo %}
 <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
   <h1>{{ 'Todas as obras (visão do dono)' if membro.papel == 'dono' else 'Minhas obras' }}</h1>
