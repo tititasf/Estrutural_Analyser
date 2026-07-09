@@ -1,118 +1,308 @@
 {% extends "base.html" %}
-{% from "_macros.html" import class_badge, step_progress %}
+{% from "_macros.html" import class_badge %}
 {% block titulo %}{{ obra.nome }} — Portal de Formas{% endblock %}
 
-{% block conteudo %}
-<p><a href="/obras">← Obras</a></p>
-<h1>{{ obra.nome }}</h1>
-<p class="subtitulo">{{ obra.arquivo_nome or '—' }} · enviada por {{ obra.enviada_por or membro.login }}</p>
-
-{{ step_progress(obra.id, etapa_atual) }}
+{% set triagem_feita = etapa_atual >= 2 %}
+{% set recortes_feito = etapa_atual >= 3 %}
+{% set sa_feito = etapa_atual >= 4 %}
+{% set n5_feito = n5_releases | length > 0 %}
 
 {# ------------------------------------------------------------------ #}
-{# Etapa 3 (SA) — só progresso: polling de job ativo                    #}
+{# [2026-07-09, achado ao vivo com o dono] Reestruturação em 3 níveis:   #}
+{# PAINEL 1 = a própria sidebar global (bloco abaixo, entre "Obras" e     #}
+{# "Status Arete") — lista de todas as obras; a obra ATUAL expande a     #}
+{# Triagem (lista Pavimento→Tipo→Doc) aninhada pra baixo ali mesmo. Os    #}
+{# Recortes (Torres Limpas/Detalhes e Convenções) NÃO têm painel próprio  #}
+{# — são subclasses aninhadas debaixo do próprio Bruto que os gerou,     #}
+{# dentro dessa mesma árvore de Triagem (produtos exclusivos do bruto,   #}
+{# nunca agrupados pelo pavimento inteiro).                              #}
+{# PAINEL 2 (nav.painel-2, escuro, substitui o antigo obras-strip) = só   #}
+{# os botões SA/N1, N3, N5 — clicar em SA/N1 ou N3 expande as 9 classes   #}
+{# aninhadas pra baixo, DENTRO do painel 2. PAINEL 3 (nav.painel-3) só    #}
+{# aparece quando uma classe é selecionada, mostrando a lista de itens    #}
+{# (P1, P2…). O conteúdo (foto+campos) vai sempre pro painel claro à      #}
+{# direita (#docs-detalhe-painel), que só troca de seção conforme o que  #}
+{# foi clicado — Bruto, Recorte, doc comum ou classe N1/N3/N5.           #}
 {# ------------------------------------------------------------------ #}
-{% if etapa_atual == 3 or job_ativo %}
-<section class="job-panel" aria-labelledby="job-h">
-  <h2 id="job-h" style="margin-top:0">
-    <span class="spinner" aria-hidden="true">◐</span> Processando a obra (SA completo)
-  </h2>
-  <p id="job-estado" role="status" aria-live="polite">
-    Consultando o servidor…
-  </p>
-  <p class="muted">Você pode fechar esta página — avisaremos na lista quando a
-  validação estiver pronta.</p>
-  <p><a class="btn btn-sec" href="/obras">Voltar à lista</a></p>
-</section>
-{% if job_ativo %}
-<script>
-  (function () {
-    var jobId = {{ job_ativo|tojson }};
-    var alvo = document.getElementById('job-estado');
-    var mapa = {
-      queued: 'Na fila — começa em breve.',
-      running: 'Processando… isso costuma levar alguns minutos.',
-      done: 'Concluído. Recarregando…',
-      error: 'O processamento falhou nesta obra. O responsável foi notificado.'
-    };
-    function poll() {
-      fetch('/jobs/' + jobId).then(function (r) { return r.json(); })
-        .then(function (j) {
-          alvo.textContent = mapa[j.estado] || j.estado;
-          if (j.estado === 'done') { setTimeout(function () { location.reload(); }, 1200); }
-          else if (j.estado === 'error') { /* para o polling */ }
-          else { setTimeout(poll, 4000); }
-        }).catch(function () { setTimeout(poll, 6000); });
-    }
-    poll();
-  })();
-</script>
-{% endif %}
-{% endif %}
-
-{# ------------------------------------------------------------------ #}
-{# Ações por etapa (chamam a API via fetch)                            #}
-{# ------------------------------------------------------------------ #}
-{% if etapa_atual == 1 %}
-<section aria-labelledby="et1">
-  <h2 id="et1">Triagem</h2>
-  <p>Confira a classificação dos documentos. Ao confirmar, o processamento avança.</p>
-  <button class="btn" data-acao="triagem" data-obra="{{ obra.id }}">Confirmar triagem →</button>
-</section>
-{% elif etapa_atual == 2 %}
-<section aria-labelledby="et2">
-  <h2 id="et2">Recortes</h2>
-  <p>Aprove os recortes gerados. Concluir dispara o SA completo (etapa 3).</p>
-  <button class="btn" data-acao="recortes" data-obra="{{ obra.id }}">Concluir recortes →</button>
-</section>
-{% elif etapa_atual == 4 %}
-<section aria-labelledby="et4">
-  <h2 id="et4">Validação</h2>
-  <p>Revise as fichas N1–N4 abaixo e marque erros. Ao concluir sua validação,
-  a liberação do N5 é destravada.</p>
-  {% for classe, rotulo in rotulos.items() %}
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-      <span><strong>{{ classe }}</strong> {{ class_badge(classe, rotulo) }}</span>
-      <button class="btn btn-sec" data-acao="validacao" data-obra="{{ obra.id }}"
-              data-classe="{{ classe }}">Concluir validação de {{ classe }} →</button>
-    </div>
-  {% endfor %}
-</section>
-{% endif %}
-
-<div id="acao-resultado" role="status" aria-live="polite"></div>
-
-{# ------------------------------------------------------------------ #}
-{# Fichas HTML N1–N4 (viewer) — link para abrir                        #}
-{# ------------------------------------------------------------------ #}
-<section aria-labelledby="fichas-h">
-  <h2 id="fichas-h">Fichas N1–N4</h2>
-  {% if not fichas %}
-    <p class="muted">Nenhuma ficha disponível ainda para esta obra.</p>
-  {% else %}
-    <ul class="fichas-lista">
-      {% for f in fichas %}
-      <li>
-        <a href="/obras/{{ obra.id }}/fichas/{{ f.rel }}" target="_blank"
-           rel="noopener">{{ f.nome }}</a>
-        <span class="muted">{{ (f.tamanho // 1024) }} KB</span>
+{% block sidebar_obras_extra %}
+<li class="sidebar-obras-arvore">
+  <ul class="arvore-obras-lista">
+    {% for o in obras_do_membro %}
+      {% if o.id == obra.id %}
+      <li class="arvore-obra-atual">
+        {# [novo, a pedido do dono] clicável — volta pro cabeçalho/documentos
+           (visão padrão da Triagem) de onde quer que se esteja (Recortes, N1,
+           N3, N5). Antes era um <span> morto, sem jeito de "voltar" sem clicar
+           num doc específico. #}
+        <button type="button" class="obras-strip-item ativo" id="obra-atual-btn" title="Voltar ao cabeçalho da obra">{{ o.nome }}</button>
+        <div class="arvore-triagem-titulo">
+          {% if triagem_feita %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} Triagem
+        </div>
+        <div id="docs-viewer" data-obra="{{ obra.id }}"></div>
       </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-</section>
+      {% else %}
+      <li><a href="/app/obras/{{ o.id }}" class="obras-strip-item" title="{{ o.nome }}">{{ o.nome }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</li>
+{% endblock %}
 
-{# ------------------------------------------------------------------ #}
-{# Liberação do N5 (self-service) — só quando etapa 5                   #}
-{# ------------------------------------------------------------------ #}
-{% if etapa_atual >= 5 %}
-  {% include "n5_liberacao.html" %}
-{% endif %}
+{% block conteudo %}
+<div class="shell-obra">
+  <nav class="painel-2" aria-label="Etapas da obra">
+    <div class="painel2-secao">
+      <button type="button" class="painel2-tab-btn" data-tab="sa">
+        {% if sa_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} SA / N1
+      </button>
+      <div class="painel2-aninhado" id="n1-classes" hidden>
+        <button class="btn btn-sec painel2-acao-btn" data-acao="sa" data-obra="{{ obra.id }}" {{ 'disabled' if job_ativo }}>
+          {{ 'Job em andamento…' if job_ativo else 'Rodar SA →' }}
+        </button>
+        {% if not recortes_feito %}
+        <p class="painel2-meta">⏳ os recortes ainda não terminaram</p>
+        {% endif %}
+        <div id="n1-classes-lista"></div>
+      </div>
+    </div>
+
+    <div class="painel2-secao">
+      <button type="button" class="painel2-tab-btn" data-tab="n3">N3</button>
+      <div class="painel2-aninhado" id="n3-classes" hidden>
+        <p class="painel2-meta">Robô gerado a partir do N1 (cobertura parcial por classe).</p>
+        <div id="n3-classes-lista"></div>
+      </div>
+    </div>
+
+    <div class="painel2-secao">
+      <button type="button" class="painel2-tab-btn" data-tab="n5">
+        {% if n5_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} N5
+      </button>
+    </div>
+  </nav>
+
+  <nav class="painel-3" id="painel-3" hidden aria-label="Itens da classe selecionada">
+    <ul class="n1-lista-itens" id="painel3-itens"></ul>
+  </nav>
+
+  <div class="painel-obra">
+   <div class="painel-obra-cabecalho">
+    <h1 style="margin:0">{{ obra.nome }}</h1>
+    {% if obra.descricao %}<p class="subtitulo" style="margin:2px 0">{{ obra.descricao }}</p>{% endif %}
+    <p class="subtitulo" style="margin:0 0 10px">
+      {{ obra.arquivo_nome or (documentos|length ~ ' documento(s)') }} · enviada por {{ obra.enviada_por or membro.login }}
+    </p>
+
+    {% if obra.estado == 'erro' and obra.erro_msg %}
+    <div class="faixa faixa-erro" role="alert" style="white-space:pre-wrap;font-family:monospace;font-size:.82rem">
+      <span aria-hidden="true">🔴</span> {{ obra.erro_msg }}
+    </div>
+    {% endif %}
+
+    {% if job_ativo %}
+    <section class="job-panel" aria-labelledby="job-h">
+      <h2 id="job-h" style="margin-top:0">
+        <span class="spinner" aria-hidden="true">◐</span>
+        {%- if etapa_atual == 1 %} Rodando a triagem (conversão/sanidade)
+        {%- elif etapa_atual == 2 %} Rodando os recortes
+        {%- else %} Rodando a Análise Estrutural (SA)
+        {%- endif %}
+      </h2>
+      <p id="job-estado" role="status" aria-live="polite">Consultando o servidor…</p>
+      <p class="muted">Você pode fechar esta página — o resultado fica salvo quando terminar.</p>
+    </section>
+    <script>
+      (function () {
+        var jobId = {{ job_ativo|tojson }};
+        var alvo = document.getElementById('job-estado');
+        var mapa = {
+          queued: 'Na fila — começa em breve.',
+          running: 'Processando… isso costuma levar alguns minutos.',
+          done: 'Concluído. Recarregando…',
+          error: 'O processamento falhou nesta obra. O responsável foi notificado.'
+        };
+        function poll() {
+          fetch('/jobs/' + jobId).then(function (r) { return r.json(); })
+            .then(function (j) {
+              alvo.textContent = mapa[j.estado] || j.estado;
+              if (j.estado === 'done') { setTimeout(function () { location.reload(); }, 1200); }
+              else if (j.estado === 'error') { /* para o polling */ }
+              else { setTimeout(poll, 4000); }
+            }).catch(function () { setTimeout(poll, 6000); });
+        }
+        poll();
+      })();
+    </script>
+    {% endif %}
+   </div>
+   <div class="painel-obra-corpo">
+
+    {# ============================== TRIAGEM (detalhe) ============================== #}
+    <div class="conteudo-secao" id="detalhe-triagem">
+      {# ---- cabeçalho de referência do processamento (2026-07-07) ----
+         Nome/cliente/datas/critérios/observações — pra a obra nunca ficar só
+         com o nome do arquivo bruto como identificação, seja modo rápido ou
+         fluxo completo com N documentos. #}
+      <section class="card cabecalho-obra" aria-labelledby="cab-h" id="cabecalho-obra"
+               data-obra="{{ obra.id }}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="cab-h" style="margin:0">Cabeçalho do processamento</h2>
+          <button type="button" class="btn-sec btn" id="cab-editar-btn">Editar</button>
+        </div>
+        <div id="cab-visualizacao" class="cab-grid" style="margin-top:10px">
+          <div><span class="n1-campo-label">Nome</span><br>{{ obra.nome }}</div>
+          <div><span class="n1-campo-label">Cliente</span><br>{{ obra.cliente or '—' }}</div>
+          <div><span class="n1-campo-label">Data de solicitação</span><br>{{ obra.data_solicitacao or '—' }}</div>
+          <div><span class="n1-campo-label">Data de entrega</span><br>{{ obra.data_entrega or '—' }}</div>
+          <div style="grid-column:1/-1"><span class="n1-campo-label">Critérios e definições do cliente</span><br>
+            {{ obra.criterios_cliente or '—' }}</div>
+          <div style="grid-column:1/-1"><span class="n1-campo-label">Observações</span><br>{{ obra.observacoes or '—' }}</div>
+        </div>
+        <form id="cab-form" class="cab-grid" style="margin-top:10px" hidden>
+          <label>Nome<input type="text" name="nome" value="{{ obra.nome }}" required></label>
+          <label>Cliente<input type="text" name="cliente" value="{{ obra.cliente or '' }}"></label>
+          <label>Data de solicitação<input type="date" name="data_solicitacao" value="{{ obra.data_solicitacao or '' }}"></label>
+          <label>Data de entrega<input type="date" name="data_entrega" value="{{ obra.data_entrega or '' }}"></label>
+          <label style="grid-column:1/-1">Critérios e definições do cliente
+            <textarea name="criterios_cliente" rows="2">{{ obra.criterios_cliente or '' }}</textarea></label>
+          <label style="grid-column:1/-1">Observações
+            <textarea name="observacoes" rows="2">{{ obra.observacoes or '' }}</textarea></label>
+          <div style="grid-column:1/-1;display:flex;gap:8px">
+            <button type="submit" class="btn">Salvar</button>
+            <button type="button" class="btn-sec btn" id="cab-cancelar-btn">Cancelar</button>
+          </div>
+        </form>
+        <p id="cab-resultado" class="meta" role="status" aria-live="polite"></p>
+      </section>
+
+      {% if not eh_obra_rapida %}
+      <script type="application/json" id="docs-data">{{ documentos | tojson }}</script>
+      <section aria-labelledby="docs-h" id="docs-intro">
+        <h2 id="docs-h" style="margin-top:0">Documentos</h2>
+
+        {# [novo, a pedido do dono] lista simples só dos .dwg da obra — os
+           .dwg NÃO aparecem mais na árvore de Triagem (sidebar); ficam aqui,
+           com status "Possui DXF" (checado em disco), acima do upload. #}
+        <div id="dwgs-lista-secao"></div>
+
+        <div class="upload-drop" id="docs-drop">
+          <input type="file" id="docs-input" accept=".dwg,.dxf,.pdf" multiple hidden>
+          <p class="upload-drop-texto">
+            <strong>Arraste 1 ou mais arquivos aqui</strong> ou
+            <button type="button" id="docs-btn-escolher" class="btn-link">escolha no computador</button>
+          </p>
+          <p class="meta">.dwg, .dxf ou .pdf — cada arquivo vira 1 documento desta obra, classificado automaticamente.</p>
+        </div>
+        <div class="cab-grid" style="margin-top:10px;max-width:480px">
+          <label>Tipo padrão deste lote (opcional)
+            <select id="docs-upload-tipo-padrao">
+              <option value="">— deixar o classificador sugerir —</option>
+              <option value="Bruto">Bruto</option>
+              <option value="Detalhe">Detalhe</option>
+              <option value="PDF">PDF</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </label>
+          <label>Pavimento padrão deste lote (opcional)
+            <input type="text" id="docs-upload-pavimento-padrao" placeholder="ex.: 13_PAV">
+          </label>
+        </div>
+        <div id="docs-progresso" class="upload-progresso" hidden>
+          <div class="upload-progresso-barra"><div id="docs-barra-fill"></div></div>
+          <span id="docs-progresso-texto" class="meta">Enviando…</span>
+        </div>
+        <div id="docs-upload-resultado" role="status" aria-live="polite"></div>
+        <div class="upload-actions" style="margin-top:14px">
+          {# [novo, a pedido do dono] antes do botão de triagem: converte todo
+             DWG pendente pra DXF de uma vez (mesmo conversor da ingestão). #}
+          <button type="button" class="btn btn-sec" id="btn-converter-dwg" {{ 'disabled' if job_ativo }}>
+            {{ 'Job em andamento…' if job_ativo else 'Converter DWG → DXF →' }}
+          </button>
+          {# [novo, a pedido do dono] "Rodar recortes" isolado foi eliminado —
+             a triagem agora já encadeia recortes automaticamente no backend
+             (jobs.py) assim que termina; o botão reflete isso no nome. #}
+          <button type="button" class="btn" id="btn-rodar-triagem" {{ 'disabled' if job_ativo }}>
+            {{ 'Job em andamento…' if job_ativo else 'Triagem + Recortes →' }}
+          </button>
+          <span class="meta">
+            {% for st, n in resumo_documentos.items() %}{{ n }} {{ st }}{{ ', ' if not loop.last else '' }}{% endfor %}
+          </span>
+        </div>
+        <div id="docs-converter-resultado" role="status" aria-live="polite"></div>
+        <div id="docs-triagem-resultado" role="status" aria-live="polite"></div>
+      </section>
+
+      {% else %}
+      <section aria-labelledby="et1">
+        <h2 id="et1">⚡ Processamento rápido de um único pavimento</h2>
+        <p>Este arquivo é 1 pavimento único, sem separar por classe — mas ainda passa pela
+        conversão/sanidade (triagem) e pelo recorte (limpeza e convenções do pavimento)
+        antes da Análise Estrutural (SA).</p>
+        <button class="btn" data-acao="triagem" data-obra="{{ obra.id }}" {{ 'disabled' if job_ativo }}>
+          {{ 'Job em andamento…' if job_ativo else 'Triagem + Recortes →' }}
+        </button>
+        {% if triagem_feita %}<p class="meta">✓ Já concluída — pode rodar de novo se precisar.</p>{% endif %}
+      </section>
+      {% endif %}
+      {# a lista (Pavimento→Tipo→Doc) mora agora dentro da sidebar global
+         (bloco sidebar_obras_extra acima) — aqui fica só o painel de
+         detalhe/edição do doc selecionado. #}
+      <div id="docs-detalhe-painel"></div>
+    </div>
+
+    {# ============================== SA / N1 (detalhe) ============================== #}
+    <div class="conteudo-secao" id="detalhe-n1" hidden>
+      <div id="n1-detalhe-painel" class="n1-detalhe"></div>
+      {% if fichas %}
+      <details style="margin-top:16px">
+        <summary class="meta" style="cursor:pointer">Ver HTML bruto gerado pelo motor (avançado) ↓</summary>
+        <ul class="fichas-lista">
+          {% for f in fichas %}
+          <li>
+            <a href="/obras/{{ obra.id }}/fichas/{{ f.rel }}" target="_blank" rel="noopener">{{ f.nome }}</a>
+            <span class="muted">{{ (f.tamanho // 1024) }} KB</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+      {% endif %}
+    </div>
+
+    {# ============================== N3 (detalhe) ============================== #}
+    <div class="conteudo-secao" id="detalhe-n3" hidden>
+      <div id="n3-detalhe-painel" class="n1-detalhe"></div>
+    </div>
+
+    {# ============================== N5 (detalhe) ============================== #}
+    <div class="conteudo-secao" id="detalhe-n5" hidden>
+      <section aria-labelledby="et4">
+        <h2 id="et4">Validação</h2>
+        <p>Revise a interpretação N1 na aba "SA / N1" e marque erros abaixo. Ao concluir
+        sua validação, a liberação do N5 é destravada.</p>
+        {% if not sa_feito %}
+        <p class="meta">⏳ A Análise Estrutural (SA) ainda não rodou — mas você já pode revisar aqui quando quiser.</p>
+        {% endif %}
+        {% for classe, rotulo in rotulos.items() %}
+          <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+            <span><strong>{{ classe }}</strong> {{ class_badge(classe, rotulo) }}</span>
+            <button class="btn btn-sec" data-acao="validacao" data-obra="{{ obra.id }}"
+                    data-classe="{{ classe }}">Concluir validação de {{ classe }} →</button>
+          </div>
+        {% endfor %}
+      </section>
+
+      {# n5_liberacao.html já lida sozinho com "validação pendente" vs "pode
+         baixar" via `validacao_concluida` — nunca escondido atrás de etapa_atual. #}
+      {% include "n5_liberacao.html" %}
+    </div>
+
+    <div id="acao-resultado" role="status" aria-live="polite"></div>
+   </div>
+  </div>
+</div>
 
 {# ------------------------------------------------------------------ #}
 {# ErrorMarker — comentário de erro (reaproveitado de §4)              #}
-{# Chave estável = aten_erro_{classe}_{obra}_{pav}_{item}              #}
-{# save/load agora batem em POST/GET /obras/{id}/comentarios           #}
 {# ------------------------------------------------------------------ #}
 <section class="error-marker" aria-labelledby="em-h">
   <div class="em-title" id="em-h">Marcação de erro (revisão humana)</div>
@@ -120,8 +310,7 @@
     <input type="checkbox" id="erro_check">
     Marcar esta ficha como ERRADA
   </label>
-  <textarea id="erro_nota"
-    placeholder="Descreva o que está errado (N1, N2, N3 ou N4)…"></textarea>
+  <textarea id="erro_nota" placeholder="Descreva o que está errado (N1, N3 ou N5)…"></textarea>
   <p class="em-saved" id="em_saved" role="status" aria-live="polite" hidden>Salvo ✔</p>
   <div id="em_prov" class="em-prov"></div>
 </section>
@@ -149,8 +338,714 @@
 {% block scripts %}
 <script>
   var OBRA_ID = {{ obra.id|tojson }};
+  // [FIX] globais cruzadas entre o módulo de Documentos e o de Recortes
+  // declaradas aqui, bem cedo — um `var x = ...;` mais abaixo no arquivo NÃO
+  // é hoisted como "sem efeito", a inicialização roda na ordem normal de
+  // execução. Se essas vars fossem declaradas só lá embaixo (perto de
+  // Recortes), a atribuição delas rodaria DEPOIS do módulo de Documentos já
+  // ter usado o valor, sobrescrevendo de volta (achado ao vivo em sessão
+  // anterior com esse exato bug).
+  var _recortesBrutosCache = null;
+  var _recortesItensPorBruto = {};
+  var _recortesInvalidadosLocal = {};
 
-  // --- ações de etapa (triagem/recortes/validacao) ---
+  // --- viewer de foto com zoom (scroll) + arrastar (mouse) — 2026-07-07 ---
+  // Reusado por N1/N3 (svg inline extraído da ficha) e Recortes/N5 (<img>).
+  // scale via CSS transform, mantendo o ponto sob o cursor fixo no zoom
+  // (senão a imagem "pula" a cada scroll); duplo-clique reseta.
+  function inicializarZoomPan(viewport) {
+    if (!viewport || viewport.dataset.zoomInit) return;
+    viewport.dataset.zoomInit = '1';
+    var alvo = viewport.querySelector('img, svg');
+    if (!alvo) return;
+    alvo.style.transformOrigin = '0 0';
+    alvo.style.willChange = 'transform';
+    var estado = { scale: 1, tx: 0, ty: 0 };
+    function aplicar() {
+      alvo.style.transform = 'translate(' + estado.tx + 'px,' + estado.ty + 'px) scale(' + estado.scale + ')';
+    }
+    viewport.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var rect = viewport.getBoundingClientRect();
+      var mx = e.clientX - rect.left;
+      var my = e.clientY - rect.top;
+      var fator = e.deltaY < 0 ? 1.15 : (1 / 1.15);
+      var novaScale = Math.min(Math.max(estado.scale * fator, 0.5), 15);
+      estado.tx = mx - (mx - estado.tx) * (novaScale / estado.scale);
+      estado.ty = my - (my - estado.ty) * (novaScale / estado.scale);
+      estado.scale = novaScale;
+      aplicar();
+    }, { passive: false });
+    var arrastando = false, ultimoX = 0, ultimoY = 0;
+    viewport.addEventListener('mousedown', function (e) {
+      arrastando = true; ultimoX = e.clientX; ultimoY = e.clientY;
+      viewport.classList.add('arrastando');
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!arrastando) return;
+      estado.tx += e.clientX - ultimoX;
+      estado.ty += e.clientY - ultimoY;
+      ultimoX = e.clientX; ultimoY = e.clientY;
+      aplicar();
+    });
+    window.addEventListener('mouseup', function () {
+      if (arrastando) { arrastando = false; viewport.classList.remove('arrastando'); }
+    });
+    viewport.addEventListener('dblclick', function () {
+      estado.scale = 1; estado.tx = 0; estado.ty = 0;
+      aplicar();
+    });
+  }
+
+  function ativarZoomEmContainer(container) {
+    if (!container) return;
+    container.querySelectorAll('.zoom-pan-viewport').forEach(inicializarZoomPan);
+  }
+  window.ativarZoomEmContainer = ativarZoomEmContainer;
+
+  // --- painel de conteúdo (claro): só uma seção visível por vez, trocada
+  // conforme o que foi clicado em qualquer um dos 3 painéis escuros à
+  // esquerda (sidebar/Triagem, painel-2 Recortes+N1+N3+N5, painel-3 itens).
+  function mostrarDetalhe(qual) {
+    document.querySelectorAll('.conteudo-secao').forEach(function (el) {
+      el.hidden = el.id !== 'detalhe-' + qual;
+    });
+  }
+
+  // [novo, a pedido do dono] clicar no nome da obra (sidebar) volta pro
+  // cabeçalho/documentos — de qualquer painel (Recortes/N1/N3/N5) em que
+  // se esteja.
+  (function () {
+    var btn = document.getElementById('obra-atual-btn');
+    if (btn) btn.addEventListener('click', function () { mostrarDetalhe('triagem'); });
+  })();
+
+  // --- painel 2: SA/N1 e N3 alternam a lista de 9 classes aninhada logo
+  // abaixo do próprio botão; N5 não tem classes, só troca o conteúdo. ---
+  (function () {
+    document.querySelectorAll('.painel2-tab-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var alvo = btn.getAttribute('data-tab');
+        if (alvo === 'n5') {
+          document.querySelectorAll('.painel2-tab-btn').forEach(function (b) { b.classList.remove('ativo'); });
+          btn.classList.add('ativo');
+          mostrarDetalhe('n5');
+          return;
+        }
+        var aninhado = document.getElementById(alvo === 'sa' ? 'n1-classes' : alvo + '-classes');
+        if (!aninhado) return;
+        var estavaAberto = !aninhado.hidden;
+        aninhado.hidden = estavaAberto;
+        btn.classList.toggle('ativo', !estavaAberto);
+        if (!estavaAberto) {
+          if (alvo === 'sa') carregarClassesN1SeNecessario();
+          if (alvo === 'n3') carregarClassesN3SeNecessario();
+        }
+      });
+    });
+  })();
+
+  // --- documentos: upload múltiplo (2026-07-06) ---
+  (function () {
+    var drop = document.getElementById('docs-drop');
+    if (!drop) return;
+    var input = document.getElementById('docs-input');
+    var btnEscolher = document.getElementById('docs-btn-escolher');
+    var progresso = document.getElementById('docs-progresso');
+    var barra = document.getElementById('docs-barra-fill');
+    var progTexto = document.getElementById('docs-progresso-texto');
+    var resultado = document.getElementById('docs-upload-resultado');
+
+    function enviarArquivos(arquivos) {
+      if (!arquivos || !arquivos.length) return;
+      resultado.innerHTML = '';
+      progresso.hidden = false;
+      barra.style.width = '0%';
+      progTexto.textContent = 'Enviando ' + arquivos.length + ' arquivo(s)…';
+      var formData = new FormData();
+      for (var i = 0; i < arquivos.length; i++) formData.append('arquivos', arquivos[i]);
+      var tipoPadraoEl = document.getElementById('docs-upload-tipo-padrao');
+      var pavimentoPadraoEl = document.getElementById('docs-upload-pavimento-padrao');
+      if (tipoPadraoEl && tipoPadraoEl.value) formData.append('tipo_documento_padrao', tipoPadraoEl.value);
+      if (pavimentoPadraoEl && pavimentoPadraoEl.value.trim()) {
+        formData.append('pavimento_padrao', pavimentoPadraoEl.value.trim());
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/obras/' + OBRA_ID + '/documentos');
+      xhr.upload.addEventListener('progress', function (e) {
+        if (e.lengthComputable) {
+          var pct = Math.round((e.loaded / e.total) * 100);
+          barra.style.width = pct + '%';
+          progTexto.textContent = 'Enviando… ' + pct + '%';
+        }
+      });
+      xhr.onload = function () {
+        progresso.hidden = true;
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var data = JSON.parse(xhr.responseText);
+          var falhas = data.documentos.filter(function (d) { return !d.ok; });
+          if (falhas.length) {
+            resultado.innerHTML = '<p class="faixa faixa-aviso" role="alert">' +
+              '<span aria-hidden="true">⚠</span> ' + falhas.length + ' arquivo(s) recusado(s): ' +
+              falhas.map(function (f) { return f.arquivo_nome + ' (' + f.erro + ')'; }).join('; ') + '</p>';
+          } else {
+            resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
+              '<span aria-hidden="true">✓</span> Enviado! Atualizando lista…</p>';
+          }
+          setTimeout(function () { window.location.reload(); }, falhas.length ? 2500 : 900);
+        } else {
+          var msg = 'Falha ao enviar.';
+          try { msg = JSON.parse(xhr.responseText).detail || msg; } catch (e2) {}
+          resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+            '<span aria-hidden="true">⚠</span> ' + msg + '</p>';
+        }
+      };
+      xhr.onerror = function () {
+        progresso.hidden = true;
+        resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+          '<span aria-hidden="true">⚠</span> Falha de rede ao enviar.</p>';
+      };
+      xhr.send(formData);
+    }
+    btnEscolher.addEventListener('click', function () { input.click(); });
+    input.addEventListener('change', function () { enviarArquivos(input.files); });
+    drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('upload-drop-ativo'); });
+    drop.addEventListener('dragleave', function () { drop.classList.remove('upload-drop-ativo'); });
+    drop.addEventListener('drop', function (e) {
+      e.preventDefault();
+      drop.classList.remove('upload-drop-ativo');
+      if (e.dataTransfer.files.length) enviarArquivos(e.dataTransfer.files);
+    });
+  })();
+
+  // --- cabeçalho do processamento: ver/editar (2026-07-07) ---
+  (function () {
+    var secao = document.getElementById('cabecalho-obra');
+    if (!secao) return;
+    var visualizacao = document.getElementById('cab-visualizacao');
+    var form = document.getElementById('cab-form');
+    var resultado = document.getElementById('cab-resultado');
+    document.getElementById('cab-editar-btn').addEventListener('click', function () {
+      visualizacao.hidden = true;
+      form.hidden = false;
+    });
+    document.getElementById('cab-cancelar-btn').addEventListener('click', function () {
+      form.hidden = true;
+      visualizacao.hidden = false;
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var fd = new FormData(form);
+      var corpo = {};
+      fd.forEach(function (v, k) { corpo[k] = v || null; });
+      resultado.textContent = 'Salvando…';
+      fetch('/obras/' + OBRA_ID + '/cabecalho', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo),
+      }).then(function (r) {
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.detail || ('http ' + r.status)); });
+        return r.json();
+      }).then(function () {
+        resultado.textContent = 'Salvo ✔';
+        setTimeout(function () { location.reload(); }, 600);
+      }).catch(function (err) {
+        resultado.textContent = 'Falha: ' + err.message;
+      });
+    });
+  })();
+
+  // --- viewer nativo de Documentos (2026-07-07): lista agrupada Pavimento →
+  // Tipo (Brutos/Detalhes/PDFs/Outros) — agora dentro da sidebar global —
+  // com painel de detalhe/edição no conteúdo claro. Dados já vêm embutidos
+  // no HTML (#docs-data) — sem fetch extra, a Triagem é a primeira coisa
+  // que aparece ao abrir a obra.
+  (function () {
+    var raiz = document.getElementById('docs-viewer');
+    if (!raiz) return;
+    var dadosEl = document.getElementById('docs-data');
+    // [novo, a pedido do dono] .dwg NAO aparece mais na árvore de Triagem —
+    // eles ficam na lista simples (#dwgs-lista-secao, no conteúdo) com
+    // status "possui DXF". Só documentos NÃO-dwg (dxf/pdf) navegam aqui.
+    var documentos = (dadosEl ? JSON.parse(dadosEl.textContent) : []).filter(function (d) {
+      return !d.arquivo_nome.toLowerCase().endsWith('.dwg');
+    });
+
+    var TIPOS_ORDEM = ['Bruto', 'Detalhe', 'PDF', 'Outro'];
+    var TIPOS_LABEL = { Bruto: 'Brutos', Detalhe: 'Detalhes', PDF: 'PDFs', Outro: 'Outros' };
+    var STATUS_LABEL = {
+      classificado: '✔ classificado', revisar: '⚠ revisar',
+      erro: '🔴 erro', pendente: '⏳ pendente',
+    };
+
+    function pavimentoDe(d) { return d.pavimento_confirmado || d.pavimento_sugerido || null; }
+    function tipoDe(d) { return d.tipo_documento_confirmado || d.tipo_documento_sugerido || null; }
+
+    function agrupar(docs) {
+      var porPavimento = {};
+      docs.forEach(function (d) {
+        var pav = pavimentoDe(d) || 'Indeterminado';
+        var tipo = tipoDe(d) || 'Indeterminado';
+        if (!porPavimento[pav]) porPavimento[pav] = {};
+        if (!porPavimento[pav][tipo]) porPavimento[pav][tipo] = [];
+        porPavimento[pav][tipo].push(d);
+      });
+      return porPavimento;
+    }
+
+    var _docEstado = { docId: null };
+
+    function moverIntroParaSlot(det) {
+      // [2026-07-07] Achado com o dono: "Cabeçalho do processamento" ficava
+      // ACIMA da lista de docs, empurrando ela pra baixo. Move o card pra
+      // dentro da coluna de conteúdo também, mesmo padrão do intro/dropzone.
+      var slotCab = document.getElementById('docs-cabecalho-slot');
+      var cab = document.getElementById('cabecalho-obra');
+      if (slotCab && cab) slotCab.appendChild(cab);
+      var slot = document.getElementById('docs-intro-slot');
+      var intro = document.getElementById('docs-intro');
+      if (slot && intro) slot.appendChild(intro);
+    }
+
+    function renderizarDetalhe(d) {
+      var det = document.getElementById('docs-detalhe');
+      if (!d) {
+        det.innerHTML = '<div id="docs-cabecalho-slot"></div><div id="docs-intro-slot"></div><p class="muted">Envie o primeiro documento acima.</p>';
+        moverIntroParaSlot(det);
+        return;
+      }
+      var formato = (d.arquivo_nome.split('.').pop() || '').toUpperCase();
+      var statusLabel = STATUS_LABEL[d.status] || d.status;
+      var tipoAtual = d.tipo_documento_confirmado || d.tipo_documento_sugerido || '';
+      var classeAtual = d.classe_confirmada || d.classe_sugerida || '';
+      var pavAtual = d.pavimento_confirmado || d.pavimento_sugerido || '';
+      det.innerHTML =
+        '<div id="docs-cabecalho-slot"></div>' +
+        '<div id="docs-intro-slot"></div>' +
+        '<strong>' + (d.nome_exibicao || d.arquivo_nome).replace(/</g, '&lt;') + '</strong>' +
+        '<div class="cab-grid" style="margin-top:10px">' +
+          '<div><span class="n1-campo-label">Nome do arquivo</span><br>' + d.arquivo_nome.replace(/</g, '&lt;') + '</div>' +
+          '<div><span class="n1-campo-label">Formato</span><br>' + formato + '</div>' +
+          '<div><span class="n1-campo-label">Enviado em</span><br>' + d.created_at + '</div>' +
+          '<div><span class="n1-campo-label">Status</span><br>' + statusLabel + '</div>' +
+        '</div>' +
+        (d.erro_msg ? '<p class="meta" style="color:#b91c1c">' + d.erro_msg.replace(/</g, '&lt;') + '</p>' : '') +
+        '<label style="display:block;margin-top:12px">Nome de exibição (referência, não altera o arquivo)' +
+          '<input type="text" id="docs-det-nome" value="' + (d.nome_exibicao || '').replace(/"/g, '&quot;') +
+          '" style="width:100%;max-width:380px"></label>' +
+        '<div class="cab-grid" style="margin-top:10px">' +
+          '<label>Tipo de documento<select id="docs-det-tipo">' +
+            '<option value=""' + (tipoAtual ? '' : ' selected') + '>—</option>' +
+            TIPOS_ORDEM.map(function (t) {
+              return '<option value="' + t + '"' + (tipoAtual === t ? ' selected' : '') + '>' + t + '</option>';
+            }).join('') +
+          '</select></label>' +
+          '<label>Pavimento<input type="text" id="docs-det-pavimento" value="' + pavAtual.replace(/"/g, '&quot;') +
+            '" placeholder="ex.: 13_PAV"></label>' +
+          '<label>Classe estrutural<select id="docs-det-classe">' +
+            '<option value=""' + (classeAtual ? '' : ' selected') + '>—</option>' +
+            ['PIL', 'LV', 'FV', 'LAJ', 'GF'].map(function (c) {
+              return '<option value="' + c + '"' + (classeAtual === c ? ' selected' : '') + '>' + c + '</option>';
+            }).join('') +
+          '</select></label>' +
+        '</div>' +
+        '<div style="margin-top:10px;display:flex;gap:8px;align-items:center">' +
+          '<button type="button" class="btn" id="docs-det-salvar">Salvar</button>' +
+          '<span id="docs-det-resultado" class="meta" role="status" aria-live="polite"></span>' +
+        '</div>' +
+        '<div id="doc-viewer-extra" style="margin-top:14px"></div>';
+      moverIntroParaSlot(det);
+
+      // [novo, a pedido do dono] mesmo comportamento de viewer de qualquer
+      // item de Recorte, só que pro Bruto completo (DXF de entrada inteiro,
+      // sem recorte nenhum) — e o PDF renderizado inline, quando o doc é PDF.
+      var extra = document.getElementById('doc-viewer-extra');
+      if (tipoDe(d) === 'Bruto' && _recortesBrutosCache) {
+        var brutoMatch = _recortesBrutosCache.find(function (b) { return b.nome === d.arquivo_nome; });
+        if (brutoMatch) {
+          renderizarFotoRecorte(extra, '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoMatch.bruto_id) + '/foto', d.arquivo_nome);
+        }
+      } else if (d.arquivo_nome.toLowerCase().endsWith('.pdf')) {
+        extra.innerHTML = '<iframe src="/obras/' + OBRA_ID + '/documentos/' + d.id + '/arquivo" style="width:100%;height:70vh;border:1px solid var(--border);border-radius:8px" title="Visualização do PDF"></iframe>';
+      }
+
+      document.getElementById('docs-det-salvar').addEventListener('click', function () {
+        var novoNome = document.getElementById('docs-det-nome').value.trim();
+        var tipo = document.getElementById('docs-det-tipo').value;
+        var pavimento = document.getElementById('docs-det-pavimento').value.trim();
+        var classe = document.getElementById('docs-det-classe').value;
+        var resultado = document.getElementById('docs-det-resultado');
+        resultado.textContent = 'Salvando…';
+        var chamadas = [];
+        if (novoNome && novoNome !== (d.nome_exibicao || '')) {
+          chamadas.push(fetch('/obras/' + OBRA_ID + '/documentos/' + d.id + '/renomear', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome_exibicao: novoNome }),
+          }));
+        }
+        if (classe || pavimento || tipo) {
+          chamadas.push(fetch('/obras/' + OBRA_ID + '/documentos/' + d.id + '/classificar', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              classe_confirmada: classe || null,
+              pavimento_confirmado: pavimento || null,
+              tipo_documento_confirmado: tipo || null,
+            }),
+          }));
+        } else {
+          chamadas.push(fetch('/obras/' + OBRA_ID + '/documentos/' + d.id + '/mover', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+          }));
+        }
+        Promise.all(chamadas).then(function (respostas) {
+          if (respostas.some(function (r) { return !r.ok; })) throw new Error('falha ao salvar');
+          resultado.textContent = 'Salvo ✔';
+          setTimeout(function () { location.reload(); }, 600);
+        }).catch(function () {
+          resultado.textContent = 'Falha ao salvar.';
+        });
+      });
+    }
+
+    // [2026-07-07] drag-and-drop: item vira bloco arrastável, cabeçalho de
+    // grupo (Pavimento/Tipo) vira zona de soltar — corrige triagem automática
+    // errada sem precisar abrir o painel de detalhe. "Indeterminado" e os 4
+    // tipos de CADA pavimento real aparecem SEMPRE (mesmo com 0 itens), pra
+    // sempre existir um alvo válido de soltar (senão um grupo esvaziado por
+    // um arraste sumiria da lista e não daria mais pra devolver um doc nele).
+    function moverDocumento(docId, pavimentoAlvo, tipoAlvo) {
+      var body = {};
+      if (pavimentoAlvo !== 'Indeterminado') body.pavimento = pavimentoAlvo;
+      if (tipoAlvo !== 'Indeterminado') body.tipo_documento = tipoAlvo;
+      return fetch('/obras/' + OBRA_ID + '/documentos/' + docId + '/mover', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      });
+    }
+
+    // [novo, a pedido do dono] ordena os pavimentos pela sequência REAL do
+    // edifício — fundação/subsolo(s) primeiro, depois térreo, depois os
+    // pavimentos numerados e os "tipo" (um "tipo" nada mais é que vários
+    // pavimentos repetidos/absorvidos num só grupo — ex.: pav 1, pav 2,
+    // tipo (3 a 10), pav 11, pav 12), depois ático/cobertura por último.
+    // Como o rótulo "TIPO" não carrega o número dos andares que ele
+    // representa, ele é encaixado no MAIOR salto (gap) da sequência
+    // numerada — é ali, estatisticamente, que os andares "absorvidos" por
+    // ele estariam num prédio real.
+    function ordenarPavimentos(nomes) {
+      var fundacaoOuSub = [];
+      var numerados = [];
+      var tipoNome = null;
+      var aticoOuCobertura = [];
+      nomes.forEach(function (nome) {
+        var u = nome.toUpperCase();
+        if (u.indexOf('FUNDA') >= 0) { fundacaoOuSub.push({ nome: nome, tier: 0 }); return; }
+        if (u.indexOf('SUB') >= 0) { fundacaoOuSub.push({ nome: nome, tier: 1 }); return; }
+        if (u.indexOf('TERR') >= 0) { fundacaoOuSub.push({ nome: nome, tier: 2 }); return; }
+        if (u.indexOf('ATIC') >= 0) { aticoOuCobertura.push({ nome: nome, tier: 4 }); return; }
+        if (u.indexOf('COBERT') >= 0) { aticoOuCobertura.push({ nome: nome, tier: 5 }); return; }
+        if (u.indexOf('TIPO') >= 0 && !tipoNome) { tipoNome = nome; return; }
+        var m = u.match(/(\d+)/);
+        numerados.push({ nome: nome, numero: m ? parseInt(m[1], 10) : Infinity });
+      });
+      fundacaoOuSub.sort(function (a, b) { return a.tier - b.tier; });
+      numerados.sort(function (a, b) { return a.numero - b.numero; });
+      if (tipoNome) {
+        // [FIX] só considera GAPS INTERNOS (entre 2 pavimentos numerados
+        // conhecidos) — o "salto" antes do primeiro ou depois do último é
+        // sempre infinito (não há vizinho pra comparar), o que fazia o TIPO
+        // cair sempre na posição 0. Sem gap interno (0 ou 1 pavimento
+        // numerado), cai no fim, antes do ático/cobertura (fallback razoável).
+        var melhorIdx = numerados.length, maiorGap = -1;
+        for (var i = 1; i < numerados.length; i++) {
+          var gap = numerados[i].numero - numerados[i - 1].numero;
+          if (gap > maiorGap) { maiorGap = gap; melhorIdx = i; }
+        }
+        numerados.splice(melhorIdx, 0, { nome: tipoNome, numero: null });
+      }
+      aticoOuCobertura.sort(function (a, b) { return a.tier - b.tier; });
+      return fundacaoOuSub.map(function (x) { return x.nome; })
+        .concat(numerados.map(function (x) { return x.nome; }))
+        .concat(aticoOuCobertura.map(function (x) { return x.nome; }));
+    }
+
+    // [novo, a pedido do dono] acha os recortes (torres/detalhes) já gerados
+    // a partir do Bruto `d` — SEMPRE escopado por bruto_id (nunca por
+    // pavimento inteiro), pra nunca misturar recortes de brutos diferentes.
+    function itensRecorteDoDoc(d) {
+      if (!_recortesBrutosCache) return null;
+      var bruto = _recortesBrutosCache.find(function (b) { return b.nome === d.arquivo_nome; });
+      if (!bruto) return null;
+      var todos = _recortesItensPorBruto[bruto.bruto_id] || [];
+      return {
+        brutoId: bruto.bruto_id,
+        torres: todos.filter(function (it) { return it.item_id.indexOf('torre') === 0; }),
+        detalhes: todos.filter(function (it) { return it.item_id.indexOf('torre') !== 0; }),
+      };
+    }
+
+    // Renderiza os 2 grupos (Torres Limpas/Detalhes e Convenções) de UM bruto
+    // já resolvido (`rec`) — usado tanto quando o bruto está aninhado debaixo
+    // do seu documento na Triagem quanto no fallback de modo rápido/legado
+    // (obra com 0 documentos navegáveis, ver `montarLista` abaixo).
+    function _renderizarGruposDeRecorte(lista, rec, classePavPar, pav) {
+      // [novo, a pedido do dono] label sem repetir o nome do bruto — já está
+      // implícito pela posição aninhada debaixo do próprio documento.
+      [
+        { chave: 'torres', label: 'Recortes Torres Limpas', itens: rec.torres },
+        { chave: 'detalhes', label: 'Recortes Detalhes e Convenções', itens: rec.detalhes },
+      ].forEach(function (grupo) {
+        if (!grupo.itens.length) return;
+        var cab = document.createElement('li');
+        cab.className = 'n1-lista-cabecalho docs-cabecalho-tipo docs-recorte-subclasse ' + classePavPar;
+        cab.textContent = grupo.label + ' (' + grupo.itens.length + ')';
+        cab.setAttribute('data-bruto-recorte', rec.brutoId);
+        lista.appendChild(cab);
+        grupo.itens.forEach(function (it) {
+          var li = document.createElement('li');
+          li.className = classePavPar;
+          li.setAttribute('data-bruto-recorte', rec.brutoId);
+          var a = document.createElement('button');
+          a.type = 'button';
+          a.className = 'n1-item-link docs-item docs-recorte-item';
+          a.textContent = it.titulo;
+          a.setAttribute('data-recorte-item', it.item_id);
+          a.addEventListener('click', function () {
+            lista.querySelectorAll('.docs-item').forEach(function (x) { x.classList.remove('ativo'); });
+            a.classList.add('ativo');
+            renderizarDetalheRecorte({
+              titulo: it.titulo, categoria: grupo.label, pavimento: pav,
+              brutoId: rec.brutoId, itemId: it.item_id,
+            });
+            mostrarDetalhe('triagem');
+          });
+          li.appendChild(a);
+          lista.appendChild(li);
+        });
+      });
+    }
+
+    function renderizarSubclassesRecorte(lista, d, classePavPar, pav) {
+      var rec = itensRecorteDoDoc(d);
+      if (!rec) return;
+      _renderizarGruposDeRecorte(lista, rec, classePavPar, pav);
+    }
+
+    function montarLista() {
+      // a lista fica aninhada aqui dentro de #docs-viewer (na sidebar global,
+      // à esquerda); o detalhe vai pra #docs-detalhe-painel, no conteúdo claro.
+      raiz.innerHTML = '<ul class="n1-lista-itens" id="docs-lista"></ul>';
+      var detalhePainel = document.getElementById('docs-detalhe-painel');
+      if (detalhePainel) detalhePainel.innerHTML = '<div class="n1-detalhe" id="docs-detalhe"></div>';
+      var lista = document.getElementById('docs-lista');
+      if (!documentos.length) {
+        // [novo, a pedido do dono] modo rápido/legado: a obra só tem um .dwg
+        // (não navega na árvore — só .dxf/.pdf navegam) mas já tem brutos
+        // reais em _recortesBrutosCache. Sem este fallback, essas obras
+        // perderiam qualquer jeito de ver os Recortes (bug real, achado ao
+        // vivo contra a obra TMC-EST-PE-6000-13P-R03).
+        if (_recortesBrutosCache && _recortesBrutosCache.length) {
+          lista.innerHTML = '';
+          _recortesBrutosCache.forEach(function (bruto, i) {
+            var classePavPar = i % 2 === 0 ? 'pavimento-par' : 'pavimento-impar';
+            var pav = bruto.pavimento || 'Indeterminado';
+            var cabPav = document.createElement('li');
+            cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar;
+            cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
+            lista.appendChild(cabPav);
+            var todos = _recortesItensPorBruto[bruto.bruto_id] || [];
+            var rec = {
+              brutoId: bruto.bruto_id,
+              torres: todos.filter(function (it) { return it.item_id.indexOf('torre') === 0; }),
+              detalhes: todos.filter(function (it) { return it.item_id.indexOf('torre') !== 0; }),
+            };
+            _renderizarGruposDeRecorte(lista, rec, classePavPar, pav);
+          });
+          renderizarDetalhe(null);
+          return;
+        }
+        lista.innerHTML = '<li class="n1-lista-cabecalho">Nenhum documento ainda.</li>';
+        renderizarDetalhe(null);
+        return;
+      }
+      var grupos = agrupar(documentos);
+      var pavimentosReais = ordenarPavimentos(Object.keys(grupos).filter(function (p) { return p !== 'Indeterminado'; }));
+      var pavimentos = pavimentosReais.concat(['Indeterminado']);
+      pavimentos.forEach(function (pav, pavIndice) {
+        // [novo, a pedido do dono] fundo alternado par/ímpar por pavimento —
+        // divide visualmente um bloco de pavimento do próximo na listagem.
+        var classePavPar = pavIndice % 2 === 0 ? 'pavimento-par' : 'pavimento-impar';
+        var gruposDoTipo = grupos[pav] || {};
+        var cabPav = document.createElement('li');
+        cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar;
+        cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
+        lista.appendChild(cabPav);
+        TIPOS_ORDEM.concat(['Indeterminado']).forEach(function (tipo) {
+          var itens = gruposDoTipo[tipo] || [];
+          // [novo, a pedido do dono] classes com 0 itens (ex.: "PDFs (0)")
+          // não aparecem mais — só entram na lista quando têm algo pra mostrar.
+          if (!itens.length) return;
+          var cabTipo = document.createElement('li');
+          cabTipo.className = 'n1-lista-cabecalho docs-cabecalho-tipo docs-drop-alvo ' + classePavPar;
+          cabTipo.textContent = (TIPOS_LABEL[tipo] || tipo) + ' (' + itens.length + ')';
+          cabTipo.setAttribute('data-pavimento-alvo', pav);
+          cabTipo.setAttribute('data-tipo-alvo', tipo);
+          cabTipo.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            cabTipo.classList.add('docs-drop-hover');
+          });
+          cabTipo.addEventListener('dragleave', function () { cabTipo.classList.remove('docs-drop-hover'); });
+          cabTipo.addEventListener('drop', function (e) {
+            e.preventDefault();
+            cabTipo.classList.remove('docs-drop-hover');
+            var docId = e.dataTransfer.getData('text/plain');
+            var doc = documentos.find(function (d) { return d.id === docId; });
+            if (!doc) return;
+            moverDocumento(docId, pav, tipo).then(function (docAtualizado) {
+              Object.assign(doc, docAtualizado);
+              montarLista();
+            }).catch(function () {
+              alert('Não foi possível mover o documento.');
+            });
+          });
+          lista.appendChild(cabTipo);
+          itens.forEach(function (d) {
+            var li = document.createElement('li');
+            li.className = classePavPar;
+            var a = document.createElement('button');
+            a.type = 'button';
+            a.className = 'n1-item-link docs-item';
+            a.textContent = d.nome_exibicao || d.arquivo_nome;
+            a.setAttribute('data-doc-id', d.id);
+            a.setAttribute('draggable', 'true');
+            a.title = 'Arraste pra outro pavimento/tipo pra corrigir a classificação';
+            a.addEventListener('dragstart', function (e) {
+              e.dataTransfer.setData('text/plain', d.id);
+              e.dataTransfer.effectAllowed = 'move';
+            });
+            a.addEventListener('click', function () {
+              lista.querySelectorAll('.docs-item').forEach(function (x) { x.classList.remove('ativo'); });
+              a.classList.add('ativo');
+              _docEstado.docId = d.id;
+              renderizarDetalhe(d);
+              mostrarDetalhe('triagem');
+            });
+            li.appendChild(a);
+            lista.appendChild(li);
+            // [novo, a pedido do dono] Recortes (Torres Limpas/Detalhes e
+            // Convenções) viram subclasses aninhadas debaixo do próprio
+            // Bruto que os gerou — nunca agrupados por pavimento inteiro
+            // (isso misturava recortes de brutos diferentes debaixo de um
+            // mesmo cabeçalho "Docs Gerais"/pavimento — bug real corrigido
+            // ao escopar sempre por bruto_id, nunca por pavimento).
+            if (tipo === 'Bruto') renderizarSubclassesRecorte(lista, d, classePavPar, pav);
+          });
+        });
+      });
+      var alvo = documentos.find(function (d) { return d.id === _docEstado.docId; }) || documentos[0];
+      if (alvo) {
+        _docEstado.docId = alvo.id;
+        var btnAlvo = lista.querySelector('[data-doc-id="' + alvo.id + '"]');
+        if (btnAlvo) btnAlvo.classList.add('ativo');
+        renderizarDetalhe(alvo);
+      }
+    }
+
+    window.montarListaTriagem = montarLista;
+    // [expostos pra uso fora deste IIFE, por `atualizarSubclassesDoBruto`
+    // (módulo de Recortes, mais abaixo) — refresh cirúrgico de 1 bruto só,
+    // sem duplicar a lógica de agrupamento/render de subclasses.]
+    window.pavimentoDe = pavimentoDe;
+    window.renderizarSubclassesRecorte = renderizarSubclassesRecorte;
+    window.renderizarGruposDeRecorte = _renderizarGruposDeRecorte;
+    window.documentosTriagem = documentos;
+    window.moverIntroParaSlot = moverIntroParaSlot;
+    montarLista();
+  })();
+
+  // --- [novo, a pedido do dono] lista simples dos .dwg da obra, com status
+  // "Possui DXF" — fica na seção Documentos, acima do upload. Os .dwg NÃO
+  // aparecem mais na árvore de Triagem (só docs não-dwg navegam lá).
+  (function () {
+    var raiz = document.getElementById('dwgs-lista-secao');
+    if (!raiz) return;
+
+    function carregarDwgs() {
+      fetch('/obras/' + OBRA_ID + '/documentos/dwgs').then(function (r) { return r.json(); })
+        .then(function (data) { renderizarDwgs(data.dwgs); })
+        .catch(function () { raiz.innerHTML = '<p class="muted">Falha ao carregar a lista de DWGs.</p>'; });
+    }
+
+    function renderizarDwgs(dwgs) {
+      if (!dwgs.length) { raiz.innerHTML = ''; return; }
+      var linhas = dwgs.map(function (d) {
+        var nome = (d.nome_exibicao || d.arquivo_nome).replace(/</g, '&lt;');
+        var status = d.tem_dxf
+          ? '<span class="dwg-status dwg-status-sim">✔ Possui DXF</span>'
+          : '<span class="dwg-status dwg-status-nao">✖ Sem DXF</span>';
+        return '<tr><td>' + nome + '</td><td>' + status + '</td></tr>';
+      }).join('');
+      raiz.innerHTML =
+        '<table class="docs-tabela dwgs-tabela"><thead><tr><th>DWG</th><th>Status</th></tr></thead>' +
+        '<tbody>' + linhas + '</tbody></table>';
+    }
+
+    carregarDwgs();
+    window.recarregarDwgsLista = carregarDwgs;
+  })();
+
+  (function () {
+    var btn = document.getElementById('btn-converter-dwg');
+    if (!btn) return;
+    var res = document.getElementById('docs-converter-resultado');
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      btn.textContent = 'Enfileirando…';
+      fetch('/obras/' + OBRA_ID + '/documentos/converter-dwg', { method: 'POST' })
+        .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function (data) {
+          res.innerHTML = '<p class="faixa faixa-info" role="status">' +
+            '<span aria-hidden="true">✓</span> Conversão enfileirada (job ' + data.job_id +
+            '). Atualize a página em instantes para ver o resultado.</p>';
+          setTimeout(function () { location.reload(); }, 3000);
+        })
+        .catch(function () {
+          res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+            '<span aria-hidden="true">⚠</span> Não foi possível enfileirar a conversão.</p>';
+          btn.disabled = false;
+          btn.textContent = 'Converter DWG → DXF →';
+        });
+    });
+  })();
+
+  (function () {
+    var btn = document.getElementById('btn-rodar-triagem');
+    if (!btn) return;
+    var res = document.getElementById('docs-triagem-resultado');
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      btn.textContent = 'Enfileirando…';
+      fetch('/obras/' + OBRA_ID + '/triagem', { method: 'POST' })
+        .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function (data) {
+          res.innerHTML = '<p class="faixa faixa-info" role="status">' +
+            '<span aria-hidden="true">✓</span> Triagem enfileirada (job ' + data.job_id +
+            '). Atualize a página em instantes para ver o resultado.</p>';
+          setTimeout(function () { location.reload(); }, 3000);
+        })
+        .catch(function () {
+          res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+            '<span aria-hidden="true">⚠</span> Não foi possível enfileirar a triagem.</p>';
+          btn.disabled = false;
+          btn.textContent = 'Triagem + Recortes →';
+        });
+    });
+  })();
+
   document.querySelectorAll('button[data-acao]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var acao = btn.getAttribute('data-acao');
@@ -158,15 +1053,9 @@
       btn.disabled = true;
       var body = {};
       var url = '/obras/' + OBRA_ID + '/' + acao;
-      if (acao === 'validacao') {
-        body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
-      } else if (acao === 'sa') {
-        body = {};
-      }
+      if (acao === 'validacao') body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
       fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       }).then(function (r) {
         if (!r.ok) throw new Error('http ' + r.status);
         return r.json();
@@ -183,26 +1072,408 @@
     });
   });
 
+  // --- SA/N1 e N3: 9 classes aninhadas no painel 2 -> itens no painel 3 ->
+  // detalhe (campos+fotos) no painel claro. [FIX 2026-07-06] achado real no
+  // teste de caos: clicar rápido entre classes disparava N fetches
+  // concorrentes; a resposta que chegasse por último "vencia" mesmo se não
+  // fosse a do último clique — token monotônico só aplica a resposta mais
+  // recente.
+  var _n1ClassesCarregado = false;
+  var _n3ClassesCarregado = false;
+  var _painel3Estado = { stage: null, classe: null, itens: [], indice: 0 };
+  var _classeItensReqToken = 0;
+  var _n1DetalheReqToken = 0;
+  var _n3DetalheReqToken = 0;
+
+  function carregarClassesN1SeNecessario() {
+    if (_n1ClassesCarregado) return;
+    _n1ClassesCarregado = true;
+    carregarClassesGenerico('n1', document.getElementById('n1-classes-lista'));
+  }
+  function carregarClassesN3SeNecessario() {
+    if (_n3ClassesCarregado) return;
+    _n3ClassesCarregado = true;
+    carregarClassesGenerico('n3', document.getElementById('n3-classes-lista'));
+  }
+
+  function carregarClassesGenerico(stage, container) {
+    container.innerHTML = '<p class="muted">Carregando…</p>';
+    fetch('/obras/' + OBRA_ID + '/n1/classes').then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.pavimento_atual) {
+          container.innerHTML = '<p class="muted">Ainda não há resultado de SA para esta obra.</p>';
+          return;
+        }
+        var classesComItens = data.classes.filter(function (c) { return c.total > 0; });
+        if (!classesComItens.length) {
+          container.innerHTML = '<p class="muted">Nenhum item encontrado.</p>';
+          return;
+        }
+        var ul = document.createElement('ul');
+        ul.className = 'n1-lista-itens';
+        classesComItens.forEach(function (c) {
+          var li = document.createElement('li');
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'n1-item-link';
+          b.textContent = c.titulo + ' (' + c.total + ')';
+          b.addEventListener('click', function () {
+            ul.querySelectorAll('.n1-item-link').forEach(function (x) { x.classList.remove('ativo'); });
+            b.classList.add('ativo');
+            carregarItensClasseParaPainel3(stage, c.classe);
+          });
+          li.appendChild(b);
+          ul.appendChild(li);
+        });
+        container.innerHTML = '';
+        container.appendChild(ul);
+      })
+      .catch(function () { container.innerHTML = '<p class="muted">Falha ao carregar.</p>'; });
+  }
+
+  function carregarItensClasseParaPainel3(stage, classe) {
+    var painel3 = document.getElementById('painel-3');
+    var lista = document.getElementById('painel3-itens');
+    painel3.hidden = false;
+    lista.innerHTML = '<li class="n1-lista-cabecalho">Carregando…</li>';
+    var meuToken = ++_classeItensReqToken;
+    fetch('/obras/' + OBRA_ID + '/n1/' + classe).then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (meuToken !== _classeItensReqToken) return;
+        _painel3Estado = { stage: stage, classe: classe, itens: data.itens, indice: 0 };
+        renderizarPainel3();
+      })
+      .catch(function () {
+        if (meuToken !== _classeItensReqToken) return;
+        lista.innerHTML = '<li class="n1-lista-cabecalho">Falha ao carregar.</li>';
+      });
+  }
+
+  function renderizarPainel3() {
+    var lista = document.getElementById('painel3-itens');
+    lista.innerHTML = '';
+    var itens = _painel3Estado.itens;
+    if (!itens.length) {
+      lista.innerHTML = '<li class="n1-lista-cabecalho">Nenhum item nesta classe.</li>';
+      return;
+    }
+    itens.forEach(function (it, i) {
+      var li = document.createElement('li');
+      var a = document.createElement('button');
+      a.type = 'button';
+      a.className = 'n1-item-link' + (i === _painel3Estado.indice ? ' ativo' : '');
+      a.textContent = it.titulo;
+      a.addEventListener('click', function () {
+        _painel3Estado.indice = i;
+        renderizarPainel3();
+      });
+      li.appendChild(a);
+      lista.appendChild(li);
+    });
+    var atual = itens[_painel3Estado.indice];
+    if (_painel3Estado.stage === 'n1') carregarDetalheItemN1(atual.item_id);
+    else carregarDetalheItemN3(atual.item_id);
+  }
+
+  function carregarDetalheItemN1(itemId) {
+    mostrarDetalhe('n1');
+    var painel = document.getElementById('n1-detalhe-painel');
+    painel.innerHTML =
+      '<div class="n1-detalhe-nav">' +
+        '<button type="button" class="btn-sec btn" id="n1-prev">◀</button>' +
+        '<strong id="n1-titulo"></strong>' +
+        '<button type="button" class="btn-sec btn" id="n1-next">▶</button>' +
+      '</div>' +
+      '<div class="n1-detalhe-corpo">' +
+        '<div class="n1-campos" id="n1-campos"><p class="muted">Carregando…</p></div>' +
+        '<div class="n1-fotos" id="n1-fotos"></div>' +
+      '</div>';
+    document.getElementById('n1-prev').addEventListener('click', function () {
+      _painel3Estado.indice = (_painel3Estado.indice - 1 + _painel3Estado.itens.length) % _painel3Estado.itens.length;
+      renderizarPainel3();
+    });
+    document.getElementById('n1-next').addEventListener('click', function () {
+      _painel3Estado.indice = (_painel3Estado.indice + 1) % _painel3Estado.itens.length;
+      renderizarPainel3();
+    });
+    var camposEl = document.getElementById('n1-campos');
+    var fotosEl = document.getElementById('n1-fotos');
+    var tituloEl = document.getElementById('n1-titulo');
+    var meuToken = ++_n1DetalheReqToken;
+    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId))
+      .then(function (r) { return r.json(); })
+      .then(function (item) {
+        if (meuToken !== _n1DetalheReqToken) return;
+        tituloEl.textContent = item.titulo;
+        var linhas = Object.keys(item.campos).map(function (k) {
+          var v = item.campos[k];
+          if (v === null || v === undefined || v === '') return '';
+          return '<div class="n1-campo"><span class="n1-campo-label">' + k + '</span><span class="n1-campo-valor">' +
+            String(v).replace(/</g, '&lt;') + '</span></div>';
+        }).join('');
+        if (item.atencao) {
+          linhas += '<div class="n1-campo"><span class="n1-campo-label">Atenção</span><span class="n1-campo-valor">' +
+            item.atencao.replace(/</g, '&lt;') + '</span></div>';
+        }
+        camposEl.innerHTML = linhas || '<p class="muted">Sem campos.</p>';
+
+        var fotos = '';
+        if (item.foto_n1) {
+          fotos += '<div class="n1-foto-card"><h4>N1 / SA</h4><div class="zoom-pan-viewport">' + item.foto_n1 + '</div>' +
+            '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p></div>';
+        } else {
+          fotos += '<div class="n1-foto-card n1-foto-ausente"><h4>N1 / SA</h4><p class="muted">ainda não gerada</p></div>';
+        }
+        fotosEl.innerHTML = fotos;
+        ativarZoomEmContainer(fotosEl);
+      })
+      .catch(function () {
+        if (meuToken !== _n1DetalheReqToken) return;
+        camposEl.innerHTML = '<p class="muted">Falha ao carregar item.</p>';
+      });
+  }
+
+  function carregarDetalheItemN3(itemId) {
+    mostrarDetalhe('n3');
+    var painel = document.getElementById('n3-detalhe-painel');
+    painel.innerHTML =
+      '<div class="n1-detalhe-nav">' +
+        '<button type="button" class="btn-sec btn" id="n3-prev">◀</button>' +
+        '<strong id="n3-titulo"></strong>' +
+        '<button type="button" class="btn-sec btn" id="n3-next">▶</button>' +
+      '</div>' +
+      '<div class="n1-fotos" id="n3-fotos"><p class="muted">Carregando fotos…</p></div>';
+    document.getElementById('n3-prev').addEventListener('click', function () {
+      _painel3Estado.indice = (_painel3Estado.indice - 1 + _painel3Estado.itens.length) % _painel3Estado.itens.length;
+      renderizarPainel3();
+    });
+    document.getElementById('n3-next').addEventListener('click', function () {
+      _painel3Estado.indice = (_painel3Estado.indice + 1) % _painel3Estado.itens.length;
+      renderizarPainel3();
+    });
+    var tituloEl = document.getElementById('n3-titulo');
+    var fotosEl = document.getElementById('n3-fotos');
+    tituloEl.textContent = _painel3Estado.itens[_painel3Estado.indice].titulo;
+    var meuToken = ++_n3DetalheReqToken;
+    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId))
+      .then(function (r) { return r.json(); })
+      .then(function (item) {
+        if (meuToken !== _n3DetalheReqToken) return;
+        var dica = '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
+        var html = '';
+        if (item.foto_n3) html += '<div class="n1-foto-card"><h4>N3 (robô)</h4><div class="zoom-pan-viewport">' + item.foto_n3 + '</div>' + dica + '</div>';
+        else html += '<div class="n1-foto-card n1-foto-ausente"><h4>N3 (robô)</h4><p class="muted">ainda não gerada pra este item</p></div>';
+        if (item.foto_n1) html += '<div class="n1-foto-card"><h4>N1 (referência)</h4><div class="zoom-pan-viewport">' + item.foto_n1 + '</div>' + dica + '</div>';
+        fotosEl.innerHTML = html;
+        ativarZoomEmContainer(fotosEl);
+      })
+      .catch(function () {
+        if (meuToken !== _n3DetalheReqToken) return;
+        fotosEl.innerHTML = '<p class="muted">Falha ao carregar fotos.</p>';
+      });
+  }
+
+  // --- Recortes (2026-07-09): Torres Limpas/Detalhes e Convenções viram
+  // subclasses aninhadas debaixo do próprio Bruto, na Triagem (sidebar) —
+  // não moram mais num painel/aba separada. Selecionar qualquer item (Bruto
+  // completo, Torre, Detalhe ou PDF) usa o MESMO viewer com zoom/pan (SVG),
+  // a mesma ficha informacional acima da foto, e — só pra recortes — os
+  // botões de Validar/Invalidar e Regenerar.
+  var _fotoRecorteReqToken = 0;
+
+  function renderizarFotoRecorte(container, src, alt, forcarRecarga) {
+    var meuToken = ++_fotoRecorteReqToken;
+    container.innerHTML = '<p class="muted">Carregando foto em alta resolução…</p>';
+    var img = new Image();
+    img.alt = alt;
+    img.onload = function () {
+      if (meuToken !== _fotoRecorteReqToken) return;
+      container.innerHTML = '<div class="zoom-pan-viewport"></div><p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
+      container.querySelector('.zoom-pan-viewport').appendChild(img);
+      ativarZoomEmContainer(container);
+    };
+    img.onerror = function () {
+      if (meuToken !== _fotoRecorteReqToken) return;
+      container.innerHTML = '<p class="muted">Falha ao renderizar esta foto.</p>';
+    };
+    // [novo, a pedido do dono] só quebra cache quando vem de um "Regenerar"
+    // explícito — senão, cada troca de item re-baixaria a mesma foto à toa.
+    img.src = forcarRecarga ? src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now() : src;
+  }
+
+  function statusValidacaoRecorte(brutoId, itemId) {
+    var it = (_recortesItensPorBruto[brutoId] || []).find(function (x) { return x.item_id === itemId; });
+    return it ? !!it.validado : false;
+  }
+
+  function atualizarBotoesValidacao(brutoId, itemId) {
+    var btnValidar = document.getElementById('recorte-validar-btn');
+    var btnInvalidar = document.getElementById('recorte-invalidar-btn');
+    if (!btnValidar || !btnInvalidar) return;
+    var chave = brutoId + '_' + itemId;
+    btnValidar.classList.toggle('ativo', statusValidacaoRecorte(brutoId, itemId));
+    // [nota] o backend só guarda um bool (validado: true/false) — "nunca
+    // avaliado" e "invalidado explicitamente" são indistinguíveis nele.
+    // `_recortesInvalidadosLocal` só lembra, NESTA sessão de página, que o
+    // usuário clicou em Invalidar, pra dar feedback visual imediato.
+    btnInvalidar.classList.toggle('ativo', !!_recortesInvalidadosLocal[chave]);
+  }
+
+  function marcarValidacaoRecorte(item, validado) {
+    var statusEl = document.getElementById('recorte-validacao-status');
+    statusEl.textContent = 'Salvando…';
+    fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) + '/' +
+      encodeURIComponent(item.itemId) + '/validar', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ validado: validado }),
+    }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function () {
+        var itens = _recortesItensPorBruto[item.brutoId] || [];
+        var it = itens.find(function (x) { return x.item_id === item.itemId; });
+        if (it) it.validado = validado;
+        var chave = item.brutoId + '_' + item.itemId;
+        _recortesInvalidadosLocal[chave] = !validado;
+        statusEl.textContent = validado ? 'Validado ✔' : 'Invalidado ✖';
+        atualizarBotoesValidacao(item.brutoId, item.itemId);
+      })
+      .catch(function () { statusEl.textContent = 'Falha ao salvar.'; });
+  }
+
+  // [novo, a pedido do dono] "Regenerar" reprocessa TODAS as torres/detalhes
+  // daquele bruto (é assim que o motor DBSCAN funciona — não dá pra regerar
+  // 1 torre isolada), mas a atualização na tela é cirúrgica: só a foto do
+  // item atual e a subclasse (Torres/Detalhes) DAQUELE bruto são refeitas —
+  // o resto da árvore (outros brutos, outros pavimentos, doc selecionado)
+  // continua como estava. Antes, isso recarregava tudo e "sumia" a lista
+  // inteira por um instante (bug real relatado pelo dono).
+  function regenerarRecorte(item) {
+    var statusEl = document.getElementById('recorte-validacao-status');
+    var btn = document.getElementById('recorte-regenerar-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Regenerando…'; }
+    statusEl.textContent = 'Regenerando recortes deste bruto…';
+    fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) + '/reprocessar', {
+      method: 'POST',
+    }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function () {
+        return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) + '/itens')
+          .then(function (r) { return r.json(); });
+      })
+      .then(function (data) {
+        _recortesItensPorBruto[item.brutoId] = data.itens;
+        atualizarSubclassesDoBruto(item.brutoId);
+        var aindaExiste = data.itens.some(function (it) { return it.item_id === item.itemId; });
+        var src = '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) +
+          '/' + encodeURIComponent(item.itemId) + '/foto';
+        if (aindaExiste) renderizarFotoRecorte(document.getElementById('doc-viewer-extra'), src, item.titulo, true);
+        statusEl.textContent = 'Regenerado ✔';
+        if (btn) { btn.disabled = false; btn.textContent = 'Regenerar →'; }
+      })
+      .catch(function () {
+        statusEl.textContent = 'Falha ao regenerar.';
+        if (btn) { btn.disabled = false; btn.textContent = 'Regenerar →'; }
+      });
+  }
+
+  // Refaz só os `<li>` de subclasse (Torres/Detalhes) de UM bruto específico,
+  // sem tocar no resto da lista de Triagem (sem `montarLista()` inteiro).
+  function atualizarSubclassesDoBruto(brutoId) {
+    var lista = document.getElementById('docs-lista');
+    if (!lista) return;
+    var existentes = lista.querySelectorAll('[data-bruto-recorte="' + brutoId + '"]');
+    if (!existentes.length) return;
+    var referencia = existentes[0];
+    var classePavPar = referencia.className.indexOf('pavimento-impar') >= 0 ? 'pavimento-impar' : 'pavimento-par';
+    var bruto = (_recortesBrutosCache || []).find(function (b) { return b.bruto_id === brutoId; });
+    if (!bruto) return;
+    var doc = (window.documentosTriagem || []).find(function (d) { return d.arquivo_nome === bruto.nome; });
+    // [novo, a pedido do dono] modo rápido/legado (0 documentos navegáveis):
+    // não existe `doc` pra casar, mas o pavimento do próprio bruto já resolve.
+    var pav = doc ? (window.pavimentoDe(doc) || 'Indeterminado') : (bruto.pavimento || 'Indeterminado');
+    existentes.forEach(function (el) { el.remove(); });
+    var novaLista = document.createElement('ul');
+    if (doc) {
+      window.renderizarSubclassesRecorte(novaLista, doc, classePavPar, pav);
+    } else {
+      var todos = _recortesItensPorBruto[brutoId] || [];
+      var rec = {
+        brutoId: brutoId,
+        torres: todos.filter(function (it) { return it.item_id.indexOf('torre') === 0; }),
+        detalhes: todos.filter(function (it) { return it.item_id.indexOf('torre') !== 0; }),
+      };
+      window.renderizarGruposDeRecorte(novaLista, rec, classePavPar, pav);
+    }
+    while (novaLista.firstChild) referencia.parentNode.insertBefore(novaLista.firstChild, referencia);
+  }
+
+  function renderizarDetalheRecorte(item) {
+    var det = document.getElementById('docs-detalhe');
+    if (!det) return;
+    det.innerHTML =
+      '<div id="docs-cabecalho-slot"></div>' +
+      '<div id="docs-intro-slot"></div>' +
+      '<strong>' + item.titulo.replace(/</g, '&lt;') + '</strong>' +
+      '<div class="cab-grid" style="margin-top:10px">' +
+        '<div><span class="n1-campo-label">Categoria</span><br>' + item.categoria + '</div>' +
+        '<div><span class="n1-campo-label">Pavimento</span><br>' + (item.pavimento === 'Indeterminado' ? 'Docs Gerais' : item.pavimento) + '</div>' +
+      '</div>' +
+      '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+        '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
+        '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-invalidar-btn">✖ Invalidar</button>' +
+        '<button type="button" class="btn-sec btn" id="recorte-regenerar-btn">Regenerar →</button>' +
+        '<span id="recorte-validacao-status" class="meta" role="status" aria-live="polite"></span>' +
+      '</div>' +
+      '<div id="doc-viewer-extra" style="margin-top:14px"></div>';
+    window.moverIntroParaSlot(det);
+
+    document.getElementById('recorte-validar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, true); });
+    document.getElementById('recorte-invalidar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, false); });
+    document.getElementById('recorte-regenerar-btn').addEventListener('click', function () { regenerarRecorte(item); });
+    atualizarBotoesValidacao(item.brutoId, item.itemId);
+
+    var src = '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) +
+      '/' + encodeURIComponent(item.itemId) + '/foto';
+    renderizarFotoRecorte(document.getElementById('doc-viewer-extra'), src, item.titulo);
+  }
+
+  // Carrega a árvore de brutos + itens de recorte de todos eles, uma vez, e
+  // dispara um re-render da Triagem (que já sabe injetar as subclasses assim
+  // que o cache chega — ver `itensRecorteDoDoc`/`renderizarSubclassesRecorte`
+  // dentro do módulo de Documentos, acima).
+  function carregarDadosRecortesEArvore() {
+    fetch('/obras/' + OBRA_ID + '/recortes/brutos').then(function (r) { return r.json(); })
+      .then(function (data) {
+        _recortesBrutosCache = data.brutos;
+        return Promise.all(data.brutos.map(function (b) {
+          return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(b.bruto_id) + '/itens')
+            .then(function (r) { return r.json(); })
+            .then(function (itensData) { _recortesItensPorBruto[b.bruto_id] = itensData.itens; })
+            .catch(function () { _recortesItensPorBruto[b.bruto_id] = []; });
+        }));
+      })
+      .then(function () {
+        if (window.montarListaTriagem) window.montarListaTriagem();
+      })
+      .catch(function () { /* Triagem funciona normal sem os recortes */ });
+  }
+  carregarDadosRecortesEArvore();
+
   // --- ErrorMarker religado à API (§4). Chave estável mantida. ---
   (function () {
     var PAV = {{ (pavimento or 'GERAL')|tojson }};
     var CLASSE = {{ (classe_ativa or 'GERAL')|tojson }};
     var ITEM = {{ (item_id or 'ficha')|tojson }};
-    var chave = ('aten_erro_' + CLASSE + '_' + OBRA_ID + '_' + PAV + '_' + ITEM)
-      .replace(/ /g, '_');
+    var chave = ('aten_erro_' + CLASSE + '_' + OBRA_ID + '_' + PAV + '_' + ITEM).replace(/ /g, '_');
     var chk = document.getElementById('erro_check');
     var txt = document.getElementById('erro_nota');
     var saved = document.getElementById('em_saved');
     var prov = document.getElementById('em_prov');
     var t = null;
-
     function save() {
       clearTimeout(t);
       t = setTimeout(function () {
         if (!chk.checked && !txt.value.trim()) return;
         fetch('/obras/' + OBRA_ID + '/comentarios', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             texto: (txt.value || '(marcada como errada, sem nota)'),
             tipo: chk.checked ? 'erro' : 'observacao',
@@ -210,14 +1481,9 @@
             pavimento: PAV === 'GERAL' ? null : PAV,
             item_id: chave,
           }),
-        }).then(function (r) {
-          if (r.ok) {
-            saved.hidden = false;
-            return r.json();
-          }
-        }).then(function (j) {
-          if (j) prov.textContent = 'marcado por ' + j.marcado_por;
-        }).catch(function () { /* silencioso: autosave */ });
+        }).then(function (r) { if (r.ok) { saved.hidden = false; return r.json(); } })
+          .then(function (j) { if (j) prov.textContent = 'marcado por ' + j.marcado_por; })
+          .catch(function () { /* silencioso: autosave */ });
       }, 600);
     }
     chk.addEventListener('change', save);
