@@ -52,6 +52,10 @@ class SAIn(BaseModel):
     secao: Optional[list[str]] = None
     pav: Optional[str] = None
 
+class N3In(BaseModel):
+    secao: Optional[list[str]] = None
+    pav: Optional[str] = None
+
 
 class ValidacaoIn(BaseModel):
     classe: str
@@ -127,6 +131,16 @@ def sa(obra_id: str, body: SAIn, request: Request, membro: dict = Depends(auth.e
             "estado": "queued", "secao": body.secao}
 
 
+@router.post("/obras/{obra_id}/n3")
+def n3(obra_id: str, body: N3In, request: Request, membro: dict = Depends(auth.exige_login),
+       conn: sqlite3.Connection = Depends(get_db_conn)):
+    import sqlite3 # just to be safe
+    obra = _obra_do_membro(conn, obra_id, membro)
+    meta = {"etapa": "n3", "secao": body.secao, "pav": body.pav}
+    job_id = _enfileirar(request, conn, obra, meta)
+    return {"job_id": job_id, "obra_id": obra_id, "etapa": "n3",
+            "estado": "queued", "secao": body.secao}
+
 # --------------------------------------------------------------------------- #
 # Etapa 5 — Validacao (so estado; nao recomputa)
 # --------------------------------------------------------------------------- #
@@ -199,6 +213,15 @@ def n5_download(obra_id: str, classe: str, request: Request,
         media_type="application/dxf", headers={"X-Certificacao": rotulo},
     )
 
+
+@router.get("/obras/{obra_id}/n5/download")
+def n5_download_all(obra_id: str, request: Request, membro: dict = Depends(auth.exige_login),
+                    conn: sqlite3.Connection = Depends(get_db_conn)):
+    # Mocking global zip download
+    from fastapi.responses import Response
+    import sqlite3
+    _ = _obra_do_membro(conn, obra_id, membro) # valida
+    return Response(content=b"Mock ZIP content for all N5", media_type="application/zip", headers={"Content-Disposition": "attachment; filename=n5_all.zip"})
 
 @router.get("/obras/{obra_id}/n5/{classe}/foto")
 def n5_foto(obra_id: str, classe: str, request: Request,

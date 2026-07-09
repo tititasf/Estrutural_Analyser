@@ -54,12 +54,40 @@
     <!-- Fases da Obra Global -->
     <div class="painel-fases-obra" style="padding: 15px; border-bottom: 1px solid var(--border-color); background: #262626;">
       <h3 style="margin-top:0; font-size: 0.95rem; color: #fff;">Status de Processamento da Obra</h3>
-      <ul style="list-style: none; padding-left: 0; font-size: 0.8rem; color: #aaa; margin-bottom: 0; line-height: 1.4;">
-        <li><span id="fase1-icon" aria-hidden="true">⏳</span> <b>Fase 1:</b> Ingestão e Triagem</li>
-        <li><span id="fase2-icon" aria-hidden="true">⏳</span> <b>Fase 2:</b> Aprovação de Recortes</li>
-        <li><span id="fase3-icon" aria-hidden="true">⏳</span> <b>Fase 3:</b> Aprovação de N1 → N3</li>
-        <li><span id="fase4-icon" aria-hidden="true">⏳</span> <b>Fase 4:</b> Aprovação de N3 → N5</li>
-        <li><span id="fase5-icon" aria-hidden="true">⏳</span> <b>Fase 5:</b> Certificação e Download</li>
+      <ul style="list-style: none; padding-left: 0; font-size: 0.8rem; color: #aaa; margin-bottom: 0; line-height: 1.4; gap: 8px; display: flex; flex-direction: column;">
+        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <span><span id="fase1-icon" aria-hidden="true">{% if triagem_feita %}✓{% else %}⏳{% endif %}</span> <b>Fase 1:</b> Ingestão/Triagem</span>
+          </div>
+          <div style="display: flex; gap: 5px; flex-direction: column;">
+            <button class="btn btn-sm painel2-acao-btn" data-acao="converter-dwg" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Converter Todos Docs</button>
+            <button class="btn btn-sm painel2-acao-btn" data-acao="triagem" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Triagem + Recortes</button>
+          </div>
+        </li>
+        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <span><span id="fase2-icon" aria-hidden="true">{% if sa_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 2:</b> Aprovação Recortes</span>
+          </div>
+          <button class="btn btn-sm painel2-acao-btn" data-acao="sa" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar todos SA (N1)</button>
+        </li>
+        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <span><span id="fase3-icon" aria-hidden="true">{% if etapa_atual >= 5 %}✓{% else %}⏳{% endif %}</span> <b>Fase 3:</b> Aprovação N1 → N3</span>
+          </div>
+          <button class="btn btn-sm painel2-acao-btn" data-acao="n3" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N1 (Todos) → N3</button>
+        </li>
+        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <span><span id="fase4-icon" aria-hidden="true">{% if n5_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 4:</b> Aprovação N3 → N5</span>
+          </div>
+          <button class="btn btn-sm painel2-acao-btn" data-acao="n5" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N3 (Todos) → N5</button>
+        </li>
+        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <span><span id="fase5-icon" aria-hidden="true">{% if etapa_atual >= 7 %}✓{% else %}⏳{% endif %}</span> <b>Fase 5:</b> Certificação e Download</span>
+          </div>
+          <button class="btn btn-sm painel2-acao-btn" data-acao="download" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%; background: #28a745; color: white; border: none;">Download Todos N5 (Zip)</button>
+        </li>
       </ul>
     </div>
 
@@ -116,6 +144,20 @@
         <button type="button" class="painel2-tab-btn" data-tab="n5">
           {% if n5_feito %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} N5
         </button>
+        <div class="painel2-aninhado" id="n5-classes" hidden>
+          <div class="painel-status-etapa" style="margin-bottom: 10px; background: #222; padding: 10px; border-radius: 6px;">
+            <div style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px;">Status de Processamento do Pavimento</div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 3px;">
+              <span>Aprovação de N3s:</span>
+              <span id="progresso-n3-txt">0%</span>
+            </div>
+            <div style="background: #444; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 8px;">
+              <div id="progresso-n3-bar" style="background: #28a745; height: 100%; width: 0%;"></div>
+            </div>
+            <button class="btn btn-sm painel2-acao-btn" data-acao="n5" style="font-size: 0.75rem; padding: 4px 10px; width: 100%;">Processar N5 deste Pavimento</button>
+          </div>
+          <div id="n5-classes-lista"></div>
+        </div>
       </div>
     </div>
   </nav>
@@ -1111,12 +1153,41 @@
   document.querySelectorAll('button[data-acao]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var acao = btn.getAttribute('data-acao');
+      var escopo = btn.getAttribute('data-escopo');
+      var url = '/obras/' + OBRA_ID + '/' + acao;
+
+      if (acao === 'download') {
+         window.location.href = url;
+         return;
+      }
+
       var res = document.getElementById('acao-resultado');
+      if (!res) {
+         res = document.createElement('div');
+         res.id = 'acao-resultado';
+         document.body.appendChild(res); // fallback
+      }
       btn.disabled = true;
       var body = {};
-      var url = '/obras/' + OBRA_ID + '/' + acao;
+      
       if (acao === 'validacao') body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
-      if (acao === 'sa') body = { secao: 'tudo', pav: _pavimentoSelecionado };
+      else if (acao === 'sa' || acao === 'n3' || acao === 'n5') {
+          if (escopo === 'global') {
+              body = { secao: 'tudo', pav: null };
+          } else {
+              if (acao === 'sa') {
+                  var perc = atualizarProgressoRecortesPavimento(_pavimentoSelecionado);
+                  if (perc < 100) {
+                      if (!confirm('Atenção: Apenas ' + perc + '% dos recortes foram aprovados neste pavimento. É aconselhável aprovar todos antes de gerar o SA. Deseja continuar?')) {
+                          btn.disabled = false;
+                          return;
+                      }
+                  }
+              }
+              body = { secao: 'tudo', pav: _pavimentoSelecionado };
+          }
+      }
+
       fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       }).then(function (r) {
