@@ -927,7 +927,16 @@
           var a = document.createElement('button');
           a.type = 'button';
           a.className = 'n1-item-link docs-item docs-recorte-item';
-          a.textContent = it.titulo;
+          // Checkmark se já vier validado do backend OU se validou agora localmente
+          var jaValidado = it.validado;
+          if (window.statusValidacaoRecorte && window.statusValidacaoRecorte(rec.brutoId, it.item_id)) {
+              jaValidado = true;
+          }
+          if (window._recortesInvalidadosLocal && window._recortesInvalidadosLocal[rec.brutoId + '_' + it.item_id]) {
+              jaValidado = false;
+          }
+          var checkHtml = jaValidado ? '<span style="color:#28a745; margin-right:4px;">✓</span>' : '';
+          a.innerHTML = checkHtml + it.titulo.replace(/</g, '&lt;');
           a.setAttribute('data-recorte-item', it.item_id);
           a.addEventListener('click', function () {
             lista.querySelectorAll('.docs-item').forEach(function (x) { x.classList.remove('ativo'); });
@@ -1868,5 +1877,217 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
 
   setTimeout(window.atualizarEstatisticasGlobais, 500);
 
+
+  // --- INICIO RECORTE MANUAL ---
+  window._modoCropManualAtivo = false;
+  window._cropRects = []; 
+  window._brutoIdAtual = null;
+
+  var oldRenderizarFotoRecorte = renderizarFotoRecorte;
+  renderizarFotoRecorte = function(container, src, alt, forcarRecarga) {
+    oldRenderizarFotoRecorte(container, src, alt, forcarRecarga);
+    
+    var m = src.match(/\/recortes\/brutos\/([^/]+)\/foto/);
+    if (m) {
+      window._brutoIdAtual = decodeURIComponent(m[1]);
+      window._cropRects = [];
+      setTimeout(function() {
+         if (container.querySelector('#crop-ui-container')) return;
+         var ui = document.createElement('div');
+         ui.id = 'crop-ui-container';
+         ui.style.margin = '10px 0';
+         ui.style.padding = '10px';
+         ui.style.background = 'var(--bg-lighter)';
+         ui.style.border = '1px solid var(--border)';
+         ui.style.borderRadius = '4px';
+         ui.innerHTML = `
+           <label style="font-weight:bold; margin-right:10px; cursor:pointer">
+             <input type="checkbox" id="chk-crop-manual"> Modo Recorte Manual
+           </label>
+           <input type="text" id="crop-classe-alvo" placeholder="Classe (ex: torre_1)" style="padding:4px; margin-right:10px; background:var(--bg-dark); color:var(--text); border:1px solid var(--border)">
+           <button type="button" class="btn" id="btn-crop-enviar">Recortar & Processar</button>
+           <button type="button" class="btn btn-outline" id="btn-crop-limpar">Limpar Seleções</button>
+           <span style="margin-left:10px; font-size:12px; color:#aaa">Marque o modo recorte e arraste o mouse sobre a imagem para criar os retângulos.</span>
+         `;
+         container.insertBefore(ui, container.firstChild);
+         
+         var chk = document.getElementById('chk-crop-manual');
+         chk.addEventListener('change', function() {
+            window._modoCropManualAtivo = this.checked;
+         });
+         document.getElementById('btn-crop-limpar').addEventListener('click', function() {
+            window._cropRects = [];
+            redesenharCropRects(container);
+         });
+         document.getElementById('btn-crop-enviar').addEventListener('click', function() {
+            if (window._cropRects.length === 0) return alert('Desenhe pelo menos um retângulo de recorte.');
+            var classe = document.getElementById('crop-classe-alvo').value.trim();
+            if (!classe) return alert('Digite a classe alvo (ex: torre_1, detalhes, etc).');
+            this.textContent = 'Processando...';
+            this.disabled = true;
+            fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(window._brutoIdAtual) + '/manual_crop', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                  bboxes: window._cropRects,
+                  classe_alvo: classe
+               })
+            }).then(function(r) { 
+               if (!r.ok) throw new Error('Falha no servidor');
+               return r.json(); 
+            }).then(function(res) {
+                 alert('Recorte manual gerado com sucesso: ' + res.torre);
+                 location.reload();
+              }).catch(function(err) {
+                 alert('Erro ao enviar recortes');
+                 document.getElementById('btn-crop-enviar').textContent = 'Recortar & Processar';
+                 document.getElementById('btn-crop-enviar').disabled = false;
+              });
+         });
+         
+         var vp = container.querySelector('.zoom-pan-viewport');
+         if (!vp) return;
+         
+         var layer = document.createElement('div');
+         layer.className = 'crop-layer';
+         layer.style.position = 'absolute';
+         layer.style.top = '0'; layer.style.left = '0';
+         layer.style.width = '100%'; layer.style.height = '100%';
+         layer.style.pointerEvents = 'none'; 
+         layer.style.transformOrigin = '0 0';
+         vp.appendChild(layer);
+         
+         var startX = 0, startY = 0, currentDiv = null;
+         var isDrawing = false;
+         
+         vp.addEventListener('mousedown', function(e) {
+            if (!window._modoCropManualAtivo) return;
+            e.stopPropagation(); 
+            var rect = vp.getBoundingClientRect();
+            
+            var img = vp.querySelector('img, svg');
+            var tx = 0, ty = 0, scale = 1;
+            if (img && img.style.transform) {
+               var tm = img.style.transform.match(/translate\(([^p]+)px,\s*([^p]+)px\)\s*scale\(([^)]+)\)/);
+               if (tm) { tx = parseFloat(tm[1]); ty = parseFloat(tm[2]); scale = parseFloat(tm[3]); }
+            }
+            
+            startX = (e.clientX - rect.left - tx) / scale;
+            startY = (e.clientY - rect.top - ty) / scale;
+            
+            isDrawing = true;
+            currentDiv = document.createElement('div');
+            currentDiv.style.position = 'absolute';
+            currentDiv.style.border = '2px dashed red';
+            currentDiv.style.background = 'rgba(255,0,0,0.2)';
+            layer.appendChild(currentDiv);
+         }, true); 
+         
+         window.addEventListener('mousemove', function(e) {
+            if (!isDrawing) return;
+            var rect = vp.getBoundingClientRect();
+            var img = vp.querySelector('img, svg');
+            var tx = 0, ty = 0, scale = 1;
+            if (img && img.style.transform) {
+               var tm = img.style.transform.match(/translate\(([^p]+)px,\s*([^p]+)px\)\s*scale\(([^)]+)\)/);
+               if (tm) { tx = parseFloat(tm[1]); ty = parseFloat(tm[2]); scale = parseFloat(tm[3]); }
+            }
+            
+            var curX = (e.clientX - rect.left - tx) / scale;
+            var curY = (e.clientY - rect.top - ty) / scale;
+            
+            var x = Math.min(startX, curX);
+            var y = Math.min(startY, curY);
+            var w = Math.abs(curX - startX);
+            var h = Math.abs(curY - startY);
+            
+            currentDiv.style.left = x + 'px';
+            currentDiv.style.top = y + 'px';
+            currentDiv.style.width = w + 'px';
+            currentDiv.style.height = h + 'px';
+         }, true);
+         
+         window.addEventListener('mouseup', function(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            var img = vp.querySelector('img, svg');
+            if (!img) { currentDiv.remove(); return; }
+            
+            // SVG needs getBoundingClientRect or width from style? 
+            // svg rendered by preview has 100% width, height auto. we need its absolute intrinsic size relative to scale=1
+            // rect width / scale gives the unscaled size.
+            var imgRect = img.getBoundingClientRect();
+            var scale = 1;
+            if (img.style.transform) {
+               var tm = img.style.transform.match(/scale\(([^)]+)\)/);
+               if (tm) scale = parseFloat(tm[1]);
+            }
+            var imgW = imgRect.width / scale;
+            var imgH = imgRect.height / scale;
+            
+            var x = parseFloat(currentDiv.style.left);
+            var y = parseFloat(currentDiv.style.top);
+            var w = parseFloat(currentDiv.style.width);
+            var h = parseFloat(currentDiv.style.height);
+            
+            if (w < 10 || h < 10) {
+               currentDiv.remove();
+               return;
+            }
+            
+            window._cropRects.push({
+               x_pct: x / imgW,
+               y_pct: y / imgH,
+               w_pct: w / imgW,
+               h_pct: h / imgH
+            });
+            
+            redesenharCropRects(container);
+         }, true);
+         
+         var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+               if (m.attributeName === 'style') {
+                  layer.style.transform = m.target.style.transform;
+               }
+            });
+         });
+         var imgTarget = vp.querySelector('img, svg');
+         if (imgTarget) observer.observe(imgTarget, { attributes: ['style'] });
+         
+      }, 800);
+    }
+  };
+  
+  function redesenharCropRects(container) {
+      var vp = container.querySelector('.zoom-pan-viewport');
+      if (!vp) return;
+      var layer = vp.querySelector('.crop-layer');
+      if (!layer) return;
+      var img = vp.querySelector('img, svg');
+      
+      var imgRect = img.getBoundingClientRect();
+      var scale = 1;
+      if (img.style.transform) {
+         var tm = img.style.transform.match(/scale\(([^)]+)\)/);
+         if (tm) scale = parseFloat(tm[1]);
+      }
+      var imgW = imgRect.width / scale;
+      var imgH = imgRect.height / scale;
+      
+      layer.innerHTML = '';
+      window._cropRects.forEach(function(r) {
+          var div = document.createElement('div');
+          div.style.position = 'absolute';
+          div.style.border = '2px solid red';
+          div.style.background = 'rgba(255,0,0,0.2)';
+          div.style.left = (r.x_pct * imgW) + 'px';
+          div.style.top = (r.y_pct * imgH) + 'px';
+          div.style.width = (r.w_pct * imgW) + 'px';
+          div.style.height = (r.h_pct * imgH) + 'px';
+          layer.appendChild(div);
+      });
+  }
+  // --- FIM RECORTE MANUAL ---
 </script>
 {% endblock %}

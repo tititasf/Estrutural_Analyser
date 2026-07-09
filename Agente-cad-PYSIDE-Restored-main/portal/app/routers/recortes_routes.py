@@ -133,8 +133,14 @@ def listar_itens_torre_endpoint(obra_id: str, bruto_id: str, request: Request,
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
     itens = torre_crop.listar_recortes_bruto(obra_dir, bruto_id)
+    docs = repo.obter_documentos_da_obra(conn, obra_id)
+    bruto_doc = next((d for d in docs if d["id"] == bruto_id), None)
+    pav = "Desconhecido"
+    if bruto_doc:
+        pav = bruto_doc.get("pavimento_confirmado") or bruto_doc.get("pavimento") or "Desconhecido"
+    
     return {"obra_id": obra_id, "bruto_id": bruto_id,
-            "itens": [{"item_id": i["item_id"], "titulo": i["titulo"], "validado": i.get("validado", False)} for i in itens]}
+            "itens": [{"item_id": i["item_id"], "titulo": f"{i['titulo']} - {pav}", "validado": i.get("validado", False)} for i in itens]}
 
 
 @router.get("/{obra_id}/recortes/brutos/{bruto_id}/{item_id}/foto")
@@ -262,7 +268,7 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
         raise HTTPException(status_code=500, detail="Nao foi possivel ler os limites do DXF")
         
     x0, y0, x1, y1 = bbox_dxf
-    margem_pct = 0.08
+    margem_pct = 0.03
     margem_x = max((x1 - x0) * margem_pct, 0.5)
     margem_y = max((y1 - y0) * margem_pct, 0.5)
     
