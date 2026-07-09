@@ -68,17 +68,35 @@
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
             <span><span id="fase2-icon" aria-hidden="true">{% if sa_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 2:</b> Aprovação Recortes</span>
           </div>
+          <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
+            Validados: <span id="global-fase2-val">0</span>/<span id="global-fase2-tot">0</span> (<span id="global-fase2-perc">0</span>%)
+          </div>
+          <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
+            <div id="global-fase2-bar" style="background:#28a745; width:0%; height:100%;"></div>
+          </div>
           <button class="btn btn-sm painel2-acao-btn" data-acao="sa" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar todos SA (N1)</button>
         </li>
         <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
             <span><span id="fase3-icon" aria-hidden="true">{% if etapa_atual >= 5 %}✓{% else %}⏳{% endif %}</span> <b>Fase 3:</b> Aprovação N1 → N3</span>
           </div>
+          <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
+            Validados: <span id="global-fase3-val">0</span>/<span id="global-fase3-tot">0</span> (<span id="global-fase3-perc">0</span>%)
+          </div>
+          <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
+            <div id="global-fase3-bar" style="background:#28a745; width:0%; height:100%;"></div>
+          </div>
           <button class="btn btn-sm painel2-acao-btn" data-acao="n3" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N1 (Todos) → N3</button>
         </li>
         <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
             <span><span id="fase4-icon" aria-hidden="true">{% if n5_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 4:</b> Aprovação N3 → N5</span>
+          </div>
+          <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
+            Validados: <span id="global-fase4-val">0</span>/<span id="global-fase4-tot">0</span> (<span id="global-fase4-perc">0</span>%)
+          </div>
+          <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
+            <div id="global-fase4-bar" style="background:#28a745; width:0%; height:100%;"></div>
           </div>
           <button class="btn btn-sm painel2-acao-btn" data-acao="n5" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N3 (Todos) → N5</button>
         </li>
@@ -1454,7 +1472,12 @@
           linhas += '<div class="n1-campo"><span class="n1-campo-label">Atenção</span><span class="n1-campo-valor">' +
             item.atencao.replace(/</g, '&lt;') + '</span></div>';
         }
-        camposEl.innerHTML = linhas || '<p class="muted">Sem campos.</p>';
+        var btns = '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
+'<button class="btn btn-sm" style="background:#28a745; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'validar\')">Validar</button>' +
+'<button class="btn btn-sm" style="background:#dc3545; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'excluir\')">Excluir</button>' +
+'<button class="btn btn-sm btn-sec" style="padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'regenerar\')">Invalidar e Regenerar Geometria</button>' +
+'</div>';
+camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
 
         var fotos = '';
         if (item.foto_n1) {
@@ -1743,5 +1766,94 @@
     chk.addEventListener('change', save);
     txt.addEventListener('input', save);
   })();
+
+  window.atualizarEstatisticasGlobais = function() {
+    // Fase 2 (Recortes)
+    var f2_tot = 0;
+    var f2_val = 0;
+    if (window._recortesBrutosCache && window._recortesItensPorBruto) {
+      window._recortesBrutosCache.forEach(function(bruto) {
+        var itens = window._recortesItensPorBruto[bruto.bruto_id] || [];
+        f2_tot += itens.length;
+        itens.forEach(function(item) {
+          var chave = bruto.bruto_id + '_' + item.item_id;
+          if (window.statusValidacaoRecorte && window.statusValidacaoRecorte(bruto.bruto_id, item.item_id) && (!window._recortesInvalidadosLocal || !window._recortesInvalidadosLocal[chave])) {
+            f2_val++;
+          }
+        });
+      });
+    }
+    var perc2 = f2_tot === 0 ? 0 : Math.round((f2_val / f2_tot) * 100);
+    var elF2Val = document.getElementById('global-fase2-val');
+    var elF2Tot = document.getElementById('global-fase2-tot');
+    var elF2Perc = document.getElementById('global-fase2-perc');
+    var elF2Bar = document.getElementById('global-fase2-bar');
+    if (elF2Val) elF2Val.textContent = f2_val;
+    if (elF2Tot) elF2Tot.textContent = f2_tot;
+    if (elF2Perc) elF2Perc.textContent = perc2;
+    if (elF2Bar) elF2Bar.style.width = perc2 + '%';
+
+    // Fase 3 e 4 (N1 e N3)
+    fetch('/obras/' + OBRA_ID + '/stats-globais')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var n1 = data.n1;
+        var n3 = data.n3;
+        
+        var perc3 = n1.total === 0 ? 0 : Math.round((n1.validados / n1.total) * 100);
+        var elF3Val = document.getElementById('global-fase3-val');
+        var elF3Tot = document.getElementById('global-fase3-tot');
+        var elF3Perc = document.getElementById('global-fase3-perc');
+        var elF3Bar = document.getElementById('global-fase3-bar');
+        if (elF3Val) elF3Val.textContent = n1.validados;
+        if (elF3Tot) elF3Tot.textContent = n1.total;
+        if (elF3Perc) elF3Perc.textContent = perc3;
+        if (elF3Bar) elF3Bar.style.width = perc3 + '%';
+        
+        var perc4 = n3.total === 0 ? 0 : Math.round((n3.validados / n3.total) * 100);
+        var elF4Val = document.getElementById('global-fase4-val');
+        var elF4Tot = document.getElementById('global-fase4-tot');
+        var elF4Perc = document.getElementById('global-fase4-perc');
+        var elF4Bar = document.getElementById('global-fase4-bar');
+        if (elF4Val) elF4Val.textContent = n3.validados;
+        if (elF4Tot) elF4Tot.textContent = n3.total;
+        if (elF4Perc) elF4Perc.textContent = perc4;
+        if (elF4Bar) elF4Bar.style.width = perc4 + '%';
+      })
+      .catch(function(e) { console.error('Erro buscando stats', e); });
+  };
+
+  window.acaoFichaItem = function(itemId, acao) {
+      if (!confirm("Deseja realmente " + acao + " este item?")) return;
+      var stage = _painel3Estado.stage; // 'n1' ou 'n3'
+      var body = { classe: _painel3Estado.classe, item_id: itemId };
+      
+      if (acao === 'validar') {
+         if (stage === 'n1') { body.n1_ok = true; body.n3_ok = false; }
+         else { body.n1_ok = true; body.n3_ok = true; }
+      } else if (acao === 'excluir' || acao === 'regenerar') {
+         if (stage === 'n1') { body.n1_ok = false; body.n3_ok = false; }
+         else { body.n1_ok = true; body.n3_ok = false; }
+         
+         if (acao === 'regenerar') {
+            body.regenerar = true;
+         }
+      }
+      
+      fetch('/obras/' + OBRA_ID + '/validacao', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+      }).then(function(r) {
+          if (!r.ok) throw new Error();
+          window.atualizarEstatisticasGlobais();
+          alert("Ação '" + acao + "' registrada com sucesso.");
+      }).catch(function(e) {
+          alert("Não foi possível registrar a ação.");
+      });
+  };
+
+  setTimeout(window.atualizarEstatisticasGlobais, 500);
+
 </script>
 {% endblock %}

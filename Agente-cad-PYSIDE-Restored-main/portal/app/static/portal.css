@@ -808,7 +808,7 @@ main.conteudo:has(.shell-obra) {
   gap: 10px;
   margin-bottom: 10px;
 }
-.n1-detalhe-corpo { display: flex; gap: 16px; flex-wrap: wrap; }
+.n1-detalhe-corpo { display: flex; flex-direction: column; gap: 16px; }
 .n1-campos { flex: 1 1 260px; min-width: 220px; }
 .n1-campo {
   display: flex;
@@ -820,7 +820,7 @@ main.conteudo:has(.shell-obra) {
 }
 .n1-campo-label { color: var(--fg-muted); font-weight: 600; }
 .n1-campo-valor { text-align: right; white-space: pre-wrap; }
-.n1-fotos { flex: 1 1 340px; min-width: 280px; display: flex; flex-wrap: wrap; gap: 12px; }
+.n1-fotos { display: flex; flex-direction: column; gap: 12px; }
 .n1-foto-card {
   background: #fff;
   border: 1px solid var(--border);
@@ -829,8 +829,8 @@ main.conteudo:has(.shell-obra) {
   max-width: 100%;
 }
 .n1-foto-card h4 { margin: 0 0 6px; font-size: .78rem; color: var(--fg-muted); }
-.n1-foto-card { min-width: 320px; }
-.n1-foto-card svg { width: 100%; max-width: 480px; height: auto; display: block; }
+.n1-foto-card { width: 100%; max-width: 100%; }
+.n1-foto-card svg { width: 100%; max-width: 100%; height: auto; max-height: 400px; display: block; }
 .n1-foto-ausente { color: var(--fg-muted); font-size: .82rem; }
 
 /* [FIX 2026-07-07] breakpoint desceu de 900px pra 640px (mobile de verdade)
