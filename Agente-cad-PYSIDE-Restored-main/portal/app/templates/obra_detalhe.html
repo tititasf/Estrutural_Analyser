@@ -1216,6 +1216,7 @@
     document.getElementById('painel2-estado-vazio').hidden = false;
     document.getElementById('painel2-pavimento-conteudo').hidden = true;
     mostrarDetalhe('triagem');
+    if (window.montarListaTriagem) window.montarListaTriagem();
   }
 
   window.excluirRecorteAtual = function(brutoId, itemId) {
