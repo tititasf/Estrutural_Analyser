@@ -994,6 +994,7 @@
           // não aparecem mais — só entram na lista quando têm algo pra mostrar.
           if (!itens.length) return;
           var cabTipo = document.createElement('li');
+          cabTipo.style.display = 'none';
           cabTipo.className = 'n1-lista-cabecalho docs-cabecalho-tipo docs-drop-alvo ' + classePavPar;
           cabTipo.textContent = (TIPOS_LABEL[tipo] || tipo) + ' (' + itens.length + ')';
           cabTipo.setAttribute('data-pavimento-alvo', pav);
