@@ -186,10 +186,15 @@ def _find_support_text(
         if not pos:
             continue
         dist = math.hypot(pos[0] - endpoint[0], pos[1] - endpoint[1])
-        candidates.append((dist, t))
+        label = str(t.get("text") or "").strip().upper()
+        # Rótulos VF* nomeiam fundos de viga e podem ficar geometricamente
+        # próximos do encontro sem serem o apoio estrutural da extremidade.
+        # P*/V* vencem; VF* permanece como fallback quando não há apoio melhor.
+        priority = 1 if label.startswith("VF") else 0
+        candidates.append((priority, dist, t))
     if not candidates:
         return None
-    _, link = min(candidates, key=lambda x: x[0])
+    _, _, link = min(candidates, key=lambda x: (x[0], x[1]))
     out = dict(link)
     out["type"] = out.get("type") or "text"
     out["role"] = "Apoio fundo de viga"
@@ -215,6 +220,126 @@ def _bbox_length_width(points: list | tuple | None) -> tuple[float, float]:
     dx = max(xs) - min(xs)
     dy = max(ys) - min(ys)
     return max(dx, dy), min(dx, dy)
+
+
+def _format_optional_measure(value: float | None) -> str:
+    if value is None or value <= 0.05:
+        return "N/A"
+    rounded = round(float(value), 1)
+    if abs(rounded - round(rounded)) <= 0.05:
+        return str(int(round(rounded)))
+    return str(rounded).replace(".", ",")
+
+
+def _snap_chamfer_length(value: float | None) -> float | None:
+    if value is None or value <= 0.05:
+        return None
+    snapped = round(float(value) * 2.0) / 2.0
+    if abs(float(value) - snapped) <= 0.15:
+        return snapped
+    return None
+
+
+def _has_declared_chamfer(chamfers: dict[str, str]) -> bool:
+    return any(str(value or "").upper() != "N/A" for value in chamfers.values())
+
+
+def _derive_fundo_chamfers(
+    points: list | tuple | None,
+    is_horizontal: bool,
+) -> dict[str, str]:
+    """Deriva chanfros simples a partir do contorno fechado do fundo.
+
+    Convenção usada pela ficha granular FV:
+    - `*_top`: recuo na borda superior do painel.
+    - `*_fun`: recuo na borda inferior/fundo.
+    """
+    clean: list[tuple[float, float]] = []
+    for point in points or []:
+        try:
+            candidate = (float(point[0]), float(point[1]))
+        except (TypeError, ValueError, IndexError):
+            continue
+        if candidate not in clean:
+            clean.append(candidate)
+    if len(clean) < 4:
+        return {}
+
+    axis = 0 if is_horizontal else 1
+    transverse_axis = 1 - axis
+    transverse_values = [point[transverse_axis] for point in clean]
+    low = min(transverse_values)
+    high = max(transverse_values)
+    tol = max(0.25, (high - low) * 0.10)
+    low_axis = [point[axis] for point in clean if abs(point[transverse_axis] - low) <= tol]
+    high_axis = [point[axis] for point in clean if abs(point[transverse_axis] - high) <= tol]
+    if not low_axis or not high_axis:
+        return {}
+
+    left_low = min(low_axis)
+    left_high = min(high_axis)
+    right_low = max(low_axis)
+    right_high = max(high_axis)
+
+    left_top = max(0.0, left_high - left_low)
+    left_bottom = max(0.0, left_low - left_high)
+    right_top = max(0.0, right_low - right_high)
+    right_bottom = max(0.0, right_high - right_low)
+    return {
+        "chanfro_esq_top": _format_optional_measure(left_top),
+        "chanfro_esq_fun": _format_optional_measure(left_bottom),
+        "chanfro_dir_top": _format_optional_measure(right_top),
+        "chanfro_dir_fun": _format_optional_measure(right_bottom),
+    }
+
+
+def _fundo_segment_contour(
+    coord: tuple | list | None,
+    beam_pos: tuple | None,
+    is_horizontal: bool,
+    width: float,
+    raw_lines: list,
+) -> list[tuple[float, float]]:
+    if not coord or not beam_pos:
+        return []
+    try:
+        span_min, span_max = sorted((float(coord[0]), float(coord[1])))
+    except (TypeError, ValueError, IndexError):
+        return []
+    axis = 0 if is_horizontal else 1
+    transverse_axis = 1 - axis
+    matching_lines: list[list[tuple[float, float]]] = []
+    for line in raw_lines or []:
+        clean = []
+        for point in line or []:
+            try:
+                clean.append((float(point[0]), float(point[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+        if len(clean) < 2:
+            continue
+        line_min = min(point[axis] for point in clean)
+        line_max = max(point[axis] for point in clean)
+        if min(line_max, span_max) - max(line_min, span_min) > 0.0:
+            matching_lines.append(clean)
+    if matching_lines:
+        transverse_values = [
+            point[transverse_axis]
+            for line in matching_lines
+            for point in line
+        ]
+        center = (min(transverse_values) + max(transverse_values)) / 2.0
+    else:
+        center = float(beam_pos[transverse_axis])
+    from src.core.beam_interpreters.fundo_viga import FundoVigaInterpreter
+
+    return FundoVigaInterpreter.build_area_contour(
+        axial_span=(span_min, span_max),
+        width=width,
+        is_horizontal=is_horizontal,
+        transverse_center=center,
+        boundary_lines=matching_lines,
+    )
 
 
 def _format_measure(value: float) -> str:
@@ -447,6 +572,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             
             bridged = False
             for obs in visual_obstacles:
+                if str(obs.get("type") or "").upper() != "VISAO_CORTE":
+                    continue
                 bx1, by1, bx2, by2 = obs['bbox']
                 # Expansão leve na bbox para capturar imperfeições
                 if bx1 - 10 <= gap_pt[0] <= bx2 + 10 and by1 - 10 <= gap_pt[1] <= by2 + 10:
@@ -467,16 +594,29 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         merged_lengths = new_lengths
 
     is_horizontal = b.get('is_h', True)
+    dim_text = _parse_dim_text(dim_texts, beam_pos=beam_pos)
+    h_n1 = _parse_h(dim_text)
     
     if merged_lengths:
         panels_n1 = len(merged_lengths)
         comprimento = sum(merged_lengths)
-        segmentos_fundo = [
-            {"seg_index": i + 1, "length": merged_lengths[i],
-             "coord": merged_coords[i] if i < len(merged_coords) else None,
-             "logical": True}
-            for i in range(len(merged_lengths))
-        ]
+        segmentos_fundo = []
+        for i in range(len(merged_lengths)):
+            coord = merged_coords[i] if i < len(merged_coords) else None
+            geometry = _fundo_segment_contour(
+                coord,
+                beam_pos,
+                bool(is_horizontal),
+                float(h_n1 or 20.0),
+                seg_bottom_raw,
+            )
+            segmentos_fundo.append({
+                "seg_index": i + 1,
+                "length": merged_lengths[i],
+                "coord": coord,
+                "geometry": geometry,
+                "logical": True,
+            })
     elif merged_groups:
         panels_n1 = len(merged_groups)
         comprimento = sum(_seg_length_2pts(g[0][0], g[0][1]) for g in merged_groups if g and len(g[0]) >= 2)
@@ -557,6 +697,16 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             geometry_length, _geometry_width = _bbox_length_width(seg.get("geometry"))
             if geometry_length > 0.05:
                 seg_len = geometry_length
+        chamfers = _derive_fundo_chamfers(seg.get("geometry"), bool(is_horizontal))
+        snapped_length = (
+            _snap_chamfer_length(seg_len) if _has_declared_chamfer(chamfers) else None
+        )
+        if snapped_length is not None:
+            seg_len = snapped_length
+            seg["measure_source"] = "chamfer_half_cm_snap"
+            seg["measure_length"] = snapped_length
+        if seg_len is not None:
+            seg["length"] = seg_len
 
         seg_dim = _find_segment_dim(seg, beam_pos, is_horizontal, spatial_index) if beam_pos else None
         chosen_dim = _choose_segment_dim(seg_dim, dim_text, h_n1, seg_len)
@@ -608,6 +758,9 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             "abertura_fundo_esq": "N/A",
             "abertura_fundo_dir": "N/A",
         }
+        seg["ficha"].update(chamfers)
+
+    comprimento = sum(float(seg.get("length") or 0.0) for seg in segmentos_fundo)
 
     viga_nome = b.get("name", "?")
     if viga_nome != "?":

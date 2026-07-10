@@ -1192,7 +1192,7 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
                         )
                         count += 1
                 continue
-            if round(x1, 1) in x_grid and round(x2, 1) in x_grid:
+            if _grid_has(x1, x_grid) and _grid_has(x2, x_grid):
                 continue
             offset_y = 8.0 if y1 < y0 + larg / 2 else -8.0
             add_dim_on_paineis(
@@ -1227,9 +1227,9 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
                 # lateral bruta, nao uma parede de painel fabricavel, e polui
                 # a leitura.
                 continue
-            if round(x1, 1) in {round(x0, 1), round(x0 + comp, 1)}:
+            if _grid_has(x1, {x0, x0 + comp}):
                 continue
-            if round(y1, 1) in y_grid and round(y2, 1) in y_grid:
+            if _grid_has(y1, y_grid) and _grid_has(y2, y_grid):
                 continue
             offset_x = 8.0 if x1 < x0 + comp / 2 else -8.0
             add_dim_vertical_on_paineis(

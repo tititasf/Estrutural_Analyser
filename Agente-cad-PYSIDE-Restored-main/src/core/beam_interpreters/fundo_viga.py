@@ -893,12 +893,19 @@ class FundoVigaInterpreter:
         items: Iterable[Any],
         axis_min: AxisFn,
         axis_max: AxisFn,
+        *,
+        split_support_gaps: bool = False,
     ) -> list[Interval]:
         """Compatibilidade conservadora para os paineis atuais.
 
         O tipo do encontro ainda nao faz parte do contrato de topologia. Ate
         ele existir, gaps curtos continuam unidos para nao transformar
         cruzamentos atravessados em fronteiras FV.
+
+        Quando o caller ja filtrou candidatos como paineis de fundo fisicos
+        (`split_support_gaps=True`), um gap curto entre dois paineis longos
+        representa apoio/obstaculo interno, nao continuidade. Esse caso precisa
+        permanecer segmentado (ex.: FV com cota multiplicadora 5x).
         """
         intervals = self._normalize(
             (axis_min(item), axis_max(item)) for item in items
@@ -908,7 +915,16 @@ class FundoVigaInterpreter:
         groups: list[Interval] = []
         current_min, current_max = intervals[0]
         for start, end in intervals[1:]:
-            if start - current_max <= 30.0:
+            gap = start - current_max
+            current_length = current_max - current_min
+            incoming_length = end - start
+            support_gap_between_panels = (
+                split_support_gaps
+                and 5.0 < gap <= 30.0
+                and current_length > 30.0
+                and incoming_length > 30.0
+            )
+            if gap <= 30.0 and not support_gap_between_panels:
                 current_max = max(current_max, end)
             else:
                 groups.append((current_min, current_max))

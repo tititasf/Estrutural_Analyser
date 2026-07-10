@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import ezdxf
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
@@ -32,6 +34,155 @@ def _float(value: Any) -> float | None:
         return float(str(value).replace(",", "."))
     except (TypeError, ValueError):
         return None
+
+
+def _repeat_count(value: Any) -> int | None:
+    """Retorna repetição física declarada em formas como 5, "5x" ou "x5"."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        count = int(value)
+        return count if count > 1 and abs(float(value) - count) <= 1e-6 else None
+    text = str(value or "").strip().lower().replace("×", "x")
+    match = re.fullmatch(r"(?:x\s*)?(\d+)\s*x?", text)
+    if not match:
+        return None
+    count = int(match.group(1))
+    return count if count > 1 else None
+
+
+def _segment_json_repeat(segment: dict) -> int:
+    for key in (
+        "_multiplier",
+        "multiplier",
+        "multiplicador",
+        "repeticoes",
+        "repetições",
+        "repeat",
+        "repeats",
+        "count",
+        "quantity",
+        "qtd",
+    ):
+        count = _repeat_count(segment.get(key))
+        if count:
+            return count
+    return 1
+
+
+def _dxf_text_entities(path: Path) -> list[tuple[str, float, float]]:
+    if not path.is_file():
+        return []
+    try:
+        doc = ezdxf.readfile(path)
+    except Exception:
+        return []
+    texts: list[tuple[str, float, float]] = []
+    for entity in doc.modelspace():
+        try:
+            if entity.dxftype() == "TEXT":
+                text = str(entity.dxf.text or "").strip()
+                point = entity.dxf.insert
+            elif entity.dxftype() == "MTEXT":
+                text = str(entity.text or "").strip()
+                point = entity.dxf.insert
+            else:
+                continue
+        except Exception:
+            continue
+        if text:
+            texts.append((text, float(point.x), float(point.y)))
+    return texts
+
+
+def _dxf_length_multipliers(path_value: Any) -> dict[float, int]:
+    """Mapeia comprimento -> multiplicador físico usando textos do recorte N2.
+
+    O motor reverso antigo nem sempre persistiu `_multiplier` em `segments_rich`.
+    No recorte, porém, a cota multiplicadora aparece como texto `5x` próximo da
+    cota de comprimento que ela repete. Ex.: V306 tem `5x` alinhado ao texto
+    `418`, então o segmento de 418 cm representa cinco segmentos físicos.
+    """
+    path = Path(str(path_value or ""))
+    texts = _dxf_text_entities(path)
+    if not texts:
+        return {}
+
+    numbers: list[tuple[float, float, float]] = []
+    multipliers: list[tuple[int, float, float]] = []
+    for text, x, y in texts:
+        clean = text.replace(",", ".").replace("×", "x").strip()
+        count = _repeat_count(clean) if "x" in clean.lower() else None
+        if count:
+            multipliers.append((count, x, y))
+            continue
+        if re.fullmatch(r"\d+(?:\.\d+)?", clean):
+            value = _float(clean)
+            if value is not None:
+                numbers.append((value, x, y))
+
+    result: dict[float, int] = {}
+    for count, mx, my in multipliers:
+        candidates = []
+        for value, nx, ny in numbers:
+            dx = abs(nx - mx)
+            dy = abs(ny - my)
+            # Nas fichas FV a cota "Nx" fica colada acima/abaixo da cota que
+            # multiplica. Mantemos tolerância ampla em desenho, mas exigimos
+            # proximidade real para não aplicar multiplicador a qualquer texto.
+            if dx <= 35.0 and dy <= 80.0:
+                candidates.append((dx + dy * 0.25, value))
+        if not candidates:
+            continue
+        _, length = min(candidates, key=lambda item: item[0])
+        result[round(float(length), 3)] = max(count, result.get(round(float(length), 3), 1))
+    return result
+
+
+def _n2_source_dxf_path(data: dict) -> Any:
+    meta = data.get("_er_meta")
+    if isinstance(meta, dict) and meta.get("dxf_path"):
+        return meta.get("dxf_path")
+    # Registros antigos podem acumular snapshots aninhados em _fase4_ref.
+    ref = data.get("_fase4_ref")
+    seen = 0
+    while isinstance(ref, dict) and seen < 8:
+        meta = ref.get("_er_meta")
+        if isinstance(meta, dict) and meta.get("dxf_path"):
+            return meta.get("dxf_path")
+        ref = ref.get("_fase4_ref")
+        seen += 1
+    return None
+
+
+def _n2_segment_lengths(data: dict) -> tuple[list[float], list[dict]]:
+    segments = data.get("segments_rich") or data.get("panels") or []
+    dxf_multipliers = _dxf_length_multipliers(_n2_source_dxf_path(data))
+    physical_lengths: list[float] = []
+    details: list[dict] = []
+    for index, segment in enumerate(segments, start=1):
+        if not isinstance(segment, dict):
+            continue
+        length = _float(segment.get("total_width") or segment.get("width"))
+        if length is None:
+            continue
+        multiplier = _segment_json_repeat(segment)
+        if multiplier == 1:
+            multiplier = dxf_multipliers.get(round(float(length), 3), 1)
+        physical_lengths.extend([length] * multiplier)
+        details.append({
+            "index": index,
+            "comprimento_cm": length,
+            "multiplicador": multiplier,
+            "origem_multiplicador": (
+                "json" if _segment_json_repeat(segment) > 1
+                else "dxf_text" if multiplier > 1
+                else "unitario"
+            ),
+        })
+    return physical_lengths, details
 
 
 def _relative_delta(detected: float | None, expected: float | None) -> float | None:
@@ -151,7 +302,10 @@ def _geometry_long_span(points: list | tuple | None) -> float | None:
 
 
 def _segment_physical_length(segment: dict) -> float | None:
-    if str(segment.get("measure_source") or "").startswith("special_diagonal"):
+    measure_source = str(segment.get("measure_source") or "")
+    if measure_source.startswith("special_diagonal") or measure_source.startswith(
+        "chamfer_half_cm_snap"
+    ):
         measured = _float(segment.get("measure_length"))
         if measured is None:
             measured = _float(segment.get("length"))
@@ -223,20 +377,11 @@ def load_n1_beams(state_path: str | Path) -> tuple[dict, dict[str, dict]]:
 
 
 def _n2_length(data: dict) -> float | None:
+    physical_lengths, _ = _n2_segment_lengths(data)
+    if physical_lengths:
+        return sum(physical_lengths)
     declared = _float(data.get("total_height"))
-    if declared is not None:
-        return declared
-    segments = data.get("segments_rich") or data.get("panels") or []
-    values = [
-        value
-        for value in (
-            _float(item.get("total_width") or item.get("width"))
-            for item in segments
-            if isinstance(item, dict)
-        )
-        if value is not None
-    ]
-    return sum(values) if values else None
+    return declared
 
 
 def load_n2_beams(
@@ -267,22 +412,17 @@ def load_n2_beams(
             data = json.loads(raw_json or "{}")
         except json.JSONDecodeError:
             continue
-        segments = data.get("segments_rich") or data.get("panels") or []
-        segment_lengths = [
-            value
-            for value in (
-                _float(segment.get("total_width") or segment.get("width"))
-                for segment in segments
-                if isinstance(segment, dict)
-            )
-            if value is not None
-        ]
+        segment_lengths, segment_details = _n2_segment_lengths(data)
         holes = data.get("holes") or []
         beams[name] = {
             "largura": _float(data.get("total_width") or data.get("largura_total_fundo")),
-            "comprimento_total": _n2_length(data),
+            "comprimento_total": (
+                sum(segment_lengths) if segment_lengths else _n2_length(data)
+            ),
             "comprimentos": segment_lengths,
-            "segmentos": len(segments),
+            "segmentos": len(segment_lengths),
+            "segmentos_logicos": len(segment_details),
+            "detalhe_segmentos_n2": segment_details,
             "furos_ativos": sum(
                 1 for hole in holes if isinstance(hole, dict) and hole.get("active")
             ),

@@ -36,6 +36,8 @@ log = logging.getLogger("portal.ficha_reader")
 _SUBPASTA_POR_CLASSE = {
     "pilares": "pilares",
     "pilares_especiais": "pilares_especiais",
+    "convencao_pilares": "convencao_pilares",
+    "convencao_niveis_lajes": "convencao_niveis",
     "lajes": "lajes",
     "fundo": "fundos_viga",
     "lateral_a_para": "laterais_viga",
@@ -53,12 +55,15 @@ _SEGMENTO_LADO_SUFIXO = {
 }
 
 CLASSES_N1 = (
+    "convencao_pilares", "convencao_niveis_lajes",
     "pilares", "pilares_especiais", "lajes", "cortes",
     "fundo", "lateral_a_para", "lateral_b_para", "lateral_a_passa", "lateral_b_passa",
 )
 
 TITULOS_CLASSE = {
-    "pilares": "Pilares",
+    "convencao_pilares": "Convenção de Pilares",
+    "convencao_niveis_lajes": "Convenção de Níveis",
+    "pilares": "Pilares Normais",
     "pilares_especiais": "Pilares Especiais",
     "lajes": "Lajes",
     "cortes": "Visão de Cortes",
@@ -95,13 +100,14 @@ def _normalizar_pilar(p: dict) -> dict:
         "titulo": p.get("name") or p.get("key"),
         "campos": {
             "Nome": p.get("name"),
-            "Classificação SA": p.get("classification"),
-            "Formato": p.get("orientation"),
-            "Nível": p.get("nivel_str"),
+            "Classificação": p.get("classification"),
+            "Orientação": p.get("orientation"),
+            "Nível Relativo": p.get("nivel_str"),
             "Lado A": p.get("lado_A"),
             "Lado B": p.get("lado_B"),
             "Lado C": p.get("lado_C"),
             "Lado D": p.get("lado_D"),
+            "Lajes contíguas": ", ".join(p.get("lajes", [])) if p.get("lajes") else "Nenhuma",
         },
         "atencao": p.get("atencao") or "",
         "points": p.get("points") or [],
@@ -161,10 +167,82 @@ def _normalizar_segmento(s: dict) -> dict:
     }
 
 
+def _pilar_formato(pts: list) -> str:
+    if not pts:
+        return 'Especial'
+    try:
+        clean = list(pts)
+        if len(clean) > 1:
+            if (abs(float(clean[0][0]) - float(clean[-1][0])) < 0.5
+                    and abs(float(clean[0][1]) - float(clean[-1][1])) < 0.5):
+                clean = clean[:-1]
+
+        changed = True
+        while changed and len(clean) > 3:
+            changed = False
+            new: list = []
+            nc = len(clean)
+            for i in range(nc):
+                p0 = clean[(i - 1) % nc]
+                p1 = clean[i]
+                p2 = clean[(i + 1) % nc]
+                vert  = (abs(float(p0[0]) - float(p1[0])) < 0.5
+                         and abs(float(p1[0]) - float(p2[0])) < 0.5)
+                horiz = (abs(float(p0[1]) - float(p1[1])) < 0.5
+                         and abs(float(p1[1]) - float(p2[1])) < 0.5)
+                if vert or horiz:
+                    changed = True
+                else:
+                    new.append(p1)
+            if new:
+                clean = new
+
+        n = len(clean)
+        if n == 4:
+            return 'Retangular'
+        if n == 6:
+            return 'em L'
+        if n == 8:
+            return 'em U'
+
+        if n >= 8:
+            import math as _math
+            cx = sum(float(p[0]) for p in clean) / n
+            cy = sum(float(p[1]) for p in clean) / n
+            dists = [_math.sqrt((float(p[0]) - cx) ** 2 + (float(p[1]) - cy) ** 2)
+                     for p in clean]
+            md = sum(dists) / n
+            if md > 0 and (max(dists) - min(dists)) / md < 0.15:
+                return 'Circular'
+
+        return 'Especial'
+    except Exception:
+        return 'Especial'
+
 def listar_itens_n1(estado: dict, classe: str) -> list[dict]:
     """Itens normalizados (campos + geometria) de 1 classe, prontos pra listar."""
-    if classe in ("pilares", "pilares_especiais"):
-        return [_normalizar_pilar(p) for p in estado.get("pilares", [])]
+    if classe == "convencao_pilares":
+        return [{
+            "item_id": "convencao_pilares",
+            "titulo": "Convenção de Pilares",
+            "campos": {"Descrição": "Critérios extraídos pelo SA para pilares."},
+            "atencao": "",
+            "points": [],
+            "beam_name": "interpretacao_pilares"
+        }]
+    if classe == "convencao_niveis_lajes":
+        return [{
+            "item_id": "convencao_niveis",
+            "titulo": "Convenção de Níveis",
+            "campos": {"Descrição": "Critérios extraídos pelo SA para níveis e lajes."},
+            "atencao": "",
+            "points": [],
+            "beam_name": "interpretacao_niveis"
+        }]
+    if classe == "pilares":
+        return [_normalizar_pilar(p) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) == 'Retangular']
+    if classe == "pilares_especiais":
+        return [_normalizar_pilar(p) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) != 'Retangular']
     if classe == "lajes":
         return [_normalizar_laje(s) for s in estado.get("slabs", [])]
     if classe == "cortes":
@@ -236,6 +314,15 @@ def _parse_html_cache(caminho_str: str, mtime: float) -> list[dict]:
 def _localizar_ficha_html(dir_fichas: Path, classe: str, beam_name: str, side_suffix: str = "") -> Optional[Path]:
     subpasta_nome = _SUBPASTA_POR_CLASSE.get(classe, classe)
     subpasta = dir_fichas / subpasta_nome
+    
+    # Bypass para convencoes
+    if classe == "convencao_pilares":
+        c = subpasta / "interpretacao_pilares.html"
+        return c if c.exists() else None
+    if classe == "convencao_niveis_lajes":
+        c = subpasta / "interpretacao_niveis.html"
+        return c if c.exists() else None
+        
     if not subpasta.exists():
         return None
     if side_suffix:

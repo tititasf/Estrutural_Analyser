@@ -1242,7 +1242,10 @@ class BeamTracer:
                 # segmentos distintos. O merge antigo (gap <= 30) atravessava
                 # esses apoios e colapsava vigas continuas como V301.
                 base_panels = self.fundo_interpreter.panel_groups(
-                    painel_items, ax_min, ax_max
+                    painel_items,
+                    ax_min,
+                    ax_max,
+                    split_support_gaps=True,
                 )
                 
                 div_pos = []

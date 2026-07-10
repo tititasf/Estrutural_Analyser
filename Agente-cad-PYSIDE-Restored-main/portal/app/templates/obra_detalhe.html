@@ -74,7 +74,8 @@
           <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
             <div id="global-fase2-bar" style="background:#28a745; width:0%; height:100%;"></div>
           </div>
-          <button class="btn btn-sm painel2-acao-btn" data-acao="sa" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar todos SA (N1)</button>
+          <div id="tag-job-global-sa" style="display: none; padding: 4px; margin-bottom: 5px; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold;"></div>
+<button class="btn btn-sm painel2-acao-btn" data-acao="sa" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar todos SA (N1)</button>
         </li>
         <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
@@ -86,7 +87,8 @@
           <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
             <div id="global-fase3-bar" style="background:#28a745; width:0%; height:100%;"></div>
           </div>
-          <button class="btn btn-sm painel2-acao-btn" data-acao="n3" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N1 (Todos) → N3</button>
+          <div id="tag-job-global-n3" style="display: none; padding: 4px; margin-bottom: 5px; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold;"></div>
+<button class="btn btn-sm painel2-acao-btn" data-acao="n3" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N1 (Todos) → N3</button>
         </li>
         <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
@@ -133,8 +135,9 @@
             <div class="progress-bar-bg" style="background: #111; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
               <div id="progresso-recortes-barra" style="background: var(--accent-color); height: 100%; width: 0%;"></div>
             </div>
-            <button class="btn btn-sec painel2-acao-btn" data-acao="sa" data-obra="{{ obra.id }}" id="btn-rodar-sa" style="width: 100%; font-size: 0.75rem;" {{ 'disabled' if job_ativo }}>
-              {{ 'Job em andamento…' if job_ativo else 'Processar SA/N1 (Pavimento) →' }}
+            <div id="tag-job-sa" style="display: none; padding: 4px; margin-bottom: 10px; border-radius: 4px; text-align: center; font-size: 0.75rem; font-weight: bold;"></div>
+            <button class="btn btn-sec painel2-acao-btn" data-acao="sa" data-obra="{{ obra.id }}" id="btn-rodar-sa" style="width: 100%; font-size: 0.75rem;">
+              Processar SA/N1 (Pavimento) →
             </button>
           </div>
           <div id="n1-classes-lista"></div>
@@ -153,6 +156,10 @@
             <div class="progress-bar-bg" style="background: #111; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
               <div id="progresso-n1-barra" style="background: var(--accent-color); height: 100%; width: 0%;"></div>
             </div>
+            <div id="tag-job-n3" style="display: none; padding: 4px; margin-bottom: 10px; border-radius: 4px; text-align: center; font-size: 0.75rem; font-weight: bold;"></div>
+            <button class="btn btn-sec painel2-acao-btn" data-acao="n3" data-obra="{{ obra.id }}" id="btn-rodar-n3" style="width: 100%; font-size: 0.75rem;">
+              Processar N1 (Pavimento) → N3
+            </button>
           </div>
           <div id="n3-classes-lista"></div>
         </div>
@@ -224,7 +231,12 @@
           fetch('/jobs/' + jobId).then(function (r) { return r.json(); })
             .then(function (j) {
               alvo.textContent = mapa[j.estado] || j.estado;
-              if (j.estado === 'done') { setTimeout(function () { location.reload(); }, 1200); }
+              if (j.estado === 'done') { 
+      setTimeout(function () { 
+        alvo.textContent = 'Concluído.';
+        if (window.atualizaAposJob) window.atualizaAposJob();
+      }, 1200); 
+    }
               else if (j.estado === 'error') { /* para o polling */ }
               else { setTimeout(poll, 4000); }
             }).catch(function () { setTimeout(poll, 6000); });
@@ -314,14 +326,14 @@
         <div class="upload-actions" style="margin-top:14px">
           {# [novo, a pedido do dono] antes do botão de triagem: converte todo
              DWG pendente pra DXF de uma vez (mesmo conversor da ingestão). #}
-          <button type="button" class="btn btn-sec" id="btn-converter-dwg" {{ 'disabled' if job_ativo }}>
-            {{ 'Job em andamento…' if job_ativo else 'Converter DWG → DXF →' }}
+          <button type="button" class="btn btn-sec" id="btn-converter-dwg" >
+            Converter DWG → DXF →
           </button>
           {# [novo, a pedido do dono] "Rodar recortes" isolado foi eliminado —
              a triagem agora já encadeia recortes automaticamente no backend
              (jobs.py) assim que termina; o botão reflete isso no nome. #}
-          <button type="button" class="btn" id="btn-rodar-triagem" {{ 'disabled' if job_ativo }}>
-            {{ 'Job em andamento…' if job_ativo else 'Triagem + Recortes →' }}
+          <button type="button" class="btn" id="btn-rodar-triagem" >
+            Triagem + Recortes →
           </button>
           <span class="meta">
             {% for st, n in resumo_documentos.items() %}{{ n }} {{ st }}{{ ', ' if not loop.last else '' }}{% endfor %}
@@ -337,8 +349,8 @@
         <p>Este arquivo é 1 pavimento único, sem separar por classe — mas ainda passa pela
         conversão/sanidade (triagem) e pelo recorte (limpeza e convenções do pavimento)
         antes da Análise Estrutural (SA).</p>
-        <button class="btn" data-acao="triagem" data-obra="{{ obra.id }}" {{ 'disabled' if job_ativo }}>
-          {{ 'Job em andamento…' if job_ativo else 'Triagem + Recortes →' }}
+        <button class="btn" data-acao="triagem" data-obra="{{ obra.id }}" >
+          Triagem + Recortes →
         </button>
         {% if triagem_feita %}<p class="meta">✓ Já concluída — pode rodar de novo se precisar.</p>{% endif %}
       </section>
@@ -437,6 +449,7 @@
 {% block scripts %}
 <script>
   var OBRA_ID = {{ obra.id|tojson }};
+  var _todosJobs = {{ jobs|tojson }};
   // [FIX] globais cruzadas entre o módulo de Documentos e o de Recortes
   // declaradas aqui, bem cedo — um `var x = ...;` mais abaixo no arquivo NÃO
   // é hoisted como "sem efeito", a inicialização roda na ordem normal de
@@ -508,9 +521,6 @@
   }
   window.ativarZoomEmContainer = ativarZoomEmContainer;
 
-  // --- painel de conteúdo (claro): só uma seção visível por vez, trocada
-  // conforme o que foi clicado em qualquer um dos 3 painéis escuros à
-  // esquerda (sidebar/Triagem, painel-2 Recortes+N1+N3+N5, painel-3 itens).
   function mostrarDetalhe(qual) {
     document.querySelectorAll('.conteudo-secao').forEach(function (el) {
       el.hidden = el.id !== 'detalhe-' + qual;
@@ -544,6 +554,9 @@
     document.querySelectorAll('.painel2-tab-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var alvo = btn.getAttribute('data-tab');
+        var urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('aba', alvo);
+        window.history.replaceState(null, '', '?' + urlParams.toString());
         if (alvo === 'n5') {
           document.querySelectorAll('.painel2-tab-btn').forEach(function (b) { b.classList.remove('ativo'); });
           btn.classList.add('ativo');
@@ -610,7 +623,9 @@
             resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
               '<span aria-hidden="true">✓</span> Enviado! Atualizando lista…</p>';
           }
-          setTimeout(function () { window.location.reload(); }, falhas.length ? 2500 : 900);
+          setTimeout(function () { 
+        if (window.atualizaAposJob) window.atualizaAposJob();
+    }, falhas.length ? 2500 : 900);
         } else {
           var msg = 'Falha ao enviar.';
           try { msg = JSON.parse(xhr.responseText).detail || msg; } catch (e2) {}
@@ -665,7 +680,7 @@
         return r.json();
       }).then(function () {
         resultado.textContent = 'Salvo ✔';
-        setTimeout(function () { location.reload(); }, 600);
+        setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 600);
       }).catch(function (err) {
         resultado.textContent = 'Falha: ' + err.message;
       });
@@ -836,7 +851,7 @@
         Promise.all(chamadas).then(function (respostas) {
           if (respostas.some(function (r) { return !r.ok; })) throw new Error('falha ao salvar');
           resultado.textContent = 'Salvo ✔';
-          setTimeout(function () { location.reload(); }, 600);
+          setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 600);
         }).catch(function () {
           resultado.textContent = 'Falha ao salvar.';
         });
@@ -1184,6 +1199,41 @@
         if (btnAlvo) btnAlvo.classList.add('ativo');
         renderizarDetalhe(alvo);
       }
+      
+      // Executa auto-select de forma segura após o DOM estar pronto
+      setTimeout(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var p = urlParams.get('pavimento');
+        if (p) {
+          var cabs = document.querySelectorAll('.pavimento-nome');
+          cabs.forEach(function(cab) {
+            var text = cab.textContent.trim();
+            var isMatch = text === p || text === ('— ' + p + ' —') || text === ('— Pavimento ' + p + ' —') || (p === 'Indeterminado' && text.includes('Docs Gerais'));
+            if (isMatch) {
+              var item = cab.closest('.docs-cabecalho-pavimento');
+              if (item) {
+                  if (item.classList.contains('pavimento-fechado')) {
+                      item.click();
+                  } else {
+                      item.classList.add('selecionado');
+                  }
+              }
+            } else {
+              var item = cab.closest('.docs-cabecalho-pavimento');
+              if (item) item.classList.remove('selecionado');
+            }
+          });
+        }
+        
+        var aba = urlParams.get('aba');
+        if (aba) {
+            var abaBtn = document.querySelector('.painel2-tab-btn[data-tab="' + aba + '"]');
+            if (abaBtn && !abaBtn.classList.contains('ativo')) {
+                abaBtn.click();
+            }
+        }
+      }, 50);
+      
     }
 
     window.montarListaTriagem = montarLista;
@@ -1243,7 +1293,7 @@
           res.innerHTML = '<p class="faixa faixa-info" role="status">' +
             '<span aria-hidden="true">✓</span> Conversão enfileirada (job ' + data.job_id +
             '). Atualize a página em instantes para ver o resultado.</p>';
-          setTimeout(function () { location.reload(); }, 3000);
+          setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 3000);
         })
         .catch(function () {
           res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
@@ -1267,7 +1317,7 @@
           res.innerHTML = '<p class="faixa faixa-info" role="status">' +
             '<span aria-hidden="true">✓</span> Triagem enfileirada (job ' + data.job_id +
             '). Atualize a página em instantes para ver o resultado.</p>';
-          setTimeout(function () { location.reload(); }, 3000);
+          setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 3000);
         })
         .catch(function () {
           res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
@@ -1279,7 +1329,8 @@
   })();
 
   document.querySelectorAll('button[data-acao]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
       var acao = btn.getAttribute('data-acao');
       var escopo = btn.getAttribute('data-escopo');
       var url = '/obras/' + OBRA_ID + '/' + acao;
@@ -1301,7 +1352,7 @@
       if (acao === 'validacao') body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
       else if (acao === 'sa' || acao === 'n3' || acao === 'n5') {
           if (escopo === 'global') {
-              body = { secao: 'tudo', pav: null };
+              body = { secao: [], pav: null };
           } else {
               if (acao === 'sa') {
                   var perc = atualizarProgressoRecortesPavimento(_pavimentoSelecionado);
@@ -1312,7 +1363,7 @@
                       }
                   }
               }
-              body = { secao: 'tudo', pav: _pavimentoSelecionado };
+              body = { secao: [], pav: _pavimentoSelecionado };
           }
       }
 
@@ -1321,10 +1372,21 @@
       }).then(function (r) {
         if (!r.ok) throw new Error('http ' + r.status);
         return r.json();
-      }).then(function () {
+      }).then(function (data) {
         res.className = 'faixa faixa-info';
-        res.textContent = 'Etapa registrada. Atualizando…';
-        setTimeout(function () { location.reload(); }, 900);
+        res.textContent = 'Etapa registrada. Processamento na fila.';
+        
+        if (data && data.job_id) {
+            _todosJobs.push({
+                id: data.job_id,
+                status: 'na_fila',
+                meta: { pav: body.pav },
+                enfileirado_em: new Date().toISOString()
+            });
+            atualizarTagsJob(_pavimentoSelecionado);
+        }
+        btn.disabled = false;
+        setTimeout(function () { res.style.display = 'none'; }, 3000);
       }).catch(function () {
         res.className = 'faixa faixa-erro';
         res.setAttribute('role', 'alert');
@@ -1373,7 +1435,66 @@
     return perc;
   }
 
+  function atualizarTagsJob(pav) {
+    var tagSa = document.getElementById('tag-job-sa');
+    var tagN3 = document.getElementById('tag-job-n3');
+    var btnSa = document.getElementById('btn-rodar-sa');
+    var btnN3 = document.getElementById('btn-rodar-n3');
+    
+    var tagGlobalSa = document.getElementById('tag-job-global-sa');
+    var tagGlobalN3 = document.getElementById('tag-job-global-n3');
+    var btnGlobalSa = document.querySelector('button[data-acao="sa"][data-escopo="global"]');
+    var btnGlobalN3 = document.querySelector('button[data-acao="n3"][data-escopo="global"]');
+    
+    if(tagSa) tagSa.style.display = 'none';
+    if(tagN3) tagN3.style.display = 'none';
+    if(btnSa) btnSa.disabled = false;
+    if(btnN3) btnN3.disabled = false;
+    
+    if(tagGlobalSa) tagGlobalSa.style.display = 'none';
+    if(tagGlobalN3) tagGlobalN3.style.display = 'none';
+    if(btnGlobalSa) btnGlobalSa.disabled = false;
+    if(btnGlobalN3) btnGlobalN3.disabled = false;
+    
+    var activeJobs = _todosJobs.filter(function(j) { return j.status === 'na_fila' || j.status === 'executando'; });
+    activeJobs.forEach(function(j) {
+      var isGlobal = !j.meta || !j.meta.pav;
+      var isMatch = isGlobal || (j.meta.pav === pav);
+      
+      var msg = j.status === 'executando' ? '⏳ Processando (ETA ~5 min)...' : '🕒 Na fila de espera...';
+      var color = j.status === 'executando' ? '#0056b3' : '#777';
+      var dt = j.enfileirado_em ? 'Desde ' + new Date(j.enfileirado_em).toLocaleTimeString() : '';
+      var html = msg + '<br><span style="font-size:0.6rem;font-weight:normal;">' + dt + '</span>';
+      
+      var etapa = j.meta ? j.meta.etapa : null;
+      if (isMatch) {
+        if ((etapa === 'sa' || !etapa) && tagSa) {
+           tagSa.style.display = 'block'; tagSa.style.background = color; tagSa.innerHTML = html;
+           if(btnSa) btnSa.disabled = true;
+        }
+        if ((etapa === 'n3' || !etapa) && tagN3) {
+           tagN3.style.display = 'block'; tagN3.style.background = color; tagN3.innerHTML = html;
+           if(btnN3) btnN3.disabled = true;
+        }
+      }
+      if (isGlobal) {
+        if ((etapa === 'sa' || !etapa) && tagGlobalSa) {
+           tagGlobalSa.style.display = 'block'; tagGlobalSa.style.background = color; tagGlobalSa.innerHTML = html;
+           if (btnGlobalSa) btnGlobalSa.disabled = true;
+        }
+        if ((etapa === 'n3' || !etapa) && tagGlobalN3) {
+           tagGlobalN3.style.display = 'block'; tagGlobalN3.style.background = color; tagGlobalN3.innerHTML = html;
+           if (btnGlobalN3) btnGlobalN3.disabled = true;
+        }
+      }
+    });
+  }
+
   function selecionarPavimento(pav) {
+  var urlParams = new URLSearchParams(window.location.search);
+  urlParams.set('pavimento', pav);
+  window.history.replaceState(null, '', '?' + urlParams.toString());
+
     _pavimentoSelecionado = pav;
     document.getElementById('painel2-estado-vazio').hidden = true;
     document.getElementById('painel2-pavimento-conteudo').hidden = false;
@@ -1396,8 +1517,15 @@
       }
     }
     
+
     // Atualiza progresso local
     atualizarProgressoRecortesPavimento(pav);
+
+    // Atualiza tags de job
+    atualizarTagsJob(pav);
+    
+    atualizarTagsJob(pav);
+
 
     // Reseta flags e recarrega os dados N1 para o pavimento
     _n1ClassesCarregado = false;
@@ -1466,7 +1594,7 @@
           container.innerHTML = '<p class="muted">Ainda não há resultado de SA para esta obra.</p>';
           return;
         }
-        var classesComItens = data.classes.filter(function (c) { return c.total > 0; });
+        var classesComItens = data.classes; // Do not filter out empty classes so user can see they exist
         if (!classesComItens.length) {
           container.innerHTML = '<p class="muted">Nenhum item encontrado.</p>';
           return;
@@ -1569,7 +1697,7 @@
         tituloEl.textContent = item.titulo;
         var linhas = Object.keys(item.campos).map(function (k) {
           var v = item.campos[k];
-          if (v === null || v === undefined || v === '') return '';
+          if (v === null || v === undefined || v === '') v = '(vazio/não identificado)';
           return '<div class="n1-campo"><span class="n1-campo-label">' + k + '</span><span class="n1-campo-valor">' +
             String(v).replace(/</g, '&lt;') + '</span></div>';
         }).join('');
@@ -1735,8 +1863,23 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
                if (!r.ok) throw new Error('Falha no servidor');
                return r.json(); 
             }).then(function(res) {
-                 alert('Recorte manual gerado com sucesso: ' + res.torre);
-                 location.reload();
+                 fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/itens')
+                 .then(function(rr) { return rr.json(); })
+                 .then(function(dados) {
+                     if(dados && dados.itens) {
+                         window._recortesItensPorBruto[brutoIdAtual] = dados.itens;
+                     }
+                     alert('Recorte manual gerado com sucesso: ' + res.torre);
+                     
+                     if (window.atualizarSubclassesDoBruto) window.atualizarSubclassesDoBruto(brutoIdAtual);
+                     if (window.atualizaAposJob) window.atualizaAposJob();
+                     
+                     var alvoId = window._docEstado && window._docEstado.docId ? window._docEstado.docId : null;
+                     if (alvoId && window.documentos) {
+                         var doc = window.documentos.find(function(d){ return d.id === alvoId; });
+                         if (doc && window.renderizarDetalhe) window.renderizarDetalhe(doc);
+                     }
+                 });
               }).catch(function(err) {
                  alert('Erro ao enviar recortes');
                  document.getElementById('btn-crop-enviar').textContent = 'Recortar & Processar';
@@ -1980,6 +2123,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         var idx = itens.findIndex(function (it) { return it.item_id === item.itemId; });
         if (idx >= 0) itens.splice(idx, 1);
         atualizarSubclassesDoBruto(item.brutoId);
+        if (window._pavimentoSelecionado) window.atualizarProgressoRecortesPavimento(window._pavimentoSelecionado);
         var det = document.getElementById('docs-detalhe');
         if (det) {
           det.innerHTML = '<div id="docs-cabecalho-slot"></div><div id="docs-intro-slot"></div>' +
@@ -2123,7 +2267,88 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     txt.addEventListener('input', save);
   })();
 
-  window.atualizarEstatisticasGlobais = function() {
+  
+
+window._lastActiveJobs = {};
+
+function pollTodosJobs() {
+    fetch('/obras/' + OBRA_ID + '/jobs')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (!data.jobs) return;
+        window._todosJobs = data.jobs;
+        
+        var somethingFinished = false;
+        var currentActive = {};
+        
+        window._todosJobs.forEach(function(j) {
+            if (j.status === 'na_fila' || j.status === 'executando') {
+                currentActive[j.id] = true;
+            } else if (j.status === 'concluido' || j.status === 'erro' || j.status === 'pronta') {
+                if (window._lastActiveJobs[j.id]) {
+                    somethingFinished = true;
+                }
+            }
+        });
+        
+        window._lastActiveJobs = currentActive;
+        
+        if (window.atualizarTagsJob) {
+            window.atualizarTagsJob(window._pavimentoSelecionado);
+        }
+        
+        if (somethingFinished) {
+            if (window.atualizaAposJob) window.atualizaAposJob();
+        }
+    })
+    .catch(function(e) { console.error('poll error', e); })
+    .finally(function() {
+        setTimeout(pollTodosJobs, 3000);
+    });
+}
+// Iniciar o polling
+setTimeout(pollTodosJobs, 2000);
+
+
+window.atualizaAposJob = function() {
+    if (window._pavimentoSelecionado) {
+        // Recarregar os dados do painel do pavimento
+        window._n1ClassesCarregado = false;
+        window._n3ClassesCarregado = false;
+        
+        // Esconder tags de carregamento
+        var btnSa = document.getElementById('btn-rodar-sa');
+        if (btnSa) btnSa.disabled = false;
+        
+        // Re-seleciona para montar a interface novamente
+        if (window.selecionarPavimento) window.selecionarPavimento(window._pavimentoSelecionado);
+        
+        // Recarregar a arvore
+        if (window.OBRA_ID) {
+           fetch('/obras/' + window.OBRA_ID + '/arvore').then(function(r) { return r.json(); })
+             .then(function(docs) {
+                window.documentos = docs;
+                if (window.montarLista) window.montarLista();
+             });
+        }
+        
+    } else {
+        // Se nada estava selecionado, recarrega a arvore
+        if (window.OBRA_ID) {
+           fetch('/obras/' + window.OBRA_ID + '/arvore').then(function(r) { return r.json(); })
+             .then(function(docs) {
+                window.documentos = docs;
+                if (window.montarLista) window.montarLista();
+             });
+        }
+    }
+    
+    // Atualiza progresso global
+    if (window.atualizarEstatisticasGlobais) window.atualizarEstatisticasGlobais();
+};
+
+
+window.atualizarEstatisticasGlobais = function() {
     // Fase 2 (Recortes)
     var f2_tot = 0;
     var f2_val = 0;

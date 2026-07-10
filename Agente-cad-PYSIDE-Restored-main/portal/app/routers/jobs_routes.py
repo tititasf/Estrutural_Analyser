@@ -256,6 +256,34 @@ def n5_foto(obra_id: str, classe: str, request: Request,
 
 
 # --------------------------------------------------------------------------- #
+# GET /obras/{id}/jobs — lista todos os jobs de uma obra (polling UI)
+# --------------------------------------------------------------------------- #
+
+@router.get("/obras/{obra_id}/jobs")
+def listar_jobs_obra(obra_id: str, request: Request,
+                     membro: dict = Depends(auth.exige_login),
+                     conn: sqlite3.Connection = Depends(get_db_conn)):
+    """Lista todos os jobs de uma obra para polling do frontend."""
+    obra = _obra_do_membro(conn, obra_id, membro)
+    rows = repo.listar_jobs_por_obra(conn, obra_id)
+    mapa = {"na_fila": "na_fila", "executando": "executando",
+            "concluido": "concluido", "falhou": "erro", "cancelado": "erro"}
+    jobs = []
+    for r in rows:
+        meta = request.app.state.job_meta.get(r["id"], {})
+        jobs.append({
+            "id": r["id"],
+            "status": mapa.get(r["status"], r["status"]),
+            "meta": meta,
+            "enfileirado_em": r.get("enfileirado_em"),
+            "iniciado_em": r.get("iniciado_em"),
+            "finalizado_em": r.get("finalizado_em"),
+            "erro_msg": r.get("erro_msg"),
+        })
+    return {"jobs": jobs}
+
+
+# --------------------------------------------------------------------------- #
 # GET /jobs/{id} — polling uniforme (HANDOFF §1.3)
 # --------------------------------------------------------------------------- #
 

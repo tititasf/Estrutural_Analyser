@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-10T14:23:17.180970+00:00",
+  "obra": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
+  "pavimento": "TERREO",
+  "run_id": "20260710_112306",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\estado_TERREO.json",
+    "n1_estado_sha256": "06c4a288cd1bb0cacf8bf5971243da55e58cd2821699a06201f16462e571e155",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision"
+  },
+  "resumo": {
+    "itens": 2,
+    "n1_itens": 2,
+    "n2_itens": 0,
+    "alertas": 2,
+    "classificacoes": {
+      "INDETERMINADO": 2
+    },
+    "segmentacao": {
+      "comparaveis": 0,
+      "quantidade_pass": 0,
+      "quantidade_fail": 0,
+      "medidas_pass": 0,
+      "medidas_fail": 0,
+      "tolerancia_medida_cm": 0.05
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-10T14:23:17.180970+00:00",
+      "obra": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
+      "pavimento": "TERREO",
+      "classe": "FV",
+      "item": "VENTO 180%%D",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "medidas_segmentos_match": false,
+        "comparacao_medidas_segmentos": null,
+        "n1": {
+          "largura": 20.0,
+          "larguras": [
+            20.0
+          ],
+          "comprimento_total": 100.0,
+          "comprimentos": [
+            100.0
+          ],
+          "comprimento_declarado_total": 100.0,
+          "comprimento_geometrico_total": 100.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-10T14:23:17.180970+00:00",
+      "obra": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
+      "pavimento": "TERREO",
+      "classe": "FV",
+      "item": "VENTO 270%%D",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "medidas_segmentos_match": false,
+        "comparacao_medidas_segmentos": null,
+        "n1": {
+          "largura": 20.0,
+          "larguras": [
+            20.0
+          ],
+          "comprimento_total": 100.0,
+          "comprimentos": [
+            100.0
+          ],
+          "comprimento_declarado_total": 100.0,
+          "comprimento_geometrico_total": 100.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

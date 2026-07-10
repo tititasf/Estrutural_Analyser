@@ -255,6 +255,77 @@ def test_stale_locked_fundo_source_without_contour_does_not_lock_topology():
     assert fundo_topology_is_locked(beam) is False
 
 
+def test_stale_locked_fundo_contour_outside_current_span_does_not_lock_topology():
+    beam = _beam()
+    beam["preficha_fundo_locked"] = True
+    beam["preficha_fundo_locked_version"] = 2
+    beam["preficha_fundo_locked_source_keys"] = [
+        "viga_fundo_seg_1_area_segs",
+    ]
+    beam["geometry"] = {
+        "classified": {
+            "merged_bottom_groups_coords": [(0.0, 100.0)],
+        }
+    }
+    beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0][
+        "validated"
+    ] = True
+    beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0][
+        "points"
+    ] = [(400.0, 0.0), (500.0, 0.0), (500.0, 20.0), (400.0, 20.0)]
+
+    assert fundo_topology_is_locked(beam) is False
+
+
+def test_locked_fundo_subset_conflicting_with_preficha_valid_segments_does_not_lock():
+    beam = _beam()
+    beam["preficha_fundo_locked"] = True
+    beam["preficha_fundo_locked_version"] = 2
+    beam["preficha_fundo_locked_source_keys"] = [
+        "viga_fundo_seg_1_area_segs",
+    ]
+    beam["preficha_segmentos"] = {
+        "fundo|beam|1|1": {
+            "status": "valid",
+            "source_key": "viga_fundo_seg_1_area_segs",
+        },
+        "fundo|beam|2|1": {
+            "status": "valid",
+            "source_key": "viga_fundo_seg_2_area_segs",
+        },
+    }
+
+    assert fundo_topology_is_locked(beam) is False
+
+
+def test_locked_fundo_subset_conflicting_with_declared_segment_count_does_not_lock():
+    beam = _beam()
+    beam["seg_c"] = 6
+    beam["preficha_fundo_locked"] = True
+    beam["preficha_fundo_locked_version"] = 2
+    beam["preficha_fundo_locked_source_keys"] = [
+        "viga_fundo_seg_1_area_segs",
+    ]
+
+    assert fundo_topology_is_locked(beam) is False
+
+
+def test_auxiliary_fv_validation_does_not_lock_automatic_area_contour():
+    """Dimensão/apoio validados preservam o campo, não congelam topologia."""
+    beam = _beam()
+    beam["geometry"] = {
+        "classified": {
+            "merged_bottom_groups_coords": [(0.0, 100.0), (120.0, 220.0)],
+        }
+    }
+    beam["validated_fields"] = ["viga_fundo_seg_1_dim"]
+    beam["links"]["viga_fundo_seg_1_area_segs"] = {
+        "contour": [{"points": [(0.0, 0.0), (100.0, 0.0), (100.0, 20.0)]}]
+    }
+
+    assert fundo_topology_is_locked(beam) is False
+
+
 def test_full_validation_after_ignoring_every_fundo_locks_zero_segments():
     beam = _beam()
     decision = collect_preficha_segments([beam])["fundo"][0]
@@ -313,6 +384,40 @@ def test_fv_visual_obstacles_ignore_nasce_pillars():
     ])
 
     assert [item["type"] for item in filtered] == ["PILAR_SOLIDO", "VISAO_CORTE"]
+
+
+def test_fv_bridge_does_not_merge_solid_pillar_support_gaps():
+    beam = {
+        "name": "VTEST",
+        "pos": (0, 10),
+        "is_h": True,
+        "geometry": {
+            "classified": {
+                "merged_bottom_groups_coords": [(0.0, 100.0), (120.0, 220.0)],
+                "merged_bottom_lengths": [100.0, 100.0],
+                "seg_bottom": [
+                    [(0.0, 0.0), (100.0, 0.0)],
+                    [(120.0, 0.0), (220.0, 0.0)],
+                ],
+            }
+        },
+    }
+
+    with_pillar = process_beam_fv(
+        beam,
+        visual_obstacles=[
+            {"type": "PILAR_SOLIDO", "bbox": (105.0, 0.0, 115.0, 20.0)}
+        ],
+    )
+    with_cut = process_beam_fv(
+        beam,
+        visual_obstacles=[
+            {"type": "VISAO_CORTE", "bbox": (105.0, 0.0, 115.0, 20.0)}
+        ],
+    )
+
+    assert with_pillar["panels_n1"] == 2
+    assert with_cut["panels_n1"] == 1
 
 
 def test_stale_decision_from_another_beam_id_does_not_block_harmonization():

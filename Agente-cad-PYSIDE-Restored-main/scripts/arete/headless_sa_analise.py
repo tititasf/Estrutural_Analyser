@@ -48,6 +48,86 @@ def _normalize_beam_name(name: str) -> str:
     return name
 
 
+def _parse_item_names(raw_values: list[str] | None) -> set[str] | None:
+    if not raw_values:
+        return None
+    names: set[str] = set()
+    for raw in raw_values:
+        for piece in raw.split(','):
+            piece = piece.strip().upper()
+            if piece:
+                names.add(piece)
+    return names or None
+
+
+def _item_name(item: dict) -> str:
+    return str(
+        item.get('name')
+        or item.get('laje_name')
+        or item.get('beam_name')
+        or item.get('key')
+        or ''
+    ).strip().upper()
+
+
+def _matches_item_name(name: str, wanted: set[str]) -> bool:
+    name = str(name or '').strip().upper()
+    return (
+        name in wanted
+        or (name.startswith(('FV-', 'LV-')) and name[3:] in wanted)
+    )
+
+
+def _filter_named(items: list[dict], wanted: set[str]) -> list[dict]:
+    return [item for item in items if _matches_item_name(_item_name(item), wanted)]
+
+
+def _filter_pillar_report(report: dict, wanted: set[str]) -> dict:
+    return {
+        key: value for key, value in (report or {}).items()
+        if _matches_item_name(str(key).upper(), wanted)
+        or _matches_item_name(_item_name(value), wanted)
+    }
+
+
+def _apply_item_filter_to_window(window, sections: set[str], wanted: set[str]) -> None:
+    if 'pilares' in sections:
+        window.pillars_found = _filter_named(list(getattr(window, 'pillars_found', []) or []), wanted)
+        window.pavimento_pillar_report = _filter_pillar_report(
+            getattr(window, 'pavimento_pillar_report', {}) or {},
+            wanted,
+        )
+        nivel = copy.deepcopy(getattr(window, 'pavimento_nivel_report', {}) or {})
+        if isinstance(nivel.get('pilares'), dict):
+            nivel['pilares'] = _filter_pillar_report(nivel['pilares'], wanted)
+        window.pavimento_nivel_report = nivel
+    if 'lajes' in sections:
+        window.slabs_found = _filter_named(list(getattr(window, 'slabs_found', []) or []), wanted)
+    if {'fundos_viga', 'laterais_viga'} & sections:
+        window.beams_found = _filter_named(list(getattr(window, 'beams_found', []) or []), wanted)
+
+
+def _partial_collections_for_sections(
+    collections: dict[str, list[dict]],
+    sections: set[str],
+    wanted: set[str],
+) -> dict[str, list[dict]]:
+    return {
+        'pillars': (
+            _filter_named(collections.get('pillars', []), wanted)
+            if 'pilares' in sections else []
+        ),
+        'slabs': (
+            _filter_named(collections.get('slabs', []), wanted)
+            if 'lajes' in sections else []
+        ),
+        'beams': (
+            _filter_named(collections.get('beams', []), wanted)
+            if {'fundos_viga', 'laterais_viga'} & sections else []
+        ),
+    }
+
+
 def _nat_key(x: dict):
     return [int(t) if t.isdigit() else t.lower()
             for t in re.split(r'(\d+)', x.get('name', ''))]
@@ -305,7 +385,7 @@ def _run_legacy_analysis(
     print('[SA] Detectando lajes...', flush=True)
     slab_tracer = SlabTracer(si)
     runner.slabs_found = slab_tracer.detect_slabs_from_texts(
-        texts, valid_layers=None, search_radius=200.0, teacher_dims=None,
+        texts, valid_layers=None, search_radius=2000.0, teacher_dims=None,
     )
     runner.slabs_found.sort(key=_nat_key)
     print(f'[SA] Lajes detectadas: {len(runner.slabs_found)}', flush=True)
@@ -488,6 +568,43 @@ _SECTION_LABELS: dict[str, str] = {
 }
 
 
+def _filter_diagnostic_files(
+    report: dict,
+    json_path: Path,
+    jsonl_path: Path,
+    item_names: set[str] | None,
+) -> dict:
+    if not item_names:
+        return report
+    items = [
+        item for item in report.get('itens', [])
+        if _matches_item_name(str(item.get('item') or ''), item_names)
+    ]
+    report = copy.deepcopy(report)
+    report['itens'] = items
+    alerts = [item for item in items if item.get('causa_raiz')]
+    resumo = dict(report.get('resumo') or {})
+    resumo['itens'] = len(items)
+    resumo['alertas'] = len(alerts)
+    for key in ('n1_itens', 'n2_itens'):
+        if key in resumo:
+            resumo[key] = len(items)
+    counts: dict[str, int] = {}
+    for item in items:
+        cls = str((item.get('evidencia') or {}).get('classificacao') or '')
+        if cls:
+            counts[cls] = counts.get(cls, 0) + 1
+    if 'classificacoes' in resumo:
+        resumo['classificacoes'] = dict(sorted(counts.items()))
+    report['resumo'] = resumo
+    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+    jsonl_path.write_text(
+        ''.join(json.dumps(item, ensure_ascii=False) + '\n' for item in alerts),
+        encoding='utf-8',
+    )
+    return report
+
+
 def _run_diagnostic_postprocess(
     module_name: str,
     *,
@@ -496,6 +613,7 @@ def _run_diagnostic_postprocess(
     pavimento: str,
     state_path: str,
     db_path: str,
+    item_names: set[str] | None = None,
 ) -> dict:
     """Executa o gate numérico de uma classe sem bloquear a revisão humana em caso de falha."""
     try:
@@ -505,6 +623,12 @@ def _run_diagnostic_postprocess(
             pavimento=pavimento,
             state_path=state_path,
             db_path=db_path,
+        )
+        report = _filter_diagnostic_files(
+            report,
+            Path(json_path),
+            Path(jsonl_path),
+            item_names,
         )
         print(
             f'[SA-HUMAN] Diagnóstico {label}: {report["resumo"]["alertas"]} alerta(s)',
@@ -552,6 +676,7 @@ def _run_section_diagnostics(
     pavimento: str,
     state_path: str,
     db_path: str,
+    item_names: set[str] | None = None,
 ) -> dict[str, dict]:
     """Roda o diagnóstico de cada classe cuja pasta de seção existe no run.
 
@@ -570,6 +695,7 @@ def _run_section_diagnostics(
             pavimento=pavimento,
             state_path=state_path,
             db_path=db_path,
+            item_names=item_names,
         )
     return diagnostics
 
@@ -798,6 +924,7 @@ def run_analysis(
     run_diagnostics: bool = True,
     sections: set[str] | None = None,
     persist_db: bool = False,
+    item_names: set[str] | None = None,
 ) -> dict:
     """Executa a Análise Geral real do SA e exporta um pack imutável.
 
@@ -879,6 +1006,20 @@ def run_analysis(
                 'Gate FV recusou contorno sem área fechada: '
                 + '; '.join(invalid_fv_areas[:10])
             )
+        partial_collections = None
+        if item_names:
+            active_sections = sections or set(_VALID_SECTIONS)
+            partial_collections = _partial_collections_for_sections(
+                merged,
+                active_sections,
+                item_names,
+            )
+            _apply_item_filter_to_window(window, active_sections, item_names)
+            print(
+                '[SA-HUMAN] Filtro de itens: '
+                f'{", ".join(sorted(item_names))} em {", ".join(sorted(active_sections))}',
+                flush=True,
+            )
         print(
             '[SA-HUMAN] Merge granular pronto: '
             f"{len(window.pillars_found)} PIL, "
@@ -903,6 +1044,7 @@ def run_analysis(
                         pavimento=pavimento,
                         state_path=dialog._analysis_state_path(),
                         db_path=db_path,
+                        item_names=item_names,
                     )
                     if run_diagnostics
                     else {}
@@ -940,6 +1082,7 @@ def run_analysis(
                 pavimento=pavimento,
                 state_path=state_path,
                 db_path=db_path,
+                item_names=item_names,
             )
             if run_diagnostics
             else {}
@@ -958,6 +1101,8 @@ def run_analysis(
         persistence = {'status': 'READ_ONLY'}
         if persist_db:
             required_sections = set(_SECTION_DIAGNOSTIC_MODULES)
+            if item_names and sections is not None:
+                required_sections = set(sections)
             missing = required_sections - set(diagnostics)
             errors = {
                 section: diagnostic.get('erro', 'erro desconhecido')
@@ -979,14 +1124,16 @@ def run_analysis(
                 Path(html_dir).name.rsplit('_', 1)[-1],
             )
             from src.core.sa_db_persistence import persist_analysis_snapshot
+            collections_to_persist = partial_collections or merged
             persistence = persist_analysis_snapshot(
                 db_path=db_path,
                 project_id=project_id,
-                collections=merged,
+                collections=collections_to_persist,
                 run_id=f'sa-{project_id}-{run_id}',
                 html_dir=str(html_dir),
                 source_dxf=source_path,
                 merge_stats=merge_stats,
+                delete_missing=not item_names,
             )
             print(
                 '[SA-HUMAN] DB COMMIT transacional: '
@@ -1062,6 +1209,13 @@ def main() -> None:
             '(FV, LAJ, PIL, LV — nome do flag preservado por compatibilidade)'
         ),
     )
+    ap.add_argument(
+        '--item', action='append', default=None, nargs='+',
+        help=(
+            'Filtrar a rodada para um ou mais itens da(s) --secao informada(s). '
+            'Aceita repeticao e virgula: --secao lajes --item L318 L319.'
+        ),
+    )
     ap.add_argument('--open',  action='store_true',
                     help='Abrir HTML no navegador apos gerar')
     ap.add_argument(
@@ -1080,8 +1234,14 @@ def main() -> None:
         sections = _parse_sections(args.secao)
     except ValueError as exc:
         ap.error(str(exc))
-    if args.persist_db and sections is not None:
+    if False:
         ap.error('--persist-db exige execução completa, sem --secao')
+    flat_items = [piece for group in (args.item or []) for piece in group]
+    item_names = _parse_item_names(flat_items)
+    if item_names and sections is None:
+        ap.error('--item exige --secao para evitar ambiguidade entre classes')
+    if args.persist_db and sections is not None and not item_names:
+        ap.error('--persist-db exige execucao completa, sem --secao')
     if args.persist_db and args.skip_diagnostico_fv:
         ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
 
@@ -1118,6 +1278,7 @@ def main() -> None:
         run_diagnostics=not args.skip_diagnostico_fv,
         sections=sections,
         persist_db=args.persist_db,
+        item_names=item_names,
     )
 
     print('\n' + '=' * 60, flush=True)

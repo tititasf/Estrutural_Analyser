@@ -249,12 +249,65 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
     validated = False
     source_keys: set[str] = set()
     links = beam.get("links") or {}
+    classified = (beam.get("geometry") or {}).get("classified") or {}
+    is_horizontal = bool(beam.get("fv_is_h", beam.get("is_h", True)))
+    axis = 0 if is_horizontal else 1
+    current_spans = []
+    for span in (
+        classified.get("merged_bottom_groups_coords")
+        or [
+            coord
+            for run in classified.get("bottom_runs") or []
+            for coord in (run.get("coords") or [])
+        ]
+        or []
+    ):
+        try:
+            start, end = sorted((float(span[0]), float(span[1])))
+        except (TypeError, ValueError, IndexError):
+            continue
+        if end - start > 0.05:
+            current_spans.append((start, end))
+
+    def _contour_overlaps_current_span(source_key: str) -> bool:
+        if not current_spans:
+            return True
+        slots = links.get(source_key) or {}
+        contours = slots.get("contour") if isinstance(slots, dict) else []
+        for contour in contours or []:
+            if not isinstance(contour, dict):
+                continue
+            values = []
+            for point in contour.get("points") or []:
+                try:
+                    values.append(float(point[axis]))
+                except (TypeError, ValueError, IndexError):
+                    continue
+            if not values:
+                continue
+            c_min, c_max = min(values), max(values)
+            c_len = c_max - c_min
+            if c_len <= 0.05:
+                continue
+            for s_min, s_max in current_spans:
+                overlap = min(c_max, s_max) - max(c_min, s_min)
+                if overlap >= max(1.0, min(c_len, s_max - s_min) * 0.20):
+                    return True
+        return False
 
     def _has_authoritative_contour(source_key: str) -> bool:
         slots = links.get(source_key) or {}
-        return (
-            isinstance(slots, dict)
-            and bool(slots.get("contour"))
+        if not isinstance(slots, dict) or not _contour_overlaps_current_span(source_key):
+            return False
+        # Um contorno automático acompanha toda reanálise. Ele não pode, por si
+        # só, transformar uma validação de dimensão/apoio em validação da
+        # topologia: isso congelaria a viga com o número antigo de segmentos.
+        # A geometria só é autoritativa aqui quando o próprio vínculo de área
+        # foi validado pelo humano. A validação explícita do campo
+        # ``*_area_segs`` continua sendo tratada logo abaixo pelos callers.
+        return any(
+            isinstance(contour, dict) and bool(contour.get("validated"))
+            for contour in slots.get("contour") or []
         )
 
     if beam.get("is_validated"):
@@ -318,10 +371,85 @@ def fundo_topology_is_locked(beam: dict) -> bool:
             # Lock zero segmentos: caso explicito apos o humano ignorar todos
             # os fundos e validar o item. Deve continuar congelando vazio.
             return True
+        expected_count = 0
+        for candidate in (
+            beam.get("seg_c"),
+            (beam.get("fields") or {}).get("viga_count_c")
+            if isinstance(beam.get("fields"), dict)
+            else None,
+        ):
+            try:
+                expected_count = max(expected_count, int(candidate or 0))
+            except (TypeError, ValueError):
+                continue
+        if expected_count > len(source_keys):
+            # Estado contaminado: a viga declara mais segmentos do que o lock
+            # antigo preserva. Nao congelar topologia parcial.
+            return False
+        preficha_valid_sources = {
+            str(decision.get("source_key") or "")
+            for uid, decision in (beam.get("preficha_segmentos") or {}).items()
+            if str(uid).startswith("fundo|")
+            and isinstance(decision, dict)
+            and str(decision.get("status") or "").casefold() == "valid"
+            and _FUNDO_RE.match(str(decision.get("source_key") or ""))
+        }
+        if len(preficha_valid_sources) > len(source_keys):
+            # Estado contaminado: o resumo granular sabe que existem mais
+            # segmentos humanos válidos do que o lock antigo preserva. Não
+            # congelar em subconjunto; deixar a análise reconstruir a topologia.
+            return False
         links = beam.get("links") or {}
+        classified = (beam.get("geometry") or {}).get("classified") or {}
+        is_horizontal = bool(beam.get("fv_is_h", beam.get("is_h", True)))
+        axis = 0 if is_horizontal else 1
+        current_spans = []
+        for span in (
+            classified.get("merged_bottom_groups_coords")
+            or [
+                coord
+                for run in classified.get("bottom_runs") or []
+                for coord in (run.get("coords") or [])
+            ]
+            or []
+        ):
+            try:
+                start, end = sorted((float(span[0]), float(span[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+            if end - start > 0.05:
+                current_spans.append((start, end))
+
+        def _locked_contour_overlaps_current_span(source_key: str) -> bool:
+            if not current_spans:
+                return True
+            slots = links.get(source_key) or {}
+            contours = slots.get("contour") if isinstance(slots, dict) else []
+            for contour in contours or []:
+                if not isinstance(contour, dict):
+                    continue
+                values = []
+                for point in contour.get("points") or []:
+                    try:
+                        values.append(float(point[axis]))
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if not values:
+                    continue
+                c_min, c_max = min(values), max(values)
+                c_len = c_max - c_min
+                if c_len <= 0.05:
+                    continue
+                for s_min, s_max in current_spans:
+                    overlap = min(c_max, s_max) - max(c_min, s_min)
+                    if overlap >= max(1.0, min(c_len, s_max - s_min) * 0.20):
+                        return True
+            return False
+
         has_authoritative_contour = any(
             isinstance(links.get(source_key), dict)
             and bool((links.get(source_key) or {}).get("contour"))
+            and _locked_contour_overlaps_current_span(source_key)
             for source_key in source_keys
         )
         if has_authoritative_contour:
@@ -384,6 +512,23 @@ def restore_locked_fundo_topology(target: dict, validated: dict) -> bool:
     else:
         _, reviewed_source_keys = _reviewed_fundo_topology(validated)
         source_keys = set(reviewed_source_keys)
+
+    target_classified = (target.get("geometry") or {}).get("classified") or {}
+    target_expected = max(
+        len(target_classified.get("merged_bottom_groups_coords") or []),
+        len(target_classified.get("merged_bottom_lengths") or []),
+        len(
+            [
+                coord
+                for run in target_classified.get("bottom_runs") or []
+                for coord in (run.get("coords") or [])
+            ]
+        ),
+    )
+    if target_expected > len(source_keys):
+        # O desenho atual detecta mais segmentos do que o lock preserva. Isso
+        # indica lock parcial/stale; nao substituir a topologia recem-inferida.
+        return False
 
     for key in list(target_links):
         if _FUNDO_RE.match(str(key)) or str(key).startswith("viga_fundo_seg_"):

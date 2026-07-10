@@ -2,12 +2,14 @@ import json
 import sqlite3
 from pathlib import Path
 
+import ezdxf
 import pytest
 
 from scripts.arete.diagnostico_fv_n1_n2 import (
     _compare_segment_measures,
     classify_delta,
     load_n1_beams,
+    load_n2_beams,
     run_diagnostic,
 )
 
@@ -177,6 +179,63 @@ def _create_db(path: Path) -> None:
     )
     connection.commit()
     connection.close()
+
+
+def test_load_n2_beams_expands_dxf_multiplier_text_into_physical_segments(
+    tmp_path: Path,
+):
+    dxf_path = tmp_path / "FV_V306.dxf"
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    msp.add_text("254", dxfattribs={"insert": (0, 0)})
+    msp.add_text("418", dxfattribs={"insert": (100, 0)})
+    msp.add_text("5x", dxfattribs={"insert": (100, 24)})
+    doc.saveas(dxf_path)
+
+    db_path = tmp_path / "project_data.vision"
+    connection = sqlite3.connect(db_path)
+    connection.execute(
+        "CREATE TABLE reverse_eng_fichas ("
+        "id INTEGER PRIMARY KEY, obra_name TEXT, pavimento TEXT, classe TEXT, "
+        "elemento_id TEXT, campos_json TEXT, status TEXT, confianca REAL)"
+    )
+    connection.execute(
+        "INSERT INTO reverse_eng_fichas VALUES (?,?,?,?,?,?,?,?)",
+        (
+            1,
+            "Obra_TESTE",
+            "13_PAV",
+            "FV",
+            "V306",
+            json.dumps({
+                "total_width": 19,
+                "total_height": 672,
+                "segments_rich": [
+                    {"total_width": 254},
+                    {"total_width": 418},
+                ],
+                "_er_meta": {"dxf_path": str(dxf_path)},
+                "holes": [],
+            }),
+            "draft",
+            0.9,
+        ),
+    )
+    connection.commit()
+    connection.close()
+
+    beams = load_n2_beams(db_path, "Obra_TESTE", "13_PAV")
+
+    assert beams["V306"]["segmentos"] == 6
+    assert beams["V306"]["segmentos_logicos"] == 2
+    assert beams["V306"]["comprimentos"] == [254.0, 418.0, 418.0, 418.0, 418.0, 418.0]
+    assert beams["V306"]["comprimento_total"] == 2344.0
+    assert beams["V306"]["detalhe_segmentos_n2"][1] == {
+        "index": 2,
+        "comprimento_cm": 418.0,
+        "multiplicador": 5,
+        "origem_multiplicador": "dxf_text",
+    }
 
 
 def test_run_diagnostic_is_headless_versioned_and_emits_schema_v2(tmp_path: Path):

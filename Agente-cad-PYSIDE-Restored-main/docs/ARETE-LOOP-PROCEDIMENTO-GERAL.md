@@ -1,7 +1,7 @@
 # ARETE — Procedimento Geral de Looping por Classe (Fichas HTML + Diagnóstico Duplo)
 
-**Versão:** 1.0
-**Data:** 2026-07-02
+**Versão:** 1.1
+**Data:** 2026-07-10
 **Status:** CANÔNICO — este é o procedimento que deve ser seguido em todo looping de
 classe (PIL, FV, LV, LAJ, e qualquer classe futura), a partir de agora.
 **Por que este doc existe:** `LOOPING-EVOLUCAO-N2-VISAO-FICHA.md` (28/06) e
@@ -86,16 +86,52 @@ G0–G6.
 ## 1. Passo 1 — Geração headless (já genérico, pronto para qualquer classe)
 
 ```bash
+# Rodada completa (certificação/regressão do pavimento)
 C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe \
-    scripts/arete/headless_sa_analise.py --obra {OBRA} --pav {PAV}
+    scripts/arete/headless_sa_analise.py --obra {OBRA} --pav {PAV} --wait
+
+# Microciclo N1: um item ou conjunto de itens de uma única seção
+C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe \
+    scripts/arete/headless_sa_analise.py \
+    --obra {OBRA} --pav {PAV} --secao lajes --item L318 L319 L326 --wait
 ```
 
 Produz `scripts/arete/html_fichas/{OBRA}/{RUN}/{secao}/{item}.html` para
-`pilares/`, `lajes/`, `fundos_viga/` (LV ainda não confirmado nesse pipeline — checar ao
-iniciar o looping de LV). Cada ficha empilha 4 `.evidence-card`: N1 (Structural Analyzer),
-N2 (recorte humano/STOG), N3 (robô via N1), N4 (robô via N2). Runtime ~3min para o
-pavimento inteiro (todas as classes juntas) — **não há hoje uma flag para gerar só uma
-classe**; ver gap de performance na seção 6.
+`pilares/`, `lajes/`, `fundos_viga/` e `laterais_viga/`. Cada ficha empilha 4
+`.evidence-card`: N1 (Structural Analyzer), N2 (recorte humano/STOG), N3 (robô via N1),
+N4 (robô via N2).
+
+### 1.1 — Microciclo N1 localizado: investigar → corrigir → reverificar
+
+Use `--secao` e `--item` quando a triagem, o diagnóstico ou a leitura visual já isolou a
+causa em um item ou em um pequeno conjunto. `--item` aceita nomes separados por espaço ou
+vírgula e **exige** `--secao` (`pilares`, `lajes`, `fundos_viga`, `laterais_viga`). Assim a
+rodada entrega somente as fichas HTML e os diagnósticos daqueles itens, tornando o ciclo de
+evolução do motor mais rápido sem mudar o caminho de produção.
+
+O recorte não é um atalho sem contexto: o `headless_sa_analise.py` continua executando a
+análise SA completa, reparos e consolidação usuais; filtra apenas a materialização para
+ficha/diagnóstico/persistência. Portanto, o resultado do item percorre a mesma cadeia da
+rodada completa. Sempre usar `--wait`: há uma única fila headless e nunca se encerra quem
+está com a trava.
+
+#### Protocolo por causa
+
+1. Escolher os itens que compartilham a mesma hipótese de causa-raiz no JSONL de triagem.
+2. Rodar o microciclo com `--secao` e todos os `--item` relevantes.
+3. Ler a ficha HTML e o diagnóstico filtrado; para N1×N2, rodar N1-V no mesmo conjunto com
+   `g2v_harness.py --par n1xn2 --backend cli`. Número, bbox ou área isoladamente não fecham
+   forma, recorte, contorno ou coordenadas.
+4. Corrigir a regra geral do motor/extrator, nunca os nomes daqueles itens.
+5. Repetir o microciclo e a leitura visual até a causa desaparecer; gravar a transição no
+   log de triagem em append-only.
+6. Antes de chamar o lote de resolvido, rodar a regressão proporcional: mudança em motor ou
+   extrator compartilhado exige headless completo, comparação dos quatro diagnósticos e os
+   gates visuais aplicáveis. A certificação final continua sendo a rodada completa.
+
+`--persist-db` é opcional e só é permitido no microciclo junto de `--secao --item`; ele faz
+upsert dos itens pedidos e preserva todos os registros não selecionados. Nunca usar o
+microciclo para apagar ausentes, reescrever JSON Fase-4 ou substituir o golden/regressão.
 
 ---
 

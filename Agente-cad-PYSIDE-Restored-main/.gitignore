@@ -78,3 +78,19 @@ portal_data.db
 portal_data.db-wal
 portal_data.db-shm
 portal/logs/
+
+# [2026-07-10] Rodadas repetidas de SA/headless_sa_analise.py (regeneraveis a
+# qualquer momento a partir do DXF de entrada — nao sao trabalho perdido se
+# nao versionadas) — pasta nomeada <alvo>_<YYYYMMDD>_<HHMMSS>, uma nova a
+# cada execucao. Sem isso, cada teste local infla o repo em ~180MB.
+DADOS-OBRAS/**/*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]/
+scripts/arete/html_fichas/**/*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]/
+
+# Scratch de pytest (tmp dirs nomeados na mao via --basetemp/tmp_path em
+# testes locais, nao usados por CI)
+.pytest-tmp*/
+
+# Estado real do SA fica no portal_data.db (ja ignorado acima) — os JSONs
+# soltos na raiz da obra e o cad_project.db sao dumps regeneraveis
+DADOS-OBRAS/**/estado_*.json
+DADOS-OBRAS/**/cad_project.db

@@ -38,20 +38,9 @@ def _templates(request: Request):
 
 
 def _render(request: Request, template_name: str, ctx: dict):
-    """Chama TemplateResponse com a assinatura que ESTA versao do starlette exige.
-
-    [FIX 2026-07-06] bug real, achado rodando (nao só lendo código): as 4 rotas de
-    página chamavam `TemplateResponse(request, nome, ctx)` (convenção nova, request
-    primeiro) — mas `starlette` 0.27.0 instalado tem a assinatura ANTIGA
-    `TemplateResponse(name: str, context: dict, ...)`, sem `request` posicional.
-    O resultado: TODA página HTML do portal (login, lista, detalhe) quebrava com
-    `ValueError: context must include a "request" key` no primeiro acesso via
-    navegador — nenhum teste anterior tinha feito um GET real numa página HTML
-    (só nas rotas JSON), então isso nunca foi pego antes de agora. Centralizado
-    aqui para as 4 chamadas nunca mais divergirem da assinatura real instalada.
-    """
     ctx = {**ctx, "request": request}
-    return _templates(request).TemplateResponse(template_name, ctx)
+    # Using the updated Starlette 1.3.1 signature which takes (request, name, context)
+    return _templates(request).TemplateResponse(request, template_name, ctx)
 
 
 def _membro_da_sessao(request: Request, conn: sqlite3.Connection) -> Optional[dict]:
@@ -169,7 +158,9 @@ def pagina_obra_detalhe(
             if access.eh_dono(membro)
             else repo.listar_obras_por_membro(conn, membro["id"])
         )
-        jobs = repo.listar_jobs_por_obra(conn, obra_id)
+        jobs = [dict(j) for j in repo.listar_jobs_por_obra(conn, obra_id)]
+        for j in jobs:
+            j["meta"] = request.app.state.job_meta.get(j["id"], {})
         n5_releases = repo.listar_n5_releases_por_obra(conn, obra_id)
         comentarios = repo.listar_comentarios_por_obra(conn, obra_id)
         documentos = repo.listar_documentos_por_obra(conn, obra_id)

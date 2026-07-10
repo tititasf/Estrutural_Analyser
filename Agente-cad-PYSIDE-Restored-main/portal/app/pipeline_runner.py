@@ -137,48 +137,58 @@ def montar_comando_headless(
 
 
 def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str) -> None:
-    """Garante 1 registro em `projects` (project_data.vision) pra obra+pavimento
-    ANTES do SA — sem isso, `resolve_sa_project_from_db` (chamado dentro do
-    headless) levanta `LookupError: Pavimento SA nao encontrado`, porque a
-    unica forma de existir essa linha ate' hoje era abrir o DXF no app desktop
-    ou rodar `scripts/import_obras_to_db.py` manualmente. Achado real rodando
-    o fluxo inteiro (triagem->recortes->sa) contra uma obra nova do portal.
-
-    [2026-07-06] Decisao explicita do dono: o portal PODE escrever aqui via
-    `DatabaseManager.create_project()` — API OFICIAL, a mesma que o app desktop
-    usa (main.py) e o script `import_obras_to_db.py` ja' usa em lote. Nao
-    inventa schema nem contorna nada; so' evita o passo manual.
-
-    Escopo: so' obras 'rapidas' (arquivo_nome preenchido, 1 arquivo = 1
-    pavimento) — sem isso nao ha' UM dxf inequivoco pra registrar. Obra-
-    container (multi-documento) fica de fora por ora (SA por documento e'
-    trabalho futuro, nao pedido ainda).
-    """
     from src.core.database import DatabaseManager
-    from src.core.sa_project_source import select_sa_project
-
-    arquivo_nome = obra.get("arquivo_nome")
-    if not arquivo_nome:
-        return  # obra-container: sem 1 dxf inequivoco, nao inventa qual usar
+    import sqlite3
 
     obra_dir = _obra_dir(settings, obra)
     work_name = str(obra_dir)
     database = DatabaseManager(db_path=str(settings.sa_db_path))
 
+    dxf_path = None
     try:
-        select_sa_project(database.get_projects(), obra=work_name, pavimento=pavimento)
-        return  # ja' registrado (rodou antes, ou foi aberto no app desktop) — nada a fazer
-    except LookupError:
-        pass
+        conn = sqlite3.connect(str(settings.db_path))
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT arquivo_nome FROM portal_documentos WHERE obra_id = ? AND COALESCE(pavimento_confirmado, pavimento_sugerido) = ? ORDER BY arquivo_nome ASC",
+            (obra.get("id"), pavimento)
+        ).fetchall()
+        for doc in rows:
+            if doc and doc["arquivo_nome"]:
+                nome = doc["arquivo_nome"]
+                if nome.lower().endswith(".dwg") or nome.lower().endswith(".dxf"):
+                    candidato = obra_dir / "entrada" / nome
+                    dxf_path = candidato.with_suffix(".dxf")
+                    if not dxf_path.is_file() and "_R2018_ASCII_ODA" in nome:
+                        dxf_path = candidato
+                    break
+    except Exception as e:
+        print("Erro ao buscar documento para registrar project:", e)
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
-    dxf_path = obra_dir / "entrada" / Path(arquivo_nome).with_suffix(".dxf").name
-    if not dxf_path.is_file():
-        return  # sem DXF convertido ainda (triagem nao rodou) — deixa o erro normal acontecer
+    if not dxf_path:
+        entrada = _arquivo_entrada(obra_dir, obra)
+        if not entrada:
+            return
+        dxf_path = entrada.with_suffix(".dxf")
 
-    database.create_project(
-        name=pavimento, dxf_path=str(dxf_path),
-        work_name=work_name, pavement_name=pavimento,
-    )
+    if not dxf_path or not dxf_path.is_file():
+        return
+
+    try:
+        database.conn.execute(
+            "UPDATE projects SET dxf_path = ? WHERE work_name = ? AND name = ?",
+            (str(dxf_path), work_name, pavimento)
+        )
+        if database.cursor.rowcount == 0:
+            database.create_project(
+                name=pavimento, dxf_path=str(dxf_path),
+                work_name=work_name, pavement_name=pavimento,
+            )
+        database.conn.commit()
+    except Exception as e:
+        print("Erro ao atualizar project.vision:", e)
 
 
 def _tail(texto: str, linhas: int = 40) -> str:
@@ -536,15 +546,6 @@ def executar_etapa(
                 pass
         return ResultadoEtapa(etapa=etapa, ok=True, comando=[], dry_run=dry_run, log_tail=msg)
 
-    if not obra.get("arquivo_nome"):
-        msg = "Obra-container (multi-documento). Análise SA por documento é trabalho futuro. Etapa ignorada."
-        if log_path:
-            try:
-                Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-                Path(log_path).write_text(msg, encoding="utf-8")
-            except OSError:
-                pass
-        return ResultadoEtapa(etapa=etapa, ok=True, comando=[], dry_run=dry_run, log_tail=msg)
 
     cmd = montar_comando_headless(settings, obra, secao=secao, pav=pav_efetivo)
 

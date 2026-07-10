@@ -469,6 +469,7 @@ def persist_analysis_snapshot(
     html_dir: str,
     source_dxf: str,
     merge_stats: dict,
+    delete_missing: bool = True,
 ) -> dict:
     """Grava as três coleções em uma única transação ``BEGIN IMMEDIATE``."""
     db = Path(db_path)
@@ -565,8 +566,9 @@ def persist_analysis_snapshot(
                 _beam_params(item, project_id),
             )
 
-        for table in ("pillars", "slabs", "beams"):
-            _delete_missing(conn, table, project_id, collections[table])
+        if delete_missing:
+            for table in ("pillars", "slabs", "beams"):
+                _delete_missing(conn, table, project_id, collections[table])
 
         conn.execute(
             """
@@ -583,7 +585,13 @@ def persist_analysis_snapshot(
             )
             """
         )
-        after = {table: len(collections[table]) for table in collections}
+        after = {
+            table: int(conn.execute(
+                f"SELECT COUNT(*) FROM {table} WHERE project_id=?",
+                (project_id,),
+            ).fetchone()[0])
+            for table in ("pillars", "slabs", "beams")
+        }
         conn.execute(
             """
             INSERT INTO sa_persistence_runs (

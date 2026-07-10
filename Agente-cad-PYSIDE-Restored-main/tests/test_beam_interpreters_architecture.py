@@ -4,6 +4,15 @@ from src.core.beam_interpreters import (
     build_interpreter_registry,
 )
 from src.core.beam_tracer import BeamTracer
+from scripts.analise_geral_headless import _find_support_text
+
+
+class _FakeSpatialIndex:
+    def __init__(self, items):
+        self.items = items
+
+    def query_bbox(self, _bbox):
+        return self.items
 
 
 def test_registry_contains_exactly_the_seven_structural_interpreters():
@@ -66,6 +75,35 @@ def test_fv_conservative_mode_keeps_short_crossing_gap_merged():
     )
 
     assert groups == [(0.0, 219.0)]
+
+
+def test_fv_physical_panel_mode_splits_short_support_gap_between_long_panels():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.panel_groups(
+        [{"start": 0.0, "end": 254.0}, {"start": 273.0, "end": 691.0}],
+        lambda item: item["start"],
+        lambda item: item["end"],
+        split_support_gaps=True,
+    )
+
+    assert groups == [(0.0, 254.0), (273.0, 691.0)]
+
+
+def test_fv_support_text_prefers_structural_v_label_over_nearby_fv_label():
+    index = _FakeSpatialIndex([
+        {"text": "VF202", "pos": (1393.751216, 2033.233516)},
+        {"text": "V307", "pos": (1201.587671, 2216.653715)},
+    ])
+
+    link = _find_support_text(
+        (1349.278794, 2070.788),
+        index,
+        current_beam="V306",
+    )
+
+    assert link["text"] == "V307"
+    assert link["role"] == "Apoio fundo de viga"
 
 
 def test_fundo_area_rejects_collinear_walls_and_builds_rectangle():

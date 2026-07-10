@@ -1558,6 +1558,28 @@ class DatabaseManager:
                 import re
                 old_b = json.loads(row[0])
                 val_fields = old_b.get('validated_fields', [])
+
+                # Fundo de viga possui topologia própria: validar dimensão ou
+                # apoio de um trecho não autoriza o banco a restaurar uma área
+                # antiga sobre a segmentação recém-interpretada. Um conjunto FV
+                # só preserva as áreas quando a topologia humana completa está
+                # efetivamente bloqueada. Locks parciais/stale continuam
+                # preservando os campos auxiliares, mas não a área nem seu
+                # status de validação.
+                stale_fv_area_topology = False
+                if any(re.match(r'^viga_fundo_seg_\d+_area_segs$', str(f)) for f in val_fields):
+                    try:
+                        from src.core.preficha_segments import fundo_topology_is_locked
+                        stale_fv_area_topology = not fundo_topology_is_locked(old_b)
+                    except Exception:
+                        # Em caso de falha, mantém a proteção conservadora
+                        # existente em vez de descartar uma validação humana.
+                        stale_fv_area_topology = False
+                if stale_fv_area_topology:
+                    val_fields = [
+                        field for field in val_fields
+                        if not re.match(r'^viga_fundo_seg_\d+_area_segs$', str(field))
+                    ]
                 
                 if val_fields:
                     b['validated_fields'] = list(set(b.get('validated_fields', []) + val_fields))
@@ -1598,6 +1620,11 @@ class DatabaseManager:
                     if val_prefixes and 'links' in old_b:
                         b.setdefault('links', {})
                         for link_key, link_val in old_b['links'].items():
+                            if (
+                                stale_fv_area_topology
+                                and re.match(r'^viga_fundo_seg_\d+_area_segs$', str(link_key))
+                            ):
+                                continue
                             if any(link_key.startswith(p) for p in val_prefixes) or link_key in val_fields:
                                 # Previne que vínculos vazios antigos (oriundos de bugs) sobrescrevam novos gerados
                                 if isinstance(link_val, dict) and 'contour' in link_val:
@@ -1615,6 +1642,11 @@ class DatabaseManager:
                     new_val_links = b.setdefault('validated_link_classes', {})
                     if isinstance(new_val_links, dict):
                         for field_id, slots in old_val_links.items():
+                            if (
+                                stale_fv_area_topology
+                                and re.match(r'^viga_fundo_seg_\d+_area_segs$', str(field_id))
+                            ):
+                                continue
                             merged = set(new_val_links.get(field_id, []) or [])
                             merged.update(slots or [])
                             new_val_links[field_id] = list(merged)

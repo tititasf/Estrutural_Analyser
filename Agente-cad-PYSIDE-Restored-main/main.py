@@ -6053,7 +6053,13 @@ class MainWindow(QMainWindow):
                  from src.core.preficha_segments import (
                      restore_locked_fundo_topology,
                  )
+                 _fv_topology_restored = False
                  _fv_topology_restored = restore_locked_fundo_topology(b, old)
+                 # O merge incremental acima já preservou os campos humanos
+                 # permitidos. Se a topologia FV não foi restaurada, ela é
+                 # nova/reconstruída e não pode sofrer um segundo merge genérico
+                 # do banco no save (que reintroduziria área parcial antiga).
+                 b['_fv_topology_rebuilt'] = not _fv_topology_restored
                  if _fv_topology_restored:
                      print(
                          f"DEBUG: Fundo validado de {b['name']} restaurado "
@@ -6089,19 +6095,28 @@ class MainWindow(QMainWindow):
                  else:
                      vf = old.get('validated_fields', [])
                      if vf:
-                         b['validated_fields'] = list(vf)
+                         import re as _re_fv_restore
+                         vf_restore = [
+                             f for f in vf
+                             if _fv_topology_restored
+                             or not _re_fv_restore.match(
+                                 r"^viga_fundo_seg_\d+_area_segs$",
+                                 str(f),
+                             )
+                         ]
+                         b['validated_fields'] = list(vf_restore)
                          # Restaura fields validados
                          old_fields = old.get('fields', {})
                          if 'fields' not in b:
                              b['fields'] = {}
-                         for f in vf:
+                         for f in vf_restore:
                              if f in old_fields:
                                  b['fields'][f] = old_fields[f]
                          # RESTAURA LINKS dos campos validados
                          old_links = old.get('links', {})
                          if 'links' not in b:
                              b['links'] = {}
-                         for f in vf:
+                         for f in vf_restore:
                              if f in old_links:
                                  b['links'][f] = old_links[f]
                      
@@ -6808,6 +6823,26 @@ class MainWindow(QMainWindow):
                                 for cx, cy in corners
                             )
 
+                        def _fv_contour_overlaps_span(link, axis_idx, span_min, span_max):
+                            if not isinstance(link, dict):
+                                return False
+                            vals = []
+                            for pt in link.get('points') or []:
+                                try:
+                                    vals.append(float(pt[axis_idx]))
+                                except (TypeError, ValueError, IndexError):
+                                    continue
+                            if not vals:
+                                return False
+                            c_min, c_max = min(vals), max(vals)
+                            s_min, s_max = sorted((float(span_min), float(span_max)))
+                            c_len = c_max - c_min
+                            s_len = s_max - s_min
+                            if c_len <= 0.05 or s_len <= 0.05:
+                                return False
+                            overlap = min(c_max, s_max) - max(c_min, s_min)
+                            return overlap >= max(1.0, min(c_len, s_len) * 0.20)
+
                         for seg in segs:
                             idx = seg.get('seg_index')
                             p_min, p_max = None, None
@@ -6830,6 +6865,17 @@ class MainWindow(QMainWindow):
                                         [b_pos[0] + half_h, p_max],
                                         [b_pos[0] - half_h, p_max]
                                     ]
+                                seg_geom = seg.get('geometry')
+                                if isinstance(seg_geom, list) and len(seg_geom) >= 3:
+                                    inferred_geom = [
+                                        [float(pt[0]), float(pt[1])]
+                                        for pt in seg_geom
+                                        if isinstance(pt, (list, tuple)) and len(pt) >= 2
+                                    ]
+                                    if len(inferred_geom) < 3:
+                                        inferred_geom = geom
+                                else:
+                                    inferred_geom = geom
                                 link_key = f"viga_fundo_seg_{idx}_area_segs"
                                 if link_key not in b['links']:
                                     b['links'][link_key] = {}
@@ -6843,7 +6889,11 @@ class MainWindow(QMainWindow):
                                     continue
 
                                 # Não sobrescreve contour já populada por _process_beam_intelligent
-                                existing_contour = b['links'][link_key].get('contour', [])
+                                axis_idx = 0 if is_h else 1
+                                existing_contour = [
+                                    lk for lk in (b['links'][link_key].get('contour', []) or [])
+                                    if _fv_contour_overlaps_span(lk, axis_idx, p_min, p_max)
+                                ]
                                 if preficha_policy == 'preserve' and existing_contour:
                                     good_contour = existing_contour[0]
                                 else:
@@ -6858,7 +6908,7 @@ class MainWindow(QMainWindow):
                                         # por uma alteração externa inesperada.
                                         continue
                                     b['links'][link_key]['contour'] = [{
-                                        'points': geom,
+                                        'points': inferred_geom,
                                         'type': 'polygon',
                                         'tag': 'Fundo',
                                         'ficha': seg.get('ficha', {}),
@@ -6898,7 +6948,14 @@ class MainWindow(QMainWindow):
                     # FASE 2: Salvar todos os beams (cada save_beam abre/fecha sua própria conexão)
                     if not _sa_read_only:
                         for b in getattr(self, 'beams_found', []):
-                            self.db.save_beam(b, self.current_project_id)
+                            _trust_fv_rebuilt = bool(
+                                b.get('_fv_topology_rebuilt', False)
+                            )
+                            self.db.save_beam(
+                                b,
+                                self.current_project_id,
+                                trust_current_validation=_trust_fv_rebuilt,
+                            )
 
                     # FASE 3: Upsert FV na tabela headless (única conexão, sem conflito)
                     if not _sa_read_only:
@@ -7112,7 +7169,15 @@ class MainWindow(QMainWindow):
         # 4. Save Beams
         beams = getattr(self, 'beams_found', [])
         for b in beams:
-            self.db.save_beam(b, self.current_project_id)
+            # A análise incremental já aplicou a política de preservação para
+            # uma topologia FV reconstruída. Não permitir que este save final
+            # reaplique o merge genérico e restaure o contorno parcial antigo.
+            _trust_fv_rebuilt = bool(b.pop('_fv_topology_rebuilt', False))
+            self.db.save_beam(
+                b,
+                self.current_project_id,
+                trust_current_validation=_trust_fv_rebuilt,
+            )
         
         self.log(f"   -> {len(beams)} vigas salvas.")
         self.log("✅ Projeto salvo com sucesso!")
@@ -14513,12 +14578,18 @@ class MainWindow(QMainWindow):
         out = dict(base_ficha)
         try:
             from src.core.laj_n3_learning import apply_learning_to_ficha
-            out = apply_learning_to_ficha(out, teacher=None, record_teacher=False)
+            out = apply_learning_to_ficha(
+                out,
+                teacher=None,
+                record_teacher=False,
+                allow_gabarito_patterns=False,
+            )
         except Exception:
             pass
         meta = dict(out.get("_sa_meta") or {})
         meta["n3_source"] = "structural_analyzer_n1"
         meta["n3_teacher"] = None
+        meta["gabarito_patterns_allowed"] = False
         out["_sa_meta"] = meta
         return out
 

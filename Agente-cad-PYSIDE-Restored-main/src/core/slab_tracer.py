@@ -2622,23 +2622,79 @@ class SlabTracer:
                     if x1 - min(12.0, w * 0.05) <= float(g["const"]) <= x1 - 1.0
                     and v_cover(g) >= lower_h * 0.70
                 ]
-                if not left_axes or not right_axes:
+                if not left_axes and not right_axes:
                     continue
-                lx = min(left_axes, key=lambda v: abs(v - x0))
-                rx = min(right_axes, key=lambda v: abs(v - x1))
+                if bool(left_axes) != bool(right_axes):
+                    has_left_neighbor = False
+                    has_right_neighbor = False
+                    for other in slabs:
+                        if other is slab:
+                            continue
+                        other_pts = other.get("points") or []
+                        if len(other_pts) < 4:
+                            continue
+                        oxs = [float(p[0]) for p in other_pts]
+                        oys = [float(p[1]) for p in other_pts]
+                        ox0, ox1 = min(oxs), max(oxs)
+                        oy0, oy1 = min(oys), max(oys)
+                        ow, oh = ox1 - ox0, oy1 - oy0
+                        if ow < 250.0 or abs(oh - h) > max(8.0, h * 0.20):
+                            continue
+                        y_overlap = max(0.0, min(y1, oy1) - max(y0, oy0))
+                        if y_overlap < h * 0.60:
+                            continue
+                        if 0.0 <= x0 - ox1 <= 80.0:
+                            has_left_neighbor = True
+                        if 0.0 <= ox0 - x1 <= 80.0:
+                            has_right_neighbor = True
+
+                    # Em ponta de fileira, o eixo local detectado pode ser o
+                    # apoio/viga externa. O rebaixo fabricável fica no lado
+                    # interno, isto é, voltado para o vizinho da mesma faixa.
+                    terminal_depth = min(2.5, max(1.0, w * 0.01))
+                    if right_axes and not has_right_neighbor:
+                        left_axes = [x0 + terminal_depth]
+                        right_axes = []
+                    elif left_axes and not has_left_neighbor:
+                        right_axes = [x1 - terminal_depth]
+                        left_axes = []
+                lx = min(left_axes, key=lambda v: abs(v - x0)) if left_axes else x0
+                rx = min(right_axes, key=lambda v: abs(v - x1)) if right_axes else x1
                 if rx <= lx or (lx - x0) > 15.0 or (x1 - rx) > 15.0:
                     continue
-                poly = Polygon([
-                    (lx, y0),
-                    (rx, y0),
-                    (rx, step_y),
-                    (x1, step_y),
-                    (x1, y1),
-                    (x0, y1),
-                    (x0, step_y),
-                    (lx, step_y),
-                    (lx, y0),
-                ])
+                if left_axes and right_axes:
+                    points = [
+                        (lx, y0),
+                        (rx, y0),
+                        (rx, step_y),
+                        (x1, step_y),
+                        (x1, y1),
+                        (x0, y1),
+                        (x0, step_y),
+                        (lx, step_y),
+                        (lx, y0),
+                    ]
+                elif left_axes:
+                    points = [
+                        (lx, y0),
+                        (x1, y0),
+                        (x1, y1),
+                        (x0, y1),
+                        (x0, step_y),
+                        (lx, step_y),
+                        (lx, y0),
+                    ]
+                else:
+                    points = [
+                        (x0, y0),
+                        (rx, y0),
+                        (rx, step_y),
+                        (x1, step_y),
+                        (x1, y1),
+                        (x0, y1),
+                        (x0, y0),
+                    ]
+                poly = Polygon(points)
                 if not poly.is_valid or poly.area <= 100.0:
                     continue
                 slab["points"] = list(poly.exterior.coords)
