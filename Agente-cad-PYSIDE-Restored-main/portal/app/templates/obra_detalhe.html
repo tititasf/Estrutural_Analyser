@@ -725,6 +725,23 @@
       if (slot && intro) slot.appendChild(intro);
     }
 
+    // [novo, a pedido do dono] detalhe do bruto no modo rápido/legado (sem
+    // portal_documento de verdade, então sem formulário de edição — só o
+    // nome do arquivo e a planta inteira, igual ao "Bruto completo" que o
+    // caminho normal mostra pra um documento Bruto de verdade).
+    function renderizarDetalheBrutoFallback(bruto) {
+      var det = document.getElementById('docs-detalhe');
+      if (!det) return;
+      det.innerHTML =
+        '<div id="docs-cabecalho-slot"></div>' +
+        '<div id="docs-intro-slot"></div>' +
+        '<strong>' + bruto.nome.replace(/</g, '&lt;') + '</strong>' +
+        '<div id="doc-viewer-extra" style="margin-top:14px"></div>';
+      moverIntroParaSlot(det);
+      var src = '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(bruto.bruto_id) + '/foto';
+      renderizarFotoRecorte(document.getElementById('doc-viewer-extra'), src, bruto.nome);
+    }
+
     function renderizarDetalhe(d) {
       var det = document.getElementById('docs-detalhe');
       if (!d) {
@@ -1043,6 +1060,34 @@
             var pav = bruto.pavimento || 'Indeterminado';
             var cabPav = criarCabecalhoPavimento(pav, classePavPar);
             lista.appendChild(cabPav);
+
+            // [novo, a pedido do dono] modo rápido/legado não tinha classe
+            // "Brutos" nenhuma — só as subclasses de Recortes apareciam,
+            // inconsistente com o caminho normal (que sempre mostra o
+            // arquivo bruto em si antes dos recortes dele). Mesmo sem um
+            // portal_documento de verdade pra editar aqui, o arquivo existe
+            // e merece aparecer — clicar nele mostra a planta inteira.
+            var cabBrutos = document.createElement('li');
+            cabBrutos.style.display = 'none';
+            cabBrutos.className = 'n1-lista-cabecalho docs-cabecalho-tipo ' + classePavPar;
+            cabBrutos.textContent = 'Brutos (1)';
+            lista.appendChild(cabBrutos);
+            var liBruto = document.createElement('li');
+            liBruto.style.display = 'none';
+            liBruto.className = classePavPar;
+            var aBruto = document.createElement('button');
+            aBruto.type = 'button';
+            aBruto.className = 'n1-item-link docs-item docs-triagem-item';
+            aBruto.textContent = bruto.nome;
+            aBruto.addEventListener('click', function () {
+              lista.querySelectorAll('.docs-item').forEach(function (x) { x.classList.remove('ativo'); });
+              aBruto.classList.add('ativo');
+              renderizarDetalheBrutoFallback(bruto);
+              mostrarDetalhe('triagem');
+            });
+            liBruto.appendChild(aBruto);
+            lista.appendChild(liBruto);
+
             var rec = montarRecPorBrutoId(bruto.bruto_id);
             _renderizarGruposDeRecorte(lista, rec, classePavPar, pav);
           });
