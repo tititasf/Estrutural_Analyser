@@ -138,6 +138,7 @@ def montar_comando_headless(
 
 def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str) -> None:
     from src.core.database import DatabaseManager
+    from ..db import connection as db_conn
     import sqlite3
 
     obra_dir = _obra_dir(settings, obra)
@@ -146,7 +147,16 @@ def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str)
 
     dxf_path = None
     try:
-        conn = sqlite3.connect(str(settings.db_path))
+        # [FIX CRITICO] `settings.db_path` e' None por padrao (so' fixtures de
+        # teste passam um valor real) — `sqlite3.connect(str(None))` conecta
+        # literalmente num arquivo chamado "None" (cria vazio na hora), entao
+        # esta consulta SEMPRE falhava com "no such table: portal_documentos"
+        # em producao. Resultado real observado: TODO pavimento caia no
+        # fallback abaixo, que sempre devolve o mesmo arquivo (o primeiro em
+        # ordem alfabetica na pasta entrada/) — SA analisava sempre o MESMO
+        # DXF errado (o de localizacao geral) pra qualquer pavimento pedido.
+        db_path_real = settings.db_path or db_conn.DEFAULT_DB_PATH
+        conn = sqlite3.connect(str(db_path_real))
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
             "SELECT arquivo_nome FROM portal_documentos WHERE obra_id = ? AND COALESCE(pavimento_confirmado, pavimento_sugerido) = ? ORDER BY arquivo_nome ASC",
@@ -156,11 +166,25 @@ def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str)
             if doc and doc["arquivo_nome"]:
                 nome = doc["arquivo_nome"]
                 if nome.lower().endswith(".dwg") or nome.lower().endswith(".dxf"):
-                    candidato = obra_dir / "entrada" / nome
-                    dxf_path = candidato.with_suffix(".dxf")
-                    if not dxf_path.is_file() and "_R2018_ASCII_ODA" in nome:
+                    # [FIX] a conversao ODA (accoreconsole) grava
+                    # "<stem>_R2018_ASCII_ODA.dxf" — nunca "<stem>.dxf" puro.
+                    # O `.with_suffix('.dxf')` so' acertava por coincidencia
+                    # quando um .dxf sem sufixo TAMBEM existia por fora; o
+                    # "fallback" checava o sufixo no nome ORIGINAL (quase
+                    # sempre o .dwg), que nunca carrega esse sufixo — so' o
+                    # .dxf convertido carrega. Procura por prefixo (stem*.dxf)
+                    # em vez de adivinhar o nome exato.
+                    stem = Path(nome).stem
+                    entrada_dir = obra_dir / "entrada"
+                    candidato = entrada_dir / f"{stem}.dxf"
+                    if candidato.is_file():
                         dxf_path = candidato
-                    break
+                    else:
+                        achados = sorted(entrada_dir.glob(f"{stem}*.dxf"))
+                        if achados:
+                            dxf_path = achados[0]
+                    if dxf_path:
+                        break
     except Exception as e:
         print("Erro ao buscar documento para registrar project:", e)
     finally:
@@ -177,16 +201,23 @@ def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str)
         return
 
     try:
-        database.conn.execute(
+        # [FIX] `DatabaseManager` nao guarda conexao persistente em
+        # `.conn`/`.cursor` (AttributeError sempre, silenciosamente engolido
+        # pelo except) — cada operacao abre a propria conexao via
+        # `_get_conn()`, mesmo padrao que `create_project()` ja usa.
+        vconn = database._get_conn()
+        cur = vconn.execute(
             "UPDATE projects SET dxf_path = ? WHERE work_name = ? AND name = ?",
             (str(dxf_path), work_name, pavimento)
         )
-        if database.cursor.rowcount == 0:
+        precisa_criar = cur.rowcount == 0
+        vconn.commit()
+        vconn.close()
+        if precisa_criar:
             database.create_project(
                 name=pavimento, dxf_path=str(dxf_path),
                 work_name=work_name, pavement_name=pavimento,
             )
-        database.conn.commit()
     except Exception as e:
         print("Erro ao atualizar project.vision:", e)
 
