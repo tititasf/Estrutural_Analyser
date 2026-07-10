@@ -12,7 +12,7 @@ import sqlite3
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 
 from .. import access, auth, dxf_preview, pipeline_runner, recortes_reader, torre_crop
 from ..dbdep import get_db_conn
@@ -155,6 +155,26 @@ def listar_itens_torre_endpoint(obra_id: str, bruto_id: str, request: Request,
 
     return {"obra_id": obra_id, "bruto_id": bruto_id,
             "itens": [{"item_id": i["item_id"], "titulo": f"{i['titulo']} - {pav}", "validado": i.get("validado", False)} for i in itens]}
+
+
+@router.get("/{obra_id}/recortes/brutos/{bruto_id}/{item_id}/arquivo")
+def arquivo_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, request: Request,
+                             membro: dict = Depends(auth.exige_login),
+                             conn: sqlite3.Connection = Depends(get_db_conn)):
+    """[novo, Masterplan OBRAS DRIVE Fase 1] Serve o .dxf REAL do recorte (nao
+    o SVG renderizado dos endpoints de "foto" acima) — usado pela app desktop
+    pra baixar sob demanda (1 arquivo por vez) o mesmo torre_1.dxf que
+    alimenta o Diagnostic Hub localmente, sem precisar espelhar a obra
+    inteira."""
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    item = torre_crop.obter_recorte_bruto(obra_dir, bruto_id, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="recorte nao encontrado")
+    caminho = Path(item["path"])
+    if not caminho.is_file():
+        raise HTTPException(status_code=404, detail="arquivo do recorte nao encontrado em disco")
+    return FileResponse(caminho, filename=caminho.name, media_type="application/octet-stream")
 
 
 @router.get("/{obra_id}/recortes/brutos/{bruto_id}/{item_id}/foto")
