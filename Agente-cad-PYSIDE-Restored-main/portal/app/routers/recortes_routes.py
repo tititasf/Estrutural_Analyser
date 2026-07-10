@@ -109,23 +109,30 @@ def foto_bruto_completo_endpoint(obra_id: str, bruto_id: str, request: Request,
                                   conn: sqlite3.Connection = Depends(get_db_conn)):
     """A planta INTEIRA do bruto (DXF de entrada), alta resolução — sem
     recorte nenhum, pra comparar com as torres/detalhes já limpos."""
-    obra = _obra_do_membro(conn, obra_id, membro)
-    obra_dir = _obra_dir(request, obra)
-    entrada = _entrada_dxf(obra_dir, obra)
-    if entrada is None or entrada.stem != bruto_id:
-        # fallback: procura por stem direto na pasta entrada/ (dwg+dxf dedup)
-        candidato = obra_dir / "entrada" / f"{bruto_id}.dxf"
-        entrada = candidato if candidato.is_file() else entrada
-    if entrada is None:
-        raise HTTPException(status_code=404, detail="DXF de entrada nao encontrado")
-    cache_dir = obra_dir / ".previews"
+    import traceback
     try:
-        svg = dxf_preview.renderizar_dxf_completo_cacheado(entrada, cache_dir)
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
-    return Response(content=svg, media_type="image/svg+xml")
+        obra = _obra_do_membro(conn, obra_id, membro)
+        obra_dir = _obra_dir(request, obra)
+        entrada = _entrada_dxf(obra_dir, obra)
+        if entrada is None or entrada.stem != bruto_id:
+            # fallback: procura por stem direto na pasta entrada/ (dwg+dxf dedup)
+            candidato = obra_dir / "entrada" / f"{bruto_id}.dxf"
+            entrada = candidato if candidato.is_file() else entrada
+        if entrada is None:
+            raise HTTPException(status_code=404, detail="DXF de entrada nao encontrado")
+        cache_dir = obra_dir / ".previews"
+        try:
+            svg = dxf_preview.renderizar_dxf_completo_cacheado(entrada, cache_dir)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
+        return Response(content=svg, media_type="image/svg+xml")
 
 
+    except Exception as e:
+        err_msg = str(e) + "\n" + traceback.format_exc()
+        with open("C:/Users/Thierry/Desktop/err_foto.txt", "w", encoding="utf-8") as f:
+            f.write(err_msg)
+        raise HTTPException(status_code=500, detail=err_msg)
 @router.get("/{obra_id}/recortes/brutos/{bruto_id}/itens")
 def listar_itens_torre_endpoint(obra_id: str, bruto_id: str, request: Request,
                                  membro: dict = Depends(auth.exige_login),
@@ -251,62 +258,69 @@ class ManualCropPayload(BaseModel):
 def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload, request: Request,
                          membro: dict = Depends(auth.exige_login),
                          conn: sqlite3.Connection = Depends(get_db_conn)):
-    obra = _obra_do_membro(conn, obra_id, membro)
-    obra_dir = _obra_dir(request, obra)
-    
-    brutos = recortes_reader.listar_brutos_recorte(obra_dir)
-    bruto = next((b for b in brutos if b["bruto_id"] == bruto_id), None)
-    if not bruto:
-        raise HTTPException(status_code=404, detail="Bruto nao encontrado")
-    
-    bruto_path = obra_dir / "entrada" / bruto["nome"]
-    if not bruto_path.is_file():
-        raise HTTPException(status_code=404, detail="DXF nao encontrado")
-        
-    bbox_dxf = dxf_preview.obter_bbox_dxf(bruto_path)
-    if not bbox_dxf:
-        raise HTTPException(status_code=500, detail="Nao foi possivel ler os limites do DXF")
-        
-    x0, y0, x1, y1 = bbox_dxf
-    margem_pct = 0.03
-    margem_x = max((x1 - x0) * margem_pct, 0.5)
-    margem_y = max((y1 - y0) * margem_pct, 0.5)
-    
-    rx0, ry0 = x0 - margem_x, y0 - margem_y
-    rx1, ry1 = x1 + margem_x, y1 + margem_y
-    
-    rw = rx1 - rx0
-    rh = ry1 - ry0
-    
-    dxf_bboxes = []
-    for b in payload.bboxes:
-        cx0 = rx0 + b.x_pct * rw
-        cx1 = cx0 + b.w_pct * rw
-        cy1 = ry1 - b.y_pct * rh
-        cy0 = cy1 - b.h_pct * rh
-        dxf_bboxes.append([cx0, cy0, cx1, cy1])
-    
-    out_dir = torre_crop._dir_recortes_bruto(obra_dir, bruto_id)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    
-    import re
-    nome_alvo = re.sub(r'[^a-zA-Z0-9_]', '_', payload.classe_alvo)
-    out_path = out_dir / f"{nome_alvo}.dxf"
-    
-    from scripts.obra_crop_engine import crop_dxf, crop_dxf_multi
-    if len(dxf_bboxes) == 1:
-        crop = crop_dxf(bruto_path, out_path, dxf_bboxes[0], padding_pct=0.0)
-    else:
-        crop = crop_dxf_multi(bruto_path, out_path, dxf_bboxes, padding_pct=0.0)
-        
-    if crop.get("error"):
-        raise HTTPException(status_code=500, detail=crop["error"])
-        
-    data = torre_crop._ler_validacao(out_dir)
-    data[nome_alvo] = True
-    torre_crop._salvar_validacao(out_dir, data)
-    
-    return {"status": "ok", "torre": nome_alvo}
+    import traceback
+    try:
+        obra = _obra_do_membro(conn, obra_id, membro)
+        obra_dir = _obra_dir(request, obra)
+
+        brutos = recortes_reader.listar_brutos_recorte(obra_dir)
+        bruto = next((b for b in brutos if b["bruto_id"] == bruto_id), None)
+        if not bruto:
+            raise HTTPException(status_code=404, detail="Bruto nao encontrado")
+
+        bruto_path = obra_dir / "entrada" / bruto["nome"]
+        if not bruto_path.is_file():
+            raise HTTPException(status_code=404, detail="DXF nao encontrado")
+
+        bbox_dxf = dxf_preview.obter_bbox_dxf(bruto_path)
+        if not bbox_dxf:
+            raise HTTPException(status_code=500, detail="Nao foi possivel ler os limites do DXF")
+
+        x0, y0, x1, y1 = bbox_dxf
+        margem_pct = 0.03
+        margem_x = max((x1 - x0) * margem_pct, 0.5)
+        margem_y = max((y1 - y0) * margem_pct, 0.5)
+
+        rx0, ry0 = x0 - margem_x, y0 - margem_y
+        rx1, ry1 = x1 + margem_x, y1 + margem_y
+
+        rw = rx1 - rx0
+        rh = ry1 - ry0
+
+        dxf_bboxes = []
+        for b in payload.bboxes:
+            cx0 = rx0 + b.x_pct * rw
+            cx1 = cx0 + b.w_pct * rw
+            cy1 = ry1 - b.y_pct * rh
+            cy0 = cy1 - b.h_pct * rh
+            dxf_bboxes.append([cx0, cy0, cx1, cy1])
+
+        out_dir = torre_crop._dir_recortes_bruto(obra_dir, bruto_id)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        import re
+        nome_alvo = re.sub(r'[^a-zA-Z0-9_]', '_', payload.classe_alvo)
+        out_path = out_dir / f"{nome_alvo}.dxf"
+
+        from scripts.obra_crop_engine import crop_dxf, crop_dxf_multi
+        if len(dxf_bboxes) == 1:
+            crop = crop_dxf(bruto_path, out_path, dxf_bboxes[0], padding_pct=0.0)
+        else:
+            crop = crop_dxf_multi(bruto_path, out_path, dxf_bboxes, padding_pct=0.0)
+
+        if crop.get("error"):
+            raise HTTPException(status_code=500, detail=crop["error"])
+
+        data = torre_crop._ler_validacao(out_dir)
+        data[nome_alvo] = True
+        torre_crop._salvar_validacao(out_dir, data)
+
+        return {"status": "ok", "torre": nome_alvo}
+    except Exception as e:
+        err_msg = str(e) + "\n" + traceback.format_exc()
+        with open("C:/Users/Thierry/Desktop/err_crop.txt", "w", encoding="utf-8") as f:
+            f.write(err_msg)
+        raise HTTPException(status_code=500, detail=err_msg)
 
 @router.post("/{obra_id}/recortes/brutos/{bruto_id}/reprocessar")
 def reprocessar_bruto_endpoint(obra_id: str, bruto_id: str, request: Request,

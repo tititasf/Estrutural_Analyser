@@ -151,89 +151,97 @@ def pagina_obra_detalhe(
 ):
     """Detalhe/progresso da obra. Namespace /app/* isola as páginas HTML das rotas
     JSON /obras/* (obras_routes), evitando colisão de path."""
-    membro = _membro_da_sessao(request, conn)
-    if membro is None:
-        return RedirectResponse("/login", status_code=303)
+    import traceback
+    try:
+        membro = _membro_da_sessao(request, conn)
+        if membro is None:
+            return RedirectResponse("/login", status_code=303)
 
-    obra = repo.obter_obra(conn, obra_id)
-    if obra is None or not access.pode_ver_obra(obra, membro):
-        return RedirectResponse("/app/obras", status_code=303)
+        obra = repo.obter_obra(conn, obra_id)
+        if obra is None or not access.pode_ver_obra(obra, membro):
+            return RedirectResponse("/app/obras", status_code=303)
 
-    settings = request.app.state.settings
-    # faixa fina de obras (2o nivel de navegacao) — mesma lista de /app/obras,
-    # so' que compactada ao lado do painel de abas desta obra especifica.
-    obras_do_membro = (
-        repo.listar_todas_obras(conn)
-        if access.eh_dono(membro)
-        else repo.listar_obras_por_membro(conn, membro["id"])
-    )
-    jobs = repo.listar_jobs_por_obra(conn, obra_id)
-    n5_releases = repo.listar_n5_releases_por_obra(conn, obra_id)
-    comentarios = repo.listar_comentarios_por_obra(conn, obra_id)
-    documentos = repo.listar_documentos_por_obra(conn, obra_id)
-    resumo_documentos = repo.contar_documentos_por_status(conn, obra_id)
-    # [2026-07-06] "rápida" = upload legado de 1 arquivo (arquivo_nome preenchido,
-    # sem linhas em portal_documentos) — pula triagem/recortes, vai direto pra SA.
-    # "container" (novo modelo) tem documentos e nunca popula arquivo_nome.
-    eh_obra_rapida = bool(obra.get("arquivo_nome")) and not documentos
-    rotulos = {
-        c: certification.classificar_certificacao(settings.status_md_path, c)
-        for c in ("PL", "LV", "FV", "LJ")
-    }
-    # fichas HTML disponíveis (viewer) — [FIX 2026-07-06] ver
-    # pipeline_runner.encontrar_dir_fichas: o SA real grava em
-    # <obra_dir>/<pavimento>_<run_id>/, nao em "Fase-6_Execucao_CAD".
-    from .. import pipeline_runner as _pipeline_runner
+        settings = request.app.state.settings
+        # faixa fina de obras (2o nivel de navegacao) — mesma lista de /app/obras,
+        # so' que compactada ao lado do painel de abas desta obra especifica.
+        obras_do_membro = (
+            repo.listar_todas_obras(conn)
+            if access.eh_dono(membro)
+            else repo.listar_obras_por_membro(conn, membro["id"])
+        )
+        jobs = repo.listar_jobs_por_obra(conn, obra_id)
+        n5_releases = repo.listar_n5_releases_por_obra(conn, obra_id)
+        comentarios = repo.listar_comentarios_por_obra(conn, obra_id)
+        documentos = repo.listar_documentos_por_obra(conn, obra_id)
+        resumo_documentos = repo.contar_documentos_por_status(conn, obra_id)
+        # [2026-07-06] "rápida" = upload legado de 1 arquivo (arquivo_nome preenchido,
+        # sem linhas em portal_documentos) — pula triagem/recortes, vai direto pra SA.
+        # "container" (novo modelo) tem documentos e nunca popula arquivo_nome.
+        eh_obra_rapida = bool(obra.get("arquivo_nome")) and not documentos
+        rotulos = {
+            c: certification.classificar_certificacao(settings.status_md_path, c)
+            for c in ("PL", "LV", "FV", "LJ")
+        }
+        # fichas HTML disponíveis (viewer) — [FIX 2026-07-06] ver
+        # pipeline_runner.encontrar_dir_fichas: o SA real grava em
+        # <obra_dir>/<pavimento>_<run_id>/, nao em "Fase-6_Execucao_CAD".
+        from .. import pipeline_runner as _pipeline_runner
 
-    fichas: list[dict] = []
-    lp = obra.get("local_path")
-    obra_dir = (Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra"))
-    base = _pipeline_runner.encontrar_dir_fichas(obra_dir)
-    if base is not None:
-        for p in sorted(base.rglob("*.html")):
-            fichas.append({
-                "nome": p.name,
-                "rel": str(p.relative_to(base)).replace("\\", "/"),
-                "tamanho": p.stat().st_size,
-            })
+        fichas: list[dict] = []
+        lp = obra.get("local_path")
+        obra_dir = (Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra"))
+        base = _pipeline_runner.encontrar_dir_fichas(obra_dir)
+        if base is not None:
+            for p in sorted(base.rglob("*.html")):
+                fichas.append({
+                    "nome": p.name,
+                    "rel": str(p.relative_to(base)).replace("\\", "/"),
+                    "tamanho": p.stat().st_size,
+                })
 
-    etapa_param = request.query_params.get("etapa")
-    etapa_derivada = _etapa_atual(obra, jobs, n5_releases)
-    etapa_atual = etapa_derivada
-    if etapa_param and etapa_param.isdigit():
-        # o usuário pode revisar uma etapa <= à derivada (movimento com gate, §1)
-        pedido = int(etapa_param)
-        if 1 <= pedido <= etapa_derivada:
-            etapa_atual = pedido
+        etapa_param = request.query_params.get("etapa")
+        etapa_derivada = _etapa_atual(obra, jobs, n5_releases)
+        etapa_atual = etapa_derivada
+        if etapa_param and etapa_param.isdigit():
+            # o usuário pode revisar uma etapa <= à derivada (movimento com gate, §1)
+            pedido = int(etapa_param)
+            if 1 <= pedido <= etapa_derivada:
+                etapa_atual = pedido
 
-    validacao_concluida = any(
-        v.get("validado")
-        for v in request.app.state.validacoes.get(obra_id, {}).values()
-    ) or bool(n5_releases)
+        validacao_concluida = any(
+            v.get("validado")
+            for v in request.app.state.validacoes.get(obra_id, {}).values()
+        ) or bool(n5_releases)
 
-    ctx = {
-        "membro": membro,
-        "obra": obra,
-        "obras_do_membro": obras_do_membro,
-        "jobs": jobs,
-        "fichas": fichas,
-        "comentarios": comentarios,
-        "documentos": documentos,
-        "resumo_documentos": resumo_documentos,
-        "eh_obra_rapida": eh_obra_rapida,
-        "n5_releases": n5_releases,
-        "rotulos": rotulos,
-        "etapa_atual": etapa_atual,
-        # [FIX 2026-07-06] antes so' calculava com etapa_atual==3 (assumia que
-        # "processando" so' acontecia na etapa SA) — agora triagem/recortes
-        # tambem tem job proprio rodando em qualquer etapa (1/2/3).
-        "job_ativo": _job_ativo(jobs),
-        "validacao_concluida": validacao_concluida,
-        "pavimento": settings.pav_default,
-        "classe_ativa": None,
-        "item_id": None,
-        "nav_ativo": "obras",
-    }
+        ctx = {
+            "membro": membro,
+            "obra": obra,
+            "obras_do_membro": obras_do_membro,
+            "jobs": jobs,
+            "fichas": fichas,
+            "comentarios": comentarios,
+            "documentos": documentos,
+            "resumo_documentos": resumo_documentos,
+            "eh_obra_rapida": eh_obra_rapida,
+            "n5_releases": n5_releases,
+            "rotulos": rotulos,
+            "etapa_atual": etapa_atual,
+            # [FIX 2026-07-06] antes so' calculava com etapa_atual==3 (assumia que
+            # "processando" so' acontecia na etapa SA) — agora triagem/recortes
+            # tambem tem job proprio rodando em qualquer etapa (1/2/3).
+            "job_ativo": _job_ativo(jobs),
+            "validacao_concluida": validacao_concluida,
+            "pavimento": settings.pav_default,
+            "classe_ativa": None,
+            "item_id": None,
+            "nav_ativo": "obras",
+        }
+
+    except Exception as e:
+        err_msg = str(e) + "\n" + traceback.format_exc()
+        with open("C:/Users/Thierry/Desktop/err_pagina.txt", "w", encoding="utf-8") as f:
+            f.write(err_msg)
+        raise HTTPException(status_code=500, detail=err_msg)
     return _render(request, "obra_detalhe.html", ctx)
 
 
