@@ -1910,6 +1910,38 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       });
   }
 
+  // [novo, a pedido do dono] apaga o .dxf do recorte errado de vez (+ sua
+  // entrada de validação) — pra abrir espaço pra gerar um novo manualmente
+  // (Modo Recorte Manual) sem o antigo ficar competindo/confundindo na
+  // árvore. Igual ao Regenerar, atualiza só a subclasse deste bruto —
+  // nunca a árvore inteira.
+  function excluirRecorte(item) {
+    if (!window.confirm('Excluir este recorte definitivamente? Essa ação não pode ser desfeita — você pode gerar um novo manualmente depois.')) return;
+    var statusEl = document.getElementById('recorte-validacao-status');
+    var btn = document.getElementById('recorte-excluir-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Excluindo…'; }
+    statusEl.textContent = 'Excluindo…';
+    fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) + '/' + encodeURIComponent(item.itemId), {
+      method: 'DELETE',
+    }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function () {
+        var itens = _recortesItensPorBruto[item.brutoId] || [];
+        var idx = itens.findIndex(function (it) { return it.item_id === item.itemId; });
+        if (idx >= 0) itens.splice(idx, 1);
+        atualizarSubclassesDoBruto(item.brutoId);
+        var det = document.getElementById('docs-detalhe');
+        if (det) {
+          det.innerHTML = '<div id="docs-cabecalho-slot"></div><div id="docs-intro-slot"></div>' +
+            '<p class="muted">Recorte excluído. Selecione outro item na Triagem, ou gere um novo via Modo Recorte Manual no bruto.</p>';
+          window.moverIntroParaSlot(det);
+        }
+      })
+      .catch(function () {
+        statusEl.textContent = 'Falha ao excluir.';
+        if (btn) { btn.disabled = false; btn.textContent = '🗑 Excluir'; }
+      });
+  }
+
   // Refaz só os `<li>` de subclasse (Torres/Detalhes) de UM bruto específico,
   // sem tocar no resto da lista de Triagem (sem `montarLista()` inteiro).
   function atualizarSubclassesDoBruto(brutoId) {
@@ -1925,6 +1957,23 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     // [novo, a pedido do dono] modo rápido/legado (0 documentos navegáveis):
     // não existe `doc` pra casar, mas o pavimento do próprio bruto já resolve.
     var pav = doc ? (window.pavimentoDe(doc) || 'Indeterminado') : (bruto.pavimento || 'Indeterminado');
+    // [FIX] `referencia` é o PRÓPRIO primeiro elemento de `existentes` — ele
+    // também é removido no forEach abaixo, então depois disso
+    // `referencia.parentNode` já é `null` (elemento removido do DOM não tem
+    // mais pai) e `referencia.parentNode.insertBefore(...)` explodia com
+    // TypeError, sempre, silenciosamente capturado pelo `.catch` de quem
+    // chamou (Regenerar/Excluir), fazendo tudo parecer "falhou" mesmo
+    // quando o backend tinha funcionado. Guarda o pai ANTES de remover, e
+    // acha o próximo irmão que VAI SOBRAR (pula qualquer um que também
+    // esteja em `existentes`, senão `insertBefore` explode de novo com
+    // "not a child of this node" — o irmão imediato quase sempre é outro
+    // item do mesmo grupo, também removido).
+    var pai = referencia.parentNode;
+    var existentesArr = Array.prototype.slice.call(existentes);
+    var proximoIrmao = referencia.nextSibling;
+    while (proximoIrmao && existentesArr.indexOf(proximoIrmao) !== -1) {
+      proximoIrmao = proximoIrmao.nextSibling;
+    }
     existentes.forEach(function (el) { el.remove(); });
     var novaLista = document.createElement('ul');
     if (doc) {
@@ -1933,7 +1982,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       var rec = window.montarRecPorBrutoId(brutoId);
       window.renderizarGruposDeRecorte(novaLista, rec, classePavPar, pav);
     }
-    while (novaLista.firstChild) referencia.parentNode.insertBefore(novaLista.firstChild, referencia);
+    while (novaLista.firstChild) pai.insertBefore(novaLista.firstChild, proximoIrmao);
   }
 
   function renderizarDetalheRecorte(item) {
@@ -1951,6 +2000,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
         '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-invalidar-btn">✖ Invalidar</button>' +
         '<button type="button" class="btn-sec btn" id="recorte-regenerar-btn">Regenerar →</button>' +
+        '<button type="button" class="btn-sec btn" id="recorte-excluir-btn">🗑 Excluir</button>' +
         '<span id="recorte-validacao-status" class="meta" role="status" aria-live="polite"></span>' +
       '</div>' +
       '<div id="doc-viewer-extra" style="margin-top:14px"></div>';
@@ -1959,6 +2009,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     document.getElementById('recorte-validar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, true); });
     document.getElementById('recorte-invalidar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, false); });
     document.getElementById('recorte-regenerar-btn').addEventListener('click', function () { regenerarRecorte(item); });
+    document.getElementById('recorte-excluir-btn').addEventListener('click', function () { excluirRecorte(item); });
     atualizarBotoesValidacao(item.brutoId, item.itemId);
 
     var src = '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) +

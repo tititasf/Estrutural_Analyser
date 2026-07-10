@@ -219,6 +219,12 @@ h2 { font-size: 1.15rem; margin: 24px 0 8px; }
 .recorte-validacao-btn.ativo#recorte-validar-btn { background: var(--st-verde); border-color: var(--st-verde); color: #fff; }
 .recorte-validacao-btn.ativo#recorte-invalidar-btn { background: var(--st-vermelho); border-color: var(--st-vermelho); color: #fff; }
 
+/* [novo, a pedido do dono] Excluir — sempre vermelho solido (nao e' um
+   estado que alterna feito Validar/Invalidar, e' uma acao destrutiva de
+   verdade: apaga o .dxf do disco pra abrir espaco pro Modo Recorte Manual). */
+#recorte-excluir-btn { background: var(--st-vermelho); border-color: var(--st-vermelho); color: #fff; }
+#recorte-excluir-btn:hover { background: #b91c1c; }
+
 /* ---- cartão "enviar obra" (2026-07-06 — onde começar, sem isso a tela era só lista vazia) ---- */
 .upload-card {
   background: linear-gradient(135deg, #eff6ff, #f8fafc);

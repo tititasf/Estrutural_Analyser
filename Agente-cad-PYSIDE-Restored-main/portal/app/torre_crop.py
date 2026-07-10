@@ -162,40 +162,28 @@ def obter_recorte_bruto(obra_dir: Path, bruto_stem: str, item_id: str) -> dict |
     return None
 
 
-def excluir_recorte(obra_dir: Path, bruto_stem: str, item_id: str):
-    idx_path = _index_path(obra_dir, bruto_stem)
-    if not idx_path.exists():
-        return
-    with open(idx_path, 'r', encoding='utf-8') as f:
-        linhas = [L.strip() for L in f if L.strip()]
-    
-    novas_linhas = []
-    excluido = False
-    import json
-    for L in linhas:
-        try:
-            doc = json.loads(L)
-            if doc.get("item_id") == item_id:
-                excluido = True
-                # Podemos tambem apagar os arquivos (o dxf e a thumb svg).
-                path_dxf = Path(doc.get("path", ""))
-                if path_dxf.exists():
-                    try: path_dxf.unlink()
-                    except: pass
-                # A thumbnail fica em .previews/{item_id}.svg
-                try: 
-                    cache_dir = obra_dir / ".previews"
-                    (cache_dir / f"{item_id}.svg").unlink(missing_ok=True)
-                except: pass
-                continue
-            novas_linhas.append(L)
-        except Exception:
-            novas_linhas.append(L)
-            
-    if excluido:
-        # Atomic write back to avoid corruption
-        temp_idx = idx_path.with_suffix('.tmp')
-        with open(temp_idx, 'w', encoding='utf-8') as f:
-            for L in novas_linhas:
-                f.write(L + '\n')
-        temp_idx.replace(idx_path)
+def excluir_recorte(obra_dir: Path, bruto_stem: str, item_id: str) -> bool:
+    """Apaga o .dxf de 1 item de recorte + sua entrada em validado.json —
+    usado quando o dono quer descartar um recorte errado antes de gerar um
+    novo manualmente (Modo Recorte Manual). Nunca mexe nos outros itens do
+    mesmo bruto.
+
+    [FIX] a versao anterior assumia um "indice" JSONL (`_index_path`, funcao
+    que nunca existiu neste arquivo) — modelo de dados que este motor nunca
+    usou de verdade. O real e' bem mais simples: cada item e' so' um
+    `<item_id>.dxf` solto dentro da pasta do bruto (glob, ver
+    `listar_recortes_bruto`), com o estado de validacao centralizado em
+    `validado.json`. Devolve True se de fato havia algo pra apagar.
+    """
+    out_dir = _dir_recortes_bruto(obra_dir, bruto_stem)
+    dxf_path = out_dir / f"{item_id}.dxf"
+    existia = dxf_path.is_file()
+    if existia:
+        dxf_path.unlink()
+
+    data = _ler_validacao(out_dir)
+    if item_id in data:
+        del data[item_id]
+        _salvar_validacao(out_dir, data)
+
+    return existia

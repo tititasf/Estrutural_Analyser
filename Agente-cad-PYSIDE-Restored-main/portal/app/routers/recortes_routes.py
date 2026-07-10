@@ -355,16 +355,15 @@ def reprocessar_bruto_endpoint(obra_id: str, bruto_id: str, request: Request,
 def excluir_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, request: Request,
                              membro: dict = Depends(auth.exige_login),
                              conn: sqlite3.Connection = Depends(get_db_conn)):
-    from fastapi import HTTPException
+    # [FIX] importava `src.core.torre_crop` (modulo que nao existe — sempre
+    # 500ava) em vez do `torre_crop` real deste pacote (ja importado no topo
+    # do arquivo, mesmo usado por gerar/listar/validar recorte acima).
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
-    
-    try:
-        from src.core import torre_crop
-        torre_crop.excluir_recorte(obra_dir, bruto_id, item_id)
-        return {"status": "ok", "removido": True}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    removido = torre_crop.excluir_recorte(obra_dir, bruto_id, item_id)
+    if not removido:
+        raise HTTPException(status_code=404, detail="recorte nao encontrado")
+    return {"status": "ok", "removido": True}
 
 @router.post("/{obra_id}/recortes/brutos/{bruto_id}/{item_id}/validar")
 def validar_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, payload: ValidacaoPayload,
