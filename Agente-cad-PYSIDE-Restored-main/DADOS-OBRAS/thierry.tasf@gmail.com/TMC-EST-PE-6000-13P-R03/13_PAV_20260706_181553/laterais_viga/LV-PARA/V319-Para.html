@@ -1,0 +1,1461 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>LV — V319-Para</title><style>body{background:#1a1a1a;color:#c8c8c8;font:11px monospace;margin:16px}h1{color:#7eb8f7;font-size:16px} .meta,.muted{color:#777}table{border-collapse:collapse}th{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px;white-space:nowrap}td{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}.img-geo{width:910px;height:650px;object-fit:contain;background:#111}.img-n3{width:900px;height:600px;object-fit:contain;background:#fff}.img-n4{width:750px;height:550px;object-fit:contain;background:#fff}.img-n2{width:600px;height:400px;object-fit:contain;background:#111}.ficha-cell{max-width:380px;overflow:auto}tr:hover td{background:#222}.atencao-cell{  min-width:220px;max-width:320px;min-height:50px;  background:#1e1b00;color:#f0b840;cursor:text;  border-left:2px solid #5a4400;white-space:pre-wrap;  font-size:10px;padding:4px 6px}.atencao-cell:focus{  outline:1px solid #f0b840;background:#252300}.atencao-cell:empty::before{  content:attr(title);color:#554400;font-style:italic}body{display:flex;flex-direction:row;margin:0;overflow:hidden;height:100vh}.sidebar{width:170px;min-width:130px;overflow-y:auto;background:#111;  border-right:1px solid #2a2a2a;padding:6px 0;flex-shrink:0;height:100vh}.sidebar h3{color:#4fc3a1;font-size:10px;padding:4px 8px;margin:0 0 4px;  border-bottom:1px solid #222}.sidebar ul{list-style:none;padding:0;margin:0}.sidebar li a{display:block;padding:3px 8px;color:#888;text-decoration:none;  font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebar li.active a{color:#f0b840;background:#1e1b00;font-weight:bold}.sidebar li a:hover{background:#1a1a1a;color:#ccc}.sidebar .grp{font-size:8px;color:#4fc3a1;padding:8px 6px 2px;  border-top:1px solid #222;text-transform:uppercase;letter-spacing:1px}.main-wrap{flex:1;overflow:auto;height:100vh}.main-content{padding:12px 16px;min-width:800px}.nav-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;  background:#1e1e1e;padding:5px 10px;border-radius:4px;  position:sticky;top:0;z-index:5}.nav-arrow{color:#7eb8f7;text-decoration:none;font-size:10px;padding:2px 8px;  border:1px solid #335;border-radius:3px;white-space:nowrap}.nav-arrow:hover{background:#1a2030}.nav-pos{color:#aaa;font-size:10px;flex:1;text-align:center}.sec{margin:8px 0;border:1px solid #2a2a2a;border-radius:4px}.sec-title{background:#1e1e1e;color:#4fc3a1;padding:3px 8px;  font-size:10px;font-weight:bold;border-radius:4px 4px 0 0}.sec-body{padding:8px}.face-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.face-card{border-radius:3px;padding:5px 7px;font-size:10px}.face-A{background:#122012;border-left:3px solid #4fc3a1}.face-B{background:#12122a;border-left:3px solid #7eb8f7}.face-C{background:#2a1228;border-left:3px solid #c47ef7}.face-D{background:#2a1e10;border-left:3px solid #f0b840}.face-label{color:#666;font-size:9px;margin-bottom:2px}.od-wrap{margin:6px 0 10px 0;display:flex;flex-direction:column;align-items:center;gap:0px;font-size:9px;font-family:monospace}.od-row{display:flex;align-items:center;justify-content:center;gap:0}.od-box{border:2px solid #555;background:#1e1e1e;color:#ddd;padding:6px 18px;  text-align:center;font-size:9px;font-weight:bold;min-width:70px;  border-radius:2px}.od-top{color:#c47ef7;font-weight:bold;padding:2px 0;text-align:center}.od-bot{color:#f0b840;font-weight:bold;padding:2px 0;text-align:center}.od-side-A{color:#4fc3a1;font-weight:bold;padding:4px 6px}.od-side-B{color:#7eb8f7;font-weight:bold;padding:4px 6px}.od-side-C{color:#c47ef7;font-weight:bold;padding:4px 6px}.od-side-D{color:#f0b840;font-weight:bold;padding:4px 6px}.od-hint{color:#555;font-size:8px;text-align:center;margin-top:2px}.face-val{white-space:pre-wrap;color:#ccc}.img-wrap{text-align:center;background:#0d0d0d;padding:6px;border-radius:3px}.views-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}.view-block{text-align:center}.view-label{font-size:9px;color:#666;margin-bottom:3px}.fichas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ficha-col-title{color:#7eb8f7;font-size:10px;margin-bottom:4px;font-weight:bold}.evidence-grid{display:grid;grid-template-columns:1fr;gap:18px}.evidence-card{background:#101010;border:1px solid #292929;border-radius:3px;padding:6px}.evidence-card img,.evidence-card svg{display:block;width:100%;height:auto;max-height:none;object-fit:contain;background:#111}.img-wrap img,.img-wrap svg{display:block;width:100%;height:auto;max-height:none;object-fit:contain}.views-row{display:flex;flex-direction:column;gap:18px;align-items:stretch}.view-block{width:100%;text-align:center}.view-block img{display:block;width:100%;height:auto;max-height:none;object-fit:contain}.evidence-title{display:flex;justify-content:space-between;color:#aaa;font-size:9px;margin-bottom:4px}.artifact-path{color:#555;font-size:8px;word-break:break-all;margin-top:4px}.pipeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pipeline-stage{background:#111;border:1px solid #292929;border-radius:3px;padding:7px}.pipeline-stage.ok{border-left:3px solid #4fc3a1}.pipeline-stage.missing{border-left:3px solid #e17055}.stage-name{color:#7eb8f7;font-weight:bold;font-size:10px}.stage-state{font-size:9px;color:#888;margin:2px 0 5px}.vertex-table{max-height:260px;overflow:auto}.vertex-table table{font-size:9px}.tag{display:inline-block;background:#282828;color:#888;  font-size:8px;padding:1px 5px;border-radius:3px;margin-left:5px}.evidence-grid{display:grid!important;grid-template-columns:1fr!important;gap:18px!important}.evidence-card{width:100%;box-sizing:border-box;padding:10px!important}.evidence-card img,.evidence-card svg{display:block;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain;background:#111}.artifact-path{font-size:9px!important}.side-block{border:1px solid #223;border-radius:5px;margin:14px 0;padding:10px}.side-block h3{color:#f0b840;font-size:11px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em}.classification-banner{padding:8px 10px;margin:8px 0;border-radius:4px;background:#151515;border:1px solid #333;color:#aaa}.classification-banner.match{border-left:4px solid #4fc3a1}.classification-banner.reference{border-left:4px solid #f0b840}.evidence-grid.zone-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:start}@media(max-width:1200px){.evidence-grid.zone-grid{grid-template-columns:1fr!important}}</style><script>function saveAten(el){  var key=el.dataset.atkey;if(!key)return;  var val=el.innerText.trim();  if(val){localStorage.setItem(key,val);}else{localStorage.removeItem(key);}}function loadAllAten(){  document.querySelectorAll("[data-atkey]").forEach(function(el){    var stored=localStorage.getItem(el.dataset.atkey);    if(stored!==null&&stored!=="")el.innerText=stored;  });}document.addEventListener("DOMContentLoaded",loadAllAten);function exportAnotacoes(){  var r={};  for(var i=0;i<localStorage.length;i++){    var k=localStorage.key(i);    if(k&&k.startsWith("aten_"))r[k]=localStorage.getItem(k);  }  var el=document.getElementById("_aten_export");  if(el)el.textContent=JSON.stringify(r,null,2);}</script></head><body><aside class="sidebar"><h3>LV-PARA (46 vigas)</h3><a class="sb-back" href="../../index.html">← índice geral</a><a class="sb-back" href="../index.html">← listas LV</a><a class="sb-back" href="index.html">← índice da lista</a><a class="sb-back" href="../interpretacao_laterais.html">Guia</a><ul><li data-viga="V1"><a href="V1-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V1 (2)</a></li><li data-viga="V2"><a href="V2-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V2 (4)</a></li><li data-viga="V9"><a href="V9-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V9 (2)</a></li><li data-viga="V12"><a href="V12-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V12 (2)</a></li><li data-viga="V14"><a href="V14-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V14 (2)</a></li><li data-viga="V16"><a href="V16-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V16 (2)</a></li><li data-viga="V18"><a href="V18-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V18 (2)</a></li><li data-viga="V20"><a href="V20-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V20 (2)</a></li><li data-viga="V22"><a href="V22-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V22 (2)</a></li><li data-viga="V26"><a href="V26-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V26 (2)</a></li><li data-viga="V30"><a href="V30-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V30 (2)</a></li><li data-viga="V31"><a href="V31-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V31 (2)</a></li><li data-viga="V301"><a href="V301-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V301 (2)</a></li><li data-viga="V302"><a href="V302-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V302 (8)</a></li><li data-viga="V303"><a href="V303-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V303 (12)</a></li><li data-viga="V304"><a href="V304-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V304 (8)</a></li><li data-viga="V305"><a href="V305-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V305 (2)</a></li><li data-viga="V306"><a href="V306-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V306 (12)</a></li><li data-viga="V307"><a href="V307-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V307 (2)</a></li><li data-viga="V308"><a href="V308-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V308 (4)</a></li><li data-viga="V309"><a href="V309-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V309 (6)</a></li><li data-viga="V310"><a href="V310-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V310 (4)</a></li><li data-viga="V311"><a href="V311-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V311 (4)</a></li><li data-viga="V312"><a href="V312-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V312 (6)</a></li><li data-viga="V313"><a href="V313-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V313 (6)</a></li><li data-viga="V314"><a href="V314-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V314 (8)</a></li><li data-viga="V315"><a href="V315-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V315 (4)</a></li><li data-viga="V316"><a href="V316-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V316 (8)</a></li><li data-viga="V317"><a href="V317-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V317 (6)</a></li><li data-viga="V318"><a href="V318-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V318 (8)</a></li><li class="active" data-viga="V319"><a href="V319-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V319 (4)</a></li><li data-viga="V320"><a href="V320-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V320 (8)</a></li><li data-viga="V321"><a href="V321-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V321 (6)</a></li><li data-viga="V322"><a href="V322-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V322 (8)</a></li><li data-viga="V323"><a href="V323-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V323 (2)</a></li><li data-viga="V324"><a href="V324-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V324 (2)</a></li><li data-viga="V325"><a href="V325-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V325 (6)</a></li><li data-viga="V326"><a href="V326-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V326 (2)</a></li><li data-viga="V327"><a href="V327-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V327 (2)</a></li><li data-viga="V328"><a href="V328-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V328 (4)</a></li><li data-viga="V329"><a href="V329-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V329 (4)</a></li><li data-viga="V330"><a href="V330-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V330 (6)</a></li><li data-viga="V331"><a href="V331-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V331 (4)</a></li><li data-viga="V332"><a href="V332-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>V332 (4)</a></li><li data-viga="VF202"><a href="VF202-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>VF202 (12)</a></li><li data-viga="VF301"><a href="VF301-Para.html"><span class="erro-flag" style="display:none">⚠️ </span>VF301 (4)</a></li></ul></aside><script>(function(){var obra="D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03", pav="13_PAV", behavior="para";document.querySelectorAll(".sidebar li[data-viga]").forEach(function(li){  var nome=li.getAttribute("data-viga");  var key=("aten_erro_lv_"+behavior+"_"+obra+"_"+pav+"_"+nome).replace(/ /g,"_");  var stored=localStorage.getItem(key);  if(!stored)return;  try{    var obj=JSON.parse(stored);    if(obj.erro||((obj.nota||'').trim())){      var flag=li.querySelector(".erro-flag");      if(flag)flag.style.display="inline";    }  }catch(e){}});})();</script><div class="main-wrap"><div class="main-content"><h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">LV — V319-Para · 4 segmento(s)</h2><div class="nav-bar"><a class="nav-arrow" href="V318-Para.html">← anterior</a><span class="nav-pos"><b>V319-Para</b> (31/46 vigas)<span class="tag">LV</span><span class="tag">Para</span><span class="tag">4 segmento(s)</span></span><a class="nav-arrow" href="V320-Para.html">próximo →</a></div><div class="classification-banner reference"><b>Lista Para:</b> N2/N4 ainda não classificados; não usar como aprovação automática.</div><div class="side-block"><h3>Lado A — 2 segmento(s)</h3><div class="sec"><div class="sec-title">N1 / SA — V319 · lado A · segmento 1 (Para)</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N1 / SA</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">DXF estrutural focado no segmento 1 (Para) (lado A)</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1152 288" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-geo" role="img" aria-label="N1 / SA" alt="N1 / SA">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-06T18:16:10.126942</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 288 
+L 1152 288 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #0d0d0d"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 923.428571 161.761449 
+L 923.428571 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 909.257143 161.761449 
+L 909.257143 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 597.485714 161.761449 
+L 597.485714 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 583.314286 161.761449 
+L 583.314286 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 271.542857 161.761449 
+L 271.542857 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 257.371429 161.761449 
+L 257.371429 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M -1 161.761449 
+L 1153 161.761449 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M -1 170.711825 
+L 257.371429 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 257.371429 202.784005 
+L 257.371429 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 271.542857 202.784005 
+L 271.542857 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 257.371429 202.784005 
+L 271.542857 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 271.542857 170.711825 
+L 583.314286 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 583.314286 202.784005 
+L 583.314286 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 597.485714 202.784005 
+L 597.485714 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 583.314286 202.784005 
+L 597.485714 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 597.485714 170.711825 
+L 909.257143 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 909.257143 202.784005 
+L 909.257143 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 923.428571 202.784005 
+L 923.428571 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 909.257143 202.784005 
+L 923.428571 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 923.428571 170.711825 
+L 1153 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M -1 202.784005 
+L 257.371429 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 271.542857 202.784005 
+L 583.314286 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 597.485714 202.784005 
+L 909.257143 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 923.428571 202.784005 
+L 1153 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 257.371429 271.169734 
+L 257.371429 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 271.542857 271.169734 
+L 271.542857 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 583.314286 271.169734 
+L 583.314286 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 597.485714 271.169734 
+L 597.485714 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 909.257143 271.169734 
+L 909.257143 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 923.428571 271.169734 
+L 923.428571 202.784005 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 341.776367 202.784005 
+L 341.776367 161.761449 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_32">
+    <path d="M 344.413397 205.421035 
+L 339.139337 200.146976 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_33">
+    <path d="M 344.413397 164.398479 
+L 339.139337 159.124419 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_34">
+    <path d="M 341.776367 161.761449 
+L 341.776367 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_35">
+    <path d="M 344.413397 164.398479 
+L 339.139337 159.124419 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_36">
+    <path d="M 712.964915 161.761449 
+L 712.964915 11.842652 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_37">
+    <path d="M 715.601944 164.398479 
+L 710.327885 159.124419 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_38">
+    <path d="M 810.829635 152.811073 
+L 815.304823 161.761449 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_39">
+    <path d="M 810.829635 152.811073 
+L 819.780011 152.811073 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_40">
+    <path d="M 815.304823 161.761449 
+L 819.780011 152.811073 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_41">
+    <path d="M 815.304823 152.811073 
+L 815.304823 148.335885 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_42">
+    <path d="M 753.715597 148.335885 
+L 815.304823 148.335885 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_43">
+    <path clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_44">
+    <path clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_45">
+    <path d="M 224.356926 145.44 
+L 264.440002 145.44 
+L 264.440002 181.745631 
+L 263.466453 174.350794 
+L 264.440002 181.745631 
+L 265.413551 174.350794 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_46">
+    <path d="M 550.299783 145.44 
+L 590.382859 145.44 
+L 590.382859 181.745631 
+L 589.40931 174.350794 
+L 590.382859 181.745631 
+L 591.356408 174.350794 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_47">
+    <path d="M 876.24264 145.44 
+L 916.325716 145.44 
+L 916.325716 181.745631 
+L 915.352168 174.350794 
+L 916.325716 181.745631 
+L 917.299265 174.350794 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_48">
+    <path d="M -1 161.761449 
+L 1153 161.761449 
+M 1153 170.711825 
+L 923.428571 170.711825 
+L 923.428571 202.784005 
+L 909.257143 202.784005 
+L 909.257143 170.711825 
+L 597.485714 170.711825 
+L 597.485714 202.784005 
+L 583.314286 202.784005 
+L 583.314286 170.711825 
+L 271.542857 170.711825 
+L 271.542857 202.784005 
+L 257.371429 202.784005 
+L 257.371429 170.711825 
+L -1 170.711825 
+" clip-path="url(#p2d0fd3793a)" style="fill: none; stroke: #808080; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="385.803579" y="196.573725" transform="rotate(-0 385.803579 196.573725)">V1</text>
+    </g>
+   </g>
+   <g id="text_2">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="224.923664" y="146.787308" transform="rotate(-0 224.923664 146.787308)">V18</text>
+    </g>
+   </g>
+   <g id="text_3">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="550.866521" y="146.787308" transform="rotate(-0 550.866521 146.787308)">V20</text>
+    </g>
+   </g>
+   <g id="text_4">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="876.809379" y="146.787308" transform="rotate(-0 876.809379 146.787308)">V22</text>
+    </g>
+   </g>
+   <g id="text_5">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="761.320639" y="148.771544" transform="rotate(-0 761.320639 148.771544)">848.98</text>
+    </g>
+   </g>
+   <g id="text_6">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="754.442941" y="136.095963" transform="rotate(-0 754.442941 136.095963)">12o PAV.</text>
+    </g>
+   </g>
+   <g id="text_7">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="339.538773" y="101.044156" transform="rotate(-0 339.538773 101.044156)">201</text>
+    </g>
+   </g>
+   <g id="text_8">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="710.727321" y="101.044156" transform="rotate(-0 710.727321 101.044156)">201</text>
+    </g>
+   </g>
+   <g id="text_9">
+    <g clip-path="url(#p2d0fd3793a)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="339.538773" y="189.802051" transform="rotate(-0 339.538773 189.802051)">55</text>
+    </g>
+   </g>
+   <g id="patch_2">
+    <path d="M 271.542857 145.44 
+L 909.257143 145.44 
+z
+" clip-path="url(#p2d0fd3793a)" style="fill: #ff9800; opacity: 0.42; stroke: #ff3d00; stroke-width: 3.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="mf4c9ddebdf" d="M 0 2.12132 
+C 0.562581 2.12132 1.102195 1.897805 1.5 1.5 
+C 1.897805 1.102195 2.12132 0.562581 2.12132 0 
+C 2.12132 -0.562581 1.897805 -1.102195 1.5 -1.5 
+C 1.102195 -1.897805 0.562581 -2.12132 0 -2.12132 
+C -0.562581 -2.12132 -1.102195 -1.897805 -1.5 -1.5 
+C -1.897805 -1.102195 -2.12132 -0.562581 -2.12132 0 
+C -2.12132 0.562581 -1.897805 1.102195 -1.5 1.5 
+C -1.102195 1.897805 -0.562581 2.12132 0 2.12132 
+z
+" style="stroke: #ff3d00; stroke-width: 0.8"/>
+    </defs>
+    <g clip-path="url(#p2d0fd3793a)">
+     <use xlink:href="#mf4c9ddebdf" x="271.542857" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#mf4c9ddebdf" x="909.257143" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+    </g>
+   </g>
+   <g id="text_10">
+    <g id="patch_3">
+     <path d="M 267.542857 143.473083 
+L 333.617857 143.473083 
+L 333.617857 127.730583 
+L 267.542857 127.730583 
+z
+" style="fill: #0d0d0d; opacity: 0.85; stroke: #ff3d00; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #ffcc80" x="271.542857" y="137.809333" transform="rotate(-0 271.542857 137.809333)">SEGMENTO FV</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p2d0fd3793a">
+   <rect x="144" y="78.31218" width="892.8" height="134.255639"/>
+  </clipPath>
+ </defs>
+</svg>
+</div></div><div class="fichas-grid" style="margin-top:10px"><div><div class="ficha-col-title">Ficha N1/SA do segmento</div><div class="ficha-cell"><table><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">IDENTIDADE E DECISÃO SA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">UID</td><td style="padding:2px 5px;white-space:pre-wrap">lateral_a_para|cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31|1|1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Viga</td><td style="padding:2px 5px;white-space:pre-wrap">V319</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Segmento</td><td style="padding:2px 5px;white-space:pre-wrap">1 (Para)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Índice / ocorrência</td><td style="padding:2px 5px;white-space:pre-wrap">1 / 1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Classe / lado / comportamento</td><td style="padding:2px 5px;white-space:pre-wrap">LV / A / Para</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Status</td><td style="padding:2px 5px;white-space:pre-wrap">valid</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Atenção SA</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">GEOMETRIA EXTRAÍDA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Comprimento declarado</td><td style="padding:2px 5px;white-space:pre-wrap">855.0</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Altura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">60</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Largura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">19/55</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Orientação</td><td style="padding:2px 5px;white-space:pre-wrap">horizontal</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Span X / Span Y</td><td style="padding:2px 5px;white-space:pre-wrap">855.00 / 0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Área do contorno</td><td style="padding:2px 5px;white-space:pre-wrap">0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Vértices / únicos</td><td style="padding:2px 5px;white-space:pre-wrap">2 / 2</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Contorno fechado</td><td style="padding:2px 5px;white-space:pre-wrap">Não</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Centro</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  3360.8825,
+  1183.858578
+]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">BBox</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  2933.3825,
+  1183.858578,
+  3788.3825,
+  1183.858578
+]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">VÍNCULOS DE CONTEXTO (apoio, laje, continuidade)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio início</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V307&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio fim</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V307&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Nível da viga</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Lajes adjacentes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Continuidade</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Ajuste de comprimento</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;initial&quot;: &quot;&quot;,
+  &quot;final&quot;: &quot;&quot;,
+  &quot;total&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Pilares passantes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Aberturas na viga</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">RASTREABILIDADE DO VÍNCULO</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">beam_identity</td><td style="padding:2px 5px;white-space:pre-wrap">cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_key</td><td style="padding:2px 5px;white-space:pre-wrap">viga_a_seg_1_comprimento_total</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_slot</td><td style="padding:2px 5px;white-space:pre-wrap">seg_side_a</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">tag</td><td style="padding:2px 5px;white-space:pre-wrap">Lado A</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">ficha do link</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">campos SA do segmento</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">slots vinculados</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;seg_side_a&quot;: [
+    {
+      &quot;type&quot;: &quot;poly&quot;,
+      &quot;points&quot;: [
+        [
+          2933.3825,
+          1183.858578
+        ],
+        [
+          3788.3825,
+          1183.858578
+        ]
+      ],
+      &quot;len&quot;: 855.0,
+      &quot;tag&quot;: &quot;Lado A&quot;,
+      &quot;lv_dimensao&quot;: &quot;19/55&quot;
+    }
+  ]
+}</td></tr></table></div></div><div><div class="ficha-col-title">Vértices brutos do contorno</div><div class="ficha-cell vertex-table"><table><tr><th>#</th><th>X</th><th>Y</th></tr><tr><td>1</td><td>2933.383</td><td>1183.859</td></tr><tr><td>2</td><td>3788.383</td><td>1183.859</td></tr></table></div></div><div><div class="ficha-col-title">Quality gates N1</div><div class="ficha-cell"><table><tr><td style="color:#e17055">ATENÇÃO</td><td>contorno com 3+ vértices</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>área geométrica positiva</td></tr><tr><td style="color:#4fc3a1">OK</td><td>comprimento declarado</td></tr></table></div></div></div></div></div><div class="sec"><div class="sec-title">N1 / SA — V319 · lado A · segmento 2 (Para)</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N1 / SA</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">DXF estrutural focado no segmento 2 (Para) (lado A)</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1152 288" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-geo" role="img" aria-label="N1 / SA" alt="N1 / SA">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-06T18:16:10.162973</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 288 
+L 1152 288 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #0d0d0d"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 331.648 289 
+L 550.36 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 328.6 70.288 
+L 547.312 289 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 576.816 289 
+L 795.528 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 573.768 70.288 
+L 792.48 289 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 328.6 196.621489 
+L 550.36 196.621489 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 546.004222 200.977266 
+L 554.715778 192.265711 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 550.36 196.621489 
+L 573.768 196.621489 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 546.004222 200.977266 
+L 554.715778 192.265711 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 569.412222 200.977266 
+L 578.123778 192.265711 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 573.768 196.621489 
+L 795.528 196.621489 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 569.412222 200.977266 
+L 578.123778 192.265711 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 494.778066 289 
+L 494.778066 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 499.133844 74.643778 
+L 490.422288 65.932222 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 494.778066 70.288 
+L 494.778066 46.88 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 499.133844 74.643778 
+L 490.422288 65.932222 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 499.133844 51.235778 
+L 490.422288 42.524222 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 494.778066 46.88 
+L 494.778066 -1 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 499.133844 51.235778 
+L 490.422288 42.524222 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 562.064 46.88 
+L 328.6 46.88 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 328.6 70.288 
+L 550.36 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 807.232 46.88 
+L 562.064 46.88 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 573.768 70.288 
+L 795.528 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 550.36 70.288 
+L 550.36 289 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 573.768 289 
+L 573.768 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 573.768 70.288 
+L 550.36 70.288 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 328.6 289 
+L 328.6 46.88 
+L 305.192 46.88 
+L 305.192 289 
+" clip-path="url(#peffc45d415)" style="fill: none; stroke: #ffffff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_27">
+    <path clip-path="url(#peffc45d415)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_28">
+    <path clip-path="url(#peffc45d415)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <g clip-path="url(#peffc45d415)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="545.74" y="142.2561" transform="rotate(-0 545.74 142.2561)">19/50</text>
+    </g>
+   </g>
+   <g id="text_2">
+    <g clip-path="url(#peffc45d415)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="422.232" y="196.268614" transform="rotate(-0 422.232 196.268614)">180</text>
+    </g>
+   </g>
+   <g id="text_3">
+    <g clip-path="url(#peffc45d415)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="577.874663" y="196.268614" transform="rotate(-0 577.874663 196.268614)">19</text>
+    </g>
+   </g>
+   <g id="text_4">
+    <g clip-path="url(#peffc45d415)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="667.4" y="196.268614" transform="rotate(-0 667.4 196.268614)">180</text>
+    </g>
+   </g>
+   <g id="text_5">
+    <g clip-path="url(#peffc45d415)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="491.082066" y="201.759125" transform="rotate(-0 491.082066 201.759125)">180</text>
+    </g>
+   </g>
+   <g id="text_6">
+    <g clip-path="url(#peffc45d415)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="491.082066" y="46.116462" transform="rotate(-0 491.082066 46.116462)">19</text>
+    </g>
+   </g>
+   <g id="patch_2">
+    <path d="M 471.512 145.44 
+L 709.288 145.44 
+z
+" clip-path="url(#peffc45d415)" style="fill: #ff9800; opacity: 0.42; stroke: #ff3d00; stroke-width: 3.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m25353986c4" d="M 0 2.12132 
+C 0.562581 2.12132 1.102195 1.897805 1.5 1.5 
+C 1.897805 1.102195 2.12132 0.562581 2.12132 0 
+C 2.12132 -0.562581 1.897805 -1.102195 1.5 -1.5 
+C 1.102195 -1.897805 0.562581 -2.12132 0 -2.12132 
+C -0.562581 -2.12132 -1.102195 -1.897805 -1.5 -1.5 
+C -1.897805 -1.102195 -2.12132 -0.562581 -2.12132 0 
+C -2.12132 0.562581 -1.897805 1.102195 -1.5 1.5 
+C -1.102195 1.897805 -0.562581 2.12132 0 2.12132 
+z
+" style="stroke: #ff3d00; stroke-width: 0.8"/>
+    </defs>
+    <g clip-path="url(#peffc45d415)">
+     <use xlink:href="#m25353986c4" x="471.512" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#m25353986c4" x="709.288" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+    </g>
+   </g>
+   <g id="text_7">
+    <g id="patch_3">
+     <path d="M 467.512 139.584 
+L 533.587 139.584 
+L 533.587 123.8415 
+L 467.512 123.8415 
+z
+" style="fill: #0d0d0d; opacity: 0.85; stroke: #ff3d00; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #ffcc80" x="471.512" y="133.92025" transform="rotate(-0 471.512 133.92025)">SEGMENTO FV</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="peffc45d415">
+   <rect x="397.592" y="34.56" width="385.616" height="221.76"/>
+  </clipPath>
+ </defs>
+</svg>
+</div></div><div class="fichas-grid" style="margin-top:10px"><div><div class="ficha-col-title">Ficha N1/SA do segmento</div><div class="ficha-cell"><table><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">IDENTIDADE E DECISÃO SA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">UID</td><td style="padding:2px 5px;white-space:pre-wrap">lateral_a_para|cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31|2|1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Viga</td><td style="padding:2px 5px;white-space:pre-wrap">V319</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Segmento</td><td style="padding:2px 5px;white-space:pre-wrap">2 (Para)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Índice / ocorrência</td><td style="padding:2px 5px;white-space:pre-wrap">2 / 1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Classe / lado / comportamento</td><td style="padding:2px 5px;white-space:pre-wrap">LV / A / Para</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Status</td><td style="padding:2px 5px;white-space:pre-wrap">valid</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Atenção SA</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">GEOMETRIA EXTRAÍDA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Comprimento declarado</td><td style="padding:2px 5px;white-space:pre-wrap">193.0</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Altura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">55</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Largura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">19/55</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Orientação</td><td style="padding:2px 5px;white-space:pre-wrap">horizontal</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Span X / Span Y</td><td style="padding:2px 5px;white-space:pre-wrap">193.00 / 0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Área do contorno</td><td style="padding:2px 5px;white-space:pre-wrap">0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Vértices / únicos</td><td style="padding:2px 5px;white-space:pre-wrap">2 / 2</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Contorno fechado</td><td style="padding:2px 5px;white-space:pre-wrap">Não</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Centro</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  4167.8825,
+  2380.038
+]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">BBox</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  4071.3825,
+  2380.038,
+  4264.382499999999,
+  2380.038
+]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">VÍNCULOS DE CONTEXTO (apoio, laje, continuidade)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio início</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V313&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio fim</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V315&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Nível da viga</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Lajes adjacentes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Continuidade</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Ajuste de comprimento</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;initial&quot;: &quot;&quot;,
+  &quot;final&quot;: &quot;&quot;,
+  &quot;total&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Pilares passantes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Aberturas na viga</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">RASTREABILIDADE DO VÍNCULO</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">beam_identity</td><td style="padding:2px 5px;white-space:pre-wrap">cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_key</td><td style="padding:2px 5px;white-space:pre-wrap">viga_a_seg_2_comprimento_total</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_slot</td><td style="padding:2px 5px;white-space:pre-wrap">seg_side_a</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">tag</td><td style="padding:2px 5px;white-space:pre-wrap">Lado A</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">ficha do link</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">campos SA do segmento</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">slots vinculados</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;seg_side_a&quot;: [
+    {
+      &quot;type&quot;: &quot;poly&quot;,
+      &quot;points&quot;: [
+        [
+          4071.3825,
+          2380.038
+        ],
+        [
+          4264.382499999999,
+          2380.038
+        ]
+      ],
+      &quot;len&quot;: 192.99999999999864,
+      &quot;tag&quot;: &quot;Lado A&quot;,
+      &quot;lv_dimensao&quot;: &quot;19/55&quot;
+    }
+  ]
+}</td></tr></table></div></div><div><div class="ficha-col-title">Vértices brutos do contorno</div><div class="ficha-cell vertex-table"><table><tr><th>#</th><th>X</th><th>Y</th></tr><tr><td>1</td><td>4071.383</td><td>2380.038</td></tr><tr><td>2</td><td>4264.382</td><td>2380.038</td></tr></table></div></div><div><div class="ficha-col-title">Quality gates N1</div><div class="ficha-cell"><table><tr><td style="color:#e17055">ATENÇÃO</td><td>contorno com 3+ vértices</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>área geométrica positiva</td></tr><tr><td style="color:#4fc3a1">OK</td><td>comprimento declarado</td></tr></table></div></div></div></div></div></div><div class="side-block"><h3>Lado B — 2 segmento(s)</h3><div class="sec"><div class="sec-title">N1 / SA — V319 · lado B · segmento 1 (Para)</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N1 / SA</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">DXF estrutural focado no segmento 1 (Para) (lado B)</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1152 288" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-geo" role="img" aria-label="N1 / SA" alt="N1 / SA">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-06T18:16:10.200944</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 288 
+L 1152 288 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #0d0d0d"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 923.428571 125.455818 
+L 923.428571 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 909.257143 125.455818 
+L 909.257143 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 597.485714 125.455818 
+L 597.485714 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 583.314286 125.455818 
+L 583.314286 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 271.542857 125.455818 
+L 271.542857 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 257.371429 125.455818 
+L 257.371429 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M -1 125.455818 
+L 1153 125.455818 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M -1 134.406194 
+L 257.371429 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 257.371429 166.478375 
+L 257.371429 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 271.542857 166.478375 
+L 271.542857 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 257.371429 166.478375 
+L 271.542857 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 271.542857 134.406194 
+L 583.314286 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 583.314286 166.478375 
+L 583.314286 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 597.485714 166.478375 
+L 597.485714 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 583.314286 166.478375 
+L 597.485714 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 597.485714 134.406194 
+L 909.257143 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 909.257143 166.478375 
+L 909.257143 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 923.428571 166.478375 
+L 923.428571 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 909.257143 166.478375 
+L 923.428571 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 923.428571 134.406194 
+L 1153 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M -1 166.478375 
+L 257.371429 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 271.542857 166.478375 
+L 583.314286 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 597.485714 166.478375 
+L 909.257143 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 923.428571 166.478375 
+L 1153 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 257.371429 234.864103 
+L 257.371429 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 271.542857 234.864103 
+L 271.542857 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 583.314286 234.864103 
+L 583.314286 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 597.485714 234.864103 
+L 597.485714 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 909.257143 234.864103 
+L 909.257143 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 923.428571 234.864103 
+L 923.428571 166.478375 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 341.776367 166.478375 
+L 341.776367 125.455818 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_32">
+    <path d="M 344.413397 169.115405 
+L 339.139337 163.841345 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_33">
+    <path d="M 344.413397 128.092848 
+L 339.139337 122.818789 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_34">
+    <path d="M 341.776367 125.455818 
+L 341.776367 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_35">
+    <path d="M 344.413397 128.092848 
+L 339.139337 122.818789 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_36">
+    <path d="M 712.964915 125.455818 
+L 712.964915 -1 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_37">
+    <path d="M 715.601944 128.092848 
+L 710.327885 122.818789 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_38">
+    <path d="M 810.829635 116.505442 
+L 815.304823 125.455818 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_39">
+    <path d="M 810.829635 116.505442 
+L 819.780011 116.505442 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_40">
+    <path d="M 815.304823 125.455818 
+L 819.780011 116.505442 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_41">
+    <path d="M 815.304823 116.505442 
+L 815.304823 112.030254 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_42">
+    <path d="M 753.715597 112.030254 
+L 815.304823 112.030254 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_43">
+    <path clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_44">
+    <path clip-path="url(#pc3f680994b)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_45">
+    <path d="M 224.356926 109.134369 
+L 264.440002 109.134369 
+L 264.440002 145.44 
+L 263.466453 138.045164 
+L 264.440002 145.44 
+L 265.413551 138.045164 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_46">
+    <path d="M 550.299783 109.134369 
+L 590.382859 109.134369 
+L 590.382859 145.44 
+L 589.40931 138.045164 
+L 590.382859 145.44 
+L 591.356408 138.045164 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_47">
+    <path d="M 876.24264 109.134369 
+L 916.325716 109.134369 
+L 916.325716 145.44 
+L 915.352168 138.045164 
+L 916.325716 145.44 
+L 917.299265 138.045164 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_48">
+    <path d="M -1 125.455818 
+L 1153 125.455818 
+M 1153 134.406194 
+L 923.428571 134.406194 
+L 923.428571 166.478375 
+L 909.257143 166.478375 
+L 909.257143 134.406194 
+L 597.485714 134.406194 
+L 597.485714 166.478375 
+L 583.314286 166.478375 
+L 583.314286 134.406194 
+L 271.542857 134.406194 
+L 271.542857 166.478375 
+L 257.371429 166.478375 
+L 257.371429 134.406194 
+L -1 134.406194 
+" clip-path="url(#pc3f680994b)" style="fill: none; stroke: #808080; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="385.803579" y="160.268095" transform="rotate(-0 385.803579 160.268095)">V1</text>
+    </g>
+   </g>
+   <g id="text_2">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="224.923664" y="110.481677" transform="rotate(-0 224.923664 110.481677)">V18</text>
+    </g>
+   </g>
+   <g id="text_3">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="550.866521" y="110.481677" transform="rotate(-0 550.866521 110.481677)">V20</text>
+    </g>
+   </g>
+   <g id="text_4">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="876.809379" y="110.481677" transform="rotate(-0 876.809379 110.481677)">V22</text>
+    </g>
+   </g>
+   <g id="text_5">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="761.320639" y="112.465913" transform="rotate(-0 761.320639 112.465913)">848.98</text>
+    </g>
+   </g>
+   <g id="text_6">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="754.442941" y="99.790332" transform="rotate(-0 754.442941 99.790332)">12o PAV.</text>
+    </g>
+   </g>
+   <g id="text_7">
+    <g clip-path="url(#pc3f680994b)">
+     <text style="font-size: 9.62406px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="339.538773" y="153.49642" transform="rotate(-0 339.538773 153.49642)">55</text>
+    </g>
+   </g>
+   <g id="patch_2">
+    <path d="M 271.542857 145.44 
+L 909.257143 145.44 
+z
+" clip-path="url(#pc3f680994b)" style="fill: #ff9800; opacity: 0.42; stroke: #ff3d00; stroke-width: 3.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m2ff3a0d6bf" d="M 0 2.12132 
+C 0.562581 2.12132 1.102195 1.897805 1.5 1.5 
+C 1.897805 1.102195 2.12132 0.562581 2.12132 0 
+C 2.12132 -0.562581 1.897805 -1.102195 1.5 -1.5 
+C 1.102195 -1.897805 0.562581 -2.12132 0 -2.12132 
+C -0.562581 -2.12132 -1.102195 -1.897805 -1.5 -1.5 
+C -1.897805 -1.102195 -2.12132 -0.562581 -2.12132 0 
+C -2.12132 0.562581 -1.897805 1.102195 -1.5 1.5 
+C -1.102195 1.897805 -0.562581 2.12132 0 2.12132 
+z
+" style="stroke: #ff3d00; stroke-width: 0.8"/>
+    </defs>
+    <g clip-path="url(#pc3f680994b)">
+     <use xlink:href="#m2ff3a0d6bf" x="271.542857" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#m2ff3a0d6bf" x="909.257143" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+    </g>
+   </g>
+   <g id="text_8">
+    <g id="patch_3">
+     <path d="M 267.542857 143.473083 
+L 333.617857 143.473083 
+L 333.617857 127.730583 
+L 267.542857 127.730583 
+z
+" style="fill: #0d0d0d; opacity: 0.85; stroke: #ff3d00; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #ffcc80" x="271.542857" y="137.809333" transform="rotate(-0 271.542857 137.809333)">SEGMENTO FV</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pc3f680994b">
+   <rect x="144" y="78.31218" width="892.8" height="134.255639"/>
+  </clipPath>
+ </defs>
+</svg>
+</div></div><div class="fichas-grid" style="margin-top:10px"><div><div class="ficha-col-title">Ficha N1/SA do segmento</div><div class="ficha-cell"><table><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">IDENTIDADE E DECISÃO SA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">UID</td><td style="padding:2px 5px;white-space:pre-wrap">lateral_b_para|cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31|1|1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Viga</td><td style="padding:2px 5px;white-space:pre-wrap">V319</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Segmento</td><td style="padding:2px 5px;white-space:pre-wrap">1 (Para)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Índice / ocorrência</td><td style="padding:2px 5px;white-space:pre-wrap">1 / 1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Classe / lado / comportamento</td><td style="padding:2px 5px;white-space:pre-wrap">LV / B / Para</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Status</td><td style="padding:2px 5px;white-space:pre-wrap">valid</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Atenção SA</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">GEOMETRIA EXTRAÍDA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Comprimento declarado</td><td style="padding:2px 5px;white-space:pre-wrap">855.0</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Altura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">60</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Largura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">19/55</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Orientação</td><td style="padding:2px 5px;white-space:pre-wrap">horizontal</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Span X / Span Y</td><td style="padding:2px 5px;white-space:pre-wrap">855.00 / 0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Área do contorno</td><td style="padding:2px 5px;white-space:pre-wrap">0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Vértices / únicos</td><td style="padding:2px 5px;white-space:pre-wrap">2 / 2</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Contorno fechado</td><td style="padding:2px 5px;white-space:pre-wrap">Não</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Centro</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  3360.8825,
+  1135.182682
+]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">BBox</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  2933.3825,
+  1135.182682,
+  3788.3825,
+  1135.182682
+]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">VÍNCULOS DE CONTEXTO (apoio, laje, continuidade)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio início</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V307&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio fim</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V307&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Nível da viga</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Lajes adjacentes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Continuidade</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Ajuste de comprimento</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;initial&quot;: &quot;&quot;,
+  &quot;final&quot;: &quot;&quot;,
+  &quot;total&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Pilares passantes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Aberturas na viga</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">RASTREABILIDADE DO VÍNCULO</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">beam_identity</td><td style="padding:2px 5px;white-space:pre-wrap">cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_key</td><td style="padding:2px 5px;white-space:pre-wrap">viga_b_seg_1_comprimento_total</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_slot</td><td style="padding:2px 5px;white-space:pre-wrap">seg_side_b</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">tag</td><td style="padding:2px 5px;white-space:pre-wrap">Lado B</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">ficha do link</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">campos SA do segmento</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">slots vinculados</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;seg_side_b&quot;: [
+    {
+      &quot;type&quot;: &quot;poly&quot;,
+      &quot;points&quot;: [
+        [
+          2933.3825,
+          1135.182682
+        ],
+        [
+          3788.3825,
+          1135.182682
+        ]
+      ],
+      &quot;len&quot;: 855.0,
+      &quot;tag&quot;: &quot;Lado B&quot;,
+      &quot;lv_dimensao&quot;: &quot;19/55&quot;
+    }
+  ]
+}</td></tr></table></div></div><div><div class="ficha-col-title">Vértices brutos do contorno</div><div class="ficha-cell vertex-table"><table><tr><th>#</th><th>X</th><th>Y</th></tr><tr><td>1</td><td>2933.383</td><td>1135.183</td></tr><tr><td>2</td><td>3788.383</td><td>1135.183</td></tr></table></div></div><div><div class="ficha-col-title">Quality gates N1</div><div class="ficha-cell"><table><tr><td style="color:#e17055">ATENÇÃO</td><td>contorno com 3+ vértices</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>área geométrica positiva</td></tr><tr><td style="color:#4fc3a1">OK</td><td>comprimento declarado</td></tr></table></div></div></div></div></div><div class="sec"><div class="sec-title">N1 / SA — V319 · lado B · segmento 2 (Para)</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N1 / SA</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">DXF estrutural focado no segmento 2 (Para) (lado B)</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1152 288" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-geo" role="img" aria-label="N1 / SA" alt="N1 / SA">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-06T18:16:10.241972</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 288 
+L 1152 288 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #0d0d0d"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 613.815795 273.568 
+L 631.672 255.711795 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 599.006151 273.568 
+L 622.414151 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 584.196505 273.568 
+L 607.604505 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 569.386861 273.568 
+L 592.794861 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 557.752 270.393217 
+L 577.985217 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 557.752 255.583572 
+L 563.175572 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 471.512 98.624 
+L 469.664 100.472 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 469.664 100.472 
+L 469.664 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 504.16 98.624 
+L 504.16 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 538.656 98.624 
+L 538.656 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 573.152 98.624 
+L 573.152 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 607.648 98.624 
+L 607.648 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 642.144 98.624 
+L 642.144 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 676.64 98.624 
+L 676.64 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 711.136 100.472 
+L 711.136 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 469.664 -1 
+L 469.664 79.528 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 504.16 -1 
+L 504.16 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 538.656 -1 
+L 538.656 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 573.152 -1 
+L 573.152 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 607.648 -1 
+L 607.648 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 642.144 -1 
+L 642.144 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 676.64 -1 
+L 676.64 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 711.136 -1 
+L 711.136 79.528 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 709.288 98.624 
+L 711.136 100.472 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 709.288 81.376 
+L 711.136 79.528 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 471.512 81.376 
+L 709.288 98.624 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 471.512 98.624 
+L 709.288 81.376 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 499.133844 254.515778 
+L 490.422288 245.804222 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 494.778066 250.16 
+L 494.778066 -1 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 499.133844 254.515778 
+L 490.422288 245.804222 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 494.778066 273.568 
+L 494.778066 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_32">
+    <path d="M 499.133844 254.515778 
+L 490.422288 245.804222 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_33">
+    <path d="M 494.778066 250.16 
+L 494.778066 -1 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_34">
+    <path d="M 499.133844 254.515778 
+L 490.422288 245.804222 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_35">
+    <path d="M 328.6 177.608562 
+L 860.824 177.608562 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_36">
+    <path d="M 435.168 100.472 
+L 435.168 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_37">
+    <path d="M 400.672 98.624 
+L 400.672 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_38">
+    <path d="M 471.512 98.624 
+L 400.672 98.624 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_39">
+    <path d="M 557.752 250.16 
+L 328.6 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_40">
+    <path d="M 860.824 250.16 
+L 631.672 250.16 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_41">
+    <path d="M 557.752 273.568 
+L 631.672 273.568 
+L 631.672 250.16 
+L 557.752 250.16 
+L 557.752 273.568 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #ffffff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_42">
+    <path clip-path="url(#p79f60036af)" style="fill: none; stroke: #ff0000; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_43">
+    <path clip-path="url(#p79f60036af)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_44">
+    <path d="M 471.512 98.624 
+L 709.288 98.624 
+L 709.288 81.376 
+L 471.512 81.376 
+L 471.512 98.624 
+" clip-path="url(#p79f60036af)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <g clip-path="url(#p79f60036af)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="490.276576" y="76.223566" transform="rotate(-0 490.276576 76.223566)">260</text>
+    </g>
+   </g>
+   <g id="text_2">
+    <g clip-path="url(#p79f60036af)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="577.464" y="177.255687" transform="rotate(-0 577.464 177.255687)">432</text>
+    </g>
+   </g>
+   <g id="patch_2">
+    <path d="M 471.512 145.44 
+L 709.288 145.44 
+z
+" clip-path="url(#p79f60036af)" style="fill: #ff9800; opacity: 0.42; stroke: #ff3d00; stroke-width: 3.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m68a9721655" d="M 0 2.12132 
+C 0.562581 2.12132 1.102195 1.897805 1.5 1.5 
+C 1.897805 1.102195 2.12132 0.562581 2.12132 0 
+C 2.12132 -0.562581 1.897805 -1.102195 1.5 -1.5 
+C 1.102195 -1.897805 0.562581 -2.12132 0 -2.12132 
+C -0.562581 -2.12132 -1.102195 -1.897805 -1.5 -1.5 
+C -1.897805 -1.102195 -2.12132 -0.562581 -2.12132 0 
+C -2.12132 0.562581 -1.897805 1.102195 -1.5 1.5 
+C -1.102195 1.897805 -0.562581 2.12132 0 2.12132 
+z
+" style="stroke: #ff3d00; stroke-width: 0.8"/>
+    </defs>
+    <g clip-path="url(#p79f60036af)">
+     <use xlink:href="#m68a9721655" x="471.512" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#m68a9721655" x="709.288" y="145.44" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+    </g>
+   </g>
+   <g id="text_3">
+    <g id="patch_3">
+     <path d="M 467.512 139.584 
+L 533.587 139.584 
+L 533.587 123.8415 
+L 467.512 123.8415 
+z
+" style="fill: #0d0d0d; opacity: 0.85; stroke: #ff3d00; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #ffcc80" x="471.512" y="133.92025" transform="rotate(-0 471.512 133.92025)">SEGMENTO FV</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p79f60036af">
+   <rect x="397.592" y="34.56" width="385.616" height="221.76"/>
+  </clipPath>
+ </defs>
+</svg>
+</div></div><div class="fichas-grid" style="margin-top:10px"><div><div class="ficha-col-title">Ficha N1/SA do segmento</div><div class="ficha-cell"><table><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">IDENTIDADE E DECISÃO SA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">UID</td><td style="padding:2px 5px;white-space:pre-wrap">lateral_b_para|cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31|2|1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Viga</td><td style="padding:2px 5px;white-space:pre-wrap">V319</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Segmento</td><td style="padding:2px 5px;white-space:pre-wrap">2 (Para)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Índice / ocorrência</td><td style="padding:2px 5px;white-space:pre-wrap">2 / 1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Classe / lado / comportamento</td><td style="padding:2px 5px;white-space:pre-wrap">LV / B / Para</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Status</td><td style="padding:2px 5px;white-space:pre-wrap">valid</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Atenção SA</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">GEOMETRIA EXTRAÍDA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Comprimento declarado</td><td style="padding:2px 5px;white-space:pre-wrap">193.0</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Altura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">55</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Largura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">19/55</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Orientação</td><td style="padding:2px 5px;white-space:pre-wrap">horizontal</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Span X / Span Y</td><td style="padding:2px 5px;white-space:pre-wrap">193.00 / 0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Área do contorno</td><td style="padding:2px 5px;white-space:pre-wrap">0.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Vértices / únicos</td><td style="padding:2px 5px;white-space:pre-wrap">2 / 2</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Contorno fechado</td><td style="padding:2px 5px;white-space:pre-wrap">Não</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Centro</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  4167.8825,
+  2067.038
+]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">BBox</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  4071.3825,
+  2067.038,
+  4264.382499999999,
+  2067.038
+]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">VÍNCULOS DE CONTEXTO (apoio, laje, continuidade)</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio início</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V313&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Apoio fim</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;name&quot;: &quot;V315&quot;,
+  &quot;dimension&quot;: &quot;19.0x60.0&quot;,
+  &quot;level&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Nível da viga</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Lajes adjacentes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Continuidade</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Ajuste de comprimento</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;initial&quot;: &quot;&quot;,
+  &quot;final&quot;: &quot;&quot;,
+  &quot;total&quot;: &quot;&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Pilares passantes</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Aberturas na viga</td><td style="padding:2px 5px;white-space:pre-wrap">[]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">RASTREABILIDADE DO VÍNCULO</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">beam_identity</td><td style="padding:2px 5px;white-space:pre-wrap">cd968da2-514b-4b82-adab-16c6dc3cfbd6_b_31</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_key</td><td style="padding:2px 5px;white-space:pre-wrap">viga_b_seg_2_comprimento_total</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_slot</td><td style="padding:2px 5px;white-space:pre-wrap">seg_side_b</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">tag</td><td style="padding:2px 5px;white-space:pre-wrap">Lado B</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">ficha do link</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">campos SA do segmento</td><td style="padding:2px 5px;white-space:pre-wrap">{}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">slots vinculados</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;seg_side_b&quot;: [
+    {
+      &quot;type&quot;: &quot;poly&quot;,
+      &quot;points&quot;: [
+        [
+          4071.3825,
+          2067.038
+        ],
+        [
+          4264.382499999999,
+          2067.038
+        ]
+      ],
+      &quot;len&quot;: 192.99999999999864,
+      &quot;tag&quot;: &quot;Lado B&quot;,
+      &quot;lv_dimensao&quot;: &quot;19/55&quot;
+    }
+  ]
+}</td></tr></table></div></div><div><div class="ficha-col-title">Vértices brutos do contorno</div><div class="ficha-cell vertex-table"><table><tr><th>#</th><th>X</th><th>Y</th></tr><tr><td>1</td><td>4071.383</td><td>2067.038</td></tr><tr><td>2</td><td>4264.382</td><td>2067.038</td></tr></table></div></div><div><div class="ficha-col-title">Quality gates N1</div><div class="ficha-cell"><table><tr><td style="color:#e17055">ATENÇÃO</td><td>contorno com 3+ vértices</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>área geométrica positiva</td></tr><tr><td style="color:#4fc3a1">OK</td><td>comprimento declarado</td></tr></table></div></div></div></div></div></div><div class="sec"><div class="sec-title">N2 / STOG real — recorte humano compartilhado</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N2</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Recorte humano da viga (A/B no mesmo gabarito). N2/N4 ainda não classificados; não usar como aprovação automática.</div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div></div></div></div><div class="sec"><div class="sec-title">N3 — Visão Corte / Lateral A / Lateral B</div><div class="sec-body"><div class="evidence-grid zone-grid"><div class="evidence-card"><div class="evidence-title"><b>N3 · Visão Corte</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô via N1 / Structural Analyzer — viewer independente Visão Corte. </div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div><div class="evidence-card"><div class="evidence-title"><b>N3 · Lateral A</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô via N1 / Structural Analyzer — viewer independente Lateral A. </div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div><div class="evidence-card"><div class="evidence-title"><b>N3 · Lateral B</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô via N1 / Structural Analyzer — viewer independente Lateral B. </div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div></div></div></div><div class="sec"><div class="sec-title">N4 — Visão Corte / Lateral A / Lateral B</div><div class="sec-body"><div class="evidence-grid zone-grid"><div class="evidence-card"><div class="evidence-title"><b>N4 · Visão Corte</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô via ficha N2 / engenharia reversa — viewer independente Visão Corte. N2/N4 ainda não classificados; não usar como aprovação automática.</div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div><div class="evidence-card"><div class="evidence-title"><b>N4 · Lateral A</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô via ficha N2 / engenharia reversa — viewer independente Lateral A. N2/N4 ainda não classificados; não usar como aprovação automática.</div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div><div class="evidence-card"><div class="evidence-title"><b>N4 · Lateral B</b><span style="color:#e17055">ausente</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô via ficha N2 / engenharia reversa — viewer independente Lateral B. N2/N4 ainda não classificados; não usar como aprovação automática.</div><div style="height:130px;display:flex;align-items:center;justify-content:center;color:#a85d55">artefato ausente</div></div></div></div></div><div class="sec"><div class="sec-title">Diagnóstico da cadeia por viga</div><div class="sec-body"><div class="pipeline-grid"><div class="pipeline-stage ok"><div class="stage-name">N1 · Lado A</div><div class="stage-state">artefato disponível</div><div style="font-size:9px;color:#aaa;min-height:30px">2 segmento(s) Para no lado A.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_lv_N1_·_Lado_A_D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\TMC-EST-PE-6000-13P-R03_13_PAV_V319_para_lado_a" onblur="saveAten(this)" title="Anotação N1 · Lado A — V319 · para_lado_a"></div></div><div class="pipeline-stage ok"><div class="stage-name">N1 · Lado B</div><div class="stage-state">artefato disponível</div><div style="font-size:9px;color:#aaa;min-height:30px">2 segmento(s) Para no lado B.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_lv_N1_·_Lado_B_D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\TMC-EST-PE-6000-13P-R03_13_PAV_V319_para_lado_b" onblur="saveAten(this)" title="Anotação N1 · Lado B — V319 · para_lado_b"></div></div><div class="pipeline-stage missing"><div class="stage-name">N2 / STOG real</div><div class="stage-state">artefato ausente</div><div style="font-size:9px;color:#aaa;min-height:30px">Recorte humano da viga (ambos os lados). N2/N4 ainda não classificados; não usar como aprovação automática.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_lv_N2_/_STOG_real_D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\TMC-EST-PE-6000-13P-R03_13_PAV_V319_para_viga" onblur="saveAten(this)" title="Anotação N2 / STOG real — V319 · para_viga"></div></div><div class="pipeline-stage missing"><div class="stage-name">N3 · 3 viewers</div><div class="stage-state">artefato ausente</div><div style="font-size:9px;color:#aaa;min-height:30px">Visão Corte + Lateral A + Lateral B.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_lv_N3_·_3_viewers_D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\TMC-EST-PE-6000-13P-R03_13_PAV_V319_para_n3_3viewers" onblur="saveAten(this)" title="Anotação N3 · 3 viewers — V319 · para_n3_3viewers"></div></div><div class="pipeline-stage missing"><div class="stage-name">N4 · 3 viewers</div><div class="stage-state">artefato ausente</div><div style="font-size:9px;color:#aaa;min-height:30px">Visão Corte + Lateral A + Lateral B.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_lv_N4_·_3_viewers_D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\TMC-EST-PE-6000-13P-R03_13_PAV_V319_para_n4_3viewers" onblur="saveAten(this)" title="Anotação N4 · 3 viewers — V319 · para_n4_3viewers"></div></div></div></div></div><div class="sec"><div class="sec-title">Fichas agregadas da viga</div><div class="sec-body"><div class="fichas-grid"><div><div class="ficha-col-title">N2 / Motor Reverso (ambos os lados; não classificado)</div><div class="ficha-cell"><span style="color:#555">—</span></div></div><div><div class="ficha-col-title">N3 / JSON Fase-4 (limitação conhecida: mostra só 1 lado, A prioritário — ver `_n3_ficha_html_beam`)</div><div class="ficha-cell"><span style="color:#555">sem JSON N3</span></div></div></div></div></div><div class="sec"><div class="sec-title">Quality gates da viga LV</div><div class="sec-body"><table><tr><td style="color:#4fc3a1">OK</td><td>N1 disponível para todos os segmentos</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>recorte N2 (viga) localizado</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>N3 com Visão Corte + Lateral A + Lateral B</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>N4 com Visão Corte + Lateral A + Lateral B</td></tr><tr><td style="color:#e17055">ATENÇÃO</td><td>N2/N4 classificados para a lista Para</td></tr></table></div></div><pre id="_aten_export" style="display:none"></pre><button onclick="exportAnotacoes()" style="margin:12px 0;background:#2a2a00;color:#f0b840;border:1px solid #554400;padding:3px 10px;cursor:pointer;font-size:10px">Exportar Anotações</button><div class="sec" style="margin-top:16px;border-color:#5a2020"><div class="sec-title" style="color:#e17055">Marcação de erro (revisão humana)</div><div class="sec-body"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#e17055;font-weight:bold"><input type="checkbox" id="erro_check" style="width:16px;height:16px">Marcar esta ficha como ERRADA</label><textarea id="erro_nota" placeholder="Descreva o que está errado (N1, N2, N3 ou N4)..." style="width:100%;min-height:70px;margin-top:8px;background:#1a1a1a;color:#f0b840;border:1px solid #554400;border-radius:3px;padding:6px;font-family:monospace;font-size:11px;box-sizing:border-box"></textarea></div></div><script>(function(){var key="aten_erro_lv_para_D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03_13_PAV_V319";function save(){  var chk=document.getElementById("erro_check");  var txt=document.getElementById("erro_nota");  if(chk.checked||txt.value.trim()){    localStorage.setItem(key, JSON.stringify({erro:chk.checked, nota:txt.value}));  } else { localStorage.removeItem(key); }}function load(){  var stored=localStorage.getItem(key);  if(!stored)return;  try{    var obj=JSON.parse(stored);    document.getElementById("erro_check").checked=!!obj.erro;    document.getElementById("erro_nota").value=obj.nota||"";  }catch(e){}}document.addEventListener("DOMContentLoaded", function(){  load();  document.getElementById("erro_check")    .addEventListener("change", save);  document.getElementById("erro_nota")    .addEventListener("input", save);});})();</script></div></div></body></html>

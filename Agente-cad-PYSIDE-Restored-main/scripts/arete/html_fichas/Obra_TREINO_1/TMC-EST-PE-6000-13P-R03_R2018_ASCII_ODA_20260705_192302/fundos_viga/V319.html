@@ -1,0 +1,2752 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>FV — V319</title><style>body{background:#1a1a1a;color:#c8c8c8;font:11px monospace;margin:16px}h1{color:#7eb8f7;font-size:16px} .meta,.muted{color:#777}table{border-collapse:collapse}th{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px;white-space:nowrap}td{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}.img-geo{width:910px;height:650px;object-fit:contain;background:#111}.img-n3{width:900px;height:600px;object-fit:contain;background:#fff}.img-n4{width:750px;height:550px;object-fit:contain;background:#fff}.img-n2{width:600px;height:400px;object-fit:contain;background:#111}.ficha-cell{max-width:380px;overflow:auto}tr:hover td{background:#222}.atencao-cell{  min-width:220px;max-width:320px;min-height:50px;  background:#1e1b00;color:#f0b840;cursor:text;  border-left:2px solid #5a4400;white-space:pre-wrap;  font-size:10px;padding:4px 6px}.atencao-cell:focus{  outline:1px solid #f0b840;background:#252300}.atencao-cell:empty::before{  content:attr(title);color:#554400;font-style:italic}body{display:flex;flex-direction:row;margin:0;overflow:hidden;height:100vh}.sidebar{width:170px;min-width:130px;overflow-y:auto;background:#111;  border-right:1px solid #2a2a2a;padding:6px 0;flex-shrink:0;height:100vh}.sidebar h3{color:#4fc3a1;font-size:10px;padding:4px 8px;margin:0 0 4px;  border-bottom:1px solid #222}.sidebar ul{list-style:none;padding:0;margin:0}.sidebar li a{display:block;padding:3px 8px;color:#888;text-decoration:none;  font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebar li.active a{color:#f0b840;background:#1e1b00;font-weight:bold}.sidebar li a:hover{background:#1a1a1a;color:#ccc}.sidebar .grp{font-size:8px;color:#4fc3a1;padding:8px 6px 2px;  border-top:1px solid #222;text-transform:uppercase;letter-spacing:1px}.main-wrap{flex:1;overflow:auto;height:100vh}.main-content{padding:12px 16px;min-width:800px}.nav-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;  background:#1e1e1e;padding:5px 10px;border-radius:4px;  position:sticky;top:0;z-index:5}.nav-arrow{color:#7eb8f7;text-decoration:none;font-size:10px;padding:2px 8px;  border:1px solid #335;border-radius:3px;white-space:nowrap}.nav-arrow:hover{background:#1a2030}.nav-pos{color:#aaa;font-size:10px;flex:1;text-align:center}.sec{margin:8px 0;border:1px solid #2a2a2a;border-radius:4px}.sec-title{background:#1e1e1e;color:#4fc3a1;padding:3px 8px;  font-size:10px;font-weight:bold;border-radius:4px 4px 0 0}.sec-body{padding:8px}.face-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.face-card{border-radius:3px;padding:5px 7px;font-size:10px}.face-A{background:#122012;border-left:3px solid #4fc3a1}.face-B{background:#12122a;border-left:3px solid #7eb8f7}.face-C{background:#2a1228;border-left:3px solid #c47ef7}.face-D{background:#2a1e10;border-left:3px solid #f0b840}.face-label{color:#666;font-size:9px;margin-bottom:2px}.od-wrap{margin:6px 0 10px 0;display:flex;flex-direction:column;align-items:center;gap:0px;font-size:9px;font-family:monospace}.od-row{display:flex;align-items:center;justify-content:center;gap:0}.od-box{border:2px solid #555;background:#1e1e1e;color:#ddd;padding:6px 18px;  text-align:center;font-size:9px;font-weight:bold;min-width:70px;  border-radius:2px}.od-top{color:#c47ef7;font-weight:bold;padding:2px 0;text-align:center}.od-bot{color:#f0b840;font-weight:bold;padding:2px 0;text-align:center}.od-side-A{color:#4fc3a1;font-weight:bold;padding:4px 6px}.od-side-B{color:#7eb8f7;font-weight:bold;padding:4px 6px}.od-side-C{color:#c47ef7;font-weight:bold;padding:4px 6px}.od-side-D{color:#f0b840;font-weight:bold;padding:4px 6px}.od-hint{color:#555;font-size:8px;text-align:center;margin-top:2px}.face-val{white-space:pre-wrap;color:#ccc}.img-wrap{text-align:center;background:#0d0d0d;padding:6px;border-radius:3px}.views-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}.view-block{text-align:center}.view-label{font-size:9px;color:#666;margin-bottom:3px}.fichas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ficha-col-title{color:#7eb8f7;font-size:10px;margin-bottom:4px;font-weight:bold}.evidence-grid{display:grid;grid-template-columns:1fr;gap:18px}.evidence-card{background:#101010;border:1px solid #292929;border-radius:3px;padding:6px}.evidence-card img,.evidence-card svg{display:block;width:100%;height:auto;max-height:none;object-fit:contain;background:#111}.img-wrap img,.img-wrap svg{display:block;width:100%;height:auto;max-height:none;object-fit:contain}.views-row{display:flex;flex-direction:column;gap:18px;align-items:stretch}.view-block{width:100%;text-align:center}.view-block img{display:block;width:100%;height:auto;max-height:none;object-fit:contain}.evidence-title{display:flex;justify-content:space-between;color:#aaa;font-size:9px;margin-bottom:4px}.artifact-path{color:#555;font-size:8px;word-break:break-all;margin-top:4px}.pipeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pipeline-stage{background:#111;border:1px solid #292929;border-radius:3px;padding:7px}.pipeline-stage.ok{border-left:3px solid #4fc3a1}.pipeline-stage.missing{border-left:3px solid #e17055}.stage-name{color:#7eb8f7;font-weight:bold;font-size:10px}.stage-state{font-size:9px;color:#888;margin:2px 0 5px}.vertex-table{max-height:260px;overflow:auto}.vertex-table table{font-size:9px}.tag{display:inline-block;background:#282828;color:#888;  font-size:8px;padding:1px 5px;border-radius:3px;margin-left:5px}.evidence-grid{display:grid!important;grid-template-columns:1fr!important;gap:18px!important}.evidence-card{width:100%;box-sizing:border-box;padding:10px!important}.evidence-card img,.evidence-card svg{display:block;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain;background:#111}.artifact-path{font-size:9px!important}</style><script>function saveAten(el){  var key=el.dataset.atkey;if(!key)return;  var val=el.innerText.trim();  if(val){localStorage.setItem(key,val);}else{localStorage.removeItem(key);}}function loadAllAten(){  document.querySelectorAll("[data-atkey]").forEach(function(el){    var stored=localStorage.getItem(el.dataset.atkey);    if(stored!==null&&stored!=="")el.innerText=stored;  });}document.addEventListener("DOMContentLoaded",loadAllAten);function exportAnotacoes(){  var r={};  for(var i=0;i<localStorage.length;i++){    var k=localStorage.key(i);    if(k&&k.startsWith("aten_"))r[k]=localStorage.getItem(k);  }  var el=document.getElementById("_aten_export");  if(el)el.textContent=JSON.stringify(r,null,2);}</script></head><body><aside class="sidebar"><h3>Fundos FV (35 vigas)</h3><a class="sb-back" href="../index.html">← índice geral</a><a class="sb-back" href="index.html">← índice FV</a><a class="sb-back" href="interpretacao_fundos.html">Guia</a><ul><li data-viga="LV-V301.A Para"><a href="LV-V301.A_Para.html"><span class="erro-flag" style="display:none">⚠️ </span>LV-V301.A Para (2)</a></li><li data-viga="V301"><a href="V301.html"><span class="erro-flag" style="display:none">⚠️ </span>V301 (2)</a></li><li data-viga="V302"><a href="V302.html"><span class="erro-flag" style="display:none">⚠️ </span>V302 (3)</a></li><li data-viga="V303"><a href="V303.html"><span class="erro-flag" style="display:none">⚠️ </span>V303 (6)</a></li><li data-viga="V304"><a href="V304.html"><span class="erro-flag" style="display:none">⚠️ </span>V304 (3)</a></li><li data-viga="V305"><a href="V305.html"><span class="erro-flag" style="display:none">⚠️ </span>V305 (1)</a></li><li data-viga="V306"><a href="V306.html"><span class="erro-flag" style="display:none">⚠️ </span>V306 (6)</a></li><li data-viga="V307"><a href="V307.html"><span class="erro-flag" style="display:none">⚠️ </span>V307 (1)</a></li><li data-viga="V308"><a href="V308.html"><span class="erro-flag" style="display:none">⚠️ </span>V308 (2)</a></li><li data-viga="V309"><a href="V309.html"><span class="erro-flag" style="display:none">⚠️ </span>V309 (2)</a></li><li data-viga="V310"><a href="V310.html"><span class="erro-flag" style="display:none">⚠️ </span>V310 (2)</a></li><li data-viga="V311"><a href="V311.html"><span class="erro-flag" style="display:none">⚠️ </span>V311 (1)</a></li><li data-viga="V312"><a href="V312.html"><span class="erro-flag" style="display:none">⚠️ </span>V312 (1)</a></li><li data-viga="V313"><a href="V313.html"><span class="erro-flag" style="display:none">⚠️ </span>V313 (1)</a></li><li data-viga="V314"><a href="V314.html"><span class="erro-flag" style="display:none">⚠️ </span>V314 (2)</a></li><li data-viga="V315"><a href="V315.html"><span class="erro-flag" style="display:none">⚠️ </span>V315 (1)</a></li><li data-viga="V316"><a href="V316.html"><span class="erro-flag" style="display:none">⚠️ </span>V316 (2)</a></li><li data-viga="V317"><a href="V317.html"><span class="erro-flag" style="display:none">⚠️ </span>V317 (1)</a></li><li data-viga="V318"><a href="V318.html"><span class="erro-flag" style="display:none">⚠️ </span>V318 (2)</a></li><li class="active" data-viga="V319"><a href="V319.html"><span class="erro-flag" style="display:none">⚠️ </span>V319 (1)</a></li><li data-viga="V320"><a href="V320.html"><span class="erro-flag" style="display:none">⚠️ </span>V320 (2)</a></li><li data-viga="V321"><a href="V321.html"><span class="erro-flag" style="display:none">⚠️ </span>V321 (1)</a></li><li data-viga="V322"><a href="V322.html"><span class="erro-flag" style="display:none">⚠️ </span>V322 (3)</a></li><li data-viga="V323"><a href="V323.html"><span class="erro-flag" style="display:none">⚠️ </span>V323 (1)</a></li><li data-viga="V324"><a href="V324.html"><span class="erro-flag" style="display:none">⚠️ </span>V324 (1)</a></li><li data-viga="V325"><a href="V325.html"><span class="erro-flag" style="display:none">⚠️ </span>V325 (1)</a></li><li data-viga="V326"><a href="V326.html"><span class="erro-flag" style="display:none">⚠️ </span>V326 (1)</a></li><li data-viga="V327"><a href="V327.html"><span class="erro-flag" style="display:none">⚠️ </span>V327 (1)</a></li><li data-viga="V328"><a href="V328.html"><span class="erro-flag" style="display:none">⚠️ </span>V328 (1)</a></li><li data-viga="V329"><a href="V329.html"><span class="erro-flag" style="display:none">⚠️ </span>V329 (1)</a></li><li data-viga="V330"><a href="V330.html"><span class="erro-flag" style="display:none">⚠️ </span>V330 (1)</a></li><li data-viga="V331"><a href="V331.html"><span class="erro-flag" style="display:none">⚠️ </span>V331 (2)</a></li><li data-viga="V332"><a href="V332.html"><span class="erro-flag" style="display:none">⚠️ </span>V332 (1)</a></li><li data-viga="VF202"><a href="VF202.html"><span class="erro-flag" style="display:none">⚠️ </span>VF202 (6)</a></li><li data-viga="VF301"><a href="VF301.html"><span class="erro-flag" style="display:none">⚠️ </span>VF301 (2)</a></li></ul></aside><script>(function(){var obra="Obra_TREINO_1", pav="TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA";document.querySelectorAll(".sidebar li[data-viga]").forEach(function(li){  var nome=li.getAttribute("data-viga");  var key=("aten_erro_fv_"+obra+"_"+pav+"_"+nome).replace(/ /g,"_");  var stored=localStorage.getItem(key);  if(!stored)return;  try{    var obj=JSON.parse(stored);    if(obj.erro||((obj.nota||'').trim())){      var flag=li.querySelector(".erro-flag");      if(flag)flag.style.display="inline";    }  }catch(e){}});})();</script><div class="main-wrap"><div class="main-content"><h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">FV — V319 · 1 segmento(s)</h2><div class="nav-bar"><a class="nav-arrow" href="V318.html">← anterior</a><span class="nav-pos"><b>V319</b> (20/35 vigas)<span class="tag">FV</span><span class="tag">1 segmento(s)</span></span><a class="nav-arrow" href="V320.html">próximo →</a></div><div class="sec"><div class="sec-title">N1 / SA — V319 · segmento 1</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N1 / SA</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">DXF estrutural focado exclusivamente no segmento 1</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 403.2 960" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-geo" role="img" aria-label="N1 / SA" alt="N1 / SA">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-05T19:27:44.628229</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 960 
+L 403.2 960 
+L 403.2 0 
+L 0 0 
+z
+" style="fill: #0d0d0d"/>
+  </g>
+  <g id="axes_1">
+   <g id="line2d_1">
+    <path d="M 188.698565 833.174274 
+L 224.581435 797.291403 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 188.698565 815.201716 
+L 224.581435 779.318845 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 188.698565 797.22916 
+L 210.326959 775.600766 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 188.698565 779.256604 
+L 192.354403 775.600766 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 213.909799 250.81378 
+L 220.843636 243.879943 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 195.937243 250.81378 
+L 220.843636 225.907387 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 192.436364 236.342101 
+L 220.843636 207.934829 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 192.436364 218.369545 
+L 220.843636 189.962272 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 192.436364 200.396989 
+L 220.843636 171.989716 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 192.436364 182.424433 
+L 220.843636 154.01716 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 192.436364 164.451875 
+L 220.843636 136.044602 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 206.64 176.057799 
+L 206.64 176.057799 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 187.150317 318.212202 
+L 197.72241 307.64011 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 192.436364 312.926156 
+L 220.843636 312.926156 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 187.150317 318.212202 
+L 197.72241 307.64011 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 215.55759 318.212202 
+L 226.129683 307.64011 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 215.55759 318.212202 
+L 226.129683 307.64011 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 58.04276 853.346986 
+L 58.04276 775.600766 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 63.328806 780.886812 
+L 52.756714 770.314719 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 58.04276 775.600766 
+L 58.04276 747.193493 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 64.361902 747.193493 
+L 72.993956 747.193493 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 63.328806 780.886812 
+L 52.756714 770.314719 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 63.328806 752.479539 
+L 52.756714 741.907447 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 58.04276 747.193493 
+L 58.04276 718.78622 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 59.240575 718.78622 
+L 43.091564 718.78622 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 63.328806 752.479539 
+L 52.756714 741.907447 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 63.328806 724.072266 
+L 52.756714 713.500174 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 58.04276 718.78622 
+L 58.04276 250.81378 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 161.154064 250.81378 
+L 43.091564 250.81378 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 63.328806 724.072266 
+L 52.756714 713.500174 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 63.328806 256.099826 
+L 52.756714 245.527734 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_32">
+    <path d="M 58.04276 250.81378 
+L 58.04276 101.301818 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_33">
+    <path d="M 63.328806 256.099826 
+L 52.756714 245.527734 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_34">
+    <path d="M 192.436364 534.657269 
+L 192.436364 470.367126 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_35">
+    <path d="M 220.843636 534.657269 
+L 220.843636 470.367126 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_36">
+    <path d="M 192.436364 534.657269 
+L 220.843636 534.657269 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_37">
+    <path d="M 220.843636 470.367126 
+L 265.697225 470.367126 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_38">
+    <path d="M 147.582775 470.367126 
+L 192.436364 470.367126 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_39">
+    <path d="M 147.582775 452.425691 
+L 192.436364 452.425691 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_40">
+    <path d="M 220.843636 452.425691 
+L 265.697225 452.425691 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_41">
+    <path d="M 192.436364 452.425691 
+L 220.843636 452.425691 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ff00ff; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_42">
+    <path d="M 129.375886 534.657269 
+L 129.375886 452.425691 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_43">
+    <path d="M 184.960766 534.657269 
+L 114.42469 534.657269 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_44">
+    <path d="M 149.812305 452.425691 
+L 114.42469 452.425691 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_45">
+    <path d="M 134.66193 539.943314 
+L 124.089839 529.371223 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_46">
+    <path d="M 134.66193 457.711735 
+L 124.089839 447.139644 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_47">
+    <path d="M 404.2 312.926156 
+L 220.843636 312.926156 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_48">
+    <path d="M 226.129683 307.64011 
+L 215.55759 318.212202 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_49">
+    <path d="M -1 312.926156 
+L 192.436364 312.926156 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #c0c0c0; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_50">
+    <path d="M 187.150317 318.212202 
+L 197.72241 307.64011 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffff00; stroke-width: 0.625; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_51">
+    <path d="M 188.698565 874.27866 
+L 224.581435 874.27866 
+L 224.581435 775.600766 
+L 188.698565 775.600766 
+L 188.698565 874.27866 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffffff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_52">
+    <path d="M 192.436364 718.78622 
+L -1 718.78622 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_53">
+    <path d="M -1 747.193493 
+L 192.436364 747.193493 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_54">
+    <path d="M 404.2 718.78622 
+L 220.843636 718.78622 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_55">
+    <path d="M 220.843636 747.193493 
+L 404.2 747.193493 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_56">
+    <path d="M 192.436364 747.193493 
+L 192.436364 775.600766 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_57">
+    <path d="M 220.843636 775.600766 
+L 220.843636 747.193493 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_58">
+    <path d="M 192.436364 250.81378 
+L 192.436364 718.78622 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_59">
+    <path d="M 220.843636 718.78622 
+L 220.843636 250.81378 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #00ff00; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_60">
+    <path d="M 192.436364 250.81378 
+L 220.843636 250.81378 
+L 220.843636 101.301818 
+L 192.436364 101.301818 
+L 192.436364 250.81378 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #ffffff; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_61">
+    <path d="M 147.582775 452.425691 
+L 147.582775 470.367126 
+L 192.436364 470.367126 
+L 192.436364 534.657269 
+L 220.843636 534.657269 
+L 220.843636 470.367126 
+L 265.697225 470.367126 
+L 265.697225 452.425691 
+L 147.582775 452.425691 
+" clip-path="url(#p793d60652f)" style="fill: none; stroke: #808080; stroke-width: 0.625; stroke-linecap: square"/>
+   </g>
+   <g id="text_1">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ffff" x="237.669236" y="802.065479" transform="rotate(-0 237.669236 802.065479)">P32</text>
+    </g>
+   </g>
+   <g id="text_2">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ffff" x="250.103501" y="175.144965" transform="rotate(-0 250.103501 175.144965)">P23</text>
+    </g>
+   </g>
+   <g id="text_3">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="240.64161" y="196.870878" transform="rotate(-0 240.64161 196.870878)">19/100</text>
+    </g>
+   </g>
+   <g id="text_4">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="225.827363" y="311.557985" transform="rotate(-0 225.827363 311.557985)">19</text>
+    </g>
+   </g>
+   <g id="text_5">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="54.424742" y="776.551239" transform="rotate(-0 54.424742 776.551239)">19</text>
+    </g>
+   </g>
+   <g id="text_6">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="53.557401" y="716.919681" transform="rotate(-0 53.557401 716.919681)">19</text>
+    </g>
+   </g>
+   <g id="text_7">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="53.557401" y="508.848862" transform="rotate(-0 53.557401 508.848862)">313</text>
+    </g>
+   </g>
+   <g id="text_8">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="53.557401" y="200.106661" transform="rotate(-0 53.557401 200.106661)">100</text>
+    </g>
+   </g>
+   <g id="text_9">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ffff" x="186.829665" y="699.476613" transform="rotate(-0 186.829665 699.476613)">V319</text>
+    </g>
+   </g>
+   <g id="text_10">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="188.152459" y="308.743482" transform="rotate(-0 188.152459 308.743482)">19/55</text>
+    </g>
+   </g>
+   <g id="text_11">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #00ff00" x="81.015446" y="715.949127" transform="rotate(-0 81.015446 715.949127)">19/55</text>
+    </g>
+   </g>
+   <g id="text_12">
+    <g clip-path="url(#p793d60652f)">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Computer Modern Typewriter', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', monospace; text-anchor: middle; fill: #ffff00" x="125.277936" y="509.591037" transform="rotate(-0 125.277936 509.591037)">55</text>
+    </g>
+   </g>
+   <g id="patch_2">
+    <path d="M 192.436364 718.78622 
+L 192.436364 250.81378 
+L 220.843636 250.81378 
+L 220.843636 718.78622 
+z
+" clip-path="url(#p793d60652f)" style="fill: #ff9800; opacity: 0.42; stroke: #ff3d00; stroke-width: 3.5; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="mde6b6cac4e" d="M 0 2.12132 
+C 0.562581 2.12132 1.102195 1.897805 1.5 1.5 
+C 1.897805 1.102195 2.12132 0.562581 2.12132 0 
+C 2.12132 -0.562581 1.897805 -1.102195 1.5 -1.5 
+C 1.102195 -1.897805 0.562581 -2.12132 0 -2.12132 
+C -0.562581 -2.12132 -1.102195 -1.897805 -1.5 -1.5 
+C -1.897805 -1.102195 -2.12132 -0.562581 -2.12132 0 
+C -2.12132 0.562581 -1.897805 1.102195 -1.5 1.5 
+C -1.102195 1.897805 -0.562581 2.12132 0 2.12132 
+z
+" style="stroke: #ff3d00; stroke-width: 0.8"/>
+    </defs>
+    <g clip-path="url(#p793d60652f)">
+     <use xlink:href="#mde6b6cac4e" x="192.436364" y="718.78622" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#mde6b6cac4e" x="192.436364" y="250.81378" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#mde6b6cac4e" x="220.843636" y="250.81378" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+     <use xlink:href="#mde6b6cac4e" x="220.843636" y="718.78622" style="fill: #fff176; stroke: #ff3d00; stroke-width: 0.8"/>
+    </g>
+   </g>
+   <g id="text_13">
+    <g id="patch_3">
+     <path d="M 188.436364 242.852823 
+L 254.511364 242.852823 
+L 254.511364 226.852823 
+L 188.436364 226.852823 
+z
+" style="fill: #0d0d0d; opacity: 0.85; stroke: #ff3d00; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #ffcc80" x="192.436364" y="236.930948" transform="rotate(-0 192.436364 236.930948)">SEGMENTO FV</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p793d60652f">
+   <rect x="50.4" y="157.219292" width="312.48" height="655.161416"/>
+  </clipPath>
+ </defs>
+</svg>
+</div></div><div class="fichas-grid" style="margin-top:10px"><div><div class="ficha-col-title">Ficha N1/SA do segmento</div><div class="ficha-cell"><table><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">IDENTIDADE E DECISÃO SA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">UID</td><td style="padding:2px 5px;white-space:pre-wrap">fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20|1|1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Viga</td><td style="padding:2px 5px;white-space:pre-wrap">V319</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Segmento</td><td style="padding:2px 5px;white-space:pre-wrap">1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Índice / ocorrência</td><td style="padding:2px 5px;white-space:pre-wrap">1 / 1</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Classe / lado / comportamento</td><td style="padding:2px 5px;white-space:pre-wrap">FV / Fundo / Fundo</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Status</td><td style="padding:2px 5px;white-space:pre-wrap">valid</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Atenção SA</td><td style="padding:2px 5px;white-space:pre-wrap">—</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">GEOMETRIA EXTRAÍDA</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Comprimento declarado</td><td style="padding:2px 5px;white-space:pre-wrap">313.0</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Largura declarada</td><td style="padding:2px 5px;white-space:pre-wrap">19.0</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Orientação</td><td style="padding:2px 5px;white-space:pre-wrap">vertical</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Span X / Span Y</td><td style="padding:2px 5px;white-space:pre-wrap">19.00 / 313.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Área do contorno</td><td style="padding:2px 5px;white-space:pre-wrap">5947.00</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Vértices / únicos</td><td style="padding:2px 5px;white-space:pre-wrap">4 / 4</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Contorno fechado</td><td style="padding:2px 5px;white-space:pre-wrap">Não</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">Centro</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  3360.8825,
+  2223.538
+]</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">BBox</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  3351.3825,
+  2067.038,
+  3370.3825,
+  2380.038
+]</td></tr><tr><td colspan="2" style="padding:5px;color:#4fc3a1;border-top:1px solid #333;font-weight:bold">RASTREABILIDADE DO VÍNCULO</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">beam_identity</td><td style="padding:2px 5px;white-space:pre-wrap">dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_key</td><td style="padding:2px 5px;white-space:pre-wrap">viga_fundo_seg_1_area_segs</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">source_slot</td><td style="padding:2px 5px;white-space:pre-wrap">contour</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">tag</td><td style="padding:2px 5px;white-space:pre-wrap">Fundo</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">ficha do link</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;largura_total_fundo&quot;: 19.0,
+  &quot;comprimento_total_fundo&quot;: 313.0,
+  &quot;altura_total&quot;: 55.0,
+  &quot;abertura_especial&quot;: &quot;N/A&quot;,
+  &quot;chanfro_esq_top&quot;: &quot;N/A&quot;,
+  &quot;chanfro_esq_fun&quot;: &quot;N/A&quot;,
+  &quot;chanfro_dir_top&quot;: &quot;N/A&quot;,
+  &quot;chanfro_dir_fun&quot;: &quot;N/A&quot;,
+  &quot;abertura_topo_esq&quot;: &quot;N/A&quot;,
+  &quot;abertura_topo_dir&quot;: &quot;N/A&quot;,
+  &quot;abertura_fundo_esq&quot;: &quot;N/A&quot;,
+  &quot;abertura_fundo_dir&quot;: &quot;N/A&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">campos SA do segmento</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;viga_fundo_seg_1_dim&quot;: &quot;19/55&quot;,
+  &quot;viga_fundo_seg_1_local_ini&quot;: &quot;V313&quot;,
+  &quot;viga_fundo_seg_1_local_fim&quot;: &quot;V315&quot;
+}</td></tr><tr><td style="color:#7eb8f7;padding:2px 5px;white-space:nowrap;vertical-align:top;font-weight:600">slots vinculados</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;contour&quot;: [
+    {
+      &quot;type&quot;: &quot;poly&quot;,
+      &quot;points&quot;: [
+        [
+          3351.3825,
+          2067.038
+        ],
+        [
+          3351.3825,
+          2380.038
+        ],
+        [
+          3370.3825,
+          2380.038
+        ],
+        [
+          3370.3825,
+          2067.038
+        ]
+      ],
+      &quot;len&quot;: 313.0,
+      &quot;tag&quot;: &quot;Fundo&quot;,
+      &quot;ficha&quot;: {
+        &quot;largura_total_fundo&quot;: 19.0,
+        &quot;comprimento_total_fundo&quot;: 313.0,
+        &quot;altura_total&quot;: 55.0,
+        &quot;abertura_especial&quot;: &quot;N/A&quot;,
+        &quot;chanfro_esq_top&quot;: &quot;N/A&quot;,
+        &quot;chanfro_esq_fun&quot;: &quot;N/A&quot;,
+        &quot;chanfro_dir_top&quot;: &quot;N/A&quot;,
+        &quot;chanfro_dir_fun&quot;: &quot;N/A&quot;,
+        &quot;abertura_topo_esq&quot;: &quot;N/A&quot;,
+        &quot;abertura_topo_dir&quot;: &quot;N/A&quot;,
+        &quot;abertura_fundo_esq&quot;: &quot;N/A&quot;,
+        &quot;abertura_fundo_dir&quot;: &quot;N/A&quot;
+      }
+    }
+  ]
+}</td></tr></table></div></div><div><div class="ficha-col-title">Vértices brutos do contorno</div><div class="ficha-cell vertex-table"><table><tr><th>#</th><th>X</th><th>Y</th></tr><tr><td>1</td><td>3351.383</td><td>2067.038</td></tr><tr><td>2</td><td>3351.383</td><td>2380.038</td></tr><tr><td>3</td><td>3370.383</td><td>2380.038</td></tr><tr><td>4</td><td>3370.383</td><td>2067.038</td></tr></table></div></div><div><div class="ficha-col-title">Quality gates N1</div><div class="ficha-cell"><table><tr><td style="color:#4fc3a1">OK</td><td>contorno com 3+ vértices</td></tr><tr><td style="color:#4fc3a1">OK</td><td>área geométrica positiva</td></tr><tr><td style="color:#4fc3a1">OK</td><td>largura declarada</td></tr></table></div></div></div></div></div><div class="sec"><div class="sec-title">Diagnóstico da cadeia por viga</div><div class="sec-body"><div class="pipeline-grid"><div class="pipeline-stage ok"><div class="stage-name">N1 / SA</div><div class="stage-state">artefato disponível</div><div style="font-size:9px;color:#aaa;min-height:30px">Segmentação e vínculo SA do segmento 1.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_fv_N1_/_SA_Obra_TREINO_1_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_V319_1" onblur="saveAten(this)" title="Anotação N1 / SA — V319 · segmento 1"></div></div><div class="pipeline-stage ok"><div class="stage-name">N2 / STOG real</div><div class="stage-state">artefato disponível</div><div style="font-size:9px;color:#aaa;min-height:30px">Recorte humano e ficha agregada da viga.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_fv_N2_/_STOG_real_Obra_TREINO_1_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_V319_viga" onblur="saveAten(this)" title="Anotação N2 / STOG real — V319 · segmento viga"></div></div><div class="pipeline-stage ok"><div class="stage-name">N3 / Robô SA</div><div class="stage-state">artefato disponível</div><div style="font-size:9px;color:#aaa;min-height:30px">Resultado agregado produzido pela rota SA/N1.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_fv_N3_/_Robô_SA_Obra_TREINO_1_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_V319_viga" onblur="saveAten(this)" title="Anotação N3 / Robô SA — V319 · segmento viga"></div></div><div class="pipeline-stage ok"><div class="stage-name">N4 / Robô ER</div><div class="stage-state">artefato disponível</div><div style="font-size:9px;color:#aaa;min-height:30px">Resultado agregado produzido pela rota N2.</div><div class="atencao-cell" contenteditable="true" data-atkey="aten_fv_N4_/_Robô_ER_Obra_TREINO_1_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_V319_viga" onblur="saveAten(this)" title="Anotação N4 / Robô ER — V319 · segmento viga"></div></div></div></div></div><div class="sec"><div class="sec-title">Evidências agregadas da viga — N2 / N3 / N4</div><div class="sec-body"><div class="evidence-grid"><div class="evidence-card"><div class="evidence-title"><b>N2</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Recorte humano contendo todos os segmentos da viga</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 998.525341 360" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-n4" role="img" aria-label="N2" alt="N2">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-05T19:27:44.596229</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 360 
+L 998.525341 360 
+L 998.525341 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 7.2 352.8 
+L 991.325341 352.8 
+L 991.325341 7.2 
+L 7.2 7.2 
+z
+" style="fill: #212830"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 60.980051 79.940058 
+L 60.980051 122.011148 
+L 838.188086 122.011148 
+L 838.188086 79.940058 
+L 60.980051 79.940058 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 834.866685 176.340882 
+L 841.509488 169.698078 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 604.582822 169.698078 
+L 597.940018 176.340882 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 601.26142 173.01948 
+L 838.188086 173.01948 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 838.188086 128.653952 
+L 838.188086 179.662284 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 601.26142 128.653952 
+L 601.26142 179.662284 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 597.940018 176.340882 
+L 604.582822 169.698078 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 64.301453 169.698078 
+L 57.658649 176.340882 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 60.980051 173.01948 
+L 601.26142 173.01948 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 601.26142 128.653952 
+L 601.26142 179.662284 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 60.980051 128.653952 
+L 60.980051 179.662284 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 890.488919 83.26146 
+L 883.846115 76.618656 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 883.846115 118.689746 
+L 890.488919 125.33255 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 887.167517 122.011148 
+L 887.167517 79.940058 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 844.83089 79.940058 
+L 893.810321 79.940058 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 844.83089 122.011148 
+L 893.810321 122.011148 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 834.866685 231.605491 
+L 841.509488 224.962687 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 64.301453 224.962687 
+L 57.658649 231.605491 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 60.980051 228.284089 
+L 838.188086 228.284089 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 838.188086 128.653952 
+L 838.188086 234.926893 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 60.980051 128.653952 
+L 60.980051 234.926893 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 601.26142 122.011148 
+L 601.26142 79.940058 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 822.688211 79.940058 
+L 822.688211 122.011148 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 76.479926 79.940058 
+L 76.479926 122.011148 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 601.26142 95.439933 
+L 76.479926 95.439933 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 822.688211 95.439933 
+L 601.26142 95.439933 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 601.26142 106.511273 
+L 822.688211 106.511273 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 76.479926 106.511273 
+L 601.26142 106.511273 
+" clip-path="url(#p21f2762721)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 738.212229 144.158432 
+Q 738.212229 150.396445 740.40233 153.160504 
+Q 742.229932 155.456334 745.432011 155.456334 
+Q 747.863779 155.456334 749.457266 154.149825 
+Q 751.050754 152.843317 751.851273 150.44931 
+Q 752.651793 148.055302 752.651793 144.158432 
+Q 752.651793 140.865728 752.153356 138.924846 
+Q 751.654919 136.983963 750.778879 135.632142 
+Q 749.902838 134.28032 748.558569 133.562874 
+Q 747.2143 132.845427 745.432011 132.845427 
+Q 743.015348 132.845427 741.42186 134.144383 
+Q 739.828373 135.44334 739.020301 137.837347 
+Q 738.212229 140.231354 738.212229 144.158432 
+M 755.597102 135.836048 
+L 766.441879 135.836048 
+Q 764.372611 138.192294 762.537457 141.628488 
+Q 760.702303 145.064681 759.720534 148.765197 
+Q 758.738764 152.465713 758.693452 155.078731 
+L 761.487719 155.078731 
+Q 761.714281 151.770922 762.529905 148.991759 
+Q 763.662716 145.049577 765.739536 141.318853 
+Q 767.816356 137.588129 769.930937 135.337611 
+L 769.930937 133.22303 
+L 755.597102 133.22303 
+L 755.597102 135.836048 
+M 731.249217 155.078731 
+L 731.249217 132.845427 
+L 729.497136 132.845427 
+Q 728.787241 134.28032 727.080473 135.805839 
+Q 725.373704 137.331358 723.092978 138.403753 
+L 723.092978 141.031874 
+Q 724.361726 140.563646 725.955214 139.627188 
+Q 727.548701 138.690731 728.530471 137.754274 
+L 728.530471 155.078731 
+L 731.249217 155.078731 
+M 741.006496 144.158432 
+Q 741.006496 138.705835 742.411182 136.68188 
+Q 743.528889 135.095944 745.401803 135.095944 
+Q 747.304925 135.095944 748.581226 136.893338 
+Q 749.857526 138.690731 749.857526 144.158432 
+Q 749.857526 149.595925 748.581226 151.408423 
+Q 747.304925 153.22092 745.432011 153.22092 
+Q 743.559097 153.22092 742.282796 151.415975 
+Q 741.006496 149.611029 741.006496 144.158432 
+" clip-path="url(#p21f2762721)" style="fill: #ff003f"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 375.526927 155.143475 
+L 378.245673 155.143475 
+L 378.245673 149.84192 
+L 381.236294 149.84192 
+L 381.236294 147.349735 
+L 378.245673 147.349735 
+L 378.245673 133.000796 
+L 376.025364 133.000796 
+L 365.92069 147.349735 
+L 365.92069 149.84192 
+L 375.526927 149.84192 
+L 375.526927 155.143475 
+M 358.323304 155.143475 
+L 361.04205 155.143475 
+L 361.04205 149.84192 
+L 364.032671 149.84192 
+L 364.032671 147.349735 
+L 361.04205 147.349735 
+L 361.04205 133.000796 
+L 358.821741 133.000796 
+L 348.717067 147.349735 
+L 348.717067 149.84192 
+L 358.323304 149.84192 
+L 358.323304 155.143475 
+M 346.693111 152.530458 
+L 335.833229 152.530458 
+Q 336.286354 151.790355 336.981145 151.057803 
+Q 337.675935 150.325252 340.122807 148.271088 
+Q 343.053012 145.794008 344.314208 144.374219 
+Q 345.575404 142.954429 346.119153 141.670576 
+Q 346.662903 140.386724 346.662903 139.057559 
+Q 346.662903 136.444542 344.805093 134.677356 
+Q 342.947283 132.910171 339.760308 132.910171 
+Q 336.603541 132.910171 334.730627 134.548971 
+Q 332.857713 136.187771 332.570734 139.314329 
+L 335.365001 139.601308 
+Q 335.380105 137.516936 336.558229 136.338813 
+Q 337.736352 135.160689 339.699891 135.160689 
+Q 341.557701 135.160689 342.713168 136.270844 
+Q 343.868636 137.380999 343.868636 138.997142 
+Q 343.868636 140.537765 342.599887 142.26719 
+Q 341.331139 143.996615 337.721248 146.957028 
+Q 335.395209 148.86015 334.164221 150.310148 
+Q 332.933233 151.760146 332.37438 153.255457 
+Q 332.026985 154.161706 332.057193 155.143475 
+L 346.693111 155.143475 
+L 346.693111 152.530458 
+M 375.526927 147.349735 
+L 368.594124 147.349735 
+L 375.526927 137.365895 
+L 375.526927 147.349735 
+M 358.323304 147.349735 
+L 351.390501 147.349735 
+L 358.323304 137.365895 
+L 358.323304 147.349735 
+" clip-path="url(#p21f2762721)" style="fill: #ff003f"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 932.439785 95.855297 
+Q 932.772077 98.468315 934.418429 99.910761 
+Q 936.064781 101.353207 938.662694 101.353207 
+Q 941.109566 101.353207 942.929615 100.039146 
+Q 944.749665 98.725085 945.671018 96.210245 
+Q 946.592371 93.695404 946.592371 89.451139 
+Q 946.592371 85.373019 945.663466 83.220679 
+Q 944.734561 81.068338 942.944719 79.905318 
+Q 941.154878 78.742299 938.994985 78.742299 
+Q 936.004364 78.742299 934.018169 80.796463 
+Q 932.031973 82.850627 932.031973 86.218852 
+Q 932.031973 89.481347 933.935096 91.475095 
+Q 935.838218 93.468842 938.587173 93.468842 
+Q 940.233525 93.468842 941.645763 92.66077 
+Q 943.058001 91.852698 943.873624 90.553742 
+Q 943.888729 90.916241 943.888729 91.097491 
+Q 943.888729 92.789156 943.480917 94.420403 
+Q 943.073105 96.051651 942.468939 97.010765 
+Q 941.864773 97.969878 940.920764 98.543835 
+Q 939.976755 99.117793 938.72311 99.117793 
+Q 937.258008 99.117793 936.321551 98.287065 
+Q 935.385094 97.456337 935.052803 95.613631 
+L 932.439785 95.855297 
+M 925.068962 100.975603 
+L 925.068962 78.742299 
+L 923.316881 78.742299 
+Q 922.606986 80.177193 920.900217 81.702712 
+Q 919.193449 83.228231 916.912723 84.300625 
+L 916.912723 86.928747 
+Q 918.181471 86.460518 919.774958 85.524061 
+Q 921.368446 84.587604 922.350215 83.651147 
+L 922.350215 100.975603 
+L 925.068962 100.975603 
+M 943.571542 86.082914 
+Q 943.571542 88.424057 942.355658 89.74567 
+Q 941.139774 91.067283 939.251756 91.067283 
+Q 937.378841 91.067283 936.102541 89.74567 
+Q 934.826241 88.424057 934.826241 86.309477 
+Q 934.826241 83.95323 936.17051 82.473023 
+Q 937.514779 80.992817 939.327276 80.992817 
+Q 941.079357 80.992817 942.325449 82.367294 
+Q 943.571542 83.741772 943.571542 86.082914 
+" clip-path="url(#p21f2762721)" style="fill: #ff003f"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 450.883025 204.239056 
+Q 451.1549 207.003115 453.080679 208.740091 
+Q 455.006457 210.477068 457.921558 210.477068 
+Q 461.153845 210.477068 463.268426 208.460665 
+Q 465.383006 206.444261 465.383006 203.544265 
+Q 465.383006 201.399476 464.295508 199.972134 
+Q 463.208009 198.544792 461.24447 198.091668 
+Q 462.754885 197.396877 463.525196 196.218754 
+Q 464.295508 195.04063 464.295508 193.605736 
+Q 464.295508 192.095322 463.487436 190.751053 
+Q 462.679364 189.406784 461.153845 188.62892 
+Q 459.628326 187.851057 457.815829 187.851057 
+Q 455.187707 187.851057 453.420522 189.353919 
+Q 451.653337 190.856782 451.1549 193.590632 
+L 453.873646 194.073965 
+Q 454.175729 192.080218 455.23302 191.083344 
+Q 456.29031 190.08647 457.876245 190.08647 
+Q 459.477285 190.08647 460.489263 191.06824 
+Q 461.50124 192.050009 461.50124 193.54532 
+Q 461.50124 195.433338 460.111659 196.339587 
+Q 458.722077 197.245836 456.985101 197.245836 
+Q 456.818955 197.245836 456.54708 197.215628 
+L 456.244997 199.602083 
+Q 457.392913 199.3 458.163224 199.3 
+Q 460.051242 199.3 461.274678 200.515884 
+Q 462.498114 201.731767 462.498114 203.604682 
+Q 462.498114 205.568221 461.176501 206.897386 
+Q 459.854888 208.22655 457.936662 208.22655 
+Q 456.320518 208.22655 455.195259 207.207021 
+Q 454.07 206.187491 453.601772 203.876556 
+L 450.883025 204.239056 
+M 468.071544 204.284368 
+Q 468.343419 207.078635 470.254093 208.7703 
+Q 472.164768 210.461964 475.185597 210.461964 
+Q 478.871009 210.461964 481.000694 207.773426 
+Q 482.752775 205.583325 482.752775 202.5776 
+Q 482.752775 199.420833 480.759028 197.411981 
+Q 478.76528 195.40313 475.865284 195.40313 
+Q 473.675183 195.40313 471.681435 196.792711 
+L 472.874663 190.841678 
+L 481.710589 190.841678 
+L 481.710589 188.243764 
+L 470.699666 188.243764 
+L 468.554877 199.617187 
+L 471.107478 199.949478 
+Q 471.711644 198.997917 472.768934 198.401303 
+Q 473.826224 197.804689 475.140285 197.804689 
+Q 477.254865 197.804689 478.561374 199.148958 
+Q 479.867883 200.493227 479.867883 202.819266 
+Q 479.867883 205.266138 478.50851 206.746344 
+Q 477.149136 208.22655 475.185597 208.22655 
+Q 473.55435 208.22655 472.398882 207.176812 
+Q 471.243415 206.127074 470.926228 204.042702 
+L 468.071544 204.284368 
+M 495.515779 210.084361 
+L 495.515779 187.851057 
+L 493.763698 187.851057 
+Q 493.053803 189.285951 491.347034 190.811469 
+Q 489.640266 192.336988 487.35954 193.409383 
+L 487.35954 196.037504 
+Q 488.628288 195.569276 490.221775 194.632818 
+Q 491.815263 193.696361 492.797032 192.759904 
+L 492.797032 210.084361 
+L 495.515779 210.084361 
+" clip-path="url(#p21f2762721)" style="fill: #ff003f"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 78.135994 336.442942 
+L 83.095438 336.442942 
+L 97.400568 299.907539 
+L 92.466046 299.907539 
+L 82.597002 326.449288 
+Q 81.475519 329.439907 80.628177 332.430527 
+Q 79.8556 329.639282 78.709196 326.449288 
+L 69.213979 299.907539 
+L 63.980395 299.907539 
+L 78.135994 336.442942 
+M 227.143613 323.633121 
+Q 226.14674 328.24366 223.330573 330.586312 
+Q 220.514407 332.928964 216.452148 332.928964 
+Q 213.112623 332.928964 210.246613 331.209357 
+Q 207.380602 329.489751 206.022363 326.013156 
+Q 204.664123 322.536561 204.664123 317.876178 
+Q 204.664123 314.262513 205.810527 310.860683 
+Q 206.956931 307.458854 209.785559 305.440185 
+Q 212.614187 303.421517 216.825976 303.421517 
+Q 220.489485 303.421517 222.906902 305.240811 
+Q 225.32432 307.060104 226.595333 311.047597 
+L 231.355402 309.926115 
+Q 229.885014 304.866983 226.14674 302.075739 
+Q 222.408466 299.284494 216.925663 299.284494 
+Q 212.090828 299.284494 208.065953 301.490076 
+Q 204.041077 303.695657 201.860417 307.944829 
+Q 199.679757 312.194001 199.679757 317.9011 
+Q 199.679757 323.134685 201.611199 327.695379 
+Q 203.542641 332.256074 207.243532 334.661031 
+Q 210.944424 337.065987 216.850898 337.065987 
+Q 222.557997 337.065987 226.508107 333.938298 
+Q 230.458217 330.810608 231.978448 324.854291 
+L 227.143613 323.633121 
+M 99.942595 326.798193 
+Q 100.391188 331.358888 103.568721 334.224899 
+Q 106.746254 337.090909 111.556167 337.090909 
+Q 116.889439 337.090909 120.378495 333.763845 
+Q 123.867551 330.436781 123.867551 325.651789 
+Q 123.867551 322.11289 122.07318 319.757777 
+Q 120.278808 317.402664 117.03897 316.655009 
+Q 119.531153 315.508605 120.802166 313.564702 
+Q 122.07318 311.620799 122.07318 309.253225 
+Q 122.07318 306.761042 120.739862 304.543 
+Q 119.406544 302.324957 116.889439 301.041483 
+Q 114.372334 299.758008 111.381715 299.758008 
+Q 107.045316 299.758008 104.129462 302.23773 
+Q 101.213608 304.717452 100.391188 309.228304 
+L 104.877117 310.025802 
+Q 105.375554 306.736121 107.120082 305.09128 
+Q 108.86461 303.446439 111.481402 303.446439 
+Q 114.123116 303.446439 115.792879 305.066358 
+Q 117.462641 306.686277 117.462641 309.153538 
+Q 117.462641 312.268767 115.169833 313.764077 
+Q 112.877024 315.259386 110.011014 315.259386 
+Q 109.736874 315.259386 109.288281 315.209543 
+L 108.789844 319.147192 
+Q 110.683903 318.648755 111.954917 318.648755 
+Q 115.070145 318.648755 117.088814 320.654962 
+Q 119.107482 322.66117 119.107482 325.751477 
+Q 119.107482 328.991314 116.926822 331.184435 
+Q 114.746162 333.377556 111.581089 333.377556 
+Q 108.914454 333.377556 107.057777 331.695333 
+Q 105.201101 330.013109 104.428524 326.20007 
+L 99.942595 326.798193 
+M 180.265652 332.131465 
+L 162.346856 332.131465 
+Q 163.094511 330.910295 164.240915 329.701587 
+Q 165.387319 328.492878 169.424656 325.103509 
+Q 174.259491 321.016329 176.340464 318.673677 
+Q 178.421436 316.331025 179.318622 314.21267 
+Q 180.215808 312.094314 180.215808 309.901193 
+Q 180.215808 305.589716 177.150423 302.673862 
+Q 174.085038 299.758008 168.826532 299.758008 
+Q 163.61787 299.758008 160.527563 302.462027 
+Q 157.437256 305.166045 156.963741 310.324864 
+L 161.57428 310.798379 
+Q 161.599201 307.359166 163.543104 305.415264 
+Q 165.487007 303.471361 168.726845 303.471361 
+Q 171.79223 303.471361 173.69875 305.303115 
+Q 175.60527 307.13487 175.60527 309.801506 
+Q 175.60527 312.343532 173.511836 315.197082 
+Q 171.418402 318.050631 165.462085 322.93531 
+Q 161.624123 326.07546 159.592994 328.467956 
+Q 157.561865 330.860452 156.639757 333.327713 
+Q 156.066555 334.823023 156.116399 336.442942 
+L 180.265652 336.442942 
+L 180.265652 332.131465 
+M 151.879688 332.131465 
+L 133.960892 332.131465 
+Q 134.708547 330.910295 135.854951 329.701587 
+Q 137.001356 328.492878 141.038692 325.103509 
+Q 145.873527 321.016329 147.9545 318.673677 
+Q 150.035472 316.331025 150.932658 314.21267 
+Q 151.829844 312.094314 151.829844 309.901193 
+Q 151.829844 305.589716 148.764459 302.673862 
+Q 145.699074 299.758008 140.440568 299.758008 
+Q 135.231906 299.758008 132.141599 302.462027 
+Q 129.051292 305.166045 128.577777 310.324864 
+L 133.188316 310.798379 
+Q 133.213237 307.359166 135.15714 305.415264 
+Q 137.101043 303.471361 140.340881 303.471361 
+Q 143.406266 303.471361 145.312786 305.303115 
+Q 147.219306 307.13487 147.219306 309.801506 
+Q 147.219306 312.343532 145.125872 315.197082 
+Q 143.032438 318.050631 137.076121 322.93531 
+Q 133.238159 326.07546 131.20703 328.467956 
+Q 129.175901 330.860452 128.253793 333.327713 
+Q 127.680591 334.823023 127.730435 336.442942 
+L 151.879688 336.442942 
+L 151.879688 332.131465 
+M 187.59267 336.442942 
+L 192.701645 336.442942 
+L 192.701645 331.333966 
+L 187.59267 331.333966 
+L 187.59267 336.442942 
+" clip-path="url(#p21f2762721)" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 773.210166 271.79503 
+L 776.726411 271.79503 
+L 776.726411 260.992544 
+L 783.541402 260.992544 
+Q 789.17827 260.992544 791.335142 258.645359 
+Q 793.492014 256.298175 793.492014 252.908804 
+Q 793.492014 250.933182 792.685453 249.283809 
+Q 791.878891 247.634436 790.555768 246.719125 
+Q 789.232645 245.803814 787.275147 245.477564 
+Q 785.879524 245.223815 783.233278 245.223815 
+L 773.210166 245.223815 
+L 773.210166 271.79503 
+M 817.308233 264.780664 
+Q 817.634482 268.097534 819.945417 270.181907 
+Q 822.256351 272.266279 825.754471 272.266279 
+Q 829.633216 272.266279 832.170713 269.846595 
+Q 834.70821 267.42691 834.70821 263.946915 
+Q 834.70821 261.373168 833.403211 259.660358 
+Q 832.098213 257.947548 829.741966 257.403799 
+Q 831.554464 256.57005 832.478837 255.156302 
+Q 833.403211 253.742553 833.403211 252.020681 
+Q 833.403211 250.208183 832.433525 248.59506 
+Q 831.463839 246.981937 829.633216 246.048501 
+Q 827.802594 245.115065 825.627597 245.115065 
+Q 822.473851 245.115065 820.353229 246.9185 
+Q 818.232606 248.721935 817.634482 252.002556 
+L 820.896978 252.582555 
+Q 821.259477 250.190058 822.528226 248.99381 
+Q 823.796974 247.797561 825.700096 247.797561 
+Q 827.621344 247.797561 828.835717 248.975685 
+Q 830.050091 250.153808 830.050091 251.948181 
+Q 830.050091 254.213803 828.382593 255.301301 
+Q 826.715095 256.3888 824.630723 256.3888 
+Q 824.431348 256.3888 824.105099 256.35255 
+L 823.742599 259.216296 
+Q 825.120097 258.853797 826.044471 258.853797 
+Q 828.310093 258.853797 829.778216 260.312857 
+Q 831.246339 261.771918 831.246339 264.019415 
+Q 831.246339 266.375662 829.660404 267.97066 
+Q 828.074468 269.565657 825.772596 269.565657 
+Q 823.833224 269.565657 822.482913 268.342222 
+Q 821.132602 267.118786 820.570728 264.345664 
+L 817.308233 264.780664 
+M 813.791987 268.659409 
+L 800.760129 268.659409 
+Q 801.303879 267.771285 802.137628 266.892224 
+Q 802.971376 266.013162 805.907623 263.548165 
+Q 809.423868 260.575669 810.937303 258.871922 
+Q 812.450739 257.168174 813.103238 255.627551 
+Q 813.755737 254.086928 813.755737 252.49193 
+Q 813.755737 249.356309 811.526365 247.235687 
+Q 809.296993 245.115065 805.472623 245.115065 
+Q 801.684503 245.115065 799.437006 247.081625 
+Q 797.189509 249.048185 796.845135 252.800055 
+L 800.198255 253.144429 
+Q 800.21638 250.643182 801.630128 249.229434 
+Q 803.043876 247.815686 805.400123 247.815686 
+Q 807.629495 247.815686 809.016056 249.147872 
+Q 810.402617 250.480058 810.402617 252.41943 
+Q 810.402617 254.268178 808.880119 256.343487 
+Q 807.357621 258.418797 803.025751 261.971293 
+Q 800.234505 264.255039 798.75732 265.995037 
+Q 797.280134 267.735035 796.60951 269.529408 
+Q 796.192635 270.616906 796.228885 271.79503 
+L 813.791987 271.79503 
+L 813.791987 268.659409 
+M 776.726411 257.856923 
+L 776.726411 248.359435 
+L 783.523277 248.359435 
+Q 785.915774 248.359435 786.803898 248.59506 
+Q 788.181396 248.975685 789.024207 250.162871 
+Q 789.867019 251.350057 789.867019 253.017554 
+Q 789.867019 255.319426 788.435146 256.588175 
+Q 787.003273 257.856923 783.595777 257.856923 
+L 776.726411 257.856923 
+" clip-path="url(#p21f2762721)" style="fill: #0000ff"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 61.380056 268.841546 
+L 64.896302 268.841546 
+L 64.896302 258.03906 
+L 71.711293 258.03906 
+Q 77.34816 258.03906 79.505032 255.691876 
+Q 81.661904 253.344692 81.661904 249.955321 
+Q 81.661904 247.979699 80.855343 246.330326 
+Q 80.048782 244.680953 78.725658 243.765642 
+Q 77.402535 242.85033 75.445038 242.524081 
+Q 74.049414 242.270331 71.403168 242.270331 
+L 61.380056 242.270331 
+L 61.380056 268.841546 
+M 84.833775 261.82718 
+Q 85.160025 265.144051 87.470959 267.228423 
+Q 89.781894 269.312795 93.280014 269.312795 
+Q 97.158759 269.312795 99.696256 266.893111 
+Q 102.233752 264.473427 102.233752 260.993431 
+Q 102.233752 258.419685 100.928754 256.706875 
+Q 99.623756 254.994064 97.267509 254.450315 
+Q 99.080006 253.616566 100.00438 252.202818 
+Q 100.928754 250.78907 100.928754 249.067197 
+Q 100.928754 247.2547 99.959068 245.641577 
+Q 98.989382 244.028454 97.158759 243.095018 
+Q 95.328136 242.161581 93.153139 242.161581 
+Q 89.999393 242.161581 87.878771 243.965016 
+Q 85.758149 245.768452 85.160025 249.049072 
+L 88.42252 249.629071 
+Q 88.78502 247.236575 90.053768 246.040326 
+Q 91.322517 244.844078 93.225639 244.844078 
+Q 95.146887 244.844078 96.36126 246.022201 
+Q 97.575633 247.200325 97.575633 248.994697 
+Q 97.575633 251.260319 95.908136 252.347818 
+Q 94.240638 253.435316 92.156266 253.435316 
+Q 91.956891 253.435316 91.630641 253.399066 
+L 91.268142 256.262813 
+Q 92.64564 255.900313 93.570014 255.900313 
+Q 95.835636 255.900313 97.303759 257.359374 
+Q 98.771882 258.818434 98.771882 261.065931 
+Q 98.771882 263.422178 97.185946 265.017176 
+Q 95.600011 266.612174 93.298139 266.612174 
+Q 91.358767 266.612174 90.008456 265.388738 
+Q 88.658145 264.165302 88.096271 261.392181 
+L 84.833775 261.82718 
+M 122.606225 265.705925 
+L 109.574368 265.705925 
+Q 110.118117 264.817801 110.951866 263.93874 
+Q 111.785615 263.059679 114.721861 260.594682 
+Q 118.238106 257.622186 119.751542 255.918438 
+Q 121.264977 254.21469 121.917476 252.674067 
+Q 122.569975 251.133444 122.569975 249.538447 
+Q 122.569975 246.402826 120.340603 244.282204 
+Q 118.111231 242.161581 114.286861 242.161581 
+Q 110.498741 242.161581 108.251244 244.128141 
+Q 106.003747 246.094701 105.659373 249.846571 
+L 109.012493 250.190946 
+Q 109.030618 247.689699 110.444366 246.275951 
+Q 111.858115 244.862203 114.214361 244.862203 
+Q 116.443733 244.862203 117.830294 246.194389 
+Q 119.216855 247.526574 119.216855 249.465947 
+Q 119.216855 251.314694 117.694357 253.390004 
+Q 116.171859 255.465314 111.83999 259.017809 
+Q 109.048743 261.301556 107.571558 263.041554 
+Q 106.094372 264.781551 105.423748 266.575924 
+Q 105.006874 267.663423 105.043124 268.841546 
+L 122.606225 268.841546 
+L 122.606225 265.705925 
+M 64.896302 254.90344 
+L 64.896302 245.405952 
+L 71.693168 245.405952 
+Q 74.085664 245.405952 74.973788 245.641577 
+Q 76.351286 246.022201 77.194098 247.209387 
+Q 78.036909 248.396573 78.036909 250.064071 
+Q 78.036909 252.365943 76.605036 253.634691 
+Q 75.173163 254.90344 71.765668 254.90344 
+L 64.896302 254.90344 
+" clip-path="url(#p21f2762721)" style="fill: #0000ff"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 66.088569 60.067539 
+L 71.048013 60.067539 
+L 85.353144 23.532137 
+L 80.418621 23.532137 
+L 70.549577 50.073885 
+Q 69.428094 53.064505 68.580752 56.055124 
+Q 67.808175 53.263879 66.661771 50.073885 
+L 57.166554 23.532137 
+L 51.93297 23.532137 
+L 66.088569 60.067539 
+M 215.096188 47.257718 
+Q 214.099315 51.868257 211.283149 54.210909 
+Q 208.466982 56.553561 204.404724 56.553561 
+Q 201.065198 56.553561 198.199188 54.833955 
+Q 195.333178 53.114348 193.974938 49.637753 
+Q 192.616698 46.161158 192.616698 41.500776 
+Q 192.616698 37.88711 193.763102 34.485281 
+Q 194.909506 31.083451 197.738134 29.064783 
+Q 200.566762 27.046115 204.778551 27.046115 
+Q 208.44206 27.046115 210.859477 28.865408 
+Q 213.276895 30.684702 214.547908 34.672194 
+L 219.307978 33.550712 
+Q 217.83759 28.491581 214.099315 25.700336 
+Q 210.361041 22.909091 204.878238 22.909091 
+Q 200.043403 22.909091 196.018528 25.114673 
+Q 191.993652 27.320255 189.812992 31.569427 
+Q 187.632332 35.818599 187.632332 41.525698 
+Q 187.632332 46.759282 189.563774 51.319977 
+Q 191.495216 55.880671 195.196107 58.285628 
+Q 198.896999 60.690585 204.803473 60.690585 
+Q 210.510572 60.690585 214.460682 57.562895 
+Q 218.410792 54.435205 219.931023 48.478888 
+L 215.096188 47.257718 
+M 145.315066 51.619039 
+Q 145.863346 55.930515 148.579825 58.31055 
+Q 151.296305 60.690585 155.582859 60.690585 
+Q 159.620196 60.690585 162.623276 58.522385 
+Q 165.626357 56.354186 167.146588 52.204702 
+Q 168.66682 48.055217 168.66682 41.052183 
+Q 168.66682 34.323289 167.134127 30.771928 
+Q 165.601435 27.220567 162.648198 25.301587 
+Q 159.694961 23.382606 156.13114 23.382606 
+Q 151.196617 23.382606 147.919397 26.771974 
+Q 144.642176 30.161343 144.642176 35.718911 
+Q 144.642176 41.102027 147.782327 44.391708 
+Q 150.922477 47.68139 155.45825 47.68139 
+Q 158.17473 47.68139 160.504921 46.348072 
+Q 162.835112 45.014754 164.180891 42.871476 
+Q 164.205812 43.4696 164.205812 43.768662 
+Q 164.205812 46.559907 163.532923 49.251465 
+Q 162.860034 51.943022 161.86316 53.525559 
+Q 160.866287 55.108095 159.308673 56.055124 
+Q 157.751059 57.002154 155.682547 57.002154 
+Q 153.265129 57.002154 151.719976 55.631453 
+Q 150.174822 54.260753 149.626542 51.220289 
+L 145.315066 51.619039 
+M 87.89517 50.422791 
+Q 88.343763 54.983486 91.521296 57.849496 
+Q 94.69883 60.715506 99.508743 60.715506 
+Q 104.842014 60.715506 108.33107 57.388442 
+Q 111.820127 54.061378 111.820127 49.276387 
+Q 111.820127 45.737487 110.025755 43.382374 
+Q 108.231383 41.027261 104.991545 40.279606 
+Q 107.483728 39.133202 108.754742 37.189299 
+Q 110.025755 35.245397 110.025755 32.877823 
+Q 110.025755 30.38564 108.692437 28.167597 
+Q 107.359119 25.949554 104.842014 24.66608 
+Q 102.324909 23.382606 99.33429 23.382606 
+Q 94.997892 23.382606 92.082038 25.862328 
+Q 89.166183 28.34205 88.343763 32.852901 
+L 92.829692 33.650399 
+Q 93.328129 30.360718 95.072657 28.715877 
+Q 96.817185 27.071036 99.433977 27.071036 
+Q 102.075691 27.071036 103.745454 28.690955 
+Q 105.415216 30.310874 105.415216 32.778135 
+Q 105.415216 35.893364 103.122408 37.388674 
+Q 100.8296 38.883984 97.963589 38.883984 
+Q 97.689449 38.883984 97.240856 38.83414 
+L 96.74242 42.771789 
+Q 98.636479 42.273353 99.907492 42.273353 
+Q 103.022721 42.273353 105.041389 44.27956 
+Q 107.060057 46.285767 107.060057 49.376074 
+Q 107.060057 52.615912 104.879397 54.809033 
+Q 102.698737 57.002154 99.533665 57.002154 
+Q 96.867029 57.002154 95.010353 55.31993 
+Q 93.153676 53.637707 92.381099 49.824667 
+L 87.89517 50.422791 
+M 133.153213 60.067539 
+L 133.153213 23.382606 
+L 130.26228 23.382606 
+Q 129.090954 25.750179 126.274788 28.267284 
+Q 123.458621 30.784389 119.695425 32.553839 
+L 119.695425 36.890237 
+Q 121.788858 36.117661 124.418111 34.572507 
+Q 127.047364 33.027354 128.667283 31.4822 
+L 128.667283 60.067539 
+L 133.153213 60.067539 
+M 175.545245 60.067539 
+L 180.65422 60.067539 
+L 180.65422 54.958564 
+L 175.545245 54.958564 
+L 175.545245 60.067539 
+M 163.682454 35.494615 
+Q 163.682454 39.357498 161.676247 41.538159 
+Q 159.670039 43.718819 156.554811 43.718819 
+Q 153.464504 43.718819 151.358609 41.538159 
+Q 149.252715 39.357498 149.252715 35.868442 
+Q 149.252715 31.980637 151.470757 29.538298 
+Q 153.6888 27.095958 156.67942 27.095958 
+Q 159.570352 27.095958 161.626403 29.363845 
+Q 163.682454 31.631731 163.682454 35.494615 
+" clip-path="url(#p21f2762721)" style="fill: #ffffff"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p21f2762721">
+   <rect x="7.2" y="7.2" width="984.125341" height="345.6"/>
+  </clipPath>
+ </defs>
+</svg>
+<div class="artifact-path">D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V319_motor_178111331116.dxf</div></div><div class="evidence-card"><div class="evidence-title"><b>N3 / NOVA</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô SA/N1 com todos os segmentos da viga no modo visual NOVA</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1166.4 324.224489" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-n4" role="img" aria-label="N3 / NOVA" alt="N3 / NOVA">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-05T19:27:44.468200</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 324.224489 
+L 1166.4 324.224489 
+L 1166.4 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 7.2 317.024489 
+L 1159.2 317.024489 
+L 1159.2 7.2 
+L 7.2 7.2 
+z
+" style="fill: #212830"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 184.753755 123.839022 
+L 807.161691 123.839022 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 807.161691 75.37283 
+L 184.753755 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 184.753755 75.37283 
+L 184.753755 123.839022 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 807.161691 123.839022 
+L 983.170492 123.839022 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 983.170492 75.37283 
+L 807.161691 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 983.170492 123.839022 
+L 983.170492 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 807.161691 123.839022 
+L 807.161691 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 202.60972 123.839022 
+L 202.60972 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 965.314527 123.839022 
+L 965.314527 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 202.60972 105.983056 
+L 965.314527 105.983056 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 202.60972 93.228795 
+L 965.314527 93.228795 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 71.423533 302.398675 
+L 75.578673 302.398675 
+L 87.56385 271.788449 
+L 83.42959 271.788449 
+L 75.161071 294.025755 
+Q 74.221466 296.531367 73.511543 299.036979 
+Q 72.86426 296.698408 71.903775 294.025755 
+L 63.948457 271.788449 
+L 59.563636 271.788449 
+L 71.423533 302.398675 
+M 89.69362 294.318077 
+Q 90.069462 298.139135 92.731675 300.540347 
+Q 95.393888 302.941558 99.423747 302.941558 
+Q 103.892088 302.941558 106.815302 300.154065 
+Q 109.738516 297.366571 109.738516 293.357592 
+Q 109.738516 290.392618 108.235149 288.419449 
+Q 106.731782 286.446279 104.017369 285.819876 
+Q 106.105379 284.859392 107.170264 283.230744 
+Q 108.235149 281.602096 108.235149 279.618487 
+Q 108.235149 277.530477 107.118064 275.672148 
+Q 106.000978 273.813819 103.892088 272.738494 
+Q 101.783198 271.663168 99.277586 271.663168 
+Q 95.644449 271.663168 93.201477 273.740738 
+Q 90.758506 275.818308 90.069462 279.597606 
+L 93.82788 280.26577 
+Q 94.245482 277.509596 95.707089 276.13151 
+Q 97.168696 274.753423 99.361107 274.753423 
+Q 101.574397 274.753423 102.973364 276.11063 
+Q 104.372331 277.467836 104.372331 279.534966 
+Q 104.372331 282.144979 102.451361 283.397785 
+Q 100.530392 284.650591 98.129181 284.650591 
+Q 97.8995 284.650591 97.523658 284.60883 
+L 97.106056 287.907886 
+Q 98.692943 287.490284 99.757829 287.490284 
+Q 102.367841 287.490284 104.059129 289.171132 
+Q 105.750417 290.85198 105.750417 293.441113 
+Q 105.750417 296.155526 103.923408 297.992974 
+Q 102.0964 299.830423 99.444627 299.830423 
+Q 97.210456 299.830423 95.654889 298.421016 
+Q 94.099321 297.01161 93.452038 293.816954 
+L 89.69362 294.318077 
+M 137.258488 294.318077 
+Q 137.63433 298.139135 140.296542 300.540347 
+Q 142.958755 302.941558 146.988614 302.941558 
+Q 151.456956 302.941558 154.38017 300.154065 
+Q 157.303384 297.366571 157.303384 293.357592 
+Q 157.303384 290.392618 155.800016 288.419449 
+Q 154.296649 286.446279 151.582236 285.819876 
+Q 153.670246 284.859392 154.735131 283.230744 
+Q 155.800016 281.602096 155.800016 279.618487 
+Q 155.800016 277.530477 154.682931 275.672148 
+Q 153.565846 273.813819 151.456956 272.738494 
+Q 149.348066 271.663168 146.842454 271.663168 
+Q 143.209316 271.663168 140.766345 273.740738 
+Q 138.323373 275.818308 137.63433 279.597606 
+L 141.392748 280.26577 
+Q 141.81035 277.509596 143.271957 276.13151 
+Q 144.733564 274.753423 146.925974 274.753423 
+Q 149.139265 274.753423 150.538231 276.11063 
+Q 151.937198 277.467836 151.937198 279.534966 
+Q 151.937198 282.144979 150.016229 283.397785 
+Q 148.09526 284.650591 145.694048 284.650591 
+Q 145.464367 284.650591 145.088525 284.60883 
+L 144.670923 287.907886 
+Q 146.257811 287.490284 147.322696 287.490284 
+Q 149.932708 287.490284 151.623997 289.171132 
+Q 153.315285 290.85198 153.315285 293.441113 
+Q 153.315285 296.155526 151.488276 297.992974 
+Q 149.661267 299.830423 147.009494 299.830423 
+Q 144.775324 299.830423 143.219756 298.421016 
+Q 141.664189 297.01161 141.016906 293.816954 
+L 137.258488 294.318077 
+M 127.611882 302.398675 
+L 127.611882 271.663168 
+L 125.18979 271.663168 
+Q 124.208425 273.646778 121.848974 275.755668 
+Q 119.489523 277.864558 116.336628 279.347045 
+L 116.336628 282.980183 
+Q 118.090556 282.332899 120.293407 281.038333 
+Q 122.496257 279.743767 123.853464 278.449201 
+L 123.853464 302.398675 
+L 127.611882 302.398675 
+" clip-path="url(#p7359eb94bd)" style="fill: #0000ff"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 1020.726832 302.398675 
+L 1024.881972 302.398675 
+L 1036.867149 271.788449 
+L 1032.732889 271.788449 
+L 1024.46437 294.025755 
+Q 1023.524765 296.531367 1022.814842 299.036979 
+Q 1022.167559 296.698408 1021.207074 294.025755 
+L 1013.251756 271.788449 
+L 1008.866935 271.788449 
+L 1020.726832 302.398675 
+M 1038.996919 294.318077 
+Q 1039.372761 298.139135 1042.034974 300.540347 
+Q 1044.697187 302.941558 1048.727046 302.941558 
+Q 1053.195387 302.941558 1056.118601 300.154065 
+Q 1059.041815 297.366571 1059.041815 293.357592 
+Q 1059.041815 290.392618 1057.538448 288.419449 
+Q 1056.035081 286.446279 1053.320668 285.819876 
+Q 1055.408678 284.859392 1056.473563 283.230744 
+Q 1057.538448 281.602096 1057.538448 279.618487 
+Q 1057.538448 277.530477 1056.421363 275.672148 
+Q 1055.304277 273.813819 1053.195387 272.738494 
+Q 1051.086497 271.663168 1048.580885 271.663168 
+Q 1044.947748 271.663168 1042.504776 273.740738 
+Q 1040.061804 275.818308 1039.372761 279.597606 
+L 1043.131179 280.26577 
+Q 1043.548781 277.509596 1045.010388 276.13151 
+Q 1046.471995 274.753423 1048.664406 274.753423 
+Q 1050.877696 274.753423 1052.276663 276.11063 
+Q 1053.675629 277.467836 1053.675629 279.534966 
+Q 1053.675629 282.144979 1051.75466 283.397785 
+Q 1049.833691 284.650591 1047.43248 284.650591 
+Q 1047.202799 284.650591 1046.826957 284.60883 
+L 1046.409355 287.907886 
+Q 1047.996242 287.490284 1049.061127 287.490284 
+Q 1051.67114 287.490284 1053.362428 289.171132 
+Q 1055.053716 290.85198 1055.053716 293.441113 
+Q 1055.053716 296.155526 1053.226707 297.992974 
+Q 1051.399699 299.830423 1048.747926 299.830423 
+Q 1046.513755 299.830423 1044.958188 298.421016 
+Q 1043.40262 297.01161 1042.755337 293.816954 
+L 1038.996919 294.318077 
+M 1086.540907 294.380717 
+Q 1086.916748 298.243536 1089.558081 300.582107 
+Q 1092.199414 302.920678 1096.375434 302.920678 
+Q 1101.470178 302.920678 1104.414272 299.20402 
+Q 1106.836364 296.176406 1106.836364 292.021266 
+Q 1106.836364 287.657325 1104.08019 284.880272 
+Q 1101.324017 282.103218 1097.315038 282.103218 
+Q 1094.287424 282.103218 1091.53125 284.024188 
+L 1093.180778 275.797428 
+L 1105.395637 275.797428 
+L 1105.395637 272.206051 
+L 1090.174044 272.206051 
+L 1087.20907 287.928766 
+L 1090.737807 288.388128 
+Q 1091.573011 287.072682 1093.034618 286.247918 
+Q 1094.496225 285.423154 1096.312793 285.423154 
+Q 1099.236007 285.423154 1101.042136 287.281483 
+Q 1102.848265 289.139812 1102.848265 292.355347 
+Q 1102.848265 295.737924 1100.969056 297.784173 
+Q 1099.089847 299.830423 1096.375434 299.830423 
+Q 1094.120383 299.830423 1092.523055 298.379256 
+Q 1090.925728 296.928089 1090.487245 294.046635 
+L 1086.540907 294.380717 
+M 1076.915181 302.398675 
+L 1076.915181 271.663168 
+L 1074.493089 271.663168 
+Q 1073.511724 273.646778 1071.152273 275.755668 
+Q 1068.792822 277.864558 1065.639927 279.347045 
+L 1065.639927 282.980183 
+Q 1067.393855 282.332899 1069.596706 281.038333 
+Q 1071.799556 279.743767 1073.156763 278.449201 
+L 1073.156763 302.398675 
+L 1076.915181 302.398675 
+" clip-path="url(#p7359eb94bd)" style="fill: #0000ff"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 184.753755 131.491578 
+L 184.753755 195.262883 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 807.161691 131.491578 
+L 807.161691 195.262883 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 188.580033 183.784048 
+L 180.927477 191.436605 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 803.335413 191.436605 
+L 810.987969 183.784048 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 184.753755 187.610327 
+L 807.161691 187.610327 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 497.567231 176.442953 
+L 500.699246 176.442953 
+L 500.699246 170.335524 
+L 504.144462 170.335524 
+L 504.144462 167.46451 
+L 500.699246 167.46451 
+L 500.699246 150.934431 
+L 498.141433 150.934431 
+L 486.500778 167.46451 
+L 486.500778 170.335524 
+L 497.567231 170.335524 
+L 497.567231 176.442953 
+M 517.385925 176.442953 
+L 520.51794 176.442953 
+L 520.51794 170.335524 
+L 523.963157 170.335524 
+L 523.963157 167.46451 
+L 520.51794 167.46451 
+L 520.51794 150.934431 
+L 517.960128 150.934431 
+L 506.319472 167.46451 
+L 506.319472 170.335524 
+L 517.385925 170.335524 
+L 517.385925 176.442953 
+M 484.169167 173.432739 
+L 471.658507 173.432739 
+Q 472.180509 172.580135 472.980913 171.736231 
+Q 473.781317 170.892327 476.60013 168.525915 
+Q 479.975746 165.672302 481.428653 164.036694 
+Q 482.88156 162.401086 483.507963 160.922079 
+Q 484.134366 159.443072 484.134366 157.911865 
+Q 484.134366 154.90165 481.994156 152.86584 
+Q 479.853946 150.830031 476.182528 150.830031 
+Q 472.545911 150.830031 470.388301 152.71794 
+Q 468.23069 154.605849 467.900089 158.207666 
+L 471.119104 158.538268 
+Q 471.136504 156.137056 472.493711 154.77985 
+Q 473.850917 153.422643 476.112928 153.422643 
+Q 478.253138 153.422643 479.584245 154.701549 
+Q 480.915351 155.980455 480.915351 157.842264 
+Q 480.915351 159.617073 479.453744 161.609382 
+Q 477.992137 163.601692 473.833517 167.012108 
+Q 471.153904 169.204519 469.735797 170.874927 
+Q 468.317691 172.545335 467.673888 174.267943 
+Q 467.273686 175.311948 467.308486 176.442953 
+L 484.169167 176.442953 
+L 484.169167 173.432739 
+M 497.567231 167.46451 
+L 489.580592 167.46451 
+L 497.567231 155.963055 
+L 497.567231 167.46451 
+M 517.385925 167.46451 
+L 509.399287 167.46451 
+L 517.385925 155.963055 
+L 517.385925 167.46451 
+" clip-path="url(#p7359eb94bd)" style="fill: #ff003f"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 807.161691 131.491578 
+L 807.161691 195.262883 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 983.170492 131.491578 
+L 983.170492 195.262883 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 810.987969 183.784048 
+L 803.335413 191.436605 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 979.344214 191.436605 
+L 986.996771 183.784048 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 807.161691 187.610327 
+L 983.170492 187.610327 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 893.078082 157.181061 
+Q 892.69528 154.205647 890.772571 152.517839 
+Q 888.849861 150.830031 885.839647 150.830031 
+Q 881.802828 150.830031 879.419016 153.753245 
+Q 876.687203 157.111461 876.687203 164.506496 
+Q 876.687203 171.118528 879.158015 173.998242 
+Q 881.628827 176.877955 885.543846 176.877955 
+Q 887.840657 176.877955 889.650265 175.78175 
+Q 891.459874 174.685545 892.495179 172.623635 
+Q 893.530484 170.561725 893.530484 168.160514 
+Q 893.530484 164.506496 891.329373 162.200985 
+Q 889.128263 159.895474 885.996248 159.895474 
+Q 884.204039 159.895474 882.568431 160.730678 
+Q 880.932824 161.565882 879.801818 163.28849 
+Q 879.836618 159.460472 880.689222 157.389862 
+Q 881.541826 155.319252 883.020834 154.240447 
+Q 884.151839 153.405243 885.648246 153.405243 
+Q 887.510055 153.405243 888.780261 154.745049 
+Q 889.545865 155.580253 889.963467 157.424662 
+L 893.078082 157.181061 
+M 897.114901 170.544325 
+Q 897.497703 173.554539 899.394312 175.216247 
+Q 901.290921 176.877955 904.283735 176.877955 
+Q 907.102549 176.877955 909.199259 175.364148 
+Q 911.295969 173.850341 912.357374 170.953227 
+Q 913.418779 168.056113 913.418779 163.16669 
+Q 913.418779 158.468667 912.348674 155.989155 
+Q 911.278569 153.509644 909.216659 152.169837 
+Q 907.154749 150.830031 904.666537 150.830031 
+Q 901.221321 150.830031 898.93321 153.196442 
+Q 896.645099 155.562853 896.645099 159.443072 
+Q 896.645099 163.20149 898.837509 165.498301 
+Q 901.02992 167.795112 904.196735 167.795112 
+Q 906.093344 167.795112 907.720252 166.864207 
+Q 909.347159 165.933303 910.286764 164.436896 
+Q 910.304164 164.854498 910.304164 165.063299 
+Q 910.304164 167.012108 909.834362 168.891317 
+Q 909.364559 170.770526 908.668556 171.875431 
+Q 907.972553 172.980337 906.885048 173.64154 
+Q 905.797542 174.302743 904.353336 174.302743 
+Q 902.665527 174.302743 901.586722 173.345738 
+Q 900.507917 172.388734 900.125115 170.265924 
+L 897.114901 170.544325 
+M 880.28902 168.177914 
+Q 880.28902 165.707102 881.768028 164.184595 
+Q 883.247035 162.662087 885.369845 162.662087 
+Q 887.510055 162.662087 888.919462 164.184595 
+Q 890.328868 165.707102 890.328868 168.351915 
+Q 890.328868 171.101128 888.902062 172.701935 
+Q 887.475255 174.302743 885.491645 174.302743 
+Q 884.134439 174.302743 882.899033 173.528439 
+Q 881.663627 172.754136 880.976324 171.275128 
+Q 880.28902 169.796121 880.28902 168.177914 
+M 909.938762 159.286471 
+Q 909.938762 161.983484 908.538056 163.505991 
+Q 907.137349 165.028499 904.962338 165.028499 
+Q 902.804728 165.028499 901.334421 163.505991 
+Q 899.864114 161.983484 899.864114 159.547472 
+Q 899.864114 156.833059 901.412721 155.127851 
+Q 902.961329 153.422643 905.049339 153.422643 
+Q 907.067748 153.422643 908.503255 155.006051 
+Q 909.938762 156.589458 909.938762 159.286471 
+" clip-path="url(#p7359eb94bd)" style="fill: #ff003f"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 184.753755 131.491578 
+L 184.753755 259.034188 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 983.170492 131.491578 
+L 983.170492 259.034188 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 188.580033 247.555353 
+L 180.927477 255.20791 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 979.344214 255.20791 
+L 986.996771 247.555353 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 184.753755 251.381631 
+L 983.170492 251.381631 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 595.367878 233.480426 
+Q 595.68108 236.664641 597.89959 238.665651 
+Q 600.118101 240.66666 603.476317 240.66666 
+Q 607.199935 240.66666 609.635946 238.343749 
+Q 612.071958 236.020838 612.071958 232.680022 
+Q 612.071958 230.20921 610.819152 228.564902 
+Q 609.566346 226.920595 607.304335 226.398592 
+Q 609.044344 225.598188 609.931748 224.240982 
+Q 610.819152 222.883775 610.819152 221.230767 
+Q 610.819152 219.490759 609.888248 217.942152 
+Q 608.957343 216.393544 607.199935 215.49744 
+Q 605.442526 214.601336 603.354516 214.601336 
+Q 600.326902 214.601336 598.291092 216.332644 
+Q 596.255282 218.063952 595.68108 221.213367 
+L 598.813095 221.77017 
+Q 599.161096 219.473359 600.379102 218.324953 
+Q 601.597108 217.176548 603.424117 217.176548 
+Q 605.268526 217.176548 606.434331 218.307553 
+Q 607.600137 219.438559 607.600137 221.161167 
+Q 607.600137 223.336177 605.999329 224.380182 
+Q 604.398521 225.424187 602.397512 225.424187 
+Q 602.206111 225.424187 601.892909 225.389387 
+L 601.544908 228.1386 
+Q 602.867314 227.790599 603.754718 227.790599 
+Q 605.929729 227.790599 607.339135 229.191305 
+Q 608.748542 230.592012 608.748542 232.749622 
+Q 608.748542 235.011633 607.226035 236.542841 
+Q 605.703528 238.074048 603.493717 238.074048 
+Q 601.631908 238.074048 600.335602 236.899542 
+Q 599.039296 235.725037 598.499893 233.062824 
+L 595.367878 233.480426 
+M 555.730489 233.480426 
+Q 556.04369 236.664641 558.262201 238.665651 
+Q 560.480711 240.66666 563.838927 240.66666 
+Q 567.562545 240.66666 569.998557 238.343749 
+Q 572.434569 236.020838 572.434569 232.680022 
+Q 572.434569 230.20921 571.181763 228.564902 
+Q 569.928957 226.920595 567.666946 226.398592 
+Q 569.406954 225.598188 570.294358 224.240982 
+Q 571.181763 222.883775 571.181763 221.230767 
+Q 571.181763 219.490759 570.250858 217.942152 
+Q 569.319954 216.393544 567.562545 215.49744 
+Q 565.805137 214.601336 563.717127 214.601336 
+Q 560.689512 214.601336 558.653703 216.332644 
+Q 556.617893 218.063952 556.04369 221.213367 
+L 559.175705 221.77017 
+Q 559.523707 219.473359 560.741713 218.324953 
+Q 561.959718 217.176548 563.786727 217.176548 
+Q 565.631136 217.176548 566.796942 218.307553 
+Q 567.962747 219.438559 567.962747 221.161167 
+Q 567.962747 223.336177 566.361939 224.380182 
+Q 564.761132 225.424187 562.760122 225.424187 
+Q 562.568721 225.424187 562.25552 225.389387 
+L 561.907518 228.1386 
+Q 563.229925 227.790599 564.117329 227.790599 
+Q 566.292339 227.790599 567.701746 229.191305 
+Q 569.111153 230.592012 569.111153 232.749622 
+Q 569.111153 235.011633 567.588645 236.542841 
+Q 566.066138 238.074048 563.856328 238.074048 
+Q 561.994519 238.074048 560.698212 236.899542 
+Q 559.401906 235.725037 558.862504 233.062824 
+L 555.730489 233.480426 
+M 587.32904 240.214258 
+L 587.32904 214.601336 
+L 585.31063 214.601336 
+Q 584.492826 216.254344 582.526617 218.011752 
+Q 580.560407 219.76916 577.932995 221.004566 
+L 577.932995 224.032181 
+Q 579.394602 223.492778 581.230311 222.413973 
+Q 583.066019 221.335168 584.197025 220.256363 
+L 584.197025 240.214258 
+L 587.32904 240.214258 
+" clip-path="url(#p7359eb94bd)" style="fill: #ff003f"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 990.823049 123.839022 
+L 1062.24691 123.839022 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 990.823049 75.37283 
+L 1062.24691 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 1050.768076 120.012743 
+L 1058.420632 127.6653 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 1058.420632 79.199108 
+L 1050.768076 71.546552 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 1054.594354 123.839022 
+L 1054.594354 75.37283 
+" clip-path="url(#p7359eb94bd)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 1029.875796 97.657116 
+Q 1032.88601 97.274315 1034.547718 95.377706 
+Q 1036.209426 93.481097 1036.209426 90.488282 
+Q 1036.209426 87.669469 1034.695619 85.572759 
+Q 1033.181811 83.476049 1030.284698 82.414644 
+Q 1027.387584 81.353239 1022.49816 81.353239 
+Q 1017.800138 81.353239 1015.320626 82.423344 
+Q 1012.841114 83.493449 1011.501308 85.555359 
+Q 1010.161501 87.617268 1010.161501 90.10548 
+Q 1010.161501 93.550697 1012.527913 95.838808 
+Q 1014.894324 98.126919 1018.774543 98.126919 
+Q 1022.532961 98.126919 1024.829772 95.934508 
+Q 1027.126583 93.742098 1027.126583 90.575283 
+Q 1027.126583 88.678674 1026.195678 87.051766 
+Q 1025.264774 85.424858 1023.768366 84.485254 
+Q 1024.185968 84.467853 1024.394769 84.467853 
+Q 1026.343579 84.467853 1028.222788 84.937656 
+Q 1030.101997 85.407458 1031.206902 86.103461 
+Q 1032.311807 86.799465 1032.97301 87.88697 
+Q 1033.634214 88.974475 1033.634214 90.418682 
+Q 1033.634214 92.10649 1032.677209 93.185295 
+Q 1031.720204 94.2641 1029.597394 94.646902 
+L 1029.875796 97.657116 
+M 1035.774424 106.148357 
+L 1010.161501 106.148357 
+L 1010.161501 108.166767 
+Q 1011.814509 108.984571 1013.571918 110.95078 
+Q 1015.329326 112.916989 1016.564732 115.544402 
+L 1019.592347 115.544402 
+Q 1019.052944 114.082795 1017.974139 112.247086 
+Q 1016.895334 110.411377 1015.816528 109.280372 
+L 1035.774424 109.280372 
+L 1035.774424 106.148357 
+M 1018.617942 84.833255 
+Q 1021.314955 84.833255 1022.837462 86.233962 
+Q 1024.359969 87.634669 1024.359969 89.809679 
+Q 1024.359969 91.967289 1022.837462 93.437596 
+Q 1021.314955 94.907903 1018.878943 94.907903 
+Q 1016.16453 94.907903 1014.459322 93.359296 
+Q 1012.754114 91.810689 1012.754114 89.722679 
+Q 1012.754114 87.704269 1014.337521 86.268762 
+Q 1015.920929 84.833255 1018.617942 84.833255 
+" clip-path="url(#p7359eb94bd)" style="fill: #ff003f"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 204.454129 52.41516 
+L 208.609269 52.41516 
+L 220.594446 21.804934 
+L 216.460187 21.804934 
+L 208.191667 44.04224 
+Q 207.252062 46.547852 206.542139 49.053464 
+Q 205.894856 46.714893 204.934371 44.04224 
+L 196.979053 21.804934 
+L 192.594232 21.804934 
+L 204.454129 52.41516 
+M 329.296246 41.682789 
+Q 328.461042 45.545607 326.101591 47.508337 
+Q 323.742139 49.471066 320.338683 49.471066 
+Q 317.54075 49.471066 315.139538 48.030339 
+Q 312.738327 46.589612 311.600361 43.676838 
+Q 310.462396 40.764064 310.462396 36.859486 
+Q 310.462396 33.831871 311.422881 30.981738 
+Q 312.383365 28.131604 314.753256 26.440316 
+Q 317.123148 24.749028 320.651885 24.749028 
+Q 323.721259 24.749028 325.746629 26.273275 
+Q 327.771999 27.797522 328.836884 31.138338 
+L 332.824983 30.198734 
+Q 331.593057 25.960074 328.461042 23.621503 
+Q 325.329027 21.282931 320.735405 21.282931 
+Q 316.684666 21.282931 313.31253 23.13082 
+Q 309.940393 24.978709 308.113385 28.538766 
+Q 306.286376 32.098823 306.286376 36.880366 
+Q 306.286376 41.265187 307.904584 45.086245 
+Q 309.522791 48.907303 312.623486 50.922233 
+Q 315.724181 52.937163 320.672765 52.937163 
+Q 325.454308 52.937163 328.763803 50.31671 
+Q 332.073299 47.696258 333.346985 42.705914 
+L 329.296246 41.682789 
+M 270.831966 45.336806 
+Q 271.291329 48.949064 273.56726 50.943113 
+Q 275.84319 52.937163 279.434568 52.937163 
+Q 282.817144 52.937163 285.333196 51.120594 
+Q 287.849248 49.304025 289.122934 45.827489 
+Q 290.39662 42.350952 290.39662 36.483644 
+Q 290.39662 30.846017 289.112494 27.870603 
+Q 287.828368 24.895189 285.354076 23.287421 
+Q 282.879784 21.679653 279.89393 21.679653 
+Q 275.75967 21.679653 273.013937 24.519347 
+Q 270.268204 27.35904 270.268204 32.015303 
+Q 270.268204 36.525404 272.899096 39.281577 
+Q 275.529989 42.037751 279.330167 42.037751 
+Q 281.606098 42.037751 283.558387 40.920665 
+Q 285.510677 39.80358 286.638202 38.007891 
+Q 286.659082 38.509014 286.659082 38.759575 
+Q 286.659082 41.098146 286.095319 43.353197 
+Q 285.531557 45.608248 284.696353 46.934134 
+Q 283.861149 48.26002 282.556143 49.053464 
+Q 281.251136 49.846908 279.518088 49.846908 
+Q 277.492718 49.846908 276.198152 48.698502 
+Q 274.903586 47.550097 274.444224 45.002725 
+L 270.831966 45.336806 
+M 222.724216 44.334562 
+Q 223.100058 48.15562 225.762271 50.556831 
+Q 228.424484 52.958043 232.454343 52.958043 
+Q 236.922684 52.958043 239.845898 50.170549 
+Q 242.769112 47.383056 242.769112 43.374077 
+Q 242.769112 40.409103 241.265745 38.435933 
+Q 239.762378 36.462764 237.047965 35.836361 
+Q 239.135975 34.875876 240.20086 33.247229 
+Q 241.265745 31.618581 241.265745 29.634971 
+Q 241.265745 27.546961 240.14866 25.688632 
+Q 239.031574 23.830304 236.922684 22.754978 
+Q 234.813794 21.679653 232.308182 21.679653 
+Q 228.675045 21.679653 226.232073 23.757223 
+Q 223.789102 25.834793 223.100058 29.614091 
+L 226.858476 30.282254 
+Q 227.276078 27.526081 228.737685 26.147995 
+Q 230.199292 24.769908 232.391703 24.769908 
+Q 234.604993 24.769908 236.00396 26.127114 
+Q 237.402927 27.484321 237.402927 29.551451 
+Q 237.402927 32.161463 235.481957 33.414269 
+Q 233.560988 34.667075 231.159777 34.667075 
+Q 230.930096 34.667075 230.554254 34.625315 
+L 230.136652 37.924371 
+Q 231.72354 37.506769 232.788425 37.506769 
+Q 235.398437 37.506769 237.089725 39.187617 
+Q 238.781013 40.868465 238.781013 43.457597 
+Q 238.781013 46.17201 236.954005 48.009459 
+Q 235.126996 49.846908 232.475223 49.846908 
+Q 230.241052 49.846908 228.685485 48.437501 
+Q 227.129918 47.028094 226.482634 43.833439 
+L 222.724216 44.334562 
+M 260.642478 52.41516 
+L 260.642478 21.679653 
+L 258.220386 21.679653 
+Q 257.239021 23.663263 254.87957 25.772153 
+Q 252.520119 27.881043 249.367224 29.36353 
+L 249.367224 32.996667 
+Q 251.121152 32.349384 253.324003 31.054818 
+Q 255.526853 29.760252 256.88406 28.465686 
+L 256.88406 52.41516 
+L 260.642478 52.41516 
+M 296.159528 52.41516 
+L 300.439948 52.41516 
+L 300.439948 48.13474 
+L 296.159528 48.13474 
+L 296.159528 52.41516 
+M 286.2206 31.827382 
+Q 286.2206 35.063797 284.539752 36.890806 
+Q 282.858904 38.717815 280.248892 38.717815 
+Q 277.659759 38.717815 275.895391 36.890806 
+Q 274.131022 35.063797 274.131022 32.140583 
+Q 274.131022 28.883288 275.989351 26.837038 
+Q 277.84768 24.790788 280.353292 24.790788 
+Q 282.775384 24.790788 284.497992 26.690877 
+Q 286.2206 28.590966 286.2206 31.827382 
+" clip-path="url(#p7359eb94bd)" style="fill: #ffffff"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p7359eb94bd">
+   <rect x="7.2" y="7.2" width="1152" height="309.824489"/>
+  </clipPath>
+ </defs>
+</svg>
+<div class="artifact-path">D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\sa_n3_nova_q2v9lbh1\dxf\FV_preview_V319.dxf</div></div><div class="evidence-card"><div class="evidence-title"><b>N4</b><span style="color:#4fc3a1">disponível</span></div><div style="color:#777;font-size:9px;margin-bottom:5px">Robô com todos os segmentos gerado pela engenharia reversa N2</div><?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1166.4 311.18122" xmlns="http://www.w3.org/2000/svg" version="1.1" class="img-n4" role="img" aria-label="N4" alt="N4">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-05T19:27:44.533231</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 311.18122 
+L 1166.4 311.18122 
+L 1166.4 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 7.2 303.98122 
+L 1159.2 303.98122 
+L 1159.2 7.2 
+L 7.2 7.2 
+z
+" style="fill: #212830"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 153.72201 72.502829 
+L 153.72201 118.928648 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 153.72201 118.928648 
+L 1011.37792 118.928648 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 1011.37792 118.928648 
+L 1011.37792 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 1011.37792 72.502829 
+L 153.72201 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 749.927258 118.928648 
+L 749.927258 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #bf00ff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 170.826259 118.928648 
+L 170.826259 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 994.273671 118.928648 
+L 994.273671 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 170.826259 101.824399 
+L 994.273671 101.824399 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 170.826259 89.607078 
+L 994.273671 89.607078 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #ffbf00; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 59.563636 289.971137 
+L 63.443844 289.971137 
+L 63.443844 278.050499 
+L 70.964247 278.050499 
+Q 77.18458 278.050499 79.564707 275.46036 
+Q 81.944834 272.870221 81.944834 269.130021 
+Q 81.944834 266.949904 81.054787 265.129807 
+Q 80.164739 263.30971 78.704661 262.299656 
+Q 77.244583 261.289601 75.084467 260.929582 
+Q 73.544385 260.649567 70.624228 260.649567 
+L 59.563636 260.649567 
+L 59.563636 289.971137 
+M 85.445022 282.230722 
+Q 85.805041 285.890918 88.355178 288.191041 
+Q 90.905314 290.491165 94.765521 290.491165 
+Q 99.04575 290.491165 101.8459 287.821022 
+Q 104.64605 285.150879 104.64605 281.310673 
+Q 104.64605 278.470521 103.205973 276.58042 
+Q 101.765895 274.690319 99.165756 274.090287 
+Q 101.165863 273.170237 102.185918 271.610154 
+Q 103.205973 270.05007 103.205973 268.149969 
+Q 103.205973 266.149862 102.135915 264.369766 
+Q 101.065858 262.589671 99.04575 261.559616 
+Q 97.025642 260.529561 94.625513 260.529561 
+Q 91.145327 260.529561 88.805202 262.519667 
+Q 86.465076 264.509774 85.805041 268.129968 
+L 89.405234 268.770002 
+Q 89.805255 266.129861 91.20533 264.80979 
+Q 92.605405 263.489719 94.705518 263.489719 
+Q 96.825631 263.489719 98.165703 264.789789 
+Q 99.505774 266.089858 99.505774 268.069964 
+Q 99.505774 270.570098 97.665676 271.770162 
+Q 95.825577 272.970227 93.525454 272.970227 
+Q 93.305443 272.970227 92.945423 272.930225 
+L 92.545402 276.090394 
+Q 94.065483 275.690372 95.085538 275.690372 
+Q 97.585672 275.690372 99.205758 277.300459 
+Q 100.825845 278.910545 100.825845 281.390677 
+Q 100.825845 283.990817 99.075751 285.750911 
+Q 97.325658 287.511005 94.785522 287.511005 
+Q 92.645407 287.511005 91.155327 286.160933 
+Q 89.665248 284.810861 89.045215 281.750697 
+L 85.445022 282.230722 
+M 127.127253 286.510952 
+L 112.746483 286.510952 
+Q 113.346515 285.530899 114.266565 284.560847 
+Q 115.186614 283.590795 118.426787 280.87065 
+Q 122.306995 277.590474 123.977084 275.710373 
+Q 125.647174 273.830273 126.367212 272.130182 
+Q 127.087251 270.430091 127.087251 268.669997 
+Q 127.087251 265.209811 124.627119 262.869686 
+Q 122.166988 260.529561 117.946762 260.529561 
+Q 113.766538 260.529561 111.286405 262.699677 
+Q 108.806272 264.869793 108.426252 269.010015 
+L 112.12645 269.390035 
+Q 112.146451 266.629887 113.706535 265.069804 
+Q 115.266618 263.50972 117.866757 263.50972 
+Q 120.326889 263.50972 121.856971 264.979799 
+Q 123.387053 266.449878 123.387053 268.589992 
+Q 123.387053 270.630101 121.706963 272.920224 
+Q 120.026873 275.210347 115.246617 279.130556 
+Q 112.166452 281.650691 110.536365 283.570794 
+Q 108.906278 285.490897 108.166238 287.471003 
+Q 107.706213 288.671067 107.746216 289.971137 
+L 127.127253 289.971137 
+L 127.127253 286.510952 
+M 63.443844 274.590313 
+L 63.443844 264.109752 
+L 70.944246 264.109752 
+Q 73.584387 264.109752 74.564439 264.369766 
+Q 76.084521 264.789789 77.014571 266.099859 
+Q 77.94462 267.409929 77.94462 269.250028 
+Q 77.94462 271.790164 76.364536 273.190238 
+Q 74.784451 274.590313 71.02425 274.590313 
+L 63.443844 274.590313 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #0000ff"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 1038.972731 289.971137 
+L 1042.852939 289.971137 
+L 1042.852939 278.050499 
+L 1050.373341 278.050499 
+Q 1056.593674 278.050499 1058.973802 275.46036 
+Q 1061.353929 272.870221 1061.353929 269.130021 
+Q 1061.353929 266.949904 1060.463881 265.129807 
+Q 1059.573834 263.30971 1058.113756 262.299656 
+Q 1056.653677 261.289601 1054.493562 260.929582 
+Q 1052.953479 260.649567 1050.033323 260.649567 
+L 1038.972731 260.649567 
+L 1038.972731 289.971137 
+M 1087.635336 282.230722 
+Q 1087.995355 285.890918 1090.545492 288.191041 
+Q 1093.095628 290.491165 1096.955835 290.491165 
+Q 1101.236064 290.491165 1104.036214 287.821022 
+Q 1106.836364 285.150879 1106.836364 281.310673 
+Q 1106.836364 278.470521 1105.396287 276.58042 
+Q 1103.956209 274.690319 1101.35607 274.090287 
+Q 1103.356177 273.170237 1104.376232 271.610154 
+Q 1105.396287 270.05007 1105.396287 268.149969 
+Q 1105.396287 266.149862 1104.326229 264.369766 
+Q 1103.256172 262.589671 1101.236064 261.559616 
+Q 1099.215956 260.529561 1096.815827 260.529561 
+Q 1093.335641 260.529561 1090.995516 262.519667 
+Q 1088.65539 264.509774 1087.995355 268.129968 
+L 1091.595548 268.770002 
+Q 1091.995569 266.129861 1093.395644 264.80979 
+Q 1094.795719 263.489719 1096.895832 263.489719 
+Q 1099.015945 263.489719 1100.356017 264.789789 
+Q 1101.696088 266.089858 1101.696088 268.069964 
+Q 1101.696088 270.570098 1099.85599 271.770162 
+Q 1098.015891 272.970227 1095.715768 272.970227 
+Q 1095.495757 272.970227 1095.135737 272.930225 
+L 1094.735716 276.090394 
+Q 1096.255797 275.690372 1097.275852 275.690372 
+Q 1099.775986 275.690372 1101.396072 277.300459 
+Q 1103.016159 278.910545 1103.016159 281.390677 
+Q 1103.016159 283.990817 1101.266065 285.750911 
+Q 1099.515972 287.511005 1096.975836 287.511005 
+Q 1094.835721 287.511005 1093.345641 286.160933 
+Q 1091.855562 284.810861 1091.235529 281.750697 
+L 1087.635336 282.230722 
+M 1083.755128 286.510952 
+L 1069.374358 286.510952 
+Q 1069.97439 285.530899 1070.89444 284.560847 
+Q 1071.814489 283.590795 1075.054662 280.87065 
+Q 1078.93487 277.590474 1080.604959 275.710373 
+Q 1082.275049 273.830273 1082.995087 272.130182 
+Q 1083.715126 270.430091 1083.715126 268.669997 
+Q 1083.715126 265.209811 1081.254994 262.869686 
+Q 1078.794863 260.529561 1074.574637 260.529561 
+Q 1070.394413 260.529561 1067.91428 262.699677 
+Q 1065.434147 264.869793 1065.054127 269.010015 
+L 1068.754325 269.390035 
+Q 1068.774326 266.629887 1070.33441 265.069804 
+Q 1071.894493 263.50972 1074.494632 263.50972 
+Q 1076.954764 263.50972 1078.484846 264.979799 
+Q 1080.014928 266.449878 1080.014928 268.589992 
+Q 1080.014928 270.630101 1078.334838 272.920224 
+Q 1076.654748 275.210347 1071.874492 279.130556 
+Q 1068.794327 281.650691 1067.16424 283.570794 
+Q 1065.534153 285.490897 1064.794113 287.471003 
+Q 1064.334088 288.671067 1064.374091 289.971137 
+L 1083.755128 289.971137 
+L 1083.755128 286.510952 
+M 1042.852939 274.590313 
+L 1042.852939 264.109752 
+L 1050.35334 264.109752 
+Q 1052.993481 264.109752 1053.973534 264.369766 
+Q 1055.493615 264.789789 1056.423665 266.099859 
+Q 1057.353715 267.409929 1057.353715 269.250028 
+Q 1057.353715 271.790164 1055.77363 273.190238 
+Q 1054.193546 274.590313 1050.433344 274.590313 
+L 1042.852939 274.590313 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #0000ff"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 153.72201 126.25904 
+L 153.72201 187.345643 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 749.927258 126.25904 
+L 749.927258 187.345643 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 157.387206 176.350055 
+L 150.056814 183.680447 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 746.262062 183.680447 
+L 753.592454 176.350055 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 153.72201 180.015251 
+L 749.927258 180.015251 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 453.366383 169.318012 
+L 456.366544 169.318012 
+L 456.366544 163.467698 
+L 459.666721 163.467698 
+L 459.666721 160.717551 
+L 456.366544 160.717551 
+L 456.366544 144.88337 
+L 453.916413 144.88337 
+L 442.765816 160.717551 
+L 442.765816 163.467698 
+L 453.366383 163.467698 
+L 453.366383 169.318012 
+M 472.350733 169.318012 
+L 475.350893 169.318012 
+L 475.350893 163.467698 
+L 478.65107 163.467698 
+L 478.65107 160.717551 
+L 475.350893 160.717551 
+L 475.350893 144.88337 
+L 472.900762 144.88337 
+L 461.750165 160.717551 
+L 461.750165 163.467698 
+L 472.350733 163.467698 
+L 472.350733 169.318012 
+M 440.532363 166.434524 
+L 428.548388 166.434524 
+Q 429.048415 165.617813 429.815123 164.809437 
+Q 430.58183 164.00106 433.281975 161.734272 
+Q 436.515481 159.000793 437.907222 157.434042 
+Q 439.298964 155.867292 439.898996 154.450549 
+Q 440.499028 153.033806 440.499028 151.567061 
+Q 440.499028 148.683574 438.448918 146.733469 
+Q 436.398808 144.783365 432.881953 144.783365 
+Q 429.398434 144.783365 427.331656 146.591795 
+Q 425.264879 148.400225 424.948195 151.85041 
+L 428.031694 152.167093 
+Q 428.048361 149.86697 429.348431 148.566901 
+Q 430.648501 147.266831 432.815283 147.266831 
+Q 434.865393 147.266831 436.140461 148.491897 
+Q 437.415529 149.716962 437.415529 151.500391 
+Q 437.415529 153.200482 436.015455 155.108918 
+Q 434.61538 157.017353 430.631833 160.284195 
+Q 428.065029 162.384307 426.706623 163.984393 
+Q 425.348217 165.584478 424.731517 167.234567 
+Q 424.348163 168.23462 424.381498 169.318012 
+L 440.532363 169.318012 
+L 440.532363 166.434524 
+M 453.366383 160.717551 
+L 445.715974 160.717551 
+L 453.366383 149.700295 
+L 453.366383 160.717551 
+M 472.350733 160.717551 
+L 464.700323 160.717551 
+L 472.350733 149.700295 
+L 472.350733 160.717551 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #ff003f"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 749.927258 126.25904 
+L 749.927258 187.345643 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 1011.37792 126.25904 
+L 1011.37792 187.345643 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 753.592454 176.350055 
+L 746.262062 183.680447 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 1007.712724 183.680447 
+L 1015.043117 176.350055 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 749.927258 180.015251 
+L 1011.37792 180.015251 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 872.577157 157.267366 
+Q 872.577157 164.151068 874.993953 167.201232 
+Q 877.010728 169.7347 880.54425 169.7347 
+Q 883.227727 169.7347 884.986155 168.292957 
+Q 886.744582 166.851213 887.627963 164.209405 
+Q 888.511343 161.567597 888.511343 157.267366 
+Q 888.511343 153.633839 887.961314 151.492057 
+Q 887.411284 149.350276 886.444566 147.858529 
+Q 885.477848 146.366783 883.994435 145.575074 
+Q 882.511022 144.783365 880.54425 144.783365 
+Q 877.877441 144.783365 876.119013 146.216775 
+Q 874.360586 147.650185 873.468871 150.291993 
+Q 872.577157 152.933801 872.577157 157.267366 
+M 891.761517 148.083542 
+L 903.728825 148.083542 
+Q 901.445369 150.683681 899.420261 154.47555 
+Q 897.395152 158.26742 896.311761 162.350972 
+Q 895.22837 166.434524 895.178367 169.318012 
+L 898.261865 169.318012 
+Q 898.511879 165.667816 899.411927 162.600985 
+Q 900.661994 158.250752 902.953783 154.133865 
+Q 905.245572 150.016978 907.579031 147.533512 
+L 907.579031 145.200054 
+L 891.761517 145.200054 
+L 891.761517 148.083542 
+M 864.893412 169.318012 
+L 864.893412 144.783365 
+L 862.959976 144.783365 
+Q 862.1766 146.366783 860.293166 148.050206 
+Q 858.409732 149.73363 855.892931 150.917027 
+L 855.892931 153.817182 
+Q 857.293006 153.300487 859.051433 152.267099 
+Q 860.80986 151.23371 861.893252 150.200321 
+L 861.893252 169.318012 
+L 864.893412 169.318012 
+M 875.660655 157.267366 
+Q 875.660655 151.250378 877.210738 149.016925 
+Q 878.444138 147.266831 880.510915 147.266831 
+Q 882.611028 147.266831 884.019436 149.250271 
+Q 885.427845 151.23371 885.427845 157.267366 
+Q 885.427845 163.267688 884.019436 165.267795 
+Q 882.611028 167.267902 880.54425 167.267902 
+Q 878.477473 167.267902 877.069064 165.276128 
+Q 875.660655 163.284355 875.660655 157.267366 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #ff003f"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 153.72201 126.25904 
+L 153.72201 248.432247 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 1011.37792 126.25904 
+L 1011.37792 248.432247 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 157.387206 237.436658 
+L 150.056814 244.76705 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 1007.712724 244.76705 
+L 1015.043117 237.436658 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 153.72201 241.101854 
+L 1011.37792 241.101854 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 555.506851 223.95427 
+Q 555.806867 227.004433 557.931981 228.921202 
+Q 560.057094 230.837971 563.273933 230.837971 
+Q 566.840791 230.837971 569.174249 228.612852 
+Q 571.507707 226.387733 571.507707 223.187562 
+Q 571.507707 220.820768 570.307643 219.245684 
+Q 569.107579 217.6706 566.940796 217.170573 
+Q 568.607552 216.403865 569.457598 215.103796 
+Q 570.307643 213.803726 570.307643 212.220308 
+Q 570.307643 210.553552 569.415929 209.070139 
+Q 568.524214 207.586727 566.840791 206.728347 
+Q 565.157368 205.869968 563.15726 205.869968 
+Q 560.257105 205.869968 558.307001 207.52839 
+Q 556.356896 209.186812 555.806867 212.203641 
+L 558.807028 212.737002 
+Q 559.140379 210.536885 560.307108 209.436826 
+Q 561.473837 208.336767 563.223931 208.336767 
+Q 564.990692 208.336767 566.107418 209.420158 
+Q 567.224145 210.50355 567.224145 212.153638 
+Q 567.224145 214.237083 565.690729 215.237136 
+Q 564.157314 216.23719 562.240545 216.23719 
+Q 562.057202 216.23719 561.757185 216.203855 
+L 561.423834 218.837329 
+Q 562.690569 218.503978 563.540614 218.503978 
+Q 565.624059 218.503978 566.974131 219.845716 
+Q 568.324204 221.187455 568.324204 223.254232 
+Q 568.324204 225.421015 566.865792 226.88776 
+Q 565.407381 228.354505 563.290601 228.354505 
+Q 561.507172 228.354505 560.265439 227.229445 
+Q 559.023706 226.104385 558.507012 223.554248 
+L 555.506851 223.95427 
+M 574.474533 224.004272 
+Q 574.774549 227.087771 576.882995 228.954537 
+Q 578.991441 230.821304 582.324953 230.821304 
+Q 586.391838 230.821304 588.741963 227.854478 
+Q 590.6754 225.437682 590.6754 222.120838 
+Q 590.6754 218.637318 588.475282 216.420533 
+Q 586.275165 214.203748 583.074993 214.203748 
+Q 580.658197 214.203748 578.458079 215.737163 
+L 579.774817 209.170145 
+L 589.525339 209.170145 
+L 589.525339 206.303325 
+L 577.374688 206.303325 
+L 575.007895 218.853997 
+L 577.824712 219.220683 
+Q 578.491415 218.170627 579.658144 217.512258 
+Q 580.824873 216.853889 582.27495 216.853889 
+Q 584.608409 216.853889 586.050153 218.337302 
+Q 587.491896 219.820715 587.491896 222.387519 
+Q 587.491896 225.087664 585.991816 226.721084 
+Q 584.491736 228.354505 582.324953 228.354505 
+Q 580.524857 228.354505 579.249789 227.19611 
+Q 577.97472 226.037714 577.624702 223.737591 
+L 574.474533 224.004272 
+M 604.759487 230.404615 
+L 604.759487 205.869968 
+L 602.826051 205.869968 
+Q 602.042675 207.453386 600.159241 209.13681 
+Q 598.275807 210.820233 595.759006 212.00363 
+L 595.759006 214.903785 
+Q 597.159081 214.387091 598.917508 213.353702 
+Q 600.675935 212.320313 601.759327 211.286925 
+L 601.759327 230.404615 
+L 604.759487 230.404615 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #ff003f"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 1018.708313 118.928648 
+L 1087.125309 118.928648 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 1018.708313 72.502829 
+L 1087.125309 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 1076.12972 115.263451 
+L 1083.460112 122.593844 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 1083.460112 76.168025 
+L 1076.12972 68.837633 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 1079.794916 118.928648 
+L 1079.794916 72.502829 
+" clip-path="url(#pcb94b7e4f1)" style="fill: none; stroke: #00ffff; stroke-width: 0.48; stroke-linecap: square"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 1056.116982 93.848972 
+Q 1059.00047 93.482285 1060.592222 91.665521 
+Q 1062.183973 89.848758 1062.183973 86.981937 
+Q 1062.183973 84.281793 1060.733896 82.273352 
+Q 1059.283818 80.264911 1056.50867 79.24819 
+Q 1053.733521 78.231469 1049.049937 78.231469 
+Q 1044.549696 78.231469 1042.174569 79.256524 
+Q 1039.799442 80.281579 1038.51604 82.256684 
+Q 1037.232638 84.23179 1037.232638 86.615251 
+Q 1037.232638 89.915428 1039.499426 92.107212 
+Q 1041.766214 94.298996 1045.483079 94.298996 
+Q 1049.083272 94.298996 1051.28339 92.198883 
+Q 1053.483508 90.098771 1053.483508 87.065275 
+Q 1053.483508 85.248511 1052.591793 83.690095 
+Q 1051.700079 82.131678 1050.266669 81.23163 
+Q 1050.66669 81.214962 1050.866701 81.214962 
+Q 1052.733468 81.214962 1054.533564 81.664986 
+Q 1056.33366 82.11501 1057.39205 82.781713 
+Q 1058.45044 83.448415 1059.083807 84.490137 
+Q 1059.717175 85.53186 1059.717175 86.915267 
+Q 1059.717175 88.53202 1058.800459 89.565409 
+Q 1057.883743 90.598798 1055.850301 90.965484 
+L 1056.116982 93.848972 
+M 1061.767284 101.98274 
+L 1037.232638 101.98274 
+L 1037.232638 103.916177 
+Q 1038.816056 104.699552 1040.499479 106.582987 
+Q 1042.182903 108.466421 1043.366299 110.983222 
+L 1046.266455 110.983222 
+Q 1045.74976 109.583147 1044.716372 107.82472 
+Q 1043.682983 106.066292 1042.649594 104.982901 
+L 1061.767284 104.982901 
+L 1061.767284 101.98274 
+M 1045.333071 81.564981 
+Q 1047.916543 81.564981 1049.374954 82.906719 
+Q 1050.833366 84.248458 1050.833366 86.331903 
+Q 1050.833366 88.39868 1049.374954 89.807089 
+Q 1047.916543 91.215497 1045.583085 91.215497 
+Q 1042.982946 91.215497 1041.349525 89.732085 
+Q 1039.716104 88.248672 1039.716104 86.248565 
+Q 1039.716104 84.315128 1041.232852 82.940054 
+Q 1042.7496 81.564981 1045.333071 81.564981 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #ff003f"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 172.59302 50.511652 
+L 176.573233 50.511652 
+L 188.053848 21.190082 
+L 184.093636 21.190082 
+L 176.173212 42.491222 
+Q 175.273164 44.891351 174.593127 47.291479 
+Q 173.973094 45.05136 173.053045 42.491222 
+L 165.432637 21.190082 
+L 161.232412 21.190082 
+L 172.59302 50.511652 
+M 292.179422 40.231101 
+Q 291.379379 43.9313 289.119258 45.8114 
+Q 286.859137 47.691501 283.598962 47.691501 
+Q 280.918819 47.691501 278.618696 46.311427 
+Q 276.318573 44.931353 275.228514 42.141204 
+Q 274.138456 39.351054 274.138456 35.610854 
+Q 274.138456 32.710699 275.058505 29.980553 
+Q 275.978554 27.250407 278.248676 25.63032 
+Q 280.518797 24.010233 283.898978 24.010233 
+Q 286.839136 24.010233 288.77924 25.470311 
+Q 290.719343 26.93039 291.739398 30.130561 
+L 295.559603 29.230513 
+Q 294.379539 25.170295 291.379379 22.930175 
+Q 288.379218 20.690055 283.978983 20.690055 
+Q 280.098775 20.690055 276.868602 22.46015 
+Q 273.638429 24.230245 271.888335 27.640428 
+Q 270.138242 31.05061 270.138242 35.630855 
+Q 270.138242 39.83108 271.688325 43.491276 
+Q 273.238408 47.151472 276.208567 49.081575 
+Q 279.178726 51.011679 283.918979 51.011679 
+Q 288.499225 51.011679 291.669394 48.501544 
+Q 294.839564 45.99141 296.059629 41.211154 
+L 292.179422 40.231101 
+M 236.176424 43.731289 
+Q 236.616447 47.191474 238.796564 49.101576 
+Q 240.976681 51.011679 244.416865 51.011679 
+Q 247.657038 51.011679 250.067167 49.271585 
+Q 252.477296 47.531492 253.697362 44.201314 
+Q 254.917427 40.871136 254.917427 35.250835 
+Q 254.917427 29.850546 253.687361 27.000393 
+Q 252.457295 24.150241 250.087168 22.610158 
+Q 247.717042 21.070076 244.856888 21.070076 
+Q 240.896676 21.070076 238.266536 23.790221 
+Q 235.636395 26.510367 235.636395 30.970606 
+Q 235.636395 35.290837 238.15653 37.930978 
+Q 240.676665 40.57112 244.31686 40.57112 
+Q 246.496976 40.57112 248.367076 39.501062 
+Q 250.237176 38.431005 251.317234 36.710913 
+Q 251.337235 37.190939 251.337235 37.430952 
+Q 251.337235 39.671072 250.797206 41.831187 
+Q 250.257178 43.991303 249.457135 45.261371 
+Q 248.657092 46.531439 247.407025 47.291479 
+Q 246.156958 48.05152 244.496869 48.05152 
+Q 242.556765 48.05152 241.316699 46.951461 
+Q 240.076633 45.851402 239.636609 43.411272 
+L 236.176424 43.731289 
+M 190.093957 42.771237 
+Q 190.453976 46.431433 193.004113 48.731557 
+Q 195.554249 51.03168 199.414456 51.03168 
+Q 203.694685 51.03168 206.494835 48.361537 
+Q 209.294985 45.691394 209.294985 41.851188 
+Q 209.294985 39.011036 207.854908 37.120935 
+Q 206.414831 35.230834 203.814691 34.630802 
+Q 205.814799 33.710752 206.834853 32.150669 
+Q 207.854908 30.590585 207.854908 28.690484 
+Q 207.854908 26.690377 206.78485 24.910281 
+Q 205.714793 23.130186 203.694685 22.100131 
+Q 201.674577 21.070076 199.274448 21.070076 
+Q 195.794262 21.070076 193.454137 23.060182 
+Q 191.114012 25.050289 190.453976 28.670483 
+L 194.054169 29.310517 
+Q 194.45419 26.670376 195.854265 25.350305 
+Q 197.25434 24.030234 199.354453 24.030234 
+Q 201.474566 24.030234 202.814638 25.330304 
+Q 204.15471 26.630373 204.15471 28.610479 
+Q 204.15471 31.110613 202.314611 32.310678 
+Q 200.474513 33.510742 198.17439 33.510742 
+Q 197.954378 33.510742 197.594358 33.47074 
+L 197.194337 36.630909 
+Q 198.714418 36.230887 199.734473 36.230887 
+Q 202.234607 36.230887 203.854694 37.840974 
+Q 205.47478 39.45106 205.47478 41.931192 
+Q 205.47478 44.531332 203.724687 46.291426 
+Q 201.974593 48.05152 199.434457 48.05152 
+Q 197.294342 48.05152 195.804263 46.701448 
+Q 194.314183 45.351376 193.69415 42.291212 
+L 190.093957 42.771237 
+M 226.415901 50.511652 
+L 226.415901 21.070076 
+L 224.095777 21.070076 
+Q 223.155727 22.970178 220.895606 24.990286 
+Q 218.635485 27.010394 215.615323 28.43047 
+L 215.615323 31.910656 
+Q 217.295413 31.290623 219.405526 30.050557 
+Q 221.515639 28.81049 222.815709 27.570424 
+L 222.815709 50.511652 
+L 226.415901 50.511652 
+M 260.437723 50.511652 
+L 264.537942 50.511652 
+L 264.537942 46.411432 
+L 260.437723 46.411432 
+L 260.437723 50.511652 
+M 250.917213 30.790596 
+Q 250.917213 33.890762 249.307127 35.640856 
+Q 247.69704 37.390949 245.196907 37.390949 
+Q 242.716774 37.390949 241.026683 35.640856 
+Q 239.336593 33.890762 239.336593 31.090612 
+Q 239.336593 27.970445 241.116688 26.01034 
+Q 242.896784 24.050235 245.296912 24.050235 
+Q 247.617036 24.050235 249.267125 25.870333 
+Q 250.917213 27.69043 250.917213 30.790596 
+" clip-path="url(#pcb94b7e4f1)" style="fill: #ffffff"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pcb94b7e4f1">
+   <rect x="7.2" y="7.2" width="1152" height="296.78122"/>
+  </clipPath>
+ </defs>
+</svg>
+<div class="artifact-path">D:/Agente-cad-PYSIDE/DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V319.dxf</div></div></div></div></div><div class="sec"><div class="sec-title">Fichas agregadas da viga</div><div class="sec-body"><div class="fichas-grid"><div><div class="ficha-col-title">N2 / Motor Reverso</div><div class="ficha-cell"><table style="font-size:9px;border-collapse:collapse"><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">number</td><td style="padding:1px 4px">319</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">name</td><td style="padding:1px 4px">V319</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">floor</td><td style="padding:1px 4px">Pavimento</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">total_width</td><td style="padding:1px 4px">19.0</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">total_height</td><td style="padding:1px 4px">351.0</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">panels</td><td style="padding:1px 4px">[{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}]</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">segments_rich</td><td style="padding:1px 4px">[{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}]</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">holes</td><td style="padding:1px 4px">[{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}]</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">pillar_left</td><td style="padding:1px 4px">{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">pillar_right</td><td style="padding:1px 4px">{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">label_left</td><td style="padding:1px 4px">P32</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">label_right</td><td style="padding:1px 4px">P23</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">_n_linhas_folha</td><td style="padding:1px 4px">1</td></tr><tr><td style="color:#7eb8f7;padding:1px 4px;white-space:nowrap">_fase4_ref</td><td style="padding:1px 4px">{&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V319_motor_178105102587.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P23&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111331116.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111040026.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106535824.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106515842.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106294661.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106116574.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V319_motor_178105102587.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P23&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111331116.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111040026.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106535824.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106515842.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106294661.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 0.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: 19.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: 19.0}], &#x27;tiers&#x27;: [[244.0, 107.0], [351.0]]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106116574.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V319_motor_178105102587.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P23&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111331116.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178111040026.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106535824.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106515842.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106294661.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;height1&#x27;: 19.0, &#x27;height2&#x27;: 19.0, &#x27;grade_h1&#x27;: &#x27;351.0&#x27;, &#x27;grade_h2&#x27;: &#x27;351.0&#x27;}], &#x27;segments_rich&#x27;: [{&#x27;total_width&#x27;: 351.0, &#x27;panels&#x27;: [{&#x27;width&#x27;: 351.0, &#x27;texts&#x27;: [&#x27;P29&#x27;], &#x27;vertices&#x27;: [{&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -28.0}, {&#x27;x&#x27;: 351.0, &#x27;y&#x27;: -9.0}, {&#x27;x&#x27;: 0.0, &#x27;y&#x27;: -9.0}]}]}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0, &#x27;text&#x27;: None}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;label_left&#x27;: &#x27;P32&#x27;, &#x27;label_right&#x27;: &#x27;P20&#x27;, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0, &#x27;_n_linhas_folha&#x27;: 1, &#x27;_er_meta&#x27;: {&#x27;source&#x27;: &#x27;dxf_geometry&#x27;, &#x27;dxf_path&#x27;: &#x27;D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V319_motor_178106116574.dxf&#x27;, &#x27;confianca&#x27;: 0.9, &#x27;n_pilar_gaps&#x27;: 0, &#x27;n_polys_atribuidos&#x27;: 1}, &#x27;_confianca&#x27;: 0.9, &#x27;_fase4_ref&#x27;: {&#x27;number&#x27;: &#x27;319&#x27;, &#x27;name&#x27;: &#x27;V319_A&#x27;, &#x27;floor&#x27;: &#x27;Pavimento&#x27;, &#x27;side&#x27;: &#x27;A&#x27;, &#x27;total_width&#x27;: 19.0, &#x27;total_height&#x27;: &#x27;55.0&#x27;, &#x27;panels&#x27;: [{&#x27;width&#x27;: 244.0, &#x27;height1&#x27;: 55.0, &#x27;height2&#x27;: 55.0, &#x27;grade_h1&#x27;: &#x27;244.0&#x27;, &#x27;grade_h2&#x27;: &#x27;244.0&#x27;}, {&#x27;width&#x27;: 171.0, &#x27;height1&#x27;: 55.0, &#x27;height2&#x27;: 55.0, &#x27;grade_h1&#x27;: &#x27;171.0&#x27;, &#x27;grade_h2&#x27;: &#x27;171.0&#x27;}], &#x27;holes&#x27;: [{&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0}, {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;height&#x27;: 0.0, &#x27;position&#x27;: 0.0}], &#x27;pillar_left&#x27;: {&#x27;active&#x27;: True, &#x27;width&#x27;: 30.9, &#x27;length&#x27;: 19.0}, &#x27;pillar_right&#x27;: {&#x27;active&#x27;: False, &#x27;width&#x27;: 0.0, &#x27;length&#x27;: 0.0}, &#x27;sarrafo_left_id&#x27;: 0, &#x27;sarrafo_right_id&#x27;: 0}}}}}}}}}}}}}}}}}}}}}}</td></tr></table></div></div><div><div class="ficha-col-title">N3 / JSON Fase-4</div><div class="ficha-cell"><table style="font-size:9px;border-collapse:collapse"><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">contract_version</td><td style="padding:2px 5px;white-space:pre-wrap">3</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">motor_id</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;ROBOT_FV_N3_N4&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">name</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;V319&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">floor</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;Pavimento&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">side</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;C&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">total_width</td><td style="padding:2px 5px;white-space:pre-wrap">19.0</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">total_height</td><td style="padding:2px 5px;white-space:pre-wrap">55.0</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">panels</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  {
+    &quot;total_width&quot;: 313.0,
+    &quot;width&quot;: 313.0,
+    &quot;dim_text&quot;: &quot;19/55&quot;,
+    &quot;largura_total_fundo&quot;: 19.0,
+    &quot;comprimento_total_fundo&quot;: 313.0,
+    &quot;altura_total&quot;: 55.0,
+    &quot;texto_esq&quot;: &quot;V313&quot;,
+    &quot;texto_dir&quot;: &quot;V315&quot;,
+    &quot;row_break&quot;: false
+  }
+]</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">segments_rich</td><td style="padding:2px 5px;white-space:pre-wrap">[
+  {
+    &quot;total_width&quot;: 313.0,
+    &quot;width&quot;: 313.0,
+    &quot;dim_text&quot;: &quot;19/55&quot;,
+    &quot;largura_total_fundo&quot;: 19.0,
+    &quot;comprimento_total_fundo&quot;: 313.0,
+    &quot;altura_total&quot;: 55.0,
+    &quot;texto_esq&quot;: &quot;V313&quot;,
+    &quot;texto_dir&quot;: &quot;V315&quot;,
+    &quot;row_break&quot;: false
+  }
+]</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">label_left</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;V313&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">label_right</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;V315&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">pillar_left</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;active&quot;: true,
+  &quot;label&quot;: &quot;V313&quot;,
+  &quot;width&quot;: 0.0,
+  &quot;length&quot;: 0.0
+}</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">pillar_right</td><td style="padding:2px 5px;white-space:pre-wrap">{
+  &quot;active&quot;: true,
+  &quot;label&quot;: &quot;V315&quot;,
+  &quot;width&quot;: 0.0,
+  &quot;length&quot;: 0.0
+}</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">apoio_inicial</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;V313&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">apoio_final</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;V315&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">observations</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;Fonte: Structural Analyzer N1; contrato canonico FV N3/N4&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">number</td><td style="padding:2px 5px;white-space:pre-wrap">&quot;319&quot;</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">sarrafo_left_id</td><td style="padding:2px 5px;white-space:pre-wrap">0</td></tr><tr><td style="color:#4fc3a1;padding:2px 5px;white-space:nowrap;vertical-align:top">sarrafo_right_id</td><td style="padding:2px 5px;white-space:pre-wrap">0</td></tr></table></div></div></div></div></div><div class="sec"><div class="sec-title">Quality gates da viga FV</div><div class="sec-body"><table><tr><td style="color:#4fc3a1">OK</td><td>N1 disponível para todos os segmentos</td></tr><tr><td style="color:#4fc3a1">OK</td><td>recorte N2 localizado</td></tr><tr><td style="color:#4fc3a1">OK</td><td>artefato N3 localizado</td></tr><tr><td style="color:#4fc3a1">OK</td><td>artefato N4 localizado</td></tr></table></div></div><pre id="_aten_export" style="display:none"></pre><button onclick="exportAnotacoes()" style="margin:12px 0;background:#2a2a00;color:#f0b840;border:1px solid #554400;padding:3px 10px;cursor:pointer;font-size:10px">Exportar Anotações</button><div class="sec" style="margin-top:16px;border-color:#5a2020"><div class="sec-title" style="color:#e17055">Marcação de erro (revisão humana)</div><div class="sec-body"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#e17055;font-weight:bold"><input type="checkbox" id="erro_check" style="width:16px;height:16px">Marcar esta ficha como ERRADA</label><textarea id="erro_nota" placeholder="Descreva o que está errado (N1, N2, N3 ou N4)..." style="width:100%;min-height:70px;margin-top:8px;background:#1a1a1a;color:#f0b840;border:1px solid #554400;border-radius:3px;padding:6px;font-family:monospace;font-size:11px;box-sizing:border-box"></textarea></div></div><script>(function(){var key="aten_erro_fv_Obra_TREINO_1_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_V319";function save(){  var chk=document.getElementById("erro_check");  var txt=document.getElementById("erro_nota");  if(chk.checked||txt.value.trim()){    localStorage.setItem(key, JSON.stringify({erro:chk.checked, nota:txt.value}));  } else { localStorage.removeItem(key); }}function load(){  var stored=localStorage.getItem(key);  if(!stored)return;  try{    var obj=JSON.parse(stored);    document.getElementById("erro_check").checked=!!obj.erro;    document.getElementById("erro_nota").value=obj.nota||"";  }catch(e){}}document.addEventListener("DOMContentLoaded", function(){  load();  document.getElementById("erro_check")    .addEventListener("change", save);  document.getElementById("erro_nota")    .addEventListener("input", save);});})();</script></div></div><!-- ARETE_FV_DIAGNOSTIC_START --><details class="arete-auto-diagnostic" style="margin:16px 0;padding:10px;border:1px solid #554400;background:#171407"><summary style="cursor:pointer;color:#e17055;font-weight:bold">Diagnóstico automático N1×N2 — RUIM</summary><p style="color:#998b55;font-size:10px">Hipótese numérica automática; a marcação humana permanece soberana.</p><p><b>Causa:</b> extractor_bug<br><b>Delta máximo:</b> 10.83%<br>Dimensões do fundo de viga divergem entre a interpretação N1 e a ficha N2.</p><a href="../../../../relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_192302/diagnostico_fv_n1_n2.json">Abrir evidência oficial JSON</a></details><!-- ARETE_FV_DIAGNOSTIC_END --></body></html>

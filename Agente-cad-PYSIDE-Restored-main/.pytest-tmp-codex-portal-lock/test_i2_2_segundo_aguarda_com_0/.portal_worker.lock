@@ -1,0 +1,2 @@
+
+pid=8756 inicio=2026-07-06T15:18:05 cmd=D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pytest\__main__.py portal/tests/test_portal_job_queue.py portal/tests/test_portal_pipeline_runner.py -q --basetemp .pytest-tmp-codex-portal-lock

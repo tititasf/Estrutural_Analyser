@@ -1,0 +1,1138 @@
+=== instalar_servico.ps1 ===
+
+
+Attributes         : {}
+UsingStatements    : {}
+ParamBlock         : param(
+                         [string]$PythonExe,
+                         [string]$RepoDir   = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$BindHost  = "127.0.0.1",
+                         [int]$Port         = 21380,
+                         [int]$PollerPort   = 21381,
+                         [string]$LogsDir   = "D:\Agente-cad-PYSIDE\logs",
+                         [string]$Nssm      = "nssm",
+                         [switch]$ComPoller
+                     )
+BeginBlock         : 
+ProcessBlock       : 
+EndBlock           : param(
+                         [string]$PythonExe,
+                         [string]$RepoDir   = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$BindHost  = "127.0.0.1",
+                         [int]$Port         = 21380,
+                         [int]$PollerPort   = 21381,
+                         [string]$LogsDir   = "D:\Agente-cad-PYSIDE\logs",
+                         [string]$Nssm      = "nssm",
+                         [switch]$ComPoller
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     
+                     $WebSvc    = "portal-web"
+                     $PollerSvc = "portal-poller"
+                     
+                     # --- Resolucao do python.exe (nao hardcodar um venv inexistente) ---
+                     if (-not $PythonExe) {
+                         $venvPy = Join-Path $RepoDir ".venv\Scripts\python.exe"
+                         if (Test-Path $venvPy) {
+                             $PythonExe = $venvPy
+                         } else {
+                             $cmd = Get-Command python -ErrorAction SilentlyContinue
+                             if (-not $cmd) {
+                                 throw "python.exe nao encontrado. Passe -PythonExe com o caminho do interpretador do 
+                     portal."
+                             }
+                             $PythonExe = $cmd.Source
+                             Write-Warning "Venv nao encontrado em $venvPy É?" usando python do PATH: $PythonExe"
+                         }
+                     }
+                     
+                     # --- Validacoes de pre-requisito ---
+                     $nssmCmd = Get-Command $Nssm -ErrorAction SilentlyContinue
+                     if (-not $nssmCmd) {
+                         throw "NSSM nao encontrado ('$Nssm'). Instale com 'winget install nssm' ou baixe de 
+                     https://nssm.cc/download e ponha no PATH."
+                     }
+                     if (-not (Test-Path $PythonExe)) { throw "PythonExe nao existe: $PythonExe" }
+                     if (-not (Test-Path $RepoDir))   { throw "RepoDir nao existe: $RepoDir" }
+                     New-Item -ItemType Directory -Force -Path $LogsDir | Out-Null
+                     
+                     if ($BindHost -eq "0.0.0.0") {
+                         throw "Bind em 0.0.0.0 viola a invariante VPN-only (HANDOFF 1.4). Use o IP Tailscale ou 
+                     127.0.0.1."
+                     }
+                     
+                     Write-Host "[install] NSSM      : $($nssmCmd.Source)"
+                     Write-Host "[install] Python    : $PythonExe"
+                     Write-Host "[install] RepoDir   : $RepoDir"
+                     Write-Host "[install] Web bind  : $BindHost`:$Port"
+                     
+                     function Register-PortalService {
+                         param(
+                             [string]$Name,
+                             [int]$SvcPort,
+                             [bool]$PollEnabled
+                         )
+                     
+                         # Se ja existe, remove antes de recriar (idempotente).
+                         $existing = & $Nssm status $Name 2>$null
+                         if ($LASTEXITCODE -eq 0) {
+                             Write-Warning "[install] Servico '$Name' ja existe É?" parando e removendo para recriar."
+                             & $Nssm stop   $Name 2>$null | Out-Null
+                             & $Nssm remove $Name confirm 2>$null | Out-Null
+                         }
+                     
+                         # [POLLER-ENTRYPOINT] app ASGI. Se o poller virar script proprio, troque aqui.
+                         $appArgs = @(
+                             "-m", "uvicorn", "portal.app.main:app",
+                             "--host", $BindHost, "--port", "$SvcPort", "--workers", "1"
+                         )
+                     
+                         & $Nssm install $Name $PythonExe @appArgs
+                         & $Nssm set $Name AppDirectory $RepoDir
+                         & $Nssm set $Name Start SERVICE_AUTO_START
+                         & $Nssm set $Name DisplayName "Arete Portal ($Name)"
+                     
+                         # Variaveis de ambiente do servico (PORTAL_HOST/PORT batem com config.py).
+                         $envBlock = "PORTAL_HOST=$BindHost`nPORTAL_PORT=$SvcPort`nPORTAL_POLL_ENABLED=$($PollEnabled.T
+                     oString().ToLower())"
+                         & $Nssm set $Name AppEnvironmentExtra $envBlock
+                     
+                         # Restart automatico em crash (throttle 5s, sem limite de tentativas).
+                         & $Nssm set $Name AppThrottle 5000
+                         & $Nssm set $Name AppExit Default Restart
+                         & $Nssm set $Name AppRestartDelay 5000
+                     
+                         # Logs rotativos de stdout/stderr.
+                         & $Nssm set $Name AppStdout (Join-Path $LogsDir "$Name-out.log")
+                         & $Nssm set $Name AppStderr (Join-Path $LogsDir "$Name-err.log")
+                         & $Nssm set $Name AppRotateFiles 1
+                         & $Nssm set $Name AppRotateOnline 1
+                         & $Nssm set $Name AppRotateBytes 10485760
+                     
+                         & $Nssm start $Name
+                         Write-Host "[install] Servico '$Name' registrado e iniciado (porta $SvcPort, 
+                     poller=$PollEnabled)."
+                     }
+                     
+                     Register-PortalService -Name $WebSvc -SvcPort $Port -PollEnabled $false
+                     
+                     if ($ComPoller) {
+                         # Segundo servico isolado (HANDOFF 2.2): se o poller travar por falha do Drive,
+                         # o portal-web segue servindo fichas.
+                         Register-PortalService -Name $PollerSvc -SvcPort $PollerPort -PollEnabled $true
+                     } else {
+                         Write-Host "[install] -ComPoller ausente É?" poller NAO registrado (portal-web sobe sozinho)."
+                     }
+                     
+                     Write-Host ""
+                     Write-Host "[install] CONCLUIDO. Verifique com:"
+                     Write-Host "    sc query $WebSvc"
+                     Write-Host "    curl http://$BindHost`:$Port/health"
+                     
+DynamicParamBlock  : 
+ScriptRequirements : 
+Extent             : <#
+                     .SYNOPSIS
+                         Registra o portal (uvicorn) e, opcionalmente, o poller do Drive como
+                         servicos Windows via NSSM, com restart automatico e start no boot sem login.
+                     
+                     .DESCRIPTION
+                         Implementa HANDOFF-DEVOPS-PORTAL.md secao 2 (portal como servico persistente).
+                     
+                         Dois servicos:
+                           - portal-web    : uvicorn portal.app.main:app  (SEMPRE)
+                           - portal-poller : mesmo app, mas com PORTAL_POLL_ENABLED=true, em um
+                                             segundo servico ISOLADO (HANDOFF 2.2), SO se -ComPoller.
+                     
+                         IMPORTANTE (leia antes de rodar):
+                           * Este script NAO foi executado pelo DevOps por seguranca (instala servico
+                             Windows real). Rode voce mesmo, como Administrador, apos revisar os
+                             parametros abaixo.
+                           * O poller NAO e um binario separado no codigo atual: o app FastAPI ja sobe
+                             o poller no lifespan quando PORTAL_POLL_ENABLED=true (ver portal/app/main.py).
+                             Por isso o "portal-poller" e uma segunda instancia do MESMO app com o
+                             poller ligado e as rotas HTTP desligadas na pratica (bind em porta separada
+                             so para health). Se, no futuro, o poller virar um script proprio, troque
+                             apenas a linha marcada [POLLER-ENTRYPOINT].
+                     
+                     .PARAMETER PythonExe
+                         Caminho absoluto do python.exe que roda o portal. Default tenta o venv do repo
+                         e cai para o python do PATH. NAO deixe hardcode de um venv que nao existe.
+                     
+                     .PARAMETER RepoDir
+                         Raiz do repositorio (AppDirectory do servico).
+                     
+                     .PARAMETER Host
+                         IP em que o uvicorn escuta. Em producao: o IP Tailscale (100.x.y.z), NUNCA
+                         0.0.0.0 (HANDOFF 1.4, invariante VPN-only). Default 127.0.0.1 para teste local.
+                     
+                     .PARAMETER Port
+                         Porta do portal-web. Default 21380 (bate com portal/app/config.py).
+                     
+                     .PARAMETER PollerPort
+                         Porta do portal-poller (health isolado). Default 21381.
+                     
+                     .PARAMETER LogsDir
+                         Diretorio para stdout/stderr rotativos dos servicos.
+                     
+                     .PARAMETER Nssm
+                         Caminho do nssm.exe. Default "nssm" (assume no PATH; via winget/choco fica no PATH).
+                     
+                     .PARAMETER ComPoller
+                         Se presente, tambem registra o servico portal-poller.
+                     
+                     .EXAMPLE
+                         # Producao (rodar como Admin, apos winget install nssm):
+                         .\instalar_servico.ps1 -Host 100.101.102.103 -PythonExe "D:\...\.venv\Scripts\python.exe" 
+                     -ComPoller
+                     
+                     .NOTES
+                         PRE-REQUISITO OBRIGATORIO: NSSM instalado.
+                           winget install nssm
+                           -- OU baixar de https://nssm.cc/download e colocar nssm.exe em C:\nssm\ (e no PATH).
+                     #>
+                     [CmdletBinding()]
+                     param(
+                         [string]$PythonExe,
+                         [string]$RepoDir   = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$BindHost  = "127.0.0.1",
+                         [int]$Port         = 21380,
+                         [int]$PollerPort   = 21381,
+                         [string]$LogsDir   = "D:\Agente-cad-PYSIDE\logs",
+                         [string]$Nssm      = "nssm",
+                         [switch]$ComPoller
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     
+                     $WebSvc    = "portal-web"
+                     $PollerSvc = "portal-poller"
+                     
+                     # --- Resolucao do python.exe (nao hardcodar um venv inexistente) ---
+                     if (-not $PythonExe) {
+                         $venvPy = Join-Path $RepoDir ".venv\Scripts\python.exe"
+                         if (Test-Path $venvPy) {
+                             $PythonExe = $venvPy
+                         } else {
+                             $cmd = Get-Command python -ErrorAction SilentlyContinue
+                             if (-not $cmd) {
+                                 throw "python.exe nao encontrado. Passe -PythonExe com o caminho do interpretador do 
+                     portal."
+                             }
+                             $PythonExe = $cmd.Source
+                             Write-Warning "Venv nao encontrado em $venvPy É?" usando python do PATH: $PythonExe"
+                         }
+                     }
+                     
+                     # --- Validacoes de pre-requisito ---
+                     $nssmCmd = Get-Command $Nssm -ErrorAction SilentlyContinue
+                     if (-not $nssmCmd) {
+                         throw "NSSM nao encontrado ('$Nssm'). Instale com 'winget install nssm' ou baixe de 
+                     https://nssm.cc/download e ponha no PATH."
+                     }
+                     if (-not (Test-Path $PythonExe)) { throw "PythonExe nao existe: $PythonExe" }
+                     if (-not (Test-Path $RepoDir))   { throw "RepoDir nao existe: $RepoDir" }
+                     New-Item -ItemType Directory -Force -Path $LogsDir | Out-Null
+                     
+                     if ($BindHost -eq "0.0.0.0") {
+                         throw "Bind em 0.0.0.0 viola a invariante VPN-only (HANDOFF 1.4). Use o IP Tailscale ou 
+                     127.0.0.1."
+                     }
+                     
+                     Write-Host "[install] NSSM      : $($nssmCmd.Source)"
+                     Write-Host "[install] Python    : $PythonExe"
+                     Write-Host "[install] RepoDir   : $RepoDir"
+                     Write-Host "[install] Web bind  : $BindHost`:$Port"
+                     
+                     function Register-PortalService {
+                         param(
+                             [string]$Name,
+                             [int]$SvcPort,
+                             [bool]$PollEnabled
+                         )
+                     
+                         # Se ja existe, remove antes de recriar (idempotente).
+                         $existing = & $Nssm status $Name 2>$null
+                         if ($LASTEXITCODE -eq 0) {
+                             Write-Warning "[install] Servico '$Name' ja existe É?" parando e removendo para recriar."
+                             & $Nssm stop   $Name 2>$null | Out-Null
+                             & $Nssm remove $Name confirm 2>$null | Out-Null
+                         }
+                     
+                         # [POLLER-ENTRYPOINT] app ASGI. Se o poller virar script proprio, troque aqui.
+                         $appArgs = @(
+                             "-m", "uvicorn", "portal.app.main:app",
+                             "--host", $BindHost, "--port", "$SvcPort", "--workers", "1"
+                         )
+                     
+                         & $Nssm install $Name $PythonExe @appArgs
+                         & $Nssm set $Name AppDirectory $RepoDir
+                         & $Nssm set $Name Start SERVICE_AUTO_START
+                         & $Nssm set $Name DisplayName "Arete Portal ($Name)"
+                     
+                         # Variaveis de ambiente do servico (PORTAL_HOST/PORT batem com config.py).
+                         $envBlock = "PORTAL_HOST=$BindHost`nPORTAL_PORT=$SvcPort`nPORTAL_POLL_ENABLED=$($PollEnabled.T
+                     oString().ToLower())"
+                         & $Nssm set $Name AppEnvironmentExtra $envBlock
+                     
+                         # Restart automatico em crash (throttle 5s, sem limite de tentativas).
+                         & $Nssm set $Name AppThrottle 5000
+                         & $Nssm set $Name AppExit Default Restart
+                         & $Nssm set $Name AppRestartDelay 5000
+                     
+                         # Logs rotativos de stdout/stderr.
+                         & $Nssm set $Name AppStdout (Join-Path $LogsDir "$Name-out.log")
+                         & $Nssm set $Name AppStderr (Join-Path $LogsDir "$Name-err.log")
+                         & $Nssm set $Name AppRotateFiles 1
+                         & $Nssm set $Name AppRotateOnline 1
+                         & $Nssm set $Name AppRotateBytes 10485760
+                     
+                         & $Nssm start $Name
+                         Write-Host "[install] Servico '$Name' registrado e iniciado (porta $SvcPort, 
+                     poller=$PollEnabled)."
+                     }
+                     
+                     Register-PortalService -Name $WebSvc -SvcPort $Port -PollEnabled $false
+                     
+                     if ($ComPoller) {
+                         # Segundo servico isolado (HANDOFF 2.2): se o poller travar por falha do Drive,
+                         # o portal-web segue servindo fichas.
+                         Register-PortalService -Name $PollerSvc -SvcPort $PollerPort -PollEnabled $true
+                     } else {
+                         Write-Host "[install] -ComPoller ausente É?" poller NAO registrado (portal-web sobe sozinho)."
+                     }
+                     
+                     Write-Host ""
+                     Write-Host "[install] CONCLUIDO. Verifique com:"
+                     Write-Host "    sc query $WebSvc"
+                     Write-Host "    curl http://$BindHost`:$Port/health"
+                     
+Parent             : 
+
+Express∆o de °ndice de matriz ausente ou inv†lida. @line 106
+Express∆o de °ndice de matriz ausente ou inv†lida. @line 167
+A cadeia de caracteres n∆o tem o terminador: ". @line 169
+'}' de fechamento ausente no bloco de instruá∆o ou na definiá∆o de tipo. @line 162
+
+
+=== atualizar_portal.ps1 ===
+
+
+Attributes         : {}
+UsingStatements    : {}
+ParamBlock         : param(
+                         [string]$RepoDir        = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$ServiceName    = "portal-web",
+                         [string]$HealthUrl      = "http://127.0.0.1:21380/health",
+                         [string]$PythonExe      = "",
+                         [int]$SmokeTimeoutSec   = 20,
+                         [int]$SmokeRetries      = 5,
+                         [string]$Nssm           = "nssm"
+                     )
+BeginBlock         : 
+ProcessBlock       : 
+EndBlock           : param(
+                         [string]$RepoDir        = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$ServiceName    = "portal-web",
+                         [string]$HealthUrl      = "http://127.0.0.1:21380/health",
+                         [string]$PythonExe      = "",
+                         [int]$SmokeTimeoutSec   = 20,
+                         [int]$SmokeRetries      = 5,
+                         [string]$Nssm           = "nssm"
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     Set-Location $RepoDir
+                     
+                     function Test-Health {
+                         param([string]$Url, [int]$TimeoutSec, [int]$Retries)
+                         for ($i = 1; $i -le $Retries; $i++) {
+                             try {
+                                 $r = Invoke-WebRequest -Uri $Url -TimeoutSec $TimeoutSec -UseBasicParsing
+                                 if ($r.StatusCode -eq 200) { return $true }
+                                 Write-Warning "[update] /health status $($r.StatusCode) (tentativa $i/$Retries)"
+                             } catch {
+                                 Write-Warning "[update] /health falhou (tentativa $i/$Retries): 
+                     $($_.Exception.Message)"
+                             }
+                             Start-Sleep -Seconds 4
+                         }
+                         return $false
+                     }
+                     
+                     function Restart-Portal {
+                         $svc = Get-Command $Nssm -ErrorAction SilentlyContinue
+                         if ($svc) {
+                             & $Nssm restart $ServiceName
+                         } else {
+                             Write-Warning "[update] NSSM nao encontrado É?" tentando Restart-Service $ServiceName"
+                             Restart-Service -Name $ServiceName -ErrorAction Stop
+                         }
+                         Start-Sleep -Seconds 8
+                     }
+                     
+                     # --- Ponto de rollback: commit atual ANTES de qualquer mudanca ---
+                     $OLD = (git rev-parse HEAD).Trim()
+                     Write-Host "[update] commit atual (ponto de rollback): $OLD"
+                     
+                     # --- fetch + merge (NUNCA rebase/reset) ---
+                     git fetch origin
+                     git merge origin/main --no-edit
+                     $NEW = (git rev-parse HEAD).Trim()
+                     Write-Host "[update] apos merge: $NEW"
+                     
+                     # --- dependencias novas, se houver python informado ---
+                     if ($PythonExe -and (Test-Path $PythonExe) -and (Test-Path (Join-Path $RepoDir 
+                     "requirements.txt"))) {
+                         Write-Host "[update] instalando/atualizando dependencias..."
+                         & $PythonExe -m pip install -r (Join-Path $RepoDir "requirements.txt")
+                     }
+                     
+                     Restart-Portal
+                     
+                     # --- SMOKE TEST ---
+                     if (Test-Health -Url $HealthUrl -TimeoutSec $SmokeTimeoutSec -Retries $SmokeRetries) {
+                         Write-Host "[update] SMOKE OK É?" atualizacao aplicada. Novo commit: $NEW"
+                         exit 0
+                     }
+                     
+                     # --- ROLLBACK (git checkout, NUNCA reset --hard) ---
+                     Write-Warning "[update] SMOKE FALHOU É?" REVERTENDO para $OLD"
+                     
+                     # Se houver merge em andamento (conflito), aborta o merge (seguro: nao apaga worktree).
+                     git merge --abort 2>$null
+                     
+                     # Volta o worktree ao commit bom e destaca nele (sem reset --hard / clean -fd).
+                     git checkout $OLD -- .
+                     git checkout $OLD
+                     
+                     Restart-Portal
+                     
+                     if (Test-Health -Url $HealthUrl -TimeoutSec $SmokeTimeoutSec -Retries $SmokeRetries) {
+                         Write-Host "[update] ROLLBACK concluido É?" servico de volta no commit $OLD"
+                         exit 1
+                     } else {
+                         Write-Error "[update] ROLLBACK NAO subiu o servico. PARANDO em estado conhecido ($OLD). 
+                     Diagnostique em logs\\$ServiceName-err.log manualmente. NAO deixar ambiguo com a equipe usando."
+                         exit 2
+                     }
+DynamicParamBlock  : 
+ScriptRequirements : 
+Extent             : <#
+                     .SYNOPSIS
+                         Atualiza o portal (fetch+merge), reinicia o servico, roda smoke test em /health
+                         e faz ROLLBACK automatico via git checkout se o smoke falhar.
+                     
+                     .DESCRIPTION
+                         Implementa HANDOFF-DEVOPS-PORTAL.md secao 3 (rotina de atualizacao com rollback).
+                     
+                         Regras de git deste repo (NAO NEGOCIAVEIS):
+                           * fetch + merge  -> NUNCA pull --rebase.
+                           * rollback via 'git checkout <commit>' -> JAMAIS 'git reset --hard' nem
+                             'git clean -fd' (incidente 10/03/2026: reset --hard destruiu dados).
+                     
+                     .PARAMETER RepoDir
+                         Raiz do repositorio.
+                     
+                     .PARAMETER ServiceName
+                         Nome do servico NSSM do portal-web. Default "portal-web".
+                     
+                     .PARAMETER HealthUrl
+                         URL do /health para o smoke test. Em producao use o IP Tailscale.
+                     
+                     .PARAMETER PythonExe
+                         python.exe para reinstalar dependencias (se requirements.txt mudou). Opcional.
+                     
+                     .PARAMETER SmokeTimeoutSec
+                         Timeout de cada tentativa de /health.
+                     
+                     .PARAMETER SmokeRetries
+                         Quantas vezes tentar o /health antes de considerar falha (uvicorn demora a subir).
+                     
+                     .EXAMPLE
+                         .\atualizar_portal.ps1 -HealthUrl "http://100.101.102.103:21380/health" `
+                             -PythonExe "D:\...\.venv\Scripts\python.exe"
+                     #>
+                     [CmdletBinding()]
+                     param(
+                         [string]$RepoDir        = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$ServiceName    = "portal-web",
+                         [string]$HealthUrl      = "http://127.0.0.1:21380/health",
+                         [string]$PythonExe      = "",
+                         [int]$SmokeTimeoutSec   = 20,
+                         [int]$SmokeRetries      = 5,
+                         [string]$Nssm           = "nssm"
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     Set-Location $RepoDir
+                     
+                     function Test-Health {
+                         param([string]$Url, [int]$TimeoutSec, [int]$Retries)
+                         for ($i = 1; $i -le $Retries; $i++) {
+                             try {
+                                 $r = Invoke-WebRequest -Uri $Url -TimeoutSec $TimeoutSec -UseBasicParsing
+                                 if ($r.StatusCode -eq 200) { return $true }
+                                 Write-Warning "[update] /health status $($r.StatusCode) (tentativa $i/$Retries)"
+                             } catch {
+                                 Write-Warning "[update] /health falhou (tentativa $i/$Retries): 
+                     $($_.Exception.Message)"
+                             }
+                             Start-Sleep -Seconds 4
+                         }
+                         return $false
+                     }
+                     
+                     function Restart-Portal {
+                         $svc = Get-Command $Nssm -ErrorAction SilentlyContinue
+                         if ($svc) {
+                             & $Nssm restart $ServiceName
+                         } else {
+                             Write-Warning "[update] NSSM nao encontrado É?" tentando Restart-Service $ServiceName"
+                             Restart-Service -Name $ServiceName -ErrorAction Stop
+                         }
+                         Start-Sleep -Seconds 8
+                     }
+                     
+                     # --- Ponto de rollback: commit atual ANTES de qualquer mudanca ---
+                     $OLD = (git rev-parse HEAD).Trim()
+                     Write-Host "[update] commit atual (ponto de rollback): $OLD"
+                     
+                     # --- fetch + merge (NUNCA rebase/reset) ---
+                     git fetch origin
+                     git merge origin/main --no-edit
+                     $NEW = (git rev-parse HEAD).Trim()
+                     Write-Host "[update] apos merge: $NEW"
+                     
+                     # --- dependencias novas, se houver python informado ---
+                     if ($PythonExe -and (Test-Path $PythonExe) -and (Test-Path (Join-Path $RepoDir 
+                     "requirements.txt"))) {
+                         Write-Host "[update] instalando/atualizando dependencias..."
+                         & $PythonExe -m pip install -r (Join-Path $RepoDir "requirements.txt")
+                     }
+                     
+                     Restart-Portal
+                     
+                     # --- SMOKE TEST ---
+                     if (Test-Health -Url $HealthUrl -TimeoutSec $SmokeTimeoutSec -Retries $SmokeRetries) {
+                         Write-Host "[update] SMOKE OK É?" atualizacao aplicada. Novo commit: $NEW"
+                         exit 0
+                     }
+                     
+                     # --- ROLLBACK (git checkout, NUNCA reset --hard) ---
+                     Write-Warning "[update] SMOKE FALHOU É?" REVERTENDO para $OLD"
+                     
+                     # Se houver merge em andamento (conflito), aborta o merge (seguro: nao apaga worktree).
+                     git merge --abort 2>$null
+                     
+                     # Volta o worktree ao commit bom e destaca nele (sem reset --hard / clean -fd).
+                     git checkout $OLD -- .
+                     git checkout $OLD
+                     
+                     Restart-Portal
+                     
+                     if (Test-Health -Url $HealthUrl -TimeoutSec $SmokeTimeoutSec -Retries $SmokeRetries) {
+                         Write-Host "[update] ROLLBACK concluido É?" servico de volta no commit $OLD"
+                         exit 1
+                     } else {
+                         Write-Error "[update] ROLLBACK NAO subiu o servico. PARANDO em estado conhecido ($OLD). 
+                     Diagnostique em logs\\$ServiceName-err.log manualmente. NAO deixar ambiguo com a equipe usando."
+                         exit 2
+                     }
+                     
+Parent             : 
+
+OK
+
+
+=== backup_diario.ps1 ===
+
+
+Attributes         : {}
+UsingStatements    : {}
+ParamBlock         : param(
+                         [string]$Dest         = "E:\backups\arete",
+                         [string]$DbPath       = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\portal_data.db",
+                         [string]$RepoDir      = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$PythonExe    = "",
+                         [int]$RetencaoDias    = 14,
+                         [switch]$PularArtefatos
+                     )
+BeginBlock         : 
+ProcessBlock       : 
+EndBlock           : param(
+                         [string]$Dest         = "E:\backups\arete",
+                         [string]$DbPath       = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\portal_data.db",
+                         [string]$RepoDir      = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$PythonExe    = "",
+                         [int]$RetencaoDias    = 14,
+                         [switch]$PularArtefatos
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     
+                     # --- Resolucao do python.exe para o fallback ---
+                     function Resolve-Python {
+                         param([string]$Explicit, [string]$Repo)
+                         if ($Explicit -and (Test-Path $Explicit)) { return $Explicit }
+                         $venvPy = Join-Path $Repo ".venv\Scripts\python.exe"
+                         if (Test-Path $venvPy) { return $venvPy }
+                         $cmd = Get-Command python -ErrorAction SilentlyContinue
+                         if ($cmd) { return $cmd.Source }
+                         return $null
+                     }
+                     
+                     # --- Backup consistente do SQLite (CLI se houver, senao Python) ---
+                     function Invoke-SqliteBackup {
+                         param([string]$Src, [string]$Out, [string]$Py)
+                         $cli = Get-Command sqlite3 -ErrorAction SilentlyContinue
+                         if ($cli) {
+                             # Caminho CLI: aspas escapadas para o .backup do sqlite3.
+                             & $cli.Source $Src ".backup '$Out'"
+                             if ($LASTEXITCODE -ne 0) { throw "sqlite3 .backup falhou (exit $LASTEXITCODE)" }
+                             return
+                         }
+                         if (-not $Py) { throw "Nem sqlite3 CLI nem python encontrados É?" impossivel fazer backup 
+                     consistente." }
+                         # Caminho Python: Connection.backup() faz backup online consistente (WAL-safe).
+                         $pyCode = @"
+                     import sqlite3, sys
+                     src, out = sys.argv[1], sys.argv[2]
+                     s = sqlite3.connect(src)
+                     d = sqlite3.connect(out)
+                     with d:
+                         s.backup(d)
+                     d.close(); s.close()
+                     print('backup-ok')
+                     "@
+                         $res = & $Py -c $pyCode $Src $Out
+                         if ($LASTEXITCODE -ne 0) { throw "python backup falhou (exit $LASTEXITCODE)" }
+                     }
+                     
+                     # --- PRAGMA integrity_check na COPIA (prova de restaurabilidade) ---
+                     function Test-SqliteIntegrity {
+                         param([string]$DbFile, [string]$Py)
+                         $cli = Get-Command sqlite3 -ErrorAction SilentlyContinue
+                         if ($cli) {
+                             $out = & $cli.Source $DbFile "PRAGMA integrity_check;"
+                             return ($out | Select-Object -First 1)
+                         }
+                         $pyCode = @"
+                     import sqlite3, sys
+                     c = sqlite3.connect(sys.argv[1])
+                     row = c.execute('PRAGMA integrity_check;').fetchone()
+                     c.close()
+                     print(row[0] if row else 'sem-resultado')
+                     "@
+                         return (& $Py -c $pyCode $DbFile)
+                     }
+                     
+                     function Get-SqliteObjectCount {
+                         param([string]$DbFile, [string]$Py)
+                         $cli = Get-Command sqlite3 -ErrorAction SilentlyContinue
+                         if ($cli) { return (& $cli.Source $DbFile "SELECT count(*) FROM sqlite_master;") }
+                         $pyCode = @"
+                     import sqlite3, sys
+                     c = sqlite3.connect(sys.argv[1])
+                     n = c.execute('SELECT count(*) FROM sqlite_master;').fetchone()[0]
+                     c.close()
+                     print(n)
+                     "@
+                         return (& $Py -c $pyCode $DbFile)
+                     }
+                     
+                     # --- Execucao ---
+                     $Py = Resolve-Python -Explicit $PythonExe -Repo $RepoDir
+                     if (-not (Test-Path $DbPath)) { throw "DbPath nao existe: $DbPath" }
+                     
+                     $TS       = Get-Date -Format "yyyyMMdd-HHmmss"
+                     $DestSnap = Join-Path $Dest $TS
+                     New-Item -ItemType Directory -Force -Path $DestSnap | Out-Null
+                     
+                     $DbName   = Split-Path $DbPath -Leaf
+                     $DbOut    = Join-Path $DestSnap $DbName
+                     
+                     Write-Host "[backup] $TS -> $DestSnap"
+                     Write-Host "[backup] DB origem : $DbPath"
+                     if (Get-Command sqlite3 -ErrorAction SilentlyContinue) {
+                         Write-Host "[backup] engine   : sqlite3 CLI"
+                     } else {
+                         Write-Host "[backup] engine   : python ($Py)  [sqlite3 CLI ausente]"
+                     }
+                     
+                     # 1) Backup consistente do DB.
+                     Invoke-SqliteBackup -Src $DbPath -Out $DbOut -Py $Py
+                     
+                     # 2) Artefatos (GOLDEN + logs de triagem) É?" salvo se -PularArtefatos.
+                     if (-not $PularArtefatos) {
+                         $golden  = Join-Path $RepoDir "GOLDEN"
+                         $triagem = Join-Path $RepoDir "scripts\arete\relatorios\triagem_erros"
+                         if (Test-Path $golden) {
+                             robocopy $golden (Join-Path $DestSnap "GOLDEN") /MIR /NFL /NDL /NJH /NJS /R:2 /W:5 | 
+                     Out-Null
+                             if ($LASTEXITCODE -ge 8) { throw "robocopy GOLDEN falhou (exit $LASTEXITCODE)" }
+                         } else { Write-Warning "[backup] GOLDEN nao encontrado em $golden (pulando)" }
+                         if (Test-Path $triagem) {
+                             robocopy $triagem (Join-Path $DestSnap "triagem_erros") /MIR /NFL /NDL /NJH /NJS /R:2 
+                     /W:5 | Out-Null
+                             if ($LASTEXITCODE -ge 8) { throw "robocopy triagem falhou (exit $LASTEXITCODE)" }
+                         } else { Write-Warning "[backup] triagem_erros nao encontrado em $triagem (pulando)" }
+                     }
+                     
+                     # 3) Amarrar o backup ao commit do engine (reprodutibilidade P5).
+                     try {
+                         Push-Location $RepoDir
+                         (git rev-parse HEAD).Trim() | Out-File -Encoding utf8 (Join-Path $DestSnap 
+                     "engine_version.txt")
+                         Pop-Location
+                     } catch { Write-Warning "[backup] git rev-parse falhou (engine_version.txt nao gravado): $_" }
+                     
+                     # 4) PROVA DE RESTAURACAO É?" integrity_check na copia.
+                     $check = (Test-SqliteIntegrity -DbFile $DbOut -Py $Py).Trim()
+                     if ($check -ne "ok") { throw "BACKUP CORROMPIDO: integrity_check='$check'" }
+                     $rows = (Get-SqliteObjectCount -DbFile $DbOut -Py $Py).Trim()
+                     Write-Host "[backup] $TS OK É?" DB integro (integrity_check=ok), $rows objetos em sqlite_master."
+                     
+                     # 5) Retencao: manter apenas os ultimos N snapshots (por nome/data).
+                     if (Test-Path $Dest) {
+                         Get-ChildItem $Dest -Directory |
+                             Sort-Object Name -Descending |
+                             Select-Object -Skip $RetencaoDias |
+                             ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
+                     }
+                     
+                     Write-Host "[backup] concluido. Snapshot: $DestSnap"
+                     
+DynamicParamBlock  : 
+ScriptRequirements : 
+Extent             : <#
+                     .SYNOPSIS
+                         Snapshot diario verificavel do portal: backup consistente do SQLite +
+                         GOLDEN/ + logs de triagem, com PRAGMA integrity_check como prova de
+                         restaurabilidade. Destino configuravel (parametro, nao hardcode).
+                     
+                     .DESCRIPTION
+                         Implementa HANDOFF-DEVOPS-PORTAL.md secao 4 (backup diario com prova de restauracao).
+                     
+                         Por que .backup e nao 'copy':
+                           SQLite em WAL tem dados em portal_data.db-wal ainda nao mesclados. Um 'copy'
+                           do arquivo bruto pode capturar um estado inconsistente. A API de backup do
+                           SQLite (sqlite3 .backup no CLI, ou Connection.backup() no Python) gera uma
+                           copia CONSISTENTE mesmo com o servico lendo/escrevendo.
+                     
+                         Por que integrity_check:
+                           Backup que nunca foi aberto nao e' backup. O script ABRE a copia e roda
+                           PRAGMA integrity_check; se != 'ok', FALHA ALTO (o dono descobre no dia).
+                     
+                         sqlite3 CLI x Python:
+                           Esta maquina NAO tem sqlite3.exe no PATH (verificado 2026-07-05). O script
+                           prefere o CLI se existir, mas cai para o Python (sqlite3.Connection.backup +
+                           integrity_check) É?" que sempre existe, pois o portal roda em Python. Ambos os
+                           caminhos produzem backup consistente e verificado.
+                     
+                     .PARAMETER Dest
+                         Raiz do destino do backup (OBRIGATORIO conceitualmente; tem default mas o dono
+                         deve apontar para o segundo disco / nuvem). Um subdiretorio com timestamp e'
+                         criado dentro dele.
+                     
+                     .PARAMETER DbPath
+                         Caminho do portal_data.db. Default = raiz do repo (bate com portal/db/connection.py).
+                     
+                     .PARAMETER RepoDir
+                         Raiz do repo (para GOLDEN/, logs de triagem e git rev-parse).
+                     
+                     .PARAMETER PythonExe
+                         python.exe usado no fallback (backup + integrity_check). Default: venv ou PATH.
+                     
+                     .PARAMETER RetencaoDias
+                         Quantos snapshots manter (por data). Default 14.
+                     
+                     .PARAMETER PularArtefatos
+                         Se presente, faz APENAS o backup do DB (util para teste rapido do script).
+                     
+                     .EXAMPLE
+                         .\backup_diario.ps1 -Dest "E:\backups\arete"
+                     
+                     .EXAMPLE
+                         # Teste de logica (so o DB, destino temporario):
+                         .\backup_diario.ps1 -Dest "$env:TEMP\bkp-teste" -DbPath "C:\tmp\portal_data.db" 
+                     -PularArtefatos
+                     #>
+                     [CmdletBinding()]
+                     param(
+                         [string]$Dest         = "E:\backups\arete",
+                         [string]$DbPath       = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\portal_data.db",
+                         [string]$RepoDir      = "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main",
+                         [string]$PythonExe    = "",
+                         [int]$RetencaoDias    = 14,
+                         [switch]$PularArtefatos
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     
+                     # --- Resolucao do python.exe para o fallback ---
+                     function Resolve-Python {
+                         param([string]$Explicit, [string]$Repo)
+                         if ($Explicit -and (Test-Path $Explicit)) { return $Explicit }
+                         $venvPy = Join-Path $Repo ".venv\Scripts\python.exe"
+                         if (Test-Path $venvPy) { return $venvPy }
+                         $cmd = Get-Command python -ErrorAction SilentlyContinue
+                         if ($cmd) { return $cmd.Source }
+                         return $null
+                     }
+                     
+                     # --- Backup consistente do SQLite (CLI se houver, senao Python) ---
+                     function Invoke-SqliteBackup {
+                         param([string]$Src, [string]$Out, [string]$Py)
+                         $cli = Get-Command sqlite3 -ErrorAction SilentlyContinue
+                         if ($cli) {
+                             # Caminho CLI: aspas escapadas para o .backup do sqlite3.
+                             & $cli.Source $Src ".backup '$Out'"
+                             if ($LASTEXITCODE -ne 0) { throw "sqlite3 .backup falhou (exit $LASTEXITCODE)" }
+                             return
+                         }
+                         if (-not $Py) { throw "Nem sqlite3 CLI nem python encontrados É?" impossivel fazer backup 
+                     consistente." }
+                         # Caminho Python: Connection.backup() faz backup online consistente (WAL-safe).
+                         $pyCode = @"
+                     import sqlite3, sys
+                     src, out = sys.argv[1], sys.argv[2]
+                     s = sqlite3.connect(src)
+                     d = sqlite3.connect(out)
+                     with d:
+                         s.backup(d)
+                     d.close(); s.close()
+                     print('backup-ok')
+                     "@
+                         $res = & $Py -c $pyCode $Src $Out
+                         if ($LASTEXITCODE -ne 0) { throw "python backup falhou (exit $LASTEXITCODE)" }
+                     }
+                     
+                     # --- PRAGMA integrity_check na COPIA (prova de restaurabilidade) ---
+                     function Test-SqliteIntegrity {
+                         param([string]$DbFile, [string]$Py)
+                         $cli = Get-Command sqlite3 -ErrorAction SilentlyContinue
+                         if ($cli) {
+                             $out = & $cli.Source $DbFile "PRAGMA integrity_check;"
+                             return ($out | Select-Object -First 1)
+                         }
+                         $pyCode = @"
+                     import sqlite3, sys
+                     c = sqlite3.connect(sys.argv[1])
+                     row = c.execute('PRAGMA integrity_check;').fetchone()
+                     c.close()
+                     print(row[0] if row else 'sem-resultado')
+                     "@
+                         return (& $Py -c $pyCode $DbFile)
+                     }
+                     
+                     function Get-SqliteObjectCount {
+                         param([string]$DbFile, [string]$Py)
+                         $cli = Get-Command sqlite3 -ErrorAction SilentlyContinue
+                         if ($cli) { return (& $cli.Source $DbFile "SELECT count(*) FROM sqlite_master;") }
+                         $pyCode = @"
+                     import sqlite3, sys
+                     c = sqlite3.connect(sys.argv[1])
+                     n = c.execute('SELECT count(*) FROM sqlite_master;').fetchone()[0]
+                     c.close()
+                     print(n)
+                     "@
+                         return (& $Py -c $pyCode $DbFile)
+                     }
+                     
+                     # --- Execucao ---
+                     $Py = Resolve-Python -Explicit $PythonExe -Repo $RepoDir
+                     if (-not (Test-Path $DbPath)) { throw "DbPath nao existe: $DbPath" }
+                     
+                     $TS       = Get-Date -Format "yyyyMMdd-HHmmss"
+                     $DestSnap = Join-Path $Dest $TS
+                     New-Item -ItemType Directory -Force -Path $DestSnap | Out-Null
+                     
+                     $DbName   = Split-Path $DbPath -Leaf
+                     $DbOut    = Join-Path $DestSnap $DbName
+                     
+                     Write-Host "[backup] $TS -> $DestSnap"
+                     Write-Host "[backup] DB origem : $DbPath"
+                     if (Get-Command sqlite3 -ErrorAction SilentlyContinue) {
+                         Write-Host "[backup] engine   : sqlite3 CLI"
+                     } else {
+                         Write-Host "[backup] engine   : python ($Py)  [sqlite3 CLI ausente]"
+                     }
+                     
+                     # 1) Backup consistente do DB.
+                     Invoke-SqliteBackup -Src $DbPath -Out $DbOut -Py $Py
+                     
+                     # 2) Artefatos (GOLDEN + logs de triagem) É?" salvo se -PularArtefatos.
+                     if (-not $PularArtefatos) {
+                         $golden  = Join-Path $RepoDir "GOLDEN"
+                         $triagem = Join-Path $RepoDir "scripts\arete\relatorios\triagem_erros"
+                         if (Test-Path $golden) {
+                             robocopy $golden (Join-Path $DestSnap "GOLDEN") /MIR /NFL /NDL /NJH /NJS /R:2 /W:5 | 
+                     Out-Null
+                             if ($LASTEXITCODE -ge 8) { throw "robocopy GOLDEN falhou (exit $LASTEXITCODE)" }
+                         } else { Write-Warning "[backup] GOLDEN nao encontrado em $golden (pulando)" }
+                         if (Test-Path $triagem) {
+                             robocopy $triagem (Join-Path $DestSnap "triagem_erros") /MIR /NFL /NDL /NJH /NJS /R:2 
+                     /W:5 | Out-Null
+                             if ($LASTEXITCODE -ge 8) { throw "robocopy triagem falhou (exit $LASTEXITCODE)" }
+                         } else { Write-Warning "[backup] triagem_erros nao encontrado em $triagem (pulando)" }
+                     }
+                     
+                     # 3) Amarrar o backup ao commit do engine (reprodutibilidade P5).
+                     try {
+                         Push-Location $RepoDir
+                         (git rev-parse HEAD).Trim() | Out-File -Encoding utf8 (Join-Path $DestSnap 
+                     "engine_version.txt")
+                         Pop-Location
+                     } catch { Write-Warning "[backup] git rev-parse falhou (engine_version.txt nao gravado): $_" }
+                     
+                     # 4) PROVA DE RESTAURACAO É?" integrity_check na copia.
+                     $check = (Test-SqliteIntegrity -DbFile $DbOut -Py $Py).Trim()
+                     if ($check -ne "ok") { throw "BACKUP CORROMPIDO: integrity_check='$check'" }
+                     $rows = (Get-SqliteObjectCount -DbFile $DbOut -Py $Py).Trim()
+                     Write-Host "[backup] $TS OK É?" DB integro (integrity_check=ok), $rows objetos em sqlite_master."
+                     
+                     # 5) Retencao: manter apenas os ultimos N snapshots (por nome/data).
+                     if (Test-Path $Dest) {
+                         Get-ChildItem $Dest -Directory |
+                             Sort-Object Name -Descending |
+                             Select-Object -Skip $RetencaoDias |
+                             ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
+                     }
+                     
+                     Write-Host "[backup] concluido. Snapshot: $DestSnap"
+                     
+Parent             : 
+
+Token 'impossivel' inesperado na express∆o ou instruá∆o. @line 86
+Argumento ausente na lista de parÉmetros. @line 90
+Uma express∆o era esperada ap¢s '('. @line 95
+Uma express∆o era esperada ap¢s '('. @line 95
+Token 'python' inesperado na express∆o ou instruá∆o. @line 99
+Uma express∆o era esperada ap¢s '('. @line 114
+Token 'SELECT' inesperado na express∆o ou instruá∆o. @line 123
+Uma express∆o era esperada ap¢s '('. @line 128
+Token 'DbPath' inesperado na express∆o ou instruá∆o. @line 136
+A cadeia de caracteres n∆o tem o terminador: ". @line 191
+'}' de fechamento ausente no bloco de instruá∆o ou na definiá∆o de tipo. @line 86
+'}' de fechamento ausente no bloco de instruá∆o ou na definiá∆o de tipo. @line 77
+
+
+=== heartbeat.ps1 ===
+
+
+Attributes         : {}
+UsingStatements    : {}
+ParamBlock         : param(
+                         [string]$HealthUrl  = "http://127.0.0.1:21380/health",
+                         [string]$WebhookUrl = "",
+                         [int]$MaxFalhas     = 3,
+                         [string]$StateFile  = "D:\Agente-cad-PYSIDE\logs\heartbeat_fails.txt",
+                         [int]$TimeoutSec    = 15
+                     )
+BeginBlock         : 
+ProcessBlock       : 
+EndBlock           : param(
+                         [string]$HealthUrl  = "http://127.0.0.1:21380/health",
+                         [string]$WebhookUrl = "",
+                         [int]$MaxFalhas     = 3,
+                         [string]$StateFile  = "D:\Agente-cad-PYSIDE\logs\heartbeat_fails.txt",
+                         [int]$TimeoutSec    = 15
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     
+                     function Get-FailCount {
+                         param([string]$Path)
+                         if (Test-Path $Path) {
+                             $v = (Get-Content $Path -Raw).Trim()
+                             [int]$n = 0
+                             if ([int]::TryParse($v, [ref]$n)) { return $n }
+                         }
+                         return 0
+                     }
+                     
+                     function Set-FailCount {
+                         param([string]$Path, [int]$Value)
+                         $dir = Split-Path $Path -Parent
+                         if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | 
+                     Out-Null }
+                         Set-Content -Path $Path -Value "$Value"
+                     }
+                     
+                     function Send-Alerta {
+                         param([string]$Url, [string]$Mensagem)
+                         if (-not $Url) {
+                             Write-Warning "[heartbeat] ALERTA (sem WebhookUrl configurado): $Mensagem"
+                             return
+                         }
+                         try {
+                             # ntfy aceita POST com corpo texto puro; Telegram/genericos tambem funcionam.
+                             Invoke-RestMethod -Uri $Url -Method Post -Body $Mensagem -TimeoutSec $TimeoutSec | 
+                     Out-Null
+                             Write-Host "[heartbeat] alerta enviado para o webhook."
+                         } catch {
+                             Write-Warning "[heartbeat] falha ao enviar alerta: $($_.Exception.Message)"
+                         }
+                     }
+                     
+                     $ok = $false
+                     $detalhe = ""
+                     try {
+                         $r = Invoke-WebRequest -Uri $HealthUrl -TimeoutSec $TimeoutSec -UseBasicParsing
+                         if ($r.StatusCode -eq 200) { $ok = $true } else { $detalhe = "status $($r.StatusCode)" }
+                     } catch {
+                         $detalhe = $_.Exception.Message
+                     }
+                     
+                     if ($ok) {
+                         Set-FailCount -Path $StateFile -Value 0
+                         Write-Host "[heartbeat] OK É?" $HealthUrl respondeu 200."
+                         exit 0
+                     }
+                     
+                     # Falhou: incrementa e, no limiar, alerta.
+                     $fails = (Get-FailCount -Path $StateFile) + 1
+                     Set-FailCount -Path $StateFile -Value $fails
+                     Write-Warning "[heartbeat] FALHA $fails/$MaxFalhas em $HealthUrl É?" $detalhe"
+                     
+                     if ($fails -ge $MaxFalhas) {
+                         $msg = "PORTAL CAIU: $HealthUrl falhou $fails vezes seguidas. Detalhe: $detalhe"
+                         Send-Alerta -Url $WebhookUrl -Mensagem $msg
+                         exit 2
+                     }
+                     
+                     exit 1
+DynamicParamBlock  : 
+ScriptRequirements : 
+Extent             : <#
+                     .SYNOPSIS
+                         Heartbeat do portal: bate em /health e, apos N falhas seguidas, dispara um
+                         alerta via webhook configuravel (ntfy/Telegram/etc). SEM loop infinito É?"
+                         projetado para rodar 1x por invocacao via Task Scheduler.
+                     
+                     .DESCRIPTION
+                         Implementa HANDOFF-DEVOPS-PORTAL.md secao 6 (monitoramento minimo).
+                     
+                         Camadas de defesa (o alerta e' a ultima linha):
+                           1. NSSM ja reinicia o servico em crash (auto-cura a maioria das quedas).
+                           2. Este heartbeat cobre "vivo mas travado": processo de pe mas /health nao
+                              responde 200 (deadlock, DB lockado, disco cheio).
+                           3. Alerta so dispara apos -MaxFalhas seguidas (~15 min com Task */5min),
+                              para nao incomodar a cada restart legitimo de atualizacao.
+                     
+                         O contador de falhas persiste em -StateFile entre execucoes (Task Scheduler
+                         roda o script do zero a cada vez). /health OK zera o contador.
+                     
+                     .PARAMETER HealthUrl
+                         URL do /health. Em producao use o IP Tailscale (100.x.y.z).
+                     
+                     .PARAMETER WebhookUrl
+                         URL do webhook de alerta (ntfy topico secreto, webhook Telegram, etc).
+                         NAO ha URL hardcode: se vazio, o script apenas LOGA a falha e NAO alerta
+                         (util para instalar antes de ter canal). Configure via parametro/env.
+                     
+                     .PARAMETER MaxFalhas
+                         Falhas seguidas antes de alertar. Default 3.
+                     
+                     .PARAMETER StateFile
+                         Arquivo que guarda o contador de falhas entre execucoes.
+                     
+                     .PARAMETER TimeoutSec
+                         Timeout da requisicao /health.
+                     
+                     .EXAMPLE
+                         # Sem alerta (so log), para validar o agendamento:
+                         .\heartbeat.ps1 -HealthUrl "http://127.0.0.1:21380/health"
+                     
+                     .EXAMPLE
+                         # Com ntfy (topico secreto = "senha"):
+                         .\heartbeat.ps1 -HealthUrl "http://100.101.102.103:21380/health" `
+                             -WebhookUrl "https://ntfy.sh/arete-portal-SEU_TOKEN_UNICO"
+                     
+                     .NOTES
+                         Agendar (roda a cada 5 min, sem loop no script):
+                           schtasks /create /tn "AreteHeartbeat" ^
+                             /tr "powershell -NoProfile -WindowStyle Hidden -File D:\...\portal\ops\heartbeat.ps1 
+                     -HealthUrl http://100.x.y.z:21380/health -WebhookUrl https://ntfy.sh/arete-portal-SEU_TOKEN" ^
+                             /sc minute /mo 5
+                     #>
+                     [CmdletBinding()]
+                     param(
+                         [string]$HealthUrl  = "http://127.0.0.1:21380/health",
+                         [string]$WebhookUrl = "",
+                         [int]$MaxFalhas     = 3,
+                         [string]$StateFile  = "D:\Agente-cad-PYSIDE\logs\heartbeat_fails.txt",
+                         [int]$TimeoutSec    = 15
+                     )
+                     
+                     $ErrorActionPreference = "Stop"
+                     
+                     function Get-FailCount {
+                         param([string]$Path)
+                         if (Test-Path $Path) {
+                             $v = (Get-Content $Path -Raw).Trim()
+                             [int]$n = 0
+                             if ([int]::TryParse($v, [ref]$n)) { return $n }
+                         }
+                         return 0
+                     }
+                     
+                     function Set-FailCount {
+                         param([string]$Path, [int]$Value)
+                         $dir = Split-Path $Path -Parent
+                         if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | 
+                     Out-Null }
+                         Set-Content -Path $Path -Value "$Value"
+                     }
+                     
+                     function Send-Alerta {
+                         param([string]$Url, [string]$Mensagem)
+                         if (-not $Url) {
+                             Write-Warning "[heartbeat] ALERTA (sem WebhookUrl configurado): $Mensagem"
+                             return
+                         }
+                         try {
+                             # ntfy aceita POST com corpo texto puro; Telegram/genericos tambem funcionam.
+                             Invoke-RestMethod -Uri $Url -Method Post -Body $Mensagem -TimeoutSec $TimeoutSec | 
+                     Out-Null
+                             Write-Host "[heartbeat] alerta enviado para o webhook."
+                         } catch {
+                             Write-Warning "[heartbeat] falha ao enviar alerta: $($_.Exception.Message)"
+                         }
+                     }
+                     
+                     $ok = $false
+                     $detalhe = ""
+                     try {
+                         $r = Invoke-WebRequest -Uri $HealthUrl -TimeoutSec $TimeoutSec -UseBasicParsing
+                         if ($r.StatusCode -eq 200) { $ok = $true } else { $detalhe = "status $($r.StatusCode)" }
+                     } catch {
+                         $detalhe = $_.Exception.Message
+                     }
+                     
+                     if ($ok) {
+                         Set-FailCount -Path $StateFile -Value 0
+                         Write-Host "[heartbeat] OK É?" $HealthUrl respondeu 200."
+                         exit 0
+                     }
+                     
+                     # Falhou: incrementa e, no limiar, alerta.
+                     $fails = (Get-FailCount -Path $StateFile) + 1
+                     Set-FailCount -Path $StateFile -Value $fails
+                     Write-Warning "[heartbeat] FALHA $fails/$MaxFalhas em $HealthUrl É?" $detalhe"
+                     
+                     if ($fails -ge $MaxFalhas) {
+                         $msg = "PORTAL CAIU: $HealthUrl falhou $fails vezes seguidas. Detalhe: $detalhe"
+                         Send-Alerta -Url $WebhookUrl -Mensagem $msg
+                         exit 2
+                     }
+                     
+                     exit 1
+                     
+Parent             : 
+
+'}' de fechamento ausente no bloco de instruá∆o ou na definiá∆o de tipo. @line 104
+
+

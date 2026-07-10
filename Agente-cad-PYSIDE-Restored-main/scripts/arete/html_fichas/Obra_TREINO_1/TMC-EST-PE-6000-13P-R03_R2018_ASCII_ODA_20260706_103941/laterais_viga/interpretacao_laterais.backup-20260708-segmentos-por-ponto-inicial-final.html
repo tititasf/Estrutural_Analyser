@@ -1,0 +1,2728 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Guia de Interpretação das Laterais de Viga — A/B e Para/Passa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; color: #ccc; font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; }
+  h1 { color: #4fc3a1; font-size: 18px; border-bottom: 2px solid #4fc3a1; padding-bottom: 6px; margin-bottom: 16px; }
+  h2 { color: #7eb8f7; font-size: 14px; margin: 24px 0 8px; border-left: 3px solid #7eb8f7; padding-left: 8px; }
+  h3 { color: #f0b840; font-size: 12px; margin: 16px 0 6px; }
+  .page { max-width: 1740px; margin: 0 auto; padding: 28px 24px; }
+  .intro { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; color: #aaa; font-size: 12px; }
+  .intro b { color: #4fc3a1; }
+
+  /* ── Tabela de faces ── */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #1e1e1e; color: #4fc3a1; padding: 6px 10px; text-align: left; border-bottom: 1px solid #333; }
+  td { padding: 5px 10px; border-bottom: 1px solid #222; vertical-align: top; }
+  tr:hover td { background: #181818; }
+  .lbl-A { color: #4fc3a1; font-weight: bold; }
+  .lbl-B { color: #7eb8f7; font-weight: bold; }
+  .lbl-C { color: #c47ef7; font-weight: bold; }
+  .lbl-D { color: #f0b840; font-weight: bold; }
+
+  /* ── Casos ── */
+  .caso { background: #161616; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+  .caso-title { font-size: 13px; font-weight: bold; color: #4fc3a1; margin-bottom: 8px; }
+  .caso-body { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .caso-text { flex: 1; min-width: 340px; font-size: 12px; color: #aaa; }
+  .caso-text ul { margin: 6px 0 0 16px; }
+  .caso-text li { margin: 3px 0; }
+  .caso-diag { flex-shrink: 0; }
+
+  /* Diagrama ASCII melhorado */
+  .ascii { background: #0d0d0d; border: 1px solid #222; border-radius: 4px; padding: 10px 14px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.55; white-space: pre; color: #aaa; font-variant-ligatures: none; -webkit-font-feature-settings: 'liga' 0; font-feature-settings: 'liga' 0; letter-spacing: 0; }
+  .ascii .viga { color: #7eb8f7; }
+  .ascii .laje { color: #4fc3a1; }
+  .ascii .pilar { color: #f0b840; }
+  .ascii .faceC { color: #c47ef7; }
+  .ascii .faceD { color: #f0b840; }
+  .ascii .faceA { color: #4fc3a1; }
+  .ascii .faceB { color: #7eb8f7; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 4px; }
+  .tag-viga { background: #1a2030; color: #7eb8f7; }
+  .tag-laje { background: #102010; color: #4fc3a1; }
+  .tag-nulo { background: #222; color: #666; }
+
+  .result-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .result-face { padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: bold; border-left: 3px solid; }
+  .rf-A { background: #122012; border-color: #4fc3a1; color: #4fc3a1; }
+  .rf-B { background: #12122a; border-color: #7eb8f7; color: #7eb8f7; }
+  .rf-C { background: #2a1228; border-color: #c47ef7; color: #c47ef7; }
+  .rf-D { background: #2a1e10; border-color: #f0b840; color: #f0b840; }
+
+  .rule-box { background: #0d1a0d; border: 1px solid #2a4a2a; border-radius: 4px; padding: 10px 14px; margin: 12px 0; font-size: 12px; }
+  .rule-box .rule-title { color: #4fc3a1; font-weight: bold; margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid #222; margin: 20px 0; }
+  code { background: #1e1e1e; color: #e67; padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+
+  /* ── Carrossel de exemplos ── */
+  .carousel { display: flex; flex-direction: column; gap: 0; }
+  .carousel-slides { position: relative; }
+  .carousel-slide { display: none; }
+  .carousel-slide.active { display: block; }
+  .slide-label {
+    text-align: center; font-size: 10px; color: #555; margin-top: 4px;
+    font-style: italic; letter-spacing: 0.03em;
+  }
+  .slide-label.real { color: #4fc3a1; }
+  .carousel-nav {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 8px;
+  }
+  .carousel-btn {
+    background: #1e1e1e; color: #888; border: 1px solid #333;
+    padding: 3px 14px; cursor: pointer; border-radius: 3px;
+    font-size: 16px; line-height: 1; transition: background 0.15s;
+    user-select: none;
+  }
+  .carousel-btn:hover { background: #2a2a2a; color: #ccc; }
+  .carousel-btn:active { background: #333; }
+  .carousel-counter {
+    color: #555; font-size: 11px; min-width: 48px;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .carousel-img { max-width: 100%; border-radius: 4px; border: 1px solid #2a2a2a; display: block; }
+  .slide-placeholder {
+    background: #111; border: 1px dashed #2a2a2a; border-radius: 4px;
+    padding: 28px 40px; text-align: center; color: #333; font-size: 11px;
+    font-style: italic; min-width: 260px;
+  }
+
+  /* ── Diagramas vetoriais: mesma linguagem do guia de pilares ── */
+  .vector-diagram {
+    width: min(100%, 1040px); min-width: 720px; background: #0b0f13;
+    border: 1px solid #29415c; border-radius: 7px; padding: 14px;
+  }
+  .vector-diagram svg { display: block; width: 100%; height: auto; }
+  .vector-diagram text { font-family: 'Segoe UI', sans-serif; font-size: 11px; }
+  .zoomable-diagram {
+    position: relative;
+    overflow: auto;
+    cursor: grab;
+    touch-action: none;
+  }
+  .zoomable-diagram.is-panning { cursor: grabbing; }
+  .zoomable-diagram svg {
+    width: calc(100% * var(--diagram-zoom, 1));
+    min-width: 100%;
+    max-width: none;
+  }
+  .diagram-zoom-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: -6px -6px 8px 0;
+    pointer-events: none;
+  }
+  .diagram-zoom-toolbar button {
+    pointer-events: auto;
+    border: 1px solid #355064;
+    border-radius: 5px;
+    background: #101a21;
+    color: #b8d7e8;
+    font-size: 10px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  .diagram-zoom-toolbar button:hover { background: #172532; color: #fff; }
+  .zoomable-diagram.is-expanded {
+    position: fixed;
+    inset: 12px;
+    z-index: 1000;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 16px;
+    background: #080c10;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,.72);
+  }
+  body.diagram-expanded { overflow: hidden; }
+  .diagram-caption { color: #6f8294; font-size: 10px; text-align: center; margin-top: 5px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 4px; color: #8fa0af; font-size: 11px; }
+  .legend span::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 5px; border-radius: 2px; vertical-align: -2px; background: var(--swatch); }
+  .warning-box { background: #21180b; border: 1px solid #6f5017; border-left: 4px solid #f0b840; border-radius: 4px; padding: 10px 14px; margin: 12px 0; color: #d9bf83; font-size: 12px; }
+  .insight-box { background: #0d211c; border: 1px solid #285f50; border-left: 4px solid #4fc3a1; border-radius: 4px; padding: 11px 14px; margin: 12px 0 0; color: #b9ddd3; font-size: 12px; line-height: 1.55; }
+  .insight-box b { color: #62ddba; }
+  .insight-box ul { margin: 7px 0 0 18px; padding: 0; }
+  .danger-box { background: #211010; border: 1px solid #653030; border-left: 4px solid #e66; border-radius: 4px; padding: 10px 14px; margin: 12px 0; color: #d9a0a0; font-size: 12px; }
+  .decision-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .decision-step { background: #151b20; border: 1px solid #29333b; border-top: 3px solid #4fc3a1; border-radius: 4px; padding: 9px; font-size: 11px; color: #9caab5; }
+  .decision-step b { display: block; color: #d7e2e9; margin-bottom: 3px; }
+  .status-ok { color: #4fc3a1; font-weight: bold; }
+  .status-review { color: #f0b840; font-weight: bold; }
+  .coverage td:first-child { color: #7eb8f7; font-weight: 600; white-space: nowrap; }
+  .source-note { color: #71808c; font-size: 10px; margin-top: 6px; }
+  .interpretation-card { background: #141719; border: 1px solid #303a42; border-radius: 8px; margin: 18px 0; overflow: hidden; }
+  .interpretation-card.confirmed { border-color: #3c8f73; box-shadow: 0 0 0 1px #214c3e inset; }
+  .interpretation-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; background: #1a2024; border-bottom: 1px solid #303a42; }
+  .interpretation-title { color: #e2e9ed; font-size: 15px; font-weight: 700; }
+  .interpretation-type { color: #4fc3a1; font-size: 11px; margin-top: 2px; }
+  .confirm-main { display: flex; align-items: center; gap: 8px; color: #8c9aa4; cursor: pointer; white-space: nowrap; }
+  .confirm-main input, .check-row input { accent-color: #4fc3a1; width: 16px; height: 16px; cursor: pointer; }
+  .interpretation-card.confirmed .confirm-main { color: #4fc3a1; font-weight: 700; }
+  .interpretation-body { padding: 16px; }
+  .interp-diagram { display: flex; justify-content: center; margin-bottom: 14px; }
+  .check-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .check-row { display: grid; grid-template-columns: 20px 142px 1fr; align-items: start; gap: 8px; background: #0f1214; border: 1px solid #242c31; border-radius: 5px; padding: 9px 10px; cursor: pointer; }
+  .check-row.approved { background: #0c1c16; border-color: #285b49; }
+  .check-label { color: #7eb8f7; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .check-value { color: #b5c0c7; font-size: 11px; line-height: 1.45; }
+  .check-row.approved .check-label { color: #4fc3a1; }
+  .required-note { color: #f0b840; font-size: 10px; margin-top: 10px; }
+  .interp-summary { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 12px; }
+  .summary-chip { background: #111b22; border: 1px solid #263b4a; border-radius: 999px; padding: 3px 9px; color: #91a6b5; font-size: 10px; }
+  .draw-style-box { margin-top: 14px; background: #10161a; border: 1px solid #2c3841; border-radius: 6px; padding: 14px; }
+  .draw-style-title { color: #e2e9ed; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .draw-style-desc { color: #8fa0af; font-size: 11.5px; line-height: 1.5; margin-bottom: 12px; }
+  .draw-style-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .draw-style-col { background: #0b0f13; border: 1px solid #242c31; border-radius: 6px; padding: 12px; }
+  .draw-style-col h4 { margin: 0 0 8px; color: #7eb8f7; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .draw-style-col .vector-diagram { width: 100%; min-width: 0; margin-bottom: 8px; }
+  .check-grid.check-grid--single { grid-template-columns: 1fr; }
+  @media (max-width: 720px) {
+    .decision-grid { grid-template-columns: 1fr 1fr; }
+    .vector-diagram { min-width: 0; }
+    .check-grid { grid-template-columns: 1fr; }
+    .check-row { grid-template-columns: 20px 110px 1fr; }
+    .interpretation-head { align-items: flex-start; flex-direction: column; }
+    .draw-style-cols { grid-template-columns: 1fr; }
+  }
+</style>
+<style>
+  /* Ficha canônica por lado — adição aprovada pelo dono em 2026-07-06.
+     Os checklists anteriores permanecem no HTML, mas são ocultados para não
+     apresentar duas fontes de confirmação concorrentes. */
+  .interpretation-card.canonicalized > .interpretation-body > .check-grid,
+  .interpretation-card .legacy-detail-box { display: none; }
+  .canonical-side-checklist {
+    margin: 14px 0;
+    padding: 14px;
+    border: 1px solid #34414b;
+    border-radius: 6px;
+    background: #10161a;
+  }
+  .canonical-side-title {
+    color: #f2f5f7;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .canonical-side-intro {
+    color: #8ba0ad;
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+  .canonical-side-rule {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    border-left: 3px solid #f0b840;
+    background: #201b0e;
+    color: #d7c58d;
+    font-size: 11px;
+  }
+  .canonical-side-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .canonical-side {
+    min-width: 0;
+    border: 1px solid #2d3840;
+    border-radius: 6px;
+    padding: 12px;
+    background: #0d1215;
+  }
+  .canonical-side.side-A { border-top: 3px solid #4fc3a1; }
+  .canonical-side.side-B { border-top: 3px solid #7eb8f7; }
+  .canonical-side h4 {
+    margin: 0 0 3px;
+    font-size: 13px;
+  }
+  .canonical-side.side-A h4 { color: #4fc3a1; }
+  .canonical-side.side-B h4 { color: #7eb8f7; }
+  .canonical-order {
+    color: #71808c;
+    font-size: 10px;
+    margin-bottom: 9px;
+  }
+  .canonical-segment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .canonical-segment-card {
+    padding: 10px;
+    border: 1px solid #34414b;
+    border-radius: 6px;
+    background: #0a0f12;
+  }
+  .canonical-segment-card h5 {
+    margin: 0 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #273038;
+    color: #f0b840;
+    font-size: 12px;
+  }
+  .canonical-check {
+    display: grid;
+    grid-template-columns: 20px minmax(118px, 0.34fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    margin: 7px 0;
+    padding: 8px;
+    border: 1px solid #273038;
+    border-radius: 5px;
+    background: #11181c;
+    cursor: pointer;
+  }
+  .canonical-check:hover { border-color: #526674; }
+  .canonical-check.approved {
+    border-color: #277052;
+    background: #0c261c;
+  }
+  .canonical-check input { margin-top: 2px; accent-color: #4fc3a1; }
+  .canonical-check-label {
+    color: #7eb8f7;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .canonical-check-value {
+    min-width: 0;
+    color: #d2dbe0;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+  .canonical-check-value b { color: #f2f5f7; }
+  .canonical-check-value .decision { color: #f0b840; font-weight: 700; }
+  .canonical-check-value .opening { color: #c47ef7; font-weight: 700; }
+  .network-checklist .canonical-side-intro { max-width: 1100px; }
+  .network-beam-list { display: flex; flex-direction: column; gap: 12px; }
+  .network-beam {
+    border: 1px solid #34414b;
+    border-radius: 7px;
+    background: #0b1115;
+    overflow: hidden;
+  }
+  .network-beam > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 14px;
+    padding: 10px 12px;
+    color: #e6edf1;
+    background: #111a20;
+    cursor: pointer;
+    list-style-position: inside;
+  }
+  .network-beam > summary b { color: #7eb8f7; }
+  .network-beam-meta { color: #8fa0ab; font-size: 10px; }
+  .network-side-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
+  .network-side {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #28343c;
+    border-radius: 6px;
+    background: #0d1317;
+  }
+  .network-side.side-A { border-top: 3px solid #4fc3a1; }
+  .network-side.side-B { border-top: 3px solid #7eb8f7; }
+  .network-side-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 10px;
+  }
+  .network-side-head b { font-size: 12px; }
+  .network-side.side-A .network-side-head b { color: #4fc3a1; }
+  .network-side.side-B .network-side-head b { color: #7eb8f7; }
+  .network-side-head span { color: #71808c; text-align: right; }
+  .network-segment-index {
+    margin: 0 10px 4px;
+    padding: 8px 10px;
+    border: 1px solid #25323a;
+    border-radius: 6px;
+    background: #071014;
+    color: #a7d9ef;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .network-segment-index b { color: #f2f5f7; }
+  .network-segment-index .seg-chip {
+    display: inline-block;
+    margin: 2px 4px 2px 0;
+    padding: 2px 7px;
+    border-radius: 999px;
+    border: 1px solid #31546b;
+    color: #f0b840;
+    background: #0d1b22;
+    white-space: nowrap;
+  }
+  .network-segment-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .network-segment-grid.segments-1 { grid-template-columns: 1fr; }
+  .network-segment-card {
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #34414b;
+    border-radius: 6px;
+    background: #090e11;
+  }
+  .network-segment-card h5 {
+    margin: 0 0 6px;
+    color: #f0b840;
+    font-size: 11px;
+  }
+  .network-segment-card h5 .seg-scope {
+    display: block;
+    margin-top: 2px;
+    color: #8fa0ab;
+    font-size: 9px;
+    font-weight: 400;
+  }
+  .network-segment-card .canonical-check {
+    grid-template-columns: 17px 76px minmax(0, 1fr);
+    gap: 5px;
+    margin: 5px 0;
+    padding: 6px;
+  }
+  .network-segment-card .canonical-check-label { font-size: 8.5px; }
+  .network-segment-card .canonical-check-value { font-size: 9.5px; line-height: 1.35; }
+  .network-measure-panel {
+    margin: 12px 0 14px;
+    padding: 12px;
+    border: 1px solid #34414b;
+    border-radius: 7px;
+    background: #0a1014;
+  }
+  .network-measure-title {
+    margin: 0 0 4px;
+    color: #f0b840;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .network-measure-note {
+    margin: 0 0 10px;
+    color: #9eb0bc;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .network-measure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 9px;
+  }
+  .network-measure-card {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #27343c;
+    border-radius: 6px;
+    background: #090e11;
+    color: #d7e8f2;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .network-measure-card b { color: #7eb8f7; }
+  .network-measure-card strong { color: #4fc3a1; }
+  .network-measure-card h4 {
+    margin: 0 0 6px;
+    color: #7eb8f7;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+  @media (max-width: 1050px) {
+    .canonical-side-grid { grid-template-columns: 1fr; }
+    .canonical-check {
+      grid-template-columns: 20px minmax(105px, 0.3fr) minmax(0, 1fr);
+    }
+    .network-side-pair { grid-template-columns: 1fr; }
+    .network-measure-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .network-segment-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p style="font-size:11px; color:#555; margin-bottom:16px;">
+    <a href="../index.html" style="color:#7eb8f7; text-decoration:none;">&#8592; Voltar ao índice</a>
+  </p>
+
+  <h1>Guia de Interpretação das Laterais de Viga — A/B e Para/Passa</h1>
+
+  <div class="intro">
+    <b>O que é isso?</b> Este documento é o gabarito visual e evolutivo da interpretação das laterais
+    de viga. A/B identifica a face longitudinal; Para/Passa identifica o modo produtivo do segmento.
+    <br><br>
+    <b>Como usar:</b> identifique diretamente a face longitudinal A ou B na ficha; depois valide
+    Para/Passa no contexto produtivo. Laterais de viga usam somente <b>A e B</b> — C/D não fazem
+    parte deste contrato.
+  </div>
+  <div class="intro" style="border-color:#f0b840; background:#1d190d;">
+    <b style="color:#f0b840;">Contrato espacial A/B — regra definitiva:</b>
+    viga horizontal usa <b>A embaixo</b> e <b>B em cima</b>; viga vertical usa
+    <b>A à esquerda</b> e <b>B à direita</b>. Para/Passa e o sentido de leitura
+    não alteram a posição física das faces.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>1. Convenção A/B e Para/Passa</h2>
+
+  <h3>Lado A vs Lado B — somente as duas faces longitudinais</h3>
+  <div class="ascii"><span class="faceB">FACE B — em cima na horizontal / à direita na vertical</span>
+
+║══════════════════ Viga V10 · 19/60 ══════════════════║
+
+<span class="faceA">FACE A — embaixo na horizontal / à esquerda na vertical</span></div>
+
+  <h3>Para vs Passa — pilar central e quantidade de segmentos</h3>
+  <div class="ascii">PARA — paredes A/B param nas faces do pilar central:
+  A1 ═══════════════ ███ P12 19×100 ███ ═══════════════ A2
+  B1 ═══════════════ ███████████████████ ═══════════════ B2
+  Resultado: 2 segmentos por lado.
+
+PASSA — paredes A/B atravessam continuamente o pilar central:
+  A  ════════════════════ P12 ════════════════════════
+  B  ════════════════════ P12 ════════════════════════
+  Resultado: 1 segmento por lado.</div>
+
+  <table>
+    <tr><th>Conceito</th><th>Descrição</th></tr>
+    <tr>
+      <td><span class="lbl-A">A</span></td>
+      <td>Face longitudinal A vinculada pelo modelo</td>
+    </tr>
+    <tr>
+      <td><span class="lbl-B">B</span></td>
+      <td>Face longitudinal B, oposta à face A</td>
+    </tr>
+    <tr>
+      <td><b style="color:#c47ef7">Para</b></td>
+      <td>As paredes laterais param ao tocar o pilar central; <b>2 segmentos por lado</b>: A1+A2 e B1+B2 · vínculo <code>comprimento_total</code></td>
+    </tr>
+    <tr>
+      <td><b style="color:#f0b840">Passa</b></td>
+      <td>As paredes laterais atravessam continuamente o pilar central; <b>1 segmento por lado</b>: A e B · vínculo <code>comp_total_passa</code></td>
+    </tr>
+  </table>
+
+  <div class="danger-box">
+    <b>Regra determinante:</b> com um pilar central de mesma espessura da viga e comprimento
+    de 100 cm, <b>Para</b> interrompe cada parede no pilar e gera dois segmentos por lado;
+    <b>Passa</b> atravessa o pilar e mantém um único segmento contínuo por lado.
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-title">Regra independente para encontros entre vigas</div>
+    A nomenclatura <b>Para/Passa é exclusiva da relação entre lateral e pilar</b>. No encontro
+    entre vigas, não classificar como Para ou Passa: comparar as profundidades. A lateral
+    prolonga-se sob a viga incidente menos profunda até a face oposta; diante de uma incidente
+    mais profunda, termina na primeira face encontrada. Essa regra vale nos casos Para e Passa.
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-title">Regra hardcoded da abertura em pilar atravessado</div>
+    Quando a lateral <b>Passa</b> por um pilar, registrar as distâncias das duas faces do próprio
+    pilar às extremidades correspondentes do segmento. A abertura executiva na lateral deve avançar
+    <b>11 cm para cada lado do pilar</b>: <code>abertura = comprimento_pilar + 22 cm</code>.
+    Essa abertura representa o trecho da lateral de viga que será sarrafeado.
+  </div>
+
+  <div class="rule-box">
+  <div class="rule-title">Regra geométrica de A/B</div>
+    A e B são as duas paredes longitudinais opostas da viga. A identificação deve vir dos vínculos
+    <code>seg_side_a</code> e <code>seg_side_b</code>. Não criar faces C/D e não deduzir A/B pela
+    posição aparente na tela. Em vigas horizontais, o lado B fica acima e o lado A abaixo; em vigas
+    verticais, o lado A fica à esquerda e o lado B à direita. Na leitura estrutural, o lado A é
+    ordenado da esquerda para a direita, ou de cima para baixo quando a viga é vertical. O lado B é
+    invertido: deve ser lido da direita para a esquerda, ou de baixo para cima quando a viga é
+    vertical. O ponto inicial e o ponto final do segmento devem respeitar esse sentido, e o desenho
+    dos segmentos acompanha essa ordem.
+  </div>
+
+  <div class="decision-grid">
+    <div class="decision-step"><b>1 · Segmento</b>Localize o trecho longitudinal entre seus delimitadores.</div>
+    <div class="decision-step"><b>2 · Face</b>Leia A ou B diretamente no vínculo da lateral.</div>
+    <div class="decision-step"><b>3 · Classe</b>Veja se a linha para no pilar ou atravessa o pilar.</div>
+    <div class="decision-step"><b>4 · Contexto</b>Valide apoios, lajes, ajustes e interferências.</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>2. Cinco Interpretações para Confirmação</h2>
+  <div class="warning-box">
+    Cada interpretação abaixo é uma ficha independente. O segmento lateral só pode ser confirmado
+    quando as duas extremidades estiverem delimitadas por <b>pilar</b> ou <b>viga que chega</b>,
+    as lajes dos dois lados estiverem identificadas e todos os níveis/dimensões estiverem coerentes.
+    Os valores são exemplos completos do contrato esperado.
+  </div>
+
+  <section class="interpretation-card" data-interpretation="a-passa">
+    <div class="interpretation-head">
+      <div><div class="interpretation-title">Interpretação 1 — Lados A e B Passam pelo Pilar</div><div class="interpretation-type">Classe Passa no P12 + regra independente de profundidade entre vigas</div></div>
+      <label class="confirm-main"><input type="checkbox" class="interpretation-cb" data-key="lv_a_passa"> Interpretação confirmada</label>
+    </div>
+    <div class="interpretation-body">
+      <div class="interp-summary"><span class="summary-chip">V310 · fundo/prof. 19/60 cm</span><span class="summary-chip">A e B atravessam P12</span><span class="summary-chip">P12: 100 cm</span><span class="summary-chip">Abertura: 122 cm</span><span class="summary-chip">VE301: prof. 55 &lt; 60</span><span class="summary-chip">VE302: prof. 70 &gt; 60</span><span class="summary-chip">Todos no nível 852,19</span></div>
+      <div class="interp-diagram" data-interp-diagram="a-passa"></div>
+      <div class="check-grid">
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_segmento"><span class="check-label">Laterais A e B</span><span class="check-value"><b>V310</b> · 19/60 cm · N <b>852,19</b> · um segmento contínuo por lado atravessando P12</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_lajes"><span class="check-label">Lajes</span><span class="check-value">Face A: <b>L301</b> · N 852,19 · esp. 12 cm<br>Face B: <b>L302</b> · N 852,19 · esp. 15 cm</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_pilar"><span class="check-label">Pilar e abertura</span><span class="check-value"><b>P12</b> · 19×100 cm · face esquerda→extremidade esquerda: 180 cm · face direita→extremidade direita: 220 cm · abertura sarrafeada: <b>11 + 100 + 11 = 122 cm</b></span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_extremos"><span class="check-label">Vigas incidentes</span><span class="check-value">Esquerda: <b>VE301</b> · 20/55 · N 852,19 · lateral prolonga-se sob a viga<br>Direita: <b>VE302</b> · 20/70 · N 852,19 · lateral termina na primeira face pela maior profundidade</span></label>
+      </div>
+
+      <div class="draw-style-box">
+        <div class="draw-style-title">Detalhamento por lado — dados-fonte usados na geração dos desenhos</div>
+        <div class="draw-style-desc">
+          Mesma informação do caso acima, decomposta por face (A/B) e por elemento estrutural.
+          É a partir daqui que os desenhos sarrafeado/gradeado logo abaixo são gerados.
+        </div>
+        <div class="draw-style-cols">
+          <div class="draw-style-col">
+            <h4>Lado A</h4>
+            <div class="check-grid check-grid--single">
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_lajes"><span class="check-label">Lajes (1 de até 3)</span><span class="check-value"><b>L301</b><br>Espessura: 12 cm · Nível: 852,19<br>Posição: topo (nível da laje = nível do topo da viga)<br>Distância ao topo: 0 cm</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_ab_esq"><span class="check-label">Abertura de viga esquerda</span><span class="check-value"><b>VE301</b><br>Dimensão: 20/55 cm<br>Nível: 852,19</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_ab_dir"><span class="check-label">Abertura de viga direita</span><span class="check-value"><b>VE302</b><br>Dimensão: 20/70 cm<br>Nível: 852,19</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_passa_det_pilares"><span class="check-label">Pilares que passa (1 encontrado)</span><span class="check-value"><b>P12</b><br>Comprimento: 100+22=<b>122 cm</b><br>Distância extremidade esquerda: 180−11=<b>169 cm</b><br>Distância extremidade direita: 220−11=<b>209 cm</b></span></label>
+            </div>
+          </div>
+          <div class="draw-style-col">
+            <h4>Lado B</h4>
+            <div class="check-grid check-grid--single">
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_lajes"><span class="check-label">Lajes (1 de até 3)</span><span class="check-value"><b>L302</b><br>Espessura: 15 cm · Nível: 852,19<br>Posição: topo (nível da laje = nível do topo da viga)<br>Distância ao topo: 0 cm</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_ab_esq"><span class="check-label">Abertura de viga esquerda</span><span class="check-value"><b>VE301</b><br>Dimensão: 20/55 cm<br>Nível: 852,19<br>(mesmo elemento do lado A — não muda de posição entre faces)</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_ab_dir"><span class="check-label">Abertura de viga direita</span><span class="check-value"><b>VE302</b><br>Dimensão: 20/70 cm<br>Nível: 852,19<br>(mesmo elemento do lado A — não muda de posição entre faces)</span></label>
+              <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_det_pilares"><span class="check-label">Pilares que passa (1 encontrado)</span><span class="check-value"><b>P12</b><br>Comprimento: 100+22=<b>122 cm</b><br>Distância extremidade esquerda: 180−11=<b>169 cm</b><br>Distância extremidade direita: 220−11=<b>209 cm</b><br>(mesmo pilar do lado A — não muda de posição entre faces)</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="draw-style-box">
+        <div class="draw-style-title">Como desenhamos a lateral: Sarrafeado × Gradeado</div>
+        <div class="draw-style-desc">
+          Duas técnicas de fôrma para a mesma abertura de pilar (P12 · 11 + 100 + 11 = 122 cm). No <b>sarrafeado</b>,
+          ripas horizontais contínuas cruzam todo o painel. No <b>gradeado</b>, montantes verticais adicionais
+          emolduram a abertura do pilar, subdividindo-a. Regras de folga aplicadas ao desenho: laje +2 cm,
+          altura da viga +4 cm, largura da viga incidente na abertura +8 cm; no pilar: distância à extremidade
+          −11 cm de cada lado (as distâncias são referências do próprio pilar) e comprimento do pilar +22 cm.
+        </div>
+        <div class="draw-style-cols">
+          <div class="draw-style-col">
+            <h4>Lado A · sarrafeado e gradeado</h4>
+            <div class="interp-diagram" data-interp-diagram="a-sarrafeado"></div>
+            <div class="interp-diagram" data-interp-diagram="a-gradeado"></div>
+            <div class="rule-box" style="margin-top:0;">
+              <div class="rule-title">Resumo da interpretação — Lado A</div>
+              A laje <b>L301</b> (12 cm, N 852,19) define a faixa de textura do topo do painel; com +2 cm
+              de folga de desenho na junção com a fôrma, ela ocupa <b>14 cm</b> da altura desenhada. A altura
+              real da viga (60 cm) recebe +4 cm de folga → <b>64 cm</b> desenhados no total, valor fixo para os
+              dois lados; como a laje consome 14 cm, sobram <b>50 cm</b> para o corpo do painel (sarrafo/grade).
+              O comprimento (<b>500 cm</b>) é a mesma cota do segmento já validada acima. As duas aberturas
+              para as vigas incidentes seguem a regra +4 cm de altura / +8 cm de largura: <b>VE301</b>
+              (55→59 cm de altura, 20→28 cm de largura) e <b>VE302</b> (70→74 cm de altura, 20→28 cm de
+              largura). No pilar, a regra hardcoded −11 cm por face define as distâncias até as extremidades
+              do segmento (180−11=<b>169 cm</b> até VE301, 220−11=<b>209 cm</b> até VE302) e +22 cm o
+              comprimento do próprio pilar (100→<b>122 cm</b>) — é essa abertura de 122 cm que aparece
+              sarrafeada/gradeada no centro do painel. No gradeado, essa mesma abertura ganha montantes
+              verticais de 3,5 cm junto às faces do pilar, mais um par central e um par flanqueando a linha de
+              união em pillarFaceB, todos fechados no topo por um sarrafo de 2,2 cm.
+            </div>
+          </div>
+          <div class="draw-style-col">
+            <h4>Lado B · sarrafeado e gradeado</h4>
+            <div class="interp-diagram" data-interp-diagram="b-sarrafeado"></div>
+            <div class="interp-diagram" data-interp-diagram="b-gradeado"></div>
+            <div class="rule-box" style="margin-top:0;">
+              <div class="rule-title">Resumo da interpretação — Lado B</div>
+              Mesma lógica do Lado A, mas com a laje <b>L302</b> (15 cm, N 852,19), que ocupa <b>17 cm</b> da
+              altura desenhada (15+2 de folga). Como o total desenhado continua fixo em 64 cm, o corpo do
+              painel encolhe para <b>47 cm</b> (64−17). <b>VE301</b> e <b>VE302</b> mantêm as mesmas dimensões
+              desenhadas do Lado A (59×28 cm e 74×28 cm) e o pilar mantém as mesmas distâncias
+              (169/122/209 cm), pois nenhum desses elementos muda de posição entre as faces — só a leitura é
+              espelhada: o Lado B é o Lado A espelhado no eixo X, confirmado pelas coordenadas do DXF real
+              (<code>LATERAIS.dxf</code>). Por isso, na tela do Lado B, VE301 aparece à direita e VE302 à
+              esquerda, com os montantes, o sarrafo de 2,2 cm e os pares de sarrafos verdes (central e
+              flanqueando a união em pillarFaceA) todos espelhados na mesma proporção.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="insight-box">
+        <b>Insights e regras consolidadas — Caso 1</b>
+        <ul>
+          <li><b>Para/Passa é uma classificação usada somente na relação das laterais com pilares.</b></li>
+          <li>Neste caso Passa, A e B atravessam continuamente o P12: há um único segmento por lado.</li>
+          <li>O comportamento no encontro entre vigas é uma regra independente, aplicada tanto em casos Para quanto Passa.</li>
+          <li>Comparar sempre a profundidade da viga incidente com a profundidade da viga cujas laterais estão sendo interpretadas.</li>
+          <li>Se a incidente for menos profunda, as laterais prolongam-se por baixo dela até sua face oposta.</li>
+          <li>Se a incidente for mais profunda, as laterais terminam na primeira face encontrada por causa da diferença de profundidade.</li>
+          <li>Em todo caso Passa, as cotas esquerda e direita localizam o pilar: cada uma parte da face do próprio pilar e vai até a extremidade correspondente do segmento.</li>
+          <li>A abertura da lateral no pilar é hardcoded: acrescentar 11 cm à esquerda e 11 cm à direita do comprimento do pilar.</li>
+          <li>Para o P12: comprimento 100 cm; abertura sarrafeada = 11 + 100 + 11 = 122 cm.</li>
+          <li>Neste caso-base, viga principal, vigas incidentes e lajes estão no mesmo nível: N 852,19.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="interpretation-card" data-interpretation="a-para">
+    <div class="interpretation-head">
+      <div><div class="interpretation-title">Interpretação 2 — Lado A Para</div><div class="interpretation-type">Face A · paredes param no pilar · dois segmentos</div></div>
+      <label class="confirm-main"><input type="checkbox" class="interpretation-cb" data-key="lv_a_para"> Interpretação confirmada</label>
+    </div>
+    <div class="interpretation-body">
+      <div class="interp-summary"><span class="summary-chip">V311 · fundo/prof. 20/65 cm</span><span class="summary-chip">Nível da viga 852,19</span><span class="summary-chip">P14 · 20×100 cm</span><span class="summary-chip">2 segmentos por lado</span></div>
+      <div class="interp-diagram" data-interp-diagram="a-para"></div>
+      <div class="check-grid">
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_para_segmento"><span class="check-label">Segmentos</span><span class="check-value"><b>V311</b> · 20/65 cm · N 852,19 · <b>A1+A2 e B1+B2</b></span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_para_lajes"><span class="check-label">Lajes</span><span class="check-value">Face A: <b>L303</b> · N 852,19 · esp. 14 cm<br>Face B: <b>L304</b> · N 852,09 · esp. 12 cm</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_para_pilar"><span class="check-label">Pilar central</span><span class="check-value"><b>P14</b> · 20×100 cm · paredes param nas duas faces do pilar</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_a_para_extremos"><span class="check-label">Extremidades</span><span class="check-value">Esquerda: <b>P01</b> · comp. 60 cm<br>Direita: <b>VE304</b> · 19/55 · N 852,19</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="interpretation-card" data-interpretation="b-passa">
+    <div class="interpretation-head">
+      <div><div class="interpretation-title">Interpretação 3 — Malha 3×3 · Vigas Passam</div><div class="interpretation-type">Quatro vigas · nove campos de laje · seis pilares · dois cruzamentos entre vigas</div></div>
+      <label class="confirm-main"><input type="checkbox" class="interpretation-cb" data-key="lv_b_passa"> Interpretação confirmada</label>
+    </div>
+    <div class="interpretation-body">
+      <div class="interp-summary"><span class="summary-chip">V401–V404 · 4 contratos</span><span class="summary-chip">Nível único 852,19</span><span class="summary-chip">L401–L409 · esp. 10/12/14/16</span><span class="summary-chip">pilar puro não divide · viga incidente sempre divide</span><span class="summary-chip">segmentos/lado: V401=3 · V402=3 · V403=3 · V404=3</span></div>
+      <div class="interp-diagram" data-interp-diagram="b-passa"></div>
+      <div class="check-grid">
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_segmento"><span class="check-label">Segmento</span><span class="check-value"><b>V312</b> · 19/70 cm · nível <b>847,19</b> · <b>1 segmento contínuo por lado</b></span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_lajes"><span class="check-label">Lajes</span><span class="check-value">Face A: <b>L305</b> · N 847,39 · esp. 12 cm<br>Face B: <b>L306</b> · N 847,19 · esp. 15 cm</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_pilar"><span class="check-label">Pilar e abertura</span><span class="check-value"><b>P13</b> · 19×100 cm · face esquerda→extremidade esquerda: 135 cm · face direita→extremidade direita: 265 cm · abertura sarrafeada: <b>122 cm</b></span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_passa_extremos"><span class="check-label">Extremidades</span><span class="check-value">Esquerda: <b>VE305</b> · 20/60 · N 847,19<br>Direita: <b>P09</b> · comp. 50 cm</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="interpretation-card" data-interpretation="b-para">
+    <div class="interpretation-head">
+      <div><div class="interpretation-title">Interpretação 4 — Malha 3×3 · Vigas Param</div><div class="interpretation-type">Mesma geometria do Caso 3 · painéis interrompidos e reiniciados nos pilares</div></div>
+      <label class="confirm-main"><input type="checkbox" class="interpretation-cb" data-key="lv_b_para"> Interpretação confirmada</label>
+    </div>
+    <div class="interpretation-body">
+      <div class="interp-summary"><span class="summary-chip">V401–V404 · 4 contratos</span><span class="summary-chip">Nível único 852,19</span><span class="summary-chip">L401–L409 · esp. 10/12/14/16</span><span class="summary-chip">P401–P406 · 6 pilares</span><span class="summary-chip">4 segmentos por lado/viga</span></div>
+      <div class="interp-diagram" data-interp-diagram="b-para"></div>
+      <div class="check-grid">
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_para_segmento"><span class="check-label">Segmentos</span><span class="check-value"><b>V313</b> · 24/80 cm · N 852,19 · <b>A1+A2 e B1+B2</b></span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_para_lajes"><span class="check-label">Lajes</span><span class="check-value">Face A: <b>L307</b> · N 852,19 · esp. 14 cm<br>Face B: <b>L308</b> · N 851,99 · esp. 16 cm</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_para_pilar"><span class="check-label">Pilar central</span><span class="check-value"><b>P15</b> · 24×100 cm · paredes param nas duas faces do pilar</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_b_para_extremos"><span class="check-label">Extremidades</span><span class="check-value">Esquerda: <b>VE306</b> · 19/50 · N 852,19<br>Direita: <b>VE307</b> · 25/75 · N 851,99</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="interpretation-card" data-interpretation="corte">
+    <div class="interpretation-head">
+      <div><div class="interpretation-title">Interpretação 5 — Visão de Corte</div><div class="interpretation-type">Seção transversal + referência longitudinal das extremidades</div></div>
+      <label class="confirm-main"><input type="checkbox" class="interpretation-cb" data-key="lv_corte"> Interpretação confirmada</label>
+    </div>
+    <div class="interpretation-body">
+      <div class="interp-summary"><span class="summary-chip">V314 · 25/90 cm</span><span class="summary-chip">Topo N 852,19</span><span class="summary-chip">L309 h=12</span><span class="summary-chip">L310 h=18</span></div>
+      <div class="interp-diagram" data-interp-diagram="corte"></div>
+      <div class="check-grid">
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_corte_segmento"><span class="check-label">Viga principal</span><span class="check-value"><b>V314</b> · fundo 25 cm · profundidade 90 cm · topo N 852,19 · fundo N 762,19</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_corte_lajes"><span class="check-label">Lajes no corte</span><span class="check-value">A: <b>L309</b> · N 852,19 · esp. 12 cm<br>B: <b>L310</b> · N 851,99 · esp. 18 cm</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_corte_niveis"><span class="check-label">Níveis</span><span class="check-value">Desnível A→B = 20 cm · profundidade medida desde o topo da viga.</span></label>
+        <label class="check-row"><input type="checkbox" class="review-cb" data-key="lv_corte_extremos"><span class="check-label">Referência longitudinal</span><span class="check-value">Esquerda: <b>P20</b> · comp. 60 cm<br>Direita: <b>VE308</b> · 20/65 · N 851,99</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>3. Casos de Interpretação Complementares</h2>
+  <div class="warning-box">
+    Os seis casos abaixo explicam relações espaciais recorrentes. Eles não classificam sozinhos
+    uma entrada como Para ou Passa. A classificação final vem da variante produtiva da ficha;
+    o desenho serve para validar face, vizinhança e interferências.
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 1 — A-Para — extremo C da viga encosta em pilar</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>O segmento A-Para ocorre quando olhamos o lado A (<b>esquerdo C→D</b>)
+        no ponto <b>C (extremo norte/início)</b> da viga, que encosta diretamente num pilar.</p>
+        <ul>
+          <li>Lado A fica <b>bloqueado pelo pilar</b> — sem laje → <span class="tag tag-nulo">nulo</span></li>
+          <li>Lado B pode ter laje (depende do vão oposto)</li>
+          <li>É o caso mais comum em vigas de borda junto ao núcleo de pilares</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">A = nulo (pilar)</div>
+          <div class="result-face rf-B">B = L301</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="lv1">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"><span class="faceA">A-Para: extremo norte da viga encosta em pilar</span>
+
+     Pilar ████████████
+     ████████████████████╦══════════════════════════════╗
+                         ║   Viga V10  (lado A-Para)    ║
+     Pilar ████████████  ╚══════════════════════════════╝
+     ████████████████████
+                         ↑ C (extremo Norte = Para)
+     <span class="laje">Laje L301 à direita (lado B)</span>
+     <span class="tag-nulo">Lado A = nulo (pilar bloqueia)</span></div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('lv1')">&#8249;</button>
+            <span class="carousel-counter" id="lv1-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('lv1')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 2 — B-Para — extremo C da viga; lado B bloqueado por pilar</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Espelho do Caso 1: o lado B (<b>direito C→D</b>) no extremo C encosta em pilar.
+        O lado A tem laje livre enquanto B fica nulo.</p>
+        <ul>
+          <li>Lado B = nulo — pilar bloqueia o lado direito</li>
+          <li>Lado A = laje do vão esquerdo (L301 ou o que existir)</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">A = L301</div>
+          <div class="result-face rf-B">B = nulo (pilar)</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="lv2">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"><span class="faceB">B-Para: extremo norte — lado B encosta em pilar</span>
+
+     ╔══════════════════════════════╦████████████████████
+     ║   Viga V10  (lado B-Para)    ║████████████ Pilar ████
+     ╚══════════════════════════════╩████████████████████
+                                    ↑ C (extremo Norte = Para)
+     <span class="laje">Laje L301 à esquerda (lado A)</span>
+     <span class="tag-nulo">Lado B = nulo (pilar bloqueia)</span></div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('lv2')">&#8249;</button>
+            <span class="carousel-counter" id="lv2-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('lv2')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 3 — A-Passa — ponto interior; viga continua dos dois lados</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>No ponto interno da viga (Passa), a viga <b>não para</b> — continua além.
+        O lado A vê o vão de laje imediatamente à esquerda deste ponto.</p>
+        <ul>
+          <li>Lado A = laje do vão que fica à esquerda do cruzamento</li>
+          <li>Pode ser a mesma laje de B ou diferente (depende se outra viga divide)</li>
+          <li>Nunca é nulo em Passa — há sempre espaço dos dois lados</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">A = L301</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="lv3">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"><span class="faceA">A-Passa: ponto interior da viga</span>
+
+     ╔════════════════════════╦════════════════════════╗
+     ║   Viga V10 (trecho W)  ║   Viga V10 (trecho E)  ║
+     ╚════════════════════════╩════════════════════════╝
+                              ↑ ponto de cruzamento (Passa)
+     <span class="laje">Lado A = Laje L301 (vão norte)</span>
+     <span class="laje">Lado B = Laje L302 (vão sul) ou mesmo vão</span></div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('lv3')">&#8249;</button>
+            <span class="carousel-counter" id="lv3-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('lv3')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 4 — B-Passa — lado direito do mesmo cruzamento interior</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Espelho do Caso 3 para o lado B. No mesmo ponto de Passa,
+        o lado B vê o vão de laje à direita do cruzamento.</p>
+        <ul>
+          <li>Lado B = laje do vão à direita</li>
+          <li>Se nenhuma outra viga divide o vão norte/sul → A = B = mesma laje</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-B">B = L302</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="lv4">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"><span class="faceB">B-Passa: ponto interior — lado direito</span>
+
+     ╔════════════════════════╦════════════════════════╗
+     ║   Viga V10 (trecho W)  ║   Viga V10 (trecho E)  ║
+     ╚════════════════════════╩════════════════════════╝
+                              ↑ ponto de cruzamento (Passa)
+     <span class="laje">Lado B = Laje L302 (vão sul)</span>
+     <span class="laje">Lado A = Laje L301 (vão norte)</span></div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('lv4')">&#8249;</button>
+            <span class="carousel-counter" id="lv4-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('lv4')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 5 — A-Para exterior — borda do edifício; lado A = nulo</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A viga está na <b>borda exterior</b> do edifício. O lado A fica voltado
+        para fora — sem nenhuma laje. Mesmo sendo um Para, o nulo vem da ausência de laje,
+        não de um pilar bloqueando.</p>
+        <ul>
+          <li>Lado A = <span class="tag tag-nulo">nulo</span> — exterior livre, sem laje</li>
+          <li>Lado B = laje interior (L301)</li>
+          <li>Ocorre nas vigas de fachada e beirais</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">A = nulo (exterior)</div>
+          <div class="result-face rf-B">B = L301</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="lv5">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"><span class="faceA">A-Para exterior: borda do edifício, sem laje</span>
+
+     ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+       exterior (sem laje)                      │
+     └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+     ╔══════════════════════════════════════════╗
+     ║            Viga de borda V10             ║
+     ╚══════════════════════════════════════════╝
+     <span class="laje">Interior: Laje L301</span>
+
+     <span class="tag-nulo">A = nulo (borda exterior sem laje)</span>
+     <span class="laje">B = L301 (interior do edifício)</span></div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('lv5')">&#8249;</button>
+            <span class="carousel-counter" id="lv5-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('lv5')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caso">
+    <div class="caso-title">Caso 6 — A-Passa com interseção de viga secundária — dois vãos diferentes</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Uma viga secundária N-S cruza a viga principal no ponto de Passa.
+        Isso cria <b>4 vãos</b> de laje distintos. O lado A vê apenas o vão
+        que está imediatamente ao noroeste do cruzamento.</p>
+        <ul>
+          <li>Viga secundária N-S divide o espaço: cada quadrante é uma laje diferente</li>
+          <li>A = laje do quadrante noroeste (L301)</li>
+          <li>B = laje do quadrante sudoeste (L303)</li>
+          <li>A ≠ B pois a viga NS separa os vãos</li>
+        </ul>
+        <div class="result-row">
+          <div class="result-face rf-A">A = L301 (NO)</div>
+          <div class="result-face rf-B">B = L303 (SO)</div>
+        </div>
+      </div>
+      <div class="caso-diag">
+        <div class="carousel" id="lv6">
+          <div class="carousel-slides">
+            <div class="carousel-slide active">
+              <div class="ascii"><span class="faceA">A-Passa com viga secundária cruzando</span>
+
+     Viga NS (secundária)
+     ║         ║
+     ║  L301   ║  L302
+     ║         ║
+     ╔═════════╬════════════════════════════════╗
+     ║ V10 W   ║         V10 E (continua)       ║
+     ╚═════════╬════════════════════════════════╝
+               ║  L303   ║   L304
+               ║         ║
+     Viga NS (secundária)
+
+     <span class="laje">Ponto de Passa: 2 lajes diferentes cada lado da V-NS</span>
+     <span class="faceA">A = L301</span>  (noroeste do ponto)
+     <span class="faceB">B = L303</span>  (sudoeste do ponto)</div>
+              <div class="slide-label">Diagrama de referência</div>
+            </div>
+            <div class="carousel-slide">
+              <div class="slide-placeholder">— sem exemplo real ainda —</div>
+              <div class="slide-label"></div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="carousel-btn" onclick="prevSlide('lv6')">&#8249;</button>
+            <span class="carousel-counter" id="lv6-counter">1 / 2</span>
+            <button class="carousel-btn" onclick="nextSlide('lv6')">&#8250;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>4. Casos Críticos que Faltavam</h2>
+
+  <div class="caso">
+    <div class="caso-title">Caso 7 — C↔D invertido: A e B também invertem</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A geometria pode ser idêntica, mas a orientação autoritativa mudou. Não preserve A/B
+        por posição de tela.</p>
+        <ul>
+          <li>Antes: C→D para a direita; A fica acima.</li>
+          <li>Depois: C→D para a esquerda; A fica abaixo.</li>
+          <li>Se o algoritmo mantiver os lados, sinalize erro de orientação.</li>
+        </ul>
+      </div>
+      <div class="caso-diag" data-kind="reverse"></div>
+    </div>
+  </div>
+
+  <div class="caso">
+    <div class="caso-title">Caso 8 — Viga diagonal: A/B não são norte/sul nem oeste/leste</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Em vigas inclinadas, use a normal do eixo C→D. Comparar apenas <code>x</code> ou
+        <code>y</code> produz troca de face.</p>
+        <ul>
+          <li>Projete o centro da laje na normal esquerda/direita.</li>
+          <li>Use tolerância geométrica para contatos nos cantos.</li>
+          <li>Registre o ângulo e a origem da orientação na auditoria.</li>
+        </ul>
+      </div>
+      <div class="caso-diag" data-kind="diagonal"></div>
+    </div>
+  </div>
+
+  <div class="caso">
+    <div class="caso-title">Caso 9 — Encontro em T: a secundária termina, não atravessa</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>Uma viga secundária chega a apenas uma face da viga principal. O contato divide
+        a vizinhança de um lado, mas não cria automaticamente quatro vãos.</p>
+        <ul>
+          <li>Identifique qual face recebe a abertura de viga.</li>
+          <li>Separe “viga que chega” de “viga que atravessa”.</li>
+          <li>Valide ajustes inicial/final no ponto de encontro.</li>
+        </ul>
+      </div>
+      <div class="caso-diag" data-kind="tee"></div>
+    </div>
+  </div>
+
+  <div class="caso">
+    <div class="caso-title">Caso 10 — Cruzamento em X: quatro quadrantes independentes</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A viga transversal atravessa a principal. Cada lado pode tocar lajes diferentes antes
+        e depois do cruzamento.</p>
+        <ul>
+          <li>Não colapse L301/L302/L303/L304 em uma única laje por face.</li>
+          <li>Quebre o comprimento em segmentos quando a vizinhança muda.</li>
+          <li>Preserve a continuidade da viga principal.</li>
+        </ul>
+      </div>
+      <div class="caso-diag" data-kind="cross"></div>
+    </div>
+  </div>
+
+  <div class="caso">
+    <div class="caso-title">Caso 11 — Mudança de laje, nível ou espessura ao longo da mesma face</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A face A ou B pode ter mais de uma laje adjacente. Nome, nível e altura precisam
+        permanecer associados ao trecho correto.</p>
+        <ul>
+          <li>Segmentar na fronteira L301→L302.</li>
+          <li>Não herdar nível/altura da primeira laje para as demais.</li>
+          <li>Marcar sobreposição ou lacuna acima da tolerância.</li>
+        </ul>
+      </div>
+      <div class="caso-diag" data-kind="slab-step"></div>
+    </div>
+  </div>
+
+  <div class="caso">
+    <div class="caso-title">Caso 12 — Apoios, pilares que passam e aberturas de viga</div>
+    <div class="caso-body">
+      <div class="caso-text">
+        <p>A interpretação lateral não termina na laje. A ficha real também descreve apoios,
+        continuidade, ajustes e interferências.</p>
+        <ul>
+          <li>Associar apoio inicial e final com dimensão e nível.</li>
+          <li>Listar pilares que atravessam o trecho.</li>
+          <li>Listar aberturas de viga sem confundi-las com apoio.</li>
+        </ul>
+      </div>
+      <div class="caso-diag" data-kind="openings"></div>
+    </div>
+  </div>
+
+  <h3>Matriz mínima de cobertura</h3>
+  <table class="coverage">
+    <tr><th>Dimensão</th><th>Variações obrigatórias</th><th>Falha evitada</th></tr>
+    <tr><td>Orientação</td><td>Horizontal, vertical, diagonal e C↔D invertido</td><td>A/B preso à tela</td></tr>
+    <tr><td>Extremidade</td><td>Apoio em C, apoio em D, parede e viga de apoio</td><td>Regra válida só no início</td></tr>
+    <tr><td>Interseção</td><td>Sem encontro, T pela face A, T pela B e cruzamento X</td><td>Passa falso ou quatro vãos falsos</td></tr>
+    <tr><td>Lajes</td><td>Mesma, diferentes, ausente, múltiplas, níveis/alturas distintos</td><td>Dados herdados pelo trecho errado</td></tr>
+    <tr><td>Seção</td><td>Constante e mudança de altura/largura</td><td>Dimensão única para toda a viga</td></tr>
+    <tr><td>Interferência</td><td>Pilar passante, abertura e recorte</td><td>Elemento omitido ou classificado como apoio</td></tr>
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>3. Campos da Pré-Ficha Lateral de Viga</h2>
+
+  <table>
+    <tr><th>Grupo</th><th>Campos obrigatórios</th><th>Regra de consistência</th></tr>
+    <tr><td>Interpretação</td><td><code>tipo</code>: lado_a_passa, lado_a_para, lado_b_passa, lado_b_para ou visao_corte</td><td>Exatamente um dos cinco contextos por ficha exibida</td></tr>
+    <tr><td>Segmento principal</td><td><code>nome</code>, <code>dimensao_fundo</code>, <code>profundidade</code>, <code>nivel_viga</code>, comprimento e polilinha</td><td>Nome/dimensão/nível devem aparecer no desenho e na ficha</td></tr>
+    <tr><td>Segmentação</td><td>Para: A1, A2, B1 e B2 · Passa: A e B contínuos</td><td>Para = 2 segmentos por lado; Passa = 1 segmento por lado</td></tr>
+    <tr><td>Laje lado A</td><td><code>nome</code>, <code>nivel</code>, <code>espessura</code></td><td>Laje, nível e espessura próprios; independente da face B</td></tr>
+    <tr><td>Laje lado B</td><td><code>nome</code>, <code>nivel</code>, <code>espessura</code></td><td>Independente de A; não copiar quando as lajes forem diferentes</td></tr>
+    <tr><td>Pilar central</td><td><code>nome</code>, espessura igual à viga, <code>comprimento=100</code>, <code>distancia_extremidade_esquerda</code>, <code>distancia_extremidade_direita</code></td><td>Para: paredes param nas faces · Passa: paredes atravessam</td></tr>
+    <tr><td>Extremidade esquerda</td><td>Tipo pilar/viga; se viga: <code>nome</code>, <code>nivel</code>, <code>fundo</code>, <code>profundidade</code></td><td>Nunca deixar a extremidade sem delimitador</td></tr>
+    <tr><td>Extremidade direita</td><td>Tipo pilar/viga; se viga: <code>nome</code>, <code>nivel</code>, <code>fundo</code>, <code>profundidade</code></td><td>O segmento termina exatamente quando a viga incidente chega</td></tr>
+    <tr><td>Visão de corte</td><td>Fundo/profundidade da viga, topo/fundo, lajes A/B com níveis e espessuras</td><td>Desníveis devem ser explícitos; nenhuma dimensão implícita</td></tr>
+    <tr><td>Revisão humana</td><td>Checkboxes por grupo + confirmação final da interpretação</td><td>Estado persistido por chave estável no navegador</td></tr>
+  </table>
+  <p class="source-note">Cobertura alinhada ao contrato atual de <code>collect_preficha_segments</code> e à apresentação da pré-validação.</p>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>4. Erros Comuns e Gates de Revisão</h2>
+  <table>
+    <tr><th>Erro</th><th>Sintoma</th><th>Gate</th></tr>
+    <tr><td>A/B por coordenada global</td><td>Face troca por posição aparente na tela</td><td>Usar exclusivamente <code>seg_side_a</code> ou <code>seg_side_b</code></td></tr>
+    <tr><td>Segmentação Para/Passa</td><td>Linha atravessa quando deveria parar, ou é quebrada quando deveria passar</td><td>Para: 2 segmentos/lado · Passa: 1 segmento/lado</td></tr>
+    <tr><td>A e B na mesma linha</td><td>Duas laterais sobrepostas no viewer</td><td>Exigir bordas longitudinais opostas</td></tr>
+    <tr><td>Laje por proximidade</td><td>Laje de canto atribuída sem contato real</td><td>Exigir sobreposição no intervalo do segmento</td></tr>
+    <tr><td>Interseção sem segmentação</td><td>Uma laje/altura aplicada antes e depois do encontro</td><td>Quebrar na mudança de vizinhança</td></tr>
+    <tr><td>Fallback sem rastreio</td><td>Geometria inferida parece manual/autoritativa</td><td>Exibir <code>geometry_source</code> e pedir revisão</td></tr>
+  </table>
+
+  <div class="rule-box">
+    <div class="rule-title">Gate mínimo antes de aprovar</div>
+    <span class="status-ok">PASSA:</span> face A/B confirmada, polilinha e comprimento
+    coerentes, apoios/lajes/interferências revisados.
+    <br>
+    <span class="status-review">REVISAR:</span> orientação ausente, fallback geométrico, múltiplas
+    lajes sem segmentação, face A/B ambígua ou Para/Passa deduzido sem fonte.
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <h2>5. Casos Debugados — Exemplos Reais</h2>
+  <div class="warning-box">
+    Esta seção deve crescer como no guia de pilares. Para cada falha, registrar:
+    <b>obra/pavimento/viga/segmento</b>, imagem antes/depois, resultado incorreto, causa raiz,
+    regra corrigida e teste de regressão. Ainda não há exemplos reais incorporados neste arquivo.
+  </div>
+
+</div>
+<script>
+const LV_COLORS = {
+  beam: '#7eb8f7', beamFill: '#132a42', slab: '#4fc3a1', slabFill: '#0d3024',
+  pillar: '#f0b840', pillarFill: '#4a350d', a: '#4fc3a1', b: '#7eb8f7',
+  c: '#c47ef7', d: '#f0b840', text: '#b8c4ce', muted: '#71808c', danger: '#e66'
+};
+
+function lvWrap(title, body, caption = '') {
+  return `<div class="vector-diagram">
+    <svg viewBox="0 0 520 245" role="img" aria-label="${title}">
+      <defs>
+        <marker id="lv-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="${LV_COLORS.text}"/>
+        </marker>
+        <pattern id="lv-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="${LV_COLORS.pillar}" stroke-width="2" opacity=".45"/>
+        </pattern>
+      </defs>
+      <text x="16" y="20" fill="${LV_COLORS.text}" font-weight="700">${title}</text>
+      ${body}
+    </svg>
+    ${caption ? `<div class="diagram-caption">${caption}</div>` : ''}
+  </div>`;
+}
+
+function lvHorizontal({supportA=false, supportB=false, exteriorA=false, cross=false, tee=false} = {}) {
+  const C = LV_COLORS;
+  return `
+    <rect x="80" y="45" width="390" height="62" rx="2" fill="${C.slabFill}" stroke="${C.slab}" opacity=".72"/>
+    <rect x="80" y="139" width="390" height="62" rx="2" fill="${C.slabFill}" stroke="${C.slab}" opacity=".72"/>
+    <rect x="80" y="108" width="390" height="31" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/>
+    <line x1="94" y1="123" x2="456" y2="123" stroke="${C.text}"/>
+    <text x="264" y="120" fill="${C.text}" text-anchor="middle" font-weight="700">V10 · 19/60 · N 852,19</text>
+    <text x="264" y="134" fill="${C.muted}" text-anchor="middle">segmento longitudinal</text>
+    <text x="264" y="64" fill="${C.b}" text-anchor="middle" font-weight="700">FACE B · L302 · N 852,09 · esp. 15</text>
+    <text x="264" y="188" fill="${C.a}" text-anchor="middle" font-weight="700">FACE A · L301 · N 852,19 · esp. 12</text>
+    ${(supportA || supportB) ? `<rect x="28" y="44" width="52" height="158" fill="url(#lv-hatch)" stroke="${C.pillar}" stroke-width="2"/><text x="54" y="126" fill="${C.pillar}" text-anchor="middle" transform="rotate(-90 54 126)">P01 · COMP. 50</text>` : `<rect x="28" y="20" width="52" height="205" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/><text x="54" y="123" fill="${C.beam}" text-anchor="middle" transform="rotate(-90 54 123)">VE301 · 20/55 · N 852,19</text>`}
+    <rect x="470" y="20" width="42" height="205" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/>
+    <text x="491" y="123" fill="${C.beam}" text-anchor="middle" transform="rotate(-90 491 123)">VE302 · 20/70 · N 852,09</text>
+    ${exteriorA ? `<rect x="80" y="139" width="390" height="62" fill="#141414" stroke="${C.muted}" stroke-dasharray="6 5"/><text x="270" y="174" fill="${C.muted}" text-anchor="middle">EXTERIOR · face A sem laje</text>` : ''}
+    ${cross || tee ? `<rect x="246" y="${cross ? 35 : 45}" width="38" height="${cross ? 176 : 73}" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/>
+      <text x="290" y="${cross ? 38 : 48}" fill="${C.beam}">${cross ? 'atravessa' : 'termina'}</text>` : ''}
+  `;
+}
+
+/* Casos 3 e 4: mesma malha 3×3; muda apenas o contrato nos pilares.
+   Os quatro trechos de cada face são zonas de interpretação independentes. */
+const LV_NETWORK_SPEC = {
+  level: '852,19',
+  slabs: [
+    {id:'L401', thickness:10, zone:'perímetro'}, {id:'L402', thickness:12, zone:'perímetro'}, {id:'L403', thickness:14, zone:'perímetro'},
+    {id:'L404', thickness:16, zone:'perímetro'}, {id:'L405', thickness:10, zone:'interior'},  {id:'L406', thickness:12, zone:'perímetro'},
+    {id:'L407', thickness:14, zone:'perímetro'}, {id:'L408', thickness:16, zone:'perímetro'}, {id:'L409', thickness:10, zone:'perímetro'}
+  ],
+  pillars: {
+    P401: {section:'100×20 cm', direction:'horizontal · acompanha V403'},
+    P402: {section:'20×60 cm', direction:'vertical · acompanha V401'},
+    P403: {section:'20×60 cm', direction:'vertical · central na V401'},
+    P404: {section:'20×80 cm', direction:'vertical · central na V402'},
+    P405: {section:'100×20 cm', direction:'horizontal · central na V403'},
+    P406: {section:'60×40 cm', direction:'horizontal · central na V404'}
+  },
+  beams: [
+    {
+      id:'V401', label:'Vertical 1', section:'20/60 cm', depth:60,
+      directionA:'superior → inferior', directionB:'inferior → superior',
+      points:[
+        {id:'NORTE', label:'limite superior da malha', kind:'edge'},
+        {id:'P401', label:'P401 · encontro simultâneo com V403', kind:'pillarCross', pillar:'P401', incident:'V403'},
+        {id:'P403', label:'P403 · pilar central da V401', kind:'pillar', pillar:'P403'},
+        {id:'P402', label:'P402 · encontro simultâneo com V404', kind:'pillarCross', pillar:'P402', incident:'V404'},
+        {id:'SUL', label:'limite inferior da malha', kind:'edge'}
+      ],
+      slabsA:['L401','L404','L404','L407'], slabsB:['L402','L405','L405','L408']
+    },
+    {
+      id:'V402', label:'Vertical 2', section:'20/80 cm', depth:80,
+      directionA:'superior → inferior', directionB:'inferior → superior',
+      points:[
+        {id:'NORTE', label:'limite superior da malha', kind:'edge'},
+        {id:'X403', label:'cruzamento com V403', kind:'cross', incident:'V403'},
+        {id:'P404', label:'P404 · pilar central da V402', kind:'pillar', pillar:'P404'},
+        {id:'X404', label:'cruzamento com V404', kind:'cross', incident:'V404'},
+        {id:'SUL', label:'limite inferior da malha', kind:'edge'}
+      ],
+      slabsA:['L402','L405','L405','L408'], slabsB:['L403','L406','L406','L409']
+    },
+    {
+      id:'V403', label:'Horizontal 1', section:'20/100 cm', depth:100,
+      directionA:'esquerda → direita', directionB:'direita → esquerda',
+      points:[
+        {id:'OESTE', label:'limite esquerdo da malha', kind:'edge'},
+        {id:'P401', label:'P401 · encontro simultâneo com V401', kind:'pillarCross', pillar:'P401', incident:'V401'},
+        {id:'P405', label:'P405 · pilar central da V403', kind:'pillar', pillar:'P405'},
+        {id:'X403', label:'cruzamento com V402', kind:'cross', incident:'V402'},
+        {id:'LESTE', label:'limite direito da malha', kind:'edge'}
+      ],
+      slabsA:['L404','L405','L405','L406'], slabsB:['L401','L402','L402','L403']
+    },
+    {
+      id:'V404', label:'Horizontal 2', section:'40/60 cm', depth:60,
+      directionA:'esquerda → direita', directionB:'direita → esquerda',
+      points:[
+        {id:'OESTE', label:'limite esquerdo da malha', kind:'edge'},
+        {id:'P402', label:'P402 · encontro simultâneo com V401', kind:'pillarCross', pillar:'P402', incident:'V401'},
+        {id:'P406', label:'P406 · pilar central da V404', kind:'pillar', pillar:'P406'},
+        {id:'X404', label:'cruzamento com V402', kind:'cross', incident:'V402'},
+        {id:'LESTE', label:'limite direito da malha', kind:'edge'}
+      ],
+      slabsA:['L407','L408','L408','L409'], slabsB:['L404','L405','L405','L406']
+    }
+  ]
+};
+
+function lvNetworkDiagram(behavior) {
+  const C = LV_COLORS;
+  const isPassa = behavior === 'Passa';
+  const slabBoxes = [
+    [60,70,248,168], [332,70,536,168], [892,70,248,168],
+    [60,262,248,376], [332,262,536,376], [892,262,248,376],
+    [60,678,248,162], [332,678,536,162], [892,678,248,162]
+  ];
+  const slabs = LV_NETWORK_SPEC.slabs.map((slab, index) => {
+    const [x,y,w,h] = slabBoxes[index];
+    const central = slab.zone === 'interior';
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${central ? '#154331' : C.slabFill}" stroke="${central ? '#7ae0bd' : C.slab}" stroke-width="${central ? 3 : 2}" opacity=".9"/>
+      <text x="${x+w/2}" y="${y+h/2-8}" fill="${C.slab}" font-size="18" text-anchor="middle" font-weight="700">${slab.id}${central ? ' · INTERIOR' : ''}</text>
+      <text x="${x+w/2}" y="${y+h/2+18}" fill="${C.text}" font-size="13" text-anchor="middle">N ${LV_NETWORK_SPEC.level} · esp. ${slab.thickness} cm</text>`;
+  }).join('');
+  const passColor = isPassa ? C.slab : C.pillar;
+  const passLabel = isPassa ? 'PASSA no pilar' : 'PARA · termina e reinicia nas faces';
+  return `<div class="vector-diagram network-diagram zoomable-diagram" data-diagram-zoom>
+    <div class="diagram-zoom-toolbar" aria-label="Controles de zoom do diagrama">
+      <button type="button" data-zoom-action="out">−</button>
+      <button type="button" data-zoom-action="reset">100%</button>
+      <button type="button" data-zoom-action="in">+</button>
+      <button type="button" data-zoom-action="expand">Expandir</button>
+    </div>
+    <svg viewBox="-160 -80 1520 1370" role="img" aria-label="Malha 3 por 3: vigas ${behavior}">
+    <defs>
+      <pattern id="lv-network-hatch-${behavior}" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="${C.pillar}" stroke-width="3" opacity=".6"/></pattern>
+      <marker id="lv-arrow-${behavior}" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="${C.muted}"/></marker>
+    </defs>
+    <text x="600" y="30" fill="${C.text}" font-size="21" text-anchor="middle" font-weight="700">CASO ${isPassa ? '3' : '4'} · MALHA 3×3 · VIGAS ${behavior.toUpperCase()}</text>
+    <text x="600" y="54" fill="${C.muted}" font-size="13" text-anchor="middle">mesma geometria · todas as vigas e lajes no nível ${LV_NETWORK_SPEC.level}</text>
+    ${slabs}
+    <rect x="308" y="55" width="24" height="800" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <rect x="868" y="55" width="24" height="800" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <rect x="45" y="238" width="1110" height="24" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <rect x="45" y="638" width="1110" height="40" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <text x="290" y="150" fill="${C.beam}" font-size="14" text-anchor="middle" transform="rotate(-90 290 150)" font-weight="700">V401 · VERTICAL 1 · 20/60</text>
+    <text x="850" y="150" fill="${C.beam}" font-size="14" text-anchor="middle" transform="rotate(-90 850 150)" font-weight="700">V402 · VERTICAL 2 · 20/80</text>
+    <text x="170" y="230" fill="${C.beam}" font-size="14" text-anchor="middle" font-weight="700">V403 · HORIZONTAL 1 · 20/100</text>
+    <text x="170" y="630" fill="${C.beam}" font-size="14" text-anchor="middle" font-weight="700">V404 · HORIZONTAL 2 · 40/60</text>
+    <!-- dois pilares originais -->
+    <rect x="265" y="236" width="110" height="28" fill="url(#lv-network-hatch-${behavior})" stroke="${C.pillar}" stroke-width="3"/>
+    <rect x="306" y="613" width="28" height="90" fill="url(#lv-network-hatch-${behavior})" stroke="${C.pillar}" stroke-width="3"/>
+    <!-- quatro pilares adicionais, um no centro de cada lado da L405 -->
+    <rect x="306" y="405" width="28" height="90" fill="url(#lv-network-hatch-${behavior})" stroke="${C.pillar}" stroke-width="3"/>
+    <rect x="866" y="405" width="28" height="90" fill="url(#lv-network-hatch-${behavior})" stroke="${C.pillar}" stroke-width="3"/>
+    <rect x="545" y="236" width="110" height="28" fill="url(#lv-network-hatch-${behavior})" stroke="${C.pillar}" stroke-width="3"/>
+    <rect x="555" y="634" width="90" height="48" fill="url(#lv-network-hatch-${behavior})" stroke="${C.pillar}" stroke-width="3"/>
+    <text x="320" y="220" fill="${C.pillar}" font-size="12" text-anchor="middle" font-weight="700">P401 · 100×20 · H</text>
+    <text x="345" y="625" fill="${C.pillar}" font-size="12" font-weight="700">P402 · 20×60 · V</text>
+    <text x="345" y="418" fill="${C.pillar}" font-size="12" font-weight="700">P403 · 20×60 · V</text>
+    <text x="905" y="418" fill="${C.pillar}" font-size="12" font-weight="700">P404 · 20×80 · V</text>
+    <text x="600" y="220" fill="${C.pillar}" font-size="12" text-anchor="middle" font-weight="700">P405 · 100×20 · H</text>
+    <text x="600" y="625" fill="${C.pillar}" font-size="12" text-anchor="middle" font-weight="700">P406 · 60×40 · H</text>
+    <!-- segmentos A/B destacados nas duas bordas de cada viga -->
+    <g fill="none" stroke-linecap="round" stroke-width="6">
+      <g stroke="${C.a}">
+        <path d="M304 55 V236 M304 264 V405 M304 495 V613 M304 703 V855"/>
+        <path d="M864 55 V238 M864 262 V405 M864 495 V632 M864 684 V855"/>
+        <path d="M45 266 H265 M375 266 H545 M655 266 H862 M898 266 H1155"/>
+        <path d="M45 682 H306 M334 682 H555 M645 682 H868 M892 682 H1155"/>
+      </g>
+      <g stroke="${C.b}">
+        <path d="M336 55 V236 M336 264 V405 M336 495 V613 M336 703 V855"/>
+        <path d="M896 55 V238 M896 262 V405 M896 495 V632 M896 684 V855"/>
+        <path d="M45 234 H265 M375 234 H545 M655 234 H862 M898 234 H1155"/>
+        <path d="M45 634 H306 M334 634 H555 M645 634 H868 M892 634 H1155"/>
+      </g>
+    </g>
+    ${isPassa ? `<g fill="none" stroke-width="4" stroke-dasharray="6 4" opacity=".95">
+      <path d="M304 405 V495 M864 405 V495 M265 266 H308 M332 266 H375 M545 266 H655 M306 682 H334 M555 682 H645" stroke="${C.a}"/>
+      <path d="M336 405 V495 M896 405 V495 M265 234 H308 M332 234 H375 M545 234 H655 M306 634 H334 M555 634 H645" stroke="${C.b}"/>
+    </g>
+    <g fill="none" stroke="${C.pillar}" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 9" opacity="1">
+      <path d="M265 250 H308 M332 250 H375"/>
+      <path d="M306 626 V638 M306 678 V703 M334 626 V638 M334 678 V703"/>
+    </g>
+    <g fill="${C.pillar}" font-size="9" font-weight="700">
+      <text x="230" y="286">pontilhado amarelo = trecho do pilar que a parede atravessa</text>
+    </g>` : ''}
+    ${isPassa ? `<g font-size="7.5" font-weight="700">
+      <line x1="265" y1="214" x2="308" y2="214" stroke="${C.text}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
+      <line x1="332" y1="214" x2="375" y2="214" stroke="${C.text}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
+      <text x="286" y="207" fill="${C.text}" text-anchor="middle">40 interno</text>
+      <text x="354" y="207" fill="${C.text}" text-anchor="middle">40 interno</text>
+      <text x="250" y="304" fill="${C.d}">até fundo: 40-4=36</text>
+      <text x="250" y="316" fill="${C.pillar}">passa por baixo: 40+20+4=64</text>
+      <line x1="320" y1="613" x2="320" y2="638" stroke="${C.text}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
+      <line x1="320" y1="678" x2="320" y2="703" stroke="${C.text}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
+      <text x="350" y="644" fill="${C.text}">P402: sem sobra interna</text>
+      <text x="350" y="656" fill="${C.d}">só recuo 4 da horizontal</text>
+    </g>` : ''}
+    <!-- X403: V402 (80) é menos profunda e fica completa; V403 (100) recua 4 cm -->
+    <rect x="856" y="228" width="12" height="44" fill="${C.d}" opacity=".45" stroke="${C.d}" stroke-dasharray="3 2"/>
+    <rect x="892" y="228" width="12" height="44" fill="${C.d}" opacity=".45" stroke="${C.d}" stroke-dasharray="3 2"/>
+    <rect x="868" y="238" width="24" height="24" fill="none" stroke="${C.c}" stroke-width="2"/>
+    <text x="910" y="218" fill="${C.d}" font-size="9" font-weight="700">X403</text>
+    <!-- X404: V404 (60) é menos profunda e fica completa; V402 (80) recua 4 cm -->
+    <rect x="858" y="626" width="44" height="12" fill="${C.d}" opacity=".45" stroke="${C.d}" stroke-dasharray="3 2"/>
+    <rect x="858" y="678" width="44" height="12" fill="${C.d}" opacity=".45" stroke="${C.d}" stroke-dasharray="3 2"/>
+    <rect x="868" y="638" width="24" height="40" fill="none" stroke="${C.c}" stroke-width="2"/>
+    <text x="910" y="616" fill="${C.d}" font-size="9" font-weight="700">X404</text>
+    <g font-size="8" font-weight="700">
+      <rect x="390" y="108" width="225" height="49" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.pillar}"/>
+      <text x="400" y="124" fill="${C.pillar}">P401: pilar passa</text>
+      <text x="400" y="139" fill="${C.slab}">V401 menor = completa</text>
+      <text x="400" y="153" fill="${C.d}">V403 recua 4 · sarrafo 122</text>
+      <rect x="365" y="758" width="235" height="49" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.pillar}"/>
+      <text x="375" y="774" fill="${C.pillar}">P402: pilar passa</text>
+      <text x="375" y="789" fill="${C.slab}">V401 completa</text>
+      <text x="375" y="803" fill="${C.d}">V404 recua 4 · sarrafo 82</text>
+      <rect x="918" y="276" width="210" height="45" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.d}"/>
+      <text x="928" y="292" fill="${C.slab}">X403: V402 menor/completa</text>
+      <text x="928" y="306" fill="${C.d}">V403 passa por baixo: 20+4=24</text>
+      <rect x="918" y="692" width="210" height="45" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.d}"/>
+      <text x="928" y="708" fill="${C.slab}">X404: V404 menor/completa</text>
+      <text x="928" y="722" fill="${C.d}">V402 passa por baixo: 40+4=44</text>
+    </g>
+    <g fill="${passColor}" font-size="10" font-weight="700">
+      <text x="320" y="280" text-anchor="middle">${isPassa ? 'PASSA' : 'PARA'}</text>
+      <text x="350" y="455">${isPassa ? 'PASSA' : 'PARA'}</text>
+      <text x="350" y="720">${isPassa ? 'PASSA' : 'PARA'}</text>
+      <text x="900" y="455">${isPassa ? 'PASSA' : 'PARA'}</text>
+      <text x="600" y="280" text-anchor="middle">${isPassa ? 'PASSA' : 'PARA'}</text>
+      <text x="600" y="718" text-anchor="middle">${isPassa ? 'PASSA' : 'PARA'}</text>
+    </g>
+    ${isPassa ? `
+      <g fill="${C.a}" font-size="11" font-weight="700">
+        <text x="275" y="150">A1=160</text><text x="210" y="450">A2=360</text><text x="270" y="785">A3=200</text>
+        <text x="835" y="150">A1=160</text><text x="810" y="350">A2=360</text><text x="835" y="785">A3=200</text>
+        <text x="145" y="300">A1=200</text><text x="512" y="300">A2=420</text><text x="1015" y="342">A3=280</text>
+        <text x="145" y="725">A1=200</text><text x="512" y="725">A2=420</text><text x="1015" y="766">A3=280</text>
+      </g>
+      <g fill="${C.b}" font-size="11" font-weight="700">
+        <text x="345" y="150">B3=160</text><text x="380" y="450">B2=360</text><text x="345" y="785">B1=200</text>
+        <text x="905" y="150">B3=160</text><text x="915" y="520">B2=360</text><text x="905" y="785">B1=200</text>
+        <text x="145" y="200">B3=200</text><text x="512" y="200">B2=420</text><text x="1015" y="200">B1=280</text>
+        <text x="145" y="600">B3=200</text><text x="512" y="600">B2=420</text><text x="1015" y="600">B1=280</text>
+      </g>` : `
+      <g fill="${C.a}" font-size="11" font-weight="700">
+        <text x="270" y="150">A1=160</text><text x="270" y="335">A2=180</text><text x="270" y="555">A3=180</text><text x="270" y="785">A4=200</text>
+        <text x="830" y="150">A1=160</text><text x="830" y="335">A2=180</text><text x="830" y="555">A3=180</text><text x="830" y="785">A4=200</text>
+        <text x="145" y="280">A1=200</text><text x="450" y="280">A2=210</text><text x="755" y="280">A3=210</text><text x="1015" y="280">A4=280</text>
+        <text x="145" y="700">A1=200</text><text x="450" y="700">A2=210</text><text x="755" y="700">A3=210</text><text x="1015" y="700">A4=280</text>
+      </g>
+      <g fill="${C.b}" font-size="11" font-weight="700">
+        <text x="345" y="150">B4=160</text><text x="345" y="335">B3=180</text><text x="345" y="555">B2=180</text><text x="345" y="785">B1=200</text>
+        <text x="905" y="150">B4=160</text><text x="905" y="335">B3=180</text><text x="905" y="555">B2=180</text><text x="905" y="785">B1=200</text>
+        <text x="145" y="225">B4=200</text><text x="450" y="225">B3=210</text><text x="755" y="225">B2=210</text><text x="1015" y="225">B1=280</text>
+        <text x="145" y="625">B4=200</text><text x="450" y="625">B3=210</text><text x="755" y="625">B2=210</text><text x="1015" y="625">B1=280</text>
+      </g>`}
+    <rect x="60" y="875" width="1080" height="105" rx="5" fill="#10161a" stroke="#34414b"/>
+    <text x="80" y="900" fill="${passColor}" font-size="13" font-weight="700">${isPassa ? 'P403–P406: PASSA e não dividem. P401/P402: o pilar passa, mas a viga incidente divide.' : `P401–P406: ${passLabel}.`}</text>
+    <text x="80" y="925" fill="${C.d}" font-size="12">ENCAIXE: a menos profunda fica completa; a mais profunda recua 4 cm e soma +4 cm à abertura definida.</text>
+    <text x="80" y="950" fill="${C.c}" font-size="12">ABERTURA: a continuação inferior permanece completa e é validada independentemente do recuo.</text>
+    <text x="80" y="972" fill="${C.text}" font-size="11">${isPassa ? 'PASSA — 3 segmentos por lado em todas as vigas. Pilar puro não divide; viga incidente sempre divide.' : 'PARA — cada viga: 4 segmentos no lado A + 4 segmentos espelhados no lado B.'}</text>
+    ${isPassa ? `<g font-size="8" font-weight="700" fill="${C.text}">
+      <text x="-125" y="1018" fill="${C.muted}">COTAS EM CAMADAS · leitura didática</text>
+      <line x1="45" y1="1040" x2="1155" y2="1040" stroke="${C.muted}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
+      <text x="600" y="1034" fill="${C.text}" text-anchor="middle">TOTAL HORIZONTAL V403/V404 = 900 cm</text>
+      <line x1="45" y1="1072" x2="265" y2="1072" stroke="${C.a}" stroke-width="2"/>
+      <line x1="265" y1="1072" x2="862" y2="1072" stroke="${C.a}" stroke-width="2"/>
+      <line x1="898" y1="1072" x2="1155" y2="1072" stroke="${C.a}" stroke-width="2"/>
+      <text x="155" y="1064" fill="${C.a}" text-anchor="middle">A1=200 · livre até P401</text>
+      <text x="565" y="1064" fill="${C.a}" text-anchor="middle">A2=420 · P405 passa + trecho central</text>
+      <text x="1028" y="1064" fill="${C.a}" text-anchor="middle">A3=280 · após X403/X404</text>
+      <line x1="265" y1="1100" x2="375" y2="1100" stroke="${C.pillar}" stroke-width="2" stroke-dasharray="3 3"/>
+      <line x1="545" y1="1100" x2="655" y2="1100" stroke="${C.pillar}" stroke-width="2" stroke-dasharray="3 3"/>
+      <line x1="862" y1="1100" x2="898" y2="1100" stroke="${C.d}" stroke-width="2" stroke-dasharray="3 3"/>
+      <text x="320" y="1092" fill="${C.pillar}" text-anchor="middle">P401: 11+100+11=122</text>
+      <text x="600" y="1092" fill="${C.pillar}" text-anchor="middle">P405/P406: sarrafo passa</text>
+      <text x="880" y="1092" fill="${C.d}" text-anchor="middle">+4 recuo</text>
+      <line x1="-55" y1="55" x2="-55" y2="855" stroke="${C.muted}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
+      <text x="-70" y="455" fill="${C.text}" text-anchor="middle" transform="rotate(-90 -70 455)">TOTAL VERTICAL V401/V402 = 720 cm</text>
+      <line x1="-20" y1="55" x2="-20" y2="236" stroke="${C.a}" stroke-width="2"/>
+      <line x1="-20" y1="236" x2="-20" y2="613" stroke="${C.a}" stroke-width="2"/>
+      <line x1="-20" y1="703" x2="-20" y2="855" stroke="${C.a}" stroke-width="2"/>
+      <text x="-6" y="145" fill="${C.a}">160</text>
+      <text x="-6" y="430" fill="${C.a}">360 · P403/P404 passa</text>
+      <text x="-6" y="785" fill="${C.a}">200</text>
+      <text x="45" y="1140" fill="${C.d}">Ajuste +4: entra na soma da abertura do segmento que encontra a viga incidente; não muda a regra de segmentação.</text>
+      <text x="45" y="1162" fill="${C.pillar}">Pontilhado/sarrafo: mostra a parede atravessando o pilar em Passa; viga incidente continua dividindo o contrato.</text>
+      <rect x="45" y="1185" width="1110" height="72" rx="6" fill="#0b0f13" stroke="${C.pillar}" opacity=".92"/>
+      <text x="65" y="1204" fill="${C.pillar}">COTA INTERNA DO PILAR COM VIGA INCIDENTE</text>
+      <text x="65" y="1222" fill="${C.text}">P401: pilar 100 = 40 livre + V401 20 + 40 livre. Ponta por baixo: 40 + 20 + 4 + 4 = 68; recuo separado -4; saldo +64 cm.</text>
+      <text x="65" y="1240" fill="${C.text}">P402: pilar 60 e V404 60 ocupam a faixa completa; não há sobra interna. O ajuste é o recuo convencional: V404 recua 4 cm e V401 fica completa.</text>
+      <text x="65" y="1256" fill="${C.d}">Composição do segmento deve ficar declarada como: trecho base + trecho interno do pilar ± 4, separada do sarrafo total.</text>
+    </g>` : ''}
+  </svg></div>`;
+}
+
+const LV_INTERPRETATIONS = {
+  'a-passa': {
+    title: 'LADOS A E B PASSAM PELO PILAR', face: 'AB', beam: 'V310', section: '19/60 cm', level: '852,19',
+    slabA: ['L301', 'N 852,19', 'esp. 12 cm'], slabB: ['L302', 'N 852,19', 'esp. 15 cm'],
+    left: ['beam', 'VE301', '20/55 cm', 'N 852,19', 'menor'], right: ['beam', 'VE302', '20/70 cm', 'N 852,19', 'maior'],
+    pillar: ['P12', '19×100 cm', '180 cm', '220 cm'],
+    pillarLength: '100 cm', pillarOpening: { extraEachSide: '11 cm', total: '122 cm' },
+    collisionDepthRule: true, totalLength: '500 cm'
+  },
+  'a-para': {
+    title: 'LADO A PARA', face: 'A', beam: 'V311', section: '20/65 cm', level: '852,19',
+    slabA: ['L303', 'N 852,19', 'esp. 14 cm'], slabB: ['L304', 'N 852,09', 'esp. 12 cm'],
+    left: ['pillar', 'P01', 'comp. 60 cm', 'apoio inicial'], right: ['beam', 'VE304', '19/55 cm', 'N 852,19'],
+    pillar: ['P14', '20×100 cm', '160 cm', '240 cm'], pillarLength: '100 cm'
+  },
+  'b-passa': {
+    title: 'LADO B PASSA', face: 'B', beam: 'V312', section: '19/70 cm', level: '847,19',
+    slabA: ['L305', 'N 847,39', 'esp. 12 cm'], slabB: ['L306', 'N 847,19', 'esp. 15 cm'],
+    left: ['beam', 'VE305', '20/60 cm', 'N 847,19'], right: ['pillar', 'P09', 'comp. 50 cm', 'apoio final'],
+    pillar: ['P13', '19×100 cm', '135 cm', '265 cm'],
+    pillarLength: '100 cm', pillarOpening: { extraEachSide: '11 cm', total: '122 cm' }
+  },
+  'b-para': {
+    title: 'LADO B PARA', face: 'B', beam: 'V313', section: '24/80 cm', level: '852,19',
+    slabA: ['L307', 'N 852,19', 'esp. 14 cm'], slabB: ['L308', 'N 851,99', 'esp. 16 cm'],
+    left: ['beam', 'VE306', '19/50 cm', 'N 852,19'], right: ['beam', 'VE307', '25/75 cm', 'N 851,99'],
+    pillar: ['P15', '24×100 cm', '210 cm', '190 cm'], pillarLength: '100 cm'
+  }
+};
+
+function lvEndSupport(data, side) {
+  const C = LV_COLORS;
+  const isLeft = side === 'left';
+  const x = isLeft ? 120 : 820;
+  if (data[0] === 'pillar') {
+    return `<rect x="${x}" y="173" width="60" height="154" fill="url(#lv-hatch-big)" stroke="${C.pillar}" stroke-width="3"/>
+      <text x="${x + 30}" y="250" fill="${C.pillar}" font-size="14" font-weight="700" text-anchor="middle" transform="rotate(-90 ${x + 30} 250)">PILAR ${data[1]} · ${data[2]} · ${data[3]}</text>`;
+  }
+  const collisionLabel = data[4] === 'menor'
+    ? ' · MENOR: LATERAL PROLONGA SOB'
+    : data[4] === 'maior' ? ' · MAIOR: TERMINA NA 1ª FACE' : '';
+  return `<rect x="${x}" y="0" width="60" height="460" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <text x="${x + 30}" y="230" fill="${C.beam}" font-size="${data[4] ? 12 : 14}" font-weight="700" text-anchor="middle" transform="rotate(-90 ${x + 30} 230)">${side === 'left' ? 'VIGA CHEGA ESQ.' : 'VIGA CHEGA DIR.'} · ${data[1]} · ${data[2]} · ${data[3]}${collisionLabel}</text>`;
+}
+
+function lvInterpretationPlan(cfg) {
+  const C = LV_COLORS;
+  const isPara = cfg.title.endsWith('PARA');
+  const stopsAtCentralPillar = isPara || cfg.centralStops;
+  const highlightA = cfg.face === 'A' || cfg.face === 'AB';
+  const highlightB = cfg.face === 'B' || cfg.face === 'AB';
+  const pillarX = 432;
+  const pillarW = 136;
+  const pillarY = 202;
+  const pillarH = 96;
+  const openingPad = 15;
+  const dimensionStartX = cfg.collisionDepthRule ? 120 : 180;
+  const leftDimensionCenter = (dimensionStartX + pillarX) / 2;
+  const pillarBody = cfg.pillar ? `<rect x="${pillarX}" y="${pillarY}" width="${pillarW}" height="${pillarH}" fill="${C.pillarFill}" stroke="${C.pillar}" stroke-width="3"/>
+    <rect x="${pillarX}" y="${pillarY}" width="${pillarW}" height="${pillarH}" fill="url(#lv-hatch-big)" stroke="${C.pillar}" stroke-width="2"/>` : '';
+  const pillarOpeningOverlay = cfg.pillarOpening ? `
+    <rect x="${pillarX - openingPad}" y="${pillarY}" width="${openingPad}" height="${pillarH}" fill="${C.pillar}" opacity=".22" stroke="${C.pillar}" stroke-width="2" stroke-dasharray="5 4"/>
+    <rect x="${pillarX + pillarW}" y="${pillarY}" width="${openingPad}" height="${pillarH}" fill="${C.pillar}" opacity=".22" stroke="${C.pillar}" stroke-width="2" stroke-dasharray="5 4"/>` : '';
+  const pillarInfo = cfg.pillar ? `<text x="500" y="190" fill="${C.pillar}" font-size="15" text-anchor="middle" font-weight="700">PILAR CENTRAL · ${cfg.pillar[0]}</text>
+    <text x="500" y="246" fill="${C.text}" font-size="15" text-anchor="middle" font-weight="700">${cfg.pillar[0]} · ${cfg.pillar[1]}</text>
+    <text x="500" y="268" fill="${C.text}" font-size="12" text-anchor="middle">alinhado à viga</text>
+    <line x1="${dimensionStartX}" y1="380" x2="${pillarX}" y2="380" stroke="${C.c}" marker-start="url(#lv-arrow-big)" marker-end="url(#lv-arrow-big)"/>
+    <line x1="${pillarX}" y1="380" x2="${pillarX + pillarW}" y2="380" stroke="${C.pillar}" marker-start="url(#lv-arrow-big)" marker-end="url(#lv-arrow-big)"/>
+    <line x1="${pillarX + pillarW}" y1="380" x2="820" y2="380" stroke="${C.d}" marker-start="url(#lv-arrow-big)" marker-end="url(#lv-arrow-big)"/>
+    <text x="${leftDimensionCenter}" y="401" fill="${C.c}" font-size="11" text-anchor="middle">extremidade E ↔ face E de ${cfg.pillar[0]} = ${cfg.pillar[2]}</text>
+    <text x="500" y="401" fill="${C.pillar}" font-size="12" text-anchor="middle" font-weight="700">${cfg.pillar[0]} = ${cfg.pillarLength || '100 cm'}</text>
+    <text x="694" y="401" fill="${C.d}" font-size="11" text-anchor="middle">face D de ${cfg.pillar[0]} ↔ extremidade D = ${cfg.pillar[3]}</text>` : '';
+  const wallStartX = cfg.collisionDepthRule ? 120 : 180;
+  const wallLines = stopsAtCentralPillar ? `
+    <line x1="${wallStartX}" y1="202" x2="${pillarX}" y2="202" stroke="${C.b}" stroke-width="${highlightB ? 9 : 5}" stroke-linecap="square"/>
+    <line x1="${pillarX + pillarW}" y1="202" x2="820" y2="202" stroke="${C.b}" stroke-width="${highlightB ? 9 : 5}" stroke-linecap="square"/>
+    <line x1="${wallStartX}" y1="298" x2="${pillarX}" y2="298" stroke="${C.a}" stroke-width="${highlightA ? 9 : 5}" stroke-linecap="square"/>
+    <line x1="${pillarX + pillarW}" y1="298" x2="820" y2="298" stroke="${C.a}" stroke-width="${highlightA ? 9 : 5}" stroke-linecap="square"/>
+    ${cfg.collisionDepthRule
+      ? `<text x="300" y="193" fill="${C.b}" font-size="13" text-anchor="middle">B · passa sob VE301</text><text x="694" y="193" fill="${C.b}" font-size="13" text-anchor="middle">B · para em VE302</text>
+         <text x="300" y="320" fill="${C.a}" font-size="13" text-anchor="middle">A · passa sob VE301</text><text x="694" y="320" fill="${C.a}" font-size="13" text-anchor="middle">A · para em VE302</text>`
+      : `<text x="306" y="193" fill="${C.b}" font-size="13" text-anchor="middle">B2</text><text x="694" y="193" fill="${C.b}" font-size="13" text-anchor="middle">B1</text>
+         <text x="306" y="320" fill="${C.a}" font-size="13" text-anchor="middle">A1</text><text x="694" y="320" fill="${C.a}" font-size="13" text-anchor="middle">A2</text>`}` : `
+    <line x1="${wallStartX}" y1="202" x2="820" y2="202" stroke="${C.b}" stroke-width="${highlightB ? 9 : 5}"/>
+    <line x1="${wallStartX}" y1="298" x2="820" y2="298" stroke="${C.a}" stroke-width="${highlightA ? 9 : 5}"/>
+    ${cfg.collisionDepthRule
+      ? `<text x="690" y="193" fill="${C.b}" font-size="13" text-anchor="middle">B · contínuo · atravessa P12</text>
+         <text x="690" y="320" fill="${C.a}" font-size="13" text-anchor="middle">A · contínuo · atravessa P12</text>`
+      : `<text x="680" y="193" fill="${C.b}" font-size="13">B · 1 segmento contínuo</text>
+         <text x="680" y="320" fill="${C.a}" font-size="13">A · 1 segmento contínuo</text>`}`;
+  const collisionDetail = cfg.collisionDepthRule ? `
+    <line x1="120" y1="202" x2="180" y2="202" stroke="${C.b}" stroke-width="9" stroke-dasharray="9 5"/>
+    <line x1="120" y1="298" x2="180" y2="298" stroke="${C.a}" stroke-width="9" stroke-dasharray="9 5"/>` : '';
+  const openingDimension = cfg.pillarOpening ? `
+    <line x1="${pillarX - openingPad}" y1="298" x2="${pillarX - openingPad}" y2="426" stroke="${C.pillar}" stroke-width="1" stroke-dasharray="4 4" opacity=".75"/>
+    <line x1="${pillarX + pillarW + openingPad}" y1="298" x2="${pillarX + pillarW + openingPad}" y2="426" stroke="${C.pillar}" stroke-width="1" stroke-dasharray="4 4" opacity=".75"/>
+    <line x1="${pillarX - openingPad}" y1="426" x2="${pillarX + pillarW + openingPad}" y2="426" stroke="${C.pillar}" marker-start="url(#lv-arrow-big)" marker-end="url(#lv-arrow-big)"/>
+    <text x="500" y="449" fill="${C.pillar}" font-size="13" text-anchor="middle" font-weight="700">ABERTURA SARRAFEADA = ${cfg.pillarOpening.extraEachSide} + ${cfg.pillarLength} + ${cfg.pillarOpening.extraEachSide} = ${cfg.pillarOpening.total}</text>` : '';
+  const totalDimensionY = cfg.pillarOpening ? 472 : 426;
+  const totalDimensionTextY = cfg.pillarOpening ? 495 : 449;
+  const totalDimension = cfg.totalLength ? `
+    <line x1="${dimensionStartX}" y1="${totalDimensionY}" x2="820" y2="${totalDimensionY}" stroke="${C.text}" marker-start="url(#lv-arrow-big)" marker-end="url(#lv-arrow-big)"/>
+    <text x="${(dimensionStartX + 820) / 2}" y="${totalDimensionTextY}" fill="${C.text}" font-size="14" text-anchor="middle" font-weight="700">COMPRIMENTO TOTAL DA LATERAL = ${cfg.totalLength}</text>` : '';
+  const interpretationY = cfg.pillarOpening && cfg.totalLength ? 528 : cfg.pillarOpening ? 482 : cfg.totalLength ? 482 : 445;
+  const viewBoxHeight = cfg.pillarOpening && cfg.totalLength ? 550 : 500;
+  return `<div class="vector-diagram">
+    <svg viewBox="0 0 1000 ${viewBoxHeight}" role="img" aria-label="${cfg.title}: ${cfg.beam}">
+      <defs>
+        <marker id="lv-arrow-big" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto-start-reverse"><path d="M0,0 L9,4.5 L0,9 z" fill="${C.text}"/></marker>
+        <pattern id="lv-hatch-big" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="${C.pillar}" stroke-width="3" opacity=".55"/></pattern>
+      </defs>
+      <rect x="180" y="82" width="640" height="120" fill="${C.slabFill}" stroke="${C.slab}" stroke-width="2"/>
+      <rect x="180" y="298" width="640" height="120" fill="#10283a" stroke="${C.b}" stroke-width="2"/>
+      <rect x="180" y="202" width="640" height="96" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+      ${pillarBody}${pillarOpeningOverlay}${wallLines}
+      <text x="306" y="240" fill="${C.text}" font-size="16" text-anchor="middle" font-weight="700">${cfg.beam} · FUNDO/PROF. ${cfg.section}</text>
+      <text x="306" y="266" fill="${C.text}" font-size="14" text-anchor="middle">NÍVEL DA VIGA ${cfg.level}</text>
+      <text x="500" y="113" fill="${C.b}" font-size="18" text-anchor="middle" font-weight="700">FACE B · ${cfg.slabB[0]}</text>
+      <text x="500" y="140" fill="${C.text}" font-size="15" text-anchor="middle">${cfg.slabB[1]} · ${cfg.slabB[2]}</text>
+      <text x="500" y="340" fill="${C.a}" font-size="18" text-anchor="middle" font-weight="700">FACE A · ${cfg.slabA[0]}</text>
+      <text x="500" y="367" fill="${C.text}" font-size="15" text-anchor="middle">${cfg.slabA[1]} · ${cfg.slabA[2]}</text>
+      <text x="500" y="${interpretationY}" fill="${cfg.face === 'B' ? C.b : C.a}" font-size="17" text-anchor="middle" font-weight="700">INTERPRETAR ${cfg.title}</text>
+      ${lvEndSupport(cfg.left, 'left')}${lvEndSupport(cfg.right, 'right')}${pillarInfo}${collisionDetail}${openingDimension}${totalDimension}
+    </svg>
+  </div>`;
+}
+
+function lvCutDiagram() {
+  const C = LV_COLORS;
+  return `<div class="vector-diagram"><svg viewBox="0 0 1000 500" role="img" aria-label="Visão de corte da V314">
+    <defs><pattern id="lv-hatch-cut" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="${C.pillar}" stroke-width="3" opacity=".55"/></pattern></defs>
+    <text x="250" y="28" fill="${C.text}" font-size="17" text-anchor="middle" font-weight="700">REFERÊNCIA LONGITUDINAL · EXTREMIDADES</text>
+    <rect x="80" y="92" width="340" height="58" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <rect x="45" y="65" width="50" height="112" fill="url(#lv-hatch-cut)" stroke="${C.pillar}" stroke-width="3"/>
+    <rect x="405" y="40" width="48" height="190" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="3"/>
+    <text x="45" y="210" fill="${C.pillar}" font-size="14">P20 · comp. 60 cm</text>
+    <text x="429" y="135" fill="${C.beam}" font-size="13" text-anchor="middle" transform="rotate(-90 429 135)">VE308 · 20/65 · N 851,99</text>
+    <text x="250" y="126" fill="${C.text}" font-size="16" text-anchor="middle">V314 · segmento de corte</text>
+    <line x1="500" y1="25" x2="500" y2="470" stroke="#35414a" stroke-dasharray="5 5"/>
+    <text x="750" y="28" fill="${C.text}" font-size="17" text-anchor="middle" font-weight="700">CORTE TRANSVERSAL</text>
+    <rect x="680" y="120" width="140" height="260" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="4"/>
+    <rect x="525" y="120" width="155" height="42" fill="${C.slabFill}" stroke="${C.a}" stroke-width="3"/>
+    <rect x="820" y="138" width="155" height="62" fill="#10283a" stroke="${C.b}" stroke-width="3"/>
+    <text x="603" y="96" fill="${C.a}" font-size="15" text-anchor="middle">A · L309 · N 852,19 · esp. 12</text>
+    <text x="897" y="224" fill="${C.b}" font-size="15" text-anchor="middle">B · L310 · N 851,99 · esp. 18</text>
+    <text x="750" y="250" fill="${C.text}" font-size="19" text-anchor="middle" font-weight="700">V314</text>
+    <text x="750" y="276" fill="${C.text}" font-size="15" text-anchor="middle">fundo 25 · prof. 90</text>
+    <text x="750" y="300" fill="${C.text}" font-size="15" text-anchor="middle">topo N 852,19</text>
+    <line x1="650" y1="120" x2="650" y2="380" stroke="${C.d}" stroke-width="2"/>
+    <text x="628" y="260" fill="${C.d}" font-size="14" text-anchor="middle" transform="rotate(-90 628 260)">profundidade 90 cm</text>
+    <line x1="680" y1="405" x2="820" y2="405" stroke="${C.c}" stroke-width="2"/>
+    <text x="750" y="428" fill="${C.c}" font-size="14" text-anchor="middle">fundo 25 cm</text>
+  </svg></div>`;
+}
+
+const LV_DRAW_STYLE = {
+  scale: 1.6,
+  total: 500, board: 50, band: 14,
+  pillarFaceA: 244, pillarFaceB: 366, pillarLen: 122,
+  notchW: 27.95, notchH: 5, sarrafoInNotch: 34.96, sarrafoInPlain: 6.95,
+  sarrHY: [7, 21, 28, 43],
+  gradePairs: [[42.96, 46.46], [165.5, 169.0], [291.0, 294.5], [362.48, 369.48], [481.5, 485.0]],
+  gradeCenterY: 43, gradeCenterFrom: 169.0, gradeCenterTo: 291.0,
+  topCapH: 2.2,
+  topCapSpans: [[35.95, 169.0], [291.0, 362.48], [369.48, 485.0]]
+};
+function lvDrawTechniqueDiagram(side, style) {
+  const S = LV_DRAW_STYLE;
+  const uid = `${side}-${style}`;
+  // Coordenadas sempre em espaço CANÔNICO (VE301 na extremidade 0, VE302 na extremidade "total").
+  // mx() é o único ponto que espelha para o lado B (leitura direita->esquerda) — nunca pré-inverter valores.
+  const mirror = side === 'B';
+  const sc = S.scale;
+  const marginL = 110, panelBottomY = 235;
+  const mx = v => marginL + (mirror ? (S.total - v) : v) * sc;
+  const my = v => panelBottomY - v * sc;
+  const rectX = (a, b) => Math.min(mx(a), mx(b));
+  const rectW = (a, b) => Math.abs(mx(b) - mx(a));
+  const pt = (x, y) => `${mx(x).toFixed(2)},${my(y).toFixed(2)}`;
+  const colPanel = '#e34fd8', colSarr = '#f0a030', colGrade = '#a8e000', colCota = '#3fdede', colReal = '#dfe6ea';
+  // outwardDir: sentido "para fora do painel" no lado plano (VE302); notchDir: sentido "para fora" no lado do notch (VE301).
+  // Espelham juntos com mx() para o lado B, sem pré-inverter valores.
+  const outwardDir = mirror ? -1 : 1;
+  const notchDir = -outwardDir;
+  // Total vertical do painel é FIXO para A e B: profundidade real da viga (60cm) + 4cm de folga de desenho = 64cm.
+  // O que muda por face é a espessura da laje desenhada (+2cm de folga); o corpo do painel (sarrafo/grade)
+  // se adapta ao que sobra do total menos a faixa de laje — nunca o total em si.
+  const panelTotalH = 60 + 4;
+  const lajeEspessuraReal = side === 'A' ? 12 : 15;
+  const bandH = lajeEspessuraReal + 2;
+  const boardH = panelTotalH - bandH;
+
+  // Faixa de textura (laje) unida ao hatch da abertura/notch do lado VE301 — mesmo padrão da laje,
+  // formando o "L" real do DXF (a textura desce até a profundidade do notch só desse lado).
+  const bandPath = `M ${pt(S.notchW, boardH)} L ${pt(S.total, boardH)} L ${pt(S.total, panelTotalH)} `
+    + `L ${pt(0, panelTotalH)} L ${pt(0, S.notchH)} L ${pt(S.notchW, S.notchH)} Z`;
+
+  const boardLines = style === 'sarrafeado' ? S.sarrHY.map(y =>
+    `<line x1="${mx(S.sarrafoInNotch)}" y1="${my(y)}" x2="${mx(S.total - S.sarrafoInPlain)}" y2="${my(y)}" stroke="${colSarr}" stroke-width="2"/>`
+  ).join('') : `<line x1="${mx(S.gradeCenterFrom)}" y1="${my(S.gradeCenterY)}" x2="${mx(S.gradeCenterTo)}" y2="${my(S.gradeCenterY)}" stroke="${colSarr}" stroke-width="2"/>`;
+  // Montantes do gradeado só sobem até a base do sarrafo de 2.2cm (não até o topo do painel).
+  const battenBodyH = boardH - S.topCapH;
+  const gradeBattens = style === 'gradeado' ? S.gradePairs.map(([a, b]) =>
+    `<line x1="${mx(a)}" y1="${my(0)}" x2="${mx(a)}" y2="${my(battenBodyH)}" stroke="${colGrade}" stroke-width="2"/>
+     <line x1="${mx(b)}" y1="${my(0)}" x2="${mx(b)}" y2="${my(battenBodyH)}" stroke="${colGrade}" stroke-width="2"/>`
+  ).join('') : '';
+  // Sarrafo de 2.2cm que fecha o topo dos montantes do gradeado, entre a base e o painel de laje.
+  const gradeTopCap = style === 'gradeado' ? S.topCapSpans.map(([a, b]) =>
+    `<rect x="${rectX(a, b)}" y="${my(boardH)}" width="${rectW(a, b)}" height="${S.topCapH * sc}" fill="${colSarr}" opacity=".28" stroke="${colSarr}" stroke-width="1.5"/>`
+  ).join('') : '';
+
+  // Cota vertical auxiliar (marcador rotacionado -90°), usada para os detalhes 5/59 (notch) e 50/14/64 (lado plano).
+  function vDim(xPos, vFrom, vTo, label, color, dir, fontSize = 11) {
+    const y1 = my(vFrom), y2 = my(vTo);
+    const ty = (y1 + y2) / 2;
+    const tx = xPos + dir * 12;
+    return `<line x1="${xPos}" y1="${y1}" x2="${xPos}" y2="${y2}" stroke="${color}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${tx}" y="${ty}" fill="${color}" font-size="${fontSize}" text-anchor="middle" transform="rotate(-90 ${tx} ${ty})">${label}</text>`;
+  }
+
+  const notchX1 = mx(0) + notchDir * 26, notchX2 = mx(0) + notchDir * 50;
+  const plainX1 = mx(S.total) + outwardDir * 26, plainX2 = mx(S.total) + outwardDir * 50;
+
+  const distVE301 = 180 - 11, distVE302 = 220 - 11; // sempre a mesma viga incidente, independente do lado A/B
+  const realRowY = my(0) + 26, realTextY = realRowY + 14;
+  // Só no gradeado: cotinha do painel divisor interno até a face do pilar — referência de corte/posicionamento.
+  const isGradeado = style === 'gradeado';
+  const divisorRowY = realRowY + 20, divisorTextY = divisorRowY + 14;
+  const realTotalY = (isGradeado ? divisorRowY : realRowY) + 20, realTotalTextY = realTotalY + 14;
+  const interpLabelY = realTotalTextY + 20;
+  const interpRowY = interpLabelY + 12, interpTextY = interpRowY + 14;
+  const ve301Anchor = mirror ? 'end' : 'start', ve302Anchor = mirror ? 'start' : 'end';
+  const divisorRow = isGradeado ? `
+      <line x1="${mx(S.gradeCenterFrom)}" y1="${divisorRowY}" x2="${mx(S.pillarFaceA)}" y2="${divisorRowY}" stroke="${colGrade}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(S.gradeCenterFrom) + mx(S.pillarFaceA)) / 2}" y="${divisorTextY}" fill="${colGrade}" font-size="11" text-anchor="middle">75 cm</text>
+      <line x1="${mx(S.pillarFaceA)}" y1="${divisorRowY}" x2="${mx(S.gradeCenterTo)}" y2="${divisorRowY}" stroke="${colGrade}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(S.pillarFaceA) + mx(S.gradeCenterTo)) / 2}" y="${divisorTextY}" fill="${colGrade}" font-size="11" text-anchor="middle">47 cm</text>` : '';
+  return `<div class="vector-diagram">
+    <svg viewBox="0 0 1000 ${interpTextY + 20}" role="img" aria-label="Lado ${side} · ${style} · V310">
+      <defs>
+        <marker id="lv-arrow-ds-${uid}" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse"><path d="M0,0 L7,3.5 L0,7 z" fill="${colCota}"/></marker>
+        <pattern id="lv-tex-${uid}" width="7" height="7" patternUnits="userSpaceOnUse">
+          <rect width="7" height="7" fill="#1a1014"/>
+          <circle cx="1.4" cy="1.6" r=".8" fill="#e35fa6"/><circle cx="4.8" cy="3.4" r=".7" fill="#0b0b0d"/>
+          <circle cx="2.6" cy="5.3" r=".6" fill="#e35fa6"/><circle cx="6.1" cy="6.2" r=".6" fill="#0b0b0d"/>
+        </pattern>
+      </defs>
+      <text x="14" y="20" fill="#c9d3da" font-weight="700" font-size="14">V310.${side} · ${style.toUpperCase()}</text>
+      <!-- cota real de largura do notch (28 cm), acima da faixa de textura -->
+      <line x1="${mx(0)}" y1="${my(panelTotalH) - 12}" x2="${mx(S.notchW)}" y2="${my(panelTotalH) - 12}" stroke="${colReal}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(0) + mx(S.notchW)) / 2}" y="${my(panelTotalH) - 18}" fill="${colReal}" font-size="11" text-anchor="middle">28 cm</text>
+      <path d="${bandPath}" fill="url(#lv-tex-${uid})" stroke="${colPanel}" stroke-width="2" stroke-linejoin="round"/>
+      <!-- corpo do painel só cobre a partir do fim do notch, para não pintar por cima do hatch da abertura -->
+      <rect x="${rectX(S.notchW, S.total)}" y="${my(boardH)}" width="${rectW(S.notchW, S.total)}" height="${boardH * sc}" fill="#0d1013" stroke="${colPanel}" stroke-width="2.5"/>
+      <line x1="${mx(S.pillarFaceA)}" y1="${my(boardH)}" x2="${mx(S.pillarFaceA)}" y2="${my(0)}" stroke="${colPanel}" stroke-width="2.5"/>
+      <line x1="${mx(S.pillarFaceB)}" y1="${my(boardH)}" x2="${mx(S.pillarFaceB)}" y2="${my(0)}" stroke="${colPanel}" stroke-width="2.5"/>
+      <!-- limite vertical da abertura/notch: altura toda do painel (0 até o corpo do painel), igual ao DXF real -->
+      <line x1="${mx(S.notchW)}" y1="${my(0)}" x2="${mx(S.notchW)}" y2="${my(boardH)}" stroke="${colSarr}" stroke-width="2"/>
+      <!-- sarrafo de 5cm na base da abertura -->
+      <rect x="${rectX(0, S.notchW)}" y="${my(S.notchH)}" width="${rectW(0, S.notchW)}" height="${S.notchH * sc}" fill="none" stroke="${colSarr}" stroke-width="1.5"/>
+      <line x1="${mx(S.sarrafoInNotch)}" y1="${my(0)}" x2="${mx(S.sarrafoInNotch)}" y2="${my(boardH)}" stroke="${colSarr}" stroke-width="2"/>
+      <line x1="${mx(S.total - S.sarrafoInPlain)}" y1="${my(0)}" x2="${mx(S.total - S.sarrafoInPlain)}" y2="${my(boardH)}" stroke="${colSarr}" stroke-width="2"/>
+      ${boardLines}
+      ${gradeBattens}
+      ${gradeTopCap}
+      <text x="${mx(4)}" y="${my(0) + 18}" fill="#5aa0e6" font-size="12" font-weight="700" text-anchor="${ve301Anchor}">VE301</text>
+      <text x="${mx(S.total - 4)}" y="${my(0) + 18}" fill="#5aa0e6" font-size="12" font-weight="700" text-anchor="${ve302Anchor}">VE302</text>
+      <!-- cotas reais de altura: total é FIXO (64 = 60 profundidade + 4 folga) nos dois lados; -->
+      <!-- só a faixa de laje muda por face (A=12+2=14, B=15+2=17), e o corpo do painel se adapta ao que sobra -->
+      ${vDim(notchX1, 0, S.notchH, '5', colReal, notchDir)}
+      ${vDim(notchX1, S.notchH, panelTotalH, `${panelTotalH - S.notchH}`, colReal, notchDir)}
+      ${vDim(notchX2, 0, panelTotalH, `${panelTotalH}`, colReal, notchDir)}
+      ${vDim(plainX1, 0, boardH, `${boardH}`, colReal, outwardDir)}
+      ${vDim(plainX1, boardH, panelTotalH, `${bandH}`, colReal, outwardDir)}
+      ${vDim(plainX2, 0, panelTotalH, `${panelTotalH}`, colReal, outwardDir)}
+      <!-- cotas reais do painel (medidas do desenho, sem ajuste) -->
+      <line x1="${mx(0)}" y1="${realRowY}" x2="${mx(S.pillarFaceA)}" y2="${realRowY}" stroke="${colReal}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(0) + mx(S.pillarFaceA)) / 2}" y="${realTextY}" fill="${colReal}" font-size="11" text-anchor="middle">244 cm</text>
+      <line x1="${mx(S.pillarFaceA)}" y1="${realRowY}" x2="${mx(S.pillarFaceB)}" y2="${realRowY}" stroke="${colReal}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(S.pillarFaceA) + mx(S.pillarFaceB)) / 2}" y="${realTextY}" fill="${colReal}" font-size="11" text-anchor="middle" font-weight="700">122 cm</text>
+      <line x1="${mx(S.pillarFaceB)}" y1="${realRowY}" x2="${mx(S.total)}" y2="${realRowY}" stroke="${colReal}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(S.pillarFaceB) + mx(S.total)) / 2}" y="${realTextY}" fill="${colReal}" font-size="11" text-anchor="middle">134 cm</text>
+      <!-- cotinha do painel divisor interno (gradeado) até a face do pilar: referência de corte/posicionamento -->
+      ${divisorRow}
+      <line x1="${mx(0)}" y1="${realTotalY}" x2="${mx(S.total)}" y2="${realTotalY}" stroke="${colReal}" stroke-width="1.25" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(0) + mx(S.total)) / 2}" y="${realTotalTextY}" fill="${colReal}" font-size="11" text-anchor="middle" font-weight="700">MEDIDAS DO PAINEL (DXF) = 500 cm</text>
+      <!-- cotas de interpretação: distância do pilar às extremidades do segmento, regra -11 cm por lado -->
+      <text x="${(mx(0) + mx(S.total)) / 2}" y="${interpLabelY}" fill="${colCota}" font-size="10.5" text-anchor="middle" font-weight="700">INTERPRETAÇÃO — DISTÂNCIA AO PILAR (REGRA −11 CM POR LADO)</text>
+      <!-- setas na posição real da abertura ajustada (-11cm por lado), não nas divisões do painel de referência -->
+      <line x1="${mx(0)}" y1="${interpRowY}" x2="${mx(distVE301)}" y2="${interpRowY}" stroke="${colCota}" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(0) + mx(distVE301)) / 2}" y="${interpTextY}" fill="${colCota}" font-size="11" text-anchor="middle">${distVE301} cm</text>
+      <line x1="${mx(distVE301)}" y1="${interpRowY}" x2="${mx(S.total - distVE302)}" y2="${interpRowY}" stroke="${colCota}" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(distVE301) + mx(S.total - distVE302)) / 2}" y="${interpTextY}" fill="${colCota}" font-size="11" text-anchor="middle" font-weight="700">122 cm</text>
+      <line x1="${mx(S.total - distVE302)}" y1="${interpRowY}" x2="${mx(S.total)}" y2="${interpRowY}" stroke="${colCota}" marker-start="url(#lv-arrow-ds-${uid})" marker-end="url(#lv-arrow-ds-${uid})"/>
+      <text x="${(mx(S.total - distVE302) + mx(S.total)) / 2}" y="${interpTextY}" fill="${colCota}" font-size="11" text-anchor="middle">${distVE302} cm</text>
+    </svg>
+  </div>`;
+}
+
+function lvInterpretationDiagram(kind) {
+  if (kind === 'corte') return lvCutDiagram();
+  if (kind === 'b-passa') return lvNetworkDiagram('Passa');
+  if (kind === 'b-para') return lvNetworkDiagram('Para');
+  if (kind === 'a-sarrafeado') return lvDrawTechniqueDiagram('A', 'sarrafeado');
+  if (kind === 'a-gradeado') return lvDrawTechniqueDiagram('A', 'gradeado');
+  if (kind === 'b-sarrafeado') return lvDrawTechniqueDiagram('B', 'sarrafeado');
+  if (kind === 'b-gradeado') return lvDrawTechniqueDiagram('B', 'gradeado');
+  return lvInterpretationPlan(LV_INTERPRETATIONS[kind]);
+}
+
+function lvDiagram(kind) {
+  const C = LV_COLORS;
+  if (kind === 'orientation') {
+    return lvWrap('A/B são as duas faces longitudinais', `
+      <g transform="translate(8,20)">${lvHorizontal()}</g>
+    `, 'Use somente A e B; as vigas incidentes delimitam o início e o fim do segmento.');
+  }
+  if (kind === 'modes') {
+    return lvWrap('Pilar central define Para × Passa', `
+      <text x="34" y="40" fill="${C.c}" font-weight="700">PARA · paredes param no pilar · 2 segmentos por lado</text>
+      <rect x="34" y="52" width="174" height="50" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="308" y="52" width="178" height="50" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="208" y="52" width="100" height="50" fill="${C.pillarFill}" stroke="${C.pillar}" stroke-width="2"/>
+      <rect x="208" y="52" width="100" height="50" fill="url(#lv-hatch)"/>
+      <line x1="34" y1="52" x2="208" y2="52" stroke="${C.b}" stroke-width="4" stroke-linecap="square"/><line x1="308" y1="52" x2="486" y2="52" stroke="${C.b}" stroke-width="4" stroke-linecap="square"/>
+      <line x1="34" y1="102" x2="208" y2="102" stroke="${C.a}" stroke-width="4" stroke-linecap="square"/><line x1="308" y1="102" x2="486" y2="102" stroke="${C.a}" stroke-width="4" stroke-linecap="square"/>
+      <text x="121" y="80" fill="${C.b}" text-anchor="middle">B2 · 19/60</text><text x="397" y="80" fill="${C.b}" text-anchor="middle">B1 · 19/60</text>
+      <text x="121" y="96" fill="${C.a}" text-anchor="middle">A1 · 19/60</text><text x="397" y="96" fill="${C.a}" text-anchor="middle">A2 · 19/60</text>
+      <text x="258" y="81" fill="${C.text}" text-anchor="middle">P12 · 19/100</text>
+
+      <text x="34" y="132" fill="${C.b}" font-weight="700">PASSA · paredes atravessam o pilar · 1 segmento por lado</text>
+      <rect x="34" y="144" width="174" height="50" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="308" y="144" width="178" height="50" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="208" y="144" width="100" height="50" fill="${C.pillarFill}" stroke="${C.pillar}" stroke-width="2"/>
+      <rect x="208" y="144" width="100" height="50" fill="url(#lv-hatch)"/>
+      <line x1="34" y1="144" x2="486" y2="144" stroke="${C.b}" stroke-width="4" stroke-linecap="square"/>
+      <line x1="34" y1="194" x2="486" y2="194" stroke="${C.a}" stroke-width="4" stroke-linecap="square"/>
+      <text x="121" y="170" fill="${C.b}" text-anchor="middle">B · contínuo · 19/60</text><text x="397" y="170" fill="${C.b}" text-anchor="middle">B · contínuo · 19/60</text>
+      <text x="121" y="188" fill="${C.a}" text-anchor="middle">A · contínuo · 19/60</text><text x="397" y="188" fill="${C.a}" text-anchor="middle">A · contínuo · 19/60</text>
+      <text x="258" y="174" fill="${C.text}" text-anchor="middle">P12 · 19/100</text>
+    `, 'Para: A1+A2 e B1+B2. Passa: uma linha contínua em A e uma em B.');
+  }
+  if (kind === 'para-a') return lvWrap('Hipótese espacial · apoio junto à face A', lvHorizontal({supportA:true}), 'A classificação produtiva ainda precisa ser confirmada.');
+  if (kind === 'para-b') return lvWrap('Hipótese espacial · apoio junto à face B', lvHorizontal({supportB:true}), 'Espelho geométrico; C→D permanece autoritativo.');
+  if (kind === 'passa-a') return lvWrap('Trecho interior · leitura da face A', lvHorizontal(), 'Em viga horizontal, a face A acompanha a borda inferior.');
+  if (kind === 'passa-b') return lvWrap('Trecho interior · leitura da face B', lvHorizontal(), 'Em viga horizontal, a face B acompanha a borda superior.');
+  if (kind === 'edge') return lvWrap('Viga de borda · A sem laje', lvHorizontal({exteriorA:true}), 'Ausência de laje não determina Para/Passa.');
+  if (kind === 'cross') return lvWrap('Cruzamento X · quatro vizinhanças', lvHorizontal({cross:true}), 'Segmente quando a laje adjacente muda antes/depois do cruzamento.');
+  if (kind === 'tee') return lvWrap('Encontro T · a secundária termina em A', lvHorizontal({tee:true}), 'Não tratar como travessia completa.');
+  if (kind === 'reverse') {
+    return lvWrap('Mesma geometria, orientação invertida', `
+      <rect x="25" y="42" width="22" height="52" fill="url(#lv-hatch)" stroke="${C.pillar}"/><rect x="475" y="36" width="22" height="64" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="45" y="54" width="430" height="34" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <line x1="70" y1="71" x2="450" y2="71" stroke="${C.text}" marker-end="url(#lv-arrow)"/>
+      <text x="52" y="48" fill="${C.b}">B acima</text><text x="52" y="105" fill="${C.a}">A abaixo</text>
+      <text x="68" y="75" fill="${C.c}">C</text><text x="458" y="75" fill="${C.d}">D</text>
+      <rect x="25" y="151" width="22" height="52" fill="url(#lv-hatch)" stroke="${C.pillar}"/><rect x="475" y="145" width="22" height="64" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="45" y="157" width="430" height="34" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <line x1="450" y1="174" x2="70" y2="174" stroke="${C.text}" marker-end="url(#lv-arrow)"/>
+      <text x="52" y="150" fill="${C.b}">B acima</text><text x="52" y="210" fill="${C.a}">A abaixo</text>
+      <text x="458" y="178" fill="${C.c}">C</text><text x="68" y="178" fill="${C.d}">D</text>
+      <text x="25" y="225" fill="${C.pillar}">P01</text><text x="497" y="225" fill="${C.beam}" text-anchor="end">VE302 · 20/70 · N 852,09</text>
+    `);
+  }
+  if (kind === 'diagonal') {
+    return lvWrap('Normal esquerda/direita em viga diagonal', `
+      <g transform="rotate(-25 260 132)">
+        <rect x="58" y="93" width="24" height="78" fill="url(#lv-hatch)" stroke="${C.pillar}"/>
+        <rect x="440" y="93" width="24" height="78" fill="${C.beamFill}" stroke="${C.beam}"/>
+        <rect x="80" y="111" width="360" height="42" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/>
+        <line x1="100" y1="132" x2="420" y2="132" stroke="${C.text}" marker-end="url(#lv-arrow)"/>
+        <text x="92" y="136" fill="${C.c}" font-weight="700">C</text><text x="426" y="136" fill="${C.d}" font-weight="700">D</text>
+        <line x1="260" y1="108" x2="260" y2="67" stroke="${C.a}" marker-end="url(#lv-arrow)"/>
+        <line x1="260" y1="156" x2="260" y2="197" stroke="${C.b}" marker-end="url(#lv-arrow)"/>
+        <text x="271" y="72" fill="${C.a}" font-weight="700">A</text><text x="271" y="200" fill="${C.b}" font-weight="700">B</text>
+      </g>
+      <text x="34" y="220" fill="${C.pillar}">P01 · comp. 50</text><text x="486" y="220" fill="${C.beam}" text-anchor="end">VE302 · 20/70 · N 852,09</text>
+    `);
+  }
+  if (kind === 'slab-step') {
+    return lvWrap('Face B muda de laje e de nível', `
+      <rect x="34" y="85" width="23" height="98" fill="url(#lv-hatch)" stroke="${C.pillar}"/>
+      <rect x="465" y="75" width="24" height="118" fill="${C.beamFill}" stroke="${C.beam}"/>
+      <rect x="55" y="45" width="205" height="72" fill="${C.slabFill}" stroke="${C.slab}"/>
+      <rect x="260" y="45" width="205" height="72" fill="#173222" stroke="#8dd35f"/>
+      <text x="155" y="76" fill="${C.slab}" text-anchor="middle">L301 · N=852,19 · h=12</text>
+      <text x="360" y="76" fill="#8dd35f" text-anchor="middle">L302 · N=852,09 · h=15</text>
+      <rect x="55" y="117" width="410" height="36" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/>
+      <line x1="260" y1="38" x2="260" y2="166" stroke="${C.danger}" stroke-dasharray="5 4"/>
+      <text x="270" y="180" fill="${C.danger}">fronteira obrigatória de segmento</text>
+      <text x="34" y="216" fill="${C.pillar}">P01</text><text x="489" y="216" fill="${C.beam}" text-anchor="end">VE302 · 20/70 · N 852,09</text>
+    `);
+  }
+  if (kind === 'openings') {
+    return lvWrap('Contexto completo da lateral', `
+      <rect x="50" y="105" width="420" height="42" fill="${C.beamFill}" stroke="${C.beam}" stroke-width="2"/>
+      <rect x="42" y="75" width="55" height="102" fill="url(#lv-hatch)" stroke="${C.pillar}"/>
+      <rect x="423" y="75" width="55" height="102" fill="url(#lv-hatch)" stroke="${C.pillar}"/>
+      <rect x="238" y="91" width="44" height="70" fill="#211010" stroke="${C.danger}" stroke-dasharray="4 3"/>
+      <text x="48" y="68" fill="${C.pillar}">apoio C</text><text x="421" y="68" fill="${C.pillar}">apoio D</text>
+      <text x="260" y="84" fill="${C.danger}" text-anchor="middle">abertura</text>
+      <line x1="108" y1="185" x2="412" y2="185" stroke="${C.a}"/>
+      <text x="260" y="204" fill="${C.a}" text-anchor="middle">continuidade + ajustes inicial/final</text>
+    `);
+  }
+  return lvWrap('Diagrama de revisão', lvHorizontal());
+}
+
+const legacyKinds = ['orientation', 'modes', 'para-a', 'para-b', 'passa-a', 'passa-b', 'edge', 'cross'];
+function removeObsoleteSection(prefix) {
+  const heading = Array.from(document.querySelectorAll('h2')).find(h => h.textContent.trim().startsWith(prefix));
+  if (!heading) return;
+  let node = heading;
+  while (node) {
+    const next = node.nextElementSibling;
+    node.remove();
+    if (!next || next.tagName === 'H2') break;
+    node = next;
+  }
+}
+removeObsoleteSection('3. Casos de Interpretação Complementares');
+removeObsoleteSection('4. Casos Críticos que Faltavam');
+
+document.querySelectorAll('.ascii').forEach((element, index) => {
+  element.outerHTML = lvDiagram(legacyKinds[index] || 'default');
+});
+document.querySelectorAll('[data-kind]').forEach(element => {
+  element.innerHTML = lvDiagram(element.dataset.kind);
+});
+document.querySelectorAll('[data-interp-diagram]').forEach(element => {
+  element.innerHTML = lvInterpretationDiagram(element.dataset.interpDiagram);
+});
+
+function updateReviewVisual(cb) {
+  if (cb.classList.contains('review-cb')) {
+    const row = cb.closest('.check-row');
+    if (row) row.classList.toggle('approved', cb.checked);
+  }
+  if (cb.classList.contains('interpretation-cb')) {
+    const card = cb.closest('.interpretation-card');
+    if (card) card.classList.toggle('confirmed', cb.checked);
+    const text = cb.parentElement;
+    if (text) text.lastChild.textContent = cb.checked ? ' Interpretação confirmada ✓' : ' Interpretação confirmada';
+  }
+}
+
+function initInterpretationChecks() {
+  document.querySelectorAll('.review-cb, .interpretation-cb').forEach((cb, index) => {
+    const key = 'lv_interpretacao_' + (cb.dataset.key || index);
+    cb.dataset.storageKey = key;
+    cb.checked = localStorage.getItem(key) === '1';
+    updateReviewVisual(cb);
+    cb.addEventListener('change', () => {
+      localStorage.setItem(key, cb.checked ? '1' : '0');
+      updateReviewVisual(cb);
+    });
+  });
+}
+initInterpretationChecks();
+
+function _carouselMove(id, dir) {
+  const el = document.getElementById(id);
+  const slides = el.querySelectorAll('.carousel-slide');
+  const counter = document.getElementById(id + '-counter');
+  let cur = Array.from(slides).findIndex(s => s.classList.contains('active'));
+  slides[cur].classList.remove('active');
+  cur = (cur + dir + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  counter.textContent = (cur + 1) + ' / ' + slides.length;
+}
+function prevSlide(id) { _carouselMove(id, -1); }
+function nextSlide(id) { _carouselMove(id, +1); }
+
+/* Ficha única de interpretação por lado.
+   Regra aprovada: A é lido da esquerda para a direita; B, da direita para a
+   esquerda. Pilar pode ser Para ou Passa. Viga incidente sempre interrompe a
+   parede; quando é menos profunda que a viga principal, a parede alcança a
+   segunda face e essa passagem é registrada no sentido local do painel:
+   A esquerda→direita; B espelhado, direita→esquerda. */
+const LV_CANONICAL_CASES = {
+  'a-passa': {
+    beam: 'V310', behavior: 'Passa',
+    A: {
+      segments: '1 segmento contínuo · A1 · ordem esquerda → direita',
+      start: '<b>VE301</b> · esquerda · 20/55 cm · N 852,19',
+      end: '<b>VE302</b> · direita · 20/70 cm · N 852,19',
+      pillars: '<b>P12</b> · 19×100 cm · <span class="decision">Passa</span> · abertura sarrafeada 11+100+11 = 122 cm',
+      beams: '<b>VE301</b>: 55 &lt; 60, alcança a segunda face → <span class="opening">abertura esquerda</span><br><b>VE302</b>: 70 &gt; 60, para na primeira face',
+      slabs: '<b>L301</b> · N 852,19 · esp. 12 cm · posição topo · distância ao topo 0 cm'
+    },
+    B: {
+      segments: '1 segmento contínuo · B1 · ordem direita → esquerda',
+      start: '<b>VE302</b> · direita · 20/70 cm · N 852,19',
+      end: '<b>VE301</b> · esquerda · 20/55 cm · N 852,19',
+      pillars: '<b>P12</b> · 19×100 cm · <span class="decision">Passa</span> · mesmo pilar físico do lado A',
+      beams: '<b>VE302</b>: 70 &gt; 60, para na primeira face<br><b>VE301</b>: 55 &lt; 60, alcança a segunda face → <span class="opening">abertura direita no painel B</span>',
+      slabs: '<b>L302</b> · N 852,19 · esp. 15 cm · posição topo · distância ao topo 0 cm'
+    }
+  },
+  'a-para': {
+    beam: 'V311', behavior: 'Para',
+    A: {
+      segments: '2 segmentos · A1, A2 · ordem esquerda → direita',
+      start: '<b>P01</b> · esquerda · pilar de extremidade · comprimento 60 cm',
+      end: '<b>VE304</b> · direita · 19/55 cm · N 852,19',
+      pillars: '<b>P14</b> · 20×100 cm · <span class="decision">Para</span> · A1 termina na primeira face e A2 reinicia na segunda',
+      beams: '<b>VE304</b>: 55 &lt; 65, alcança a segunda face → <span class="opening">abertura direita</span>',
+      slabs: '<b>L303</b> · N 852,19 · esp. 14 cm · registrar posição e profundidade em cada trecho',
+      items: [
+        {
+          id: 'A1', order: '1º segmento do lado A · trecho esquerdo · leitura esquerda → direita',
+          start: '<b>P01</b> · extremidade esquerda · pilar de apoio · comprimento 60 cm',
+          end: '<b>P14</b> · face esquerda (E) do pilar central',
+          pillars: '<b>P01</b>: apoio inicial<br><b>P14</b>: <span class="decision">Para</span> · A1 termina na primeira face encontrada',
+          beams: 'Nenhuma viga incidente dentro deste segmento',
+          slabs: '<b>L303</b> · N 852,19 · esp. 14 cm · posição/profundidade próprias do trecho A1'
+        },
+        {
+          id: 'A2', order: '2º segmento do lado A · trecho direito · leitura esquerda → direita',
+          start: '<b>P14</b> · face direita (D) do pilar central',
+          end: '<b>VE304</b> · extremidade direita · 19/55 cm · N 852,19',
+          pillars: '<b>P14</b>: <span class="decision">Para</span> · A2 reinicia após a segunda face do pilar',
+          beams: '<b>VE304</b>: 55 &lt; 65, alcança a segunda face → <span class="opening">abertura direita</span>',
+          slabs: '<b>L303</b> · N 852,19 · esp. 14 cm · posição/profundidade próprias do trecho A2'
+        }
+      ]
+    },
+    B: {
+      segments: '2 segmentos · B1, B2 · ordem direita → esquerda',
+      start: '<b>VE304</b> · direita · 19/55 cm · N 852,19',
+      end: '<b>P01</b> · esquerda · pilar de extremidade · comprimento 60 cm',
+      pillars: '<b>P14</b> · 20×100 cm · <span class="decision">Para</span> · B1 termina na primeira face e B2 reinicia na segunda',
+      beams: '<b>VE304</b>: 55 &lt; 65, alcança a segunda face → <span class="opening">abertura esquerda no painel B</span>',
+      slabs: '<b>L304</b> · N 852,09 · esp. 12 cm · registrar posição e profundidade em cada trecho',
+      items: [
+        {
+          id: 'B1', order: '1º segmento do lado B · trecho direito · leitura direita → esquerda',
+          start: '<b>VE304</b> · extremidade direita · 19/55 cm · N 852,19',
+          end: '<b>P14</b> · face direita (D) do pilar central',
+          pillars: '<b>P14</b>: <span class="decision">Para</span> · B1 termina na primeira face encontrada no sentido de leitura',
+          beams: '<b>VE304</b>: 55 &lt; 65, alcança a segunda face → <span class="opening">abertura esquerda no painel B</span>',
+          slabs: '<b>L304</b> · N 852,09 · esp. 12 cm · posição/profundidade próprias do trecho B1'
+        },
+        {
+          id: 'B2', order: '2º segmento do lado B · trecho esquerdo · leitura direita → esquerda',
+          start: '<b>P14</b> · face esquerda (E) do pilar central',
+          end: '<b>P01</b> · extremidade esquerda · pilar de apoio · comprimento 60 cm',
+          pillars: '<b>P14</b>: <span class="decision">Para</span> · B2 reinicia após a segunda face<br><b>P01</b>: apoio final no sentido B',
+          beams: 'Nenhuma viga incidente dentro deste segmento',
+          slabs: '<b>L304</b> · N 852,09 · esp. 12 cm · posição/profundidade próprias do trecho B2'
+        }
+      ]
+    }
+  },
+  'b-passa': {
+    beam: 'V401–V404', behavior: 'Passa', network: true
+  },
+  'b-para': {
+    beam: 'V401–V404', behavior: 'Para', network: true
+  },
+  'corte': {
+    beam: 'V314', behavior: 'Corte compartilhado por Para/Passa',
+    A: {
+      segments: 'Coleção de cortes do par A/B · ordenar pelas variações ao longo da viga',
+      start: '<b>P20</b> · esquerda · pilar de extremidade · comprimento 60 cm',
+      end: '<b>VE308</b> · direita · 20/65 cm · N 851,99',
+      pillars: 'Confirmar Para/Passa na ficha longitudinal; a visão de corte é a mesma nos dois contratos',
+      beams: '<b>VE308</b>: 65 &lt; 90, alcança a segunda face → <span class="opening">abertura direita</span>',
+      slabs: '<b>L309</b> · N 852,19 · esp. 12 cm · registrar posição, profundidade e intervalo da configuração'
+    },
+    B: {
+      segments: 'Mesma coleção de cortes do lado A · não duplicar por Para/Passa',
+      start: '<b>VE308</b> · direita · 20/65 cm · N 851,99',
+      end: '<b>P20</b> · esquerda · pilar de extremidade · comprimento 60 cm',
+      pillars: 'Confirmar Para/Passa na ficha longitudinal; nenhuma seção nasce só por trocar o comportamento',
+      beams: '<b>VE308</b>: 65 &lt; 90, alcança a segunda face → <span class="opening">abertura esquerda no painel B</span>',
+      slabs: '<b>L310</b> · N 851,99 · esp. 18 cm · registrar posição, profundidade e intervalo da configuração'
+    }
+  }
+};
+
+function lvCanonicalCheck(caseKey, side, field, label, value) {
+  const storageKey = `lv_interpretacao_canon_${caseKey}_${side}_${field}`;
+  const checked = localStorage.getItem(storageKey) === '1';
+  const row = document.createElement('label');
+  row.className = 'canonical-check' + (checked ? ' approved' : '');
+  row.innerHTML = `
+    <input type="checkbox" ${checked ? 'checked' : ''}>
+    <span class="canonical-check-label">${label}</span>
+    <span class="canonical-check-value">${value}</span>`;
+  const checkbox = row.querySelector('input');
+  checkbox.addEventListener('change', () => {
+    localStorage.setItem(storageKey, checkbox.checked ? '1' : '0');
+    row.classList.toggle('approved', checkbox.checked);
+  });
+  return row;
+}
+
+function lvCanonicalSide(caseKey, side, data, meta) {
+  const section = document.createElement('section');
+  section.className = `canonical-side side-${side}`;
+  const order = side === 'A'
+    ? 'Leitura obrigatória: esquerda → direita'
+    : 'Leitura obrigatória: direita → esquerda';
+  section.innerHTML = `<h4>LADO ${side}</h4><div class="canonical-order">${order}</div>`;
+  if (Array.isArray(data.items) && data.items.length) {
+    const list = document.createElement('div');
+    list.className = 'canonical-segment-list';
+    data.items.forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'canonical-segment-card';
+      card.innerHTML = `<h5>SEGMENTO ${item.id}</h5>`;
+      const rows = [
+        ['identity', 'Nome / contrato', `<b>${meta.beam}.${side}</b> · ${meta.behavior} · <b>${item.id}</b>`],
+        ['order', 'Segmento / ordem', item.order],
+        ['start', 'Ponto inicial', item.start],
+        ['end', 'Ponto final', item.end],
+        ['pillars', 'Pilares', item.pillars],
+        ['beams', 'Vigas / aberturas', item.beams],
+        ['slabs', 'Lajes', item.slabs]
+      ];
+      rows.forEach(([field, label, value]) => {
+        card.appendChild(lvCanonicalCheck(
+          caseKey, side, `${item.id}_${field}`, label, value
+        ));
+      });
+      list.appendChild(card);
+    });
+    section.appendChild(list);
+    return section;
+  }
+
+  const rows = [
+    ['identity', 'Nome / contrato', `<b>${meta.beam}.${side}</b> · ${meta.behavior}`],
+    ['segments', 'Segmentos / ordem', data.segments],
+    ['start', 'Ponto inicial', data.start],
+    ['end', 'Ponto final', data.end],
+    ['pillars', 'Pilares', data.pillars],
+    ['beams', 'Vigas / aberturas', data.beams],
+    ['slabs', 'Lajes', data.slabs]
+  ];
+  rows.forEach(([field, label, value]) => {
+    section.appendChild(lvCanonicalCheck(caseKey, side, field, label, value));
+  });
+  return section;
+}
+
+function lvNetworkSlab(slabId) {
+  return LV_NETWORK_SPEC.slabs.find(slab => slab.id === slabId);
+}
+
+function lvNetworkPoint(point) {
+  const parts = [];
+  if (point.pillar) {
+    const pillar = LV_NETWORK_SPEC.pillars[point.pillar];
+    parts.push(`<b>${point.id}</b> · pilar ${pillar.section} · ${pillar.direction}`);
+  }
+  if (point.incident) {
+    const incident = LV_NETWORK_SPEC.beams.find(beam => beam.id === point.incident);
+    parts.push(`viga incidente <b>${incident.id}</b> · ${incident.section} · N ${LV_NETWORK_SPEC.level}`);
+  }
+  return parts.length ? parts.join('<br>') : `<b>${point.id}</b> · ${point.label}`;
+}
+
+function lvBeamWidthCm(beam) {
+  const match = String(beam.section || '').match(/(\d+)\//);
+  return match ? Number(match[1]) : 0;
+}
+
+function lvBeamIsHorizontal(beam) {
+  return beam.label.startsWith('Horizontal');
+}
+
+function lvPillarDims(pillar) {
+  const match = String(pillar.section || '').match(/(\d+)\D+(\d+)/);
+  return match ? [Number(match[1]), Number(match[2])] : [0, 0];
+}
+
+function lvPillarLengthAlongBeam(beam, pillar) {
+  const [a, b] = lvPillarDims(pillar);
+  const horizontalBeam = lvBeamIsHorizontal(beam);
+  const horizontalPillar = String(pillar.direction || '').startsWith('horizontal');
+  if (horizontalBeam) return horizontalPillar ? a : a;
+  return horizontalPillar ? b : b;
+}
+
+function lvSegmentBaseLength(beam, side, behavior, order) {
+  const horizontal = lvBeamIsHorizontal(beam);
+  const baseA = behavior === 'Passa'
+    ? (horizontal ? [200, 420, 280] : [160, 360, 200])
+    : (horizontal ? [200, 210, 210, 280] : [160, 180, 180, 200]);
+  const base = side === 'B' ? [...baseA].reverse() : baseA;
+  return base[order - 1] || 0;
+}
+
+function lvEndpointLabel(beam, side, endpoint) {
+  const horizontal = lvBeamIsHorizontal(beam);
+  if (horizontal) {
+    if (side === 'A') return endpoint === 'start' ? 'Esquerda/Início' : 'Direita/Fim';
+    return endpoint === 'start' ? 'Direita/Início' : 'Esquerda/Fim';
+  }
+  return endpoint === 'start' ? 'Início/Superior' : 'Fim/Inferior';
+}
+
+function lvNetworkInternalPillarCota(point) {
+  if (point.id === 'P401') {
+    return '<b>P401</b> · cota interna no pilar: pilar 100 com V401 20 centralizada → <b>40 + 20 + 40</b>; até tocar o fundo da viga que chega: <b>40 - 4 = 36 cm</b>; se a lateral passa por baixo, separar <b>recuo -4</b> e <b>ponta +40 + 20 + 4 + 4 = 68 cm</b> → saldo <b>+64 cm</b>';
+  }
+  if (point.id === 'P402') {
+    return '<b>P402</b> · pilar 60 com V404 60 ocupando a faixa de contato; <b>sem sobra interna</b> antes/depois da viga; aplicar somente o recuo convencional de <b>4 cm</b> da horizontal';
+  }
+  return '';
+}
+
+function lvUnderpassOpeningText(beam, incident) {
+  const width = lvBeamWidthCm(incident);
+  const gross = width + 8;
+  const net = gross - 4;
+  return `passa por baixo de ${incident.id}: ponta = largura ${width} + 4 + 4 = <b>${gross} cm</b>; recuo separado = <b>-4 cm</b>; saldo na abertura = <b>${net} cm</b>`;
+}
+
+function lvEndpointAdjustment(beam, point) {
+  const empty = {
+    hasIncident: false,
+    incident: null,
+    recua: false,
+    underpass: false,
+    recuoValue: 0,
+    underpassValue: 0,
+    underpassFormula: 'Nulo',
+    net: 0,
+    openingText: 'Abertura: <b>Nulo</b>',
+    text: 'Sem encontro com viga incidente nesta extremidade; recuo 0; passa por baixo 0; abertura nula.'
+  };
+  if (!point || !point.incident) return empty;
+  const incident = LV_NETWORK_SPEC.beams.find(item => item.id === point.incident);
+  if (!incident) return empty;
+  const horizontal = lvBeamIsHorizontal(beam);
+  const recua = beam.depth > incident.depth || (beam.depth === incident.depth && horizontal);
+  const underpass = beam.depth > incident.depth;
+  const width = lvBeamWidthCm(incident);
+  let underpassValue = underpass ? width + 8 : 0;
+  let underpassFormula = underpass ? `largura ${incident.id} ${width} + 4 + 4 = ${underpassValue} cm` : 'Nulo';
+  if (underpass && point.id === 'P401') {
+    underpassValue = 40 + width + 8;
+    underpassFormula = `trecho livre 40 + largura ${incident.id} ${width} + 4 + 4 = ${underpassValue} cm`;
+  }
+  const recuoValue = recua ? -4 : 0;
+  const net = underpassValue + recuoValue;
+  const text = [
+    recua ? `Recuo: <b>-4 cm</b>` : 'Recuo: <b>Nulo</b>',
+    underpass ? `Passa por baixo: <b>${underpassFormula}</b>` : 'Passa por baixo: <b>Nulo</b>',
+    `Saldo desta extremidade no comprimento: <b>${net >= 0 ? '+' : ''}${net} cm</b>`
+  ].join('<br>');
+  const openingText = underpass
+    ? `Abertura: ponta <b>+${underpassValue} cm</b> separada do recuo <b>${recuoValue} cm</b> → saldo <b>+${net} cm</b>`
+    : 'Abertura: <b>Nulo</b>';
+  return {hasIncident: true, incident, recua, underpass, recuoValue, underpassValue, underpassFormula, net, openingText, text};
+}
+
+function lvNetworkPointWithAdjustment(beam, side, point, endpoint) {
+  const adjustment = lvEndpointAdjustment(beam, point);
+  const endpointLabel = lvEndpointLabel(beam, side, endpoint);
+  const influence = adjustment.hasIncident
+    ? `Influência no comprimento (${endpointLabel}): ${adjustment.recua ? '<b>-4 cm</b> de recuo' : '<b>sem recuo</b>'}; ${adjustment.underpass ? `<b>+${adjustment.underpassValue} cm</b> de ponta por baixo` : '<b>sem ponta por baixo</b>'}; saldo <b>${adjustment.net >= 0 ? '+' : ''}${adjustment.net} cm</b>`
+    : `Influência no comprimento (${endpointLabel}): <b>0 cm</b> · sem soma/subtração nesta extremidade`;
+  return `${lvNetworkPoint(point)}<br><span class="hint">${influence}</span>`;
+}
+
+function lvSegmentLengthSummary(beam, side, behavior, segment) {
+  const base = lvSegmentBaseLength(beam, side, behavior, segment.order);
+  const start = lvEndpointAdjustment(beam, segment.start);
+  const end = lvEndpointAdjustment(beam, segment.end);
+  const total = base + start.net + end.net;
+  const sarrafo = lvSegmentPillarSarrafoSummary(beam, behavior, segment, base);
+  return {
+    base, start, end, total,
+    html: `Base do segmento: <b>${base} cm</b><br>` +
+      `${lvEndpointLabel(beam, side, 'start')}: ${start.net >= 0 ? '+' : ''}${start.net} cm<br>` +
+      `${lvEndpointLabel(beam, side, 'end')}: ${end.net >= 0 ? '+' : ''}${end.net} cm<br>` +
+      `Comprimento resultante da parede: <b>${base} ${start.net >= 0 ? '+' : ''}${start.net} ${end.net >= 0 ? '+' : ''}${end.net} = ${total} cm</b>` +
+      sarrafo
+  };
+}
+
+function lvSegmentPillarSarrafoSummary(beam, behavior, segment, base) {
+  if (behavior !== 'Passa') return '';
+  const pillarPoints = [
+    {point: segment.start, role: 'start'},
+    ...segment.internalPillars.map(point => ({point, role: 'inside'})),
+    {point: segment.end, role: 'end'}
+  ].filter(({point}) => point && point.pillar);
+  if (!pillarPoints.length) return '<br><span class="hint">Sarrafeado de pilar que passa: <b>Nulo</b> · nenhum pilar atravessado neste segmento.</span>';
+  const lines = pillarPoints.map(({point, role}) => {
+    const pillar = LV_NETWORK_SPEC.pillars[point.pillar];
+    const along = lvPillarLengthAlongBeam(beam, pillar);
+    const fullSarrafo = along + 22;
+    if (role === 'inside') {
+      const freeEachSide = Math.max(0, (base - along) / 2);
+      const before = Math.max(0, freeEachSide - 11);
+      const after = Math.max(0, freeEachSide - 11);
+      return `<b>${point.id}</b> central: distância até o pilar <b>${freeEachSide} - 11 = ${before} cm</b>; sarrafo <b>${along} + 11 + 11 = ${fullSarrafo} cm</b>; distância até o final <b>${freeEachSide} - 11 = ${after} cm</b>; conferência <b>${before} + ${fullSarrafo} + ${after} = ${before + fullSarrafo + after} cm</b>`;
+    }
+    if (role === 'start') {
+      const freeAfter = Math.max(0, base - along);
+      const after = Math.max(0, freeAfter - 11);
+      const segmentSarrafo = along + 11;
+      return `<b>${point.id}</b> na extremidade inicial: sarrafo usado neste segmento <b>${along} + 11 = ${segmentSarrafo} cm</b>; distância até o final <b>${freeAfter} - 11 = ${after} cm</b>; conferência do segmento <b>${segmentSarrafo} + ${after} = ${segmentSarrafo + after} cm</b>; sarrafo completo do pilar para checagem <b>${along} + 11 + 11 = ${fullSarrafo} cm</b>`;
+    }
+    const freeBefore = Math.max(0, base - along);
+    const before = Math.max(0, freeBefore - 11);
+    const segmentSarrafo = along + 11;
+    return `<b>${point.id}</b> na extremidade final: distância até o pilar <b>${freeBefore} - 11 = ${before} cm</b>; sarrafo usado neste segmento <b>${along} + 11 = ${segmentSarrafo} cm</b>; conferência do segmento <b>${before} + ${segmentSarrafo} = ${before + segmentSarrafo} cm</b>; sarrafo completo do pilar para checagem <b>${along} + 11 + 11 = ${fullSarrafo} cm</b>`;
+  });
+  return `<br><br><span class="hint"><b>Sarrafeado dos pilares que passam:</b><br>${lines.join('<br>')}</span>`;
+}
+
+function lvOpeningResultSummary(beam, side, segment) {
+  const start = lvEndpointAdjustment(beam, segment.start);
+  const end = lvEndpointAdjustment(beam, segment.end);
+  const startLabel = lvEndpointLabel(beam, side, 'start');
+  const endLabel = lvEndpointLabel(beam, side, 'end');
+  const fmt = adjustment => adjustment.underpass
+    ? `Sim · ponta ${adjustment.underpassValue} cm + recuo ${adjustment.recuoValue} cm → saldo ${adjustment.net} cm`
+    : 'Nulo';
+  return `<b>Resultado das aberturas:</b><br>` +
+    `Abertura ${startLabel}: <b>${fmt(start)}</b><br>` +
+    `Abertura ${endLabel}: <b>${fmt(end)}</b>`;
+}
+
+function lvEndpointRecuoText(beam, side, point, endpoint) {
+  const adjustment = lvEndpointAdjustment(beam, point);
+  const endpointLabel = lvEndpointLabel(beam, side, endpoint);
+  if (!adjustment.hasIncident) {
+    return `${endpointLabel}: <b>Nulo</b> · não há viga incidente nesta extremidade; não subtrai 4 cm.`;
+  }
+  if (!adjustment.recua) {
+    return `${endpointLabel}: <b>Nulo</b> · ${beam.id} fica completa no contato com ${adjustment.incident.id}; o recuo, quando existir, pertence ao outro contrato.`;
+  }
+  return `${endpointLabel}: <b>Sim · -4 cm</b> · ${beam.id} recua no contato com ${adjustment.incident.id}. Esta subtração entra no comprimento antes de somar qualquer ponta por baixo.`;
+}
+
+function lvEndpointUnderpassText(beam, side, point, endpoint) {
+  const adjustment = lvEndpointAdjustment(beam, point);
+  const endpointLabel = lvEndpointLabel(beam, side, endpoint);
+  if (!adjustment.hasIncident) {
+    return `${endpointLabel}: <b>Nulo</b> · não há viga incidente; abertura nula.`;
+  }
+  if (!adjustment.underpass) {
+    return `${endpointLabel}: <b>Nulo</b> · ${beam.id} não passa por baixo de ${adjustment.incident.id} neste contrato; abertura nula nesta extremidade.`;
+  }
+  return `${endpointLabel}: <b>Sim</b> · ponta que passa por baixo = <b>${adjustment.underpassFormula}</b>; recuo fica em checkbox separado (${adjustment.recuoValue} cm); saldo da extremidade no comprimento = <b>+${adjustment.net} cm</b>.`;
+}
+
+function lvNetworkEncounter(beam, point, behavior, side, position) {
+  if (point.kind === 'edge') {
+    return `${point.label} · fechamento externo da zona de estudo`;
+  }
+  const parts = [];
+  if (point.pillar) {
+    const pillar = LV_NETWORK_SPEC.pillars[point.pillar];
+    if (behavior === 'Passa') {
+      const passDetail = point.incident
+        ? 'o pilar não divide; a divisão deste ponto é causada exclusivamente pela viga incidente'
+        : 'pilar puro não divide o painel';
+      parts.push(`<b>${point.id}</b> · pilar ${pillar.section} · <span class="decision">Passa</span> · ${passDetail}`);
+      const internalCota = lvNetworkInternalPillarCota(point);
+      if (internalCota) parts.push(internalCota);
+    } else {
+      const action = position === 'start'
+        ? 'reinicia após a segunda face no sentido de leitura'
+        : 'termina na primeira face encontrada';
+      parts.push(`<b>${point.id}</b> · pilar ${pillar.section} · <span class="decision">Para</span> · ${action}`);
+    }
+  }
+  if (point.incident) {
+    const incident = LV_NETWORK_SPEC.beams.find(item => item.id === point.incident);
+    if (point.pillar && behavior === 'Passa') {
+      if (incident.depth < beam.depth) {
+        parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} ${incident.section} é menos profunda; ${lvUnderpassOpeningText(beam, incident)}; declarar em camadas: trecho base do segmento + cota interna do pilar + abertura por baixo; não duplicar o sarrafo`);
+      } else if (incident.depth > beam.depth) {
+        const width = lvBeamWidthCm(beam);
+        parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} ${incident.section} é mais profunda; a lateral encontra essa viga dentro do pilar. Registrar em camadas: distância interna até tocar o fundo; se a viga mais profunda passar por baixo deste contrato, a ponta usa largura ${width} + 4 + 4 = <b>${width + 8} cm</b>, com recuo separado -4 e saldo <b>+${width + 4} cm</b>`);
+      } else {
+        parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} ${incident.section} tem mesma profundidade; usar convenção de recuo e registrar se existe ou não sobra interna no pilar antes da viga`);
+      }
+    } else if (incident.depth < beam.depth) {
+      if (position === 'end') {
+        parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} ${incident.section} é menos profunda; ${lvUnderpassOpeningText(beam, incident)}; a continuação inferior permanece completa → <span class="opening">abertura direita no painel ${side}</span>`);
+      } else {
+        parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} já foi interpretada no segmento anterior no sentido de leitura · <b>não duplicar abertura</b>`);
+      }
+    } else {
+      parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} ${incident.section} tem profundidade maior/igual; este painel para na primeira face. A abertura por passar por baixo fica registrada no contrato da viga mais profunda como ponta largura da viga atravessada + 4 + 4, com recuo -4 separado`);
+    }
+  }
+  return parts.join('<br>');
+}
+
+function lvNetworkJoint(beam, point, side, position) {
+  if (!point.incident) return 'Sem cruzamento entre vigas neste ponto';
+  const incident = LV_NETWORK_SPEC.beams.find(item => item.id === point.incident);
+  const localEdge = position === 'start' ? 'esquerda' : 'direita';
+  if (beam.depth > incident.depth) {
+    return `<b>${point.id}</b> · ${beam.id} é mais profunda: <span class="decision">recua 4 cm</span> na extremidade ${localEdge}; ${lvUnderpassOpeningText(beam, incident)}; registrar esta abertura no segmento que passa por baixo; a continuação inferior fica completa`;
+  }
+  if (beam.depth < incident.depth) {
+    const width = lvBeamWidthCm(beam);
+    return `<b>${point.id}</b> · ${beam.id} é menos profunda: <span class="decision">comprimento completo</span> na faixa de contato; ${incident.id} recebe o recuo de 4 cm e, no contrato da viga mais profunda, a ponta será largura ${width} + 4 + 4 = <b>${width + 8} cm</b>, com saldo após recuo <b>+${width + 4} cm</b>`;
+  }
+  const horizontal = beam.label.startsWith('Horizontal');
+  return horizontal
+    ? `<b>${point.id}</b> · profundidades iguais: convenção horizontal → <span class="decision">${beam.id} recua 4 cm</span> na extremidade ${localEdge}`
+    : `<b>${point.id}</b> · profundidades iguais: convenção vertical → <span class="decision">${beam.id} permanece completa</span>; ${incident.id} recua 4 cm`;
+}
+
+function lvNetworkSegments(beam, side, behavior) {
+  const mirrored = side === 'B';
+  const points = mirrored ? [...beam.points].reverse() : [...beam.points];
+  const baseSlabs = side === 'A' ? beam.slabsA : beam.slabsB;
+  const slabs = mirrored ? [...baseSlabs].reverse() : [...baseSlabs];
+  const splitIndices = points
+    .map((point, index) => ({point, index}))
+    .filter(({point, index}) => index === 0 || index === points.length - 1 || behavior === 'Para' || Boolean(point.incident))
+    .map(({index}) => index);
+  return splitIndices.slice(0, -1).map((startIndex, index) => {
+    const endIndex = splitIndices[index + 1];
+    const segmentSlabs = slabs.slice(startIndex, endIndex)
+      .map(lvNetworkSlab)
+      .filter((slab, slabIndex, all) => all.findIndex(item => item.id === slab.id) === slabIndex);
+    return {
+      id: `${side}${index + 1}`,
+      start: points[startIndex],
+      end: points[endIndex],
+      internalPillars: points.slice(startIndex + 1, endIndex).filter(point => Boolean(point.pillar)),
+      slabs: segmentSlabs,
+      order: index + 1,
+      total: splitIndices.length - 1
+    };
+  });
+}
+
+function lvNetworkMeasurePanel(meta) {
+  const isPassa = meta.behavior === 'Passa';
+  const panel = document.createElement('section');
+  panel.className = 'network-measure-panel';
+  panel.innerHTML = `
+    <div class="network-measure-title">Cotagem didática da malha — Caso ${isPassa ? '3 Passa' : '4 Para'}</div>
+    <p class="network-measure-note">
+      Valores deste quadro pertencem ao exemplo visual da ficha. Eles documentam a regra que o SA deve preservar:
+      pilar em <b>Passa</b> pode ter parede contínua/pontilhada, mas <b>viga incidente sempre encerra o segmento</b>.
+      Abertura, sarrafo e recuo são campos separados.
+    </p>
+    <div class="network-measure-grid">
+      <article class="network-measure-card">
+        <h4>Segmentos por viga</h4>
+        ${isPassa ? `
+          <b>V401/V402 verticais</b>: total 720 cm = 160 + 360 + 200.<br>
+          Lado A fica à esquerda; lado B à direita e espelhado.<br><br>
+          <b>V403/V404 horizontais</b>: total 900 cm = 200 + 420 + 280.<br>
+          Lado A fica embaixo; lado B em cima e espelhado.<br><br>
+          <strong>Passa:</strong> P403/P404/P405/P406 não dividem. P401/P402 dividem porque no mesmo ponto existe viga incidente.
+        ` : `
+          <b>V401/V402 verticais</b>: total 720 cm = 160 + 180 + 180 + 200.<br>
+          Cada pilar/contato vira término e reinício.<br><br>
+          <b>V403/V404 horizontais</b>: total 900 cm = 200 + 210 + 210 + 280.<br>
+          A lê oeste → leste; B é espelhado, leste → oeste.<br><br>
+          <strong>Para:</strong> todo pilar e toda viga incidente separam segmentos independentes.
+        `}
+      </article>
+      <article class="network-measure-card">
+        <h4>Pilares e sarrafos</h4>
+        <b>P401</b> 100×20 H: sarrafo = 11 + 100 + 11 = <strong>122 cm</strong>.<br>
+        <b>P405</b> 100×20 H: sarrafo = 11 + 100 + 11 = <strong>122 cm</strong>.<br><br>
+        <b>P402/P403</b> 20×60 V: sarrafo = 11 + 60 + 11 = <strong>82 cm</strong>.<br>
+        <b>P404</b> 20×80 V: sarrafo = 11 + 80 + 11 = <strong>102 cm</strong>.<br>
+        <b>P406</b> 60×40 H: sarrafo = 11 + 60 + 11 = <strong>82 cm</strong>.<br><br>
+        Pontilhado no desenho = parede passou pelo corpo do pilar; isso não autoriza atravessar a viga incidente.
+      </article>
+      <article class="network-measure-card">
+        <h4>Aberturas, desconto e recuo</h4>
+        <b>P401</b>: V403 20/100 encontra V401 20/60. V401 fica completa; V403 recua 4 cm. Se V403 passa por baixo no pilar, registrar em camadas: ponta <strong>40 livre + largura V401 20 + 4 + 4 = 68 cm</strong>; recuo <strong>-4 cm</strong>; saldo de abertura <strong>+64 cm</strong>.<br><br>
+        <b>P402</b>: encontro V404 × V401. Convenção do exemplo: horizontal recua 4 cm; vertical fica completa.<br><br>
+        <b>X403</b>: V403 recua 4 cm e passa por baixo de V402; ponta <strong>largura V402 20 + 4 + 4 = 28 cm</strong>; recuo <strong>-4 cm</strong>; saldo <strong>+24 cm</strong>. <b>X404</b>: V402 recua 4 cm e passa por baixo de V404; ponta <strong>largura V404 40 + 4 + 4 = 48 cm</strong>; recuo <strong>-4 cm</strong>; saldo <strong>+44 cm</strong>.<br><br>
+        Abertura por profundidade menor é validada separada do recuo: parte inferior completa, recuo só no contato das paredes.
+      </article>
+      <article class="network-measure-card">
+        <h4>Mapa de cada cruze</h4>
+        <b>P401</b> = pilar + V403×V401: V401 é menor/profundidade 60 e chega completa; V403 é maior/profundidade 100, recua 4 cm e, ao passar por baixo, registra ponta <strong>40 + 20 + 4 + 4 = 68</strong> e saldo <strong>+64</strong>.<br><br>
+        <b>P402</b> = pilar + V404×V401: profundidades iguais 60×60; regra didática: V401 vertical fica completa e V404 horizontal recua 4 cm.<br><br>
+        <b>X403</b> = V403×V402: V402 é menor/profundidade 80 e fica completa; V403 é maior/profundidade 100, recua 4 cm e passa por baixo: ponta <strong>20 + 4 + 4 = 28</strong>, saldo <strong>+24 cm</strong>.<br><br>
+        <b>X404</b> = V404×V402: V404 é menor/profundidade 60 e fica completa; V402 é maior/profundidade 80, recua 4 cm e passa por baixo: ponta <strong>40 + 4 + 4 = 48</strong>, saldo <strong>+44 cm</strong>.
+      </article>
+      <article class="network-measure-card">
+        <h4>Cota interna no pilar</h4>
+        <b>P401</b>: pilar 100 com V401 20 centralizada → <strong>40 + 20 + 40</strong>. A lateral passa pelo pilar até tocar a viga que chega: distância geométrica 40 cm.<br><br>
+        Como o fundo da viga que chega cresce 4 cm para cada lado, a distância efetiva até tocar o fundo vira <strong>40 - 4 = 36 cm</strong>. Se a lateral passa por baixo da viga incidente, registrar ponta <strong>40 + 20 + 4 + 4 = 68 cm</strong> e recuo separado <strong>-4 cm</strong>; saldo final <strong>+64 cm</strong>.<br><br>
+        <b>P402</b>: pilar 60 com V404 60 ocupando a faixa de contato. Sem sobra interna antes/depois da viga; o valor que entra é só o recuo convencional de 4 cm da horizontal.<br><br>
+        Registrar sempre em camadas: <b>segmento base</b> + <b>trecho interno do pilar</b> ± <b>4 cm do fundo</b>. Isso fica separado do sarrafo total.
+      </article>
+    </div>`;
+  return panel;
+}
+
+function lvNetworkSegmentIndex(beam, segmentsBySide, behavior) {
+  const index = document.createElement('div');
+  index.className = 'network-segment-index';
+  const chips = side => segmentsBySide[side].map(segment =>
+    `<span class="seg-chip">${segment.id} · ${segment.slabs.map(slab => slab.id).join('/')}</span>`
+  ).join('');
+  index.innerHTML = `
+    <b>Índice obrigatório desta viga:</b> contrato <b>${behavior}</b> gera todos os segmentos abaixo, cada um com checklist próprio.<br>
+    <b>Lado A</b> (${segmentsBySide.A.length}): ${chips('A')}<br>
+    <b>Lado B</b> (${segmentsBySide.B.length}, espelhado): ${chips('B')}
+  `;
+  return index;
+}
+
+function lvCanonicalNetwork(caseKey, meta) {
+  const list = document.createElement('div');
+  list.className = 'network-beam-list';
+  LV_NETWORK_SPEC.beams.forEach(beam => {
+    const segmentsBySide = {
+      A: lvNetworkSegments(beam, 'A', meta.behavior),
+      B: lvNetworkSegments(beam, 'B', meta.behavior)
+    };
+    const segmentCount = segmentsBySide.A.length;
+    const details = document.createElement('details');
+    details.className = 'network-beam';
+    details.open = true;
+    const summary = document.createElement('summary');
+    summary.innerHTML = `<b>${beam.id}</b> · ${beam.label}<span class="network-beam-meta">${beam.section} · N ${LV_NETWORK_SPEC.level} · ${segmentCount} segmento${segmentCount === 1 ? '' : 's'} por lado · contrato ${meta.behavior}</span>`;
+    details.appendChild(summary);
+    details.appendChild(lvNetworkSegmentIndex(beam, segmentsBySide, meta.behavior));
+
+    const pair = document.createElement('div');
+    pair.className = 'network-side-pair';
+    ['A', 'B'].forEach(side => {
+      const sideBox = document.createElement('section');
+      sideBox.className = `network-side side-${side}`;
+      const direction = side === 'A' ? beam.directionA : beam.directionB;
+      const horizontal = beam.label.startsWith('Horizontal');
+      const facePosition = horizontal
+        ? (side === 'A' ? 'face debaixo' : 'face de cima')
+        : (side === 'A' ? 'face esquerda' : 'face direita');
+      sideBox.innerHTML = `<div class="network-side-head"><b>LADO ${side} · ${facePosition}</b><span>leitura ${direction}</span></div>`;
+      const grid = document.createElement('div');
+      grid.className = `network-segment-grid segments-${segmentCount}`;
+      segmentsBySide[side].forEach(segment => {
+        const card = document.createElement('article');
+        card.className = 'network-segment-card';
+        card.innerHTML = `<h5>SEGMENTO ${segment.id} DE ${segment.total} · ${segment.slabs.map(slab => slab.id).join(' / ')}<span class="seg-scope">Checklist isolado deste segmento da viga ${beam.id}.${side}; não compartilhar interpretação com outro segmento.</span></h5>`;
+        const encounterParts = [];
+        if (segment.start.kind !== 'edge') encounterParts.push(lvNetworkEncounter(beam, segment.start, meta.behavior, side, 'start'));
+        segment.internalPillars.forEach(point => encounterParts.push(lvNetworkEncounter(beam, point, meta.behavior, side, 'inside')));
+        if (segment.end.kind !== 'edge') encounterParts.push(lvNetworkEncounter(beam, segment.end, meta.behavior, side, 'end'));
+        if (!encounterParts.length) encounterParts.push('Trecho entre limites externos · sem encontro interno');
+        encounterParts.push(lvOpeningResultSummary(beam, side, segment));
+        const lengthSummary = lvSegmentLengthSummary(beam, side, meta.behavior, segment);
+        const slabValue = segment.slabs.map(slab => `<b>${slab.id}</b> · ${slab.zone} · N ${LV_NETWORK_SPEC.level} · esp. ${slab.thickness} cm`).join('<br>');
+        const rows = [
+          ['identity', 'Contrato', `<b>${beam.id}.${side}</b> · ${meta.behavior} · <b>${segment.id}</b>`],
+          ['order', 'Ordem', `${segment.order}º de ${segment.total} · ${direction}`],
+          ['start', 'Ponto inicial', lvNetworkPointWithAdjustment(beam, side, segment.start, 'start')],
+          ['end', 'Ponto final', lvNetworkPointWithAdjustment(beam, side, segment.end, 'end')],
+          ['length', 'Comprimento', lengthSummary.html],
+          ['encounters', 'Encontros', encounterParts.join('<br>')],
+          ['recuo_start', `Encaixe 4 cm — ${lvEndpointLabel(beam, side, 'start')}`, lvEndpointRecuoText(beam, side, segment.start, 'start')],
+          ['recuo_end', `Encaixe 4 cm — ${lvEndpointLabel(beam, side, 'end')}`, lvEndpointRecuoText(beam, side, segment.end, 'end')],
+          ['under_start', `Viga passa por baixo — ${lvEndpointLabel(beam, side, 'start')}`, lvEndpointUnderpassText(beam, side, segment.start, 'start')],
+          ['under_end', `Viga passa por baixo — ${lvEndpointLabel(beam, side, 'end')}`, lvEndpointUnderpassText(beam, side, segment.end, 'end')],
+          ['slab', 'Lajes no trecho', slabValue],
+          ['geometry', 'Viga / nível', `<b>${beam.id}</b> · ${beam.section} · N ${LV_NETWORK_SPEC.level}`]
+        ];
+        rows.forEach(([field, label, value]) => {
+          card.appendChild(lvCanonicalCheck(
+            caseKey, `${beam.id}_${side}`, `${segment.id}_${field}`, label, value
+          ));
+        });
+        grid.appendChild(card);
+      });
+      sideBox.appendChild(grid);
+      pair.appendChild(sideBox);
+    });
+    details.appendChild(pair);
+    list.appendChild(details);
+  });
+  return list;
+}
+
+function initDiagramZoomControls() {
+  document.querySelectorAll('[data-diagram-zoom]').forEach(diagram => {
+    let zoom = 0.78;
+    let panning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let scrollStartLeft = 0;
+    let scrollStartTop = 0;
+    const applyZoom = () => {
+      const oldWidth = diagram.scrollWidth || 1;
+      const oldHeight = diagram.scrollHeight || 1;
+      diagram.style.setProperty('--diagram-zoom', String(zoom));
+      const reset = diagram.querySelector('[data-zoom-action="reset"]');
+      if (reset) reset.textContent = `${Math.round(zoom * 100)}%`;
+      requestAnimationFrame(() => {
+        const widthRatio = diagram.scrollWidth / oldWidth;
+        const heightRatio = diagram.scrollHeight / oldHeight;
+        if (Number.isFinite(widthRatio) && widthRatio > 0) diagram.scrollLeft *= widthRatio;
+        if (Number.isFinite(heightRatio) && heightRatio > 0) diagram.scrollTop *= heightRatio;
+      });
+    };
+    const setZoom = nextZoom => {
+      zoom = Math.max(0.55, Math.min(3.2, +nextZoom.toFixed(2)));
+      applyZoom();
+    };
+    diagram.addEventListener('wheel', event => {
+      if (event.target.closest('.diagram-zoom-toolbar')) return;
+      event.preventDefault();
+      const rect = diagram.getBoundingClientRect();
+      const beforeX = event.clientX - rect.left + diagram.scrollLeft;
+      const beforeY = event.clientY - rect.top + diagram.scrollTop;
+      const previous = zoom;
+      setZoom(zoom + (event.deltaY < 0 ? 0.12 : -0.12));
+      const ratio = zoom / previous;
+      requestAnimationFrame(() => {
+        diagram.scrollLeft = beforeX * ratio - (event.clientX - rect.left);
+        diagram.scrollTop = beforeY * ratio - (event.clientY - rect.top);
+      });
+    }, { passive: false });
+    diagram.addEventListener('pointerdown', event => {
+      if (event.button !== 0 || event.target.closest('.diagram-zoom-toolbar')) return;
+      panning = true;
+      diagram.classList.add('is-panning');
+      diagram.setPointerCapture(event.pointerId);
+      panStartX = event.clientX;
+      panStartY = event.clientY;
+      scrollStartLeft = diagram.scrollLeft;
+      scrollStartTop = diagram.scrollTop;
+    });
+    diagram.addEventListener('pointermove', event => {
+      if (!panning) return;
+      diagram.scrollLeft = scrollStartLeft - (event.clientX - panStartX);
+      diagram.scrollTop = scrollStartTop - (event.clientY - panStartY);
+    });
+    diagram.addEventListener('pointerup', event => {
+      panning = false;
+      diagram.classList.remove('is-panning');
+      if (diagram.hasPointerCapture(event.pointerId)) diagram.releasePointerCapture(event.pointerId);
+    });
+    diagram.addEventListener('pointercancel', () => {
+      panning = false;
+      diagram.classList.remove('is-panning');
+    });
+    diagram.querySelectorAll('[data-zoom-action]').forEach(button => {
+      button.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const action = button.dataset.zoomAction;
+        if (action === 'in') setZoom(zoom + 0.18);
+        if (action === 'out') setZoom(zoom - 0.18);
+        if (action === 'reset') setZoom(0.78);
+        if (action === 'expand') {
+          const expanded = diagram.classList.toggle('is-expanded');
+          document.body.classList.toggle('diagram-expanded', expanded);
+          button.textContent = expanded ? 'Fechar' : 'Expandir';
+          if (expanded && zoom < 1.25) setZoom(1.25);
+        }
+      });
+    });
+    applyZoom();
+  });
+}
+
+function initCanonicalSideChecklists() {
+  document.querySelectorAll('.interpretation-card').forEach(card => {
+    const caseKey = card.dataset.interpretation;
+    const meta = LV_CANONICAL_CASES[caseKey];
+    if (!meta) return;
+
+    card.classList.add('canonicalized');
+    card.querySelectorAll('.draw-style-box').forEach(box => {
+      if (box.querySelector('.check-grid')) box.classList.add('legacy-detail-box');
+    });
+
+    const networkSegmentCount = meta.network
+      ? LV_NETWORK_SPEC.beams.reduce((total, beam) => total
+          + lvNetworkSegments(beam, 'A', meta.behavior).length
+          + lvNetworkSegments(beam, 'B', meta.behavior).length, 0)
+      : 0;
+    const block = document.createElement('section');
+    block.className = 'canonical-side-checklist' + (meta.network ? ' network-checklist' : '');
+    if (meta.network) {
+      block.innerHTML = `
+        <div class="canonical-side-title">Ficha compacta por viga, lado e segmento</div>
+        <div class="canonical-side-intro">Quatro vigas × dois lados: <b>${networkSegmentCount} interpretações isoladas</b> e <b>${networkSegmentCount * 12} confirmações</b>. Pilar puro em Passa permanece no mesmo segmento; viga incidente sempre divide, mesmo no mesmo ponto do pilar. Profundidade/abertura, comprimento, encaixe/recuo e ponta por baixo possuem checkboxes separados por extremidade.</div>
+        <div class="canonical-side-rule"><b>Contrato A/B definitivo:</b> em viga horizontal, A = debaixo e B = em cima; em viga vertical, A = esquerda e B = direita. <b>Regra do Caso ${meta.behavior === 'Passa' ? '3' : '4'}:</b> pilar puro em Passa não divide, porém qualquer viga incidente sempre encerra o segmento — inclusive quando coincide com um pilar. A abertura é registrada somente no primeiro segmento que encontra a incidente no sentido de leitura. No encaixe, a menos profunda fica completa; a mais profunda recua 4 cm. Se essa lateral passa por baixo da viga incidente, a abertura registrada é <b>largura da viga incidente + 4 cm</b>; em pilar com sobra interna, somar também o trecho livre interno.</div>`;
+      block.appendChild(lvNetworkMeasurePanel(meta));
+      block.appendChild(lvCanonicalNetwork(caseKey, meta));
+    } else {
+      block.innerHTML = `
+        <div class="canonical-side-title">Ficha canônica de confirmação — lados independentes</div>
+        <div class="canonical-side-intro">Um único checklist substitui os dois padrões anteriores. Cada checkbox valida somente o lado indicado.</div>
+        <div class="canonical-side-rule"><b>Regra:</b> pilares podem ser <b>Para</b> ou <b>Passa</b>. Vigas incidentes sempre interrompem a parede. Se a incidente for menos profunda que a viga principal, a parede alcança a segunda face da incidente. Abertura esquerda/direita segue o sentido local de desenho do painel: A lê esquerda → direita; B é espelhado e lê direita → esquerda.</div>`;
+      const grid = document.createElement('div');
+      grid.className = 'canonical-side-grid';
+      grid.appendChild(lvCanonicalSide(caseKey, 'A', meta.A, meta));
+      grid.appendChild(lvCanonicalSide(caseKey, 'B', meta.B, meta));
+      block.appendChild(grid);
+    }
+
+    const diagram = card.querySelector('.interp-diagram');
+    if (diagram) diagram.after(block);
+    else card.querySelector('.interpretation-body')?.prepend(block);
+  });
+}
+initCanonicalSideChecklists();
+initDiagramZoomControls();
+</script>
+</body>
+</html>
+
+
+

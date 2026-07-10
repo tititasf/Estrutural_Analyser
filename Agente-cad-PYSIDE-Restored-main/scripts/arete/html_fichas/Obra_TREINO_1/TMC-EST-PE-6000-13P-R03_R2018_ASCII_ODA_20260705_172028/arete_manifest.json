@@ -1,0 +1,90 @@
+{
+  "schema_version": 2,
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260705_172028",
+  "html_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_172028",
+  "diagnosticos": {
+    "pilares": {
+      "status": "ok",
+      "run_id": "20260705_172028",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_pil\\Obra_TREINO_1\\13_PAV\\20260705_172028\\diagnostico_pil_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_pil\\Obra_TREINO_1\\13_PAV\\20260705_172028\\triagem_auto_pil.jsonl",
+      "resumo": {
+        "itens": 46,
+        "n1_itens": 46,
+        "n2_itens": 35,
+        "alertas": 24,
+        "fora_de_escopo_nao_retangular": 2,
+        "classificacoes": {
+          "EXCELENTE": 20,
+          "INDETERMINADO": 11,
+          "REGULAR": 2,
+          "RUIM": 13
+        }
+      },
+      "json_relative": "../../../relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_172028/diagnostico_pil_n1_n2.json",
+      "jsonl_relative": "../../../relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_172028/triagem_auto_pil.jsonl"
+    },
+    "lajes": {
+      "status": "ok",
+      "run_id": "20260705_172028",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_laj\\Obra_TREINO_1\\13_PAV\\20260705_172028\\diagnostico_laj_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_laj\\Obra_TREINO_1\\13_PAV\\20260705_172028\\triagem_auto_laj.jsonl",
+      "resumo": {
+        "itens": 31,
+        "n1_itens": 31,
+        "n2_itens": 31,
+        "alertas": 4,
+        "classificacoes": {
+          "BOM": 6,
+          "EXCELENTE": 21,
+          "REGULAR": 1,
+          "RUIM": 3
+        }
+      },
+      "json_relative": "../../../relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_172028/diagnostico_laj_n1_n2.json",
+      "jsonl_relative": "../../../relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_172028/triagem_auto_laj.jsonl"
+    },
+    "fundos_viga": {
+      "status": "ok",
+      "run_id": "20260705_172028",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_fv\\Obra_TREINO_1\\13_PAV\\20260705_172028\\diagnostico_fv_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_fv\\Obra_TREINO_1\\13_PAV\\20260705_172028\\triagem_auto_fv.jsonl",
+      "resumo": {
+        "itens": 37,
+        "n1_itens": 35,
+        "n2_itens": 26,
+        "alertas": 36,
+        "classificacoes": {
+          "BOM": 1,
+          "EXCELENTE": 2,
+          "INDETERMINADO": 13,
+          "REGULAR": 2,
+          "RUIM": 19
+        }
+      },
+      "json_relative": "../../../relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_172028/diagnostico_fv_n1_n2.json",
+      "jsonl_relative": "../../../relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_172028/triagem_auto_fv.jsonl"
+    },
+    "laterais_viga": {
+      "status": "ok",
+      "run_id": "20260705_172028",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_lv\\Obra_TREINO_1\\13_PAV\\20260705_172028\\diagnostico_lv_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_lv\\Obra_TREINO_1\\13_PAV\\20260705_172028\\triagem_auto_lv.jsonl",
+      "resumo": {
+        "itens": 37,
+        "n1_itens": 35,
+        "n2_itens": 32,
+        "alertas": 21,
+        "classificacoes": {
+          "EXCELENTE": 16,
+          "INDETERMINADO": 7,
+          "RUIM": 14
+        }
+      },
+      "json_relative": "../../../relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_172028/diagnostico_lv_n1_n2.json",
+      "jsonl_relative": "../../../relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_172028/triagem_auto_lv.jsonl"
+    }
+  }
+}

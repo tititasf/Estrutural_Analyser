@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "unidade": "cm",
+  "referencia": "borda inferior da grade",
+  "modos": {
+    "INI": {
+      "horizontal_positions_cm": [
+        45.0,
+        145.0,
+        245.0
+      ]
+    },
+    "NOVA": {
+      "horizontal_positions_cm": [
+        25.0,
+        100.0,
+        175.0
+      ]
+    }
+  }
+}

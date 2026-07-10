@@ -1,0 +1,13 @@
+{
+  "run_id": "20260706T191751_48c650b672",
+  "motor_id": "ROBOT_PL_N3_N4",
+  "version_id": "58074bfd93d3b00e",
+  "mode": "publish",
+  "status": "published",
+  "official_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_13_PAV_P5\\Fase-6_Execucao_CAD\\PL_CIMA_preview_P5.dxf",
+  "output_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_13_PAV_P5\\Fase-6_Execucao_CAD\\PL_CIMA_preview_P5.dxf",
+  "baseline_sha256": "e38bf447374ebc3d24db47a58ee15199f25297464f6ad967097b9595f3ba9325",
+  "output_sha256": "a93c861cda58cc4e23bef984ff138ee6e3c19cfb39411c74f4258cacf47bc259",
+  "effect": "changed",
+  "created_at": "2026-07-06T19:17:51+00:00"
+}

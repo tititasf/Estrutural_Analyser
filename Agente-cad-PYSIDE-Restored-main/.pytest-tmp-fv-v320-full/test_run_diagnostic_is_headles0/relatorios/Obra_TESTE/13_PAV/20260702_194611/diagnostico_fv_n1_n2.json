@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-07T13:02:34.099983+00:00",
+  "obra": "Obra_TESTE",
+  "pavimento": "13_PAV",
+  "run_id": "20260702_194611",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\.pytest-tmp-fv-v320-full\\test_run_diagnostic_is_headles0\\estado_13_PAV.json",
+    "n1_estado_sha256": "a7ce4917365810001f99008c8d565ac898e65d404578c1de2ca7e058e839e640",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\.pytest-tmp-fv-v320-full\\test_run_diagnostic_is_headles0\\project_data.vision"
+  },
+  "resumo": {
+    "itens": 2,
+    "n1_itens": 2,
+    "n2_itens": 2,
+    "alertas": 1,
+    "classificacoes": {
+      "EXCELENTE": 1,
+      "RUIM": 1
+    },
+    "segmentacao": {
+      "comparaveis": 2,
+      "quantidade_pass": 2,
+      "quantidade_fail": 0,
+      "medidas_pass": 1,
+      "medidas_fail": 1,
+      "tolerancia_medida_cm": 0.05
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-07T13:02:34.099983+00:00",
+      "obra": "Obra_TESTE",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V101",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "delta_relativo_max": 0.0,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.0
+        },
+        "segmentos_match": true,
+        "medidas_segmentos_match": true,
+        "comparacao_medidas_segmentos": {
+          "tolerancia_cm": 0.05,
+          "metodo": "multiconjunto_ordenado",
+          "match": true,
+          "pares": [
+            {
+              "n1_cm": 100.0,
+              "n2_cm": 100.0,
+              "delta_abs_cm": 0.0,
+              "passa": true
+            },
+            {
+              "n1_cm": 100.0,
+              "n2_cm": 100.0,
+              "delta_abs_cm": 0.0,
+              "passa": true
+            }
+          ]
+        },
+        "n1": {
+          "largura": 20.0,
+          "larguras": [
+            20.0,
+            20.0
+          ],
+          "comprimento_total": 200.0,
+          "comprimentos": [
+            100.0,
+            100.0
+          ],
+          "comprimento_declarado_total": 200.0,
+          "comprimento_geometrico_total": 200.0,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 20.0,
+          "comprimento_total": 200.0,
+          "comprimentos": [
+            100.0,
+            100.0
+          ],
+          "segmentos": 2,
+          "furos_ativos": 1,
+          "ficha_id": 1,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-07T13:02:34.099983+00:00",
+      "obra": "Obra_TESTE",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V102",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "A quantidade de segmentos coincide, mas uma ou mais medidas individuais divergem além de ±0,05 cm.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "delta_relativo_max": 0.4,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.4
+        },
+        "segmentos_match": true,
+        "medidas_segmentos_match": false,
+        "comparacao_medidas_segmentos": {
+          "tolerancia_cm": 0.05,
+          "metodo": "multiconjunto_ordenado",
+          "match": false,
+          "pares": [
+            {
+              "n1_cm": 140.0,
+              "n2_cm": 100.0,
+              "delta_abs_cm": 40.0,
+              "passa": false
+            }
+          ]
+        },
+        "n1": {
+          "largura": 20.0,
+          "larguras": [
+            20.0
+          ],
+          "comprimento_total": 140.0,
+          "comprimentos": [
+            140.0
+          ],
+          "comprimento_declarado_total": 140.0,
+          "comprimento_geometrico_total": 140.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 20.0,
+          "comprimento_total": 100.0,
+          "comprimentos": [
+            100.0
+          ],
+          "segmentos": 1,
+          "furos_ativos": 0,
+          "ficha_id": 2,
+          "status": "draft",
+          "confianca_origem": 0.8
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

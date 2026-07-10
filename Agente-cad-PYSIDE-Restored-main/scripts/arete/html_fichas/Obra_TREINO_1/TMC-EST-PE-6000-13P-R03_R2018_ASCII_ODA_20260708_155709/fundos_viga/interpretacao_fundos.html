@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interpretação — Fundos de Viga</title>
+  <style>
+    :root {
+      --bg:#07101d; --panel:#101c2e; --panel2:#14243b; --line:#2b4667;
+      --text:#e8f3ff; --muted:#a6bad0; --cyan:#3ed8ff; --green:#55e58b;
+      --orange:#ff9f43; --red:#ff5c68; --purple:#c878ff; --yellow:#ffe36e;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 "Segoe UI",Arial,sans-serif; }
+    main { max-width:1180px; margin:auto; padding:28px; }
+    h1 { margin:0 0 5px; color:var(--cyan); font-size:30px; }
+    h2 { margin:32px 0 12px; color:var(--cyan); border-bottom:1px solid var(--line); padding-bottom:7px; }
+    h3 { margin:0 0 10px; color:var(--orange); font-size:21px; }
+    p { margin:7px 0 12px; }
+    strong { color:#fff; }
+    .subtitle,.caption,.small { color:var(--muted); }
+    .lead,.rulebox,.case,.fields,.matrix { background:var(--panel); border:1px solid var(--line); border-radius:9px; }
+    .lead { padding:18px 20px; margin-top:20px; }
+    .rulebox { padding:15px 20px; }
+    .rulebox ol { margin:7px 0; padding-left:23px; }
+    .rulebox li { margin:5px 0; }
+    .case { margin:18px 0 28px; padding:20px; }
+    .case-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr); gap:20px; align-items:start; }
+    .decision { background:#0a1525; border-left:4px solid var(--green); padding:10px 13px; margin:12px 0; }
+    .warning { background:#211a11; border-left:4px solid var(--yellow); padding:10px 13px; margin:12px 0; }
+    .wrong { color:#ff9ca4; }
+    .right { color:#91f4b5; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:10px 12px; border:1px solid var(--line); vertical-align:top; text-align:left; }
+    th { color:var(--cyan); background:#12233a; }
+    td:first-child { color:var(--orange); white-space:nowrap; }
+    .carousel { position:relative; background:#091423; border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+    .slide { display:none; min-height:390px; padding:12px 12px 42px; }
+    .slide.active { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .slide img { display:block; max-width:100%; max-height:330px; object-fit:contain; border-radius:4px; }
+    .diagram-svg { display:block; width:100%; max-height:330px; }
+    .caption { margin:8px 8px 0; text-align:center; font-size:13px; }
+    .nav { position:absolute; inset:auto 0 7px; display:flex; justify-content:center; align-items:center; gap:10px; }
+    .nav button { width:31px; height:28px; border:1px solid var(--line); border-radius:4px; color:var(--text); background:#172a45; cursor:pointer; }
+    .counter { min-width:42px; text-align:center; color:var(--muted); font-size:12px; }
+    .legend { display:flex; flex-wrap:wrap; gap:13px; margin:9px 0; font-size:13px; color:var(--muted); }
+    .dot { display:inline-block; width:11px; height:11px; margin-right:5px; border-radius:2px; vertical-align:-1px; }
+    code { color:#aeefff; }
+    @media(max-width:800px) { main{padding:16px}.case-grid{grid-template-columns:1fr}.slide{min-height:330px} }
+    @media print {
+      body{background:#fff;color:#172033} main{max-width:none;padding:12px}
+      .lead,.rulebox,.case,.fields,.matrix,.carousel{background:#fff;border-color:#aab8c8}
+      h1,h2,th{color:#075f85}.subtitle,.caption,.small{color:#42556b}
+      strong{color:#172033}.decision,.warning{background:#fff;color:#172033}
+      .nav{display:none}.slide{display:none!important;min-height:0}.slide:first-child{display:flex!important}
+      .case{break-inside:avoid;page-break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Interpretação de Fundos de Viga</h1>
+  <div class="subtitle">Ficha geométrica para leitura e segmentação — FV</div>
+
+  <section class="lead">
+    <strong>Objetivo:</strong> transformar a geometria inferior das vigas em fundos completos, encaixados e sem sobreposição.
+    Esta interpretação usa somente informações da própria viga e de interferências que ocupem fisicamente seu fundo:
+    eixo, largura, altura/profundidade, contorno, encontros, mudanças de seção, chanfros e recortes.
+    <strong>Não depende de nível nem de informação de laje.</strong>
+  </section>
+
+  <h2>Regras de ouro</h2>
+  <section class="rulebox">
+    <ol>
+      <li><strong>Cobertura completa:</strong> toda área necessária de fundo deve pertencer a um segmento.</li>
+      <li><strong>Sem invasão:</strong> um fundo nunca avança sobre a largura ou a profundidade pertencente a outra viga.</li>
+      <li><strong>Profundidade define fronteira:</strong> a leitura da espessura/altura mostra onde uma viga termina e a outra continua.</li>
+      <li><strong>Descontinuidade gera segmento:</strong> mudança de altura, direção, contorno ou encaixe encerra o segmento atual.</li>
+      <li><strong>Colisão física altera geometria:</strong> pilar ou outro volume sólido exige parada, divisão, chanfro ou recorte.</li>
+      <li><strong>Sobreposição apenas visual não altera geometria:</strong> cotas, textos, chamadas e símbolos devem ser atravessados pelo fundo.</li>
+    </ol>
+  </section>
+
+  <h2>Casos de interpretação</h2>
+
+  <article class="case">
+    <h3>Caso 1 — Segmentos comuns entre apoios e vigas</h3>
+    <div class="case-grid">
+      <div>
+        <p>Aplica-se a encontros <strong>pilar–pilar, pilar–viga e viga–viga</strong>. O fundo ocupa exatamente o intervalo livre que pertence à viga analisada.</p>
+        <div class="decision"><strong>Decisão:</strong> derive início e fim pelas faces dos elementos e pela profundidade de cada viga. Preencha todos os fundos, mas faça cada segmento parar na fronteira correta.</div>
+        <p class="right">✓ Contornos encostam nas faces corretas, sem vazio e sem sobreposição.</p>
+        <p class="wrong">✗ Não prolongar um fundo por cima de outro só porque as linhas se cruzam na projeção.</p>
+        <p>A espessura da viga esclarece qual trecho pertence a cada elemento no encontro. Se uma viga prossegue em outra profundidade ou direção, o segmento anterior termina antes dessa área.</p>
+      </div>
+      <div class="carousel" id="fv1">
+        <div class="slide active">
+          <svg class="diagram-svg" viewBox="0 0 560 310" aria-label="Diagrama dos três encontros comuns">
+            <defs><pattern id="p1" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="9" stroke="#55e58b" stroke-width="3"/></pattern></defs>
+            <rect width="560" height="310" fill="#091423"/>
+            <text x="93" y="30" fill="#3ed8ff" font-size="16">PILAR ↔ PILAR</text>
+            <rect x="35" y="48" width="40" height="70" fill="url(#p1)" stroke="#55e58b"/>
+            <rect x="275" y="48" width="40" height="70" fill="url(#p1)" stroke="#55e58b"/>
+            <rect x="75" y="70" width="200" height="25" fill="#ff9f43" fill-opacity=".35" stroke="#ff9f43" stroke-width="2"/>
+            <line x1="75" y1="105" x2="75" y2="126" stroke="#c878ff"/><line x1="275" y1="105" x2="275" y2="126" stroke="#c878ff"/>
+            <text x="105" y="145" fill="#a6bad0" font-size="13">fundo termina nas faces</text>
+            <text x="42" y="187" fill="#3ed8ff" font-size="15">PILAR ↔ VIGA</text>
+            <rect x="35" y="205" width="38" height="65" fill="url(#p1)" stroke="#55e58b"/>
+            <rect x="73" y="222" width="150" height="24" fill="#ff9f43" fill-opacity=".35" stroke="#ff9f43" stroke-width="2"/>
+            <rect x="223" y="195" width="30" height="75" fill="#c878ff" fill-opacity=".25" stroke="#c878ff"/>
+            <text x="316" y="187" fill="#3ed8ff" font-size="15">VIGA ↔ VIGA</text>
+            <rect x="316" y="222" width="95" height="24" fill="#ff9f43" fill-opacity=".35" stroke="#ff9f43" stroke-width="2"/>
+            <rect x="411" y="202" width="26" height="68" fill="#c878ff" fill-opacity=".25" stroke="#c878ff"/>
+            <rect x="437" y="222" width="85" height="24" fill="#ff9f43" fill-opacity=".35" stroke="#ff9f43" stroke-width="2"/>
+            <text x="340" y="292" fill="#55e58b" font-size="13">sem invasão entre fundos</text>
+          </svg>
+          <div class="caption">Diagrama — três encontros comuns e suas fronteiras.</div>
+        </div>
+        <div class="slide"><img src="imgs/caso1_pilar_pilar.png" alt="Fundo V301 limitado entre dois pilares"><div class="caption">Referência — segmento comum entre pilares.</div></div>
+        <div class="slide"><img src="imgs/caso1_pilar_viga.png" alt="Fundo V301 entre pilar e viga"><div class="caption">Referência — encontro pilar–viga.</div></div>
+        <div class="slide"><img src="imgs/caso1_viga_viga.png" alt="Encontro de vigas com limites próprios"><div class="caption">Referência — encontro viga–viga sem invasão.</div></div>
+        <div class="nav"><button type="button" data-dir="-1">‹</button><span class="counter">1 / 4</span><button type="button" data-dir="1">›</button></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="case">
+    <h3>Caso 2 — Uma viga com alturas diferentes</h3>
+    <div class="case-grid">
+      <div>
+        <p>Uma única viga pode apresentar trechos com alturas/profundidades diferentes. Apesar de manter o nome e o eixo, a face inferior muda e <strong>não forma um único painel contínuo</strong>.</p>
+        <div class="decision"><strong>Decisão:</strong> crie uma fronteira exatamente em cada mudança de profundidade e extraia um segmento de fundo para cada trecho homogêneo.</div>
+        <p>O comprimento de cada fundo vem do intervalo entre duas mudanças consecutivas ou entre a mudança e o apoio. Não use o comprimento total como painel único.</p>
+      </div>
+      <div class="carousel" id="fv2">
+        <div class="slide active">
+          <svg class="diagram-svg" viewBox="0 0 560 300" aria-label="Viga segmentada por mudanças de profundidade">
+            <rect width="560" height="300" fill="#091423"/>
+            <text x="40" y="35" fill="#3ed8ff" font-size="19">MESMA VIGA</text>
+            <path d="M45 80 H210 V125 H360 V95 H515" fill="none" stroke="#55e58b" stroke-width="3"/>
+            <path d="M45 80 H210 V105 H45 Z" fill="#ff9f43" fill-opacity=".38" stroke="#ff9f43" stroke-width="2"/>
+            <path d="M210 125 H360 V150 H210 Z" fill="#ff9f43" fill-opacity=".38" stroke="#ff9f43" stroke-width="2"/>
+            <path d="M360 95 H515 V120 H360 Z" fill="#ff9f43" fill-opacity=".38" stroke="#ff9f43" stroke-width="2"/>
+            <line x1="210" y1="58" x2="210" y2="180" stroke="#c878ff" stroke-width="2" stroke-dasharray="6 4"/>
+            <line x1="360" y1="58" x2="360" y2="180" stroke="#c878ff" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="72" y="200" fill="#ff9f43">SEGMENTO 1</text><text x="230" y="200" fill="#ff9f43">SEGMENTO 2</text><text x="384" y="200" fill="#ff9f43">SEGMENTO 3</text>
+            <text x="75" y="230" fill="#a6bad0">prof. A</text><text x="248" y="230" fill="#a6bad0">prof. B</text><text x="402" y="230" fill="#a6bad0">prof. C</text>
+            <text x="98" y="270" fill="#55e58b" font-size="15">mudou a profundidade → mudou o segmento</text>
+          </svg>
+          <div class="caption">Diagrama — o nome permanece; a descontinuidade inferior segmenta.</div>
+        </div>
+        <div class="slide"><img src="imgs/caso2_alturas_diferentes.png" alt="V301 com trechos de alturas diferentes"><div class="caption">Referência — V301 dividida onde sua profundidade muda.</div></div>
+        <div class="nav"><button type="button" data-dir="-1">‹</button><span class="counter">1 / 2</span><button type="button" data-dir="1">›</button></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="case">
+    <h3>Caso 3 — Chanfro causado por encontro diagonal</h3>
+    <div class="case-grid">
+      <div>
+        <p>Quando uma viga diagonal encontra outra, um fundo retangular ultrapassaria o contorno disponível. O encaixe correto exige um <strong>chanfro alinhado à geometria real do encontro</strong>.</p>
+        <div class="decision"><strong>Decisão:</strong> interseccione as faces das vigas e use os pontos reais de encontro para formar o vértice inclinado. O fundo termina no chanfro, sem invadir a viga adjacente e sem deixar vazio.</div>
+        <p>O ângulo não deve ser presumido nem fixado: ele é derivado das direções e larguras presentes no desenho.</p>
+      </div>
+      <div class="carousel" id="fv3">
+        <div class="slide active">
+          <svg class="diagram-svg" viewBox="0 0 560 310" aria-label="Dois fundos encaixados pela mesma aresta de chanfro">
+            <defs>
+              <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 Z" fill="#c878ff"/>
+              </marker>
+            </defs>
+            <rect width="560" height="310" fill="#091423"/>
+            <text x="42" y="29" fill="#3ed8ff" font-size="16">ENCAIXE ENTRE VIGA DIAGONAL E VIGA RETA</text>
+
+            <polygon points="58,54 84,54 255,225 230,250"
+                     fill="#ff9f43" fill-opacity=".34" stroke="#ff9f43" stroke-width="3"/>
+            <polygon points="255,225 510,225 510,250 230,250"
+                     fill="#3ed8ff" fill-opacity=".20" stroke="#3ed8ff" stroke-width="3"/>
+
+            <line x1="255" y1="225" x2="230" y2="250" stroke="#c878ff" stroke-width="5"/>
+            <circle cx="255" cy="225" r="4" fill="#fff"/>
+            <circle cx="230" cy="250" r="4" fill="#fff"/>
+
+            <text x="68" y="102" fill="#ffba76" font-size="15" transform="rotate(45 68 102)">FUNDO DIAGONAL</text>
+            <text x="346" y="246" fill="#91eaff" font-size="15">FUNDO RETO</text>
+
+            <path d="M243 237 C300 190 330 154 354 116" fill="none" stroke="#c878ff"
+                  stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow3)"/>
+            <text x="339" y="94" fill="#c878ff" font-size="16">aresta comum</text>
+            <text x="315" y="114" fill="#a6bad0" font-size="13">mesmos dois vértices</text>
+
+            <path d="M230 276 H510" stroke="#55e58b" stroke-width="2"/>
+            <text x="274" y="298" fill="#55e58b" font-size="14">zero vazio · zero sobreposição</text>
+          </svg>
+          <div class="caption">Diagrama — contorno diagonal define o chanfro.</div>
+        </div>
+        <div class="slide"><img src="imgs/caso3_chanfro_diagonal.png" alt="Fundos V306 e VF203 com encontro diagonal chanfrado"><div class="caption">Referência — fundos ajustados ao encontro de vigas diagonais.</div></div>
+        <div class="nav"><button type="button" data-dir="-1">‹</button><span class="counter">1 / 2</span><button type="button" data-dir="1">›</button></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="case">
+    <h3>Caso 4 — Viga larga com obstáculo interno e recortes</h3>
+    <div class="case-grid">
+      <div>
+        <p>Em vigas largas, um pilar ou outro volume pode ocupar parte da área do fundo. O painel deve ser dividido em duas ou mais partes, e uma ou várias delas podem receber recortes de encaixe.</p>
+        <div class="decision"><strong>Decisão:</strong> subtraia o contorno físico do obstáculo da área do fundo. Preserve cada região restante como painel válido e registre posição e dimensões de cada recorte aberto pela borda.</div>
+        <p>Os recortes mais comuns são retangulares e partem de uma esquina. Um fundo pode ter mais de um recorte. Quando um pilar circular ou outro obstáculo especial estiver no interior, <strong>divida o fundo em duas ou mais peças</strong>: cada peça recebe parte do recorte em sua borda e o encaixe montado contorna o obstáculo.</p>
+        <p class="wrong">✗ Nunca fabricar um painel único com um furo fechado no centro. Não preencher a área ocupada pelo obstáculo.</p>
+      </div>
+      <div class="carousel" id="fv4">
+        <div class="slide active">
+          <svg class="diagram-svg" viewBox="0 0 560 330" aria-label="Painéis divididos e encaixados ao redor de obstáculos internos">
+            <defs>
+              <pattern id="p4" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                <line x1="0" y1="0" x2="0" y2="9" stroke="#55e58b" stroke-width="3"/>
+              </pattern>
+              <marker id="arrow4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0 0 L10 5 L0 10 Z" fill="#55e58b"/>
+              </marker>
+            </defs>
+            <rect width="560" height="330" fill="#091423"/>
+            <text x="36" y="28" fill="#3ed8ff" font-size="16">VIGA LARGA — FUNDO COMPLETO SEM INVADIR OBSTÁCULOS</text>
+
+            <path d="M38 52 H220 V170 H168 V258 H38 Z"
+                  fill="#ff9f43" fill-opacity=".28" stroke="#ff9f43" stroke-width="3"/>
+            <path d="M220 52 H362 V180 H318 V258 H220 Z"
+                  fill="#ffb45e" fill-opacity=".23" stroke="#ffb45e" stroke-width="3"/>
+            <path d="M362 52 H522 V137 H477
+                     C477 120 463 106 446 106
+                     C429 106 415 120 415 137
+                     H362 Z"
+                  fill="#ff9f43" fill-opacity=".28" stroke="#ff9f43" stroke-width="3"/>
+            <path d="M362 137 H415
+                     C415 154 429 168 446 168
+                     C463 168 477 154 477 137
+                     H522 V258 H362 Z"
+                  fill="#ffb45e" fill-opacity=".23" stroke="#ffb45e" stroke-width="3"/>
+
+            <rect x="168" y="170" width="52" height="88" fill="url(#p4)" stroke="#55e58b" stroke-width="2"/>
+            <rect x="318" y="180" width="44" height="78" fill="url(#p4)" stroke="#55e58b" stroke-width="2"/>
+
+            <circle cx="446" cy="137" r="31" fill="url(#p4)" stroke="#c878ff" stroke-width="3"/>
+
+            <text x="80" y="91" fill="#ffba76" font-size="15">PAINEL 1</text>
+            <text x="252" y="91" fill="#ffd098" font-size="15">PAINEL 2</text>
+            <text x="397" y="77" fill="#ffba76" font-size="14">PAINEL 3A</text>
+            <text x="397" y="218" fill="#ffd098" font-size="14">PAINEL 3B</text>
+            <text x="385" y="181" fill="#c878ff" font-size="12">encaixe circular</text>
+
+            <path d="M130 296 C150 280 174 276 188 259" fill="none" stroke="#55e58b"
+                  stroke-width="2" marker-end="url(#arrow4)"/>
+            <path d="M286 296 C304 280 326 276 336 259" fill="none" stroke="#55e58b"
+                  stroke-width="2" marker-end="url(#arrow4)"/>
+            <text x="68" y="316" fill="#55e58b" font-size="13">recorte 1 encaixa no obstáculo</text>
+            <text x="284" y="316" fill="#55e58b" font-size="13">recorte 2 encaixa no obstáculo</text>
+
+            <line x1="220" y1="52" x2="220" y2="170" stroke="#3ed8ff" stroke-width="2"/>
+            <line x1="362" y1="52" x2="362" y2="180" stroke="#3ed8ff" stroke-width="2"/>
+          </svg>
+          <div class="caption">Diagrama — obstáculos internos sempre são contornados pelo encaixe de peças separadas.</div>
+        </div>
+        <div class="slide"><img src="imgs/caso4_recorte_interno_1.png" alt="Viga larga dividida por pilar interno"><div class="caption">Referência — obstáculo interno divide o fundo em partes.</div></div>
+        <div class="slide"><img src="imgs/caso4_recorte_interno_2.png" alt="Fundo com recorte de canto para encaixe em pilar"><div class="caption">Referência — recorte retangular de esquina.</div></div>
+        <div class="slide"><img src="imgs/caso4_abertura_especial.png" alt="Pilar circular exigindo divisão do fundo em peças"><div class="caption">Referência — obstáculo circular exige duas ou mais peças com recortes de borda complementares.</div></div>
+        <div class="nav"><button type="button" data-dir="-1">‹</button><span class="counter">1 / 4</span><button type="button" data-dir="1">›</button></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="case">
+    <h3>Caso 5 — Objeto apenas visual no caminho do fundo</h3>
+    <div class="case-grid">
+      <div>
+        <p>Cotas, textos, linhas de chamada, indicações de corte e determinados símbolos podem estar desenhados por cima do fundo sem representar volume no pavimento atual.</p>
+        <div class="decision"><strong>Decisão:</strong> quando a entidade for apenas anotativa, mantenha o fundo contínuo por baixo dela. Não dividir, recortar ou encurtar por colisão visual.</div>
+        <div class="warning"><strong>Convenção da obra:</strong> símbolos de pilares presentes apenas no pavimento seguinte podem aparecer com textos como “nasce”, mas isso é somente um exemplo. Cada obra pode usar outra palavra, layer, cor ou símbolo. A classificação deve ser aprendida pelas convenções e evidências da obra; nunca por uma palavra literal hardcoded.</div>
+        <p>Se a natureza do objeto permanecer ambígua, marque para revisão. Não o trate automaticamente como sólido nem como anotação.</p>
+      </div>
+      <div class="carousel" id="fv5">
+        <div class="slide active">
+          <svg class="diagram-svg" viewBox="0 0 560 315" aria-label="Fundo contínuo sob objetos somente visuais">
+            <rect width="560" height="315" fill="#091423"/>
+            <rect x="40" y="130" width="480" height="42" fill="#ff9f43" fill-opacity=".36" stroke="#ff9f43" stroke-width="3"/>
+            <text x="190" y="157" fill="#fff" font-size="17">FUNDO CONTÍNUO</text>
+            <line x1="145" y1="65" x2="145" y2="225" stroke="#ffe36e" stroke-width="2" stroke-dasharray="7 5"/>
+            <line x1="115" y1="85" x2="175" y2="85" stroke="#ffe36e"/><text x="108" y="53" fill="#ffe36e">cota</text>
+            <path d="M285 85 L315 115 L285 115 L315 85 Z" fill="none" stroke="#a6bad0" stroke-width="2"/>
+            <text x="259" y="58" fill="#a6bad0">chamada/corte</text>
+            <rect x="412" y="74" width="42" height="90" fill="none" stroke="#c878ff" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="371" y="47" fill="#c878ff">símbolo da obra</text>
+            <path d="M145 238 V265 H455 V238" fill="none" stroke="#55e58b" stroke-width="2"/>
+            <text x="176" y="292" fill="#55e58b" font-size="16">nenhum deles interrompe o fundo</text>
+          </svg>
+          <div class="caption">Diagrama — entidades não sólidas ficam visualmente sobre o fundo.</div>
+        </div>
+        <div class="slide"><img src="imgs/caso5_objeto_visual_cota.png" alt="Cota e símbolo sobrepostos ao fundo sem recorte"><div class="caption">Referência — cota sobre o fundo não cria colisão física.</div></div>
+        <div class="slide"><img src="imgs/caso5_objeto_visual_convencao.png" alt="Convenção específica da obra sobreposta ao fundo"><div class="caption">Referência — texto/símbolo de convenção deve ser interpretado no contexto da obra.</div></div>
+        <div class="nav"><button type="button" data-dir="-1">‹</button><span class="counter">1 / 3</span><button type="button" data-dir="1">›</button></div>
+      </div>
+    </div>
+  </article>
+
+  <h2>Matriz de colisão</h2>
+  <table class="matrix">
+    <thead><tr><th>Classe observada</th><th>Evidência</th><th>Ação no fundo</th></tr></thead>
+    <tbody>
+      <tr><td>Geometria sólida</td><td>Contorno físico coerente com viga, pilar ou volume que ocupa a área inferior</td><td>Parar, dividir, chanfrar ou recortar conforme a interseção real</td></tr>
+      <tr><td>Entidade visual</td><td>Cota, texto, chamada, linha de corte ou símbolo anotativo</td><td>Manter o fundo contínuo; não gerar colisão</td></tr>
+      <tr><td>Convenção da obra</td><td>Combinação específica de layer, cor, símbolo, texto e repetição contextual</td><td>Aplicar a convenção comprovada somente àquela obra</td></tr>
+      <tr><td>Ambígua</td><td>Evidência insuficiente ou conflitante</td><td>Não inventar geometria; sinalizar para revisão</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Campos mínimos da ficha de fundo</h2>
+  <table class="fields">
+    <thead><tr><th>Campo</th><th>Conteúdo esperado</th></tr></thead>
+    <tbody>
+      <tr><td><code>viga</code></td><td>Identificação da viga à qual o fundo pertence.</td></tr>
+      <tr><td><code>largura</code></td><td>Largura real da seção da viga no trecho.</td></tr>
+      <tr><td><code>altura_profundidade</code></td><td>Altura/profundidade usada para reconhecer fronteiras e mudanças de trecho.</td></tr>
+      <tr><td><code>comprimento_segmento</code></td><td>Distância entre faces, mudanças de seção ou limites geométricos consecutivos.</td></tr>
+      <tr><td><code>geometria_contorno</code></td><td>Retangular, chanfrada, recortada ou especial, com seus vértices reais.</td></tr>
+      <tr><td><code>limites_inicio_fim</code></td><td>Faces ou interseções que encerram o segmento sem sobreposição.</td></tr>
+      <tr><td><code>recortes</code></td><td>Lista de posição, dimensões e forma de cada subtração física.</td></tr>
+      <tr><td><code>continuidade</code></td><td>Relação com o segmento anterior/seguinte e motivo da separação.</td></tr>
+      <tr><td><code>evidencia_origem</code></td><td>Entidades, layers e relações geométricas que sustentam a interpretação.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="small">Critério final: todo fundo necessário está coberto uma única vez, cada segmento pertence à viga correta e nenhuma anotação visual foi transformada indevidamente em obstáculo físico.</p>
+</main>
+<script>
+  document.querySelectorAll('.carousel').forEach(function (carousel) {
+    const slides = Array.from(carousel.querySelectorAll('.slide'));
+    const counter = carousel.querySelector('.counter');
+    let index = 0;
+    function show(next) {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      counter.textContent = (index + 1) + ' / ' + slides.length;
+    }
+    carousel.querySelectorAll('button[data-dir]').forEach(function (button) {
+      button.addEventListener('click', function () { show(index + Number(button.dataset.dir)); });
+    });
+    show(0);
+  });
+</script>
+</body>
+</html>

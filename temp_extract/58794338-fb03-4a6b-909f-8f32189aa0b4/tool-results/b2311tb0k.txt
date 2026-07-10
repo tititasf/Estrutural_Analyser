@@ -1,0 +1,1435 @@
+error: read error while indexing Agente-cad-PYSIDE-Restored-main/scripts/arete/.headless_sa.lock: Permission denied
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P1/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P1/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P1/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P10/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P10/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P10/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P11/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P11/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P11/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P12/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P12/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P12/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P13/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P13/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P13/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P14/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P14/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P14/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P15/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P15/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P15/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P16/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P16/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P16/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P17/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P17/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P17/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P19/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P19/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P19/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P2/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P2/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P2/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P20/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P20/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P20/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P21/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P21/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P21/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P22/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P22/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P22/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P23/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P23/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P23/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P25/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P25/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P25/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P28/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P28/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P28/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P29/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P29/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P29/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P3/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P3/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P3/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P30/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P30/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P30/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P31/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P31/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P31/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P32/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P32/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P32/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P33/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P33/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P33/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P34/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P34/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P34/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P35/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P35/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P35/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P4/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P4/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P4/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P5/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P5/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P5/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P6/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P6/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P6/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P7/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P7/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P7/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P8/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P8/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P8/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P9/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P9/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P9/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L301/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L301/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L302/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L302/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L303/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L303/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L304/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L304/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L305/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L305/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L306/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L306/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L307/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L307/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L308/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L308/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L309/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L309/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L310/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L310/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L311/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L311/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L312/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L312/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L313/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L313/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L314/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L314/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L315/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L315/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L316/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L316/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L317/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L317/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L318/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L318/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L319/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L319/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L320/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L320/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L321/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L321/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L322/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L322/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L323/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L323/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L324/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L324/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L325/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L325/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L326/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L326/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L327/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L327/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L328/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L328/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L329/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L329/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L330/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L330/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L331/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/LAJ/L331/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P1/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P1/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P10/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P10/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P11/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P11/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P12/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P12/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P13/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P13/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P14/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P14/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P15/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P15/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P16/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P16/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P17/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P17/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P18/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P18/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P19/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P19/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P2/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P2/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P20/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P20/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P21/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P21/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P22/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P22/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P23/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P23/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P24/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P24/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P25/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P25/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P26/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P26/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P27/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P27/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P28/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P28/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P29/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P29/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P3/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P3/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P30/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P30/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P31/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P31/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P32/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P32/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P33/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P33/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P34/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P34/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P35/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P35/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P4/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P4/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P5/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P5/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P6/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P6/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P7/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P7/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P8/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P8/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P9/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/13_PAV/PIL/P9/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P10/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P10/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P10/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P11/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P11/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P11/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P12/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P12/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P12/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P14/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P14/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P14/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P16/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P16/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P16/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P17/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P17/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P17/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P18/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P18/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P18/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P19/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P19/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P19/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P20/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P20/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P20/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P21/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P21/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P21/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P22/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P22/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P22/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P23/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P23/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P23/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P24/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P24/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P24/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P25/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P25/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P25/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P28/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P28/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P28/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P29/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P29/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P29/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P30/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P30/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P30/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P31/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P31/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P31/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P32/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P32/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P32/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P33/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P33/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P33/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P34/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P34/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P34/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P35/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P35/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P35/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P1/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P1/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P1/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P101/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P101/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P101/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P102/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P102/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P102/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P103/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P103/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P103/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P16/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P16/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P16/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P31/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P31/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P31/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P33/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P33/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P33/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P34/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P34/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P34/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P35/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P35/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P35/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P61/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P61/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P61/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P62/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P62/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P62/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P9/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P9/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P9/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P1/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P1/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P1/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P10/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P10/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P10/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P11/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P11/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P11/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P12/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P12/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P12/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P13/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P13/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P13/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P14/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P14/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P14/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P16/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P16/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P16/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P17/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P17/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P17/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P18/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P18/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P18/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P19/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P19/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P19/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P2/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P2/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P2/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P20/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P20/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P20/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P21/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P21/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P21/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P22/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P22/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P22/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P25/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P25/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P25/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P28/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P28/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P28/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P29/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P29/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P29/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P3/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P3/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P3/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P30/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P30/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P30/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P31/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P31/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P31/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P32/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P32/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P32/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P33/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P33/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P33/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P34/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P34/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P34/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P35/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P35/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P35/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P4/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P4/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P4/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P5/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P5/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P5/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P6/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P6/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P6/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P7/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P7/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P7/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P8/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P8/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P8/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P9/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P9/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P9/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P10/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P10/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P10/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P20/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P20/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P20/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P21/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P21/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P21/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P22/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P22/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P22/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P31/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P31/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P31/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P101/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P101/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P101/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P102/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P102/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P102/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P103/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P103/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P103/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P11/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P11/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P11/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P12/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P12/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P12/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P13/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P13/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P13/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P18/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P18/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P18/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P19/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P19/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P19/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P20/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P20/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P20/scores.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P21/comparacao.png
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P21/ficha.json
+ M Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P21/scores.json
+ M Agente-cad-PYSIDE-Restored-main/config/dxf_visual_templates.json
+ M Agente-cad-PYSIDE-Restored-main/crash_log.txt
+ M Agente-cad-PYSIDE-Restored-main/debug_slab_pav13.json
+ M Agente-cad-PYSIDE-Restored-main/docs/LOOPING-CANONICO.md
+ M Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-ARETE-FUNDO-VIGA.md
+ M Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-ARETE-LATERAL-VIGA.md
+ M Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-ARETE-PILAR.md
+ M Agente-cad-PYSIDE-Restored-main/docs/PROVENIENCIA-CAMPOS-LAJ.md
+ M Agente-cad-PYSIDE-Restored-main/docs/STATUS.md
+ M Agente-cad-PYSIDE-Restored-main/main.py
+ M Agente-cad-PYSIDE-Restored-main/scripts/analise_geral_headless.py
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/.headless_sa.lock
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/diagnostico_fv_n1_n2.py
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260630_203509/pilares/interpretacao_abcd.html
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/estado_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/triagem_erros/Obra_TREINO_1_13_PAV_lajes.jsonl
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/triagem_erros/Obra_TREINO_1_13_PAV_pilares.jsonl
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L301/Fase-4_Sincronizacao/JSON_Lajes/L301.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L302/Fase-4_Sincronizacao/JSON_Lajes/L302.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L303/Fase-4_Sincronizacao/JSON_Lajes/L303.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L304/Fase-4_Sincronizacao/JSON_Lajes/L304.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L305/Fase-4_Sincronizacao/JSON_Lajes/L305.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L306/Fase-4_Sincronizacao/JSON_Lajes/L306.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L307/Fase-4_Sincronizacao/JSON_Lajes/L307.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L308/Fase-4_Sincronizacao/JSON_Lajes/L308.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L309/Fase-4_Sincronizacao/JSON_Lajes/L309.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L310/Fase-4_Sincronizacao/JSON_Lajes/L310.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L311/Fase-4_Sincronizacao/JSON_Lajes/L311.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L312/Fase-4_Sincronizacao/JSON_Lajes/L312.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L313/Fase-4_Sincronizacao/JSON_Lajes/L313.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L314/Fase-4_Sincronizacao/JSON_Lajes/L314.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L315/Fase-4_Sincronizacao/JSON_Lajes/L315.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L316/Fase-4_Sincronizacao/JSON_Lajes/L316.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L317/Fase-4_Sincronizacao/JSON_Lajes/L317.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L318/Fase-4_Sincronizacao/JSON_Lajes/L318.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L319/Fase-4_Sincronizacao/JSON_Lajes/L319.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L320/Fase-4_Sincronizacao/JSON_Lajes/L320.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L321/Fase-4_Sincronizacao/JSON_Lajes/L321.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L322/Fase-4_Sincronizacao/JSON_Lajes/L322.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L323/Fase-4_Sincronizacao/JSON_Lajes/L323.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L324/Fase-4_Sincronizacao/JSON_Lajes/L324.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L325/Fase-4_Sincronizacao/JSON_Lajes/L325.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L326/Fase-4_Sincronizacao/JSON_Lajes/L326.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L327/Fase-4_Sincronizacao/JSON_Lajes/L327.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L328/Fase-4_Sincronizacao/JSON_Lajes/L328.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L329/Fase-4_Sincronizacao/JSON_Lajes/L329.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L330/Fase-4_Sincronizacao/JSON_Lajes/L330.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L331/Fase-4_Sincronizacao/JSON_Lajes/L331.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P1/Fase-4_Sincronizacao/JSON_Pilares/P1.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P1/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P10/Fase-4_Sincronizacao/JSON_Pilares/P10.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P10/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P11/Fase-4_Sincronizacao/JSON_Pilares/P11.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P11/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P12/Fase-4_Sincronizacao/JSON_Pilares/P12.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P12/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P13/Fase-4_Sincronizacao/JSON_Pilares/P13.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P13/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P14/Fase-4_Sincronizacao/JSON_Pilares/P14.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P14/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P15/Fase-4_Sincronizacao/JSON_Pilares/P15.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P15/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P16/Fase-4_Sincronizacao/JSON_Pilares/P16.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P16/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P17/Fase-4_Sincronizacao/JSON_Pilares/P17.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P17/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P18/Fase-4_Sincronizacao/JSON_Pilares/P18.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P18/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P19/Fase-4_Sincronizacao/JSON_Pilares/P19.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P19/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P2/Fase-4_Sincronizacao/JSON_Pilares/P2.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P2/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P20/Fase-4_Sincronizacao/JSON_Pilares/P20.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P20/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P21/Fase-4_Sincronizacao/JSON_Pilares/P21.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P21/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P22/Fase-4_Sincronizacao/JSON_Pilares/P22.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P22/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P23/Fase-4_Sincronizacao/JSON_Pilares/P23.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P23/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P24/Fase-4_Sincronizacao/JSON_Pilares/P24.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P24/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P25/Fase-4_Sincronizacao/JSON_Pilares/P25.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P25/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P26/Fase-4_Sincronizacao/JSON_Pilares/P26.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P26/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P27/Fase-4_Sincronizacao/JSON_Pilares/P27.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P27/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P28/Fase-4_Sincronizacao/JSON_Pilares/P28.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P28/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P29/Fase-4_Sincronizacao/JSON_Pilares/P29.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P29/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P3/Fase-4_Sincronizacao/JSON_Pilares/P3.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P3/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P30/Fase-4_Sincronizacao/JSON_Pilares/P30.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P30/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P31/Fase-4_Sincronizacao/JSON_Pilares/P31.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P31/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P32/Fase-4_Sincronizacao/JSON_Pilares/P32.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P32/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P33/Fase-4_Sincronizacao/JSON_Pilares/P33.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P33/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P34/Fase-4_Sincronizacao/JSON_Pilares/P34.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P34/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P35/Fase-4_Sincronizacao/JSON_Pilares/P35.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P35/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P4/Fase-4_Sincronizacao/JSON_Pilares/P4.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P4/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P5/Fase-4_Sincronizacao/JSON_Pilares/P5.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P5/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P6/Fase-4_Sincronizacao/JSON_Pilares/P6.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P6/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P7/Fase-4_Sincronizacao/JSON_Pilares/P7.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P7/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P8/Fase-4_Sincronizacao/JSON_Pilares/P8.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P8/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P9/Fase-4_Sincronizacao/JSON_Pilares/P9.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P9/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P1/Fase-4_Sincronizacao/JSON_Pilares/P1.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P1/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P10/Fase-4_Sincronizacao/JSON_Pilares/P10.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P10/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P11/Fase-4_Sincronizacao/JSON_Pilares/P11.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P11/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P12/Fase-4_Sincronizacao/JSON_Pilares/P12.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P12/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P13/Fase-4_Sincronizacao/JSON_Pilares/P13.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P13/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P14/Fase-4_Sincronizacao/JSON_Pilares/P14.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P14/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P15/Fase-4_Sincronizacao/JSON_Pilares/P15.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P15/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P16/Fase-4_Sincronizacao/JSON_Pilares/P16.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P16/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P17/Fase-4_Sincronizacao/JSON_Pilares/P17.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P17/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P18/Fase-4_Sincronizacao/JSON_Pilares/P18.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P18/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P19/Fase-4_Sincronizacao/JSON_Pilares/P19.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P19/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P2/Fase-4_Sincronizacao/JSON_Pilares/P2.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P2/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P20/Fase-4_Sincronizacao/JSON_Pilares/P20.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P20/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P21/Fase-4_Sincronizacao/JSON_Pilares/P21.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P21/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P22/Fase-4_Sincronizacao/JSON_Pilares/P22.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P22/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P23/Fase-4_Sincronizacao/JSON_Pilares/P23.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P23/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P24/Fase-4_Sincronizacao/JSON_Pilares/P24.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P24/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P25/Fase-4_Sincronizacao/JSON_Pilares/P25.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P25/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P26/Fase-4_Sincronizacao/JSON_Pilares/P26.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P26/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P27/Fase-4_Sincronizacao/JSON_Pilares/P27.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P27/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P28/Fase-4_Sincronizacao/JSON_Pilares/P28.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P28/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P29/Fase-4_Sincronizacao/JSON_Pilares/P29.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P29/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P3/Fase-4_Sincronizacao/JSON_Pilares/P3.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P3/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P30/Fase-4_Sincronizacao/JSON_Pilares/P30.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P30/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P31/Fase-4_Sincronizacao/JSON_Pilares/P31.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P31/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P32/Fase-4_Sincronizacao/JSON_Pilares/P32.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P32/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P33/Fase-4_Sincronizacao/JSON_Pilares/P33.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P33/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P34/Fase-4_Sincronizacao/JSON_Pilares/P34.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P34/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P35/Fase-4_Sincronizacao/JSON_Pilares/P35.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P35/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P4/Fase-4_Sincronizacao/JSON_Pilares/P4.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P4/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P5/Fase-4_Sincronizacao/JSON_Pilares/P5.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P5/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P6/Fase-4_Sincronizacao/JSON_Pilares/P6.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P6/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P7/Fase-4_Sincronizacao/JSON_Pilares/P7.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P7/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P8/Fase-4_Sincronizacao/JSON_Pilares/P8.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P8/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P9/Fase-4_Sincronizacao/JSON_Pilares/P9.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P9/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P10/Fase-4_Sincronizacao/JSON_Pilares/P10.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P10/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P11/Fase-4_Sincronizacao/JSON_Pilares/P11.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P11/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P12/Fase-4_Sincronizacao/JSON_Pilares/P12.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P12/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P14/Fase-4_Sincronizacao/JSON_Pilares/P14.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P14/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P16/Fase-4_Sincronizacao/JSON_Pilares/P16.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P16/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P17/Fase-4_Sincronizacao/JSON_Pilares/P17.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P17/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P18/Fase-4_Sincronizacao/JSON_Pilares/P18.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P18/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P19/Fase-4_Sincronizacao/JSON_Pilares/P19.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P19/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P20/Fase-4_Sincronizacao/JSON_Pilares/P20.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P20/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P21/Fase-4_Sincronizacao/JSON_Pilares/P21.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P21/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P22/Fase-4_Sincronizacao/JSON_Pilares/P22.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P22/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P23/Fase-4_Sincronizacao/JSON_Pilares/P23.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P23/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P24/Fase-4_Sincronizacao/JSON_Pilares/P24.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P24/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P25/Fase-4_Sincronizacao/JSON_Pilares/P25.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P25/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P26/Fase-4_Sincronizacao/JSON_Pilares/P26.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P26/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P27/Fase-4_Sincronizacao/JSON_Pilares/P27.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P27/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P28/Fase-4_Sincronizacao/JSON_Pilares/P28.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P28/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P29/Fase-4_Sincronizacao/JSON_Pilares/P29.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P29/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P30/Fase-4_Sincronizacao/JSON_Pilares/P30.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P30/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P31/Fase-4_Sincronizacao/JSON_Pilares/P31.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P31/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P32/Fase-4_Sincronizacao/JSON_Pilares/P32.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P32/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P33/Fase-4_Sincronizacao/JSON_Pilares/P33.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P33/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P34/Fase-4_Sincronizacao/JSON_Pilares/P34.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P34/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P35/Fase-4_Sincronizacao/JSON_Pilares/P35.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P35/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P43/Fase-4_Sincronizacao/JSON_Pilares/P43.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P43/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P47/Fase-4_Sincronizacao/JSON_Pilares/P47.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P47/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P49/Fase-4_Sincronizacao/JSON_Pilares/P49.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P49/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P1/Fase-4_Sincronizacao/JSON_Pilares/P1.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P1/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P10/Fase-4_Sincronizacao/JSON_Pilares/P10.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P10/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P11/Fase-4_Sincronizacao/JSON_Pilares/P11.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P11/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P12/Fase-4_Sincronizacao/JSON_Pilares/P12.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P12/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P13/Fase-4_Sincronizacao/JSON_Pilares/P13.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P13/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P14/Fase-4_Sincronizacao/JSON_Pilares/P14.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P14/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P15/Fase-4_Sincronizacao/JSON_Pilares/P15.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P15/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P16/Fase-4_Sincronizacao/JSON_Pilares/P16.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P16/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P17/Fase-4_Sincronizacao/JSON_Pilares/P17.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P17/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P18/Fase-4_Sincronizacao/JSON_Pilares/P18.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P18/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P19/Fase-4_Sincronizacao/JSON_Pilares/P19.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P19/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P2/Fase-4_Sincronizacao/JSON_Pilares/P2.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P2/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P20/Fase-4_Sincronizacao/JSON_Pilares/P20.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P20/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P21/Fase-4_Sincronizacao/JSON_Pilares/P21.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P21/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P22/Fase-4_Sincronizacao/JSON_Pilares/P22.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P22/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P23/Fase-4_Sincronizacao/JSON_Pilares/P23.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P23/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P24/Fase-4_Sincronizacao/JSON_Pilares/P24.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P24/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P25/Fase-4_Sincronizacao/JSON_Pilares/P25.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P25/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P26/Fase-4_Sincronizacao/JSON_Pilares/P26.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P26/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P27/Fase-4_Sincronizacao/JSON_Pilares/P27.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P27/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P28/Fase-4_Sincronizacao/JSON_Pilares/P28.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P28/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P29/Fase-4_Sincronizacao/JSON_Pilares/P29.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P29/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P3/Fase-4_Sincronizacao/JSON_Pilares/P3.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P3/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P30/Fase-4_Sincronizacao/JSON_Pilares/P30.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P30/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P31/Fase-4_Sincronizacao/JSON_Pilares/P31.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P31/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P32/Fase-4_Sincronizacao/JSON_Pilares/P32.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P32/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P33/Fase-4_Sincronizacao/JSON_Pilares/P33.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P33/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P34/Fase-4_Sincronizacao/JSON_Pilares/P34.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P34/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P35/Fase-4_Sincronizacao/JSON_Pilares/P35.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P35/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P4/Fase-4_Sincronizacao/JSON_Pilares/P4.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P4/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P5/Fase-4_Sincronizacao/JSON_Pilares/P5.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P5/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P6/Fase-4_Sincronizacao/JSON_Pilares/P6.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P6/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P7/Fase-4_Sincronizacao/JSON_Pilares/P7.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P7/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P8/Fase-4_Sincronizacao/JSON_Pilares/P8.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P8/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P9/Fase-4_Sincronizacao/JSON_Pilares/P9.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P9/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P10/Fase-4_Sincronizacao/JSON_Pilares/P10.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P10/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P11/Fase-4_Sincronizacao/JSON_Pilares/P11.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P11/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P12/Fase-4_Sincronizacao/JSON_Pilares/P12.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P12/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P14/Fase-4_Sincronizacao/JSON_Pilares/P14.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P14/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P16/Fase-4_Sincronizacao/JSON_Pilares/P16.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P16/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P17/Fase-4_Sincronizacao/JSON_Pilares/P17.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P17/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P18/Fase-4_Sincronizacao/JSON_Pilares/P18.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P18/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P19/Fase-4_Sincronizacao/JSON_Pilares/P19.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P19/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P20/Fase-4_Sincronizacao/JSON_Pilares/P20.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P20/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P21/Fase-4_Sincronizacao/JSON_Pilares/P21.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P21/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P22/Fase-4_Sincronizacao/JSON_Pilares/P22.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P22/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P23/Fase-4_Sincronizacao/JSON_Pilares/P23.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P23/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P24/Fase-4_Sincronizacao/JSON_Pilares/P24.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P24/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P25/Fase-4_Sincronizacao/JSON_Pilares/P25.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P25/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P26/Fase-4_Sincronizacao/JSON_Pilares/P26.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P26/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P27/Fase-4_Sincronizacao/JSON_Pilares/P27.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P27/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P28/Fase-4_Sincronizacao/JSON_Pilares/P28.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P28/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P29/Fase-4_Sincronizacao/JSON_Pilares/P29.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P29/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P30/Fase-4_Sincronizacao/JSON_Pilares/P30.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P30/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P31/Fase-4_Sincronizacao/JSON_Pilares/P31.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P31/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P32/Fase-4_Sincronizacao/JSON_Pilares/P32.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P32/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P33/Fase-4_Sincronizacao/JSON_Pilares/P33.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P33/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P34/Fase-4_Sincronizacao/JSON_Pilares/P34.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P34/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P35/Fase-4_Sincronizacao/JSON_Pilares/P35.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P35/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P43/Fase-4_Sincronizacao/JSON_Pilares/P43.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P43/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P46/Fase-4_Sincronizacao/JSON_Pilares/P46.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P46/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P47/Fase-4_Sincronizacao/JSON_Pilares/P47.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P47/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P49/Fase-4_Sincronizacao/JSON_Pilares/P49.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P49/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P51/Fase-4_Sincronizacao/JSON_Pilares/P51.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P51/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P101/Fase-4_Sincronizacao/JSON_Pilares/P101.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P101/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P102/Fase-4_Sincronizacao/JSON_Pilares/P102.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P102/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P103/Fase-4_Sincronizacao/JSON_Pilares/P103.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P103/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P11/Fase-4_Sincronizacao/JSON_Pilares/P11.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P11/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P12/Fase-4_Sincronizacao/JSON_Pilares/P12.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P12/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P13/Fase-4_Sincronizacao/JSON_Pilares/P13.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P13/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P15/Fase-4_Sincronizacao/JSON_Pilares/P15.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P15/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P16/Fase-4_Sincronizacao/JSON_Pilares/P16.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P16/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P17/Fase-4_Sincronizacao/JSON_Pilares/P17.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P17/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P18/Fase-4_Sincronizacao/JSON_Pilares/P18.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P18/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P19/Fase-4_Sincronizacao/JSON_Pilares/P19.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P19/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P20/Fase-4_Sincronizacao/JSON_Pilares/P20.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P20/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P21/Fase-4_Sincronizacao/JSON_Pilares/P21.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P21/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P23/Fase-4_Sincronizacao/JSON_Pilares/P23.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P23/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P24/Fase-4_Sincronizacao/JSON_Pilares/P24.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P24/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P26/Fase-4_Sincronizacao/JSON_Pilares/P26.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P26/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P27/Fase-4_Sincronizacao/JSON_Pilares/P27.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P27/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P28/Fase-4_Sincronizacao/JSON_Pilares/P28.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P28/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P29/Fase-4_Sincronizacao/JSON_Pilares/P29.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P29/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P30/Fase-4_Sincronizacao/JSON_Pilares/P30.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P30/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P31/Fase-4_Sincronizacao/JSON_Pilares/P31.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P31/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P32/Fase-4_Sincronizacao/JSON_Pilares/P32.json
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P32/Fase-6_Execucao_CAD/PL_stog_quality.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/grades_n4_detail.png
+ M Agente-cad-PYSIDE-Restored-main/scripts/gerar_lj_dxf_stog.py
+ M Agente-cad-PYSIDE-Restored-main/scripts/gerar_pl_dxf_stog.py
+ M Agente-cad-PYSIDE-Restored-main/scripts/motor_reverso_laj.py
+ M Agente-cad-PYSIDE-Restored-main/src/core/beam_tracer.py
+ M Agente-cad-PYSIDE-Restored-main/src/core/preficha_segments.py
+ M Agente-cad-PYSIDE-Restored-main/src/core/slab_tracer.py
+ M Agente-cad-PYSIDE-Restored-main/src/ui/modules/comparison_engine.py
+ M Agente-cad-PYSIDE-Restored-main/src/ui/widgets/preficha_lateral_html.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_diagnostico_fv_n1_n2.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_gerar_lj_dxf_stog.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_laj_visual_reference_contract.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_motor_reverso_laj_dynamic_layers.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_preficha_lateral_html.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_preficha_segments.py
+ M Agente-cad-PYSIDE-Restored-main/tests/test_slab_tracer_overlap_guard.py
+ M Agente-cad-PYSIDE-Restored-main/vector_memory/chroma.sqlite3
+ M ce_debug.log
+?? Agente-cad-PYSIDE-Restored-main/.pytest-tmp-codex-20260705-2335/
+?? Agente-cad-PYSIDE-Restored-main/.pytest-tmp-codex-20260706-0005/
+?? Agente-cad-PYSIDE-Restored-main/.pytest-tmp-codex-20260706-0115/
+?? "Agente-cad-PYSIDE-Restored-main/DADOS-OBRAS/Obra X/"
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P18/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P26/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/12_PAV/PIL/P27/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P26/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P27/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P43/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P47/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/14_PAV/PIL/P49/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P15/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P2/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/1_PAV/PIL/P23/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P15/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P23/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P26/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/2_PAV/PIL/P27/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/COBERTURA/PIL/P25/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P23/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P26/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P27/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P28/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P29/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P30/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P31/
+?? Agente-cad-PYSIDE-Restored-main/GOLDEN/Obra_TREINO_1/TERREO/PIL/P32/
+?? Agente-cad-PYSIDE-Restored-main/config/pl_grade_visual_profiles.json
+?? Agente-cad-PYSIDE-Restored-main/docs/ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_171514/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_172028/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_173234/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_173810/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_174548/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_175048/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_175635/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_180130/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_180921/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_181419/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_182126/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_182638/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_183226/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_183742/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_184348/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_184906/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_185505/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_190022/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_190629/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_191153/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_191753/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_192302/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_231306/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_231632/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_232035/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_232845/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_233751/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_234124/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_234552/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260705_235357/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_182056/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_182235/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_182351/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_182424/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_183443/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_184019/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_184252/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_184440/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_184748/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_194537/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_194952/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_195356/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_195714/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_200130/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_200538/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_200812/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213157/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213305/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213350/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213407/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213548/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213600/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_213717/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_214228/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_214623/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_215126/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_215627/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260705_215925/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_171514/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_172028/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_173234/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_173810/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_174548/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_175048/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_175635/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_180130/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_180921/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_181419/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_182126/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_182638/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_183226/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_183742/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_184348/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_184906/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_185505/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_190022/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_190629/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_191153/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_191753/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_192302/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_232035/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_232845/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_fv/Obra_TREINO_1/13_PAV/20260705_234552/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_171514/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_172028/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_173234/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_173810/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_174548/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_175048/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_175635/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_180130/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_180921/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_181419/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_182126/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_182638/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_183226/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_183742/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_184348/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_184906/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_185505/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_190022/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_190629/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_191153/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_191753/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_192302/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_232035/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_232845/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_laj/Obra_TREINO_1/13_PAV/20260705_234552/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_171514/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_172028/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_173234/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_173810/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_174548/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_175048/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_175635/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_180130/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_180921/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_181419/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_182126/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_182638/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_183226/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_183742/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_184348/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_184906/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_185505/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_190022/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_190629/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_191153/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_191753/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_192302/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_232035/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_232845/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260705_234552/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_171514/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_172028/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_173234/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_173810/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_174548/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_175048/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_175635/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_180130/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_180921/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_181419/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_182126/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_182638/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_183226/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_183742/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_184348/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_184906/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_185505/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_190022/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_190629/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_191153/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_191753/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_192302/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_231306/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_231632/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_232035/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_232845/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/diagnosticos_pil/Obra_TREINO_1/13_PAV/20260705_234552/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_182248/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_182308/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_182537/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_183835/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_184034/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_184127/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_184306/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_184530/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_194000/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_212922/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_213313/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_213651/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_231019/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_231027/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_231943/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/20260705_234454/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/interpretacao_grades_6_casos_preview.png
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/interpretacao_grades_ajustes_dono.png
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/interpretacao_grades_modos_cotagem_10_casos.png
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/regressao_grades_config_20260705/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/triagem_erros/Obra_TREINO_1_13_PAV_fv_contaminacao_validacao.jsonl
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/verificacao_segmentos_fv/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L301/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L301/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L302/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L302/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L303/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L303/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L304/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L304/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L305/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L305/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L306/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L306/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L307/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L307/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L308/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L308/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L309/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L309/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L310/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L310/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L311/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L311/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L312/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L312/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L313/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L313/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L314/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L314/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L315/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L315/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L316/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L316/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L317/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L317/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L318/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L318/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L319/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L319/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L320/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L320/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a852f8871c5f351b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L320/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L321/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L321/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a852f8871c5f351b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L321/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L322/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L322/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L323/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L323/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L324/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L324/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L325/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L325/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L326/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L326/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a852f8871c5f351b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L326/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L327/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L327/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L328/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L328/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L329/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L329/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L330/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L330/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L331/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/a846f6f1ef355920/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/LAJ_13_PAV_L331/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_LJ_N3_N4/b76217a2a7b6695b/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P1/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P10/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P11/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P12/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P13/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P14/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P15/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P16/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P17/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P18/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P19/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P2/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P20/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P21/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P22/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P23/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P24/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P25/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P26/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P27/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P28/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P29/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P3/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P30/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P31/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P32/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P33/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P34/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P35/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P4/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P5/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P6/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P7/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P8/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_12_PAV_P9/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P1/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P1/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P10/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P10/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P11/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P11/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P12/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P12/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P13/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P13/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P14/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P14/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P15/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P15/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P16/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P16/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P17/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P17/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P18/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P18/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P19/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P19/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P2/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P2/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P20/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P20/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P21/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P21/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P22/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P22/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P23/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P23/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P24/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P24/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P25/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P25/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P26/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P26/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P27/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P27/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P28/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P28/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P29/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P29/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P3/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P3/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P30/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P30/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P31/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P31/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P32/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P32/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P33/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P33/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P34/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P34/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P35/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P35/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P4/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P4/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P5/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P5/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P6/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P6/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P7/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P7/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P8/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P8/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P9/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/353dc54a24eebb29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_13_PAV_P9/Fase-6_Execucao_CAD/.motor_versions/runs/ROBOT_PL_N3_N4/5e0ecf9b3f5ef77a/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P10/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P11/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P12/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P14/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P16/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P17/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P18/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P19/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P20/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P21/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P22/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P23/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P24/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P25/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P26/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P27/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P28/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P29/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P30/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P31/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P32/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P33/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P34/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P35/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P43/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P47/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_14_PAV_P49/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P1/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P101/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P102/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P103/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P11/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P12/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P13/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P15/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P16/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P17/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P18/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P19/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P2/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P20/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P21/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P23/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P24/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P25/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P26/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P27/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P28/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P29/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P3/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P30/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P31/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P32/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P33/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P34/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P35/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P4/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P5/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P6/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P61/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P62/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P7/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P8/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_1_PAV_P9/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P1/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P10/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P11/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P12/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P13/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P14/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P15/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P16/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P17/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P18/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P19/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P2/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P20/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P21/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P22/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P23/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P24/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P25/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P26/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P27/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P28/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P29/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P3/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P30/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P31/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P32/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P33/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P34/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P35/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P4/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P5/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P6/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P7/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P8/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_2_PAV_P9/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P10/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P11/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P12/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P14/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P16/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P17/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P18/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P19/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P20/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P21/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P22/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P23/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P24/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P25/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P26/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P27/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P28/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P29/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P30/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P31/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P32/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P33/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P34/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P35/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P43/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P46/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P47/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P49/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_COBERTURA_P51/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P101/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P102/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P103/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P11/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P12/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P13/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P15/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P16/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P17/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P18/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P19/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P20/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P21/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P23/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P24/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P26/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P27/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P28/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P29/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P30/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P31/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_TERREO_P32/Fase-6_Execucao_CAD/.motor_versions/
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/grades_abcd_cima_p1_p28_preview.png
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/grades_ini_nova_config_visual.png
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/pl_grade_config_dialog.png
+?? Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/sa_n3_nova_k3v5xjzc/
+?? Agente-cad-PYSIDE-Restored-main/scripts/pl_grade_visual_config.py
+?? Agente-cad-PYSIDE-Restored-main/src/core/beam_interpreters/
+?? Agente-cad-PYSIDE-Restored-main/tests/test_beam_interpreters_architecture.py
+?? Agente-cad-PYSIDE-Restored-main/tests/test_pl_grade_visual_config.py

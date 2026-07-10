@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portal",
+      "runtimeExecutable": "C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe",
+      "runtimeArgs": ["portal/run_dev.py"],
+      "port": 21380
+    }
+  ]
+}

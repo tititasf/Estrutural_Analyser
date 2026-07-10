@@ -1,0 +1,2251 @@
+2026-06-11 23:20:36 [info] [cleanupVMBundleIfUnsupported] yukonSilver not supported (status=unsupported), checking for stale bundle...
+2026-06-11 23:24:54 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-11 23:24:54 [info] [VM] Module loaded successfully
+2026-06-12 01:03:04 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:03:04 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-12 01:03:04 [info] [VM] Module loaded successfully
+2026-06-12 01:03:04 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:03:04 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:03:04 [info] [Bundle:status] vmlinuz missing
+2026-06-12 01:03:04 [info] [Bundle:status] initrd missing
+2026-06-12 01:03:22 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:03:22 [warn] [downloadVM] Insufficient disk space: have 13.7 GB, need 16.1 GB
+2026-06-12 01:03:22 [error] [download] VM download failed: Insufficient disk space for Cowork VM install
+2026-06-12 01:03:28 [info] [KernelBugMonitor] State reset
+2026-06-12 01:03:28 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:03:28 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:03:28 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:03:28 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:03:28 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:03:28 [warn] [downloadVM] Insufficient disk space: have 13.7 GB, need 16.1 GB
+2026-06-12 01:03:28 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:03:28 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:03:28 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:03:47 [info] [KernelBugMonitor] State reset
+2026-06-12 01:03:47 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:03:47 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:03:47 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:03:47 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:03:47 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:03:47 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:03:47 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:03:47 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:03:47 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:04:22 [info] [KernelBugMonitor] State reset
+2026-06-12 01:04:22 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:04:22 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:04:22 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:04:22 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:04:22 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:04:22 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:04:22 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:04:22 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:04:22 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:05:16 [info] [KernelBugMonitor] State reset
+2026-06-12 01:05:16 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:05:16 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:05:16 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:05:16 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:05:16 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:05:16 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:05:16 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:05:16 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:05:16 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:05:58 [info] [KernelBugMonitor] State reset
+2026-06-12 01:05:58 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:05:58 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:05:58 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:05:58 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:05:58 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:05:58 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:05:58 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:05:58 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:05:58 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:06:59 [info] [KernelBugMonitor] State reset
+2026-06-12 01:06:59 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:06:59 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:06:59 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:06:59 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:06:59 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:06:59 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:06:59 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:06:59 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:06:59 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:07:05 [info] [KernelBugMonitor] State reset
+2026-06-12 01:07:05 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:07:05 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:07:05 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:07:05 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:07:05 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:07:05 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:07:05 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:07:05 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:07:05 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:08:34 [info] [KernelBugMonitor] State reset
+2026-06-12 01:08:34 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:08:34 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:08:34 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:08:34 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:08:34 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:08:34 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:08:34 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:08:34 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:08:34 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:09:24 [info] [KernelBugMonitor] State reset
+2026-06-12 01:09:24 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:09:24 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:09:24 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:09:24 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:09:24 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:09:24 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:09:24 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:09:24 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:09:24 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:09:28 [info] [KernelBugMonitor] State reset
+2026-06-12 01:09:28 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:09:28 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:09:28 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:09:28 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:09:28 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:09:28 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:09:28 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:09:28 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:09:28 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:10:58 [info] [KernelBugMonitor] State reset
+2026-06-12 01:10:58 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:10:58 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:10:58 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:10:58 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:10:58 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:10:58 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:10:58 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:10:58 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:10:58 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:10:58 [info] [KernelBugMonitor] State reset
+2026-06-12 01:10:58 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:10:58 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:10:58 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:10:58 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:10:58 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:10:58 [warn] [downloadVM] Insufficient disk space: have 13.5 GB, need 16.1 GB
+2026-06-12 01:10:58 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:10:58 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:10:58 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:12:09 [info] [KernelBugMonitor] State reset
+2026-06-12 01:12:09 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:12:09 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:12:09 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:12:09 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:12:09 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:12:09 [warn] [downloadVM] Insufficient disk space: have 13.4 GB, need 16.1 GB
+2026-06-12 01:12:09 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:12:09 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:12:09 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:15:32 [info] [KernelBugMonitor] State reset
+2026-06-12 01:15:32 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:15:32 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:15:32 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:15:32 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:15:32 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:15:32 [warn] [downloadVM] Insufficient disk space: have 14.9 GB, need 16.1 GB
+2026-06-12 01:15:32 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:15:32 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:15:32 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 01:17:05 [info] [KernelBugMonitor] State reset
+2026-06-12 01:17:05 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 01:17:05 [info] [VM:start] Bundle version: <blob>
+2026-06-12 01:17:05 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 01:17:05 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 01:17:05 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 01:17:05 [warn] [downloadVM] Insufficient disk space: have 14.9 GB, need 16.1 GB
+2026-06-12 01:17:05 [error] [VM:start] Startup failed: Error: Insufficient disk space for Cowork VM install
+    at aVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:536:12526)
+    at async Promise.all (index 0)
+    at async fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:1836)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'Insufficient disk space for Cowork VM install',
+  code: 'ENOSPC'
+}
+2026-06-12 01:17:05 [warn] [VM:start] Startup failed: disk full (ENOSPC). Leaving VM offline.
+2026-06-12 01:17:05 [info] Dispatching startup error: Not enough disk space to set up the workspace. Free up space and try again.
+2026-06-12 02:10:51 [info] [KernelBugMonitor] State reset
+2026-06-12 02:10:51 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 02:10:51 [info] [VM:start] Bundle version: <blob>
+2026-06-12 02:10:51 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 02:10:51 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 02:10:51 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 02:10:51 [info] [Bundle:status] rootfs.vhdx missing
+2026-06-12 02:10:51 [info] [warm] No warm file found for rootfs.vhdx at current version
+2026-06-12 02:10:51 [info] [cache] No cached compressed file for rootfs.vhdx
+2026-06-12 02:10:51 [info] rootfs.vhdx not found, downloading...
+2026-06-12 02:10:51 [info] Downloading rootfs.vhdx...
+2026-06-12 02:11:19 [info] [startVM] VM startup already in progress, waiting...
+2026-06-12 02:11:55 [info] [startVM] VM startup already in progress, waiting...
+2026-06-12 02:14:50 [info] rootfs.vhdx.zst checksum validated
+2026-06-12 02:14:50 [info] [downloadVM] Saved compressed rootfs.vhdx to cache
+2026-06-12 02:14:50 [info] [Bundle:status] vmlinuz missing
+2026-06-12 02:14:50 [info] [warm] No warm file found for vmlinuz at current version
+2026-06-12 02:14:50 [info] [cache] No cached compressed file for vmlinuz
+2026-06-12 02:14:50 [info] vmlinuz not found, downloading...
+2026-06-12 02:14:50 [info] Downloading vmlinuz...
+2026-06-12 02:14:51 [info] vmlinuz.zst checksum validated
+2026-06-12 02:14:51 [info] [downloadVM] Saved compressed vmlinuz to cache
+2026-06-12 02:14:51 [info] [Bundle:status] initrd missing
+2026-06-12 02:14:51 [info] [warm] No warm file found for initrd at current version
+2026-06-12 02:14:51 [info] [cache] No cached compressed file for initrd
+2026-06-12 02:14:51 [info] initrd not found, downloading...
+2026-06-12 02:14:51 [info] Downloading initrd...
+2026-06-12 02:15:01 [info] initrd.zst checksum validated
+2026-06-12 02:15:01 [info] [downloadVM] Saved compressed initrd to cache
+2026-06-12 02:15:01 [info] All files ready in <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 02:15:01 [info] [VM:steps] download_and_sdk_prepare completed (249617ms)
+2026-06-12 02:15:01 [info] [VM:steps] load_swift_api started
+2026-06-12 02:15:01 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-12 02:15:01 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-12 02:15:10 [info] [Callbacks] VM event callbacks initialized
+2026-06-12 02:15:10 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-12 02:15:10 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-12 02:15:10 [info] [VM:start] Configuring Windows VM service...
+2026-06-12 02:15:14 [info] [VM:start] Windows VM service configured
+2026-06-12 02:15:14 [info] [VM:steps] create_network started
+2026-06-12 02:15:14 [info] [VM:steps] create_network completed (714ms)
+2026-06-12 02:15:14 [info] [VM:steps] create_vm_config started
+2026-06-12 02:15:34 [error] [VM:start] VM boot failed: HCS operation failed: failed to create compute system: HcsWaitForOperationResult failed with HRESULT 0x80370102: {"Error":-2143878910,"ErrorMessage":"Não foi possível iniciar a máquina virtual porque um recurso necessário não foi instalado.","ErrorEvents":[{"Message":"Não é possível criar o sistema 'cowork-vm-c3d1aa7a' porque o Hyper-V não está instalado no host.","Provider":"17103e3f-3c6e-4677-bb17-3b267eb5be57","EventId":11008,"Data":[{"Type":"String","Value":"cowork-vm-c3d1aa7a"},{"Type":"String","Value":"%%2151088386"},{"Type":"String","Value":"0x80370102"}]}]}
+2026-06-12 02:15:34 [error] [VM:start] HCS error detected, available=true, missing=[], sentinel=HYPERVISOR_VIRT_DISABLED
+2026-06-12 02:15:34 [info] Dispatching startup error: HYPERVISOR_VIRT_DISABLED
+2026-06-12 02:15:34 [error] [VM:start] Startup failed: Error: HYPERVISOR_VIRT_DISABLED
+    at fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:4657) {
+  [stack]: [Getter/Setter],
+  [message]: 'HYPERVISOR_VIRT_DISABLED'
+}
+2026-06-12 02:15:34 [warn] [VM:start] Heartbeat restart failed, leaving VM offline (will retry on next app launch)
+2026-06-12 02:39:08 [info] [KernelBugMonitor] State reset
+2026-06-12 02:39:08 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 02:39:08 [info] [VM:start] Bundle version: <blob>
+2026-06-12 02:39:08 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 02:39:08 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 02:39:08 [info] [VM:steps] download_and_sdk_prepare completed (2ms)
+2026-06-12 02:39:08 [info] [VM:steps] load_swift_api started
+2026-06-12 02:39:08 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-12 02:39:08 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-12 02:39:08 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-12 02:39:08 [info] [VM:start] Configuring Windows VM service...
+2026-06-12 02:39:08 [info] [VM:start] Windows VM service configured
+2026-06-12 02:39:08 [info] [VM:steps] create_network started
+2026-06-12 02:39:08 [info] [VM:steps] create_network completed (0ms)
+2026-06-12 02:39:08 [info] [VM:steps] create_vm_config started
+2026-06-12 02:39:08 [error] [VM:start] VM boot failed: HCS operation failed: failed to create compute system: HcsWaitForOperationResult failed with HRESULT 0x80370102: {"Error":-2143878910,"ErrorMessage":"Não foi possível iniciar a máquina virtual porque um recurso necessário não foi instalado.","ErrorEvents":[{"Message":"Não é possível criar o sistema 'cowork-vm-c3d1aa7a' porque o Hyper-V não está instalado no host.","Provider":"17103e3f-3c6e-4677-bb17-3b267eb5be57","EventId":11008,"Data":[{"Type":"String","Value":"cowork-vm-c3d1aa7a"},{"Type":"String","Value":"%%2151088386"},{"Type":"String","Value":"0x80370102"}]}]}
+2026-06-12 02:39:08 [error] [VM:start] HCS error detected, available=true, missing=[], sentinel=HYPERVISOR_VIRT_DISABLED
+2026-06-12 02:39:08 [info] Dispatching startup error: HYPERVISOR_VIRT_DISABLED
+2026-06-12 02:39:08 [error] [VM:start] Startup failed: Error: HYPERVISOR_VIRT_DISABLED
+    at fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:4657) {
+  [stack]: [Getter/Setter],
+  [message]: 'HYPERVISOR_VIRT_DISABLED'
+}
+2026-06-12 02:39:08 [warn] [VM:start] Heartbeat restart failed, leaving VM offline (will retry on next app launch)
+2026-06-12 02:58:15 [info] [KernelBugMonitor] State reset
+2026-06-12 02:58:15 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 02:58:15 [info] [VM:start] Bundle version: <blob>
+2026-06-12 02:58:15 [info] [VM:start] VM instance ID: 96e73039-92f7-4467-8198-40a24ec52f61
+2026-06-12 02:58:15 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 02:58:15 [info] [VM:steps] download_and_sdk_prepare completed (2ms)
+2026-06-12 02:58:15 [info] [VM:steps] load_swift_api started
+2026-06-12 02:58:15 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-12 02:58:15 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-12 02:58:15 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-12 02:58:15 [info] [VM:start] Configuring Windows VM service...
+2026-06-12 02:58:15 [info] [VM:start] Windows VM service configured
+2026-06-12 02:58:15 [info] [VM:steps] create_network started
+2026-06-12 02:58:15 [info] [VM:steps] create_network completed (0ms)
+2026-06-12 02:58:15 [info] [VM:steps] create_vm_config started
+2026-06-12 02:58:15 [error] [VM:start] VM boot failed: HCS operation failed: failed to create compute system: HcsWaitForOperationResult failed with HRESULT 0x80370102: {"Error":-2143878910,"ErrorMessage":"Não foi possível iniciar a máquina virtual porque um recurso necessário não foi instalado.","ErrorEvents":[{"Message":"Não é possível criar o sistema 'cowork-vm-c3d1aa7a' porque o Hyper-V não está instalado no host.","Provider":"17103e3f-3c6e-4677-bb17-3b267eb5be57","EventId":11008,"Data":[{"Type":"String","Value":"cowork-vm-c3d1aa7a"},{"Type":"String","Value":"%%2151088386"},{"Type":"String","Value":"0x80370102"}]}]}
+2026-06-12 02:58:15 [error] [VM:start] HCS error detected, available=true, missing=[], sentinel=HYPERVISOR_VIRT_DISABLED
+2026-06-12 02:58:15 [info] Dispatching startup error: HYPERVISOR_VIRT_DISABLED
+2026-06-12 02:58:15 [error] [VM:start] Startup failed: Error: HYPERVISOR_VIRT_DISABLED
+    at fVr (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:539:4657)
+    at async Object.startVM (<drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:3635:9177)
+    at async <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\app.asar\.vite\build\index.js:41:554766
+    at async Session.<anonymous> (node:electron/js2c/browser_init:2:114068) {
+  [stack]: [Getter/Setter],
+  [message]: 'HYPERVISOR_VIRT_DISABLED'
+}
+2026-06-12 02:58:15 [warn] [VM:start] Heartbeat restart failed, leaving VM offline (will retry on next app launch)
+2026-06-12 03:15:15 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-12 03:15:15 [info] [VM] Module loaded successfully
+2026-06-12 03:15:16 [info] [KernelBugMonitor] State reset
+2026-06-12 03:15:16 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-12 03:15:16 [info] [VM:start] Bundle version: <blob>
+2026-06-12 03:15:16 [info] [VM:start] VM instance ID: a86ce70e-d40b-4ab1-af19-5e62edf41568
+2026-06-12 03:15:16 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-12 03:15:17 [info] [VM:steps] download_and_sdk_prepare completed (3ms)
+2026-06-12 03:15:17 [info] [VM:steps] load_swift_api started
+2026-06-12 03:15:17 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-12 03:15:17 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-12 03:15:18 [info] [Callbacks] VM event callbacks initialized
+2026-06-12 03:15:18 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-12 03:15:18 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-12 03:15:18 [info] [VM:start] Configuring Windows VM service...
+2026-06-12 03:15:18 [info] [VM:start] Windows VM service configured
+2026-06-12 03:15:18 [info] [VM:steps] create_network started
+2026-06-12 03:15:18 [info] [VM:steps] create_network completed (0ms)
+2026-06-12 03:15:18 [info] [VM:steps] create_vm_config started
+2026-06-12 03:15:18 [info] [VM:steps] create_vm_config completed (141ms)
+2026-06-12 03:15:18 [info] [VM:steps] vm_boot started
+2026-06-12 03:15:19 [info] [VM:steps] vm_boot completed (618ms)
+2026-06-12 03:15:19 [info] [VM:steps] add_plan9_shares started
+2026-06-12 03:15:19 [info] [VM:steps] add_plan9_shares completed (16ms)
+2026-06-12 03:15:22 [info] [startVM] VM startup already in progress, waiting...
+2026-06-12 03:15:29 [info] [VM:start] Still waiting for guest connection... 10209ms elapsed, 21 polls
+2026-06-12 03:15:32 [info] [VM] Network status: CONNECTED
+2026-06-12 03:15:32 [info] [VM:steps] sdk_install started
+2026-06-12 03:15:32 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 03:15:34 [info] [VM] API reachability: REACHABLE
+2026-06-12 03:15:39 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-12 03:15:39 [info] [VM:steps] sdk_install completed (7122ms)
+2026-06-12 03:15:39 [info] [VM:start] Startup complete, total time: 22737ms
+2026-06-12 03:16:32 [info] [startVM] VM already connected
+2026-06-12 03:16:32 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 03:16:32 [warn] [Keepalive] Already running
+2026-06-12 03:16:46 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:16:52 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:03 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:26 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:57 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:17:57 [warn] [vm-stderr oneshot-] find: cannot delete ‘./__pycache__/arete_config.cpython-310.pyc’: Operation not permitted
+2026-06-12 03:21:35 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:22:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:22:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:22:18 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+2026-06-12 03:22:18 [warn] [vm-stderr oneshot-]   File "/sessions/epic-sleepy-gauss/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/arete_config.py", line 107
+    "FV":  ["total_width", 
+           ^
+SyntaxError: '[' was never c…[truncated]
+2026-06-12 03:22:22 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:22:42 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:23:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:23:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:23:35 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:23:46 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:23:53 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:02 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:10 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:16 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:30 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:24:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:25:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:25:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:25:43 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:25:49 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:25:55 [warn] [vm-stderr oneshot-] 
+real	0m5.560s
+user	0m5.482s
+sys	0m0.136s
+2026-06-12 03:26:04 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:26:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:26:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:26:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:27:05 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:27:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:27:10 [warn] [vm-stderr oneshot-] grep: roundtrip_ficha.py: binary file matches
+2026-06-12 03:27:16 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:27:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:27:35 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:27:55 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:28:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:28:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:28:09 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+2026-06-12 03:28:09 [warn] [vm-stderr oneshot-]   File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+2026-06-12 03:28:09 [warn] [vm-stderr oneshot-]   File "<frozen importlib._bootstrap_external>", line 1017, in get_code
+2026-06-12 03:28:09 [warn] [vm-stderr oneshot-]   File "<frozen importlib._bootstrap_external>", line 947, in source_to_code
+2026-06-12 03:28:09 [warn] [vm-stderr oneshot-]   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+2026-06-12 03:28:09 [warn] [vm-stderr oneshot-] ValueError: source code string cannot contain null bytes
+2026-06-12 03:29:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:29:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:29:19 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:29:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:30:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:31:00 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:31:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:32:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:33:14 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:33:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:33:25 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 21, in <module>
+2026-06-12 03:33:25 [warn] [vm-stderr oneshot-] AttributeError: module 'pv' has no attribute 'comparar_item'
+2026-06-12 03:33:28 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:33:34 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:33:40 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:33:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:34:19 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:35:05 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:35:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:35:54 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:36:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:36:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:37:26 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:38:19 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:39:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:40:06 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:40:18 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:40:49 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:41:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:17 [warn] [vm-stderr oneshot-]   File "<string>", line 6
+    existing = set('P1
+                   ^
+SyntaxError: unterminated string literal (detected at line 6)
+2026-06-12 03:42:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:31 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 03:42:57 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:23:28 [info] [startVM] VM already connected
+2026-06-12 12:23:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 12:23:28 [warn] [Keepalive] Already running
+2026-06-12 12:23:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:23:59 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:24:02 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:24:15 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:25:00 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:25:00 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:25:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:25:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:26:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:26:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:26:47 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:27:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:28:05 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:28:05 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:28:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:28:15 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:28:22 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:28:57 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:29:30 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:30:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:30:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:30:40 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:31:11 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:31:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:31:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:31:59 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:32:39 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:33:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:33:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:33:28 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:34:08 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:34:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:35:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:35:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:35:39 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:36:25 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:36:42 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:37:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:37:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:37:30 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:38:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:38:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:39:31 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:40:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:55:19 [info] [startVM] VM already connected
+2026-06-12 12:55:19 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 12:55:19 [warn] [Keepalive] Already running
+2026-06-12 12:55:30 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 12:55:38 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:04:16 [info] [startVM] VM already connected
+2026-06-12 13:04:16 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:04:16 [warn] [Keepalive] Already running
+2026-06-12 13:16:17 [info] [startVM] VM already connected
+2026-06-12 13:16:17 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:16:17 [warn] [Keepalive] Already running
+2026-06-12 13:16:28 [info] [startVM] VM already connected
+2026-06-12 13:16:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:16:28 [warn] [Keepalive] Already running
+2026-06-12 13:20:02 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:20:11 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:20:25 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:21:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:21:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:21:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:22:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:22:32 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:22:49 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:23:25 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:23:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:23:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:23:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:23:44 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:23:50 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:24:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:24:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:24:31 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:24:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:24:57 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:25:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:25:18 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:25:30 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:26:13 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:26:22 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:26:47 [info] [startVM] VM already connected
+2026-06-12 13:26:47 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:26:47 [warn] [Keepalive] Already running
+2026-06-12 13:28:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:29:10 [info] [startVM] VM already connected
+2026-06-12 13:29:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:29:10 [warn] [Keepalive] Already running
+2026-06-12 13:29:33 [info] [startVM] VM already connected
+2026-06-12 13:29:33 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:29:33 [warn] [Keepalive] Already running
+2026-06-12 13:29:34 [info] [startVM] VM already connected
+2026-06-12 13:29:34 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:29:34 [warn] [Keepalive] Already running
+2026-06-12 13:31:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:31:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:33:01 [info] [startVM] VM already connected
+2026-06-12 13:33:01 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:33:02 [warn] [Keepalive] Already running
+2026-06-12 13:33:08 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:37:10 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:37:11 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+2026-06-12 13:37:11 [warn] [vm-stderr oneshot-] ModuleNotFoundError: No module named 'partes_pil'
+2026-06-12 13:37:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:39:32 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:37 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:39:56 [info] [startVM] VM already connected
+2026-06-12 13:39:56 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:39:56 [warn] [Keepalive] Already running
+2026-06-12 13:40:10 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:40:14 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:14 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:14 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:14 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:15 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:15 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:15 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:40:15 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-12 13:44:04 [info] [startVM] VM already connected
+2026-06-12 13:44:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:44:05 [warn] [Keepalive] Already running
+2026-06-12 13:44:49 [info] [startVM] VM already connected
+2026-06-12 13:44:49 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:44:49 [warn] [Keepalive] Already running
+2026-06-12 13:46:57 [info] [startVM] VM already connected
+2026-06-12 13:46:57 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:46:57 [warn] [Keepalive] Already running
+2026-06-12 13:49:12 [info] [startVM] VM already connected
+2026-06-12 13:49:12 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:49:12 [warn] [Keepalive] Already running
+2026-06-12 13:51:38 [info] [startVM] VM already connected
+2026-06-12 13:51:38 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:51:38 [warn] [Keepalive] Already running
+2026-06-12 13:52:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:52:28 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+2026-06-12 13:52:28 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: no such column: r.dxf_path
+2026-06-12 13:52:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:52:33 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+2026-06-12 13:52:33 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: no such column: f.nome
+2026-06-12 13:52:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:52:42 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:52:50 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:53:16 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:54:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:57:08 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:31 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:34 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:37 [warn] [vm-stderr oneshot-] ls: cannot access '/sessions/epic-sleepy-gauss/mnt/<vol>/SCRIPTS_ROBOS/P1_CIMA/Combinados/'
+2026-06-12 13:58:37 [warn] [vm-stderr oneshot-] : No such file or directory
+2026-06-12 13:58:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:41 [warn] [vm-stderr oneshot-] find: ‘/sessions/epic-sleepy-gauss/mnt/<vol>/SCRIPTS_ROBOS/Robo_Pilares/’: No such file or directory
+2026-06-12 13:58:43 [info] [startVM] VM already connected
+2026-06-12 13:58:43 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 13:58:44 [warn] [Keepalive] Already running
+2026-06-12 13:58:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:49 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:58:54 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:59:02 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:59:06 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:59:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 13:59:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:00:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:02:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:03:10 [info] [startVM] VM already connected
+2026-06-12 14:03:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 14:03:10 [warn] [Keepalive] Already running
+2026-06-12 14:04:10 [info] [startVM] VM already connected
+2026-06-12 14:04:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 14:04:10 [warn] [Keepalive] Already running
+2026-06-12 14:06:35 [info] [startVM] VM already connected
+2026-06-12 14:06:35 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 14:06:35 [warn] [Keepalive] Already running
+2026-06-12 14:08:21 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:08:22 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+2026-06-12 14:08:22 [warn] [vm-stderr oneshot-] ImportError: cannot import name 'gerar_n4' from 'gerar_n4_item' (/sessions/epic-sleepy-gauss/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/gerar_n4_item.py)
+2026-06-12 14:08:26 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:08:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:08:42 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:08:43 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 14, in <module>
+2026-06-12 14:08:43 [warn] [vm-stderr oneshot-] KeyError: 'ref'
+2026-06-12 14:09:00 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:09:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:09:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:09:36 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:09:40 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:09:54 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:10:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:10:06 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:10:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:10:24 [warn] [vm-stderr oneshot-] import-im6.q16: unable to open X server `' @ error/import.c/ImportImageCommand/346.
+2026-06-12 14:10:24 [warn] [vm-stderr oneshot-] bash: line 3: p: command not found
+2026-06-12 14:10:24 [warn] [vm-stderr oneshot-] bash: -c: line 4: syntax error near unexpected token `p'
+bash: -c: line 4: `os.remove(p) if os.path.exists(p) else None'
+2026-06-12 14:10:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:10:33 [warn] [vm-stderr oneshot-] rm:
+2026-06-12 14:10:33 [warn] [vm-stderr oneshot-] cannot remove '/sessions/epic-sleepy-gauss/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/PIL_P1/Fase-6_Execucao_CAD/PL_preview_P1.dxf'
+2026-06-12 14:10:33 [warn] [vm-stderr oneshot-] : Operation not permitted
+2026-06-12 14:10:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:10:57 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 14:11:19 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 15:32:30 [info] [startVM] VM already connected
+2026-06-12 15:32:30 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:32:30 [warn] [Keepalive] Already running
+2026-06-12 15:33:04 [info] [startVM] VM already connected
+2026-06-12 15:33:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:33:04 [warn] [Keepalive] Already running
+2026-06-12 15:34:39 [info] [startVM] VM already connected
+2026-06-12 15:34:39 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:34:39 [warn] [Keepalive] Already running
+2026-06-12 15:37:31 [info] [startVM] VM already connected
+2026-06-12 15:37:31 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:37:31 [warn] [Keepalive] Already running
+2026-06-12 15:37:32 [info] [startVM] VM already connected
+2026-06-12 15:37:32 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:37:33 [warn] [Keepalive] Already running
+2026-06-12 15:37:33 [info] [startVM] VM already connected
+2026-06-12 15:37:33 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:37:33 [warn] [Keepalive] Already running
+2026-06-12 15:37:40 [info] [startVM] VM already connected
+2026-06-12 15:37:40 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:37:40 [warn] [Keepalive] Already running
+2026-06-12 15:37:40 [info] [startVM] VM already connected
+2026-06-12 15:37:40 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:37:40 [warn] [Keepalive] Already running
+2026-06-12 15:40:33 [info] [startVM] VM already connected
+2026-06-12 15:40:33 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:40:33 [warn] [Keepalive] Already running
+2026-06-12 15:48:20 [info] [startVM] VM already connected
+2026-06-12 15:48:20 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 15:48:20 [warn] [Keepalive] Already running
+2026-06-12 17:27:15 [info] [startVM] VM already connected
+2026-06-12 17:27:15 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:27:15 [warn] [Keepalive] Already running
+2026-06-12 17:27:48 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:28:14 [info] [startVM] VM already connected
+2026-06-12 17:28:14 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:28:14 [warn] [Keepalive] Already running
+2026-06-12 17:28:17 [info] [startVM] VM already connected
+2026-06-12 17:28:17 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:28:17 [warn] [Keepalive] Already running
+2026-06-12 17:28:19 [info] [startVM] VM already connected
+2026-06-12 17:28:19 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:28:19 [warn] [Keepalive] Already running
+2026-06-12 17:28:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:28:49 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:29:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:29:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:30:03 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:30:10 [info] [startVM] VM already connected
+2026-06-12 17:30:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:30:10 [warn] [Keepalive] Already running
+2026-06-12 17:30:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:30:18 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:31:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:31:54 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:19 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:25 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:32 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:38 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:53 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:32:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:33:35 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:33:46 [info] [startVM] VM already connected
+2026-06-12 17:33:46 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:33:46 [warn] [Keepalive] Already running
+2026-06-12 17:33:48 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:34:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:34:01 [info] [startVM] VM already connected
+2026-06-12 17:34:01 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:34:01 [warn] [Keepalive] Already running
+2026-06-12 17:34:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:34:14 [info] [startVM] VM already connected
+2026-06-12 17:34:14 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:34:14 [warn] [Keepalive] Already running
+2026-06-12 17:34:34 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-12 17:34:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:34:47 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-12 17:35:03 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:35:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:35:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:35:43 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:35:48 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:36:32 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:36:46 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:37:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:37:15 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:37:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:37:34 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:38:03 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:38:09 [info] [startVM] VM already connected
+2026-06-12 17:38:09 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 17:38:10 [warn] [Keepalive] Already running
+2026-06-12 17:38:11 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:39:21 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:39:43 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:39:48 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:39:53 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:40:04 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:40:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:40:16 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:40:26 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:40:32 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:40:43 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:43:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:43:43 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:43:54 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:44:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:44:38 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:45:01 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:45:11 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:46:10 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:46:52 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:47:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:47:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:48:18 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:49:14 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:49:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:49:51 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:50:00 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:50:19 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:50:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:50:47 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:51:47 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:52:16 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:53:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:53:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:53:23 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:53:27 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:53:31 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:53:57 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:07 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:11 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:14 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:32 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:35 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:38 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:42 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:46 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:54:55 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:55:03 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:56:41 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:58:04 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 17:58:38 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:00:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:02:13 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:03:17 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:04:33 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:12:50 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:14:02 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:14:08 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:14:16 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:14:21 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:15:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:15:26 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:15:31 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:15:43 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:15:49 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:16:00 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:16:01 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+2026-06-12 18:16:01 [warn] [vm-stderr oneshot-] AttributeError: 'NoneType' object has no attribute 'items'
+2026-06-12 18:16:11 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:16:29 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:17:59 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:18:37 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:18:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:21:44 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:25:12 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:26:09 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:28:50 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:26 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:26 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+2026-06-12 18:34:26 [warn] [vm-stderr oneshot-]   File "<string>", line 6, in <module>
+2026-06-12 18:34:26 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-12 18:34:30 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:30 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+2026-06-12 18:34:30 [warn] [vm-stderr oneshot-]   File "<string>", line 7, in <module>
+2026-06-12 18:34:30 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-12 18:34:34 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:39 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:40 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+2026-06-12 18:34:40 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-12 18:34:45 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:48 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:48 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+sqlite3.OperationalError: unable to open database file
+2026-06-12 18:34:52 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:34:52 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+2026-06-12 18:34:52 [warn] [vm-stderr oneshot-]   File "<string>", line 6, in <module>
+2026-06-12 18:34:52 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-12 18:34:56 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:35:10 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:35:15 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:35:16 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+sqlite3.OperationalError: no such column: obra_id
+2026-06-12 18:35:20 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:35:24 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:36:13 [info] [startVM] VM already connected
+2026-06-12 18:36:13 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 18:36:13 [warn] [Keepalive] Already running
+2026-06-12 18:37:51 [info] [startVM] VM already connected
+2026-06-12 18:37:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 18:37:51 [warn] [Keepalive] Already running
+2026-06-12 18:38:05 [info] [startVM] VM already connected
+2026-06-12 18:38:05 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 18:38:05 [warn] [Keepalive] Already running
+2026-06-12 18:40:25 [info] [startVM] VM already connected
+2026-06-12 18:40:25 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 18:40:26 [warn] [Keepalive] Already running
+2026-06-12 18:42:13 [info] [startVM] VM already connected
+2026-06-12 18:42:13 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 18:42:13 [warn] [Keepalive] Already running
+2026-06-12 18:43:58 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:44:10 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:45:15 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 18:45:18 [info] [vmOneShot] Running: bash [2 arg(s)] as epic-sleepy-gauss
+2026-06-12 22:41:54 [info] [startVM] VM already connected
+2026-06-12 22:41:54 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 22:41:54 [warn] [Keepalive] Already running
+2026-06-12 22:41:55 [info] [startVM] VM already connected
+2026-06-12 22:41:55 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 22:41:55 [warn] [Keepalive] Already running
+2026-06-12 22:42:09 [info] [startVM] VM already connected
+2026-06-12 22:42:09 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 22:42:09 [warn] [Keepalive] Already running
+2026-06-12 23:22:17 [info] [startVM] VM already connected
+2026-06-12 23:22:17 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 23:22:17 [warn] [Keepalive] Already running
+2026-06-12 23:22:31 [info] [startVM] VM already connected
+2026-06-12 23:22:31 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 23:22:31 [warn] [Keepalive] Already running
+2026-06-12 23:22:39 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-12 23:35:18 [info] [startVM] VM already connected
+2026-06-12 23:35:18 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-12 23:35:18 [warn] [Keepalive] Already running
+2026-06-13 00:02:57 [info] [startVM] VM already connected
+2026-06-13 00:02:57 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 00:02:57 [info] [startVM] VM startup already in progress, waiting...
+2026-06-13 00:02:57 [warn] [Keepalive] Already running
+2026-06-13 00:03:02 [info] [startVM] VM already connected
+2026-06-13 00:03:02 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 00:03:02 [warn] [Keepalive] Already running
+2026-06-13 11:24:25 [info] [startVM] VM already connected
+2026-06-13 11:24:25 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 11:24:26 [warn] [Keepalive] Already running
+2026-06-13 11:24:27 [info] [startVM] VM already connected
+2026-06-13 11:24:27 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 11:24:28 [warn] [Keepalive] Already running
+2026-06-13 11:25:06 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 13:46:45 [info] [startVM] VM already connected
+2026-06-13 13:46:45 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 13:46:45 [warn] [Keepalive] Already running
+2026-06-13 14:02:39 [info] [startVM] VM already connected
+2026-06-13 14:02:39 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 14:02:39 [warn] [Keepalive] Already running
+2026-06-13 14:06:35 [info] [startVM] VM already connected
+2026-06-13 14:06:35 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 14:06:35 [warn] [Keepalive] Already running
+2026-06-13 14:10:15 [info] [startVM] VM already connected
+2026-06-13 14:10:15 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 14:10:15 [warn] [Keepalive] Already running
+2026-06-13 14:10:24 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:25 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:32 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:33 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:37 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:39 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:40 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:46 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:10:46 [warn] [vm-stderr oneshot-] grep: Unmatched ( or \(
+2026-06-13 14:10:47 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:14:01 [info] [startVM] VM already connected
+2026-06-13 14:14:01 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 14:14:01 [warn] [Keepalive] Already running
+2026-06-13 14:14:12 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:14:15 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:14:16 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:14:22 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:14:23 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 14:17:27 [info] [startVM] VM already connected
+2026-06-13 14:17:27 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 14:17:27 [warn] [Keepalive] Already running
+2026-06-13 16:00:33 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-13 16:00:33 [info] [VM] Module loaded successfully
+2026-06-13 16:00:35 [info] [KernelBugMonitor] State reset
+2026-06-13 16:00:35 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-13 16:00:35 [info] [VM:start] Bundle version: <blob>
+2026-06-13 16:00:35 [info] [VM:start] VM instance ID: 491354c8-932a-497b-8419-4d126c1e6fe9
+2026-06-13 16:00:35 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-13 16:00:35 [info] [VM:steps] download_and_sdk_prepare completed (3ms)
+2026-06-13 16:00:35 [info] [VM:steps] load_swift_api started
+2026-06-13 16:00:35 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-13 16:00:35 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-13 16:00:36 [info] [Callbacks] VM event callbacks initialized
+2026-06-13 16:00:36 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.12603.1.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-13 16:00:37 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-13 16:00:37 [info] [VM:start] Configuring Windows VM service...
+2026-06-13 16:00:37 [info] [VM:start] Windows VM service configured
+2026-06-13 16:00:37 [info] [VM:steps] create_network started
+2026-06-13 16:00:37 [info] [VM:steps] create_network completed (1ms)
+2026-06-13 16:00:37 [info] [VM:steps] create_vm_config started
+2026-06-13 16:00:37 [info] [VM:steps] create_vm_config completed (137ms)
+2026-06-13 16:00:37 [info] [VM:steps] vm_boot started
+2026-06-13 16:00:37 [info] [VM:steps] vm_boot completed (646ms)
+2026-06-13 16:00:37 [info] [VM:steps] add_plan9_shares started
+2026-06-13 16:00:37 [info] [VM:steps] add_plan9_shares completed (15ms)
+2026-06-13 16:00:45 [info] [VM] Network status: CONNECTED
+2026-06-13 16:00:45 [info] [VM:steps] sdk_install started
+2026-06-13 16:00:45 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 16:00:46 [info] [startVM] VM startup already in progress, waiting...
+2026-06-13 16:00:48 [info] [VM] API reachability: REACHABLE
+2026-06-13 16:00:48 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-13 16:00:48 [info] [VM:steps] sdk_install completed (3209ms)
+2026-06-13 16:00:48 [info] [VM:start] Startup complete, total time: 13129ms
+2026-06-13 16:02:11 [info] [startVM] VM already connected
+2026-06-13 16:02:11 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 16:02:11 [warn] [Keepalive] Already running
+2026-06-13 16:05:00 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:05:11 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:05:56 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:05:56 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:07:27 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:07:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:07:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 16:11:03 [info] [startVM] VM already connected
+2026-06-13 16:11:03 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 16:11:03 [warn] [Keepalive] Already running
+2026-06-13 17:20:19 [info] [startVM] VM already connected
+2026-06-13 17:20:19 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:20:19 [warn] [Keepalive] Already running
+2026-06-13 17:33:02 [info] [startVM] VM already connected
+2026-06-13 17:33:02 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:33:02 [warn] [Keepalive] Already running
+2026-06-13 17:33:06 [info] [startVM] VM already connected
+2026-06-13 17:33:06 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:33:06 [warn] [Keepalive] Already running
+2026-06-13 17:33:18 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-13 17:33:51 [info] [startVM] VM already connected
+2026-06-13 17:33:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:33:51 [warn] [Keepalive] Already running
+2026-06-13 17:34:30 [info] [startVM] VM already connected
+2026-06-13 17:34:30 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:34:30 [warn] [Keepalive] Already running
+2026-06-13 17:35:21 [info] [startVM] VM already connected
+2026-06-13 17:35:21 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:35:21 [warn] [Keepalive] Already running
+2026-06-13 17:37:32 [info] [startVM] VM already connected
+2026-06-13 17:37:32 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:37:33 [warn] [Keepalive] Already running
+2026-06-13 17:40:04 [info] [startVM] VM already connected
+2026-06-13 17:40:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:40:04 [warn] [Keepalive] Already running
+2026-06-13 17:41:19 [info] [startVM] VM already connected
+2026-06-13 17:41:19 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 17:41:19 [warn] [Keepalive] Already running
+2026-06-13 21:38:41 [info] [startVM] VM already connected
+2026-06-13 21:38:41 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 21:38:41 [warn] [Keepalive] Already running
+2026-06-13 21:38:45 [info] [startVM] VM already connected
+2026-06-13 21:38:45 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 21:38:45 [warn] [Keepalive] Already running
+2026-06-13 21:45:04 [info] [startVM] VM already connected
+2026-06-13 21:45:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 21:45:04 [warn] [Keepalive] Already running
+2026-06-13 22:28:31 [info] [startVM] VM already connected
+2026-06-13 22:28:31 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 22:28:31 [warn] [Keepalive] Already running
+2026-06-13 22:32:04 [info] [startVM] VM already connected
+2026-06-13 22:32:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 22:32:04 [warn] [Keepalive] Already running
+2026-06-13 22:39:29 [info] [startVM] VM already connected
+2026-06-13 22:39:29 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 22:39:29 [warn] [Keepalive] Already running
+2026-06-13 23:36:51 [info] [startVM] VM already connected
+2026-06-13 23:36:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 23:36:52 [warn] [Keepalive] Already running
+2026-06-13 23:51:41 [info] [startVM] VM already connected
+2026-06-13 23:51:41 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 23:51:41 [warn] [Keepalive] Already running
+2026-06-13 23:52:21 [info] [startVM] VM already connected
+2026-06-13 23:52:21 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 23:52:22 [warn] [Keepalive] Already running
+2026-06-13 23:54:45 [info] [startVM] VM already connected
+2026-06-13 23:54:45 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-13 23:54:45 [warn] [Keepalive] Already running
+2026-06-14 01:33:35 [info] [startVM] VM already connected
+2026-06-14 01:33:35 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-14 01:33:35 [warn] [Keepalive] Already running
+2026-06-15 23:35:22 [info] [startVM] VM already connected
+2026-06-15 23:35:22 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-15 23:35:22 [warn] [Keepalive] Already running
+2026-06-15 23:35:31 [info] [startVM] VM already connected
+2026-06-15 23:35:31 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-15 23:35:31 [warn] [Keepalive] Already running
+2026-06-15 23:35:41 [info] [startVM] VM already connected
+2026-06-15 23:35:41 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-15 23:35:41 [warn] [Keepalive] Already running
+2026-06-15 23:35:54 [info] [startVM] VM already connected
+2026-06-15 23:35:54 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-15 23:35:54 [warn] [Keepalive] Already running
+2026-06-15 23:35:55 [info] [startVM] VM already connected
+2026-06-15 23:35:55 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-15 23:35:55 [warn] [Keepalive] Already running
+2026-06-15 23:36:39 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:36:48 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:36:56 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:03 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:03 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+2026-06-15 23:37:03 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: no such column: pavimento
+2026-06-15 23:37:07 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:12 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:12 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+2026-06-15 23:37:12 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-15 23:37:16 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:16 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+2026-06-15 23:37:16 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-15 23:37:18 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:24 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:24 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<stdin>", line 9, in <module>
+2026-06-15 23:37:24 [warn] [vm-stderr oneshot-] sqlite3.OperationalError: unable to open database file
+2026-06-15 23:37:30 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:37:51 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:38:03 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:38:19 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:38:27 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:38:32 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:39:01 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:39:05 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:39:20 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:39:37 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:39:42 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm:
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/arete_config.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm:
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/arete_config.cpython-314.pyc'
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] : Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm:
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/arete_runner.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm:
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/arete_runner.cpython-314.pyc'
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] : Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm:
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/exception_registry.cpython-314.pyc'
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] : Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/ficha_adapter.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/ficha_adapter.cpython-314.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/forma_canonica_pil.cpython-314.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/gerar_n4_item.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/paridade_visual.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/paridade_visual.cpython-314.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/partes_pil.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/partes_pil.cpython-314.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/roundtrip_ficha.cpython-310.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/roundtrip_ficha.cpython-314.pyc': Operation not permitted
+2026-06-15 23:39:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/__pycache__/__init__.cpython-314.pyc': Operation not permitted
+2026-06-15 23:39:52 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:40:22 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:40:25 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:40:26 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+2026-06-15 23:40:26 [warn] [vm-stderr oneshot-]   File "/tmp/arete_fv/arete_config.py", line 600
+    """Retorna o subtipo canônico de um pilar PIL.
+    ^
+SyntaxError: unterminated triple-quoted string literal (detected at line 602)
+2026-06-15 23:40:52 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:40:58 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:41:02 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:41:10 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:41:39 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:41:48 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:42:40 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:43:57 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:45:22 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:46:18 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:46:43 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:47:30 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:48:53 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:51:32 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-15 23:57:54 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:19:50 [info] [startVM] VM already connected
+2026-06-16 11:19:50 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 11:19:50 [warn] [Keepalive] Already running
+2026-06-16 11:25:07 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:25:19 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:25:36 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:27:06 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:28:10 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:28:56 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:30:41 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:31:02 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:33:53 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:34:34 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:39:41 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:39:51 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:40:10 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:40:11 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+2026-06-16 11:40:11 [warn] [vm-stderr oneshot-] ImportError: cannot import name '_nomenclatura_labels' from 'motor_reverso_fv' (/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/motor_reverso_fv.py)
+2026-06-16 11:40:16 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:40:18 [warn] [vm-stderr oneshot-] grep: scripts/motor_reverso_fv.py: binary file matches
+2026-06-16 11:40:23 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:40:29 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:40:51 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:41:05 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/arete_lj_batch_13pav.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/arete_lj_canonico.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/arete_lj_visual_audit.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/gerar_lj_dxf_stog.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/gerar_pl_dxf_stog.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/motor_reverso_fv.cpython-310.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/motor_reverso_laj.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/motor_reverso_pil_zones.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/obra_rag_utils.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/smart_panner.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] rm: cannot remove 'scripts/__pycache__/stog_adaptive_sentinel.cpython-314.pyc': Operation not permitted
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+2026-06-16 11:41:05 [warn] [vm-stderr oneshot-] ImportError: cannot import name '_nomenclatura_labels' from 'motor_reverso_fv' (/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/motor_reverso_fv.py)
+2026-06-16 11:41:17 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:41:17 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+ValueError: source code string cannot contain null bytes
+2026-06-16 11:41:27 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:41:35 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:42:01 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:42:14 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:42:30 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:42:43 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:43:02 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:43:29 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:43:43 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:44:29 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:45:22 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:49:33 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:49:53 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:50:02 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:50:11 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:50:22 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:51:18 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:51:27 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:51:35 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:51:45 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:52:00 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:52:09 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:52:41 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:52:55 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:53:38 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:54:09 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:54:28 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:54:38 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:54:50 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:56:01 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:56:01 [warn] [vm-stderr oneshot-] grep:
+2026-06-16 11:56:01 [warn] [vm-stderr oneshot-] gerar_fv_dxf_stog.py: binary file matches
+2026-06-16 11:56:06 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:56:14 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:56:14 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/obra_v305_check/Fase-6_Execucao_CAD/FV_preview_V305.dxf'
+2026-06-16 11:56:14 [warn] [vm-stderr oneshot-] : Operation not permitted
+2026-06-16 11:56:14 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/obra_v305_check/Fase-6_Execucao_CAD/FV_stog_quality.png': Operation not permit…[truncated]
+2026-06-16 11:56:29 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:56:53 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:57:12 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:57:56 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:59:10 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 11:59:38 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:00:30 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:05:46 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:05:51 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:05:57 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:06:03 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:06:15 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:07:00 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:07:30 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:07:32 [warn] [vm-stderr oneshot-] Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+2026-06-16 12:16:46 [info] [startVM] VM already connected
+2026-06-16 12:16:46 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 12:16:46 [warn] [Keepalive] Already running
+2026-06-16 12:23:17 [info] [startVM] VM already connected
+2026-06-16 12:23:17 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 12:23:17 [warn] [Keepalive] Already running
+2026-06-16 12:24:28 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:26:03 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:26:32 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:27:38 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:28:22 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:31:32 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:05 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:10 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:16 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:16 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+2026-06-16 12:36:16 [warn] [vm-stderr oneshot-]   File "/sessions/kind-friendly-edison/mnt/<vol>/Agente-cad-PYSIDE-Restored-main/scripts/./motor_reverso_fv.py", line 396, in <module>
+2026-06-16 12:36:16 [warn] [vm-stderr oneshot-]     de
+NameError: name 'de' is not defined. Did you mean: 're'?
+2026-06-16 12:36:32 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:37 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:44 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:36:54 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:37:09 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:37:29 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:37:29 [warn] [vm-stderr oneshot-] warning: unable to unlink '/sessions/kind-friendly-edison/mnt/<vol>/.git/index.lock': Operation not permitted
+2026-06-16 12:37:38 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:37:38 [warn] [vm-stderr oneshot-] fatal: path 'Agente-cad-PYSIDE-Restored-main/scripts/motor_reverso_fv.py' exists, but not 'scripts/motor_reverso_fv.py'
+hint: Did you mean 'HEAD:Agente-cad-PYSIDE-Restored-main/scripts/motor_reverso_f…[truncated]
+2026-06-16 12:37:44 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:38:01 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:38:50 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:38:56 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:39:05 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:39:19 [info] [vmOneShot] Running: bash [2 arg(s)] as kind-friendly-edison
+2026-06-16 12:40:28 [info] [startVM] VM already connected
+2026-06-16 12:40:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 12:40:28 [warn] [Keepalive] Already running
+2026-06-16 14:36:26 [info] [startVM] VM already connected
+2026-06-16 14:36:26 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 14:36:26 [warn] [Keepalive] Already running
+2026-06-16 15:00:40 [info] [warm] Fetching VM hash for version 1.13576.0
+2026-06-16 15:00:40 [info] [warm] VM hash for version 1.13576.0: <blob>
+2026-06-16 15:00:40 [info] [warm] VM SHA matches current version, skipping
+2026-06-16 16:44:10 [info] [startVM] VM already connected
+2026-06-16 16:44:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 16:44:10 [warn] [Keepalive] Already running
+2026-06-16 16:44:13 [info] [startVM] VM already connected
+2026-06-16 16:44:13 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.170
+2026-06-16 16:44:13 [warn] [Keepalive] Already running
+2026-06-18 02:02:29 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-18 02:02:29 [info] [VM] Module loaded successfully
+2026-06-18 02:02:31 [info] [KernelBugMonitor] State reset
+2026-06-18 02:02:31 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-18 02:02:31 [info] [VM:start] Bundle version: <blob>
+2026-06-18 02:02:31 [info] [VM:start] VM instance ID: c49dc680-03a5-4224-bce1-56b0656e6dc8
+2026-06-18 02:02:31 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-18 02:02:38 [info] [warm] Fetching VM hash for version 1.13576.1
+2026-06-18 02:02:38 [info] [warm] VM hash for version 1.13576.1: <blob>
+2026-06-18 02:02:38 [info] [warm] VM SHA matches current version, skipping
+2026-06-18 02:02:50 [info] [VM:steps] download_and_sdk_prepare completed (18946ms)
+2026-06-18 02:02:50 [info] [VM:steps] load_swift_api started
+2026-06-18 02:02:50 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-18 02:02:50 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-18 02:02:51 [info] [Callbacks] VM event callbacks initialized
+2026-06-18 02:02:51 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.13576.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-18 02:02:51 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-18 02:02:51 [info] [VM:start] Configuring Windows VM service...
+2026-06-18 02:02:51 [info] [VM:start] Windows VM service configured
+2026-06-18 02:02:51 [info] [VM:steps] create_network started
+2026-06-18 02:02:51 [info] [VM:steps] create_network completed (1ms)
+2026-06-18 02:02:51 [info] [VM:steps] create_vm_config started
+2026-06-18 02:02:51 [info] [VM:steps] create_vm_config completed (154ms)
+2026-06-18 02:02:52 [info] [VM:steps] vm_boot started
+2026-06-18 02:02:52 [info] [VM:steps] vm_boot completed (840ms)
+2026-06-18 02:02:52 [info] [VM:steps] add_plan9_shares started
+2026-06-18 02:02:52 [info] [VM:steps] add_plan9_shares completed (16ms)
+2026-06-18 02:03:03 [info] [VM:start] Still waiting for guest connection... 10129ms elapsed, 21 polls
+2026-06-18 02:03:06 [info] [VM] Network status: CONNECTED
+2026-06-18 02:03:07 [info] [VM:steps] sdk_install started
+2026-06-18 02:03:07 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.177
+2026-06-18 02:03:09 [info] [VM] API reachability: REACHABLE
+2026-06-18 02:03:12 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-18 02:03:12 [info] [VM:steps] sdk_install completed (5748ms)
+2026-06-18 02:03:12 [info] [VM:start] Startup complete, total time: 41502ms
+2026-06-18 02:12:48 [info] [warm] Fetching VM hash for version 1.13576.4
+2026-06-18 02:12:48 [info] [warm] VM hash for version 1.13576.4: <blob>
+2026-06-18 02:12:48 [info] [warm] VM SHA matches current version, skipping
+2026-06-18 02:24:20 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-18 02:24:20 [info] [VM] Module loaded successfully
+2026-06-18 02:24:22 [info] [KernelBugMonitor] State reset
+2026-06-18 02:24:22 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-18 02:24:22 [info] [VM:start] Bundle version: <blob>
+2026-06-18 02:24:22 [info] [VM:start] VM instance ID: 20e29c2c-4549-4f93-8c38-134dbd2a277f
+2026-06-18 02:24:22 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-18 02:24:22 [info] [VM:steps] download_and_sdk_prepare completed (3ms)
+2026-06-18 02:24:22 [info] [VM:steps] load_swift_api started
+2026-06-18 02:24:22 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-18 02:24:22 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-18 02:24:23 [info] [Callbacks] VM event callbacks initialized
+2026-06-18 02:24:23 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.13576.4.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-18 02:24:23 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-18 02:24:23 [info] [VM:start] Configuring Windows VM service...
+2026-06-18 02:24:23 [info] [VM:start] Windows VM service configured
+2026-06-18 02:24:23 [info] [VM:steps] create_network started
+2026-06-18 02:24:23 [info] [VM:steps] create_network completed (1ms)
+2026-06-18 02:24:23 [info] [VM:steps] create_vm_config started
+2026-06-18 02:24:23 [info] [VM:steps] create_vm_config completed (78ms)
+2026-06-18 02:24:24 [info] [VM:steps] vm_boot started
+2026-06-18 02:24:24 [info] [VM:steps] vm_boot completed (310ms)
+2026-06-18 02:24:24 [info] [VM:steps] add_plan9_shares started
+2026-06-18 02:24:24 [info] [VM:steps] add_plan9_shares completed (4ms)
+2026-06-18 02:24:34 [info] [VM:start] Still waiting for guest connection... 10146ms elapsed, 21 polls
+2026-06-18 02:24:37 [info] [VM] Network status: CONNECTED
+2026-06-18 02:24:38 [info] [VM:steps] sdk_install started
+2026-06-18 02:24:38 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.177
+2026-06-18 02:24:40 [info] [VM] API reachability: REACHABLE
+2026-06-18 02:24:41 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-18 02:24:41 [info] [VM:steps] sdk_install completed (3398ms)
+2026-06-18 02:24:41 [info] [VM:start] Startup complete, total time: 19070ms
+2026-06-18 15:24:32 [info] [warm] Fetching VM hash for version 1.14271.0
+2026-06-18 15:24:32 [info] [warm] VM hash for version 1.14271.0: <blob>
+2026-06-18 15:24:32 [info] [warm] VM SHA matches current version, skipping
+2026-06-18 15:29:06 [info] [VM:shutdown] App quit, stopping VM (instance: 20e29c2c-4549-4f93-8c38-134dbd2a277f)...
+2026-06-18 15:29:06 [info] [Keepalive] Stopping
+2026-06-18 15:29:07 [info] [VM:shutdown] Completed in 343ms
+2026-06-18 23:42:32 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-18 23:42:32 [info] [VM] Module loaded successfully
+2026-06-18 23:42:32 [info] [warm] Fetching VM hash for version 1.14271.0
+2026-06-18 23:42:32 [info] [warm] VM hash for version 1.14271.0: <blob>
+2026-06-18 23:42:32 [info] [warm] VM SHA matches current version, skipping
+2026-06-19 23:55:25 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-19 23:55:25 [info] [VM] Module loaded successfully
+2026-06-20 11:18:19 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-20 11:18:19 [info] [VM] Module loaded successfully
+2026-06-21 19:33:34 [info] [KernelBugMonitor] State reset
+2026-06-21 19:33:34 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-21 19:33:34 [info] [VM:start] Bundle version: <blob>
+2026-06-21 19:33:34 [info] [VM:start] VM instance ID: ab7bc86c-e5c5-42b2-9048-ddf725baa360
+2026-06-21 19:33:34 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-21 19:33:37 [info] [startVM] VM startup already in progress, waiting...
+2026-06-21 19:33:43 [info] [VM:steps] download_and_sdk_prepare completed (8746ms)
+2026-06-21 19:33:43 [info] [VM:steps] load_swift_api started
+2026-06-21 19:33:43 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-21 19:33:43 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-21 19:33:44 [info] [Callbacks] VM event callbacks initialized
+2026-06-21 19:33:44 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.14271.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-21 19:33:45 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-21 19:33:45 [info] [VM:start] Configuring Windows VM service...
+2026-06-21 19:33:45 [info] [VM:start] Windows VM service configured
+2026-06-21 19:33:45 [info] [VM:steps] create_network started
+2026-06-21 19:33:45 [info] [VM:steps] create_network completed (29ms)
+2026-06-21 19:33:45 [info] [VM:steps] create_vm_config started
+2026-06-21 19:33:45 [info] [VM:steps] create_vm_config completed (152ms)
+2026-06-21 19:33:45 [info] [VM:steps] vm_boot started
+2026-06-21 19:33:46 [info] [VM:steps] vm_boot completed (741ms)
+2026-06-21 19:33:46 [info] [VM:steps] add_plan9_shares started
+2026-06-21 19:33:46 [info] [VM:steps] add_plan9_shares completed (13ms)
+2026-06-21 19:33:56 [info] [VM:start] Still waiting for guest connection... 10156ms elapsed, 21 polls
+2026-06-21 19:33:57 [info] [VM] Network status: CONNECTED
+2026-06-21 19:33:58 [info] [VM:steps] sdk_install started
+2026-06-21 19:33:58 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-21 19:34:00 [info] [VM] API reachability: REACHABLE
+2026-06-21 19:34:03 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-21 19:34:03 [info] [VM:steps] sdk_install completed (5506ms)
+2026-06-21 19:34:03 [info] [VM:start] Startup complete, total time: 29156ms
+2026-06-21 19:34:04 [info] [startVM] VM already connected
+2026-06-21 19:34:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-21 19:34:04 [warn] [Keepalive] Already running
+2026-06-21 19:34:30 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:34:35 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:35:20 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:35:20 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:35:23 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:35:27 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:36:12 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:36:12 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:36:19 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:36:43 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:41:56 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:42:01 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:42:08 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:42:32 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:42:45 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:43:11 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:43:56 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-21 19:43:56 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:26:42 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-22 21:26:42 [info] [VM] Module loaded successfully
+2026-06-22 21:26:43 [info] [KernelBugMonitor] State reset
+2026-06-22 21:26:43 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-22 21:26:43 [info] [VM:start] Bundle version: <blob>
+2026-06-22 21:26:43 [info] [VM:start] VM instance ID: 2c30c428-bcab-4d78-9fa0-5551b1121cd5
+2026-06-22 21:26:43 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-22 21:26:43 [info] [VM:steps] download_and_sdk_prepare completed (4ms)
+2026-06-22 21:26:43 [info] [VM:steps] load_swift_api started
+2026-06-22 21:26:43 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-22 21:26:43 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-22 21:26:44 [info] [Callbacks] VM event callbacks initialized
+2026-06-22 21:26:44 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.14271.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-22 21:26:45 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-22 21:26:45 [info] [VM:start] Configuring Windows VM service...
+2026-06-22 21:26:45 [info] [VM:start] Windows VM service configured
+2026-06-22 21:26:45 [info] [VM:steps] create_network started
+2026-06-22 21:26:45 [info] [VM:steps] create_network completed (0ms)
+2026-06-22 21:26:45 [info] [VM:steps] create_vm_config started
+2026-06-22 21:26:45 [info] [VM:steps] create_vm_config completed (137ms)
+2026-06-22 21:26:45 [info] [VM:steps] vm_boot started
+2026-06-22 21:26:45 [info] [VM:steps] vm_boot completed (654ms)
+2026-06-22 21:26:45 [info] [VM:steps] add_plan9_shares started
+2026-06-22 21:26:45 [info] [VM:steps] add_plan9_shares completed (14ms)
+2026-06-22 21:26:53 [info] [VM] Network status: CONNECTED
+2026-06-22 21:26:54 [info] [VM:steps] sdk_install started
+2026-06-22 21:26:54 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-22 21:26:56 [info] [VM] API reachability: REACHABLE
+2026-06-22 21:26:57 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-22 21:26:57 [info] [VM:steps] sdk_install completed (3066ms)
+2026-06-22 21:26:57 [info] [VM:start] Startup complete, total time: 13358ms
+2026-06-22 21:26:58 [info] [startVM] VM already connected
+2026-06-22 21:26:58 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-22 21:26:59 [warn] [Keepalive] Already running
+2026-06-22 21:27:29 [info] [startVM] VM already connected
+2026-06-22 21:27:29 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-22 21:27:29 [warn] [Keepalive] Already running
+2026-06-22 21:29:33 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:30:18 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:30:18 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:30:22 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:31:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:31:42 [warn] [vm-stderr oneshot-] rm: cannot remove '/sessions/funny-determined-hypatia/mnt/<vol>/modules/binance-bot/backend/tests/unit/IchimokuHardStop.test.ts': Operation not permitted
+2026-06-22 21:31:52 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:32:00 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:32:07 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:32:14 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:32:21 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:32:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:33:05 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:33:47 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:33:53 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:34:01 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:34:28 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:34:41 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 21:34:47 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:29:39 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:29:45 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:31:15 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:31:55 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:33:15 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:33:43 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:33:53 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:34:14 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:34:22 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:34:33 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:35:34 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:35:49 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:36:38 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:40:06 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:40:13 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:40:32 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:40:48 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:41:13 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:41:30 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:41:41 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:41:41 [warn] [vm-stderr oneshot-] Traceback (most recent call last):
+2026-06-22 22:41:41 [warn] [vm-stderr oneshot-]   File "<stdin>", line 5, in <module>
+2026-06-22 22:41:41 [warn] [vm-stderr oneshot-] IndexError: list index out of range
+2026-06-22 22:42:03 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:42:35 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:43:24 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:44:53 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:45:11 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:47:15 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:47:35 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:47:51 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:48:38 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:48:46 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:48:59 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:49:46 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:50:12 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:50:33 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:50:53 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:51:13 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:51:58 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:51:58 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:52:09 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:52:19 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:52:29 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:52:37 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:52:43 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:52:48 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:53:33 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:53:33 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:53:38 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:53:44 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:54:02 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:54:47 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:54:47 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:54:54 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:55:06 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:55:13 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:55:58 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:55:58 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:56:05 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:56:25 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:56:32 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 22:59:25 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:10 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:10 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:16 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:21 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:26 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:31 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:38 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:00:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:01:24 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:01:36 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:01:43 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:01:51 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:01:56 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:01:56 [warn] [vm-stderr oneshot-] 
+real	0m0.041s
+user	0m0.026s
+sys	0m0.013s
+2026-06-22 23:02:03 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:02:04 [warn] [vm-stderr oneshot-] 
+real	0m0.684s
+user	0m0.136s
+sys	0m0.089s
+2026-06-22 23:02:16 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:03:07 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:03:21 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:03:21 [warn] [vm-stderr oneshot-] 
+real	0m0.020s
+user	0m0.000s
+sys	0m0.010s
+2026-06-22 23:03:43 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:04:18 [warn] [vm-stderr oneshot-] 
+real	0m35.006s
+user	0m7.348s
+sys	0m3.255s
+2026-06-22 23:04:51 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:04:55 [warn] [vm-stderr oneshot-] 
+real	0m4.674s
+user	0m0.140s
+sys	0m0.277s
+2026-06-22 23:05:03 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:05:16 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:05:28 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:05:39 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:05:54 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:06:25 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:07:18 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:07:37 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:08:46 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:08:55 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:09:01 [warn] [vm-stderr oneshot-] 
+real	0m5.242s
+user	0m0.443s
+sys	0m0.090s
+2026-06-22 23:09:01 [warn] [vm-stderr oneshot-] 
+real	0m0.381s
+user	0m0.041s
+sys	0m0.055s
+2026-06-22 23:09:20 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:09:39 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:09:53 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:10:17 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:10:57 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:12:40 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:13:11 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:13:28 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:13:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-22 23:14:03 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 15:50:42 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-23 15:50:42 [info] [VM] Module loaded successfully
+2026-06-23 15:50:44 [info] [KernelBugMonitor] State reset
+2026-06-23 15:50:44 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-23 15:50:44 [info] [VM:start] Bundle version: <blob>
+2026-06-23 15:50:44 [info] [VM:start] VM instance ID: eaeaea33-af41-4551-8e18-871ef9f4b048
+2026-06-23 15:50:44 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-23 15:50:44 [info] [VM:steps] download_and_sdk_prepare completed (5ms)
+2026-06-23 15:50:44 [info] [VM:steps] load_swift_api started
+2026-06-23 15:50:44 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-23 15:50:44 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-23 15:50:45 [info] [Callbacks] VM event callbacks initialized
+2026-06-23 15:50:45 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.14271.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-23 15:50:45 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-23 15:50:45 [info] [VM:start] Configuring Windows VM service...
+2026-06-23 15:50:45 [info] [VM:start] Windows VM service configured
+2026-06-23 15:50:45 [info] [VM:steps] create_network started
+2026-06-23 15:50:45 [info] [VM:steps] create_network completed (0ms)
+2026-06-23 15:50:45 [info] [VM:steps] create_vm_config started
+2026-06-23 15:50:46 [info] [VM:steps] create_vm_config completed (146ms)
+2026-06-23 15:50:46 [info] [VM:steps] vm_boot started
+2026-06-23 15:50:46 [info] [VM:steps] vm_boot completed (565ms)
+2026-06-23 15:50:46 [info] [VM:steps] add_plan9_shares started
+2026-06-23 15:50:46 [info] [VM:steps] add_plan9_shares completed (12ms)
+2026-06-23 15:50:54 [info] [VM] Network status: CONNECTED
+2026-06-23 15:50:54 [info] [VM:steps] sdk_install started
+2026-06-23 15:50:54 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:50:57 [info] [VM] API reachability: REACHABLE
+2026-06-23 15:50:58 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-23 15:50:58 [info] [VM:steps] sdk_install completed (3571ms)
+2026-06-23 15:50:58 [info] [VM:start] Startup complete, total time: 13381ms
+2026-06-23 15:51:25 [info] [startVM] VM already connected
+2026-06-23 15:51:25 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:51:25 [warn] [Keepalive] Already running
+2026-06-23 15:51:26 [info] [startVM] VM already connected
+2026-06-23 15:51:26 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:51:26 [warn] [Keepalive] Already running
+2026-06-23 15:51:28 [info] [startVM] VM already connected
+2026-06-23 15:51:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:51:28 [warn] [Keepalive] Already running
+2026-06-23 15:51:46 [info] [startVM] VM already connected
+2026-06-23 15:51:46 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:51:46 [warn] [Keepalive] Already running
+2026-06-23 15:51:51 [info] [startVM] VM already connected
+2026-06-23 15:51:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:51:51 [warn] [Keepalive] Already running
+2026-06-23 15:52:03 [info] [startVM] VM already connected
+2026-06-23 15:52:03 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:52:04 [warn] [Keepalive] Already running
+2026-06-23 15:52:15 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 15:52:17 [info] [startVM] VM already connected
+2026-06-23 15:52:17 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:52:17 [warn] [Keepalive] Already running
+2026-06-23 15:52:22 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 15:52:32 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 15:53:24 [info] [startVM] VM already connected
+2026-06-23 15:53:24 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:53:24 [warn] [Keepalive] Already running
+2026-06-23 15:53:42 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 15:54:01 [info] [startVM] VM already connected
+2026-06-23 15:54:01 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:54:01 [warn] [Keepalive] Already running
+2026-06-23 15:54:51 [info] [startVM] VM already connected
+2026-06-23 15:54:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:54:52 [warn] [Keepalive] Already running
+2026-06-23 15:55:00 [info] [startVM] VM already connected
+2026-06-23 15:55:00 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:55:00 [warn] [Keepalive] Already running
+2026-06-23 15:56:25 [info] [startVM] VM already connected
+2026-06-23 15:56:25 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:56:25 [warn] [Keepalive] Already running
+2026-06-23 15:57:27 [info] [startVM] VM already connected
+2026-06-23 15:57:27 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:57:27 [warn] [Keepalive] Already running
+2026-06-23 15:57:28 [info] [startVM] VM already connected
+2026-06-23 15:57:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:57:28 [warn] [Keepalive] Already running
+2026-06-23 15:57:34 [info] [startVM] VM already connected
+2026-06-23 15:57:34 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:57:34 [warn] [Keepalive] Already running
+2026-06-23 15:57:36 [info] [startVM] VM already connected
+2026-06-23 15:57:36 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 15:57:36 [warn] [Keepalive] Already running
+2026-06-23 15:58:00 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 15:58:30 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:58:37 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:59:22 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:59:22 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:59:22 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:59:22 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:59:22 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 15:59:27 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:00:07 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:00:21 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:00:32 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:01:25 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:02:54 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:03:29 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:03:29 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 16:03:35 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 20:19:16 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-23 20:19:16 [info] [VM] Module loaded successfully
+2026-06-23 20:19:18 [info] [KernelBugMonitor] State reset
+2026-06-23 20:19:18 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-23 20:19:18 [info] [VM:start] Bundle version: <blob>
+2026-06-23 20:19:18 [info] [VM:start] VM instance ID: b5481182-97a2-4b4b-bf69-6c9bdcfdaaa2
+2026-06-23 20:19:18 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-23 20:19:18 [info] [VM:steps] download_and_sdk_prepare completed (5ms)
+2026-06-23 20:19:18 [info] [VM:steps] load_swift_api started
+2026-06-23 20:19:18 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-23 20:19:18 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-23 20:19:19 [info] [Callbacks] VM event callbacks initialized
+2026-06-23 20:19:19 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.14271.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-23 20:19:21 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-23 20:19:21 [info] [VM:start] Configuring Windows VM service...
+2026-06-23 20:19:21 [info] [VM:start] Windows VM service configured
+2026-06-23 20:19:21 [info] [VM:steps] create_network started
+2026-06-23 20:19:21 [info] [VM:steps] create_network completed (13ms)
+2026-06-23 20:19:21 [info] [VM:steps] create_vm_config started
+2026-06-23 20:19:21 [info] [VM:steps] create_vm_config completed (500ms)
+2026-06-23 20:19:22 [info] [VM:steps] vm_boot started
+2026-06-23 20:19:22 [info] [VM:steps] vm_boot completed (863ms)
+2026-06-23 20:19:22 [info] [VM:steps] add_plan9_shares started
+2026-06-23 20:19:22 [info] [VM:steps] add_plan9_shares completed (24ms)
+2026-06-23 20:19:25 [info] [warm] Fetching VM hash for version 1.15200.0
+2026-06-23 20:19:25 [info] [warm] VM hash for version 1.15200.0: <blob>
+2026-06-23 20:19:25 [info] [warm] VM SHA matches current version, skipping
+2026-06-23 20:19:31 [info] [VM] Network status: CONNECTED
+2026-06-23 20:19:32 [info] [VM:steps] sdk_install started
+2026-06-23 20:19:32 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 20:19:34 [info] [VM] API reachability: REACHABLE
+2026-06-23 20:19:34 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-23 20:19:34 [info] [VM:steps] sdk_install completed (2929ms)
+2026-06-23 20:19:34 [info] [VM:start] Startup complete, total time: 16872ms
+2026-06-23 20:22:00 [info] [startVM] VM already connected
+2026-06-23 20:22:00 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 20:22:00 [warn] [Keepalive] Already running
+2026-06-23 20:22:06 [info] [startVM] VM already connected
+2026-06-23 20:22:06 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 20:22:06 [warn] [Keepalive] Already running
+2026-06-23 20:22:13 [info] [startVM] VM already connected
+2026-06-23 20:22:13 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 20:22:13 [warn] [Keepalive] Already running
+2026-06-23 20:22:29 [info] [startVM] VM already connected
+2026-06-23 20:22:29 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 20:22:29 [warn] [Keepalive] Already running
+2026-06-23 20:23:07 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 20:23:26 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:23:32 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-23 22:23:32 [info] [VM] Module loaded successfully
+2026-06-23 22:23:33 [info] [KernelBugMonitor] State reset
+2026-06-23 22:23:33 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-23 22:23:33 [info] [VM:start] Bundle version: <blob>
+2026-06-23 22:23:33 [info] [VM:start] VM instance ID: c51b5fb5-bab1-452e-b1ff-c151abf96109
+2026-06-23 22:23:33 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-23 22:23:33 [info] [VM:steps] download_and_sdk_prepare completed (4ms)
+2026-06-23 22:23:33 [info] [VM:steps] load_swift_api started
+2026-06-23 22:23:33 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-23 22:23:33 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-23 22:23:35 [info] [Callbacks] VM event callbacks initialized
+2026-06-23 22:23:35 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.15200.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-23 22:23:35 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-23 22:23:35 [info] [VM:start] Configuring Windows VM service...
+2026-06-23 22:23:35 [info] [VM:start] Windows VM service configured
+2026-06-23 22:23:35 [info] [VM:steps] create_network started
+2026-06-23 22:23:35 [info] [VM:steps] create_network completed (1ms)
+2026-06-23 22:23:35 [info] [VM:steps] create_vm_config started
+2026-06-23 22:23:35 [info] [VM:steps] create_vm_config completed (150ms)
+2026-06-23 22:23:35 [info] [VM:steps] vm_boot started
+2026-06-23 22:23:36 [info] [VM:steps] vm_boot completed (694ms)
+2026-06-23 22:23:36 [info] [VM:steps] add_plan9_shares started
+2026-06-23 22:23:36 [info] [VM:steps] add_plan9_shares completed (15ms)
+2026-06-23 22:23:46 [info] [VM:start] Still waiting for guest connection... 10189ms elapsed, 21 polls
+2026-06-23 22:23:47 [info] [VM] Network status: CONNECTED
+2026-06-23 22:23:47 [info] [VM:steps] sdk_install started
+2026-06-23 22:23:47 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:23:49 [info] [VM] API reachability: REACHABLE
+2026-06-23 22:23:50 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-23 22:23:50 [info] [VM:steps] sdk_install completed (3489ms)
+2026-06-23 22:23:50 [info] [VM:start] Startup complete, total time: 17074ms
+2026-06-23 22:28:18 [info] [startVM] VM already connected
+2026-06-23 22:28:18 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:28:18 [warn] [Keepalive] Already running
+2026-06-23 22:28:46 [info] [startVM] VM already connected
+2026-06-23 22:28:46 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:28:47 [warn] [Keepalive] Already running
+2026-06-23 22:29:06 [info] [startVM] VM already connected
+2026-06-23 22:29:06 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:29:07 [warn] [Keepalive] Already running
+2026-06-23 22:29:18 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:29:51 [info] [startVM] VM already connected
+2026-06-23 22:29:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:29:51 [warn] [Keepalive] Already running
+2026-06-23 22:29:54 [info] [startVM] VM already connected
+2026-06-23 22:29:54 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:29:54 [warn] [Keepalive] Already running
+2026-06-23 22:30:03 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:30:03 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:30:11 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:30:14 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 22:30:16 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 22:30:19 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:30:21 [info] [startVM] VM already connected
+2026-06-23 22:30:21 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:30:22 [warn] [Keepalive] Already running
+2026-06-23 22:30:34 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:31:08 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-06-23 22:31:51 [info] [startVM] VM already connected
+2026-06-23 22:31:51 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:31:51 [warn] [Keepalive] Already running
+2026-06-23 22:32:03 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 22:32:10 [info] [startVM] VM already connected
+2026-06-23 22:32:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:32:10 [warn] [Keepalive] Already running
+2026-06-23 22:32:17 [info] [vmOneShot] Running: bash [2 arg(s)] as festive-jolly-bohr
+2026-06-23 22:32:39 [info] [startVM] VM already connected
+2026-06-23 22:32:39 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-23 22:32:40 [warn] [Keepalive] Already running
+2026-06-23 22:36:27 [info] [VM:shutdown] App quit, stopping VM (instance: c51b5fb5-bab1-452e-b1ff-c151abf96109)...
+2026-06-23 22:36:27 [info] [Keepalive] Stopping
+2026-06-23 22:36:27 [info] [VM:shutdown] Completed in 269ms
+2026-06-24 00:34:41 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-24 00:34:41 [info] [VM] Module loaded successfully
+2026-06-26 03:40:00 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-26 03:40:00 [info] [VM] Module loaded successfully
+2026-06-26 03:40:01 [info] [KernelBugMonitor] State reset
+2026-06-26 03:40:01 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-26 03:40:01 [info] [VM:start] Bundle version: <blob>
+2026-06-26 03:40:01 [info] [VM:start] VM instance ID: e5d51240-cbac-4cae-83af-ad1927f29e24
+2026-06-26 03:40:01 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-26 03:40:01 [info] [VM:steps] download_and_sdk_prepare completed (5ms)
+2026-06-26 03:40:01 [info] [VM:steps] load_swift_api started
+2026-06-26 03:40:01 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-26 03:40:01 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-26 03:40:02 [info] [Callbacks] VM event callbacks initialized
+2026-06-26 03:40:02 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.15200.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-26 03:40:03 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-26 03:40:03 [info] [VM:start] Configuring Windows VM service...
+2026-06-26 03:40:03 [info] [VM:start] Windows VM service configured
+2026-06-26 03:40:03 [info] [VM:steps] create_network started
+2026-06-26 03:40:03 [info] [VM:steps] create_network completed (22ms)
+2026-06-26 03:40:03 [info] [VM:steps] create_vm_config started
+2026-06-26 03:40:03 [info] [VM:steps] create_vm_config completed (148ms)
+2026-06-26 03:40:03 [info] [VM:steps] vm_boot started
+2026-06-26 03:40:04 [info] [VM:steps] vm_boot completed (818ms)
+2026-06-26 03:40:04 [info] [VM:steps] add_plan9_shares started
+2026-06-26 03:40:04 [info] [VM:steps] add_plan9_shares completed (88ms)
+2026-06-26 03:40:14 [info] [VM] Network status: CONNECTED
+2026-06-26 03:40:14 [info] [VM:steps] sdk_install started
+2026-06-26 03:40:14 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.181
+2026-06-26 03:40:15 [info] [warm] Fetching VM hash for version 1.15962.0
+2026-06-26 03:40:15 [info] [warm] VM hash for version 1.15962.0: <blob>
+2026-06-26 03:40:15 [info] [warm] VM SHA matches current version, skipping
+2026-06-26 03:40:17 [info] [VM] API reachability: REACHABLE
+2026-06-26 03:40:17 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-26 03:40:17 [info] [VM:steps] sdk_install completed (3427ms)
+2026-06-26 03:40:17 [info] [VM:start] Startup complete, total time: 16114ms
+2026-06-26 03:43:02 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-26 03:43:02 [info] [VM] Module loaded successfully
+2026-06-26 03:43:03 [info] [KernelBugMonitor] State reset
+2026-06-26 03:43:03 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-06-26 03:43:03 [info] [VM:start] Bundle version: <blob>
+2026-06-26 03:43:03 [info] [VM:start] VM instance ID: 9c799f64-43b4-4d4b-bc60-a42e3cb22812
+2026-06-26 03:43:03 [info] [VM:steps] download_and_sdk_prepare started
+2026-06-26 03:43:22 [info] [VM:steps] download_and_sdk_prepare completed (18217ms)
+2026-06-26 03:43:22 [info] [VM:steps] load_swift_api started
+2026-06-26 03:43:22 [info] [VM:steps] load_swift_api completed (0ms)
+2026-06-26 03:43:22 [info] [Callbacks] Initializing VM event callbacks...
+2026-06-26 03:43:23 [info] [Callbacks] VM event callbacks initialized
+2026-06-26 03:43:23 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.15962.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-06-26 03:43:23 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-06-26 03:43:23 [info] [VM:start] Configuring Windows VM service...
+2026-06-26 03:43:23 [info] [VM:start] Windows VM service configured
+2026-06-26 03:43:23 [info] [VM:steps] create_network started
+2026-06-26 03:43:23 [info] [VM:steps] create_network completed (1ms)
+2026-06-26 03:43:23 [info] [VM:steps] create_vm_config started
+2026-06-26 03:43:23 [info] [VM:steps] create_vm_config completed (43ms)
+2026-06-26 03:43:23 [info] [VM:steps] vm_boot started
+2026-06-26 03:43:25 [info] [VM:steps] vm_boot completed (1557ms)
+2026-06-26 03:43:25 [info] [VM:steps] add_plan9_shares started
+2026-06-26 03:43:25 [info] [VM:steps] add_plan9_shares completed (5ms)
+2026-06-26 03:43:35 [info] [VM:start] Still waiting for guest connection... 10228ms elapsed, 21 polls
+2026-06-26 03:43:36 [info] [VM] Network status: CONNECTED
+2026-06-26 03:43:36 [info] [VM:steps] sdk_install started
+2026-06-26 03:43:36 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.187
+2026-06-26 03:43:38 [info] [VM] API reachability: REACHABLE
+2026-06-26 03:43:42 [info] [Keepalive] Starting (interval=2000ms)
+2026-06-26 03:43:42 [info] [VM:steps] sdk_install completed (5905ms)
+2026-06-26 03:43:42 [info] [VM:start] Startup complete, total time: 38795ms
+2026-06-26 03:44:22 [info] [startVM] VM already connected
+2026-06-26 03:44:22 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.187
+2026-06-26 03:44:22 [warn] [Keepalive] Already running
+2026-06-26 03:44:23 [info] [startVM] VM already connected
+2026-06-26 03:44:23 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.187
+2026-06-26 03:44:23 [warn] [Keepalive] Already running
+2026-06-26 03:47:39 [info] [startVM] VM already connected
+2026-06-26 03:47:39 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.187
+2026-06-26 03:47:39 [warn] [Keepalive] Already running
+2026-06-26 03:48:19 [info] [startVM] VM already connected
+2026-06-26 03:48:19 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.187
+2026-06-26 03:48:19 [warn] [Keepalive] Already running
+2026-06-26 04:17:00 [info] [VM:shutdown] App quit, stopping VM (instance: 9c799f64-43b4-4d4b-bc60-a42e3cb22812)...
+2026-06-26 04:17:00 [info] [Keepalive] Stopping
+2026-06-26 04:17:01 [info] [VM:shutdown] Completed in 303ms
+2026-06-26 04:18:12 [info] [VM] Loading vmClient (TypeScript) module...
+2026-06-26 04:18:12 [info] [VM] Module loaded successfully
+2026-07-01 18:02:58 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-01 18:02:58 [info] [VM] Module loaded successfully
+2026-07-01 18:03:00 [info] [KernelBugMonitor] State reset
+2026-07-01 18:03:00 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-07-01 18:03:00 [info] [VM:start] Bundle version: <blob>
+2026-07-01 18:03:00 [info] [VM:start] VM instance ID: b187a5d8-1fe4-4621-b429-bbc60ce45668
+2026-07-01 18:03:00 [info] [VM:steps] download_and_sdk_prepare started
+2026-07-01 18:03:00 [info] [VM:steps] download_and_sdk_prepare completed (4ms)
+2026-07-01 18:03:00 [info] [VM:steps] load_swift_api started
+2026-07-01 18:03:00 [info] [VM:steps] load_swift_api completed (0ms)
+2026-07-01 18:03:00 [info] [Callbacks] Initializing VM event callbacks...
+2026-07-01 18:03:01 [info] [Callbacks] VM event callbacks initialized
+2026-07-01 18:03:01 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.15962.0.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-07-01 18:03:01 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-07-01 18:03:01 [info] [VM:start] Configuring Windows VM service...
+2026-07-01 18:03:02 [info] [VM:start] Windows VM service configured
+2026-07-01 18:03:02 [info] [VM:steps] create_network started
+2026-07-01 18:03:02 [info] [VM:steps] create_network completed (26ms)
+2026-07-01 18:03:02 [info] [VM:steps] create_vm_config started
+2026-07-01 18:03:02 [info] [VM:steps] create_vm_config completed (350ms)
+2026-07-01 18:03:02 [info] [VM:steps] vm_boot started
+2026-07-01 18:03:04 [info] [VM:steps] vm_boot completed (1659ms)
+2026-07-01 18:03:04 [info] [VM:steps] add_plan9_shares started
+2026-07-01 18:03:04 [info] [VM:steps] add_plan9_shares completed (206ms)
+2026-07-01 18:03:11 [info] [warm] Fetching VM hash for version 1.17377.2
+2026-07-01 18:03:11 [info] [warm] VM hash for version 1.17377.2: <blob>
+2026-07-01 18:03:11 [info] [warm] VM SHA matches current version, skipping
+2026-07-01 18:03:14 [info] [VM:start] Still waiting for guest connection... 10246ms elapsed, 21 polls
+2026-07-01 18:03:17 [info] [VM] Network status: CONNECTED
+2026-07-01 18:03:17 [info] [VM:steps] sdk_install started
+2026-07-01 18:03:17 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.187
+2026-07-01 18:03:19 [info] [VM] API reachability: REACHABLE
+2026-07-01 18:03:20 [info] [Keepalive] Starting (interval=2000ms)
+2026-07-01 18:03:20 [info] [VM:steps] sdk_install completed (2996ms)
+2026-07-01 18:03:20 [info] [VM:start] Startup complete, total time: 20545ms
+2026-07-01 18:04:05 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-01 18:04:05 [info] [VM] Module loaded successfully
+2026-07-01 18:04:07 [info] [KernelBugMonitor] State reset
+2026-07-01 18:04:07 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-07-01 18:04:07 [info] [VM:start] Bundle version: <blob>
+2026-07-01 18:04:07 [info] [VM:start] VM instance ID: 94e4a23d-ad93-423c-88e6-4fc3584ec443
+2026-07-01 18:04:07 [info] [VM:steps] download_and_sdk_prepare started
+2026-07-01 18:04:35 [info] [VM:steps] download_and_sdk_prepare completed (28235ms)
+2026-07-01 18:04:35 [info] [VM:steps] load_swift_api started
+2026-07-01 18:04:35 [info] [VM:steps] load_swift_api completed (0ms)
+2026-07-01 18:04:35 [info] [Callbacks] Initializing VM event callbacks...
+2026-07-01 18:04:36 [info] [Callbacks] VM event callbacks initialized
+2026-07-01 18:04:36 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.17377.2.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-07-01 18:04:37 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-07-01 18:04:37 [info] [VM:start] Configuring Windows VM service...
+2026-07-01 18:04:37 [info] [VM:start] Windows VM service configured
+2026-07-01 18:04:37 [info] [VM:steps] create_network started
+2026-07-01 18:04:37 [info] [VM:steps] create_network completed (1ms)
+2026-07-01 18:04:37 [info] [VM:steps] create_vm_config started
+2026-07-01 18:04:37 [info] [VM:steps] create_vm_config completed (50ms)
+2026-07-01 18:04:37 [info] [VM:steps] vm_boot started
+2026-07-01 18:04:37 [info] [VM:steps] vm_boot completed (301ms)
+2026-07-01 18:04:37 [info] [VM:steps] add_plan9_shares started
+2026-07-01 18:04:37 [info] [VM:steps] add_plan9_shares completed (3ms)
+2026-07-01 18:04:46 [info] [VM] Network status: NOT_CONNECTED
+2026-07-01 18:04:46 [info] [VM:network] Not connected, will show error in 30000ms if not resolved
+2026-07-01 18:04:47 [info] [VM] Network status: CONNECTED
+2026-07-01 18:04:47 [info] [VM:steps] sdk_install started
+2026-07-01 18:04:47 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-01 18:04:50 [info] [VM] API reachability: REACHABLE
+2026-07-01 18:04:52 [info] [Keepalive] Starting (interval=2000ms)
+2026-07-01 18:04:52 [info] [VM:steps] sdk_install completed (5136ms)
+2026-07-01 18:04:52 [info] [VM:start] Startup complete, total time: 44940ms
+2026-07-02 11:21:37 [info] [VM:shutdown] App quit, stopping VM (instance: 94e4a23d-ad93-423c-88e6-4fc3584ec443)...
+2026-07-02 11:21:37 [info] [Keepalive] Stopping
+2026-07-02 11:21:37 [info] [VM:shutdown] Completed in 351ms
+2026-07-02 13:35:48 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-02 13:35:48 [info] [VM] Module loaded successfully
+2026-07-02 13:35:50 [info] [KernelBugMonitor] State reset
+2026-07-02 13:35:50 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-07-02 13:35:50 [info] [VM:start] Bundle version: <blob>
+2026-07-02 13:35:50 [info] [VM:start] VM instance ID: b4f9a1ad-9d07-4dfe-b58d-1342aeb4415d
+2026-07-02 13:35:50 [info] [VM:steps] download_and_sdk_prepare started
+2026-07-02 13:35:50 [info] [VM:steps] download_and_sdk_prepare completed (5ms)
+2026-07-02 13:35:50 [info] [VM:steps] load_swift_api started
+2026-07-02 13:35:50 [info] [VM:steps] load_swift_api completed (0ms)
+2026-07-02 13:35:50 [info] [Callbacks] Initializing VM event callbacks...
+2026-07-02 13:35:51 [info] [Callbacks] VM event callbacks initialized
+2026-07-02 13:35:51 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.17377.2.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-07-02 13:35:51 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-07-02 13:35:51 [info] [VM:start] Configuring Windows VM service...
+2026-07-02 13:35:51 [info] [VM:start] Windows VM service configured
+2026-07-02 13:35:51 [info] [VM:steps] create_network started
+2026-07-02 13:35:51 [info] [VM:steps] create_network completed (0ms)
+2026-07-02 13:35:51 [info] [VM:steps] create_vm_config started
+2026-07-02 13:35:51 [info] [VM:steps] create_vm_config completed (127ms)
+2026-07-02 13:35:51 [info] [VM:steps] vm_boot started
+2026-07-02 13:35:52 [info] [VM:steps] vm_boot completed (699ms)
+2026-07-02 13:35:52 [info] [VM:steps] add_plan9_shares started
+2026-07-02 13:35:52 [info] [VM:steps] add_plan9_shares completed (15ms)
+2026-07-02 13:35:54 [info] [startVM] VM startup already in progress, waiting...
+2026-07-02 13:35:59 [info] [VM] Network status: NOT_CONNECTED
+2026-07-02 13:35:59 [info] [VM:network] Not connected, will show error in 30000ms if not resolved
+2026-07-02 13:36:00 [info] [VM] Network status: CONNECTED
+2026-07-02 13:36:00 [info] [VM:steps] sdk_install started
+2026-07-02 13:36:00 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 13:36:03 [info] [VM] API reachability: REACHABLE
+2026-07-02 13:36:04 [info] [Keepalive] Starting (interval=2000ms)
+2026-07-02 13:36:04 [info] [VM:steps] sdk_install completed (3432ms)
+2026-07-02 13:36:04 [info] [VM:start] Startup complete, total time: 13793ms
+2026-07-02 13:36:04 [info] [startVM] VM already connected
+2026-07-02 13:36:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 13:36:05 [warn] [Keepalive] Already running
+2026-07-02 13:36:20 [info] [VM:shutdown] App quit, stopping VM (instance: b4f9a1ad-9d07-4dfe-b58d-1342aeb4415d)...
+2026-07-02 13:36:20 [info] [Keepalive] Stopping
+2026-07-02 13:36:20 [info] [VM:shutdown] Completed in 254ms
+2026-07-02 14:33:17 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-02 14:33:17 [info] [VM] Module loaded successfully
+2026-07-02 14:33:19 [info] [KernelBugMonitor] State reset
+2026-07-02 14:33:19 [info] [VM:start] Beginning startup, bundlePath=<home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle
+2026-07-02 14:33:19 [info] [VM:start] Bundle version: <blob>
+2026-07-02 14:33:19 [info] [VM:start] VM instance ID: 8af73fb2-d73a-440f-a25d-928fcb088f92
+2026-07-02 14:33:19 [info] [VM:steps] download_and_sdk_prepare started
+2026-07-02 14:33:19 [info] [VM:steps] download_and_sdk_prepare completed (5ms)
+2026-07-02 14:33:19 [info] [VM:steps] load_swift_api started
+2026-07-02 14:33:19 [info] [VM:steps] load_swift_api completed (0ms)
+2026-07-02 14:33:19 [info] [Callbacks] Initializing VM event callbacks...
+2026-07-02 14:33:20 [info] [Callbacks] VM event callbacks initialized
+2026-07-02 14:33:20 [info] [VM:start] Copying smol-bin.x64.vhdx to bundle: <drv>:\Program Files\WindowsApps\Claude_1.17377.2.0_x64__pzs8sxrjxfjjc\app\resources\smol-bin.x64.vhdx -> <home>\AppData\Roaming\Claude\vm_bundles\claudevm.bundle\smol-bin.vhdx
+2026-07-02 14:33:20 [info] [VM:start] smol-bin.x64.vhdx copied successfully
+2026-07-02 14:33:20 [info] [VM:start] Configuring Windows VM service...
+2026-07-02 14:33:20 [info] [VM:start] Windows VM service configured
+2026-07-02 14:33:20 [info] [VM:steps] create_network started
+2026-07-02 14:33:20 [info] [VM:steps] create_network completed (1ms)
+2026-07-02 14:33:20 [info] [VM:steps] create_vm_config started
+2026-07-02 14:33:21 [info] [VM:steps] create_vm_config completed (116ms)
+2026-07-02 14:33:21 [info] [VM:steps] vm_boot started
+2026-07-02 14:33:21 [info] [VM:steps] vm_boot completed (667ms)
+2026-07-02 14:33:21 [info] [VM:steps] add_plan9_shares started
+2026-07-02 14:33:21 [info] [VM:steps] add_plan9_shares completed (13ms)
+2026-07-02 14:33:27 [info] [VM] Network status: NOT_CONNECTED
+2026-07-02 14:33:27 [info] [VM:network] Not connected, will show error in 30000ms if not resolved
+2026-07-02 14:33:28 [info] [VM] Network status: CONNECTED
+2026-07-02 14:33:28 [info] [VM:steps] sdk_install started
+2026-07-02 14:33:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:33:32 [info] [VM] API reachability: REACHABLE
+2026-07-02 14:33:33 [info] [Keepalive] Starting (interval=2000ms)
+2026-07-02 14:33:33 [info] [VM:steps] sdk_install completed (4792ms)
+2026-07-02 14:33:33 [info] [VM:start] Startup complete, total time: 13655ms
+2026-07-02 14:37:04 [info] [startVM] VM already connected
+2026-07-02 14:37:04 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:37:04 [warn] [Keepalive] Already running
+2026-07-02 14:37:05 [info] [startVM] VM already connected
+2026-07-02 14:37:05 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:37:05 [warn] [Keepalive] Already running
+2026-07-02 14:37:14 [info] [startVM] VM already connected
+2026-07-02 14:37:14 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:37:14 [warn] [Keepalive] Already running
+2026-07-02 14:37:26 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-07-02 14:37:32 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-07-02 14:37:57 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-07-02 14:38:31 [info] [vmOneShot] Running: bash [2 arg(s)] as funny-determined-hypatia
+2026-07-02 14:42:28 [info] [startVM] VM already connected
+2026-07-02 14:42:28 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:42:28 [warn] [Keepalive] Already running
+2026-07-02 14:57:55 [info] [startVM] VM already connected
+2026-07-02 14:57:55 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:57:56 [warn] [Keepalive] Already running
+2026-07-02 14:59:08 [info] [startVM] VM already connected
+2026-07-02 14:59:08 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 14:59:08 [warn] [Keepalive] Already running
+2026-07-02 15:00:10 [info] [startVM] VM already connected
+2026-07-02 15:00:10 [info] [postConnect] Installing SDK: subpath=c/Users/<user>/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/claude-code-vm, version=2.1.197
+2026-07-02 15:00:10 [warn] [Keepalive] Already running
+2026-07-02 17:33:24 [info] [warm] Fetching VM hash for version 1.18286.0
+2026-07-02 17:33:24 [info] [warm] VM hash for version 1.18286.0: <blob>
+2026-07-02 17:33:24 [info] [warm] VM SHA matches current version, skipping
+2026-07-02 18:25:27 [info] [VM:shutdown] App quit, stopping VM (instance: 8af73fb2-d73a-440f-a25d-928fcb088f92)...
+2026-07-02 18:25:27 [info] [Keepalive] Stopping
+2026-07-02 18:25:27 [info] [VM:shutdown] Completed in 315ms
+2026-07-02 19:49:02 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-02 19:49:02 [info] [VM] Module loaded successfully
+2026-07-02 19:49:03 [info] [warm] Fetching VM hash for version 1.18286.0
+2026-07-02 19:49:03 [info] [warm] VM hash for version 1.18286.0: <blob>
+2026-07-02 19:49:03 [info] [warm] VM SHA matches current version, skipping
+2026-07-02 19:49:47 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-02 19:49:47 [info] [VM] Module loaded successfully
+2026-07-03 15:08:22 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-03 15:08:22 [info] [VM] Module loaded successfully
+2026-07-03 15:24:18 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-03 15:24:18 [info] [VM] Module loaded successfully
+2026-07-05 10:25:38 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-05 10:25:38 [info] [VM] Module loaded successfully
+2026-07-05 10:41:07 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-05 10:41:07 [info] [VM] Module loaded successfully
+2026-07-05 11:35:34 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-05 11:35:34 [info] [VM] Module loaded successfully
+2026-07-05 16:04:04 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-05 16:04:04 [info] [VM] Module loaded successfully
+2026-07-05 16:10:05 [info] [logout] User navigated to /logout, stopping VM
+2026-07-05 16:10:05 [info] [stopVM] stopping VM gracefully
+2026-07-05 16:10:05 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-07-05 16:13:33 [info] [logout] User navigated to /logout, stopping VM
+2026-07-05 16:13:33 [info] [stopVM] stopping VM gracefully
+2026-07-05 16:13:33 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-07-05 16:14:30 [info] [logout] User navigated to /logout, stopping VM
+2026-07-05 16:14:30 [info] [stopVM] stopping VM gracefully
+2026-07-05 16:14:30 [error] [logout] Failed to stop VM on logout: not configured: call 'configure' first
+2026-07-05 21:25:22 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-05 21:25:22 [info] [VM] Module loaded successfully
+2026-07-07 03:25:30 [info] [warm] Fetching VM hash for version 1.18286.2
+2026-07-07 03:25:30 [info] [warm] VM hash for version 1.18286.2: <blob>
+2026-07-07 03:25:30 [info] [warm] VM SHA matches current version, skipping
+2026-07-07 13:35:42 [info] [warm] Fetching VM hash for version 1.19367.0
+2026-07-07 13:35:42 [info] [warm] VM hash for version 1.19367.0: <blob>
+2026-07-07 13:35:42 [info] [warm] VM SHA matches current version, skipping
+2026-07-08 09:31:11 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-08 09:31:11 [info] [VM] Module loaded successfully
+2026-07-08 09:31:13 [info] [warm] Fetching VM hash for version 1.19367.0
+2026-07-08 09:31:13 [info] [warm] VM hash for version 1.19367.0: <blob>
+2026-07-08 09:31:13 [info] [warm] VM SHA matches current version, skipping
+2026-07-08 09:32:16 [info] [VM] Loading vmClient (TypeScript) module...
+2026-07-08 09:32:16 [info] [VM] Module loaded successfully

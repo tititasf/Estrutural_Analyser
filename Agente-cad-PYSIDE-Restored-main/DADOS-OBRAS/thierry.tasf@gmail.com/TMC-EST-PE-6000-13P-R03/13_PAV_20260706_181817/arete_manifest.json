@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "obra": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03",
+  "pavimento": "13_PAV",
+  "run_id": "20260706_181817",
+  "html_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03\\13_PAV_20260706_181817",
+  "diagnosticos": {
+    "pilares": {
+      "status": "ok",
+      "run_id": "20260706_181817",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_pil\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\diagnostico_pil_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_pil\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\triagem_auto_pil.jsonl",
+      "resumo": {
+        "itens": 46,
+        "n1_itens": 46,
+        "n2_itens": 0,
+        "alertas": 46,
+        "fora_de_escopo_nao_retangular": 0,
+        "classificacoes": {
+          "INDETERMINADO": 46
+        }
+      },
+      "json_relative": "../../../../scripts/arete/relatorios/diagnosticos_pil/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/diagnostico_pil_n1_n2.json",
+      "jsonl_relative": "../../../../scripts/arete/relatorios/diagnosticos_pil/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/triagem_auto_pil.jsonl"
+    },
+    "lajes": {
+      "status": "ok",
+      "run_id": "20260706_181817",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_laj\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\diagnostico_laj_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_laj\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\triagem_auto_laj.jsonl",
+      "resumo": {
+        "itens": 31,
+        "n1_itens": 31,
+        "n2_itens": 0,
+        "alertas": 31,
+        "classificacoes": {
+          "INDETERMINADO": 31
+        }
+      },
+      "json_relative": "../../../../scripts/arete/relatorios/diagnosticos_laj/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/diagnostico_laj_n1_n2.json",
+      "jsonl_relative": "../../../../scripts/arete/relatorios/diagnosticos_laj/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/triagem_auto_laj.jsonl"
+    },
+    "fundos_viga": {
+      "status": "ok",
+      "run_id": "20260706_181817",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_fv\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\diagnostico_fv_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_fv\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\triagem_auto_fv.jsonl",
+      "resumo": {
+        "itens": 46,
+        "n1_itens": 46,
+        "n2_itens": 0,
+        "alertas": 46,
+        "classificacoes": {
+          "INDETERMINADO": 46
+        },
+        "segmentacao": {
+          "comparaveis": 0,
+          "quantidade_pass": 0,
+          "quantidade_fail": 0,
+          "medidas_pass": 0,
+          "medidas_fail": 0,
+          "tolerancia_medida_cm": 0.05
+        }
+      },
+      "json_relative": "../../../../scripts/arete/relatorios/diagnosticos_fv/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/diagnostico_fv_n1_n2.json",
+      "jsonl_relative": "../../../../scripts/arete/relatorios/diagnosticos_fv/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/triagem_auto_fv.jsonl"
+    },
+    "laterais_viga": {
+      "status": "ok",
+      "run_id": "20260706_181817",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_lv\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\diagnostico_lv_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_lv\\D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03\\13_PAV\\20260706_181817\\triagem_auto_lv.jsonl",
+      "resumo": {
+        "itens": 46,
+        "n1_itens": 46,
+        "n2_itens": 0,
+        "alertas": 46,
+        "classificacoes": {
+          "INDETERMINADO": 46
+        }
+      },
+      "json_relative": "../../../../scripts/arete/relatorios/diagnosticos_lv/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/diagnostico_lv_n1_n2.json",
+      "jsonl_relative": "../../../../scripts/arete/relatorios/diagnosticos_lv/D_Agente-cad-PYSIDE_Agente-cad-PYSIDE-Restored-main_DADOS-OBRAS_thierry.tasf_gmail.com_TMC-EST-PE-6000-13P-R03/13_PAV/20260706_181817/triagem_auto_lv.jsonl"
+    }
+  }
+}

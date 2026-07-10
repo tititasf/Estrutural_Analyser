@@ -1,0 +1,201 @@
+2026-06-11 23:24:56 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-11 23:24:56 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-12 01:03:04 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-12 01:03:05 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-12 03:15:16 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-12 03:15:17 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-13 16:00:35 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-13 16:00:35 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_7ede4df0-322b-40cf-aa86-e1c50234a429_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-18 02:02:39 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_35f8d8e2-f372-4d38-873e-19f3ef701189_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_35f8d8e2-f372-4d38-873e-19f3ef701189_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-18 02:02:41 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-18 02:24:23 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-18 02:24:23 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_c3c082fd-e1f4-4dae-9d8b-72a34f944ec3_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_c3c082fd-e1f4-4dae-9d8b-72a34f944ec3_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-18 23:42:38 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_c3c082fd-e1f4-4dae-9d8b-72a34f944ec3_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_c3c082fd-e1f4-4dae-9d8b-72a34f944ec3_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-18 23:42:38 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-19 23:55:28 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-19 23:55:28 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-20 11:18:21 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-20 11:18:21 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-22 21:26:45 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-22 21:26:46 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-23 15:50:45 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-23 15:50:45 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-23 20:19:21 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_e2038dc7-97f7-4a90-818e-cf4d19199207_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-23 20:19:22 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-23 22:23:34 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-23 22:23:34 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_0c9fd619-ee2c-4e19-87fc-1085e9cb6ad2_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_0c9fd619-ee2c-4e19-87fc-1085e9cb6ad2_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-26 03:40:02 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-26 03:40:02 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_0c9fd619-ee2c-4e19-87fc-1085e9cb6ad2_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_0c9fd619-ee2c-4e19-87fc-1085e9cb6ad2_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-26 03:43:04 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-06-26 03:43:04 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_7c92ba16-bb46-433e-b365-f7eb49ce3a5e_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_7c92ba16-bb46-433e-b365-f7eb49ce3a5e_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-06-26 03:48:54 [warn] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+2026-06-26 03:52:58 [warn] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+2026-06-26 03:53:05 [warn] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+2026-06-26 04:04:50 [warn] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+2026-07-01 18:03:03 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_7c92ba16-bb46-433e-b365-f7eb49ce3a5e_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_7c92ba16-bb46-433e-b365-f7eb49ce3a5e_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-01 18:03:03 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-01 18:04:15 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-01 18:04:15 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-02 13:35:50 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-02 13:35:50 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-02 14:33:20 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-02 14:33:20 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-02 19:49:05 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-02 19:49:05 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_59a66fb1-ab8e-4131-8d25-ff82a292921c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-02 19:49:50 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-02 19:49:50 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-03 15:08:24 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-03 15:08:24 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-03 15:24:20 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-03 15:24:20 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 10:25:40 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 10:25:42 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 10:41:10 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 10:41:11 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 11:35:35 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 11:35:35 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 16:04:06 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 16:04:06 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 16:11:07 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 16:11:07 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 16:13:51 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 16:13:51 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 16:14:49 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 16:14:49 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 21:25:24 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-05 21:25:24 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-05 23:20:26 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-05 23:20:26 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-05 23:20:50 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-05 23:21:40 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-05 23:23:34 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 13:02:47 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 13:02:47 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 13:11:02 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 13:11:02 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 13:43:17 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 13:43:17 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 15:19:45 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 15:19:45 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 16:33:31 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 16:33:31 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 16:33:40 [error] Not allowed to load local resource: chrome-error://chromewebdata/app/obras/81a4b6a2-6032-4eb3-91d7-891420581a3f
+2026-07-06 16:50:37 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 16:50:37 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 17:06:58 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 17:06:58 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 18:14:26 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 18:14:26 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 18:28:05 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 18:28:05 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 21:21:37 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 21:21:37 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 21:26:04 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 21:26:04 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 21:44:17 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 21:44:17 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 21:49:13 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 21:49:13 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 21:53:17 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 21:53:17 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 22:04:30 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 22:04:30 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 22:04:46 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 22:04:46 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-06 23:50:35 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-06 23:50:35 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-06 23:52:52 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:52 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:52 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:52 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:53 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:53 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:53 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:53 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-06 23:52:53 [error] Uncaught (in promise) SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+2026-07-07 00:00:14 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 00:00:14 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 01:27:42 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 01:27:42 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 01:27:53 [error] Not allowed to load local resource: chrome-error://chromewebdata/app/obras/81a4b6a2-6032-4eb3-91d7-891420581a3f
+2026-07-07 01:51:03 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 01:51:03 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 01:51:15 [error] Fetch API cannot load chrome-error://chromewebdata/login. URL scheme "chrome-error" is not supported.
+2026-07-07 01:55:14 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 01:55:14 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 02:14:22 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 02:14:22 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 02:55:01 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 02:55:01 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 10:35:53 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 10:35:53 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 16:25:26 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 16:25:26 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 16:25:26 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 16:25:26 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 16:26:45 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 16:26:45 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 16:26:45 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 16:26:45 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 16:27:45 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 16:27:45 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 16:27:45 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 16:27:45 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 16:29:04 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 16:29:04 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 17:09:16 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 17:09:16 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 17:09:43 [error] Fetch API cannot load chrome-error://chromewebdata/login. URL scheme "chrome-error" is not supported.
+2026-07-07 19:10:51 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 19:10:51 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 19:11:58 [error] Uncaught TypeError: Cannot read properties of null (reading 'innerHTML')
+2026-07-07 21:52:13 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-07 21:52:16 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-07 22:03:21 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 22:03:21 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 22:03:21 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 22:03:21 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 22:03:29 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 22:03:29 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 22:03:29 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-07 22:03:29 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-07 22:04:36 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-07 22:04:36 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-07 22:51:32 [error] Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')
+2026-07-07 22:53:14 [error] Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')
+2026-07-07 22:54:43 [error] Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')
+2026-07-07 22:57:19 [error] Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')
+2026-07-07 22:58:03 [error] Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')
+2026-07-07 22:58:36 [error] Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')
+2026-07-08 09:31:13 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b0ddb10e-bd0e-4186-838d-1191a77b954c_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-08 09:31:13 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-08 09:32:19 [error] Uncaught (in promise) Error: Error invoking remote method '$eipc_message$_b9ef0afa-5c54-4763-b4bc-a3612b56c7c7_$_claude.buddy_$_BuddyBleTransport_$_reportState': Error: No handler registered for '$eipc_message$_b9ef0afa-5c54-4763-b4bc-a3612b56c7c7_$_claude.buddy_$_BuddyBleTransport_$_reportState'
+2026-07-08 09:32:19 [error] Setting the document's base URI to 'https://claude.ai/' violates the following Content Security Policy directive: "base-uri 'none'". The action has been blocked.
+2026-07-08 09:43:34 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:43:34 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:43:34 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:43:34 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:43:39 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:43:39 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:43:39 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:43:39 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:43:44 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:43:44 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:43:44 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:43:44 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:44:47 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:44:47 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:44:47 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:44:47 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:45:11 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:45:11 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:45:11 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 09:45:11 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 09:46:14 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-08 09:46:14 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.
+2026-07-08 10:06:04 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 10:06:04 [warn] The specified value "{{ obra.data_solicitacao or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 10:06:04 [warn] The specified value "{{ obra.data_entrega or '' }}" does not conform to the required format, "yyyy-MM-dd".
+2026-07-08 10:06:04 [error] Uncaught SyntaxError: Unexpected token '{'
+2026-07-08 11:13:41 [error] Electron sandboxed_renderer.bundle.js script failed to run
+2026-07-08 11:13:41 [error] TypeError: Cannot destructure property 'preloadScripts' of 'binding.startupData' as it is null.

@@ -1,0 +1,326 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-08T20:53:25.875317+00:00",
+  "obra": "Obra_TESTE",
+  "pavimento": "13_PAV",
+  "run_id": "20260703_120000",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\.pytest-tmp-laj-contour-diagnostic\\test_run_diagnostic_is_headles0\\estado_13_PAV.json",
+    "n1_estado_sha256": "2917be42bd24196a7074309c5af3518556be28a66b66bd004434f072fb95f039",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\.pytest-tmp-laj-contour-diagnostic\\test_run_diagnostic_is_headles0\\project_data.vision",
+    "n4_human_locked_overrides": 0
+  },
+  "resumo": {
+    "itens": 4,
+    "n1_itens": 3,
+    "n2_itens": 3,
+    "alertas": 3,
+    "classificacoes": {
+      "EXCELENTE": 1,
+      "INDETERMINADO": 2,
+      "RUIM": 1
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-08T20:53:25.875317+00:00",
+      "obra": "Obra_TESTE",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L301",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.0,
+        "geometria": {
+          "iou": 1.0,
+          "rotation_deg": 90,
+          "area_n1": 5000.0,
+          "area_n2_poligono": 5000.0,
+          "area_n2_ref": 5000.0,
+          "area_delta_pct": 0.0,
+          "symmetric_diff_area": 0.0,
+          "symmetric_diff_pct": 0.0,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 50.0,
+          "comprimento_bbox": 100.0,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              100
+            ],
+            [
+              0,
+              100
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 100.0,
+          "largura": 50.0,
+          "area_cm2": 5000.0,
+          "coordenadas": [
+            [
+              0,
+              0
+            ],
+            [
+              100,
+              0
+            ],
+            [
+              100,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "ficha_id": 1,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-08T20:53:25.875317+00:00",
+      "obra": "Obra_TESTE",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L318",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n1_contorno_divergente",
+      "causa_descricao": "Contorno/área real da laje diverge entre N1 e N2. A comparação usa polígono normalizado, área total, IoU e área de diferença; ler a ficha granular (lajes/{nome}.html) antes de decidir o fix.",
+      "confianca": 0.7,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.18211306042884987,
+        "geometria": {
+          "iou": 0.6445351023289273,
+          "rotation_deg": 0,
+          "area_n1": 569055.12,
+          "area_n2_poligono": 366776.0,
+          "area_n2_ref": 366776.0,
+          "area_delta_pct": 0.5515058782472135,
+          "symmetric_diff_area": 202279.12,
+          "symmetric_diff_pct": 0.5515058782472135,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 2831.12,
+          "comprimento_bbox": 201.0,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              2831.12,
+              0
+            ],
+            [
+              2831.12,
+              201.0
+            ],
+            [
+              0,
+              201.0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "nivel": "852.19",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 2413.0,
+          "largura": 152.0,
+          "area_cm2": 366776.0,
+          "coordenadas": [
+            [
+              0,
+              0
+            ],
+            [
+              2413,
+              0
+            ],
+            [
+              2413,
+              152
+            ],
+            [
+              0,
+              152
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "ficha_id": 2,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-08T20:53:25.875317+00:00",
+      "obra": "Obra_TESTE",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L320",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 60.0,
+          "comprimento_bbox": 30.0,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              60,
+              0
+            ],
+            [
+              60,
+              30
+            ],
+            [
+              0,
+              30
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "nivel": "852.10",
+          "vertices": 5
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-08T20:53:25.875317+00:00",
+      "obra": "Obra_TESTE",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L999",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N2; falta representação de laje no estado N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": null,
+        "n2": {
+          "comprimento": 80.0,
+          "largura": 40.0,
+          "area_cm2": 3200.0,
+          "coordenadas": [
+            [
+              0,
+              0
+            ],
+            [
+              80,
+              0
+            ],
+            [
+              80,
+              40
+            ],
+            [
+              0,
+              40
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "ficha_id": 3,
+          "status": "draft",
+          "confianca_origem": 0.8
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

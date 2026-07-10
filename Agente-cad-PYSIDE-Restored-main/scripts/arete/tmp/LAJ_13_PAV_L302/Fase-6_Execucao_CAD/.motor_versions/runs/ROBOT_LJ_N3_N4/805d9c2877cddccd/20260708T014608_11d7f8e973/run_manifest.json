@@ -1,0 +1,13 @@
+{
+  "run_id": "20260708T014608_11d7f8e973",
+  "motor_id": "ROBOT_LJ_N3_N4",
+  "version_id": "805d9c2877cddccd",
+  "mode": "publish",
+  "status": "published",
+  "official_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L302\\Fase-6_Execucao_CAD\\LJ_preview_L302.dxf",
+  "output_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\LAJ_13_PAV_L302\\Fase-6_Execucao_CAD\\LJ_preview_L302.dxf",
+  "baseline_sha256": "77b8dfcbe73004c6c199c5e3090b11be41eb28be100e83ff3cd3bcb7d70ee7f0",
+  "output_sha256": "89d9f04e9da5eca9f5715e266c40739eab619690efa73df2e5cc52d4f8e3af5b",
+  "effect": "changed",
+  "created_at": "2026-07-08T01:46:08+00:00"
+}
