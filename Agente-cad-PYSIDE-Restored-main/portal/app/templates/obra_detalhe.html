@@ -477,6 +477,12 @@
     }, { passive: false });
     var arrastando = false, ultimoX = 0, ultimoY = 0;
     viewport.addEventListener('mousedown', function (e) {
+      // [novo, a pedido do dono] no Modo Recorte Manual, clique 1 (esquerdo)
+      // é reservado pra desenhar o retângulo de recorte — não pode também
+      // arrastar a imagem ao mesmo tempo (os dois rodavam juntos, a imagem
+      // "fugia" enquanto o retângulo era desenhado). Clique 3 (botão do meio
+      // /scroll) continua arrastando normalmente mesmo em modo recorte.
+      if (window._modoCropManualAtivo && e.button === 0) return;
       arrastando = true; ultimoX = e.clientX; ultimoY = e.clientY;
       viewport.classList.add('arrastando');
       e.preventDefault();
@@ -1711,7 +1717,11 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
          
          vp.addEventListener('mousedown', function(e) {
             if (!window._modoCropManualAtivo) return;
-            e.stopPropagation(); 
+            // [novo, a pedido do dono] só desenha retângulo no clique 1
+            // (esquerdo) — clique 3 (botão do meio/scroll) fica livre pro
+            // arraste normal do viewer (ver skip em inicializarZoomPan acima).
+            if (e.button !== 0) return;
+            e.stopPropagation();
             var rect = vp.getBoundingClientRect();
             
             var img = vp.querySelector('img, svg');
