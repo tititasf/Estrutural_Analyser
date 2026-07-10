@@ -38,9 +38,16 @@ def _templates(request: Request):
 
 
 def _render(request: Request, template_name: str, ctx: dict):
+    # [FIX] o ambiente real do portal (Python 3.12, venv da app) tem
+    # starlette 0.27.0 instalado — essa versao usa a assinatura ANTIGA
+    # TemplateResponse(name, context), com "request" DENTRO do dict de
+    # contexto (nunca posicional). A troca pra TemplateResponse(request,
+    # name, context) — assinatura de uma starlette 1.3.1 que nao existe
+    # neste ambiente — quebrava TODA pagina com
+    # "ValueError: context must include a 'request' key" (ja tinha sido
+    # corrigido uma vez, 2026-07-06, e foi revertido por engano).
     ctx = {**ctx, "request": request}
-    # Using the updated Starlette 1.3.1 signature which takes (request, name, context)
-    return _templates(request).TemplateResponse(request, template_name, ctx)
+    return _templates(request).TemplateResponse(template_name, ctx)
 
 
 def _membro_da_sessao(request: Request, conn: sqlite3.Connection) -> Optional[dict]:
