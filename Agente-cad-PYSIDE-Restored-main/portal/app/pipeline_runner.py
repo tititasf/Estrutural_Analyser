@@ -200,6 +200,33 @@ def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str)
     if not dxf_path or not dxf_path.is_file():
         return
 
+    # [novo, a pedido do dono] SA deve analisar o MESMO arquivo que a app
+    # desktop usa pra esta obra/pavimento: o recorte "Torre 1" (motor DBSCAN,
+    # scripts/obra_crop_engine.py — o mesmo que ja alimenta "Recortes Torres
+    # Limpas" na Triagem do portal), nao o bruto puro. O bruto tem ruido real
+    # (bloco de titulo, cotas/textos fora da planta, entidades duplicadas)
+    # que confunde a deteccao automatica de pilares/lajes — o recorte ja
+    # vem limpo, e' o que a obra de referencia na app (Obra_TREINO_1) usa de
+    # verdade. So' cai pro bruto se o recorte ainda nao foi gerado (Triagem +
+    # Recortes ainda nao rodou pra este bruto especifico).
+    from . import torre_crop
+    # [FIX] a pasta de recorte e' sempre nomeada com o stem do .dxf REAL
+    # convertido (com o sufixo "_R2018_ASCII_ODA"), mas `dxf_path` acima pode
+    # ter batido no .dxf SEM esse sufixo (quando os dois existem soltos na
+    # pasta entrada/, como acontece pra varios brutos desta obra) — usar
+    # `dxf_path.stem` direto perdia o recorte por causa dessa diferenca de
+    # nome. Tenta o stem exato primeiro, senao procura por prefixo.
+    recortes_dir = obra_dir / "Fase-2_Triagem" / "recortes"
+    torre_1 = torre_crop._dir_recortes_bruto(obra_dir, dxf_path.stem) / "torre_1.dxf"
+    if not torre_1.is_file() and recortes_dir.is_dir():
+        for pasta in sorted(recortes_dir.glob(f"{dxf_path.stem}*")):
+            candidato_torre = pasta / "torre_1.dxf"
+            if candidato_torre.is_file():
+                torre_1 = candidato_torre
+                break
+    if torre_1.is_file():
+        dxf_path = torre_1
+
     try:
         # [FIX] `DatabaseManager` nao guarda conexao persistente em
         # `.conn`/`.cursor` (AttributeError sempre, silenciosamente engolido
