@@ -1,1 +1,1 @@
-{"torre_1": false, "bad_bboxes": [[880.474357, 665.886032, 7064.708681, 4165.886032000001]]}
+{"torre_1": true, "bad_bboxes": [[880.474357, 665.886032, 7064.708681, 4165.886032000001]], "detalhes": true, "convencao_pilares": true}

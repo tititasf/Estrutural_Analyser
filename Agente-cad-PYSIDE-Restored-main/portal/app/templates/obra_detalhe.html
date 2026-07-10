@@ -1945,7 +1945,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       method: 'POST',
     }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
       .then(function () {
-        return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) + '/itens')
+        return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) + '/itens?t=' + Date.now())
           .then(function (r) { return r.json(); });
       })
       .then(function (data) {
@@ -2076,11 +2076,11 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
   // que o cache chega — ver `itensRecorteDoDoc`/`renderizarSubclassesRecorte`
   // dentro do módulo de Documentos, acima).
   function carregarDadosRecortesEArvore() {
-    fetch('/obras/' + OBRA_ID + '/recortes/brutos').then(function (r) { return r.json(); })
+    fetch(\'/obras/\' + OBRA_ID + \'/recortes/brutos?t=\' + Date.now()).then(function (r) { return r.json(); })
       .then(function (data) {
         _recortesBrutosCache = data.brutos;
         return Promise.all(data.brutos.map(function (b) {
-          return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(b.bruto_id) + '/itens')
+          return fetch(\'/obras/\' + OBRA_ID + \'/recortes/brutos/\' + encodeURIComponent(b.bruto_id) + \'/itens?t=\' + Date.now())
             .then(function (r) { return r.json(); })
             .then(function (itensData) { _recortesItensPorBruto[b.bruto_id] = itensData.itens; })
             .catch(function () { _recortesItensPorBruto[b.bruto_id] = []; });
