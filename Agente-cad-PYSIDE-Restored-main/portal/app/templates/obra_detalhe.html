@@ -1352,9 +1352,7 @@
     if (_recortesBrutosCache && _recortesItensPorBruto) {
       _recortesBrutosCache.forEach(function(bruto) {
         var brutoPav = (bruto.pavimento || 'Indeterminado').trim();
-        // Normaliza o nome do pavimento da mesma forma que a montagem da lista
-        var pavNome = brutoPav === 'Indeterminado' ? 'Indeterminado' : (/^pavimento /i.test(brutoPav) ? brutoPav : 'Pavimento ' + brutoPav);
-        if (pavNome === pav) {
+        if (brutoPav === pav) {
           var itens = _recortesItensPorBruto[bruto.bruto_id] || [];
           total += itens.length;
           itens.forEach(function(item) {
@@ -1385,8 +1383,7 @@
     if (_recortesBrutosCache) {
       var brutoEncontrado = _recortesBrutosCache.find(function(b) {
          var bp = (b.pavimento || 'Indeterminado').trim();
-         var pNome = bp === 'Indeterminado' ? 'Indeterminado' : (/^pavimento /i.test(bp) ? bp : 'Pavimento ' + bp);
-         return pNome === pav;
+         return bp === pav;
       });
       if (brutoEncontrado) {
          // Carrega o bruto no painel central!
