@@ -458,7 +458,6 @@
     var alvo = viewport.querySelector('img, svg');
     if (!alvo) return;
     alvo.style.transformOrigin = '0 0';
-    alvo.style.willChange = 'transform';
     var estado = { scale: 1, tx: 0, ty: 0 };
     function aplicar() {
       alvo.style.transform = 'translate(' + estado.tx + 'px,' + estado.ty + 'px) scale(' + estado.scale + ')';
@@ -1694,7 +1693,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       container.innerHTML = cropHtml + vpHtml;
 
       var vp = container.querySelector('.zoom-pan-viewport');
-      if (text.trim().toLowerCase().startsWith('<svg')) {
+      if (text.toLowerCase().includes('<svg')) {
         vp.innerHTML = text;
         var svgEl = vp.querySelector('svg');
         if (svgEl) {
