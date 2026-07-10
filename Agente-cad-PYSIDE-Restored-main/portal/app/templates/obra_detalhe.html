@@ -959,6 +959,43 @@
       _renderizarGruposDeRecorte(lista, rec, classePavPar, pav);
     }
 
+    // [novo, a pedido do dono] cabecalho de pavimento com setinha (▶ fechado /
+    // ▼ aberto) a direita do nome, indicando o estado de expandir/contrair —
+    // compartilhado entre o caminho normal e o fallback de modo rapido/legado
+    // (era duplicado 2x sem a seta e sem o auto-clique funcionando de verdade,
+    // ver [FIX] em `docs-triagem-item` acima).
+    function criarCabecalhoPavimento(pav, classePavPar) {
+      var cabPav = document.createElement('li');
+      cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar + ' pavimento-fechado';
+      var nomeTexto = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
+      cabPav.innerHTML =
+        '<span class="pavimento-nome">' + nomeTexto + '</span>' +
+        '<span class="pavimento-seta" aria-hidden="true">▶</span>';
+      cabPav.style.cursor = 'pointer';
+      cabPav.addEventListener('click', function () {
+        var isFechado = cabPav.classList.toggle('pavimento-fechado');
+        cabPav.querySelector('.pavimento-seta').textContent = isFechado ? '▶' : '▼';
+        // [FIX, a pedido do dono] expandir o pavimento agora ja' seleciona o
+        // bruto dele na hora, carregando a pagina de detalhe sem precisar de
+        // um segundo clique no documento.
+        selecionarPavimento(pav);
+        var next = cabPav.nextElementSibling;
+        var autoClicou = false;
+        while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
+          next.style.display = isFechado ? 'none' : '';
+          if (!isFechado && !autoClicou) {
+            var btn = next.querySelector('.docs-triagem-item');
+            if (btn) {
+              btn.click();
+              autoClicou = true;
+            }
+          }
+          next = next.nextElementSibling;
+        }
+      });
+      return cabPav;
+    }
+
     function montarLista() {
       // a lista fica aninhada aqui dentro de #docs-viewer (na sidebar global,
       // à esquerda); o detalhe vai pra #docs-detalhe-painel, no conteúdo claro.
@@ -977,27 +1014,7 @@
           _recortesBrutosCache.forEach(function (bruto, i) {
             var classePavPar = i % 2 === 0 ? 'pavimento-par' : 'pavimento-impar';
             var pav = bruto.pavimento || 'Indeterminado';
-            var cabPav = document.createElement('li');
-            cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar + ' pavimento-fechado';
-            cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
-            cabPav.style.cursor = 'pointer';
-            cabPav.addEventListener('click', function() {
-              var isFechado = cabPav.classList.toggle('pavimento-fechado');
-              selecionarPavimento(pav);
-              var next = cabPav.nextElementSibling;
-              var autoClicou = false;
-              while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
-                next.style.display = isFechado ? 'none' : '';
-                if (!isFechado && !autoClicou) {
-                   var btn = next.querySelector('.docs-triagem-item');
-                   if (btn) {
-                      btn.click();
-                      autoClicou = true;
-                   }
-                }
-                next = next.nextElementSibling;
-              }
-            });
+            var cabPav = criarCabecalhoPavimento(pav, classePavPar);
             lista.appendChild(cabPav);
             var todos = _recortesItensPorBruto[bruto.bruto_id] || [];
             var rec = {
@@ -1022,27 +1039,7 @@
         // divide visualmente um bloco de pavimento do próximo na listagem.
         var classePavPar = pavIndice % 2 === 0 ? 'pavimento-par' : 'pavimento-impar';
         var gruposDoTipo = grupos[pav] || {};
-        var cabPav = document.createElement('li');
-        cabPav.className = 'n1-lista-cabecalho docs-cabecalho-pavimento ' + classePavPar + ' pavimento-fechado';
-        cabPav.textContent = pav === 'Indeterminado' ? '— Docs Gerais —' : (/^pavimento/i.test(pav) ? '— ' + pav + ' —' : '— Pavimento ' + pav + ' —');
-        cabPav.style.cursor = 'pointer';
-            cabPav.addEventListener('click', function() {
-              var isFechado = cabPav.classList.toggle('pavimento-fechado');
-              selecionarPavimento(pav);
-              var next = cabPav.nextElementSibling;
-              var autoClicou = false;
-              while (next && !next.classList.contains('docs-cabecalho-pavimento')) {
-                next.style.display = isFechado ? 'none' : '';
-                if (!isFechado && !autoClicou) {
-                   var btn = next.querySelector('.docs-triagem-item');
-                   if (btn) {
-                      btn.click();
-                      autoClicou = true;
-                   }
-                }
-                next = next.nextElementSibling;
-              }
-            });
+        var cabPav = criarCabecalhoPavimento(pav, classePavPar);
             lista.appendChild(cabPav);
         TIPOS_ORDEM.concat(['Indeterminado']).forEach(function (tipo) {
           var itens = gruposDoTipo[tipo] || [];
@@ -1080,7 +1077,13 @@
             li.style.display = 'none';
             var a = document.createElement('button');
             a.type = 'button';
-            a.className = 'n1-item-link docs-item';
+            // [FIX, a pedido do dono] `docs-triagem-item` e' o que o clique no
+            // cabecalho do pavimento procura pra auto-selecionar o bruto ao
+            // expandir — antes NENHUM elemento tinha essa classe (o
+            // querySelector('.docs-triagem-item') nunca achava nada, o
+            // auto-clique nunca disparava). So' o Bruto (o doc real da
+            // planta) recebe essa marca, nao Detalhe/PDF/Outro.
+            a.className = 'n1-item-link docs-item' + (tipo === 'Bruto' ? ' docs-triagem-item' : '');
             a.textContent = d.nome_exibicao || d.arquivo_nome;
             a.setAttribute('data-doc-id', d.id);
             a.setAttribute('draggable', 'true');

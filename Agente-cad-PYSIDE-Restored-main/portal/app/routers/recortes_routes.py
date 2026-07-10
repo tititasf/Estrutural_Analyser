@@ -140,12 +140,19 @@ def listar_itens_torre_endpoint(obra_id: str, bruto_id: str, request: Request,
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
     itens = torre_crop.listar_recortes_bruto(obra_dir, bruto_id)
-    docs = repo.obter_documentos_da_obra(conn, obra_id)
-    bruto_doc = next((d for d in docs if d["id"] == bruto_id), None)
+    # [FIX] `repo.obter_documentos_da_obra` nao existe (a funcao real e'
+    # `listar_documentos_por_obra`); alem disso `bruto_id` e' o STEM do
+    # arquivo (ex.: "TMC-...-R01_R2018_ASCII_ODA"), nunca o id (UUID) de
+    # portal_documentos — o match tem que ser por nome de arquivo, igual
+    # `listar_brutos_recorte_endpoint` acima ja' faz.
+    docs = repo.listar_documentos_por_obra(conn, obra_id)
+    bruto_doc = next(
+        (d for d in docs if Path(d["arquivo_nome"]).stem.lower() == bruto_id.lower()), None,
+    )
     pav = "Desconhecido"
     if bruto_doc:
-        pav = bruto_doc.get("pavimento_confirmado") or bruto_doc.get("pavimento") or "Desconhecido"
-    
+        pav = bruto_doc.get("pavimento_confirmado") or bruto_doc.get("pavimento_sugerido") or "Desconhecido"
+
     return {"obra_id": obra_id, "bruto_id": bruto_id,
             "itens": [{"item_id": i["item_id"], "titulo": f"{i['titulo']} - {pav}", "validado": i.get("validado", False)} for i in itens]}
 
