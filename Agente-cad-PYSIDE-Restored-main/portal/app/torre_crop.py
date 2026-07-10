@@ -25,6 +25,21 @@ from pathlib import Path
 
 log = logging.getLogger(__name__)
 
+# [novo, a pedido do dono] classes fixas do Modo Recorte Manual — mesmas
+# classes que a arvore de Recortes ja usa (torre_N do DBSCAN + detalhes),
+# mais as 2 convencoes e "outros" que so' existiam via texto livre ate' agora.
+# Titulo aqui e' so' pra exibicao (acentuado); o item_id/nome de arquivo em
+# disco continua ASCII (sanitizado em manual_crop_endpoint).
+CLASSES_RECORTE_MANUAL = (
+    ("torre_1", "Torre 1"),
+    ("torre_2", "Torre 2"),
+    ("detalhes", "Detalhes e Convenções Gerais"),
+    ("convencao_pilares", "Convenção de Pilares"),
+    ("convencao_niveis", "Convenção de Níveis"),
+    ("outros", "Outros"),
+)
+_TITULOS_RECORTE = dict(CLASSES_RECORTE_MANUAL)
+
 
 def _dir_recortes_bruto(obra_dir: Path, bruto_stem: str) -> Path:
     return obra_dir / "Fase-2_Triagem" / "recortes" / bruto_stem
@@ -127,8 +142,8 @@ def listar_recortes_bruto(obra_dir: Path, bruto_stem: str) -> list[dict]:
     validados = _ler_validacao(out_dir)
     itens = []
     for p in sorted(out_dir.glob("*.dxf")):
-        if p.stem == "detalhes":
-            titulo = "Detalhes e Convenções Gerais"
+        if p.stem in _TITULOS_RECORTE:
+            titulo = _TITULOS_RECORTE[p.stem]
         else:
             titulo = p.stem.replace("_", " ").title()
         itens.append({

@@ -886,31 +886,52 @@
         .concat(aticoOuCobertura.map(function (x) { return x.nome; }));
     }
 
-    // [novo, a pedido do dono] acha os recortes (torres/detalhes) já gerados
-    // a partir do Bruto `d` — SEMPRE escopado por bruto_id (nunca por
-    // pavimento inteiro), pra nunca misturar recortes de brutos diferentes.
+    // [novo, a pedido do dono] acha os recortes já gerados a partir do Bruto
+    // `d` — SEMPRE escopado por bruto_id (nunca por pavimento inteiro), pra
+    // nunca misturar recortes de brutos diferentes. Classes iguais as do
+    // Modo Recorte Manual (ver torre_crop.CLASSES_RECORTE_MANUAL no
+    // backend), separadas em grupos próprios — não misturadas todas
+    // debaixo de "Detalhes" — pra manter os dados separados por classe
+    // (importante pro treino futuro, com o volume de dados acumulado).
     function itensRecorteDoDoc(d) {
       if (!_recortesBrutosCache) return null;
       var bruto = _recortesBrutosCache.find(function (b) { return b.nome === d.arquivo_nome; });
       if (!bruto) return null;
-      var todos = _recortesItensPorBruto[bruto.bruto_id] || [];
+      return montarRecPorBrutoId(bruto.bruto_id);
+    }
+
+    // Monta o objeto `rec` (grupos por classe) a partir de um bruto_id direto
+    // — reusado por `itensRecorteDoDoc` (bruto casado com um documento),
+    // pelo fallback de modo rápido/legado e por `atualizarSubclassesDoBruto`
+    // (refresh cirúrgico após "Regenerar", fora deste IIFE).
+    function montarRecPorBrutoId(brutoId) {
+      var todos = _recortesItensPorBruto[brutoId] || [];
       return {
-        brutoId: bruto.bruto_id,
+        brutoId: brutoId,
         torres: todos.filter(function (it) { return it.item_id.indexOf('torre') === 0; }),
-        detalhes: todos.filter(function (it) { return it.item_id.indexOf('torre') !== 0; }),
+        detalhes: todos.filter(function (it) { return it.item_id === 'detalhes'; }),
+        convencaoPilares: todos.filter(function (it) { return it.item_id === 'convencao_pilares'; }),
+        convencaoNiveis: todos.filter(function (it) { return it.item_id === 'convencao_niveis'; }),
+        outros: todos.filter(function (it) {
+          return it.item_id.indexOf('torre') !== 0 && ['detalhes', 'convencao_pilares', 'convencao_niveis'].indexOf(it.item_id) === -1;
+        }),
       };
     }
 
-    // Renderiza os 2 grupos (Torres Limpas/Detalhes e Convenções) de UM bruto
-    // já resolvido (`rec`) — usado tanto quando o bruto está aninhado debaixo
-    // do seu documento na Triagem quanto no fallback de modo rápido/legado
-    // (obra com 0 documentos navegáveis, ver `montarLista` abaixo).
+    // Renderiza os grupos (Torres Limpas/Detalhes/Convenção de Pilares/
+    // Convenção de Níveis/Outros) de UM bruto já resolvido (`rec`) — usado
+    // tanto quando o bruto está aninhado debaixo do seu documento na Triagem
+    // quanto no fallback de modo rápido/legado (obra com 0 documentos
+    // navegáveis, ver `montarLista` abaixo).
     function _renderizarGruposDeRecorte(lista, rec, classePavPar, pav) {
       // [novo, a pedido do dono] label sem repetir o nome do bruto — já está
       // implícito pela posição aninhada debaixo do próprio documento.
       [
         { chave: 'torres', label: 'Recortes Torres Limpas', itens: rec.torres },
         { chave: 'detalhes', label: 'Recortes Detalhes e Convenções', itens: rec.detalhes },
+        { chave: 'convencaoPilares', label: 'Convenção de Pilares', itens: rec.convencaoPilares },
+        { chave: 'convencaoNiveis', label: 'Convenção de Níveis', itens: rec.convencaoNiveis },
+        { chave: 'outros', label: 'Outros', itens: rec.outros },
       ].forEach(function (grupo) {
         if (!grupo.itens.length) return;
         var cab = document.createElement('li');
@@ -1016,12 +1037,7 @@
             var pav = bruto.pavimento || 'Indeterminado';
             var cabPav = criarCabecalhoPavimento(pav, classePavPar);
             lista.appendChild(cabPav);
-            var todos = _recortesItensPorBruto[bruto.bruto_id] || [];
-            var rec = {
-              brutoId: bruto.bruto_id,
-              torres: todos.filter(function (it) { return it.item_id.indexOf('torre') === 0; }),
-              detalhes: todos.filter(function (it) { return it.item_id.indexOf('torre') !== 0; }),
-            };
+            var rec = montarRecPorBrutoId(bruto.bruto_id);
             _renderizarGruposDeRecorte(lista, rec, classePavPar, pav);
           });
           renderizarDetalhe(null);
@@ -1127,6 +1143,7 @@
     window.pavimentoDe = pavimentoDe;
     window.renderizarSubclassesRecorte = renderizarSubclassesRecorte;
     window.renderizarGruposDeRecorte = _renderizarGruposDeRecorte;
+    window.montarRecPorBrutoId = montarRecPorBrutoId;
     window.documentosTriagem = documentos;
     window.moverIntroParaSlot = moverIntroParaSlot;
     montarLista();
@@ -1610,7 +1627,14 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
            <label style="font-weight:bold; margin-right:10px; cursor:pointer">
              <input type="checkbox" id="chk-crop-manual"> Modo Recorte Manual
            </label>
-           <input type="text" id="crop-classe-alvo" placeholder="Classe (ex: torre_1)" style="padding:4px; margin-right:10px; background:var(--bg-dark); color:var(--text); border:1px solid var(--border)">
+           <select id="crop-classe-alvo" style="padding:4px; margin-right:10px; background:var(--bg-dark); color:var(--text); border:1px solid var(--border)">
+             <option value="torre_1">Torre 1</option>
+             <option value="torre_2">Torre 2</option>
+             <option value="detalhes">Detalhes e Convenções Gerais</option>
+             <option value="convencao_pilares">Convenção de Pilares</option>
+             <option value="convencao_niveis">Convenção de Níveis</option>
+             <option value="outros">Outros</option>
+           </select>
            <button type="button" class="btn" id="btn-crop-enviar">Recortar & Processar</button>
            <button type="button" class="btn btn-outline" id="btn-crop-limpar">Limpar Seleções</button>
            <span style="margin-left:10px; font-size:12px; color:#aaa">Marque o modo recorte e arraste o mouse sobre a imagem para criar os retângulos.</span>
@@ -1906,12 +1930,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     if (doc) {
       window.renderizarSubclassesRecorte(novaLista, doc, classePavPar, pav);
     } else {
-      var todos = _recortesItensPorBruto[brutoId] || [];
-      var rec = {
-        brutoId: brutoId,
-        torres: todos.filter(function (it) { return it.item_id.indexOf('torre') === 0; }),
-        detalhes: todos.filter(function (it) { return it.item_id.indexOf('torre') !== 0; }),
-      };
+      var rec = window.montarRecPorBrutoId(brutoId);
       window.renderizarGruposDeRecorte(novaLista, rec, classePavPar, pav);
     }
     while (novaLista.firstChild) referencia.parentNode.insertBefore(novaLista.firstChild, referencia);
