@@ -998,6 +998,21 @@ class CADCanvas(QGraphicsView):
         self.tool_buttons["ortho"] = b_ortho
         layout.addWidget(b_ortho)
 
+        layout.addSpacing(2)
+        layout.addWidget(vsep())
+        layout.addSpacing(2)
+
+        # ── OSnap (toggle) ──────────────────────────────────────────────────
+        self.osnap_enabled = True # Initialize explicitly
+        b_osnap = QPushButton("OSN")
+        b_osnap.setObjectName("osnap_btn")
+        b_osnap.setToolTip("Object Snap  ·  F3")
+        b_osnap.setCursor(Qt.PointingHandCursor)
+        b_osnap.setProperty("active", True)
+        b_osnap.clicked.connect(self.toggle_osnap)
+        self.tool_buttons["osnap"] = b_osnap
+        layout.addWidget(b_osnap)
+
         layout.addStretch()
 
         # Modo inicial
@@ -1014,6 +1029,20 @@ class CADCanvas(QGraphicsView):
             btn.style().unpolish(btn)
             btn.style().polish(btn)
         self.log(f"Ortho Mode: {'ON' if self.ortho_mode else 'OFF'}")
+
+    def toggle_osnap(self):
+        """Liga/Desliga modo Object Snap"""
+        self.osnap_enabled = not self.osnap_enabled
+        if "osnap" in self.tool_buttons:
+            btn = self.tool_buttons["osnap"]
+            btn.setProperty("active", self.osnap_enabled)
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
+        self.log(f"OSnap Mode: {'ON' if self.osnap_enabled else 'OFF'}")
+        
+        if not self.osnap_enabled:
+            for m in self.snap_markers.values():
+                m.hide()
 
     def set_edit_mode(self, mode):
         """Define o modo de ediÃ§Ã£o atual"""
@@ -1034,7 +1063,13 @@ class CADCanvas(QGraphicsView):
 
         # Atualiza o estado visual dos botÃµes
         for m, btn in self.tool_buttons.items():
-            is_active = (m == mode) or (m == "ortho" and self.ortho_mode)
+            if m == "ortho":
+                is_active = self.ortho_mode
+            elif m == "osnap":
+                is_active = self.osnap_enabled
+            else:
+                is_active = (m == mode)
+                
             btn.setProperty("active", is_active)
             btn.style().unpolish(btn)
             btn.style().polish(btn)
@@ -3071,6 +3106,9 @@ class CADCanvas(QGraphicsView):
 
     def get_snap(self, pos, threshold=None):
         """Retorna o dado de snap mais prÃ³ximo {pos, type} ou None usando Spatial Grid e Threshold DinÃ¢mico"""
+        if not getattr(self, 'osnap_enabled', True):
+            return None
+            
         best_snap = None
         
         # 1. CÃLCULO DE THRESHOLD DINÃ‚MICO
@@ -4053,6 +4091,9 @@ class CADCanvas(QGraphicsView):
 
         if key == Qt.Key_F8:
             self.toggle_ortho(); return
+            
+        if key == Qt.Key_F3:
+            self.toggle_osnap(); return
 
         # Atalhos de EdiÃ§Ã£o (Somente se nÃ£o estiver em picking)
         if not self.picking_mode:
