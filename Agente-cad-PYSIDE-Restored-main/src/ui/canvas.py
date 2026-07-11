@@ -552,6 +552,8 @@ class CADCanvas(QGraphicsView):
             'dxf_entities': self.dxf_entities,
             'snap_points': self.snap_points,
             'snap_segments': self.snap_segments,
+            'base_snap_points': getattr(self, 'base_snap_points', []),
+            'base_snap_segments': getattr(self, 'base_snap_segments', []),
             'persistent_links': self.persistent_links
         }
 
@@ -642,6 +644,8 @@ class CADCanvas(QGraphicsView):
         self.dxf_entities = state['dxf_entities']
         self.snap_points = state['snap_points']
         self.snap_segments = state['snap_segments']
+        self.base_snap_points = state.get('base_snap_points', self.snap_points.copy() if self.snap_points else [])
+        self.base_snap_segments = state.get('base_snap_segments', self.snap_segments.copy() if self.snap_segments else [])
         self.persistent_links = state['persistent_links']
         self._rebuild_snap_grid()
         
@@ -686,6 +690,8 @@ class CADCanvas(QGraphicsView):
         self.dxf_entities = []
         self.snap_points = []
         self.snap_segments = []
+        self.base_snap_points = []
+        self.base_snap_segments = []
         self.snap_grid = {}
         self.persistent_links = {}
         self._highlighted_items = set()
@@ -1204,6 +1210,8 @@ class CADCanvas(QGraphicsView):
         self.item_groups = project_data['canvas_item_groups']
         self.snap_points = project_data['canvas_snap_points']
         self.snap_segments = project_data.get('canvas_snap_segments', self.snap_segments)
+        self.base_snap_points = project_data.get('canvas_base_snap_points', self.snap_points.copy() if self.snap_points else [])
+        self.base_snap_segments = project_data.get('canvas_base_snap_segments', self.snap_segments.copy() if self.snap_segments else [])
         self.beam_visuals = project_data['canvas_beam_visuals']
         self.snap_markers = project_data['snap_markers']
         self.instruction_text = project_data.get('instruction_text') # Pode ser None
@@ -1227,6 +1235,8 @@ class CADCanvas(QGraphicsView):
             'canvas_item_groups': self.item_groups,
             'canvas_snap_points': self.snap_points,
             'canvas_snap_segments': self.snap_segments,
+            'canvas_base_snap_points': getattr(self, 'base_snap_points', []),
+            'canvas_base_snap_segments': getattr(self, 'base_snap_segments', []),
             'canvas_beam_visuals': self.beam_visuals,
             'snap_markers': self.snap_markers,
             'instruction_text': self.instruction_text
@@ -2407,11 +2417,25 @@ class CADCanvas(QGraphicsView):
             elif (l_type in ('line', 'poly', 'geometry', 'polygon')) and 'points' in link:
                 pts = link['points']
                 if len(pts) >= 2:
+                    if pts and len(pts[0]) > 2:
+                        pts = [(p[0], p[1]) for p in pts]
                     path = QPainterPath()
                     path.moveTo(pts[0][0], pts[0][1])
                     for p in pts[1:]: path.lineTo(p[0], p[1])
                     if l_type in ('poly', 'geometry', 'polygon') or (len(pts) > 2 and pts[0] == pts[-1]):
                         path.closeSubpath()
+                        
+                    # ADD SNAP POINTS FOR THE OVERLAYS
+                    for i, pt in enumerate(pts):
+                        self._add_snap_point(pt, 'endpoint')
+                        if i < len(pts) - 1:
+                            p_next = pts[i+1]
+                            self.snap_segments.append((pt, p_next))
+                            self._add_snap_point(((pt[0]+p_next[0])/2.0, (pt[1]+p_next[1])/2.0), 'midpoint')
+                    
+                    if l_type in ('poly', 'polygon', 'geometry') and pts[0] != pts[-1]:
+                        self.snap_segments.append((pts[-1], pts[0]))
+                        self._add_snap_point(((pts[-1][0]+pts[0][0])/2.0, (pts[-1][1]+pts[0][1])/2.0), 'midpoint')
 
                     item = self.scene.addPath(path, pen)
                     item.setZValue(100)
@@ -2439,6 +2463,7 @@ class CADCanvas(QGraphicsView):
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
             
+        self._rebuild_snap_grid()
         return items_created
 
     def highlight_link(self, link, color=None, apply_zoom=True):
@@ -3306,11 +3331,15 @@ class CADCanvas(QGraphicsView):
                 path.moveTo(*self.pick_poly_points[0])
                 for p in self.pick_poly_points[1:]: path.lineTo(*p)
             if not self.poly_visual:
-                self.poly_visual = self.scene.addPath(path, QPen(QColor(0, 255, 255), 0, Qt.DashLine))
+                pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
+                pen.setCosmetic(True)
+                self.poly_visual = self.scene.addPath(path, pen)
                 self.poly_visual.setZValue(205)
             else:
                 self.poly_visual.setPath(path)
-                self.poly_visual.setPen(QPen(QColor(0, 255, 255), 0, Qt.DashLine))
+                pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
+                pen.setCosmetic(True)
+                self.poly_visual.setPen(pen)
             return
 
         # --- MODOS DE EDIÃ‡ÃƒO ---
@@ -3779,12 +3808,15 @@ class CADCanvas(QGraphicsView):
             path.lineTo(*final_snap_pos) # Rubber band to cursor
 
             if not self.poly_visual:
-                 # Pen width 0 = Cosmetic (always 1 pixel wide regardless of zoom)
-                 self.poly_visual = self.scene.addPath(path, QPen(QColor(0, 255, 255), 0, Qt.DashLine))
+                 pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
+                 pen.setCosmetic(True)
+                 self.poly_visual = self.scene.addPath(path, pen)
                  self.poly_visual.setZValue(205)
             else:
                  self.poly_visual.setPath(path)
-                 self.poly_visual.setPen(QPen(QColor(0, 255, 255), 0, Qt.DashLine))
+                 pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
+                 pen.setCosmetic(True)
+                 self.poly_visual.setPen(pen)
 
         # Preview da Linha
         if self.picking_mode == 'line' and self.pick_start:
