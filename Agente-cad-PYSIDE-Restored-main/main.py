@@ -5997,7 +5997,11 @@ class MainWindow(QMainWindow):
                     # Nível
                     lvl_links = s_data.get('links', {}).get('laje_nivel', {}).get('label', [])
                     for ll in lvl_links:
-                        if 'layer' in ll: learned_level_layers.add(ll['layer'])
+                        # Uma camada só ensina "nível" se o próprio vínculo tem
+                        # evidência semântica. Isso impede que uma cota numérica
+                        # legada promova sua camada e contamine as próximas lajes.
+                        if isinstance(ll, dict) and self._is_semantic_slab_level_link(s_data, ll):
+                            if 'layer' in ll: learned_level_layers.add(ll['layer'])
                         if 'pos' in ll and 'pos' in s_data:
                             dx = ll['pos'][0] - s_data['pos'][0]
                             dy = ll['pos'][1] - s_data['pos'][1]
@@ -11642,6 +11646,51 @@ class MainWindow(QMainWindow):
         except Exception:
             return None
 
+    def _is_semantic_slab_level_link(self, slab: Dict, link: dict) -> bool:
+        """Aceita um texto como nível somente quando sua semântica o prova.
+
+        A posição física de um texto perto de uma laje não basta: cotas de
+        painel também são números. Um nível é aceito se coincide com o campo
+        de nível da própria laje, se o vínculo foi explicitamente classificado
+        como nível, ou se o CAD usa uma cota com sinal explícito.
+        """
+        if not isinstance(link, dict):
+            return False
+        value = self._parse_slab_level_value(link.get('text'))
+        if value is None:
+            return False
+
+        text = str(link.get('text') or '').strip()
+        if text.startswith(('+', '-')):
+            return True
+
+        semantic = ' '.join(
+            str(link.get(key) or '') for key in ('role', 'source', 'label')
+        ).lower()
+        if 'nivel' in semantic or 'nível' in semantic or 'level' in semantic:
+            return True
+
+        # Campo e rótulo extraídos juntos não se validam mutuamente: uma cota
+        # de painel capturada por engano preencheria ambos e se propagaria como
+        # "nível" para as vizinhas. Um número sem marcador semântico só vale
+        # quando a camada foi aprendida de rótulos de nível já confiáveis.
+        learning = getattr(self, 'slab_learning_config', {}) or {}
+        trusted_level_layers = {
+            str(layer) for layer in (learning.get('level_layers') or [])
+            if layer is not None
+        }
+        layer = link.get('layer')
+        if trusted_level_layers and layer is not None and str(layer) in trusted_level_layers:
+            return True
+
+        # Uma validação humana explícita também é evidência semântica; ela é a
+        # única exceção que pode confirmar um rótulo sem camada/descrição.
+        if bool(link.get('validated')):
+            fields = slab.get('fields', {}) if isinstance(slab.get('fields'), dict) else {}
+            field_value = self._parse_slab_level_value(fields.get('laje_nivel'))
+            return field_value is not None and abs(field_value - value) <= 0.05
+        return False
+
     def _format_slab_level_value(self, value: float) -> str:
         text = f"{float(value):.2f}"
         return text.rstrip('0').rstrip('.') if '.' in text else text
@@ -11661,7 +11710,7 @@ class MainWindow(QMainWindow):
         level_links = self._ensure_slab_level_links(slab)
         out = []
         for link in level_links.get('label', []) or []:
-            if isinstance(link, dict) and self._parse_slab_level_value(link.get('text')) is not None:
+            if self._is_semantic_slab_level_link(slab, link):
                 out.append(link)
         return out
 
@@ -14326,8 +14375,16 @@ class MainWindow(QMainWindow):
                     prev_idx = _seen_cv[_epos]
                     prev = _keep_cv[prev_idx]
                     # Troca se novo é extended e anterior não, ou novo tem mais pontos
-                    if (_e.get('extended_by_companion') and not prev.get('extended_by_companion')) or \
-                       (len(_epts) > len(prev.get('points') or [])):
+                    if (
+                        (_e.get('validated') and not prev.get('validated'))
+                        or (
+                            bool(_e.get('validated')) == bool(prev.get('validated'))
+                            and (
+                                (_e.get('extended_by_companion') and not prev.get('extended_by_companion'))
+                                or len(_epts) > len(prev.get('points') or [])
+                            )
+                        )
+                    ):
                         _keep_cv[prev_idx] = _e
                 else:
                     _seen_cv[_epos] = len(_keep_cv)
@@ -14353,12 +14410,44 @@ class MainWindow(QMainWindow):
                 continue
             minx, miny, maxx, maxy = poly.bounds
             min_dim = max(1.0, min(maxx - minx, maxy - miny))
-            max_dist = max(35.0, min(120.0, min_dim * 0.18))
+            # Corte e apoio pertencem à laje somente quando tocam sua fronteira.
+            # A busca larga anterior (até 120 unidades) capturava geometrias da
+            # laje seguinte através da viga. A tolerância escalada admite ruído
+            # de desenho, mas não atravessa o vão estrutural.
+            contact_tol = max(1.0, min_dim * 0.01)
+
+            def _inferred_link_touches_boundary(link: dict) -> bool:
+                if not isinstance(link, dict):
+                    return False
+                if link.get('validated') or not link.get('is_inferred'):
+                    return True
+                link_pts = link.get('points') or []
+                if len(link_pts) < 4:
+                    return False
+                try:
+                    link_geom = Polygon(link_pts)
+                    return (
+                        not link_geom.is_empty
+                        and link_geom.distance(poly.boundary) <= contact_tol
+                        and link_geom.distance(poly) <= contact_tol
+                    )
+                except Exception:
+                    return False
+
+            cleaned_cuts = [link for link in existing if _inferred_link_touches_boundary(link)]
+            cleaned_pillars = [link for link in existing_pillars if _inferred_link_touches_boundary(link)]
+            if len(cleaned_cuts) != len(existing):
+                cut_links['cut_view_geom'] = cleaned_cuts
+                existing = cleaned_cuts
+            if len(cleaned_pillars) != len(existing_pillars):
+                pillar_links['pillar_geom'] = cleaned_pillars
+                existing_pillars = cleaned_pillars
+
             ranked = []
             for item, geom, _bbox, marker_kind in candidates:
                 try:
                     dist = geom.distance(poly.boundary)
-                    if dist <= max_dist and geom.distance(poly) <= max_dist:
+                    if dist <= contact_tol and geom.distance(poly) <= contact_tol:
                         ranked.append((dist, item, marker_kind))
                 except Exception:
                     continue
@@ -14399,6 +14488,15 @@ class MainWindow(QMainWindow):
                         'layer': item.get('layer'),
                     }
                     self._auto_fill_pillar_ficha(slab, new_link)
+                    ficha = new_link.get('ficha') if isinstance(new_link.get('ficha'), dict) else {}
+                    if (
+                        not str(ficha.get('pillar_name') or '').strip()
+                        or str(ficha.get('pillar_side') or '').upper() in {'', 'NULO', 'N/A'}
+                        or str(ficha.get('touch_face') or '').upper() in {'', 'NULO', 'N/A'}
+                    ):
+                        # Geometria próxima sem semântica de contato completa é
+                        # candidata de revisão, não apoio confirmado.
+                        continue
                     pillar_links['pillar_geom'].append(new_link)
                     pillar_count += 1
                     added_pillars += 1
@@ -14528,6 +14626,63 @@ class MainWindow(QMainWindow):
                         added += 1
         return added
 
+    def _prune_stale_neighbor_level_links(self, slabs: list[Dict]) -> int:
+        """Remove apenas níveis vizinhos inferidos que não existem na fonte.
+
+        Mantém qualquer vínculo humano/manual. A limpeza é baseada no texto de
+        nível semanticamente válido da laje-fonte, não em uma faixa numérica
+        fixa, para não confundir cotas de painel com níveis em outra obra.
+        """
+        source_levels = {}
+        for source in slabs:
+            source_name = str(source.get('name') or '')
+            if not source_name:
+                continue
+            source_levels[source_name] = {
+                self._format_slab_level_value(self._parse_slab_level_value(link.get('text')))
+                for link in self._own_slab_level_links(source)
+                if self._parse_slab_level_value(link.get('text')) is not None
+            }
+
+        removed = 0
+        for slab in slabs:
+            # Nunca reescreve a memória humana: itens selados ou cujo campo de
+            # vizinhança já foi validado só podem ser revisados pelo operador.
+            # A barreira protege o ground truth mesmo quando uma regra nova é
+            # aplicada a uma obra já treinada.
+            validated_fields = slab.get('validated_fields', [])
+            if isinstance(validated_fields, dict):
+                validated_fields = list(validated_fields.keys())
+            if slab.get('is_validated') or 'laje_vizinhas_niveis' in set(validated_fields or []):
+                continue
+            neighbor_links = self._ensure_slab_neighbor_level_links(slab)
+            validated = slab.setdefault('validated_link_classes', {})
+            for slot, entries in neighbor_links.items():
+                kept = []
+                for link in entries or []:
+                    if not isinstance(link, dict):
+                        continue
+                    is_auto_level = (
+                        link.get('source') == 'orthogonal_neighbor_level'
+                        and bool(link.get('is_inferred'))
+                    )
+                    value = self._parse_slab_level_value(link.get('text'))
+                    source_name = str(link.get('source_slab') or '')
+                    normalized = self._format_slab_level_value(value) if value is not None else ''
+                    if is_auto_level and normalized not in source_levels.get(source_name, set()):
+                        removed += 1
+                        continue
+                    kept.append(link)
+                neighbor_links[slot] = kept
+            if isinstance(validated, dict):
+                slots = set(validated.get('laje_vizinhas_niveis') or [])
+                slots = {slot for slot in slots if neighbor_links.get(slot)}
+                if slots:
+                    validated['laje_vizinhas_niveis'] = sorted(slots)
+                else:
+                    validated.pop('laje_vizinhas_niveis', None)
+        return removed
+
     def _choose_consensus_level(self, sources: list[dict], tol: float = 0.05) -> dict | None:
         if not sources:
             return None
@@ -14576,6 +14731,7 @@ class MainWindow(QMainWindow):
             return
         auto_cuts, auto_pillars = self._auto_link_slab_cut_views(slabs)
         poly_map = self._slab_polygon_map(slabs)
+        self._prune_stale_neighbor_level_links(slabs)
         auto_neighbor_levels = self._auto_link_slab_neighbor_level_texts(slabs, poly_map)
 
         level_sources = {}
@@ -14749,8 +14905,15 @@ class MainWindow(QMainWindow):
                      is_lvl_candidate = True
 
                 if not found_level and is_lvl_candidate:
-                    # Heurística: Nível tem +, - ou .
-                    if ('+' in txt_val or '-' in txt_val or '.' in txt_val) and re_level.search(txt_val):
+                    # Número nu não é nível por si só. Sem camada de nível
+                    # aprendida, exige notação explícita (sinal ou palavra);
+                    # com camada aprendida, preserva os níveis decimais usuais.
+                    explicit_level_notation = (
+                        '+' in txt_val or '-' in txt_val
+                        or re.search(r'\b(?:n[ií]vel|level|el\s*[:=])', txt_val, re.IGNORECASE)
+                    )
+                    trusted_level_layer = bool(learned_level_layers and t_layer in learned_level_layers)
+                    if (explicit_level_notation or trusted_level_layer) and re_level.search(txt_val):
                         s['links']['laje_nivel']['label'].append(t)
                         s['fields']['laje_nivel'] = txt_val
                         found_level = True
