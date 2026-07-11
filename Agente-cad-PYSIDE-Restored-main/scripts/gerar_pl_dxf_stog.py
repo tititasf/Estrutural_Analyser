@@ -20,6 +20,16 @@ import json, argparse, math
 from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
+try:
+    from pl_abcd_visual_nova import (
+        ensure_painel_dimstyle,
+        ensure_pressure_layer,
+        apply_face_visual_nova,
+    )
+except Exception:
+    ensure_painel_dimstyle = None
+    ensure_pressure_layer = None
+    apply_face_visual_nova = None
 from pl_grade_visual_config import (
     CONFIG_PATH as PL_GRADE_VISUAL_CONFIG_PATH,
     positions_for_mode as grade_horizontal_positions_for_mode,
@@ -144,6 +154,14 @@ def setup_doc():
         ds.dxf.dimgap = 1.0
         ds.dxf.dimexe = 1.0
         ds.dxf.dimexo = 1.0
+
+    # PAINEL: cotas ABCD no padrão manual (txt 10, ciano/magenta)
+    if ensure_painel_dimstyle is not None:
+        ensure_painel_dimstyle(doc)
+    if ensure_pressure_layer is not None:
+        ensure_pressure_layer(doc)
+    elif 'Sarrafo de Pressão' not in doc.layers:
+        doc.layers.add('Sarrafo de Pressão', color=42)
 
     # ── Block definitions ────────────────────────────────────────────────────
     _define_cima_blocks(doc)
@@ -873,6 +891,83 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
 # ABCD — Face views (elevation, simple rectangles with vertical sarrafos)
 # ═════════════════════════════════════════════════════════════════════════════
 
+def panel_intervals_with_opening_boundaries(
+    intervals: list,
+    openings: list[dict],
+    tolerance: float = 1e-4,
+) -> list[float]:
+    """Inclui fundo/topo das aberturas na malha horizontal do painel.
+
+    ``paineis_intervals_FACE`` armazena deltas a partir de ``h1``. O desenho
+    de ABCD só avalia cortes quando passa por uma dessas fronteiras. Logo uma
+    abertura cujo ``y_rel`` caia dentro de um intervalo precisa dividi-lo;
+    caso contrário as paredes internas aparecem, mas o vazio não é fechado
+    visualmente (incidente P1/A, abertura AD).
+
+    A função preserva todas as divisões originais, acrescenta apenas as cotas
+    necessárias e nunca altera o dicionário de entrada.
+    """
+    clean = []
+    for value in intervals or []:
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            continue
+        if number > tolerance:
+            clean.append(number)
+    if not clean:
+        return []
+
+    total = sum(clean)
+    # Expande total para cobrir topo das aberturas (senão top era clampado
+    # e a zona da abertura ficava sem H mid/topo no lado sólido).
+    for opening in openings or []:
+        if not isinstance(opening, dict):
+            continue
+        try:
+            bottom = float(opening.get('y_rel') or 0.0)
+            height = max(0.0, float(opening.get('altura') or 0.0))
+            total = max(total, bottom + height)
+        except (TypeError, ValueError):
+            continue
+
+    boundaries = []
+    cursor = 0.0
+    for interval in clean:
+        cursor = min(total, cursor + interval)
+        boundaries.append(cursor)
+
+    for opening in openings or []:
+        if not isinstance(opening, dict):
+            continue
+        try:
+            bottom = float(opening.get('y_rel') or 0.0)
+            height = max(0.0, float(opening.get('altura') or 0.0))
+        except (TypeError, ValueError):
+            continue
+        bottom = max(0.0, min(total, bottom))
+        top = max(bottom, min(total, bottom + height))
+        if bottom > tolerance:
+            boundaries.append(bottom)
+        if top > tolerance:
+            boundaries.append(top)
+
+    ordered = []
+    for boundary in sorted(boundaries):
+        if boundary <= tolerance:
+            continue
+        if not ordered or abs(boundary - ordered[-1]) > tolerance:
+            ordered.append(round(boundary, 4))
+
+    rebuilt = []
+    previous = 0.0
+    for boundary in ordered:
+        delta = round(boundary - previous, 4)
+        if delta > tolerance:
+            rebuilt.append(delta)
+        previous = boundary
+    return rebuilt
+
 def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     """
     Draw ABCD zone (elevation views of 4 faces).
@@ -971,7 +1066,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         d = msp.add_linear_dim(
             base=(x_a - 50, (y_top + y_bot) / 2),
             p1=(x_dim_overall, y_bot), p2=(x_dim_overall, y_top),
-            angle=90, dimstyle='PAINEL-NOVA',
+            angle=90, dimstyle='PAINEL',
             dxfattribs={'layer': 'COTA'}
         )
         d.render()
@@ -991,10 +1086,31 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # ── 4. Header texts (nomenclatura layer, TEXT entities) ───────────────────
     # SCR: x=-6969 (≈x_a-49), y=280/255/230 (= base_y + 280/255/230)
     header_x = x_a - 49
+    # Níveis absolutos (m) quando o payload traz *_abs; senão usa cm/100.
+    _ns_abs = pj.get('nivel_saida_abs', None)
+    _nc_abs = pj.get('nivel_chegada_abs', None)
+    try:
+        _ns_show = float(_ns_abs) if _ns_abs is not None else float(nivel_saida) / 100.0
+        _nc_show = float(_nc_abs) if _nc_abs is not None else float(nivel_chegada) / 100.0
+        # se valores > 20, já estão em cota de obra (ex. 852.19) → não dividir
+        if _ns_abs is None and float(nivel_saida) > 20:
+            _ns_show = float(nivel_saida)
+        if _nc_abs is None and float(nivel_chegada) > 20:
+            _nc_show = float(nivel_chegada)
+        if _ns_abs is not None and float(_ns_abs) > 20:
+            _ns_show = float(_ns_abs)
+        if _nc_abs is not None and float(_nc_abs) > 20:
+            _nc_show = float(_nc_abs)
+    except Exception:
+        _ns_show = float(nivel_saida) / 100.0
+        _nc_show = float(nivel_chegada) / 100.0
+    _pd_show = abs(_ns_show - _nc_show)
+    if _pd_show < 0.5:  # fallback cm
+        _pd_show = pd_cm / 100.0
     for i, txt in enumerate([
-        f'CENARIOS - PD: {pd_cm/100:.2f}',
-        f'NIVEL DE SAIDA: {nivel_saida/100:.2f}',
-        f'NIVEL DE CHEGADA: {nivel_chegada/100:.2f}',
+        f'CENARIOS - PD: {_pd_show:.2f}',
+        f'NIVEL DE SAIDA: {_ns_show:.2f}',
+        f'NIVEL DE CHEGADA: {_nc_show:.2f}',
     ]):
         msp.add_text(txt, dxfattribs={
             'layer': 'NOMENCLATURA',
@@ -1053,6 +1169,30 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                     _aberturas_raw.append(pj[f'abertura_{fid}_{_ai}'])
                     _ai += 1
 
+            # NOVA: a malha de painéis é só módulos 122+sobra.
+            # Fundo/topo de abertura NÃO entram como junta de painel (senão
+            # vira 56+66 no lugar de 122+58). Abertura = recorte parcial.
+            _intervals = [float(x) for x in _intervals]
+            # Lógicos (módulos) vs malha expandida (parts de paineis_unidos_*).
+            _intervals_logical = list(_intervals)
+            _totals_n3_mesh = []
+            try:
+                from pl_abcd_visual_nova import (
+                    parse_paineis_unidos,
+                    expand_intervals_with_unidos,
+                )
+                _unidos_mesh = parse_paineis_unidos(pj, fid)
+                if _unidos_mesh:
+                    _mesh_exp, _totals_n3_mesh = expand_intervals_with_unidos(
+                        _intervals_logical, _unidos_mesh
+                    )
+                    if _mesh_exp:
+                        # Desenho H usa parts (linha extra no local da soma);
+                        # cotas usam logical + unidos (ver bloco 5c).
+                        _intervals = _mesh_exp
+            except Exception as _un_exc:
+                print(f'[PL-NOVA] paineis_unidos face {fid}: {_un_exc}', flush=True)
+
             # Pré-computa coordenadas de cada abertura
             for _ab_r in _aberturas_raw:
                 _al  = _ab_r.get('lado', '')
@@ -1098,10 +1238,29 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                  if ab['y_bot'] + 0.5 < y_cur < ab['y_top'] - 0.5]
 
                 if _at_bot_list:
-                    # y_bot de qualquer abertura → H FULL
-                    msp.add_line((x_left, y_cur), (x_right, y_cur),
-                                 dxfattribs={'layer': 'Painéis'})
-                    entity_count += 1
+                    # Junta de painel caiu no y do fundo da abertura: H só no SÓLIDO.
+                    _skip_l, _skip_r = x_left, x_right
+                    for _ab in _at_bot_list:
+                        if _ab['lado'] == 'direito':
+                            _skip_r = min(_skip_r, x_right - _ab['larg'])
+                        elif _ab['lado'] == 'esquerdo':
+                            _skip_l = max(_skip_l, x_left + _ab['larg'])
+                        elif _ab['lado'] == 'meio':
+                            if _ab['x_inn_l'] - x_left > 0.5:
+                                msp.add_line((x_left, y_cur), (_ab['x_inn_l'], y_cur),
+                                             dxfattribs={'layer': 'Painéis'})
+                                entity_count += 1
+                            if x_right - _ab['x_inn_r'] > 0.5:
+                                msp.add_line((_ab['x_inn_r'], y_cur), (x_right, y_cur),
+                                             dxfattribs={'layer': 'Painéis'})
+                                entity_count += 1
+                            _skip_l = _skip_r
+                    if _skip_r - _skip_l > 0.5 and not any(
+                        ab['lado'] == 'meio' for ab in _at_bot_list
+                    ):
+                        msp.add_line((_skip_l, y_cur), (_skip_r, y_cur),
+                                     dxfattribs={'layer': 'Painéis'})
+                        entity_count += 1
                 elif _at_top_list:
                     # y_top de uma ou mais aberturas
                     # Caso especial: esq + dir simultâneos → H combinada entre as paredes internas
@@ -1139,8 +1298,32 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                                  dxfattribs={'layer': 'Painéis'})
                                     entity_count += 2
                 elif _inside_list:
-                    # Dentro de uma abertura: sem H
-                    pass
+                    # Dentro da faixa Y de abertura: H só no trecho SÓLIDO
+                    # (manual A: H77 de x_left→xi, não full 88 sobre o vazio).
+                    _skip_l = x_left
+                    _skip_r = x_right
+                    for _ab in _inside_list:
+                        if _ab['lado'] == 'direito':
+                            _skip_r = min(_skip_r, x_right - _ab['larg'])
+                        elif _ab['lado'] == 'esquerdo':
+                            _skip_l = max(_skip_l, x_left + _ab['larg'])
+                        elif _ab['lado'] == 'meio':
+                            # desenha dois lados do meio
+                            if _ab['x_inn_l'] - x_left > 0.5:
+                                msp.add_line((x_left, y_cur), (_ab['x_inn_l'], y_cur),
+                                             dxfattribs={'layer': 'Painéis'})
+                                entity_count += 1
+                            if x_right - _ab['x_inn_r'] > 0.5:
+                                msp.add_line((_ab['x_inn_r'], y_cur), (x_right, y_cur),
+                                             dxfattribs={'layer': 'Painéis'})
+                                entity_count += 1
+                            _skip_l = _skip_r  # já desenhado
+                    if _skip_r - _skip_l > 0.5 and not any(
+                        ab['lado'] == 'meio' for ab in _inside_list
+                    ):
+                        msp.add_line((_skip_l, y_cur), (_skip_r, y_cur),
+                                     dxfattribs={'layer': 'Painéis'})
+                        entity_count += 1
                 else:
                     msp.add_line((x_left, y_cur), (x_right, y_cur), dxfattribs={'layer': 'Painéis'})
                     entity_count += 1
@@ -1149,10 +1332,37 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             y_mid_face     = panel_top_face
             y_low = y0 + h1 + float(_intervals[0])
 
+            # Fundos de abertura (recorte em Painéis) — dual: 11+29; single: COTA.
+            # NÃO são juntas de painel; desenhados à parte da malha 122.
+            _reb = float(pj.get(f'rebaixo_laje_{fid}', 0.0) or 0.0)
+            _vlj = float(pj.get(f'vazio_laje_{fid}', 0.0) or 0.0)
+            _dual_ab = any(ab['lado']=='esquerdo' for ab in _aberturas) and any(ab['lado']=='direito' for ab in _aberturas)
+            if _dual_ab:
+                for _ab in _aberturas:
+                    _yb = float(_ab['y_bot'])
+                    if _ab['lado'] == 'esquerdo':
+                        msp.add_line(
+                            (x_left, _yb),
+                            (x_left + float(_ab['larg']), _yb),
+                            dxfattribs={'layer': 'Painéis'},
+                        )
+                        entity_count += 1
+                    elif _ab['lado'] == 'direito':
+                        msp.add_line(
+                            (x_right - float(_ab['larg']), _yb),
+                            (x_right, _yb),
+                            dxfattribs={'layer': 'Painéis'},
+                        )
+                        entity_count += 1
+
             # Inner verticals para cada abertura
+            # Dual esq+dir: inners param na base do rebaixo/vazio laje (manual -97),
+            # não sobem até o topo da face (rebaixo ocupa o miolo).
             for _ab in _aberturas:
                 _al = _ab['lado']
                 _yb, _yt = _ab['y_bot'], _ab['y_top']
+                if _dual_ab and _al in ('esquerdo', 'direito') and (_reb > 0 or _vlj > 0):
+                    _yt = min(_yt, y_top - _reb - _vlj)
                 if _al == 'meio':
                     msp.add_line((_ab['x_inn_l'], _yb), (_ab['x_inn_l'], _yt),
                                  dxfattribs={'layer': 'Painéis'})
@@ -1178,26 +1388,20 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 _yb = _borda_ab['y_bot']
                 _yt = _borda_ab['y_top']
                 if _has_dual:
-                    # Ambas bordas param no bottom do slot; nenhuma continua acima
+                    # Bordas Painéis param no fundo da abertura; o contorno do vazio
+                    # acima é COTA (draw_void_outer_cota no visual NOVA).
                     _yb_dual = min(ab['y_bot'] for ab in _aberturas)
-                    _yt_dual = max(ab['y_top'] for ab in _aberturas)
                     msp.add_line((x_left,  y0), (x_left,  _yb_dual), dxfattribs={'layer': 'Painéis'})
                     msp.add_line((x_right, y0), (x_right, _yb_dual), dxfattribs={'layer': 'Painéis'})
                     entity_count += 2
-                    if _yt_dual < panel_top_face - 0.5:
-                        msp.add_line((x_left,  _yt_dual), (x_left,  panel_top_face), dxfattribs={'layer': 'Painéis'})
-                        msp.add_line((x_right, _yt_dual), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
-                        entity_count += 2
                 elif _al == 'direito':
-                    msp.add_line((x_left, y0), (x_left, panel_top_face),
+                    # Esquerda sobe até o TOPO da face (manual A: 304 em Painéis)
+                    msp.add_line((x_left, y0), (x_left, y_top),
                                  dxfattribs={'layer': 'Painéis'})
                     entity_count += 1
                     msp.add_line((x_right, y0), (x_right, _yb), dxfattribs={'layer': 'Painéis'})
                     entity_count += 1
-                    if _yt < panel_top_face - 0.5:
-                        msp.add_line((x_right, _yt), (x_right, panel_top_face),
-                                     dxfattribs={'layer': 'Painéis'})
-                        entity_count += 1
+                    # direita no vazio: COTA (void_outer), não Painéis
                 elif _al == 'esquerdo':
                     msp.add_line((x_right, y0), (x_right, panel_top_face),
                                  dxfattribs={'layer': 'Painéis'})
@@ -1228,19 +1432,9 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
                 entity_count += 2
 
-            # Fechar parede externa no topo do slot de abertura (mesma layer/cor da linha de laje)
-            for _ab in _aberturas:
-                _al = _ab['lado']
-                if _al == 'direito':
-                    msp.add_line((x_right - _ab['larg'], _ab['y_top']),
-                                 (x_right, _ab['y_top']),
-                                 dxfattribs={'layer': 'COTA'})
-                    entity_count += 1
-                elif _al == 'esquerdo':
-                    msp.add_line((x_left, _ab['y_top']),
-                                 (x_left + _ab['larg'], _ab['y_top']),
-                                 dxfattribs={'layer': 'COTA'})
-                    entity_count += 1
+            # Topo da abertura single: manual NÃO fecha o vão em Painéis
+            # (só H parcial no sólido + stub COTA no vazio). Dual: rebaixo NOVA.
+            # (intencionalmente sem H sobre o vão)
 
         else:
             # Modelo padrão: h_low/h_par (fallback quando N2 não tem intervals)
@@ -1257,13 +1451,36 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             entity_count += 2
 
         # ── 5d. Retângulo da zona de laje (acima do painel → até nível superior) ───
+        # Com aberturas A/B o contorno do vazio é COTA parcial (void_outer NOVA) +
+        # stubs; NÃO desenhar retângulo full-width (manual A não tem H88 COTA no topo).
         laje_bot = panel_top_face
-        if laje_bot < y_top:
-            msp.add_line((x_left,  laje_bot), (x_left,  y_top), dxfattribs={'layer': 'COTA'})
-            msp.add_line((x_right, laje_bot), (x_right, y_top), dxfattribs={'layer': 'COTA'})
-            entity_count += 2
-        msp.add_line((x_left, y_top), (x_right, y_top), dxfattribs={'layer': 'COTA'})
-        entity_count += 1
+        _has_ab_void = bool(_aberturas) and fid in ('A', 'B')
+        if not _has_ab_void:
+            if laje_bot < y_top:
+                msp.add_line((x_left,  laje_bot), (x_left,  y_top), dxfattribs={'layer': 'COTA'})
+                msp.add_line((x_right, laje_bot), (x_right, y_top), dxfattribs={'layer': 'COTA'})
+                entity_count += 2
+            msp.add_line((x_left, y_top), (x_right, y_top), dxfattribs={'layer': 'COTA'})
+            entity_count += 1
+        else:
+            # stubs COTA no topo das aberturas (manual A: H11 em 157→168; B: 11+29)
+            for _ab in _aberturas:
+                _al = _ab['lado']
+                _lg = float(_ab['larg'])
+                if _al == 'direito':
+                    msp.add_line((x_right - _lg, y_top), (x_right, y_top),
+                                 dxfattribs={'layer': 'COTA'})
+                    entity_count += 1
+                elif _al == 'esquerdo':
+                    msp.add_line((x_left, y_top), (x_left + _lg, y_top),
+                                 dxfattribs={'layer': 'COTA'})
+                    entity_count += 1
+            # dual: topo do miolo é Painéis (rebaixo), não COTA full
+            _esq_ab = [a for a in _aberturas if a['lado'] == 'esquerdo']
+            _dir_ab = [a for a in _aberturas if a['lado'] == 'direito']
+            if _esq_ab and _dir_ab:
+                # stubs já; rebaixo laterais COTA opcional (manual tem V7 em COTA no rebaixo)
+                pass
 
         # Sub-painel de laje: apenas no modelo padrão (intervals já incluem sub-painéis)
         if not (_intervals and len(_intervals) >= 1) and not face_uses_262:
@@ -1298,10 +1515,17 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 entity_count += 1
         else:
             # Vertical sarrafos (standard for A/B and small C/D)
-            sarr_xs = [x_left + SARR_OFFSET]
-            right_sx = x_right - SARR_OFFSET   # usa x_right (=x_left+larg_total) — A/B têm +22cm
-            if right_sx > x_left + SARR_OFFSET:
-                sarr_xs.append(right_sx)
+            # Visual NOVA cuida de SARR em A/B (com abertura) e em C/D (passante).
+            # Evita duplicar fustes (C/D saíam 4 em vez de 2).
+            if apply_face_visual_nova is not None and fid in ('A', 'B', 'C', 'D'):
+                sarr_xs = []
+            elif fid in ('A', 'B') and _aberturas:
+                sarr_xs = []
+            else:
+                sarr_xs = [x_left + SARR_OFFSET]
+                right_sx = x_right - SARR_OFFSET
+                if right_sx > x_left + SARR_OFFSET:
+                    sarr_xs.append(right_sx)
 
             # 1 sarrafo: draw TWICE per segment (robot artifact); 2: draw ONCE
             repeat = 2 if len(sarr_xs) == 1 else 1
@@ -1369,61 +1593,180 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                                    dxfattribs={'layer': 'SARR_2.2x7'})
                                 entity_count += 1
 
-        # ── 5c. Per-face DIMENSIONs ───────────────────────────────────────────
-        # N2 geometry: dim line at x_right+38, extension lines x_right+3→x_right+41
-        # color=4 (ciano) em todas as entidades de cota — igual ao SCR original
-        x_dim   = x_right   # bordo direito real (A/B: inclui +22cm)
-        ANN_OFF = 38        # N2: linha de cota a +38 do bordo
+        # ── 5c. Per-face DIMENSIONs (degraus N1/N2/N3 — SEMANTICA-PILAR-NOVA §2.1)
+        # N1 (~12): h1=2 + recortes/aberturas
+        # N2 (~30): painéis (módulos ou parts de unido)
+        # N3 (~48): total de painel unido (soma das parts) — só com paineis_unidos_*
+        x_dim = x_right
+        try:
+            from pl_abcd_visual_nova import (
+                DIM_LVL1_OFF,
+                DIM_LVL2_OFF,
+                DIM_LVL3_OFF,
+                parse_paineis_unidos,
+                expand_intervals_with_unidos,
+            )
+            _LVL1, _LVL2, _LVL3 = DIM_LVL1_OFF, DIM_LVL2_OFF, DIM_LVL3_OFF
+        except Exception:
+            _LVL1, _LVL2, _LVL3 = 17.0, 40.0, 63.0
+            parse_paineis_unidos = None
+            expand_intervals_with_unidos = None
+        ANN_OFF = _LVL2  # fallback legado
+
+        # Painéis unidos: totais N3 a partir dos intervals LÓGICOS (não da malha expandida)
+        _unidos = []
+        _totals_n3 = []
+        _iv_logical = locals().get('_intervals_logical') or (
+            list(_intervals) if _intervals else []
+        )
+        if (
+            parse_paineis_unidos is not None
+            and expand_intervals_with_unidos is not None
+            and _iv_logical
+        ):
+            _unidos = parse_paineis_unidos(pj, fid)
+            if _unidos:
+                _, _totals_n3 = expand_intervals_with_unidos(
+                    [float(x) for x in _iv_logical], _unidos
+                )
 
         if is_short:
             if fid in ('A', 'B'):
-                dim_specs = [(y_bot, y0 + h1, 19), (y_bot, y_top, ANN_OFF)]
+                dim_specs = [(y_bot, y0 + h1, _LVL1), (y_bot, y_top, _LVL2)]
             else:
-                dim_specs = [(y_bot, y0 + h1, 19), (y0 + h1, y_top, ANN_OFF)]
+                dim_specs = [(y_bot, y0 + h1, _LVL1), (y0 + h1, y_top, _LVL2)]
         elif _intervals and len(_intervals) >= 1:
-            # Intervalos N2-fiel: uma DIMENSION por segmento (A/B/C/D com intervals).
-            dim_specs = [(y_bot, y0 + h1, 19)]  # h1 strip
+            # Cotas NOVA com degraus; malha de cotas usa intervals lógicos (ou parts).
+            dim_specs = [(y_bot, y0 + h1, _LVL1)]  # N1: cinta 2cm
             _y_p = y0 + h1
-            for _iv in _intervals:
-                _y_n = min(round(_y_p + float(_iv), 4), y_top)
-                dim_specs.append((_y_p, _y_n, ANN_OFF))
-                _y_p = _y_n
-                if _y_p >= y_top:
-                    break
-            if panel_top_face < y_top:
-                dim_specs.append((panel_top_face, y_top, ANN_OFF))  # laje
+            _mod_ys = [_y_p]
+            _reb_d = float(pj.get(f'rebaixo_laje_{fid}', 0.0) or 0.0)
+            _vlj_d = float(pj.get(f'vazio_laje_{fid}', 0.0) or 0.0)
+            _dual_d = (
+                any(ab.get('lado') == 'esquerdo' for ab in (_aberturas or []))
+                and any(ab.get('lado') == 'direito' for ab in (_aberturas or []))
+            )
+            # Cotas N2/N3 a partir dos intervals LÓGICOS (+ parts se unido)
+            _iv_src = [float(x) for x in (_iv_logical or _intervals)]
+            if _totals_n3:
+                for _t in _totals_n3:
+                    _ya = y0 + h1 + float(_t['y0_rel'])
+                    _yb = y0 + h1 + float(_t['y1_rel'])
+                    dim_specs.append((_ya, _yb, _LVL3))  # N3: total unido
+                    _yp = _ya
+                    for _part in _t['parts']:
+                        _yn = round(_yp + float(_part), 4)
+                        dim_specs.append((_yp, _yn, _LVL2))  # N2: 100 e 22
+                        _yp = _yn
+                _y_cursor = y0 + h1
+                _unido_by_idx = {t['interval_index']: t for t in _totals_n3}
+                for _i, _iv in enumerate(_iv_src):
+                    _y_n = min(round(_y_cursor + float(_iv), 4), y_top)
+                    if _i in _unido_by_idx:
+                        _y_cursor = _y_n
+                        _mod_ys.append(_y_n)
+                        _yp = y0 + h1 + float(_unido_by_idx[_i]['y0_rel'])
+                        for _part in _unido_by_idx[_i]['parts']:
+                            _yp = round(_yp + float(_part), 4)
+                            _mod_ys.append(_yp)
+                        continue
+                    _is_last = _i == len(_iv_src) - 1
+                    if (
+                        _is_last
+                        and _dual_d
+                        and (_reb_d > 0.5 or _vlj_d > 0.5)
+                        and _y_n >= y_top - 0.5
+                    ):
+                        _y_void_bot = y_top - _reb_d - _vlj_d
+                        if _y_void_bot > _y_cursor + 0.5:
+                            dim_specs.append((_y_cursor, _y_void_bot, _LVL2))
+                        if _vlj_d > 0.5:
+                            dim_specs.append(
+                                (_y_void_bot, _y_void_bot + _vlj_d, _LVL2)
+                            )
+                        if _reb_d > 0.5:
+                            dim_specs.append((y_top - _reb_d, y_top, _LVL2))
+                    else:
+                        dim_specs.append((_y_cursor, _y_n, _LVL2))
+                    _y_cursor = _y_n
+                    _mod_ys.append(_y_n)
+                    if _y_cursor >= y_top:
+                        break
+            else:
+                for _i, _iv in enumerate(_iv_src):
+                    _y_n = min(round(_y_p + float(_iv), 4), y_top)
+                    _is_last = _i == len(_iv_src) - 1
+                    if (
+                        _is_last
+                        and _dual_d
+                        and (_reb_d > 0.5 or _vlj_d > 0.5)
+                        and _y_n >= y_top - 0.5
+                    ):
+                        _y_void_bot = y_top - _reb_d - _vlj_d
+                        if _y_void_bot > _y_p + 0.5:
+                            dim_specs.append((_y_p, _y_void_bot, _LVL2))
+                        if _vlj_d > 0.5:
+                            dim_specs.append(
+                                (_y_void_bot, _y_void_bot + _vlj_d, _LVL2)
+                            )
+                        if _reb_d > 0.5:
+                            dim_specs.append((y_top - _reb_d, y_top, _LVL2))
+                    else:
+                        dim_specs.append((_y_p, _y_n, _LVL2))
+                    _y_p = _y_n
+                    _mod_ys.append(_y_n)
+                    if _y_p >= y_top:
+                        break
+            # Cotas N1 de abertura: fundo → próxima junta (ex. 66)
+            for _ab in (_aberturas or []):
+                _yb = float(_ab['y_bot'])
+                _next = None
+                for _my in sorted(_mod_ys):
+                    if _my > _yb + 0.5:
+                        _next = _my
+                        break
+                if _next is not None and _next - _yb > 0.5:
+                    dim_specs.append((_yb, _next, _LVL1))
+            if panel_top_face < y_top - 0.5 and not _dual_d:
+                dim_specs.append((panel_top_face, y_top, _LVL2))
         elif fid == 'C':
-            # C fallback 262 (quando N2 não tem intervals para face C)
             dim_specs = [
-                (y_bot,          y_mid_face,       ANN_OFF),  # 221 (h_low=124 + H_PAR_C=97)
-                (y_mid_face,     panel_top_face,   ANN_OFF),  # 41 (H_C_EXTRA)
-                (panel_top_face, y_top,             ANN_OFF),  # laje zone
+                (y_bot,          y0 + h1,          _LVL1),
+                (y_bot,          y_mid_face,       _LVL2),
+                (y_mid_face,     panel_top_face,   _LVL2),
+                (panel_top_face, y_top,             _LVL2),
             ]
         else:
-            # A, B, D: h1(2) + h_low(124) + H_PARAFUSO(73) + laje zone
-            # Se laje_{fid} > 0: subdividir zona de laje em sub-painel + espaco acima
             _laje_h_dim = float(pj.get(f'laje_{fid}', 0.0))
             if _laje_h_dim > 0.0:
                 _y_laje_top_dim = y_mid_face + _laje_h_dim
                 dim_specs = [
-                    (y_bot,              y_bot + h1,       19),
-                    (y_bot,              y_low,             ANN_OFF),
-                    (y_low,              y_mid_face,        ANN_OFF),
-                    (y_mid_face,         _y_laje_top_dim,   ANN_OFF),  # sub-painel laje
+                    (y_bot,              y_bot + h1,       _LVL1),
+                    (y_bot + h1,         y_low,             _LVL2),
+                    (y_low,              y_mid_face,        _LVL2),
+                    (y_mid_face,         _y_laje_top_dim,   _LVL2),
                 ]
             else:
                 dim_specs = [
-                    (y_bot,        y_bot + h1,   19),
-                    (y_bot,        y_low,         ANN_OFF),
-                    (y_low,        y_mid_face,    ANN_OFF),
-                    (y_mid_face,   y_top,         ANN_OFF),
+                    (y_bot,        y_bot + h1,   _LVL1),
+                    (y_bot + h1,   y_low,         _LVL2),
+                    (y_low,        y_mid_face,    _LVL2),
+                    (y_mid_face,   y_top,         _LVL2),
                 ]
+        # dedupe specs (y0,y1,off)
+        _seen_dim = set()
         for p1y, p2y, ann_x_off in dim_specs:
+            if abs(p2y - p1y) < 0.4:
+                continue
+            key = (round(min(p1y, p2y), 2), round(max(p1y, p2y), 2), round(ann_x_off, 1))
+            if key in _seen_dim:
+                continue
+            _seen_dim.add(key)
             try:
                 d = msp.add_linear_dim(
                     base=(x_dim + ann_x_off, (p1y + p2y) / 2),
                     p1=(x_dim, p1y), p2=(x_dim, p2y),
-                    angle=90, dimstyle='PAINEL-NOVA',
+                    angle=90, dimstyle='PAINEL',
                     dxfattribs={'layer': 'COTA', 'color': 4}
                 )
                 d.render()
@@ -1431,9 +1774,8 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             except Exception:
                 pass
 
-        # ── 5e-1. Cotas de offset do sarrafo (7cm cada lado, ciano) ──────────
-        if not is_horiz and not is_short:
-            # p1/p2 partem de y_bot (bordo inferior do painel) — extensões longas até a linha de cota
+        # ── 5e-1. Cotas de offset do sarrafo (7cm) — só faces A/B (não C/D)
+        if fid in ('A', 'B') and not is_horiz and not is_short:
             for p1x, p2x in [(x_left, x_left + SARR_OFFSET),
                               (x_right - SARR_OFFSET, x_right)]:
                 try:
@@ -1441,7 +1783,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                         base=((p1x + p2x) / 2, y_bot - 19),
                         p1=(p1x, y_bot),
                         p2=(p2x, y_bot),
-                        angle=0, dimstyle='PAINEL-NOVA',
+                        angle=0, dimstyle='PAINEL',
                         dxfattribs={'layer': 'COTA', 'color': 4}
                     )
                     d.render()
@@ -1456,7 +1798,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 base=(x_left + larg_total / 2, y_bot - 43),
                 p1=(x_left,  y_bot),
                 p2=(x_right, y_bot),
-                angle=0, dimstyle='PAINEL-NOVA',
+                angle=0, dimstyle='PAINEL',
                 dxfattribs={'layer': 'COTA', 'color': 4}
             )
             d.render()
@@ -1472,6 +1814,63 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             'rotation': 90,
         })
         entity_count += 1
+
+        # ── 5f-NOVA-DIM-OPEN: cotas horizontais das aberturas (11/29/48) ──
+        if _aberturas and fid in ('A', 'B'):
+            try:
+                y_dim = y_top + 19
+                for _ab in _aberturas:
+                    _al = _ab['lado']; _lg = float(_ab['larg'])
+                    if _al == 'direito':
+                        d = msp.add_linear_dim(
+                            base=(x_right - _lg/2, y_dim),
+                            p1=(x_right - _lg, y_top), p2=(x_right, y_top),
+                            angle=0, dimstyle='PAINEL',
+                            dxfattribs={'layer': 'COTA', 'color': 4})
+                        d.render(); entity_count += 1
+                    elif _al == 'esquerdo':
+                        d = msp.add_linear_dim(
+                            base=(x_left + _lg/2, y_dim),
+                            p1=(x_left, y_top), p2=(x_left + _lg, y_top),
+                            angle=0, dimstyle='PAINEL',
+                            dxfattribs={'layer': 'COTA', 'color': 4})
+                        d.render(); entity_count += 1
+                _esq = [a for a in _aberturas if a['lado']=='esquerdo']
+                _dir = [a for a in _aberturas if a['lado']=='direito']
+                if _esq and _dir:
+                    xl = x_left + max(float(a['larg']) for a in _esq)
+                    xr = x_right - max(float(a['larg']) for a in _dir)
+                    d = msp.add_linear_dim(
+                        base=((xl+xr)/2, y_dim),
+                        p1=(xl, y_top), p2=(xr, y_top),
+                        angle=0, dimstyle='PAINEL',
+                        dxfattribs={'layer': 'COTA', 'color': 4})
+                    d.render(); entity_count += 1
+            except Exception as _de:
+                print('open dim fail', _de)
+
+        # ── 5f-NOVA: pressão A/B, sarrafos de abertura, rebaixo, hatch vazios ──
+        if apply_face_visual_nova is not None:
+            try:
+                entity_count += apply_face_visual_nova(
+                    msp,
+                    fid=fid,
+                    x_left=x_left,
+                    x_right=x_right,
+                    y_bot=y_bot,
+                    y_face_top=y_top,
+                    y_panel_content_top=panel_top_face,
+                    h1=h1,
+                    openings=list(_aberturas or []),
+                    pj=pj,
+                    intervals_logical=list(
+                        locals().get("_intervals_logical")
+                        or pj.get(f"paineis_intervals_{fid}")
+                        or []
+                    ),
+                )
+            except Exception as _vis_exc:
+                print(f'[PL-NOVA] visual face {fid} falhou: {_vis_exc}', flush=True)
 
         # ── 5f. Sarrafo count annotations (horizontal faces only) ─────────────
         # Short: "6 sarr." (1 TEXT, verified P21/P22 SCR)
@@ -1995,6 +2394,28 @@ def draw_efgh(msp, base_x, base_y, pj: dict) -> int:
 # Zone generator — gera UMA zona por pilar em msp isolado (x=0)
 # ═════════════════════════════════════════════════════════════════════════════
 
+def _prepare_pj_for_visual(pj: dict, visual_mode: str = "NOVA") -> dict:
+    """Enriquecimento geométrico universal (PARA/PASSA, INI ou NOVA).
+
+    Regras de malha, aberturas, rebaixo, seccionamento de sarrafo e cotas
+    N1/N2/N3 são as mesmas para qualquer pilar. O ``visual_mode`` só muda o
+    perfil final (MLINE no INI vs LINE no NOVA) via ``apply_visual_mode``.
+
+    Sempre re-enriquece (não pula por ``_pl_nova_enriched``): JSONs de
+    n3_variants podem ter sido publicados com regras antigas; o motor
+    reaplica o padrão P1 em todo item a cada geração.
+    """
+    try:
+        from pl_abcd_visual_nova import enrich_payload_for_abcd_nova
+        # limpa flag para o enrich recalcular intervals/rebaixo/y_rel
+        if isinstance(pj, dict):
+            pj.pop("_pl_nova_enriched", None)
+        return enrich_payload_for_abcd_nova(pj)
+    except Exception as exc:
+        print(f"[PL-NOVA] enrich_payload falhou (segue sem): {exc}", flush=True)
+        return pj
+
+
 def generate_pilar_zone(
     msp, pj: dict, zone: str, row_y: float = 0, visual_mode: str = "NOVA",
 ) -> int:
@@ -2008,6 +2429,7 @@ def generate_pilar_zone(
       'grades'— grade de sarrafos, x=0 (equiv. ZONE_GRADES_X=0); omite se comp<=0
       'efgh'  — faces E/F do pilar em U; omite se larg1_E=0 e larg1_F=0
     """
+    pj = _prepare_pj_for_visual(pj, visual_mode)
     nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
     comp    = float(pj.get('comprimento', 60))
     larg    = float(pj.get('largura', 38))
@@ -2047,6 +2469,7 @@ def generate_pilar(msp, pj, row_y_offset, visual_mode="NOVA"):
     U-shape: adds EFGH zone at ZONE_EFGH_X with faces E/F.
     Returns total entity count.
     """
+    pj = _prepare_pj_for_visual(pj, visual_mode)
     nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
     comp    = float(pj.get('comprimento_geom') or pj.get('comprimento', 60))
     larg    = float(pj.get('largura', 38))

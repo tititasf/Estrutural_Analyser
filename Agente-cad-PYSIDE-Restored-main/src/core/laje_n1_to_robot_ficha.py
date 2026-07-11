@@ -225,6 +225,7 @@ def n1_laje_to_robot_ficha(
         _field(n1_laje, "linhas_horizontais", _field(n1_laje, "laje_linhas_h_count", [])),
         largura,
     )
+    hlaz = _field(n1_laje, "_hlaz", []) or []
     if not linhas_v and not linhas_h and comprimento > 0 and largura > 0:
         # Categoria (b) do G4: a grade é algorítmica. O N2/N4 não participa
         # desta chamada; ele é apenas o gabarito externo do gate.
@@ -238,6 +239,7 @@ def n1_laje_to_robot_ficha(
             )
             linhas_v = _normalize_lines(distribution.get("linhas_verticais"), comprimento)
             linhas_h = _normalize_lines(distribution.get("linhas_horizontais"), largura)
+            hlaz = distribution.get("hlaz") or hlaz
         except (ImportError, TypeError, ValueError):
             pass
 
@@ -246,7 +248,7 @@ def n1_laje_to_robot_ficha(
         # deriva da grade calculada, não de informação do gabarito.
         mode = 1 if len(linhas_h) > len(linhas_v) else 0
 
-    return {
+    ficha = {
         "nome": nome.upper(),
         "numero": _extract_numero(nome),
         "coordenadas": coords,
@@ -260,6 +262,9 @@ def n1_laje_to_robot_ficha(
         "unioes_nos_bordes": _field(n1_laje, "unioes_nos_bordes", []) or [],
         "observacoes": _field(n1_laje, "observacoes", "") or "",
     }
+    if hlaz:
+        ficha["_hlaz"] = hlaz
+    return ficha
 
 
 def write_n1_laje_robot_ficha(n1_laje: dict[str, Any], output_dir: str | Path) -> Path:

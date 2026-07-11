@@ -60,6 +60,13 @@ class RenomearDocumentoIn(BaseModel):
     nome_exibicao: str
 
 
+class ValidarSaIn(BaseModel):
+    """[2026-07-10, Masterplan OBRAS DRIVE Fase 2] Validação "item completo"
+    do Structural Analyzer por pavimento — eixo coarse, simétrico ao de
+    recortes. NÃO guarda campos/fichas (isso é só da app desktop)."""
+    validado: bool
+
+
 @router.get("")
 def listar_obras(
     request: Request,
@@ -498,3 +505,56 @@ def obter_obra(
         "resumo_documentos": resumo_documentos,
         "rotulos_certificacao": rotulos,
     }
+
+
+@router.get("/{obra_id}/sa")
+def listar_sa_validacoes_endpoint(
+    obra_id: str,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """[2026-07-10, Masterplan OBRAS DRIVE Fase 2] {bruto_id: validado} de
+    TODOS os pavimentos já tocados dessa obra — a app desktop usa isso pra
+    espelhar em lote (1 GET, não 1 por pavimento)."""
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None:
+        raise HTTPException(status_code=404, detail="obra nao encontrada")
+    if not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=403, detail="obra de outro membro")
+    return {"obra_id": obra_id, "validacoes": repo.listar_sa_validacoes_por_obra(conn, obra_id)}
+
+
+@router.get("/{obra_id}/sa/{bruto_id}")
+def obter_sa_validacao_endpoint(
+    obra_id: str,
+    bruto_id: str,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None:
+        raise HTTPException(status_code=404, detail="obra nao encontrada")
+    if not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=403, detail="obra de outro membro")
+    return repo.obter_sa_validacao(conn, obra_id, bruto_id)
+
+
+@router.post("/{obra_id}/sa/{bruto_id}/validar")
+def validar_sa_endpoint(
+    obra_id: str,
+    bruto_id: str,
+    payload: ValidarSaIn,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """[2026-07-10, Masterplan OBRAS DRIVE Fase 2] Marca/desmarca a validação
+    "item completo" do Structural Analyzer pra 1 pavimento — usada tanto por
+    um botão futuro na web quanto pela app desktop (validação bidirecional,
+    protegida contra sobrescrita — ver `empurrar_validacao_sa` no lado app)."""
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None:
+        raise HTTPException(status_code=404, detail="obra nao encontrada")
+    if not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=403, detail="obra de outro membro")
+    repo.set_sa_validado(conn, obra_id, bruto_id, payload.validado, validado_por=membro.get("login"))
+    return repo.obter_sa_validacao(conn, obra_id, bruto_id)

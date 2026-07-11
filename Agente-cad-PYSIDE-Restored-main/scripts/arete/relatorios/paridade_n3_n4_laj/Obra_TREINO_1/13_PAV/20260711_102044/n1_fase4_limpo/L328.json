@@ -1,0 +1,67 @@
+{
+  "nome": "L328",
+  "numero": 328,
+  "coordenadas": [
+    [
+      2.6175,
+      0.0
+    ],
+    [
+      2.6175,
+      51.962
+    ],
+    [
+      0.0,
+      51.962
+    ],
+    [
+      0.0,
+      71.0
+    ],
+    [
+      418.0,
+      71.0
+    ],
+    [
+      418.0,
+      52.0
+    ],
+    [
+      415.5,
+      52.0
+    ],
+    [
+      415.5,
+      0.0
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 71.0,
+  "area_cm2": 29411.99,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 35.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 2059.3825,
+    "y": 1977.038
+  }
+}

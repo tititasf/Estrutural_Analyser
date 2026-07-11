@@ -519,7 +519,9 @@ class _LeftPanel(QFrame):
         self._select_cls("PIL")
 
     def _populate_obra_combo(self, obras: list[str] | None = None):
-        """Carrega todas as obras no combo (igual ao cmb_works do main).
+        """Carrega todas as obras no combo (igual ao cmb_works do main) +
+        obras do portal (Masterplan OBRAS DRIVE) — mesmo design visual dos
+        demais comboboxes de obra da app (ver `drive_obras_combo.py`).
 
         Se `obras` for fornecida (lista de strings), usa direto.
         Caso contrário faz query no DB (todas as obras cadastradas).
@@ -535,22 +537,28 @@ class _LeftPanel(QFrame):
                 )
             obras = [r[0] for r in rows if r[0]]
 
-        self.cmb_obra.blockSignals(True)
+        from src.ui.drive_obras_combo import popular_combo_obras_com_drive
+        self._drive_obras_portal = popular_combo_obras_com_drive(self.cmb_obra, self, obras)
+
         current = self._current_obra
-        self.cmb_obra.clear()
-        for obra in obras:
-            self.cmb_obra.addItem(f"📁 {obra}", obra)
         if current:
             idx = self.cmb_obra.findData(current)
             if idx >= 0:
+                self.cmb_obra.blockSignals(True)
                 self.cmb_obra.setCurrentIndex(idx)
-        else:
-            self.cmb_obra.setCurrentIndex(-1)
-        self.cmb_obra.blockSignals(False)
+                self.cmb_obra.blockSignals(False)
 
     def _on_cmb_obra_changed(self, obra_name: str):
         obra_name = self.cmb_obra.currentData() or obra_name
         if obra_name and obra_name != self._current_obra:
+            try:
+                from src.core.database import DatabaseManager
+                from src.ui.drive_obras_combo import espelhar_se_necessario
+                espelhar_se_necessario(
+                    DatabaseManager(db_path=DB_PATH), obra_name, getattr(self, "_drive_obras_portal", {})
+                )
+            except Exception as e:
+                print(f"[DiagnosticReverseHub] Falha ao espelhar obra Drive: {e}", flush=True)
             self._current_obra = obra_name
             self._refresh_list()
             self.obra_changed.emit(obra_name)
@@ -3086,15 +3094,25 @@ class DiagnosticReverseHub(QWidget):
 
     def _on_recorte_selected_wrapper(self, dxf_path: str):
         from PySide6.QtCore import Qt
+        obra_name = self._current_obra or getattr(self._left, '_current_obra', '')
+
+        # Masterplan OBRAS DRIVE: download sob demanda — no-op pra qualquer
+        # obra local (só age se obra_name for espelhada do Drive).
+        try:
+            from src.core.database import DatabaseManager
+            from src.core.drive_download_hook import garantir_drive_download
+            garantir_drive_download(DatabaseManager(db_path=DB_PATH), obra_name, dxf_path)
+        except Exception as e:
+            print(f"[DiagnosticReverseHub] Falha no download sob demanda: {e}", flush=True)
+
         # 1. Carrega o DXF no canvas central
         self._center.load_dxf_granular(dxf_path)
-        
+
         # 2. Obtem os dados do recorte clicado para carregar a Ficha N2 (F5) e o Pavimento (F4)
         selected = self._right.lst_recortes.currentItem()
         if selected:
             elem_id = selected.data(Qt.UserRole + 2)
             classe = selected.data(Qt.UserRole + 1) or ''
-            obra_name = self._current_obra or getattr(self._left, '_current_obra', '')
             if elem_id and obra_name:
                 self._load_ficha_for_elemento(elem_id, obra_name, classe)
 
@@ -3130,6 +3148,15 @@ class DiagnosticReverseHub(QWidget):
     def _on_item_selected(self, obra_name: str, proj_id: str, dxf_path: str):
         self._selected_proj_id  = proj_id
         self._selected_dxf_path = dxf_path
+
+        # Masterplan OBRAS DRIVE: download sob demanda — no-op pra qualquer
+        # obra local (só age se obra_name for espelhada do Drive).
+        try:
+            from src.core.database import DatabaseManager
+            from src.core.drive_download_hook import garantir_drive_download
+            garantir_drive_download(DatabaseManager(db_path=DB_PATH), obra_name, dxf_path)
+        except Exception as e:
+            print(f"[DiagnosticReverseHub] Falha no download sob demanda: {e}", flush=True)
 
         # Tab 1: DXF completo
         self._center.load_dxf_completo(dxf_path)

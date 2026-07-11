@@ -309,6 +309,53 @@ class DatabaseManager:
             )
         ''')
 
+        # Tabela ADITIVA: mapeia obra "espelho local" de volta pro UUID do portal
+        # web (Masterplan OBRAS DRIVE, Fase 1). Usada só pelo fluxo de download
+        # sob demanda em diagnostic_hub.py — obras locais normais nunca têm linha aqui.
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS drive_obras (
+                obra_nome        TEXT NOT NULL,
+                bruto_id         TEXT NOT NULL,
+                item_id          TEXT NOT NULL,
+                portal_obra_id   TEXT NOT NULL,
+                portal_bruto_id  TEXT NOT NULL,
+                portal_item_id   TEXT NOT NULL,
+                created_at       TEXT,
+                PRIMARY KEY (obra_nome, bruto_id, item_id)
+            )
+        ''')
+
+        # Tabela ADITIVA: mapeia 1 documento bruto/PDF/etc (não um recorte —
+        # ver `drive_obras` pra isso) de volta pro doc_id do portal, keyed
+        # pelo path local esperado (documentos não têm o par bruto/item que
+        # recortes têm — são identificados só pelo `doc_id` do portal).
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS drive_documentos (
+                obra_nome        TEXT NOT NULL,
+                arquivo_local    TEXT NOT NULL,
+                portal_obra_id   TEXT NOT NULL,
+                portal_doc_id    TEXT NOT NULL,
+                created_at       TEXT,
+                PRIMARY KEY (obra_nome, arquivo_local)
+            )
+        ''')
+
+        # Validação "item completo" N1+N3 por classe (Masterplan OBRAS DRIVE
+        # Fase 3) — espelha `portal_validacoes` (etapa 5 do portal, gateia
+        # liberação do N5 lá). NÃO substitui o sistema rico de aprovação por
+        # item do Diagnostic Reverse Hub — é um flag de confirmação manual
+        # separado, mesmo nível de granularidade que o portal tem hoje.
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS validacoes_n1n3 (
+                obra_nome    TEXT NOT NULL,
+                classe       TEXT NOT NULL,
+                n1_ok        BOOLEAN DEFAULT 0,
+                n3_ok        BOOLEAN DEFAULT 0,
+                validado_em  TEXT,
+                PRIMARY KEY (obra_nome, classe)
+            )
+        ''')
+
         # Tabela de Scripts Gerados
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS generated_scripts (
@@ -376,6 +423,27 @@ class DatabaseManager:
         _check_and_add_column('projects', 'deadline', 'TEXT')
         _check_and_add_column('projects', 'author_name', "TEXT DEFAULT 'Local'")
         _check_and_add_column('projects', 'file_version', 'TEXT')
+        # Validação "item completo" do SA (Masterplan OBRAS DRIVE Fase 2) —
+        # eixo coarse, espelhado com o portal; NÃO é o mesmo que `is_validated`
+        # de pillars/beams/slabs (esse é por campo, fica só local).
+        _check_and_add_column('projects', 'validado_sa', 'BOOLEAN DEFAULT 0')
+        _check_and_add_column('projects', 'validado_sa_em', 'TEXT')
+        # Referência (ISOLADA, nunca colide) pro `id` do project que o
+        # pipeline SA do PORTAL registra pra esse MESMO pavimento real
+        # (`_garantir_project_registrado`, work_name=path do servidor) —
+        # espelho local e SA-web usam ids/work_name completamente diferentes
+        # de propósito (uuid4 local vs `drive:{bruto_id}` vs path bruto do
+        # servidor — nunca colidem). Isso só REFERENCIA o outro, não funde.
+        _check_and_add_column('projects', 'web_sa_project_id', 'TEXT')
+
+        # Cache/expiração dos arquivos baixados sob demanda do Drive
+        # (Masterplan OBRAS DRIVE Fase 13) — versão remota (`Last-Modified`
+        # HTTP do portal) na hora do último download, pra detectar sem custo
+        # (HEAD request) se a web mudou o arquivo depois. Nunca expira por
+        # tempo; só por versão, e nunca sobrescreve silenciosamente um item
+        # já validado localmente (ver `tem_item_validado_para_obra`).
+        _check_and_add_column('drive_obras', 'remoto_versao', 'TEXT')
+        _check_and_add_column('drive_documentos', 'remoto_versao', 'TEXT')
 
         # WORKS
         _check_and_add_column('works', 'client_id', 'TEXT')
@@ -586,6 +654,231 @@ class DatabaseManager:
         try:
             cursor = conn.execute('SELECT name FROM works ORDER BY name ASC')
             return [r[0] for r in cursor.fetchall()]
+        finally:
+            conn.close()
+
+    # --- Drive Obras (Masterplan OBRAS DRIVE, Fase 1) ---------------------
+
+    def registrar_drive_item(self, obra_nome: str, bruto_id: str, item_id: str,
+                              portal_obra_id: str, portal_bruto_id: str, portal_item_id: str) -> None:
+        """Registra o mapeamento espelho-local -> UUID do portal pra 1 item de recorte.
+        Idempotente (chave composta obra_nome+bruto_id+item_id)."""
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                INSERT INTO drive_obras (obra_nome, bruto_id, item_id, portal_obra_id, portal_bruto_id, portal_item_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(obra_nome, bruto_id, item_id) DO UPDATE SET
+                    portal_obra_id=excluded.portal_obra_id,
+                    portal_bruto_id=excluded.portal_bruto_id,
+                    portal_item_id=excluded.portal_item_id
+            ''', (obra_nome, bruto_id, item_id, portal_obra_id, portal_bruto_id, portal_item_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def obter_drive_item(self, obra_nome: str, bruto_id: str, item_id: str) -> Optional[Dict]:
+        """Devolve o mapeamento portal (obra_id/bruto_id/item_id) de 1 item de
+        recorte espelhado, ou None se essa obra/bruto/item não veio do Drive."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            row = conn.execute(
+                'SELECT * FROM drive_obras WHERE obra_nome = ? AND bruto_id = ? AND item_id = ?',
+                (obra_nome, bruto_id, item_id)
+            ).fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def obra_e_drive(self, obra_nome: str) -> bool:
+        """True se `obra_nome` tem pelo menos 1 item espelhado do Drive."""
+        conn = self._get_conn()
+        try:
+            row = conn.execute(
+                'SELECT 1 FROM drive_obras WHERE obra_nome = ? '
+                'UNION SELECT 1 FROM drive_documentos WHERE obra_nome = ? LIMIT 1',
+                (obra_nome, obra_nome)
+            ).fetchone()
+            return row is not None
+        finally:
+            conn.close()
+
+    def obter_portal_obra_id(self, obra_nome: str) -> Optional[str]:
+        """UUID do portal pra `obra_nome` (qualquer mapeamento já registrado
+        serve — todos apontam pro mesmo portal_obra_id). None se não for
+        obra Drive."""
+        conn = self._get_conn()
+        try:
+            row = conn.execute(
+                'SELECT portal_obra_id FROM drive_obras WHERE obra_nome = ? '
+                'UNION SELECT portal_obra_id FROM drive_documentos WHERE obra_nome = ? LIMIT 1',
+                (obra_nome, obra_nome)
+            ).fetchone()
+            return row[0] if row else None
+        finally:
+            conn.close()
+
+    def contar_elementos_sa(self, project_id: Optional[str]) -> Dict:
+        """Contagem de pilares/vigas/lajes salvos pra 1 project_id — usado
+        pra comparar o SA local (espelho Drive) com o SA já rodado pela web
+        pro MESMO pavimento real (`projects.web_sa_project_id`), sem fundir
+        os dois registros (ficam isolados, cada um com seus próprios dados)."""
+        if not project_id:
+            return {"pilares": 0, "vigas": 0, "lajes": 0}
+        conn = self._get_conn()
+        try:
+            return {
+                "pilares": conn.execute('SELECT COUNT(*) FROM pillars WHERE project_id=?', (project_id,)).fetchone()[0],
+                "vigas": conn.execute('SELECT COUNT(*) FROM beams WHERE project_id=?', (project_id,)).fetchone()[0],
+                "lajes": conn.execute('SELECT COUNT(*) FROM slabs WHERE project_id=?', (project_id,)).fetchone()[0],
+            }
+        finally:
+            conn.close()
+
+    def obter_ultimo_html_dir_sa(self, project_id: Optional[str]) -> Optional[str]:
+        """Pasta do pack HTML (fichas) do commit SA mais recente pra 1
+        project_id — só existe se `sa_persistence_runs` tiver alguma linha
+        (ou seja, se `--persist-db` já commitou pra esse id). Usado só pra
+        abrir a pasta real em disco (atalho de leitura), nunca redireciona
+        o pipeline N1-N5 do Comparison Engine."""
+        if not project_id:
+            return None
+        conn = self._get_conn()
+        try:
+            row = conn.execute(
+                "SELECT html_dir FROM sa_persistence_runs WHERE project_id=? AND status='COMMITTED' "
+                "ORDER BY created_at DESC LIMIT 1",
+                (project_id,)
+            ).fetchone()
+            return row[0] if row and row[0] else None
+        except sqlite3.OperationalError:
+            return None  # tabela pode nao existir se nenhum --persist-db rodou ainda
+        finally:
+            conn.close()
+
+    def obter_validacao_n1n3(self, obra_nome: str, classe: str) -> Dict:
+        """Estado local de validação N1+N3 (item completo) pra 1 classe."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            row = conn.execute(
+                'SELECT * FROM validacoes_n1n3 WHERE obra_nome = ? AND classe = ?',
+                (obra_nome, classe.upper())
+            ).fetchone()
+            if row is None:
+                return {"obra_nome": obra_nome, "classe": classe.upper(), "n1_ok": False, "n3_ok": False}
+            d = dict(row)
+            d["n1_ok"] = bool(d["n1_ok"])
+            d["n3_ok"] = bool(d["n3_ok"])
+            return d
+        finally:
+            conn.close()
+
+    def set_validacao_n1n3(self, obra_nome: str, classe: str, n1_ok: bool, n3_ok: bool) -> None:
+        """Grava a validação local — merge protetivo: nunca rebaixa n1_ok/n3_ok
+        já True (harmoniza com o que vier do portal em `_garantir...`)."""
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                INSERT INTO validacoes_n1n3 (obra_nome, classe, n1_ok, n3_ok, validado_em)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(obra_nome, classe) DO UPDATE SET
+                    n1_ok=CASE WHEN validacoes_n1n3.n1_ok=1 THEN 1 ELSE excluded.n1_ok END,
+                    n3_ok=CASE WHEN validacoes_n1n3.n3_ok=1 THEN 1 ELSE excluded.n3_ok END,
+                    validado_em=CURRENT_TIMESTAMP
+            ''', (obra_nome, classe.upper(), int(n1_ok), int(n3_ok)))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def registrar_drive_documento(self, obra_nome: str, arquivo_local: str,
+                                   portal_obra_id: str, portal_doc_id: str) -> None:
+        """Registra o mapeamento espelho-local -> doc_id do portal pra 1
+        documento bruto/PDF/etc (não-recorte). Idempotente (chave composta
+        obra_nome+arquivo_local)."""
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                INSERT INTO drive_documentos (obra_nome, arquivo_local, portal_obra_id, portal_doc_id, created_at)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(obra_nome, arquivo_local) DO UPDATE SET
+                    portal_obra_id=excluded.portal_obra_id,
+                    portal_doc_id=excluded.portal_doc_id
+            ''', (obra_nome, arquivo_local, portal_obra_id, portal_doc_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def obter_drive_documento(self, obra_nome: str, arquivo_local: str) -> Optional[Dict]:
+        """Devolve o mapeamento portal (obra_id/doc_id) de 1 documento
+        espelhado, ou None se esse arquivo não veio do Drive."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            row = conn.execute(
+                'SELECT * FROM drive_documentos WHERE obra_nome = ? AND arquivo_local = ?',
+                (obra_nome, arquivo_local)
+            ).fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def atualizar_drive_item_versao(self, obra_nome: str, bruto_id: str, item_id: str, versao: Optional[str]) -> None:
+        """Grava a versão remota (`Last-Modified` HTTP) do último download de
+        1 recorte — Masterplan OBRAS DRIVE Fase 13 (cache/expiração)."""
+        if not versao:
+            return
+        conn = self._get_conn()
+        try:
+            conn.execute(
+                'UPDATE drive_obras SET remoto_versao=? WHERE obra_nome=? AND bruto_id=? AND item_id=?',
+                (versao, obra_nome, bruto_id, item_id),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def atualizar_drive_documento_versao(self, obra_nome: str, arquivo_local: str, versao: Optional[str]) -> None:
+        """Grava a versão remota (`Last-Modified` HTTP) do último download de
+        1 documento — Masterplan OBRAS DRIVE Fase 13 (cache/expiração)."""
+        if not versao:
+            return
+        conn = self._get_conn()
+        try:
+            conn.execute(
+                'UPDATE drive_documentos SET remoto_versao=? WHERE obra_nome=? AND arquivo_local=?',
+                (versao, obra_nome, arquivo_local),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def tem_item_validado_para_obra(self, obra_nome: str) -> bool:
+        """True se QUALQUER pilar/laje/viga de QUALQUER pavimento desta obra
+        (todo `project_id` cujo `work_name` = `obra_nome`) já tem selo verde
+        (`is_validated=1`) — usado pra nunca sobrescrever silenciosamente um
+        arquivo Drive já em uso pra validação (Fase 13, cache/expiração).
+        Checagem propositalmente ampla (obra inteira, não só o pavimento do
+        arquivo) — errar pro lado de proteger demais é preferível a perder
+        trabalho de validação."""
+        conn = self._get_conn()
+        try:
+            row = conn.execute(
+                '''
+                SELECT 1 FROM pillars WHERE is_validated=1 AND project_id IN
+                    (SELECT id FROM projects WHERE work_name=?)
+                UNION
+                SELECT 1 FROM slabs WHERE is_validated=1 AND project_id IN
+                    (SELECT id FROM projects WHERE work_name=?)
+                UNION
+                SELECT 1 FROM beams WHERE is_validated=1 AND project_id IN
+                    (SELECT id FROM projects WHERE work_name=?)
+                LIMIT 1
+                ''',
+                (obra_nome, obra_nome, obra_nome),
+            ).fetchone()
+            return row is not None
         finally:
             conn.close()
 
@@ -1663,6 +1956,15 @@ class DatabaseManager:
                 # Preserva is_validated da viga inteira
                 if old_b.get('is_validated'):
                     b['is_validated'] = True
+
+                # Preserva selos individuais de segmento (FV/LV) — merge
+                # aditivo, nunca rebaixa um segmento já validado (manual ou
+                # por campo) que a chamada atual não mencione.
+                old_val_segs = old_b.get('validated_segments')
+                if isinstance(old_val_segs, dict) and old_val_segs:
+                    merged_segs = dict(old_val_segs)
+                    merged_segs.update(b.get('validated_segments') or {})
+                    b['validated_segments'] = merged_segs
             # ------------------------------------------------
 
             class NumpyEncoder(json.JSONEncoder):

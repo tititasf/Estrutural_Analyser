@@ -468,11 +468,14 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 measure_width = float(link.get("fv_measure_width") or 0.0)
             except (TypeError, ValueError):
                 measure_width = 0.0
-            is_special_measure = (
-                measure_source.startswith("special_diagonal")
+            is_canonical_measure = (
+                measure_source.startswith((
+                    "special_diagonal",
+                    "chamfer_half_cm_snap",
+                ))
                 and measure_length > 0.05
             )
-            if is_special_measure:
+            if is_canonical_measure:
                 length = measure_length
             if length <= 0.05:
                 length = abs(coord[1] - coord[0])
@@ -480,7 +483,7 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 link["len"] = length
                 ficha = dict(link.get("ficha") or {})
                 ficha["comprimento_total_fundo"] = _format_measure(length)
-                if is_special_measure and measure_width > 0.05:
+                if measure_source.startswith("special_diagonal") and measure_width > 0.05:
                     ficha["largura_total_fundo"] = _format_measure(measure_width)
                 elif _width > 0.05:
                     ficha["largura_total_fundo"] = _format_measure(_width)
@@ -503,7 +506,7 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 ),
                 "ficha": dict(link.get("ficha") or {}),
             }
-            if is_special_measure:
+            if is_canonical_measure:
                 segment["measure_source"] = measure_source
                 segment["measure_length"] = measure_length
                 if measure_width > 0.05:

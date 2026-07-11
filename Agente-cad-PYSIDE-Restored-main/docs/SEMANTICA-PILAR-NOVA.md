@@ -63,6 +63,85 @@ VISTA LATERAL (face A, exemplo P1 h=280cm, sem laje):
 
 ---
 
+## 2.1 Cotas verticais ABCD — degraus (níveis 1 / 2 / 3)
+
+As cotas verticais de cada face **não ficam todas na mesma coluna**: há degraus
+horizontais (offset a partir do bordo direito da face) para não sobrepor texto.
+
+Medido no DXF manual P1_PARA (offsets ≈ distância da linha de cota ao bordo):
+
+| Nível | Offset (cm) | O que entra | Cor / estilo |
+|-------|-------------|-------------|--------------|
+| **1** | **17** | Cinta **h1 = 2 cm**; cotas de **recorte/abertura** no painel (ex. 66 do fundo da abertura até a próxima junta) | COTA ciano |
+| **2** | **40** | Medidas dos **painéis** da malha (módulos 122, sobra 58, trechos 37/14/7 de rebaixo-vazio no miolo dual, faixa laje C/D) | COTA ciano |
+| **3** | **63** | **Painéis unidos** pelo mesmo sarrafo: cota **total** da soma (ex. 100+22 → total **122**), além das partes no nível 2 | COTA ciano |
+
+```
+        bordo face ──►
+              │  N1 (17)      N2 (40)       N3 (63)
+              │  ├─ 2 (h1)    ├─ 122        ├─ 122 total (unido)
+              │  ├─ 66 (rec)  ├─ 100        │   (só se paineis_unidos_*)
+              │               ├─ 22
+              │               ├─ 58
+```
+
+### Painéis unidos (mesmo sarrafo) — campo opcional
+
+O robô **não gera sozinho** união 100+22: a malha default é módulo inteiro 122.
+O dono pode editar o JSON e o N3 (modo NOVA) deve respeitar:
+
+```json
+"paineis_intervals_A": [122.0, 122.0, 58.0],
+"paineis_unidos_A": [
+  {
+    "interval_index": 0,
+    "parts": [100.0, 22.0]
+  }
+]
+```
+
+| Campo | Significado |
+|-------|-------------|
+| `interval_index` | Índice em `paineis_intervals_{face}` que é subdividido (0 = primeiro módulo acima de h1) |
+| `parts` | Alturas parciais (cm); **soma deve ≈** o valor do interval (tol 0.6 cm) |
+
+**Efeitos no desenho:**
+1. **Linha de painel extra** em cada junção interna das `parts` (ex. a 100 cm do início do módulo) — camada `Painéis`, mesma regra de H full/parcial que o resto da malha.
+2. **Cotas nível 2:** cada `part` (100 e 22), **não** o 122 “inteiro” isolado nesse trecho.
+3. **Cota nível 3:** uma cota do **total** (122) abrangendo o intervalo unido inteiro.
+4. **Sarrafo NÃO seccionado** na junção das parts (contínuo) — é o que justifica a cota N3.
+
+Sem `paineis_unidos_*`, o comportamento é só N1+N2 (como hoje, com degraus).
+
+### Seccionamento de sarrafos nos cruzamentos com painéis
+
+Referência: `PL_ABCD_preview_P1-exemplosarrafos.dxf`.
+
+- Sarrafos verticais (pressão HIDDEN A/B, SARR de abertura/marco, SARR C/D) são
+  **cortados em cada junta de módulo lógico** (Ys de `paineis_intervals_*`).
+- Ex.: malha [122, 122, 58] → pressão em trechos 122 + 122 + 58, não um fuste contínuo de 302.
+- **Exceção:** em `paineis_unidos_*`, o fuste **atravessa** a linha extra das parts
+  (mesmo sarrafo) → aí sim existe cota **nível 3** do total.
+- Cota horizontal de offset **7 cm** do sarrafo: só faces **A e B** (não C/D).
+
+Constantes no gerador:
+`DIM_LVL1_OFF`, `DIM_LVL2_OFF`, `DIM_LVL3_OFF`.
+
+### Modo visual INI vs NOVA (perfil final)
+
+A **geometria** (malha, aberturas, rebaixo, seccionamento, cotas N1/N2/N3, hatch)
+é **idêntica** para PARA e PASSA e para qualquer item. Só o perfil de traço muda:
+
+| | **NOVA** | **INI** (templates SCR) |
+|--|----------|-------------------------|
+| Sarrafo sólido (abertura, marco, H sob vazio laje/viga, fustes C/D) | LINE / LWPOLY | **MLINE** estilo SAR3 |
+| Sarrafo de pressão (HIDDEN) e outros DASHED | LINE HIDDEN | **LINE** (não vira MLINE) |
+| Layers / cores | paleta atual | remapeamento legado + BYLAYER |
+
+Aplicado em `scripts/visual_modes.apply_visual_mode(..., robot_class="PL")` no fim da geração.
+
+---
+
 ## 3. Grade — Comprimento e Parafusos
 
 ### grade_1 (campo JSON, medido no DXF)
@@ -155,6 +234,8 @@ Se nenhuma face tem laje: `laje_X=0, posicao_laje_X=0` para todas as faces.
 | `par_2_3` | float | Espaç. horizontal parafuso 2→3 (cm) | 0 se qtd_par < 3 |
 | `par_N_M` | float | Espaç. parafuso N→N+1 | 0 se não usado |
 | `modo_distribuicao` | str | Padrão construtivo | "NOVA" (padrão desta obra) |
+| `paineis_intervals_X` | list[float] | Deltas de malha H acima de h1 (cm) | NOVA: 122+sobra; C/D passante: painel contínuo |
+| `paineis_unidos_X` | list[dict] | Subdivisão manual de módulo (parts + total N3) | Opcional; ver §2.1 — robô não gera sozinho |
 
 ---
 

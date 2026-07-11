@@ -123,6 +123,17 @@ def montar_comando_headless(
 
     Sempre usa --wait (automacao): serializa contra QUALQUER headless da maquina via
     o single_instance lock, inclusive os disparados pela app PySide6 do dono (§3.1).
+
+    [FIX 2026-07-11, a pedido do dono] `--persist-db` — o mesmo flag que os
+    loopings (`docs/PERSISTENCIA-HEADLESS-SA.md`) já usam pra gravar de
+    verdade em `pillars`/`beams`/`slabs` — NUNCA era passado aqui, então SA
+    via portal sempre rodava `READ_ONLY` (achado real: 38 pilares/25
+    lajes/35 vigas processados mas nunca persistidos). O mecanismo de
+    persistência já é seguro por padrão (gate de 4 diagnósticos completos,
+    transação `BEGIN IMMEDIATE`, preserva campo/vínculo já validado — ver
+    doc acima) — só precisava ser acionado. Só entra em execução COMPLETA
+    (sem `--secao`), porque o próprio script recusa `--persist-db` com
+    `--secao` (`ap.error(...)`).
     """
     obra_dir = _obra_dir(settings, obra)
     cmd = [
@@ -133,6 +144,8 @@ def montar_comando_headless(
     ]
     for s in secao or []:
         cmd += ["--secao", s]
+    if not secao:
+        cmd.append("--persist-db")
     return cmd
 
 
@@ -613,8 +626,18 @@ def executar_etapa(
     _garantir_project_registrado(settings, obra, pav or settings.pav_default)
 
     try:
+        # [FIX 2026-07-11, achado real testando "SA via web"] sem `encoding`
+        # explícito, `text=True` usa `locale.getpreferredencoding()` — nesta
+        # máquina Windows isso é cp1252, e o headless (como quase todo o
+        # resto do repo) imprime acentos/emojis em UTF-8. Byte inválido em
+        # cp1252 derruba a THREAD de leitura do stdout/stderr do subprocess
+        # (`UnicodeDecodeError` dentro de `_readerthread`, silenciosa — o
+        # subprocess.run "termina" mas com stdout/stderr truncados/vazios).
+        # Reproduzido de verdade: pilares/vigas/lajes ficavam sempre em 0
+        # mesmo com `ok=True` — o subprocess nunca era lido até o fim.
         proc = subprocess.run(
             cmd, cwd=str(settings.repo_root), capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
             timeout=settings.subprocess_timeout_s,
         )
     except subprocess.TimeoutExpired:

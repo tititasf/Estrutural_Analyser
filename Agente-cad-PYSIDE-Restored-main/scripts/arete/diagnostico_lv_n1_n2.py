@@ -122,6 +122,86 @@ def load_n1_beams(state_path: str | Path) -> tuple[dict, dict[str, dict]]:
     return state, beams
 
 
+def _overlay_persisted_lv_dimensions(
+    beams: dict[str, dict],
+    db_path: str | Path,
+    obra: str,
+    pavimento: str,
+) -> int:
+    """Prioriza a dimensao LV propria persistida pelo SA sobre fallbacks FV.
+
+    O estado granular historico guarda ``segment.width`` e, em bases antigas,
+    esse valor pode ter vindo de ``viga_fundo_seg_*_dim``. O contrato de geracao
+    LV persistido em ``beams.data_json`` e N1: foi produzido pelo SA antes do
+    commit e nao depende da ficha N2. Quando presente, ele e a fonte canonica
+    para a secao declarada no diagnostico N1xN2.
+    """
+    path = Path(db_path).resolve()
+    if not path.is_file() or not beams:
+        return 0
+    connection = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        try:
+            rows = connection.execute(
+                "SELECT b.name, b.data_json, p.pavement_name, p.name, p.updated_at "
+                "FROM beams b JOIN projects p ON p.id=b.project_id "
+                "WHERE p.work_name=? ORDER BY p.updated_at DESC",
+                (obra,),
+            ).fetchall()
+        except sqlite3.OperationalError:
+            # Bancos minimos de testes/legados podem conter apenas as fichas N2.
+            return 0
+    finally:
+        connection.close()
+
+    overlaid = 0
+    seen: set[str] = set()
+    for raw_name, raw_json, pavement_name, project_name, _updated_at in rows:
+        name = str(raw_name or "").strip().upper()
+        if name not in beams or name in seen:
+            continue
+        if not (
+            same_pavimento(str(pavement_name or ""), pavimento)
+            or same_pavimento(str(project_name or ""), pavimento)
+        ):
+            continue
+        try:
+            beam = json.loads(raw_json or "{}")
+        except json.JSONDecodeError:
+            continue
+        contracts = beam.get("lv_generation_contracts") or {}
+        if not isinstance(contracts, dict) or not contracts:
+            continue
+        geometry = beam.get("geometry") or {}
+        dimension = geometry.get("lv_dimension_text") or {}
+        dimension_text = (
+            dimension.get("text") if isinstance(dimension, dict) else dimension
+        )
+        numbers = _numbers_from_text(dimension_text)
+        if not numbers:
+            for behavior in ("Passa", "Para"):
+                for side in ("A", "B"):
+                    contract = (contracts.get(behavior) or {}).get(side) or {}
+                    width = as_float(contract.get("total_width"))
+                    depth = as_float(contract.get("h_section"))
+                    if width is not None:
+                        numbers.add(round(width, 1))
+                    if depth is not None:
+                        numbers.add(round(depth, 1))
+                    if numbers:
+                        break
+                if numbers:
+                    break
+        if not numbers:
+            continue
+        beams[name]["declared_numbers_legacy"] = beams[name].get("declared_numbers", [])
+        beams[name]["declared_numbers"] = sorted(numbers)
+        beams[name]["dimension_source"] = "beams.data_json.lv_generation_contracts"
+        seen.add(name)
+        overlaid += 1
+    return overlaid
+
+
 def _n2_candidate_numbers(campos: dict) -> set[float]:
     candidates: set[float] = set()
     for key in ("total_width", "h_section", "b_geom"):
@@ -274,6 +354,9 @@ def run_diagnostic(
 ) -> tuple[dict, Path, Path]:
     resolved_state = resolve_state_path(obra, pavimento, state_path, state_root)
     state, n1_beams = load_n1_beams(resolved_state)
+    overlaid_dimensions = _overlay_persisted_lv_dimensions(
+        n1_beams, db_path, obra, pavimento
+    )
     n2_beams = load_n2_beams(db_path, obra, pavimento)
     generated_at = datetime.now(timezone.utc).isoformat()
     items = [
@@ -300,6 +383,7 @@ def run_diagnostic(
             "n1_estado": str(resolved_state),
             "n1_estado_sha256": state_hash,
             "n2_db": str(Path(db_path).resolve()),
+            "n1_dimensoes_lv_persistidas": overlaid_dimensions,
         },
         "resumo": {
             "itens": len(items),

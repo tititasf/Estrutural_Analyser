@@ -1,0 +1,1528 @@
+{
+  "counts": {
+    "documents": 0,
+    "obra_recortes": 0,
+    "projects": 9,
+    "reverse_fichas": 0,
+    "reverse_recortes": 0,
+    "semantic_rules": 109
+  },
+  "documents": [],
+  "generated_at": "2026-07-11T20:27:00.886247+00:00",
+  "obra_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
+  "obra_recortes": [],
+  "paths": {
+    "db_path": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+    "obra_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
+    "snapshot_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\obra_rag"
+  },
+  "projects": [
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "ca3effd0-ac41-44cf-908f-cd007009d21a",
+      "name": "13_PAV",
+      "pavement_name": "13_PAV",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "0698537d-8c54-44ab-a47b-0977534a0e14",
+      "name": "14_PAV",
+      "pavement_name": "14_PAV",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-EX-3000-1PV-R00_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "cc33e42e-4d6c-46f6-baf0-6c996816908a",
+      "name": "1_PAV",
+      "pavement_name": "1_PAV",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-EX-4000-2PV-R00_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "640ac9be-23ef-4d68-a130-76b32e6ec872",
+      "name": "2_PAV",
+      "pavement_name": "2_PAV",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "cd0acaaa-0ec8-48cf-8052-d3b1d3c99aee",
+      "name": "ATICO",
+      "pavement_name": "ATICO",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-PE-8000-COB-R03_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "94a32c75-12f2-4c69-b0c4-4f2bf28edfd0",
+      "name": "COBERTURA",
+      "pavement_name": "COBERTURA",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "9db88a9d-da3c-4639-95cd-96c615a411a8",
+      "name": "FUNDACAO",
+      "pavement_name": "FUNDACAO",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "60040bb4-8e1a-497a-bc75-8539b36b0d45",
+      "name": "TERREO",
+      "pavement_name": "TERREO",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    },
+    {
+      "dxf_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-2_Triagem\\recortes\\TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA\\torre_1.dxf",
+      "file_version": null,
+      "id": "27e0ef4c-cff1-4dcb-adf1-460c4f9ff84d",
+      "name": "TIPO",
+      "pavement_name": "TIPO",
+      "sync_status": "pending",
+      "work_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial"
+    }
+  ],
+  "promotion_policy": "never_auto_global",
+  "reverse_fichas": [],
+  "reverse_recortes": [],
+  "schema_version": 1,
+  "scope": "obra_local",
+  "semantic_rules": [
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 230,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "🎯 Visão Geral",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "## 🎯 Visão Geral\n\nEste documento contextualiza três componentes críticos do sistema AgenteCAD:\n1. **Lista de Vigas do Estrutural Analyzer** (`main.py`)\n2. **Campo SEGMENTOS** (completamente)\n3. **Abas A e B de FUNDOS** (Robo Fundos de Vigas)\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 232,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.1 Localização e Estrutura",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.1 Localização e Estrutura\n\n**Arquivo Principal:** `main.py`  \n**Método de Setup:** `_setup_structural_analyzer_area()` (linha ~956)  \n**Widget:** `self.list_beams` (QTreeWidget)"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 234,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "main.py linha ~1147-1152",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# main.py linha ~1147-1152\n\nself.list_beams = QTreeWidget()\nself.list_beams.setHeaderLabels([\"Item\", \"Nome\", \"Status\", \"%\"])\nself.list_beams.setColumnWidth(0, 50)   # Item\nself.list_beams.setColumnWidth(1, 120)  # Nome\nself.list_beams.setColumnWidth(2, 50)   # Status\nself.list_beams.setColumnWidth(3, 50)   # %\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 236,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.3 Colunas da Lista",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.3 Colunas da Lista\n\n| Coluna | Descrição | Tipo | Largura |\n|--------|-----------|------|---------|\n| **Item** | Número sequencial da viga | Integer | 50px |\n| **Nome** | Identificação da viga (ex: V1, V-1) | String | 120px |\n| **Status** | Estado de processamento | String | 50px |\n| **%** | Percentual de completude | Float | 50px |"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 238,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.4 Integração com Abas",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.4 Integração com Abas\n\nA lista de vigas está dentro de um sistema de abas hierárquico:\n\n```\nStructural Analyzer (Módulo Principal)\n└── main_tabs (QTabWidget)\n    └── tab_analysis (Aba \"Análise Atual\")\n        └── tabs_analysis_internal (QTabWidget)\n            ├── \"Pilares\" → list_pillars\n            ├── \"Vigas\" → list_beams ⭐ (Nossa lista)\n            ├── \"Lajes\" → list_slabs\n            └── \"⚠️ Pendências\" → list_issues\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 240,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "main.py linha ~1168-1169",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# main.py linha ~1168-1169\n\nself.list_beams.itemClicked.connect(self.on_list_beam_clicked)\nself.list_beams.currentItemChanged.connect(\n    lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None\n)\n```\n\n**Ações ao clicar:**\n- Seleciona a viga no canvas\n- Atualiza o DetailCard com informações da viga\n- Carrega dados de segmentos (Lado A, Lado B, Fundo)"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 242,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.6 Processamento de Vigas",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.6 Processamento de Vigas\n\n**Método Principal:** `_process_beam_intelligent()` (linha ~3825)\n\n**Fluxo de Processamento:**\n1. **Identificação Geométrica:**\n   - Linhas classificadas como `seg_side_a` e `seg_side_b`\n   - Textos de dimensão associados\n   - Suportes (pilares, vigas, paredes)\n\n2. **Cálculo de Segmentos:**\n   ```python\n   # main.py linha ~3874-3892\n   def process_segments(side_key, tag):\n       lines = classified.get(side_key, [])\n       total_len = 0\n       for line in lines:\n           p1, p2 = line[0], line[-1]\n           length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5\n           total_len += length\n           b['links']['viga_segs'][side_key].append({\n               '"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 244,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.7 Sincronização com Robôs",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.7 Sincronização com Robôs\n\n**Botões de Sincronização** (linha ~1104-1113):\n- **\"🤖 Sincronizar Laterais de Vigas\"**: Envia para `Robo_Laterais_de_Vigas`\n- **\"🤖 Sincronizar Fundo de Vigas\"**: Envia para `Robo_Fundos_de_Vigas`\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 246,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.1 Definição Conceitual",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.1 Definição Conceitual\n\n**Segmento** = Trecho de viga entre dois conflitos (pilares, vigas cruzadas, ou fim da viga)."
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 248,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.2 Estrutura de Dados",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.2 Estrutura de Dados\n\n**No Estrutural Analyzer (`main.py`):**\n```python\nb['links']['viga_segs'] = {\n    'seg_side_a': [\n        {\n            'type': 'poly',\n            'points': [(x1, y1), (x2, y2), ...],\n            'len': 150.5,\n            'tag': 'Lado A',\n            'dim_text': '14x60'  # Opcional: dimensão específica do segmento\n        },\n        ...\n    ],\n    'seg_side_b': [...],\n    'seg_bottom': [...]  # Segmentos do fundo\n}\n```\n\n**No Robo Laterais (`robo_laterais_viga_pyside.py`):**\n```python\n@dataclass\nclass VigaState:\n    segment_class: str = \"Lista Geral\"  # Classe de agrupamento\n    side: str = \"A\"  # Lado da viga (A ou B)\n    continuation: str = \"Proxima Parte\"  # Ti"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 250,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.3 Classificação de Segmentos",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.3 Classificação de Segmentos\n\n**Tipos de Segmentos:**\n\n1. **Segmentos Laterais (Lado A/B):**\n   - `seg_side_a`: Linhas do lado A da viga\n   - `seg_side_b`: Linhas do lado B da viga\n   - Processados em `_process_beam_intelligent()` (linha ~3874)\n\n2. **Segmentos de Fundo:**\n   - `seg_bottom`: Linhas do fundo da viga\n   - Usados para cálculo de área de fundo\n\n3. **Segmentos de Continuação:**\n   - `seg_cont`: Segmento de viga que continua após um pilar\n   - Usado no contexto de pilares"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 252,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.4 Campo `segment_class` (Robo Laterais)",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.4 Campo `segment_class` (Robo Laterais)\n\n**Localização:** `_ROBOS_ABAS/Robo_Laterais_de_Vigas/robo_laterais_viga_pyside.py` (linha ~97)\n\n**Propósito:** Agrupar vigas relacionadas (ex: V1, V1a, V1b, V1c)\n\n**Valores Comuns:**\n- `\"Lista Geral\"`: Padrão para vigas não agrupadas\n- `\"V1\"`, `\"V2\"`, etc.: Agrupamento por viga base\n- `\"V1A\"`, `\"V1B\"`: Agrupamento com sufixo de lado\n\n**Uso na Lista:**\n```python"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 254,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "robo_laterais_viga_pyside.py linha ~8031-8077",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# robo_laterais_viga_pyside.py linha ~8031-8077\n\ndef update_vigas_list(self):\n    \"\"\"Update tree1 with vigas grouped by Segment Class\"\"\"\n    self.viga_grouping = {}\n    \n    for pav_name in target_pavs:\n        for viga_name, vstate in pavimentos[pav_name].get('vigas', {}).items():\n            cls = getattr(vstate, 'segment_class', 'Lista Geral')\n            if cls not in self.viga_grouping:\n                self.viga_grouping[cls] = []\n            self.viga_grouping[cls].append((viga_name, vstate, pav_name))\n```\n\n**Hierarquia na Árvore:**\n```\nLista Geral\n├── V1.A\n├── V1.B\n└── V2.A\nV1\n├── V1a.A\n├── V1b.A\n└── V1c.A\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 256,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.5 Processamento de Segmentos no LinkManager",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.5 Processamento de Segmentos no LinkManager\n\n**Arquivo:** `src/ui/widgets/link_manager.py` (linha ~73-76)\n\n**Definição de Links:**\n```python\n'_viga_segs': [\n    {'id': 'seg_side_a', 'name': 'Segmentos Lado A', 'type': 'poly', \n     'prompt': 'Desenhe os segmentos do Lado A. [Enter] para finalizar.', \n     'help': 'Linhas do lado A da viga.'},\n    {'id': 'seg_side_b', 'name': 'Segmentos Lado B', 'type': 'poly', \n     'prompt': 'Desenhe os segmentos do Lado B. [Enter] para finalizar.', \n     'help': 'Linhas do lado B da viga.'},\n    {'id': 'seg_bottom', 'name': 'Segmentos Fundos', 'type': 'poly', \n     'prompt': 'Desenhe os segmentos do Fundo. [Enter] para finalizar.', \n     'help': 'Lin"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 258,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.6 Visualização no DetailCard",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.6 Visualização no DetailCard\n\n**Arquivo:** `src/ui/widgets/detail_card.py` (linha ~1259-1303)\n\n**Estrutura de Abas:**\n```python\ndef _setup_viga_complex_view(self, layout):\n    \"\"\"Implementa detalhamento rigoroso de Lado A, Lado B e Fundo\"\"\"\n    tabs = QTabWidget()\n    sides_config = [\n        ('A', 'Lado A', False), \n        ('B', 'Lado B', False), \n        ('Fundo', 'Fundo', True)\n    ]\n    \n    for side, label, is_bottom in sides_config:\n        # Container de Segmentos Rica\n        for i in sorted(list(existing_indices)):\n            self._add_rich_segment_pack(segs_layout, prefix, i)\n```\n\n**Campos por Segmento:**\n- Nome do conflito inicial\n- Tipo do conflito inicial\n- Distância até"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 260,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.1 Localização",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.1 Localização\n\n**Arquivo Principal:** `_ROBOS_ABAS/Robo_Fundos_de_Vigas/compactador-producao/fundo_pyside.py`  \n**Classe:** `FundoMainWindow` (linha ~417)  \n**Método de Setup:** `setup_ui()` (linha ~1800)"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 262,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.2 Estrutura da Interface",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.2 Estrutura da Interface\n\n**Layout Principal:**\n```\nFundoMainWindow\n├── LEFT: Lista de Vigas (tree_fundos)\n├── CENTER: Visualização (canvas)\n└── RIGHT: Comandos + Detalhes (tabs_details)\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 264,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.3 Abas de Detalhes",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.3 Abas de Detalhes\n\n**Widget:** `self.tabs_details` (QTabWidget, linha ~1980)\n\n**Abas Disponíveis:**\n1. **\"Geral\"** (tab_geral): Informações básicas\n2. **\"Painéis\"** (tab_paineis): Configuração de painéis\n3. **\"Recuos\"** (tab_recuos): Chanfros e aberturas\n4. **\"Painel L\"** (tab_l): Configurações especiais para formato L"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 266,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.4 Diferença: Abas A/B vs Abas de Detalhes",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.4 Diferença: Abas A/B vs Abas de Detalhes\n\n⚠️ **IMPORTANTE:** As \"Abas A e B\" referem-se ao **LADO DA VIGA**, não às abas do QTabWidget.\n\n**No Robo Fundos:**\n- Cada viga pode ter **Fundo do Lado A** e **Fundo do Lado B**\n- Isso é controlado pelo campo `side` no `VigaState` (Robo Laterais)\n- O Robo Fundos processa ambos os lados quando sincronizado"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 268,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "main.py linha ~1110-1113",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# main.py linha ~1110-1113\n\nbtn_fundo = QPushButton(\"🤖 Sincronizar Fundo de Vigas\")\nbtn_fundo.clicked.connect(self.sync_beams_to_fundo_action)\n```\n\n**Dados Enviados:**\n```python"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 270,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Cada viga tem:",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# Cada viga tem:\n\n{\n    \"nome\": \"V1.A\",  # Sufixo .A ou .B indica o lado\n    \"largura\": 14,\n    \"comprimento\": 300,\n    \"segmentos\": [...],\n    \"side\": \"A\"  # ou \"B\"\n}\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 272,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.6 Agrupamento por Segmentos Sequenciais",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.6 Agrupamento por Segmentos Sequenciais\n\n**Método:** `_agrupar_segmentos_sequenciais()` (linha ~984)\n\n**Propósito:** Agrupar fundos de vigas com sufixos sequenciais (V1a, V1b, V1c)\n\n```python\ndef _agrupar_segmentos_sequenciais(self, fundos_dict):\n    # Agrupa por base (ex: \"V1\") e ordena sequencialmente\n    grupos = {}\n    for nome, dados in fundos_dict.items():\n        base = re.match(r'^(.+?)([a-z])?$', nome).group(1)\n        if base not in grupos:\n            grupos[base] = []\n        grupos[base].append((nome, dados))\n    \n    # Ordenar segmentos dentro de cada grupo\n    for base in grupos:\n        grupos[base].sort(key=lambda x: x[0])\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 274,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.7 Geração de Scripts por Lado",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.7 Geração de Scripts por Lado\n\n**Método:** `_gerar_script_segmento()` (linha ~914)\n\n**Comportamento:**\n- Gera scripts separados para cada lado (A e B)\n- Agrupa segmentos sequenciais do mesmo lado\n- Cria arquivos `.scr` para execução no AutoCAD"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 276,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.8 Campos Específicos por Lado",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.8 Campos Específicos por Lado\n\n**No Robo Fundos, cada fundo tem:**\n- **Largura**: Largura da viga (cm)\n- **Comprimento**: Comprimento total do fundo (cm)\n- **Painéis**: 6 painéis configuráveis (P1-P6)\n- **Sarrafos**: Sarrafos verticais (esquerda/direita)\n- **Recuos**: 4 recuos (T/E, F/E, T/D, F/D)\n- **Aberturas**: 4 aberturas com 3 dimensões cada\n\n**Diferença entre Lado A e B:**\n- Mesma estrutura de dados\n- Processamento independente\n- Scripts gerados separadamente\n- Agrupamento por `segment_class` considera ambos os lados\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 278,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "4.1 Fluxo de Dados",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 4.1 Fluxo de Dados\n\n```\n1. Estrutural Analyzer (main.py)\n   ├── Processa DXF\n   ├── Identifica Vigas\n   ├── Calcula Segmentos (Lado A, Lado B)\n   └── Armazena em beams_found[]\n\n2. Usuário clica \"🤖 Sincronizar Fundo de Vigas\"\n   └── sync_beams_to_fundo_action()\n\n3. Dados Transformados\n   ├── Para cada viga em beams_found:\n   │   ├── Extrai segmentos do Lado A\n   │   ├── Extrai segmentos do Lado B\n   │   ├── Calcula comprimento total\n   │   └── Cria entrada no Robo Fundos\n   └── Envia para FundoMainWindow\n\n4. Robo Fundos (fundo_pyside.py)\n   ├── Recebe dados\n   ├── Agrupa por segment_class\n   ├── Exibe na tree_fundos\n   └── Permite edição e geração de scripts\n```"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 280,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Dados enviados do Estrutural Analyzer para Robo Fundos",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# Dados enviados do Estrutural Analyzer para Robo Fundos\n\nfundo_data = {\n    \"nome\": \"V1.A\",  # Nome + sufixo do lado\n    \"numero\": \"1\",\n    \"pavimento\": \"P-1\",\n    \"largura\": 14.0,\n    \"altura\": 60.0,\n    \"comprimento\": 300.0,  # Soma dos segmentos\n    \"segment_class\": \"V1\",\n    \"side\": \"A\",\n    \"segmentos\": [\n        {\"inicio\": \"P-1\", \"fim\": \"P-2\", \"comprimento\": 150.0},\n        {\"inicio\": \"P-2\", \"fim\": \"P-3\", \"comprimento\": 150.0}\n    ],\n    \"texto_esq\": \"P-1\",\n    \"texto_dir\": \"P-3\"\n}\n```\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 282,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5.1 Lista de Vigas (Estrutural Analyzer)",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 5.1 Lista de Vigas (Estrutural Analyzer)\n\n- **Widget:** `QTreeWidget` com 4 colunas (Item, Nome, Status, %)\n- **Localização:** Aba \"Vigas\" dentro de \"Análise Atual\"\n- **Função:** Lista todas as vigas detectadas no DXF\n- **Ações:** Seleção, sincronização com robôs, criação de comandos LISP"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 284,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5.2 Campo SEGMENTOS",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 5.2 Campo SEGMENTOS\n\n- **Definição:** Trechos de viga entre conflitos\n- **Tipos:** `seg_side_a`, `seg_side_b`, `seg_bottom`\n- **Campo `segment_class`:** Agrupa vigas relacionadas (V1, V1a, V1b)\n- **Processamento:** Cálculo automático de comprimentos e quantidades"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 286,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5.3 Abas A e B de FUNDOS",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 5.3 Abas A e B de FUNDOS\n\n- **Conceito:** Lados da viga (A e B), não abas do QTabWidget\n- **Processamento:** Independente para cada lado\n- **Agrupamento:** Por `segment_class` considerando ambos os lados\n- **Geração:** Scripts separados para cada lado e segmento sequencial\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 288,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Arquivos Principais:",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### Arquivos Principais:\n\n- `main.py`: Estrutural Analyzer, lista de vigas, processamento\n- `_ROBOS_ABAS/Robo_Laterais_de_Vigas/robo_laterais_viga_pyside.py`: Campo `segment_class`\n- `_ROBOS_ABAS/Robo_Fundos_de_Vigas/compactador-producao/fundo_pyside.py`: Interface de fundos\n- `src/ui/widgets/link_manager.py`: Definição de links de segmentos\n- `src/ui/widgets/detail_card.py`: Visualização de segmentos no DetailCard"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 0.95,
+      "id": 290,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Métodos Chave:",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### Métodos Chave:\n\n- `_setup_structural_analyzer_area()`: Setup da lista de vigas\n- `_process_beam_intelligent()`: Processamento de segmentos\n- `update_vigas_list()`: Atualização da lista no Robo Laterais\n- `_agrupar_segmentos_sequenciais()`: Agrupamento no Robo Fundos\n\n---\n\n**Última Atualização:** 2025-01-22  \n**Autor:** Sistema AgenteCAD - Contextualização Automática"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 292,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Semântica dos Campos — Viga NOVA (Sistema Fôrma)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "# Semântica dos Campos — Viga NOVA (Sistema Fôrma)\n\n**Fonte:** Validação Sprint 1 Etapa 1.2, Obra_TREINO_1 — confirmada pelo usuário 2026-06-04\n**Uso:** RAG, extratores Fase-3/4, motor_fase4.py, Robo LV, Robo FV\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 294,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1. Dimensões da Seção Transversal",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 1. Dimensões da Seção Transversal\n\n| Campo | Tipo | Descrição |\n|-------|------|-----------|\n| `total_width` | float | Espessura da viga (b) em cm — largura do fundo |\n| `total_height` | str/float | Altura da viga (h) em cm |\n\n- `total_width` = dimensão perpendicular ao eixo da viga (a \"espessura\" do fundo)\n- Para **Robo LV** (lateral): não influencia diretamente o tamanho dos painéis\n- Para **Robo FV** (fundo): é a largura do retângulo do fundo\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 296,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2. Painéis (panels[])",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 2. Painéis (panels[])\n\nCada entrada em `panels` representa um segmento horizontal da face lateral.\n\n| Campo | Tipo | Descrição |\n|-------|------|-----------|\n| `panels[i].width` | float | Comprimento horizontal do segmento de painel (cm) |\n| `panels[i].height1` | float | Altura do painel INFERIOR (cm) |\n| `panels[i].height2` | float | Altura do painel SUPERIOR (cm) |\n| `panels[i].grade_h1` | str | Comprimento do sarrafo horizontal 1 (SARR_3.5x7) na união |\n| `panels[i].grade_h2` | str | Comprimento do sarrafo horizontal 2 (SARR_3.5x7) |"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 298,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.1 Distribuição de width (comprimento dos segmentos)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "### 2.1 Distribuição de width (comprimento dos segmentos)\n\nRegra de distribuição por `total_height`:\n\n| Altura da viga | Max painel width |\n|----------------|-----------------|\n| h < 122cm      | 244cm (chapa completa rotacionada) |\n| h ≥ 122cm      | 122cm (chapa padrão vertical) |\n\n**Exemplo V10 (h=50cm < 122):** comprimento=1009cm → ceil(1009/244) = 5 painéis, cada um ≤244cm  \n**BUG LV-B2:** `motor_fase4.py` usa `MAX_PANEL_WIDTH = 120.0cm` fixo para todos os casos (ignorando a regra de h)."
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 300,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.2 height1 / height2 — Dois Níveis de Painéis",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "### 2.2 height1 / height2 — Dois Níveis de Painéis\n\nUma viga pode ter:\n- **Somente height1**: 1 nível de painéis, do fundo ao topo\n- **height1 + height2**: 2 níveis sobrepostos com possível laje entre eles\n  - `height1` = altura do painel INFERIOR (do fundo até a laje ou até o nível intermediário)\n  - `height2` = altura do painel SUPERIOR (da laje até o topo)\n  - height1 + height2 + espessura_laje = total_height"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 302,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.3 grade_h1 / grade_h2 — Sarrafos Horizontais SARR_3.5x7",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "### 2.3 grade_h1 / grade_h2 — Sarrafos Horizontais SARR_3.5x7\n\nOs sarrafos horizontais são barras de 3.5cm de espessura que percorrem o comprimento do painel:\n- Posicionadas nas **uniões entre painéis** ou a **7cm das extremidades**\n- Comprimento padrão = **largura do painel** (`panel.width`)\n- Em casos de reaproveitamento: podem ser maiores que o painel\n\n**Posições verticais dos sarrafos horizontais (por altura):**\n\n| Altura do painel | Sarrafos verticais | Posições |\n|-----------------|-------------------|----------|\n| h < 30cm        | 2 sarrafos        | 7cm do fundo (\"baixo\"), 7cm do topo (\"cima\") |\n| 30 ≤ h < 80cm   | 4 sarrafos        | 7 \"baixo\", 7 \"cima\", 3.5 \"centro_cima\", 3.5 \"cen"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 304,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3. Convenção de Lados (side A / B)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 3. Convenção de Lados (side A / B)\n\n| Orientação da viga | Side A | Side B |\n|-------------------|--------|--------|\n| Viga HORIZONTAL   | Face INFERIOR (linha de baixo no plano) | Face SUPERIOR (linha de cima) |\n| Viga VERTICAL     | Face ESQUERDA | Face DIREITA |\n\nSempre geram dois arquivos JSON: `{viga}_A.json` e `{viga}_B.json`\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 306,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "4. holes — Aberturas na Face Lateral",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 4. holes — Aberturas na Face Lateral\n\n| Campo | Descrição |\n|-------|-----------|\n| `holes[i].active` | Se a abertura está presente |\n| `holes[i].width` | Largura da abertura (cm) |\n| `holes[i].height` | Altura da abertura (cm) |\n| `holes[i].position` | Distância do início da face até o centro da abertura (cm) |\n\n**Quando ativa:** passagem de viga transversal, pilar que corta a face lateral, ou outro elemento estrutural que intersecta a face.\n\n**BUG LV-B4:** `holes` sempre inactivo — extrator não detecta aberturas\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 308,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5. pillar_left / pillar_right — Pilar na Extremidade",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 5. pillar_left / pillar_right — Pilar na Extremidade\n\nRepresenta a situação onde a viga PASSA SOBRE um pilar (pilar no meio do vão ou nas extremidades da viga).\n\n| Campo | Descrição |\n|-------|-----------|\n| `pillar_left.active` | Se há pilar na extremidade esquerda |\n| `pillar_left.width` | Distância do início da viga até a parede do pilar (cm) |\n| `pillar_left.length` | Espessura do pilar no sentido do eixo da viga (cm) |\n| `pillar_right.*` | Idem para extremidade direita |\n\n**Exemplo:** Se a viga começa 5cm antes de um pilar de 20cm:\n- `pillar_left.active = true`\n- `pillar_left.width = 5`\n- `pillar_left.length = 20`\n\n**BUG LV-B3:** `pillar_left/right` sempre inactivo — extrator não det"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 310,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "6. sarrafo_left_id / sarrafo_right_id",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 6. sarrafo_left_id / sarrafo_right_id\n\nIdentificadores dos sarrafos verticais de 7cm de espessura nas extremidades do painel lateral.\n\n- `sarrafo_left_id = 0` → nenhum sarrafo especial à esquerda (0 = padrão geral)\n- Geralmente gerado para TODOS os painéis (sarrafos nas extremidades são regra)\n- Casos especiais sem sarrafo: a aprender via mais obras (regra ainda não formalizada)\n\n---"
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 312,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "7. Tabela Completa de Campos — Viga (LV/FV)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 7. Tabela Completa de Campos — Viga (LV/FV)\n\n| Campo | Tipo | Descrição | Status |\n|-------|------|-----------|--------|\n| `number` | str | Número da viga (ex: \"10\") | Extraído |\n| `name` | str | Nome + side (ex: \"V10_A\") | Extraído |\n| `floor` | str | Pavimento (ex: \"12 PAV\") | Extraído |\n| `side` | str | \"A\" ou \"B\" (ver conv. acima) | Extraído |\n| `total_width` | float | Espessura b (cm) | Extraído |\n| `total_height` | str | Altura h (cm) | Extraído |\n| `panels[].width` | float | Comprimento do segmento (cm) | Extraído |\n| `panels[].height1` | float | Altura painel inferior (cm) | Extraído |\n| `panels[].height2` | float | Altura painel superior (cm) | Extraído |\n| `panels[].grade_h1` | "
+      }
+    },
+    {
+      "classe": "FV",
+      "confianca": 1.0,
+      "id": 314,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "8. Bugs Conhecidos (Viga)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 8. Bugs Conhecidos (Viga)\n\n| # | Campo | Problema | Status |\n|---|-------|----------|--------|\n| LV-B1 | `grade_h1`, `grade_h2` | Extrator não implementado, sempre \"0\" | ABERTO |\n| LV-B2 | `panels[].width` | `MAX_PANEL_WIDTH=120cm` fixo; deveria ser 244cm se h<122, 122cm se h≥122 | ABERTO |\n| LV-B3 | `pillar_left/right` | Interseção pilar×viga não detectada | ABERTO |\n| LV-B4 | `holes` | Aberturas não detectadas | ABERTO |"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 315,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Semântica dos Campos — Laje NOVA (Sistema Fôrma)",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "# Semântica dos Campos — Laje NOVA (Sistema Fôrma)\n\n**Fonte:** Validação Sprint 1 Etapa 1.3, Obra_TREINO_1 — confirmada pelo usuário 2026-06-04\n**Uso:** RAG, extratores Fase-3/4, motor_fase4.py, Robo Lajes (LJ)\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 316,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1. Dimensões",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 1. Dimensões\n\n| Campo | Tipo | Descrição |\n|-------|------|-----------|\n| `comprimento` | float | Maior dimensão da laje (cm) — direção dos painéis de 244cm |\n| `largura` | float | Menor dimensão da laje (cm) — direção dos painéis de 122cm |\n| `area_cm2` | float | Área total em cm² |\n\n**Regra:** `comprimento` = SEMPRE a maior dimensão. Os painéis de 244cm são posicionados na direção do comprimento.\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 317,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2. coordenadas",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 2. coordenadas\n\nPolígono do contorno da laje em cm, formato `[[x,y], [x,y], ...]`:\n- Valores em centímetros, mesma perspectiva do arquivo estrutural DXF\n- Fecha repetindo o primeiro ponto no final\n- **Exemplo L1:** `[[0,195],[125,195],[125,0],[0,0],[0,195]]` — retângulo 125×195\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 318,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.1 Semântica do campo",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "### 3.1 Semântica do campo\n\n| Campo | Descrição |\n|-------|-----------|\n| `linhas_verticais[i].value` | Posição cumulativa do corte, medida a partir do início (cm) |\n| `linhas_verticais[i].is_union` | `true` quando o segmento termina com valor ≤ 30cm (emenda, não secciona o painel) |\n| `linhas_horizontais[i].value` | Idem na direção perpendicular |\n\n**Exemplo L1 (comprimento=195):**\n- `{value:100, is_union:false}` → corte na posição 100cm (painel de 0→100)\n- `{value:195, is_union:false}` → borda final em 195cm (painel de 100→195 = 95cm)"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 319,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.2 Quando existem linhas em cada direção",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "### 3.2 Quando existem linhas em cada direção\n\nO objetivo é preencher TODA a superfície com painéis 244×122cm, usando-os da melhor maneira e recortando quando necessário:\n\n| Condição | linhas_verticais | linhas_horizontais |\n|----------|-----------------|-------------------|\n| comprimento > 244cm | tem cortes | — |\n| comprimento ≤ 244cm | pode ser vazio (painel cobre tudo) | — |\n| largura > 122cm | — | tem cortes |\n| largura ≤ 122cm | — | pode ser vazio |\n| Laje irregular ou com obstáculos | cortes conforme contorno | idem |"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 320,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.3 is_union — Segmento de Emenda",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "### 3.3 is_union — Segmento de Emenda\n\n`is_union = true` quando o segmento resultante tem tamanho ≤ 30cm:\n- Esse segmento não secciona o painel (o painel passa contínuo)\n- Representa uma linha de emenda/união entre chapas adjacentes\n- Visualmente: linha desenhada mas sem separar os painéis"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 321,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "ERRADO (atual)",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "# ERRADO (atual)\n\nSTEP = 100.0\npos += STEP\nis_union = (value <= 30)\n```\n\n**Algoritmo correto (calculo_modo1.py do Robo Lajes):**\n- Primeiro ciclo: 122cm + 60cm + união (20-30cm)\n- Ciclos seguintes: 122cm + união\n- Meta: zero sobra, uniões entre 20-30cm\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 322,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "4. modo_selecionado",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 4. modo_selecionado\n\nDefine o sentido/orientação dos painéis de acordo com a dimensão da área:\n- `modo_selecionado = 0` → automático (Modo 1: painéis alinhados com comprimento)\n- Outros valores: modos alternativos de posicionamento (ler `calculo_modo1.py` para lógica completa)\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 323,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5. obstaculos — Ilhas Internas",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 5. obstaculos — Ilhas Internas\n\nElementos INTERNOS à área da laje que criam \"buracos\" no preenchimento:\n- Pilares centrais\n- Colunas internas\n- Aberturas (escadas, vazios estruturais)\n- Recortes de projeto\n\nCada obstáculo define uma região a subtrair da área total de painéis.\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 324,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "6. unioes_nos_bordes",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 6. unioes_nos_bordes\n\n`false` = padrão normal (sem tratamento especial nas bordas)\n`true` = há painéis de borda de 20cm nas extremidades do marco — caso especial de projeto, raramente usado.\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 325,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "7. pontaletes",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 7. pontaletes\n\nApoios verticais da laje (escoras/pontaletes). Campo ainda **não definido** no sistema — ignorar por enquanto.\n\n---"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 326,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "8. Tabela Completa de Campos — Laje (LJ)",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 8. Tabela Completa de Campos — Laje (LJ)\n\n| Campo | Tipo | Descrição | Status |\n|-------|------|-----------|--------|\n| `numero` | int | Número da laje | Extraído |\n| `nome` | str | Nome (ex: \"L1\") | Extraído |\n| `comprimento` | float | Maior dimensão (cm) | Extraído |\n| `largura` | float | Menor dimensão (cm) | Extraído |\n| `pavimento` | str | Pavimento | Extraído |\n| `coordenadas` | list | Polígono do contorno [[x,y]...] | Extraído |\n| `area_cm2` | float | Área total (cm²) | Extraído |\n| `linhas_verticais` | list | Posições cumulativas de corte vertical | Extraído (BUG step) |\n| `linhas_horizontais` | list | Posições cumulativas de corte horizontal | Extraído |\n| `obstaculos` | list | I"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 327,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "9. Bugs Conhecidos (Laje)",
+        "source_doc": "SEMANTICA-LAJE-NOVA.md",
+        "sprint_validated": true,
+        "tags": "rag,robo,laje,lj,fase4,nova,scr",
+        "text": "## 9. Bugs Conhecidos (Laje)\n\n| # | Campo | Problema | Status |\n|---|-------|----------|--------|\n| LJ-B1 | `linhas_verticais` | `motor_fase4.py` usa STEP=100cm fixo; algoritmo correto em `calculo_modo1.py` (122+60+união) | ABERTO |\n| LJ-B2 | `obstaculos` | Sempre lista vazia — extrator não detecta ilhas internas (pilares centrais, aberturas) | ABERTO |"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 229,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "🎯 Visão Geral",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "## 🎯 Visão Geral\n\nEste documento contextualiza três componentes críticos do sistema AgenteCAD:\n1. **Lista de Vigas do Estrutural Analyzer** (`main.py`)\n2. **Campo SEGMENTOS** (completamente)\n3. **Abas A e B de FUNDOS** (Robo Fundos de Vigas)\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 231,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.1 Localização e Estrutura",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.1 Localização e Estrutura\n\n**Arquivo Principal:** `main.py`  \n**Método de Setup:** `_setup_structural_analyzer_area()` (linha ~956)  \n**Widget:** `self.list_beams` (QTreeWidget)"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 233,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "main.py linha ~1147-1152",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# main.py linha ~1147-1152\n\nself.list_beams = QTreeWidget()\nself.list_beams.setHeaderLabels([\"Item\", \"Nome\", \"Status\", \"%\"])\nself.list_beams.setColumnWidth(0, 50)   # Item\nself.list_beams.setColumnWidth(1, 120)  # Nome\nself.list_beams.setColumnWidth(2, 50)   # Status\nself.list_beams.setColumnWidth(3, 50)   # %\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 235,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.3 Colunas da Lista",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.3 Colunas da Lista\n\n| Coluna | Descrição | Tipo | Largura |\n|--------|-----------|------|---------|\n| **Item** | Número sequencial da viga | Integer | 50px |\n| **Nome** | Identificação da viga (ex: V1, V-1) | String | 120px |\n| **Status** | Estado de processamento | String | 50px |\n| **%** | Percentual de completude | Float | 50px |"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 237,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.4 Integração com Abas",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.4 Integração com Abas\n\nA lista de vigas está dentro de um sistema de abas hierárquico:\n\n```\nStructural Analyzer (Módulo Principal)\n└── main_tabs (QTabWidget)\n    └── tab_analysis (Aba \"Análise Atual\")\n        └── tabs_analysis_internal (QTabWidget)\n            ├── \"Pilares\" → list_pillars\n            ├── \"Vigas\" → list_beams ⭐ (Nossa lista)\n            ├── \"Lajes\" → list_slabs\n            └── \"⚠️ Pendências\" → list_issues\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 239,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "main.py linha ~1168-1169",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# main.py linha ~1168-1169\n\nself.list_beams.itemClicked.connect(self.on_list_beam_clicked)\nself.list_beams.currentItemChanged.connect(\n    lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None\n)\n```\n\n**Ações ao clicar:**\n- Seleciona a viga no canvas\n- Atualiza o DetailCard com informações da viga\n- Carrega dados de segmentos (Lado A, Lado B, Fundo)"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 241,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.6 Processamento de Vigas",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.6 Processamento de Vigas\n\n**Método Principal:** `_process_beam_intelligent()` (linha ~3825)\n\n**Fluxo de Processamento:**\n1. **Identificação Geométrica:**\n   - Linhas classificadas como `seg_side_a` e `seg_side_b`\n   - Textos de dimensão associados\n   - Suportes (pilares, vigas, paredes)\n\n2. **Cálculo de Segmentos:**\n   ```python\n   # main.py linha ~3874-3892\n   def process_segments(side_key, tag):\n       lines = classified.get(side_key, [])\n       total_len = 0\n       for line in lines:\n           p1, p2 = line[0], line[-1]\n           length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5\n           total_len += length\n           b['links']['viga_segs'][side_key].append({\n               '"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 243,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1.7 Sincronização com Robôs",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 1.7 Sincronização com Robôs\n\n**Botões de Sincronização** (linha ~1104-1113):\n- **\"🤖 Sincronizar Laterais de Vigas\"**: Envia para `Robo_Laterais_de_Vigas`\n- **\"🤖 Sincronizar Fundo de Vigas\"**: Envia para `Robo_Fundos_de_Vigas`\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 245,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.1 Definição Conceitual",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.1 Definição Conceitual\n\n**Segmento** = Trecho de viga entre dois conflitos (pilares, vigas cruzadas, ou fim da viga)."
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 247,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.2 Estrutura de Dados",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.2 Estrutura de Dados\n\n**No Estrutural Analyzer (`main.py`):**\n```python\nb['links']['viga_segs'] = {\n    'seg_side_a': [\n        {\n            'type': 'poly',\n            'points': [(x1, y1), (x2, y2), ...],\n            'len': 150.5,\n            'tag': 'Lado A',\n            'dim_text': '14x60'  # Opcional: dimensão específica do segmento\n        },\n        ...\n    ],\n    'seg_side_b': [...],\n    'seg_bottom': [...]  # Segmentos do fundo\n}\n```\n\n**No Robo Laterais (`robo_laterais_viga_pyside.py`):**\n```python\n@dataclass\nclass VigaState:\n    segment_class: str = \"Lista Geral\"  # Classe de agrupamento\n    side: str = \"A\"  # Lado da viga (A ou B)\n    continuation: str = \"Proxima Parte\"  # Ti"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 249,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.3 Classificação de Segmentos",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.3 Classificação de Segmentos\n\n**Tipos de Segmentos:**\n\n1. **Segmentos Laterais (Lado A/B):**\n   - `seg_side_a`: Linhas do lado A da viga\n   - `seg_side_b`: Linhas do lado B da viga\n   - Processados em `_process_beam_intelligent()` (linha ~3874)\n\n2. **Segmentos de Fundo:**\n   - `seg_bottom`: Linhas do fundo da viga\n   - Usados para cálculo de área de fundo\n\n3. **Segmentos de Continuação:**\n   - `seg_cont`: Segmento de viga que continua após um pilar\n   - Usado no contexto de pilares"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 251,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.4 Campo `segment_class` (Robo Laterais)",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.4 Campo `segment_class` (Robo Laterais)\n\n**Localização:** `_ROBOS_ABAS/Robo_Laterais_de_Vigas/robo_laterais_viga_pyside.py` (linha ~97)\n\n**Propósito:** Agrupar vigas relacionadas (ex: V1, V1a, V1b, V1c)\n\n**Valores Comuns:**\n- `\"Lista Geral\"`: Padrão para vigas não agrupadas\n- `\"V1\"`, `\"V2\"`, etc.: Agrupamento por viga base\n- `\"V1A\"`, `\"V1B\"`: Agrupamento com sufixo de lado\n\n**Uso na Lista:**\n```python"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 253,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "robo_laterais_viga_pyside.py linha ~8031-8077",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# robo_laterais_viga_pyside.py linha ~8031-8077\n\ndef update_vigas_list(self):\n    \"\"\"Update tree1 with vigas grouped by Segment Class\"\"\"\n    self.viga_grouping = {}\n    \n    for pav_name in target_pavs:\n        for viga_name, vstate in pavimentos[pav_name].get('vigas', {}).items():\n            cls = getattr(vstate, 'segment_class', 'Lista Geral')\n            if cls not in self.viga_grouping:\n                self.viga_grouping[cls] = []\n            self.viga_grouping[cls].append((viga_name, vstate, pav_name))\n```\n\n**Hierarquia na Árvore:**\n```\nLista Geral\n├── V1.A\n├── V1.B\n└── V2.A\nV1\n├── V1a.A\n├── V1b.A\n└── V1c.A\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 255,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.5 Processamento de Segmentos no LinkManager",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.5 Processamento de Segmentos no LinkManager\n\n**Arquivo:** `src/ui/widgets/link_manager.py` (linha ~73-76)\n\n**Definição de Links:**\n```python\n'_viga_segs': [\n    {'id': 'seg_side_a', 'name': 'Segmentos Lado A', 'type': 'poly', \n     'prompt': 'Desenhe os segmentos do Lado A. [Enter] para finalizar.', \n     'help': 'Linhas do lado A da viga.'},\n    {'id': 'seg_side_b', 'name': 'Segmentos Lado B', 'type': 'poly', \n     'prompt': 'Desenhe os segmentos do Lado B. [Enter] para finalizar.', \n     'help': 'Linhas do lado B da viga.'},\n    {'id': 'seg_bottom', 'name': 'Segmentos Fundos', 'type': 'poly', \n     'prompt': 'Desenhe os segmentos do Fundo. [Enter] para finalizar.', \n     'help': 'Lin"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 257,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.6 Visualização no DetailCard",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 2.6 Visualização no DetailCard\n\n**Arquivo:** `src/ui/widgets/detail_card.py` (linha ~1259-1303)\n\n**Estrutura de Abas:**\n```python\ndef _setup_viga_complex_view(self, layout):\n    \"\"\"Implementa detalhamento rigoroso de Lado A, Lado B e Fundo\"\"\"\n    tabs = QTabWidget()\n    sides_config = [\n        ('A', 'Lado A', False), \n        ('B', 'Lado B', False), \n        ('Fundo', 'Fundo', True)\n    ]\n    \n    for side, label, is_bottom in sides_config:\n        # Container de Segmentos Rica\n        for i in sorted(list(existing_indices)):\n            self._add_rich_segment_pack(segs_layout, prefix, i)\n```\n\n**Campos por Segmento:**\n- Nome do conflito inicial\n- Tipo do conflito inicial\n- Distância até"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 259,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.1 Localização",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.1 Localização\n\n**Arquivo Principal:** `_ROBOS_ABAS/Robo_Fundos_de_Vigas/compactador-producao/fundo_pyside.py`  \n**Classe:** `FundoMainWindow` (linha ~417)  \n**Método de Setup:** `setup_ui()` (linha ~1800)"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 261,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.2 Estrutura da Interface",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.2 Estrutura da Interface\n\n**Layout Principal:**\n```\nFundoMainWindow\n├── LEFT: Lista de Vigas (tree_fundos)\n├── CENTER: Visualização (canvas)\n└── RIGHT: Comandos + Detalhes (tabs_details)\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 263,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.3 Abas de Detalhes",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.3 Abas de Detalhes\n\n**Widget:** `self.tabs_details` (QTabWidget, linha ~1980)\n\n**Abas Disponíveis:**\n1. **\"Geral\"** (tab_geral): Informações básicas\n2. **\"Painéis\"** (tab_paineis): Configuração de painéis\n3. **\"Recuos\"** (tab_recuos): Chanfros e aberturas\n4. **\"Painel L\"** (tab_l): Configurações especiais para formato L"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 265,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.4 Diferença: Abas A/B vs Abas de Detalhes",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.4 Diferença: Abas A/B vs Abas de Detalhes\n\n⚠️ **IMPORTANTE:** As \"Abas A e B\" referem-se ao **LADO DA VIGA**, não às abas do QTabWidget.\n\n**No Robo Fundos:**\n- Cada viga pode ter **Fundo do Lado A** e **Fundo do Lado B**\n- Isso é controlado pelo campo `side` no `VigaState` (Robo Laterais)\n- O Robo Fundos processa ambos os lados quando sincronizado"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 267,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "main.py linha ~1110-1113",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# main.py linha ~1110-1113\n\nbtn_fundo = QPushButton(\"🤖 Sincronizar Fundo de Vigas\")\nbtn_fundo.clicked.connect(self.sync_beams_to_fundo_action)\n```\n\n**Dados Enviados:**\n```python"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 269,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Cada viga tem:",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# Cada viga tem:\n\n{\n    \"nome\": \"V1.A\",  # Sufixo .A ou .B indica o lado\n    \"largura\": 14,\n    \"comprimento\": 300,\n    \"segmentos\": [...],\n    \"side\": \"A\"  # ou \"B\"\n}\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 271,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.6 Agrupamento por Segmentos Sequenciais",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.6 Agrupamento por Segmentos Sequenciais\n\n**Método:** `_agrupar_segmentos_sequenciais()` (linha ~984)\n\n**Propósito:** Agrupar fundos de vigas com sufixos sequenciais (V1a, V1b, V1c)\n\n```python\ndef _agrupar_segmentos_sequenciais(self, fundos_dict):\n    # Agrupa por base (ex: \"V1\") e ordena sequencialmente\n    grupos = {}\n    for nome, dados in fundos_dict.items():\n        base = re.match(r'^(.+?)([a-z])?$', nome).group(1)\n        if base not in grupos:\n            grupos[base] = []\n        grupos[base].append((nome, dados))\n    \n    # Ordenar segmentos dentro de cada grupo\n    for base in grupos:\n        grupos[base].sort(key=lambda x: x[0])\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 273,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.7 Geração de Scripts por Lado",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.7 Geração de Scripts por Lado\n\n**Método:** `_gerar_script_segmento()` (linha ~914)\n\n**Comportamento:**\n- Gera scripts separados para cada lado (A e B)\n- Agrupa segmentos sequenciais do mesmo lado\n- Cria arquivos `.scr` para execução no AutoCAD"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 275,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3.8 Campos Específicos por Lado",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 3.8 Campos Específicos por Lado\n\n**No Robo Fundos, cada fundo tem:**\n- **Largura**: Largura da viga (cm)\n- **Comprimento**: Comprimento total do fundo (cm)\n- **Painéis**: 6 painéis configuráveis (P1-P6)\n- **Sarrafos**: Sarrafos verticais (esquerda/direita)\n- **Recuos**: 4 recuos (T/E, F/E, T/D, F/D)\n- **Aberturas**: 4 aberturas com 3 dimensões cada\n\n**Diferença entre Lado A e B:**\n- Mesma estrutura de dados\n- Processamento independente\n- Scripts gerados separadamente\n- Agrupamento por `segment_class` considera ambos os lados\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 277,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "4.1 Fluxo de Dados",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 4.1 Fluxo de Dados\n\n```\n1. Estrutural Analyzer (main.py)\n   ├── Processa DXF\n   ├── Identifica Vigas\n   ├── Calcula Segmentos (Lado A, Lado B)\n   └── Armazena em beams_found[]\n\n2. Usuário clica \"🤖 Sincronizar Fundo de Vigas\"\n   └── sync_beams_to_fundo_action()\n\n3. Dados Transformados\n   ├── Para cada viga em beams_found:\n   │   ├── Extrai segmentos do Lado A\n   │   ├── Extrai segmentos do Lado B\n   │   ├── Calcula comprimento total\n   │   └── Cria entrada no Robo Fundos\n   └── Envia para FundoMainWindow\n\n4. Robo Fundos (fundo_pyside.py)\n   ├── Recebe dados\n   ├── Agrupa por segment_class\n   ├── Exibe na tree_fundos\n   └── Permite edição e geração de scripts\n```"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 279,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Dados enviados do Estrutural Analyzer para Robo Fundos",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "# Dados enviados do Estrutural Analyzer para Robo Fundos\n\nfundo_data = {\n    \"nome\": \"V1.A\",  # Nome + sufixo do lado\n    \"numero\": \"1\",\n    \"pavimento\": \"P-1\",\n    \"largura\": 14.0,\n    \"altura\": 60.0,\n    \"comprimento\": 300.0,  # Soma dos segmentos\n    \"segment_class\": \"V1\",\n    \"side\": \"A\",\n    \"segmentos\": [\n        {\"inicio\": \"P-1\", \"fim\": \"P-2\", \"comprimento\": 150.0},\n        {\"inicio\": \"P-2\", \"fim\": \"P-3\", \"comprimento\": 150.0}\n    ],\n    \"texto_esq\": \"P-1\",\n    \"texto_dir\": \"P-3\"\n}\n```\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 281,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5.1 Lista de Vigas (Estrutural Analyzer)",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 5.1 Lista de Vigas (Estrutural Analyzer)\n\n- **Widget:** `QTreeWidget` com 4 colunas (Item, Nome, Status, %)\n- **Localização:** Aba \"Vigas\" dentro de \"Análise Atual\"\n- **Função:** Lista todas as vigas detectadas no DXF\n- **Ações:** Seleção, sincronização com robôs, criação de comandos LISP"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 283,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5.2 Campo SEGMENTOS",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 5.2 Campo SEGMENTOS\n\n- **Definição:** Trechos de viga entre conflitos\n- **Tipos:** `seg_side_a`, `seg_side_b`, `seg_bottom`\n- **Campo `segment_class`:** Agrupa vigas relacionadas (V1, V1a, V1b)\n- **Processamento:** Cálculo automático de comprimentos e quantidades"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 285,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5.3 Abas A e B de FUNDOS",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### 5.3 Abas A e B de FUNDOS\n\n- **Conceito:** Lados da viga (A e B), não abas do QTabWidget\n- **Processamento:** Independente para cada lado\n- **Agrupamento:** Por `segment_class` considerando ambos os lados\n- **Geração:** Scripts separados para cada lado e segmento sequencial\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 287,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Arquivos Principais:",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### Arquivos Principais:\n\n- `main.py`: Estrutural Analyzer, lista de vigas, processamento\n- `_ROBOS_ABAS/Robo_Laterais_de_Vigas/robo_laterais_viga_pyside.py`: Campo `segment_class`\n- `_ROBOS_ABAS/Robo_Fundos_de_Vigas/compactador-producao/fundo_pyside.py`: Interface de fundos\n- `src/ui/widgets/link_manager.py`: Definição de links de segmentos\n- `src/ui/widgets/detail_card.py`: Visualização de segmentos no DetailCard"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 0.95,
+      "id": 289,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Métodos Chave:",
+        "source_doc": "CONTEXTUALIZACAO_VIGAS_SEGMENTOS_FUNDOS.md",
+        "sprint_validated": false,
+        "tags": "pl,viga,robo",
+        "text": "### Métodos Chave:\n\n- `_setup_structural_analyzer_area()`: Setup da lista de vigas\n- `_process_beam_intelligent()`: Processamento de segmentos\n- `update_vigas_list()`: Atualização da lista no Robo Laterais\n- `_agrupar_segmentos_sequenciais()`: Agrupamento no Robo Fundos\n\n---\n\n**Última Atualização:** 2025-01-22  \n**Autor:** Sistema AgenteCAD - Contextualização Automática"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 291,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Semântica dos Campos — Viga NOVA (Sistema Fôrma)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "# Semântica dos Campos — Viga NOVA (Sistema Fôrma)\n\n**Fonte:** Validação Sprint 1 Etapa 1.2, Obra_TREINO_1 — confirmada pelo usuário 2026-06-04\n**Uso:** RAG, extratores Fase-3/4, motor_fase4.py, Robo LV, Robo FV\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 293,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1. Dimensões da Seção Transversal",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 1. Dimensões da Seção Transversal\n\n| Campo | Tipo | Descrição |\n|-------|------|-----------|\n| `total_width` | float | Espessura da viga (b) em cm — largura do fundo |\n| `total_height` | str/float | Altura da viga (h) em cm |\n\n- `total_width` = dimensão perpendicular ao eixo da viga (a \"espessura\" do fundo)\n- Para **Robo LV** (lateral): não influencia diretamente o tamanho dos painéis\n- Para **Robo FV** (fundo): é a largura do retângulo do fundo\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 295,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2. Painéis (panels[])",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 2. Painéis (panels[])\n\nCada entrada em `panels` representa um segmento horizontal da face lateral.\n\n| Campo | Tipo | Descrição |\n|-------|------|-----------|\n| `panels[i].width` | float | Comprimento horizontal do segmento de painel (cm) |\n| `panels[i].height1` | float | Altura do painel INFERIOR (cm) |\n| `panels[i].height2` | float | Altura do painel SUPERIOR (cm) |\n| `panels[i].grade_h1` | str | Comprimento do sarrafo horizontal 1 (SARR_3.5x7) na união |\n| `panels[i].grade_h2` | str | Comprimento do sarrafo horizontal 2 (SARR_3.5x7) |"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 297,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.1 Distribuição de width (comprimento dos segmentos)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "### 2.1 Distribuição de width (comprimento dos segmentos)\n\nRegra de distribuição por `total_height`:\n\n| Altura da viga | Max painel width |\n|----------------|-----------------|\n| h < 122cm      | 244cm (chapa completa rotacionada) |\n| h ≥ 122cm      | 122cm (chapa padrão vertical) |\n\n**Exemplo V10 (h=50cm < 122):** comprimento=1009cm → ceil(1009/244) = 5 painéis, cada um ≤244cm  \n**BUG LV-B2:** `motor_fase4.py` usa `MAX_PANEL_WIDTH = 120.0cm` fixo para todos os casos (ignorando a regra de h)."
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 299,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.2 height1 / height2 — Dois Níveis de Painéis",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "### 2.2 height1 / height2 — Dois Níveis de Painéis\n\nUma viga pode ter:\n- **Somente height1**: 1 nível de painéis, do fundo ao topo\n- **height1 + height2**: 2 níveis sobrepostos com possível laje entre eles\n  - `height1` = altura do painel INFERIOR (do fundo até a laje ou até o nível intermediário)\n  - `height2` = altura do painel SUPERIOR (da laje até o topo)\n  - height1 + height2 + espessura_laje = total_height"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 301,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2.3 grade_h1 / grade_h2 — Sarrafos Horizontais SARR_3.5x7",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "### 2.3 grade_h1 / grade_h2 — Sarrafos Horizontais SARR_3.5x7\n\nOs sarrafos horizontais são barras de 3.5cm de espessura que percorrem o comprimento do painel:\n- Posicionadas nas **uniões entre painéis** ou a **7cm das extremidades**\n- Comprimento padrão = **largura do painel** (`panel.width`)\n- Em casos de reaproveitamento: podem ser maiores que o painel\n\n**Posições verticais dos sarrafos horizontais (por altura):**\n\n| Altura do painel | Sarrafos verticais | Posições |\n|-----------------|-------------------|----------|\n| h < 30cm        | 2 sarrafos        | 7cm do fundo (\"baixo\"), 7cm do topo (\"cima\") |\n| 30 ≤ h < 80cm   | 4 sarrafos        | 7 \"baixo\", 7 \"cima\", 3.5 \"centro_cima\", 3.5 \"cen"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 303,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "3. Convenção de Lados (side A / B)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 3. Convenção de Lados (side A / B)\n\n| Orientação da viga | Side A | Side B |\n|-------------------|--------|--------|\n| Viga HORIZONTAL   | Face INFERIOR (linha de baixo no plano) | Face SUPERIOR (linha de cima) |\n| Viga VERTICAL     | Face ESQUERDA | Face DIREITA |\n\nSempre geram dois arquivos JSON: `{viga}_A.json` e `{viga}_B.json`\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 305,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "4. holes — Aberturas na Face Lateral",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 4. holes — Aberturas na Face Lateral\n\n| Campo | Descrição |\n|-------|-----------|\n| `holes[i].active` | Se a abertura está presente |\n| `holes[i].width` | Largura da abertura (cm) |\n| `holes[i].height` | Altura da abertura (cm) |\n| `holes[i].position` | Distância do início da face até o centro da abertura (cm) |\n\n**Quando ativa:** passagem de viga transversal, pilar que corta a face lateral, ou outro elemento estrutural que intersecta a face.\n\n**BUG LV-B4:** `holes` sempre inactivo — extrator não detecta aberturas\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 307,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5. pillar_left / pillar_right — Pilar na Extremidade",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 5. pillar_left / pillar_right — Pilar na Extremidade\n\nRepresenta a situação onde a viga PASSA SOBRE um pilar (pilar no meio do vão ou nas extremidades da viga).\n\n| Campo | Descrição |\n|-------|-----------|\n| `pillar_left.active` | Se há pilar na extremidade esquerda |\n| `pillar_left.width` | Distância do início da viga até a parede do pilar (cm) |\n| `pillar_left.length` | Espessura do pilar no sentido do eixo da viga (cm) |\n| `pillar_right.*` | Idem para extremidade direita |\n\n**Exemplo:** Se a viga começa 5cm antes de um pilar de 20cm:\n- `pillar_left.active = true`\n- `pillar_left.width = 5`\n- `pillar_left.length = 20`\n\n**BUG LV-B3:** `pillar_left/right` sempre inactivo — extrator não det"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 309,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "6. sarrafo_left_id / sarrafo_right_id",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 6. sarrafo_left_id / sarrafo_right_id\n\nIdentificadores dos sarrafos verticais de 7cm de espessura nas extremidades do painel lateral.\n\n- `sarrafo_left_id = 0` → nenhum sarrafo especial à esquerda (0 = padrão geral)\n- Geralmente gerado para TODOS os painéis (sarrafos nas extremidades são regra)\n- Casos especiais sem sarrafo: a aprender via mais obras (regra ainda não formalizada)\n\n---"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 311,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "7. Tabela Completa de Campos — Viga (LV/FV)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 7. Tabela Completa de Campos — Viga (LV/FV)\n\n| Campo | Tipo | Descrição | Status |\n|-------|------|-----------|--------|\n| `number` | str | Número da viga (ex: \"10\") | Extraído |\n| `name` | str | Nome + side (ex: \"V10_A\") | Extraído |\n| `floor` | str | Pavimento (ex: \"12 PAV\") | Extraído |\n| `side` | str | \"A\" ou \"B\" (ver conv. acima) | Extraído |\n| `total_width` | float | Espessura b (cm) | Extraído |\n| `total_height` | str | Altura h (cm) | Extraído |\n| `panels[].width` | float | Comprimento do segmento (cm) | Extraído |\n| `panels[].height1` | float | Altura painel inferior (cm) | Extraído |\n| `panels[].height2` | float | Altura painel superior (cm) | Extraído |\n| `panels[].grade_h1` | "
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 313,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "8. Bugs Conhecidos (Viga)",
+        "source_doc": "SEMANTICA-VIGA-NOVA.md",
+        "sprint_validated": true,
+        "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
+        "text": "## 8. Bugs Conhecidos (Viga)\n\n| # | Campo | Problema | Status |\n|---|-------|----------|--------|\n| LV-B1 | `grade_h1`, `grade_h2` | Extrator não implementado, sempre \"0\" | ABERTO |\n| LV-B2 | `panels[].width` | `MAX_PANEL_WIDTH=120cm` fixo; deveria ser 244cm se h<122, 122cm se h≥122 | ABERTO |\n| LV-B3 | `pillar_left/right` | Interseção pilar×viga não detectada | ABERTO |\n| LV-B4 | `holes` | Aberturas não detectadas | ABERTO |"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 219,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Semântica dos Campos — Pilar NOVA (Sistema Fôrma)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "# Semântica dos Campos — Pilar NOVA (Sistema Fôrma)\n\n**Fonte:** Validação Sprint 1, Obra_TREINO_1 — confirmada pelo usuário 2026-06-04\n**Uso:** RAG, extratores Fase-3/4, motor_fase4.py, robos SCR\n\n---"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 220,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "1. Nomenclatura das Faces (CONVENÇÃO CORRETA)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "## 1. Nomenclatura das Faces (CONVENÇÃO CORRETA)\n\n```\nVista em planta do pilar:\n\n        Face B (longo, comprimento)\n       ┌────────────────────────────┐\nFace D │                            │ Face C\n(curto,│          PILAR             │ (curto,\nlargura│          P1                │ largura\n  19cm)│       66 × 19 cm           │   19cm)\n       └────────────────────────────┘\n        Face A (longo, comprimento)\n```\n\n| Face | Tipo | Campo `larg1_X` | Valor para P1 |\n|------|------|-----------------|---------------|\n| A    | LONGO (comprimento) | comprimento | 66cm |\n| B    | LONGO (comprimento) | comprimento | 66cm |\n| C    | CURTO (largura)     | largura     | 19cm |\n| D    | CURTO (largura)   "
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 221,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "2. Distribuição de Altura — Painéis da Chapa",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "## 2. Distribuição de Altura — Painéis da Chapa\n\n```\nVISTA LATERAL (face A, exemplo P1 h=280cm, sem laje):\n\n  280cm ┤ topo\n        │ h3 = 34cm  (sobra do corte, último painel)\n  246cm ┤\n        │\n        │ h2 = 244cm (chapa inteira padrão NOVA 244×122)\n        │\n    2cm ┤\n        │ h1 = 2cm   (cinta inferior, FIXO)\n    0cm ┤ base\n```\n\n**Regras de distribuição (lógica NOVA):**\n- `h1 = 2cm` — sempre fixo, cinta inferior (espaçador)\n- `h2, h2_2, ...` — preencher com chapas inteiras (244cm) ou meias (122cm), maximizando uso\n  - Prioridade: 244cm → 122cm → pedaços\n  - Para altura de 280cm (sem laje): h1=2 + h2=244 = 246, sobra=34 → h3=34cm\n  - Para altura de 280cm com laje de 12cm: h_útil=280-12="
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 222,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "grade_1 (campo JSON, medido no DXF)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "### grade_1 (campo JSON, medido no DXF)\n\n```\ngrade_1 = comprimento_faces_AB + 22cm  (11cm de extensão de cada lado)\n\nExemplo P1: grade_1 = 66 + 22 = 88cm\n```\n\nA grade é a **barra horizontal metálica** que passa pelos furos da chapa e se prolonga além do pilar para fixação. Aplica-se às **faces A e B** (lados longos)."
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 223,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "Quantidade de parafusos (faces A e B)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "### Quantidade de parafusos (faces A e B)\n\nDeterminada pelo `grade_calculator.py` com base em `comprimento_ajustado = comprimento + 24`:\n\n| Comprimento face | Qtd parafusos | par fields usados |\n|-----------------|---------------|-------------------|\n| ≤ 120cm         | 2             | par_1_2           |\n| 121–195cm       | 3             | par_1_2, par_2_3  |\n| 196–260cm       | 4             | par_1_2..par_3_4  |\n| 261–330cm       | 5             | par_1_2..par_4_5  |\n| 331–400cm       | 6             | par_1_2..par_5_6  |\n| 401+            | 7+            | ...               |\n\nPara P1 (comprimento=66cm, ajustado=90): **2 parafusos**, par_1_2=45, par_2_3=45\n→ Soma: 45+45=90 = comprimento_"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 224,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "par_1_2, par_2_3, ... (espaçamento HORIZONTAL entre parafusos)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "### par_1_2, par_2_3, ... (espaçamento HORIZONTAL entre parafusos)\n\nSão os espaçamentos (em cm) entre parafusos consecutivos **ao longo da grade** (direção horizontal, paralela às faces A/B).\n- Os valores somam `comprimento_ajustado = comprimento + 24`\n- Distribuídos simetricamente (extremos maiores ou iguais ao centro)"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 225,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "distancia_1, distancia_2 (interpretação)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "### distancia_1, distancia_2 (interpretação)\n\n- `distancia_1` = distância entre a grade 1 e a grade 2 (grades paralelas na mesma face)\n- `distancia_2` = distância entre grade 2 e grade 3\n- Quando grade_2=0: distancia_2=0\n\n> Nota: o campo `medida_fundo_primeiro_ab=30` em config_abcd.json é o espaçamento VERTICAL\n> entre a base do pilar e o primeiro parafuso (na direção da altura, não da grade).\n\n---"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 226,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "4. Posicionamento da Laje (posicao_laje_X)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "## 4. Posicionamento da Laje (posicao_laje_X)\n\nA laje sempre passa em alguma face do pilar. Quando passa:\n- `laje_X` = espessura da laje em cm (ex: 12cm)\n- `posicao_laje_X` = número do painel acima do qual a laje está posicionada:\n\n```\nPainéis numerados de baixo para cima:\n\n  painel 1 = h1 (2cm)\n  painel 2 = h2 (244cm, o principal)\n  painel 3 = h3 (sobra)\n  ...\n\nposicao_laje = 0          → fundo (laje no piso base)\nposicao_laje = 1          → acima do painel 1 (acima da cinta inferior)\nposicao_laje = 2          → acima do painel 2 (acima do corpo principal)\nposicao_laje = 5 (topo)   → acima de todos os painéis (laje no topo)\n```\n\nSe nenhuma face tem laje: `laje_X=0, posicao_laje_X=0` para to"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 227,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "5. Campos do JSON Pilar — Tabela Completa",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "## 5. Campos do JSON Pilar — Tabela Completa\n\n| Campo | Tipo | Descrição | Regra / Fórmula |\n|-------|------|-----------|-----------------|\n| `comprimento` | float | Dimensão maior (faces A, B) em cm | Medido no DXF, layer BH |\n| `largura` | float | Dimensão menor (faces C, D) em cm | Medido no DXF, layer BH |\n| `altura` | float | Pé-direito do pavimento (cm) | Cota de nível no DXF |\n| `nivel_chegada` | float | Cota base do pilar (cm) | 0.0 para pavimento base |\n| `nivel_saida` | float | Cota topo (cm) | nivel_chegada + altura |\n| `h1_X` | float | Cinta inferior face X (cm) | Fixo = 2.0 |\n| `h2_X` | float | Corpo principal face X (cm) | Chapa 244 ou 122 |\n| `h3_X` | float | Sobra/último pain"
+      }
+    },
+    {
+      "classe": "PIL",
+      "confianca": 1.0,
+      "id": 228,
+      "obra_contexto": "domain_knowledge:field_semantics",
+      "rule": {
+        "section": "6. Inconsistências Conhecidas (Bugs a Corrigir)",
+        "source_doc": "SEMANTICA-PILAR-NOVA.md",
+        "sprint_validated": true,
+        "tags": "pilar,scr,rag,nova,faces,fase4,robo",
+        "text": "## 6. Inconsistências Conhecidas (Bugs a Corrigir)\n\n| # | Campo | Problema | Status |\n|---|-------|----------|--------|\n| B1 | `larg1_B`, `larg1_C` | Nomenclatura A/C=longo invertida; B deveria ter comprimento | ABERTO |\n| B2 | `laje_X`, `posicao_laje_X` | Sistema não detecta lajes no extrator DXF | ABERTO |\n| B3 | `grade_h1`, `grade_h2` nas vigas | Sempre \"0\", extrator não implementado | DOCUMENTADO |\n| B4 | `h2_E..H` pilar | Faces E-H copiavam h2=244 do retangular | CORRIGIDO (motor_fase4 2026-06-04) |\n| B5 | `coordenadas[-1]` laje | Polígono com 3 vértices fechava em [0,0] em vez de [0,L] | CORRIGIDO (motor_fase4 2026-06-04) |"
+      }
+    }
+  ],
+  "tiers": {},
+  "warnings": []
+}

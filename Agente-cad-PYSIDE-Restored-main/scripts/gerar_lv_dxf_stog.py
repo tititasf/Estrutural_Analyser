@@ -1641,15 +1641,33 @@ def main():
     parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
     parser.add_argument(
+        '--behavior', choices=['Para', 'Passa'], default=None,
+        help='Contrato SA LV isolado. Le LV-PARA/LV-PASSA e preserva o sufixo no artefato.',
+    )
+    parser.add_argument(
         '--view', choices=['ALL', 'CORTE', 'A', 'B'], default='ALL',
         help='Artefato LV a gerar: combinado, corte, face A ou face B.',
+    )
+    parser.add_argument(
+        '--input-dir', type=str, default=None,
+        help='Diretorio isolado com V*_A.json/V*_B.json (default: '
+             'Fase-4_Sincronizacao/JSON_Vigas_Laterais[/LV-{behavior}] da obra).',
+    )
+    parser.add_argument(
+        '--output-dir', type=str, default=None,
+        help='Diretorio de saida isolado (default: Fase-6_Execucao_CAD da obra).',
     )
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
-    lv_dir    = obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Laterais'
+    if args.input_dir:
+        lv_dir = Path(args.input_dir)
+    else:
+        lv_dir = obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Laterais'
+        if args.behavior:
+            lv_dir = lv_dir / f'LV-{args.behavior.upper()}'
     vs_path   = obra_path / 'Fase-4_Sincronizacao' / 'vigas_salvas.json'
-    out_dir   = obra_path / 'Fase-6_Execucao_CAD'
+    out_dir   = Path(args.output_dir) if args.output_dir else obra_path / 'Fase-6_Execucao_CAD'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     vigas_salvas = {}
@@ -1667,7 +1685,9 @@ def main():
     fichas_nota_map: dict = {}  # {vname: {'A': str, 'B': str}}                 ← nota_face (ref texto)
     fichas_pont_map: dict = {}  # {vname: {'A': int|list|None, 'B': ...}}       ← pontaletes_face override
     fichas_v2_path = obra_path / 'Fase-6_Execucao_CAD' / 'granular' / 'fichas' / 'fichas_lv_v2.json'
-    if fichas_v2_path.exists():
+    # N3 isolado deve refletir N1/SA. fichas_lv_v2 e gabarito humano N2 e nao
+    # pode sobrescrever os paineis do contrato Para/Passa.
+    if fichas_v2_path.exists() and not args.behavior:
         try:
             fichas_data = json.loads(fichas_v2_path.read_text(encoding='utf-8'))
             for ficha in fichas_data:
@@ -1791,7 +1811,25 @@ def main():
             print(f'[AVISO] JSON lado B inválido: {bf.name} — usando lado A')
             db = da
 
-        b = float(vigas_salvas.get(vname, {}).get('b', da.get('total_width', 14)))
+        if args.behavior:
+            expected = args.behavior.lower()
+            invalid = [
+                data for data in (da, db)
+                if str(data.get('behavior') or '').lower() != expected
+                or not data.get('generation_ready')
+            ]
+            if invalid:
+                print(
+                    f'[ERRO] {vname}-{args.behavior}: contrato SA incompleto '
+                    '(comportamento, segmentos ou dimensao LV ausente)'
+                )
+                continue
+
+        b = float(
+            da.get('total_width', 0)
+            if args.behavior
+            else vigas_salvas.get(vname, {}).get('b', da.get('total_width', 14))
+        )
         b_alma = float(da.get('total_width', b))
 
         comp_A = sum(float(p.get('width', 0)) for p in da.get('panels', []))
@@ -1806,9 +1844,16 @@ def main():
         # Re-build h lookup from fichas_data
         _h_A_ficha = fichas_h_map.get(vname, {}).get('A', 0)
         _h_B_ficha = fichas_h_map.get(vname, {}).get('B', 0)
-        h_raw = float(vigas_salvas.get(vname, {}).get('h', da.get('total_height', 38)))
-        h_section = h_raw / 2.0
-        if _h_A_ficha > 0:
+        h_raw = float(
+            da.get('total_height', 0)
+            if args.behavior
+            else vigas_salvas.get(vname, {}).get('h', da.get('total_height', 38))
+        )
+        h_section = float(da.get('h_section', 0) or 0) if args.behavior else h_raw / 2.0
+        if args.behavior:
+            h_A = h_raw
+            h_B = float(db.get('total_height', h_A) or h_A)
+        elif _h_A_ficha > 0:
             h_A = float(_h_A_ficha)
             h_B = float(_h_B_ficha) if _h_B_ficha > 0 else h_A
             h_section = (h_A + h_B) / 2.0
@@ -1818,7 +1863,9 @@ def main():
 
         # b: usa fichas_lv_v2.b_cm quando disponível
         _b_ficha = fichas_b_map.get(vname, 0)
-        if _b_ficha > 0:
+        if args.behavior:
+            b = float(da.get('total_width', b) or b)
+        elif _b_ficha > 0:
             b = float(_b_ficha)
         else:
             b = float(vigas_salvas.get(vname, {}).get('b', da.get('total_width', 14)))
@@ -1916,6 +1963,25 @@ def main():
             if not panels_B:
                 panels_B = panels_A
                 bsw_B = bsw_A
+            isolated_face_units = []
+            isolated_section_views = []
+            if args.behavior:
+                isolated_face_units = [
+                    {
+                        'side': 'A', 'label': f'{vname}.A',
+                        'panels': panels_A, 'h_body': h_A,
+                    },
+                    {
+                        'side': 'B', 'label': f'{vname}.B',
+                        'panels': panels_B, 'h_body': h_B,
+                    },
+                ]
+                isolated_section_views = [{
+                    'h_A': h_A, 'h_B': h_B, 'b': b,
+                    'h_section': h_section,
+                    'laje_sup_A': 0.0, 'laje_inf_A': 0.0,
+                    'laje_sup_B': 0.0, 'laje_inf_B': 0.0,
+                }]
             vigas.append({
                 'nome':     vname,
                 'b':        b,
@@ -1932,11 +1998,13 @@ def main():
                 'bsw_B': bsw_B,   # border strip width Face B
                 'pl_A': pl_A, 'pr_A': pr_A,
                 'pl_B': pl_B, 'pr_B': pr_B,
-                'face_units': fichas_face_units_map.get(vname, []),
-                'section_views': next(
-                    (f.get('section_views', []) for f in fichas_data if f.get('viga') == vname),
-                    []
-                ) if 'fichas_data' in locals() else [],
+                'face_units': isolated_face_units or fichas_face_units_map.get(vname, []),
+                'section_views': isolated_section_views or (
+                    next(
+                        (f.get('section_views', []) for f in fichas_data if f.get('viga') == vname),
+                        []
+                    ) if 'fichas_data' in locals() else []
+                ),
             })
 
     if not vigas:
@@ -1997,6 +2065,10 @@ def main():
 
     doc = setup_doc()
     msp = doc.modelspace()
+
+    if not vigas:
+        print('[ERRO] Nenhum contrato LV pronto para geracao.')
+        return
 
     y_cursor    = 0.0
     x_max_all   = 0.0
@@ -2257,9 +2329,11 @@ def main():
     if args.item and args.view != 'ALL':
         base_item = re.sub(r'_A$', '', args.item, flags=re.IGNORECASE)
         view_suffix = 'CORTE' if args.view == 'CORTE' else f'VIEW_{args.view}'
-        out_name = f'LV_preview_{base_item}_{view_suffix}.dxf'
+        behavior_suffix = f'_{args.behavior}' if args.behavior else ''
+        out_name = f'LV_preview_{base_item}{behavior_suffix}_{view_suffix}.dxf'
     else:
-        out_name = f'LV_preview_{args.item}.dxf' if args.item else 'LV_stog_quality.dxf'
+        behavior_suffix = f'_{args.behavior}' if args.behavior else ''
+        out_name = f'LV_preview_{args.item}{behavior_suffix}.dxf' if args.item else f'LV_stog_quality{behavior_suffix}.dxf'
 
     if args.view != 'ALL':
         # Viewers dedicados nao recebem cards nem sentinelas/boosts distantes;

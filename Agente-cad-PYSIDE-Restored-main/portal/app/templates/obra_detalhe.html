@@ -1627,7 +1627,13 @@
     painel3.hidden = false;
     lista.innerHTML = '<li class="n1-lista-cabecalho">Carregando…</li>';
     var meuToken = ++_classeItensReqToken;
-    fetch('/obras/' + OBRA_ID + '/n1/' + classe).then(function (r) { return r.json(); })
+    // [FIX 2026-07-11] faltava passar `pavimento` aqui — sem isso o backend
+    // caía no pavimento default (settings.pav_default), diferente do que o
+    // usuário tinha selecionado, mostrando "Nenhum item nesta classe" mesmo
+    // quando a classe tinha itens reais no pavimento certo (achado real
+    // testando N1 com o dono — carregarClassesGenerico já passava certo,
+    // só esta função ficou pra trás).
+    fetch('/obras/' + OBRA_ID + '/n1/' + classe + (_pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : '')).then(function (r) { return r.json(); })
       .then(function (data) {
         if (meuToken !== _classeItensReqToken) return;
         _painel3Estado = { stage: stage, classe: classe, itens: data.itens, indice: 0 };
@@ -1690,7 +1696,7 @@
     var fotosEl = document.getElementById('n1-fotos');
     var tituloEl = document.getElementById('n1-titulo');
     var meuToken = ++_n1DetalheReqToken;
-    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId))
+    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId) + (_pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : ''))
       .then(function (r) { return r.json(); })
       .then(function (item) {
         if (meuToken !== _n1DetalheReqToken) return;
@@ -1750,7 +1756,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     var fotosEl = document.getElementById('n3-fotos');
     tituloEl.textContent = _painel3Estado.itens[_painel3Estado.indice].titulo;
     var meuToken = ++_n3DetalheReqToken;
-    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId))
+    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId) + (_pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : ''))
       .then(function (r) { return r.json(); })
       .then(function (item) {
         if (meuToken !== _n3DetalheReqToken) return;

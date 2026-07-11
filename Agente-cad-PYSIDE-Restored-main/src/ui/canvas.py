@@ -1321,10 +1321,145 @@ class CADCanvas(QGraphicsView):
                 continue
             self.snap_grid.setdefault((gx, gy), []).append(s_data)
 
+    def _ensure_osnap_markers(self):
+        """Recria marcadores OSNAP se a cena os apagou (ex.: scene.clear / render nativo)."""
+        need = not bool(self.snap_markers)
+        if not need:
+            for marker in list(self.snap_markers.values()):
+                try:
+                    if marker is None or marker.scene() is None:
+                        need = True
+                        break
+                except RuntimeError:
+                    need = True
+                    break
+        if need:
+            self.snap_markers = {}
+            try:
+                self._init_osnap_markers()
+            except Exception as exc:
+                print(f"[CADCanvas] _ensure_osnap_markers falhou: {exc}")
+
+    def _populate_base_snaps_from_entities(self, entities):
+        """Monta snap_points/segments a partir do dict DXFLoader (sem redesenhar).
+
+        Usado pelo caminho nativo ezdxf.addons.drawing, que desenha a geometria
+        mas não gera malha OSNAP. Sem isso o SA fica com OSNAP morto.
+        """
+        self.snap_points = []
+        self.snap_segments = []
+        self.snap_grid = {}
+        self.base_snap_points = []
+        self.base_snap_segments = []
+
+        if not entities or not getattr(self, 'compute_snaps', True):
+            return
+
+        calc_lines = []
+
+        for circ in entities.get('circles', []) or []:
+            try:
+                center = circ.get('center', circ.get('pos', (0, 0)))
+                cx, cy = float(center[0]), float(center[1])
+                r = float(circ.get('radius') or 0.0)
+            except (TypeError, ValueError, IndexError, KeyError):
+                continue
+            self._add_snap_point((cx, cy), 'center')
+            if r > 0:
+                self._add_snap_point((cx + r, cy), 'quadrant')
+                self._add_snap_point((cx - r, cy), 'quadrant')
+                self._add_snap_point((cx, cy + r), 'quadrant')
+                self._add_snap_point((cx, cy - r), 'quadrant')
+
+        for line in entities.get('lines', []) or []:
+            s, e = line.get('start'), line.get('end')
+            if not s or not e:
+                continue
+            try:
+                s = (float(s[0]), float(s[1]))
+                e = (float(e[0]), float(e[1]))
+            except (TypeError, ValueError, IndexError):
+                continue
+            self.snap_segments.append((s, e))
+            calc_lines.append({'start': s, 'end': e})
+            mid = ((s[0] + e[0]) / 2.0, (s[1] + e[1]) / 2.0)
+            self._add_snap_point(mid, 'midpoint')
+            self._add_snap_point(s, 'endpoint')
+            self._add_snap_point(e, 'endpoint')
+
+        for poly in entities.get('polylines', []) or []:
+            points = poly.get('points') or []
+            if len(points) < 1:
+                continue
+            try:
+                pts = [(float(p[0]), float(p[1])) for p in points]
+            except (TypeError, ValueError, IndexError):
+                continue
+            self._add_snap_point(pts[0], 'endpoint')
+            for i in range(1, len(pts)):
+                p_prev, p_curr = pts[i - 1], pts[i]
+                self.snap_segments.append((p_prev, p_curr))
+                calc_lines.append({'start': p_prev, 'end': p_curr})
+                mid = ((p_prev[0] + p_curr[0]) / 2.0, (p_prev[1] + p_curr[1]) / 2.0)
+                self._add_snap_point(mid, 'midpoint')
+                self._add_snap_point(p_curr, 'endpoint')
+            if poly.get('closed') and len(pts) >= 2:
+                p_last, p_first = pts[-1], pts[0]
+                self.snap_segments.append((p_last, p_first))
+                calc_lines.append({'start': p_last, 'end': p_first})
+                mid = ((p_last[0] + p_first[0]) / 2.0, (p_last[1] + p_first[1]) / 2.0)
+                self._add_snap_point(mid, 'midpoint')
+
+        for txt in entities.get('texts', []) or []:
+            pos = txt.get('pos')
+            if not pos:
+                continue
+            try:
+                self._add_snap_point((float(pos[0]), float(pos[1])), 'node')
+            except (TypeError, ValueError, IndexError):
+                continue
+
+        if calc_lines:
+            if len(calc_lines) < 1000:
+                self._calculate_intersections(calc_lines)
+            else:
+                print(
+                    f"[CADCanvas] Skipping intersection calc for {len(calc_lines)} "
+                    "segments (performance protection)."
+                )
+
+        self.base_snap_points = self.snap_points.copy()
+        self.base_snap_segments = self.snap_segments.copy()
+        self._rebuild_snap_grid()
+
     def _calculate_intersections(self, lines):
-        """Calcula intersecÃ§Ãµes entre todas as linhas (N^2 simplificado)."""
+        """Calcula intersecções entre segmentos (N^2 com bbox pre-filter)."""
         # Formato lines: [{'start': (x,y), 'end': (x,y)}, ...]
-        
+        if not lines:
+            return
+        for i in range(len(lines)):
+            l1 = lines[i]
+            try:
+                s1, e1 = l1['start'], l1['end']
+                minx1, maxx1 = min(s1[0], e1[0]), max(s1[0], e1[0])
+                miny1, maxy1 = min(s1[1], e1[1]), max(s1[1], e1[1])
+            except (TypeError, ValueError, KeyError, IndexError):
+                continue
+            for j in range(i + 1, len(lines)):
+                l2 = lines[j]
+                try:
+                    s2, e2 = l2['start'], l2['end']
+                    minx2, maxx2 = min(s2[0], e2[0]), max(s2[0], e2[0])
+                    miny2, maxy2 = min(s2[1], e2[1]), max(s2[1], e2[1])
+                except (TypeError, ValueError, KeyError, IndexError):
+                    continue
+                # Bounding box check rápido
+                if maxx1 < minx2 or maxx2 < minx1 or maxy1 < miny2 or maxy2 < miny1:
+                    continue
+                pt = self._line_intersection(s1, e1, s2, e2, segment_only=True)
+                if pt:
+                    self._add_snap_point(pt, 'intersection')
+
     def _line_intersection(self, p1, p2, p3, p4, segment_only=True):
         x1, y1 = p1
         x2, y2 = p2
@@ -1343,20 +1478,6 @@ class CADCanvas(QGraphicsView):
         else:
             return (x1 + ua * (x2 - x1), y1 + ua * (y2 - y1))
         return None
-
-        for i in range(len(lines)):
-            for j in range(i + 1, len(lines)):
-                l1 = lines[i]
-                l2 = lines[j]
-                
-                # Bounding box check rÃ¡pido
-                minx1, maxx1 = min(l1['start'][0], l1['end'][0]), max(l1['start'][0], l1['end'][0])
-                minx2, maxx2 = min(l2['start'][0], l2['end'][0]), max(l2['start'][0], l2['end'][0])
-                if maxx1 < minx2 or maxx2 < minx1: continue
-                
-                pt = self._line_intersection(l1['start'], l1['end'], l2['start'], l2['end'])
-                if pt:
-                    self._add_snap_point(pt, 'intersection')
 
     def switch_text_style(self, style_id=None):
         """Alterna entre as 5 'bibliotecas' de renderizaÃ§Ã£o de texto"""
@@ -1470,6 +1591,32 @@ class CADCanvas(QGraphicsView):
                 self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
                 self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.BspTreeIndex)
                 self.scene.blockSignals(False)
+
+                # OSNAP: o render nativo desenha a geometria mas NÃO gera malha de snap
+                # nem recria marcadores (scene.clear() os apagou). Reconstruir a partir
+                # do dict de entidades do DXFLoader — mesmo caminho de dados do SA.
+                try:
+                    self.dxf_entities = []
+                    if entities:
+                        self.dxf_entities = (entities.get('texts', []) or []).copy()
+                        for l in entities.get('lines', []) or []:
+                            ent = dict(l)
+                            ent['points'] = [l.get('start'), l.get('end')]
+                            self.dxf_entities.append(ent)
+                        self.dxf_entities.extend(entities.get('polylines', []) or [])
+                        self.dxf_entities.extend(entities.get('circles', []) or [])
+                    self._populate_base_snaps_from_entities(entities)
+                    self._ensure_osnap_markers()
+                    if not hasattr(self, 'osnap_enabled'):
+                        self.osnap_enabled = True
+                    print(
+                        f"[CADCanvas] OSNAP after native render: "
+                        f"{len(self.snap_points)} points, {len(self.snap_segments)} segs, "
+                        f"markers={len(self.snap_markers)}, enabled={getattr(self, 'osnap_enabled', True)}"
+                    )
+                except Exception as snap_exc:
+                    print(f"[CADCanvas] OSNAP rebuild after native render failed: {snap_exc}")
+
                 return
             except Exception as e:
                 print(f"[CADCanvas] Native DXF render failed: {e}")
@@ -1940,59 +2087,93 @@ class CADCanvas(QGraphicsView):
         self.update() # ForÃ§ar repaint final
 
     def _init_osnap_markers(self):
-        """Prepara os marcadores de snap (Quadrado, TriÃ¢ngulo, X)"""
-        # Endpoint/Center: Quadrado Verde
-        sq = self.scene.addRect(-5, -5, 10, 10, QPen(QColor(0, 255, 0), 2))
-        sq.setZValue(200); sq.hide(); sq.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        """Prepara os marcadores de snap (quadrado nas esquinas/cruzes, triângulo, etc.)."""
+        from PySide6.QtGui import QPolygonF, QBrush
+        from PySide6.QtCore import QPointF
+
+        # Endpoint / center / quadrant: quadrado verde sólido e legível
+        # (ItemIgnoresTransformations → tamanho em pixels de tela)
+        _sq_pen = QPen(QColor(0, 255, 80), 2.5)
+        _sq_pen.setCosmetic(True)
+        _sq_fill = QBrush(QColor(0, 255, 80, 45))
+        sq = self.scene.addRect(-7, -7, 14, 14, _sq_pen, _sq_fill)
+        sq.setZValue(200)
+        sq.hide()
+        sq.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['endpoint'] = sq
-        self.snap_markers['center'] = sq # Reutiliza
-        self.snap_markers['quadrant'] = sq # Reutiliza
-        
-        # Node: CÃ­rculo Verde com X
+        self.snap_markers['center'] = sq
+        self.snap_markers['quadrant'] = sq
+
+        # Node: círculo verde com X
         node_path = QPainterPath()
-        node_path.addEllipse(-4, -4, 8, 8)
-        node_path.moveTo(-3, -3); node_path.lineTo(3, 3)
-        node_path.moveTo(3, -3); node_path.lineTo(-3, 3)
-        node = self.scene.addPath(node_path, QPen(QColor(0, 255, 0), 1))
-        node.setZValue(200); node.hide(); node.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        node_path.addEllipse(-5, -5, 10, 10)
+        node_path.moveTo(-3.5, -3.5)
+        node_path.lineTo(3.5, 3.5)
+        node_path.moveTo(3.5, -3.5)
+        node_path.lineTo(-3.5, 3.5)
+        node = self.scene.addPath(node_path, QPen(QColor(0, 255, 0), 1.5))
+        node.setZValue(200)
+        node.hide()
+        node.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['node'] = node
 
-        # Midpoint: TriÃ¢ngulo Ciano
-        from PySide6.QtGui import QPolygonF
-        from PySide6.QtCore import QTimer, QPointF
-        tri_poly = QPolygonF([QPointF(0, -6), QPointF(-5, 4), QPointF(5, 4)])
+        # Midpoint: triângulo ciano
+        tri_poly = QPolygonF([QPointF(0, -7), QPointF(-6, 5), QPointF(6, 5)])
         tri = self.scene.addPolygon(tri_poly, QPen(QColor(0, 255, 255), 2))
-        tri.setZValue(200); tri.hide(); tri.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        tri.setZValue(200)
+        tri.hide()
+        tri.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['midpoint'] = tri
 
-        # Intersection: X Vermelho/Laranja
-        path = QPainterPath()
-        path.moveTo(-5, -5); path.lineTo(5, 5)
-        path.moveTo(5, -5); path.lineTo(-5, 5)
-        cross = self.scene.addPath(path, QPen(QColor(255, 100, 0), 2))
-        cross.setZValue(200); cross.hide(); cross.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        # Intersection (cruz entre linhas): quadrado + X laranja — gravidade visual forte
+        ix_path = QPainterPath()
+        ix_path.addRect(-7, -7, 14, 14)
+        ix_path.moveTo(-5, -5)
+        ix_path.lineTo(5, 5)
+        ix_path.moveTo(5, -5)
+        ix_path.lineTo(-5, 5)
+        _ix_pen = QPen(QColor(255, 140, 0), 2.5)
+        _ix_pen.setCosmetic(True)
+        cross = self.scene.addPath(ix_path, _ix_pen, QBrush(QColor(255, 140, 0, 40)))
+        cross.setZValue(200)
+        cross.hide()
+        cross.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['intersection'] = cross
 
-        # Nearest: Ampulheta/X (Ampulheta simplificada)
+        # Nearest: ampulheta leve (menos gravidade visual)
         path = QPainterPath()
-        path.moveTo(-4, -4); path.lineTo(4, 4); path.lineTo(-4, 4); path.lineTo(4, -4); path.closeSubpath()
+        path.moveTo(-4, -4)
+        path.lineTo(4, 4)
+        path.lineTo(-4, 4)
+        path.lineTo(4, -4)
+        path.closeSubpath()
         near = self.scene.addPath(path, QPen(QColor(0, 255, 0), 1))
-        near.setZValue(200); near.hide(); near.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        near.setZValue(200)
+        near.hide()
+        near.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['nearest'] = near
 
-        # Perpendicular: SÃ­mbolo de Ã¢ngulo reto
+        # Perpendicular: ângulo reto
         path = QPainterPath()
-        path.moveTo(0, -6); path.lineTo(0, 0); path.lineTo(6, 0)
+        path.moveTo(0, -6)
+        path.lineTo(0, 0)
+        path.lineTo(6, 0)
         perp = self.scene.addPath(path, QPen(QColor(0, 255, 0), 2))
-        perp.setZValue(200); perp.hide(); perp.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        perp.setZValue(200)
+        perp.hide()
+        perp.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['perpendicular'] = perp
 
-        # Extension: X tracejado ou pequeno circulo
+        # Extension: cruz tracejada
         ext_path = QPainterPath()
-        ext_path.moveTo(-4, 0); ext_path.lineTo(4, 0)
-        ext_path.moveTo(0, -4); ext_path.lineTo(0, 4)
+        ext_path.moveTo(-4, 0)
+        ext_path.lineTo(4, 0)
+        ext_path.moveTo(0, -4)
+        ext_path.lineTo(0, 4)
         ext = self.scene.addPath(ext_path, QPen(QColor(0, 255, 0), 1, Qt.DashLine))
-        ext.setZValue(200); ext.hide(); ext.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        ext.setZValue(200)
+        ext.hide()
+        ext.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['extension'] = ext
 
     def _init_instruction_overlay(self):
@@ -2377,11 +2558,30 @@ class CADCanvas(QGraphicsView):
             created.append(t_item)
         return created
 
-    def draw_single_beam_lateral(self, item_data: dict, beam_data: dict):
-        """Destaca LV de UMA viga (lado A ou B) com rótulos de segmento por span."""
-        self.draw_item_links(item_data)  # limpa e redesenha em beam_visuals
+    def draw_single_beam_lateral(self, item_data: dict, beam_data: dict, apply_zoom: bool = True):
+        """Destaca LV de UMA viga (lado A ou B), foca a linha de comprimento e aplica zoom.
+
+        O vínculo de comprimento (Linha Comprimento / lateral) é o foco principal:
+        só essa face fica destacada e a vista enquadra a(s) linha(s) de comprimento.
+        """
         seg_list = self._collect_lateral_segs(beam_data, item_data)
-        self._add_seg_labels(seg_list, store_group='beam_visuals')
+        if seg_list:
+            # Destaca apenas as linhas de comprimento da face (rosa) + zoom
+            self.highlight_multiple_links(seg_list, apply_zoom=apply_zoom)
+            self._add_seg_labels(seg_list, store_group='beam_visuals')
+            return
+        # Fallback: sem vínculo de comprimento, mostra links filtrados da face
+        self.draw_item_links(item_data)
+        if apply_zoom and self.beam_visuals:
+            try:
+                rect = self.beam_visuals[0].sceneBoundingRect()
+                for it in self.beam_visuals[1:]:
+                    rect = rect.united(it.sceneBoundingRect())
+                margin = 400
+                self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
+                self.centerOn(rect.center())
+            except Exception:
+                pass
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
@@ -3105,180 +3305,209 @@ class CADCanvas(QGraphicsView):
             for m in self.snap_markers.values(): m.hide()
 
     def get_snap(self, pos, threshold=None):
-        """Retorna o dado de snap mais prÃ³ximo {pos, type} ou None usando Spatial Grid e Threshold DinÃ¢mico"""
+        """Retorna o snap mais próximo {pos, type} ou None.
+
+        Esquinas (endpoint) e cruzes (intersection) têm gravidade maior:
+        raio de atração ampliado + prioridade alta + nearest não “rouba”
+        o ponto se o cursor ainda estiver na zona do hard-snap.
+        """
         if not getattr(self, 'osnap_enabled', True):
             return None
-            
-        best_snap = None
-        
-        # 1. CÃLCULO DE THRESHOLD DINÃ‚MICO
-        # Se threshold nÃ£o for passado, calcula baseado em pixels de tela (ex: 10px - Reduzido por solicitaÃ§Ã£o)
+
+        # 1. Threshold base em pixels de tela (escala com zoom)
         view_scale = self.transform().m11()
-        if view_scale == 0: view_scale = 1
-        
-        # [PERFORMANCE HACK] Limitar o raio de busca em unidades de cena
-        # Se estamos muito longe (zoom out), 10px pode virar 1000 unidades do desenho.
-        # Isso faria o bucket grid buscar 10x10 buckets, travando tudo.
-        pixel_thresh = 4.0 # Reduzido de 6.0 para 4.0 para maior "liberdade" e precisão (User Request)
-        scene_thresh = pixel_thresh / view_scale 
-        
-        # Clamp máximo: Aumentado de 50 para 2000 para desenhos grandes (User Request)
-        MAX_SCENE_SEARCH_DIST = 2000.0 
-        threshold = min(scene_thresh, MAX_SCENE_SEARCH_DIST)
-        
-        min_dist = threshold
-        
-        # 2. BUSCA OTIMIZADA VIA GRID (SPATIAL INDEX)
-        # Converter pos para chave da grid
+        if view_scale == 0:
+            view_scale = 1.0
+
+        # Base um pouco maior que o valor antigo (4px): hard-snaps usam
+        # multiplicador de gravidade por cima disto.
+        pixel_thresh = 6.0
+        scene_thresh = pixel_thresh / view_scale
+        MAX_SCENE_SEARCH_DIST = 2000.0
+        base_threshold = min(scene_thresh, MAX_SCENE_SEARCH_DIST)
+        if threshold is not None:
+            base_threshold = float(threshold)
+
+        # Gravidade (multiplicador do raio) por tipo — esquina/cruz puxam mais
+        gravity = {
+            'intersection': 2.6,
+            'endpoint': 2.2,
+            'center': 1.8,
+            'node': 1.8,
+            'quadrant': 1.6,
+            'midpoint': 1.35,
+            'perpendicular': 1.1,
+            'extension': 1.1,
+            'nearest': 1.0,
+        }
+        priority_map = {
+            'intersection': 0,
+            'endpoint': 1,
+            'center': 1,
+            'node': 1,
+            'quadrant': 2,
+            'midpoint': 3,
+            'perpendicular': 4,
+            'extension': 4,
+            'nearest': 5,
+        }
+        # Raio máximo de busca = maior gravidade (intersection)
+        max_gravity = max(gravity.values())
+        search_radius = base_threshold * max_gravity
+
+        # Score efetivo: distância “corrigida” pela gravidade + prioridade.
+        # Menor = melhor. Hard-snaps vencem nearest na mesma vizinhança.
+        def _score(dist, snap_type):
+            g = gravity.get(snap_type, 1.0)
+            prio = priority_map.get(snap_type, 99)
+            return (dist / g) + (prio * base_threshold * 0.08)
+
+        def _type_radius(snap_type):
+            return base_threshold * gravity.get(snap_type, 1.0)
+
+        # 2. Busca via spatial grid — janela cresce com o raio de gravidade
         gx = int(pos.x() // self.SNAP_GRID_SIZE)
         gy = int(pos.y() // self.SNAP_GRID_SIZE)
-        
-        # Em zoom muito distante, a grid pode ficar inÃºtil se uma cÃ©lula cobrir tudo.
-        # Mas o threshold clampado acima jÃ¡ ajuda a rejeitar candidatos.
-        
-        # Buscar em buckets vizinhos (3x3)
+        # +1 de margem; cap 3 para não explodir em zoom-out extremo
+        cell_span = min(3, max(1, int(search_radius / self.SNAP_GRID_SIZE) + 1))
         candidate_points = []
-        # Se threshold for muito pequeno em relaÃ§Ã£o ao grid, basta 3x3.
-        # Se for grande, precisaria de mais, mas limitamos a busca a 3x3 por performance.
-        for ix in range(gx-1, gx+2):
-            for iy in range(gy-1, gy+2):
+        for ix in range(gx - cell_span, gx + cell_span + 1):
+            for iy in range(gy - cell_span, gy + cell_span + 1):
                 key = (ix, iy)
                 if key in self.snap_grid:
                     candidate_points.extend(self.snap_grid[key])
-        
-        # Se nÃ£o tiver grid (fallback), usa todos (lento, mas seguro)
+
         if not self.snap_grid and self.snap_points:
             candidate_points = self.snap_points
 
-        # [PERFORMANCE HACK 2] Se houver candidatos demais (>500 + zoom out), ignorar ou pegar subset aleatÃ³rio
         if len(candidate_points) > 500 and view_scale < 0.1:
-             # Zoom out extremo com muitos pontos: Desativa snap ou reduz check
-             return None 
+            return None
 
-        # 3. PROCESSO DE SNAP (Mesma lÃ³gica, agora em subconjunto)
-        priority_map = {
-            'intersection': 0, 
-            'endpoint': 1, 'center': 1, 'quadrant': 1, 'node': 1,
-            'midpoint': 2,
-            'perpendicular': 3,
-            'nearest': 4
-        }
-        
+        # 3. Hard snaps (endpoint / intersection / mid / center…)
         best_snap = None
-        
+        best_score = float('inf')
+        best_dist = search_radius
+
         for s in candidate_points:
             pt = s['pos']
-            # DistÃ¢ncia Euclidiana Simplificada (primeiro box check)
+            stype = s.get('type', 'endpoint')
+            type_r = _type_radius(stype)
             dx = pt[0] - pos.x()
             dy = pt[1] - pos.y()
-            if abs(dx) > min_dist or abs(dy) > min_dist: continue # Pre-filter rÃ¡pido
-            
-            dist = (dx*dx + dy*dy)**0.5
-            
-            if dist <= min_dist:
-                if best_snap:
-                    # LÃ³gica de prioridade: Se jÃ¡ temos um snap, sÃ³ troca se distÃ¢ncia for MUITO menor
-                    # OU se a prioridade for melhor (ex: endpoint ganha de midpoint se perto)
-                    curr_prio = priority_map.get(s['type'], 99)
-                    best_prio = priority_map.get(best_snap['type'], 99)
-                    
-                    if dist < min_dist * 0.8: # Se for 20% mais perto, ganha independente
-                         best_snap = s
-                         min_dist = dist
-                    elif curr_prio < best_prio: # Se mesma distÃ¢ncia (aprox), ganha prioridade
-                         best_snap = s
-                         min_dist = dist
-                else:
-                    min_dist = dist
-                    best_snap = s
-                    
-        # 4. Nearest Snap (DinÃ¢mico para linhas prÃ³ximas)
-        # Se nenhum snap "hard" foi encontrado, verificar arestas prÃ³ximas
-        # Isso dÃ¡ a "autonomia" de clicar na linha sem pegar a ponta
-        if not best_snap:
-            # PERFORMANCE GUARD: Skip checking 10k segments if drawing is huge or zoomed out
-            # 60FPS target allows ~16ms. 3000 segments in Python is risky.
-            if len(self.snap_segments) > 3000 and view_scale < 0.05:
-                return None
-
-            # Check nearest lines (simplified)
-            for seg in self.snap_segments:
-                p1, p2 = seg
-                # Verifica bounding box do segmento
-                if pos.x() < min(p1[0], p2[0]) - min_dist or pos.x() > max(p1[0], p2[0]) + min_dist: continue
-                if pos.y() < min(p1[1], p2[1]) - min_dist or pos.y() > max(p1[1], p2[1]) + min_dist: continue
-                
-                # Distancia ponto-segmento
-                l2 = (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2
-                if l2 == 0: continue
-                t = ((pos.x()-p1[0])*(p2[0]-p1[0]) + (pos.y()-p1[1])*(p2[1]-p1[1])) / l2
-                t = max(0, min(1, t))
-                proj_x = p1[0] + t * (p2[0]-p1[0])
-                proj_y = p1[1] + t * (p2[1]-p1[1])
-                
-                dist_seg = ((pos.x()-proj_x)**2 + (pos.y()-proj_y)**2)**0.5
-                if dist_seg < min_dist:
-                    min_dist = dist_seg
-                    best_snap = {'pos': (proj_x, proj_y), 'type': 'nearest'}
-
-        near_segments = []
-        for s, e in self.snap_segments:
-            px, py = pos.x(), pos.y()
-            # Bounding Box Check Simplificado para Segmento
-            curr_min_x = min(s[0], e[0]) - min_dist
-            curr_max_x = max(s[0], e[0]) + min_dist
-            curr_min_y = min(s[1], e[1]) - min_dist
-            curr_max_y = max(s[1], e[1]) + min_dist
-            
-            if not (curr_min_x <= px <= curr_max_x and curr_min_y <= py <= curr_max_y):
+            # Pre-filter com o raio específico do tipo (gravidade)
+            if abs(dx) > type_r or abs(dy) > type_r:
                 continue
+            dist = (dx * dx + dy * dy) ** 0.5
+            if dist > type_r:
+                continue
+            sc = _score(dist, stype)
+            if sc < best_score:
+                best_score = sc
+                best_dist = dist
+                best_snap = s
 
-            sx, sy = s[0], s[1]
-            ex, ey = e[0], e[1]
-            dx, dy = ex - sx, ey - sy
-            mag_sq = dx*dx + dy*dy
-            if mag_sq == 0: continue
-            
-            t = ((px - sx) * dx + (py - sy) * dy) / mag_sq
-            t_clamped = max(0, min(1, t))
-            proj = QPointF(sx + t_clamped * dx, sy + t_clamped * dy)
-            dist = ((proj.x()-px)**2 + (proj.y()-py)**2)**0.5
-            
-            if dist < min_dist:
-                near_segments.append(((s, e), dist, t, proj))
+        hard_snap = best_snap  # preservar para não ser sobrescrito por nearest fraco
+        hard_score = best_score
 
-        # Ordenar por distÃ¢ncia
-        near_segments.sort(key=lambda x: x[1])
+        # 4. Segmentos próximos (intersection aparente, nearest, perp, extension)
+        # PERFORMANCE: em zoom out extremo com milhares de segs, pular
+        if not (len(self.snap_segments) > 3000 and view_scale < 0.05):
+            near_segments = []
+            px, py = pos.x(), pos.y()
+            # Busca com raio de intersection (maior) para achar cruzes
+            seg_search = search_radius
+            for s, e in self.snap_segments:
+                curr_min_x = min(s[0], e[0]) - seg_search
+                curr_max_x = max(s[0], e[0]) + seg_search
+                curr_min_y = min(s[1], e[1]) - seg_search
+                curr_max_y = max(s[1], e[1]) + seg_search
+                if not (curr_min_x <= px <= curr_max_x and curr_min_y <= py <= curr_max_y):
+                    continue
 
-        # Apparent Intersection (entre os 2 mais prÃ³ximos)
-        if len(near_segments) >= 2:
-            s1, e1 = near_segments[0][0]
-            s2, e2 = near_segments[1][0]
-            pt = self._line_intersection(s1, e1, s2, e2, segment_only=False)
-            if pt:
-                dist_inter = ((pt[0]-pos.x())**2 + (pt[1]-pos.y())**2)**0.5
-                if dist_inter < min_dist:
-                    best_snap = {'pos': pt, 'type': 'intersection'} # Usa marker de intersection
-                    min_dist = dist_inter
+                sx, sy = s[0], s[1]
+                ex, ey = e[0], e[1]
+                dx, dy = ex - sx, ey - sy
+                mag_sq = dx * dx + dy * dy
+                if mag_sq == 0:
+                    continue
 
-        # Perpendicular e Extension
-        for seg_data in near_segments:
-            (s, e), dist, t, proj = seg_data
-            if dist < min_dist:
-                # Extension: se t < 0 ou t > 1
+                t = ((px - sx) * dx + (py - sy) * dy) / mag_sq
+                t_clamped = max(0.0, min(1.0, t))
+                proj = QPointF(sx + t_clamped * dx, sy + t_clamped * dy)
+                dist = ((proj.x() - px) ** 2 + (proj.y() - py) ** 2) ** 0.5
+                if dist <= seg_search:
+                    near_segments.append(((s, e), dist, t, proj))
+
+            near_segments.sort(key=lambda x: x[1])
+            # Limita candidatos dinâmicos (perf)
+            near_segments = near_segments[:12]
+
+            # 4a. Intersection aparente entre os pares de segmentos mais próximos
+            # (cruz real ou extensão de cruz — com raio de gravidade de intersection)
+            ix_radius = _type_radius('intersection')
+            n_near = len(near_segments)
+            for i in range(min(n_near, 6)):
+                for j in range(i + 1, min(n_near, 6)):
+                    s1, e1 = near_segments[i][0]
+                    s2, e2 = near_segments[j][0]
+                    # Preferir interseção no segmento; se falhar, tentar aparente
+                    pt = self._line_intersection(s1, e1, s2, e2, segment_only=True)
+                    if pt is None:
+                        pt = self._line_intersection(s1, e1, s2, e2, segment_only=False)
+                        if pt is None:
+                            continue
+                        # Interseção aparente: só aceita se o ponto estiver
+                        # perto do cursor (evita puxar para longe)
+                    dist_inter = ((pt[0] - px) ** 2 + (pt[1] - py) ** 2) ** 0.5
+                    if dist_inter > ix_radius:
+                        continue
+                    sc = _score(dist_inter, 'intersection')
+                    if sc < best_score:
+                        best_score = sc
+                        best_dist = dist_inter
+                        best_snap = {'pos': pt, 'type': 'intersection'}
+
+            # 4b. Nearest / perp / extension — só competem se NÃO houver hard-snap
+            # na zona, ou se forem claramente melhores (score).
+            nearest_radius = _type_radius('nearest')
+            for seg_data in near_segments:
+                (s, e), dist, t, proj = seg_data
+                if dist > nearest_radius and not (t < 0 or t > 1):
+                    # fora do raio de nearest (extension usa seu próprio tipo)
+                    pass
+
                 if t < 0 or t > 1:
-                     # Se estivermos em modo de desenho, mostra extensÃ£o
-                     if self.edit_mode in ('line', 'dim'):
-                         best_snap = {'pos': (proj.x(), proj.y()), 'type': 'extension'}
-                         min_dist = dist
-                elif self.pick_start and 0 <= t <= 1:
-                    if self.edit_mode in ('line', 'dim'):
-                        best_snap = {'pos': (proj.x(), proj.y()), 'type': 'perpendicular'}
-                        min_dist = dist
+                    if self.edit_mode in ('line', 'dim') and dist <= _type_radius('extension'):
+                        stype = 'extension'
+                    else:
+                        continue
+                elif self.pick_start and 0 <= t <= 1 and self.edit_mode in ('line', 'dim'):
+                    if dist > _type_radius('perpendicular'):
+                        continue
+                    stype = 'perpendicular'
                 else:
-                    best_snap = {'pos': (proj.x(), proj.y()), 'type': 'nearest'}
-                    min_dist = dist
-        
+                    if dist > nearest_radius:
+                        continue
+                    stype = 'nearest'
+
+                # Hard-snap (endpoint/intersection) só “segura” o cursor se
+                # ainda estiver bem dentro da zona de gravidade (~70% do raio).
+                # Longe da esquina/cruz, nearest volta a valer (meio da linha).
+                sc = _score(dist, stype)
+                if hard_snap is not None and hard_snap.get('type') in (
+                    'intersection', 'endpoint', 'center', 'node'
+                ):
+                    hpos = hard_snap['pos']
+                    hdist = ((hpos[0] - px) ** 2 + (hpos[1] - py) ** 2) ** 0.5
+                    hold_r = _type_radius(hard_snap['type']) * 0.70
+                    if hdist <= hold_r and sc >= hard_score:
+                        continue
+
+                if sc < best_score:
+                    best_score = sc
+                    best_dist = dist
+                    best_snap = {'pos': (proj.x(), proj.y()), 'type': stype}
+
         return best_snap
 
     def mousePressEvent(self, event):
@@ -3791,6 +4020,8 @@ class CADCanvas(QGraphicsView):
 
         # OSNAP Visual
         if self.picking_mode or self.edit_mode:
+            # scene.clear / render nativo pode matar marcadores C++ — recria se preciso
+            self._ensure_osnap_markers()
             # Hide all markers safely
             for m in list(self.snap_markers.values()):
                 try:
@@ -3798,11 +4029,20 @@ class CADCanvas(QGraphicsView):
                 except RuntimeError:
                     # Object already deleted on C++ side (scene.clear)
                     pass
-            if snap_data:
+            if snap_data and getattr(self, 'osnap_enabled', True):
                 marker = self.snap_markers.get(snap_data['type'], self.snap_markers.get('endpoint'))
                 if marker:
-                    marker.setPos(snap_data['pos'][0], snap_data['pos'][1])
-                    marker.show()
+                    try:
+                        marker.setPos(snap_data['pos'][0], snap_data['pos'][1])
+                        marker.show()
+                    except RuntimeError:
+                        # Marcador morreu mid-frame; recria e tenta de novo
+                        self.snap_markers = {}
+                        self._ensure_osnap_markers()
+                        marker = self.snap_markers.get(snap_data['type'], self.snap_markers.get('endpoint'))
+                        if marker:
+                            marker.setPos(snap_data['pos'][0], snap_data['pos'][1])
+                            marker.show()
         
         # 3. Tool Previews
         if self.edit_mode == 'line' and self.pick_start:

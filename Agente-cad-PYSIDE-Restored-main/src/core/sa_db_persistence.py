@@ -244,18 +244,61 @@ def merge_analysis_item(old: dict | None, new: dict, kind: str) -> dict:
     result["id"] = old.get("id", result.get("id"))
     result["project_id"] = old.get("project_id", result.get("project_id"))
 
+    # FV tem topologia de segmentos: uma área antiga isolada só pode voltar se
+    # representar um lock humano completo. Caso contrário ela é estado stale e
+    # deve deixar a nova análise reconstruir todas as áreas, preservando apenas
+    # os campos auxiliares (dimensão/apoios) que forem realmente validados.
+    preservation_old = old
+    if kind == "BEAM":
+        try:
+            from src.core.preficha_segments import fundo_topology_is_locked
+            stale_fv_topology = not fundo_topology_is_locked(old)
+        except Exception:
+            stale_fv_topology = False
+        if stale_fv_topology:
+            preservation_old = copy.deepcopy(old)
+            fv_area_keys = {
+                str(field)
+                for field in preservation_old.get("validated_fields") or []
+                if _FV_SOURCE_RE.match(str(field))
+            }
+            preservation_old["validated_fields"] = [
+                field for field in preservation_old.get("validated_fields") or []
+                if str(field) not in fv_area_keys
+            ]
+            for validation_map in (
+                "validated_link_classes",
+                "na_link_classes",
+                "na_reasons",
+            ):
+                preserved_map = preservation_old.get(validation_map) or {}
+                if isinstance(preserved_map, dict):
+                    preservation_old[validation_map] = {
+                        field: value
+                        for field, value in preserved_map.items()
+                        if not _FV_SOURCE_RE.match(str(field))
+                    }
+            links = preservation_old.get("links") or {}
+            for source_key in list(links):
+                if _FV_SOURCE_RE.match(str(source_key)):
+                    links.pop(source_key, None)
+            preservation_old["preficha_fundo_locked"] = False
+            preservation_old.pop("preficha_fundo_locked_source_keys", None)
+
     # A análise automática não cria autoridade humana. Metadados de validação
     # e N/A vêm exatamente do registro anterior, sem união ou reordenação.
     for key in (*_VALIDATION_LISTS, *_VALIDATION_MAPS):
-        result[key] = copy.deepcopy(old.get(key) or ([] if key in _VALIDATION_LISTS else {}))
+        result[key] = copy.deepcopy(
+            preservation_old.get(key) or ([] if key in _VALIDATION_LISTS else {})
+        )
 
-    for field in old.get("validated_fields") or []:
-        _copy_field(old, result, str(field))
-    _copy_validated_slots(old, result)
-    _apply_na(old, result)
-    _preserve_geometry_root(old, result, kind)
+    for field in preservation_old.get("validated_fields") or []:
+        _copy_field(preservation_old, result, str(field))
+    _copy_validated_slots(preservation_old, result)
+    _apply_na(preservation_old, result)
+    _preserve_geometry_root(preservation_old, result, kind)
     if kind == "BEAM":
-        _lock_beam_topologies(old, result)
+        _lock_beam_topologies(preservation_old, result)
     return result
 
 

@@ -286,16 +286,47 @@ def distribute_panels(comprimento, largura=0.0, obstaculos=None):
     # Determinar eixo maior
     is_horizontal_major = comprimento >= largura
 
+    def _is_continuous_narrow_strip(minor: float) -> bool:
+        """Evita uma uniao artificial em uma faixa longa e estreita.
+
+        Quando a faixa transversal ja comporta uma peca ampla de recorte
+        (>= 122 + duas folgas), a montagem e mais limpa sem uma linha de
+        painel transversal. A uniao continua existindo como HLAZ explicita.
+        A regra evita o padrao artificial ``102 + uniao 20 + 61`` em uma tira
+        uniforme e nao vale para tiras muito estreitas.
+        """
+        return PAINEL_MEDIO + 2 * GAP_UNION <= minor < LIMIAR_MENOR
+
+    def _continuous_strip_hlaz(minor: float, major: float, axis: str):
+        """Faixa de uniao de uma tira continua, em coordenadas locais."""
+        # A peca residual fica com ao menos 61 cm; a faixa de 20 cm e a unica
+        # uniao, materializada por hachura em vez de uma linha de painel.
+        strip_start = round(minor - GAP_UNION - (PAINEL_PEQUENO + 1.0), 1)
+        if axis == 'y':
+            return [{"x": 0.0, "y": strip_start, "width": round(major, 1), "height": GAP_UNION}]
+        return [{"x": strip_start, "y": 0.0, "width": GAP_UNION, "height": round(major, 1)}]
+
     if is_horizontal_major:
         lv = _distribute_244_rule(comprimento)
-        lh = _distribute_minor_axis(largura, obs, 'y') if largura > 0 else []
+        continuous_strip = _is_continuous_narrow_strip(largura)
+        lh = (
+            [] if continuous_strip
+            else _distribute_minor_axis(largura, obs, 'y') if largura > 0 else []
+        )
+        hlaz = _continuous_strip_hlaz(largura, comprimento, 'y') if continuous_strip else []
     else:
         lh = _distribute_244_rule(largura)
-        lv = _distribute_minor_axis(comprimento, obs, 'x') if comprimento > 0 else []
+        continuous_strip = _is_continuous_narrow_strip(comprimento)
+        lv = (
+            [] if continuous_strip
+            else _distribute_minor_axis(comprimento, obs, 'x') if comprimento > 0 else []
+        )
+        hlaz = _continuous_strip_hlaz(comprimento, largura, 'x') if continuous_strip else []
 
     return {
         'linhas_verticais': lv,
         'linhas_horizontais': lh,
+        'hlaz': hlaz,
     }
 
 

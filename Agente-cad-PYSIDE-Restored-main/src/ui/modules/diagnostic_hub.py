@@ -1347,10 +1347,16 @@ class DiagnosticHubModule(QWidget):
     # ─────────────────────────────────────────────
 
     def _populate_obras_combo(self):
-        """Popula o ComboBox de obras com as obras que têm brutos aprovados."""
+        """Popula o ComboBox de obras com as obras que têm brutos aprovados,
+        MAIS todas as obras do portal (Masterplan OBRAS DRIVE) — mesmo as que
+        ainda não foram espelhadas nenhuma vez (0 cliques em Gerenciar
+        Projetos). Selecionar uma obra Drive ainda não espelhada dispara o
+        espelhamento na hora (`_on_obra_selected`). UI compartilhada com os
+        demais comboboxes de obra da app (SA, Comparison Engine, Reverse
+        Hub) via `src/ui/drive_obras_combo.py`."""
         import sqlite3
         DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
-        obras = []
+        obras_locais = []
         try:
             conn = sqlite3.connect(str(DB))
             cur = conn.execute(
@@ -1358,33 +1364,24 @@ class DiagnosticHubModule(QWidget):
                 " WHERE status='approved' AND suggested_category LIKE '%Bruto%'"
                 " ORDER BY obra_name"
             )
-            obras = [r[0] for r in cur.fetchall()]
+            obras_locais = [r[0] for r in cur.fetchall()]
             conn.close()
         except Exception:
             pass
 
-        # Also list obras from filesystem if not in DB
         try:
             obras_root = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
-            fs_obras = [d.name for d in obras_root.iterdir() if d.is_dir()]
-            for o in fs_obras:
-                if o not in obras:
-                    obras.append(o)
-            obras.sort()
+            for d in obras_root.iterdir():
+                if d.is_dir() and d.name not in obras_locais:
+                    obras_locais.append(d.name)
         except Exception:
             pass
 
-        self._combo_obra.blockSignals(True)
-        current = self._combo_obra.currentText()
-        self._combo_obra.clear()
-        self._combo_obra.addItem("— Selecione uma obra —")
-        for o in obras:
-            self._combo_obra.addItem(o)
-        # Restore selection
-        idx = self._combo_obra.findText(current)
-        if idx >= 0:
-            self._combo_obra.setCurrentIndex(idx)
-        self._combo_obra.blockSignals(False)
+        from src.ui.drive_obras_combo import popular_combo_obras_com_drive
+
+        self._drive_obras_portal_por_nome_local = popular_combo_obras_com_drive(
+            self._combo_obra, self, obras_locais
+        )
 
         # If coordinator has a work active, select it
         if self.coordinator:
@@ -1395,13 +1392,23 @@ class DiagnosticHubModule(QWidget):
                     self._combo_obra.setCurrentIndex(idx)
 
     def _on_obra_selected(self, obra_name: str):
-        """Atualiza lista de brutos ao selecionar obra no ComboBox."""
+        """Atualiza lista de brutos ao selecionar obra no ComboBox.
+
+        Masterplan OBRAS DRIVE: se `obra_name` for uma obra do portal (mesmo
+        que nunca tenha sido aberta antes em Gerenciar Projetos), (re)espelha
+        na hora — idempotente, sempre pega o estado mais recente do portal
+        (novos brutos/itens que a equipe subiu desde a última vez)."""
         if not obra_name or obra_name.startswith("—"):
             self._list_brutos.clear()
             self._lbl_brutos_count.setText("Brutos aprovados:")
             self._current_obra = None
             self._set_preprocess_buttons_enabled(False)
             return
+
+        from src.ui.drive_obras_combo import espelhar_se_necessario
+
+        espelhar_se_necessario(self.db, obra_name, getattr(self, "_drive_obras_portal_por_nome_local", {}))
+
         self._current_obra = obra_name
         self._refresh_brutos_list(obra_name)
         self._set_preprocess_buttons_enabled(True)
@@ -1517,6 +1524,8 @@ class DiagnosticHubModule(QWidget):
         if not row_data:
             return
         raw_path = row_data.get('file_path', '')
+        if raw_path:
+            self._garantir_drive_download(raw_path)
         resolved = self._resolve_dxf_path(raw_path) if raw_path else None
         if resolved and resolved.exists():
             import os
@@ -1536,6 +1545,9 @@ class DiagnosticHubModule(QWidget):
             return
         raw_path  = row_data.get('file_path', '')
         file_name = row_data.get('file_name', '')
+
+        if raw_path:
+            self._garantir_drive_download(raw_path)
 
         # Resolve path (remapeia drives inválidos como B:/ → D:/)
         resolved  = self._resolve_dxf_path(raw_path) if raw_path else Path(raw_path)
@@ -1637,6 +1649,8 @@ class DiagnosticHubModule(QWidget):
             btn.setEnabled(True)
             btn.setChecked(cls_id == rtype)
 
+        if output_path:
+            self._garantir_drive_download(output_path)
         resolved = self._resolve_dxf_path(output_path) if output_path else None
         try:
             ok = resolved is not None and resolved.exists()
@@ -1739,6 +1753,18 @@ class DiagnosticHubModule(QWidget):
     # ─────────────────────────────────────────────
     # Helpers de path
     # ─────────────────────────────────────────────
+
+    def _garantir_drive_download(self, raw_path: str) -> None:
+        """Download sob demanda (Masterplan OBRAS DRIVE) — no-op pra qualquer
+        obra local normal. Lógica compartilhada com o Structural Analyzer
+        (`main.py`) e o Diagnostic Reverse Hub em `drive_download_hook.py`."""
+        if not raw_path or not getattr(self, "_current_obra", None):
+            return
+        if hasattr(self, "_lbl_recortes_status"):
+            self._lbl_recortes_status.setText(f"⬇ Verificando Drive: {Path(raw_path).name}…")
+        from src.core.drive_download_hook import garantir_drive_download
+
+        garantir_drive_download(self.db, self._current_obra, raw_path)
 
     @staticmethod
     def _resolve_dxf_path(raw_path: str) -> Path:
@@ -2642,6 +2668,12 @@ class DiagnosticHubModule(QWidget):
         except Exception as e:
             QMessageBox.warning(self, "Aprovar", f"Erro: {e}")
             return
+
+        # Masterplan OBRAS DRIVE: validação é só PULL (portal → app) — decisão
+        # do dono: a app nunca escreve de volta no portal, pra não arriscar
+        # sobrescrever validação real da equipe com um clique/teste local.
+        # A aprovação acima já reflete no espelho local; o pull acontece
+        # sozinho no próximo re-espelhamento (`criar_espelho_local_drive`).
 
         # ── Sistema de aprendizado: registrar bbox aprovada e recalibrar ─────
         recorte_type = row.get('recorte_type', '')

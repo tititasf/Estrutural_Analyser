@@ -27,6 +27,12 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field, asdict
 
+# Execucao direta por caminho coloca apenas ``scripts/`` no sys.path. Os
+# contratos canonicos vivem em ``src/`` e precisam do root do repo.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 import io as _io
 # Fix stdout encoding only when running as script (not when imported by pytest)
 if __name__ == "__main__" and hasattr(sys.stdout, 'buffer'):
@@ -670,6 +676,8 @@ class MotorFase4:
 
         (self.fase4_path / "JSON_Pilares").mkdir(exist_ok=True)
         (self.fase4_path / "JSON_Vigas_Laterais").mkdir(exist_ok=True)
+        (self.fase4_path / "JSON_Vigas_Laterais" / "LV-PARA").mkdir(exist_ok=True)
+        (self.fase4_path / "JSON_Vigas_Laterais" / "LV-PASSA").mkdir(exist_ok=True)
         (self.fase4_path / "JSON_Vigas_Fundo").mkdir(exist_ok=True)
         (self.fase4_path / "JSON_Lajes").mkdir(exist_ok=True)
 
@@ -979,6 +987,104 @@ class MotorFase4:
             log.info(f"[FV-SA] JSON_Vigas_Fundo sincronizado de beam_elements: {count} fichas")
         return count
 
+    def _write_lv_json_from_sa_links(self) -> int:
+        """Grava N3 LV Para/Passa a partir dos quatro vinculos reais do SA.
+
+        ``beam_elements`` e deliberadamente evitado: ele e uma projecao para
+        consulta e pode colapsar lado/comportamento. A fonte canonica desta
+        conversao e ``beams.data_json.links``.
+        """
+        import sqlite3
+        from src.core.lv_generation_contract import build_lv_generation_contracts
+
+        project_id = self._project_id_for_beam_elements()
+        if not project_id:
+            return 0
+        try:
+            with sqlite3.connect(str(self.db_path)) as conn:
+                rows = conn.execute(
+                    "SELECT name, data_json FROM beams WHERE project_id=? "
+                    "AND data_json LIKE '%viga_a_seg_%' ORDER BY name",
+                    (project_id,),
+                ).fetchall()
+                pillar_rows = conn.execute(
+                    "SELECT name, points_json FROM pillars WHERE project_id=?",
+                    (project_id,),
+                ).fetchall()
+        except Exception as exc:
+            log.warning(f"[LV-SA] Falha lendo beams.data_json: {exc}")
+            return 0
+
+        pillar_bboxes = {}
+        for pillar_name, points_raw in pillar_rows:
+            try:
+                points = json.loads(points_raw or "[]")
+                xs = [float(point[0]) for point in points]
+                ys = [float(point[1]) for point in points]
+                if xs and ys:
+                    pillar_bboxes[str(pillar_name)] = (
+                        min(xs), min(ys), max(xs), max(ys)
+                    )
+            except Exception:
+                continue
+
+        written = 0
+        pav = self.pavimento or "Pavimento"
+        manifest = {"schema": "lv_generation_contract/v1", "items": []}
+        for stored_name, raw in rows:
+            try:
+                beam = json.loads(raw or "{}")
+            except Exception:
+                continue
+            name = str(beam.get("name") or stored_name or "").strip().upper()
+            match = re.fullmatch(r"V\d+[A-Z]?", name)
+            if not match:
+                continue
+            contracts = build_lv_generation_contracts(
+                beam, beam_name=name, floor=pav,
+                pillar_bboxes=pillar_bboxes,
+            )
+            item_manifest = {"beam": name, "contracts": {}}
+            for behavior in ("Para", "Passa"):
+                behavior_dir = (
+                    self.fase4_path / "JSON_Vigas_Laterais" /
+                    f"LV-{behavior.upper()}"
+                )
+                item_manifest["contracts"][behavior] = {}
+                for side in ("A", "B"):
+                    contract = contracts[behavior][side]
+                    if not contract["panels"]:
+                        continue
+                    out_path = behavior_dir / f"{name}_{side}.json"
+                    out_path.write_text(
+                        json.dumps(contract, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+                    item_manifest["contracts"][behavior][side] = {
+                        "path": str(out_path),
+                        "segments": contract["segment_count"],
+                        "length": contract["total_length"],
+                        "generation_ready": contract["generation_ready"],
+                    }
+                    written += 1
+            if any(item_manifest["contracts"].values()):
+                manifest["items"].append(item_manifest)
+
+        manifest_path = (
+            self.fase4_path / "JSON_Vigas_Laterais" /
+            "lv_contracts_manifest.json"
+        )
+        manifest_path.write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        if written:
+            log.info(
+                f"[LV-SA] {written} fichas isoladas em LV-PARA/LV-PASSA; "
+                f"manifesto={manifest_path.name}"
+            )
+        return written
+
     def process_vigas(self) -> Dict[str, Any]:
         """Cada viga Fase3 gera 2 fichas: lado A e lado B."""
         fichas = self._load_fase3_fichas("Vigas", "vigas.json")
@@ -1092,6 +1198,9 @@ class MotorFase4:
         # FV: quando a Analise Geral ja populou beam_elements, a ficha de fundo
         # do Robo/N3 deve vir dessa fonte N1, nao do clone simplificado da lateral.
         self._write_fv_json_from_beam_elements(vigas_salvos)
+        # LV: os quatro contratos SA sao exportados sem substituir os JSONs
+        # legados enquanto Comparison Engine e gerador migram para o novo schema.
+        self._write_lv_json_from_sa_links()
 
         # Salvar vigas_salvas.json
         salvos_path = self.fase4_path / "vigas_salvas.json"

@@ -887,7 +887,13 @@ def collect_preficha_segments(
         links = beam.get("links") or {}
         if not isinstance(links, dict):
             continue
-        lv_dimension_override = next(
+        geometry = beam.get("geometry") or {}
+        lv_dimension_text = geometry.get("lv_dimension_text") or {}
+        if isinstance(lv_dimension_text, dict):
+            lv_dimension_from_sa = str(lv_dimension_text.get("text") or "").strip()
+        else:
+            lv_dimension_from_sa = str(lv_dimension_text or "").strip()
+        lv_dimension_override = lv_dimension_from_sa or next(
             (
                 str(link.get("lv_dimensao"))
                 for slots in links.values()

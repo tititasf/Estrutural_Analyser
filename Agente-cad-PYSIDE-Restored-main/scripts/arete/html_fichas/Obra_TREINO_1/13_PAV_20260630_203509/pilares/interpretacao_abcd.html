@@ -10616,6 +10616,74 @@ Q 379.990167 54.679235 380.621465 54.679235
     </div>
   </section>
 
+  <section id="mapa-sa-n3-modos" style="margin-top:24px;border:1px solid #31534a;background:#101817;padding:16px;border-radius:5px;">
+    <h2 style="color:#4fc3a1;margin:0 0 8px;">Relação operacional — campos SA, vínculos automáticos e N3 PARA/PASSA</h2>
+    <p style="color:#aaa;line-height:1.55;">
+      Esta seção documenta a ponte que transforma uma única interpretação estrutural do N1/SA
+      em <b>dois resultados derivados e independentes</b>. A fonte geométrica continua única;
+      o que muda é o contrato operacional aplicado ao desenho ABCD e às GRADES. O CIMA é comum
+      aos dois modos. Nenhum contrato derivado sobrescreve o JSON canônico da Fase 4.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:8px;margin:14px 0;">
+      <div class="mode-card"><b style="color:#7eb8f7;">1 · SA/N1</b><br><span class="muted">pilar, lajes, vigas e níveis</span></div>
+      <div class="mode-card"><b style="color:#7eb8f7;">2 · Vínculos</b><br><span class="muted">face, trecho, canto e continuidade</span></div>
+      <div class="mode-card"><b style="color:#7eb8f7;">3 · Interpretação</b><br><span class="muted">passa, chega e dentro do interior</span></div>
+      <div class="mode-card"><b style="color:#f0b840;">4 · Contratos</b><br><span class="muted">PARA e PASSA separados</span></div>
+      <div class="mode-card"><b style="color:#c47ef7;">5 · N3</b><br><span class="muted">ABCD/GRADES + checklist humano</span></div>
+    </div>
+
+    <h3 style="color:#7eb8f7;">Mapa de fontes e campos</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr><th>Fonte SA</th><th>O que fornece</th><th>Vínculo automático</th><th>Campo derivado N3</th><th>Evidência exibida</th></tr></thead>
+      <tbody>
+        <tr><td>polígono/points do pilar</td><td>bbox, comprimento, largura e orientação</td><td>define faces longas A/B e curtas C/D</td><td>larg1_A…D e lado físico da abertura</td><td>contorno e orientação N1</td></tr>
+        <tr><td>nível_report + JSON Fase 4</td><td>nível de saída, chegada e altura</td><td>saída − chegada deve coincidir com altura</td><td>altura_pilar</td><td>três valores no mesmo checkbox</td></tr>
+        <tr><td>lajes vinculadas por face</td><td>nome, espessura e nível</td><td>side=A/B/C/D; maior evidência válida da face</td><td>vazio_topo pela laje = espessura + 2</td><td>nome · esp · N</td></tr>
+        <tr><td>segmentos FV/LV consolidados</td><td>beam_name, seção completa, geometria e comportamento</td><td>nome pertence ao trecho; texto próximo é somente fallback</td><td>viga passante, chegada, interior e abertura</td><td>nome · largura/profundidade · papel</td></tr>
+        <tr><td>geometria do trecho contra bbox</td><td>lado tocado e posição da extremidade</td><td>A: AC/AD/AA; B: BC/BD/BB; C/D: chegada central quando aplicável</td><td>slot da abertura</td><td>slot explícito, nunca apenas uma lista de vigas</td></tr>
+        <tr><td>continuidade além do eixo</td><td>trecho que engloba o pilar</td><td>classifica “Dentro do interior”</td><td>vazio_topo com prioridade de viga</td><td>face limite + viga + seção</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="color:#7eb8f7;margin-top:18px;">Como uma interpretação gera os dois resultados</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr><th>Campo por face</th><th>ABCD — viga PARA</th><th>ABCD — viga PASSA</th></tr></thead>
+      <tbody>
+        <tr><td>Vazio topo A/B</td><td>Dentro do interior; senão laje +2; senão 0</td><td>viga/interior mais profunda; senão laje +2; senão 0</td></tr>
+        <tr><td>Vazio topo C/D</td><td>viga/interior mais profunda; senão laje +2; senão 0</td><td>mesma prioridade: viga/interior → laje → 0</td></tr>
+        <tr><td>Viga passante</td><td>em A/B vira abertura no canto onde termina: Ini 7,5×(prof.+4), Nova 11×(prof.+4); C/D sempre passa</td><td>não cria abertura de parada; a mais profunda é a referência da face</td></tr>
+        <tr><td>Viga que chega</td><td>canto: largura+11+4; central: largura+4+4; profundidade sempre +4</td><td>mesma fórmula, porém neutralizada quando profundidade da chegada ≤ profundidade da passante</td></tr>
+        <tr><td>Saída física</td><td>contrato/JSON/DXF isolados em n3_variants/para</td><td>contrato/JSON/DXF isolados em n3_variants/passa</td></tr>
+        <tr><td>CIMA</td><td colspan="2">uma única interpretação: comprimento +22, parafusos e espaçamentos espelhados A/B</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="color:#7eb8f7;margin-top:18px;">Projeção para o gerador</h3>
+    <ul style="line-height:1.65;color:#bbb;">
+      <li><code>paineis_intervals_FACE</code> recebe a altura útil da face depois do vazio de topo.</li>
+      <li><code>abertura_FACE_N</code> recebe lado, largura, altura, posição vertical e a origem AC/AD/AA/BC/BD/BB.</li>
+      <li>ABCD e GRADES leem o mesmo payload de modo; por isso a grade acompanha os recortes e as alturas locais do painel.</li>
+      <li>O payload contém <code>_sa_mode_contract</code>, com fonte N1, evidência e regra de cada valor.</li>
+      <li>O checklist humano valida a resposta interpretada; marcar o checkbox não altera silenciosamente a geometria-fonte.</li>
+    </ul>
+
+    <h3 style="color:#f0b840;margin-top:18px;">Gaps evolutivos e maior ganho esperado</h3>
+    <ol style="line-height:1.65;color:#bbb;">
+      <li><b>P0 — persistir proveniência por campo no schema central:</b> hoje o contrato derivado já a conserva no run; promovê-la ao domínio central elimina divergência entre telas.</li>
+      <li><b>P0 — grafo topológico de vigas:</b> substituir qualquer fallback por proximidade por um vínculo trecho→eixo→nome. É a defesa principal contra V301/VF301 e contra nomes fora do recorte.</li>
+      <li><b>P0 — testes-âncora P1/P2/P3:</b> congelar faces, papéis, seções, cantos, neutralizações e hashes dos dois payloads antes de ampliar a classe.</li>
+      <li><b>P1 — contrato compartilhado fora do HTML:</b> mover a derivação para serviço puro e consumi-la por SA, ficha e motor; evita três implementações da mesma regra.</li>
+      <li><b>P1 — confiança granular:</b> bloquear geração automática quando nome, seção ou slot não tiver evidência suficiente; mostrar “a confirmar” em vez de inventar.</li>
+      <li><b>P1 — recorte N1 orientado ao grafo:</b> expandir até a etiqueta dona do trecho, não por margem fixa; melhora nomes sem poluir o recorte.</li>
+      <li><b>P2 — especiais A…H:</b> reutilizar o mesmo contrato por face, com slots próprios e espelhamento explícito.</li>
+    </ol>
+    <p style="color:#888;font-size:10px;">
+      Regra anti-overfit: P1/P2/P3 são casos de calibração, não exceções codificadas. Uma correção só entra
+      no motor quando puder ser expressa por geometria, topologia, prioridade e fórmula geral.
+    </p>
+  </section>
+
 </div>
 
 <script>

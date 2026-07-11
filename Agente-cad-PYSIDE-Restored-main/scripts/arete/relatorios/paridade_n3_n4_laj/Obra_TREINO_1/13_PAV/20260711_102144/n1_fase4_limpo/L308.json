@@ -1,0 +1,55 @@
+{
+  "nome": "L308",
+  "numero": 308,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      289.1175,
+      0.0
+    ],
+    [
+      289.1175,
+      183.0
+    ],
+    [
+      0.0,
+      183.0
+    ]
+  ],
+  "comprimento": 289.12,
+  "largura": 183.0,
+  "area_cm2": 52908.5,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 102.0,
+      "is_union": false
+    },
+    {
+      "value": 122.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 4244.3825,
+    "y": 3010.038
+  }
+}

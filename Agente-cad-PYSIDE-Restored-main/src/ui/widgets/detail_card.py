@@ -1,153 +1,3 @@
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
 import uuid
 import math
 import re
@@ -197,6 +47,12 @@ class DetailCard(QWidget):
     data_changed = Signal(dict)           # (dict) disparado quando qualquer dado muda (nome, dim, etc)
     validation_changed = Signal(dict)     # (dict) mudanca leve: somente estado de validacao/treino
     log_requested = Signal(str)           # (str) pedido de log no console principal
+
+    # Deve permanecer em paridade com MainWindow._calculate_completion().
+    _LAJE_REQUIRED_VALIDATION_FIELDS = frozenset({
+        'name', 'laje_dim', 'laje_visao_corte', 'laje_vizinhas_niveis',
+        'laje_pilares_apoio', 'laje_nivel', 'laje_outline_segs', 'laje_islands',
+    })
     
     # Estilos CSS Reutilizáveis — usando tokens do design system
     STYLE_DEFAULT = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
@@ -753,6 +609,169 @@ class DetailCard(QWidget):
         if self.item_data.get('is_validated'):
             self.item_data['is_validated'] = False
 
+    def _fields_reach_full_validation(self) -> bool:
+        """Retorna se o mesmo conjunto contado na lista chegou a 100%."""
+        validated = self.item_data.get('validated_fields', [])
+        na_fields = self.item_data.get('na_fields', [])
+        validated = set(validated.keys()) if isinstance(validated, dict) else set(validated)
+        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
+        completed = validated | na_fields
+
+        item_type = str(self.item_data.get('type') or '').lower()
+        if 'laje' in item_type:
+            required = self._LAJE_REQUIRED_VALIDATION_FIELDS
+        else:
+            # Fora de LAJ, sela somente quando cada campo que a UI oferece
+            # para Validar/N/A foi resolvido pelo usuario.
+            required = set(self.action_btns)
+        return bool(required) and required.issubset(completed)
+
+    def _auto_seal_completed_item(self) -> bool:
+        """Concede selo azul sem dialogo quando os campos chegam a 100%."""
+        if self.item_data.get('is_fully_validated') or not self._fields_reach_full_validation():
+            return False
+
+        # Azul = todos os campos resolvidos + validacao do item. O verde
+        # permanece reservado ao fluxo manual de validacao simples.
+        self.item_data['is_fully_validated'] = True
+        self.item_data['is_validated'] = True
+        self.refresh_validation_styles()
+        self.validation_changed.emit({
+            'item': self.item_data,
+            'is_valid': True,
+            'scope': 'item_auto_complete',
+        })
+        self.data_validated.emit(self.item_data)
+        self.log_requested.emit('Item certificado automaticamente: 100% dos campos validados/N/A.')
+        return True
+
+    # ── Validação individual por segmento (FV/LV) ──────────────────────────
+    # Espelha o par selo verde/azul do item, mas escopado a 1 segmento
+    # (`{prefix}_seg_{idx}`). Campos validam o segmento (auto, via
+    # `_sync_segment_flag_from_fields`), mas validar um segmento manualmente
+    # NUNCA valida seus campos — só quando TODOS os segmentos ativos do item
+    # estão validados (manual ou por campo) o item ganha selo verde; o selo
+    # azul do item continua exigindo 100% dos campos do item inteiro.
+    _SEG_FIELD_RE = re.compile(r'^(viga_(?:a|b|fundo))_seg_(\d+)_')
+
+    def _extract_segment_from_field(self, field_id: str):
+        match = self._SEG_FIELD_RE.match(str(field_id))
+        if not match:
+            return None
+        return match.group(1), int(match.group(2))
+
+    def _segment_key(self, prefix: str, idx: int) -> str:
+        return f'{prefix}_seg_{idx}'
+
+    def _segment_required_fields(self, prefix: str, idx: int) -> set:
+        seg_uid = self._segment_key(prefix, idx)
+        return {fid for fid in self.action_btns if str(fid).startswith(f'{seg_uid}_')}
+
+    def _segment_reaches_full_validation(self, prefix: str, idx: int) -> bool:
+        validated = self.item_data.get('validated_fields', [])
+        na_fields = self.item_data.get('na_fields', [])
+        validated = set(validated.keys()) if isinstance(validated, dict) else set(validated)
+        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
+        completed = validated | na_fields
+        required = self._segment_required_fields(prefix, idx)
+        return bool(required) and required.issubset(completed)
+
+    def _all_active_segment_keys(self) -> set:
+        """Todas as chaves de segmento ativas neste item — FV usa só
+        `viga_fundo`; LV usa `viga_a`/`viga_b` conforme o tipo do item."""
+        itype = str(self.item_data.get('type') or '').lower()
+        keys: set = set()
+        if itype in ('viga_fundo', 'viga_fundo_c'):
+            for idx in self._existing_beam_segment_indices('viga_fundo', is_fundo=True):
+                keys.add(self._segment_key('viga_fundo', idx))
+            return keys
+        prefixes = []
+        if itype in ('viga_lateral', 'viga_lateral_a'):
+            prefixes.append('viga_a')
+        if itype in ('viga_lateral', 'viga_lateral_b'):
+            prefixes.append('viga_b')
+        for prefix in prefixes:
+            for idx in self._existing_beam_segment_indices(prefix, is_fundo=False):
+                keys.add(self._segment_key(prefix, idx))
+        return keys
+
+    def _maybe_cascade_segments_to_item(self):
+        """Quando TODOS os segmentos ativos estão validados (manual ou via
+        campo), o item ganha selo verde — nunca inventa o selo azul a partir
+        disso, que continua exigindo 100% dos campos do item inteiro."""
+        active = self._all_active_segment_keys()
+        if not active:
+            return
+        segs = self.item_data.get('validated_segments') or {}
+        if all(segs.get(k) for k in active) and not self.item_data.get('is_validated'):
+            self.item_data['is_validated'] = True
+            self.refresh_validation_styles()
+            self.validation_changed.emit({
+                'item': self.item_data,
+                'is_valid': True,
+                'scope': 'all_segments_complete',
+            })
+
+    def _sync_segment_flag_from_fields(self, prefix: str, idx: int):
+        """Chamado após validar/desfazer um campo — emite o selo automático
+        do SEGMENTO quando os campos DELE (só dele) chegam a 100%, espelhando
+        `_auto_seal_completed_item` mas escopado. Não mexe no selo manual de
+        outros segmentos nem desliga um selo manual já dado a este."""
+        key = self._segment_key(prefix, idx)
+        segs = self.item_data.setdefault('validated_segments', {})
+        if self._segment_reaches_full_validation(prefix, idx):
+            if not segs.get(key):
+                segs[key] = True
+                self._maybe_cascade_segments_to_item()
+
+    def toggle_segment_validated_manual(self, prefix: str, idx: int):
+        """Selo verde MANUAL de 1 segmento — ação do usuário, independente
+        dos campos (o inverso é automático: campos validam o segmento, ver
+        `_sync_segment_flag_from_fields`; validar o segmento não valida os
+        campos dele)."""
+        key = self._segment_key(prefix, idx)
+        segs = self.item_data.setdefault('validated_segments', {})
+        segs[key] = not segs.get(key, False)
+        if segs[key]:
+            self._maybe_cascade_segments_to_item()
+        self.refresh_validation_styles()
+        self.data_changed.emit(self.item_data)
+
+    def _build_segment_validate_button(self, prefix: str, idx: int) -> QPushButton:
+        """Botão checável de validação individual do segmento (FV/LV) — usado
+        no cabeçalho do card de segmento em `_add_rich_segment_pack`/
+        `_add_fundo_segment_pack`."""
+        key = self._segment_key(prefix, idx)
+        segs = self.item_data.get('validated_segments') or {}
+        btn = QPushButton("✓ Segmento validado")
+        btn.setCheckable(True)
+        btn.setChecked(bool(segs.get(key)))
+        btn.setCursor(Qt.PointingHandCursor)
+        btn.setFixedHeight(28)
+
+        def _style(checked: bool):
+            if checked:
+                btn.setStyleSheet(
+                    f"font-size: 11px; font-weight: bold; padding: 4px 10px; "
+                    f"background: {Colors.ACCENT_MINT}; color: #05261f; "
+                    f"border: 1px solid {Colors.ACCENT_MINT}; border-radius: 4px;"
+                )
+            else:
+                btn.setStyleSheet(
+                    f"font-size: 11px; padding: 4px 10px; background: {Colors.BG_CARD}; "
+                    f"color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_INPUT}; "
+                    f"border-radius: 4px;"
+                )
+
+        _style(btn.isChecked())
+
+        def _on_click(checked, p=prefix, i=idx, b=btn):
+            self.toggle_segment_validated_manual(p, i)
+            _style(b.isChecked())
+
+        btn.clicked.connect(_on_click)
+        return btn
+
     def mark_field_validated(self, field_id, is_valid=True, emit_data_changed=True):
         """Aplica estilo visual de validação no widget do campo de forma otimizada"""
         validated = self.item_data.setdefault('validated_fields', [])
@@ -785,10 +804,14 @@ class DetailCard(QWidget):
             self._clear_full_validation_state()
             
         self._refresh_link_conf_badge(field_id)
+        seg = self._extract_segment_from_field(field_id) if is_valid else None
+        if seg:
+            self._sync_segment_flag_from_fields(*seg)
         self.refresh_validation_styles()
+        auto_sealed = is_valid and self._auto_seal_completed_item()
         if emit_data_changed:
             self.data_changed.emit(self.item_data)
-        else:
+        elif not auto_sealed:
             self.validation_changed.emit({
                 'item': self.item_data,
                 'field_id': field_id,
@@ -2071,11 +2094,16 @@ class DetailCard(QWidget):
         btn_toggle = QPushButton(f"▼ Segmento {idx}")
         btn_toggle.setStyleSheet(f"text-align: left; font-size: 13px; font-weight: bold; color: {Colors.ACCENT_MINT}; background: {Colors.BG_CARD}; padding: 8px; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
         btn_toggle.setCursor(Qt.PointingHandCursor)
-        
+
+        header_row = QHBoxLayout()
+        header_row.setSpacing(4)
+        header_row.addWidget(btn_toggle, 1)
+        header_row.addWidget(self._build_segment_validate_button(prefix, idx))
+
         content_frame = QFrame()
         content_frame.setStyleSheet(f"border: 1px solid {Colors.BORDER_INPUT}; border-top: none; background: {Colors.BG_PANEL};")
-        
-        pack_layout.addWidget(btn_toggle)
+
+        pack_layout.addLayout(header_row)
         pack_layout.addWidget(content_frame)
         
         btn_toggle.clicked.connect(lambda checked=False, cf=content_frame, btn=btn_toggle, i=idx: (
@@ -2103,71 +2131,76 @@ class DetailCard(QWidget):
         else:
             side_label = ""  # Fallback (não deveria acontecer neste método)
         
-        # Campo "Linha Comprimento" — substitui os dois campos separados (Para/Passa)
-        # A chave usada depende do tipo_comp do contexto (subpasta "Vigas Param." ou "Vigas Passam.")
+        # Ordem de curadoria SA (pedido dono 2026-07):
+        # 1. Linha Comprimento
+        # 2. Ajuste Comprimento
+        # 3. Dimensão B×H  (logo abaixo do ajuste)
+        # 4. Visão de Corte (acima do Nível)
+        # 5. Apoios
+        # 6. Nível da Viga
+        # 7. Lajes 1/2/3
         _tipo_comp = self.item_data.get('_tipo_comp', 'passa')
         if _tipo_comp == 'para':
             linha_comp_key = f'{seg_uid}_comprimento_total'
         else:
             linha_comp_key = f'{seg_uid}_comp_total_passa'
         self._add_linked_row(form, "Linha Comprimento:", linha_comp_key, "poly")
-        
-        # 4. Campo "Ajuste Comprimento"
-        # Agora puramente manual, sem botões de ação (Task_02)
-        self._add_linked_row(form, "Ajuste Comprimento:", f'{seg_uid}_ajuste_comprimento', "text", 
+
+        self._add_linked_row(form, "Ajuste Comprimento:", f'{seg_uid}_ajuste_comprimento', "text",
                              show_links=False, show_focus=False, show_validate=False, show_na=False)
-        
-        # 5. Visão de Corte
-        self._add_linked_row(form, "Visão de Corte (Seção Transversal):", f'{seg_uid}_visao_corte', "group", hide_input=True)
-        
-        # 3. Campos de Apoio
-        self._add_linked_row(form, "Apoio Inicial (Viga/Pilar):", f'{seg_uid}_ini_name', "text")
-        self._add_linked_row(form, "Apoio Final (Viga/Pilar):", f'{seg_uid}_end_name', "text")
-        
-        # 4. Campos Principais
-        self._add_linked_row(form, "Nível da Viga (Este Lado):", f'{seg_uid}_nivel_viga', "text")
-        self._add_linked_row(form, "Nível da Viga (Lado Oposto):", f'{seg_uid}_nivel_oposto', "text")
-        
-        # Lajes
-        self._add_linked_row(form, "Laje Superior (Adjacente):", f'{seg_uid}_laje_sup', "text")
-        self._add_linked_row(form, "Laje Central (Recorte):", f'{seg_uid}_laje_cen', "text")
-        self._add_linked_row(form, "Laje Inferior (Adjacente):", f'{seg_uid}_laje_inf', "text")
-        
-        # Dimensão da Viga (B x H) - Movido para acima das Alturas
+
         self._add_linked_row(form, "Dimensão da Viga (B x H):", f'{seg_uid}_dim', "text")
 
-        # Alturas
-        self._add_linked_row(form, "Altura Paineis Laterais H1:", f'{seg_uid}_h1', "text")
-        self._add_linked_row(form, "Altura Paineis Laterais H2:", f'{seg_uid}_h2', "text")
-        
-        # 2. Modos de Painel (Radio Groups) - Lado a Lado
-        modes_layout = QHBoxLayout()
-        modes_layout.setSpacing(5)
-        h1_opts = ["Sarrafo", "Garfo", "Grade"]
-        modes_layout.addWidget(self._create_radio_group("Modo Painel H1", h1_opts, f"{seg_uid}_mode_h1", has_grade_input=True))
-        
-        h2_opts = ["Sarrafo", "Garfo", "Grade"]
-        modes_layout.addWidget(self._create_radio_group("Modo Painel H2", h2_opts, f"{seg_uid}_mode_h2", has_grade_input=True))
-        main_v.addLayout(modes_layout)
-        
-        # 3. Continuidade (Radio)
-        cont_opts = ["Obstáculo", "Viga", "Último Seg."]
-        main_v.addWidget(self._create_radio_group("Configuração de Continuidade", cont_opts, f"{seg_uid}_continuidade"))
-        
-        # 4. Sarrafos (Checkbox Grid)
-        sarrafos_opts = [
-            ("Vertical Esq H1", "v_e_h1"), ("Pressão Esq H1", "p_e_h1"),
-            ("Vertical Esq H2", "v_e_h2"), ("Pressão Esq H2", "p_e_h2"),
-            ("Vertical Dir H1", "v_d_h1"), ("Pressão Dir H1", "p_d_h1"),
-            ("Vertical Dir H2", "v_d_h2"), ("Pressão Dir H2", "p_d_h2")
-        ]
-        cb_group = self._create_checkbox_group("Detalhamento de Sarrafos e Travamento", sarrafos_opts, seg_uid)
-        main_v.addWidget(cb_group)
+        self._add_linked_row(form, "Visão de Corte (Seção Transversal):", f'{seg_uid}_visao_corte', "group", hide_input=True)
+
+        self._add_linked_row(form, "Apoio Inicial (Viga/Pilar):", f'{seg_uid}_ini_name', "text")
+        self._add_linked_row(form, "Apoio Final (Viga/Pilar):", f'{seg_uid}_end_name', "text")
+
+        # Nível único da viga (interpretação: laje mais alta deste lado / oposto)
+        self._add_linked_row(
+            form,
+            "Nível da Viga:",
+            f'{seg_uid}_nivel_viga',
+            "text",
+        )
+        _nivel_hint = QLabel(
+            "Interpretação: use o nível da laje mais alta em contato com esta face "
+            "(ou a do lado oposto quando for a referência de cota do desenho)."
+        )
+        _nivel_hint.setWordWrap(True)
+        _nivel_hint.setStyleSheet(
+            f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic; padding: 0 2px 4px 2px;"
+        )
+        form.addRow("", _nivel_hint)
+
+        # Lajes 1/2/3 — multi-vínculo com ficha por laje
+        self._migrate_legacy_lv_lajes(seg_uid)
+        self._add_linked_row(
+            form,
+            "Lajes (1 / 2 / 3):",
+            f'{seg_uid}_lajes',
+            "text",
+            hide_input=True,
+        )
+        _lajes_hint = QLabel(
+            "Até 3 lajes por segmento. Em cada vínculo: nível, espessura e distâncias "
+            "às pontas esquerda/direita do painel (degraus e posição X/Y na lateral)."
+        )
+        _lajes_hint.setWordWrap(True)
+        _lajes_hint.setStyleSheet(
+            f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic; padding: 0 2px 4px 2px;"
+        )
+        form.addRow("", _lajes_hint)
+
+        # NOTA: Modo Painel H1/H2, Continuidade, Detalhamento de Sarrafos e
+        # Alturas H1/H2 saíram do SA — ficam na ficha N3 do Comparison Engine
+        # (painel superior ao item, junto ao Modo visual). Chaves legadas no
+        # item_data continuam legíveis para não quebrar fichas já preenchidas.
 
         # 1. Campos de Engenharia (FormLayout)
         main_v.addWidget(form_w)
         
-        # Aberturas (TABELAS) - Agora abaixo de tudo
+        # Aberturas: pilares sarrafeados que atravessam + pontas de viga que passam por baixo
         self._add_pillar_openings_table(main_v, f'{seg_uid}_abert_pilar_esq', f'{seg_uid}_abert_pilar_dir')
         self._add_beam_openings_table(main_v, f'{seg_uid}_abert_viga_top_esq', f'{seg_uid}_abert_viga_top_dir', 
                                       f'{seg_uid}_abert_viga_fun_esq', f'{seg_uid}_abert_viga_fun_dir')
@@ -2186,6 +2219,57 @@ class DetailCard(QWidget):
     def update_all_tipo_comp_buttons(self, tipo: str):
         """Atualiza o tipo para/passa de contexto do card (substituiu os radio buttons removidos)."""
         self.item_data['_tipo_comp'] = tipo
+
+    def _migrate_legacy_lv_lajes(self, seg_uid: str) -> None:
+        """Converte laje_sup/cen/inf legados em vínculos do campo unificado `_lajes`.
+
+        Não sobrescreve se `_lajes` já tiver vínculos. Cada laje legada vira um
+        link de texto com ficha mínima (nível/espessura vazios para curadoria).
+        """
+        import uuid as _uuid
+        field_id = f'{seg_uid}_lajes'
+        links = self.item_data.setdefault('links', {})
+        existing = links.get(field_id)
+        if isinstance(existing, dict):
+            for slot_links in existing.values():
+                if isinstance(slot_links, list) and slot_links:
+                    return  # já migrado / preenchido
+        elif isinstance(existing, list) and existing:
+            return
+
+        legacy_keys = (
+            f'{seg_uid}_laje_sup',
+            f'{seg_uid}_laje_cen',
+            f'{seg_uid}_laje_inf',
+        )
+        migrated = []
+        for key in legacy_keys:
+            raw = self.item_data.get(key)
+            if raw is None:
+                fields = self.item_data.get('fields') or {}
+                raw = fields.get(key) if isinstance(fields, dict) else None
+            name = str(raw or '').strip()
+            if not name or name.upper() in ('N/A', 'N.A.', 'NULO', 'NONE', '—', '0', '-'):
+                continue
+            migrated.append({
+                'id': str(_uuid.uuid4()),
+                'type': 'text',
+                'text': name,
+                'role': 'Laje legada',
+                'ficha': {
+                    'nivel': '',
+                    'espessura': '',
+                    'dist_esq': '',
+                    'dist_dir': '',
+                },
+                'ficha_links': {},
+            })
+            if len(migrated) >= 3:
+                break
+
+        if not migrated:
+            return
+        links[field_id] = {'laje': migrated}
 
     def _add_fundo_segment_pack(self, layout, prefix, idx_override=None):
         """Cria um Box Completo de Segmento de Fundo"""
@@ -2213,11 +2297,16 @@ class DetailCard(QWidget):
         btn_toggle = QPushButton(f"▼ Segmento Fundo {idx}")
         btn_toggle.setStyleSheet(f"text-align: left; font-size: 13px; font-weight: bold; color: rgba(170, 136, 255, 1); background: {Colors.BG_CARD}; padding: 8px; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
         btn_toggle.setCursor(Qt.PointingHandCursor)
-        
+
+        header_row = QHBoxLayout()
+        header_row.setSpacing(4)
+        header_row.addWidget(btn_toggle, 1)
+        header_row.addWidget(self._build_segment_validate_button(prefix, idx))
+
         content_frame = QFrame()
         content_frame.setStyleSheet(f"border: 1px solid {Colors.BORDER_INPUT}; border-top: none; background: {Colors.BG_PANEL};")
-        
-        pack_layout.addWidget(btn_toggle)
+
+        pack_layout.addLayout(header_row)
         pack_layout.addWidget(content_frame)
         
         btn_toggle.clicked.connect(lambda checked=False, cf=content_frame, btn=btn_toggle, i=idx: (
@@ -2807,6 +2896,19 @@ class DetailCard(QWidget):
         # [NOVO] SELO AZUL (Validação Completa de Contexto)
         # Só este botão concede o status de "Item 100% Validado" para curadoria
         final_data['is_fully_validated'] = True
+        final_data['is_validated'] = True
+        self.item_data['is_fully_validated'] = True
+        self.item_data['is_validated'] = True
+
+        # Cascata pro segmento: validar o item inteiro validado todos os
+        # segmentos ativos também (a pedido do dono — "ao validar o item se
+        # conclui e valida todos os segmentos").
+        active_segments = self._all_active_segment_keys()
+        if active_segments:
+            segs = self.item_data.setdefault('validated_segments', {})
+            for key in active_segments:
+                segs[key] = True
+            final_data['validated_segments'] = dict(segs)
 
         self.refresh_validation_styles()
 
@@ -2814,7 +2916,6 @@ class DetailCard(QWidget):
         self._check_fase4_divergences(final_data)
 
         self.data_validated.emit(final_data)
-        QMessageBox.information(self, "IA Training", "Dados enviados para o banco de padrões! (Selo Azul)")
 
     def _check_fase4_divergences(self, final_data: dict):
         """
@@ -3476,8 +3577,12 @@ class DetailCard(QWidget):
             elif item.layout(): self._clear_layout_recursive(item.layout())
 
     def _add_pillar_openings_table(self, container_layout, key_esq, key_dir):
-        """Módulo de Aberturas de Pilares em formato de Tabela com Link no final"""
-        grp = QGroupBox("Aberturas em Pilares (Esq / Dir)")
+        """Aberturas de pilares sarrafeados que atravessam a lateral (Esq / Dir).
+
+        Interpretação: trecho da lateral que será sarrafeado no pilar
+        (regra típica: comprimento_pilar + 11 cm cada lado).
+        """
+        grp = QGroupBox("Aberturas em Pilares — sarrafeados que atravessam (Esq / Dir)")
         grp.setStyleSheet(f"""
             QGroupBox {{ border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }}
             QGroupBox::title {{ color: {Colors.ACCENT_PRIMARY}; subcontrol-origin: margin; left: 10px; }}
@@ -3485,6 +3590,13 @@ class DetailCard(QWidget):
         
         layout = QVBoxLayout(grp)
         layout.setSpacing(5)
+        _hint = QLabel(
+            "Distância = da ponta do segmento até o início da abertura; "
+            "Largura = abertura efetiva (ex.: 11+comp.pilar+11)."
+        )
+        _hint.setWordWrap(True)
+        _hint.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic;")
+        layout.addWidget(_hint)
 
         # Header da Tabela
         grid = QGridLayout()
@@ -3524,15 +3636,26 @@ class DetailCard(QWidget):
         container_layout.addWidget(grp)
 
     def _add_beam_openings_table(self, container_layout, k_top_e, k_top_d, k_fun_e, k_fun_d):
-        """Módulo de Aberturas de Vigas em formato de Tabela"""
-        grp = QGroupBox("Aberturas em Vigas (Topo / Fundo)")
-        grp.setStyleSheet("""
-            QGroupBox { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }
-            QGroupBox::title { color: {Colors.ACCENT_INFO}; subcontrol-origin: margin; left: 10px; }
+        """Aberturas de pontas de viga que passam por baixo (Topo/Fundo × Esq/Dir).
+
+        Interpretação da ficha: vigas incidentes que passam sob a lateral e
+        geram recortes (profundidade × boca) nas quatro esquinas do painel.
+        """
+        grp = QGroupBox("Aberturas em Vigas — pontas que passam por baixo (Topo / Fundo)")
+        grp.setStyleSheet(f"""
+            QGroupBox {{ border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }}
+            QGroupBox::title {{ color: {Colors.ACCENT_INFO}; subcontrol-origin: margin; left: 10px; }}
         """)
         
         layout = QVBoxLayout(grp)
         layout.setSpacing(5)
+        _hint = QLabel(
+            "Cada canto: profundidade e boca/largura da abertura + ref. H1/H2 do painel. "
+            "Vincule nome/geometria/dimensão da viga incidente no drawer de ações."
+        )
+        _hint.setWordWrap(True)
+        _hint.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic;")
+        layout.addWidget(_hint)
         
         grid = QGridLayout()
         grid.setSpacing(4)

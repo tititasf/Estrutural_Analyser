@@ -7544,12 +7544,60 @@ class ProjectManager(QWidget):
             item_orphaned.setData(Qt.UserRole, "__NO_WORK__")
             item_orphaned.setToolTip("Pavimentos que não estão vinculados a nenhuma obra")
             self.list_works.addItem(item_orphaned)
-            
+
+            # Masterplan OBRAS DRIVE (Fase 1): cabeçalho de categoria (não
+            # selecionável, igual aos cabeçalhos de grupo do Diagnostic Hub) —
+            # as obras de verdade são inseridas ABAIXO dele, cada uma como um
+            # item normal, clicável igual uma obra local. Carregamento adiado
+            # (QTimer) pra não travar a sidebar com I/O de rede síncrono.
+            header_drive = QListWidgetItem("☁️ OBRAS DRIVE")
+            header_drive.setFlags(header_drive.flags() & ~Qt.ItemIsSelectable & ~Qt.ItemIsEnabled)
+            self.list_works.addItem(header_drive)
+            from PySide6.QtCore import QTimer as _QT_DRIVE
+
+            _QT_DRIVE.singleShot(0, lambda h=header_drive: self._carregar_obras_drive_na_sidebar(h))
+
         except Exception as e:
             logging.error(f"Erro ao carregar obras: {e}")
-            
+
         self.list_works.setCurrentRow(-1)
         self.list_works.blockSignals(False)
+
+    def _carregar_obras_drive_na_sidebar(self, header_item: QListWidgetItem):
+        """Busca as obras do portal (Masterplan OBRAS DRIVE) e insere, logo
+        abaixo do cabeçalho "☁️ OBRAS DRIVE", 1 sub-cabeçalho por membro
+        (dono vê todas as obras de todos — cada membro na sua própria
+        sub-lista) + 1 item clicável por obra, no mesmo nível visual/funcional
+        de uma obra local. Falha de rede/credenciais vira 1 item de aviso, não
+        trava a sidebar."""
+        try:
+            from src.core.drive_client import obter_cliente_padrao
+
+            obras = obter_cliente_padrao().listar_obras()
+        except Exception as e:
+            row = self.list_works.row(header_item) + 1
+            aviso = QListWidgetItem(f"⚠ Portal indisponível: {e}")
+            aviso.setFlags(aviso.flags() & ~Qt.ItemIsSelectable)
+            self.list_works.insertItem(row, aviso)
+            return
+
+        grupos: dict[str, list[dict]] = {}
+        for o in obras:
+            membro = o.get("membro_nome") or o.get("membro_login") or "—"
+            grupos.setdefault(membro, []).append(o)
+
+        row = self.list_works.row(header_item) + 1
+        for membro in sorted(grupos.keys()):
+            sub = QListWidgetItem(f"    👤 {membro}")
+            sub.setFlags(sub.flags() & ~Qt.ItemIsSelectable & ~Qt.ItemIsEnabled)
+            self.list_works.insertItem(row, sub)
+            row += 1
+            for o in grupos[membro]:
+                item = QListWidgetItem(f"    ☁️ {o.get('nome', '(sem nome)')}")
+                item.setData(Qt.UserRole, {"tipo": "drive", "obra": o})
+                item.setToolTip(f"Obra do portal web — membro: {membro}")
+                self.list_works.insertItem(row, item)
+                row += 1
 
     def _filter_works_list(self, text):
         """Filtra visualmente a lista de obras."""
@@ -7579,6 +7627,26 @@ class ProjectManager(QWidget):
         selected_item = self.list_works.currentItem()
         filter_work = selected_item.data(Qt.UserRole) if selected_item else None
 
+        if isinstance(filter_work, dict) and filter_work.get("tipo") == "drive":
+            # Masterplan OBRAS DRIVE (Fase 1): obra do portal web selecionada.
+            # Espelha TODA a obra (brutos + itens de recorte, sem baixar DXF
+            # nenhum ainda — só metadados) e converte pro mesmo formato de
+            # `filter_work` de uma obra local (string com o nome do espelho),
+            # pra todo o resto desta função (cards/triagem/phase_tabs) tratar
+            # exatamente igual — a obra Drive já espelhada É uma obra local
+            # a partir daqui.
+            try:
+                from src.core.drive_client import obter_cliente_padrao
+                from src.core.drive_mirror import espelhar_obra_completa_drive
+
+                filter_work = espelhar_obra_completa_drive(
+                    self.db, obter_cliente_padrao(), filter_work["obra"]
+                )
+            except Exception as e:
+                logging.error(f"Erro ao espelhar obra Drive: {e}")
+                self.lbl_selected_work.setText(f"⚠ Falha ao carregar obra do Drive: {e}")
+                return
+
         self.current_work_name = filter_work if filter_work != "__NO_WORK__" else None
         if self.current_work_name:
             _QT.singleShot(
@@ -7590,7 +7658,10 @@ class ProjectManager(QWidget):
         self.btn_delete_work.setVisible(has_work)
         self.btn_sync_work.setVisible(has_work)
 
-        display_text = selected_item.text().replace("📁 ", "").replace("🏢 ", "") if selected_item else "Selecione uma Obra"
+        display_text = (
+            selected_item.text().strip().replace("📁 ", "").replace("🏢 ", "").replace("☁️ ", "")
+            if selected_item else "Selecione uma Obra"
+        )
         self.lbl_selected_work.setText(display_text)
 
         self.load_work_metadata(filter_work)
@@ -7663,6 +7734,14 @@ class ProjectManager(QWidget):
                 _QT.singleShot(100, lambda p=first_project: self.on_project_card_clicked(p))
             else:
                 self.current_project_id = None
+                # Sem cards (comum pra obra Drive recém-espelhada: ainda não
+                # tem pavimento processado no SA) — reseta o breadcrumb, senão
+                # fica preso mostrando o último pavimento aberto antes de
+                # trocar de obra, confundindo com dado de obra errada.
+                self.breadcrumbs.set_path(
+                    "Projetos", self.current_work_name or "—",
+                    "Nenhum pavimento processado — veja a aba Triagem"
+                )
                 _QT.singleShot(100, self._refresh_phase_tabs)
 
         _QT.singleShot(0, _load_cards)

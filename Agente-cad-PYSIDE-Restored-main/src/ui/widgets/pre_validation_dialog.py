@@ -4997,7 +4997,7 @@ class PreValidationDialog(QDialog):
             'Fase-6_Execucao_CAD',
         )
         isolated_n3_dir = str(getattr(self, '_n3_preview_dir', '') or '')
-        if not n4 and isolated_n3_dir and prefix == 'FV':
+        if not n4 and isolated_n3_dir and prefix in {'FV', 'LV', 'LJ'}:
             # Exportações comparativas podem fornecer candidatos NOVA isolados.
             # Quando o diretório foi definido, nunca cair no preview compartilhado
             # da Fase-6, que pode ter sido sobrescrito pelo modo INI.
@@ -5547,6 +5547,32 @@ class PreValidationDialog(QDialog):
             print(f'[HTML] _render_pilar_dxf_context_b64 falhou: {exc}', flush=True)
             return ''
 
+    def materialize_pl_n3_variants(self) -> tuple[list[str], list[str]]:
+        """N3 de pilares: **sempre** PARA e PASSA (sem escolha manual).
+
+        Publica contratos + DXF em
+        ``DADOS-OBRAS/<obra>/Fase-6_Execucao_CAD/n3_variants/{para|passa}/``.
+        Usado pelo headless e por qualquer caller que precise das duas
+        listas iguais ao Comparison Engine.
+
+        Returns:
+            (generated_labels, failed_labels) ex.: ``['P1_para', 'P1_passa']``
+        """
+        # Reset flag para forçar batch neste call (mesmo se export anterior
+        # na mesma instância já tiver materializado).
+        self._pl_n3_materialized_once = False
+        self._pl_n3_cache = {}
+        self._last_pl_n3_materialize = {'generated': [], 'failed': []}
+        try:
+            self._export_html_snapshot(sections={'pilares'})
+        except Exception as exc:
+            print(f'[HTML] materialize_pl_n3_variants falhou: {exc}', flush=True)
+        stats = getattr(self, '_last_pl_n3_materialize', None) or {}
+        return (
+            list(stats.get('generated') or []),
+            list(stats.get('failed') or []),
+        )
+
     def _export_html_snapshot(self, sections: set[str] | None = None) -> str | None:
         """Gera uma ficha HTML independente para cada aba de dados.
 
@@ -5794,7 +5820,7 @@ class PreValidationDialog(QDialog):
             if kind == 'fundo':
                 if not _include('fundos_viga'):
                     continue
-            elif sections is not None:
+            elif sections is not None and not _include('laterais_viga'):
                 continue
             segment_rows = []
             for raw in self._segment_data.get(kind, []):
@@ -6302,6 +6328,9 @@ class PreValidationDialog(QDialog):
                 local_name = _beam_local_name(beam, bb)
                 if not local_name:
                     return ''
+                # Sufixos A/B de lateral são identificadores internos do trecho,
+                # não outra viga estrutural (V309A -> V309; VF301B -> VF301).
+                local_name = re.sub(r'(?<=\d)[AB]$', '', local_name, flags=re.IGNORECASE)
                 bits = [f'Viga: {local_name}']
                 dim = _beam_dim_near(beam, bb)
                 if dim:
@@ -6358,12 +6387,50 @@ class PreValidationDialog(QDialog):
                     ys_ = [p[1] for p in pts]
                     return min(xs_), min(ys_), max(xs_), max(ys_)
 
+                def _seg_width_completa(seg: dict) -> str:
+                    """Retorna a seção do trecho lateral, nunca só a espessura do fundo.
+
+                    O fundo de uma viga costuma guardar somente a largura (ex.: 19),
+                    enquanto os segmentos laterais do mesmo trecho carregam a seção
+                    completa (19/120). A ficha deve exibir esta última.
+                    """
+                    width = str(seg.get('width') or '').strip()
+                    if '/' in width:
+                        return width
+                    beam_name = str(seg.get('beam_name') or '').strip()
+                    own_bb = _seg_bbox(seg)
+                    if not beam_name or not own_bb:
+                        return width
+                    ox0, oy0, ox1, oy1 = own_bb
+                    alternatives = []
+                    for sibling_group in (getattr(self, '_segment_data', {}) or {}).values():
+                        for sibling in sibling_group or []:
+                            if str(sibling.get('beam_name') or '').strip() != beam_name:
+                                continue
+                            sibling_width = str(sibling.get('width') or '').strip()
+                            if '/' not in sibling_width:
+                                continue
+                            sibling_bb = _seg_bbox(sibling)
+                            if not sibling_bb:
+                                continue
+                            sx0, sy0, sx1, sy1 = sibling_bb
+                            # O menor afastamento entre as caixas identifica o lateral
+                            # correspondente ao mesmo fundo, inclusive quando a lateral
+                            # é uma linha (largura/altura zero).
+                            distance = (
+                                _interval_gap(ox0, ox1, sx0, sx1) +
+                                _interval_gap(oy0, oy1, sy0, sy1)
+                            )
+                            alternatives.append((distance, sibling_width))
+                    return min(alternatives)[1] if alternatives else width
+
                 def _seg_detail(seg: dict, note: str) -> str:
                     name = str(seg.get('beam_name') or '').strip()
                     if not name:
                         name = 'SEM_NOME'
+                    name = re.sub(r'(?<=\d)[AB]$', '', name, flags=re.IGNORECASE)
                     bits = [f'Viga: {name}']
-                    width = str(seg.get('width') or '').strip()
+                    width = _seg_width_completa(seg)
                     if width:
                         bits.append(f'dim: {width}')
                     bits.append(note)
@@ -6455,20 +6522,72 @@ class PreValidationDialog(QDialog):
                     bits.append(note)
                     return '  ·  '.join(bits)
 
+                def _viga_name_from_detail(text: str) -> str:
+                    """Nome normalizado da viga exibida na ficha.
+
+                    A mesma viga pode ter trechos de fundo e laterais na coleta de
+                    segmentos. Para as duas faces longas, só é uma continuação do
+                    pilar quando o vínculo aparece coerentemente nos dois lados.
+                    """
+                    if not text.startswith('Viga:'):
+                        return ''
+                    return re.sub(
+                        r'(?<=\d)[AB]$', '', text[5:].split('  ·', 1)[0].strip(), flags=re.IGNORECASE
+                    )
+
+                # Um fundo de viga pode produzir laterais auxiliares encostadas em A
+                # e C/D. Não são duas vigas que "passam" pela face A. Quando há
+                # candidatos concorrentes nas faces longas, preservar somente a
+                # continuidade que a própria geometria confirma também na face oposta.
+                # A regra é geométrica e vale para qualquer pilar, não para P1.
+                shared_long_faces: set[str] = set()
+                shared_long_arrivals: set[str] = set()
+                if vertical_pillar:
+                    a_names = {_viga_name_from_detail(x) for x in result['A']['passa']}
+                    b_names = {_viga_name_from_detail(x) for x in result['B']['passa']}
+                    shared_long_faces = (a_names & b_names) - {''}
+                    if shared_long_faces:
+                        if len(result['A']['passa']) > 1:
+                            result['A']['passa'] = [
+                                x for x in result['A']['passa']
+                                if _viga_name_from_detail(x) in shared_long_faces
+                            ]
+                        if len(result['B']['passa']) > 1:
+                            result['B']['passa'] = [
+                                x for x in result['B']['passa']
+                                if _viga_name_from_detail(x) in shared_long_faces
+                            ]
+                        # Interior não é uma lista de todas as laterais que tocam a
+                        # face curta: representa a viga que efetivamente continua no
+                        # eixo do pilar. Mantém o mesmo vínculo A↔B quando há excesso.
+                        for face_id in ('C', 'D'):
+                            if len(result[face_id]['interior']) > 1:
+                                result[face_id]['interior'] = [
+                                    x for x in result[face_id]['interior']
+                                    if _viga_name_from_detail(x) in shared_long_faces
+                                ]
+                    a_arrivals = {_viga_name_from_detail(x) for x in result['A']['chega']}
+                    b_arrivals = {_viga_name_from_detail(x) for x in result['B']['chega']}
+                    shared_long_arrivals = (a_arrivals & b_arrivals) - {''}
+
                 # Em pilares verticais seriados (P2/P3...), a face C pode depender
-                # dos mesmos vínculos de A/B: uma viga passa no eixo do pilar e outra
-                # cruza perpendicularmente. Só derivar quando C ainda não teve
-                # segmento horizontal explícito, para não contaminar casos como P1.
+                # dos vínculos SIMÉTRICOS de A↔B: uma viga passa no eixo do pilar e
+                # outra cruza perpendicularmente. Não usar uma chegada isolada de
+                # A ou B; ela não prova que exista uma segunda viga em C (caso P1).
                 if vertical_pillar and not result['C']['passa']:
-                    for source in (
-                        result['A']['passa'] + result['B']['passa'] +
-                        result['A']['chega'] + result['B']['chega']
-                    ):
-                        _add(
-                            'C',
-                            'passa',
-                            _retag_viga_detail(source, 'vínculo derivado de A/B para validação da face C'),
-                        )
+                    seen_c_sources: set[str] = set()
+                    for source in result['A']['passa'] + result['A']['chega']:
+                        source_name = _viga_name_from_detail(source)
+                        if (
+                            source_name in (shared_long_faces | shared_long_arrivals)
+                            and source_name not in seen_c_sources
+                        ):
+                            seen_c_sources.add(source_name)
+                            _add(
+                                'C',
+                                'passa',
+                                _retag_viga_detail(source, 'vínculo simétrico A↔B para validação da face C'),
+                            )
 
                 for beam in self._beams:
                     bname = str(beam.get('name') or '')
@@ -6557,6 +6676,94 @@ class PreValidationDialog(QDialog):
                                 _add('C', 'interior', _beam_detail(beam, ref_bb, 'face C é limite interno; viga continua no eixo do pilar'))
                             if sel_x1 >= px1 + tol:
                                 _add('D', 'interior', _beam_detail(beam, ref_bb, 'face D é limite interno; viga continua no eixo do pilar'))
+
+                def _norm_beam_label(raw: str) -> str:
+                    value = raw.strip().replace(' ', '').upper()
+                    match = re.match(r'^F\.(.+?)(?:\.C)?(?:-\d+)?$', value)
+                    if match:
+                        return 'VF' + re.sub(r'[^A-Z0-9]', '', match.group(1))
+                    return value
+
+                def _corner_label_override(face_id: str) -> tuple[str, tuple[float, float]] | None:
+                    """Nome ancorado no canto do pilar vence nome de trecho distante.
+
+                    Segmentos de fundo podem herdar o nome da viga horizontal mais
+                    próxima. Uma etiqueta de viga encostada no próprio canto é uma
+                    evidência geométrica mais forte para a chegada naquela face.
+                    """
+                    if vertical_pillar:
+                        corner = (px0 if face_id == 'A' else px1, py1)
+                    else:
+                        corner = (px1, py0 if face_id == 'A' else py1)
+                    candidates: list[tuple[float, str, tuple[float, float]]] = []
+                    # O headless entrega beam_texts filtrado em algumas rotas; o
+                    # texto bruto do DXF é o fallback canônico para a âncora.
+                    for text_item in list(self._beam_texts or []) + list((self._dxf_data or {}).get('texts', []) or []):
+                        raw = str(text_item.get('text') or '').strip()
+                        name = _norm_beam_label(raw)
+                        if not re.fullmatch(r'(?:V|VF)\d+', name):
+                            continue
+                        pos = text_item.get('pos') or []
+                        if len(pos) < 2:
+                            continue
+                        try:
+                            point = (float(pos[0]), float(pos[1]))
+                        except (TypeError, ValueError):
+                            continue
+                        distance = math.hypot(point[0] - corner[0], point[1] - corner[1])
+                        if distance <= max(35.0, tol * 2.5):
+                            candidates.append((distance, name, point))
+                    if not candidates:
+                        return None
+                    _, name, point = min(candidates, key=lambda item: item[0])
+                    return name, point
+
+                def _corner_label_width(label_pos: tuple[float, float], fallback: str) -> str:
+                    """Largura cotada na linha da etiqueta; profundidade vem do trecho."""
+                    candidates: list[tuple[float, str]] = []
+                    for text_item in list(self._beam_texts or []) + list((self._dxf_data or {}).get('texts', []) or []):
+                        raw = str(text_item.get('text') or '').strip().replace(',', '.')
+                        if not re.fullmatch(r'\d+(?:\.\d+)?', raw):
+                            continue
+                        pos = text_item.get('pos') or []
+                        if len(pos) < 2:
+                            continue
+                        try:
+                            dx = float(pos[0]) - label_pos[0]
+                            dy = float(pos[1]) - label_pos[1]
+                        except (TypeError, ValueError):
+                            continue
+                        # Cota de largura costuma estar na mesma faixa horizontal
+                        # do nome; não aceitar número distante de outra viga.
+                        if abs(dy) <= 25.0 and math.hypot(dx, dy) <= 160.0:
+                            candidates.append((math.hypot(dx, dy), raw))
+                    return min(candidates, key=lambda item: item[0])[1] if candidates else fallback
+
+                # Substituição conservadora: somente uma chegada detectada e uma
+                # etiqueta de outra viga encostada no canto correspondente. Assim,
+                # não se apaga uma lista real de chegadas múltiplas.
+                for _face_id in ('A', 'B'):
+                    _arrivals = result[_face_id]['chega']
+                    _override = _corner_label_override(_face_id)
+                    if len(_arrivals) != 1 or not _override:
+                        continue
+                    _old_name = _viga_name_from_detail(_arrivals[0])
+                    _new_name, _label_pos = _override
+                    if not _old_name or _old_name == _new_name:
+                        continue
+                    _dim_match = re.search(r'dim:\s*([^·\s]+)', _arrivals[0])
+                    _old_dim = _dim_match.group(1).strip() if _dim_match else ''
+                    if '/' in _old_dim:
+                        _old_width, _depth = _old_dim.split('/', 1)
+                        _width = _corner_label_width(_label_pos, _old_width)
+                        _new_dim = f'{_width}/{_depth}'
+                    else:
+                        _new_dim = _old_dim
+                    _detail = f'Viga: {_new_name}'
+                    if _new_dim:
+                        _detail += f'  ·  dim: {_new_dim}'
+                    _detail += f'  ·  chega perpendicularmente na face {_face_id} (nome ancorado no canto do pilar)'
+                    result[_face_id]['chega'] = [_detail]
 
                 return result
 
@@ -6748,6 +6955,551 @@ class PreValidationDialog(QDialog):
                         return _json.load(f) or {}
                 except Exception:
                     return {}
+
+            def _mode_beam_parts(detail: str) -> dict:
+                """Converte uma resposta humana da ficha N1 em dado rastreavel."""
+                match = re.search(
+                    r'^Viga:\s*([^·]+)(?:\s*·\s*dim:\s*'
+                    r'([0-9]+(?:[.,][0-9]+)?)\s*/\s*([0-9]+(?:[.,][0-9]+)?))?',
+                    str(detail or ''),
+                )
+                if not match:
+                    return {'nome': 'SEM_NOME', 'largura': None, 'profundidade': None,
+                            'evidencia': str(detail or '')}
+                try:
+                    width = float(match.group(2).replace(',', '.')) if match.group(2) else None
+                    depth = float(match.group(3).replace(',', '.')) if match.group(3) else None
+                except (AttributeError, ValueError):
+                    width = depth = None
+                return {
+                    'nome': re.sub(r'(?<=\d)[AB]$', '', match.group(1).strip(), flags=re.I),
+                    'largura': width,
+                    'profundidade': depth,
+                    'evidencia': str(detail or ''),
+                }
+
+            def _mode_slot(row: dict, pillar: dict, fid: str, beam_name: str,
+                           arrival: bool) -> str | None:
+                """Resolve AC/AD/AA e BC/BD/BB pela geometria consolidada do SA."""
+                pts = row.get('_points') or pillar.get('points') or []
+                if not pts:
+                    return None
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                px0, px1, py0, py1 = min(xs), max(xs), min(ys), max(ys)
+                vertical = (py1 - py0) > (px1 - px0)
+                tol = max(6.0, min(max(px1 - px0, py1 - py0) * 0.12, 18.0))
+                normalized = re.sub(r'(?<=\d)[AB]$', '', str(beam_name), flags=re.I)
+                candidates: list[tuple[float, str]] = []
+                for group in (getattr(self, '_segment_data', {}) or {}).values():
+                    for seg in group or []:
+                        seg_name = re.sub(
+                            r'(?<=\d)[AB]$', '', str(seg.get('beam_name') or ''), flags=re.I,
+                        )
+                        if seg_name != normalized:
+                            continue
+                        seg_pts = [_as_point(p) for p in (seg.get('points') or [])]
+                        seg_pts = [p for p in seg_pts if p is not None]
+                        if len(seg_pts) < 2:
+                            continue
+                        bx0 = min(p[0] for p in seg_pts)
+                        bx1 = max(p[0] for p in seg_pts)
+                        by0 = min(p[1] for p in seg_pts)
+                        by1 = max(p[1] for p in seg_pts)
+                        bw, bh = bx1 - bx0, by1 - by0
+                        is_vertical = bh >= max(10.0, bw * 3.0)
+                        is_horizontal = bw >= max(10.0, bh * 3.0)
+                        if vertical and fid in ('A', 'B'):
+                            face_x = px0 if fid == 'A' else px1
+                            if not (bx0 - tol <= face_x <= bx1 + tol):
+                                continue
+                            if is_vertical:
+                                if abs(by0 - py1) <= tol:
+                                    candidates.append((abs(by0 - py1), 'C'))
+                                if abs(by1 - py0) <= tol:
+                                    candidates.append((abs(by1 - py0), 'D'))
+                            elif arrival and is_horizontal:
+                                mid = (by0 + by1) / 2.0
+                                if mid < py0:
+                                    candidates.append((py0 - mid, 'C'))
+                                elif mid > py1:
+                                    candidates.append((mid - py1, 'D'))
+                                else:
+                                    candidates.append((0.0, 'central'))
+                        elif (not vertical) and fid in ('A', 'B'):
+                            face_y = py0 if fid == 'A' else py1
+                            if not (by0 - tol <= face_y <= by1 + tol):
+                                continue
+                            if is_horizontal:
+                                if abs(bx0 - px1) <= tol:
+                                    candidates.append((abs(bx0 - px1), 'C'))
+                                if abs(bx1 - px0) <= tol:
+                                    candidates.append((abs(bx1 - px0), 'D'))
+                            elif arrival and is_vertical:
+                                mid = (bx0 + bx1) / 2.0
+                                if px0 <= mid <= px1:
+                                    candidates.append((0.0, 'central'))
+                return min(candidates)[1] if candidates else None
+
+            def _mode_slab_depth(data: dict) -> tuple[float | None, str | None]:
+                ranked = []
+                for detail in data.get('lajes') or []:
+                    match = re.search(r'esp:\s*([0-9]+(?:[.,][0-9]+)?)', detail)
+                    if match:
+                        ranked.append((float(match.group(1).replace(',', '.')), detail))
+                return max(ranked, default=(None, None), key=lambda item: item[0] or 0)
+
+            def _build_n3_mode_contract(row: dict, pillar: dict, mode: str) -> dict:
+                """Fonte unica das fichas/artefatos N3 PARA e PASSA.
+
+                O contrato e derivado; o JSON canonico da Fase-4 nunca e alterado.
+                Cada campo conserva a resposta N1 que o originou para auditoria humana.
+                """
+                mode = str(mode or '').lower()
+                face_interp = _dynamic_face_interpretation(row, pillar)
+                faces: dict[str, dict] = {}
+                visual_mode = str(
+                    _load_n3_pilar_json(str(row.get('_nome') or '')).get(
+                        'modo_distribuicao', 'NOVA'
+                    ) or 'NOVA'
+                ).upper()
+                # Nível do pilar = maior nível de laje em contato (topo de referência)
+                _pillar_top_level_abs = None
+                _pillar_bot_level_abs = None
+                try:
+                    from pl_abcd_visual_nova import parse_slab_level_and_esp as _parse_sl
+                except Exception:
+                    try:
+                        import sys as _sys
+                        _scripts = os.path.normpath(os.path.join(
+                            os.path.dirname(os.path.abspath(__file__)),
+                            '..', '..', '..', 'scripts',
+                        ))
+                        if _scripts not in _sys.path:
+                            _sys.path.insert(0, _scripts)
+                        from pl_abcd_visual_nova import parse_slab_level_and_esp as _parse_sl
+                    except Exception:
+                        _parse_sl = None
+                if _parse_sl is not None:
+                    for _fid0 in ('A', 'B', 'C', 'D'):
+                        for _raw in (face_interp.get(_fid0) or {}).get('lajes') or []:
+                            _lv, _ = _parse_sl(str(_raw))
+                            if _lv is None:
+                                continue
+                            if _pillar_top_level_abs is None or _lv > _pillar_top_level_abs:
+                                _pillar_top_level_abs = _lv
+                    for _k in ('nivel_saida', 'nivel', 'level'):
+                        _v = row.get(_k)
+                        if _v is None:
+                            continue
+                        try:
+                            _vf = float(str(_v).replace(',', '.'))
+                            if _vf > 20:
+                                if _pillar_top_level_abs is None or _vf > _pillar_top_level_abs:
+                                    _pillar_top_level_abs = _vf
+                        except Exception:
+                            pass
+                for fid in ('A', 'B', 'C', 'D'):
+                    data = face_interp.get(fid, {})
+                    passes = [_mode_beam_parts(item) for item in data.get('passa') or []]
+                    interiors = [_mode_beam_parts(item) for item in data.get('interior') or []]
+                    arrivals = [_mode_beam_parts(item) for item in data.get('chega') or []]
+                    slab_depth, slab_evidence = _mode_slab_depth(data)
+                    top_candidates = interiors[:]
+                    if mode == 'passa' or fid in ('C', 'D'):
+                        top_candidates += passes
+                    top_candidates = [item for item in top_candidates
+                                      if item.get('profundidade') is not None]
+                    reference = max(
+                        [item for item in passes + interiors
+                         if item.get('profundidade') is not None],
+                        default=None,
+                        key=lambda item: item['profundidade'],
+                    )
+                    if top_candidates:
+                        top = max(top_candidates, key=lambda item: item['profundidade'])
+                        top_void = float(top['profundidade'])
+                        top_source = 'dentro_do_interior' if top in interiors else 'viga_que_passa'
+                        top_evidence = top['evidencia']
+                    elif slab_depth is not None:
+                        top_void = float(slab_depth) + 2.0
+                        top_source = 'laje_espessura_mais_2'
+                        top_evidence = slab_evidence
+                    else:
+                        top_void, top_source, top_evidence = 0.0, 'nulo', 'nenhuma fonte aplicavel'
+
+                    stop_openings = []
+                    if mode == 'para' and fid in ('A', 'B'):
+                        for beam in passes:
+                            pos = _mode_slot(row, pillar, fid, beam['nome'], False)
+                            if pos not in ('C', 'D'):
+                                continue
+                            slot = f'{fid}{pos}'
+                            stop_openings.append({
+                                **beam, 'slot': slot, 'estado': 'ativa',
+                                'largura_ini': 7.5,
+                                'largura_nova': 11.0,
+                                'altura': ((beam.get('profundidade') or 0.0) + 4.0),
+                                'regra': 'Ini=7,5; Nova=11; profundidade=viga+4',
+                            })
+
+                    arrival_openings = []
+                    for beam in arrivals:
+                        pos = _mode_slot(row, pillar, fid, beam['nome'], True)
+                        pos = pos if pos in ('C', 'D', 'central') else 'central'
+                        slot = (f'{fid}{fid}' if pos == 'central' else f'{fid}{pos}')
+                        ref_depth = reference.get('profundidade') if reference else None
+                        neutralized = (
+                            mode == 'passa' and ref_depth is not None and
+                            beam.get('profundidade') is not None and
+                            beam['profundidade'] <= ref_depth
+                        )
+                        corner = pos in ('C', 'D')
+                        final_width = ((beam.get('largura') or 0.0) + (15.0 if corner else 8.0))
+                        arrival_openings.append({
+                            **beam, 'slot': slot,
+                            'estado': 'neutralizada' if neutralized else 'ativa',
+                            'largura_abertura': final_width,
+                            'altura': ((beam.get('profundidade') or 0.0) + 4.0),
+                            'regra': ('largura+11+4; profundidade+4' if corner
+                                      else 'largura+4+4; profundidade+4'),
+                            'motivo_neutralizacao': (
+                                f'chegada {beam.get("profundidade")} <= passante {ref_depth}'
+                                if neutralized else ''
+                            ),
+                        })
+                    # Laje: rebaixo = Δnível (pilar topo − laje); vazio = esp+2
+                    try:
+                        from pl_abcd_visual_nova import face_laje_metrics
+                    except Exception:
+                        try:
+                            import sys as _sys
+                            _scripts = os.path.normpath(os.path.join(
+                                os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', '..', 'scripts',
+                            ))
+                            if _scripts not in _sys.path:
+                                _sys.path.insert(0, _scripts)
+                            from pl_abcd_visual_nova import face_laje_metrics
+                        except Exception:
+                            face_laje_metrics = None
+                    laje_m = {}
+                    if face_laje_metrics is not None:
+                        # topo do pilar: maior nível de laje/viga em contato no item
+                        # (fallback: nivel_saida da ficha se absoluto)
+                        laje_m = face_laje_metrics(
+                            {'fontes_n1': data},
+                            pillar_top_level=_pillar_top_level_abs,
+                        )
+                        # Se há laje e não há passante dominante em A/B, o vazio de
+                        # topo não engole o rebaixo: rebaixo é faixa sólida separada.
+                        if mode == 'para' and fid in ('A', 'B') and laje_m.get('vazio_laje_cm'):
+                            # top_void para A/B com laje: NÃO usa esp+2 como único topo
+                            # (aberturas de viga já definem o recorte; rebaixo/vazio laje
+                            # vão em campos dedicados).
+                            if top_source == 'laje_espessura_mais_2':
+                                top_void = 0.0
+                                top_source = 'laje_rebaixo_e_vazio_separados'
+                                top_evidence = laje_m.get('evidencia_laje') or top_evidence
+                    faces[fid] = {
+                        'vazio_topo': {
+                            'valor_cm': round(top_void, 4), 'fonte': top_source,
+                            'evidencia': top_evidence, 'confianca': 'alta' if top_evidence else 'baixa',
+                        },
+                        'viga_passante_referencia': reference,
+                        'aberturas_vigas_que_param': stop_openings,
+                        'aberturas_vigas_que_chegam': arrival_openings,
+                        'fontes_n1': data,
+                        'rebaixo_laje_cm': laje_m.get('rebaixo_laje_cm', 0.0) if laje_m else 0.0,
+                        'vazio_laje_cm': laje_m.get('vazio_laje_cm', 0.0) if laje_m else 0.0,
+                        'nivel_laje': laje_m.get('nivel_laje') if laje_m else None,
+                        'espessura_laje': laje_m.get('espessura_laje') if laje_m else None,
+                    }
+                base = _load_n3_pilar_json(str(row.get('_nome') or ''))
+                return {
+                    'schema': 'pil.n3_mode_contract.v2',
+                    'item': str(row.get('_nome') or ''),
+                    'modo_semantico': mode.upper(),
+                    'modo_visual': visual_mode,
+                    'fonte': 'SA/N1 + segmentos FV/LV consolidados + lajes vinculadas',
+                    'altura_pilar': {
+                        'nivel_saida': base.get('nivel_saida'),
+                        'nivel_chegada': base.get('nivel_chegada'),
+                        'altura': base.get('altura'),
+                        'nivel_saida_abs': _pillar_top_level_abs,
+                        'nivel_chegada_abs': _pillar_bot_level_abs,
+                    },
+                    'faces': faces,
+                }
+
+            def _variant_payload(contract: dict) -> dict:
+                """Projeta o contrato semantico no schema que o gerador ABCD/GRADES le.
+
+                Aberturas e lajes vêm do contrato SA (PARA vs PASSA). A malha
+                de painéis (122+sobra), rebaixo, y_rel e sanidade são do
+                motor NOVA ``enrich_payload_for_abcd_nova`` — não se injeta
+                junta de abertura na malha (abertura = recorte, não módulo).
+                """
+                base = json.loads(json.dumps(
+                    _load_n3_pilar_json(str(contract.get('item') or ''))
+                ))
+                if not base:
+                    return {}
+                mode = str(contract.get('modo_semantico') or '').lower()
+                visual_mode = str(contract.get('modo_visual') or 'NOVA').upper()
+                height = float(
+                    base.get('pd_pavimento_cm')
+                    or base.get('altura')
+                    or 280.0
+                )
+                for fid, face in (contract.get('faces') or {}).items():
+                    # Limpa somente campos derivados; o payload canonico permanece intacto.
+                    for key in list(base):
+                        if key == f'abertura_{fid}' or key.startswith(f'abertura_{fid}_'):
+                            base.pop(key, None)
+                    # Limpa malha legada (h2=244 etc.) — o enrich NOVA recalcula.
+                    base.pop(f'paineis_intervals_{fid}', None)
+                    h1 = float(base.get(f'h1_geom_{fid}', base.get(f'h1_{fid}', 2.0)) or 0.0)
+                    top_void = float((face.get('vazio_topo') or {}).get('valor_cm') or 0.0)
+                    panel_height = max(h1, height - top_void)
+                    try:
+                        rebaixo = float(face.get('rebaixo_laje_cm') or 0.0)
+                    except (TypeError, ValueError):
+                        rebaixo = 0.0
+                    # Sanity: rebaixo de laje é faixa de cm, não PD/nível *100
+                    if rebaixo > 40.0:
+                        rebaixo = 0.0
+                    try:
+                        vazio_laje = float(face.get('vazio_laje_cm') or 0.0)
+                    except (TypeError, ValueError):
+                        vazio_laje = 0.0
+                    base[f'rebaixo_laje_{fid}'] = rebaixo
+                    base[f'vazio_laje_{fid}'] = vazio_laje
+                    if face.get('nivel_laje') is not None:
+                        base[f'nivel_laje_{fid}'] = face.get('nivel_laje')
+                    # Conteúdo útil do painel sob o rebaixo (rebaixo é faixa sólida no topo)
+                    content_cap = max(h1, panel_height - rebaixo)
+                    openings = []
+                    if mode == 'para':
+                        for opening in face.get('aberturas_vigas_que_param') or []:
+                            if opening.get('estado') != 'ativa' or not opening.get('altura'):
+                                continue
+                            pos = str(opening.get('slot') or '')[-1:]
+                            side = ('esquerdo' if (fid == 'A' and pos == 'C') or
+                                    (fid == 'B' and pos == 'D') else 'direito')
+                            width = (opening.get('largura_ini') if visual_mode == 'INI'
+                                     else opening.get('largura_nova'))
+                            oh = float(opening['altura'])
+                            # y_rel preliminar; enrich dual+vazio cola no topo se preciso
+                            y_rel = max(0.0, content_cap - h1 - oh)
+                            openings.append({
+                                'lado': side, 'largura': width,
+                                'altura': oh,
+                                'y_rel': y_rel,
+                                '_origem': opening.get('slot'), '_viga': opening.get('nome'),
+                            })
+                    for opening in face.get('aberturas_vigas_que_chegam') or []:
+                        if opening.get('estado') != 'ativa' or not opening.get('altura'):
+                            continue
+                        slot = str(opening.get('slot') or '')
+                        pos = slot[-1:] if len(slot) >= 2 else 'central'
+                        if pos not in ('C', 'D'):
+                            side = 'meio'
+                        else:
+                            side = ('esquerdo' if (fid == 'A' and pos == 'C') or
+                                    (fid == 'B' and pos == 'D') else 'direito')
+                        oh = float(opening['altura'])
+                        _cap = max(h1, float(panel_height) - rebaixo)
+                        entry = {
+                            'lado': side, 'largura': opening.get('largura_abertura') or 0.0,
+                            'altura': oh,
+                            'y_rel': max(0.0, _cap - h1 - oh),
+                            '_origem': slot, '_viga': opening.get('nome'),
+                        }
+                        if side == 'meio':
+                            panel_width = float(base.get(f'larg1_{fid}') or 0.0)
+                            entry['x_offset'] = max(0.0, (panel_width - float(entry['largura'])) / 2.0)
+                        openings.append(entry)
+
+                    # NÃO injetar fundo/topo de abertura na malha de painéis:
+                    # NOVA trata abertura como recorte (malha = 122+sobra).
+                    for index, opening in enumerate(openings, 1):
+                        base[f'abertura_{fid}_{index}'] = opening
+                # Níveis absolutos para header do DXF
+                alt = contract.get('altura_pilar') or {}
+                if alt.get('nivel_saida_abs') is not None:
+                    base['nivel_saida_abs'] = alt['nivel_saida_abs']
+                if alt.get('nivel_chegada_abs') is not None:
+                    base['nivel_chegada_abs'] = alt['nivel_chegada_abs']
+                # PD: se temos abs, recalcula
+                try:
+                    if alt.get('nivel_saida_abs') is not None and alt.get('nivel_chegada_abs') is not None:
+                        ns = float(alt['nivel_saida_abs'])
+                        nc = float(alt['nivel_chegada_abs'])
+                        # metros → cm de PD
+                        if ns > 20 and nc > 20:
+                            base['pd_pavimento_cm'] = abs(ns - nc) * 100.0
+                            base['altura'] = base['pd_pavimento_cm']
+                        else:
+                            base['pd_pavimento_cm'] = abs(ns - nc)
+                    elif alt.get('nivel_saida_abs') is not None:
+                        # só topo de laje: chegada = topo − altura relativa
+                        ns = float(alt['nivel_saida_abs'])
+                        h = float(base.get('altura') or height or 280.0)
+                        if ns > 20:
+                            base['nivel_saida_abs'] = ns
+                            base['nivel_chegada_abs'] = ns - (h / 100.0)
+                except Exception:
+                    pass
+                base['_sa_mode_contract'] = contract
+                base['_sa_mode_variant'] = contract.get('modo_semantico')
+                base['modo_distribuicao'] = 'NOVA'
+                # Motor NOVA universal: malha 122, rebaixo dual, y_rel, clamp
+                try:
+                    import sys as _sys
+                    scripts_dir = os.path.normpath(os.path.join(
+                        os.path.dirname(os.path.abspath(__file__)),
+                        '..', '..', '..', 'scripts',
+                    ))
+                    if scripts_dir not in _sys.path:
+                        _sys.path.insert(0, scripts_dir)
+                    from pl_abcd_visual_nova import enrich_payload_for_abcd_nova
+                    base.pop('_pl_nova_enriched', None)
+                    base = enrich_payload_for_abcd_nova(base)
+                except Exception as exc:
+                    print(
+                        f'[HTML] enrich NOVA {contract.get("item")}/'
+                        f'{contract.get("modo_semantico")} falhou: {exc}',
+                        flush=True,
+                    )
+                return base
+
+            def _materialize_n3_variant(row: dict, pillar: dict, mode: str) -> dict:
+                """Persiste JSON + DXF isolados do run; nunca sobrescreve Fase-4/Fase-6.
+
+                JSON publicado já vem enriquecido (motor NOVA). DXF usa o mesmo
+                payload via generate_pilar_zone (re-enrich idempotente).
+                """
+                contract = _build_n3_mode_contract(row, pillar, mode)
+                payload = _variant_payload(contract)
+                result = {'contract': contract, 'payload': payload, 'paths': {}}
+                if not payload:
+                    return result
+                item = str(contract.get('item') or 'P?')
+                mode_slug = str(mode).lower()
+                variant_dir = os.path.join(output_dir, 'pilares', 'n3_variants', mode_slug)
+                os.makedirs(variant_dir, exist_ok=True)
+                json_path = os.path.join(variant_dir, f'{item}.json')
+                with open(json_path, 'w', encoding='utf-8') as handle:
+                    json.dump(payload, handle, ensure_ascii=False, indent=2)
+                result['paths']['json'] = json_path
+                try:
+                    # O gerador historico importa visual_modes/pl_grade_visual_config
+                    # como modulos irmaos. Quando consumido como biblioteca pelo SA,
+                    # a pasta scripts precisa estar explicitamente no sys.path.
+                    import sys as _sys
+                    scripts_dir = os.path.normpath(os.path.join(
+                        os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'scripts'
+                    ))
+                    if scripts_dir not in _sys.path:
+                        _sys.path.insert(0, scripts_dir)
+                    from gerar_pl_dxf_stog import setup_doc, generate_pilar_zone
+                    from visual_modes import apply_visual_mode, normalize_visual_mode
+                    visual_mode = normalize_visual_mode(
+                        contract.get('modo_visual') or 'NOVA'
+                    )
+                    for zone in ('abcd', 'grades'):
+                        # Cópia: generate_pilar_zone muta o pj in-place
+                        zone_pj = json.loads(json.dumps(payload))
+                        doc = setup_doc()
+                        count = generate_pilar_zone(
+                            doc.modelspace(), zone_pj, zone,
+                            visual_mode=visual_mode,
+                        )
+                        if count < 0:
+                            continue
+                        # Perfil final: INI → MLINE; NOVA → preserva LINE.
+                        apply_visual_mode(doc, visual_mode, 'PL')
+                        path = os.path.join(
+                            variant_dir, f'PL_{zone.upper()}_preview_{item}.dxf'
+                        )
+                        doc.saveas(path)
+                        result['paths'][zone] = path
+                except Exception as exc:
+                    print(f'[HTML] variante N3 {item}/{mode_slug} falhou: {exc}', flush=True)
+                # Publicação estável para o Comparison Engine. O pack HTML é
+                # imutável por rodada; o CE precisa de uma fonte atual e
+                # explícita sem substituir o N3 canônico da Fase-6.
+                try:
+                    import shutil
+                    stable_dir = os.path.join(
+                        'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                        'Fase-6_Execucao_CAD', 'n3_variants', mode_slug,
+                    )
+                    os.makedirs(stable_dir, exist_ok=True)
+                    shutil.copy2(json_path, os.path.join(stable_dir, f'{item}.json'))
+                    for zone, path in (result.get('paths') or {}).items():
+                        if zone in ('abcd', 'grades') and path and os.path.exists(path):
+                            shutil.copy2(path, os.path.join(stable_dir, os.path.basename(path)))
+                except Exception as exc:
+                    print(f'[HTML] publicação CE N3 {item}/{mode_slug} falhou: {exc}', flush=True)
+                return result
+
+            # ── N3 PL: sempre PARA + PASSA (nunca escolha manual) ──────────
+            # Batch antes das páginas HTML: publica n3_variants p/ CE/headless.
+            # Cache por (nome, modo) evita regenerar em _views_sec e no 2º
+            # grupo (especiais). Itens ainda não cacheados são gerados.
+            _pl_n3_cache: dict = getattr(self, '_pl_n3_cache', None) or {}
+            stats0 = getattr(self, '_last_pl_n3_materialize', None) or {}
+            _pl_n3_generated: list[str] = list(stats0.get('generated') or [])
+            _pl_n3_failed: list[str] = list(stats0.get('failed') or [])
+            _batch_new = 0
+            for row in rows:
+                nome_m = str(row.get('_nome') or '')
+                if not nome_m:
+                    continue
+                pkey_m = row.get('_key') or nome_m
+                pillar_m = (
+                    self._pillar_report.get(pkey_m)
+                    or self._pillar_report.get(nome_m)
+                    or {}
+                )
+                for mode in ('para', 'passa'):
+                    label = f'{nome_m}_{mode}'
+                    if (nome_m, mode) in _pl_n3_cache:
+                        continue
+                    try:
+                        result = _materialize_n3_variant(row, pillar_m, mode)
+                        _pl_n3_cache[(nome_m, mode)] = result
+                        _batch_new += 1
+                        paths = result.get('paths') or {}
+                        if paths.get('json') and (
+                            paths.get('abcd') or paths.get('grades')
+                        ):
+                            if label not in _pl_n3_generated:
+                                _pl_n3_generated.append(label)
+                        else:
+                            if label not in _pl_n3_failed:
+                                _pl_n3_failed.append(label)
+                    except Exception as exc:
+                        if label not in _pl_n3_failed:
+                            _pl_n3_failed.append(label)
+                        print(
+                            f'[HTML] N3 PL {label} falhou: {exc}',
+                            flush=True,
+                        )
+            self._pl_n3_cache = _pl_n3_cache
+            self._pl_n3_materialized_once = True
+            self._last_pl_n3_materialize = {
+                'generated': list(_pl_n3_generated),
+                'failed': list(_pl_n3_failed),
+            }
+            if _batch_new:
+                print(
+                    f'[HTML] N3 PL PARA+PASSA (+{_batch_new}): '
+                    f'{len(_pl_n3_generated)} ok, {len(_pl_n3_failed)} falha(s)',
+                    flush=True,
+                )
 
             def _segments_label(values: list) -> str:
                 vals = [_fmt_num(v) for v in (values or [])]
@@ -7113,6 +7865,337 @@ class PreValidationDialog(QDialog):
             def _abcd_info_card(row: dict, pillar: dict, lbls: dict, base_key: str, mode: str) -> str:
                 is_para = mode == 'para'
                 title = 'ABCD — caso a viga PARE' if is_para else 'ABCD — caso a viga PASSE'
+                if is_para:
+                    # Modo PARA é uma ficha operacional, não uma cópia da leitura N1:
+                    # cada face aprova o vazio de topo e as aberturas que alimentarão
+                    # o N3. A/B têm cantos AC/AD ou BC/BD; C/D nunca param.
+                    face_interp = _dynamic_face_interpretation(row, pillar)
+                    pilar_n3 = _load_n3_pilar_json(str(row.get('_nome') or ''))
+
+                    def _first_number(text: str, pattern: str) -> float | None:
+                        found = re.search(pattern, text)
+                        if not found:
+                            return None
+                        try:
+                            return float(found.group(1).replace(',', '.'))
+                        except (TypeError, ValueError):
+                            return None
+
+                    def _fmt_cm(value: float) -> str:
+                        return f'{_fmt_num(value)}cm'
+
+                    def _vazio_topo(fid: str, data: dict[str, list[str]]) -> str:
+                        lajes = data.get('lajes') or []
+                        passa = data.get('passa') or []
+                        interior = data.get('interior') or []
+                        # "Dentro do interior" também é viga física na face: ela
+                        # define o vazio local antes de qualquer laje, em A/B/C/D.
+                        # Nas curtas, Viga que passa continua tendo a mesma prioridade.
+                        vigas_topo = interior or (passa if fid in ('C', 'D') else [])
+                        if vigas_topo:
+                            details = []
+                            origem = 'Dentro do interior' if interior else 'Viga que passa'
+                            for viga in vigas_topo:
+                                depth = _first_number(viga, r'dim:\s*[^/·]+/\s*([0-9]+(?:[.,][0-9]+)?)')
+                                if depth is not None:
+                                    details.append(
+                                        f'{origem}: {html.escape(viga)} → vazio topo = profundidade {_fmt_cm(depth)}'
+                                    )
+                                else:
+                                    details.append(
+                                        f'{origem}: {html.escape(viga)} → vazio topo = profundidade da viga (a confirmar no SA)'
+                                    )
+                            suffix = (
+                                '<br><span class="muted">C/D permanecem VIGA PASSA neste modo.</span>'
+                                if fid in ('C', 'D') else ''
+                            )
+                            return '<br>'.join(details) + suffix
+                        if lajes:
+                            details = []
+                            for laje in lajes:
+                                thickness = _first_number(laje, r'esp:\s*([0-9]+(?:[.,][0-9]+)?)\s*cm')
+                                if thickness is not None:
+                                    details.append(
+                                        f'{html.escape(laje)} → vazio topo = {_fmt_cm(thickness)} + 2cm = <b>{_fmt_cm(thickness + 2)}</b>'
+                                    )
+                                else:
+                                    details.append(f'{html.escape(laje)} → espessura não disponível; vazio topo a confirmar')
+                            return '<br>'.join(details)
+                        return 'nulo → vazio topo = <b>0cm</b>'
+
+                    _pts = row.get('_points') or pillar.get('points') or []
+                    _xs = [float(p[0]) for p in _pts] if _pts else []
+                    _ys = [float(p[1]) for p in _pts] if _pts else []
+                    _px0, _px1 = (min(_xs), max(_xs)) if _xs else (0.0, 0.0)
+                    _py0, _py1 = (min(_ys), max(_ys)) if _ys else (0.0, 0.0)
+                    _vertical = (_py1 - _py0) > (_px1 - _px0)
+                    _corner_tol = max(6.0, min(max(_px1 - _px0, _py1 - _py0) * 0.12, 18.0))
+
+                    def _beam_parts(detail: str) -> tuple[str, float | None, float | None]:
+                        match = re.search(
+                            r'^Viga:\s*([^·]+)(?:\s*·\s*dim:\s*'
+                            r'([0-9]+(?:[.,][0-9]+)?)\s*/\s*([0-9]+(?:[.,][0-9]+)?))?',
+                            detail,
+                        )
+                        if not match:
+                            return 'SEM_NOME', None, None
+                        name = match.group(1).strip()
+                        try:
+                            width = float(match.group(2).replace(',', '.')) if match.group(2) else None
+                            depth = float(match.group(3).replace(',', '.')) if match.group(3) else None
+                        except (AttributeError, ValueError):
+                            width = depth = None
+                        return name, width, depth
+
+                    def _segment_bbox_for_opening(seg: dict) -> tuple[float, float, float, float] | None:
+                        points = [_as_point(p) for p in (seg.get('points') or [])]
+                        points = [p for p in points if p is not None]
+                        if len(points) < 2:
+                            return None
+                        return (
+                            min(p[0] for p in points), min(p[1] for p in points),
+                            max(p[0] for p in points), max(p[1] for p in points),
+                        )
+
+                    def _slot_for_segment(fid: str, beam_name: str, arrival: bool) -> str | None:
+                        """Localiza ponta/canto pelo trecho geométrico, não pelo texto próximo."""
+                        candidate_slots: list[tuple[float, str]] = []
+                        normalized_name = re.sub(
+                            r'(?<=\d)[AB]$', '', str(beam_name or '').strip(), flags=re.I,
+                        )
+                        for group in (getattr(self, '_segment_data', {}) or {}).values():
+                            for seg in group or []:
+                                segment_name = re.sub(
+                                    r'(?<=\d)[AB]$', '',
+                                    str(seg.get('beam_name') or '').strip(), flags=re.I,
+                                )
+                                if segment_name != normalized_name:
+                                    continue
+                                bb = _segment_bbox_for_opening(seg)
+                                if not bb:
+                                    continue
+                                bx0, by0, bx1, by1 = bb
+                                bw, bh = bx1 - bx0, by1 - by0
+                                is_vertical = bh >= max(10.0, bw * 3.0)
+                                is_horizontal = bw >= max(10.0, bh * 3.0)
+                                if _vertical:
+                                    # A/B são laterais longas: passagem/chegada é
+                                    # vinculada à face que o trecho toca.
+                                    face_x = _px0 if fid == 'A' else _px1
+                                    touches_face = bx0 - _corner_tol <= face_x <= bx1 + _corner_tol
+                                    if not touches_face:
+                                        continue
+                                    # No desenho PIL, menor Y é o canto D e maior Y
+                                    # é o canto C para a cadeia de abertura A/B.
+                                    if is_vertical:
+                                        if abs(by1 - _py0) <= _corner_tol:
+                                            candidate_slots.append((abs(by1 - _py0), 'D'))
+                                        if abs(by0 - _py1) <= _corner_tol:
+                                            candidate_slots.append((abs(by0 - _py1), 'C'))
+                                    elif arrival and is_horizontal:
+                                        mid_y = (by0 + by1) / 2.0
+                                        if abs(mid_y - _py0) <= _corner_tol:
+                                            candidate_slots.append((abs(mid_y - _py0), 'D'))
+                                        elif abs(mid_y - _py1) <= _corner_tol:
+                                            candidate_slots.append((abs(mid_y - _py1), 'C'))
+                                        elif mid_y < _py0:
+                                            # Chegada fora do vão, imediatamente antes
+                                            # da extremidade C: ainda é abertura de
+                                            # canto, nunca uma AA central.
+                                            candidate_slots.append((_py0 - mid_y, 'C'))
+                                        elif mid_y > _py1:
+                                            candidate_slots.append((mid_y - _py1, 'D'))
+                                        elif _py0 <= mid_y <= _py1:
+                                            candidate_slots.append((0.0, 'central'))
+                                else:
+                                    face_y = _py0 if fid == 'A' else _py1
+                                    touches_face = by0 - _corner_tol <= face_y <= by1 + _corner_tol
+                                    if not touches_face:
+                                        continue
+                                    if is_horizontal:
+                                        if abs(bx0 - _px1) <= _corner_tol:
+                                            candidate_slots.append((abs(bx0 - _px1), 'C'))
+                                        if abs(bx1 - _px0) <= _corner_tol:
+                                            candidate_slots.append((abs(bx1 - _px0), 'D'))
+                                    elif arrival and is_vertical:
+                                        mid_x = (bx0 + bx1) / 2.0
+                                        if _px0 < mid_x < _px1:
+                                            candidate_slots.append((0.0, 'central'))
+                        return min(candidate_slots)[1] if candidate_slots else None
+
+                    def _pass_opening(name: str, depth: float | None) -> str:
+                        if depth is None:
+                            return f'{name} <span class="muted">(profundidade indisponível no SA)</span>'
+                        final_depth = depth + 4.0
+                        return (
+                            f'{name} (Ini: 7,5×({_fmt_num(depth)}+4) = 7,5×{_fmt_num(final_depth)} '
+                            f'/ Nova: 11×({_fmt_num(depth)}+4) = 11×{_fmt_num(final_depth)})'
+                        )
+
+                    def _arrival_opening(name: str, width: float | None, depth: float | None, at_corner: bool) -> str:
+                        if width is None or depth is None:
+                            return f'{name} <span class="muted">(seção indisponível no SA)</span>'
+                        side_add = 15.0 if at_corner else 8.0  # canto = 11 + parede 4; centro = 4 + 4
+                        final_width = width + side_add
+                        final_depth = depth + 4.0
+                        rule = '+11 +4 (canto)' if at_corner else '+4 +4 (central)'
+                        return (
+                            f'{name} ({_fmt_num(width)}×{_fmt_num(depth)}) → '
+                            f'{_fmt_num(width)} {rule} = <b>{_fmt_num(final_width)}×{_fmt_num(final_depth)}cm</b>'
+                        )
+
+                    def _corner_openings(fid: str, vigas: list[str], kind: str) -> str:
+                        is_arrival = kind == 'chega'
+                        if fid not in ('A', 'B'):
+                            if not is_arrival:
+                                return '<span class="muted">não se aplica: C/D sempre passam.</span>'
+                            if not vigas:
+                                return '<span class="muted">nenhuma viga chega nesta face curta.</span>'
+                            lines = []
+                            for viga in vigas:
+                                name, width, depth = _beam_parts(viga)
+                                lines.append('Chegada ' + html.escape(fid) + ': ' + _arrival_opening(html.escape(name), width, depth, False))
+                            return '<br>'.join(lines)
+
+                        c1, c2 = ('AC', 'AD') if fid == 'A' else ('BC', 'BD')
+                        slots = {c1: [], c2: []}
+                        if is_arrival:
+                            slots[f'{fid}{fid}'] = []  # AA ou BB: chegada central
+                        for viga in vigas:
+                            name, width, depth = _beam_parts(viga)
+                            position = _slot_for_segment(fid, name, is_arrival)
+                            if position == 'C':
+                                slot = c1
+                            elif position == 'D':
+                                slot = c2
+                            elif is_arrival:
+                                slot = f'{fid}{fid}'
+                            else:
+                                # Uma viga que passa, mas sem término no canto, não
+                                # cria abertura no modo PARA.
+                                continue
+                            formula = (
+                                _arrival_opening(html.escape(name), width, depth, position in ('C', 'D'))
+                                if is_arrival else _pass_opening(html.escape(name), depth)
+                            )
+                            slots[slot].append(formula)
+                        rows = []
+                        for slot, values in slots.items():
+                            value = '<br>'.join(values) if values else 'nulo'
+                            rows.append(f'Abertura {slot}: {value}')
+                        return '<br>'.join(rows)
+
+                    def _pillar_height_detail() -> str:
+                        saida = pilar_n3.get('nivel_saida')
+                        chegada = pilar_n3.get('nivel_chegada')
+                        altura = pilar_n3.get('altura')
+                        if saida is None or chegada is None:
+                            return (
+                                f'Nível SA: {html.escape(str(row.get("Nível") or "—"))} · '
+                                '<span class="muted">níveis de saída/chegada ainda não disponíveis no payload.</span>'
+                            )
+                        try:
+                            calc_altura = abs(float(saida) - float(chegada))
+                            altura_txt = _fmt_cm(float(altura)) if altura is not None else _fmt_cm(calc_altura)
+                            return (
+                                f'Nível de saída: <b>{_fmt_cm(float(saida))}</b> · '
+                                f'Nível de chegada: <b>{_fmt_cm(float(chegada))}</b> · '
+                                f'Altura: <b>{altura_txt}</b> '
+                                f'<span class="muted">(saída − chegada = {_fmt_cm(calc_altura)}; conversão do SA)</span>'
+                            )
+                        except (TypeError, ValueError):
+                            return '<span class="muted">níveis do pilar indisponíveis para cálculo.</span>'
+
+                    cards = []
+                    for fid in ('A', 'B', 'C', 'D'):
+                        data = face_interp.get(fid, {})
+                        passa = data.get('passa') or []
+                        chega = data.get('chega') or []
+                        cards.append(
+                            f'<div class="valid-card">'
+                            f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
+                            + _valid_row(base_key, f'abcd_para_{fid}_vazio_topo', 'Vazio topo', 'vb-sa', _vazio_topo(fid, data))
+                            + _valid_row(base_key, f'abcd_para_{fid}_aberturas_param', 'Aberturas vigas que param', 'vb-para', _corner_openings(fid, passa, 'passa'))
+                            + _valid_row(base_key, f'abcd_para_{fid}_aberturas_chegam', 'Aberturas vigas que chegam', 'vb-para', _corner_openings(fid, chega, 'chega'))
+                            + '</div>'
+                        )
+                    return (
+                        f'<div class="mode-card"><div class="mode-title para">{title}</div>'
+                        '<div class="mode-note">A/B: vazio de topo pela laje (nulo = 0; laje = espessura + 2). '
+                        'C/D: a viga que passa tem prioridade sobre laje e nunca para.</div>'
+                        + _valid_row(base_key, 'abcd_para_altura_pilar', 'Altura do pilar', 'vb-sa', _pillar_height_detail())
+                        + f'<div class="valid-grid">{"".join(cards)}</div></div>'
+                    )
+                # PASSA: ficha operacional distinta de PARA.
+                if not is_para:
+                    face_interp = _dynamic_face_interpretation(row, pillar)
+                    pilar_n3 = _load_n3_pilar_json(str(row.get('_nome') or ''))
+
+                    def _dim(detail: str) -> tuple[float | None, float | None]:
+                        match = re.search(r'dim:\s*([0-9.,]+)\s*/\s*([0-9.,]+)', detail)
+                        if not match:
+                            return None, None
+                        return float(match.group(1).replace(',', '.')), float(match.group(2).replace(',', '.'))
+
+                    def _topo_passa(data: dict[str, list[str]]) -> tuple[str, float | None, list[str]]:
+                        passes = (data.get('passa') or []) + (data.get('interior') or [])
+                        ranked = [(_dim(item)[1], item) for item in passes]
+                        ranked = [(depth, item) for depth, item in ranked if depth is not None]
+                        if ranked:
+                            depth, item = max(ranked, key=lambda pair: pair[0])
+                            return f'Viga que passa mais profunda: {html.escape(item)} → vazio topo = <b>{_fmt_num(depth)}cm</b>', depth, passes
+                        lajes = data.get('lajes') or []
+                        if lajes:
+                            return f'Laje: {"<br>".join(html.escape(item) for item in lajes)} → vazio topo pela laje', None, passes
+                        return 'nulo → vazio topo = <b>0cm</b>', None, passes
+
+                    def _chegadas_passa(data: dict[str, list[str]], ref_depth: float | None) -> str:
+                        arrivals = data.get('chega') or []
+                        if not arrivals:
+                            return '<span class="muted">nenhuma viga chega nesta face.</span>'
+                        answers = []
+                        for arrival in arrivals:
+                            width, depth = _dim(arrival)
+                            if ref_depth is not None and depth is not None and depth <= ref_depth:
+                                answers.append(
+                                    f'{html.escape(arrival)}<br><b>Neutralizada:</b> profundidade da chegada '
+                                    f'({_fmt_num(depth)}cm) ≤ viga que passa ({_fmt_num(ref_depth)}cm); não cria abertura.'
+                                )
+                            elif width is not None and depth is not None:
+                                answers.append(
+                                    f'{html.escape(arrival)}<br><b>Abertura ativa:</b> regra PARA por canto '
+                                    f'(largura {_fmt_num(width)} +11 +4 no canto, ou +4 +4 central; profundidade {_fmt_num(depth)} +4).'
+                                )
+                            else:
+                                answers.append(f'{html.escape(arrival)}<br><span class="muted">seção indisponível para a regra condicional.</span>')
+                        return '<br>'.join(answers)
+
+                    def _altura_passa() -> str:
+                        try:
+                            saida = float(pilar_n3.get('nivel_saida'))
+                            chegada = float(pilar_n3.get('nivel_chegada'))
+                            return f'Nível de saída: <b>{_fmt_num(saida)}cm</b> · Nível de chegada: <b>{_fmt_num(chegada)}cm</b> · Altura: <b>{_fmt_num(abs(saida-chegada))}cm</b>'
+                        except (TypeError, ValueError):
+                            return f'Nível SA: {html.escape(str(row.get("Nível") or "—"))}'
+
+                    cards = []
+                    for fid in ('A', 'B', 'C', 'D'):
+                        vazio, ref_depth, passes = _topo_passa(face_interp.get(fid, {}))
+                        ref_detail = '<br>'.join(html.escape(item) for item in passes) or '<span class="muted">— nenhuma</span>'
+                        cards.append(
+                            f'<div class="valid-card"><div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
+                            + _valid_row(base_key, f'abcd_passa_{fid}_vazio_topo', 'Vazio topo', 'vb-passa', vazio)
+                            + _valid_row(base_key, f'abcd_passa_{fid}_referencia', 'Viga que passa — referência', 'vb-passa', ref_detail)
+                            + _valid_row(base_key, f'abcd_passa_{fid}_chegadas', 'Vigas que chegam', 'vb-para', _chegadas_passa(face_interp.get(fid, {}), ref_depth))
+                            + '</div>'
+                        )
+                    return (
+                        f'<div class="mode-card"><div class="mode-title passa">{title}</div>'
+                        '<div class="mode-note">Vazio topo: maior profundidade de viga que passa → laje → nulo. Não há viga que para. Chegada menor ou igual à viga passante é neutralizada.</div>'
+                        + _valid_row(base_key, 'abcd_passa_altura_pilar', 'Altura do pilar', 'vb-sa', _altura_passa())
+                        + f'<div class="valid-grid">{"".join(cards)}</div></div>'
+                    )
+
                 return (
                     f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
                     '<div class="mode-note">Mesmo motor dinâmico da ficha N1: separa lajes, vigas que passam, vigas que chegam e dentro do interior.</div>'
@@ -7249,19 +8332,43 @@ class PreValidationDialog(QDialog):
                     at_k     = (f'aten_{"n4" if n4 else "n3"}_{self._obra}_{self._pavimento}_{nome}'
                                 ).replace(' ', '_')
                     views_html = ''
+                    variant_results = (
+                        {
+                            mode: (
+                                _pl_n3_cache.get((nome, mode))
+                                or _materialize_n3_variant(row, pillar, mode)
+                            )
+                            for mode in ('para', 'passa')
+                        }
+                        if not n4 else {}
+                    )
                     view_specs = (
                         [
-                            ('CIMA', 'CIMA', _cima_info_card(row, valid_base_key)),
-                            ('ABCD', 'ABCD — modo PARA', _abcd_info_card(row, pillar, _lbls, valid_base_key, 'para')),
-                            ('ABCD', 'ABCD — modo PASSA', _abcd_info_card(row, pillar, _lbls, valid_base_key, 'passa')),
-                            ('GRADES', 'GRADES — modo PARA', _grades_info_card(row, valid_base_key, 'para')),
-                            ('GRADES', 'GRADES — modo PASSA', _grades_info_card(row, valid_base_key, 'passa')),
+                            ('CIMA', 'CIMA', _cima_info_card(row, valid_base_key), None),
+                            ('ABCD', 'ABCD — modo PARA', _abcd_info_card(row, pillar, _lbls, valid_base_key, 'para'), 'para'),
+                            ('ABCD', 'ABCD — modo PASSA', _abcd_info_card(row, pillar, _lbls, valid_base_key, 'passa'), 'passa'),
+                            ('GRADES', 'GRADES — modo PARA', _grades_info_card(row, valid_base_key, 'para'), 'para'),
+                            ('GRADES', 'GRADES — modo PASSA', _grades_info_card(row, valid_base_key, 'passa'), 'passa'),
                         ]
                         if not n4 else
-                        [(vt, vt, '') for vt in ('CIMA', 'ABCD', 'GRADES')]
+                        [(vt, vt, '', None) for vt in ('CIMA', 'ABCD', 'GRADES')]
                     )
-                    for vt, view_label, prefix_html in view_specs:
-                        p    = self._find_pilar_dxf(vt, nome, n4=n4)
+                    for vt, view_label, prefix_html, mode in view_specs:
+                        variant = variant_results.get(mode, {}) if mode else {}
+                        variant_path = (variant.get('paths') or {}).get(vt.lower())
+                        p = variant_path or self._find_pilar_dxf(vt, nome, n4=n4)
+                        artifact_html = ''
+                        if mode:
+                            contract = variant.get('contract') or {}
+                            json_path = (variant.get('paths') or {}).get('json')
+                            artifact_html = (
+                                '<div class="mode-note">'
+                                f'Contrato derivado: <b>{html.escape(str(contract.get("schema") or "ausente"))}</b> · '
+                                f'modo <b>{html.escape(str(contract.get("modo_semantico") or mode).upper())}</b> · '
+                                f'artefato isolado: <b>{"sim" if variant_path else "não"}</b>'
+                                + (f' · JSON: {html.escape(os.path.basename(json_path))}' if json_path else '')
+                                + '</div>'
+                            )
                         b64v = self._render_ezdxf_b64(
                             p, width=1500, height=1100, fmt='svg'
                         ) if p else ''
@@ -7269,6 +8376,7 @@ class PreValidationDialog(QDialog):
                             views_html += (
                                 f'<div class="view-block">'
                                 f'{prefix_html}'
+                                f'{artifact_html}'
                                 f'<div class="view-label">{html.escape(view_label)}</div>'
                                 f'{_embed_visual(b64v, "svg", img_cls, vt)}'
                                 f'</div>'
@@ -7276,6 +8384,7 @@ class PreValidationDialog(QDialog):
                         else:
                             views_html += (f'<div class="view-block">'
                                            f'{prefix_html}'
+                                           f'{artifact_html}'
                                            f'<div class="view-label" style="color:#444">sem {html.escape(view_label)}</div>'
                                            f'</div>')
                     aten_v = (

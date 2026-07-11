@@ -251,6 +251,40 @@
   }
   .interpretation-insights li + li { margin-top: 5px; }
   .interpretation-insights b { color: #f2f5f7; }
+  .insight-review-status {
+    display: inline-block;
+    margin-bottom: 9px;
+    padding: 5px 9px;
+    border: 1px solid #355263;
+    border-radius: 999px;
+    color: #b8d1df;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .05em;
+  }
+  .insight-review-status.confirmed { border-color: #277052; background: #0c261c; color: #65d6ad; }
+  .insight-review-status.pending { border-color: #87671e; background: #281f08; color: #f0c75e; }
+  .insight-review-status.reference { background: #111b22; }
+  .insight-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .insight-group {
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #223b48;
+    border-radius: 6px;
+    background: #0a151a;
+  }
+  .insight-group h5 {
+    margin: 0 0 7px;
+    color: #7eb8f7;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .insight-group code { color: #f0c75e; }
   .canonical-side-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -471,6 +505,70 @@
     text-transform: uppercase;
     letter-spacing: .02em;
   }
+  .segment-template-section {
+    margin-top: 28px;
+    padding: 18px;
+    border: 2px solid #4fc3a1;
+    border-radius: 9px;
+    background: #071116;
+  }
+  .segment-template-lead {
+    margin: 0 0 12px;
+    color: #a9c2cf;
+    font-size: 11px;
+    line-height: 1.55;
+  }
+  .segment-template-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 7px;
+    margin: 10px 0 14px;
+  }
+  .segment-template-meta div {
+    padding: 8px;
+    border: 1px solid #29424f;
+    border-radius: 5px;
+    background: #0d181e;
+    color: #afc3ce;
+    font-size: 10px;
+  }
+  .segment-template-meta b { display: block; color: #7eb8f7; margin-bottom: 2px; }
+  .segment-contract-template {
+    padding: 12px;
+    border: 1px solid #34414b;
+    border-radius: 7px;
+    background: #090e11;
+  }
+  .segment-contract-template h4 { margin: 0 0 3px; color: #f0b840; font-size: 13px; }
+  .segment-contract-template > p { margin: 0 0 10px; color: #8195a1; font-size: 10px; }
+  .segment-contract-template .canonical-check { cursor: default; }
+  .segment-contract-template .canonical-check input { opacity: .8; }
+  .segment-contract-template .field-key {
+    display: inline-block;
+    margin-top: 4px;
+    color: #f0c75e;
+    font-family: Consolas, monospace;
+    font-size: 9px;
+  }
+  .segment-template-invariants {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 12px;
+  }
+  .segment-template-invariants article {
+    padding: 10px;
+    border: 1px solid #2b4654;
+    border-radius: 6px;
+    background: #0a151a;
+    color: #b8d1df;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .segment-template-invariants h5 { margin: 0 0 5px; color: #4fc3a1; font-size: 10px; text-transform: uppercase; }
+  .segment-template-json { margin-top: 12px; border: 1px solid #34414b; border-radius: 6px; background: #0a0f12; }
+  .segment-template-json summary { padding: 9px 11px; color: #7eb8f7; font-size: 11px; font-weight: 700; cursor: pointer; }
+  .segment-template-json pre { margin: 0; padding: 12px; border-top: 1px solid #26343c; overflow: auto; color: #bdd5e2; font-size: 9.5px; line-height: 1.45; }
   @media (max-width: 1050px) {
     .canonical-side-grid { grid-template-columns: 1fr; }
     .canonical-check {
@@ -478,6 +576,7 @@
     }
     .network-side-pair { grid-template-columns: 1fr; }
     .network-measure-grid { grid-template-columns: 1fr; }
+    .insight-groups, .segment-template-invariants { grid-template-columns: 1fr; }
   }
   @media (max-width: 760px) {
     .network-segment-grid { grid-template-columns: 1fr; }
@@ -1220,6 +1319,187 @@ PASSA — paredes A/B atravessam continuamente o pilar central:
     regra corrigida e teste de regressão. Ainda não há exemplos reais incorporados neste arquivo.
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section class="segment-template-section" id="template-canonico-segmento-lv">
+    <h2>6. Produto Final — Template Canônico de Um Segmento LV</h2>
+    <p class="segment-template-lead">
+      Este é o contrato máximo de informação para interpretar, persistir e revisar <b>um único segmento</b>
+      de lateral de viga. O template serve como referência para o Structural Analyzer, Comparison Engine,
+      ficha HTML e futura página web. Cada checkbox confirma somente o grupo indicado; nenhuma confirmação
+      deve ser herdada de outro lado ou segmento.
+    </p>
+
+    <div class="segment-template-meta">
+      <div><b>Chave estável</b><code>obra:pav:LV:viga:lado:contrato:segmento</code></div>
+      <div><b>Contexto obrigatório</b>obra, pavimento, classe LV, viga, lado A/B e Para/Passa</div>
+      <div><b>Versão semântica</b><code>lv_segment_contract_v1</code> + versão das regras</div>
+      <div><b>Fonte e evidência</b>N1/N2/N3/N4, DXF/recorte, ficha e imagem visual vinculada</div>
+      <div><b>Confiança</b>por campo; nunca uma confiança única escondendo campos incertos</div>
+      <div><b>Revisão humana</b><code>pendente | confirmado | rejeitado</code> + autor/data/nota</div>
+    </div>
+
+    <article class="segment-contract-template">
+      <h4>[VIGA].[LADO] · SEG [ID] · DE [PONTO INICIAL] A [PONTO FINAL]</h4>
+      <p>[ordem] de [total] no sentido local do lado · checklist isolado · nenhuma interpretação compartilhada</p>
+
+      <label class="canonical-check" data-template-field="identity">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">1 · Contrato</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> identidade estrutural e produtiva do card: viga, lado físico A/B, comportamento Para/Passa e ID do segmento. Impede misturar lados, listas ou trechos.<br><span class="field-key">segment_key · beam_id · side · behavior · segment_id · class=LV</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="order">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">2 · Ordem</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> posição do segmento na sequência do lado, total de segmentos e sentido de leitura. A ordem de B é espelhada e não reutiliza a numeração de A.<br><span class="field-key">order · total_segments · reading_direction</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="continuation">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">3 · Continuação</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> se é inicial/último, qual é o próximo segmento e como o ponto final deve ser montado: último, abertura por baixo ou obstáculo. Também identifica quem possui o evento no cruze.<br><span class="field-key">is_first · is_last · previous_segment_id · next_segment_id · end_type · event_owner_segment</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="start">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">4 · Ponto inicial</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> delimitador inicial, tipo (limite/pilar/viga/cruze), elemento associado, seção, nível e influência no comprimento. Deve informar se uma abertura já foi consumida pelo segmento anterior.<br><span class="field-key">start.id · start.type · start.elements[] · start.level · start.length_adjustment · start.opening_consumed</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="end">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">5 · Ponto final</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> primeiro obstáculo real no sentido de leitura, seus elementos e o motivo do término. Define se há recuo, abertura, parada em pilar ou fechamento externo.<br><span class="field-key">end.id · end.type · end.elements[] · end.level · end.length_adjustment · end.stop_reason</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="length">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">6 · Comprimento</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> base geométrica, ajustes inicial/final, composição de sarrafo/contato e total executivo. Invariante obrigatório: <code>base + início + fim = total</code>; toda conferência auxiliar deve fechar no mesmo total. Em Para, se este pilar era Passa para esta viga no Caso 3, persistir NOVA completo e INI com recuo de 3,5 cm; viga que apenas chega lateralmente não recebe esta variação.<br><span class="field-key">length.base · length.start_adjustment · length.end_adjustment · length.total · length.by_visual.NOVA · length.by_visual.INI · length.formula · contact_breakdown[]</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="encounters">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">7 · Encontros</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> eventos ordenados encontrados no trecho, precedência do obstáculo, faixa efetiva de contato, proprietário do recuo/abertura e resultado final das aberturas. Pilar Para domina uma viga interna; pilar Passa não domina uma viga incidente.<br><span class="field-key">encounters[] · obstacle_priority · effective_contact · recuo_owner · opening_owner · opening_result</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="recuo_start">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">8 · Recuo inicial</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> existência e dono do encaixe de 4 cm no início. Deve dizer Sim/Nulo, valor, elemento oposto, razão e se o pilar Para anulou o evento. Quando o pilar mudou de Passa para Para para esta viga, registrar NOVA=0 e INI=-3,5 cm; não aplicar à viga que chega lateralmente.<br><span class="field-key">start.recuo.active · start.recuo.value · start.recuo.owner · start.recuo.reason · start.recuo.by_visual</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="recuo_end">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">9 · Recuo final</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> mesma decisão na extremidade final. Em profundidades iguais há um único dono; o outro contrato permanece completo e registra explicitamente 0 cm. Para o pilar que mudou de Passa para Para, separar NOVA=0 de INI=-3,5 cm, sem abrir passagem.<br><span class="field-key">end.recuo.active · end.recuo.value · end.recuo.owner · end.recuo.reason · end.recuo.by_visual</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="underpass_start">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">10 · Passa por baixo inicial</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> abertura no início, dimensões de corte, fórmula da ponta, recuo separado e indicação de que o evento pertence ou já foi registrado no segmento anterior.<br><span class="field-key">start.underpass.active · start.underpass.depth_delta · start.underpass.opening_width · start.underpass.tip · start.underpass.consumed_by</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="underpass_end">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">11 · Passa por baixo final</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> abertura pertencente ao ponto final. Fórmula: diferença de profundidade × (largura atravessada +4+4); a ponta entra uma única vez no comprimento.<br><span class="field-key">end.underpass.active · end.underpass.depth_delta · end.underpass.opening_width · end.underpass.tip · end.underpass.owner_segment</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="slabs">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">12 · Lajes em contato</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> somente lajes com contato real com esta face e neste intervalo; nome, nível, espessura, posição e zona. Laje nunca nomeia nem ordena o segmento.<br><span class="field-key">slabs[].id · slabs[].level · slabs[].thickness · slabs[].position · slabs[].contact_interval</span></span>
+      </label>
+
+      <label class="canonical-check" data-template-field="beam_geometry">
+        <input type="checkbox" disabled>
+        <span class="canonical-check-label">13 · Viga / nível</span>
+        <span class="canonical-check-value"><b>O que confirma:</b> geometria-mãe que governa todos os cálculos: viga, largura, profundidade, nível, orientação e fonte. Por contrato do guia, o maior valor da seção é profundidade e o menor é largura.<br><span class="field-key">beam.id · beam.width · beam.depth · beam.level · beam.orientation · geometry_source · confidence</span></span>
+      </label>
+    </article>
+
+    <div class="segment-template-invariants">
+      <article><h5>Gate de coerência</h5>Não aprovar se comprimento e conferência divergirem; se uma abertura aparecer em dois segmentos; se A/B trocar de posição física; se um pilar Para gerar passagem; ou se um dado não tiver fonte/evidência.</article>
+      <article><h5>Gate de completude</h5>Os 13 grupos devem existir mesmo quando o resultado for Nulo. “Nulo” é dado explícito, com motivo; campo ausente significa interpretação incompleta.</article>
+      <article><h5>Gate de propriedade</h5>Recuo, abertura e continuidade possuem um único dono. O segmento seguinte referencia o anterior, mas não replica ponta, sarrafo ou ajuste já consumido.</article>
+      <article><h5>Gate humano</h5>O card só muda para confirmado após revisão visual e de ficha. Salvar autor, data, nota e versão da regra para permitir auditoria futura.</article>
+    </div>
+
+    <details class="segment-template-json">
+      <summary>Payload web sugerido — estrutura de associação</summary>
+      <pre>{
+  "schema": "lv_segment_contract_v1",
+  "segment_key": "obra:pav:LV:V401:A:Passa:A1",
+  "context": {"obra":"...", "pavimento":"...", "beam_id":"V401", "side":"A", "behavior":"Passa", "segment_id":"A1"},
+  "sequence": {"order":1, "total":3, "direction":"superior_para_inferior", "is_first":true, "is_last":false, "next_segment_id":"A2", "end_type":"obstaculo|underpass|last"},
+  "start": {"id":"NORTE", "type":"edge", "elements":[], "length_adjustment":0, "recuo":null, "underpass":null},
+  "end": {"id":"P401", "type":"pillar_cross", "elements":["P401","V403"], "length_adjustment":0, "stop_reason":"...", "recuo":{}, "underpass":{}},
+  "length": {"base_cm":0, "start_adjustment_cm":0, "end_adjustment_cm":0, "total_cm":0, "formula":"base + inicio + fim", "by_visual":{"NOVA":{"applies":true,"total_cm":0},"INI":{"applies":false,"total_cm":0,"recuo_cm":0,"reason":"aplica somente se este pilar era Passa para esta viga"}}, "contact_breakdown":[]},
+  "encounters": [{"point_id":"...", "obstacle_priority":"...", "effective_contact_cm":0, "recuo_owner":null, "opening_owner_segment":null}],
+  "slabs": [{"id":"L401", "level":852.19, "thickness_cm":10, "position":"...", "contact_interval":"..."}],
+  "beam": {"id":"V401", "width_cm":20, "depth_cm":60, "level":852.19, "orientation":"vertical"},
+  "evidence": {"geometry_source":"N1|N2|N3|N4|visual", "artifact_refs":[], "field_confidence":{}, "rule_version":"2026-07-10"},
+  "human_review": {"status":"pending", "reviewer":null, "reviewed_at":null, "note":null},
+  "checkboxes": {"identity":false, "order":false, "continuation":false, "start":false, "end":false, "length":false, "encounters":false, "recuo_start":false, "recuo_end":false, "underpass_start":false, "underpass_end":false, "slabs":false, "beam_geometry":false}
+}</pre>
+    </details>
+  </section>
+
+  <section class="segment-template-section" id="mapa-sa-vinculos-n3-lv">
+    <h2>7. Relação Operacional — Campos SA, Vínculos Automáticos e N3 Para/Passa</h2>
+    <p class="segment-template-lead">
+      O SA captura geometria bruta uma única vez, mas a interpretação LV deve publicar
+      <b>quatro contratos independentes</b>. A conversão N3 consome esses vínculos; ela não pode
+      redescobrir geometria, copiar N2 nem usar ficha FV como dimensão lateral.
+    </p>
+
+    <table class="data-table">
+      <tr><th>Camada</th><th>Campo/chave</th><th>Responsabilidade e regra</th></tr>
+      <tr><td>SA bruto</td><td><code>lv_is_h · lv_seg_side_a/b · lv_dimension_text</code></td><td>Orientação, linhas físicas de cada face e cota B/H candidata. Para horizontal: A embaixo e B em cima; para vertical: A à esquerda e B à direita.</td></tr>
+      <tr><td>Topologia semântica</td><td><code>lv_a_para_* · lv_b_para_* · lv_a_passa_* · lv_b_passa_*</code></td><td>Intervalos, comprimentos e linhas próprios. Pilar Para divide; pilar Passa não divide; viga incidente sempre pode dividir. A/B e Para/Passa nunca compartilham slot.</td></tr>
+      <tr><td>Vínculo SA</td><td><code>viga_[a|b]_seg_N_comprimento_total</code></td><td>Contrato Para. Cada entrada leva <code>contract_id</code>, lado, comportamento, índice, pontos, comprimento e fonte.</td></tr>
+      <tr><td>Vínculo SA</td><td><code>viga_[a|b]_seg_N_comp_total_passa</code></td><td>Contrato Passa. A continuidade atravessa somente pilares alinhados; cruzamento com viga continua sendo fronteira de segmento.</td></tr>
+      <tr><td>Conversão N3</td><td><code>JSON_Vigas_Laterais/LV-PARA|LV-PASSA/Vxxx_[A|B].json</code></td><td>Uma ficha por lado e comportamento, construída de <code>beams.data_json.links</code>. <code>beam_elements</code> é projeção de consulta e não é fonte de geração.</td></tr>
+      <tr><td>Gerador</td><td><code>panels[] · segment_count · total_length · behavior</code></td><td>Desenha exclusivamente a ficha selecionada. Saídas Para e Passa devem ter identidade/caminho distintos para não colidir no Comparison Engine.</td></tr>
+    </table>
+
+    <div class="rule-box">
+      <div class="rule-title">Contrato Para com visuais NOVA e INI</div>
+      Quando a <b>própria viga era alinhada e atravessava o pilar</b> no Passa, mas agora para:
+      <b>NOVA = 0 cm</b> (comprimento até a face completa) e <b>INI = −3,5 cm</b>
+      (recuo de parada). Esses dois valores devem aparecer como dados estruturados no ponto,
+      comprimento, encontro e encaixe. A viga que apenas chega lateralmente ao mesmo pilar recebe
+      <b>NOVA = 0 e INI = 0</b>. Nenhum dos dois casos cria abertura ou ponta por baixo.
+    </div>
+
+    <div class="segment-template-invariants">
+      <article><h5>Fonte de dimensão</h5>Usar somente <code>lv_dimensao</code> do vínculo LV. Se faltar, registrar <code>dimension_status=missing</code> e bloquear N3; ficha FV nunca é fallback lateral.</article>
+      <article><h5>Propriedade de evento</h5>Abertura/ponta pertence a um único segmento. O seguinte começa apenas com o recuo aplicável e referencia <code>consumed_by</code>.</article>
+      <article><h5>Gate de diferença</h5>Duas pastas não provam dois resultados. Para e Passa só são distintos quando contagem, pontos, ajustes ou comprimentos de seus vínculos realmente diferem.</article>
+      <article><h5>Gate visual</h5>Conferir Visão Corte, Face A e Face B; conferir todos os segmentos e ambos os comportamentos. G2 numérico não substitui N1-V/G2-V.</article>
+    </div>
+
+    <details class="segment-template-json" open>
+      <summary>Piloto real V327 — estado verificado em 11/07/2026</summary>
+      <p><b>FV de referência:</b> V327 possui fundo aprovado e fornece somente o eixo/base geométrica; não fornece dimensão lateral por fallback.</p>
+      <p><b>N1 estrutural:</b> um trecho contínuo de 260 cm, cota LV própria 14/50 e P27 tocando o ponto final pelo lado físico B. O trecho estrutural não deve ser confundido com a quantidade de painéis executivos.</p>
+      <p><b>N2 humano:</b> face A = 122 + 134 = 256 cm; face B = 122 + 138 = 260 cm; b = 14 cm; h_A/h_B = 54 cm.</p>
+      <p><b>Interpretação consolidada:</b> no Passa, P27 ocupa o lado B; o lado oposto A recebe recuo −4 cm. Resultado executivo: A=256 e B=260. O panelizador usa módulos 244/122 e, para não criar resíduo inviável de 16/12 cm após 244, escolhe 122+134 e 122+138.</p>
+      <p><b>Veredito:</b> PASS G5-V (CLI, confiança 0,97). N3 Passa reproduz semanticamente o N4 nas três partes: visão de corte 14/50 com h_A=h_B=54, Face A 122+134=256 e Face B 122+138=260. N2 foi usado somente como golden de verificação.</p>
+    </details>
+
+    <div class="warning-box">
+      <b>Gaps evolutivos priorizados:</b> (1) associação espacial de B/H à própria viga;
+      (2) classificador de eventos ordenados pilar/viga por lado; (3) materialização dos quatro
+      vetores semânticos no BeamTracer; (4) identidade Para/Passa preservada até nomes de DXF e
+      três viewers N3; (5) diagnóstico por contrato, hoje incapaz de detectar que quatro chaves
+      carregam a mesma geometria; (6) filtro granular por item, que informou V327 mas não gravou página.
+    </div>
+  </section>
+
 </div>
 <script>
 const LV_COLORS = {
@@ -1421,11 +1701,11 @@ function lvNetworkDiagram(behavior) {
       <text x="286" y="207" fill="${C.text}" text-anchor="middle">40 interno</text>
       <text x="354" y="207" fill="${C.text}" text-anchor="middle">40 interno</text>
       <text x="250" y="304" fill="${C.d}">até fundo: 40-4=36</text>
-      <text x="250" y="316" fill="${C.pillar}">passa por baixo: 40+20+4=64</text>
+      <text x="250" y="316" fill="${C.pillar}">ponta por baixo: 20+4+4=28</text>
       <line x1="320" y1="613" x2="320" y2="638" stroke="${C.text}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
       <line x1="320" y1="678" x2="320" y2="703" stroke="${C.text}" stroke-width="1" marker-start="url(#lv-arrow-${behavior})" marker-end="url(#lv-arrow-${behavior})"/>
       <text x="350" y="644" fill="${C.text}">P402: sem sobra interna</text>
-      <text x="350" y="656" fill="${C.d}">só recuo 4 da horizontal</text>
+      <text x="350" y="656" fill="${C.d}">dono do recuo: V401 · V404 chega completa</text>
     </g>` : ''}
     <!-- X403: V402 (80) é menos profunda e fica completa; V403 (100) recua 4 cm -->
     <rect x="856" y="228" width="12" height="44" fill="${C.d}" opacity=".45" stroke="${C.d}" stroke-dasharray="3 2"/>
@@ -1439,19 +1719,19 @@ function lvNetworkDiagram(behavior) {
     <text x="910" y="616" fill="${C.d}" font-size="9" font-weight="700">X404</text>
     <g font-size="8" font-weight="700">
       <rect x="390" y="108" width="225" height="49" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.pillar}"/>
-      <text x="400" y="124" fill="${C.pillar}">P401: passa só no contrato horizontal V403</text>
-      <text x="400" y="139" fill="${C.slab}">V401 menor = completa</text>
-      <text x="400" y="153" fill="${C.d}">V403 recua 4 · sarrafo 122</text>
+      <text x="400" y="124" fill="${C.pillar}">${isPassa ? 'P401: passa só no contrato horizontal V403' : 'P401: PARA domina o nó'}</text>
+      <text x="400" y="139" fill="${C.slab}">${isPassa ? 'V401 menor = completa' : 'V403/V401: sem abertura interna'}</text>
+      <text x="400" y="153" fill="${C.d}">${isPassa ? 'V403: faixa40 + ponta28 - recuo4' : 'recuo 0 · passagem por baixo Nulo'}</text>
       <rect x="365" y="758" width="235" height="49" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.pillar}"/>
-      <text x="375" y="774" fill="${C.pillar}">P402: passa só no contrato vertical V401</text>
-      <text x="375" y="789" fill="${C.slab}">V401 completa</text>
-      <text x="375" y="803" fill="${C.d}">V404 recua 4 · sarrafo 82</text>
+      <text x="375" y="774" fill="${C.pillar}">${isPassa ? 'P402: passa só no contrato vertical V401' : 'P402: PARA domina o nó'}</text>
+      <text x="375" y="789" fill="${C.slab}">${isPassa ? 'V404 chega completa' : 'V401/V404: sem abertura interna'}</text>
+      <text x="375" y="803" fill="${C.d}">${isPassa ? 'dono recuo: V401 -4 · faixa efetiva10' : 'recuo 0 · passagem por baixo Nulo'}</text>
       <rect x="918" y="276" width="210" height="45" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.d}"/>
       <text x="928" y="292" fill="${C.slab}">X403: V402 menor/completa</text>
-      <text x="928" y="306" fill="${C.d}">V403 passa por baixo: 20+4=24</text>
+      <text x="928" y="306" fill="${C.d}">V403: ponta28 - recuo4 = +24</text>
       <rect x="918" y="692" width="210" height="45" rx="4" fill="#0b0f13" opacity=".9" stroke="${C.d}"/>
       <text x="928" y="708" fill="${C.slab}">X404: V404 menor/completa</text>
-      <text x="928" y="722" fill="${C.d}">V402 passa por baixo: 40+4=44</text>
+      <text x="928" y="722" fill="${C.d}">V402: ponta48 - recuo4 = +44</text>
     </g>
     <g fill="${passColor}" font-size="10" font-weight="700">
       <text x="320" y="280" text-anchor="middle">${isPassa ? 'PASSA' : 'PARA'}</text>
@@ -1519,8 +1799,8 @@ function lvNetworkDiagram(behavior) {
       <text x="45" y="1162" fill="${C.pillar}">Pontilhado/sarrafo: mostra a parede atravessando o pilar em Passa; viga incidente continua dividindo o contrato.</text>
       <rect x="45" y="1185" width="1110" height="72" rx="6" fill="#0b0f13" stroke="${C.pillar}" opacity=".92"/>
       <text x="65" y="1204" fill="${C.pillar}">COTA INTERNA DO PILAR COM VIGA INCIDENTE</text>
-      <text x="65" y="1222" fill="${C.text}">P401: pilar 100 = 40 livre + V401 20 + 40 livre. Ponta por baixo: 40 + 20 + 4 + 4 = 68; recuo separado -4; saldo +64 cm.</text>
-      <text x="65" y="1240" fill="${C.text}">P402: pilar 60 e V404 60 ocupam a faixa completa; não há sobra interna. O ajuste é o recuo convencional: V404 recua 4 cm e V401 fica completa.</text>
+      <text x="65" y="1222" fill="${C.text}">P401: pilar 100 = 40 livre + V401 20 + 40 livre. Para V403, só a faixa 40 chega a V401: 40 + 11 - 4 + 28 = 75; ponta 20 + 4 + 4 = 28.</text>
+      <text x="65" y="1240" fill="${C.text}">P402: pilar 60 e V404 60 ocupam a faixa completa; não há sobra interna. Dono único do recuo: V401 -4 cm; V404 chega completa, sem desconto.</text>
       <text x="65" y="1256" fill="${C.d}">Composição do segmento deve ficar declarada como: trecho base + trecho interno do pilar ± 4, separada do sarrafo total.</text>
     </g>` : ''}
   </svg></div>`;
@@ -2252,6 +2532,12 @@ function lvEffectivePillarContact(beam, point, along) {
       reason: 'faixa efetiva até tocar V404: só 10 cm do pilar participa deste segmento'
     };
   }
+  if (point.id === 'P401' && beam.id === 'V403' && incident.id === 'V401') {
+    return {
+      value: 40,
+      reason: 'faixa efetiva até tocar V401: só os primeiros 40 cm do P401 participam deste segmento; não usar o comprimento total de 100 cm'
+    };
+  }
   return {
     value: along,
     reason: `pilar alinhado com viga incidente, mas sem recorte parcial definido; usar comprimento alinhado ${along} cm`
@@ -2276,12 +2562,16 @@ function lvEndpointLabel(beam, side, endpoint) {
   return endpoint === 'start' ? 'Início/Superior' : 'Fim/Inferior';
 }
 
-function lvNetworkInternalPillarCota(beam, point) {
+function lvNetworkInternalPillarCota(beam, point, context = null) {
   if (point.id === 'P401' && lvPillarPassesForBeam(beam, point)) {
-    return '<b>P401</b> · cota interna no pilar: pilar 100 com V401 20 centralizada → <b>40 + 20 + 40</b>; até tocar o fundo da viga que chega: <b>40 - 4 = 36 cm</b>; se a lateral passa por baixo, separar <b>recuo -4</b> e <b>ponta +40 + 20 + 4 + 4 = 68 cm</b> → saldo <b>+64 cm</b>';
+    const adjustment = lvEndpointAdjustment(beam, point, context);
+    if (adjustment.openingAlreadyRegistered) {
+      return '<b>P401</b> · cota interna no pilar: pilar 100 com V401 20 centralizada → <b>40 + 20 + 40</b>. Para V403, a faixa efetiva até tocar V401 é <b>40 cm</b>; não usar os 100 cm do pilar. A abertura por baixo já pertence ao segmento anterior. Neste segmento, compor somente <b>faixa 40 + folga 11 - recuo 4 = 47 cm</b>.';
+    }
+    return '<b>P401</b> · cota interna no pilar: pilar 100 com V401 20 centralizada → <b>40 + 20 + 40</b>. Para V403, a faixa efetiva até tocar V401 é <b>40 cm</b>; não usar os 100 cm do pilar. Até tocar o fundo da viga que chega: <b>40 - 4 = 36 cm</b>. Compor o trecho: <b>faixa 40 + folga 11 - recuo 4 + ponta 28 = 75 cm</b>.';
   }
   if (point.id === 'P402' && lvPillarPassesForBeam(beam, point)) {
-    return `<b>Cruze com viga que chega — V404</b> · V404 40/60 chega ao P402, pilar pelo qual ${beam.id} passa, e ocupa a faixa de contato; <b>sem sobra interna</b> antes/depois da viga. Como as duas vigas têm a mesma profundidade, <b>não há passagem por baixo</b>; registrar somente o recuo convencional de <b>4 cm</b> no contrato definido para recuar.`;
+    return `<b>Cruze com viga que chega — V404</b> · V404 40/60 chega ao P402, pilar pelo qual ${beam.id} passa, e ocupa a faixa de contato; <b>sem sobra interna</b> antes/depois da viga. Como as duas vigas têm a mesma profundidade, <b>não há passagem por baixo</b>. O dono único do recuo é <b>V401 −4 cm</b>; V404 chega completa, sem desconto.`;
   }
   return '';
 }
@@ -2293,7 +2583,53 @@ function lvUnderpassOpeningText(beam, incident) {
   return `passa por baixo de ${incident.id}: ponta = largura ${width} + 4 + 4 = <b>${gross} cm</b>; recuo separado = <b>-4 cm</b>; saldo na abertura = <b>${net} cm</b>`;
 }
 
-function lvEndpointAdjustment(beam, point) {
+function lvSameDepthRecuoOwner(beam, point, incident) {
+  if (!point || !incident || beam.depth !== incident.depth) return null;
+  if (point.id === 'P402' && ((beam.id === 'V401' && incident.id === 'V404') || (beam.id === 'V404' && incident.id === 'V401'))) {
+    return 'V401';
+  }
+  return lvBeamIsHorizontal(beam) ? beam.id : incident.id;
+}
+
+function lvPreviousSegmentOwnsUnderpass(beam, point, context) {
+  if (!context || context.endpoint !== 'start' || !context.segment || !context.side || !context.behavior || context.segment.order <= 1) return false;
+  const previous = lvNetworkSegments(beam, context.side, context.behavior)
+    .find(item => item.order === context.segment.order - 1);
+  if (!previous || !previous.end || previous.end.id !== point.id) return false;
+  return lvEndpointAdjustment(beam, previous.end, {
+    side: context.side,
+    behavior: context.behavior,
+    segment: previous,
+    endpoint: 'end'
+  }).underpass;
+}
+
+// Contrato Para: os dois referenciais só existem quando, no Caso 3/Passa, a
+// própria viga atravessava este pilar por estar alinhada a ele. No Caso 4/Para
+// ela para: NOVA conserva o comprimento completo e INI recua 3,5 cm. A viga
+// incidente que chega lateralmente ao mesmo pilar não recebe essa variação.
+function lvParaVisualStopRule(beam, point, context, incident) {
+  if (context?.behavior !== 'Para' || !point?.pillar) return null;
+  const wasPassaAtPillar = lvPillarPassesForBeam(beam, point);
+  return {
+    applies: wasPassaAtPillar,
+    novaNet: 0,
+    iniNet: wasPassaAtPillar ? -3.5 : 0,
+    reason: wasPassaAtPillar
+      ? `no Caso 3/Passa, ${beam.id} atravessa o pilar ${point.pillar}; no Caso 4/Para, esse mesmo pilar passa a interromper ${beam.id}`
+      : `${beam.id} chega/encerra na lateral do pilar ${point.pillar}; não era a viga que passava por este pilar no Caso 3`
+  };
+}
+
+function lvParaVisualPillarTransition(beam, point, adjustment) {
+  if (!adjustment?.paraVisual?.applies) return '';
+  const incidentDetail = adjustment.incident
+    ? `<b>${adjustment.incident.id}</b> é somente a viga que chega ao mesmo nó; ela não é dona do -3,5 cm.`
+    : 'Não há viga incidente neste encontro; o -3,5 cm decorre exclusivamente da mudança do pilar de Passa para Para.';
+  return `<b>Transição Passa → Para no pilar ${point.pillar}:</b> no Caso 3/Passa, <b>${beam.id}</b> atravessa ${point.pillar} por estar alinhada ao pilar. No Caso 4/Para, ${point.pillar} torna-se o obstáculo e ${beam.id} termina/reinicia nas suas faces. ${incidentDetail} <b>NOVA: 0 cm</b> (face completa). <b>INI: -3,5 cm</b> (recuo de parada, sem abertura).`;
+}
+
+function lvEndpointAdjustment(beam, point, context = null) {
   const empty = {
     hasIncident: false,
     incident: null,
@@ -2303,25 +2639,68 @@ function lvEndpointAdjustment(beam, point) {
     underpassValue: 0,
     underpassFormula: 'Nulo',
     net: 0,
+    iniNet: 0,
     openingText: 'Abertura: <b>Nulo</b>',
     text: 'Sem encontro com viga incidente nesta extremidade; recuo 0; passa por baixo 0; abertura nula.'
   };
-  if (!point || !point.incident) return empty;
-  const incident = LV_NETWORK_SPEC.beams.find(item => item.id === point.incident);
+  if (!point) return empty;
+  const incident = point.incident ? LV_NETWORK_SPEC.beams.find(item => item.id === point.incident) || null : null;
+  if (context?.behavior === 'Para' && point.pillar) {
+    const paraVisual = lvParaVisualStopRule(beam, point, context, incident);
+    const visualText = paraVisual.applies
+      ? `Visual <b>NOVA</b>: comprimento completo (<b>0 cm</b>). Visual <b>INI</b>: recuo <b>-3,5 cm</b> porque ${beam.id}, que passava pelo pilar ${point.pillar} no Caso 3, agora para no Caso 4. Não há ponta nem abertura.`
+      : `Visual <b>NOVA/INI</b>: <b>0 cm</b>. Esta é viga que chega/encerra no pilar, não a viga que passaria; o modo visual não altera o comprimento.`;
+    return {
+      hasIncident: Boolean(incident),
+      incident,
+      recua: false,
+      underpass: false,
+      recuoValue: 0,
+      underpassValue: 0,
+      underpassFormula: incident ? 'Nulo · pilar Para encerra antes da viga incidente' : 'Nulo · pilar Para encerra o segmento',
+      net: 0,
+      iniNet: paraVisual.iniNet,
+      openingText: incident ? 'Abertura: <b>Nulo</b> · o pilar Para encerra o painel antes da viga incidente interna' : 'Abertura: <b>Nulo</b> · o pilar Para encerra o painel',
+      text: `Pilar Para: <b>obstáculo dominante</b>; recuo físico 0; passa por baixo 0; ${visualText}`,
+      openingAlreadyRegistered: false,
+      sameDepthOwner: null,
+      stoppedByParaPillar: true,
+      paraVisual
+    };
+  }
   if (!incident) return empty;
-  const horizontal = lvBeamIsHorizontal(beam);
-  const forcedSameDepthArrivalRecuo = beam.id === 'V401' && point.id === 'P402' && incident.id === 'V404';
-  const recua = forcedSameDepthArrivalRecuo || beam.depth > incident.depth || (beam.depth === incident.depth && horizontal);
+  const sameDepthOwner = lvSameDepthRecuoOwner(beam, point, incident);
+  const recua = beam.depth > incident.depth || sameDepthOwner === beam.id;
   const underpass = beam.depth > incident.depth;
   const width = lvBeamWidthCm(incident);
   let underpassValue = underpass ? width + 8 : 0;
   let underpassFormula = underpass ? `largura ${incident.id} ${width} + 4 + 4 = ${underpassValue} cm` : 'Nulo';
-  if (underpass && point.id === 'P401') {
-    underpassValue = 40 + width + 8;
-    underpassFormula = `trecho livre 40 + largura ${incident.id} ${width} + 4 + 4 = ${underpassValue} cm`;
-  }
   const recuoValue = recua ? -4 : 0;
   const net = underpassValue + recuoValue;
+  const openingAlreadyRegistered = lvPreviousSegmentOwnsUnderpass(beam, point, context);
+  if (openingAlreadyRegistered) {
+    const carriedText = [
+      recua ? 'Recuo: <b>-4 cm</b>' : 'Recuo: <b>Nulo</b>',
+      'Passa por baixo: <b>Nulo neste segmento</b> · abertura já registrada no segmento anterior que termina neste mesmo cruzamento',
+      `Saldo desta extremidade no comprimento: <b>${recuoValue} cm</b>`
+    ].join('<br>');
+    return {
+      hasIncident: true,
+      incident,
+      recua,
+      underpass: false,
+      underpassValue: 0,
+      underpassFormula: 'Registrada no segmento anterior',
+      recuoValue,
+      net: recuoValue,
+      iniNet: recuoValue,
+      openingAlreadyRegistered: true,
+      openingText: `Abertura: <b>Nulo neste segmento</b> · já registrada no segmento anterior; permanece somente o recuo <b>${recuoValue} cm</b>`,
+      text: carriedText,
+      sameDepthOwner,
+      stoppedByParaPillar: false
+    };
+  }
   const text = [
     recua ? `Recuo: <b>-4 cm</b>` : 'Recuo: <b>Nulo</b>',
     underpass ? `Passa por baixo: <b>${underpassFormula}</b>` : 'Passa por baixo: <b>Nulo</b>',
@@ -2330,30 +2709,53 @@ function lvEndpointAdjustment(beam, point) {
   const openingText = underpass
     ? `Abertura: ponta <b>+${underpassValue} cm</b> separada do recuo <b>${recuoValue} cm</b> → saldo <b>+${net} cm</b>`
     : 'Abertura: <b>Nulo</b>';
-  return {hasIncident: true, incident, recua, underpass, recuoValue, underpassValue, underpassFormula, net, openingText, text};
+  return {hasIncident: true, incident, recua, underpass, recuoValue, underpassValue, underpassFormula, net, iniNet: net, openingText, text, openingAlreadyRegistered: false, sameDepthOwner, stoppedByParaPillar: false, paraVisual: null};
 }
 
-function lvNetworkPointWithAdjustment(beam, side, point, endpoint) {
-  const adjustment = lvEndpointAdjustment(beam, point);
+function lvNetworkPointWithAdjustment(beam, side, point, endpoint, behavior, segment) {
+  const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint});
   const endpointLabel = lvEndpointLabel(beam, side, endpoint);
-  const influence = adjustment.hasIncident
-    ? `Influência no comprimento (${endpointLabel}): ${adjustment.recua ? '<b>-4 cm</b> de recuo' : '<b>sem recuo</b>'}; ${adjustment.underpass ? `<b>+${adjustment.underpassValue} cm</b> de ponta por baixo` : '<b>sem ponta por baixo</b>'}; saldo <b>${adjustment.net >= 0 ? '+' : ''}${adjustment.net} cm</b>`
+  const recuoInfo = adjustment.stoppedByParaPillar
+    ? adjustment.paraVisual?.applies
+      ? `visual <b>NOVA: 0 cm</b> (pilar ${point.pillar} completo); visual <b>INI: -3,5 cm</b> porque ${beam.id} passou por ${point.pillar} no Caso 3 e agora Para`
+      : '<b>0 cm</b> · pilar Para encerra; NOVA/INI não alteram viga que chega/lateral'
+    : adjustment.recua
+    ? '<b>-4 cm</b> de recuo'
+    : adjustment.sameDepthOwner && adjustment.sameDepthOwner !== beam.id
+      ? `<b>sem recuo</b>; dono do -4 cm é ${adjustment.sameDepthOwner}`
+      : '<b>sem recuo</b>';
+  const influence = (adjustment.hasIncident || adjustment.stoppedByParaPillar)
+    ? `Influência no comprimento (${endpointLabel}): ${recuoInfo}; ${adjustment.stoppedByParaPillar ? '<b>sem abertura</b> · obstáculo no pilar' : (adjustment.openingAlreadyRegistered ? '<b>abertura já registrada no segmento anterior</b>; sem nova ponta por baixo' : (adjustment.underpass ? `<b>+${adjustment.underpassValue} cm</b> de ponta por baixo` : '<b>sem ponta por baixo</b>'))}; saldo <b>${adjustment.net >= 0 ? '+' : ''}${adjustment.net} cm</b>`
     : `Influência no comprimento (${endpointLabel}): <b>0 cm</b> · sem soma/subtração nesta extremidade`;
   return `${lvNetworkPoint(point)}<br><span class="hint">${influence}</span>`;
 }
 
 function lvSegmentLengthSummary(beam, side, behavior, segment) {
   const base = lvSegmentBaseLength(beam, side, behavior, segment.order);
-  const start = lvEndpointAdjustment(beam, segment.start);
-  const end = lvEndpointAdjustment(beam, segment.end);
+  const start = lvEndpointAdjustment(beam, segment.start, {side, behavior, segment, endpoint: 'start'});
+  const end = lvEndpointAdjustment(beam, segment.end, {side, behavior, segment, endpoint: 'end'});
   const total = base + start.net + end.net;
+  const iniTotal = base + (start.iniNet ?? start.net) + (end.iniNet ?? end.net);
+  const hasParaVisualVariant = behavior === 'Para' && (start.paraVisual?.applies || end.paraVisual?.applies);
+  const cm = value => Number.isInteger(value) ? String(value) : String(value).replace('.', ',');
+  const visualTransitions = [
+    {point: segment.start, adjustment: start},
+    {point: segment.end, adjustment: end}
+  ].filter(item => item.adjustment.paraVisual?.applies)
+    .map(item => lvParaVisualPillarTransition(beam, item.point, item.adjustment));
+  const visualScopeNote = [start, end].some(item => item.paraVisual?.applies && item.incident)
+    ? 'A viga incidente que chega ao mesmo nó continua com 0 cm; não há abertura nem ponta por baixo.'
+    : 'Não há viga incidente neste encontro; a diferença pertence exclusivamente à mudança do pilar de Passa para Para.';
   const sarrafo = lvSegmentPillarSarrafoSummary(beam, behavior, segment, base);
   return {
     base, start, end, total,
     html: `Base do segmento: <b>${base} cm</b><br>` +
-      `${lvEndpointLabel(beam, side, 'start')}: ${start.net >= 0 ? '+' : ''}${start.net} cm<br>` +
-      `${lvEndpointLabel(beam, side, 'end')}: ${end.net >= 0 ? '+' : ''}${end.net} cm<br>` +
-      `Comprimento resultante da parede: <b>${base} ${start.net >= 0 ? '+' : ''}${start.net} ${end.net >= 0 ? '+' : ''}${end.net} = ${total} cm</b>` +
+      (hasParaVisualVariant
+        ? `${visualTransitions.join('<br>')}<br><b>Visual NOVA — pilar agora Para, face completa:</b> ${lvEndpointLabel(beam, side, 'start')}: ${start.net >= 0 ? '+' : ''}${cm(start.net)} cm; ${lvEndpointLabel(beam, side, 'end')}: ${end.net >= 0 ? '+' : ''}${cm(end.net)} cm → <b>${cm(base)} ${start.net >= 0 ? '+' : ''}${cm(start.net)} ${end.net >= 0 ? '+' : ''}${cm(end.net)} = ${cm(total)} cm</b><br>` +
+          `<b>Visual INI — o mesmo pilar que era Passa agora recua:</b> ${lvEndpointLabel(beam, side, 'start')}: ${(start.iniNet ?? start.net) >= 0 ? '+' : ''}${cm(start.iniNet ?? start.net)} cm; ${lvEndpointLabel(beam, side, 'end')}: ${(end.iniNet ?? end.net) >= 0 ? '+' : ''}${cm(end.iniNet ?? end.net)} cm → <b>${cm(base)} ${(start.iniNet ?? start.net) >= 0 ? '+' : ''}${cm(start.iniNet ?? start.net)} ${(end.iniNet ?? end.net) >= 0 ? '+' : ''}${cm(end.iniNet ?? end.net)} = ${cm(iniTotal)} cm</b><br><span class="hint">O -3,5 cm pertence somente à extremidade no pilar que mudou de Passa para Para. ${visualScopeNote}</span>`
+        : `${lvEndpointLabel(beam, side, 'start')}: ${start.net >= 0 ? '+' : ''}${start.net} cm<br>` +
+          `${lvEndpointLabel(beam, side, 'end')}: ${end.net >= 0 ? '+' : ''}${end.net} cm<br>` +
+          `Comprimento resultante da parede: <b>${base} ${start.net >= 0 ? '+' : ''}${start.net} ${end.net >= 0 ? '+' : ''}${end.net} = ${total} cm</b>`) +
       sarrafo
   };
 }
@@ -2366,14 +2768,16 @@ function lvSegmentPillarSarrafoSummary(beam, behavior, segment, base) {
     {point: segment.end, role: 'end'}
   ].filter(({point}) => point && point.pillar && lvPillarPassesForBeam(beam, point));
   if (!pillarPoints.length) return '<br><span class="hint">Sarrafeado de pilar que passa: <b>Nulo</b> · nenhum pilar alinhado/atravessado por esta viga neste segmento.</span>';
+  const multiplePillarPasses = pillarPoints.length > 1;
   const lines = pillarPoints.map(({point, role}) => {
     const pillar = LV_NETWORK_SPEC.pillars[point.pillar];
     const along = lvPillarLengthAlongBeam(beam, pillar);
     const contact = lvEffectivePillarContact(beam, point, along);
     if (role === 'inside') {
       const freeEachSide = Math.max(0, (base - contact.value) / 2);
-      const startAdjustment = lvEndpointAdjustment(beam, segment.start);
-      const endAdjustment = lvEndpointAdjustment(beam, segment.end);
+      const segmentSide = segment.id.charAt(0);
+      const startAdjustment = lvEndpointAdjustment(beam, segment.start, {side: segmentSide, behavior, segment, endpoint: 'start'});
+      const endAdjustment = lvEndpointAdjustment(beam, segment.end, {side: segmentSide, behavior, segment, endpoint: 'end'});
       const adjustedDistance = (adjustment) => Math.max(0, freeEachSide - 11 + adjustment.net);
       const adjustmentFormula = (adjustment) => adjustment.net
         ? `${freeEachSide} - 11 ${adjustment.net > 0 ? '+' : '-'} ${Math.abs(adjustment.net)}`
@@ -2386,51 +2790,91 @@ function lvSegmentPillarSarrafoSummary(beam, behavior, segment, base) {
     if (role === 'start') {
       const freeAfter = Math.max(0, base - contact.value);
       const after = Math.max(0, freeAfter - 11);
-      const adjustment = lvEndpointAdjustment(beam, point);
+      const adjustment = lvEndpointAdjustment(beam, point, {side: segment.id.charAt(0), behavior, segment, endpoint: 'start'});
       const recuo = adjustment.recua ? -4 : 0;
-      const segmentSarrafo = contact.value + 11 + recuo;
-      return `<b>${point.id}</b> na extremidade inicial: ${contact.reason}; sarrafo efetivo neste segmento <b>${contact.value} + 11 ${recuo ? '- 4' : ''} = ${segmentSarrafo} cm</b>; distância até o final <b>${freeAfter} - 11 = ${after} cm</b>; conferência do segmento <b>${segmentSarrafo} + ${after} = ${segmentSarrafo + after} cm</b>`;
+      const segmentSarrafo = contact.value + 11 + adjustment.net;
+      const endpointFormula = `${contact.value} + 11${recuo ? ' - 4' : ''}${adjustment.underpass ? ` + ${adjustment.underpassValue}` : ''}`;
+      return `<b>${point.id}</b> na extremidade inicial: ${contact.reason}; composição efetiva neste segmento <b>${endpointFormula} = ${segmentSarrafo} cm</b>; distância até o final <b>${freeAfter} - 11 = ${after} cm</b>; conferência do segmento <b>${segmentSarrafo} + ${after} = ${segmentSarrafo + after} cm</b>`;
     }
     const freeBefore = Math.max(0, base - contact.value);
     const before = Math.max(0, freeBefore - 11);
-    const adjustment = lvEndpointAdjustment(beam, point);
+    const adjustment = lvEndpointAdjustment(beam, point, {side: segment.id.charAt(0), behavior, segment, endpoint: 'end'});
     const recuo = adjustment.recua ? -4 : 0;
-    const segmentSarrafo = contact.value + 11 + recuo;
-    return `<b>${point.id}</b> na extremidade final: ${contact.reason}; distância até o pilar <b>${freeBefore} - 11 = ${before} cm</b>; sarrafo efetivo neste segmento <b>${contact.value} + 11 ${recuo ? '- 4' : ''} = ${segmentSarrafo} cm</b>; conferência do segmento <b>${before} + ${segmentSarrafo} = ${before + segmentSarrafo} cm</b>`;
+    const segmentSarrafo = contact.value + 11 + adjustment.net;
+    const endpointFormula = `${contact.value} + 11${recuo ? ' - 4' : ''}${adjustment.underpass ? ` + ${adjustment.underpassValue}` : ''}`;
+    if (multiplePillarPasses) {
+      const otherPillars = pillarPoints
+        .filter(item => item.point.id !== point.id)
+        .map(item => item.point.id)
+        .join(' e ');
+      return `<b>${point.id}</b> na extremidade final: ${contact.reason}; parcela final deste pilar <b>${endpointFormula} = ${segmentSarrafo} cm</b>. O segmento também contém ${otherPillars}; não usar <b>base − faixa</b> para conferir ${point.id} isoladamente, pois isso reaplicaria a base completa. A conferência é única e consolidada abaixo.`;
+    }
+    return `<b>${point.id}</b> na extremidade final: ${contact.reason}; distância até o pilar <b>${freeBefore} - 11 = ${before} cm</b>; composição efetiva neste segmento <b>${endpointFormula} = ${segmentSarrafo} cm</b>; conferência do segmento <b>${before} + ${segmentSarrafo} = ${before + segmentSarrafo} cm</b>`;
   });
-  return `<br><br><span class="hint"><b>Sarrafeado dos pilares que passam:</b><br>${lines.join('<br>')}</span>`;
+  const segmentSide = segment.id.charAt(0);
+  const startAdjustment = lvEndpointAdjustment(beam, segment.start, {side: segmentSide, behavior, segment, endpoint: 'start'});
+  const endAdjustment = lvEndpointAdjustment(beam, segment.end, {side: segmentSide, behavior, segment, endpoint: 'end'});
+  const total = base + startAdjustment.net + endAdjustment.net;
+  const consolidation = multiplePillarPasses
+    ? `<br><b>Conferência consolidada do segmento:</b> base <b>${base} ${startAdjustment.net >= 0 ? '+' : ''}${startAdjustment.net} ${endAdjustment.net >= 0 ? '+' : ''}${endAdjustment.net} = ${total} cm</b>. Cada linha de pilar é uma parcela; não somá-las entre si.`
+    : '';
+  return `<br><br><span class="hint"><b>Sarrafeado dos pilares que passam:</b><br>${lines.join('<br>')}${consolidation}</span>`;
 }
 
-function lvOpeningResultSummary(beam, side, segment) {
-  const start = lvEndpointAdjustment(beam, segment.start);
-  const end = lvEndpointAdjustment(beam, segment.end);
+function lvOpeningResultSummary(beam, side, behavior, segment) {
+  const start = lvEndpointAdjustment(beam, segment.start, {side, behavior, segment, endpoint: 'start'});
+  const end = lvEndpointAdjustment(beam, segment.end, {side, behavior, segment, endpoint: 'end'});
   const startLabel = lvEndpointLabel(beam, side, 'start');
   const endLabel = lvEndpointLabel(beam, side, 'end');
-  const fmt = adjustment => adjustment.underpass
-    ? `Sim · ponta ${adjustment.underpassValue} cm + recuo ${adjustment.recuoValue} cm → saldo ${adjustment.net} cm`
-    : 'Nulo';
+  const fmt = adjustment => adjustment.openingAlreadyRegistered
+    ? `Nulo neste segmento · abertura registrada no anterior; somente recuo ${adjustment.recuoValue} cm → saldo ${adjustment.net} cm`
+    : adjustment.stoppedByParaPillar
+      ? adjustment.paraVisual?.applies
+        ? 'Nulo · pilar Para é o obstáculo dominante; NOVA mantém comprimento completo e INI recua 3,5 cm, ambos sem abertura'
+        : 'Nulo · pilar Para é o obstáculo dominante; a viga interna não gera abertura nem variação NOVA/INI'
+    : adjustment.underpass
+      ? `Sim · ponta ${adjustment.underpassValue} cm + recuo ${adjustment.recuoValue} cm → saldo ${adjustment.net} cm`
+      : 'Nulo';
   return `<b>Resultado das aberturas:</b><br>` +
     `Abertura ${startLabel}: <b>${fmt(start)}</b><br>` +
     `Abertura ${endLabel}: <b>${fmt(end)}</b>`;
 }
 
-function lvEndpointRecuoText(beam, side, point, endpoint) {
-  const adjustment = lvEndpointAdjustment(beam, point);
+function lvEndpointRecuoText(beam, side, point, endpoint, behavior, segment) {
+  const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint});
   const endpointLabel = lvEndpointLabel(beam, side, endpoint);
+  if (adjustment.stoppedByParaPillar) {
+    if (adjustment.paraVisual?.applies) {
+      return `${endpointLabel}: ${lvParaVisualPillarTransition(beam, point, adjustment)} <b>Visual NOVA · 0 cm</b> · face do pilar completa. <b>Visual INI · -3,5 cm</b> · recuo de parada na face de ${point.pillar}; não cria abertura nem ponta.`;
+    }
+    return `${endpointLabel}: <b>Nulo · 0 cm</b> · contrato Para: a parede termina/reinicia nas faces do pilar ${point.pillar}. ${beam.id} chega/encerra neste nó e não era a viga que passava por este pilar no Caso 3; NOVA e INI não aplicam recuo de 3,5 cm.`;
+  }
   if (!adjustment.hasIncident) {
     return `${endpointLabel}: <b>Nulo</b> · não há viga incidente nesta extremidade; não subtrai 4 cm.`;
   }
   if (!adjustment.recua) {
+    if (adjustment.sameDepthOwner && adjustment.sameDepthOwner !== beam.id) {
+      return `${endpointLabel}: <b>Nulo · 0 cm</b> · ${beam.id} chega completa ao encontro; o único recuo de <b>-4 cm</b> pertence a ${adjustment.sameDepthOwner}. Não descontar 4 cm neste contrato.`;
+    }
     return `${endpointLabel}: <b>Nulo</b> · ${beam.id} fica completa no contato com ${adjustment.incident.id}; o recuo, quando existir, pertence ao outro contrato.`;
   }
   return `${endpointLabel}: <b>Sim · -4 cm</b> · ${beam.id} recua no contato com ${adjustment.incident.id}. Esta subtração entra no comprimento antes de somar qualquer ponta por baixo.`;
 }
 
-function lvEndpointUnderpassText(beam, side, point, endpoint) {
-  const adjustment = lvEndpointAdjustment(beam, point);
+function lvEndpointUnderpassText(beam, side, point, endpoint, behavior, segment) {
+  const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint});
   const endpointLabel = lvEndpointLabel(beam, side, endpoint);
+  if (adjustment.stoppedByParaPillar) {
+    const incidentText = adjustment.incident ? ` de ${adjustment.incident.id}` : '';
+    return adjustment.paraVisual?.applies
+      ? `${endpointLabel}: <b>Nulo nos dois visuais</b> · ${lvParaVisualPillarTransition(beam, point, adjustment)} O -3,5 cm do INI é recuo de parada no pilar, não uma passagem por baixo${incidentText}. Não existe ponta, abertura ou duplicação no próximo segmento.`
+      : `${endpointLabel}: <b>Nulo</b> · contrato Para: o pilar ${point.pillar} bloqueia a parede. ${beam.id} chega/encerra neste nó, portanto não há passagem, abertura ou recuo INI; o próximo segmento reinicia após a face oposta do pilar.`;
+  }
   if (!adjustment.hasIncident) {
     return `${endpointLabel}: <b>Nulo</b> · não há viga incidente; abertura nula.`;
+  }
+  if (adjustment.openingAlreadyRegistered) {
+    return `${endpointLabel}: <b>Nulo neste segmento</b> · ${beam.id} já passou por baixo de ${adjustment.incident.id} no segmento anterior que termina neste cruzamento; para não duplicar a abertura, este segmento inicia somente com o recuo <b>${adjustment.recuoValue} cm</b>.`;
   }
   if (!adjustment.underpass) {
     const sameDepth = beam.depth === adjustment.incident.depth;
@@ -2444,7 +2888,38 @@ function lvEndpointUnderpassText(beam, side, point, endpoint) {
   return `${endpointLabel}: <b>Sim</b> · <b>${beam.id} ${beam.section}</b> passa por baixo de <b>${adjustment.incident.id} ${adjustment.incident.section}</b>; abertura de corte = <b>${depthDifference} × ${openingWidth} cm</b> (diferença de profundidade ${beam.depth} − ${adjustment.incident.depth} = ${depthDifference}; largura ${lvBeamWidthCm(adjustment.incident)} + 4 + 4 = ${openingWidth}). Ponta no comprimento = <b>${adjustment.underpassFormula}</b>; recuo fica em checkbox separado (${adjustment.recuoValue} cm); saldo da extremidade = <b>+${adjustment.net} cm</b>.`;
 }
 
-function lvNetworkEncounter(beam, point, behavior, side, position) {
+function lvSegmentContinuationSummary(beam, side, behavior, segment) {
+  const initial = segment.order === 1;
+  const last = segment.order === segment.total;
+  const startLabel = lvEndpointLabel(beam, side, 'start');
+  const endLabel = lvEndpointLabel(beam, side, 'end');
+  const next = last
+    ? 'Não existe · este é o último segmento deste lado'
+    : `<b>${side}${segment.order + 1}</b> · inicia após ${lvPointShort(segment.end)}`;
+  let finalType;
+  if (last) {
+    finalType = `<b>Último segmento</b> · encerra em ${endLabel.toLowerCase()} no limite ${lvPointShort(segment.end)}; não há próximo segmento.`;
+  } else {
+    const adjustment = lvEndpointAdjustment(beam, segment.end, {side, behavior, segment, endpoint: 'end'});
+    if (adjustment.underpass) {
+      finalType = `<b>Viga que passa por baixo</b> · ${beam.id} passa por baixo de ${adjustment.incident.id} no ponto final; abertura registrada aqui, saldo <b>+${adjustment.net} cm</b>.`;
+    } else if (segment.end.pillar && segment.end.incident) {
+      finalType = `<b>Obstáculo</b> · encontro com pilar ${segment.end.pillar} e viga ${segment.end.incident}; sem passagem por baixo neste ponto final.`;
+    } else if (segment.end.pillar) {
+      finalType = `<b>Obstáculo</b> · choca no pilar ${segment.end.pillar}; não passa o ponto final.`;
+    } else if (segment.end.incident) {
+      finalType = `<b>Obstáculo</b> · choca na viga ${segment.end.incident}; não passa o ponto final.`;
+    } else {
+      finalType = `<b>Obstáculo</b> · fechamento em ${lvPointShort(segment.end)}; não passa o ponto final.`;
+    }
+  }
+  return `<b>Segmento inicial:</b> ${initial ? '<b>Sim</b> · começa no limite/origem do lado' : '<b>Não</b> · continua após o segmento anterior'}<br>` +
+    `<b>Último segmento:</b> ${last ? '<b>Sim</b>' : '<b>Não</b>'}<br>` +
+    `<b>Próximo segmento:</b> ${next}<br>` +
+    `<b>Tipo do ponto final (${endLabel}):</b> ${finalType}`;
+}
+
+function lvNetworkEncounter(beam, point, behavior, side, position, segment = null) {
   if (point.kind === 'edge') {
     return `${point.label} · fechamento externo da zona de estudo`;
   }
@@ -2464,21 +2939,41 @@ function lvNetworkEncounter(beam, point, behavior, side, position) {
           : 'pilar perpendicular/lateral: não é pilar que passa para esta viga; tratar como limite de encontro';
         parts.push(`<b>${point.id}</b> · pilar ${pillar.section} · <span class="opening">Não passa nesta viga</span> · ${stopDetail}`);
       }
-      const internalCota = lvNetworkInternalPillarCota(beam, point);
+      const internalCota = lvNetworkInternalPillarCota(beam, point, {side, behavior, segment, endpoint: position});
       if (internalCota) parts.push(internalCota);
     } else {
       const action = position === 'start'
         ? 'reinicia após a segunda face no sentido de leitura'
         : 'termina na primeira face encontrada';
       parts.push(`<b>${point.id}</b> · pilar ${pillar.section} · <span class="decision">Para</span> · ${action}`);
+      const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint: position});
+      if (adjustment.paraVisual?.applies) {
+        parts.push(lvParaVisualPillarTransition(beam, point, adjustment));
+      } else if (!point.incident) {
+        parts.push(`<b>Regra NOVA/INI:</b> ${beam.id} não passava por ${point.id} no Caso 3; este pilar já era obstáculo lateral para este contrato. Manter <b>0 cm</b> nos dois visuais.`);
+      }
     }
   }
   if (point.incident) {
     const incident = LV_NETWORK_SPEC.beams.find(item => item.id === point.incident);
-    if (point.pillar && behavior === 'Passa' && !lvPillarPassesForBeam(beam, point)) {
-      parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} existe no mesmo nó, mas <b>não autoriza passagem neste contrato</b>: ${beam.id} já parou/limitou na lateral do pilar perpendicular. Abertura, recuo e sarrafo por passagem pertencem ao contrato da viga alinhada ao pilar, quando existir.`);
+    if (point.pillar && behavior === 'Para') {
+      const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint: position});
+      const visualRule = adjustment.paraVisual?.applies
+        ? 'Em ambos: passagem por baixo <b>Nulo</b> e abertura <b>Nulo</b>.'
+        : `<b>Visual NOVA/INI:</b> ${beam.id} é viga que chega/encerra neste pilar, não a atravessante; comprimento completo, recuo <b>0 cm</b>, passagem por baixo <b>Nulo</b> e abertura <b>Nulo</b>.`;
+      parts.push(`<b>Nó com pilar + viga — ${point.id} / ${incident.id}</b> · o pilar é o <b>obstáculo dominante</b> neste contrato Para. A parede termina na primeira face ou reinicia após a segunda face do pilar; não alcança ${incident.id}. ${visualRule}`);
+    } else if (point.pillar && behavior === 'Passa' && !lvPillarPassesForBeam(beam, point)) {
+      const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint: position});
+      if (adjustment.sameDepthOwner && adjustment.sameDepthOwner !== beam.id) {
+        parts.push(`<b>Cruze com viga que chega — ${incident.id}</b> · ${beam.id} chega ao pilar ${point.id} e <b>fica completa</b>. As vigas têm a mesma profundidade; o dono único do encaixe é ${adjustment.sameDepthOwner}, que recebe <b>-4 cm</b>. ${beam.id} não desconta 4 cm e não passa por baixo neste contrato.`);
+      } else {
+        parts.push(`<b>${point.id}</b> · viga incidente ${incident.id} existe no mesmo nó, mas <b>não autoriza passagem neste contrato</b>: ${beam.id} já parou/limitou na lateral do pilar perpendicular. Abertura, recuo e sarrafo por passagem pertencem ao contrato da viga alinhada ao pilar, quando existir.`);
+      }
     } else if (point.pillar && behavior === 'Passa') {
-      if (incident.depth < beam.depth) {
+      const adjustment = lvEndpointAdjustment(beam, point, {side, behavior, segment, endpoint: position});
+      if (adjustment.openingAlreadyRegistered) {
+        parts.push(`<b>Cruze com viga que chega — ${incident.id}</b> · ${beam.id} já passou por baixo de ${incident.id} no segmento anterior que termina neste mesmo cruze. Neste segmento, a ponta <b>não é repetida</b>: registrar somente o recuo <b>${adjustment.recuoValue} cm</b> e a faixa de contato própria.`);
+      } else if (incident.depth < beam.depth) {
         parts.push(`<b>Cruze com viga que chega — ${incident.id}</b> · ${incident.id} ${incident.section} chega ao ${point.id}, pilar pelo qual ${beam.id} passa. ${beam.id} é mais profunda, portanto <b>passa por baixo da viga que chega</b>: ${lvUnderpassOpeningText(beam, incident)}; declarar em camadas trecho base + cota interna do pilar + abertura por baixo, sem duplicar o sarrafo.`);
       } else if (incident.depth > beam.depth) {
         parts.push(`<b>Cruze com viga que chega — ${incident.id}</b> · ${incident.id} ${incident.section} chega ao ${point.id}, pilar pelo qual ${beam.id} passa, e é mais profunda. ${beam.id} <b>não passa por baixo</b> neste contrato: a lateral encontra a viga que chega dentro do pilar; registrar somente a distância interna até tocar o fundo e a regra de recuo aplicável.`);
@@ -2509,10 +3004,10 @@ function lvNetworkJoint(beam, point, side, position) {
     const width = lvBeamWidthCm(beam);
     return `<b>${point.id}</b> · ${beam.id} é menos profunda: <span class="decision">comprimento completo</span> na faixa de contato; ${incident.id} recebe o recuo de 4 cm e, no contrato da viga mais profunda, a ponta será largura ${width} + 4 + 4 = <b>${width + 8} cm</b>, com saldo após recuo <b>+${width + 4} cm</b>`;
   }
-  const horizontal = beam.label.startsWith('Horizontal');
-  return horizontal
-    ? `<b>${point.id}</b> · profundidades iguais: convenção horizontal → <span class="decision">${beam.id} recua 4 cm</span> na extremidade ${localEdge}`
-    : `<b>${point.id}</b> · profundidades iguais: convenção vertical → <span class="decision">${beam.id} permanece completa</span>; ${incident.id} recua 4 cm`;
+  const owner = lvSameDepthRecuoOwner(beam, point, incident);
+  return owner === beam.id
+    ? `<b>${point.id}</b> · profundidades iguais: dono único do encaixe → <span class="decision">${beam.id} recua 4 cm</span> na extremidade ${localEdge}; ${incident.id} permanece completa`
+    : `<b>${point.id}</b> · profundidades iguais: <span class="decision">${beam.id} permanece completa</span>; o recuo único de 4 cm pertence a ${owner}`;
 }
 
 function lvNetworkSegments(beam, side, behavior) {
@@ -2549,8 +3044,10 @@ function lvNetworkMeasurePanel(meta) {
     <div class="network-measure-title">Cotagem didática da malha — Caso ${isPassa ? '3 Passa' : '4 Para'}</div>
     <p class="network-measure-note">
       Valores deste quadro pertencem ao exemplo visual da ficha. Eles documentam a regra que o SA deve preservar:
-      pilar em <b>Passa</b> pode ter parede contínua/pontilhada, mas <b>viga incidente sempre encerra o segmento</b>.
-      Abertura, sarrafo e recuo são campos separados.
+      ${isPassa
+        ? 'pilar alinhado em <b>Passa</b> pode ter parede contínua/pontilhada, mas <b>viga incidente sempre encerra o segmento</b>.'
+        : 'pilar em <b>Para</b> é obstáculo dominante: encerra e reinicia a parede; uma viga alojada no mesmo nó não gera recuo nem abertura. Apenas cruzamentos puros entre vigas usam a regra de profundidade.'}
+      Abertura, sarrafo, recuo, continuidade e propriedade do evento são campos separados.
     </p>
     <div class="network-measure-grid">
       <article class="network-measure-card">
@@ -2571,32 +3068,38 @@ function lvNetworkMeasurePanel(meta) {
       </article>
       <article class="network-measure-card">
         <h4>Pilares e sarrafos</h4>
-        <b>P401</b> 100×20 H: sarrafo = 11 + 100 + 11 = <strong>122 cm</strong>.<br>
-        <b>P405</b> 100×20 H: sarrafo = 11 + 100 + 11 = <strong>122 cm</strong>.<br><br>
-        <b>P402/P403</b> 20×60 V: sarrafo = 11 + 60 + 11 = <strong>82 cm</strong>.<br>
-        <b>P404</b> 20×80 V: sarrafo = 11 + 80 + 11 = <strong>102 cm</strong>.<br>
-        <b>P406</b> 60×40 H: sarrafo = 11 + 60 + 11 = <strong>82 cm</strong>.<br><br>
-        Pontilhado no desenho = parede passou pelo corpo do pilar; isso não autoriza atravessar a viga incidente.
+        ${isPassa ? `
+          <b>P401</b> 100×20 H: sarrafo = 11 + 100 + 11 = <strong>122 cm</strong>.<br>
+          <b>P405</b> 100×20 H: sarrafo = 11 + 100 + 11 = <strong>122 cm</strong>.<br><br>
+          <b>P402/P403</b> 20×60 V: sarrafo = 11 + 60 + 11 = <strong>82 cm</strong>.<br>
+          <b>P404</b> 20×80 V: sarrafo = 11 + 80 + 11 = <strong>102 cm</strong>.<br>
+          <b>P406</b> 60×40 H: sarrafo = 11 + 60 + 11 = <strong>82 cm</strong>.<br><br>
+          Pontilhado no desenho = parede passou pelo corpo do pilar; isso não autoriza atravessar a viga incidente.
+        ` : `
+          <strong>Contrato Para não gera sarrafo contínuo através do pilar.</strong><br><br>
+          P401–P406 são obstáculos: o segmento termina na primeira face e o seguinte reinicia após a segunda face. As seções dos pilares permanecem registradas para localizar os delimitadores, mas não entram como abertura de passagem.<br><br>
+          Se houver viga dentro do mesmo nó do pilar, o pilar domina: recuo 0, passagem por baixo Nulo e abertura Nulo.
+        `}
       </article>
       <article class="network-measure-card">
         <h4>Aberturas, desconto e recuo</h4>
-        <b>P401</b>: V403 20/100 encontra V401 20/60. V401 fica completa; V403 recua 4 cm. Se V403 passa por baixo no pilar, registrar em camadas: ponta <strong>40 livre + largura V401 20 + 4 + 4 = 68 cm</strong>; recuo <strong>-4 cm</strong>; saldo de abertura <strong>+64 cm</strong>.<br><br>
-        <b>P402</b>: encontro V404 × V401. Convenção do exemplo: horizontal recua 4 cm; vertical fica completa.<br><br>
+        <b>P401</b>: V403 20/100 encontra V401 20/60. V401 fica completa; V403 recua 4 cm. A faixa efetiva de V403 no P401 vai só até V401: <strong>40 cm</strong>, não os 100 cm do pilar. Composição no contato: <strong>40 + 11 - 4 + 28 = 75 cm</strong>; ponta <strong>largura V401 20 + 4 + 4 = 28 cm</strong>; saldo de abertura <strong>+24 cm</strong>.<br><br>
+        <b>P402</b>: encontro V404 × V401, profundidades iguais. Dono único do recuo: <strong>V401 −4 cm</strong>; V404 chega completa ao pilar.<br><br>
         <b>X403</b>: V403 recua 4 cm e passa por baixo de V402; ponta <strong>largura V402 20 + 4 + 4 = 28 cm</strong>; recuo <strong>-4 cm</strong>; saldo <strong>+24 cm</strong>. <b>X404</b>: V402 recua 4 cm e passa por baixo de V404; ponta <strong>largura V404 40 + 4 + 4 = 48 cm</strong>; recuo <strong>-4 cm</strong>; saldo <strong>+44 cm</strong>.<br><br>
         Abertura por profundidade menor é validada separada do recuo: parte inferior completa, recuo só no contato das paredes.
       </article>
       <article class="network-measure-card">
         <h4>Mapa de cada cruze</h4>
-        <b>P401</b> = pilar + V403×V401: V401 é menor/profundidade 60 e chega completa; V403 é maior/profundidade 100, recua 4 cm e, ao passar por baixo, registra ponta <strong>40 + 20 + 4 + 4 = 68</strong> e saldo <strong>+64</strong>.<br><br>
-        <b>P402</b> = pilar + V404×V401: profundidades iguais 60×60; regra didática: V401 vertical fica completa e V404 horizontal recua 4 cm.<br><br>
+        <b>P401</b> = pilar + V403×V401: V401 é menor/profundidade 60 e chega completa; V403 é maior/profundidade 100, recua 4 cm e, ao passar por baixo, registra ponta <strong>largura V401 20 + 4 + 4 = 28</strong> e saldo <strong>+24</strong>. A faixa efetiva de V403 antes de tocar V401 é <strong>40 cm</strong>: contato total <strong>40 + 11 - 4 + 28 = 75 cm</strong>, não o pilar inteiro de 100 cm.<br><br>
+        <b>P402</b> = pilar + V404×V401: profundidades iguais 60×60; dono único do recuo: <strong>V401 −4 cm</strong>; V404 chega completa. No Caso 4 Para, o pilar domina e ambos os segmentos param/reiniciam sem ajuste por viga interna.<br><br>
         <b>X403</b> = V403×V402: V402 é menor/profundidade 80 e fica completa; V403 é maior/profundidade 100, recua 4 cm e passa por baixo: ponta <strong>20 + 4 + 4 = 28</strong>, saldo <strong>+24 cm</strong>.<br><br>
         <b>X404</b> = V404×V402: V404 é menor/profundidade 60 e fica completa; V402 é maior/profundidade 80, recua 4 cm e passa por baixo: ponta <strong>40 + 4 + 4 = 48</strong>, saldo <strong>+44 cm</strong>.
       </article>
       <article class="network-measure-card">
         <h4>Cota interna no pilar</h4>
         <b>P401</b>: pilar 100 com V401 20 centralizada → <strong>40 + 20 + 40</strong>. A lateral passa pelo pilar até tocar a viga que chega: distância geométrica 40 cm.<br><br>
-        Como o fundo da viga que chega cresce 4 cm para cada lado, a distância efetiva até tocar o fundo vira <strong>40 - 4 = 36 cm</strong>. Se a lateral passa por baixo da viga incidente, registrar ponta <strong>40 + 20 + 4 + 4 = 68 cm</strong> e recuo separado <strong>-4 cm</strong>; saldo final <strong>+64 cm</strong>.<br><br>
-        <b>P402</b>: pilar 60 com V404 60 ocupando a faixa de contato. Sem sobra interna antes/depois da viga; o valor que entra é só o recuo convencional de 4 cm da horizontal.<br><br>
+        Como o fundo da viga que chega cresce 4 cm para cada lado, a distância efetiva até tocar o fundo vira <strong>40 - 4 = 36 cm</strong>. Esta distância localiza o toque e não aumenta a ponta. Se a lateral passa por baixo da viga incidente, registrar ponta <strong>largura 20 + 4 + 4 = 28 cm</strong> e recuo separado <strong>-4 cm</strong>; saldo final <strong>+24 cm</strong>.<br><br>
+        <b>P402</b>: pilar 60 com V404 60 ocupando a faixa de contato. Sem sobra interna antes/depois da viga; dono único do recuo: <strong>V401 −4 cm</strong>. V404 chega completa ao pilar e não recebe desconto.<br><br>
         Registrar sempre em camadas: <b>segmento base</b> + <b>trecho interno do pilar</b> ± <b>4 cm do fundo</b>. Isso fica separado do sarrafo total.
       </article>
     </div>`;
@@ -2620,25 +3123,69 @@ function lvNetworkSegmentIndex(beam, segmentsBySide, behavior) {
 function lvInterpretationInsights(caseKey, meta) {
   const box = document.createElement('section');
   box.className = 'interpretation-insights';
-  const common = [
-    '<b>Lado A/B são contratos independentes:</b> A e B não compartilham slot, ordem, abertura ou recuo.',
-    '<b>Segmento é definido por ponto inicial → ponto final:</b> laje adjacente é dado auxiliar e nunca nomeia/ordena o segmento.',
-    '<b>Pilar só passa quando alinhado ao contrato da viga:</b> pilar perpendicular/lateral limita a parede e não gera sarrafeado de passagem nesse contrato.'
+  const isCase3 = caseKey === 'b-passa';
+  const isCase4 = caseKey === 'b-para';
+  const model = [
+    '<b>Unidade mínima de verdade:</b> <code>viga + lado físico + contrato Para/Passa + segmento</code>. Qualquer dado sem essa chave está incompleto.',
+    '<b>A/B são posições físicas:</b> horizontal A=debaixo/B=em cima; vertical A=esquerda/B=direita. O sentido de leitura apenas ordena os segmentos e espelha B.',
+    '<b>Identidade do segmento:</b> sempre <code>ponto inicial → ponto final</code>. Laje é contexto de contato e nunca serve para nomear ou ordenar.',
+    '<b>Sequência é uma máquina de estados:</b> o término de um segmento alimenta o início do seguinte. Uma abertura pertence ao primeiro segmento que chega ao cruze; o próximo não pode repeti-la.'
   ];
-  const network = [
-    '<b>Passa não significa atravessar viga incidente:</b> pilar alinhado pode passar, mas viga incidente sempre divide o segmento.',
-    '<b>Sarrafeado usa faixa efetiva de contato:</b> se uma viga incidente corta o pilar antes do fim, não usar o comprimento total do pilar; usar só a área realmente atravessada até tocar a viga.',
-    '<b>Caso P402/V401/V404:</b> no segmento V401.B1, a faixa efetiva no pilar é 10 cm; composição correta: distância até o pilar 190−11=179, sarrafo efetivo 10+11−4=17, comprimento total 179+17=196.',
-    '<b>Recuo e ponta por baixo são camadas separadas:</b> recuo −4 não substitui a ponta que passa por baixo; ambos devem aparecer como checkboxes independentes por extremidade.',
-    '<b>Nos cruzes entre vigas:</b> a menos profunda fica completa; a mais profunda recua 4 cm e, quando passa por baixo, registra largura da viga atravessada +4+4 e o recuo separado.'
+  const geometry = [
+    '<b>Equação inviolável:</b> comprimento resultante = base + ajuste inicial + ajuste final. Toda conferência de sarrafo/contato deve fechar exatamente no mesmo total.',
+    '<b>Um evento, um dono:</b> em profundidades iguais, somente uma viga recebe o recuo de 4 cm. No P402, V401 é o dono do −4 e V404 chega completa.',
+    '<b>Passagem por baixo:</b> abertura de corte = diferença de profundidade × (largura da viga atravessada +4+4). O comprimento recebe a ponta e o recuo em camadas separadas.',
+    '<b>Faixa efetiva:</b> dimensão total do pilar não é automaticamente área de contato. P401/V403 usa 40 cm até V401; P402/V401 usa 10 cm até V404.',
+    '<b>Ordem de precedência:</b> limite externo → pilar Para → viga incidente alcançada → pilar Passa alinhado → laje auxiliar. O primeiro obstáculo real encerra a interpretação daquela direção.'
   ];
-  const simple = [
-    '<b>Para/Passa em pilar é decisão local:</b> Para quebra em segmentos antes/depois do pilar; Passa mantém continuidade apenas quando há alinhamento real.',
-    '<b>Abertura esquerda/direita segue o sentido do painel:</b> B é espelhado em relação a A, então abertura física pode trocar de lado no checklist.',
-    '<b>Viga incidente menor em profundidade:</b> a parede pode alcançar a segunda face, mas essa abertura deve ficar no segmento que primeiro toca a incidente.'
+  const audit = [
+    '<b>Validação atômica:</b> cada checkbox confirma somente um grupo de campos. Aprovar o card exige coerência entre contrato, ordem, continuidade, pontos, comprimento, encontros, recuos, aberturas, lajes e nível.',
+    '<b>Rastreabilidade para web:</b> persistir chave estável, fonte geométrica, confiança por campo, revisão humana, versão da regra e vínculo com evidência visual.',
+    '<b>Anti-alucinação:</b> não inferir passagem, abertura, laje ou dimensão por proximidade. A relação precisa existir na geometria e ser compatível com o contrato do segmento.',
+    '<b>Gate humano:</b> confirmação automática não substitui revisão. Caso 3 é referência humana confirmada; Caso 4 permanece pendente até o dono validar todos os cards.'
   ];
-  const items = common.concat(meta.network ? network : simple);
-  box.innerHTML = `<h4>Insights consolidados de interpretação — ${meta.behavior}</h4><ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+  let specific;
+  if (isCase3) {
+    specific = [
+      '<b>Status:</b> Caso 3 confirmado pelo dono e promovido a referência semântica do contrato Passa.',
+      '<b>Pilar Passa exige alinhamento:</b> pilar alinhado pode permanecer dentro do mesmo painel; pilar perpendicular/lateral continua sendo limite.',
+      '<b>Viga incidente sempre divide:</b> mesmo quando aparece dentro de um pilar atravessado, a viga encerra o segmento; o pilar sozinho não divide.',
+      '<b>Sarrafeado em múltiplos pilares:</b> parcelas de pilares não são somadas como segmentos independentes. Há uma única conferência consolidada para o comprimento total.',
+      '<b>Casos calibradores:</b> P401/V403 fecha 149+75=224; P402/V401 fecha 179+17=196; V403.B2 consolida 420−4+24=440.',
+      '<b>Espelhamento:</b> B percorre os mesmos eventos em ordem inversa. A regra de não duplicação deve consultar o segmento anterior no sentido local de B.'
+    ];
+  } else if (isCase4) {
+    specific = [
+      '<b>Status:</b> Caso 4 montado com o mesmo contrato de 13 checkboxes do Caso 3 e aguardando validação humana do dono.',
+      '<b>Pilar Para é obstáculo dominante:</b> termina na primeira face e o próximo segmento reinicia após a segunda. Não existe sarrafo contínuo atravessando o pilar.',
+      '<b>Nó pilar + viga:</b> se a viga está alojada no mesmo nó do pilar Para, a parede não a alcança. Recuo=0, passagem por baixo=Nulo e abertura=Nulo.',
+      '<b>Cruzamentos puros permanecem ativos:</b> X403 e X404 não possuem pilar; neles a comparação de profundidade, a ponta por baixo e o recuo continuam válidos.',
+      '<b>Segmentação esperada:</b> quatro segmentos por lado e por viga. Cada pilar/contato reinicia num novo card, mantendo A e B independentes e espelhados.',
+      '<b>Continuidade explícita:</b> o checkbox informa primeiro/último/próximo segmento e classifica o ponto final como último, abertura por baixo ou obstáculo.'
+    ];
+  } else {
+    specific = [
+      '<b>Para/Passa é decisão local no pilar:</b> Para quebra antes/depois; Passa conserva continuidade somente com alinhamento real.',
+      '<b>Abertura segue o painel:</b> lado B é espelhado; a mesma abertura física pode trocar de rótulo esquerda/direita.',
+      '<b>Viga incidente menor:</b> a parede pode alcançar a segunda face, mas a abertura é registrada uma única vez no segmento que primeiro toca a incidente.'
+    ];
+  }
+  const renderGroup = (title, items) => `<article class="insight-group"><h5>${title}</h5><ul>${items.map(item => `<li>${item}</li>`).join('')}</ul></article>`;
+  const statusClass = isCase3 ? 'confirmed' : isCase4 ? 'pending' : 'reference';
+  const statusText = isCase3
+    ? 'REVISÃO HUMANA CONFIRMADA · referência do contrato Passa'
+    : isCase4
+      ? 'REVISÃO HUMANA PENDENTE · validar todos os 32 segmentos'
+      : 'REFERÊNCIA DIDÁTICA · confirmação por interpretação';
+  box.innerHTML = `
+    <div class="insight-review-status ${statusClass}">${statusText}</div>
+    <h4>Memória profissional de interpretação — ${meta.behavior}</h4>
+    <div class="insight-groups">
+      ${renderGroup('Modelo mental canônico', model)}
+      ${renderGroup('Geometria e propriedade dos eventos', geometry)}
+      ${renderGroup(isCase3 ? 'Aprendizados confirmados do Caso 3' : isCase4 ? 'Contrato a validar no Caso 4' : 'Regras deste caso', specific)}
+      ${renderGroup('Auditoria, evidência e uso futuro', audit)}
+    </div>`;
   return box;
 }
 
@@ -2677,11 +3224,11 @@ function lvCanonicalNetwork(caseKey, meta) {
         card.className = 'network-segment-card';
         card.innerHTML = `<h5>${lvSegmentReference(beam, side, segment)}<span class="seg-scope">${segment.order}º de ${segment.total} no sentido ${direction}. Checklist isolado deste segmento; não compartilhar interpretação com outro segmento.</span></h5>`;
         const encounterParts = [];
-        if (segment.start.kind !== 'edge') encounterParts.push(lvNetworkEncounter(beam, segment.start, meta.behavior, side, 'start'));
-        segment.internalPillars.forEach(point => encounterParts.push(lvNetworkEncounter(beam, point, meta.behavior, side, 'inside')));
-        if (segment.end.kind !== 'edge') encounterParts.push(lvNetworkEncounter(beam, segment.end, meta.behavior, side, 'end'));
+        if (segment.start.kind !== 'edge') encounterParts.push(lvNetworkEncounter(beam, segment.start, meta.behavior, side, 'start', segment));
+        segment.internalPillars.forEach(point => encounterParts.push(lvNetworkEncounter(beam, point, meta.behavior, side, 'inside', segment)));
+        if (segment.end.kind !== 'edge') encounterParts.push(lvNetworkEncounter(beam, segment.end, meta.behavior, side, 'end', segment));
         if (!encounterParts.length) encounterParts.push('Trecho entre limites externos · sem encontro interno');
-        encounterParts.push(lvOpeningResultSummary(beam, side, segment));
+        encounterParts.push(lvOpeningResultSummary(beam, side, meta.behavior, segment));
         const lengthSummary = lvSegmentLengthSummary(beam, side, meta.behavior, segment);
         const slabValue = segment.slabs
           .map(slab => `<b>${slab.id}</b> · ${slab.zone} · N ${LV_NETWORK_SPEC.level} · esp. ${slab.thickness} cm`)
@@ -2689,14 +3236,15 @@ function lvCanonicalNetwork(caseKey, meta) {
         const rows = [
           ['identity', 'Contrato', `<b>${beam.id}.${side}</b> · ${meta.behavior} · <b>${segment.id}</b>`],
           ['order', 'Ordem', `${segment.order}º de ${segment.total} · ${direction}`],
-          ['start', 'Ponto inicial', lvNetworkPointWithAdjustment(beam, side, segment.start, 'start')],
-          ['end', 'Ponto final', lvNetworkPointWithAdjustment(beam, side, segment.end, 'end')],
+          ['continuation', 'Continuação do segmento', lvSegmentContinuationSummary(beam, side, meta.behavior, segment)],
+          ['start', 'Ponto inicial', lvNetworkPointWithAdjustment(beam, side, segment.start, 'start', meta.behavior, segment)],
+          ['end', 'Ponto final', lvNetworkPointWithAdjustment(beam, side, segment.end, 'end', meta.behavior, segment)],
           ['length', 'Comprimento', lengthSummary.html],
           ['encounters', 'Encontros', encounterParts.join('<br>')],
-          ['recuo_start', `Encaixe 4 cm — ${lvEndpointLabel(beam, side, 'start')}`, lvEndpointRecuoText(beam, side, segment.start, 'start')],
-          ['recuo_end', `Encaixe 4 cm — ${lvEndpointLabel(beam, side, 'end')}`, lvEndpointRecuoText(beam, side, segment.end, 'end')],
-          ['under_start', `Viga passa por baixo — ${lvEndpointLabel(beam, side, 'start')}`, lvEndpointUnderpassText(beam, side, segment.start, 'start')],
-          ['under_end', `Viga passa por baixo — ${lvEndpointLabel(beam, side, 'end')}`, lvEndpointUnderpassText(beam, side, segment.end, 'end')],
+          ['recuo_start', `Encaixe 4 cm — ${lvEndpointLabel(beam, side, 'start')}`, lvEndpointRecuoText(beam, side, segment.start, 'start', meta.behavior, segment)],
+          ['recuo_end', `Encaixe 4 cm — ${lvEndpointLabel(beam, side, 'end')}`, lvEndpointRecuoText(beam, side, segment.end, 'end', meta.behavior, segment)],
+          ['under_start', `Viga passa por baixo — ${lvEndpointLabel(beam, side, 'start')}`, lvEndpointUnderpassText(beam, side, segment.start, 'start', meta.behavior, segment)],
+          ['under_end', `Viga passa por baixo — ${lvEndpointLabel(beam, side, 'end')}`, lvEndpointUnderpassText(beam, side, segment.end, 'end', meta.behavior, segment)],
           ['slab', 'Lajes em contato', slabValue],
           ['geometry', 'Viga / nível', `<b>${beam.id}</b> · ${beam.section} · N ${LV_NETWORK_SPEC.level}`]
         ];
@@ -2820,8 +3368,10 @@ function initCanonicalSideChecklists() {
     if (meta.network) {
       block.innerHTML = `
         <div class="canonical-side-title">Ficha compacta por viga, lado e segmento</div>
-        <div class="canonical-side-intro">Quatro vigas × dois lados: <b>${networkSegmentCount} interpretações isoladas</b> e <b>${networkSegmentCount * 12} confirmações</b>. Pilar puro em Passa permanece no mesmo segmento; viga incidente sempre divide, mesmo no mesmo ponto do pilar. Profundidade/abertura, comprimento, encaixe/recuo e ponta por baixo possuem checkboxes separados por extremidade.</div>
-        <div class="canonical-side-rule"><b>Contrato A/B definitivo:</b> em viga horizontal, A = debaixo e B = em cima; em viga vertical, A = esquerda e B = direita. <b>Regra do Caso ${meta.behavior === 'Passa' ? '3' : '4'}:</b> pilar só passa quando alinhado ao contrato da viga; pilar perpendicular/lateral limita a parede. Viga incidente sempre encerra o segmento. No encaixe, a menos profunda fica completa; a mais profunda recua 4 cm. Se houver passagem por baixo, registrar ponta <b>largura atravessada + 4 + 4</b> e recuo separado. Se a viga toca o pilar antes do fim, o sarrafeado usa a <b>faixa efetiva de contato</b>, não o comprimento total do pilar.</div>`;
+        <div class="canonical-side-intro">Quatro vigas × dois lados: <b>${networkSegmentCount} interpretações isoladas</b> e <b>${networkSegmentCount * 13} confirmações</b>. Pilar puro em Passa permanece no mesmo segmento; viga incidente sempre divide, mesmo no mesmo ponto do pilar. Profundidade/abertura, comprimento, encaixe/recuo, ponta por baixo e continuidade possuem checkboxes separados por segmento.</div>
+        <div class="canonical-side-rule"><b>Contrato A/B definitivo:</b> em viga horizontal, A = debaixo e B = em cima; em viga vertical, A = esquerda e B = direita. <b>Regra do Caso ${meta.behavior === 'Passa' ? '3' : '4'}:</b> ${meta.behavior === 'Passa'
+          ? 'pilar alinhado pode ser atravessado e sarrafeado; pilar perpendicular/lateral limita a parede. Viga incidente sempre encerra o segmento. A faixa efetiva de contato vai somente até a primeira viga encontrada dentro do pilar.'
+          : 'todo pilar é obstáculo dominante: o painel termina na primeira face e reinicia após a segunda. Viga alojada no mesmo nó do pilar não gera recuo nem passagem por baixo; cruzamentos puros X403/X404 continuam dividindo e podem gerar abertura.'} No encaixe entre vigas alcançado pela parede, existe um único dono do recuo. Se houver passagem por baixo, registrar ponta <b>largura atravessada + 4 + 4</b> apenas no primeiro segmento que chega ao cruze; o seguinte herda somente o recuo, quando aplicável.</div>`;
       block.appendChild(lvNetworkMeasurePanel(meta));
       block.appendChild(lvCanonicalNetwork(caseKey, meta));
       block.appendChild(lvInterpretationInsights(caseKey, meta));

@@ -251,9 +251,12 @@ class BeamTracer:
             is_h = pb['is_h']
             
             clean_name = re.sub(r'[\(\[\{].*?[\)\]\}]', '', name).strip()
-            m = re.match(r'^([A-Za-z]+)(\d+)', clean_name)
+            # Sufixo alfabético colado ao número faz parte do identificador
+            # estrutural (V309 e V309A são vigas distintas). Sufixos após
+            # ponto/hífen seguem sendo convenções de face/seção (V301.C).
+            m = re.match(r'^([A-Za-z]+\d+[A-Za-z]*)', clean_name)
             if m:
-                base_name = f"{m.group(1)}{m.group(2)}"
+                base_name = m.group(1)
             else:
                 base_name = clean_name
                 
@@ -348,7 +351,20 @@ class BeamTracer:
             bottom_runs = []
             for b in beam_list:
                 classified = b['geometry']['classified']
-                coords = classified.get('merged_bottom_groups_coords', [])
+                coords = self.fundo_interpreter.consolidate_occurrences([
+                    classified.get('merged_bottom_groups_coords', [])
+                ])
+                if classified.get('bottom_mode') == 'panel':
+                    coords = self.fundo_interpreter.discard_attached_narrow_caps(
+                        coords,
+                    )
+                    coords = self.fundo_interpreter.merge_unlabeled_short_gaps(
+                        coords,
+                        is_horizontal=bool(b['is_h']),
+                        transverse_center=(b['pos'][1] if b['is_h'] else b['pos'][0]),
+                        texts=b['geometry'].get('texts', []),
+                        current_name=b.get('name', base_name),
+                    )
                 occurrence_coords.append(coords)
                 mode = classified.get('bottom_mode', 'fallback')
                 if mode == 'divisor':

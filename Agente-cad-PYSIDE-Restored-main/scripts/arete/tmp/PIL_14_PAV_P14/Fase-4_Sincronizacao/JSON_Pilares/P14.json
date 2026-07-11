@@ -4,7 +4,7 @@
   "comprimento": 98.0,
   "largura": 19.0,
   "altura": 280.0,
-  "pavimento": "13",
+  "pavimento": "13_PAV",
   "nivel_chegada": 0.0,
   "nivel_saida": 280.0,
   "modo_distribuicao": "NOVA",

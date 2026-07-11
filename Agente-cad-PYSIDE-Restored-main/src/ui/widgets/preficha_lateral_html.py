@@ -813,8 +813,13 @@ def write_lateral_pages(
             "N4": {},
         }
         for stage, is_n4 in (("N3", False), ("N4", True)):
+            # N3 isolado (gerar_lv_dxf_stog.py --behavior) grava o sufixo de
+            # comportamento entre a viga e a vista (`LV_preview_V101_Para_
+            # CORTE.dxf`) — só o estágio N3 tem esse contrato Para/Passa
+            # isolado; N4 (engenharia reversa) não discrimina behavior aqui.
+            combined_item = f"{beam}_{behavior}" if stage == "N3" else beam
             combined_path = dialog._find_beam_dxf(
-                "LV", beam, n4=is_n4
+                "LV", combined_item, n4=is_n4
             )
             combined_bboxes: dict[
                 str, tuple[float, float, float, float]
@@ -830,8 +835,9 @@ def write_lateral_pages(
                         flush=True,
                     )
             for zone, suffix in zone_suffixes.items():
+                zone_item = f"{beam}_{behavior}_{suffix}" if stage == "N3" else f"{beam}_{suffix}"
                 dedicated_path = dialog._find_beam_dxf(
-                    "LV", f"{beam}_{suffix}", n4=is_n4
+                    "LV", zone_item, n4=is_n4
                 )
                 dedicated_crop = None
                 if dedicated_path and os.path.isfile(dedicated_path):

@@ -674,6 +674,7 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
             resultado["erro"] = f"N3 do run não encontrado em {n3_dir}: {elemento_id}"
             return resultado
         resultado["n3_path"] = str(n3_path.resolve())
+        resultado.setdefault("evidencia_fontes", {})["n3"] = _file_evidence(n3_path)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     png_path = out_dir / f"{classe}_{elemento_id}_{par}.png"
@@ -708,6 +709,7 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
                 n3_path, n4_path, png_path,
                 ref_label="N3 limpo (N1 → robô)",
                 candidate_label="N4 (N2 → robô)",
+                high_resolution=(classe == "LAJ"),
             )
             resultado["fonte_imagem"] = "dxf_render_n3xn4"
         elif par != "n2xn4":

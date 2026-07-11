@@ -198,6 +198,100 @@ def contar_documentos_por_status(conn: sqlite3.Connection, obra_id: str) -> dict
     return {r["status"]: r["n"] for r in rows}
 
 
+def obter_sa_validacao(conn: sqlite3.Connection, obra_id: str, bruto_id: str) -> dict[str, Any]:
+    """Validação "item completo" do Structural Analyzer pra 1 pavimento
+    (bruto_id). Sempre devolve um dict — {'validado': False} se nunca validado."""
+    row = conn.execute(
+        "SELECT * FROM portal_sa_validacao WHERE obra_id = ? AND bruto_id = ?",
+        (obra_id, bruto_id),
+    ).fetchone()
+    if row is None:
+        return {"obra_id": obra_id, "bruto_id": bruto_id, "validado": False, "validado_por": None, "validado_em": None}
+    d = dict(row)
+    d["validado"] = bool(d["validado"])
+    return d
+
+
+def listar_sa_validacoes_por_obra(conn: sqlite3.Connection, obra_id: str) -> dict[str, bool]:
+    """{bruto_id: validado} pra TODOS os pavimentos já tocados dessa obra —
+    usado pela app pra espelhar em lote sem 1 GET por pavimento."""
+    rows = conn.execute(
+        "SELECT bruto_id, validado FROM portal_sa_validacao WHERE obra_id = ?", (obra_id,)
+    ).fetchall()
+    return {r["bruto_id"]: bool(r["validado"]) for r in rows}
+
+
+def obter_validacao_classe(conn: sqlite3.Connection, obra_id: str, classe: str) -> dict[str, Any]:
+    """Estado de validação N1+N3 (etapa 5) pra 1 classe — {'n1_ok': False,
+    'n3_ok': False, 'validado': False, ...} se nunca validada."""
+    row = conn.execute(
+        "SELECT * FROM portal_validacoes WHERE obra_id = ? AND classe = ?",
+        (obra_id, classe.upper()),
+    ).fetchone()
+    if row is None:
+        return {"obra_id": obra_id, "classe": classe.upper(), "n1_ok": False, "n3_ok": False,
+                "validado": False, "validado_por": None, "validado_em": None, "item_id": None}
+    d = dict(row)
+    d["n1_ok"] = bool(d["n1_ok"])
+    d["n3_ok"] = bool(d["n3_ok"])
+    d["validado"] = d["n1_ok"] and d["n3_ok"]
+    return d
+
+
+def listar_validacoes_por_obra(conn: sqlite3.Connection, obra_id: str) -> dict[str, dict]:
+    """{classe: {n1_ok, n3_ok, validado}} de todas as classes já tocadas —
+    usado pela app pra espelhar em lote."""
+    rows = conn.execute("SELECT * FROM portal_validacoes WHERE obra_id = ?", (obra_id,)).fetchall()
+    out = {}
+    for r in rows:
+        d = dict(r)
+        d["n1_ok"] = bool(d["n1_ok"])
+        d["n3_ok"] = bool(d["n3_ok"])
+        d["validado"] = d["n1_ok"] and d["n3_ok"]
+        out[d["classe"]] = d
+    return out
+
+
+def set_validacao_classe(
+    conn: sqlite3.Connection, obra_id: str, classe: str, n1_ok: bool, n3_ok: bool,
+    item_id: Optional[str], validado_por: Optional[str],
+) -> dict[str, Any]:
+    """Grava a validação — merge protetivo: NUNCA rebaixa `n1_ok`/`n3_ok` já
+    True (protege validação já feita, seja pela web seja puxada da app)."""
+    conn.execute(
+        """
+        INSERT INTO portal_validacoes (obra_id, classe, n1_ok, n3_ok, item_id, validado_por, validado_em)
+        VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+        ON CONFLICT(obra_id, classe) DO UPDATE SET
+            n1_ok=CASE WHEN portal_validacoes.n1_ok=1 THEN 1 ELSE excluded.n1_ok END,
+            n3_ok=CASE WHEN portal_validacoes.n3_ok=1 THEN 1 ELSE excluded.n3_ok END,
+            item_id=excluded.item_id,
+            validado_por=excluded.validado_por,
+            validado_em=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+        """,
+        (obra_id, classe.upper(), int(n1_ok), int(n3_ok), item_id, validado_por),
+    )
+    conn.commit()
+    return obter_validacao_classe(conn, obra_id, classe)
+
+
+def set_sa_validado(
+    conn: sqlite3.Connection, obra_id: str, bruto_id: str, validado: bool, validado_por: Optional[str] = None
+) -> None:
+    conn.execute(
+        """
+        INSERT INTO portal_sa_validacao (obra_id, bruto_id, validado, validado_por, validado_em)
+        VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+        ON CONFLICT(obra_id, bruto_id) DO UPDATE SET
+            validado=excluded.validado,
+            validado_por=excluded.validado_por,
+            validado_em=excluded.validado_em
+        """,
+        (obra_id, bruto_id, int(validado), validado_por),
+    )
+    conn.commit()
+
+
 def atualizar_classificacao_documento(
     conn: sqlite3.Connection,
     doc_id: str,

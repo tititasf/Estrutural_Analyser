@@ -90,6 +90,54 @@ def test_fv_physical_panel_mode_splits_short_support_gap_between_long_panels():
     assert groups == [(0.0, 254.0), (273.0, 691.0)]
 
 
+def test_fv_discards_touching_narrow_cap_before_long_panel():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.discard_attached_narrow_caps([(0.0, 19.0), (19.0, 171.0)])
+
+    assert groups == [(19.0, 171.0)]
+
+
+def test_fv_merges_short_gap_without_structural_boundary_label():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.merge_unlabeled_short_gaps(
+        [(2680.0, 2991.0), (3010.0, 3141.0)],
+        is_horizontal=False,
+        transverse_center=1600.0,
+        texts=[{"text": "P42", "pos": (1638.0, 3049.0)}],
+        current_name="V312",
+    )
+
+    assert groups == [(2680.0, 3141.0)]
+
+
+def test_fv_keeps_short_gap_when_boundary_has_structural_label():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.merge_unlabeled_short_gaps(
+        [(1349.0, 1603.0), (1622.0, 2040.0)],
+        is_horizontal=True,
+        transverse_center=2071.0,
+        texts=[{"text": "V311", "pos": (1599.6, 2082.0)}],
+        current_name="V306",
+    )
+
+    assert groups == [(1349.0, 1603.0), (1622.0, 2040.0)]
+
+
+def test_fv_does_not_collapse_multi_panel_chain_without_labels():
+    interpreter = FundoVigaInterpreter()
+    groups = interpreter.merge_unlabeled_short_gaps(
+        [(0.0, 100.0), (119.0, 219.0), (238.0, 338.0), (357.0, 457.0)],
+        is_horizontal=True,
+        transverse_center=0.0,
+        texts=[],
+        current_name="V301",
+    )
+    assert groups == [(0.0, 100.0), (119.0, 219.0), (238.0, 338.0), (357.0, 457.0)]
+
+
 def test_fv_support_text_prefers_structural_v_label_over_nearby_fv_label():
     index = _FakeSpatialIndex([
         {"text": "VF202", "pos": (1393.751216, 2033.233516)},
@@ -519,6 +567,44 @@ def test_lateral_interpreter_writes_only_its_own_side_and_behavior():
         ["lv_dimensao"]
         == "19/55"
     )
+    link = beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]
+    assert link["contract_id"] == "LV_A_PARA"
+    assert link["behavior"] == "Para"
+    assert link["segment_index"] == 1
+
+
+def test_lateral_contract_specific_topology_keeps_para_and_passa_distinct():
+    registry = build_interpreter_registry()
+    beam = {"is_h": True, "pos": (0.0, 0.0), "links": {}}
+    classified = {
+        # Legado propositalmente diferente: nao pode vencer o contrato explicito.
+        "lv_merged_bottom_lengths": [999.0],
+        "lv_merged_bottom_groups_coords": [(0.0, 999.0)],
+        "lv_seg_side_a": [[(0.0, 10.0), (999.0, 10.0)]],
+        "lv_a_para_lengths": [96.5, 100.0],
+        "lv_a_para_groups_coords": [(0.0, 96.5), (100.0, 200.0)],
+        "lv_a_para_lines": [
+            [(0.0, 10.0), (96.5, 10.0)],
+            [(100.0, 10.0), (200.0, 10.0)],
+        ],
+        "lv_a_passa_lengths": [204.0],
+        "lv_a_passa_groups_coords": [(0.0, 204.0)],
+        "lv_a_passa_lines": [[(0.0, 10.0), (204.0, 10.0)]],
+    }
+
+    para_total = registry[InterpreterKind.LATERAL_VIGA_A_PARA].interpret(
+        beam, classified
+    )
+    passa_total = registry[InterpreterKind.LATERAL_VIGA_A_PASSA].interpret(
+        beam, classified
+    )
+
+    assert para_total == 196.5
+    assert passa_total == 204.0
+    assert beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["len"] == 96.5
+    assert beam["links"]["viga_a_seg_2_comprimento_total"]["seg_side_a"][0]["len"] == 100.0
+    assert beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"][0]["len"] == 204.0
+    assert beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"][0]["contract_id"] == "LV_A_PASSA"
 
 
 def test_pillar_para_and_passa_are_mutually_exclusive():

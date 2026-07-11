@@ -5,12 +5,10 @@ def _signature(lines):
     return [(line["value"], line["is_union"]) for line in lines]
 
 
-def test_minor_span_anchors_small_panel_and_union_at_end():
+def test_long_uniform_narrow_strip_avoids_artificial_transverse_union():
     result = distribute_panels(405.5, 183.0)
-    assert _signature(result["linhas_horizontais"]) == [
-        (102.0, False),
-        (122.0, True),
-    ]
+    assert _signature(result["linhas_horizontais"]) == []
+    assert result["hlaz"] == [{"x": 0.0, "y": 102.0, "width": 405.5, "height": 20.0}]
 
 
 def test_311_span_prefers_single_large_residual_over_sub_60_cut():

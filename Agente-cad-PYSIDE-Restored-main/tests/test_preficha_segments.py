@@ -68,6 +68,17 @@ def test_lateral_link_dimension_does_not_reuse_fv_segment_ficha():
     assert collected["lateral_a_para"][0]["width"] == "19/55"
 
 
+def test_lateral_dimension_prefers_sa_lv_text_over_stale_fv_dimension():
+    beam = _beam()
+    beam["geometry"] = {"lv_dimension_text": {"text": "14/50"}}
+    beam.setdefault("fields", {})["viga_fundo_seg_1_dim"] = "24/66"
+
+    collected = collect_preficha_segments([beam])
+
+    assert collected["lateral_a_para"][0]["width"] == "14/50"
+    assert collected["lateral_b_passa"][0]["width"] == "14/50"
+
+
 def test_fundo_preficha_length_and_width_use_bbox_not_stale_len():
     beam = _beam()
     link = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]

@@ -58,6 +58,7 @@ CLASSES_N1 = (
     "convencao_pilares", "convencao_niveis_lajes",
     "pilares", "pilares_especiais", "lajes", "cortes",
     "fundo", "lateral_a_para", "lateral_b_para", "lateral_a_passa", "lateral_b_passa",
+    "pilares_n3_para", "pilares_n3_passa",
 )
 
 TITULOS_CLASSE = {
@@ -72,7 +73,18 @@ TITULOS_CLASSE = {
     "lateral_b_para": "Segmentos Lateral B Para",
     "lateral_a_passa": "Segmentos Lateral A Passa",
     "lateral_b_passa": "Segmentos Lateral B Passa",
+    "pilares_n3_para": "Pilares N3 (Para)",
+    "pilares_n3_passa": "Pilares N3 (Passa)",
 }
+
+# Classes de N3 que sao so uma re-projecao do N1 (mesmo item_id) — hoje so'
+# rastreiam validacao (n3_ok), sem lista propria. Pilares sao diferentes: TODO
+# pilar gera 2 fichas N3 (Para/Passa), mesma interpretacao SA, resultados
+# diferentes (contrato `n3_variants/{para,passa}/PL_ABCD_preview_{pilar}.dxf`
+# do robo gerar_pl_dxf_stog.py, hoje so materializado pelo desktop). O sufixo
+# `_Para`/`_Passa` no item_id replica a convencao ja usada pelo desktop em
+# `comparison_engine.py` (`_pil_strip_pp`/`_pil_pp_from_id`).
+_PILARES_N3_VARIANTE = {"pilares_n3_para": "Para", "pilares_n3_passa": "Passa"}
 
 
 def descobrir_pavimentos(obra_dir: Path) -> list[str]:
@@ -107,12 +119,30 @@ def _normalizar_pilar(p: dict) -> dict:
             "Lado B": p.get("lado_B"),
             "Lado C": p.get("lado_C"),
             "Lado D": p.get("lado_D"),
-            "Lajes contíguas": ", ".join(p.get("lajes", [])) if p.get("lajes") else "Nenhuma",
+            "Lajes contíguas": (
+                ", ".join(
+                    (l.get("laje") or str(l)) if isinstance(l, dict) else str(l)
+                    for l in p["lajes"]
+                )
+                if p.get("lajes") else "Nenhuma"
+            ),
         },
         "atencao": p.get("atencao") or "",
         "points": p.get("points") or [],
         "beam_name": p.get("name") or p.get("key"),
     }
+
+
+def _normalizar_pilar_n3_variante(p: dict, variante: str) -> dict:
+    """Ficha N3 do pilar pra 1 variante (Para/Passa) — mesma interpretacao SA
+    do N1 (`_normalizar_pilar`), mas item_id/titulo com sufixo pra nao colidir
+    com a ficha N1 nem com a outra variante."""
+    base = _normalizar_pilar(p)
+    nome_base = base["item_id"]
+    base["item_id"] = f"{nome_base}_{variante}"
+    base["titulo"] = f"{nome_base} ({variante})"
+    base["campos"] = {"Variante N3": variante, **base["campos"]}
+    return base
 
 
 def _normalizar_laje(s: dict) -> dict:
@@ -130,14 +160,31 @@ def _normalizar_laje(s: dict) -> dict:
     }
 
 
-def _normalizar_corte(c: dict) -> dict:
+def _laje_ref_texto(nome: Optional[str], lajes_por_nome: dict) -> Optional[str]:
+    """Formata a referência a uma laje (própria/vizinha) do corte incluindo
+    Nível/Altura da própria ficha da laje — permite validar, a partir do
+    corte, se a interpretação bate com a perspectiva de cada laje (mesmos
+    dados de `_normalizar_laje`), sem precisar abrir a ficha da laje à parte."""
+    nome = (nome or "").strip()
+    if not nome or nome in ("-", "—", "�"):
+        return "Nenhuma"
+    laje = lajes_por_nome.get(nome)
+    if not laje:
+        return nome
+    nivel = laje.get("nivel") or "?"
+    altura = laje.get("height") or "?"
+    return f"{nome} (Nível {nivel}, Altura {altura})"
+
+
+def _normalizar_corte(c: dict, lajes_por_nome: Optional[dict] = None) -> dict:
+    lajes_por_nome = lajes_por_nome or {}
     return {
         "item_id": c.get("uid"),
         "titulo": c.get("beam_name") or c.get("uid"),
         "campos": {
             "Viga": c.get("beam_name"),
-            "Laje própria": c.get("own_laje"),
-            "Laje vizinha": c.get("neigh_laje"),
+            "Laje própria": _laje_ref_texto(c.get("own_laje"), lajes_por_nome),
+            "Laje vizinha": _laje_ref_texto(c.get("neigh_laje"), lajes_por_nome),
             "Altura viga": c.get("beam_h"),
             "Confiança": f"{c.get('conf_pct')}%" if c.get("conf_pct") is not None else None,
             "Status": c.get("status"),
@@ -243,10 +290,14 @@ def listar_itens_n1(estado: dict, classe: str) -> list[dict]:
         return [_normalizar_pilar(p) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) == 'Retangular']
     if classe == "pilares_especiais":
         return [_normalizar_pilar(p) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) != 'Retangular']
+    if classe in _PILARES_N3_VARIANTE:
+        variante = _PILARES_N3_VARIANTE[classe]
+        return [_normalizar_pilar_n3_variante(p, variante) for p in estado.get("pilares", [])]
     if classe == "lajes":
         return [_normalizar_laje(s) for s in estado.get("slabs", [])]
     if classe == "cortes":
-        return [_normalizar_corte(c) for c in estado.get("cortes", [])]
+        lajes_por_nome = {s.get("name"): s for s in estado.get("slabs", []) if s.get("name")}
+        return [_normalizar_corte(c, lajes_por_nome) for c in estado.get("cortes", [])]
     if classe == "fundo":
         return [_normalizar_segmento(s) for s in estado.get("segmentos", {}).get("fundo", [])]
     if classe in _SEGMENTO_LADO_SUFIXO:

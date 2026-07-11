@@ -14,6 +14,8 @@ if str(SCRIPTS_DIR) not in sys.path:
 from visual_modes import (  # noqa: E402
     apply_visual_mode,
     normalize_visual_mode,
+    _align_panel_centerline,
+    _wall_flush_center_x,
 )
 
 
@@ -53,6 +55,54 @@ def test_normalizes_ini(value):
 def test_rejects_unknown_mode():
     with pytest.raises(ValueError):
         normalize_visual_mode("experimental")
+
+
+def test_ini_pl_pressure_hidden_stays_line_opening_sarr_becomes_mline():
+    """INI PL: pressão HIDDEN = LINE; SARR sólido de abertura = MLINE."""
+    doc = ezdxf.new("R2018")
+    doc.layers.add("SARR_2.2x7", color=40)
+    doc.layers.add("Sarrafo de Pressão", color=42)
+    try:
+        doc.layers.get("Sarrafo de Pressão").dxf.linetype = "HIDDEN"
+    except Exception:
+        pass
+    if "HIDDEN" not in doc.linetypes:
+        doc.linetypes.add(
+            "HIDDEN",
+            pattern=[9.525, 6.35, -3.175],
+            description="Hidden",
+        )
+    msp = doc.modelspace()
+    # pressão (deve ficar LINE)
+    msp.add_lwpolyline(
+        [(7, 0), (7, 100)],
+        dxfattribs={"layer": "Sarrafo de Pressão", "linetype": "HIDDEN"},
+    )
+    # abertura sólida (deve virar MLINE)
+    msp.add_line(
+        (20, 0),
+        (20, 100),
+        dxfattribs={"layer": "SARR_2.2x7"},
+    )
+
+    stats = apply_visual_mode(doc, "INI", "PL")
+
+    mlines = list(msp.query("MLINE"))
+    assert stats.mlines_created == 1
+    assert len(mlines) == 1
+    assert "SARR" in mlines[0].dxf.layer.upper() or "SARRAFO" in mlines[0].dxf.layer.upper()
+    # pressão permanece como LINE/LWPOLY (não MLINE)
+    press_left = [
+        e
+        for e in msp
+        if e.dxftype() in ("LINE", "LWPOLYLINE")
+        and "press" in str(e.dxf.layer).casefold()
+    ]
+    assert len(press_left) >= 1
+    assert not any(
+        e.dxftype() == "MLINE" and "press" in str(e.dxf.layer).casefold()
+        for e in msp
+    )
 
 
 def test_ini_fundo_remaps_layers_and_creates_real_mline():
@@ -377,3 +427,60 @@ def test_ini_lateral_does_not_convert_layer_presence_sentinel():
     assert not list(doc.modelspace().query("MLINE"))
     assert sentinel.is_alive
     assert sentinel.dxf.layer == "SARR_3.5x7"
+
+
+def test_wall_flush_center_aligns_opening_sarr():
+    """Eixo a 7cm da parede + thickness 7 → centro 3.5 (MLINE flush na parede)."""
+    boxes = [(80.0, -158.0, 157.0, -100.0)]
+    assert _wall_flush_center_x(150.0, 7.0, boxes, 2.5) == pytest.approx(153.5)
+    # trecho no vao (fora do box) tambem alinha
+    verts = [(150.0, -224.0), (150.0, -158.0)]
+    aligned = _align_panel_centerline(verts, 7.0, boxes, edge_extra=2.5)
+    assert aligned[0][0] == pytest.approx(153.5)
+    assert aligned[1][0] == pytest.approx(153.5)
+    # braco L horizontal parede→eixo
+    h = [(157.0, -224.0), (150.0, -224.0)]
+    ah = _align_panel_centerline(h, 7.0, boxes, edge_extra=2.5)
+    assert ah[0][0] == pytest.approx(157.0)
+    assert ah[1][0] == pytest.approx(153.5)
+    # polilinha L continua
+    L = [(157.0, -224.0), (150.0, -224.0), (150.0, -231.0), (161.0, -231.0)]
+    aL = _align_panel_centerline(L, 7.0, boxes, edge_extra=2.5)
+    assert aL[0][0] == pytest.approx(157.0)
+    assert aL[1][0] == pytest.approx(153.5)
+    assert aL[2][0] == pytest.approx(153.5)
+    assert aL[3][0] == pytest.approx(161.0)
+
+
+def test_ini_opening_l_mline_flushes_to_wall():
+    """INI: fuste seccionado no vao e no solido ficam no mesmo X (flush parede)."""
+    doc = ezdxf.new("R2018")
+    doc.layers.add("SARR_2.2x7", color=40)
+    doc.layers.add("Painéis", color=7)
+    msp = doc.modelspace()
+    # painel solido a esquerda da parede 157
+    msp.add_line((80, -158), (157, -158), dxfattribs={"layer": "Painéis"})
+    msp.add_line((80, -100), (157, -100), dxfattribs={"layer": "Painéis"})
+    msp.add_line((80, -158), (80, -100), dxfattribs={"layer": "Painéis"})
+    msp.add_line((157, -158), (157, -100), dxfattribs={"layer": "Painéis"})
+    # parede de abertura continua no vao
+    msp.add_line((157, -224), (157, -158), dxfattribs={"layer": "Painéis"})
+    layer = {"layer": "SARR_2.2x7"}
+    # fuste seccionado: vao + solido
+    msp.add_line((150, -224), (150, -158), dxfattribs=layer)
+    msp.add_line((150, -158), (150, -100), dxfattribs=layer)
+    # L
+    msp.add_lwpolyline(
+        [(157, -224), (150, -224), (150, -231), (161, -231)],
+        close=False,
+        dxfattribs=layer,
+    )
+    apply_visual_mode(doc, "INI", "PL")
+    xs = []
+    for e in msp.query("MLINE"):
+        for v in e.vertices:
+            xs.append(round(float(v.location.x), 2))
+    # eixos do fuste/L (exceto pressao 161 e parede 157) em ~153.5
+    sarr_xs = [x for x in xs if 148 <= x <= 156]
+    assert sarr_xs, xs
+    assert all(abs(x - 153.5) < 0.2 for x in sarr_xs), sarr_xs

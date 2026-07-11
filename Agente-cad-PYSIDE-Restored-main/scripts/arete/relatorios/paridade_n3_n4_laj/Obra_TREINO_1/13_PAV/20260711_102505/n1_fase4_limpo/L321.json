@@ -1,0 +1,71 @@
+{
+  "nome": "L321",
+  "numero": 321,
+  "coordenadas": [
+    [
+      418.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      423.0
+    ],
+    [
+      417.8825,
+      423.0
+    ],
+    [
+      417.8825,
+      356.038
+    ],
+    [
+      418.0,
+      356.038
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 423.0,
+  "area_cm2": 176806.13,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    },
+    {
+      "value": 148.0,
+      "is_union": true
+    },
+    {
+      "value": 270.0,
+      "is_union": false
+    },
+    {
+      "value": 296.0,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 2059.5,
+    "y": 2067.0
+  }
+}

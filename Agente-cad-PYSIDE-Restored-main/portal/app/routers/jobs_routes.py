@@ -149,15 +149,32 @@ def n3(obra_id: str, body: N3In, request: Request, membro: dict = Depends(auth.e
 def validacao(obra_id: str, body: ValidacaoIn, request: Request,
               membro: dict = Depends(auth.exige_login),
               conn: sqlite3.Connection = Depends(get_db_conn)):
+    """[2026-07-10, Masterplan OBRAS DRIVE Fase 3] Persistida em
+    `portal_validacoes` (era só memória do processo — perdia tudo a cada
+    restart). Merge protetivo: nunca rebaixa n1_ok/n3_ok já True (harmonia
+    com a validação que a app desktop também vai poder empurrar aqui)."""
     obra = _obra_do_membro(conn, obra_id, membro)
-    validado = bool(body.n1_ok and body.n3_ok)
-    store = request.app.state.validacoes.setdefault(obra_id, {})
-    store[body.classe.upper()] = {
-        "n1_ok": body.n1_ok, "n3_ok": body.n3_ok,
-        "validado": validado, "por": membro["login"], "item_id": body.item_id,
-    }
-    return {"obra_id": obra_id, "classe": body.classe.upper(),
-            "validado": validado, "libera_n5": validado}
+    resultado = repo.set_validacao_classe(
+        conn, obra_id, body.classe, body.n1_ok, body.n3_ok, body.item_id, membro["login"]
+    )
+    return {"obra_id": obra_id, "classe": resultado["classe"],
+            "validado": resultado["validado"], "libera_n5": resultado["validado"]}
+
+
+@router.get("/obras/{obra_id}/validacao")
+def listar_validacoes_endpoint(obra_id: str, membro: dict = Depends(auth.exige_login),
+                                conn: sqlite3.Connection = Depends(get_db_conn)):
+    """{classe: {n1_ok, n3_ok, validado}} de todas as classes já tocadas —
+    a app desktop usa isso pra espelhar em lote (1 GET, não 1 por classe)."""
+    _obra_do_membro(conn, obra_id, membro)
+    return {"obra_id": obra_id, "validacoes": repo.listar_validacoes_por_obra(conn, obra_id)}
+
+
+@router.get("/obras/{obra_id}/validacao/{classe}")
+def obter_validacao_endpoint(obra_id: str, classe: str, membro: dict = Depends(auth.exige_login),
+                              conn: sqlite3.Connection = Depends(get_db_conn)):
+    _obra_do_membro(conn, obra_id, membro)
+    return repo.obter_validacao_classe(conn, obra_id, classe)
 
 
 # --------------------------------------------------------------------------- #
@@ -171,10 +188,9 @@ def n5(obra_id: str, body: N5In, request: Request, membro: dict = Depends(auth.e
     settings = request.app.state.settings
     classe = body.classe.upper()
 
-    # gating DP-13/R9: exige validacao do usuario para a classe
-    validado = (
-        request.app.state.validacoes.get(obra_id, {}).get(classe, {}).get("validado", False)
-    )
+    # gating DP-13/R9: exige validacao do usuario para a classe (agora
+    # persistida em portal_validacoes — sobrevive a restart do servidor)
+    validado = repo.obter_validacao_classe(conn, obra_id, classe)["validado"]
     if not validado:
         raise HTTPException(
             status_code=409,

@@ -1,15 +1,20 @@
 """Perfis visuais dos geradores DXF de Pilares e Vigas.
 
 NOVA e o caminho de producao atual e, por contrato, nao altera o documento.
-INI e uma primeira reproducao isolada dos templates/SCR legados:
+INI e a reproducao dos templates/SCR legados:
 
-* sarrafos sao emitidos como uma MLINE central (estilo SAR3, fundo solido);
+* sarrafos **sólidos** (aberturas, horizontais sob vazio de laje/viga passante,
+  fustes C/D, grades) viram **MLINE** central (estilo SAR3, fundo solido);
+* sarrafos **HIDDEN / DASHED** (ex. Sarrafo de Pressão) **permanecem LINE**
+  — nao viram MLINE;
 * a escala da MLINE corresponde a largura geometrica/nominal do sarrafo;
 * entidades passam a usar cor BYLAYER;
 * layers seguem os nomes e cores encontrados nos templates dos robos.
 
 O perfil e aplicado somente ao final da geracao. Assim, refinamentos do INI
 nao podem mudar geometria, layers ou cores do modo NOVA.
+A geometria (malha, aberturas, rebaixo, seccionamento) e a mesma para PARA e
+PASSA; so muda o perfil visual INI vs NOVA no final.
 """
 
 from __future__ import annotations
@@ -22,6 +27,21 @@ from typing import Iterable
 VISUAL_MODE_NOVA = "NOVA"
 VISUAL_MODE_INI = "INI"
 VISUAL_MODES = (VISUAL_MODE_NOVA, VISUAL_MODE_INI)
+
+# Linetypes que ficam como LINE no INI (nunca MLINE).
+_LINE_KEEP_LINETYPES = (
+    "HIDDEN",
+    "DASHED",
+    "DASHDOT",
+    "CENTER",
+    "PHANTOM",
+    "DIVIDE",
+    "DOT",
+    "BORDER",
+    "ACAD_ISO02W100",
+    "ACAD_ISO03W100",
+    "ACAD_ISO04W100",
+)
 
 
 def normalize_visual_mode(value: object) -> str:
@@ -79,6 +99,10 @@ _INI_LAYER_MAP = {
         # essas layers faz a MLINE herdar a cor correta por BYLAYER.
         "sarr_2.2x10": "SARR_2.2x10",
         "sarr_3.5x7": "SARR_3.5x7",
+        "sarrafo de pressão": "Sarrafo_de_pressao",
+        "sarrafo de pressao": "Sarrafo_de_pressao",
+        "sarrafo_de_pressao": "Sarrafo_de_pressao",
+        "sarrafo_pressao": "Sarrafo_de_pressao",
         "gravata": "perfil_metalico",
         "perfil metálico": "perfil_metalico",
         "hachura": "barra_ancoragem",
@@ -154,6 +178,41 @@ def _polyline_vertices(entity) -> list[tuple[float, float]]:
 def _is_sarrafo_layer(layer: str) -> bool:
     norm = str(layer or "").casefold()
     return "sarr" in norm or norm == "meiopontalete"
+
+
+def _is_pressure_layer(layer: str) -> bool:
+    return "press" in str(layer or "").casefold()
+
+
+def _entity_effective_linetype(doc, entity) -> str:
+    """Resolve linetype efetivo (entity ou BYLAYER → layer)."""
+    lt = str(entity.dxf.get("linetype", "BYLAYER") or "BYLAYER").upper()
+    if lt not in ("BYLAYER", "BYBLOCK", ""):
+        return lt
+    try:
+        layer = doc.layers.get(entity.dxf.layer)
+        return str(getattr(layer.dxf, "linetype", None) or "CONTINUOUS").upper()
+    except Exception:
+        return "CONTINUOUS"
+
+
+def _is_hidden_or_dashed(doc, entity) -> bool:
+    """Pressão / HIDDEN / DASHED permanecem LINE no INI (nao viram MLINE)."""
+    if _is_pressure_layer(str(entity.dxf.get("layer", ""))):
+        return True
+    lt = _entity_effective_linetype(doc, entity)
+    return any(token in lt for token in _LINE_KEEP_LINETYPES)
+
+
+def _should_convert_to_mline(doc, entity, layer: str) -> bool:
+    """MLINE só para sarrafo sólido (abertura, vazio laje, passante, C/D, grades)."""
+    if not _is_sarrafo_layer(layer):
+        return False
+    if entity.dxftype() not in ("LINE", "LWPOLYLINE"):
+        return False
+    if _is_hidden_or_dashed(doc, entity):
+        return False
+    return True
 
 
 def _is_lv_layer_sentinel(entity) -> bool:
@@ -360,12 +419,94 @@ def _pl_cima_madeira_layers(entities: Iterable) -> dict[int, str]:
     }
 
 
+def _panel_vertical_edges(panel_boxes) -> list[float]:
+    """Xs das paredes verticais dos paineis (inclui paredes de abertura)."""
+    edges: list[float] = []
+    for box in panel_boxes or []:
+        try:
+            edges.append(float(box[0]))
+            edges.append(float(box[2]))
+        except (TypeError, ValueError, IndexError):
+            continue
+    return edges
+
+
+def _wall_flush_center_x(
+    mx: float, thickness: float, panel_boxes, edge_extra: float = 0.5
+):
+    """Se o eixo esta a ~1 face de sarrafo de uma parede, devolve o X central
+    da MLINE para a face externa encostar na parede.
+
+    Ex.: parede em 157, eixo LINE em 150 (offset 7), thickness=7 -> centro 153.5
+    (faixa MLINE [150, 157] flush na parede). Sem isso, trechos no vao da
+    abertura ficavam no eixo 150 e o trecho no painel solido ia para 153.5 —
+    o L da abertura "quebrava" e nao alinhava na parede.
+    """
+    th = float(thickness)
+    if th < 0.2:
+        return None
+    best = None  # (dist, target_x)
+    for edge_x in _panel_vertical_edges(panel_boxes):
+        dist = abs(float(mx) - edge_x)
+        if dist <= 1e-6 or dist > th + float(edge_extra):
+            continue
+        # Centro da faixa: parede +/- th/2, do lado em que ja esta o eixo.
+        if mx < edge_x:
+            target = edge_x - th / 2.0
+        else:
+            target = edge_x + th / 2.0
+        if best is None or dist < best[0]:
+            best = (dist, target)
+    return None if best is None else best[1]
+
+
 def _align_panel_centerline(
     vertices, thickness: float, panel_boxes, edge_extra: float = 0.5
 ):
-    """Centraliza a faixa que deve crescer ate a borda externa do painel."""
+    """Centraliza a faixa MLINE para encostar na borda do painel/parede.
+
+    Cobre:
+    * borda externa do painel (comportamento original);
+    * parede de abertura (eixo a ~thickness da parede) — inclusive trechos
+      no vao, para o L e o fuste seccionados nao desalinharem.
+    """
     if len(vertices) < 2 or not panel_boxes:
         return vertices
+
+    th = float(thickness)
+    extra = float(edge_extra)
+
+    # Polilinha em L (3+ vertices): alinha a perna vertical na parede
+    if len(vertices) >= 3:
+        from collections import Counter
+
+        xs = [float(p[0]) for p in vertices]
+        ys = [float(p[1]) for p in vertices]
+        wall_x = None
+        for edge_x in _panel_vertical_edges(panel_boxes):
+            for x in xs:
+                if abs(x - edge_x) <= max(extra, 0.6):
+                    wall_x = edge_x
+                    break
+            if wall_x is not None:
+                break
+        if wall_x is not None:
+            other_xs = [x for x in xs if abs(x - wall_x) > max(extra, 0.6)]
+            if other_xs:
+                sarr_x = Counter(round(x, 3) for x in other_xs).most_common(1)[0][0]
+                target = _wall_flush_center_x(sarr_x, th, panel_boxes, extra)
+                if target is not None:
+                    out = []
+                    for x, y in zip(xs, ys):
+                        if abs(x - wall_x) <= max(extra, 0.6):
+                            out.append((wall_x, y))
+                        elif abs(x - sarr_x) <= 1.0:
+                            out.append((target, y))
+                        else:
+                            out.append((x, y))
+                    return out
+        return vertices
+
     p0, p1 = vertices[0], vertices[-1]
     dx, dy = p1[0] - p0[0], p1[1] - p0[1]
     horizontal = abs(dx) >= abs(dy) * 10
@@ -375,6 +516,50 @@ def _align_panel_centerline(
 
     mx = (p0[0] + p1[0]) / 2.0
     my = (p0[1] + p1[1]) / 2.0
+
+    # Vertical: flush na parede (solido OU vao seccionado)
+    if vertical:
+        target = _wall_flush_center_x(mx, th, panel_boxes, extra)
+        if target is not None:
+            return [(target, float(p0[1])), (target, float(p1[1]))]
+        candidates = [
+            box for box in panel_boxes
+            if box[0] - 1 <= mx <= box[2] + 1
+            and box[1] - 1 <= my <= box[3] + 1
+        ]
+        if not candidates:
+            return vertices
+        box = min(candidates, key=lambda value: (
+            abs(mx - (value[0] + value[2]) / 2.0)
+            + abs(my - (value[1] + value[3]) / 2.0)
+        ))
+        shift_x = 0.0
+        low = abs(mx - box[0])
+        high = abs(box[2] - mx)
+        if low < high and low <= th + extra:
+            shift_x = -th / 2.0
+        elif high < low and high <= th + extra:
+            shift_x = th / 2.0
+        return [
+            (float(p0[0]) + shift_x, float(p0[1])),
+            (float(p1[0]) + shift_x, float(p1[1])),
+        ]
+
+    # Horizontal: braco L curto parede->eixo (~1 face) ou borda sup/inf
+    for edge_x in _panel_vertical_edges(panel_boxes):
+        d0 = abs(float(p0[0]) - edge_x)
+        d1 = abs(float(p1[0]) - edge_x)
+        if d0 <= max(extra, 0.6) and th * 0.35 <= d1 <= th + extra:
+            free_target = (
+                edge_x - th / 2.0 if p1[0] < edge_x else edge_x + th / 2.0
+            )
+            return [(edge_x, float(p0[1])), (free_target, float(p1[1]))]
+        if d1 <= max(extra, 0.6) and th * 0.35 <= d0 <= th + extra:
+            free_target = (
+                edge_x - th / 2.0 if p0[0] < edge_x else edge_x + th / 2.0
+            )
+            return [(free_target, float(p0[1])), (edge_x, float(p1[1]))]
+
     candidates = [
         box for box in panel_boxes
         if box[0] - 1 <= mx <= box[2] + 1
@@ -386,24 +571,15 @@ def _align_panel_centerline(
         abs(mx - (value[0] + value[2]) / 2.0)
         + abs(my - (value[1] + value[3]) / 2.0)
     ))
-
-    shift_x = shift_y = 0.0
-    if horizontal:
-        low = abs(my - box[1])
-        high = abs(box[3] - my)
-        if low < high and low <= thickness + edge_extra:
-            shift_y = -thickness / 2.0
-        elif high < low and high <= thickness + edge_extra:
-            shift_y = thickness / 2.0
-    else:
-        low = abs(mx - box[0])
-        high = abs(box[2] - mx)
-        if low < high and low <= thickness + edge_extra:
-            shift_x = -thickness / 2.0
-        elif high < low and high <= thickness + edge_extra:
-            shift_x = thickness / 2.0
+    shift_y = 0.0
+    low = abs(my - box[1])
+    high = abs(box[3] - my)
+    if low < high and low <= th + extra:
+        shift_y = -th / 2.0
+    elif high < low and high <= th + extra:
+        shift_y = th / 2.0
     return [
-        (point[0] + shift_x, point[1] + shift_y)
+        (float(point[0]), float(point[1]) + shift_y)
         for point in vertices
     ]
 
@@ -473,8 +649,7 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
             entity.dxf.color = 256
 
         if (
-            _is_sarrafo_layer(new_layer)
-            and entity.dxftype() in ("LINE", "LWPOLYLINE")
+            _should_convert_to_mline(doc, entity, new_layer)
             and not (cls == "LV" and _is_lv_layer_sentinel(entity))
         ):
             sarrafo_entities.append(entity)

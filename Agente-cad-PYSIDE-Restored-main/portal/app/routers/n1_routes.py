@@ -131,6 +131,11 @@ def stats_globais(obra_id: str, request: Request,
         if not estado: continue
         
         for classe in ficha_reader.CLASSES_N1:
+            # Pilares N3 (Para/Passa) sao so' reprojecao N3 dos mesmos pilares
+            # de "pilares"/"pilares_especiais" — contar aqui duplicaria os
+            # pilares no total de N1.
+            if classe in ficha_reader._PILARES_N3_VARIANTE:
+                continue
             itens_n1 = ficha_reader.listar_itens_n1(estado, classe)
             n1_total += len(itens_n1)
             for it in itens_n1:
@@ -145,6 +150,12 @@ def stats_globais(obra_id: str, request: Request,
         # separada. Reaproveita CLASSES_N1/listar_itens_n1, igual o resto do
         # app ja' faz (mesmo endpoint /n1/classes serve as duas abas).
         for classe in ficha_reader.CLASSES_N1:
+            # Pilares tem N3 proprio (2 variantes Para/Passa, ficha diferente
+            # da N1) — a reprojecao generica ("mesmos itens do N1") nao vale
+            # pra eles, senao conta cada pilar 2x (pilares/especiais) + 2x
+            # (variantes) no total de N3.
+            if classe in ("pilares", "pilares_especiais"):
+                continue
             itens_n3 = ficha_reader.listar_itens_n1(estado, classe)
             n3_total += len(itens_n3)
             for it in itens_n3:

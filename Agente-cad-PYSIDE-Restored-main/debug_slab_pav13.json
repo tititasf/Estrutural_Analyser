@@ -1,16 +1,1925 @@
 {
-  "timestamp": "2026-07-10T11:23:04.413038",
-  "project_id": "60040bb4-8e1a-497a-bc75-8539b36b0d45",
-  "total_slabs": 0,
-  "validated_count": 0,
-  "non_validated_count": 0,
-  "n2_available_count": 0,
+  "timestamp": "2026-07-11T17:27:17.212400",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "total_slabs": 31,
+  "validated_count": 11,
+  "non_validated_count": 20,
+  "n2_available_count": 31,
   "n2_quality": {
-    "excelente": 0,
+    "excelente": 31,
     "bom": 0,
     "ruim": 0
   },
-  "validated_slabs": [],
-  "non_validated_slabs": [],
-  "slabs": []
+  "validated_slabs": [
+    {
+      "name": "L301"
+    },
+    {
+      "name": "L302"
+    },
+    {
+      "name": "L303"
+    },
+    {
+      "name": "L304"
+    },
+    {
+      "name": "L305"
+    },
+    {
+      "name": "L306"
+    },
+    {
+      "name": "L307"
+    },
+    {
+      "name": "L308"
+    },
+    {
+      "name": "L309"
+    },
+    {
+      "name": "L310"
+    },
+    {
+      "name": "L311"
+    }
+  ],
+  "non_validated_slabs": [
+    {
+      "name": "L312",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L313",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0002
+    },
+    {
+      "name": "L314",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L315",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L316",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0002
+    },
+    {
+      "name": "L317",
+      "confidence": 0.486,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0002
+    },
+    {
+      "name": "L318",
+      "confidence": 0.44,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L319",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L320",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0001
+    },
+    {
+      "name": "L321",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L322",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L323",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L324",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0001
+    },
+    {
+      "name": "L325",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L326",
+      "confidence": 0.46,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L327",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0049
+    },
+    {
+      "name": "L328",
+      "confidence": 0.4,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0
+    },
+    {
+      "name": "L329",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0002
+    },
+    {
+      "name": "L330",
+      "confidence": 0.5,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0002
+    },
+    {
+      "name": "L331",
+      "confidence": 0.46,
+      "confidence_level": "LOW",
+      "n2_quality": "EXCELENTE",
+      "dim_delta": 0.0002
+    }
+  ],
+  "slabs": [
+    {
+      "name": "L301",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_1",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "name",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 74206.5,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 74206.5,
+      "polygon_bounds": [
+        1197.88,
+        3010.0,
+        1603.38,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 405.5,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 405.5,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 74206.5,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 405.5,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L302",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_2",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "name",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 76494.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 76494.0,
+      "polygon_bounds": [
+        1622.38,
+        3010.0,
+        2040.38,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 76494.0,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L303",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_3",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "name",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 76494.0,
+      "points_count": 5,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 76494.0,
+      "polygon_bounds": [
+        2059.38,
+        3010.04,
+        2477.38,
+        3193.04
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 76494.0,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L304",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_4",
+      "validated": true,
+      "validated_fields": [
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "name",
+        "laje_outline_segs",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio",
+        "laje_visao_corte"
+      ],
+      "area": 76494.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 76494.0,
+      "polygon_bounds": [
+        2496.38,
+        3010.0,
+        2914.38,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 76494.0,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L305",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_5",
+      "validated": true,
+      "validated_fields": [
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_visao_corte",
+        "name",
+        "laje_outline_segs",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 76494.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 76494.0,
+      "polygon_bounds": [
+        2933.38,
+        3010.0,
+        3351.38,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 76487.89,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L306",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_6",
+      "validated": true,
+      "validated_fields": [
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_visao_corte",
+        "name",
+        "laje_outline_segs",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 76494.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 76494.0,
+      "polygon_bounds": [
+        3370.38,
+        3010.0,
+        3788.38,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 76487.89,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L307",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_7",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "name",
+        "laje_outline_segs",
+        "laje_islands",
+        "laje_nivel",
+        "laje_pilares_apoio"
+      ],
+      "area": 76493.99999999991,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 76494.0,
+      "polygon_bounds": [
+        3807.38,
+        3010.0,
+        4225.38,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 76487.89,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L308",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_8",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "name",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 52887.0,
+      "points_count": 5,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 52887.0,
+      "polygon_bounds": [
+        4244.38,
+        3010.04,
+        4533.38,
+        3193.04
+      ],
+      "polygon_dims": {
+        "width": 289.0,
+        "height": 183.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 289.12,
+        "largura_n2": 183.0,
+        "area_n2_cm2": 52908.5,
+        "has_coords": true,
+        "dim_delta": 0.0003,
+        "match_quality": "EXCELENTE",
+        "detected_width": 289.0,
+        "detected_height": 183.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L309",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_9",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "name",
+        "laje_outline_segs",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 126110.5,
+      "points_count": 5,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 126110.5,
+      "polygon_bounds": [
+        1197.88,
+        2680.0,
+        1603.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 405.5,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 405.5,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 126110.5,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 405.5,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L310",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_10",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "name",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 129961.45749999996,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 129961.46,
+      "polygon_bounds": [
+        1622.5,
+        2680.0,
+        2040.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 129985.07,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L311",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_11",
+      "validated": true,
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "name",
+        "laje_islands",
+        "id_item",
+        "laje_nivel",
+        "area",
+        "laje_pilares_apoio"
+      ],
+      "area": 129998.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 129998.0,
+      "polygon_bounds": [
+        2059.38,
+        2680.0,
+        2477.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 129988.71,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "_laje_complex",
+        "laje_dim",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
+      ]
+    },
+    {
+      "name": "L312",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_12",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_vizinhas_niveis",
+        "name"
+      ],
+      "area": 129998.0,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 129998.0,
+      "polygon_bounds": [
+        2496.38,
+        2680.0,
+        2914.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 129985.08,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L313",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_13",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "name"
+      ],
+      "area": 129961.45750000005,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 129961.46,
+      "polygon_bounds": [
+        2933.5,
+        2680.0,
+        3351.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 129986.25,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L314",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_14",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "name"
+      ],
+      "area": 129998.0,
+      "points_count": 11,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 129998.0,
+      "polygon_bounds": [
+        3370.38,
+        2680.0,
+        3788.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 129982.61,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L315",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_15",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 129997.99999999985,
+      "points_count": 5,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 129998.0,
+      "polygon_bounds": [
+        3807.38,
+        2680.0,
+        4225.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 129998.0,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L316",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_16",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 89842.4574999999,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 89842.46,
+      "polygon_bounds": [
+        4244.5,
+        2680.0,
+        4533.38,
+        2991.0
+      ],
+      "polygon_dims": {
+        "width": 288.88,
+        "height": 311.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 289.0,
+        "largura_n2": 311.0,
+        "area_n2_cm2": 89875.36,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 288.88,
+        "detected_height": 311.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L317",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_17",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 49953.56773477484,
+      "points_count": 7,
+      "confidence_score": 0.486,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 49953.57,
+      "polygon_bounds": [
+        4552.5,
+        2680.04,
+        4649.88,
+        3193.0
+      ],
+      "polygon_dims": {
+        "width": 97.38,
+        "height": 512.96
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 97.5,
+        "largura_n2": 512.96,
+        "area_n2_cm2": 50003.27,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 97.38,
+        "detected_height": 512.96
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L318",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_18",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 512693.2025,
+      "points_count": 13,
+      "confidence_score": 0.44,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 512693.2,
+      "polygon_bounds": [
+        1394.38,
+        2460.0,
+        4533.38,
+        2661.0
+      ],
+      "polygon_dims": {
+        "width": 3139.0,
+        "height": 201.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 3139.12,
+        "largura_n2": 201.0,
+        "area_n2_cm2": 512709.77,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 3139.0,
+        "detected_height": 201.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L319",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_19",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 190783.9412395844,
+      "points_count": 8,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 190783.94,
+      "polygon_bounds": [
+        1197.88,
+        2067.0,
+        1603.38,
+        2661.0
+      ],
+      "polygon_dims": {
+        "width": 405.5,
+        "height": 594.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 405.5,
+        "largura_n2": 594.0,
+        "area_n2_cm2": 190772.69,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 405.5,
+        "detected_height": 594.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L320",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_20",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 176764.2975,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 176764.3,
+      "polygon_bounds": [
+        1622.5,
+        2067.0,
+        2040.38,
+        2490.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 423.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 423.0,
+        "area_n2_cm2": 176806.13,
+        "has_coords": true,
+        "dim_delta": 0.0001,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 423.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L321",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_21",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 176814.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 176814.0,
+      "polygon_bounds": [
+        2059.38,
+        2067.0,
+        2477.38,
+        2490.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 423.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 423.0,
+        "area_n2_cm2": 176806.13,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 423.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L322",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_22",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 176814.0,
+      "points_count": 7,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 176814.0,
+      "polygon_bounds": [
+        2496.38,
+        2067.0,
+        2914.38,
+        2490.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 423.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 423.0,
+        "area_n2_cm2": 176806.13,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 423.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L323",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_23",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 176814.0,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 176814.0,
+      "polygon_bounds": [
+        2933.38,
+        2067.0,
+        3351.38,
+        2490.0
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 423.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 423.0,
+        "area_n2_cm2": 176802.25,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 423.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L324",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_24",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "name"
+      ],
+      "area": 176764.29750000007,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 176764.3,
+      "polygon_bounds": [
+        3370.5,
+        2067.0,
+        3788.38,
+        2490.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 423.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 423.0,
+        "area_n2_cm2": 176804.6,
+        "has_coords": true,
+        "dim_delta": 0.0001,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 423.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L325",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_25",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "name"
+      ],
+      "area": 59206.098,
+      "points_count": 5,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 59206.1,
+      "polygon_bounds": [
+        3807.38,
+        1982.04,
+        3936.38,
+        2441.0
+      ],
+      "polygon_dims": {
+        "width": 129.0,
+        "height": 458.96
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 129.0,
+        "largura_n2": 458.96,
+        "area_n2_cm2": 59206.1,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 129.0,
+        "detected_height": 458.96
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L326",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_26",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "name"
+      ],
+      "area": 13767.530432999996,
+      "points_count": 7,
+      "confidence_score": 0.46,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 13767.53,
+      "polygon_bounds": [
+        1369.64,
+        1977.04,
+        1603.38,
+        2048.04
+      ],
+      "polygon_dims": {
+        "width": 233.74,
+        "height": 71.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 233.74,
+        "largura_n2": 71.0,
+        "area_n2_cm2": 13767.53,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 233.74,
+        "detected_height": 71.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L327",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_27",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "name"
+      ],
+      "area": 29382.226965,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 29382.23,
+      "polygon_bounds": [
+        1622.5,
+        1977.0,
+        2040.38,
+        2048.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 71.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 415.5,
+        "largura_n2": 71.0,
+        "area_n2_cm2": 29213.16,
+        "has_coords": true,
+        "dim_delta": 0.0049,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 71.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L328",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_28",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "name"
+      ],
+      "area": 29411.98946500001,
+      "points_count": 9,
+      "confidence_score": 0.4,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 29411.99,
+      "polygon_bounds": [
+        2059.38,
+        1977.04,
+        2477.38,
+        2048.04
+      ],
+      "polygon_dims": {
+        "width": 418.0,
+        "height": 71.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 71.0,
+        "area_n2_cm2": 29411.99,
+        "has_coords": true,
+        "dim_delta": 0.0,
+        "match_quality": "EXCELENTE",
+        "detected_width": 418.0,
+        "detected_height": 71.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L329",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_29",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "name"
+      ],
+      "area": 29409.56250000001,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 29409.56,
+      "polygon_bounds": [
+        2496.5,
+        1977.0,
+        2914.38,
+        2048.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 71.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 71.0,
+        "area_n2_cm2": 29411.79,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 71.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L330",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_30",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "name"
+      ],
+      "area": 29409.56250000001,
+      "points_count": 9,
+      "confidence_score": 0.5,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 29409.56,
+      "polygon_bounds": [
+        2933.5,
+        1977.0,
+        3351.38,
+        2048.0
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 71.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 71.0,
+        "area_n2_cm2": 29411.79,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 71.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    },
+    {
+      "name": "L331",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_31",
+      "validated": false,
+      "validated_fields": [
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "name"
+      ],
+      "area": 29539.752500000013,
+      "points_count": 7,
+      "confidence_score": 0.46,
+      "confidence_level": "LOW",
+      "n2_teacher_matched": false,
+      "outline_source": "?",
+      "polygon_area": 29539.75,
+      "polygon_bounds": [
+        3370.5,
+        1977.04,
+        3788.38,
+        2048.04
+      ],
+      "polygon_dims": {
+        "width": 417.88,
+        "height": 71.0
+      },
+      "internal_lines": {
+        "h": 0,
+        "v": 0
+      },
+      "issues": [],
+      "n2_comparison": {
+        "comprimento_n2": 418.0,
+        "largura_n2": 71.0,
+        "area_n2_cm2": 29548.1,
+        "has_coords": true,
+        "dim_delta": 0.0002,
+        "match_quality": "EXCELENTE",
+        "detected_width": 417.88,
+        "detected_height": 71.0
+      },
+      "link_slots": [
+        "name",
+        "laje_dim",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "_laje_complex"
+      ]
+    }
+  ]
 }

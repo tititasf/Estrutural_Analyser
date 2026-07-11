@@ -128,6 +128,60 @@ def _partial_collections_for_sections(
     }
 
 
+def _attach_lv_generation_contracts(
+    beams: list[dict], pillars: list[dict], floor: str
+) -> int:
+    """Anexa ao snapshot SA os quatro contratos N3 derivados do proprio N1."""
+    from src.core.lv_generation_contract import build_lv_generation_contracts
+
+    pillar_bboxes = {}
+    for pillar in pillars or []:
+        points = pillar.get('points') or []
+        try:
+            xs = [float(point[0]) for point in points]
+            ys = [float(point[1]) for point in points]
+        except (TypeError, ValueError, IndexError):
+            continue
+        if xs and ys:
+            pillar_bboxes[str(pillar.get('name') or pillar.get('id') or '')] = (
+                min(xs), min(ys), max(xs), max(ys)
+            )
+
+    attached = 0
+    for beam in beams or []:
+        name = str(beam.get('name') or '').strip().upper()
+        if not re.fullmatch(r'V\d+[A-Z]?', name):
+            continue
+        contracts = build_lv_generation_contracts(
+            beam, beam_name=name, floor=floor,
+            pillar_bboxes=pillar_bboxes,
+        )
+        if not any(
+            contracts[behavior][side].get('panels')
+            for behavior in ('Para', 'Passa') for side in ('A', 'B')
+        ):
+            continue
+        beam['lv_generation_contracts'] = contracts
+        beam['lv_generation_contract_version'] = 'lv_generation_contract/v1'
+        fields = beam.setdefault('fields', {})
+        fields['lv_n3_para_panels_A'] = [
+            panel['width'] for panel in contracts['Para']['A']['panels']
+        ]
+        fields['lv_n3_para_panels_B'] = [
+            panel['width'] for panel in contracts['Para']['B']['panels']
+        ]
+        fields['lv_n3_passa_panels_A'] = [
+            panel['width'] for panel in contracts['Passa']['A']['panels']
+        ]
+        fields['lv_n3_passa_panels_B'] = [
+            panel['width'] for panel in contracts['Passa']['B']['panels']
+        ]
+        fields['lv_n3_passa_total_A'] = contracts['Passa']['A']['total_length']
+        fields['lv_n3_passa_total_B'] = contracts['Passa']['B']['total_length']
+        attached += 1
+    return attached
+
+
 def _nat_key(x: dict):
     return [int(t) if t.isdigit() else t.lower()
             for t in re.split(r'(\d+)', x.get('name', ''))]
@@ -915,6 +969,190 @@ def _generate_fv_n3_nova_previews(
     return generated, failed
 
 
+def _generate_pl_n3_nova_previews(
+    obra: str,
+    window,
+) -> tuple[list[str], list[str]]:
+    """Gera N3 de pilares: **sempre PARA e PASSA** (listas separadas).
+
+    Espelha o desktop/CE: não há escolha manual no N3. Publica em
+    ``DADOS-OBRAS/<obra>/Fase-6_Execucao_CAD/n3_variants/{para|passa}/``
+    via ``PreValidationDialog.materialize_pl_n3_variants`` (mesmo contrato
+    SA + ``generate_pilar_zone`` + ``apply_visual_mode``).
+
+    Returns:
+        (generated, failed) labels ``P1_para``, ``P1_passa``, …
+    """
+    try:
+        dialog = window._build_pre_validation_dialog()
+    except Exception as exc:
+        print(f'[SA-HUMAN] N3 PL dialog falhou: {exc}', flush=True)
+        return [], ['dialog-error']
+    if dialog is None:
+        return [], ['dialog-ausente']
+    try:
+        generated, failed = dialog.materialize_pl_n3_variants()
+    except Exception as exc:
+        print(f'[SA-HUMAN] N3 PL materialize falhou: {exc}', flush=True)
+        return [], [f'materialize-error:{exc}']
+    return list(generated or []), list(failed or [])
+
+
+def _generate_lv_n3_nova_previews(
+    obra_dir: Path,
+    beams: list[dict],
+    output_dir: Path,
+) -> tuple[list[str], list[str]]:
+    """Gera N3 isolado das laterais de viga (LV): 2 comportamentos
+    (Para/Passa) x 3 vistas (Visão de Corte/Lateral A/Lateral B) por viga.
+
+    Usa os 4 contratos que o próprio SA já calculou e anexou em
+    `beam['lv_generation_contracts']` (`_attach_lv_generation_contracts`,
+    que por sua vez chama `build_lv_generation_contracts` — mesma fonte que
+    alimenta os campos `lv_n3_*_panels_*` do snapshot). Não toca
+    Fase-4/Fase-6 reais da obra: grava os JSON de entrada (`V{n}_A.json`/
+    `V{n}_B.json`, schema que `gerar_lv_dxf_stog.py` já sabe ler) e os DXF
+    de saída no mesmo diretório temporário isolado usado pelo FV.
+    """
+    script = _REPO_ROOT / 'scripts' / 'gerar_lv_dxf_stog.py'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    input_root = output_dir.parent / 'contracts_lv'
+    generated: list[str] = []
+    failed: list[str] = []
+
+    for beam in beams or []:
+        contracts = beam.get('lv_generation_contracts')
+        if not isinstance(contracts, dict):
+            continue
+        beam_name = str(beam.get('name') or '').strip().upper()
+        if not beam_name:
+            continue
+        for behavior in ('Para', 'Passa'):
+            sides = contracts.get(behavior) or {}
+            if not any((sides.get(side) or {}).get('panels') for side in ('A', 'B')):
+                continue
+            behavior_input_dir = input_root / f'LV-{behavior.upper()}'
+            behavior_input_dir.mkdir(parents=True, exist_ok=True)
+            for side in ('A', 'B'):
+                contract = sides.get(side) or {}
+                contract_path = behavior_input_dir / f'{beam_name}_{side}.json'
+                contract_path.write_text(
+                    json.dumps(contract, ensure_ascii=False, indent=2),
+                    encoding='utf-8',
+                )
+            for view in ('CORTE', 'A', 'B'):
+                view_suffix = 'CORTE' if view == 'CORTE' else f'VIEW_{view}'
+                label = f'{beam_name}_{behavior}_{view_suffix}'
+                command = [
+                    sys.executable,
+                    str(script),
+                    '--obra', str(obra_dir),
+                    '--item', beam_name,
+                    '--behavior', behavior,
+                    '--view', view,
+                    '--visual-mode', 'NOVA',
+                    '--output-dir', str(output_dir),
+                    '--input-dir', str(behavior_input_dir),
+                ]
+                result = subprocess.run(
+                    command,
+                    cwd=str(_REPO_ROOT),
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    # Destino já isolado/temporário — remover a trava evita
+                    # que guarded_saveas desvie o candidato pra outro lugar
+                    # (mesmo motivo do FV, ver _generate_fv_n3_nova_previews).
+                    env={
+                        key: value for key, value in os.environ.items()
+                        if key != 'CAD_MOTOR_HEADLESS'
+                    },
+                )
+                expected = output_dir / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
+                if result.returncode == 0 and expected.is_file():
+                    generated.append(label)
+                else:
+                    failed.append(label)
+                    detail = (result.stderr or result.stdout or '').strip()[-300:]
+                    print(
+                        f'[SA-HUMAN] N3 LV ausente para {label}: {detail}',
+                        flush=True,
+                    )
+    return generated, failed
+
+
+def _generate_lj_n3_nova_previews(
+    obra_dir: Path,
+    window,
+    output_dir: Path,
+) -> tuple[list[str], list[str]]:
+    """Gera N3 isolado das lajes (LJ) — reaproveita a MESMA materialização
+    que o desktop já faz com sucesso em modo não-read-only
+    (`MainWindow._materialize_slabs_for_n1_n3_and_robo`: `slab_to_n1_robot_
+    ficha` + `_merge_lj_n3_teacher`, sem gabarito N2/N4), só que gravando em
+    diretório temporário isolado em vez de Fase-4/Fase-6 reais da obra — o
+    headless roda com `_sa_read_only_run=True`, que pula essa materialização
+    de propósito (grava na obra real), por isso LJ nunca tinha N3 aqui.
+    """
+    script = _REPO_ROOT / 'scripts' / 'gerar_lj_dxf_stog.py'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_dir = output_dir.parent / 'contracts_lj'
+    json_dir.mkdir(parents=True, exist_ok=True)
+    generated: list[str] = []
+    failed: list[str] = []
+
+    for slab in getattr(window, 'slabs_found', []) or []:
+        nome = str(slab.get('name') or '').strip().upper()
+        if not nome:
+            continue
+        try:
+            ficha = window._slab_to_n1_robot_ficha(slab)
+            n3_ficha = window._merge_lj_n3_teacher(ficha, {})
+            (json_dir / f'{ficha.get("nome") or nome}.json').write_text(
+                json.dumps(n3_ficha, indent=2, ensure_ascii=False),
+                encoding='utf-8',
+            )
+        except Exception as exc:
+            failed.append(nome)
+            print(
+                f'[SA-HUMAN] N3 LJ contrato falhou para {nome}: {exc}',
+                flush=True,
+            )
+            continue
+
+        command = [
+            sys.executable,
+            str(script),
+            '--obra', str(obra_dir),
+            '--item', nome,
+            '--mode', 'planta',
+            '--json-dir', str(json_dir),
+            '--out-dir', str(output_dir),
+        ]
+        result = subprocess.run(
+            command,
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=120,
+            env={
+                key: value for key, value in os.environ.items()
+                if key != 'CAD_MOTOR_HEADLESS'
+            },
+        )
+        expected = output_dir / f'LJ_preview_{nome}.dxf'
+        if result.returncode == 0 and expected.is_file():
+            generated.append(nome)
+        else:
+            failed.append(nome)
+            detail = (result.stderr or result.stdout or '').strip()[-300:]
+            print(
+                f'[SA-HUMAN] N3 LJ ausente para {nome}: {detail}',
+                flush=True,
+            )
+    return generated, failed
+
+
 def run_analysis(
     obra: str,
     pavimento: str,
@@ -1000,6 +1238,14 @@ def run_analysis(
             FundoVigaInterpreter.repair_area_links(
                 beam, context_beams=window.beams_found
             )
+        lv_contracts_attached = _attach_lv_generation_contracts(
+            window.beams_found, window.pillars_found, pavimento
+        )
+        print(
+            f'[SA-HUMAN] Contratos N3 LV anexados ao snapshot: '
+            f'{lv_contracts_attached}',
+            flush=True,
+        )
         invalid_fv_areas = fv_area_errors(window.beams_found)
         if invalid_fv_areas:
             raise RuntimeError(
@@ -1069,7 +1315,40 @@ def run_analysis(
                 f'{len(failed)} ausente(s)',
                 flush=True,
             )
+            lv_generated, lv_failed = _generate_lv_n3_nova_previews(
+                obra_dir, window.beams_found, Path(n3_temp) / 'dxf'
+            )
+            print(
+                f'[SA-HUMAN] N3 LV isolado: {len(lv_generated)} gerado(s), '
+                f'{len(lv_failed)} ausente(s)',
+                flush=True,
+            )
+            lj_generated, lj_failed = _generate_lj_n3_nova_previews(
+                obra_dir, window, Path(n3_temp) / 'dxf'
+            )
+            print(
+                f'[SA-HUMAN] N3 LJ isolado: {len(lj_generated)} gerado(s), '
+                f'{len(lj_failed)} ausente(s)',
+                flush=True,
+            )
+            # PL N3: sempre as duas listas (PARA + PASSA), igual desktop/CE.
+            # Independente do filtro --secao HTML: o CE precisa de n3_variants.
+            # Mesma instância de dialog no export reusa o cache (sem regenerar).
             dialog = window._build_pre_validation_dialog()
+            pl_generated, pl_failed = [], ['dialog-ausente']
+            if dialog is not None:
+                try:
+                    pl_generated, pl_failed = dialog.materialize_pl_n3_variants()
+                except Exception as exc:
+                    pl_failed = [f'materialize-error:{exc}']
+                    print(f'[SA-HUMAN] N3 PL materialize falhou: {exc}', flush=True)
+            print(
+                f'[SA-HUMAN] N3 PL PARA+PASSA: {len(pl_generated)} gerado(s), '
+                f'{len(pl_failed)} ausente(s)',
+                flush=True,
+            )
+            if dialog is None:
+                dialog = window._build_pre_validation_dialog()
             dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
             dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
             html_dir = dialog._export_html_snapshot(sections=sections)

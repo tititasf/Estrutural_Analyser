@@ -1,6 +1,6 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-10 10:26:45  
+**Gerado em:** 2026-07-11 17:07:56  
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 
@@ -12,9 +12,9 @@
 | LAJ | 13_PAV | 20260708_120831 | 31 | 0 | 0 | 100.0% | 31 |  |
 | LV | 13_PAV | 20260703_164510 | 32 | 0 | 0 | 100.0% | 32 |  |
 | LV | 14_PAV | 20260626_194156 | 10 | 17 | 0 | 37.0% | 10 | ❌ FAIL aberto |
-| PIL | 12_PAV | 20260705_213717 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
-| PIL | 13_PAV | 20260706_161845 | 35 | 0 | 0 | 100.0% | 35 |  |
-| PIL | 14_PAV | 20260705_214228 | 27 | 1 | 0 | 96.4% | 27 | ❌ FAIL aberto |
+| PIL | 12_PAV | 20260711_000051 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
+| PIL | 13_PAV | 20260710_235326 | 35 | 0 | 0 | 100.0% | 35 |  |
+| PIL | 14_PAV | 20260711_001309 | 27 | 1 | 0 | 96.4% | 27 | ❌ FAIL aberto |
 | PIL | 1_PAV | 20260705_214623 | 15 | 23 | 0 | 39.5% | 34 | ❌ FAIL aberto · ⚠ golden (34) > última rodada (15) — REGRESSÃO vs selado |
 | PIL | 2_PAV | 20260705_215126 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
 | PIL | COBERTURA | 20260705_215925 | 6 | 23 | 0 | 20.7% | 25 | ❌ FAIL aberto · ⚠ golden (25) > última rodada (6) — REGRESSÃO vs selado |
@@ -44,6 +44,7 @@
 | Obra_TREINO_1_13_PAV_fundos_viga_posfix_20260707.jsonl | 9 | aberto: 5, corrigido_codigo_headless_pendente: 1, em_correcao: 1, verificado: 2 | auto: 9 |
 | Obra_TREINO_1_13_PAV_fv_contaminacao_validacao.jsonl | 3 | corrigido_codigo_dados_historicos_pendentes: 1, corrigido_verificado: 1, corrigido_verificado_visual: 1 | auto: 2, humano: 1 |
 | Obra_TREINO_1_13_PAV_lajes.jsonl | 144 | aberto: 64, verificado: 80 | auto: 111, dono: 16, humano: 17 |
+| Obra_TREINO_1_13_PAV_laterais_viga.jsonl | 7 | aberto: 4, corrigido: 1, verificado: 2 | humano: 7 |
 | Obra_TREINO_1_13_PAV_pilares.jsonl | 42 | aberto: 5, verificado: 37 | auto: 39, humano: 3 |
 
 ## Banco de dados (read-only)

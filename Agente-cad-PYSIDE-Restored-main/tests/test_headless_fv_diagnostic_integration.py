@@ -2,10 +2,42 @@ from pathlib import Path
 
 from scripts.arete import diagnostico_fv_n1_n2, diagnostico_laj_n1_n2
 from scripts.arete.headless_sa_analise import (
+    _attach_lv_generation_contracts,
     _publish_arete_manifest,
     _run_fv_diagnostic_postprocess,
     _run_section_diagnostics,
 )
+
+
+def test_headless_attaches_v327_generation_contract_for_sa_db():
+    beam = {
+        "name": "V327",
+        "lv_is_h": False,
+        "geometry": {"lv_dimension_text": {"text": "14/50"}},
+        "links": {
+            "viga_a_seg_1_comp_total_passa": {"seg_side_a": [{
+                "points": [[4387.3825, 1982.038], [4387.3825, 2242.038]],
+                "len": 260,
+            }]},
+            "viga_b_seg_1_comp_total_passa": {"seg_side_b": [{
+                "points": [[4387.3825, 1982.038], [4387.3825, 2242.038]],
+                "len": 260,
+            }]},
+        },
+    }
+    pillar = {
+        "name": "P27",
+        "points": [
+            [4387.3825, 2242.038], [4552.3825, 2242.038],
+            [4552.3825, 2460.038], [4387.3825, 2460.038],
+        ],
+    }
+
+    assert _attach_lv_generation_contracts([beam], [pillar], "13_PAV") == 1
+    assert beam["fields"]["lv_n3_passa_panels_A"] == [122.0, 134.0]
+    assert beam["fields"]["lv_n3_passa_panels_B"] == [122.0, 138.0]
+    assert beam["fields"]["lv_n3_passa_total_A"] == 256.0
+    assert beam["fields"]["lv_n3_passa_total_B"] == 260.0
 
 
 def test_fv_diagnostic_postprocess_returns_paths(monkeypatch, tmp_path: Path):

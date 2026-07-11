@@ -45,6 +45,27 @@ class _LateralVigaInterpreter:
     def raw_slot(self) -> str:
         return f"seg_side_{self.side.lower()}"
 
+    @property
+    def contract_key(self) -> str:
+        """Identidade estavel do contrato sem misturar lado ou comportamento."""
+        return f"{self.side.lower()}_{self.behavior}"
+
+    def _contract_value(
+        self,
+        classified: dict[str, Any],
+        suffix: str,
+        fallback: Any,
+    ) -> Any:
+        """Le geometria semantica do contrato e so entao usa o legado.
+
+        O BeamTracer continua dono da geometria bruta. A camada semantica pode
+        publicar ``lv_a_para_*``, ``lv_b_para_*``, ``lv_a_passa_*`` e
+        ``lv_b_passa_*``. Isso impede que os quatro interpretadores sejam
+        obrigados a reutilizar a mesma topologia quando Para e Passa divergem.
+        """
+        key = f"lv_{self.contract_key}_{suffix}"
+        return classified[key] if key in classified else fallback
+
     @staticmethod
     def _length(line: Iterable[Point]) -> float:
         points = list(line)
@@ -120,17 +141,26 @@ class _LateralVigaInterpreter:
         classified: dict[str, Any],
     ) -> float:
         """Produz somente o slot lateral declarado pelo contrato."""
-        lengths = classified.get(
+        legacy_lengths = classified.get(
             "lv_merged_bottom_lengths",
             classified.get("merged_bottom_lengths", []),
         )
-        coordinates = classified.get(
+        legacy_coordinates = classified.get(
             "lv_merged_bottom_groups_coords",
             classified.get("merged_bottom_groups_coords", []),
         )
-        raw_lines = classified.get(
+        legacy_raw_lines = classified.get(
             f"lv_{self.raw_slot}",
             classified.get(self.raw_slot, []),
+        )
+        lengths = self._contract_value(
+            classified, "lengths", legacy_lengths
+        )
+        coordinates = self._contract_value(
+            classified, "groups_coords", legacy_coordinates
+        )
+        raw_lines = self._contract_value(
+            classified, "lines", legacy_raw_lines
         )
         is_horizontal = bool(beam.get("lv_is_h", beam.get("is_h", True)))
         beam_pos = beam.get("pos", (0.0, 0.0))
@@ -200,6 +230,12 @@ class _LateralVigaInterpreter:
                     "points": matched,
                     "len": segment_length,
                     "tag": f"Lado {self.side}",
+                    "geometry_role": "lateral",
+                    "side": self.side,
+                    "behavior": self.behavior.capitalize(),
+                    "contract_id": f"LV_{self.side.upper()}_{self.behavior.upper()}",
+                    "segment_index": segment_index,
+                    "source_slot": self.raw_slot,
                 }
                 if beam.get("lv_dimension_override"):
                     link_entry["lv_dimensao"] = beam["lv_dimension_override"]
@@ -218,6 +254,12 @@ class _LateralVigaInterpreter:
             "points": best_line,
             "len": segment_length,
             "tag": f"Lado {self.side}",
+            "geometry_role": "lateral",
+            "side": self.side,
+            "behavior": self.behavior.capitalize(),
+            "contract_id": f"LV_{self.side.upper()}_{self.behavior.upper()}",
+            "segment_index": 1,
+            "source_slot": self.raw_slot,
         }
         if beam.get("lv_dimension_override"):
             link_entry["lv_dimensao"] = beam["lv_dimension_override"]

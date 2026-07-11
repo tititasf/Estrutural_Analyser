@@ -1,2 +1,2 @@
 
-pid=16628 inicio=2026-07-10T11:22:39 cmd=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\headless_sa_analise.py --obra D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial --pav TERREO --wait
+pid=12568 inicio=2026-07-11T17:25:12 cmd=scripts/arete/headless_sa_analise.py --obra Obra_TREINO_1 --pav 13_PAV --secao laterais_viga --item

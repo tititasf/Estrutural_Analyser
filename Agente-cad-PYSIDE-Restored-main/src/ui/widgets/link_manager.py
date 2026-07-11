@@ -100,23 +100,36 @@ class LinkManager(QWidget):
              {'id': 'dim', 'name': '2. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Define o valor do campo.'},
              {'id': 'cut_view', 'name': '3. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a linha de corte/T sobre a viga. [Enter] para finalizar.', 'help': 'Referência visual da posição da laje.'}
         ],
+        # Lajes unificadas do segmento LV (até 3 vínculos; ficha por laje)
+        '_seg_lajes': [
+            {
+                'id': 'laje',
+                'name': 'Laje (até 3)',
+                'type': 'text',
+                'prompt': 'Identifique o texto Lxx da laje em contato com esta face da lateral.',
+                'help': (
+                    'Até 3 lajes por segmento. Em cada vínculo preencha a ficha: '
+                    'nível, espessura, dist. ponta esquerda e dist. ponta direita do painel.'
+                ),
+            },
+        ],
         '_abert_pilar_esq': [
-             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.'},
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar sarrafeado que atravessa a lateral.'},
              {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar.'},
-             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg contato.'},
+             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg da abertura sarrafeada (11+L+11).'},
              {'id': 'cont_tip_esq', 'name': '4. Cont. Esq', 'type': 'poly', 'prompt': 'Desenhe continuidade esquerda.'},
              {'id': 'cont_tip_dir', 'name': '5. Cont. Dir', 'type': 'poly', 'prompt': 'Desenhe continuidade direita.'}
         ],
         '_abert_pilar_dir': [
-             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.'},
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar sarrafeado que atravessa a lateral.'},
              {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar.'},
-             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg contato.'},
+             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg da abertura sarrafeada (11+L+11).'},
              {'id': 'cont_tip_esq', 'name': '4. Cont. Esq', 'type': 'poly', 'prompt': 'Desenhe continuidade esquerda.'},
              {'id': 'cont_tip_dir', 'name': '5. Cont. Dir', 'type': 'poly', 'prompt': 'Desenhe continuidade direita.'}
         ],
         '_abert_viga_top_esq': [
-             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga que chega.'},
-             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que chega.'},
+             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga cuja ponta passa por baixo.'},
+             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que passa por baixo.'},
              {'id': 'arr_dim', 'name': '3. Dimensões', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.'},
              {'id': 'adj_mouth', 'name': '4. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe ajuste boca.'},
              {'id': 'adj_depth', 'name': '5. Ajuste Prof.', 'type': 'poly', 'prompt': 'Desenhe ajuste profundidade.'}
@@ -247,6 +260,10 @@ class LinkManager(QWidget):
         if 'laje_nivel' in field_id:
              return self.SLOT_CONFIG['_laje_level']
         
+        # Lajes unificadas do segmento LV (antes do match genérico 'laje')
+        if field_id.endswith('_lajes') or '_lajes' in field_id:
+            return self.SLOT_CONFIG['_seg_lajes']
+
         if 'laje' in field_id and ('_geom' in field_id or 'outline' in field_id):
              return self.SLOT_CONFIG['_laje_geom']
         
@@ -768,6 +785,14 @@ class LinkManager(QWidget):
         return '•'
 
     def _ficha_fields_for_link(self, slot_id):
+        # Lajes 1/2/3 da lateral de viga — posição X/Y no painel
+        if ('_lajes' in self.field_id) and slot_id == 'laje':
+            return [
+                ('nivel', 'Nível da laje', 'ex: N 852,19 ou +0.00', True, 'text'),
+                ('espessura', 'Espessura', 'cm (H=12 / d=12)', True, 'text'),
+                ('dist_esq', 'Dist. ponta esquerda do painel', 'cm (0 = nasce na ponta)', False, 'text'),
+                ('dist_dir', 'Dist. ponta direita do painel', 'cm (0 = termina na ponta)', False, 'text'),
+            ]
         if 'viga_fundo' in self.field_id and slot_id == 'contour':
             return [
                 ('largura_total_fundo', 'Largura total do fundo', 'cm', False, 'text'),

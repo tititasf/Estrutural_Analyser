@@ -5,10 +5,45 @@ from pathlib import Path
 import pytest
 
 from scripts.arete.diagnostico_lv_n1_n2 import (
+    _overlay_persisted_lv_dimensions,
     _numbers_from_text,
     classify_delta,
     run_diagnostic,
 )
+
+
+def test_persisted_lv_contract_replaces_legacy_fv_dimension(tmp_path: Path):
+    db_path = tmp_path / "project_data.vision"
+    connection = sqlite3.connect(db_path)
+    connection.execute(
+        "CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT, work_name TEXT, "
+        "pavement_name TEXT, updated_at TEXT)"
+    )
+    connection.execute(
+        "CREATE TABLE beams (id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT)"
+    )
+    connection.execute(
+        "INSERT INTO projects VALUES (?,?,?,?,?)",
+        ("p1", "TMC-EST-PE-6000-13P", "Obra_TESTE", "TMC-EST-PE-6000-13P", "2026-07-11"),
+    )
+    beam = {
+        "geometry": {"lv_dimension_text": {"text": "14/50"}},
+        "lv_generation_contracts": {
+            "Passa": {"A": {"total_width": 14, "h_section": 50}}
+        },
+    }
+    connection.execute(
+        "INSERT INTO beams VALUES (?,?,?,?)", ("b1", "p1", "V327", json.dumps(beam))
+    )
+    connection.commit()
+    connection.close()
+
+    n1 = {"V327": {"declared_numbers": [24.0, 66.0]}}
+    assert _overlay_persisted_lv_dimensions(
+        n1, db_path, "Obra_TESTE", "13_PAV"
+    ) == 1
+    assert n1["V327"]["declared_numbers"] == [14.0, 50.0]
+    assert n1["V327"]["declared_numbers_legacy"] == [24.0, 66.0]
 
 
 @pytest.mark.parametrize(

@@ -480,9 +480,37 @@ def _collect_dxf_segments(dxf_path: str | Path):
                 ins = e.dxf.insert
                 if ins.x < -5000:
                     continue
-                txt = e.dxf.text if dt == "TEXT" else e.plain_mtext()
+                txt = e.dxf.text if dt == "TEXT" else e.plain_text()
                 texts.append((ins.x, ins.y, txt[:20]))
                 all_xs.append(ins.x); all_ys.append(ins.y)
+            elif dt == "DIMENSION":
+                # A cota DXF e uma entidade composta: suas linhas e texto vivem
+                # nas virtual_entities(). Sem isso o G2-V/G5-V fica cego para
+                # valores e posicionamento de cotas.
+                for virtual in e.virtual_entities():
+                    vdt = virtual.dxftype()
+                    if vdt == "LINE":
+                        start, end = virtual.dxf.start, virtual.dxf.end
+                        if start.x < -5000 or end.x < -5000:
+                            continue
+                        segments.append(([start.x, end.x], [start.y, end.y], layer))
+                        all_xs.extend((start.x, end.x)); all_ys.extend((start.y, end.y))
+                    elif vdt == "TEXT":
+                        ins = virtual.dxf.insert
+                        if ins.x < -5000:
+                            continue
+                        texts.append((ins.x, ins.y, virtual.dxf.text[:20]))
+                        all_xs.append(ins.x); all_ys.append(ins.y)
+                midpoint = e.dxf.get("text_midpoint")
+                if midpoint is not None and midpoint.x >= -5000:
+                    text = str(e.dxf.get("text", "")).strip()
+                    if text in ("", "<>"):
+                        measurement = e.get_measurement()
+                        if isinstance(measurement, (int, float)):
+                            text = f"{float(measurement):.3f}".rstrip("0").rstrip(".")
+                    if text:
+                        texts.append((midpoint.x, midpoint.y, text[:20]))
+                        all_xs.append(midpoint.x); all_ys.append(midpoint.y)
         except Exception:
             pass
 
@@ -544,7 +572,7 @@ def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None 
         ax.plot(xs, ys, color=color, linewidth=0.5)
 
     for x, y, txt in txts_n:
-        ax.text(x, y, txt, fontsize=3, color="#ffff88", alpha=0.8)
+        ax.text(x, y, txt, fontsize=5, color="#ffff88", alpha=0.9)
 
     if fixed_view:
         ax.set_xlim(0.0, w_n)

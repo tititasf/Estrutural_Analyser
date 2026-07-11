@@ -1,0 +1,62 @@
+{
+  "nome": "L307",
+  "numero": 307,
+  "coordenadas": [
+    [
+      418.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      183.0
+    ],
+    [
+      417.8825,
+      183.0
+    ],
+    [
+      417.8825,
+      131.038
+    ],
+    [
+      418.0,
+      131.038
+    ]
+  ],
+  "comprimento": 418.0,
+  "largura": 183.0,
+  "area_cm2": 76487.89,
+  "modo_selecionado": 0,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "unioes_nos_bordes": [],
+  "observacoes": "",
+  "_hlaz": [
+    {
+      "x": 0.0,
+      "y": 102.0,
+      "width": 418.0,
+      "height": 20.0
+    }
+  ],
+  "_sa_meta": {
+    "source": "g5_raw_slabs",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false,
+    "n3_pose_source": "sa_outline_anchor"
+  },
+  "_stog_pose": {
+    "x": 3807.5,
+    "y": 3010.0
+  }
+}

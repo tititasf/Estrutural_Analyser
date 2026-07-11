@@ -523,10 +523,22 @@ class FundoVigaInterpreter:
             link["closed"] = True
             link["geometry_role"] = "area_fundo"
             link["geometry_source"] = source
+            canonical_length = None
+            if str(link.get("fv_measure_source") or "").startswith(
+                "chamfer_half_cm_snap"
+            ):
+                try:
+                    candidate = float(link.get("fv_measure_length") or 0.0)
+                    if candidate > 0.05:
+                        canonical_length = candidate
+                except (TypeError, ValueError):
+                    pass
             if length > 0.01:
-                link["len"] = length
+                link["len"] = canonical_length or length
                 ficha = dict(link.get("ficha") or {})
-                ficha["comprimento_total_fundo"] = cls._format_measure(length)
+                ficha["comprimento_total_fundo"] = cls._format_measure(
+                    canonical_length or length
+                )
                 if width > 0.05:
                     ficha["largura_total_fundo"] = cls._format_measure(width)
                 link["ficha"] = ficha
@@ -964,6 +976,108 @@ class FundoVigaInterpreter:
                 current_narrow
                 and incoming_narrow
                 and start - current_max <= 30.0
+            ):
+                current_max = max(current_max, end)
+            else:
+                merged.append((current_min, current_max))
+                current_min, current_max = start, end
+        merged.append((current_min, current_max))
+        return merged
+
+    def discard_attached_narrow_caps(
+        self,
+        intervals: Iterable[Interval],
+        *,
+        max_cap: float = 30.0,
+    ) -> list[Interval]:
+        """Descarta tampa transversal curta colada a um painel longo.
+
+        A borda de encontro de outra viga pode aparecer como uma faixa axial
+        da própria largura estrutural (19 cm). Não é área de fundo: o painel
+        útil começa após essa tampa. Uma faixa curta isolada é preservada; ela
+        só é descartada quando toca diretamente um painel bem mais longo.
+        """
+        source = self.deduplicate(intervals)
+        if len(source) < 2:
+            return source
+
+        result: list[Interval] = []
+        for index, candidate in enumerate(source):
+            start, end = candidate
+            length = end - start
+            attached_to_long_panel = any(
+                other_index != index
+                and (other_end - other_start) > float(max_cap)
+                and (
+                    abs(end - other_start) <= 0.05
+                    or abs(start - other_end) <= 0.05
+                )
+                for other_index, (other_start, other_end) in enumerate(source)
+            )
+            if length <= float(max_cap) and attached_to_long_panel:
+                continue
+            result.append(candidate)
+        return result or source
+
+    def merge_unlabeled_short_gaps(
+        self,
+        intervals: Iterable[Interval],
+        *,
+        is_horizontal: bool,
+        transverse_center: float,
+        texts: Iterable[dict[str, Any]],
+        current_name: str = "",
+        max_gap: float = 30.0,
+    ) -> list[Interval]:
+        """Une lacunas curtas sem evidência local de apoio estrutural.
+
+        Um vão curto é ambíguo: em V306 coincide com rótulos estruturais e
+        separa painéis; em V312 não há apoio na fronteira e o fundo continua.
+        A decisão usa a evidência do desenho, nunca o nome do item.
+        """
+        source = self.deduplicate(intervals)
+        if len(source) < 2:
+            return source
+        # Dois ou três trechos descrevem tipicamente um único encontro local
+        # ambíguo. Em uma viga com muitos painéis, a ausência pontual de texto
+        # não autoriza atravessar fronteiras: preservar a segmentação é mais
+        # seguro do que colapsar uma cadeia contínua.
+        if len(source) > 3:
+            return source
+
+        current = str(current_name or "").strip().upper()
+        structural_label = re.compile(r"^(?:P|V)\d+[A-Z]*$")
+
+        def has_boundary_label(axis_center: float, gap: float) -> bool:
+            axis_tolerance = max(15.0, gap / 2.0 + 10.0)
+            for text_data in texts or []:
+                if not isinstance(text_data, dict):
+                    continue
+                label = str(text_data.get("text") or "").strip().upper()
+                if not structural_label.fullmatch(label) or label == current:
+                    continue
+                pos = text_data.get("pos")
+                if not isinstance(pos, (tuple, list)) or len(pos) < 2:
+                    continue
+                try:
+                    axis = float(pos[0] if is_horizontal else pos[1])
+                    transverse = float(pos[1] if is_horizontal else pos[0])
+                except (TypeError, ValueError):
+                    continue
+                if (
+                    abs(axis - axis_center) <= axis_tolerance
+                    and abs(transverse - float(transverse_center)) <= 80.0
+                ):
+                    return True
+            return False
+
+        merged: list[Interval] = []
+        current_min, current_max = source[0]
+        for start, end in source[1:]:
+            gap = start - current_max
+            if (
+                0.05 < gap <= float(max_gap)
+                and not has_boundary_label((current_max + start) / 2.0, gap)
             ):
                 current_max = max(current_max, end)
             else:
