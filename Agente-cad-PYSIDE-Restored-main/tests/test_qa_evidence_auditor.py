@@ -14,6 +14,7 @@ from scripts.arete.qa_evidence_auditor import (
     cmd_apply,
     cmd_audit,
     discover_class_inventory,
+    generic_class_review,
     resolve_project_scope,
     cmd_rollback,
     reconcile_web_evidence,
@@ -39,6 +40,35 @@ def test_global_discovery_keeps_beam_families_separate_and_is_read_only(tmp_path
     assert fv["validation_mode"] == "diagnostic_only"
     assert set(fv["field_frequency"]) == {"viga_fundo_seg_1_exists", "fv_detail"}
     assert set(lv["field_frequency"]) == {"viga_a_seg_1_dim", "lv_detail"}
+    assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
+    con.close()
+
+
+def test_generic_review_fails_closed_and_explains_missing_contract(tmp_path: Path):
+    db = tmp_path / "review.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE beams (
+          id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT,
+          is_validated INTEGER, validated_fields_json TEXT, na_fields_json TEXT
+        );
+        """
+    )
+    con.execute(
+        "INSERT INTO beams VALUES ('b', 'p', 'V1', ?, 0, '[]', '[]')",
+        (json.dumps({"viga_fundo_seg_1_dim": "19/55"}),),
+    )
+    decisions, findings, questions, records = generic_class_review(
+        con, project_id="p", classe="FV", run_id="run", selected=None, include_sealed=True,
+    )
+    assert not findings
+    assert len(records) == 1
+    assert decisions[0].decision == "PENDENTE"
+    assert decisions[0].operations == []
+    assert questions[0]["reasoning"]["rejected"] == [
+        "usar o valor N1 como prova de si mesmo", "copiar convenção de LAJ", "inferir por proximidade ou por N2/N4",
+    ]
     assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
     con.close()
 

@@ -1316,21 +1316,23 @@ _DECISION_SCORE = {
 
 def _item_scorecards(decisions: list[Decision], findings: list[dict], questions: list[dict]) -> list[dict]:
     """Score explícito: confiança da evidência × segurança da decisão."""
-    by_item: dict[str, list[Decision]] = {}
+    by_item: dict[tuple[str, str], list[Decision]] = {}
     for decision in decisions:
-        by_item.setdefault(decision.item, []).append(decision)
+        by_item.setdefault((decision.classe, decision.item), []).append(decision)
     cards = []
-    for item, rows in sorted(by_item.items()):
+    multi_class = len({decision.classe for decision in decisions}) > 1
+    for (classe, item), rows in sorted(by_item.items()):
         values = [
             _CONFIDENCE_SCORE.get(row.confidence, 0.0) * _DECISION_SCORE.get(row.decision, 0.0)
             for row in rows
         ]
-        item_findings = [x for x in findings if x.get("item") == item]
-        item_questions = [x for x in questions if x.get("item") == item]
+        item_findings = [x for x in findings if x.get("item") == item and x.get("classe", classe) == classe]
+        item_questions = [x for x in questions if x.get("item") == item and x.get("classe", classe) == classe]
         uncertain = [row.field_id for row in rows if row.decision not in {"CONFIRMAR", "N/A_CONFIRMADO"}]
         score = round(100 * sum(values) / max(1, len(values)), 1)
         cards.append({
-            "item": item, "score_confianca": score,
+            "item": f"{classe}:{item}" if multi_class else item, "classe": classe, "item_original": item,
+            "score_confianca": score,
             "faixa": "alta" if score >= 90 else "media" if score >= 70 else "baixa",
             "campos_revisados": len(rows), "campos_incerto": sorted(uncertain),
             "achados": [x.get("code") for x in item_findings],
@@ -1694,6 +1696,162 @@ def cmd_discover(args: argparse.Namespace) -> int:
     return 0
 
 
+def _generic_snapshot(row: sqlite3.Row, columns: Iterable[str]) -> str:
+    payload = {column: row[column] for column in columns if column in row.keys()}
+    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def _generic_link_entries(payload: dict, field_id: str) -> list[dict]:
+    links = payload.get("links") if isinstance(payload.get("links"), dict) else payload
+    value = links.get(field_id) if isinstance(links, dict) else None
+    if not isinstance(value, dict):
+        return []
+    entries: list[dict] = []
+    for slot, raw_entries in value.items():
+        for entry in safe_list(raw_entries):
+            if isinstance(entry, dict):
+                entries.append({"slot": slot, **entry})
+    return entries
+
+
+def _field_family(field_id: str, classe: str) -> str:
+    if classe == "PIL":
+        match = re.match(r"p_s([A-H])_", field_id)
+        return f"face_{match.group(1)}" if match else field_id.split("_", 1)[0]
+    if classe in {"FV", "LV"}:
+        match = re.match(r"viga_([a-z]+)_seg_", field_id)
+        return match.group(1) if match else field_id.split("_", 2)[0]
+    return field_id
+
+
+def generic_class_review(
+    con: sqlite3.Connection, *, project_id: str, classe: str, run_id: str,
+    selected: set[str] | None, include_sealed: bool,
+) -> tuple[list[Decision], list[dict], list[dict], list[dict]]:
+    """Audita evidência observável de classes ainda sem permissão de escrita.
+
+    Nenhuma decisão aqui contém operações. A ausência de contrato específico
+    vira pendência explicada, não confirmação baseada no próprio payload N1.
+    """
+    spec = CLASS_REGISTRY[classe]
+    con.row_factory = sqlite3.Row
+    columns = [row[1] for row in con.execute(f"PRAGMA table_info({spec['table']})")]
+    rows = con.execute(f"SELECT * FROM {spec['table']} WHERE project_id=? ORDER BY name", (project_id,)).fetchall()
+    decisions: list[Decision] = []
+    findings: list[dict] = []
+    questions: list[dict] = []
+    records: list[dict] = []
+    missing_contracts: dict[str, list[dict]] = {}
+    for row in rows:
+        name = str(row["name"] or "").strip()
+        if (selected and name not in selected) or (not include_sealed and bool(row["is_validated"])):
+            continue
+        payload = json_load(row[spec["payload_column"]], {})
+        fields = sorted(_class_payload_keys(payload, classe))
+        snapshot_hash = _generic_snapshot(row, columns)
+        records.append({"id": row["id"], "name": name, "snapshot_hash": snapshot_hash})
+        if not name:
+            fields = ["name", *fields]
+        missing_by_family: dict[str, list[str]] = {}
+        for field_id in fields:
+            entries = _generic_link_entries(payload, field_id)
+            has_trace = any(
+                entry.get("source") or entry.get("points") or entry.get("pos") or entry.get("text")
+                for entry in entries
+            )
+            prevalidated = field_id in set(json_load(row["validated_fields_json"], [])) if "validated_fields_json" in columns else False
+            if has_trace:
+                decision, confidence, reason = (
+                    "PENDENTE", "medium",
+                    "há ligação N1 rastreável, mas o adaptador da classe ainda não possui contrato de proveniência para confirmar sem circularidade",
+                )
+            elif field_id in set(json_load(row["na_fields_json"], [])) if "na_fields_json" in columns else False:
+                decision, confidence, reason = (
+                    "PENDENTE", "medium",
+                    "campo está N/A no N1, porém a regra de inaplicabilidade da classe ainda não foi formalizada",
+                )
+            else:
+                decision, confidence, reason = (
+                    "PENDENTE", "low",
+                    "campo não apresenta cadeia de evidência observável independente no snapshot N1",
+                )
+                missing_by_family.setdefault(_field_family(field_id, classe), []).append(field_id)
+            key = f"{run_id}|{project_id}|{classe}|{name}|{field_id}|{decision}"
+            decisions.append(Decision(
+                decision_id="qaev-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:16],
+                run_id=run_id, project_id=project_id, classe=classe, item=name or "<sem_nome>",
+                field_id=field_id, decision=decision, confidence=confidence, reason=reason,
+                evidence=[{"kind": "n1_persisted_link", "entries": len(entries), "prevalidated": prevalidated}],
+                requires_human=False, snapshot_hash=snapshot_hash,
+            ))
+        if missing_by_family:
+            for family, field_ids in missing_by_family.items():
+                missing_contracts.setdefault(family, []).append({"item": name or "<sem_nome>", "fields": sorted(field_ids)})
+    if missing_contracts:
+        observed = {
+            family: {"itens": len(rows), "exemplos": rows[:5]}
+            for family, rows in sorted(missing_contracts.items())
+        }
+        reasoning = {
+            "observed": observed,
+            "attempted": ["ler vínculo persistido", "procurar texto/posição/geometria de origem", "respeitar N/A e validação humana existentes"],
+            "rejected": ["usar o valor N1 como prova de si mesmo", "copiar convenção de LAJ", "inferir por proximidade ou por N2/N4"],
+            "impasse": "A classe ainda não declara quais entidades, camadas e relações constituem prova para cada família observada.",
+            "requested_rule": "Defina a proveniência mínima por família; o agente então poderá transformar estes grupos de pendências em decisões verificáveis sem alterar os casos simples.",
+        }
+        question_key = f"{run_id}|{classe}|contract"
+        questions.append({
+            "question_id": "qaev-q-" + hashlib.sha256(question_key.encode("utf-8")).hexdigest()[:16],
+            "classe": classe, "item": f"{classe}:contrato", "field_id": "contrato_de_proveniencia",
+            "code": f"{classe}-CONTRACT-MISSING", "requires_human": True,
+            "question": f"A revisão de {classe} agrupou {len(missing_contracts)} família(s) sem trilha independente. Qual entidade CAD/ficha canônica prova cada família antes de permitir validação?",
+            "reasoning": reasoning,
+        })
+    return decisions, findings, questions, records
+
+
+def cmd_review(args: argparse.Namespace) -> int:
+    """Revisão global por item/campo; só LAJ usa o adaptador com decisões confirmáveis."""
+    db = Path(args.db)
+    requested = list(CLASS_REGISTRY) if args.classe == "ALL" else [args.classe]
+    run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S") + "_review_" + uuid.uuid4().hex[:8]
+    selected = set(args.item or []) or None
+    decisions: list[Decision] = []
+    findings: list[dict] = []
+    questions: list[dict] = []
+    records: list[dict] = []
+    with sqlite3.connect(db) as con:
+        project_id = resolve_project_scope(con, project_id=args.project_id, obra=args.obra, pav=args.pav)
+        for classe in requested:
+            if classe == "LAJ":
+                slabs = load_slabs(con, project_id)
+                context = load_consultive_context(con, project_id, slabs)
+                auditor = LajEvidenceAuditor(slabs, run_id, consultive_context=context)
+                class_decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
+                decisions.extend(class_decisions)
+                findings.extend(auditor.findings)
+                questions.extend(auditor.questions)
+                records.extend({"id": slab.id, "name": slab.name, "snapshot_hash": slab.snapshot_hash} for slab in slabs if (not selected or slab.name in selected))
+            else:
+                class_decisions, class_findings, class_questions, class_records = generic_class_review(
+                    con, project_id=project_id, classe=classe, run_id=run_id,
+                    selected=selected, include_sealed=args.include_sealed,
+                )
+                decisions.extend(class_decisions); findings.extend(class_findings)
+                questions.extend(class_questions); records.extend(class_records)
+    out_dir = Path(args.out_dir) if args.out_dir else DEFAULT_REPORT_ROOT / run_id
+    manifest = {
+        "schema_version": 1, "run_id": run_id, "created_at": utc_now(), "mode": "global_read_only_review",
+        "db": str(db.resolve()), "project_id": project_id, "classe": "ALL" if len(requested) > 1 else requested[0],
+        "classes": requested, "items": [record["name"] for record in records],
+        "snapshots": {record["name"]: {"id": record["id"], "hash": record["snapshot_hash"]} for record in records},
+        "authority": "read_only; only LAJ has a validation-ready apply path; all other decisions remain non-mutating",
+    }
+    write_reports(out_dir, manifest, decisions, findings, questions)
+    print(json.dumps({"run_id": run_id, "out_dir": str(out_dir), "decisions": len(decisions), "questions": len(questions), "classes": requested}, ensure_ascii=False))
+    return 0
+
+
 def read_jsonl(path: Path) -> list[dict]:
     if not path.exists():
         return []
@@ -1868,6 +2026,22 @@ def build_parser() -> argparse.ArgumentParser:
     discover.add_argument("--run-id")
     discover.add_argument("--out-dir")
     discover.set_defaults(func=cmd_discover)
+
+    review = sub.add_parser(
+        "review",
+        help="revisa campos/vínculos de todas as classes; read-only fora do adaptador LAJ",
+    )
+    review.add_argument("--db", default=str(DEFAULT_DB))
+    review_scope = review.add_mutually_exclusive_group(required=True)
+    review_scope.add_argument("--project-id")
+    review_scope.add_argument("--obra", help="requer --pav; falha se houver reprocessamento ambíguo")
+    review.add_argument("--pav")
+    review.add_argument("--classe", choices=(*CLASS_REGISTRY.keys(), "ALL"), default="ALL")
+    review.add_argument("--item", nargs="*")
+    review.add_argument("--include-sealed", action="store_true")
+    review.add_argument("--run-id")
+    review.add_argument("--out-dir")
+    review.set_defaults(func=cmd_review)
 
     apply_cmd = sub.add_parser("apply", help="aplica decisões high do mesmo snapshot")
     apply_cmd.add_argument("--db", default=str(DEFAULT_DB))

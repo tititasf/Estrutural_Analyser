@@ -22,9 +22,9 @@ O agente **não é um aprovador por similaridade**. Geometria é polígono, furo
 | Classe | Fonte N1 observada | Adaptador | Estado atual | Pode selar? | Próximo gate |
 |---|---|---|---|---|---|
 | LAJ | `slabs.links_json` + `points_json` | `LajEvidenceAuditor` | `validation_ready` | Sim, somente `apply` explícito e snapshot íntegro | RAG T1/T2 + generalização em outra obra |
-| FV | `beams.data_json`, família `viga_fundo*`/`fv_*` | discovery global | `diagnostic_only` | Não | proveniência, campos e golden visual próprios |
-| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | discovery global | `diagnostic_only` | Não | contrato de faces, seções e relações verticais |
-| LV | `beams.data_json`, famílias `viga_a_*`, `viga_b_*`, `lv_*` | discovery global | `diagnostic_only` | Não | contrato de segmentos/lados e golden visual próprio |
+| FV | `beams.data_json`, família `viga_fundo*`/`fv_*` | revisão global read-only | `diagnostic_only` | Não | proveniência, campos e golden visual próprios |
+| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | revisão global read-only | `diagnostic_only` | Não | contrato de faces, seções e relações verticais |
+| LV | `beams.data_json`, famílias `viga_a_*`, `viga_b_*`, `lv_*` | revisão global read-only | `diagnostic_only` | Não | contrato de segmentos/lados e golden visual próprio |
 
 `diagnostic_only` é uma capacidade útil já: lê o projeto, inventaria campos de verdade, evidencia cobertura e registra sessão. Ela é deliberadamente incapaz de alterar N1. Assim o agente pode ser usado em todas as classes agora, sem criar falso selo.
 
@@ -63,6 +63,11 @@ $py = 'D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe'
 # Diagnóstico de uma família ainda não habilitada para selar.
 & $py -X utf8 scripts/arete/qa_evidence_auditor.py discover `
   --project-id <id> --classe FV --item V301
+
+# Revisão por campo/vínculo das quatro classes. Produz decisões, achados,
+# perguntas com cadeia de raciocínio e score; não altera a base fora de LAJ.
+& $py -X utf8 scripts/arete/qa_evidence_auditor.py review `
+  --project-id <id> --classe ALL --include-sealed
 
 # Auditoria LAJ em profundidade (read-only).
 & $py -X utf8 scripts/arete/qa_evidence_auditor.py audit `
