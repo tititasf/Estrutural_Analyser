@@ -194,6 +194,11 @@ class LajEvidenceAuditor:
         }
         self.blocked_level_sources: set[str] = set()
         self.trusted_level_layers = self._learn_trusted_level_layers()
+        self.corroborated_level_clusters = self._build_corroborated_level_clusters()
+        self.unresolved_level_sources = {
+            slab.name for slab in slabs
+            if slab.name in self.sealed_level_conflicts and not self._sealed_level_autocorrection(slab)
+        }
         self._resolve_levels()
 
     def _new_decision(
@@ -242,7 +247,16 @@ class LajEvidenceAuditor:
             "evidence": evidence,
         })
 
-    def _add_question(self, slab: Slab, field_id: str, code: str, question: str, evidence: list[dict]) -> None:
+    def _add_question(
+        self,
+        slab: Slab,
+        field_id: str,
+        code: str,
+        question: str,
+        evidence: list[dict],
+        *,
+        reasoning: dict | None = None,
+    ) -> None:
         key = f"{slab.project_id}|{slab.name}|{field_id}|{code}|{question}"
         self.questions.append({
             "question_id": "qaev-q-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:16],
@@ -254,6 +268,13 @@ class LajEvidenceAuditor:
             "code": code,
             "question": question,
             "evidence": evidence,
+            "reasoning": reasoning or {
+                "observed": evidence,
+                "attempted": [],
+                "rejected": [],
+                "impasse": "Evidência insuficiente para mutação automática.",
+                "requested_rule": "Informe a regra geral que diferencia este caso.",
+            },
         })
 
     def _own_level_labels(self, slab: Slab) -> list[dict]:
@@ -281,6 +302,92 @@ class LajEvidenceAuditor:
                 if bool(label.get("validated")) and layer is not None and nearly_equal(field_value, label_value):
                     layers.add(str(layer))
         return layers
+
+    def _build_corroborated_level_clusters(self) -> dict[str, dict]:
+        """Agrupa níveis provados por mais de uma fonte no corpus atual.
+
+        O agrupamento é por valor tolerante e conta lajes, não rótulos: assim a
+        repetição do mesmo texto numa única ficha não cria falsa maioria.
+        """
+        clusters: list[dict] = []
+        for slab in self.slabs:
+            field_value = self._declared_level(slab)
+            root_value = self._root_level(slab)
+            labels = [parse_number(x.get("text")) for x in self._own_level_labels(slab)]
+            labels = [value for value in labels if value is not None]
+            candidate = None
+            if root_value is not None and any(nearly_equal(root_value, value) for value in labels):
+                candidate = root_value
+            elif field_value is not None and root_value is not None and nearly_equal(field_value, root_value):
+                candidate = field_value
+            if candidate is None:
+                continue
+            cluster = next((x for x in clusters if nearly_equal(x["value"], candidate)), None)
+            if cluster is None:
+                cluster = {"value": candidate, "slabs": set()}
+                clusters.append(cluster)
+            cluster["slabs"].add(slab.name)
+        return {
+            fmt_number(cluster["value"]): {
+                "value": cluster["value"],
+                "slabs": sorted(cluster["slabs"]),
+                "count": len(cluster["slabs"]),
+            }
+            for cluster in clusters
+        }
+
+    def _cluster_for_level(self, value: float | None) -> dict | None:
+        if value is None:
+            return None
+        return next(
+            (cluster for cluster in self.corroborated_level_clusters.values() if nearly_equal(cluster["value"], value)),
+            None,
+        )
+
+    def _neighbor_dependents(self, source_name: str) -> list[dict]:
+        dependents = []
+        for slab in self.slabs:
+            neighbor_links = slab.links.get("laje_vizinhas_niveis") or {}
+            for slot, entries in neighbor_links.items():
+                for link in safe_list(entries):
+                    if (
+                        isinstance(link, dict)
+                        and link.get("source") == "orthogonal_neighbor_identity"
+                        and str(link.get("source_slab") or "").upper() == source_name.upper()
+                    ):
+                        dependents.append({"item": slab.name, "slot": slot})
+                        break
+        return dependents
+
+    def _sealed_level_autocorrection(self, slab: Slab) -> dict | None:
+        """Retorna correção somente quando o campo é outlier não corroborado.
+
+        A regra não depende de item/pavimento: root e rótulo precisam concordar,
+        o valor proposto precisa aparecer em pelo menos duas lajes corroboradas e
+        o valor atual não pode pertencer a nenhum grupo corroborado.
+        """
+        current = self._declared_level(slab)
+        root = self._root_level(slab)
+        labels = [parse_number(x.get("text")) for x in self._own_level_labels(slab)]
+        labels = [value for value in labels if value is not None]
+        if current is None or root is None or not any(nearly_equal(root, value) for value in labels):
+            return None
+        expected_cluster = self._cluster_for_level(root)
+        current_cluster = self._cluster_for_level(current)
+        if (
+            expected_cluster is None
+            or expected_cluster["count"] < 2
+            or current_cluster is not None
+            or abs(current - root) < 1.0
+        ):
+            return None
+        return {
+            "expected": root,
+            "current": current,
+            "expected_cluster": expected_cluster,
+            "current_cluster": current_cluster,
+            "labels": [fmt_number(value) for value in labels],
+        }
 
     def _direct_level_anchor(self, slab: Slab) -> tuple[float, str] | None:
         field_value = self._declared_level(slab)
@@ -553,7 +660,18 @@ class LajEvidenceAuditor:
                 evidence=[{"kind": "pillar_support", "pillars": [(x.get("ficha") or {}).get("pillar_name") for x in valid], "tolerance": tol}],
             )
         if not links:
-            self._add_question(slab, field_id, "LAJ-PILLAR-NONE", "A laje realmente não possui pilar de apoio direto?", [])
+            self._add_question(
+                slab, field_id, "LAJ-PILLAR-NONE",
+                f"O agente não encontrou apoio direto comprovável para {slab.name}. Qual regra de projeto deve distinguir uma laje sem pilar de um apoio ausente na extração?",
+                [],
+                reasoning={
+                    "observed": "Não há vínculo de pilar no campo laje_pilares_apoio.",
+                    "attempted": ["busca por geometria de pilar", "validação de nome, lado, face e contato com o contorno"],
+                    "rejected": ["inferir apoio apenas por proximidade", "criar pilar sem face de contato"],
+                    "impasse": "Sem evidência geométrica ou semântica de apoio, marcar N/A alteraria a interpretação estrutural.",
+                    "requested_rule": "Informe a regra geral que comprova 'sem pilar de apoio' neste tipo de laje.",
+                },
+            )
             return self._new_decision(slab, field_id, "REVISAR_HUMANO", "low", "nenhum pilar de apoio vinculado", requires_human=True)
         return self._new_decision(slab, field_id, "REVISAR_HUMANO", "low", "todos os pilares vinculados são distantes ou incompletos", operations=operations, requires_human=True)
 
@@ -576,9 +694,46 @@ class LajEvidenceAuditor:
         conflicts = self._level_conflicts(slab)
         expected = self.levels.get(slab.name)
         if conflicts and slab.is_validated:
+            autocorrection = self._sealed_level_autocorrection(slab)
+            if autocorrection:
+                proposed = autocorrection["expected"]
+                current = autocorrection["current"]
+                support = autocorrection["expected_cluster"]
+                self._add_finding(
+                    slab, field_id, "LAJ-LEVEL-OUTLIER-CORRECTION",
+                    f"{fmt_number(current)} é nível isolado; root+rótulo e {support['count']} lajes corroboram {fmt_number(proposed)}",
+                    [{
+                        "current": fmt_number(current), "expected": fmt_number(proposed),
+                        "root": fmt_number(proposed), "labels": autocorrection["labels"],
+                        "corroborated_slabs": support["slabs"],
+                        "rule": "root+rótulo concordantes + cluster corroborado + campo sem cluster",
+                    }],
+                )
+                return self._new_decision(
+                    slab, field_id, "CORRIGIR", "high",
+                    f"campo de nível é outlier não corroborado; corrigir para {fmt_number(proposed)}",
+                    operations=[{"op": "set_level", "value": fmt_number(proposed), "reason": "root+rótulo+cluster corroborado"}],
+                    evidence=[{"kind": "level_outlier", "current": current, "expected": proposed, "support_count": support["count"], "supporting_slabs": support["slabs"]}],
+                    rule_codes=["LAJ-LEVEL-OUTLIER-CORRECTION"],
+                )
             self._add_question(
                 slab, field_id, "LAJ-LEVEL-SEALED-CONFLICT",
-                f"Qual nível deve prevalecer em {slab.name}? Campo/root/rótulo divergem e o item já está selado.", conflicts,
+                f"O agente preservou {slab.name}: campo e root discordam, mas ambos pertencem a níveis usados no corpus. Qual regra geral identifica a fonte canônica quando não há rótulo CAD próprio independente?",
+                conflicts,
+                reasoning={
+                    "observed": {
+                        "field": fmt_number(self._declared_level(slab)) if self._declared_level(slab) is not None else None,
+                        "root": fmt_number(self._root_level(slab)) if self._root_level(slab) is not None else None,
+                        "labels": [str(x.get("text")) for x in self._own_level_labels(slab)],
+                        "field_cluster": self._cluster_for_level(self._declared_level(slab)),
+                        "root_cluster": self._cluster_for_level(self._root_level(slab)),
+                        "dependent_neighbors": self._neighbor_dependents(slab.name),
+                    },
+                    "attempted": ["comparar campo, root e rótulos próprios", "buscar grupo corroborado no pavimento", "propagar somente continuidade horizontal não circular"],
+                    "rejected": ["usar o campo como sua própria prova", "usar root isolado como prova suficiente", "resolver pelo vizinho que depende da própria laje"],
+                    "impasse": "Os dois candidatos pertencem a grupos reais; não existe rótulo próprio independente para desempatar sem circularidade.",
+                    "requested_rule": "Explique qual proveniência deve vencer nesse padrão e qual sinal semântico torna essa proveniência canônica para qualquer obra.",
+                },
             )
             return self._new_decision(
                 slab, field_id, "REVISAR_HUMANO", "low", "item selado contém conflito de nível; preservado sem mutação",
@@ -589,7 +744,18 @@ class LajEvidenceAuditor:
                 ops = [{"op": "unvalidate_field", "field": field_id}]
             else:
                 ops = []
-            self._add_question(slab, field_id, "LAJ-LEVEL-NO-ANCHOR", f"Qual é o nível estrutural de {slab.name}? Não há âncora independente suficiente.", conflicts)
+            self._add_question(
+                slab, field_id, "LAJ-LEVEL-NO-ANCHOR",
+                f"O agente não promoveu nível para {slab.name}: não encontrou âncora independente. Qual regra geral deve provar o nível quando campo e rótulos não se confirmam?",
+                conflicts,
+                reasoning={
+                    "observed": conflicts,
+                    "attempted": ["rótulo CAD direto", "camada confiável", "delta rastreável", "continuidade horizontal coerente"],
+                    "rejected": ["aceitar número de dimensão", "usar campo e rótulo extraídos juntos como prova circular"],
+                    "impasse": "Nenhuma fonte independente atingiu o limiar de confiança.",
+                    "requested_rule": "Defina a evidência mínima universal para promover um nível nesse cenário.",
+                },
+            )
             return self._new_decision(slab, field_id, "REVISAR_HUMANO", "low", "nível sem âncora independente", operations=ops, requires_human=True)
 
         operations = []
@@ -695,7 +861,22 @@ class LajEvidenceAuditor:
 
         if unresolved:
             for issue in unresolved:
-                self._add_question(slab, field_id, "LAJ-NEIGHBOR-UNRESOLVED", f"Confirma o nível/vínculo de {issue['source_slab']} em {issue['slot']} para {slab.name}?", [issue])
+                if issue["source_slab"] in self.unresolved_level_sources:
+                    # A pergunta-raiz já explica o impasse e lista os dependentes.
+                    # Repeti-la em cada vizinha transforma uma única decisão em ruído.
+                    continue
+                self._add_question(
+                    slab, field_id, "LAJ-NEIGHBOR-UNRESOLVED",
+                    f"O vínculo de {issue['source_slab']} em {issue['slot']} foi preservado, mas o nível-fonte não é canônico. Qual regra geral deve escolher a proveniência do nível antes de propagá-lo para vizinhas?",
+                    [issue],
+                    reasoning={
+                        "observed": issue,
+                        "attempted": ["validar identidade no mesmo slot", "ler nível da laje-fonte", "remover somente números inferidos sem evidência"],
+                        "rejected": ["copiar um nível sem fonte canônica", "inferir a partir de dimensão numérica", "usar a própria vizinha como prova circular"],
+                        "impasse": "A identidade geométrica existe, mas a laje-fonte ainda possui mais de uma proveniência plausível de nível.",
+                        "requested_rule": "Defina qual fonte canônica o motor deve usar antes de publicar o par identidade+nível para vizinhas.",
+                    },
+                )
             return self._new_decision(
                 slab, field_id, "REVISAR_HUMANO", "low", "há vizinho sem nível-fonte confiável",
                 operations=operations, evidence=unresolved, requires_human=True,
@@ -898,9 +1079,12 @@ def cmd_apply(args: argparse.Namespace) -> int:
     if manifest.get("project_id") != args.project_id:
         raise SystemExit("project_id não coincide com o manifesto")
     decisions = read_jsonl(run_dir / "decisoes.jsonl")
+    approved_decisions = {"CONFIRMAR", "N/A_CONFIRMADO"}
+    if getattr(args, "allow_sealed_corrections", False):
+        approved_decisions.add("CORRIGIR")
     approved = {
         x["decision_id"] for x in decisions
-        if x.get("confidence") == "high" and x.get("decision") in {"CONFIRMAR", "N/A_CONFIRMADO"}
+        if x.get("confidence") == "high" and x.get("decision") in approved_decisions
     }
     if args.decision_file:
         supplied = json_load(Path(args.decision_file).read_text(encoding="utf-8"), [])
@@ -940,8 +1124,12 @@ def cmd_apply(args: argparse.Namespace) -> int:
                     "extra": json_load(row["extra_data_json"], {}),
                     "is_validated": bool(row["is_validated"]),
                 }
-                if state["is_validated"]:
-                    # Itens selados são auditáveis, mas imutáveis pelo apply.
+                if state["is_validated"] and not (
+                    getattr(args, "allow_sealed_corrections", False)
+                    and any(decision.get("decision") == "CORRIGIR" for decision in decisions if decision["decision_id"] in approved and decision["item"] == item)
+                ):
+                    # Itens selados são imutáveis por padrão. Correção de selo é
+                    # opt-in e aceita somente decisão high CORRIGIR do snapshot.
                     continue
                 for operation in operations:
                     apply_operation(state, operation)
@@ -1025,6 +1213,10 @@ def build_parser() -> argparse.ArgumentParser:
     apply_cmd.add_argument("--run", required=True)
     apply_cmd.add_argument("--decision-file")
     apply_cmd.add_argument("--seal-complete", action="store_true")
+    apply_cmd.add_argument(
+        "--allow-sealed-corrections", action="store_true",
+        help="permite corrigir item já selado somente para decisão high CORRIGIR do mesmo snapshot",
+    )
     apply_cmd.set_defaults(func=cmd_apply)
 
     rollback = sub.add_parser("rollback", help="restaura valores pré-apply")

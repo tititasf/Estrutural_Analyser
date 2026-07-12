@@ -120,6 +120,70 @@ def test_sealed_ambiguous_level_is_not_resolved_by_neighbor_continuity():
     assert not any(op["op"] == "add_link" for op in decision.operations)
 
 
+def test_sealed_level_outlier_is_corrected_when_root_label_and_cluster_agree():
+    stable_a = slab(
+        "L1", level="852.19",
+        level_link={"text": "852.19", "layer": "3", "validated": True},
+        validated={"laje_nivel"}, sealed=True,
+    )
+    stable_b = slab(
+        "L2", level="852.19",
+        level_link={"text": "852.19", "layer": "3", "validated": True},
+        validated={"laje_nivel"}, sealed=True,
+    )
+    outlier = slab(
+        "L3", level="845.19",
+        level_link={"text": "852.19", "layer": "3", "validated": True},
+        validated={"laje_nivel"}, sealed=True,
+    )
+    outlier.extra["laje_nivel"] = "852.19"
+    auditor = LajEvidenceAuditor([stable_a, stable_b, outlier], "run")
+    decision = auditor._audit_laje_nivel(outlier)
+    assert decision.decision == "CORRIGIR"
+    assert decision.confidence == "high"
+    assert decision.operations == [{"op": "set_level", "value": "852.19", "reason": "root+rótulo+cluster corroborado"}]
+    assert any(finding["code"] == "LAJ-LEVEL-OUTLIER-CORRECTION" for finding in auditor.findings)
+
+
+def test_ambiguous_sealed_level_question_explains_reasoning_chain():
+    stable_low = slab(
+        "L1", level="852.12",
+        level_link={"text": "852.12", "layer": "3", "validated": True},
+        validated={"laje_nivel"}, sealed=True,
+    )
+    stable_high = slab(
+        "L2", level="852.19",
+        level_link={"text": "852.19", "layer": "3", "validated": True},
+        validated={"laje_nivel"}, sealed=True,
+    )
+    ambiguous = slab("L3", level="852.12", validated={"laje_nivel"}, sealed=True)
+    ambiguous.extra["laje_nivel"] = "852.19"
+    auditor = LajEvidenceAuditor([stable_low, stable_high, ambiguous], "run")
+    decision = auditor._audit_laje_nivel(ambiguous)
+    assert decision.decision == "REVISAR_HUMANO"
+    question = auditor.questions[-1]
+    assert set(question["reasoning"]) == {"observed", "attempted", "rejected", "impasse", "requested_rule"}
+    assert question["reasoning"]["observed"]["field_cluster"]["count"] >= 1
+    assert question["reasoning"]["observed"]["root_cluster"]["count"] >= 1
+
+
+def test_neighbors_do_not_duplicate_question_for_the_same_ambiguous_source():
+    stable_low = slab("L1", level="852.12", level_link={"text": "852.12", "layer": "3", "validated": True}, validated={"laje_nivel"}, sealed=True)
+    stable_high = slab("L2", level="852.19", level_link={"text": "852.19", "layer": "3", "validated": True}, validated={"laje_nivel"}, sealed=True)
+    ambiguous = slab("L3", level="852.12", validated={"laje_nivel"}, sealed=True)
+    ambiguous.extra["laje_nivel"] = "852.19"
+    dependent = slab("L4", links={"laje_vizinhas_niveis": {"neighbor_west": [
+        {"text": "L3", "source": "orthogonal_neighbor_identity", "source_slab": "L3", "is_inferred": True},
+    ]}})
+    auditor = LajEvidenceAuditor([stable_low, stable_high, ambiguous, dependent], "run")
+    auditor._audit_laje_nivel(ambiguous)
+    decision = auditor._audit_laje_vizinhas_niveis(dependent)
+    assert decision.decision == "REVISAR_HUMANO"
+    assert len(auditor.questions) == 1
+    assert auditor.questions[0]["item"] == "L3"
+    assert auditor.questions[0]["reasoning"]["observed"]["dependent_neighbors"] == [{"item": "L4", "slot": "neighbor_west"}]
+
+
 def test_distant_pillar_is_removed_but_touching_support_is_kept():
     target = slab(
         "L2",
@@ -253,3 +317,34 @@ def test_apply_rejects_stale_snapshot(tmp_path: Path):
     con.close()
     with pytest.raises(RuntimeError, match="snapshot obsoleto"):
         cmd_apply(argparse.Namespace(db=str(db), project_id="p", run=str(run_dir), decision_file=None, seal_complete=True))
+
+
+def test_apply_corrects_sealed_outlier_only_with_explicit_flag(tmp_path: Path):
+    db = tmp_path / "test.vision"
+    create_db(db)
+    con = sqlite3.connect(db)
+    extra = {
+        "fields": {"nome": "L1", "laje_dim": "h=10", "laje_nivel": "845.19"},
+        "laje_nivel": "852.19",
+    }
+    outlier_links = {"laje_nivel": {"label": [{"text": "852.19", "layer": "3", "validated": True}]}}
+    con.execute("UPDATE slabs SET extra_data_json=?, links_json=? WHERE id='1'", (json.dumps(extra), json.dumps(outlier_links)))
+    stable_extra = {
+        "fields": {"nome": "L2", "laje_dim": "h=10", "laje_nivel": "852.19"},
+        "laje_nivel": "852.19",
+    }
+    stable_links = {"laje_nivel": {"label": [{"text": "852.19", "layer": "3", "validated": True}]}}
+    con.execute("UPDATE slabs SET extra_data_json=?, links_json=? WHERE id='2'", (json.dumps(stable_extra), json.dumps(stable_links)))
+    con.commit()
+    con.close()
+    run_dir = tmp_path / "run"
+    cmd_audit(argparse.Namespace(db=str(db), project_id="p", item=["L1"], include_sealed=True, run_id="run", out_dir=str(run_dir)))
+    cmd_apply(argparse.Namespace(
+        db=str(db), project_id="p", run=str(run_dir), decision_file=None,
+        seal_complete=False, allow_sealed_corrections=True,
+    ))
+    con = sqlite3.connect(db)
+    extra = json.loads(con.execute("SELECT extra_data_json FROM slabs WHERE id='1'").fetchone()[0])
+    assert extra["fields"]["laje_nivel"] == "852.19"
+    assert extra["laje_nivel"] == "852.19"
+    con.close()

@@ -115,3 +115,16 @@ D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe -m py_compile scripts\arete\qa_evi
   headless direcionado não obteve código zero por concorrência externa.
 - Integridade: vínculos humanos e conflitos selados foram preservados; rollback
   do lote aplicado permanece disponível no diretório da execução.
+
+### Reavaliação QA — 2026-07-12
+
+- PASS: a regra geral de outlier corrigiu L303 (`845.19 → 852.19`) e L318
+  (`822.19 → 852.19`) somente com root+rótulo concordantes e cluster de 12
+  lajes corroborando o nível proposto; ambos preservaram o selo azul e rollback.
+- PASS: perguntas agora expõem observação, tentativas, hipóteses rejeitadas,
+  impasse e a regra geral solicitada. Vizinhas dependentes não duplicam a
+  pergunta-raiz.
+- PASS: 14 testes aprovados; `py_compile` aprovado.
+- CONCERN: L314 continua a única pergunta humana: campo `852.12` e root
+  `852.19` pertencem a clusters reais, sem rótulo CAD próprio para desempate;
+  L306/L313/L315 dependem dessa resposta.
