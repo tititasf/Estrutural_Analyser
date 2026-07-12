@@ -1318,6 +1318,16 @@ def _append_session_ledger(root: Path, entry: dict) -> None:
     root.mkdir(parents=True, exist_ok=True)
     with (root / "registro_sessoes.jsonl").open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
+    rows = read_jsonl(root / "registro_sessoes.jsonl")
+    recurrence: dict[str, int] = {}
+    for row in rows:
+        for fields in (row.get("campos_incerto") or {}).values():
+            for field_id in fields:
+                recurrence[field_id] = recurrence.get(field_id, 0) + 1
+    (root / "recorrencias_duvidas.json").write_text(
+        json.dumps({"updated_at": utc_now(), "total_sessoes": len(rows), "campos": recurrence}, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
 
 
 def _write_final_session_summary(
@@ -1394,6 +1404,7 @@ def write_reports(
         "project_id": manifest["project_id"], "classe": manifest["classe"],
         "items": manifest["items"], "decisions": counts, "findings": len(findings),
         "questions": len(questions), "scores": {x["item"]: x["score_confianca"] for x in scorecards},
+        "campos_incerto": {x["item"]: x["campos_incerto"] for x in scorecards if x["campos_incerto"]},
         "out_dir": str(out_dir),
     })
 
