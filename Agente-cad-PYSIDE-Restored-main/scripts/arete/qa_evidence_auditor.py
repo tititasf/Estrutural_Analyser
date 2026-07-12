@@ -39,6 +39,33 @@ REQUIRED_LAJ_FIELDS = (
     "laje_outline_segs",
     "laje_islands",
 )
+
+# Registro global do agente.  O núcleo pode inspecionar todas as classes desde
+# já; apenas um adaptador que tenha contrato de proveniência e gates completos
+# pode escrever validações.  Isso evita que a facilidade de consulta vire um
+# selo semântico prematuro em FV/PIL/LV.
+CLASS_REGISTRY = {
+    "LAJ": {
+        "table": "slabs", "payload_column": "links_json", "geometry_column": "points_json",
+        "validation_mode": "validation_ready", "provenance": "docs/PROVENIENCIA-CAMPOS-LAJ.md",
+        "diagnostic": "scripts/arete/diagnostico_laj_n1_n2.py",
+    },
+    "PIL": {
+        "table": "pillars", "payload_column": "links_json", "geometry_column": "points_json",
+        "validation_mode": "diagnostic_only", "provenance": None,
+        "diagnostic": "scripts/arete/diagnostico_pil_n1_n2.py",
+    },
+    "FV": {
+        "table": "beams", "payload_column": "data_json", "geometry_column": None,
+        "validation_mode": "diagnostic_only", "provenance": None,
+        "diagnostic": "scripts/arete/diagnostico_fv_n1_n2.py",
+    },
+    "LV": {
+        "table": "beams", "payload_column": "data_json", "geometry_column": None,
+        "validation_mode": "diagnostic_only", "provenance": None,
+        "diagnostic": "scripts/arete/diagnostico_lv_n1_n2.py",
+    },
+}
 MUTABLE_COLUMNS = (
     "links_json",
     "validated_fields_json",
@@ -1533,6 +1560,140 @@ def cmd_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def resolve_project_scope(
+    con: sqlite3.Connection, *, project_id: str | None, obra: str | None, pav: str | None,
+) -> str:
+    """Resolve escopo sem adivinhar projeto quando a obra possui reprocessamentos."""
+    if project_id:
+        row = con.execute("SELECT id FROM projects WHERE id=?", (project_id,)).fetchone()
+        if row is None:
+            raise SystemExit(f"project_id inexistente: {project_id}")
+        return str(row[0])
+    if not obra or not pav:
+        raise SystemExit("informe --project-id ou o par completo --obra e --pav")
+    rows = con.execute(
+        "SELECT id FROM projects WHERE lower(work_name)=lower(?) AND lower(pavement_name)=lower(?) "
+        "ORDER BY updated_at DESC",
+        (obra, pav),
+    ).fetchall()
+    if len(rows) != 1:
+        raise SystemExit(
+            f"escopo ambíguo ou ausente para obra={obra!r}, pav={pav!r}: "
+            f"{len(rows)} projeto(s). Use --project-id explicitamente."
+        )
+    return str(rows[0][0])
+
+
+def _payload_geometry(payload: dict) -> list:
+    return _context_points(payload)
+
+
+def _class_payload_keys(payload: dict, classe: str) -> set[str]:
+    """Separa as duas leituras de viga por família sem duplicar nem alterar N1."""
+    keys = set(payload)
+    for container in ("fields", "links"):
+        value = payload.get(container)
+        if isinstance(value, dict):
+            keys.update(value)
+    if classe == "FV":
+        return {key for key in keys if key.startswith(("viga_fundo", "fv_", "seg_bottom"))}
+    if classe == "LV":
+        return {key for key in keys if key.startswith(("viga_a_", "viga_b_", "lv_", "seg_a", "seg_b", "seg_c"))}
+    return keys
+
+
+def discover_class_inventory(
+    con: sqlite3.Connection, *, project_id: str, classe: str, selected: set[str] | None,
+    include_sealed: bool,
+) -> dict:
+    """Inventário read-only de contrato observado, destinado aos adaptadores em evolução."""
+    spec = CLASS_REGISTRY[classe]
+    con.row_factory = sqlite3.Row
+    table_columns = {row[1] for row in con.execute(f"PRAGMA table_info({spec['table']})")}
+    required = {"id", "project_id", "name", "is_validated", spec["payload_column"]}
+    missing = sorted(required - table_columns)
+    if missing:
+        raise RuntimeError(f"schema de {classe} incompleto na tabela {spec['table']}: {missing}")
+    rows = con.execute(
+        f"SELECT * FROM {spec['table']} WHERE project_id=? ORDER BY name", (project_id,)
+    ).fetchall()
+    items = []
+    field_frequency: dict[str, int] = {}
+    for row in rows:
+        if selected and row["name"] not in selected:
+            continue
+        if not include_sealed and bool(row["is_validated"]):
+            continue
+        payload = json_load(row[spec["payload_column"]], {})
+        keys = _class_payload_keys(payload, classe)
+        for key in keys:
+            field_frequency[key] = field_frequency.get(key, 0) + 1
+        points = json_load(row[spec["geometry_column"]], []) if spec["geometry_column"] else _payload_geometry(payload)
+        metrics = polygon_metrics(points)
+        items.append({
+            "id": row["id"], "item": row["name"], "sealed": bool(row["is_validated"]),
+            "fields": sorted(keys), "field_count": len(keys),
+            "geometry": {
+                "points": len(points), "bbox": point_bbox(points),
+                "area": metrics[0] if metrics else None, "perimeter": metrics[1] if metrics else None,
+            },
+        })
+    return {
+        "classe": classe, "table": spec["table"], "payload_column": spec["payload_column"],
+        "validation_mode": spec["validation_mode"], "provenance": spec["provenance"],
+        "diagnostic": spec["diagnostic"], "items": items,
+        "field_frequency": dict(sorted(field_frequency.items())),
+        "schema_columns": sorted(table_columns),
+    }
+
+
+def cmd_discover(args: argparse.Namespace) -> int:
+    """Produz um dossiê global de cobertura sem validar ou modificar a base."""
+    db = Path(args.db)
+    requested = list(CLASS_REGISTRY) if args.classe == "ALL" else [args.classe]
+    with sqlite3.connect(db) as con:
+        project_id = resolve_project_scope(
+            con, project_id=args.project_id, obra=args.obra, pav=args.pav,
+        )
+        selected = set(args.item or []) or None
+        inventories = [
+            discover_class_inventory(
+                con, project_id=project_id, classe=classe, selected=selected,
+                include_sealed=args.include_sealed,
+            )
+            for classe in requested
+        ]
+    run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S") + "_global_" + uuid.uuid4().hex[:8]
+    out_dir = Path(args.out_dir) if args.out_dir else DEFAULT_REPORT_ROOT / run_id
+    out_dir.mkdir(parents=True, exist_ok=False)
+    manifest = {
+        "schema_version": 1, "run_id": run_id, "created_at": utc_now(),
+        "mode": "global_read_only_discovery", "db": str(db.resolve()), "project_id": project_id,
+        "classes": requested, "include_sealed": bool(args.include_sealed),
+        "authority": "diagnostic_only except validation_ready adapters; no database mutation",
+    }
+    (out_dir / "manifesto.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    (out_dir / "inventario_classes.json").write_text(json.dumps(inventories, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    lines = ["# Inventário global do Agente QA de Evidências", "", f"- Sessão: `{run_id}`", f"- Projeto: `{project_id}`", ""]
+    for inventory in inventories:
+        lines += [
+            f"## {inventory['classe']} — {inventory['validation_mode']}", "",
+            f"- Itens no escopo: {len(inventory['items'])}",
+            f"- Campos observados: {len(inventory['field_frequency'])}",
+            f"- Proveniência: `{inventory['provenance'] or 'PENDENTE: criar contrato por classe'}`",
+            f"- Diagnóstico canônico: `{inventory['diagnostic']}`", "",
+        ]
+    (out_dir / "resumo_global.md").write_text("\n".join(lines), encoding="utf-8")
+    _append_session_ledger(out_dir.parent, {
+        "at": utc_now(), "run_id": run_id, "mode": manifest["mode"], "project_id": project_id,
+        "classe": ",".join(requested), "items": [item["item"] for inv in inventories for item in inv["items"]],
+        "inventories": {inv["classe"]: {"items": len(inv["items"]), "fields": len(inv["field_frequency"]), "mode": inv["validation_mode"]} for inv in inventories},
+        "out_dir": str(out_dir),
+    })
+    print(json.dumps({"run_id": run_id, "out_dir": str(out_dir), "project_id": project_id, "classes": requested}, ensure_ascii=False))
+    return 0
+
+
 def read_jsonl(path: Path) -> list[dict]:
     if not path.exists():
         return []
@@ -1691,6 +1852,22 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--run-id")
     audit.add_argument("--out-dir")
     audit.set_defaults(func=cmd_audit)
+
+    discover = sub.add_parser(
+        "discover",
+        help="inventário global read-only de LAJ/PIL/FV/LV; nunca valida nem grava N1",
+    )
+    discover.add_argument("--db", default=str(DEFAULT_DB))
+    scope = discover.add_mutually_exclusive_group(required=True)
+    scope.add_argument("--project-id")
+    scope.add_argument("--obra", help="requer --pav; falha se houver reprocessamento ambíguo")
+    discover.add_argument("--pav", help="pavimento quando o escopo é informado por --obra")
+    discover.add_argument("--classe", choices=(*CLASS_REGISTRY.keys(), "ALL"), default="ALL")
+    discover.add_argument("--item", nargs="*")
+    discover.add_argument("--include-sealed", action="store_true")
+    discover.add_argument("--run-id")
+    discover.add_argument("--out-dir")
+    discover.set_defaults(func=cmd_discover)
 
     apply_cmd = sub.add_parser("apply", help="aplica decisões high do mesmo snapshot")
     apply_cmd.add_argument("--db", default=str(DEFAULT_DB))

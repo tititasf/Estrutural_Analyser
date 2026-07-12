@@ -13,10 +13,34 @@ from scripts.arete.qa_evidence_auditor import (
     Slab,
     cmd_apply,
     cmd_audit,
+    discover_class_inventory,
+    resolve_project_scope,
     cmd_rollback,
     reconcile_web_evidence,
     WebEvidenceResolver,
 )
+
+
+def test_global_discovery_keeps_beam_families_separate_and_is_read_only(tmp_path: Path):
+    db = tmp_path / "global.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE projects (id TEXT PRIMARY KEY, work_name TEXT, pavement_name TEXT, updated_at TEXT);
+        CREATE TABLE beams (id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT, is_validated INTEGER);
+        """
+    )
+    con.execute("INSERT INTO projects VALUES ('p', 'OBRA', 'PAV', '2026-07-12')")
+    payload = {"viga_fundo_seg_1_exists": True, "fv_detail": {}, "viga_a_seg_1_dim": "19/55", "lv_detail": {}}
+    con.execute("INSERT INTO beams VALUES ('b', 'p', 'V1', ?, 0)", (json.dumps(payload),))
+    assert resolve_project_scope(con, project_id=None, obra="OBRA", pav="PAV") == "p"
+    fv = discover_class_inventory(con, project_id="p", classe="FV", selected=None, include_sealed=True)
+    lv = discover_class_inventory(con, project_id="p", classe="LV", selected=None, include_sealed=True)
+    assert fv["validation_mode"] == "diagnostic_only"
+    assert set(fv["field_frequency"]) == {"viga_fundo_seg_1_exists", "fv_detail"}
+    assert set(lv["field_frequency"]) == {"viga_a_seg_1_dim", "lv_detail"}
+    assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
+    con.close()
 
 
 def slab(

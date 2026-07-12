@@ -1,6 +1,10 @@
 # Masterplan — Agente QA de Evidências (Areté)
 
-**Status:** núcleo LAJ implementado; piloto em revisão com escrita transacional opt-in
+**Status:** núcleo LAJ implementado; piloto em revisão com escrita transacional opt-in.
+O contrato global, o registro das quatro classes e os gates de promoção estão em
+[`MASTERPLAN-AGENTE-QA-GLOBAL.md`](MASTERPLAN-AGENTE-QA-GLOBAL.md). Este documento
+preserva o desenho detalhado do primeiro adaptador (LAJ); ele não autoriza FV/PIL/LV
+a validar campos antes de seus contratos de proveniência e gates próprios.
 
 **Nome canônico:** `arete-qa-evidencias`
 
