@@ -128,3 +128,13 @@ D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe -m py_compile scripts\arete\qa_evi
 - CONCERN: L314 continua a única pergunta humana: campo `852.12` e root
   `852.19` pertencem a clusters reais, sem rótulo CAD próprio para desempate;
   L306/L313/L315 dependem dessa resposta.
+
+### Reavaliação cross-classe — 2026-07-12
+
+- PASS: o anel consultivo leu cinco pilares em contato direto com L314
+  (P15/P16/P46/P47/P51); todos convergem em `852.19` e confirmam o root.
+  O campo L314 foi corrigido transacionalmente de `852.12` para `852.19`, com
+  rollback, sem copiar dados entre classes.
+- PASS: auditoria completa LAJ retornou 248 decisões, 0 perguntas humanas.
+- PASS: 15 testes aprovados; o contexto cross-classe é opcional para bancos
+  reduzidos e só PIL com contato+consenso pode elevar confiança de nível LAJ.

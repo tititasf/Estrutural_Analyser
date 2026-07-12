@@ -179,10 +179,11 @@ class Decision:
 
 
 class LajEvidenceAuditor:
-    def __init__(self, slabs: list[Slab], run_id: str):
+    def __init__(self, slabs: list[Slab], run_id: str, consultive_context: dict[str, dict] | None = None):
         self.slabs = slabs
         self.by_name = {slab.name: slab for slab in slabs}
         self.run_id = run_id
+        self.consultive_context = consultive_context or {}
         self.levels: dict[str, float] = {}
         self.level_reasons: dict[str, str] = {}
         self.findings: list[dict] = []
@@ -358,6 +359,46 @@ class LajEvidenceAuditor:
                         dependents.append({"item": slab.name, "slot": slot})
                         break
         return dependents
+
+    def _consultive_pillar_level_consensus(self, slab: Slab) -> dict | None:
+        """Usa PIL apenas como prova auxiliar quando há contato e consenso.
+
+        PIL não transfere campo para LAJ. O consenso só desempata um conflito
+        já existente de LAJ quando dois ou mais pilares tocam seu contorno e
+        convergem no mesmo nível. FV/LV são preservados no contexto para a
+        explicação, mas não têm semântica suficiente para promover nível.
+        """
+        context = self.consultive_context.get(slab.name) or {}
+        pillars = context.get("pillars") or []
+        tol = self._geometry_tolerance(slab)
+        groups: list[dict] = []
+        for pillar in pillars:
+            value = parse_number(pillar.get("level"))
+            distance = pillar.get("distance")
+            if value is None or distance is None or float(distance) > tol:
+                continue
+            group = next((x for x in groups if nearly_equal(x["value"], value)), None)
+            if group is None:
+                group = {"value": value, "pillars": []}
+                groups.append(group)
+            group["pillars"].append(pillar)
+        if len(groups) != 1 or len(groups[0]["pillars"]) < 2:
+            return None
+        return {
+            "value": groups[0]["value"],
+            "pillars": groups[0]["pillars"],
+            "beam_context": context.get("beams") or [],
+        }
+
+    def _sealed_level_cross_class_correction(self, slab: Slab) -> dict | None:
+        current = self._declared_level(slab)
+        root = self._root_level(slab)
+        consensus = self._consultive_pillar_level_consensus(slab)
+        if current is None or root is None or consensus is None:
+            return None
+        if nearly_equal(current, consensus["value"]) or not nearly_equal(root, consensus["value"]):
+            return None
+        return {"current": current, "expected": consensus["value"], **consensus}
 
     def _sealed_level_autocorrection(self, slab: Slab) -> dict | None:
         """Retorna correção somente quando o campo é outlier não corroborado.
@@ -694,6 +735,27 @@ class LajEvidenceAuditor:
         conflicts = self._level_conflicts(slab)
         expected = self.levels.get(slab.name)
         if conflicts and slab.is_validated:
+            cross_correction = self._sealed_level_cross_class_correction(slab)
+            if cross_correction:
+                proposed = cross_correction["expected"]
+                current = cross_correction["current"]
+                pillars = cross_correction["pillars"]
+                self._add_finding(
+                    slab, field_id, "LAJ-LEVEL-PILLAR-CONSENSUS",
+                    f"{len(pillars)} pilares em contato convergem em {fmt_number(proposed)} e confirmam o root",
+                    [{"current": fmt_number(current), "expected": fmt_number(proposed), "pillars": pillars}],
+                )
+                return self._new_decision(
+                    slab, field_id, "CORRIGIR", "high",
+                    f"campo diverge do root e do consenso de pilares em contato; corrigir para {fmt_number(proposed)}",
+                    operations=[{"op": "set_level", "value": fmt_number(proposed), "reason": "consenso PIL em contato + root"}],
+                    evidence=[{
+                        "kind": "consultive_pillar_level_consensus", "current": current,
+                        "expected": proposed, "pillars": pillars,
+                        "beams_consulted": cross_correction["beam_context"],
+                    }],
+                    rule_codes=["LAJ-LEVEL-PILLAR-CONSENSUS"],
+                )
             autocorrection = self._sealed_level_autocorrection(slab)
             if autocorrection:
                 proposed = autocorrection["expected"]
@@ -917,6 +979,68 @@ def load_slabs(con: sqlite3.Connection, project_id: str) -> list[Slab]:
     return slabs
 
 
+def _context_points(payload: dict) -> list:
+    if not isinstance(payload, dict):
+        return []
+    geometry = payload.get("geometry") if isinstance(payload.get("geometry"), dict) else {}
+    return payload.get("points") or payload.get("coordenadas") or geometry.get("poly") or []
+
+
+def load_consultive_context(con: sqlite3.Connection, project_id: str, slabs: list[Slab]) -> dict[str, dict]:
+    """Carrega contexto próximo PIL/FV/LV em modo somente consulta.
+
+    A consulta é intencionalmente separada do adaptador LAJ: os registros das
+    outras classes jamais são alterados, nem seus campos são copiados para a
+    ficha da laje. Apenas PIL em contato e com consenso pode desempatar nível.
+    """
+    con.row_factory = sqlite3.Row
+    context = {slab.name: {"pillars": [], "beams": []} for slab in slabs}
+    tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    pillar_rows = con.execute(
+        "SELECT name, points_json, extra_data_json, is_validated FROM pillars WHERE project_id=?",
+        (project_id,),
+    ).fetchall() if "pillars" in tables else []
+    beam_rows = con.execute(
+        "SELECT name, data_json, is_validated FROM beams WHERE project_id=?",
+        (project_id,),
+    ).fetchall() if "beams" in tables else []
+    pillars = []
+    for row in pillar_rows:
+        extra = json_load(row["extra_data_json"], {})
+        fields = extra.get("fields") if isinstance(extra.get("fields"), dict) else {}
+        level = extra.get("level") or fields.get("nivel") or fields.get("Nível")
+        bbox = point_bbox(json_load(row["points_json"], []))
+        if bbox:
+            pillars.append({"name": row["name"], "bbox": bbox, "level": level, "validated": bool(row["is_validated"])})
+    beams = []
+    for row in beam_rows:
+        data = json_load(row["data_json"], {})
+        fields = data.get("fields") if isinstance(data.get("fields"), dict) else {}
+        level = fields.get("nivel") or data.get("nivel")
+        bbox = point_bbox(_context_points(data))
+        if bbox:
+            beams.append({"name": row["name"], "bbox": bbox, "level": level, "validated": bool(row["is_validated"])})
+    for slab in slabs:
+        if not slab.bbox:
+            continue
+        tol = max(1.0, min(slab.bbox[2] - slab.bbox[0], slab.bbox[3] - slab.bbox[1]) * 0.01)
+        for pillar in pillars:
+            distance = bbox_distance(slab.bbox, pillar["bbox"])
+            if distance <= tol:
+                context[slab.name]["pillars"].append({
+                    "name": pillar["name"], "level": pillar["level"],
+                    "distance": distance, "validated": pillar["validated"],
+                })
+        for beam in beams:
+            distance = bbox_distance(slab.bbox, beam["bbox"])
+            if distance <= max(20.0, tol * 5):
+                context[slab.name]["beams"].append({
+                    "name": beam["name"], "level": beam["level"],
+                    "distance": distance, "validated": beam["validated"],
+                })
+    return context
+
+
 def write_jsonl(path: Path, rows: Iterable[dict]) -> None:
     with path.open("w", encoding="utf-8") as handle:
         for row in rows:
@@ -1035,10 +1159,11 @@ def cmd_audit(args: argparse.Namespace) -> int:
     db = Path(args.db)
     with sqlite3.connect(db) as con:
         slabs = load_slabs(con, args.project_id)
+        consultive_context = load_consultive_context(con, args.project_id, slabs)
     if not slabs:
         raise SystemExit(f"nenhuma LAJ encontrada para project_id={args.project_id}")
     run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
-    auditor = LajEvidenceAuditor(slabs, run_id)
+    auditor = LajEvidenceAuditor(slabs, run_id, consultive_context=consultive_context)
     selected = set(args.item or []) or None
     decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
     selected_slabs = [x for x in slabs if (not selected or x.name in selected) and (args.include_sealed or not x.is_validated)]

@@ -184,6 +184,23 @@ def test_neighbors_do_not_duplicate_question_for_the_same_ambiguous_source():
     assert auditor.questions[0]["reasoning"]["observed"]["dependent_neighbors"] == [{"item": "L4", "slot": "neighbor_west"}]
 
 
+def test_touching_pillar_consensus_can_resolve_ambiguous_slab_level():
+    ambiguous = slab("L1", level="852.12", validated={"laje_nivel"}, sealed=True)
+    ambiguous.extra["laje_nivel"] = "852.19"
+    auditor = LajEvidenceAuditor(
+        [ambiguous], "run",
+        consultive_context={"L1": {"pillars": [
+            {"name": "P1", "level": "852.19", "distance": 0.0, "validated": False},
+            {"name": "P2", "level": "852.19", "distance": 0.0, "validated": False},
+        ], "beams": [{"name": "V1", "level": None, "distance": 0.0, "validated": False}]}},
+    )
+    decision = auditor._audit_laje_nivel(ambiguous)
+    assert decision.decision == "CORRIGIR"
+    assert decision.operations == [{"op": "set_level", "value": "852.19", "reason": "consenso PIL em contato + root"}]
+    assert decision.evidence[0]["kind"] == "consultive_pillar_level_consensus"
+    assert [x["name"] for x in decision.evidence[0]["pillars"]] == ["P1", "P2"]
+
+
 def test_distant_pillar_is_removed_but_touching_support_is_kept():
     target = slab(
         "L2",

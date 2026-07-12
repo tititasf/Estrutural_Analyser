@@ -145,6 +145,27 @@ Para cada campo de cada item, o agente produz exatamente uma decisão:
 
 Quando fontes discordarem, o agente registra a discordância. Não faz média entre coordenadas, áreas ou níveis.
 
+### 5.1 Anel consultivo cross-classe
+
+O adaptador audita o campo na sua classe de origem, mas consulta elementos
+estruturais próximos das outras classes para confrontar a interpretação. Essa
+consulta é somente leitura, traz entidade, coordenada/distância, validação e
+proveniência para o dossiê; nunca copia campos de PIL/FV/LV para LAJ nem altera
+o elemento consultado.
+
+| Campo-alvo | Consulta permitida | Quando pode elevar confiança |
+|---|---|---|
+| nível LAJ | pilares em contato direto; vigas FV/LV próximas como contexto | ao menos dois pilares em contato convergem no mesmo nível e confirmam uma fonte LAJ já existente |
+| apoio LAJ | PIL e vigas próximas | nome, face e contato geométrico convergem; proximidade isolada não basta |
+| corte/contorno LAJ | FV/LV próximos | somente para excluir contaminação por viga; nunca para inventar recorte |
+| vizinhança LAJ | LAJ-fonte e elementos limítrofes | a identidade/direção é confirmada sem circularidade |
+
+O consenso externo não cria um valor novo. Ele apenas confirma ou reprova um
+valor que já exista em evidência própria da classe-alvo. Se houver discordância
+entre classes ou ausência de contato geométrico, a confiança diminui e o agente
+formula uma pergunta com: observação, tentativas, hipóteses rejeitadas, impasse,
+impacto nos vínculos dependentes e a regra geral que precisa ser ensinada.
+
 ## 6. Modelo de auditoria por campo
 
 O agente primeiro carrega a tabela de proveniência da classe (para LAJ: `docs/PROVENIENCIA-CAMPOS-LAJ.md`). Cada campo é classificado antes de ser julgado:
