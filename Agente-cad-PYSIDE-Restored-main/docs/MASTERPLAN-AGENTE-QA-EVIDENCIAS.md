@@ -267,6 +267,17 @@ scripts/arete/relatorios/qa_evidencias/<run_id>/
   evidencias/                    # PNGs, SVGs, recortes e referências
 ```
 
+### 8.1 Memória operacional e score de confiança
+
+Toda invocação produz também `resumo_final.md`, `scores_itens.jsonl` e registra
+uma linha append-only em `scripts/arete/relatorios/qa_evidencias/registro_sessoes.jsonl`.
+O resumo separa rigorosamente: o que foi interpretado, achados, ajustes apenas
+propostos, dúvidas e ajustes realmente aplicados em uma segunda invocação
+`apply`. Cada item recebe score de 0–100 calculado por campo a partir de
+confiança da evidência e segurança da decisão; score médio/baixo não autoriza
+selo e torna os campos incertos rastreáveis entre sessões. Assim recorrências
+viram backlog de convergência de fonte/motor/RAG, não falsa confiança.
+
 Schema mínimo de `decisoes.jsonl`:
 
 ```json

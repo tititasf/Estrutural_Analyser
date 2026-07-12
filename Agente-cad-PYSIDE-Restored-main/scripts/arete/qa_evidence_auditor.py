@@ -1280,6 +1280,70 @@ FIX_PROMPTS = {
     "LAJ-LEVEL-MISMATCH": """Ajuste universal de nível LAJ: não permita que field, root e label divirjam silenciosamente. Inferências precisam de âncora direta, delta explícito ou consenso geométrico rastreável. Em conflito, falhe fechado e gere pergunta; nunca faça média.""",
 }
 
+_CONFIDENCE_SCORE = {"high": 1.0, "medium": 0.70, "low": 0.35}
+_DECISION_SCORE = {
+    "CONFIRMAR": 1.0, "N/A_CONFIRMADO": 0.95, "PENDENTE": 0.50,
+    "CORRIGIR": 0.25, "REVISAR_HUMANO": 0.20,
+}
+
+
+def _item_scorecards(decisions: list[Decision], findings: list[dict], questions: list[dict]) -> list[dict]:
+    """Score explícito: confiança da evidência × segurança da decisão."""
+    by_item: dict[str, list[Decision]] = {}
+    for decision in decisions:
+        by_item.setdefault(decision.item, []).append(decision)
+    cards = []
+    for item, rows in sorted(by_item.items()):
+        values = [
+            _CONFIDENCE_SCORE.get(row.confidence, 0.0) * _DECISION_SCORE.get(row.decision, 0.0)
+            for row in rows
+        ]
+        item_findings = [x for x in findings if x.get("item") == item]
+        item_questions = [x for x in questions if x.get("item") == item]
+        uncertain = [row.field_id for row in rows if row.decision not in {"CONFIRMAR", "N/A_CONFIRMADO"}]
+        score = round(100 * sum(values) / max(1, len(values)), 1)
+        cards.append({
+            "item": item, "score_confianca": score,
+            "faixa": "alta" if score >= 90 else "media" if score >= 70 else "baixa",
+            "campos_revisados": len(rows), "campos_incerto": sorted(uncertain),
+            "achados": [x.get("code") for x in item_findings],
+            "perguntas": [x.get("question_id") for x in item_questions],
+            "decisoes": {key: sum(row.decision == key for row in rows) for key in sorted({row.decision for row in rows})},
+        })
+    return cards
+
+
+def _append_session_ledger(root: Path, entry: dict) -> None:
+    """Ledger append-only entre execuções; cada run mantém também seu dossiê local."""
+    root.mkdir(parents=True, exist_ok=True)
+    with (root / "registro_sessoes.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _write_final_session_summary(
+    out_dir: Path, manifest: dict, decisions: list[Decision], findings: list[dict], questions: list[dict], scorecards: list[dict],
+) -> None:
+    proposed = [operation for decision in decisions for operation in decision.operations]
+    uncertain = [card for card in scorecards if card["faixa"] != "alta"]
+    lines = [
+        "# Resumo final da sessão QA", "",
+        f"- Sessão: `{manifest['run_id']}`", f"- Modo: `{manifest['mode']}`",
+        f"- Interpretado: {len(decisions)} campos/vínculos em {len(scorecards)} item(ns).",
+        f"- Ajustes propostos: {len(proposed)} (nenhum é aplicado nesta auditoria read-only).",
+        f"- Achados: {len(findings)}; dúvidas humanas: {len(questions)}.",
+        f"- Itens com confiança média/baixa: {len(uncertain)}.", "",
+        "## Score por item", "",
+    ]
+    for card in scorecards:
+        notes = []
+        if card["campos_incerto"]:
+            notes.append("incertos=" + ", ".join(card["campos_incerto"]))
+        if card["achados"]:
+            notes.append("achados=" + ", ".join(card["achados"]))
+        lines.append(f"- {card['item']}: **{card['score_confianca']:.1f}/100** ({card['faixa']})" + (f" — {'; '.join(notes)}" if notes else ""))
+    lines += ["", "## Rastreabilidade", "", "- Decisões: `decisoes.jsonl`; scores: `scores_itens.jsonl`; dúvidas: `perguntas.jsonl`; correções propostas: `fix_requests.md`.", "- O ledger global append-only está em `../registro_sessoes.jsonl`."]
+    (out_dir / "resumo_final.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
 
 def write_reports(
     out_dir: Path,
@@ -1295,6 +1359,8 @@ def write_reports(
     write_jsonl(out_dir / "achados.jsonl", findings)
     write_jsonl(out_dir / "perguntas.jsonl", questions)
     write_jsonl(out_dir / "evidencias_web.jsonl", web_evidence)
+    scorecards = _item_scorecards(decisions, findings, questions)
+    write_jsonl(out_dir / "scores_itens.jsonl", scorecards)
 
     codes = sorted({code for finding in findings for code in [finding.get("code")] if code})
     fix_lines = ["# Fix requests gerados pelo Agente QA de Evidências", ""]
@@ -1322,6 +1388,14 @@ def write_reports(
     ]
     summary += [f"- {key}: {value}" for key, value in sorted(counts.items())]
     (out_dir / "resumo.md").write_text("\n".join(summary) + "\n", encoding="utf-8")
+    _write_final_session_summary(out_dir, manifest, decisions, findings, questions, scorecards)
+    _append_session_ledger(out_dir.parent, {
+        "at": utc_now(), "run_id": manifest["run_id"], "mode": manifest["mode"],
+        "project_id": manifest["project_id"], "classe": manifest["classe"],
+        "items": manifest["items"], "decisions": counts, "findings": len(findings),
+        "questions": len(questions), "scores": {x["item"]: x["score_confianca"] for x in scorecards},
+        "out_dir": str(out_dir),
+    })
 
 
 def current_snapshot(con: sqlite3.Connection, slab_id: str) -> tuple[str, dict[str, Any]]:
@@ -1535,6 +1609,12 @@ def cmd_apply(args: argparse.Namespace) -> int:
             raise
     write_jsonl(run_dir / "rollback.jsonl", rollback_rows)
     (run_dir / "apply_result.json").write_text(json.dumps({"applied_at": utc_now(), "project_id": args.project_id, "items": applied}, ensure_ascii=False, indent=2), encoding="utf-8")
+    _append_session_ledger(run_dir.parent, {
+        "at": utc_now(), "run_id": manifest["run_id"], "mode": "apply",
+        "project_id": args.project_id, "classe": manifest.get("classe"),
+        "items": [entry["item"] for entry in applied], "applied": applied,
+        "rollback": str(run_dir / "rollback.jsonl"), "out_dir": str(run_dir),
+    })
     print(json.dumps({"applied": applied, "rollback": str(run_dir / 'rollback.jsonl')}, ensure_ascii=False))
     return 0
 
@@ -1561,6 +1641,11 @@ def cmd_rollback(args: argparse.Namespace) -> int:
         except Exception:
             con.rollback()
             raise
+    _append_session_ledger(run_dir.parent, {
+        "at": utc_now(), "run_id": manifest["run_id"], "mode": "rollback",
+        "project_id": args.project_id, "classe": manifest.get("classe"),
+        "items": [entry["item"] for entry in rows], "out_dir": str(run_dir),
+    })
     print(json.dumps({"rolled_back": [x["item"] for x in rows]}, ensure_ascii=False))
     return 0
 
