@@ -190,6 +190,13 @@ O agente primeiro carrega a tabela de proveniência da classe (para LAJ: `docs/P
 | visão de corte | geometria real de corte; caso ausente, `N/A_CONFIRMADO` apenas com evidência |
 | cotagem/recorte complexo | imagem/DXF legível que permita fabricar/cortar; cotas diagonais só se a regra de classe permitir |
 
+Para campos derivados da ficha de visão de corte, o QA também reproduz a igualdade
+declarada (`altura_viga - altura_laje - distância_topo = distância_fundo`) e exige
+distâncias fisicamente não negativas. A altura local do recorte não pode ser
+comparada mecanicamente à dimensão global de FV/LV: são proveniências diferentes.
+Conflito entre elas vira `REVISAR_HUMANO`, com a cadeia de cálculo e a regra de
+proveniência pedida ao dono.
+
 ### 6.2 Regras especiais de integridade
 
 - Um valor numérico perto de uma laje não pode ser nível apenas por parecer decimal. Deve ter proveniência semântica.

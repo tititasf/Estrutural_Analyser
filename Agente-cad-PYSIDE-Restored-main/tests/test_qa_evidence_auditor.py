@@ -246,6 +246,41 @@ def test_distant_cut_component_is_removed():
     assert sum(op["op"] == "remove_link" for op in decision.operations) == 1
 
 
+def test_cut_ficha_negative_distance_requires_human_review_with_reasoning():
+    target = slab(
+        "L2",
+        links={
+            "laje_visao_corte": {
+                "cut_view_geom": [{
+                    "is_inferred": True, "distance_to_slab": 0.0,
+                    "points": [[0, 0], [20, 0], [20, 10], [0, 10], [0, 0]],
+                    "ficha": {
+                        "beam_name": "V1", "beam_height": "55", "neigh_slab_height": "57.2",
+                        "neighbor_dist_top": "30", "neighbor_dist_bottom": "-32.2",
+                        "neigh_dist_fundo_formula": "bh(55) - H_laje_viz(57.2) - d_topo(30) = -32.2",
+                    },
+                }]
+            }
+        },
+    )
+    auditor = LajEvidenceAuditor([target], "run")
+    decision = auditor._audit_laje_visao_corte(target)
+    assert decision.decision == "REVISAR_HUMANO"
+    assert decision.rule_codes == ["LAJ-CUT-CALC-INCONSISTENT"]
+    assert auditor.questions[-1]["reasoning"]["observed"][0]["code"] == "negative_distance"
+    assert "V1" in auditor.questions[-1]["question"]
+    assert "distância negativa" in auditor.questions[-1]["question"]
+
+
+def test_outline_decision_contains_polygon_area_and_perimeter():
+    target = slab("L2", links={"laje_outline_segs": {"contour": [{"points": [[0, 0], [1, 0]]}]}})
+    auditor = LajEvidenceAuditor([target], "run")
+    decision = auditor._audit_laje_outline_segs(target)
+    assert decision.decision == "CONFIRMAR"
+    assert decision.evidence[0]["area"] == pytest.approx(10000.0)
+    assert decision.evidence[0]["perimeter"] == pytest.approx(400.0)
+
+
 def test_explicit_delta_level_resolves_after_unicode_normalization():
     source = slab(
         "L1", level="852.12",

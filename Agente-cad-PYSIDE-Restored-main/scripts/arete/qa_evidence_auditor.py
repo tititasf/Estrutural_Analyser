@@ -118,6 +118,32 @@ def bbox_distance(a: tuple[float, float, float, float], b: tuple[float, float, f
     return math.hypot(dx, dy)
 
 
+def polygon_metrics(points: Iterable) -> tuple[float, float] | None:
+    """Área e perímetro do contorno fechado, sem assumir retângulo."""
+    pts = list(points or [])
+    if len(pts) < 4:
+        return None
+    try:
+        normalized = [(float(p[0]), float(p[1])) for p in pts]
+    except (TypeError, ValueError, IndexError):
+        return None
+    if normalized[0] != normalized[-1]:
+        normalized.append(normalized[0])
+    area2 = sum(
+        normalized[index][0] * normalized[index + 1][1]
+        - normalized[index + 1][0] * normalized[index][1]
+        for index in range(len(normalized) - 1)
+    )
+    perimeter = sum(
+        math.hypot(
+            normalized[index + 1][0] - normalized[index][0],
+            normalized[index + 1][1] - normalized[index][1],
+        )
+        for index in range(len(normalized) - 1)
+    )
+    return abs(area2) / 2.0, perimeter
+
+
 def link_fingerprint(link: dict) -> str:
     payload = {
         key: link.get(key)
@@ -584,10 +610,15 @@ class LajEvidenceAuditor:
     def _audit_laje_outline_segs(self, slab: Slab) -> Decision:
         contour = [x for x in safe_list((slab.links.get("laje_outline_segs") or {}).get("contour")) if isinstance(x, dict)]
         bbox = slab.bbox
-        valid = len(slab.points) >= 4 and bbox is not None and (bbox[2] - bbox[0]) > 0 and (bbox[3] - bbox[1]) > 0
+        metrics = polygon_metrics(slab.points)
+        valid = len(slab.points) >= 4 and bbox is not None and metrics is not None and metrics[0] > 0 and (bbox[2] - bbox[0]) > 0 and (bbox[3] - bbox[1]) > 0
         if valid and contour:
             ops = [] if "laje_outline_segs" in slab.validated_fields else self._validation_ops("laje_outline_segs", ["contour"])
-            return self._new_decision(slab, "laje_outline_segs", "CONFIRMAR", "high", "contorno fechado e vínculo geométrico presentes", operations=ops, evidence=[{"kind": "bbox", "value": bbox}])
+            return self._new_decision(
+                slab, "laje_outline_segs", "CONFIRMAR", "high", "contorno fechado, área e perímetro calculáveis",
+                operations=ops,
+                evidence=[{"kind": "contour_metrics", "bbox": bbox, "area": metrics[0], "perimeter": metrics[1], "vertices": len(slab.points)}],
+            )
         return self._new_decision(slab, "laje_outline_segs", "PENDENTE", "low", "contorno insuficiente ou sem vínculo geométrico")
 
     def _audit_laje_islands(self, slab: Slab) -> Decision:
@@ -623,6 +654,45 @@ class LajEvidenceAuditor:
             return bbox_distance(slab_bbox, geom_bbox)
         return None
 
+    def _cut_calculation_issues(self, links: list[dict]) -> list[dict]:
+        """Valida a aritmética explícita da ficha de visão de corte.
+
+        Não compara a altura local de corte com a dimensão global da viga: são
+        conceitos diferentes. Verifica somente as fórmulas que a própria ficha
+        declara, evitando falso positivo entre FV/LV e o recorte da laje.
+        """
+        issues = []
+        groups = (
+            ("own", "own_slab_height", "own_dist_top", "own_dist_bottom"),
+            ("neighbor", "neigh_slab_height", "neighbor_dist_top", "neighbor_dist_bottom"),
+        )
+        for index, link in enumerate(links):
+            ficha = link.get("ficha") if isinstance(link.get("ficha"), dict) else {}
+            beam_height = parse_number(ficha.get("beam_height"))
+            for scope, height_key, top_key, bottom_key in groups:
+                slab_height = parse_number(ficha.get(height_key))
+                top = parse_number(ficha.get(top_key))
+                bottom = parse_number(ficha.get(bottom_key))
+                values = (beam_height, slab_height, top, bottom)
+                if any(value is None for value in values):
+                    continue
+                calculated_top = beam_height - slab_height - bottom
+                if abs(calculated_top - top) > 0.11:
+                    issues.append({
+                        "cut_index": index, "beam": ficha.get("beam_name"), "scope": scope,
+                        "code": "formula_mismatch", "beam_height": beam_height,
+                        "slab_height": slab_height, "top": top, "bottom": bottom,
+                        "calculated_top": calculated_top,
+                    })
+                if top < -0.01 or bottom < -0.01:
+                    issues.append({
+                        "cut_index": index, "beam": ficha.get("beam_name"), "scope": scope,
+                        "code": "negative_distance", "beam_height": beam_height,
+                        "slab_height": slab_height, "top": top, "bottom": bottom,
+                        "formula": ficha.get("neigh_dist_fundo_formula" if scope == "neighbor" else "own_dist_fundo_formula"),
+                    })
+        return issues
+
     def _remove_link_op(self, field_id: str, slot: str, link: dict) -> dict:
         return {"op": "remove_link", "field": field_id, "slot": slot, "fingerprint": link_fingerprint(link)}
 
@@ -646,6 +716,41 @@ class LajEvidenceAuditor:
         if invalid:
             evidence = [{"distance": self._link_distance(slab, x), "bbox": point_bbox(x.get("points") or [])} for x in invalid]
             self._add_finding(slab, field_id, "LAJ-CUT-DISTANT", "geometria de corte distante/sem contato foi associada à laje", evidence)
+        calculation_issues = self._cut_calculation_issues(valid)
+        if calculation_issues:
+            first_issue = calculation_issues[0]
+            cut_number = int(first_issue["cut_index"]) + 1
+            beam_name = first_issue.get("beam") or "viga sem nome"
+            scope_label = "lado da própria laje" if first_issue.get("scope") == "own" else "lado da laje vizinha"
+            observed = (
+                f"{slab.name}, recorte {cut_number}, {beam_name}, {scope_label}: "
+                f"altura de viga={first_issue.get('beam_height', 'n/d')}, "
+                f"altura de laje={first_issue.get('slab_height', 'n/d')}, "
+                f"topo={first_issue.get('top', 'n/d')} e fundo={first_issue.get('bottom', 'n/d')}"
+            )
+            self._add_finding(
+                slab, field_id, "LAJ-CUT-CALC-INCONSISTENT",
+                "ficha de corte contém distância negativa ou fórmula interna inconsistente",
+                calculation_issues,
+            )
+            self._add_question(
+                slab, field_id, "LAJ-CUT-CALC-INCONSISTENT",
+                f"{observed}. Recalculei a fórmula da ficha: ela fecha algebricamente, mas produz distância negativa; "
+                "por isso recusei normalizá-la para zero e também recusei trocar a dimensão local pela dimensão global da viga. "
+                "Qual é a regra geral de proveniência que deve prevalecer para escolher a altura local e impedir essa distância negativa?",
+                calculation_issues,
+                reasoning={
+                    "observed": calculation_issues,
+                    "attempted": ["recalcular a igualdade declarada pela própria ficha", "verificar sinal das distâncias", "confirmar contato geométrico do corte"],
+                    "rejected": ["comparar diretamente altura local do corte com dimensão global da viga", "normalizar distância negativa para zero sem causa"],
+                    "impasse": "A aritmética da ficha é inválida, mas a origem semântica da altura local não pode ser substituída por uma dimensão global de outra classe.",
+                    "requested_rule": "Defina como o motor deve escolher a altura local de corte e impedir distância negativa para qualquer combinação laje/viga.",
+                },
+            )
+            return self._new_decision(
+                slab, field_id, "REVISAR_HUMANO", "low", "cálculo interno da ficha de corte inconsistente",
+                evidence=calculation_issues, rule_codes=["LAJ-CUT-CALC-INCONSISTENT"], requires_human=True,
+            )
         if valid:
             if field_id not in slab.validated_fields:
                 operations += self._validation_ops(field_id, [slot])

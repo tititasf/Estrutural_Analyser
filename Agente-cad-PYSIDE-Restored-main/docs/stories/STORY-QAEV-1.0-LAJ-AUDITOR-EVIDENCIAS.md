@@ -138,3 +138,13 @@ D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe -m py_compile scripts\arete\qa_evi
 - PASS: auditoria completa LAJ retornou 248 decisões, 0 perguntas humanas.
 - PASS: 15 testes aprovados; o contexto cross-classe é opcional para bancos
   reduzidos e só PIL com contato+consenso pode elevar confiança de nível LAJ.
+
+### Auditoria de cálculos de corte — 2026-07-12
+
+- PASS: o QA passou a reproduzir área/perímetro do contorno real (não apenas
+  `comprimento × largura`) e as fórmulas internas das fichas de visão de corte.
+- PASS: 50 recortes de corte das 31 LAJ foram avaliados; 49 permaneceram coerentes.
+- CONCERN: L318/V318, recorte 5, lado vizinho, fecha a igualdade somente com
+  `distância_fundo=-32,2`. O agente manteve a ficha sem nova validação, registrou
+  achado e formulou pergunta de proveniência; não normalizou nem substituiu dado
+  local pela dimensão global da viga.
