@@ -148,3 +148,13 @@ D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe -m py_compile scripts\arete\qa_evi
   `distância_fundo=-32,2`. O agente manteve a ficha sem nova validação, registrou
   achado e formulou pergunta de proveniência; não normalizou nem substituiu dado
   local pela dimensão global da viga.
+
+### Adapter de evidência web — 2026-07-12
+
+- PASS: o QA agora anexa à decisão a ficha granular HTML versionada, seu hash,
+  campos exibidos e evidências SVG N1/N2/N3/N4, sempre como apresentação e nunca
+  como substituta do N1/DXF persistido.
+- PASS: auditoria das 31 LAJ encontrou 30 snapshots web coerentes com N1 atual.
+- CONCERN: L314 tem ficha web com nível `852.12`, enquanto o N1 atual e o consenso
+  cross-classe validado são `852.19`; o adapter marcou o snapshot como `stale` e
+  o excluiu da prova confirmatória até a ficha ser regenerada.

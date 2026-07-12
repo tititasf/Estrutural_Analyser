@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import html
 import json
 import math
 import re
@@ -27,6 +28,7 @@ from typing import Any, Iterable
 DEFAULT_DB = Path(r"D:\Agente-cad-PYSIDE\project_data.vision")
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REPORT_ROOT = REPO_ROOT / "scripts" / "arete" / "relatorios" / "qa_evidencias"
+DEFAULT_WEB_EVIDENCE_ROOT = REPO_ROOT / "scripts" / "arete" / "html_fichas"
 REQUIRED_LAJ_FIELDS = (
     "name",
     "laje_dim",
@@ -144,6 +146,105 @@ def polygon_metrics(points: Iterable) -> tuple[float, float] | None:
     return abs(area2) / 2.0, perimeter
 
 
+class WebEvidenceResolver:
+    """Indexa fichas granulares que a interface web exibe, sem confiar no estado da UI.
+
+    A ficha HTML é um artefato de apresentação. Ela entra no dossiê com hash,
+    versão de arquivo e imagens SVG incorporadas; os dados persistidos/DXF continuam
+    sendo a prova primária. Isso evita validação circular por checkbox/localStorage.
+    """
+
+    def __init__(self, root: Path, *, enabled: bool = True):
+        self.root = root
+        self.enabled = enabled
+        self._index: dict[str, list[Path]] | None = None
+
+    def _build_index(self) -> None:
+        index: dict[str, list[Path]] = {}
+        if self.enabled and self.root.exists():
+            for path in self.root.rglob("*.html"):
+                if path.parent.name.lower() != "lajes":
+                    continue
+                index.setdefault(path.stem.upper(), []).append(path)
+        self._index = index
+
+    @staticmethod
+    def _cell_value(raw_html: str, label: str) -> str | None:
+        pattern = rf">\s*{re.escape(label)}\s*</td>\s*<td[^>]*>(.*?)</td>"
+        match = re.search(pattern, raw_html, flags=re.IGNORECASE | re.DOTALL)
+        if not match:
+            return None
+        value = re.sub(r"<[^>]+>", " ", match.group(1))
+        value = " ".join(html.unescape(value).split())
+        return value or None
+
+    def resolve_laj(self, item: str) -> dict:
+        if not self.enabled:
+            return {"evidence_id": f"web-laj-{item}", "item": item, "state": "disabled"}
+        if self._index is None:
+            self._build_index()
+        candidates = (self._index or {}).get(item.upper(), [])
+        if not candidates:
+            return {"evidence_id": f"web-laj-{item}", "item": item, "state": "missing"}
+        path = max(candidates, key=lambda candidate: candidate.stat().st_mtime_ns)
+        raw = path.read_text(encoding="utf-8", errors="replace")
+        text = html.unescape(raw)
+        stages = re.findall(r'<div class="evidence-title"><b>([^<]+)</b>', text, flags=re.IGNORECASE)
+        artifacts = re.findall(r'<div class="artifact-path">(.*?)</div>', text, flags=re.IGNORECASE | re.DOTALL)
+        return {
+            "evidence_id": "web-" + hashlib.sha256(str(path.resolve()).encode("utf-8")).hexdigest()[:16],
+            "item": item,
+            "state": "available",
+            "source_kind": "ficha_granular_html",
+            "path": str(path.resolve()),
+            "sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+            "modified_at": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat(timespec="seconds"),
+            "identity": {
+                "name": self._cell_value(raw, "Nome"),
+                "level": self._cell_value(raw, "Nível"),
+                "thickness": self._cell_value(raw, "Espessura"),
+                "area": self._cell_value(raw, "Área do contorno"),
+            },
+            "visual": {
+                "embedded_svg_count": len(re.findall(r"<svg\b", raw, flags=re.IGNORECASE)),
+                "stages": stages,
+                "artifact_paths": [html.unescape(re.sub(r"<[^>]+>", "", value)).strip() for value in artifacts[:8]],
+            },
+            "authority": "presentation_only; compare with persisted N1/DXF; never read browser localStorage as evidence",
+        }
+
+
+def reconcile_web_evidence(slab: "Slab", evidence: dict) -> dict:
+    """Reprova snapshot web que não representa mais a ficha N1 persistida."""
+    result = copy.deepcopy(evidence)
+    if result.get("state") != "available":
+        return result
+    identity = result.get("identity") or {}
+    expected = {
+        "name": slab.name,
+        "level": slab.fields.get("laje_nivel") or slab.extra.get("laje_nivel"),
+        "thickness": parse_number(slab.fields.get("laje_dim") or slab.extra.get("laje_dim")),
+    }
+    metrics = polygon_metrics(slab.points)
+    expected["area"] = metrics[0] if metrics else None
+    mismatches = []
+    if identity.get("name") and str(identity["name"]).strip().upper() != slab.name.upper():
+        mismatches.append({"field": "name", "persisted": slab.name, "web": identity["name"]})
+    for key in ("level", "thickness", "area"):
+        persisted = parse_number(expected.get(key))
+        web_value = parse_number(identity.get(key))
+        if persisted is None or web_value is None:
+            continue
+        tolerance = max(0.05, abs(persisted) * 0.002) if key == "area" else 0.05
+        if abs(persisted - web_value) > tolerance:
+            mismatches.append({"field": key, "persisted": persisted, "web": web_value, "tolerance": tolerance})
+    result["persisted_comparison"] = {"expected": expected, "mismatches": mismatches}
+    if mismatches:
+        result["state"] = "stale"
+        result["authority"] = "rejected_snapshot; regenerate or locate current granular HTML before visual evidence can support QA"
+    return result
+
+
 def link_fingerprint(link: dict) -> str:
     payload = {
         key: link.get(key)
@@ -205,11 +306,18 @@ class Decision:
 
 
 class LajEvidenceAuditor:
-    def __init__(self, slabs: list[Slab], run_id: str, consultive_context: dict[str, dict] | None = None):
+    def __init__(
+        self,
+        slabs: list[Slab],
+        run_id: str,
+        consultive_context: dict[str, dict] | None = None,
+        web_evidence: dict[str, dict] | None = None,
+    ):
         self.slabs = slabs
         self.by_name = {slab.name: slab for slab in slabs}
         self.run_id = run_id
         self.consultive_context = consultive_context or {}
+        self.web_evidence = web_evidence or {}
         self.levels: dict[str, float] = {}
         self.level_reasons: dict[str, str] = {}
         self.findings: list[dict] = []
@@ -253,12 +361,24 @@ class LajEvidenceAuditor:
             decision=decision,
             confidence=confidence,
             reason=reason,
-            evidence=evidence or [],
+            evidence=[*(evidence or []), *self._web_evidence_reference(slab)],
             operations=operations or [],
             rule_codes=rule_codes or [],
             requires_human=requires_human,
             snapshot_hash=slab.snapshot_hash,
         )
+
+    def _web_evidence_reference(self, slab: Slab) -> list[dict]:
+        evidence = self.web_evidence.get(slab.name)
+        if not evidence or evidence.get("state") != "available":
+            return []
+        return [{
+            "kind": "web_granular_ficha",
+            "evidence_id": evidence["evidence_id"],
+            "sha256": evidence["sha256"],
+            "path": evidence["path"],
+            "authority": "presentation_only",
+        }]
 
     def _add_finding(self, slab: Slab, field_id: str, code: str, message: str, evidence: list[dict]) -> None:
         key = f"{slab.project_id}|{slab.name}|{field_id}|{code}|{message}"
@@ -1161,12 +1281,20 @@ FIX_PROMPTS = {
 }
 
 
-def write_reports(out_dir: Path, manifest: dict, decisions: list[Decision], findings: list[dict], questions: list[dict]) -> None:
+def write_reports(
+    out_dir: Path,
+    manifest: dict,
+    decisions: list[Decision],
+    findings: list[dict],
+    questions: list[dict],
+    web_evidence: Iterable[dict] = (),
+) -> None:
     out_dir.mkdir(parents=True, exist_ok=False)
     (out_dir / "manifesto.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
     write_jsonl(out_dir / "decisoes.jsonl", (asdict(x) for x in decisions))
     write_jsonl(out_dir / "achados.jsonl", findings)
     write_jsonl(out_dir / "perguntas.jsonl", questions)
+    write_jsonl(out_dir / "evidencias_web.jsonl", web_evidence)
 
     codes = sorted({code for finding in findings for code in [finding.get("code")] if code})
     fix_lines = ["# Fix requests gerados pelo Agente QA de Evidências", ""]
@@ -1268,10 +1396,25 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if not slabs:
         raise SystemExit(f"nenhuma LAJ encontrada para project_id={args.project_id}")
     run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
-    auditor = LajEvidenceAuditor(slabs, run_id, consultive_context=consultive_context)
     selected = set(args.item or []) or None
-    decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
     selected_slabs = [x for x in slabs if (not selected or x.name in selected) and (args.include_sealed or not x.is_validated)]
+    web_mode = getattr(args, "web_evidence", "auto")
+    web_root = Path(getattr(args, "web_root", DEFAULT_WEB_EVIDENCE_ROOT))
+    resolver = WebEvidenceResolver(web_root, enabled=web_mode != "off")
+    web_evidence = {
+        slab.name: reconcile_web_evidence(slab, resolver.resolve_laj(slab.name))
+        for slab in selected_slabs
+    }
+    missing_web = [name for name, evidence in web_evidence.items() if evidence.get("state") != "available"]
+    if web_mode == "required" and missing_web:
+        raise SystemExit("ficha granular web ausente para: " + ", ".join(sorted(missing_web)))
+    auditor = LajEvidenceAuditor(
+        slabs,
+        run_id,
+        consultive_context=consultive_context,
+        web_evidence=web_evidence,
+    )
+    decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
     out_dir = Path(args.out_dir) if args.out_dir else DEFAULT_REPORT_ROOT / run_id
     manifest = {
         "schema_version": 1,
@@ -1285,14 +1428,22 @@ def cmd_audit(args: argparse.Namespace) -> int:
         "items": [x.name for x in selected_slabs],
         "snapshots": {x.name: {"id": x.id, "hash": x.snapshot_hash} for x in selected_slabs},
         "required_fields": list(REQUIRED_LAJ_FIELDS),
+        "web_evidence": {
+            "mode": web_mode,
+            "root": str(web_root.resolve()),
+            "available": len(web_evidence) - len(missing_web),
+            "missing": sorted(missing_web),
+            "policy": "presentation_only; persisted N1/DXF remain primary evidence",
+        },
     }
-    write_reports(out_dir, manifest, decisions, auditor.findings, auditor.questions)
+    write_reports(out_dir, manifest, decisions, auditor.findings, auditor.questions, web_evidence.values())
     print(json.dumps({
         "run_id": run_id,
         "out_dir": str(out_dir),
         "decisions": len(decisions),
         "findings": len(auditor.findings),
         "questions": len(auditor.questions),
+        "web_evidence_available": len(web_evidence) - len(missing_web),
     }, ensure_ascii=False))
     return 0
 
@@ -1433,6 +1584,14 @@ def build_parser() -> argparse.ArgumentParser:
     audit.add_argument("--project-id", required=True)
     audit.add_argument("--item", nargs="*")
     audit.add_argument("--include-sealed", action="store_true")
+    audit.add_argument(
+        "--web-evidence", choices=("auto", "required", "off"), default="auto",
+        help="anexa ficha granular HTML versionada; required falha fechado se ausente",
+    )
+    audit.add_argument(
+        "--web-root", default=str(DEFAULT_WEB_EVIDENCE_ROOT),
+        help="raiz dos snapshots HTML que a interface apresenta",
+    )
     audit.add_argument("--run-id")
     audit.add_argument("--out-dir")
     audit.set_defaults(func=cmd_audit)

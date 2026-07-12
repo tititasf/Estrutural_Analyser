@@ -14,6 +14,8 @@ from scripts.arete.qa_evidence_auditor import (
     cmd_apply,
     cmd_audit,
     cmd_rollback,
+    reconcile_web_evidence,
+    WebEvidenceResolver,
 )
 
 
@@ -65,6 +67,46 @@ def test_bare_dimension_does_not_become_level_anchor():
     auditor = LajEvidenceAuditor([source, contaminated], "run")
     assert auditor.levels["L1"] == pytest.approx(852.12)
     assert "L2" not in auditor.levels
+
+
+def test_web_evidence_resolver_records_versioned_html_without_trusting_ui_state(tmp_path: Path):
+    page = tmp_path / "Obra" / "run" / "lajes" / "L100.html"
+    page.parent.mkdir(parents=True)
+    page.write_text(
+        '<html><title>Laje — L100</title>'
+        '<td>Nome</td><td>L100</td><td>Nível</td><td>852.19</td>'
+        '<td>Espessura</td><td>12</td><td>Área do contorno</td><td>1000</td>'
+        '<div class="evidence-title"><b>N1 / SA</b></div><svg></svg>'
+        '<div class="artifact-path">C:/obra/L100.dxf</div>'
+        '<script>localStorage.setItem("val_L100", "1")</script></html>',
+        encoding="utf-8",
+    )
+    evidence = WebEvidenceResolver(tmp_path).resolve_laj("L100")
+    assert evidence["state"] == "available"
+    assert evidence["identity"] == {"name": "L100", "level": "852.19", "thickness": "12", "area": "1000"}
+    assert evidence["visual"]["embedded_svg_count"] == 1
+    assert evidence["authority"].startswith("presentation_only")
+
+
+def test_auditor_references_available_web_evidence_in_its_decision():
+    target = slab("L100", links={"laje_outline_segs": {"contour": [{"points": [[0, 0], [1, 0]]}]}})
+    evidence = {"L100": {"state": "available", "evidence_id": "web-x", "sha256": "abc", "path": "C:/ficha/L100.html"}}
+    auditor = LajEvidenceAuditor([target], "run", web_evidence=evidence)
+    decision = auditor._audit_laje_outline_segs(target)
+    assert decision.evidence[-1]["kind"] == "web_granular_ficha"
+    assert decision.evidence[-1]["evidence_id"] == "web-x"
+
+
+def test_web_snapshot_with_different_contour_area_is_rejected_as_stale():
+    target = slab("L100", level="852.19")
+    target.extra["fields"]["laje_dim"] = "h=12"
+    evidence = {
+        "state": "available", "item": "L100",
+        "identity": {"name": "L100", "level": "852.19", "thickness": "12", "area": "9000"},
+    }
+    reconciled = reconcile_web_evidence(target, evidence)
+    assert reconciled["state"] == "stale"
+    assert reconciled["persisted_comparison"]["mismatches"][0]["field"] == "area"
 
 
 def test_neighbor_wrong_level_is_replaced_from_trusted_source():

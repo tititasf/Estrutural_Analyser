@@ -145,6 +145,20 @@ Para cada campo de cada item, o agente produz exatamente uma decisão:
 
 Quando fontes discordarem, o agente registra a discordância. Não faz média entre coordenadas, áreas ou níveis.
 
+### 5.2 Adapter de evidência web
+
+A ficha granular que o usuário enxerga na web é uma evidência navegável, não
+uma nova verdade. O adapter localiza o snapshot HTML do item, registra caminho,
+hash, data, campos exibidos e SVGs/artefatos incorporados em
+`evidencias_web.jsonl`. Antes de anexá-lo a uma decisão, compara nome, nível,
+espessura e área do contorno contra N1 persistido; qualquer divergência marca
+o snapshot como `stale` e o exclui da evidência confirmatória.
+
+Playwright pode renderizar o snapshot para leitura visual quando a imagem não
+estiver diretamente disponível, mas nunca fornece campos pelo estado da tela,
+checkbox, `localStorage` ou sessão do navegador. A fonte continua sendo N1/DXF;
+a web torna a prova legível e rastreável.
+
 ### 5.1 Anel consultivo cross-classe
 
 O adaptador audita o campo na sua classe de origem, mas consulta elementos
