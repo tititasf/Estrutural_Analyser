@@ -1,0 +1,60 @@
+.container {
+  min-height: 100vh;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.skeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.obraRotulo {
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.filtroWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.filtroIcone {
+  color: var(--fg-muted);
+}
+
+.filtroInput {
+  flex: 1;
+  height: 44px;
+  border: none;
+  font-size: 16px;
+  color: var(--fg);
+  background: transparent;
+}

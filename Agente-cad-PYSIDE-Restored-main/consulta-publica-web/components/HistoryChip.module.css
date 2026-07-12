@@ -1,0 +1,45 @@
+.chip {
+  display: flex;
+  align-items: center;
+  min-height: var(--target-min);
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.chipBody {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--target-min);
+  background: transparent;
+  color: var(--fg);
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0 8px;
+  font-size: 16px;
+}
+
+.titulo {
+  font-weight: 600;
+}
+
+.obraRotulo {
+  color: var(--fg-muted);
+}
+
+.offBadge {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.removeButton {
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  background: transparent;
+  color: var(--fg-muted);
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}

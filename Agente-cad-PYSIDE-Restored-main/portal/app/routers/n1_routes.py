@@ -14,7 +14,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from .. import access, auth, ficha_reader, pipeline_runner
+from .. import access, auth, ficha_reader, pipeline_runner, public_codes_lookup
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -103,11 +103,45 @@ def obter_item_n1_endpoint(obra_id: str, classe: str, item_id: str, request: Req
         raise HTTPException(status_code=404, detail="item nao encontrado nesta classe/pavimento")
     dir_fichas = pipeline_runner.encontrar_dir_fichas(obra_dir)
     fotos = ficha_reader.extrair_fotos_ficha(dir_fichas, classe, item)
+    settings = request.app.state.settings
+    code_publico = public_codes_lookup.buscar_code_item(
+        settings.public_consulta_db_path, obra_id, pav, classe, item_id,
+    )
     return {
         "obra_id": obra_id, "classe": classe, "pavimento": pav, "item_id": item_id,
         "titulo": item["titulo"], "campos": item["campos"], "atencao": item["atencao"],
         "foto_n1": fotos["n1"], "foto_n3": fotos["n3"],
+        "code_publico": code_publico,
     }
+
+
+@router.get("/{obra_id}/obra-code")
+def obter_code_obra_endpoint(obra_id: str, request: Request,
+                              membro: dict = Depends(auth.exige_login),
+                              conn: sqlite3.Connection = Depends(get_db_conn)):
+    """[2026-07-12] Código público (App de Consulta) da obra inteira —
+    mostrado no cabeçalho de `obra_detalhe.html` assim que a obra é aberta/
+    criada."""
+    _obra_do_membro(conn, obra_id, membro)
+    settings = request.app.state.settings
+    code_publico = public_codes_lookup.buscar_code_obra(settings.public_consulta_db_path, obra_id)
+    return {"obra_id": obra_id, "code_publico": code_publico}
+
+
+@router.get("/{obra_id}/pavimento-code")
+def obter_code_pavimento_endpoint(obra_id: str, pavimento: str, request: Request,
+                                   membro: dict = Depends(auth.exige_login),
+                                   conn: sqlite3.Connection = Depends(get_db_conn)):
+    """[2026-07-12] Código público (App de Consulta) de 1 pavimento — usado
+    pelo painel de recortes (`obra_detalhe.html`, "ficha do pavimento"/
+    recorte limpo da torre) pra mostrar/imprimir o código sem duplicar a
+    lógica de lookup no JS."""
+    _obra_do_membro(conn, obra_id, membro)
+    settings = request.app.state.settings
+    code_publico = public_codes_lookup.buscar_code_pavimento(
+        settings.public_consulta_db_path, obra_id, pavimento,
+    )
+    return {"obra_id": obra_id, "pavimento": pavimento, "code_publico": code_publico}
 
 
 @router.get("/{obra_id}/stats-globais")

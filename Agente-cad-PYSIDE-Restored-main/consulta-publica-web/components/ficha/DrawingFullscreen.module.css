@@ -1,0 +1,103 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.barraSuperior {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 8px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--surface-2);
+  color: #000000;
+}
+
+.botaoIcone {
+  min-width: 56px;
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #000000;
+  cursor: pointer;
+}
+
+.toggleNivel {
+  display: flex;
+  gap: 4px;
+}
+
+.nivelAtivo,
+.nivelInativo {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nivelAtivo {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.nivelInativo {
+  background: transparent;
+  color: #000000;
+}
+
+.percentual {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: #000000;
+  font-weight: 600;
+}
+
+.folhaWrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  touch-action: none;
+}
+
+.imagem {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  transform-origin: 0 0;
+  user-select: none;
+}
+
+.controles {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.botaoControle {
+  min-width: 56px;
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: #000000;
+  cursor: pointer;
+}

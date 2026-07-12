@@ -1,0 +1,40 @@
+.wrapper {
+  position: relative;
+  background: var(--paper);
+  border-radius: var(--radius);
+  border: 1px solid var(--surface-2);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.imagem {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.erro {
+  padding: 24px;
+  color: var(--error);
+  text-align: center;
+}
+
+.botaoAmpliar {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  min-height: 56px;
+  min-width: 56px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -60,6 +60,7 @@ async def test_lifespan_com_poller_habilitado_cria_task(tmp_path):
 
     settings = load_settings(
         db_path=tmp_path / "portal_data.db", poll_enabled=True,
+        auto_publish_enabled=False,
         poll_interval_s=1, dados_obras_dir=tmp_path / "DADOS-OBRAS",
         logs_dir=tmp_path / "logs", status_md_path=tmp_path / "STATUS.md",
         drive_oauth_json=tmp_path / "sem-credencial-oauth.json",

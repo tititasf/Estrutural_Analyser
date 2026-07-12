@@ -1,0 +1,41 @@
+.container {
+  min-height: 100vh;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.skeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.offlineBanner {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+
+.toggleQr {
+  min-height: 56px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}

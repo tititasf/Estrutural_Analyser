@@ -1,0 +1,45 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.printArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.imagem {
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  padding: 8px;
+}
+
+.placeholder {
+  width: 240px;
+  height: 240px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+
+.titulo {
+  font-weight: 700;
+  color: var(--fg);
+  text-align: center;
+}
+
+.codigo {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+
+.botaoImprimir {
+  width: 100%;
+}

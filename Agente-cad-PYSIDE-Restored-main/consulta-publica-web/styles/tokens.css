@@ -1,0 +1,104 @@
+/* Design tokens (STORY-09) — valores exatos de front-end-spec.md §8.2/§8.3/
+   §8.4. Nunca inventar hex aqui; qualquer mudança de paleta deve atualizar
+   a spec primeiro. */
+
+:root {
+  /* Light "Canteiro" (default) — §8.2 */
+  --bg: #ffffff;
+  --surface: #f1f4f8;
+  --surface-2: #e3e8ef;
+  --fg: #0a0e14;
+  --fg-muted: #3a4453;
+  --border: #5b6675;
+  --primary: #0b4da2;
+  --primary-press: #08376f;
+  --paper: #ffffff;
+  --success: #0b6b29;
+  --warning-bg: #fbbf24;
+  --warning-fg: #0a0e14;
+  --error: #b4231c;
+  --info: #0b4da2;
+
+  /* Iconografia por tipo de elemento — §8.7 */
+  --type-pilar: #0b4da2;
+  --type-viga: #0b6b29;
+  --type-laje: #b45309;
+
+  /* Tipografia — §8.5 */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Inter", sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", "SF Mono", "Roboto Mono", monospace;
+
+  /* Espaçamento (base 4px) — §8.6 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  /* Toque — §8.6 */
+  --target-min: 56px;
+  --target-primary: 64px;
+}
+
+/* Dark (noturno) — §8.3. --paper NUNCA muda (papel do SVG é sempre branco,
+   [AUTO-DECISION] front-end-spec §6.1 — inverter distorceria hachuras). */
+:root[data-theme="dark"] {
+  --bg: #0a0e14;
+  --surface: #161c26;
+  --surface-2: #212a38;
+  --fg: #f5f7fa;
+  --fg-muted: #aeb9c7;
+  --border: #5c6a7c;
+  --primary: #5da0ff;
+  --success: #34d06a;
+  --warning-bg: #f5b301;
+  --warning-fg: #0a0e14;
+  --error: #ff6b60;
+  /* --paper permanece #ffffff (herdado de :root) */
+}
+
+/* "Sol forte" — §8.4. Override de tokens sobre o tema Light, nunca telas
+   novas. Bordas pretas grossas (2px) aplicadas via classe utilitária
+   .sol-forte-border nos componentes que precisam, já que --border sozinho
+   não carrega largura. */
+:root[data-contrast="sol-forte"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #ffffff;
+  --fg: #000000;
+  --fg-muted: #1a1a1a;
+  --border: #000000;
+  --primary: #003a87;
+  --primary-press: #00265a;
+}
+
+/* Anel de foco — §9.2 (2.4.7/2.4.11). Nunca outline:none sem substituto. */
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+:root[data-contrast="sol-forte"] :focus-visible {
+  outline-color: #000000;
+}
+
+/* prefers-reduced-motion — §11 / AC9: troca instantânea, sem transform. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

@@ -18,9 +18,10 @@ from types import SimpleNamespace
 from fastapi import FastAPI
 
 from ..db import connection as db_conn
-from . import drive_poller, jobs
+from . import auto_publish_poller, drive_poller, jobs
 from .config import Settings, load_settings
 from .routers import (
+    admin_publish_routes,
     auth_routes,
     comentarios_routes,
     fichas_routes,
@@ -67,8 +68,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if settings.poll_enabled:
             poller_task = asyncio.create_task(drive_poller.poller_loop(app.state))
         app.state.poller_task = poller_task
-        log.info("portal iniciado (poll_enabled=%s, db=%s)",
-                 settings.poll_enabled, settings.db_path or db_conn.DEFAULT_DB_PATH)
+
+        auto_publish_task = None
+        if settings.auto_publish_enabled:
+            auto_publish_task = asyncio.create_task(auto_publish_poller.auto_publish_loop(app.state))
+        app.state.auto_publish_task = auto_publish_task
+
+        log.info("portal iniciado (poll_enabled=%s, auto_publish_enabled=%s, db=%s)",
+                 settings.poll_enabled, settings.auto_publish_enabled,
+                 settings.db_path or db_conn.DEFAULT_DB_PATH)
         if settings.usa_secret_dev():
             log.warning("PORTAL_SESSION_SECRET nao definido — usando segredo DEV. "
                         "Defina-o em producao.")
@@ -89,6 +97,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 # mesmos cancelamos a task de proposito.
                 with contextlib.suppress(asyncio.CancelledError, Exception):
                     await poller_task
+            if auto_publish_task is not None:
+                auto_publish_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError, Exception):
+                    await auto_publish_task
             log.info("portal encerrado")
 
     app = FastAPI(title="Portal Soberano — CAD Estrutural", version="1.0.0", lifespan=lifespan)
@@ -115,12 +127,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(recortes_routes.router)
     app.include_router(comentarios_routes.router)
     app.include_router(paginas_routes.router)
+    app.include_router(admin_publish_routes.router)
 
     @app.get("/health", tags=["infra"])
     def health():
         estado = getattr(app.state, "estado_global", {"drive": "desconhecido"})
         return {"status": "ok", "drive": estado.get("drive", "desconhecido"),
-                "poll_enabled": settings.poll_enabled}
+                "poll_enabled": settings.poll_enabled,
+                "auto_publish_enabled": settings.auto_publish_enabled}
 
     return app
 

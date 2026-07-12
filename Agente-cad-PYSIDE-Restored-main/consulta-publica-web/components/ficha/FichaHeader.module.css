@@ -1,0 +1,71 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 4px 0 0;
+}
+
+.tituloLinha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titulo {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fg);
+  text-transform: uppercase;
+}
+
+.codigoLinha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.codigo {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--fg-muted);
+}
+
+.copiar {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.feedback {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+}

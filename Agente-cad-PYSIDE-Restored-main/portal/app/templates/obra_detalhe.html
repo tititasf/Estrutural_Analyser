@@ -198,6 +198,7 @@
     <p class="subtitulo" style="margin:0 0 10px">
       {{ obra.arquivo_nome or (documentos|length ~ ' documento(s)') }} · enviada por {{ obra.enviada_por or membro.login }}
     </p>
+    <p class="subtitulo" id="obra-code-publico-slot" style="margin:0 0 10px;font-family:monospace"></p>
 
     {% if obra.estado == 'erro' and obra.erro_msg %}
     <div class="faixa faixa-erro" role="alert" style="white-space:pre-wrap;font-family:monospace;font-size:.82rem">
@@ -450,6 +451,22 @@
 <script>
   var OBRA_ID = {{ obra.id|tojson }};
   var _todosJobs = {{ jobs|tojson }};
+  // [2026-07-12] Código público (App de Consulta) da obra — carregado à
+  // parte (não bloqueia o resto da página se a obra ainda não foi
+  // auto-publicada, ou se o ciclo de auto-publish ainda não rodou).
+  (function carregarCodePublicoDaObra() {
+    var slot = document.getElementById('obra-code-publico-slot');
+    if (!slot) return;
+    fetch('/obras/' + OBRA_ID + '/obra-code')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.code_publico) return;
+        slot.innerHTML = '📱 Código público: <strong style="cursor:pointer" title="Clique para copiar" ' +
+          'onclick="navigator.clipboard.writeText(\'' + data.code_publico + '\')">' +
+          data.code_publico + ' 📋</strong>';
+      })
+      .catch(function () { /* silencioso — não é crítico pro resto da página */ });
+  })();
   // [FIX] globais cruzadas entre o módulo de Documentos e o de Recortes
   // declaradas aqui, bem cedo — um `var x = ...;` mais abaixo no arquivo NÃO
   // é hoisted como "sem efeito", a inicialização roda na ordem normal de
@@ -1701,7 +1718,15 @@
       .then(function (item) {
         if (meuToken !== _n1DetalheReqToken) return;
         tituloEl.textContent = item.titulo;
-        var linhas = Object.keys(item.campos).map(function (k) {
+        var codePublicoHtml = '';
+        if (item.code_publico) {
+          codePublicoHtml = '<div class="n1-campo" style="background:#eef6ff;">' +
+            '<span class="n1-campo-label">Código Público (Consulta)</span>' +
+            '<span class="n1-campo-valor" style="font-family:monospace; cursor:pointer;" ' +
+            'title="Clique para copiar" onclick="navigator.clipboard.writeText(\'' + item.code_publico + '\')">' +
+            item.code_publico + ' 📋</span></div>';
+        }
+        var linhas = codePublicoHtml + Object.keys(item.campos).map(function (k) {
           var v = item.campos[k];
           if (v === null || v === undefined || v === '') v = '(vazio/não identificado)';
           return '<div class="n1-campo"><span class="n1-campo-label">' + k + '</span><span class="n1-campo-valor">' +
@@ -2196,6 +2221,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       '<div class="cab-grid" style="margin-top:10px">' +
         '<div><span class="n1-campo-label">Categoria</span><br>' + item.categoria + '</div>' +
         '<div><span class="n1-campo-label">Pavimento</span><br>' + (item.pavimento === 'Indeterminado' ? 'Docs Gerais' : item.pavimento) + '</div>' +
+        '<div id="recorte-pavimento-code-slot"><span class="n1-campo-label">Código Público (Pavimento)</span><br>—</div>' +
       '</div>' +
       '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
         '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
@@ -2216,6 +2242,28 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     var src = '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) +
       '/' + encodeURIComponent(item.itemId) + '/foto';
     renderizarFotoRecorte(document.getElementById('doc-viewer-extra'), src, item.titulo);
+
+    // [2026-07-12] Código público do pavimento ("ficha do pavimento"/
+    // recorte limpo da torre) — "Indeterminado" (Docs Gerais) não tem
+    // pavimento real, nunca busca.
+    if (item.pavimento && item.pavimento !== 'Indeterminado') {
+      var slotPav = document.getElementById('recorte-pavimento-code-slot');
+      fetch('/obras/' + OBRA_ID + '/pavimento-code?pavimento=' + encodeURIComponent(item.pavimento))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!slotPav) return;
+          if (!data.code_publico) {
+            slotPav.innerHTML = '<span class="n1-campo-label">Código Público (Pavimento)</span><br>' +
+              '<span class="muted">ainda não publicado</span>';
+            return;
+          }
+          slotPav.innerHTML = '<span class="n1-campo-label">Código Público (Pavimento)</span><br>' +
+            '<span style="font-family:monospace;cursor:pointer" title="Clique para copiar" ' +
+            'onclick="navigator.clipboard.writeText(\'' + data.code_publico + '\')">' +
+            data.code_publico + ' 📋</span>';
+        })
+        .catch(function () { /* silencioso */ });
+    }
   }
 
   // Carrega a árvore de brutos + itens de recorte de todos eles, uma vez, e

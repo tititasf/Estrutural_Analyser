@@ -1,0 +1,31 @@
+.wrapper {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmento {
+  flex: 1;
+  min-height: 56px;
+  background: var(--surface);
+  color: var(--fg);
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selecionado {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.rotuloEstatico {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+}

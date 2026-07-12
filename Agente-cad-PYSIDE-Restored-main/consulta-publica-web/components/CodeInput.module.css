@@ -1,0 +1,42 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 18px;
+}
+
+.inputRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  height: var(--target-primary);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  color: var(--fg);
+  background: var(--bg);
+  padding: 0 56px 0 16px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  box-sizing: border-box;
+}
+
+.clearButton {
+  position: absolute;
+  right: 4px;
+  width: var(--target-min);
+  height: var(--target-min);
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  font-size: 20px;
+  background: transparent;
+  color: var(--fg);
+  border: none;
+  cursor: pointer;
+}

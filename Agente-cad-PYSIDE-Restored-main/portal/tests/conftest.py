@@ -65,6 +65,7 @@ def settings(tmp_path, db_path):
     return load_settings(
         db_path=db_path,
         poll_enabled=False,
+        auto_publish_enabled=False,  # mesma disciplina do poll_enabled acima
         dados_obras_dir=tmp_path / "DADOS-OBRAS",
         logs_dir=tmp_path / "logs",
         status_md_path=tmp_path / "STATUS.md",  # não existe -> tudo vira 'beta' (fail-safe)
@@ -75,6 +76,10 @@ def settings(tmp_path, db_path):
         # project (auto-registro antes do SA) escreveria no project_data.vision
         # REAL (1.4GB, ativamente usado por outra sessão rodando SA de verdade).
         sa_db_path=tmp_path / "project_data_teste.vision",
+        # [2026-07-12] mesma disciplina — nunca deixar um teste (mesmo que
+        # ligue auto_publish_enabled=True pontualmente) escrever no
+        # public_consulta.db de PRODUÇÃO real.
+        public_consulta_db_path=tmp_path / "public_consulta_teste.db",
     )
 
 

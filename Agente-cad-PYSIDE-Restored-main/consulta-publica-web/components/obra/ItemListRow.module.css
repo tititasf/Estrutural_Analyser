@@ -1,0 +1,23 @@
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--surface-2);
+  text-align: left;
+  font-size: 16px;
+  color: var(--fg);
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.titulo {
+  flex: 1;
+}
+
+.seta {
+  color: var(--fg-muted);
+}

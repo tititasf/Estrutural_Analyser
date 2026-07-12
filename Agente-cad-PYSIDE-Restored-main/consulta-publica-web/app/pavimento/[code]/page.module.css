@@ -1,0 +1,95 @@
+.container {
+  min-height: 100vh;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.skeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.titulos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.pavimentoLabel {
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.obraRotulo {
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.filtroWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.filtroIcone {
+  color: var(--fg-muted);
+}
+
+.filtroInput {
+  flex: 1;
+  height: 44px;
+  border: none;
+  font-size: 16px;
+  color: var(--fg);
+  background: transparent;
+}
+
+.vazio {
+  padding: 16px;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+.qrSecao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.toggleQr {
+  min-height: 56px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}

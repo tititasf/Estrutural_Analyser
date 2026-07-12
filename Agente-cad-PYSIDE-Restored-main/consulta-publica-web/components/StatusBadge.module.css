@@ -1,0 +1,25 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  /* Cross-fade de cor ao alternar online/offline (STORY-14, AC7) —
+     respeita prefers-reduced-motion globalmente (tokens.css). */
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+/* Contraste verificado só é garantido nos pares documentados em §8.2/§8.3
+   (fundo sólido + texto de contraste alto) — nunca usar --warning-bg como
+   COR DE TEXTO sobre fundo claro (contraste insuficiente). */
+.online {
+  color: #ffffff;
+  background: var(--success);
+}
+
+.offline {
+  color: var(--warning-fg);
+  background: var(--warning-bg);
+}

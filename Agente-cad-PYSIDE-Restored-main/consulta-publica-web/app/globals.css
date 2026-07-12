@@ -1,0 +1,45 @@
+@import "../styles/tokens.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+/* Impressão do QR code [2026-07-12, QrCodePanel] — só o QR + título +
+   código aparecem na folha impressa (nada do resto da página: app-bar,
+   campos, botões). Fica em globals.css (não num CSS Module) de propósito
+   — seletores globais tipo `body *` não são permitidos em CSS Modules
+   ("pure selector" do css-loader). */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #qr-print-area,
+  #qr-print-area * {
+    visibility: visible;
+  }
+  #qr-print-area {
+    position: fixed;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

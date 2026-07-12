@@ -1,0 +1,51 @@
+.wrapper {
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  width: 100%;
+  background: var(--surface);
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg);
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.rotulo {
+  flex: 1;
+  text-align: left;
+}
+
+.contagem {
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+
+.abrirFicha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--primary);
+  text-decoration: none;
+  background: var(--surface);
+}
+
+.itens {
+  display: flex;
+  flex-direction: column;
+}
+
+.vazio {
+  padding: 16px;
+  color: var(--fg-muted);
+}

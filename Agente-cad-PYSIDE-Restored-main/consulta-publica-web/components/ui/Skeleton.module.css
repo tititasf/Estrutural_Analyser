@@ -1,0 +1,39 @@
+.base {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  animation: pulso 1.2s ease-in-out infinite;
+}
+
+.line {
+  height: 18px;
+  width: 100%;
+}
+
+.block {
+  height: 56px;
+  width: 100%;
+}
+
+.drawing {
+  height: 240px;
+  width: 100%;
+}
+
+@keyframes pulso {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

@@ -85,6 +85,31 @@ class Settings:
     )
     poll_interval_s: int = field(default_factory=lambda: _env_int("PORTAL_POLL_INTERVAL_S", 120))
     poll_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_POLL_ENABLED", False))
+
+    # --- Auto-publicação para a App de Consulta Pública [2026-07-12, pedido
+    # explícito do dono] --- toda obra com estado='pronta' é publicada/
+    # republicada automaticamente e periodicamente em public_consulta.db, sem
+    # ação manual do curador — decisão consciente de abandonar o modelo de
+    # "publicação deliberada" original (STORY-01) em favor de sincronização
+    # automática total: portal e consulta pública devem enxergar os MESMOS
+    # dados. Default TRUE (ao contrário de poll_enabled, que depende de
+    # credencial do Drive) — não tem pré-requisito externo, é seguro ligar
+    # por padrão. Testes desligam via fixture (ver portal/tests/conftest.py).
+    auto_publish_enabled: bool = field(
+        default_factory=lambda: _env_bool("PORTAL_AUTO_PUBLISH_ENABLED", True)
+    )
+    auto_publish_interval_s: int = field(
+        default_factory=lambda: _env_int("PORTAL_AUTO_PUBLISH_INTERVAL_S", 60)
+    )
+    # Mesmo default de `consulta-publica-api/config.py::public_consulta_db_path`
+    # (sibling do repo) — DELIBERADAMENTE explícito aqui (nunca None) para que
+    # testes consigam sobrescrever com um path de tmp; `publisher.publish.publicar()`
+    # cai no banco de PRODUÇÃO real por padrão se receber `db_path=None`.
+    public_consulta_db_path: Path = field(
+        default_factory=lambda: Path(
+            os.environ.get("PUBLIC_CONSULTA_DB_PATH", str(REPO_ROOT.parent / "public_consulta.db"))
+        )
+    )
     max_obra_mb: int = field(default_factory=lambda: _env_int("PORTAL_MAX_OBRA_MB", 200))
     auto_triagem: bool = field(default_factory=lambda: _env_bool("PORTAL_AUTO_TRIAGEM", False))
     # Pasta-mae na raiz do Drive do dono onde as subpastas por membro sao criadas
@@ -142,7 +167,7 @@ class Settings:
 # campos que sao Path (coeragem de overrides str -> Path)
 _PATH_FIELDS = {
     "db_path", "repo_root", "drive_oauth_json", "drive_sa_json", "dados_obras_dir",
-    "logs_dir", "status_md_path", "sa_db_path",
+    "logs_dir", "status_md_path", "sa_db_path", "public_consulta_db_path",
 }
 
 
