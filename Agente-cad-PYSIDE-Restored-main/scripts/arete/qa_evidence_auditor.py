@@ -52,19 +52,31 @@ CLASS_REGISTRY = {
     },
     "PIL": {
         "table": "pillars", "payload_column": "links_json", "geometry_column": "points_json",
-        "validation_mode": "diagnostic_only", "provenance": None,
+        "validation_mode": "diagnostic_only", "provenance": "docs/PROVENIENCIA-CAMPOS-PIL.md",
         "diagnostic": "scripts/arete/diagnostico_pil_n1_n2.py",
     },
     "FV": {
         "table": "beams", "payload_column": "data_json", "geometry_column": None,
-        "validation_mode": "diagnostic_only", "provenance": None,
+        "validation_mode": "diagnostic_only", "provenance": "docs/PROVENIENCIA-CAMPOS-FV.md",
         "diagnostic": "scripts/arete/diagnostico_fv_n1_n2.py",
     },
     "LV": {
         "table": "beams", "payload_column": "data_json", "geometry_column": None,
-        "validation_mode": "diagnostic_only", "provenance": None,
+        "validation_mode": "diagnostic_only", "provenance": "docs/PROVENIENCIA-CAMPOS-LV.md",
         "diagnostic": "scripts/arete/diagnostico_lv_n1_n2.py",
     },
+}
+
+# Contratos iniciais: descrevem qual família pode receber uma decisão
+# *provisória de auditoria* quando há trilha N1 rastreável. Não alteram a
+# autoridade dos adaptadores diagnostic_only e jamais liberam apply.
+INITIAL_FAMILY_CONTRACTS = {
+    "FV": {
+        "fundo_exists": "a", "fundo_area": "a", "fundo_dim": "b",
+        "fundo_local": "a", "fundo_meta": "c",
+    },
+    "PIL": {"pilar": "a", "name": "a", "dim": "b", "connections": "b", "face_": "a"},
+    "LV": {"lado_": "a", "lv_meta": "c"},
 }
 MUTABLE_COLUMNS = (
     "links_json",
@@ -1716,12 +1728,26 @@ def _generic_link_entries(payload: dict, field_id: str) -> list[dict]:
 
 def _field_family(field_id: str, classe: str) -> str:
     if classe == "PIL":
-        match = re.match(r"p_s([A-H])_", field_id)
-        return f"face_{match.group(1)}" if match else field_id.split("_", 1)[0]
-    if classe in {"FV", "LV"}:
-        match = re.match(r"viga_([a-z]+)_seg_", field_id)
-        return match.group(1) if match else field_id.split("_", 2)[0]
+        match = re.match(r"p_s([A-H])_(.+)", field_id)
+        return f"face_{match.group(1)}_{match.group(2).split('_')[0]}" if match else field_id.split("_", 1)[0]
+    if classe == "FV":
+        match = re.match(r"viga_fundo_seg_\d+_(.+)", field_id)
+        return f"fundo_{match.group(1).split('_')[0]}" if match else (
+            "fundo_meta" if field_id.startswith(("viga_fundo", "fv_", "seg_bottom")) else field_id
+        )
+    if classe == "LV":
+        match = re.match(r"viga_([ab])_seg_\d+_(.+)", field_id)
+        return f"lado_{match.group(1).upper()}_{match.group(2).split('_')[0]}" if match else (
+            "lv_meta" if field_id.startswith(("lv_", "seg_a", "seg_b", "seg_c")) else field_id
+        )
     return field_id
+
+
+def _initial_contract_category(classe: str, family: str) -> str | None:
+    contracts = INITIAL_FAMILY_CONTRACTS.get(classe, {})
+    if family in contracts:
+        return contracts[family]
+    return next((value for prefix, value in contracts.items() if family.startswith(prefix)), None)
 
 
 def generic_class_review(
@@ -1755,15 +1781,22 @@ def generic_class_review(
         missing_by_family: dict[str, list[str]] = {}
         for field_id in fields:
             entries = _generic_link_entries(payload, field_id)
+            family = _field_family(field_id, classe)
+            category = _initial_contract_category(classe, family)
             has_trace = any(
                 entry.get("source") or entry.get("points") or entry.get("pos") or entry.get("text")
                 for entry in entries
             )
             prevalidated = field_id in set(json_load(row["validated_fields_json"], [])) if "validated_fields_json" in columns else False
-            if has_trace:
+            if has_trace and category:
+                decision, confidence, reason = (
+                    "CONFIRMAR", "medium",
+                    f"contrato inicial categoria ({category}) e ligação N1 rastreável; confirmação permanece read-only até gate da classe",
+                )
+            elif has_trace:
                 decision, confidence, reason = (
                     "PENDENTE", "medium",
-                    "há ligação N1 rastreável, mas o adaptador da classe ainda não possui contrato de proveniência para confirmar sem circularidade",
+                    "há ligação N1 rastreável, mas a família não consta no contrato inicial de proveniência",
                 )
             elif field_id in set(json_load(row["na_fields_json"], [])) if "na_fields_json" in columns else False:
                 decision, confidence, reason = (
@@ -1775,13 +1808,16 @@ def generic_class_review(
                     "PENDENTE", "low",
                     "campo não apresenta cadeia de evidência observável independente no snapshot N1",
                 )
-                missing_by_family.setdefault(_field_family(field_id, classe), []).append(field_id)
+                missing_by_family.setdefault(family, []).append(field_id)
             key = f"{run_id}|{project_id}|{classe}|{name}|{field_id}|{decision}"
             decisions.append(Decision(
                 decision_id="qaev-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:16],
                 run_id=run_id, project_id=project_id, classe=classe, item=name or "<sem_nome>",
                 field_id=field_id, decision=decision, confidence=confidence, reason=reason,
-                evidence=[{"kind": "n1_persisted_link", "entries": len(entries), "prevalidated": prevalidated}],
+                evidence=[{
+                    "kind": "n1_persisted_link", "entries": len(entries), "prevalidated": prevalidated,
+                    "contract_category": category, "contract": spec["provenance"],
+                }],
                 requires_human=False, snapshot_hash=snapshot_hash,
             ))
         if missing_by_family:
@@ -1796,15 +1832,15 @@ def generic_class_review(
             "observed": observed,
             "attempted": ["ler vínculo persistido", "procurar texto/posição/geometria de origem", "respeitar N/A e validação humana existentes"],
             "rejected": ["usar o valor N1 como prova de si mesmo", "copiar convenção de LAJ", "inferir por proximidade ou por N2/N4"],
-            "impasse": "A classe ainda não declara quais entidades, camadas e relações constituem prova para cada família observada.",
-            "requested_rule": "Defina a proveniência mínima por família; o agente então poderá transformar estes grupos de pendências em decisões verificáveis sem alterar os casos simples.",
+            "impasse": "O contrato inicial define a prova esperada, mas o snapshot N1 não preserva uma trilha direta para as famílias observadas.",
+            "requested_rule": "Confirme qual entidade/campo de origem deve ser persistido para cada família, ou declare a condição N/A. O agente então poderá transformar estas pendências em decisões verificáveis sem alterar casos simples.",
         }
         question_key = f"{run_id}|{classe}|contract"
         questions.append({
             "question_id": "qaev-q-" + hashlib.sha256(question_key.encode("utf-8")).hexdigest()[:16],
             "classe": classe, "item": f"{classe}:contrato", "field_id": "contrato_de_proveniencia",
             "code": f"{classe}-CONTRACT-MISSING", "requires_human": True,
-            "question": f"A revisão de {classe} agrupou {len(missing_contracts)} família(s) sem trilha independente. Qual entidade CAD/ficha canônica prova cada família antes de permitir validação?",
+            "question": f"O contrato inicial de {classe} prevê evidência para {len(missing_contracts)} família(s), mas os itens abaixo não preservam trilha independente. Qual entidade CAD/ficha deve o motor registrar em cada família, ou quando ela é N/A?",
             "reasoning": reasoning,
         })
     return decisions, findings, questions, records

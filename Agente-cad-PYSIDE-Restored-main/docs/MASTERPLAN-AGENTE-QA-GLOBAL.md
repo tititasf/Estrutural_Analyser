@@ -22,11 +22,16 @@ O agente **não é um aprovador por similaridade**. Geometria é polígono, furo
 | Classe | Fonte N1 observada | Adaptador | Estado atual | Pode selar? | Próximo gate |
 |---|---|---|---|---|---|
 | LAJ | `slabs.links_json` + `points_json` | `LajEvidenceAuditor` | `validation_ready` | Sim, somente `apply` explícito e snapshot íntegro | RAG T1/T2 + generalização em outra obra |
-| FV | `beams.data_json`, família `viga_fundo*`/`fv_*` | revisão global read-only | `diagnostic_only` | Não | proveniência, campos e golden visual próprios |
-| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | revisão global read-only | `diagnostic_only` | Não | contrato de faces, seções e relações verticais |
-| LV | `beams.data_json`, famílias `viga_a_*`, `viga_b_*`, `lv_*` | revisão global read-only | `diagnostic_only` | Não | contrato de segmentos/lados e golden visual próprio |
+| FV | `beams.data_json`, família `viga_fundo*`/`fv_*` | revisão global + contrato inicial | `diagnostic_only` | Não | golden visual próprio |
+| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | revisão global + contrato inicial | `diagnostic_only` | Não | golden de faces/seções e relações verticais |
+| LV | `beams.data_json`, famílias `viga_a_*`, `viga_b_*`, `lv_*` | revisão global + contrato inicial | `diagnostic_only` | Não | golden de segmentos/lados |
 
 `diagnostic_only` é uma capacidade útil já: lê o projeto, inventaria campos de verdade, evidencia cobertura e registra sessão. Ela é deliberadamente incapaz de alterar N1. Assim o agente pode ser usado em todas as classes agora, sem criar falso selo.
+
+Os contratos iniciais de proveniência de FV/PIL/LV servem para a decisão
+`CONFIRMAR` **read-only** quando há trilha N1 rastreável. Essa confirmação nunca
+entra no banco nem vira selo até a promoção QG7; ela separa "há evidência
+compatível" de "a classe está autorizada a ser selada".
 
 ## 3. Núcleo e adaptadores
 
