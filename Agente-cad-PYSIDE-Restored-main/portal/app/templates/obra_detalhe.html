@@ -789,7 +789,12 @@
       det.innerHTML =
         '<div id="docs-cabecalho-slot"></div>' +
         '<div id="docs-intro-slot"></div>' +
-        '<strong>' + (d.nome_exibicao || d.arquivo_nome).replace(/</g, '&lt;') + '</strong>' +
+        // [2026-07-13, pedido do dono] contexto do pavimento ACIMA do título
+        // do arquivo — ao selecionar um doc/bruto, precisa ficar óbvio de
+        // cara qual pavimento e qual tipo de documento está selecionado,
+        // sem precisar olhar os selects mais abaixo.
+        (pavAtual ? '<p class="meta" style="margin:0 0 2px;font-weight:600;color:var(--link)">Pavimento ' + pavAtual.replace(/</g, '&lt;') + '</p>' : '') +
+        '<strong>' + (tipoAtual ? tipoAtual.replace(/</g, '&lt;') + ': ' : '') + (d.nome_exibicao || d.arquivo_nome).replace(/</g, '&lt;') + '</strong>' +
         '<div class="cab-grid" style="margin-top:10px">' +
           '<div><span class="n1-campo-label">Nome do arquivo</span><br>' + d.arquivo_nome.replace(/</g, '&lt;') + '</div>' +
           '<div><span class="n1-campo-label">Formato</span><br>' + formato + '</div>' +
