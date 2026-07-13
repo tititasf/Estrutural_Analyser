@@ -410,7 +410,15 @@ class ProjectManager(QWidget):
         self.lbl_selected_work = QLabel("Selecione uma Obra")
         self.lbl_selected_work.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; ")
         self.header_layout.addWidget(self.lbl_selected_work)
-        
+
+        # Código público (App de Consulta) — só aparece pra obras Drive já
+        # publicadas; vazio/oculto pra obras locais ou ainda não sincronizadas
+        # [2026-07-13].
+        self.lbl_code_publico_obra = QLabel("")
+        self.lbl_code_publico_obra.setStyleSheet(f"font-size: 12px; color: {Colors.TEXT_MUTED}; margin-left: 10px;")
+        self.lbl_code_publico_obra.setVisible(False)
+        self.header_layout.addWidget(self.lbl_code_publico_obra)
+
         self.header_layout.addStretch()
         
         # Botão de Remover Obra (inicialmente escondido)
@@ -7607,6 +7615,56 @@ class ProjectManager(QWidget):
             show = text.lower() in item.text().lower()
             item.setHidden(not show)
 
+    def _atualizar_code_publico_obra(self, obra_nome):
+        """Busca (em background, nunca bloqueia a UI) o código público
+        (App de Consulta) da obra Drive selecionada — some/oculta pra obras
+        locais, ainda não publicadas, ou se o portal estiver offline
+        [2026-07-13]. Regra de integridade: falha aqui NUNCA aparece pro
+        usuário nem trava a navegação — é só um badge informativo a mais."""
+        self.lbl_code_publico_obra.setVisible(False)
+        self.lbl_code_publico_obra.setText("")
+
+        if not obra_nome or not self.db.obra_e_drive(obra_nome):
+            return
+        portal_obra_id = self.db.obter_portal_obra_id(obra_nome)
+        if not portal_obra_id:
+            return
+
+        from PySide6.QtCore import QThread
+        from src.ui.workers.code_publico_worker import CodePublicoWorker
+
+        thread = QThread()
+        worker = CodePublicoWorker(portal_obra_id)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+
+        if not hasattr(self, "_code_publico_threads"):
+            self._code_publico_threads = []
+        self._code_publico_threads.append(thread)
+
+        def _limpar():
+            if thread in self._code_publico_threads:
+                self._code_publico_threads.remove(thread)
+
+        def _on_code(code, _obra=obra_nome):
+            # Obra pode ter sido trocada enquanto a busca rodava — nao aplica
+            # um resultado tardio na obra errada.
+            if code and self.current_work_name == _obra:
+                self.lbl_code_publico_obra.setText(f"📱 {code}")
+                self.lbl_code_publico_obra.setVisible(True)
+            thread.quit()
+
+        def _on_error(_msg):
+            thread.quit()
+
+        worker.finished.connect(_on_code)
+        worker.error.connect(_on_error)
+        worker.finished.connect(worker.deleteLater)
+        worker.error.connect(worker.deleteLater)
+        thread.finished.connect(_limpar)
+        thread.finished.connect(thread.deleteLater)
+        thread.start()
+
     def load_projects(self):
         """Carrega os pavimentos filtrando pela obra selecionada usando Cards.
 
@@ -7663,6 +7721,7 @@ class ProjectManager(QWidget):
             if selected_item else "Selecione uma Obra"
         )
         self.lbl_selected_work.setText(display_text)
+        self._atualizar_code_publico_obra(self.current_work_name)
 
         self.load_work_metadata(filter_work)
 

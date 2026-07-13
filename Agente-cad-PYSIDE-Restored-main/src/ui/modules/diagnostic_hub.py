@@ -955,6 +955,15 @@ class DiagnosticHubModule(QWidget):
         )
         tb_layout.addWidget(self._lbl_crop_info)
 
+        # Código público (App de Consulta) do pavimento selecionado — só
+        # aparece pra obras Drive já publicadas [2026-07-13].
+        self._lbl_code_publico_pavimento = QLabel("")
+        self._lbl_code_publico_pavimento.setStyleSheet(
+            f"color: {Colors.TEXT_MUTED}; font-size: 10px; background: transparent; margin-left: 8px;"
+        )
+        self._lbl_code_publico_pavimento.setVisible(False)
+        tb_layout.addWidget(self._lbl_code_publico_pavimento)
+
         tb_layout.addStretch()
         vlay.addWidget(style_toolbar)
 
@@ -1538,6 +1547,75 @@ class DiagnosticHubModule(QWidget):
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Erro", "Arquivo não encontrado.")
 
+    def _pavimento_da_notes(self, row_data: dict):
+        """Extrai o token de pavimento (`pav=TERREO` etc) salvo pela Triagem
+        na coluna `notes` de `obra_triagem` [2026-07-13] — mesmo formato bruto
+        usado pelo portal/App de Consulta (nunca o rótulo bonito com fallback
+        por nome de arquivo de `_refresh_brutos_list`, que pode não bater com
+        a chave real; nesse caso preferimos não buscar a não buscar errado)."""
+        import re
+        notes = row_data.get('notes', '') if row_data else ''
+        if notes and isinstance(notes, str):
+            match = re.search(r'pav=([^\s|]+)', notes)
+            if match:
+                return match.group(1).upper()
+        return None
+
+    def _atualizar_code_publico_pavimento(self, row_data: dict):
+        """Busca (em background, nunca bloqueia a UI) o código público
+        (App de Consulta) do pavimento do bruto selecionado — mesma regra de
+        integridade de `project_manager._atualizar_code_publico_obra`: some
+        silenciosamente pra obra local, pavimento ainda não publicado, ou
+        portal offline [2026-07-13]."""
+        self._lbl_code_publico_pavimento.setVisible(False)
+        self._lbl_code_publico_pavimento.setText("")
+
+        obra_nome = self._current_obra
+        if not obra_nome or not self.db.obra_e_drive(obra_nome):
+            return
+        pavimento = self._pavimento_da_notes(row_data)
+        if not pavimento:
+            return
+        portal_obra_id = self.db.obter_portal_obra_id(obra_nome)
+        if not portal_obra_id:
+            return
+
+        from PySide6.QtCore import QThread
+        from src.ui.workers.code_publico_worker import CodePublicoWorker
+
+        thread = QThread()
+        worker = CodePublicoWorker(portal_obra_id, pavimento)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+
+        if not hasattr(self, "_code_publico_pav_threads"):
+            self._code_publico_pav_threads = []
+        self._code_publico_pav_threads.append(thread)
+
+        def _limpar():
+            if thread in self._code_publico_pav_threads:
+                self._code_publico_pav_threads.remove(thread)
+
+        def _on_code(code, _obra=obra_nome, _pav=pavimento):
+            # Usuário pode ter trocado de bruto/obra enquanto a busca rodava.
+            if code and self._current_obra == _obra and self._pavimento_da_notes(
+                (self._list_brutos.currentItem().data(Qt.UserRole) if self._list_brutos.currentItem() else {}) or {}
+            ) == _pav:
+                self._lbl_code_publico_pavimento.setText(f"📱 {code}")
+                self._lbl_code_publico_pavimento.setVisible(True)
+            thread.quit()
+
+        def _on_error(_msg):
+            thread.quit()
+
+        worker.finished.connect(_on_code)
+        worker.error.connect(_on_error)
+        worker.finished.connect(worker.deleteLater)
+        worker.error.connect(worker.deleteLater)
+        thread.finished.connect(_limpar)
+        thread.finished.connect(thread.deleteLater)
+        thread.start()
+
     def _on_bruto_selected(self, item: QListWidgetItem):
         """Ao selecionar bruto na lista, carrega no canvas BRUTO e atualiza recortes."""
         row_data = item.data(Qt.UserRole)
@@ -1561,6 +1639,7 @@ class DiagnosticHubModule(QWidget):
         self._btn_selection_crop.setEnabled(bool(file_path))
         self._lbl_recortes_status.setText(f"DXF: {file_name}")
         self._lbl_crop_info.setText(file_name)
+        self._atualizar_code_publico_pavimento(row_data)
 
         # Carregar no canvas BRUTO (tab 0)
         self._canvas_tabs.setCurrentIndex(0)

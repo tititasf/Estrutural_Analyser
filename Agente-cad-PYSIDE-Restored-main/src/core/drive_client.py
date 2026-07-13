@@ -86,6 +86,18 @@ class DriveClient:
         """Detalhe completo — inclui `documentos` (Triagem: pavimento/tipo/classe)."""
         return self._get(f"/obras/{obra_id}")
 
+    def obter_code_publico_obra(self, obra_id: str) -> Optional[str]:
+        """Código público (App de Consulta) da obra inteira, se já
+        publicada — None se ainda não sincronizada [2026-07-13]."""
+        return self._get(f"/obras/{obra_id}/obra-code").get("code_publico")
+
+    def obter_code_publico_pavimento(self, obra_id: str, pavimento: str) -> Optional[str]:
+        """Código público (App de Consulta) de 1 pavimento, se já
+        publicado — None se ainda não sincronizado [2026-07-13]."""
+        from urllib.parse import quote
+        path = f"/obras/{obra_id}/pavimento-code?pavimento={quote(pavimento)}"
+        return self._get(path).get("code_publico")
+
     def listar_brutos(self, obra_id: str) -> list[dict]:
         return self._get(f"/obras/{obra_id}/recortes/brutos").get("brutos", [])
 
