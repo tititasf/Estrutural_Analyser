@@ -8623,6 +8623,99 @@ class MainWindow(QMainWindow):
                 self.db.save_beam(beam, self.current_project_id)
         return marcados
 
+    def _sincronizar_selo_rosa_drive(self) -> int:
+        """Selo rosa (validação de CAMPO pelo Portal de Formas) sincronizado
+        do Portal — Masterplan OBRAS DRIVE Fase 15 / harmonização de
+        validação (`docs/CONVENCAO-SELOS-VALIDACAO.md`). Só age em obras
+        Drive; mesmo padrão PULL de `_sincronizar_selo_verde_drive` (nunca
+        empurra dado da app pro Portal).
+
+        LIMITAÇÃO CONHECIDA (documentada, não um bug): o `field_id` que o
+        Portal grava é a própria chave do label exibido (ex. "Nível
+        Relativo") — ainda não alinhado ao field_id interno do app desktop
+        (ex. "laje_nivel"). O match é por string exata; enquanto a
+        nomenclatura não for unificada, isso é um no-op seguro pra campos
+        que não baterem (nunca marca campo errado, só não gera selo até
+        alinhar). Vigas ficam de fora, mesmo motivo do selo verde (Fase 12):
+        campo por SEGMENTO na web, não implementado aqui ainda.
+
+        Recalcula `selo_rosa` no item na hora só pra LAJ (campos obrigatórios
+        estáticos, ver `_calculate_completion`); pra pilares o recálculo é
+        adiado pra próxima vez que o item for aberto no card (mesmo caminho
+        de `_auto_seal_completed_item`, que já recalcula os 3 selos de
+        campo toda vez)."""
+        try:
+            obra_nome = self.current_project_name
+            if not obra_nome or not self.db.obra_e_drive(obra_nome):
+                return 0
+            portal_obra_id = self.db.obter_portal_obra_id(obra_nome)
+            if not portal_obra_id:
+                return 0
+
+            from src.core.drive_client import obter_cliente_padrao
+            from src.core.validation_model import (
+                ORIGEM_HUMANO_PORTAL, adicionar_validacao_campo, calcular_selos_item,
+            )
+
+            client = obter_cliente_padrao()
+            try:
+                campos_web = client.listar_campos_validados(portal_obra_id)
+            except Exception as e:
+                self.log(f"⚠ Selo rosa Drive: {e}")
+                return 0
+            if not campos_web:
+                return 0
+
+            por_item: dict = {}
+            for c in campos_web:
+                chave = (
+                    str(c.get('classe') or '').strip().upper(),
+                    str(c.get('item_id') or '').strip().upper(),
+                )
+                por_item.setdefault(chave, []).append(c.get('field_id'))
+
+            _LAJE_REQUIRED_FIELDS = {
+                'name', 'laje_dim', 'laje_visao_corte', 'laje_vizinhas_niveis',
+                'laje_pilares_apoio', 'laje_nivel', 'laje_outline_segs', 'laje_islands',
+            }
+
+            marcados = 0
+            for classe, itens, save_fn, is_laje in (
+                ('PILARES', self.pillars_found, self.db.save_pillar, False),
+                ('PILARES_ESPECIAIS', self.pillars_found, self.db.save_pillar, False),
+                ('LAJES', self.slabs_found, self.db.save_slab, True),
+            ):
+                for item in itens:
+                    nome = str(item.get('name') or item.get('id_item') or '').strip().upper()
+                    field_ids = por_item.get((classe, nome))
+                    if not field_ids:
+                        continue
+                    vf = item.get('validated_fields') or {}
+                    tocou = False
+                    for fid in field_ids:
+                        if not fid:
+                            continue
+                        ja_tinha = fid in vf if isinstance(vf, dict) else fid in set(vf)
+                        vf = adicionar_validacao_campo(vf, fid, ORIGEM_HUMANO_PORTAL)
+                        if not ja_tinha:
+                            tocou = True
+                    if not tocou:
+                        continue
+                    item['validated_fields'] = vf
+                    if is_laje:
+                        na_fields = item.get('na_fields', [])
+                        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
+                        item['selo_rosa'] = calcular_selos_item(vf, na_fields, _LAJE_REQUIRED_FIELDS)['rosa']
+                    save_fn(item, self.current_project_id)
+                    marcados += 1
+
+            if marcados:
+                self.log(f"🌸 Selo rosa Drive: {marcados} item(ns) com campo(s) sincronizado(s) do Portal.")
+            return marcados
+        except Exception as e:
+            self.log(f"⚠ Selo rosa Drive: falha geral ({e})")
+            return 0
+
     def load_project_action(self):
         """Carrega e restaura o estado do projeto."""
         if not self.current_project_id:
@@ -8704,6 +8797,7 @@ class MainWindow(QMainWindow):
         self.beams_found = self.db.load_beams(self.current_project_id) or []
         if not bool(getattr(self, '_sa_read_only_run', False)):
             self._sincronizar_selo_verde_drive()
+            self._sincronizar_selo_rosa_drive()
         self.beams_found, _obsolete_beam_ids, _beam_identity_changes = (
             consolidate_beam_identities(self.beams_found)
         )

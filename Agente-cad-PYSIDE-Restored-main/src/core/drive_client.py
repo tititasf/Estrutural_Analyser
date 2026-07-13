@@ -136,6 +136,13 @@ class DriveClient:
         """{classe: {n1_ok, n3_ok, validado}} de todas as classes já tocadas."""
         return self._get(f"/obras/{obra_id}/validacao").get("validacoes", {})
 
+    def listar_campos_validados(self, obra_id: str) -> list[dict]:
+        """[{pavimento, classe, item_id, field_id, validado_por, validado_em}]
+        de TODOS os campos validados pelo Portal nessa obra — Masterplan
+        OBRAS DRIVE Fase 15 (selo rosa, `docs/CONVENCAO-SELOS-VALIDACAO.md`).
+        A app usa isso pra espelhar em lote (1 GET, não 1 por item)."""
+        return self._get(f"/obras/{obra_id}/campos-validados").get("campos", [])
+
     def listar_n5_releases(self, obra_id: str) -> list:
         """Liberações N5 já feitas no portal (classe/pavimento/status de
         certificação certificado|beta) — SOMENTE LEITURA no lado app: liberar
