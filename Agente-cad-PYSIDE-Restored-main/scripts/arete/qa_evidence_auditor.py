@@ -855,6 +855,50 @@ class LajEvidenceAuditor:
     def _remove_link_op(self, field_id: str, slot: str, link: dict) -> dict:
         return {"op": "remove_link", "field": field_id, "slot": slot, "fingerprint": link_fingerprint(link)}
 
+    def _cut_semantic_repairs(self, links: list[dict], issues: list[dict]) -> list[dict]:
+        """Propõe reparo somente quando a própria ficha preservou fonte semântica.
+
+        A regra não escolhe altura por mediana, vizinho arbitrário ou N2. Exige que
+        ``own_height``/``neighbor_height`` já identifique a laje correspondente,
+        que contradiga a altura geométrica e que a recomposição física seja válida.
+        """
+        repairs = []
+        for issue in issues:
+            if issue.get("code") != "negative_distance":
+                continue
+            index = int(issue.get("cut_index", -1))
+            if index < 0 or index >= len(links):
+                continue
+            link = links[index]
+            ficha = link.get("ficha") if isinstance(link.get("ficha"), dict) else {}
+            scope = str(issue.get("scope") or "")
+            semantic_key = "neighbor_height" if scope == "neighbor" else "own_height"
+            geometric_key = "neigh_slab_height" if scope == "neighbor" else "own_slab_height"
+            bottom_key = "neighbor_dist_bottom" if scope == "neighbor" else "own_dist_bottom"
+            top_key = "neighbor_dist_top" if scope == "neighbor" else "own_dist_top"
+            semantic_height = parse_number(ficha.get(semantic_key))
+            geometric_height = parse_number(ficha.get(geometric_key))
+            beam_height = parse_number(ficha.get("beam_height"))
+            top = parse_number(ficha.get(top_key))
+            if None in (semantic_height, geometric_height, beam_height, top):
+                continue
+            repaired_bottom = round(float(beam_height) - float(semantic_height) - float(top), 1)
+            if (
+                semantic_height <= 0 or beam_height <= 0 or top < 0
+                or repaired_bottom < -0.01 or nearly_equal(semantic_height, geometric_height)
+            ):
+                continue
+            repairs.append({
+                "op": "repair_cut_ficha", "field": "laje_visao_corte", "slot": "cut_view_geom",
+                "fingerprint": link_fingerprint(link), "scope": scope,
+                "semantic_key": semantic_key, "height_key": geometric_key,
+                "top_key": top_key, "bottom_key": bottom_key,
+                "semantic_height": round(float(semantic_height), 1),
+                "previous_height": round(float(geometric_height), 1),
+                "repaired_bottom": repaired_bottom,
+            })
+        return repairs
+
     def _audit_laje_visao_corte(self, slab: Slab) -> Decision:
         field_id = "laje_visao_corte"
         slot = "cut_view_geom"
@@ -877,6 +921,19 @@ class LajEvidenceAuditor:
             self._add_finding(slab, field_id, "LAJ-CUT-DISTANT", "geometria de corte distante/sem contato foi associada à laje", evidence)
         calculation_issues = self._cut_calculation_issues(valid)
         if calculation_issues:
+            repairs = self._cut_semantic_repairs(valid, calculation_issues)
+            if repairs and len(repairs) == len({(issue.get("cut_index"), issue.get("scope")) for issue in calculation_issues if issue.get("code") == "negative_distance"}):
+                self._add_finding(
+                    slab, field_id, "LAJ-CUT-SEMANTIC-HEIGHT-REPAIR",
+                    "altura geométrica contaminada contradiz altura semântica da laje e gera distância negativa",
+                    repairs,
+                )
+                return self._new_decision(
+                    slab, field_id, "CORRIGIR", "high",
+                    "altura semântica da laje identificada permite recompor distância física sem negativa",
+                    operations=[*operations, *repairs], evidence=repairs,
+                    rule_codes=["LAJ-CUT-SEMANTIC-HEIGHT-REPAIR"],
+                )
             first_issue = calculation_issues[0]
             cut_number = int(first_issue["cut_index"]) + 1
             beam_name = first_issue.get("beam") or "viga sem nome"
@@ -1510,6 +1567,33 @@ def apply_operation(state: dict, operation: dict) -> None:
         na_fields.add(field_id)
         validated_fields.add(field_id)
         na_reasons[field_id] = operation.get("reason") or "N/A confirmado pelo QA"
+    elif op == "repair_cut_ficha":
+        slot = operation["slot"]
+        entries = safe_list((links.get(field_id) or {}).get(slot))
+        target = next((entry for entry in entries if isinstance(entry, dict) and link_fingerprint(entry) == operation["fingerprint"]), None)
+        if target is None:
+            raise RuntimeError("corte alvo não encontrado para reparo de ficha")
+        ficha = target.setdefault("ficha", {})
+        height = float(operation["semantic_height"])
+        bottom = float(operation["repaired_bottom"])
+        top = float(ficha.get(operation["top_key"]) or 0)
+        beam = float(ficha.get("beam_height") or 0)
+        ficha[operation["height_key"]] = fmt_number(height)
+        ficha[operation["bottom_key"]] = fmt_number(bottom)
+        if operation["scope"] == "neighbor":
+            ficha["neighbor_dist_bottom_s_painel"] = fmt_number(bottom)
+            ficha["neighbor_dist_bottom_c_painel"] = fmt_number(bottom - 2.0 + 4.0)
+            ficha["neigh_dist_fundo_formula"] = (
+                f"bh({beam:.0f}) − H_laje_viz({height:.0f}) − d_topo({top:.0f}) = {bottom:.0f} cm "
+                f"(sem painel) / {(bottom + 2.0):.0f} cm (−2cm painel da laje + 4cm sarrafo/fundo viga)"
+            )
+        else:
+            ficha["own_dist_bottom_s_painel"] = fmt_number(bottom)
+            ficha["own_dist_bottom_c_painel"] = fmt_number(bottom - 2.0 + 4.0)
+            ficha["own_dist_fundo_formula"] = (
+                f"bh({beam:.0f}) − H_laje({height:.0f}) − d_topo({top:.0f}) = {bottom:.0f} cm "
+                f"(sem painel) / {(bottom + 2.0):.0f} cm (−2cm painel da laje + 4cm sarrafo/fundo viga)"
+            )
     else:
         raise RuntimeError(f"operação desconhecida: {op}")
 

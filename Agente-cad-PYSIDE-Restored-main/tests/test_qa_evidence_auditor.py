@@ -11,6 +11,7 @@ from scripts.arete.qa_evidence_auditor import (
     LajEvidenceAuditor,
     REQUIRED_LAJ_FIELDS,
     Slab,
+    apply_operation,
     cmd_apply,
     cmd_audit,
     discover_class_inventory,
@@ -386,6 +387,33 @@ def test_cut_ficha_negative_distance_requires_human_review_with_reasoning():
     assert auditor.questions[-1]["reasoning"]["observed"][0]["code"] == "negative_distance"
     assert "V1" in auditor.questions[-1]["question"]
     assert "distância negativa" in auditor.questions[-1]["question"]
+
+
+def test_cut_ficha_semantic_neighbor_height_repairs_negative_distance_without_guessing():
+    target = slab(
+        "L2",
+        links={
+            "laje_visao_corte": {
+                "cut_view_geom": [{
+                    "is_inferred": True, "distance_to_slab": 0.0,
+                    "points": [[0, 0], [20, 0], [20, 10], [0, 10], [0, 0]],
+                    "ficha": {
+                        "beam_name": "V1", "beam_height": "55", "neighbor_height": "14",
+                        "neigh_slab_height": "57.2", "neighbor_dist_top": "30", "neighbor_dist_bottom": "-32.2",
+                    },
+                }]
+            }
+        },
+    )
+    auditor = LajEvidenceAuditor([target], "run")
+    decision = auditor._audit_laje_visao_corte(target)
+    assert decision.decision == "CORRIGIR"
+    repair = next(op for op in decision.operations if op["op"] == "repair_cut_ficha")
+    state = {"links": target.links, "validated_fields": set(), "na_fields": set(), "validated_link_classes": {}, "na_link_classes": {}, "na_reasons": {}, "extra": {}}
+    apply_operation(state, repair)
+    ficha = state["links"]["laje_visao_corte"]["cut_view_geom"][0]["ficha"]
+    assert ficha["neigh_slab_height"] == "14"
+    assert ficha["neighbor_dist_bottom"] == "11"
 
 
 def test_outline_decision_contains_polygon_area_and_perimeter():
