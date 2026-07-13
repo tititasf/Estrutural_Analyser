@@ -1601,7 +1601,7 @@ class DiagnosticHubModule(QWidget):
             if code and self._current_obra == _obra and self._pavimento_da_notes(
                 (self._list_brutos.currentItem().data(Qt.UserRole) if self._list_brutos.currentItem() else {}) or {}
             ) == _pav:
-                self._lbl_code_publico_pavimento.setText(f"📱 {code}")
+                self._lbl_code_publico_pavimento.setText(f"📱 Código de Pavimento: {code}")
                 self._lbl_code_publico_pavimento.setVisible(True)
             thread.quit()
 

@@ -7650,7 +7650,7 @@ class ProjectManager(QWidget):
             # Obra pode ter sido trocada enquanto a busca rodava — nao aplica
             # um resultado tardio na obra errada.
             if code and self.current_work_name == _obra:
-                self.lbl_code_publico_obra.setText(f"📱 {code}")
+                self.lbl_code_publico_obra.setText(f"📱 Código de Obra: {code}")
                 self.lbl_code_publico_obra.setVisible(True)
             thread.quit()
 
