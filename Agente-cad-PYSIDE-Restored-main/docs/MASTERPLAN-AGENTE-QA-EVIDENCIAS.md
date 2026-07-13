@@ -112,7 +112,7 @@ Para cada campo de cada item, o agente produz exatamente uma decisão:
 3. **Sem validação circular.** Um campo extraído não prova a si mesmo; fonte e conclusão precisam ser independentes.
 4. **Sem vazamento entre fluxos.** N2/N4 podem ser evidência comparativa, mas N3 nunca recebe dados de N2/N4. Coincidência por herança é `vazamento_gabarito`, não sucesso.
 5. **RAG é consulta, não autoridade.** Somente conhecimento T1/T2, com citação, pode apoiar uma hipótese; nunca substitui o DXF/ficha da obra.
-6. **Preservação humana.** Não sobrescrever, apagar ou rebaixar `is_validated`, selo azul, selo verde, campos já validados ou JSONs Fase-4. Uma possível revogação vira pergunta/achado, não mutação.
+6. **Preservação humana.** Não sobrescrever, apagar ou rebaixar `is_validated`, selo azul (`humano_app`), selo rosa (`humano_portal`), campos já validados por humano ou JSONs Fase-4. Uma possível revogação vira pergunta/achado, não mutação. Ver `docs/CONVENCAO-SELOS-VALIDACAO.md` pra convenção completa de selos/origens.
 7. **Proveniência explícita.** Toda decisão referencia arquivo, tabela, item, campo, coordenada/entidade e regra usada.
 8. **Falhar fechado.** Dúvida significa `PENDENTE` ou `REVISAR_HUMANO`, jamais `CONFIRMAR`.
 9. **CLI primeiro.** O fluxo inteiro funciona sem dashboard; a UI somente apresenta o dossiê e aplica uma decisão previamente autorizada.
@@ -123,13 +123,13 @@ Para cada campo de cada item, o agente produz exatamente uma decisão:
 
 - Ler a base real `D:/Agente-cad-PYSIDE/project_data.vision`, DXF, fichas N1/N2, recortes, HTML e relatórios Arete.
 - Montar grafo item → campo → vínculo → entidade CAD → evidência visual → regra/RAG.
-- Marcar `validated_fields_json`, `na_fields_json` e classes de vínculo **somente** para decisões aprovadas no relatório e no mesmo projeto/pavimento solicitado.
+- Marcar `validated_fields_json` (com origem `qa_agente`, nunca `humano_app`/`humano_portal`), `na_fields_json` e classes de vínculo **somente** para decisões aprovadas no relatório e no mesmo projeto/pavimento solicitado.
 - Criar entradas append-only de auditoria, achados e perguntas.
 - Sugerir correção de extrator, tracer, normalizador ou regra de proveniência.
 
 ### Não pode fazer
 
-- Gerar selo azul/verde por conta própria; o selo continua consequência do contrato do Structural Analyzer.
+- Gerar selo azul (`humano_app`), rosa (`humano_portal`) ou verde por conta própria; só pode gerar o selo laranja (`qa_agente`), e mesmo assim como consequência do contrato do Structural Analyzer (100% dos campos obrigatórios com essa origem), nunca por conta própria fora do fluxo de decisão aprovada.
 - Editar dados N2/Fase-4, golden, notas históricas ou uma decisão humana existente.
 - Usar N2/N4 como entrada de N3, nem transformar uma semelhança visual em dado de N1.
 - Rodar API de visão. Para gates visuais usa somente `g2v_harness.py --backend cli` e leitura humana/agent do PNG.
@@ -314,11 +314,11 @@ O agente não grava `is_validated` diretamente.
 
 1. Ele decide campo/vínculo e gera relatório.
 2. O operador aprova o subconjunto inequívoco.
-3. A aplicação marca só os campos/classes de vínculo correspondentes.
-4. O Structural Analyzer calcula 100% e, pelo contrato existente, aciona conjuntamente selo azul + verde.
+3. A aplicação marca só os campos/classes de vínculo correspondentes, com origem `qa_agente` (ver `docs/CONVENCAO-SELOS-VALIDACAO.md`).
+4. Quando 100% dos campos obrigatórios têm origem `qa_agente` (isolado — sem mistura com `humano_app`/`humano_portal`), o item recebe o selo laranja. Selo azul/rosa/verde continuam exclusivos de origem humana.
 5. Um item com qualquer `PENDENTE`, `CORRIGIR` ou `REVISAR_HUMANO` não recebe selo por esse agente.
 
-Assim, o selo continua significando “campos necessários confirmados”, não “o agente encontrou uma maioria de indícios”.
+Assim, o selo laranja significa “campos necessários confirmados pelo agente, com cobertura isolada de 100%”, não “o agente encontrou uma maioria de indícios”.
 
 ## 10. Integração com RAG futuro
 

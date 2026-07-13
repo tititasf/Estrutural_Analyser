@@ -703,6 +703,26 @@ lógica de dados por trás — a mesma limitação de sempre pra PySide6).
   ver o selo aparecer) **não foi testado visualmente** — mesma limitação de
   sempre (só navegador disponível, PySide6 precisa do dono rodar local).
 
+## Fase 15 — Selo rosa: Portal ganha validação de campo (planejada, 2026-07-13)
+
+Harmonização de validação (`docs/CONVENCAO-SELOS-VALIDACAO.md`) introduz um
+4º selo de item — **rosa** — quando 100% dos campos obrigatórios são
+validados campo-a-campo **pelo Portal de Formas**. Não confundir com a nota
+"fora de escopo" logo abaixo (Fase 12): aquela é sobre o app subir validação
+pro portal (**app→portal**, recusado); isso aqui é o Portal ganhar a
+CAPACIDADE de validar campo (nova, não existia) e o app **puxar** esse dado
+pra si (**portal→app**, mesmo sentido único já estabelecido na Fase 5 —
+"validação é só PULL, nunca push"). Planejado, ainda **não implementado**:
+
+- Nova tabela `portal_validacoes_campo` (granularidade real de campo — as 2
+  tabelas hoje, `portal_validacoes`/`portal_sa_validacao`, são por
+  classe/pavimento inteiros).
+- Novo endpoint no Portal pra marcar/consultar validação de campo.
+- UI mínima no Portal (botão "✔ Validar campo" por linha, sem selos ricos —
+  essa riqueza visual é só do app desktop).
+- Sync desktop ← Portal (estender/espelhar `_sincronizar_selo_verde_drive`)
+  gravando origem `humano_portal` nos campos correspondentes.
+
 ## Fora de escopo (fases futuras, não implementadas agora)
 
 - Sincronizar ficha/validação SA campo-a-campo entre web e app (dono decidiu: NÃO — ver Fase 12/instrução do dono, app é só treino/validação interna, sem upload app→portal).

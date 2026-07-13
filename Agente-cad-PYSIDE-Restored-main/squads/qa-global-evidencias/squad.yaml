@@ -1,5 +1,5 @@
 name: qa-global-evidencias
-version: "1.1.0"
+version: "1.2.0"
 description: >-
   Orquestra auditoria Arete por evidencia para obra, pavimento, classe, item,
   nivel e variante. Seleciona o microciclo canonico N1, N3 ou N4, exige
@@ -67,6 +67,11 @@ operation_map:
     type: ANALITICA
     task: review-n1
     description: "Prova somente campos e checks declarados, inclusive entre classes."
+  - id: probe-profile
+    trigger: "*probe-profile"
+    type: ANALITICA
+    task: review-n1
+    description: "Executa hipótese N1 cadastrada no perfil da classe com escopo explícito."
   - id: review-artifact
     trigger: "*review-artifact"
     type: ANALITICA
@@ -77,6 +82,11 @@ operation_map:
     type: ANALITICA
     task: parity-contract
     description: "Verifica contrato para payload para DXF para HTML sem reinterpretacao."
+  - id: smoke-n3
+    trigger: "*smoke-n3"
+    type: ANALITICA
+    task: parity-contract
+    description: "Confirma identidade, texto e camadas mínimas por contrato/variante N3."
   - id: visual
     trigger: "*visual"
     type: EXECUTIVA
@@ -129,6 +139,7 @@ governance:
     anti_leakage: "N3 recebe somente N1 + contrato/config; N2/N4 sao comparadores."
     visual: "Gate visual exige leitura humana/agente do PNG e veredito registrado."
     universal_fix: "Zero hardcode por item, pavimento ou obra."
+    selo_laranja: "CONFIRMAR grava origem qa_agente (nunca humano_app/humano_portal); selo laranja de item exige cobertura isolada de 100% por essa origem, sem mistura. Ver docs/CONVENCAO-SELOS-VALIDACAO.md."
 
 evolution:
   current_authority:
