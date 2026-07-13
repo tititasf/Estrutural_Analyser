@@ -6719,10 +6719,15 @@ class MainWindow(QMainWindow):
                                     p_data.pop(_kd, None)
                                 _face_beam_authoritative.add(_kd)
 
-                        # Fallback global: passantes/para sem face ainda
-                        for _slot_key, _pass_slots in (
-                            ('viga_que_passa', ('passa_esq', 'passa_dir')),
-                            ('viga_que_para', ('ch1', 'ch2', 'ch3')),
+                        # Vigas detectadas sem face topológica NÃO podem ocupar a
+                        # primeira vaga livre. Esse fallback antigo convertia um
+                        # achado global legítimo em uma face/canto inventado e,
+                        # depois, em abertura N3 falsa. Preservar como pendência
+                        # explícita até trecho→eixo→face resolver o vínculo.
+                        _unassigned_face_beams = []
+                        for _slot_key, _behavior, _pass_slots in (
+                            ('viga_que_passa', 'passa', ('passa_esq', 'passa_dir')),
+                            ('viga_que_para', 'para', ('ch1', 'ch2', 'ch3')),
                         ):
                             for _vb in (pre_pillar.get(_slot_key) or []):
                                 if not isinstance(_vb, dict):
@@ -6731,20 +6736,25 @@ class MainWindow(QMainWindow):
                                 _dm = _clean_slot_dim(_vb.get('dim'))
                                 if not _nm:
                                     continue
-                                _placed = False
+                                _already_located = False
                                 for _fid in ('A', 'B', 'C', 'D'):
                                     for _ps in _pass_slots:
                                         _kn = f'p_s{_fid}_v_{_ps}_n'
-                                        _kd = f'p_s{_fid}_v_{_ps}_d'
-                                        cur = str(p_data.get(_kn) or '').strip().upper()
-                                        if cur in _empty:
-                                            p_data[_kn] = _nm
-                                            if _dm:
-                                                p_data[_kd] = _dm
-                                            _placed = True
+                                        if str(p_data.get(_kn) or '').strip() == _nm:
+                                            _already_located = True
                                             break
-                                    if _placed:
+                                    if _already_located:
                                         break
+                                if not _already_located:
+                                    _unassigned_face_beams.append({
+                                        'name': _nm,
+                                        'dim': _dm,
+                                        'behavior': _behavior,
+                                        'status': 'a_confirmar',
+                                        'reason': 'sem_face_topologica',
+                                    })
+                        if _unassigned_face_beams:
+                            p_data['unassigned_face_beams'] = _unassigned_face_beams
 
                         # Espelha nos sides_data (DetailCard lê ambos).
                         sd = p_data.setdefault('sides_data', {})
@@ -15986,6 +15996,42 @@ class MainWindow(QMainWindow):
             
         return 10 # Default fallback
 
+    def _montar_selo_icone_e_cor(self, item_data):
+        """[2026-07-13] Monta os 4 selos de item (verde/rosa/azul/laranja —
+        `src/core/validation_model.calcular_selos_item`, ver
+        `detail_card.py::_auto_seal_completed_item`) como 1 ícone
+        combinado (um item pode ter os 4 ao mesmo tempo, todos
+        independentes) + a cor de texto da linha (prioridade só pra
+        escolha da ÚNICA cor de texto possível: azul > laranja > rosa >
+        verde — não é hierarquia de confiança, os ícones já mostram todos
+        os selos presentes). Sem nenhum selo, cai no fallback antigo
+        (❓/⚠️/⚠/cinza)."""
+        selo_azul = bool(item_data.get('is_fully_validated') or item_data.get('selo_azul'))
+        selo_rosa = bool(item_data.get('selo_rosa'))
+        selo_laranja = bool(item_data.get('selo_laranja'))
+        selo_verde = bool(item_data.get('is_validated'))
+
+        if not (selo_azul or selo_rosa or selo_laranja or selo_verde):
+            if item_data.get('issues'):
+                return "⚠️", Qt.red
+            return "❓", QColor("#dddddd")
+
+        icones = ""
+        if selo_verde: icones += "✅"
+        if selo_rosa: icones += "🌸"
+        if selo_azul: icones += "🔵"
+        if selo_laranja: icones += "🟠"
+
+        if selo_azul:
+            cor = QColor("#00d4ff")
+        elif selo_laranja:
+            cor = QColor("#ff9800")
+        elif selo_rosa:
+            cor = QColor("#d63384")
+        else:
+            cor = Qt.green
+        return icones, cor
+
     def _calculate_completion(self, item_data, subtype=None):
         """Calcula % de completude dinâmico baseado no total de campos reais."""
         if not item_data: return 0.0
@@ -16137,16 +16183,8 @@ class MainWindow(QMainWindow):
             else:
                 display_name = name
             
-            # 2. Status
-            status_icon = "❓"
-            # Prioridade Visual:
-            # 1. Fully Validated (Blue) -> Check Completion
-            # 2. Validated (Green) -> Check Completion
-            # 3. Issues (Yellow)
-            
-            if item_data.get('is_fully_validated'): status_icon = "🔵" # Blue Seal
-            elif item_data.get('is_validated'): status_icon = "✅" # Green Seal
-            elif item_data.get('issues'): status_icon = "⚠️"
+            # 2. Status — [2026-07-13] até 4 selos combinados (verde/rosa/azul/laranja)
+            status_icon, _cor_selo = self._montar_selo_icone_e_cor(item_data)
             if self._sa_attention_has_note(item_type, item_data):
                 status_icon = "⚠"
             
@@ -16228,19 +16266,9 @@ class MainWindow(QMainWindow):
             # Setup Data
             tree_item.setData(0, Qt.UserRole, item_id)
 
-            # Cores
-            if item_data.get('is_fully_validated'):
-                 tree_item.setForeground(0, QColor("#00d4ff")) # Blue Cyan
-                 tree_item.setForeground(1, QColor("#00d4ff"))
-            elif item_data.get('is_validated'):
-                 tree_item.setForeground(0, Qt.green)
-                 tree_item.setForeground(1, Qt.green)
-            elif item_data.get('issues'):
-                 tree_item.setForeground(0, Qt.red)
-                 tree_item.setForeground(1, Qt.red)
-            else:
-                 tree_item.setForeground(0, QColor("#dddddd"))
-                 tree_item.setForeground(1, QColor("#dddddd"))
+            # Cores — [2026-07-13] mesma cor calculada junto com o ícone acima
+            tree_item.setForeground(0, _cor_selo)
+            tree_item.setForeground(1, _cor_selo)
             
             # Sync Visual Canvas (Opcional, mas bom manter)
             if item_type == 'pillar':
@@ -16316,11 +16344,9 @@ class MainWindow(QMainWindow):
                         b['name'] = base_n
                 except Exception:
                     pass
-                # Status
-                status = "⏱"
-                if b.get('is_fully_validated'): status = "✔️"
-                elif b.get('is_validated'): status = "✔️"
-                elif b.get('issues'): status = "⚠️"
+                # Status — [2026-07-13] mesmo helper de selos combinados do pilar/laje
+                _selo_icone, _ = self._montar_selo_icone_e_cor(b)
+                status = "⏱" if _selo_icone == "❓" else _selo_icone
                 if self._sa_attention_has_note("fundo" if list_type == "fundo" else "lateral", b):
                     status = "⚠"
                 
@@ -17231,17 +17257,13 @@ class MainWindow(QMainWindow):
     def _sync_list_item_text(self, item_data):
         """Atualiza o texto da lista lateral sem reconstruir toda a UI - Versão O(1) Cache"""
         # from PySide6.QtWidgets import QTreeWidgetItemIterator # Desnecessário agora
-        from PySide6.QtGui import QColor
         itype = str(item_data.get('type') or '').lower()
         iid = item_data.get('id')
         
         if iid not in self.tree_item_map or not self.tree_item_map[iid]:
             return # Item não está visível em nenhuma lista no momento
         
-        status = "❓"
-        if item_data.get('is_fully_validated'): status = "🔵"
-        elif item_data.get('is_validated'): status = "✅"
-        elif item_data.get('issues'): status = "⚠️"
+        status, _cor_status = self._montar_selo_icone_e_cor(item_data)
         
         # %
         pct = self._calculate_completion(item_data)
@@ -17308,12 +17330,9 @@ class MainWindow(QMainWindow):
                     # 3: %, 4: Botão (não muda ao setar texto)
                     item.setText(3, local_pct_str)
                 
-                # Atualizar cor status
-                color = QColor("#dddddd")
-                if item_data.get('is_fully_validated'): color = QColor("#00d4ff")
-                elif item_data.get('is_validated'): color = Qt.green
-                elif item_data.get('issues'): color = Qt.red
-                
+                # Atualizar cor status — [2026-07-13] mesma cor calculada junto com o ícone acima
+                color = _cor_status
+
                 # Colorir dependendo do número de colunas do item
                 max_col = 3 if 'pillar' in itype else 5
                 for c in range(max_col):
