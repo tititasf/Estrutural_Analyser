@@ -13,12 +13,17 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
 
 from .. import access, auth, ficha_reader, pipeline_runner, public_codes_lookup, torre_crop
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
 router = APIRouter(prefix="/obras", tags=["n1"])
+
+
+class ValidacaoCampoPayload(BaseModel):
+    validado: bool
 
 
 def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dict:
@@ -114,6 +119,59 @@ def obter_item_n1_endpoint(obra_id: str, classe: str, item_id: str, request: Req
         "foto_n1": fotos["n1"], "foto_n3": fotos["n3"],
         "code_publico": code_publico, "referencia": referencia,
     }
+
+
+@router.post("/{obra_id}/n1/{classe}/{item_id}/campo/{field_id}/validar")
+def validar_campo_endpoint(obra_id: str, classe: str, item_id: str, field_id: str,
+                            payload: ValidacaoCampoPayload, request: Request,
+                            pavimento: Optional[str] = None,
+                            membro: dict = Depends(auth.exige_login),
+                            conn: sqlite3.Connection = Depends(get_db_conn)):
+    """[2026-07-13, harmonização de validação — selo rosa] Valida/desvalida 1
+    campo específico de 1 item — granularidade real de campo (diferente da
+    validação de classe inteira em `jobs_routes.py`). Gera a origem
+    `humano_portal` no app desktop via sync (`docs/CONVENCAO-SELOS-VALIDACAO.md`).
+    """
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    pav = _pavimento_da_obra(obra_dir, pavimento)
+    if pav is None:
+        raise HTTPException(status_code=404, detail="obra ainda sem SA rodado (nenhum estado_<pav>.json)")
+    repo.set_campo_validado(
+        conn, obra_id, pav, classe, item_id, field_id, payload.validado,
+        validado_por=membro.get("login"),
+    )
+    return {"status": "ok", "pavimento": pav, "classe": classe, "item_id": item_id,
+            "field_id": field_id, "validado": payload.validado}
+
+
+@router.get("/{obra_id}/n1/{classe}/{item_id}/campos-validados")
+def listar_campos_validados_endpoint(obra_id: str, classe: str, item_id: str, request: Request,
+                                      pavimento: Optional[str] = None,
+                                      membro: dict = Depends(auth.exige_login),
+                                      conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    pav = _pavimento_da_obra(obra_dir, pavimento)
+    if pav is None:
+        return {"obra_id": obra_id, "classe": classe, "item_id": item_id, "pavimento": None, "campos": []}
+    campos = repo.listar_campos_validados(conn, obra_id, pav, classe, item_id)
+    return {"obra_id": obra_id, "classe": classe, "item_id": item_id, "pavimento": pav, "campos": campos}
+
+
+@router.get("/{obra_id}/campos-validados")
+def listar_campos_validados_por_obra_endpoint(obra_id: str,
+                                               membro: dict = Depends(auth.exige_login),
+                                               conn: sqlite3.Connection = Depends(get_db_conn)):
+    """[2026-07-13] Todos os campos validados dessa obra (todos pavimentos/
+    classes/itens) — a app desktop usa isso pra espelhar em lote, mesmo
+    padrão de `GET /{obra_id}/sa` (1 GET, não 1 por item)."""
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None:
+        raise HTTPException(status_code=404, detail="obra nao encontrada")
+    if not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=403, detail="obra de outro membro")
+    return {"obra_id": obra_id, "campos": repo.listar_campos_validados_por_obra(conn, obra_id)}
 
 
 @router.get("/{obra_id}/obra-code")
