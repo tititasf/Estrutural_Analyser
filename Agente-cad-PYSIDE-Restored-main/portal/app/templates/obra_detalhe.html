@@ -1719,9 +1719,15 @@
     var fotosEl = document.getElementById('n1-fotos');
     var tituloEl = document.getElementById('n1-titulo');
     var meuToken = ++_n1DetalheReqToken;
-    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId) + (_pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : ''))
-      .then(function (r) { return r.json(); })
-      .then(function (item) {
+    var classeAtual = _painel3Estado.classe;
+    var qsPav = _pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : '';
+    Promise.all([
+      fetch('/obras/' + OBRA_ID + '/n1/' + classeAtual + '/' + encodeURIComponent(itemId) + qsPav).then(function (r) { return r.json(); }),
+      fetch('/obras/' + OBRA_ID + '/n1/' + classeAtual + '/' + encodeURIComponent(itemId) + '/campos-validados' + qsPav).then(function (r) { return r.json(); }),
+    ])
+      .then(function (resultados) {
+        var item = resultados[0];
+        var validados = new Set(resultados[1].campos.map(function (c) { return c.field_id; }));
         if (meuToken !== _n1DetalheReqToken) return;
         tituloEl.textContent = item.titulo;
         var codePublicoHtml = '';
@@ -1742,11 +1748,23 @@
             'title="Clique para copiar" onclick="navigator.clipboard.writeText(\'' + item.code_publico + '\')">' +
             item.code_publico + ' 📋</span></div>';
         }
+        // [2026-07-13] field_id do Portal = a própria chave do label (ex.
+        // "Nível Relativo") — a app desktop usa field_ids internos
+        // diferentes (ex. "laje_nivel"); o mapeamento entre os dois
+        // namespaces fica pro sync (Fase 2.4), ainda não implementado.
         var linhas = codePublicoHtml + Object.keys(item.campos).map(function (k) {
           var v = item.campos[k];
           if (v === null || v === undefined || v === '') v = '(vazio/não identificado)';
-          return '<div class="n1-campo"><span class="n1-campo-label">' + k + '</span><span class="n1-campo-valor">' +
-            String(v).replace(/</g, '&lt;') + '</span></div>';
+          var fieldId = encodeURIComponent(k);
+          var validado = validados.has(k);
+          return '<div class="n1-campo">' +
+            '<span class="n1-campo-label">' + k + '</span>' +
+            '<span class="n1-campo-valor">' + String(v).replace(/</g, '&lt;') + '</span>' +
+            '<button type="button" class="btn-sec btn campo-validar-btn" ' +
+            'style="padding:2px 6px; font-size:11px;' + (validado ? ' background:#d63384; color:white;' : '') + '" ' +
+            'onclick="validarCampoN1(\'' + itemId + '\', \'' + fieldId + '\', ' + (!validado) + ')">' +
+            (validado ? '🌸 Validado' : '✔ Validar campo') + '</button>' +
+            '</div>';
         }).join('');
         if (item.atencao) {
           linhas += '<div class="n1-campo"><span class="n1-campo-label">Atenção</span><span class="n1-campo-valor">' +
@@ -1773,6 +1791,22 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         if (meuToken !== _n1DetalheReqToken) return;
         camposEl.innerHTML = '<p class="muted">Falha ao carregar item.</p>';
       });
+  }
+
+  // [2026-07-13] Validação de campo (selo rosa) — botão pontual por campo no
+  // painel N1. Sem feedback visual rico (isso é só do app desktop, ver
+  // docs/CONVENCAO-SELOS-VALIDACAO.md); aqui é só marcar/desmarcar.
+  function validarCampoN1(itemId, fieldIdEncoded, validar) {
+    var qsPav = _pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : '';
+    fetch('/obras/' + OBRA_ID + '/n1/' + _painel3Estado.classe + '/' + encodeURIComponent(itemId) +
+          '/campo/' + fieldIdEncoded + '/validar' + qsPav, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ validado: validar }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function () { carregarDetalheItemN1(itemId); })
+      .catch(function () { alert('Falha ao gravar validação do campo.'); });
   }
 
   function carregarDetalheItemN3(itemId) {
