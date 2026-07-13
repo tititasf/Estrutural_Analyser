@@ -34,6 +34,32 @@ python scripts/arete/triagem_concordancia.py
 # 4. Corrigir causa-raiz no motor (1 fix por causa) → regenerar (passo 1) → reverificar
 ```
 
+#### Agente QA Global — orquestrador assistido do Eixo B
+
+`scripts/arete/qa_evidence_auditor.py` é o auditor/executor assistido oficial
+do Eixo B. Ele **não cria um segundo loop**: consome os artefatos e comandos
+canônicos deste mapa, produz dossiê/scores/perguntas/achados e encaminha a mesma
+causa pelo ciclo marcar → logar → corrigir → reverificar.
+
+```bash
+# Inventário de contrato por classe, sem mutação.
+python scripts/arete/qa_evidence_auditor.py discover \
+    --project-id {PROJECT_ID} --classe {LAJ|FV|PIL|LV|ALL} --include-sealed
+
+# Revisão de item/campo/vínculo: usa o mesmo escopo do microciclo.
+python scripts/arete/qa_evidence_auditor.py review \
+    --project-id {PROJECT_ID} --classe {LAJ|FV|PIL|LV|ALL} --item {ITENS} --include-sealed
+```
+
+O QA pode iniciar um microciclo com o `headless_sa_analise.py` canônico e ler o
+G2-V/N1-V resultante; não pode tratar o próprio relatório como prova visual,
+executar script legado ou usar N2/N4 para alimentar N1/N3. Só um adaptador de
+classe promovido e uma autorização humana explícita podem usar `apply`.
+
+O RAG é parceiro consultivo do QA, não um segundo juiz: regras/exemplos T1/T2
+citam fonte e ajudam a formular hipótese; evidência do item atual e veredito
+visual continuam mandatórios. Ver `CONTRATO-QA-RAG-LOOPINGS.md`.
+
 #### Microciclo N1 por item ou conjunto (canônico para iteração rápida)
 
 Quando já existe um achado localizado, a investigação não precisa reabrir as fichas de

@@ -1598,6 +1598,33 @@ def resolve_project_scope(
     return str(rows[0][0])
 
 
+def load_rag_consultations(con: sqlite3.Connection, classes: Iterable[str]) -> dict[str, list[dict]]:
+    """Consulta a memória semântica da app sem promovê-la a prova do item.
+
+    O schema atual de ``semantic_rag_kb`` ainda não carrega tier/campo estruturado;
+    por isso toda entrada é etiquetada como consulta contextual e só pode elevar
+    hipótese depois que a evidência CAD local concordar.
+    """
+    tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    result = {classe: [] for classe in classes}
+    if "semantic_rag_kb" not in tables:
+        return result
+    con.row_factory = sqlite3.Row
+    for classe in result:
+        rows = con.execute(
+            "SELECT id, classe, regra_semantica, obra_contexto, confianca, created_at "
+            "FROM semantic_rag_kb WHERE upper(classe)=? ORDER BY created_at DESC, id DESC",
+            (classe,),
+        ).fetchall()
+        result[classe] = [{
+            "kind": "rag_semantic_context", "rag_id": row["id"], "classe": row["classe"],
+            "regra_semantica": row["regra_semantica"], "obra_contexto": row["obra_contexto"],
+            "confianca_declarada": row["confianca"], "created_at": row["created_at"],
+            "authority": "consultative_only; requires local CAD/ficha evidence and human-approved tier before confirmation",
+        } for row in rows]
+    return result
+
+
 def _payload_geometry(payload: dict) -> list:
     return _context_points(payload)
 
@@ -1856,8 +1883,14 @@ def cmd_review(args: argparse.Namespace) -> int:
     findings: list[dict] = []
     questions: list[dict] = []
     records: list[dict] = []
+    rag_context: dict[str, list[dict]] = {}
     with sqlite3.connect(db) as con:
         project_id = resolve_project_scope(con, project_id=args.project_id, obra=args.obra, pav=args.pav)
+        rag_context = load_rag_consultations(con, requested) if args.rag_evidence != "off" else {classe: [] for classe in requested}
+        if args.rag_evidence == "required":
+            missing = [classe for classe, entries in rag_context.items() if not entries]
+            if missing:
+                raise SystemExit("memória RAG ausente para: " + ", ".join(missing))
         for classe in requested:
             if classe == "LAJ":
                 slabs = load_slabs(con, project_id)
@@ -1875,6 +1908,12 @@ def cmd_review(args: argparse.Namespace) -> int:
                 )
                 decisions.extend(class_decisions); findings.extend(class_findings)
                 questions.extend(class_questions); records.extend(class_records)
+            # A mesma citação é anexada como contexto, não como evidência suficiente.
+            # Limitamos a oito entradas para o dossiê permanecer legível.
+            citations = rag_context.get(classe, [])[:8]
+            if citations:
+                for decision in class_decisions:
+                    decision.evidence.extend(citations)
     out_dir = Path(args.out_dir) if args.out_dir else DEFAULT_REPORT_ROOT / run_id
     manifest = {
         "schema_version": 1, "run_id": run_id, "created_at": utc_now(), "mode": "global_read_only_review",
@@ -1882,8 +1921,14 @@ def cmd_review(args: argparse.Namespace) -> int:
         "classes": requested, "items": [record["name"] for record in records],
         "snapshots": {record["name"]: {"id": record["id"], "hash": record["snapshot_hash"]} for record in records},
         "authority": "read_only; only LAJ has a validation-ready apply path; all other decisions remain non-mutating",
+        "rag": {
+            "mode": args.rag_evidence,
+            "consultations": {classe: len(entries) for classe, entries in rag_context.items()},
+            "policy": "consultative_only; RAG never proves a field or authorizes apply",
+        },
     }
     write_reports(out_dir, manifest, decisions, findings, questions)
+    write_jsonl(out_dir / "rag_consultas.jsonl", (entry for entries in rag_context.values() for entry in entries))
     print(json.dumps({"run_id": run_id, "out_dir": str(out_dir), "decisions": len(decisions), "questions": len(questions), "classes": requested}, ensure_ascii=False))
     return 0
 
@@ -2075,6 +2120,10 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--classe", choices=(*CLASS_REGISTRY.keys(), "ALL"), default="ALL")
     review.add_argument("--item", nargs="*")
     review.add_argument("--include-sealed", action="store_true")
+    review.add_argument(
+        "--rag-evidence", choices=("auto", "off", "required"), default="auto",
+        help="consulta semantic_rag_kb como contexto; required falha se não houver memória da classe",
+    )
     review.add_argument("--run-id")
     review.add_argument("--out-dir")
     review.set_defaults(func=cmd_review)

@@ -3,6 +3,8 @@
 **Estado:** núcleo global ativo em modo conservador.
 **Interface:** `scripts/arete/qa_evidence_auditor.py` (chat/CLI; a UI só apresenta).
 **Escopo:** Obra → pavimento → classe → item → campo/vínculo, com consulta cruzada controlada.
+**Loop/RAG:** `LOOPING-CANONICO.md`, `ARETE-LOOP-PROCEDIMENTO-GERAL.md` e
+`CONTRATO-QA-RAG-LOOPINGS.md` formam o contrato operacional único.
 
 ## 1. Objetivo
 
@@ -16,6 +18,12 @@ Transformar a validação granular do Structural Analyzer em um processo auditá
 6. produzir ground truth curado para o RAG, sem vazar N2/N4 para N1/N3.
 
 O agente **não é um aprovador por similaridade**. Geometria é polígono, furos, recortes, contorno e coordenadas — nunca apenas comprimento × largura. Um número perto de um elemento não vira nível; uma proximidade não vira apoio; uma ficha não prova a si própria.
+
+Ele também não é uma auditoria passiva isolada: é o executor assistido do Eixo B
+dos loopings Arete. Cada sessão começa observando, transforma a evidência em
+achado/hipótese, conduz o microciclo canônico e mede a correção. A validação de
+campos só aparece após autoridade progressiva por família de campo; a promoção
+de conhecimento segue o contrato QA↔RAG, não um score isolado.
 
 ## 2. Autoridade por classe
 

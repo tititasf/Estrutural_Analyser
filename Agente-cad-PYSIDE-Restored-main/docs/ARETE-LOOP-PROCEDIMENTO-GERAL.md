@@ -1,6 +1,6 @@
 # ARETE — Procedimento Geral de Looping por Classe (Fichas HTML + Diagnóstico Duplo)
 
-**Versão:** 1.1
+**Versão:** 1.2
 **Data:** 2026-07-10
 **Status:** CANÔNICO — este é o procedimento que deve ser seguido em todo looping de
 classe (PIL, FV, LV, LAJ, e qualquer classe futura), a partir de agora.
@@ -15,6 +15,11 @@ mas o caminho de execução daqui pra frente é o descrito aqui.
 > **Integração futura com dados:** o contrato entre este procedimento, MCP, SQLite e RAG
 > está em `ARETE-MCP-RAG-HARMONIZACAO.md`. Esse contrato não ativa ingestão; define tiers,
 > gates e proveniência para uma ativação futura segura.
+>
+> **Papel oficial do QA:** `MASTERPLAN-AGENTE-QA-GLOBAL.md` e
+> `CONTRATO-QA-RAG-LOOPINGS.md` definem o Agente QA Global como auditor e executor
+> assistido deste loop: ele observa, evidencia, propõe/refina causa de motor,
+> reverifica e só recebe autoridade progressiva para confirmar campos/vínculos.
 
 LAJ é a classe piloto (é onde este caminho foi validado pela primeira vez, em 02/07). Tudo
 abaixo é escrito para ser **genérico por classe** — quando for a vez de PIL/FV/LV, o
@@ -35,6 +40,39 @@ paridade de infraestrutura que LAJ já tem hoje.
 5. REVERIFICAR → regenerar (passo 1) + reler os dois diagnósticos (passo 2) no mesmo item
 6. FECHAR      → status = verificado; só então repetir para o próximo lote/causa
 ```
+
+### 0.1 — Agente QA: executor assistido, não atalho de selo
+
+O Agente QA Global é a camada operacional que conecta os passos acima. Ele não
+substitui o dono, o gate visual ou os motores; torna o ciclo rastreável e aprende
+com a repetição:
+
+```text
+observação read-only
+  → dossiê por item/campo/vínculo
+  → achado + hipótese de causa geral
+  → refinamento do motor por um executor
+  → microciclo canônico + leitura visual
+  → comparação antes/depois e score de confiança
+  → [autoridade comprovada] confirmação humana assistida de campo/vínculo
+  → candidato T1/T2 para o RAG
+```
+
+Em observação, o QA pode abrir achado, gerar prompt de correção universal e
+orquestrar a reverificação; não pode editar N2/Fase-4, inventar geometria ou
+selar campo. A autoridade é por **classe + família de campo + evidência**, nunca
+por número global de acertos:
+
+| Nível QA | Pode fazer | Pré-requisito |
+|---|---|---|
+| Q0 Observação | ler fontes, pontuar, perguntar, propor fix e rodar microciclo | escopo explícito |
+| Q1 Evidência | confirmar em relatório read-only | cadeia CAD/ficha/coord. sem conflito |
+| Q2 Assistência humana | preparar `apply` de confirmações high; humano revisa/autoriza | golden + N1-V da família + decisões estáveis |
+| Q3 Autoridade progressiva | aplicar somente allowlist da classe | contrato de proveniência, regressão, RAG T1/T2 citado e aprovação humana prévia |
+
+`Q3` não elimina o dono como juiz final. Um conflito novo, queda de score, mudança
+de motor, outra obra/pavimento ou ausência de evidência rebaixa o caso para Q0/Q1.
+O contrato QA↔RAG está em `CONTRATO-QA-RAG-LOOPINGS.md`.
 
 O ponto central pedido pelo dono (02/07): **os dois diagnósticos convivem, sempre.** O
 automático não é descartado quando o humano discorda — a divergência em si é o dado mais
@@ -119,9 +157,11 @@ está com a trava.
 
 1. Escolher os itens que compartilham a mesma hipótese de causa-raiz no JSONL de triagem.
 2. Rodar o microciclo com `--secao` e todos os `--item` relevantes.
-3. Ler a ficha HTML e o diagnóstico filtrado; para N1×N2, rodar N1-V no mesmo conjunto com
-   `g2v_harness.py --par n1xn2 --backend cli`. Número, bbox ou área isoladamente não fecham
-   forma, recorte, contorno ou coordenadas.
+3. Ler a ficha HTML e o diagnóstico filtrado; para N1×N2, revisar com o dono a ficha N1
+   convertida contra a ficha N2, campo a campo. Número, bbox ou área isoladamente não fecham
+   a interpretação. `g2v_harness.py --par n1xn2 --backend cli` só é admissível se seus dois
+   cards forem as fichas comparáveis; geometria bruta do SA contra recorte N2 é inconclusiva,
+   não é PASS nem FAIL.
 4. Corrigir a regra geral do motor/extrator, nunca os nomes daqueles itens.
 5. Repetir o microciclo e a leitura visual até a causa desaparecer; gravar a transição no
    log de triagem em append-only.

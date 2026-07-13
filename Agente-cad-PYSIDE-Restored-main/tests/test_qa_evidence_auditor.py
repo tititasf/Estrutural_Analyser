@@ -15,6 +15,7 @@ from scripts.arete.qa_evidence_auditor import (
     cmd_audit,
     discover_class_inventory,
     generic_class_review,
+    load_rag_consultations,
     resolve_project_scope,
     cmd_rollback,
     reconcile_web_evidence,
@@ -70,6 +71,25 @@ def test_generic_review_fails_closed_and_explains_missing_contract(tmp_path: Pat
         "usar o valor N1 como prova de si mesmo", "copiar convenção de LAJ", "inferir por proximidade ou por N2/N4",
     ]
     assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
+    con.close()
+
+
+def test_rag_consultation_is_contextual_and_partitioned_by_class(tmp_path: Path):
+    db = tmp_path / "rag.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE semantic_rag_kb (
+          id TEXT PRIMARY KEY, classe TEXT, regra_semantica TEXT,
+          obra_contexto TEXT, confianca REAL, created_at TEXT
+        );
+        """
+    )
+    con.execute("INSERT INTO semantic_rag_kb VALUES ('1', 'FV', 'Regra FV', 'obra', .9, '2026-07-12')")
+    context = load_rag_consultations(con, ["FV", "LAJ"])
+    assert context["FV"][0]["rag_id"] == "1"
+    assert context["LAJ"] == []
+    assert context["FV"][0]["authority"].startswith("consultative_only")
     con.close()
 
 
