@@ -22,7 +22,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from .. import access, auth, certification
+from .. import access, auth, certification, public_codes_lookup
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -130,9 +130,14 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
         f"https://drive.google.com/drive/folders/{membro['drive_folder_id']}"
         if membro.get("drive_folder_id") else None
     )
+    settings = request.app.state.settings
+    codigos_publicos = public_codes_lookup.buscar_codes_obras_batch(
+        settings.public_consulta_db_path, [o["id"] for o in obras],
+    )
     return _render(request, "obras_lista.html", {
         "membro": membro, "obras": obras, "drive": drive,
-        "drive_folder_url": drive_folder_url, "nav_ativo": "obras",
+        "drive_folder_url": drive_folder_url, "codigos_publicos": codigos_publicos,
+        "nav_ativo": "obras",
     })
 
 

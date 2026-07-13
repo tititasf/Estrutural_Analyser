@@ -13,6 +13,9 @@ renderizando de verdade, não só que "não dá erro de import".
 from __future__ import annotations
 
 import contextlib
+import sqlite3
+import sys
+from pathlib import Path
 
 import httpx
 import pytest
@@ -20,6 +23,24 @@ import pytest
 from portal.app import auth
 from portal.app.main import create_app
 from portal.db import connection, repository as repo
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_CONSULTA_PUBLICA_DIR = _REPO_ROOT / "consulta-publica-api"
+if str(_CONSULTA_PUBLICA_DIR) not in sys.path:
+    sys.path.insert(0, str(_CONSULTA_PUBLICA_DIR))
+
+
+def _publicar_obra_fake(db_path: Path, *, obra_id: str, code: str) -> None:
+    schema = (_CONSULTA_PUBLICA_DIR / "publisher" / "schema.sql").read_text(encoding="utf-8")
+    conn = sqlite3.connect(str(db_path))
+    conn.executescript(schema)
+    conn.execute(
+        "INSERT INTO public_codes (code, kind, obra_id, obra_dir, obra_rotulo, revoked) "
+        "VALUES (?, 'obra', ?, '/fake', 'Edificio Aurora', 0)",
+        (code, obra_id),
+    )
+    conn.commit()
+    conn.close()
 
 
 @contextlib.asynccontextmanager
@@ -74,6 +95,33 @@ async def test_pagina_obras_com_dados_renderiza(settings):
         assert r.status_code == 200
         assert "EdificioAurora" in r.text
         assert f'/app/obras/{obra_id}' in r.text  # link real para o detalhe
+
+
+@pytest.mark.asyncio
+async def test_pagina_obras_mostra_codigo_publico_quando_ja_publicada(settings):
+    """[2026-07-13] Harmonização — a lista de obras mostra o código público
+    (App de Consulta) de cada obra já sincronizada, sem precisar abrir o
+    detalhe. Obra sem código ainda (não publicada) não quebra a página."""
+    async with _app_cliente(settings) as (_app, client):
+        c = connection.init_db(settings.db_path)
+        ana = repo.obter_membro_por_login(c, "ana")
+        obra_com_code = repo.criar_obra(
+            c, membro_id=ana["id"], nome="EdificioAurora", pasta_drive_id="folder-ana",
+            arquivo_hash="hash-pagina-1", estado="pronta",
+        )
+        obra_sem_code = repo.criar_obra(
+            c, membro_id=ana["id"], nome="TorreSemCodigo", pasta_drive_id="folder-ana",
+            arquivo_hash="hash-pagina-2", estado="pronta",
+        )
+        c.close()
+
+        _publicar_obra_fake(settings.public_consulta_db_path, obra_id=obra_com_code, code="OBRAABCD01")
+
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.get("/app/obras")
+        assert r.status_code == 200
+        assert "OBRAABCD01" in r.text
+        assert "TorreSemCodigo" in r.text  # renderiza normal, sem quebrar por falta de código
 
 
 @pytest.mark.asyncio

@@ -114,6 +114,11 @@
           {{ o.arquivo_nome or '—' }}
           {% if o.created_at %}· detectada {{ o.created_at[:16].replace('T',' ') }}{% endif %}
         </p>
+        {% if codigos_publicos.get(o.id) %}
+        <p class="meta" style="margin:4px 0 0" title="Clique para copiar" onclick="navigator.clipboard.writeText('{{ codigos_publicos[o.id] }}')">
+          📱 Código público: <span style="font-family:monospace">{{ codigos_publicos[o.id] }}</span> 📋
+        </p>
+        {% endif %}
         {% if o.estado == 'erro' and o.erro_msg %}
         <p class="meta" style="color:#b91c1c;margin:6px 0 0">
           <span aria-hidden="true">🔴</span> {{ o.erro_msg }}

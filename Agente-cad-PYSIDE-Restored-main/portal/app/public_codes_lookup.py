@@ -77,3 +77,27 @@ def buscar_code_item(
         return None
     finally:
         conn.close()
+
+
+def buscar_codes_obras_batch(db_path: Path, obra_ids: list[str]) -> dict[str, str]:
+    """Código público de N obras em 1 única consulta [2026-07-13] — usado na
+    lista `/app/obras` pra mostrar o código de cada obra sem 1 conexão/query
+    por linha. Obras sem código publicado (ainda não sincronizadas) ficam
+    ausentes do dict retornado (nunca `None` como valor)."""
+    if not obra_ids:
+        return {}
+    conn = _conectar_ro(db_path)
+    if conn is None:
+        return {}
+    try:
+        marcadores = ",".join("?" * len(obra_ids))
+        rows = conn.execute(
+            f"SELECT obra_id, code FROM public_codes WHERE obra_id IN ({marcadores}) "
+            "AND kind = 'obra' AND revoked = 0",
+            obra_ids,
+        ).fetchall()
+        return {row["obra_id"]: row["code"] for row in rows}
+    except sqlite3.OperationalError:
+        return {}
+    finally:
+        conn.close()
