@@ -116,7 +116,7 @@
         </p>
         {% if codigos_publicos.get(o.id) %}
         <p class="meta" style="margin:4px 0 0" title="Clique para copiar" onclick="navigator.clipboard.writeText('{{ codigos_publicos[o.id] }}')">
-          📱 Código público: <span style="font-family:monospace">{{ codigos_publicos[o.id] }}</span> 📋
+          📱 Código de Obra: <span style="font-family:monospace">{{ codigos_publicos[o.id] }}</span> 📋
         </p>
         {% endif %}
         {% if o.estado == 'erro' and o.erro_msg %}
