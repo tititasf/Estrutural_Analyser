@@ -8,11 +8,19 @@ jest.mock("qrcode", () => ({
 
 describe("QrCodePanel [2026-07-12]", () => {
   it("gera o QR a partir da URL informada e mostra título/código", async () => {
-    render(<QrCodePanel url="http://localhost:21391/ficha/ABC1234567" titulo="Pilar P1" code="ABC1234567" />);
+    render(
+      <QrCodePanel
+        url="http://localhost:21391/ficha/ABC1234567"
+        titulo="Pilar P1"
+        code="ABC1234567"
+        rotuloTipo="Código de Item — Pilar"
+      />,
+    );
 
     const img = await screen.findByAltText(/QR code de acesso — Pilar P1/i);
     expect(img).toHaveAttribute("src", "data:image/png;base64,fake");
     expect(screen.getByText("Pilar P1")).toBeInTheDocument();
+    expect(screen.getByText("Código de Item — Pilar")).toBeInTheDocument();
     expect(screen.getByText("ABC1234567")).toBeInTheDocument();
   });
 
@@ -20,7 +28,14 @@ describe("QrCodePanel [2026-07-12]", () => {
     const printMock = jest.fn();
     window.print = printMock;
 
-    render(<QrCodePanel url="http://localhost:21391/ficha/ABC1234567" titulo="Pilar P1" code="ABC1234567" />);
+    render(
+      <QrCodePanel
+        url="http://localhost:21391/ficha/ABC1234567"
+        titulo="Pilar P1"
+        code="ABC1234567"
+        rotuloTipo="Código de Item — Pilar"
+      />,
+    );
     await screen.findByAltText(/QR code de acesso/i);
 
     await userEvent.click(screen.getByRole("button", { name: /imprimir qr/i }));

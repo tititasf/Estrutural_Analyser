@@ -36,7 +36,7 @@ export function PavimentoAccordion({ pavimento, expandido, onAlternar, onSelecio
           aria-label={`Abrir ficha do pavimento ${pavimento.pavimento_label} (código ${pavimento.code})`}
           onClick={(e) => e.stopPropagation()}
         >
-          <QrCode size={16} aria-hidden="true" /> {pavimento.code}
+          <QrCode size={16} aria-hidden="true" /> Pavimento: {pavimento.code}
         </Link>
       )}
 

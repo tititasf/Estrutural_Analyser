@@ -12,6 +12,11 @@ interface QrCodePanelProps {
   url: string;
   titulo: string;
   code: string;
+  /** Rótulo do TIPO de código (ex: "Código de Pavimento", "Código de Item —
+   * Pilar") [2026-07-13] — decidido pelo chamador, que já sabe o contexto;
+   * este painel é genérico (obra/pavimento/item) e não precisa conhecer a
+   * taxonomia de tipo/kind pra exibir o rótulo certo. */
+  rotuloTipo: string;
 }
 
 /** QR code + botão imprimir [2026-07-12] — pedido do dono: usuário de
@@ -19,7 +24,7 @@ interface QrCodePanelProps {
  * de outros usuários depois, sem precisar digitar o código à mão.
  * Gerado 100% client-side (`qrcode`, lib pequena e sem dependências) — o
  * conteúdo do QR é só a URL pública, nunca dado sensível. */
-export function QrCodePanel({ url, titulo, code }: QrCodePanelProps) {
+export function QrCodePanel({ url, titulo, code, rotuloTipo }: QrCodePanelProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,6 +55,7 @@ export function QrCodePanel({ url, titulo, code }: QrCodePanelProps) {
           <div className={styles.placeholder} aria-hidden="true" />
         )}
         <p className={styles.titulo}>{titulo}</p>
+        <p className={styles.rotuloTipo}>{rotuloTipo}</p>
         <p className={styles.codigo}>{code}</p>
       </div>
       <Button variant="secondary" onClick={imprimir} className={styles.botaoImprimir}>

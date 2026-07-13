@@ -96,5 +96,6 @@ describe("Índice de Obra", () => {
 
     const link = screen.getByRole("link", { name: /Abrir ficha do pavimento Térreo/i });
     expect(link).toHaveAttribute("href", "/pavimento/PAVCODE_TERREO");
+    expect(link).toHaveTextContent("Pavimento: PAVCODE_TERREO");
   });
 });

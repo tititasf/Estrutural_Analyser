@@ -171,6 +171,7 @@ export default function PavimentoPage({ params }: { params: { code: string } }) 
             url={`${origemAtual}/pavimento/${code}`}
             titulo={pavimento.pavimento_label}
             code={code}
+            rotuloTipo="Código de Pavimento"
           />
         )}
       </div>

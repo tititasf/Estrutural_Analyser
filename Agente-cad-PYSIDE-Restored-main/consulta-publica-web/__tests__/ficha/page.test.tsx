@@ -181,6 +181,24 @@ describe("Ficha do Item — 404 genérico", () => {
   });
 });
 
+describe("Ficha do Item — rótulo do tipo de código [2026-07-13]", () => {
+  it("mostra 'Código de Item — Pilar' pra item tipo=pilar", async () => {
+    jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({ status: "ok", data: fichaBase({ tipo: "pilar" }) });
+
+    render(<FichaPage params={{ code: "ITEMCODE01" }} />);
+    expect(await screen.findByText(/Código de Item — Pilar/)).toBeInTheDocument();
+  });
+
+  it("mostra 'Código de Item — Viga de Fundo' pra item tipo=viga_fundo", async () => {
+    jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({
+      status: "ok", data: fichaBase({ tipo: "viga_fundo" }),
+    });
+
+    render(<FichaPage params={{ code: "ITEMCODE01" }} />);
+    expect(await screen.findByText(/Código de Item — Viga de Fundo/)).toBeInTheDocument();
+  });
+});
+
 describe("Ficha do Item — link recíproco pro pavimento [2026-07-13]", () => {
   it("mostra link pro pavimento quando pavimento_code vem preenchido", async () => {
     jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({

@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { SvgViewer } from "@/components/ui/SvgViewer";
 import { QrCodePanel } from "@/components/ui/QrCodePanel";
 import { buscarFicha, urlAbsolutaSvg, type FichaData } from "@/lib/api/ficha";
+import { rotuloCodigoItem } from "@/lib/tipoElementoLabels";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { cachearUltimoItem } from "@/lib/pwa/cacheUltimoItem";
 import { adicionarAoHistorico } from "@/lib/storage/history";
@@ -200,6 +201,7 @@ export default function FichaPage({ params }: { params: { code: string } }) {
             url={`${origemAtual}/ficha/${ficha.code}`}
             titulo={ficha.titulo}
             code={ficha.code}
+            rotuloTipo={rotuloCodigoItem(ficha.tipo)}
           />
         )}
       </div>

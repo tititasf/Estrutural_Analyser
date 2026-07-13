@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, Copy, Layers } from "lucide-react";
 import Link from "next/link";
 import { TypeIcon, type TipoElemento } from "@/components/ui/TypeIcon";
+import { rotuloCodigoItem } from "@/lib/tipoElementoLabels";
 import styles from "./FichaHeader.module.css";
 
 interface FichaHeaderProps {
@@ -62,7 +63,7 @@ export function FichaHeader({ obraRotulo, pavimentoLabel, pavimentoCode, tipo, t
       </div>
 
       <div className={styles.codigoLinha}>
-        <span className={styles.codigo}>código: {code}</span>
+        <span className={styles.codigo}>{rotuloCodigoItem(tipo)}: {code}</span>
         <button type="button" className={styles.copiar} onClick={copiarCodigo} aria-label="Copiar código">
           <Copy size={18} aria-hidden="true" />
         </button>
