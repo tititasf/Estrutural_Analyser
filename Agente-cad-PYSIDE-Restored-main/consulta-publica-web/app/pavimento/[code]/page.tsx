@@ -172,6 +172,7 @@ export default function PavimentoPage({ params }: { params: { code: string } }) 
             titulo={pavimento.pavimento_label}
             code={code}
             rotuloTipo="Código de Pavimento"
+            referencia={[pavimento.obra_rotulo, pavimento.pavimento_label].filter(Boolean).join(" › ")}
           />
         )}
       </div>

@@ -202,6 +202,7 @@ export default function FichaPage({ params }: { params: { code: string } }) {
             titulo={ficha.titulo}
             code={ficha.code}
             rotuloTipo={rotuloCodigoItem(ficha.tipo)}
+            referencia={[ficha.obra_rotulo, ficha.pavimento_label, ficha.titulo].filter(Boolean).join(" › ")}
           />
         )}
       </div>

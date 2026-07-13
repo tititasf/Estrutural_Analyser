@@ -77,3 +77,9 @@
   color: var(--success);
   font-weight: 600;
 }
+
+.referencia {
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin: 0;
+}

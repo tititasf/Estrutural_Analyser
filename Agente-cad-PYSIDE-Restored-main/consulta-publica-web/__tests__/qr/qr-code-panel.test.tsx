@@ -41,4 +41,30 @@ describe("QrCodePanel [2026-07-12]", () => {
     await userEvent.click(screen.getByRole("button", { name: /imprimir qr/i }));
     expect(printMock).toHaveBeenCalledTimes(1);
   });
+
+  it("mostra a referência legível quando informada [2026-07-13]", async () => {
+    render(
+      <QrCodePanel
+        url="http://localhost:21391/ficha/ABC1234567"
+        titulo="Pilar P1"
+        code="ABC1234567"
+        rotuloTipo="Código de Item — Pilar"
+        referencia="Obra Teste › Térreo › Pilar P1"
+      />,
+    );
+    expect(await screen.findByText("Obra Teste › Térreo › Pilar P1")).toBeInTheDocument();
+  });
+
+  it("sem referência, não renderiza a linha extra", async () => {
+    render(
+      <QrCodePanel
+        url="http://localhost:21391/ficha/ABC1234567"
+        titulo="Pilar P1"
+        code="ABC1234567"
+        rotuloTipo="Código de Item — Pilar"
+      />,
+    );
+    await screen.findByAltText(/QR code de acesso/i);
+    expect(screen.queryByText(/›/)).not.toBeInTheDocument();
+  });
 });

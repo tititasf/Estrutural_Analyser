@@ -73,6 +73,12 @@ export function FichaHeader({ obraRotulo, pavimentoLabel, pavimentoCode, tipo, t
           </span>
         )}
       </div>
+      {/* [2026-07-13] Referência legível ao lado do código — nunca é o
+       * código de verdade, só ajuda humano a entender de cabeça de onde
+       * esse código vem (obra › pavimento › item). */}
+      <p className={styles.referencia}>
+        {[obraRotulo, pavimentoLabel, titulo].filter(Boolean).join(" › ")}
+      </p>
     </div>
   );
 }

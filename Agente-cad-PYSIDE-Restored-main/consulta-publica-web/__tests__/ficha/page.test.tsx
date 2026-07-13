@@ -181,6 +181,15 @@ describe("Ficha do Item — 404 genérico", () => {
   });
 });
 
+describe("Ficha do Item — referência legível ao lado do código [2026-07-13]", () => {
+  it("mostra 'Obra Teste › Térreo › Pilar P1' junto do código", async () => {
+    jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({ status: "ok", data: fichaBase() });
+
+    render(<FichaPage params={{ code: "ITEMCODE01" }} />);
+    expect(await screen.findByText("Obra Teste › Térreo › Pilar P1")).toBeInTheDocument();
+  });
+});
+
 describe("Ficha do Item — rótulo do tipo de código [2026-07-13]", () => {
   it("mostra 'Código de Item — Pilar' pra item tipo=pilar", async () => {
     jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({ status: "ok", data: fichaBase({ tipo: "pilar" }) });
