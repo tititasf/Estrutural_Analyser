@@ -292,6 +292,57 @@ def set_sa_validado(
     conn.commit()
 
 
+def set_campo_validado(
+    conn: sqlite3.Connection, obra_id: str, pavimento: str, classe: str, item_id: str,
+    field_id: str, validado: bool, validado_por: Optional[str] = None,
+) -> None:
+    """Marca/desmarca a validação de 1 campo específico de 1 item (granularidade
+    real de campo — gera a origem `humano_portal` no app desktop via sync,
+    ver docs/CONVENCAO-SELOS-VALIDACAO.md). `validado=False` remove a linha
+    (campo some da lista de validados, igual `remover_validacao_campo`)."""
+    if not validado:
+        conn.execute(
+            "DELETE FROM portal_validacoes_campo WHERE obra_id=? AND pavimento=? AND classe=? AND item_id=? AND field_id=?",
+            (obra_id, pavimento, classe.upper(), item_id, field_id),
+        )
+        conn.commit()
+        return
+    conn.execute(
+        """
+        INSERT INTO portal_validacoes_campo (obra_id, pavimento, classe, item_id, field_id, validado_por, validado_em)
+        VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+        ON CONFLICT(obra_id, pavimento, classe, item_id, field_id) DO UPDATE SET
+            validado_por=excluded.validado_por,
+            validado_em=excluded.validado_em
+        """,
+        (obra_id, pavimento, classe.upper(), item_id, field_id, validado_por),
+    )
+    conn.commit()
+
+
+def listar_campos_validados(
+    conn: sqlite3.Connection, obra_id: str, pavimento: str, classe: str, item_id: str,
+) -> list[dict[str, Any]]:
+    """Campos validados de 1 item — [{field_id, validado_por, validado_em}, ...]."""
+    rows = conn.execute(
+        "SELECT field_id, validado_por, validado_em FROM portal_validacoes_campo "
+        "WHERE obra_id=? AND pavimento=? AND classe=? AND item_id=?",
+        (obra_id, pavimento, classe.upper(), item_id),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def listar_campos_validados_por_obra(conn: sqlite3.Connection, obra_id: str) -> list[dict[str, Any]]:
+    """Todos os campos validados dessa obra (todas classes/pavimentos/itens) —
+    usado pela app pra espelhar em lote, igual `listar_sa_validacoes_por_obra`."""
+    rows = conn.execute(
+        "SELECT pavimento, classe, item_id, field_id, validado_por, validado_em "
+        "FROM portal_validacoes_campo WHERE obra_id=?",
+        (obra_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def atualizar_classificacao_documento(
     conn: sqlite3.Connection,
     doc_id: str,

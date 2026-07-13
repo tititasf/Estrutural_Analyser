@@ -49,11 +49,11 @@ def test_init_db_cria_as_6_tabelas(conn):
     ).fetchall()
     nomes = {r["name"] for r in rows}
     assert TABELAS_ESPERADAS.issubset(nomes)
-    # tabela de versão registrou as migrations 001+002+003+004+005
-    # (2026-07-06: portal_documentos + etapa_concluida; 2026-07-07: cabeçalho
-    # da obra + tipo_documento)
+    # tabela de versão registrou as migrations 001..008 (2026-07-13:
+    # portal_validacoes_campo, a mais recente — ver CHANGELOG das migrations
+    # em portal/db/migrations/ pro histórico completo)
     ver = conn.execute("SELECT MAX(version) FROM portal_schema_version").fetchone()[0]
-    assert ver == 5
+    assert ver == 8
 
 
 def test_init_db_idempotente(tmp_path):
@@ -63,7 +63,7 @@ def test_init_db_idempotente(tmp_path):
     # rodar de novo não duplica versão nem quebra
     c2 = connection.init_db(db_path)
     n = c2.execute("SELECT COUNT(*) FROM portal_schema_version").fetchone()[0]
-    assert n == 5  # 001..005, cada migration registra 1 linha
+    assert n == 8  # 001..008, cada migration registra 1 linha
     c2.close()
 
 
@@ -468,3 +468,50 @@ def test_atualizar_nome_exibicao_documento(conn, membro_id):
     doc = repo.obter_documento(conn, doc_id)
     assert doc["nome_exibicao"] == "Pilares - 13o pavimento"
     assert doc["arquivo_nome"] == "13_PAV_PL_v3_final2.dxf"  # arquivo real intocado
+
+
+# --------------------------------------------------------------------------- #
+# Validação de campo (migration 008, 2026-07-13 — harmonização selo rosa)
+# --------------------------------------------------------------------------- #
+
+def test_set_campo_validado_grava_e_lista(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Campo", pasta_drive_id="p")
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "nivel", True, validado_por="ana")
+    campos = repo.listar_campos_validados(conn, obra_id, "Térreo", "pilar", "P1")
+    assert [c["field_id"] for c in campos] == ["nivel"]
+    assert campos[0]["validado_por"] == "ana"
+    assert campos[0]["validado_em"] is not None
+
+
+def test_set_campo_validado_false_remove_a_linha(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Campo 2", pasta_drive_id="p")
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "nivel", True)
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "nivel", False)
+    assert repo.listar_campos_validados(conn, obra_id, "Térreo", "pilar", "P1") == []
+
+
+def test_set_campo_validado_e_idempotente_e_atualiza_validado_por(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Campo 3", pasta_drive_id="p")
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "nivel", True, validado_por="ana")
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "nivel", True, validado_por="bruno")
+    campos = repo.listar_campos_validados(conn, obra_id, "Térreo", "pilar", "P1")
+    assert len(campos) == 1
+    assert campos[0]["validado_por"] == "bruno"
+
+
+def test_listar_campos_validados_por_obra_agrupa_pavimento_classe_item(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Campo 4", pasta_drive_id="p")
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "nivel", True)
+    repo.set_campo_validado(conn, obra_id, "Térreo", "pilar", "P1", "classificacao", True)
+    repo.set_campo_validado(conn, obra_id, "1_PAV", "laje", "L2", "laje_dim", True)
+    todos = repo.listar_campos_validados_por_obra(conn, obra_id)
+    assert len(todos) == 3
+    chaves = {(c["pavimento"], c["classe"], c["item_id"], c["field_id"]) for c in todos}
+    assert ("Térreo", "PILAR", "P1", "nivel") in chaves
+    assert ("1_PAV", "LAJE", "L2", "laje_dim") in chaves
+
+
+def test_listar_campos_validados_e_vazia_sem_dado(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Campo 5", pasta_drive_id="p")
+    assert repo.listar_campos_validados(conn, obra_id, "Térreo", "pilar", "P9") == []
+    assert repo.listar_campos_validados_por_obra(conn, obra_id) == []
