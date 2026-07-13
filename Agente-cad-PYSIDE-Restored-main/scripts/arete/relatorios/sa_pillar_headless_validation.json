@@ -1,0 +1,2187 @@
+{
+  "pack": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260711_184445",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "html": {
+    "n_html": 47,
+    "contorno_hits": 0,
+    "passa_esquina_hits": 0,
+    "chegada_hits": 46,
+    "items": [
+      {
+        "item": "P12",
+        "path": "pilares\\INDETERMINADO\\P12.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L310 Altura: 12 Nivel: 852.19",
+          "B — direita (leste) · face longa": "Laje: L311 Altura: 12 Nivel: 852.19",
+          "C — topo (norte) · face curta": "Laje: L310 Altura: 12 Nivel: 852.19",
+          "D — base (sul) · face curta": "Laje: L311 Altura: 12 Nivel: 852.19"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V314  ·  dim: 19/120  ·  corre ao longo da face A",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face A",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V314  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V314  ·  dim: 19/120  ·  corre ao longo da face B",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face B",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V314  ·  dim: 19/120  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V320  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V314  ·  dim: 19/120  ·  face C é limite interno; viga continua no eixo do pilar",
+          "Viga: V314  ·  dim: 19/120  ·  face D é limite interno; viga continua no eixo do pilar"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P13",
+        "path": "pilares\\INDETERMINADO\\P13.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L311 Altura: 12 Nivel: 852.19",
+          "B — direita (leste) · face longa": "Laje: L312 Altura: 13 Nivel: 852.19",
+          "C — topo (norte) · face curta": "Laje: L311 Altura: 12 Nivel: 852.19",
+          "D — base (sul) · face curta": "Laje: L312 Altura: 13 Nivel: 852.19"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V316  ·  dim: 19/120  ·  corre ao longo da face A",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V316  ·  dim: 19/120  ·  corre ao longo da face B",
+          "Viga: V302  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V318  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V316  ·  dim: 19/120  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V320  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V316  ·  dim: 19/120  ·  face C é limite interno; viga continua no eixo do pilar",
+          "Viga: V316  ·  dim: 19/120  ·  face D é limite interno; viga continua no eixo do pilar",
+          "Viga: V316  ·  dim: 19/120  ·  face C é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 120cm",
+          "Viga: V316  ·  dim: 19/120  ·  face D é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 120cm"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P14",
+        "path": "pilares\\INDETERMINADO\\P14.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L312 Altura: 13 Nivel: 852.19",
+          "B — direita (leste) · face longa": "Laje: L313 Altura: 13 Nivel: 852.19",
+          "C — topo (norte) · face curta": "Laje: L312 Altura: 13 Nivel: 852.19",
+          "D — base (sul) · face curta": "Laje: L313 Altura: 13 Nivel: 852.19"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V318  ·  dim: 19/120  ·  corre ao longo da face A",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face A",
+          "Viga: V302  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V318  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V318  ·  dim: 19/120  ·  corre ao longo da face B",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face B",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V318  ·  dim: 19/120  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V320  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V318  ·  dim: 19/120  ·  face C é limite interno; viga continua no eixo do pilar"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P15",
+        "path": "pilares\\INDETERMINADO\\P15.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L313 Altura: 13 Nivel: 852.19",
+          "B — direita (leste) · face longa": "Laje: L314 Altura: 12 Nivel: 852.12",
+          "C — topo (norte) · face curta": "nulo",
+          "D — base (sul) · face curta": "nulo"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V320  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face A",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V320  ·  dim: 19/55  ·  corre ao longo da face B",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face B",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V322  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V320  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V320  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar",
+          "Viga: V320  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V320  ·  dim: 19/55  ·  corre ao longo da face A → vazio topo = "
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P16",
+        "path": "pilares\\INDETERMINADO\\P16.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L314 Altura: 12 Nivel: 852.12",
+          "B — direita (leste) · face longa": "Laje: L315 Altura: 12 Nivel: 852.19",
+          "C — topo (norte) · face curta": "nulo",
+          "D — base (sul) · face curta": "nulo"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V322  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face A",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V325  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V322  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V322  ·  dim: 19/55  ·  corre ao longo da face B",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face B",
+          "Viga: V322  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V325  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V325  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V322  ·  dim: 19/55  ·  corre ao longo da face D"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P17",
+        "path": "pilares\\INDETERMINADO\\P17.html",
+        "faces": {
+          "A — base (sul) · face longa": "Laje: L318 Altura: 12 Nivel: 822.19",
+          "B — topo (norte) · face longa": "Laje: L315 Altura: 12 Nivel: 852.19 Laje: L316 Altura: 13 Nivel: 852.19",
+          "C — esquerda (oeste) · face curta": "nulo",
+          "D — direita (leste) · face curta": "nulo"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V322  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V325  ·  dim: 19/55  ·  corre ao longo da face B",
+          "Viga: V322  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar",
+          "Viga: V325  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar",
+          "Viga: V325  ·  dim: 19/50  ·  chega perpendicularmente na face D",
+          "Viga: V330  ·  dim: 19/55  ·  chega perpendicularmente na face D",
+          "Viga: V325  ·  dim: 19/55  ·  face D é limite interno; viga continua no eixo do pilar",
+          "Viga: V322  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V325  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V325  ·  dim: 19/55  ·  face D é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V322  ·  dim: 19/55  ·  corre ao longo da face A → vazio topo = ",
+          "Viga: V322  ·  dim: 19/55  ·  corre ao longo da face A"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P1",
+        "path": "pilares\\MORRE\\P1.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "nulo",
+          "B — direita (leste) · face longa": "Laje: L301 Altura: 12 Nivel: 852.12",
+          "C — topo (norte) · face curta": "nulo",
+          "D — base (sul) · face curta": "Laje: L301 Altura: 12 Nivel: 852.12"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face B",
+          "Viga: VF301  ·  dim: 14/50  ·  chega perpendicularmente na face B (nome ancorado no canto do pilar)",
+          "Viga: V309  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V309  ·  dim: 19/55  ·  face D é limite interno; viga continua no eixo do pilar",
+          "Viga: V309  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C → vazio topo = profundidade 55cm",
+          "Viga: V309  ·  dim: 19/55  ·  face D é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face A → vazio topo = ",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face B → vazio topo = ",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face B",
+          "Viga: VF301  ·  dim: 14/50  ·  chega perpendicularmente na face B (nome ancorado no canto do pilar)"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P2",
+        "path": "pilares\\MORRE\\P2.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L301 Altura: 12 Nivel: 852.12",
+          "B — direita (leste) · face longa": "Laje: L302 Altura: 12 Nivel: 852.12",
+          "C — topo (norte) · face curta": "Laje: L301 Altura: 12 Nivel: 852.12",
+          "D — base (sul) · face curta": "Laje: L302 Altura: 12 Nivel: 852.12"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V312  ·  dim: 14/50  ·  corre ao longo da face A",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face A",
+          "Viga: V312  ·  dim: 14/50  ·  corre ao longo da face B",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face B",
+          "Viga: V312  ·  dim: 14/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V312  ·  dim: 14/50  ·  face D é limite interno; viga continua no eixo do pilar",
+          "Viga: V312  ·  dim: 14/50  ·  vínculo simétrico A↔B para validação da face C → vazio topo = profundidade 50cm",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C → vazio topo = profundidade 50cm",
+          "Viga: V312  ·  dim: 14/50  ·  face D é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 50cm",
+          "Viga: V312  ·  dim: 14/50  ·  corre ao longo da face A → vazio topo = ",
+          "Viga: V312  ·  dim: 14/50  ·  corre ao longo da face A"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P3",
+        "path": "pilares\\MORRE\\P3.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L302 Altura: 12 Nivel: 852.12",
+          "B — direita (leste) · face longa": "Laje: L303 Altura: 12 Nivel: 845.19",
+          "C — topo (norte) · face curta": "Laje: L302 Altura: 12 Nivel: 852.12",
+          "D — base (sul) · face curta": "Laje: L303 Altura: 12 Nivel: 845.19"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V314  ·  dim: 19/120  ·  corre ao longo da face A",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face A",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V314  ·  dim: 19/120  ·  corre ao longo da face B",
+          "Viga: V301  ·  dim: 19/50  ·  chega perpendicularmente na face B",
+          "Viga: V314  ·  dim: 19/120  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V314  ·  dim: 19/120  ·  face D é limite interno; viga continua no eixo do pilar",
+          "Viga: V314  ·  dim: 19/120  ·  vínculo simétrico A↔B para validação da face C → vazio topo = profundidade 120cm",
+          "Viga: V301  ·  dim: 19/50  ·  vínculo simétrico A↔B para validação da face C → vazio topo = profundidade 50cm",
+          "Viga: V314  ·  dim: 19/120  ·  face D é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 120cm",
+          "Viga: V314  ·  dim: 19/120  ·  corre ao longo da face A → vazio topo = "
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P10",
+        "path": "pilares\\SEGUE\\P10.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "nulo",
+          "B — direita (leste) · face longa": "Laje: L319 Altura: 14 Nivel: 852.19",
+          "C — topo (norte) · face curta": "nulo",
+          "D — base (sul) · face curta": "Laje: L319 Altura: 14 Nivel: 852.19"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face B",
+          "Viga: V320  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V302  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V309  ·  dim: 19/55  ·  vínculo simétrico A↔B para validação da face C",
+          "Viga: V309  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar",
+          "Viga: V309  ·  dim: 19/55  ·  face D é limite interno; viga continua no eixo do pilar",
+          "Viga: V309  ·  dim: 19/55  ·  face C é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V309  ·  dim: 19/55  ·  face D é limite interno; viga continua no eixo do pilar → vazio topo = profundidade 55cm",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face A → vazio topo = ",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face A",
+          "Viga: V309  ·  dim: 19/55  ·  corre ao longo da face B → vazio topo = "
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P18",
+        "path": "pilares\\SEGUE\\P18.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "Laje: L318 Altura: 12 Nivel: 822.19",
+          "B — direita (leste) · face longa": "nulo",
+          "C — topo (norte) · face curta": "Laje: L318 Altura: 12 Nivel: 822.19",
+          "D — base (sul) · face curta": "nulo"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V329  ·  dim: 19/60  ·  corre ao longo da face A",
+          "Viga: V330  ·  dim: 14/40  ·  corre ao longo da face A",
+          "Viga: V331  ·  dim: 19/60  ·  chega perpendicularmente na face A",
+          "Viga: V325  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V330  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V329  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V329  ·  dim: 19/60  ·  corre ao longo da face B",
+          "Viga: V330  ·  dim: 14/40  ·  corre ao longo da face B",
+          "Viga: V331  ·  dim: 19/60  ·  chega perpendicularmente na face B",
+          "Viga: V325  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V332  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V329  ·  dim: 19/60  ·  chega perpendicularmente na face B"
+        ],
+        "has_contorno": false
+      },
+      {
+        "item": "P27",
+        "path": "pilares_especiais\\INDETERMINADO\\P27.html",
+        "faces": {
+          "A — esquerda (oeste) · face longa": "nulo",
+          "B — direita (leste) · face longa": "Laje: L318 Altura: 12 Nivel: 822.19",
+          "C — topo (norte) · face curta": "Laje: L318 Altura: 12 Nivel: 822.19",
+          "D — base (sul) · face curta": "nulo"
+        },
+        "modes": [
+          "CIMA — parafusos + grades em planta",
+          "ABCD — caso a viga PARE",
+          "ABCD — caso a viga PASSE",
+          "GRADES — caso a viga PARE",
+          "GRADES — caso a viga PASSE"
+        ],
+        "vigas_mentions": [
+          "Viga: V327  ·  dim: 14/50  ·  corre ao longo da face A",
+          "Viga: V305  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V324  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V331  ·  dim: 19/60  ·  chega perpendicularmente na face A",
+          "Viga: V325  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V326  ·  dim: 19/55  ·  chega perpendicularmente na face A",
+          "Viga: V327  ",
+          "Viga: V327  ·  dim: 14/50  ·  corre ao longo da face B",
+          "Viga: V331  ·  dim: 19/60  ·  chega perpendicularmente na face B",
+          "Viga: V325  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V332  ·  dim: 19/55  ·  chega perpendicularmente na face B",
+          "Viga: V330  ·  dim: 19/55  ·  chega perpendicularmente na face B"
+        ],
+        "has_contorno": false
+      }
+    ]
+  },
+  "enrich": {
+    "n_pillars": 46,
+    "n_with_face_beams": 46,
+    "n_passa_slots": 160,
+    "n_para_entries": 76,
+    "n_faces_with_both_corners": 16,
+    "corners": {
+      "DA": 41,
+      "AC": 32,
+      "BD": 33,
+      "CA": 36,
+      "BC": 8,
+      "CB": 4,
+      "AD": 4,
+      "DB": 2
+    },
+    "samples": [
+      {
+        "name": "P1",
+        "faces": {
+          "A": {
+            "esq": null,
+            "dir": null,
+            "para": [
+              {
+                "name": "V312",
+                "dim": "14/50",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": null,
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": null,
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V309A",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V320",
+                "dim": "19/55",
+                "corner": "DA"
+              },
+              {
+                "name": "V301",
+                "dim": "19/50",
+                "corner": "DA"
+              }
+            ],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [],
+        "viga_que_para": [
+          {
+            "name": "V309A",
+            "dim": "19/55"
+          },
+          {
+            "name": "V312",
+            "dim": "14/50"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L301",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "laje"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V309A",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P10",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V309A",
+              "dim": "19/55",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V310",
+                "dim": "19/55",
+                "corner": "AC"
+              },
+              {
+                "name": "V320",
+                "dim": "19/55",
+                "corner": "AC"
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V309A",
+              "dim": "19/55",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V309A",
+              "dim": "19/55",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V301",
+                "dim": "19/50",
+                "corner": "CA"
+              }
+            ],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V309A",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V309",
+                "dim": "19/55",
+                "corner": "DA"
+              }
+            ],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V309A",
+            "dim": "19/55"
+          },
+          {
+            "name": "V312",
+            "dim": "14/50"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V309",
+            "dim": "19/55"
+          },
+          {
+            "name": "V310",
+            "dim": "19/55"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L309",
+            "side": "NULO",
+            "face": "NULO",
+            "content_type": "laje"
+          },
+          {
+            "laje": "L319",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "both",
+            "viga": {
+              "name": "V309A",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "A",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V309A",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V309A",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V309",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P11",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V312",
+              "dim": "14/50",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V310",
+                "dim": "19/55",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V312",
+              "dim": "14/50",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V312",
+              "dim": "14/50",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V312",
+              "dim": "14/50",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V303",
+            "dim": "19/55"
+          },
+          {
+            "name": "V309A",
+            "dim": "19/55"
+          },
+          {
+            "name": "V312",
+            "dim": "14/50"
+          },
+          {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V310",
+            "dim": "19/55"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L309",
+            "side": "B",
+            "face": "CIMA",
+            "content_type": "both",
+            "viga": {
+              "name": "V312",
+              "dim": "14/50"
+            }
+          },
+          {
+            "laje": "L310",
+            "side": "B",
+            "face": "CIMA",
+            "content_type": "both",
+            "viga": {
+              "name": "V312",
+              "dim": "14/50"
+            }
+          },
+          {
+            "laje": "L318",
+            "side": "A",
+            "face": "BAIXO",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V303",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V312",
+              "dim": "14/50"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V312",
+              "dim": "14/50"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P12",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V314",
+              "dim": "19/120",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V314",
+              "dim": "19/120",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V314",
+              "dim": "19/120",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V314",
+              "dim": "19/120",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V312",
+            "dim": "14/50"
+          },
+          {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          {
+            "name": "V316",
+            "dim": "19/120"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [],
+        "lajes": [
+          {
+            "laje": "L310",
+            "side": "A",
+            "face": "ESQ",
+            "content_type": "both",
+            "viga": {
+              "name": "V312",
+              "dim": "14/50"
+            }
+          },
+          {
+            "laje": "L311",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "both",
+            "viga": {
+              "name": "V314",
+              "dim": "19/120"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V314",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V314",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P13",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V316",
+              "dim": "19/120",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V316",
+              "dim": "19/120",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V316",
+              "dim": "19/120",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V316",
+              "dim": "19/120",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          {
+            "name": "V316",
+            "dim": "19/120"
+          },
+          {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [],
+        "lajes": [
+          {
+            "laje": "L311",
+            "side": "A",
+            "face": "ESQ",
+            "content_type": "both",
+            "viga": {
+              "name": "V314",
+              "dim": "19/120"
+            }
+          },
+          {
+            "laje": "L312",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "both",
+            "viga": {
+              "name": "V316",
+              "dim": "19/120"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V316",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V316",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P14",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V318",
+              "dim": "19/120",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V318",
+              "dim": "19/120",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V318",
+              "dim": "19/120",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V318",
+              "dim": "19/120",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V316",
+            "dim": "19/120"
+          },
+          {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [],
+        "lajes": [
+          {
+            "laje": "L312",
+            "side": "A",
+            "face": "ESQ",
+            "content_type": "both",
+            "viga": {
+              "name": "V316",
+              "dim": "19/120"
+            }
+          },
+          {
+            "laje": "L313",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "both",
+            "viga": {
+              "name": "V318",
+              "dim": "19/120"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V318",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V318",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P15",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V320",
+              "dim": "19/55",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V322",
+                "dim": "19/55",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V320",
+              "dim": "19/55",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V320",
+              "dim": "19/55",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V320",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V304",
+            "dim": "19/55"
+          },
+          {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V322",
+            "dim": "19/55"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L313",
+            "side": "A",
+            "face": "ESQ",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V320",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": "L314",
+            "side": "B",
+            "face": "DIR",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V320",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V320",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V320",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P16",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V320",
+                "dim": "19/55",
+                "corner": "AC"
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V325",
+                "dim": "19/55",
+                "corner": "BD"
+              }
+            ],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V304",
+            "dim": "19/55"
+          },
+          {
+            "name": "V322",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V325",
+            "dim": "19/55"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L314",
+            "side": "A",
+            "face": "ESQ",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": "L315",
+            "side": "B",
+            "face": "DIR",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P17",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V322",
+                "dim": "19/55",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V330",
+                "dim": "14/40",
+                "corner": "DA"
+              }
+            ],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V304",
+            "dim": "19/55"
+          },
+          {
+            "name": "V325",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V322",
+            "dim": "19/55"
+          },
+          {
+            "name": "V330",
+            "dim": "14/40"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L315",
+            "side": "B",
+            "face": "CIMA",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": "L316",
+            "side": "B",
+            "face": "CIMA",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": "L318",
+            "side": "A",
+            "face": "BAIXO",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "both",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P18",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V330",
+                "dim": "14/40",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "BD"
+            },
+            "dir": {
+              "name": "V332",
+              "dim": "14/40",
+              "corner": "BC"
+            },
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "CA"
+            },
+            "dir": {
+              "name": "V331",
+              "dim": "19/60",
+              "corner": "CB"
+            },
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V304",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V329",
+                "dim": "19/60",
+                "corner": "DA"
+              }
+            ],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V304",
+            "dim": "19/55"
+          },
+          {
+            "name": "V325",
+            "dim": "19/55"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V329",
+            "dim": "19/60"
+          },
+          {
+            "name": "V331",
+            "dim": "19/60"
+          },
+          {
+            "name": "V332",
+            "dim": "14/40"
+          },
+          {
+            "name": "V330",
+            "dim": "14/40"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L316",
+            "side": "NULO",
+            "face": "NULO",
+            "content_type": "laje"
+          },
+          {
+            "laje": "L317",
+            "side": "NULO",
+            "face": "NULO",
+            "content_type": "laje"
+          },
+          {
+            "laje": "L318",
+            "side": "A",
+            "face": "ESQ",
+            "content_type": "both",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "B",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "C",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V304",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P2",
+        "faces": {
+          "A": {
+            "esq": null,
+            "dir": null,
+            "para": [
+              {
+                "name": "V309A",
+                "dim": "19/55",
+                "corner": null
+              },
+              {
+                "name": "V314",
+                "dim": "19/120",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": null,
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": null,
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V312",
+              "dim": "14/50",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V309A",
+            "dim": "19/55"
+          },
+          {
+            "name": "V312",
+            "dim": "14/50"
+          },
+          {
+            "name": "V314",
+            "dim": "19/120"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L301",
+            "side": "A",
+            "face": "ESQ",
+            "content_type": "laje"
+          },
+          {
+            "laje": "L302",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "laje"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V312",
+              "dim": "14/50"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P27",
+        "faces": {
+          "A": {
+            "esq": {
+              "name": "V305",
+              "dim": "19/55",
+              "corner": "AC"
+            },
+            "dir": null,
+            "para": [
+              {
+                "name": "V304",
+                "dim": "19/55",
+                "corner": null
+              },
+              {
+                "name": "V324",
+                "dim": "19/55",
+                "corner": "AC"
+              },
+              {
+                "name": "V327",
+                "dim": "14/50",
+                "corner": "AC"
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": {
+              "name": "V305",
+              "dim": "19/55",
+              "corner": "BD"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": {
+              "name": "V305",
+              "dim": "19/55",
+              "corner": "CA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V305",
+              "dim": "19/55",
+              "corner": "DA"
+            },
+            "dir": {
+              "name": "V328",
+              "dim": "19/55",
+              "corner": "DB"
+            },
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V325",
+            "dim": "19/55"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V304",
+            "dim": "19/55"
+          },
+          {
+            "name": "V305",
+            "dim": "19/55"
+          },
+          {
+            "name": "V324",
+            "dim": "19/55"
+          },
+          {
+            "name": "V327",
+            "dim": "14/50"
+          },
+          {
+            "name": "V328",
+            "dim": "19/55"
+          },
+          {
+            "name": "V329",
+            "dim": "19/60"
+          },
+          {
+            "name": "V331",
+            "dim": "19/60"
+          },
+          {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L318",
+            "side": "C",
+            "face": "CIMA",
+            "source": "canonical_geometry_adjacency",
+            "content_type": "viga",
+            "viga": {
+              "name": "V305",
+              "dim": "19/55"
+            }
+          },
+          {
+            "laje": null,
+            "side": "A",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V305",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "B",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V305",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V305",
+              "dim": "19/55"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      },
+      {
+        "name": "P3",
+        "faces": {
+          "A": {
+            "esq": null,
+            "dir": null,
+            "para": [
+              {
+                "name": "V312",
+                "dim": "14/50",
+                "corner": null
+              },
+              {
+                "name": "V316",
+                "dim": "19/120",
+                "corner": null
+              }
+            ],
+            "corners": [
+              "AC",
+              "AD"
+            ]
+          },
+          "B": {
+            "esq": null,
+            "dir": null,
+            "para": [],
+            "corners": [
+              "BD",
+              "BC"
+            ]
+          },
+          "C": {
+            "esq": null,
+            "dir": null,
+            "para": [],
+            "corners": [
+              "CA",
+              "CB"
+            ]
+          },
+          "D": {
+            "esq": {
+              "name": "V314",
+              "dim": "19/120",
+              "corner": "DA"
+            },
+            "dir": null,
+            "para": [],
+            "corners": [
+              "DA",
+              "DB"
+            ]
+          }
+        },
+        "viga_que_passa": [
+          {
+            "name": "V320",
+            "dim": "19/55"
+          },
+          {
+            "name": "V301",
+            "dim": "19/50"
+          }
+        ],
+        "viga_que_para": [
+          {
+            "name": "V312",
+            "dim": "14/50"
+          },
+          {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          {
+            "name": "V316",
+            "dim": "19/120"
+          }
+        ],
+        "lajes": [
+          {
+            "laje": "L302",
+            "side": "A",
+            "face": "ESQ",
+            "content_type": "laje"
+          },
+          {
+            "laje": "L303",
+            "side": "B",
+            "face": "DIR",
+            "content_type": "laje"
+          },
+          {
+            "laje": null,
+            "side": "D",
+            "face": "VIGA",
+            "content_type": "viga",
+            "viga": {
+              "name": "V314",
+              "dim": "19/120"
+            },
+            "source": "beam_wall_alignment"
+          }
+        ]
+      }
+    ]
+  },
+  "ok_html": false,
+  "ok_enrich": true
+}

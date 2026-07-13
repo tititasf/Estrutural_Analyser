@@ -3,10 +3,24 @@ from pathlib import Path
 from scripts.arete import diagnostico_fv_n1_n2, diagnostico_laj_n1_n2
 from scripts.arete.headless_sa_analise import (
     _attach_lv_generation_contracts,
+    _filter_fv_results_for_items,
     _publish_arete_manifest,
     _run_fv_diagnostic_postprocess,
     _run_section_diagnostics,
 )
+
+
+def test_fv_n3_item_filter_keeps_only_requested_beams():
+    results = [
+        {"viga_nome": "V309.C"},
+        {"viga_nome": "V320.C"},
+        {"viga_nome": "VF202.C"},
+    ]
+
+    filtered = _filter_fv_results_for_items(results, {"V309", "VF202"})
+
+    assert [item["viga_nome"] for item in filtered] == ["V309.C", "VF202.C"]
+    assert _filter_fv_results_for_items(results, None) == results
 
 
 def test_headless_attaches_v327_generation_contract_for_sa_db():

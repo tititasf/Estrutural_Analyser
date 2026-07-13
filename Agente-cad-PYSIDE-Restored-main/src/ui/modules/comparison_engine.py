@@ -3592,7 +3592,9 @@ class LevelColumn(QFrame):
     FICHA_VIEWER_MIN_HEIGHT = 104  # 80px * 1.30
     SINGLE_VIEWER_SIZES = (683, 618)   # 525/475 * 1.30
     SINGLE_VIEWER_STRETCH = (21, 19)
-    COMPARE_OUTER_STRETCH = (27, 61)   # 21/47 * 1.30
+    # No fluxo N2/N4, o recorte humano ocupa 25% menos altura que antes;
+    # o ganho fica com o painel N4/ficha para leitura do robô.
+    COMPARE_OUTER_STRETCH = (20, 68)
     COMPARE_INNER_STRETCH = (27, 34)   # 21/26 * 1.30
 
     def __init__(self, nivel_id: str, titulo: str, bg_color: str,
@@ -4141,6 +4143,49 @@ class LevelColumn(QFrame):
             self._lv_panel_cfg = None
         self._splitter_vf.setVisible(True)  # garante visibilidade (idempotente)
 
+    def _clear_segment_checklist(self):
+        w = getattr(self, '_segment_checklist_widget', None)
+        if w is not None:
+            w.setParent(None)
+            w.deleteLater()
+            self._segment_checklist_widget = None
+
+    def append_segment_checklist(self, entries: list, on_toggle):
+        """Checklist de validação individual por segmento (FV/LV) — adicionado
+        AO FIM da ficha já renderizada (`set_ficha`/`set_lv_ficha`), sem
+        alterar a renderização existente. `entries` = [(label, prefix, idx,
+        checked)]. `on_toggle(prefix, idx, checked)` grava a mudança.
+        Masterplan OBRAS DRIVE Fase 14."""
+        self._clear_segment_checklist()
+        if not entries:
+            return
+        box = QFrame()
+        box.setStyleSheet(
+            f"QFrame {{ background: rgba(255,255,255,4); border: 1px solid "
+            f"{Colors.BORDER_DEFAULT}; border-radius: 4px; margin-top: 6px; }}"
+        )
+        vlay = QVBoxLayout(box)
+        vlay.setContentsMargins(8, 6, 8, 6)
+        vlay.setSpacing(3)
+        title = QLabel("VALIDAÇÃO POR SEGMENTO")
+        title.setStyleSheet(
+            f"color: {self._ficha_accent}; font-size: 10px; font-weight: bold; "
+            "letter-spacing: 0.5px;"
+        )
+        vlay.addWidget(title)
+        for label, prefix, idx, checked in entries:
+            chk = QCheckBox(label)
+            chk.setChecked(bool(checked))
+            chk.setStyleSheet(
+                f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; padding: 2px 0;"
+            )
+            chk.toggled.connect(
+                lambda state, p=prefix, i=idx: on_toggle(p, i, state)
+            )
+            vlay.addWidget(chk)
+        self._ficha_vlay.addWidget(box)
+        self._segment_checklist_widget = box
+
     def set_processing(self, active: bool):
         self.prog.setVisible(active)
         if active:
@@ -4204,7 +4249,9 @@ class LevelColumn(QFrame):
                 pv.addWidget(zone_hdr)
 
                 view = DXFVectorView(bg=Colors.BG_DEEP)
-                view.setMinimumHeight(135)  # 180px * 0.75
+                # Corte, Face A e Face B têm leitura fina de sarrafos/cotas:
+                # dobrar o espaço vertical mínimo em relação ao layout anterior.
+                view.setMinimumHeight(270)
                 pv.addWidget(view, self.SINGLE_VIEWER_STRETCH[0])
 
                 tbl = QTableWidget(0, 2)
@@ -4427,7 +4474,11 @@ class LevelColumn(QFrame):
         )
         pv.addWidget(hdr)
         n2_view = DXFVectorView(bg=Colors.BG_DEEP)
-        n2_view.setMinimumHeight(self.img_widget.minimumHeight())
+        # N2 é referência contextual no topo do N4; mantém 75% da altura
+        # anterior para liberar 25% ao viewer/ficha do robô abaixo.
+        n2_view.setMinimumHeight(
+            max(1, round(self.img_widget.minimumHeight() * 0.75))
+        )
         n2_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         pv.addWidget(n2_view, 1)
         n2_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
@@ -10775,6 +10826,8 @@ class ComparisonEngineModule(QWidget):
                 self.nav_sidebar.set_status(f"✅ N3 ok — {item_id}", Colors.ACCENT_SUCCESS)
                 self._refresh_n3_compare_n4_if_active(classe, item_id)
                 self.nav_sidebar._enable_item_btns()
+                if classe in ("LV", "FV"):
+                    self._append_segment_checklist_safe(col, classe, item_id)
             else:
                 if classe == 'LV':
                     n3_ficha = self._build_n3_lv_er_ficha(item_id)
@@ -10795,6 +10848,86 @@ class ComparisonEngineModule(QWidget):
                 self.nav_sidebar._enable_item_btns()
             except Exception:
                 pass
+
+    # ── Validação por segmento na ficha N3 (Fase 14) ────────────────────
+    # Checklist ADITIVO no fim da ficha já renderizada — não altera
+    # set_ficha/set_lv_ficha/switch_to_lv_zones. Compartilha o MESMO dado
+    # persistido no beam (`validated_segments`) usado pelo SA e pelo sync
+    # web→app; qualquer um dos 3 lugares reflete no mesmo selo verde.
+
+    def _append_segment_checklist_safe(self, col, classe: str, item_id: str):
+        try:
+            obra_local = (self.fase8_panel.cmb_obra.currentData()
+                          or self.fase8_panel.cmb_obra.currentText())
+            entries = self._segment_checklist_entries_for(classe, item_id, obra_local)
+            col.append_segment_checklist(
+                entries,
+                lambda prefix, idx, checked, c=classe, iid=item_id, ob=obra_local:
+                    self._on_segment_check_toggled(c, iid, ob, prefix, idx, checked),
+            )
+        except Exception as exc:
+            _ce_log(f"[CE] checklist de segmento falhou {classe}/{item_id}: {exc}")
+
+    def _segment_beam_name_and_prefixes(self, classe: str, item_id: str):
+        """(beam_name, [(prefix, behavior_ou_None), ...]) a partir do item_id
+        do CE — LV: 'V101_Para'/'V101_Passa' (ambos os lados A/B, filtrados
+        pelo comportamento); FV: 'V101' direto (viga_fundo, sem behavior)."""
+        if classe == "FV":
+            return str(item_id), [("viga_fundo", None)]
+        base = _pil_strip_pp(item_id)  # 'V101_Para' -> 'V101' (reusa helper LV já existente)
+        behavior = _pil_pp_from_id(item_id) or "para"
+        return base, [("viga_a", behavior), ("viga_b", behavior)]
+
+    def _segment_checklist_entries_for(self, classe: str, item_id: str, obra_local: str) -> list:
+        from src.core.database import DatabaseManager
+        from src.core.beam_segment_validation import segments_for_behavior, existing_segment_indices, segment_key
+
+        beam_name, prefixes = self._segment_beam_name_and_prefixes(classe, item_id)
+        project_id = self.tri_level._project_id_for_obra_pav(obra_local)
+        if not project_id:
+            return []
+        db = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
+        beam = next(
+            (b for b in (db.load_beams(project_id) or [])
+             if str(b.get("name") or "").strip().upper() == beam_name.upper()),
+            None,
+        )
+        if not beam:
+            return []
+        segs = beam.get("validated_segments") or {}
+        entries = []
+        for prefix, behavior in prefixes:
+            indices = (
+                segments_for_behavior(beam, prefix, behavior) if behavior
+                else existing_segment_indices(beam, prefix)
+            )
+            lado = {"viga_a": "A", "viga_b": "B", "viga_fundo": "Fundo"}.get(prefix, prefix)
+            for idx in sorted(indices):
+                key = segment_key(prefix, idx)
+                entries.append((f"Lado {lado} · Segmento {idx}", prefix, idx, bool(segs.get(key))))
+        return entries
+
+    def _on_segment_check_toggled(self, classe: str, item_id: str, obra_local: str,
+                                   prefix: str, idx: int, checked: bool):
+        from src.core.database import DatabaseManager
+        from src.core.beam_segment_validation import segment_key, cascade_segments_to_item
+
+        beam_name, _ = self._segment_beam_name_and_prefixes(classe, item_id)
+        project_id = self.tri_level._project_id_for_obra_pav(obra_local)
+        if not project_id:
+            return
+        db = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
+        beam = next(
+            (b for b in (db.load_beams(project_id) or [])
+             if str(b.get("name") or "").strip().upper() == beam_name.upper()),
+            None,
+        )
+        if not beam:
+            return
+        segs = beam.setdefault("validated_segments", {})
+        segs[segment_key(prefix, idx)] = bool(checked)
+        cascade_segments_to_item(beam)
+        db.save_beam(beam, project_id)
 
     def _start_n3_generation(
         self,

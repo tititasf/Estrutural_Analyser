@@ -94,6 +94,34 @@ def test_existing_validated_inference_is_pruned_but_validated_human_link_is_pres
     assert linked[0]["source"] == "human_ui"
 
 
+def test_existing_inferred_pillar_without_face_is_pruned_but_human_is_preserved():
+    window = _window([])
+    target = _slab()
+    target["links"] = {
+        "laje_pilares_apoio": {
+            "pillar_geom": [
+                {
+                    "points": [[190, 20], [210, 20], [210, 70], [190, 70], [190, 20]],
+                    "is_inferred": True,
+                    "validated": True,
+                    "ficha": {"pillar_name": "P1", "pillar_side": "NULO", "touch_face": "NULO"},
+                },
+                {
+                    "points": [[190, 20], [210, 20], [210, 70], [190, 70], [190, 20]],
+                    "validated": True,
+                    "source": "human_ui",
+                },
+            ]
+        }
+    }
+
+    window._auto_link_slab_cut_views([target])
+
+    linked = target["links"]["laje_pilares_apoio"]["pillar_geom"]
+    assert len(linked) == 1
+    assert linked[0]["source"] == "human_ui"
+
+
 def test_prune_neighbor_level_removes_stale_inference_even_when_slab_is_sealed():
     window = MainWindow.__new__(MainWindow)
     source = {

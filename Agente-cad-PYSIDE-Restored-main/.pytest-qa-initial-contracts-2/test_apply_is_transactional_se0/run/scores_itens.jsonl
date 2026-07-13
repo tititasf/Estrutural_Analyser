@@ -1,0 +1,1 @@
+{"achados": ["LAJ-NEIGHBOR-LEVEL-CONTAMINATION"], "campos_incerto": ["laje_outline_segs", "laje_pilares_apoio"], "campos_revisados": 8, "classe": "LAJ", "decisoes": {"CONFIRMAR": 5, "N/A_CONFIRMADO": 1, "PENDENTE": 1, "REVISAR_HUMANO": 1}, "faixa": "media", "item": "L2", "item_original": "L2", "perguntas": ["qaev-q-d390fa4ced316a2b"], "score_confianca": 77.4}

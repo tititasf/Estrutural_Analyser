@@ -7,7 +7,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / 'scripts' / 'arete'))
 
-from single_instance import acquire_lock, release_lock, wait_for_lock  # noqa: E402
+from single_instance import acquire_lock, refresh_lock, release_lock, wait_for_lock  # noqa: E402
 
 
 def test_wait_adquire_quando_liberar(tmp_path):
@@ -58,6 +58,26 @@ def test_liberacao_permite_nova_aquisicao(tmp_path):
     release_lock(h2)
 
 
+def test_refresh_preserva_inicio_e_publica_heartbeat(tmp_path):
+    h1, _ = acquire_lock('t_heartbeat', tmp_path)
+    assert h1 is not None
+    refresh_lock(h1, event='unit_test')
+    h2, holder = acquire_lock('t_heartbeat', tmp_path)
+    assert h2 is None
+    assert 'pid=' in (holder or '')
+    assert 'inicio=' in (holder or '')
+    assert 'heartbeat=' in (holder or '')
+    assert 'event=unit_test' in (holder or '')
+    release_lock(h1)
+
+
+def test_liberacao_eh_idempotente(tmp_path):
+    handle, _ = acquire_lock('t_idempotent_release', tmp_path)
+    assert handle is not None
+    release_lock(handle)
+    release_lock(handle)  # atexit pode executar depois da liberação normal
+
+
 def test_lock_sobrevive_entre_processos(tmp_path):
     """Prova real inter-processo: subprocesso segura a trava; pai não consegue."""
     code = (
@@ -77,6 +97,6 @@ def test_lock_sobrevive_entre_processos(tmp_path):
         proc.kill()
         proc.wait()
     # Após a morte do subprocesso, o SO libera a trava sozinho (anti-órfão)
-    h2, err2 = acquire_lock('t_lock3', tmp_path)
+    h2, err2 = wait_for_lock('t_lock3', tmp_path, poll_s=0.05, timeout_s=2.0)
     assert h2 is not None and err2 is None
     release_lock(h2)

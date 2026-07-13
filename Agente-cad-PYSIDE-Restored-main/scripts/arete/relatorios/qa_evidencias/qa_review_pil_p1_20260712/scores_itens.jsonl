@@ -1,0 +1,1 @@
+{"achados": [], "campos_incerto": ["connections", "dim", "name", "p_sB_l1_n", "p_sC_l1_n", "p_sD_l1_n", "p_sD_v_ch1_d", "p_sD_v_ch1_n", "pilar_segs"], "campos_revisados": 9, "classe": "PIL", "decisoes": {"PENDENTE": 9}, "faixa": "baixa", "item": "P1", "item_original": "P1", "perguntas": ["qaev-q-a1cdd49f0233cd96"], "score_confianca": 33.1}

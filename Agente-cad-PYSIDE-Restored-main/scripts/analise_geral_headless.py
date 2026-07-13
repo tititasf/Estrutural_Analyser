@@ -240,8 +240,40 @@ def _snap_chamfer_length(value: float | None) -> float | None:
     return None
 
 
-def _has_declared_chamfer(chamfers: dict[str, str]) -> bool:
-    return any(str(value or "").upper() != "N/A" for value in chamfers.values())
+def _has_declared_chamfer(
+    chamfers: dict[str, str],
+    *,
+    structural_width: float | None = None,
+) -> bool:
+    """Aceita recuos de chanfro compatíveis com a seção do próprio fundo.
+
+    A derivação geométrica pode enxergar uma face quebrada ou uma associação
+    vizinha como dois ``cantos`` ausentes. Isso não é chanfro: valores enormes
+    fariam o comprimento ser congelado por ``chamfer_half_cm_snap`` e
+    esconderiam a perda de um trecho inteiro. Chanfros simples de término são
+    locais; geometrias diagonais longas seguem o caminho explícito
+    ``special_diagonal`` do interpretador.
+    """
+    values: list[float] = []
+    for raw in (chamfers or {}).values():
+        text = str(raw or "").strip().upper()
+        if not text or text == "N/A":
+            continue
+        try:
+            value = float(text.replace(",", "."))
+        except ValueError:
+            return False
+        if value <= 0.05:
+            continue
+        values.append(value)
+    if not values:
+        return False
+    try:
+        width = float(structural_width or 0.0)
+    except (TypeError, ValueError):
+        width = 0.0
+    max_local_recess = max(40.0, width * 2.0)
+    return all(value <= max_local_recess + 0.05 for value in values)
 
 
 def _derive_fundo_chamfers(
@@ -308,6 +340,7 @@ def _fundo_segment_contour(
         return []
     axis = 0 if is_horizontal else 1
     transverse_axis = 1 - axis
+    span_length = span_max - span_min
     matching_lines: list[list[tuple[float, float]]] = []
     for line in raw_lines or []:
         clean = []
@@ -320,7 +353,15 @@ def _fundo_segment_contour(
             continue
         line_min = min(point[axis] for point in clean)
         line_max = max(point[axis] for point in clean)
-        if min(line_max, span_max) - max(line_min, span_min) > 0.0:
+        overlap = min(line_max, span_max) - max(line_min, span_min)
+        line_span = line_max - line_min
+        # Face de fundo é paralela ao eixo do segmento. Caps e linhas
+        # perpendiculares podem tocar o vão, mas não definem a posição lateral
+        # da área. Exigir cobertura proporcional evita escolher vizinhos.
+        if (
+            overlap > 0.0
+            and line_span >= max(0.05, span_length * 0.20)
+        ):
             matching_lines.append(clean)
     if matching_lines:
         transverse_values = [
@@ -332,6 +373,70 @@ def _fundo_segment_contour(
     else:
         center = float(beam_pos[transverse_axis])
     from src.core.beam_interpreters.fundo_viga import FundoVigaInterpreter
+
+    # Quando o tracer já aceitou um vão contínuo, uma face pode aparecer em
+    # pedaços colineares por cruzar um pilar NASCE. Reconstituir o par de faces
+    # paralelas pelo eixo transversal evita o polígono diagonal/torto; linhas
+    # diagonais (chanfros) ficam fora desta regra e seguem o interpretador.
+    face_positions: list[float] = []
+    for line in matching_lines:
+        transverse = [point[transverse_axis] for point in line]
+        if max(transverse) - min(transverse) <= 0.05:
+            position = sum(transverse) / len(transverse)
+            if not any(abs(position - known) <= 0.05 for known in face_positions):
+                face_positions.append(position)
+    face_positions.sort()
+    if len(face_positions) >= 2:
+        expected_width = abs(float(width))
+        pair = min(
+            (
+                (abs(right - left - expected_width), left, right)
+                for index, left in enumerate(face_positions)
+                for right in face_positions[index + 1:]
+            ),
+            default=None,
+        )
+        if pair and pair[0] <= max(0.05, expected_width * 0.15):
+            _error, low_face, high_face = pair
+            if is_horizontal:
+                rectangle = [
+                    (span_min, low_face), (span_max, low_face),
+                    (span_max, high_face), (span_min, high_face),
+                ]
+            else:
+                rectangle = [
+                    (low_face, span_min), (low_face, span_max),
+                    (high_face, span_max), (high_face, span_min),
+                ]
+            return rectangle + [rectangle[0]]
+
+    # Uma única face longitudinal ainda é evidência física suficiente para a
+    # largura conhecida da seção. Não a trate como eixo/centro: o rótulo da
+    # viga indica de qual lado a segunda face deve ficar. Isso recompõe a área
+    # inteira do vão N1 quando a face oposta foi quebrada por encontro/cap,
+    # sem transformar um caso realmente diagonal em retângulo.
+    has_diagonal_evidence = any(
+        (max(point[axis] for point in line) - min(point[axis] for point in line)) > 0.05
+        and (max(point[transverse_axis] for point in line) - min(point[transverse_axis] for point in line))
+        > max(0.05, abs(float(width)) * 0.10)
+        for line in matching_lines
+        if line
+    )
+    if len(face_positions) == 1 and not has_diagonal_evidence:
+        face = face_positions[0]
+        label_transverse = float(beam_pos[transverse_axis])
+        center = (
+            face - abs(float(width)) / 2.0
+            if label_transverse <= face
+            else face + abs(float(width)) / 2.0
+        )
+        return FundoVigaInterpreter.build_area_contour(
+            axial_span=(span_min, span_max),
+            width=width,
+            is_horizontal=is_horizontal,
+            transverse_center=center,
+            boundary_lines=(),
+        )
 
     return FundoVigaInterpreter.build_area_contour(
         axial_span=(span_min, span_max),
@@ -350,12 +455,14 @@ def _format_measure(value: float) -> str:
 
 
 def _filter_fv_visual_obstacles(obstacles: list[dict] | None) -> list[dict]:
-    """FV ignora pilares NASCE: convenção visual, não sólido neste pavimento."""
-    return [
-        obstacle
-        for obstacle in (obstacles or [])
-        if str((obstacle or {}).get("type") or "").strip().upper() != "NASCE"
-    ]
+    """Mantém a marca NASCE para o tracer atravessar a lacuna corretamente."""
+    normalized = []
+    for obstacle in obstacles or []:
+        item = dict(obstacle or {})
+        if str(item.get("type") or "").strip().upper() == "NASCE":
+            item["type"] = "PILAR_NASCENTE"
+        normalized.append(item)
+    return normalized
 
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
@@ -596,7 +703,14 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         merged_coords = new_coords
         merged_lengths = new_lengths
 
-    is_horizontal = b.get('is_h', True)
+    # FV possui orientação própria por ocorrência. ``is_h`` é o contrato
+    # legado de LV e pode apontar para o eixo oposto em vigas verticais.
+    is_horizontal = bool(b.get('fv_is_h', b.get('is_h', True)))
+    contour_lines = (
+        list(seg_bottom_raw)
+        + list(classified.get('seg_side_a') or [])
+        + list(classified.get('seg_side_b') or [])
+    )
     dim_text = _parse_dim_text(dim_texts, beam_pos=beam_pos)
     h_n1 = _parse_h(dim_text)
     
@@ -611,13 +725,21 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 beam_pos,
                 bool(is_horizontal),
                 float(h_n1 or 20.0),
-                seg_bottom_raw,
+                contour_lines,
+            )
+            from src.core.beam_interpreters.fundo_viga import FundoVigaInterpreter
+            provenance = FundoVigaInterpreter.build_provenance(
+                contour=geometry,
+                boundary_lines=contour_lines,
+                is_horizontal=bool(is_horizontal),
+                segment_index=i + 1,
             )
             segmentos_fundo.append({
                 "seg_index": i + 1,
                 "length": merged_lengths[i],
                 "coord": coord,
                 "geometry": geometry,
+                "provenance": provenance,
                 "logical": True,
             })
     elif merged_groups:
@@ -691,18 +813,40 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
 
     for seg in segmentos_fundo:
         seg_len = seg.get("length")
+        canonical_span_length = None
+        _geometry_width = 0.0
         if seg_len is None and seg.get("coord"):
             try:
                 seg_len = abs(float(seg["coord"][1]) - float(seg["coord"][0]))
             except Exception:
                 seg_len = 0.0
+        if seg.get("coord"):
+            try:
+                candidate = abs(float(seg["coord"][1]) - float(seg["coord"][0]))
+                if candidate > 0.05:
+                    canonical_span_length = candidate
+            except Exception:
+                pass
+        explicit_special_measure = str(seg.get("measure_source") or "")
+        if canonical_span_length is not None and not explicit_special_measure.startswith(
+            "special_diagonal"
+        ):
+            # O intervalo consolidado do BeamTracer é a medida N1. Um bbox de
+            # contorno parcial não pode encurtá-lo; ele é só evidência de
+            # posição/forma a ser reparada, nunca substituto do vão.
+            seg_len = canonical_span_length
         if seg.get("geometry"):
             geometry_length, _geometry_width = _bbox_length_width(seg.get("geometry"))
-            if geometry_length > 0.05:
+            if geometry_length > 0.05 and canonical_span_length is None:
                 seg_len = geometry_length
         chamfers = _derive_fundo_chamfers(seg.get("geometry"), bool(is_horizontal))
         snapped_length = (
-            _snap_chamfer_length(seg_len) if _has_declared_chamfer(chamfers) else None
+            _snap_chamfer_length(seg_len)
+            if canonical_span_length is None and _has_declared_chamfer(
+                chamfers,
+                structural_width=_geometry_width,
+            )
+            else None
         )
         if snapped_length is not None:
             seg_len = snapped_length

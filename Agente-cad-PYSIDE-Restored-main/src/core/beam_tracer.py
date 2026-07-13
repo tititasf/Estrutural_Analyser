@@ -1,153 +1,3 @@
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
 import logging
 import re
 from typing import List, Dict, Tuple
@@ -287,6 +137,10 @@ class BeamTracer:
                 'texts': [],
                 'dimension_texts': [],
                 'geometry': {
+                    'texts': [],
+                    'dimension_texts': [],
+                    'support_candidates': [],
+                    'slab_candidates': [],
                     'classified': {
                         'seg_side_a': [],
                         'seg_side_b': [],
@@ -306,9 +160,35 @@ class BeamTracer:
             )
             
             seen_centers = set()
+            seen_sup = set()
+            seen_slab = set()
             for b in beam_list:
-                master_beam['texts'].extend(b['geometry']['texts'])
-                master_beam['dimension_texts'].extend(b['geometry']['dimension_texts'])
+                g = b.get('geometry') or {}
+                master_beam['texts'].extend(g.get('texts') or [])
+                master_beam['dimension_texts'].extend(g.get('dimension_texts') or [])
+                # Espelha no geometry para _process_beam_intelligent / populate
+                master_beam['geometry']['texts'].extend(g.get('texts') or [])
+                master_beam['geometry']['dimension_texts'].extend(
+                    g.get('dimension_texts') or []
+                )
+                for s in g.get('support_candidates') or []:
+                    key = (
+                        str(s.get('text') or s.get('name') or ''),
+                        round(float((s.get('pos') or (0, 0))[0]), 1),
+                        round(float((s.get('pos') or (0, 0))[1]), 1),
+                    )
+                    if key not in seen_sup:
+                        seen_sup.add(key)
+                        master_beam['geometry']['support_candidates'].append(s)
+                for s in g.get('slab_candidates') or []:
+                    key = (
+                        str(s.get('text') or s.get('name') or ''),
+                        round(float((s.get('pos') or (0, 0))[0]), 1),
+                        round(float((s.get('pos') or (0, 0))[1]), 1),
+                    )
+                    if key not in seen_slab:
+                        seen_slab.add(key)
+                        master_beam['geometry']['slab_candidates'].append(s)
                 
                 for seg in b['geometry']['classified']['seg_bottom']:
                     if seg:
@@ -870,6 +750,8 @@ class BeamTracer:
             'lines': raw_lines,
             'texts': [],
             'dimension_texts': [],
+            'support_candidates': [],
+            'slab_candidates': [],
             'classified': {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []}
         }
         
@@ -880,22 +762,69 @@ class BeamTracer:
         min_x, max_x = min(all_x), max(all_x)
         min_y, max_y = min(all_y), max(all_y)
         
-        search_box = (min_x-50, min_y-50, max_x+50, max_y+50)
+        # Caixa generosa: cotas, nível e rótulos P/L/h= ficam próximos da viga
+        # (400 cobre lajes laterais e seções H/B invertidas tipo 100/19).
+        search_box = (min_x - 400, min_y - 400, max_x + 400, max_y + 400)
         cands = self.spatial_index.query_bbox(search_box)
+        seen_support = set()
+        seen_slab = set()
         for c in cands:
-            if isinstance(c, dict) and 'text' in c:
-                if re.match(r'^\d+([.,]\d+)?$', c['text'].strip()):
-                    beam_geometry['dimension_texts'].append(c)
-                else:
-                    beam_geometry['texts'].append(c)
+            if not isinstance(c, dict):
+                continue
+            # Geometria de apoio (polylines com type pilar/pilar-like ou tags)
+            etype = str(c.get('type') or c.get('entity_type') or '').upper()
+            layer = str(c.get('layer') or '').upper()
+            pts = c.get('points')
+            if pts and len(pts) >= 2 and not c.get('text'):
+                # Candidato geométrico próximo (pilar contorno) — só se layer/tipo sugerir
+                if any(tok in layer for tok in ('PIL', 'PILA', 'COL', 'ESTR')) or 'PIL' in etype:
+                    key = ('geom', round(pts[0][0], 1), round(pts[0][1], 1), len(pts))
+                    if key not in seen_support:
+                        seen_support.add(key)
+                        beam_geometry['support_candidates'].append(dict(c, role='geometry'))
+                continue
+            if 'text' not in c:
+                continue
+            txt = str(c.get('text') or '').strip()
+            if not txt:
+                continue
+            # Dimensão numérica pura ou seção B/H
+            if re.fullmatch(r'\d+(?:[.,]\d+)?', txt):
+                beam_geometry['dimension_texts'].append(c)
+            elif re.fullmatch(r'\d+(?:[.,]\d+)?\s*[/xX]\s*\d+(?:[.,]\d+)?', txt):
+                beam_geometry['dimension_texts'].append(c)
+            else:
+                beam_geometry['texts'].append(c)
+            # Apoios: Pxx, VFxx, Vxx (textos de pilar/viga de apoio)
+            if re.match(r'^(?:P|VF|V)\d+[A-Za-z]?$', txt, re.I):
+                key = ('t', txt.upper(), round(float((c.get('pos') or (0, 0))[0]), 1),
+                       round(float((c.get('pos') or (0, 0))[1]), 1))
+                if key not in seen_support:
+                    seen_support.add(key)
+                    beam_geometry['support_candidates'].append(dict(c, name=txt, text=txt))
+            # Lajes: Lxx
+            if re.match(r'^L\d+[A-Za-z]?$', txt, re.I):
+                key = ('l', txt.upper(), round(float((c.get('pos') or (0, 0))[0]), 1),
+                       round(float((c.get('pos') or (0, 0))[1]), 1))
+                if key not in seen_slab:
+                    seen_slab.add(key)
+                    beam_geometry['slab_candidates'].append(dict(c, name=txt, text=txt))
                         
-        beam_geometry['classified'] = self._classify_lines(pos, raw_lines, is_h, label_pos=pos, visual_obstacles=visual_obstacles)
+        # Pilar NASCE é semântica exclusiva do fundo: ele atravessa a área FV,
+        # mas não pode alterar a leitura de laterais da mesma viga.
+        beam_geometry['classified'] = self._classify_lines(
+            pos, raw_lines, is_h, label_pos=pos, visual_obstacles=visual_obstacles,
+        )
+        lv_visual_obstacles = [
+            obstacle for obstacle in (visual_obstacles or [])
+            if str((obstacle or {}).get('type') or '').upper() != 'PILAR_NASCENTE'
+        ]
         lv_classified = self._classify_lines(
             pos,
             lv_raw_lines if lv_raw_lines is not None else raw_lines,
             is_h if lv_is_h is None else lv_is_h,
             label_pos=pos,
-            visual_obstacles=visual_obstacles,
+            visual_obstacles=lv_visual_obstacles,
         )
         beam_geometry['lv_dimension_text'] = self._nearest_beam_dimension(
             pos,
@@ -925,12 +854,13 @@ class BeamTracer:
         all_x = [point[0] for line in raw_lines for point in line]
         all_y = [point[1] for line in raw_lines for point in line]
         search_box = (
-            min(all_x) - 80,
-            min(all_y) - 80,
-            max(all_x) + 80,
-            max(all_y) + 80,
+            min(all_x) - 160,
+            min(all_y) - 160,
+            max(all_x) + 160,
+            max(all_y) + 160,
         )
-        candidates = []
+        preferred = []  # B/H com B <= H (contrato LV clássico)
+        fallback = []   # H/B (ex. 100/19 de viga larga / parede)
         for candidate in self.spatial_index.query_bbox(search_box):
             if not isinstance(candidate, dict) or 'text' not in candidate:
                 continue
@@ -941,9 +871,7 @@ class BeamTracer:
                 float(value.replace(',', '.'))
                 for value in re.findall(r'\d+(?:[.,]\d+)?', text)
             ]
-            # Convenção das vigas no estrutural: B/H. Cotas H/B próximas
-            # (ex.: 120/19) pertencem a pilares e não ao contrato LV.
-            if len(dimensions) < 2 or dimensions[0] > dimensions[1]:
+            if len(dimensions) < 2:
                 continue
             text_orientation = self._orientation_from_label(
                 candidate.get('rotation')
@@ -955,8 +883,14 @@ class BeamTracer:
                 (float(point[0]) - float(pos[0])) ** 2
                 + (float(point[1]) - float(pos[1])) ** 2
             )
-            candidates.append((distance, candidate))
-        return min(candidates, key=lambda item: item[0])[1] if candidates else None
+            # Preferir B/H; aceitar H/B só se bem perto do rótulo da viga
+            # (vigas largas tipo 100/19; cotas de pilar 120/19 ficam mais longe).
+            if dimensions[0] <= dimensions[1]:
+                preferred.append((distance, candidate))
+            elif distance <= (120.0 ** 2):
+                fallback.append((distance, candidate))
+        pool = preferred or fallback
+        return min(pool, key=lambda item: item[0])[1] if pool else None
 
     def _group_bottom_lengths_and_coords(self, segs: List[List[Tuple[float, float]]], is_h: bool) -> Tuple[List[float], List[Tuple[float, float]]]:
         # Merge collinear segments and return their lengths and coords
@@ -1171,6 +1105,45 @@ class BeamTracer:
             """Retorna larguras internas de cada grupo (modo painel)."""
             return [g[1] - g[0] for g in groups if g[1] - g[0] > min_width]
 
+        def _is_solid_pillar(obstacle):
+            """Somente pilar existente neste pavimento interrompe um FV."""
+            return str((obstacle or {}).get('type') or '').upper() == 'PILAR_SOLIDO'
+
+        def _is_nascent_gap(start, end):
+            """Verifica se uma lacuna axial pertence a um pilar que NASCE."""
+            gap_min, gap_max = min(start, end), max(start, end)
+            for obstacle in visual_obstacles or []:
+                if str((obstacle or {}).get('type') or '').upper() != 'PILAR_NASCENTE':
+                    continue
+                try:
+                    minx, miny, maxx, maxy = obstacle['bbox']
+                except (KeyError, TypeError, ValueError):
+                    continue
+                axis_min, axis_max = (minx, maxx) if is_horizontal else (miny, maxy)
+                trans_min, trans_max = (miny, maxy) if is_horizontal else (minx, maxx)
+                if (
+                    trans_min - 20.0 <= geo_center[1 if is_horizontal else 0] <= trans_max + 20.0
+                    and gap_min >= axis_min - 5.0
+                    and gap_max <= axis_max + 5.0
+                ):
+                    return True
+            return False
+
+        def _bridge_nascent_pillars(panels):
+            """Une painéis separados somente por um pilar NASCE."""
+            if len(panels) < 2:
+                return panels
+            bridged = []
+            current_min, current_max = panels[0]
+            for next_min, next_max in panels[1:]:
+                if next_min > current_max and _is_nascent_gap(current_max, next_min):
+                    current_max = max(current_max, next_max)
+                    continue
+                bridged.append((current_min, current_max))
+                current_min, current_max = next_min, next_max
+            bridged.append((current_min, current_max))
+            return bridged
+
         # --- APPLY VISUAL OBSTACLES ---
         def _apply_obstacles_to_panels(panels, obs_list):
             if not obs_list: return panels
@@ -1178,7 +1151,8 @@ class BeamTracer:
             for p_min, p_max in panels:
                 cuts = []
                 for obs in obs_list:
-                    if obs.get('type') == 'VISAO_CORTE': continue
+                    if not _is_solid_pillar(obs):
+                        continue
                     minx, miny, maxx, maxy = obs['bbox']
                     if is_horizontal:
                         if miny - 20 <= geo_center[1] <= maxy + 20:
@@ -1218,7 +1192,8 @@ class BeamTracer:
                 # Adicionar obstáculos como divisores extras antes de gerar spans
                 if visual_obstacles:
                     for obs in visual_obstacles:
-                        if obs.get('type') == 'VISAO_CORTE': continue
+                        if not _is_solid_pillar(obs):
+                            continue
                         minx, miny, maxx, maxy = obs['bbox']
                         if is_horizontal:
                             if miny - 20 <= geo_center[1] <= maxy + 20:
@@ -1263,10 +1238,13 @@ class BeamTracer:
                     ax_max,
                     split_support_gaps=True,
                 )
+                base_panels = _bridge_nascent_pillars(base_panels)
                 
                 div_pos = []
                 for d in divisor_items:
-                    div_pos.append((ax_min(d) + ax_max(d)) / 2.0)
+                    pos = (ax_min(d) + ax_max(d)) / 2.0
+                    if not _is_nascent_gap(pos - 0.05, pos + 0.05):
+                        div_pos.append(pos)
                 div_pos.sort()
                 
                 split_panels = []

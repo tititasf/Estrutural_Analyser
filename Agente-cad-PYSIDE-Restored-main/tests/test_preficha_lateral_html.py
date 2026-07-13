@@ -21,12 +21,7 @@ class _FakeDialog:
 
     def _find_beam_dxf(self, class_prefix, item_name, n4=False):
         assert class_prefix == "LV"
-        assert item_name in (
-            "V301",
-            "V301_CORTE",
-            "V301_VIEW_A",
-            "V301_VIEW_B",
-        )
+        assert item_name.startswith("V301")
         return f'{"n4" if n4 else "n3"}_{item_name}.dxf'
 
     def _find_n2_recorte_dxf(self, class_prefix, item_name):
@@ -250,12 +245,7 @@ def test_lateral_writer_splits_para_and_passa_without_mixing_segments(tmp_path: 
 def test_lateral_writer_includes_reverse_only_beam_in_persisted_list(tmp_path: Path):
     class _ReverseOnlyDialog(_FakeDialog):
         def _find_beam_dxf(self, class_prefix, item_name, n4=False):
-            assert item_name in (
-                "V13",
-                "V13_CORTE",
-                "V13_VIEW_A",
-                "V13_VIEW_B",
-            )
+            assert item_name.startswith("V13")
             return ""
 
         def _find_n2_recorte_dxf(self, class_prefix, item_name):
@@ -292,3 +282,35 @@ def test_lateral_writer_includes_reverse_only_beam_in_persisted_list(tmp_path: P
     assert "Lado A — 0 segmento(s)" in text
     assert "Lado B — 0 segmento(s)" in text
     assert "N2 V13" in text
+
+
+def test_lateral_writer_headless_item_filter_does_not_readd_all_reverse_beams(tmp_path: Path):
+    class _FilteredDialog(_FakeDialog):
+        _headless_item_names = {"V301"}
+
+    points = [(0, 0), (10, 0)]
+    rows_by_kind = {
+        "lateral_a_para": [_lateral_row("A", "Para", 1, points)],
+        "lateral_b_para": [_lateral_row("B", "Para", 1, points)],
+        "lateral_a_passa": [_lateral_row("A", "Passa", 1, points)],
+        "lateral_b_passa": [_lateral_row("B", "Passa", 1, points)],
+    }
+
+    write_lateral_pages(
+        dialog=_FilteredDialog(),
+        title="Laterais de Viga",
+        rows_by_kind=rows_by_kind,
+        output_dir=str(tmp_path),
+        page_css="",
+        javascript="",
+        photo_fn=lambda points: "",
+        metrics_fn=_segment_geometry_metrics,
+        classification_fn=lambda beam: "passa",
+        reverse_beams_fn=lambda: ["V13", "V301", "V302"],
+        zone_render_fn=_zone_renderer,
+    )
+
+    passa_dir = tmp_path / "laterais_viga" / "LV-PASSA"
+    assert (passa_dir / "V301-Passa.html").is_file()
+    assert not (passa_dir / "V13-Passa.html").exists()
+    assert not (passa_dir / "V302-Passa.html").exists()

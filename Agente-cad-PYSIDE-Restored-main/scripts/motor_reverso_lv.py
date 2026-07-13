@@ -1682,6 +1682,28 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         })
                 return result
 
+            def _edge_vertical_sarrafos(pair: dict) -> tuple[bool, bool]:
+                """Detecta sarrafos verticais nas extremidades físicas da face.
+
+                A presença é mantida por lado (esquerda/direita) para o N4;
+                não deve ser inferida apenas porque a face é sarrafeada.
+                """
+                xl = float(pair.get('x_left', 0.0))
+                xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot', 0.0))
+                yt = float(pair.get('y_top', 0.0))
+                height = max(yt - yb, 1.0)
+                candidates = [
+                    (x, syb, syt) for x, syb, syt in sarr_v
+                    if min(syt, yt) - max(syb, yb) >= height * 0.55
+                ]
+                # O par de sarrafos fica a 15/18.5 cm da borda no STOG;
+                # margem de 28 cm cobre as duas linhas sem capturar divisores.
+                return (
+                    any(xl + 4.0 <= x <= xl + 28.0 for x, _, _ in candidates),
+                    any(xr - 28.0 <= x <= xr - 4.0 for x, _, _ in candidates),
+                )
+
             relevant_labels = [
                 (lx, ly, txt, side) for lx, ly, txt, side in face_labels
                 if elem_prefix and elem_prefix in txt.strip().upper()
@@ -1737,6 +1759,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     segs_u = _propagate_laje(
                         _panel_segments(pair), ls_u, li_u, pair)
                     h_total = _local_total_height(pair, segs_u, h_total)
+                    sarrafo_left, sarrafo_right = _edge_vertical_sarrafos(pair)
                     unit = {
                         'label': txt.strip() if is_named_anchor else '',
                         'side': side,
@@ -1759,6 +1782,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         'laje_inf': li_u,
                         'pontaletes_face': _pontaletes_for_pair(pair),
                         'grade_layer_style': _grade_layer_style(pair, segs_u),
+                        'sarrafo_vertical_esquerdo': sarrafo_left,
+                        'sarrafo_vertical_direito': sarrafo_right,
                         'segments_count': len(segs_u),
                         'panels': segs_u,
                         'raw_holes': _raw_holes_face(pair),

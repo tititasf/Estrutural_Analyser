@@ -1,0 +1,3 @@
+{"achados": [], "campos_incerto": ["connections"], "campos_revisados": 9, "classe": "PIL", "decisoes": {"CONFIRMAR": 8, "PENDENTE": 1}, "faixa": "baixa", "item": "P1", "item_original": "P1", "perguntas": [], "score_confianca": 64.2}
+{"achados": [], "campos_incerto": ["connections"], "campos_revisados": 10, "classe": "PIL", "decisoes": {"CONFIRMAR": 9, "PENDENTE": 1}, "faixa": "baixa", "item": "P3", "item_original": "P3", "perguntas": [], "score_confianca": 64.8}
+{"achados": [], "campos_incerto": ["connections"], "campos_revisados": 10, "classe": "PIL", "decisoes": {"CONFIRMAR": 9, "PENDENTE": 1}, "faixa": "baixa", "item": "P35", "item_original": "P35", "perguntas": [], "score_confianca": 64.8}

@@ -1,0 +1,1 @@
+{"achados": ["LAJ-CUT-CALC-INCONSISTENT"], "campos_incerto": ["laje_visao_corte"], "campos_revisados": 8, "classe": "LAJ", "decisoes": {"CONFIRMAR": 7, "REVISAR_HUMANO": 1}, "faixa": "media", "item": "L318", "item_original": "L318", "perguntas": ["qaev-q-dc12c88484ab07d0"], "score_confianca": 88.4}

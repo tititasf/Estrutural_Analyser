@@ -153,6 +153,48 @@ def _preserve_geometry_root(old: dict, result: dict, kind: str) -> None:
             result.pop(key, None)
 
 
+def _cut_signature(link: dict) -> tuple | None:
+    """Assinatura geométrica estável para atualizar ficha sem trocar o corte humano."""
+    points = link.get("points") or []
+    try:
+        xs = [float(point[0]) for point in points]
+        ys = [float(point[1]) for point in points]
+    except (TypeError, ValueError, IndexError):
+        return None
+    if not xs or not ys:
+        return None
+    return (
+        round((min(xs) + max(xs)) / 2.0, 1),
+        round((min(ys) + max(ys)) / 2.0, 1),
+        round(max(xs) - min(xs), 1),
+        round(max(ys) - min(ys), 1),
+    )
+
+
+def _refresh_inferred_laj_cut_fichas(old: dict, fresh: dict) -> None:
+    """Atualiza somente campos derivados de cortes inferidos já preservados.
+
+    O selo protege a geometria e a decisão humana, não uma fórmula obsoleta.
+    Nunca toca em corte humano nem cria/remapeia geometria.
+    """
+    old_cuts = ((old.get("links") or {}).get("laje_visao_corte") or {}).get("cut_view_geom") or []
+    fresh_cuts = ((fresh.get("links") or {}).get("laje_visao_corte") or {}).get("cut_view_geom") or []
+    fresh_by_signature = {
+        signature: cut
+        for cut in fresh_cuts
+        if isinstance(cut, dict) and (signature := _cut_signature(cut)) is not None
+    }
+    for old_cut in old_cuts:
+        if not isinstance(old_cut, dict) or not old_cut.get("is_inferred"):
+            continue
+        fresh_cut = fresh_by_signature.get(_cut_signature(old_cut))
+        if not isinstance(fresh_cut, dict):
+            continue
+        for key in ("ficha", "ficha_links", "cotas_debug"):
+            if key in fresh_cut:
+                old_cut[key] = copy.deepcopy(fresh_cut[key])
+
+
 def _topology_class(source_key: str) -> tuple[str, int] | None:
     match = _FV_SOURCE_RE.match(source_key)
     if match:
@@ -238,6 +280,8 @@ def merge_analysis_item(old: dict | None, new: dict, kind: str) -> dict:
         preserved["project_id"] = new.get(
             "project_id", preserved.get("project_id")
         )
+        if kind == "LAJ":
+            _refresh_inferred_laj_cut_fichas(preserved, new)
         return preserved
 
     result = copy.deepcopy(new)

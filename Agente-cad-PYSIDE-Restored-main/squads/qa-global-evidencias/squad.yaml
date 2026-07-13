@@ -1,0 +1,143 @@
+name: qa-global-evidencias
+version: "1.1.0"
+description: >-
+  Orquestra auditoria Arete por evidencia para obra, pavimento, classe, item,
+  nivel e variante. Seleciona o microciclo canonico N1, N3 ou N4, exige
+  proveniencia e veredito visual quando aplicavel, estrutura duvidas humanas e
+  prepara candidatos RAG sem contaminar N1/N3 com N2/N4.
+icon: "⚖️"
+author: "CAD-ANALYZER"
+license: "Proprietary"
+category: cad-quality
+slashPrefix: QAGlobalEvidencias
+team: CAD
+
+aios:
+  minVersion: "2.1.0"
+  type: squad
+
+components:
+  agents:
+    - id: aegis
+      name: "Aegis — Orquestrador QA de Evidencias"
+      file: agents/aegis.md
+      description: "Monta o DAG do looping, aplica gates e preserva a fronteira N1/N2/N3/N4."
+  tasks:
+    - { id: resolve-scope, file: tasks/resolve-scope.md }
+    - { id: index-evidence, file: tasks/index-evidence.md }
+    - { id: review-n1, file: tasks/review-n1.md }
+    - { id: review-artifact, file: tasks/review-artifact.md }
+    - { id: parity-contract, file: tasks/parity-contract.md }
+    - { id: visual-gate, file: tasks/visual-gate.md }
+    - { id: structure-question, file: tasks/structure-question.md }
+    - { id: plan-remediation, file: tasks/plan-remediation.md }
+    - { id: regression-gate, file: tasks/regression-gate.md }
+    - { id: curate-rag, file: tasks/curate-rag.md }
+  workflows:
+    - id: arete-qa-loop
+      file: workflows/arete-qa-loop.yaml
+  checklists:
+    - id: evidence-gate
+      file: checklists/evidence-gate-checklist.md
+  templates:
+    - id: dossie
+      file: templates/dossie-template.md
+    - id: structured-question
+      file: templates/structured-question-template.md
+  contracts:
+    - id: qa-rag-looping
+      file: contracts/qa-rag-looping.md
+  scripts:
+    - id: validate-squad
+      file: scripts/validate_squad.py
+
+operation_map:
+  - id: discover
+    trigger: "*discover"
+    type: ANALITICA
+    task: resolve-scope
+    description: "Resolve escopo e inventaria cobertura sem alterar DB."
+  - id: review-n1
+    trigger: "*review-n1"
+    type: ANALITICA
+    task: review-n1
+    description: "Audita campos e vinculos N1 persistidos com evidencia independente."
+  - id: probe-n1
+    trigger: "*probe-n1"
+    type: ANALITICA
+    task: review-n1
+    description: "Prova somente campos e checks declarados, inclusive entre classes."
+  - id: review-artifact
+    trigger: "*review-artifact"
+    type: ANALITICA
+    task: review-artifact
+    description: "Audita N3/N4 por artefato e variante usando geracao individual."
+  - id: parity
+    trigger: "*parity"
+    type: ANALITICA
+    task: parity-contract
+    description: "Verifica contrato para payload para DXF para HTML sem reinterpretacao."
+  - id: visual
+    trigger: "*visual"
+    type: EXECUTIVA
+    task: visual-gate
+    description: "Executa o gate visual canonico com backend CLI."
+  - id: loop
+    trigger: "*loop"
+    type: EXECUTIVA
+    workflow: workflows/arete-qa-loop.yaml
+    description: "Executa o microciclo apropriado ao nivel e ao tipo de mudanca."
+  - id: questions
+    trigger: "*questions"
+    type: INFORMATIVA
+    task: structure-question
+    description: "Lista somente impasses estruturados e rastreaveis."
+  - id: rag-candidate
+    trigger: "*rag-candidate"
+    type: EXECUTIVA
+    task: curate-rag
+    description: "Materializa candidato T1/T2/T3 sem promover automaticamente."
+  - id: resume
+    trigger: "*resume"
+    type: EXECUTIVA
+    workflow: workflows/arete-qa-loop.yaml
+    description: "Retoma dossie append-only pelo run id e invalida cache obsoleto."
+
+dependencies:
+  squads:
+    - cad-fase3-interpretacao
+    - cad-fase7-qualidade
+    - cad-testing-qa
+    - rag-forge
+  tools:
+    - Python-3.12
+    - pytest
+    - ezdxf
+
+governance:
+  protocols:
+    auto-commit:
+      enabled: false
+    api-vision:
+      enabled: false
+      rule: "Somente g2v_harness.py --backend cli; --permitir-api exige ordem explicita do dono."
+    headless:
+      entrypoint: scripts/arete/headless_sa_analise.py
+      lock: single-global
+      wait_required: true
+  quality_gates:
+    anti_leakage: "N3 recebe somente N1 + contrato/config; N2/N4 sao comparadores."
+    visual: "Gate visual exige leitura humana/agente do PNG e veredito registrado."
+    universal_fix: "Zero hardcode por item, pavimento ou obra."
+
+evolution:
+  current_authority:
+    LAJ: validation_ready
+    PIL: diagnostic_only
+    FV: diagnostic_only
+    LV: diagnostic_only
+  backlog:
+    - "Extrair adaptadores PIL/FV/LV com proveniencia CAD independente."
+    - "Trocar CONFIRMAR generico por TRILHA_N1_OBSERVADA."
+    - "Tipar RAG por classe, familia, campo, tier e escopo."
+    - "Adicionar metadados de abertura/recorte ao DXF para paridade rastreavel."

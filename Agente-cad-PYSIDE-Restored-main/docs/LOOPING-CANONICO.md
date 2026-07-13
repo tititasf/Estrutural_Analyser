@@ -60,6 +60,50 @@ O RAG é parceiro consultivo do QA, não um segundo juiz: regras/exemplos T1/T2
 citam fonte e ajudam a formular hipótese; evidência do item atual e veredito
 visual continuam mandatórios. Ver `CONTRATO-QA-RAG-LOOPINGS.md`.
 
+O mesmo fluxo pode ser ativado pela skill Codex `$qa-global-evidencias` ou pelo
+comando AIOS `/CAD:QAGlobalEvidencias-AIOS`. Ambos são apenas orquestradores: devem
+chamar os entry points desta seção e jamais criar headless, gerador, comparador ou
+scorer alternativo. PIL/FV/LV em revisão genérica produzem
+`TRILHA_N1_OBSERVADA`, não selo de interpretação/painel.
+
+#### Roteamento rápido: vínculo, N1 contextual ou motor visual
+
+Não usar o headless SA para toda alteração. Escolha o menor teste que realmente
+exercita a camada modificada:
+
+| Alteração | Teste inicial | Headless SA? |
+|---|---|---|
+| hipótese de campo/vínculo **já persistido** | `qa_n1_field_probe.py --request ...` (inclusive cross-classe) | não; lê somente as colunas declaradas |
+| cobertura/proveniência do item persistido | `qa_evidence_auditor.py review --classe ... --item ...` | não; leitura do DB, segundos |
+| fórmula pura de contrato N3 | `pytest` focado contrato→payload | não |
+| geometria/estilo/cotas de gerador N3/N4 | gerador da classe `--item` + `ficha_motor_item.py` | não |
+| paridade de campos contrato→payload→DXF→HTML | `qa_artifact_parity.py --spec ...` | não; não substitui visual |
+| extração/interpretação N1, associação CAD ou vínculo novo | `headless_sa_analise.py --secao --item --wait` | **sim**, contexto completo |
+| certificação/regressão final | headless completo + gates aplicáveis | **sim** |
+
+O QA rápido de vínculos testa o snapshot persistido; ele detecta incoerência e
+falta de proveniência, mas não prova que uma mudança nova no extrator reconstruirá
+o mesmo vínculo. Após tocar no motor N1, rode o microciclo headless.
+
+O probe ultragranular declara cada campo, fonte, caminho e check. Pode cruzar
+PIL/FV/LV/LAJ para responder uma hipótese localizada, mas seu `PASS` nunca aprova
+o item ou a ficha completos. Overlay testa candidato sem gravar DB. Cache é
+chaveado por versão, request, overlay e hashes das linhas mínimas consultadas.
+Formato e exemplos: `docs/QA-FASTPATHS-CAMPOS-ARTEFATOS.md`.
+
+Para inspecionar qualquer DXF N3/N4 isoladamente, sem Qt, DB ou trava global:
+
+```bash
+python scripts/arete/ficha_motor_item.py \
+  --classe {PIL|LAJ|FV|LV} --item {ITEM} --nivel {N3|N4} \
+  --artefato ROTULO={CAMINHO_DXF} [--json ROTULO={CAMINHO_JSON}] \
+  [--contract ROTULO={CAMINHO_CONTRATO}] --open
+```
+
+A ficha individual registra caminho e SHA-256 do DXF/JSON. Ela é evidência de
+iteração visual, não interpreta N1 e não substitui G2-V/G5-V quando o gate exigir
+comparação canônica.
+
 #### Microciclo N1 por item ou conjunto (canônico para iteração rápida)
 
 Quando já existe um achado localizado, a investigação não precisa reabrir as fichas de

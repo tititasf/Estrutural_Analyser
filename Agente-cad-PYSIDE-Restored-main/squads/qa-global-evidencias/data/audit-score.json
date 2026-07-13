@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "squad": "qa-global-evidencias",
+  "score": 100,
+  "grade": "S",
+  "scores": {
+    "manifest": 15,
+    "structure": 10,
+    "agent": 15,
+    "tasks": 15,
+    "workflow": 10,
+    "checklists_templates": 10,
+    "command": 5,
+    "cross_references": 10,
+    "documentation": 10
+  },
+  "findings": [],
+  "passed": true
+}

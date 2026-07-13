@@ -5,10 +5,10 @@
     "projects": 9,
     "reverse_fichas": 0,
     "reverse_recortes": 0,
-    "semantic_rules": 109
+    "semantic_rules": 117
   },
   "documents": [],
-  "generated_at": "2026-07-11T20:27:00.886247+00:00",
+  "generated_at": "2026-07-13T05:16:40.819232+00:00",
   "obra_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
   "obra_recortes": [],
   "paths": {
@@ -831,6 +831,110 @@
         "sprint_validated": true,
         "tags": "rag,robo,laje,lj,fase4,nova,scr",
         "text": "## 9. Bugs Conhecidos (Laje)\n\n| # | Campo | Problema | Status |\n|---|-------|----------|--------|\n| LJ-B1 | `linhas_verticais` | `motor_fase4.py` usa STEP=100cm fixo; algoritmo correto em `calculo_modo1.py` (122+60+união) | ABERTO |\n| LJ-B2 | `obstaculos` | Sempre lista vazia — extrator não detecta ilhas internas (pilares centrais, aberturas) | ABERTO |"
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 328,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 329,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 330,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 331,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 332,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 333,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 334,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LAJ",
+      "confianca": 1.0,
+      "id": 335,
+      "obra_contexto": "qa_groundtruth_t1:dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
       }
     },
     {

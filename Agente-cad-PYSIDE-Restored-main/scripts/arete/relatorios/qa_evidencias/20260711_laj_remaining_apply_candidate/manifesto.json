@@ -1,0 +1,89 @@
+{
+  "classe": "LAJ",
+  "created_at": "2026-07-11T21:51:55+00:00",
+  "db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+  "include_sealed": false,
+  "items": [
+    "L319",
+    "L320",
+    "L321",
+    "L322",
+    "L323",
+    "L324",
+    "L325",
+    "L326",
+    "L327",
+    "L328",
+    "L329",
+    "L330",
+    "L331"
+  ],
+  "mode": "read_only_audit",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "required_fields": [
+    "name",
+    "laje_dim",
+    "laje_visao_corte",
+    "laje_vizinhas_niveis",
+    "laje_pilares_apoio",
+    "laje_nivel",
+    "laje_outline_segs",
+    "laje_islands"
+  ],
+  "run_id": "20260711_laj_remaining_apply_candidate",
+  "schema_version": 1,
+  "snapshots": {
+    "L319": {
+      "hash": "bb6312838086551f8c69da86f98e7dec9b67edb27f4803444e9a5418039d0587",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_19"
+    },
+    "L320": {
+      "hash": "202b009be99fa781eb543e6237d532246feaed609ed45a4f133bb616cf90b7db",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_20"
+    },
+    "L321": {
+      "hash": "aef830b7ce5ad615ff94f7b95cce975af0da71acbab3fccead22f40e1ea6b181",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_21"
+    },
+    "L322": {
+      "hash": "b1273bf81785b54478215225466dd652f05b0dcc9448a444f8bce3e8e05549f7",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_22"
+    },
+    "L323": {
+      "hash": "56386e40f9ea46f40fa8cc1c8fb24bdb19b6fca42ea8e30782b55ed1f8bb9b94",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_23"
+    },
+    "L324": {
+      "hash": "4e3963487b9f1a7a0b4e417b343600995d01ffd6630097babdf5157a8f364829",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_24"
+    },
+    "L325": {
+      "hash": "ae8b4bd93b8a7899bdbf57ae8f44c5200456d8fea2d0400c6c2337a7d62ba0ef",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_25"
+    },
+    "L326": {
+      "hash": "3d7f877f980c5fcacd0c0805909846994fa470b4693ebf6be188b9214b0f6051",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_26"
+    },
+    "L327": {
+      "hash": "97d57b9b733135a4f83fff0973d02ec957cacffccc90e7084560f210f900ce29",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_27"
+    },
+    "L328": {
+      "hash": "b0d3efa5dda30bc96442eb856b9df0a49ffd925968a680e933fd585846242b6e",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_28"
+    },
+    "L329": {
+      "hash": "fe750ae40aace8f097d2ff61462a3ea60a43c1c62b448fd6db35c43066263e15",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_29"
+    },
+    "L330": {
+      "hash": "1d813abc981eea19aa5d0bf7a23f3cdf602bc6185dcd735f7f5ebd13d8a47c34",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_30"
+    },
+    "L331": {
+      "hash": "1ec7e121fa01f791ad0762a79dfd458db66a6ac90a0c3e4e48dfadcffc3062e2",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_31"
+    }
+  }
+}

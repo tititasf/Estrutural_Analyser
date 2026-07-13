@@ -19,10 +19,15 @@ import argparse
 import importlib
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
-# QT_QPA_PLATFORM=offscreen ANTES de qualquer import Qt
-os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+# Esta CLI nunca pode herdar o backend visível do dashboard. ``setdefault``
+# permitia QT_QPA_PLATFORM=windows vindo do processo pai e abria a app.
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.environ['QT_QUICK_BACKEND'] = 'software'
+os.environ['MPLBACKEND'] = 'Agg'
+os.environ['CAD_MOTOR_HEADLESS'] = '1'
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT   = _SCRIPT_DIR.parent.parent
@@ -126,6 +131,52 @@ def _partial_collections_for_sections(
             if {'fundos_viga', 'laterais_viga'} & sections else []
         ),
     }
+
+
+def _attach_pl_n3_variants_to_pillars(
+    pillars: list[dict], variant_cache: dict | None,
+) -> int:
+    """Anexa ao snapshot PIL os dois artefatos N3 já materializados.
+
+    O desktop/HTML materializa PARA e PASSA a partir do mesmo N1, mas o
+    ``--persist-db`` precisa gravar esses payloads explícitos no SA também.
+    Guardamos contrato, payload que alimentou o DXF e caminhos publicados;
+    isto evita que o banco apresente N1 novo junto de uma variante N3 antiga.
+    """
+    if not isinstance(variant_cache, dict):
+        return 0
+    by_name: dict[str, dict[str, dict]] = {}
+    for raw_key, variant in variant_cache.items():
+        if not isinstance(raw_key, tuple) or len(raw_key) != 2:
+            continue
+        name, mode = str(raw_key[0]).upper(), str(raw_key[1]).lower()
+        if mode not in {'para', 'passa'} or not isinstance(variant, dict):
+            continue
+        contract = variant.get('contract') or {}
+        payload = variant.get('payload') or {}
+        if not isinstance(contract, dict) or not isinstance(payload, dict):
+            continue
+        by_name.setdefault(name, {})[mode] = {
+            'schema': str(contract.get('schema') or 'pil.n3_mode_contract.v2'),
+            'modo_semantico': str(contract.get('modo_semantico') or mode).upper(),
+            'contract': copy.deepcopy(contract),
+            'payload': copy.deepcopy(payload),
+            'artifacts': copy.deepcopy(variant.get('paths') or {}),
+        }
+
+    attached = 0
+    for pillar in pillars or []:
+        name = _item_name(pillar)
+        modes = by_name.get(name)
+        if not modes:
+            continue
+        # Só a dupla completa é um estado consumível pelo CE/SA.
+        if not {'para', 'passa'}.issubset(modes):
+            continue
+        pillar['pl_n3_variants'] = modes
+        pillar['pl_n3_variants_schema'] = 'pil.n3_variants/v1'
+        attached += 1
+    return attached
 
 
 def _attach_lv_generation_contracts(
@@ -943,19 +994,27 @@ def _generate_fv_n3_nova_previews(
             '--output-dir', str(output_dir),
             '--input-dir', str(input_dir),
         ]
-        result = subprocess.run(
-            command,
-            cwd=str(_REPO_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=120,
-            # O destino já é temporário e isolado. Remover a trava aqui evita
-            # que guarded_saveas desvie o candidato para outro diretório.
-            env={
-                key: value for key, value in os.environ.items()
-                if key != 'CAD_MOTOR_HEADLESS'
-            },
-        )
+        try:
+            result = subprocess.run(
+                command,
+                cwd=str(_REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=120,
+                # O destino já é temporário e isolado. Remover a trava aqui evita
+                # que guarded_saveas desvie o candidato para outro diretório.
+                env={
+                    key: value for key, value in os.environ.items()
+                    if key != 'CAD_MOTOR_HEADLESS'
+                },
+            )
+        except subprocess.TimeoutExpired:
+            failed.append(beam_name)
+            print(
+                f'[SA-HUMAN] N3 NOVA timeout (120s) para {beam_name}',
+                flush=True,
+            )
+            continue
         expected = output_dir / f'FV_preview_{beam_name}.dxf'
         if result.returncode == 0 and expected.is_file():
             generated.append(beam_name)
@@ -967,6 +1026,33 @@ def _generate_fv_n3_nova_previews(
                 flush=True,
             )
     return generated, failed
+
+
+def _filter_fv_results_for_items(
+    fv_results: list[dict], item_names: set[str] | None,
+) -> list[dict]:
+    """Mantém no N3 FV somente os itens explicitamente pedidos pelo microciclo.
+
+    A interpretação N1 continua completa e contextual; este filtro existe apenas
+    na fronteira de materialização N3 para não gerar previews de vigas que não
+    pertencem ao lote visual atual.
+    """
+    if not item_names:
+        return list(fv_results or [])
+    filtered: list[dict] = []
+    for result in fv_results or []:
+        if not isinstance(result, dict):
+            continue
+        raw_name = str(result.get('viga_nome') or result.get('name') or '')
+        # O resultado N1 usa V309.C, mas a CLI humana trabalha com V309.
+        # Extrair a identidade estrutural é preferível a depender do sufixo de
+        # vista e preserva VF202/V309A sem hardcode de obra.
+        identity = re.search(r'V[F]?\d+[A-Z]?', raw_name.upper())
+        if _matches_item_name(raw_name, item_names) or (
+            identity is not None and identity.group(0) in item_names
+        ):
+            filtered.append(result)
+    return filtered
 
 
 def _generate_pl_n3_nova_previews(
@@ -1054,20 +1140,28 @@ def _generate_lv_n3_nova_previews(
                     '--output-dir', str(output_dir),
                     '--input-dir', str(behavior_input_dir),
                 ]
-                result = subprocess.run(
-                    command,
-                    cwd=str(_REPO_ROOT),
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                    # Destino já isolado/temporário — remover a trava evita
-                    # que guarded_saveas desvie o candidato pra outro lugar
-                    # (mesmo motivo do FV, ver _generate_fv_n3_nova_previews).
-                    env={
-                        key: value for key, value in os.environ.items()
-                        if key != 'CAD_MOTOR_HEADLESS'
-                    },
-                )
+                try:
+                    result = subprocess.run(
+                        command,
+                        cwd=str(_REPO_ROOT),
+                        capture_output=True,
+                        text=True,
+                        timeout=90,
+                        # Destino já isolado/temporário — remover a trava evita
+                        # que guarded_saveas desvie o candidato pra outro lugar
+                        # (mesmo motivo do FV, ver _generate_fv_n3_nova_previews).
+                        env={
+                            key: value for key, value in os.environ.items()
+                            if key != 'CAD_MOTOR_HEADLESS'
+                        },
+                    )
+                except subprocess.TimeoutExpired:
+                    failed.append(label)
+                    print(
+                        f'[SA-HUMAN] N3 LV timeout (90s) para {label}',
+                        flush=True,
+                    )
+                    continue
                 expected = output_dir / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
                 if result.returncode == 0 and expected.is_file():
                     generated.append(label)
@@ -1129,17 +1223,22 @@ def _generate_lj_n3_nova_previews(
             '--json-dir', str(json_dir),
             '--out-dir', str(output_dir),
         ]
-        result = subprocess.run(
-            command,
-            cwd=str(_REPO_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=120,
-            env={
-                key: value for key, value in os.environ.items()
-                if key != 'CAD_MOTOR_HEADLESS'
-            },
-        )
+        try:
+            result = subprocess.run(
+                command,
+                cwd=str(_REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=90,
+                env={
+                    key: value for key, value in os.environ.items()
+                    if key != 'CAD_MOTOR_HEADLESS'
+                },
+            )
+        except subprocess.TimeoutExpired:
+            failed.append(nome)
+            print(f'[SA-HUMAN] N3 LJ timeout (90s) para {nome}', flush=True)
+            continue
         expected = output_dir / f'LJ_preview_{nome}.dxf'
         if result.returncode == 0 and expected.is_file():
             generated.append(nome)
@@ -1170,6 +1269,20 @@ def run_analysis(
     `None` (default) gera todas as classes, como antes. Um subconjunto de
     `{'pilares', 'lajes', 'fundos_viga'}` gera só essas (ver `--secao`).
     """
+    started_at = time.perf_counter()
+    stage_started_at = started_at
+
+    def report_stage(label: str) -> None:
+        """Registra o custo das etapas sem alterar o contrato do headless."""
+        nonlocal stage_started_at
+        now = time.perf_counter()
+        print(
+            f'[SA-HUMAN][PERF] {label}: {now - stage_started_at:.2f}s '
+            f'(acumulado {now - started_at:.2f}s)',
+            flush=True,
+        )
+        stage_started_at = now
+
     from src.core.sa_project_source import resolve_sa_project_from_db
 
     project = resolve_sa_project_from_db(
@@ -1183,6 +1296,14 @@ def run_analysis(
     project_name = str(
         project.get('pavement_name') or project.get('name') or pavimento
     )
+    # O `project_id` é a fonte de verdade da obra selecionada. Normalizar o
+    # pavimento resolvido evita que o default legado de CLI (13_PAV) vaze para
+    # diagnósticos, manifestos e artefatos de um projeto diferente.
+    from src.core.ficha_utils import canonical_pavimento
+    pavimento = canonical_pavimento(project_name)
+    # O N1 continua contextual, mas todo o trabalho derivado de classe
+    # (contratos, exportação, diagnósticos e N3) respeita ``--secao``.
+    active_sections = _n3_sections_for_run(sections)
     print(f'[SA-HUMAN] project_id: {project_id}', flush=True)
     print(f'[SA-HUMAN] projects.dxf_path: {source_path}', flush=True)
 
@@ -1212,6 +1333,7 @@ def run_analysis(
         # O modal não é aberto; decisões humanas persistidas já foram
         # carregadas pelo projeto e permanecem protegidas na memória.
         window.process_pillars_action(skip_pre_validation=True)
+        report_stage('analise N1 contextual completa')
         if getattr(window, '_analysis_in_progress', False):
             raise RuntimeError('Análise Geral humana não foi finalizada')
 
@@ -1230,7 +1352,13 @@ def run_analysis(
         window.pillars_found = merged['pillars']
         window.slabs_found = merged['slabs']
         window.beams_found = merged['beams']
-        # O merge pode restaurar contornos automáticos antigos de quatro
+        # O merge preserva memória humana, mas pode repor inferências antigas.
+        # Reexecuta o saneamento derivável na coleção efetivamente persistida:
+        # apoio automático precisa tocar a fronteira e ter face/lado; nível de
+        # vizinho só vem de fonte semanticamente válida. Não altera vínculos
+        # humanos e não depende de item/pavimento/obra.
+        window._infer_slab_levels_from_context(window.slabs_found)
+        # O merge também pode restaurar contornos automáticos antigos de quatro
         # vértices. Normalize-os somente depois da proteção granular, para o
         # objeto efetivamente diagnosticado/persistido obedecer ao contrato.
         from src.core.beam_interpreters import FundoVigaInterpreter
@@ -1238,15 +1366,24 @@ def run_analysis(
             FundoVigaInterpreter.repair_area_links(
                 beam, context_beams=window.beams_found
             )
-        lv_contracts_attached = _attach_lv_generation_contracts(
-            window.beams_found, window.pillars_found, pavimento
+        report_stage('merge granular e saneamento N1')
+        if 'laterais_viga' in active_sections:
+            lv_contracts_attached = _attach_lv_generation_contracts(
+                window.beams_found, window.pillars_found, pavimento
+            )
+            print(
+                f'[SA-HUMAN] Contratos N3 LV anexados ao snapshot: '
+                f'{lv_contracts_attached}',
+                flush=True,
+            )
+        # Um microciclo de LAJ/PIL não pode ser recusado por um fundo de viga
+        # fora do escopo. Quando FV for solicitado, o gate continua idêntico
+        # e incide sobre a coleção efetivamente processada.
+        invalid_fv_areas = (
+            fv_area_errors(window.beams_found)
+            if 'fundos_viga' in active_sections
+            else []
         )
-        print(
-            f'[SA-HUMAN] Contratos N3 LV anexados ao snapshot: '
-            f'{lv_contracts_attached}',
-            flush=True,
-        )
-        invalid_fv_areas = fv_area_errors(window.beams_found)
         if invalid_fv_areas:
             raise RuntimeError(
                 'Gate FV recusou contorno sem área fechada: '
@@ -1254,7 +1391,10 @@ def run_analysis(
             )
         partial_collections = None
         if item_names:
-            active_sections = sections or set(_VALID_SECTIONS)
+            # Consumido pelo writer LV para que o microciclo nao reintroduza
+            # todos os itens N2 classificados Para/Passa na pasta filtrada.
+            # A janela normal nao possui este atributo e mantem a uniao total.
+            window._headless_item_names = set(item_names)
             partial_collections = _partial_collections_for_sections(
                 merged,
                 active_sections,
@@ -1275,13 +1415,33 @@ def run_analysis(
         )
 
         html_dir = None
+        dialog = None
         diagnostics = {}
         try:
             dialog = window._build_pre_validation_dialog()
             if dialog:
+                if item_names:
+                    dialog._headless_item_names = set(item_names)
                 html_dir = dialog._export_html_snapshot(sections=sections)
                 # `_export_html_snapshot` salva em `run_dir` local e retorna o Path
                 print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
+                report_stage('exportacao inicial de fichas')
+
+                # A exportação PIL já materializou PARA+PASSA no cache do
+                # diálogo. Se este run for persistido, anexa o mesmo artefato
+                # ao snapshot ANTES do commit — DB e HTML/DXF permanecem na
+                # mesma versão sem recalcular por outro caminho.
+                if persist_db and 'pilares' in active_sections:
+                    collections_for_n3 = partial_collections or merged
+                    pl_persisted = _attach_pl_n3_variants_to_pillars(
+                        collections_for_n3.get('pillars', []),
+                        getattr(dialog, '_pl_n3_cache', None),
+                    )
+                    print(
+                        '[SA-HUMAN] Variantes N3 PL anexadas ao snapshot DB: '
+                        f'{pl_persisted}',
+                        flush=True,
+                    )
 
                 diagnostics = (
                     _run_section_diagnostics(
@@ -1295,88 +1455,16 @@ def run_analysis(
                     if run_diagnostics
                     else {}
                 )
+                report_stage('diagnosticos canonicos')
         except Exception as e:
             import traceback
             traceback.print_exc()
             print(f"[ERROR] Exception during HTML/diagnostics generation: {e}", flush=True)
 
-        obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
-        fv_results = list(getattr(window, '_last_fv_results', []) or [])
-        n3_tmp_root = _REPO_ROOT / 'scripts' / 'arete' / 'tmp'
-        n3_tmp_root.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(
-            prefix='sa_n3_nova_', dir=str(n3_tmp_root)
-        ) as n3_temp:
-            generated, failed = _generate_fv_n3_nova_previews(
-                obra_dir, fv_results, Path(n3_temp) / 'dxf'
-            )
-            print(
-                f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
-                f'{len(failed)} ausente(s)',
-                flush=True,
-            )
-            lv_generated, lv_failed = _generate_lv_n3_nova_previews(
-                obra_dir, window.beams_found, Path(n3_temp) / 'dxf'
-            )
-            print(
-                f'[SA-HUMAN] N3 LV isolado: {len(lv_generated)} gerado(s), '
-                f'{len(lv_failed)} ausente(s)',
-                flush=True,
-            )
-            lj_generated, lj_failed = _generate_lj_n3_nova_previews(
-                obra_dir, window, Path(n3_temp) / 'dxf'
-            )
-            print(
-                f'[SA-HUMAN] N3 LJ isolado: {len(lj_generated)} gerado(s), '
-                f'{len(lj_failed)} ausente(s)',
-                flush=True,
-            )
-            # PL N3: sempre as duas listas (PARA + PASSA), igual desktop/CE.
-            # Independente do filtro --secao HTML: o CE precisa de n3_variants.
-            # Mesma instância de dialog no export reusa o cache (sem regenerar).
-            dialog = window._build_pre_validation_dialog()
-            pl_generated, pl_failed = [], ['dialog-ausente']
-            if dialog is not None:
-                try:
-                    pl_generated, pl_failed = dialog.materialize_pl_n3_variants()
-                except Exception as exc:
-                    pl_failed = [f'materialize-error:{exc}']
-                    print(f'[SA-HUMAN] N3 PL materialize falhou: {exc}', flush=True)
-            print(
-                f'[SA-HUMAN] N3 PL PARA+PASSA: {len(pl_generated)} gerado(s), '
-                f'{len(pl_failed)} ausente(s)',
-                flush=True,
-            )
-            if dialog is None:
-                dialog = window._build_pre_validation_dialog()
-            dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
-            dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
-            html_dir = dialog._export_html_snapshot(sections=sections)
-            state_path = dialog._analysis_state_path()
-        print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
-        diagnostics = (
-            _run_section_diagnostics(
-                html_dir=html_dir,
-                obra=obra,
-                pavimento=pavimento,
-                state_path=state_path,
-                db_path=db_path,
-                item_names=item_names,
-            )
-            if run_diagnostics
-            else {}
-        )
-        try:
-            manifest_path = _publish_arete_manifest(
-                html_dir=html_dir,
-                obra=obra,
-                pavimento=pavimento,
-                diagnostics=diagnostics,
-            )
-            print(f'[SA-HUMAN] Manifesto Arete: {manifest_path}', flush=True)
-        except Exception as exc:
-            manifest_path = ''
-            print(f'[SA-HUMAN] AVISO manifesto Arete não gerado: {exc}', flush=True)
+        # Persistência NÃO depende de N3 preview: o commit usa collections
+        # em memória + diagnósticos do pack. N3 LV/FV/LJ pode travar em COM
+        # (subprocess timeout falha em filhos AutoCAD) e bloqueava o DB.
+        # Ordem: gate+commit primeiro; N3 é best-effort depois.
         persistence = {'status': 'READ_ONLY'}
         if persist_db:
             required_sections = set(_SECTION_DIAGNOSTIC_MODULES)
@@ -1404,6 +1492,20 @@ def run_analysis(
             )
             from src.core.sa_db_persistence import persist_analysis_snapshot
             collections_to_persist = partial_collections or merged
+            # O dialogo HTML pode reconstruir os vinculos granulares. Reanexa
+            # no objeto exato que sera serializado para preservar o contrato N3
+            # correspondente aos campos N1 diagnosticados.
+            if 'laterais_viga' in active_sections:
+                persisted_lv_contracts = _attach_lv_generation_contracts(
+                    collections_to_persist.get('beams', []),
+                    merged.get('pillars', []),
+                    pavimento,
+                )
+                print(
+                    '[SA-HUMAN] Contratos N3 LV reanexados pre-commit: '
+                    f'{persisted_lv_contracts}',
+                    flush=True,
+                )
             persistence = persist_analysis_snapshot(
                 db_path=db_path,
                 project_id=project_id,
@@ -1419,6 +1521,130 @@ def run_analysis(
                 f"{persistence['before']} -> {persistence['after']}",
                 flush=True,
             )
+            report_stage('persistencia transacional')
+
+        # O N3 consome a coleção da janela, que também pode ter sido
+        # reconstruída pelo diálogo. Reanexar é idempotente e evita preview
+        # vazio por contrato descartado depois da exportação HTML.
+        if 'laterais_viga' in active_sections:
+            _attach_lv_generation_contracts(
+                list(getattr(window, 'beams_found', []) or []),
+                merged.get('pillars', []),
+                pavimento,
+            )
+
+        # N3 best-effort: prévias isoladas + re-export do pack. Falha/timeout
+        # NÃO reverte o commit acima nem aborta a rodada. ``--item`` filtra
+        # somente após a análise contextual completa; por isso a seção ativa
+        # também deve limitar estes subprocessos caros.
+        active_n3_sections = active_sections
+        manifest_path = ''
+        try:
+            obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
+            fv_results = _filter_fv_results_for_items(
+                list(getattr(window, '_last_fv_results', []) or []),
+                item_names if 'fundos_viga' in active_n3_sections else None,
+            )
+            n3_tmp_root = _REPO_ROOT / 'scripts' / 'arete' / 'tmp'
+            n3_tmp_root.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(
+                prefix='sa_n3_nova_', dir=str(n3_tmp_root)
+            ) as n3_temp:
+                if 'fundos_viga' in active_n3_sections:
+                    try:
+                        generated, failed = _generate_fv_n3_nova_previews(
+                            obra_dir, fv_results, Path(n3_temp) / 'dxf'
+                        )
+                        print(
+                            f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
+                            f'{len(failed)} ausente(s)',
+                            flush=True,
+                        )
+                    except Exception as exc:
+                        print(f'[SA-HUMAN] N3 NOVA bloco falhou: {exc}', flush=True)
+                if 'laterais_viga' in active_n3_sections:
+                    try:
+                        lv_generated, lv_failed = _generate_lv_n3_nova_previews(
+                            obra_dir, window.beams_found, Path(n3_temp) / 'dxf'
+                        )
+                        print(
+                            f'[SA-HUMAN] N3 LV isolado: {len(lv_generated)} gerado(s), '
+                            f'{len(lv_failed)} ausente(s)',
+                            flush=True,
+                        )
+                    except Exception as exc:
+                        print(f'[SA-HUMAN] N3 LV bloco falhou: {exc}', flush=True)
+                if 'lajes' in active_n3_sections:
+                    try:
+                        lj_generated, lj_failed = _generate_lj_n3_nova_previews(
+                            obra_dir, window, Path(n3_temp) / 'dxf'
+                        )
+                        print(
+                            f'[SA-HUMAN] N3 LJ isolado: {len(lj_generated)} gerado(s), '
+                            f'{len(lj_failed)} ausente(s)',
+                            flush=True,
+                        )
+                    except Exception as exc:
+                        print(f'[SA-HUMAN] N3 LJ bloco falhou: {exc}', flush=True)
+                # PL N3: sempre as duas listas (PARA + PASSA), igual desktop/CE.
+                # Reaproveita o diálogo da primeira exportação: ela já criou
+                # variantes PL e preencheu seu cache antes de escrever HTML.
+                if 'pilares' in active_n3_sections and dialog is None:
+                    dialog = window._build_pre_validation_dialog()
+                    if dialog is not None and item_names:
+                        dialog._headless_item_names = set(item_names)
+                pl_generated, pl_failed = [], ['dialog-ausente']
+                if 'pilares' in active_n3_sections and dialog is not None:
+                    try:
+                        pl_stats = getattr(dialog, '_last_pl_n3_materialize', {}) or {}
+                        pl_generated = list(pl_stats.get('generated') or [])
+                        pl_failed = list(pl_stats.get('failed') or [])
+                        if not pl_generated and not pl_failed:
+                            pl_generated, pl_failed = dialog.materialize_pl_n3_variants()
+                    except Exception as exc:
+                        pl_failed = [f'materialize-error:{exc}']
+                        print(
+                            f'[SA-HUMAN] N3 PL materialize falhou: {exc}',
+                            flush=True,
+                        )
+                if 'pilares' in active_n3_sections:
+                    print(
+                        f'[SA-HUMAN] N3 PL PARA+PASSA: {len(pl_generated)} gerado(s), '
+                        f'{len(pl_failed)} ausente(s)',
+                        flush=True,
+                    )
+                needs_secondary_reexport = bool(
+                    active_n3_sections & {'fundos_viga', 'laterais_viga', 'lajes'}
+                )
+                if dialog is None and needs_secondary_reexport:
+                    dialog = window._build_pre_validation_dialog()
+                if dialog is not None and needs_secondary_reexport:
+                    dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
+                    dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
+                    html_dir = dialog._export_html_snapshot(sections=sections)
+                    print(f'[SA-HUMAN] Pack reexportado c/ N3: {html_dir}', flush=True)
+                report_stage('previews N3 e reexportacao')
+        except Exception as exc:
+            print(f'[SA-HUMAN] AVISO bloco N3 best-effort: {exc}', flush=True)
+
+        try:
+            if html_dir:
+                manifest_path = _publish_arete_manifest(
+                    html_dir=html_dir,
+                    obra=obra,
+                    pavimento=pavimento,
+                    diagnostics=diagnostics,
+                )
+                print(f'[SA-HUMAN] Manifesto Arete: {manifest_path}', flush=True)
+                report_stage('manifesto Arete')
+        except Exception as exc:
+            manifest_path = ''
+            print(f'[SA-HUMAN] AVISO manifesto Arete não gerado: {exc}', flush=True)
+
+        print(
+            f'[SA-HUMAN][PERF] total da rodada: {time.perf_counter() - started_at:.2f}s',
+            flush=True,
+        )
         return {
             'obra': obra,
             'pavimento': project_name,
@@ -1439,6 +1665,17 @@ def run_analysis(
 
 
 _VALID_SECTIONS = {'pilares', 'lajes', 'fundos_viga', 'laterais_viga'}
+
+
+def _n3_sections_for_run(sections: set[str] | None) -> set[str]:
+    """Resolve as classes que podem executar o pós-processamento N3.
+
+    Sem ``--secao`` preserva o comportamento histórico (todas as classes).
+    Com a flag, N3 deve obedecer exatamente ao recorte solicitado: analisar
+    contexto completo continua necessário, mas gerar previews das outras
+    classes é trabalho caro e sem produto para a rodada filtrada.
+    """
+    return set(sections) if sections else set(_VALID_SECTIONS)
 
 
 def _parse_sections(raw_values: list[str] | None) -> set[str] | None:
@@ -1528,9 +1765,9 @@ def main() -> None:
     # esgotam a RAM da workstation. O lock é liberado pelo SO ao fim do
     # processo (mesmo em crash) — nunca fica órfão; basta aguardar e rerodar.
     try:
-        from scripts.arete.single_instance import acquire_lock, wait_for_lock
+        from scripts.arete.single_instance import acquire_lock, wait_for_lock, refresh_lock, release_lock
     except ImportError:
-        from single_instance import acquire_lock, wait_for_lock
+        from single_instance import acquire_lock, wait_for_lock, refresh_lock, release_lock
     if args.wait:
         _instance_lock, _holder = wait_for_lock('headless_sa')
     else:
@@ -1545,9 +1782,32 @@ def main() -> None:
               'NÃO finalize o processo detentor — ele está trabalhando.', flush=True)
         sys.exit(2)
 
-    # QApplication obrigatorio para PreValidationDialog (mesmo offscreen)
+    # QApplication obrigatório para PreValidationDialog, estritamente offscreen.
+    # Se a plataforma não for a esperada, falhamos antes de qualquer janela.
+    import atexit
+    import threading
+    atexit.register(release_lock, _instance_lock)
+    _lock_heartbeat_stop = threading.Event()
+
+    def _heartbeat_lock() -> None:
+        while not _lock_heartbeat_stop.wait(15.0):
+            refresh_lock(_instance_lock, event='running')
+
+    threading.Thread(
+        target=_heartbeat_lock,
+        name='headless-sa-lock-heartbeat',
+        daemon=True,
+    ).start()
+    from PySide6.QtGui import QGuiApplication
     from PySide6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)
+    app = QApplication.instance() or QApplication(['headless_sa_analise'])
+    platform = QGuiApplication.platformName().lower()
+    if platform != 'offscreen':
+        raise RuntimeError(
+            f'Backend Qt inesperado para headless: {platform!r} (esperado: offscreen)'
+        )
+    app.setQuitOnLastWindowClosed(False)
+    refresh_lock(_instance_lock, event='qt_offscreen_ready')
 
     result = run_analysis(
         obra=args.obra,
@@ -1559,6 +1819,7 @@ def main() -> None:
         persist_db=args.persist_db,
         item_names=item_names,
     )
+    refresh_lock(_instance_lock, event='analysis_complete')
 
     print('\n' + '=' * 60, flush=True)
     print(f'RESUMO: {result["obra"]} / {result["pavimento"]}', flush=True)
@@ -1593,6 +1854,10 @@ def main() -> None:
             import subprocess
             print(f'[SA] Abrindo {os.path.basename(htmls[0])} no navegador...', flush=True)
             os.startfile(htmls[0])
+
+    _lock_heartbeat_stop.set()
+    release_lock(_instance_lock)
+    print('[lock:headless_sa] Liberada.', flush=True)
 
 
 if __name__ == '__main__':

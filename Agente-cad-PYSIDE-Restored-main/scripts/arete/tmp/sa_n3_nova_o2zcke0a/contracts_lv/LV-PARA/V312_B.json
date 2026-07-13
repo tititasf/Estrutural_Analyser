@@ -1,0 +1,136 @@
+{
+  "number": "312",
+  "name": "V312_B_Para",
+  "beam_name": "V312",
+  "floor": "13_PAV",
+  "side": "B",
+  "behavior": "Para",
+  "contract_id": "LV_B_PARA",
+  "total_width": 14.0,
+  "total_height": 54.0,
+  "h_section": 50.0,
+  "h_face_rule": "section_depth + 4 cm",
+  "panels": [
+    {
+      "width": 244.0,
+      "height1": 54.0,
+      "height2": 54.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          1622.3825,
+          2680.038
+        ],
+        [
+          1622.3825,
+          2991.038
+        ]
+      ],
+      "contract_id": "LV_B_PARA",
+      "source_key": "viga_b_seg_1_comprimento_total"
+    },
+    {
+      "width": 67.0,
+      "height1": 54.0,
+      "height2": 54.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 2,
+      "points": [
+        [
+          1622.3825,
+          2680.038
+        ],
+        [
+          1622.3825,
+          2991.038
+        ]
+      ],
+      "contract_id": "LV_B_PARA",
+      "source_key": "viga_b_seg_1_comprimento_total"
+    },
+    {
+      "width": 131.0,
+      "height1": 54.0,
+      "height2": 54.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 2,
+      "segment_index": 2,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          1599.6325,
+          3010.038
+        ],
+        [
+          1599.6325,
+          3141.038
+        ]
+      ],
+      "contract_id": "LV_B_PARA",
+      "source_key": "viga_b_seg_2_comprimento_total"
+    }
+  ],
+  "structural_segments": [
+    {
+      "width": 311.0,
+      "segment_index": 1,
+      "points": [
+        [
+          1622.3825,
+          2680.038
+        ],
+        [
+          1622.3825,
+          2991.038
+        ]
+      ],
+      "source_key": "viga_b_seg_1_comprimento_total",
+      "source_slot": "seg_side_b",
+      "contract_id": "LV_B_PARA"
+    },
+    {
+      "width": 131.0,
+      "segment_index": 2,
+      "points": [
+        [
+          1599.6325,
+          3010.038
+        ],
+        [
+          1599.6325,
+          3141.038
+        ]
+      ],
+      "source_key": "viga_b_seg_2_comprimento_total",
+      "source_slot": "seg_side_b",
+      "contract_id": "LV_B_PARA"
+    }
+  ],
+  "structural_segment_count": 2,
+  "segment_count": 3,
+  "geometry_length": 442.0,
+  "start_adjustment": 0.0,
+  "end_adjustment": 0.0,
+  "endpoint_events": [],
+  "total_length": 442.0,
+  "dimension_status": "sa_lv",
+  "generation_ready": true,
+  "_sa_meta": {
+    "source": "Structural Analyzer / N1 / beams.data_json.links",
+    "schema": "lv_generation_contract/v1",
+    "behavior_isolated": true,
+    "fv_dimension_fallback": false
+  },
+  "behavior_distinct_from_other": true
+}

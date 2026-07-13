@@ -75,6 +75,40 @@ def test_generic_review_fails_closed_and_explains_missing_contract(tmp_path: Pat
     con.close()
 
 
+def test_generic_review_labels_internal_trace_without_confirming_semantics(tmp_path: Path):
+    db = tmp_path / "trace.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE beams (
+          id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT,
+          is_validated INTEGER, validated_fields_json TEXT, na_fields_json TEXT
+        );
+        """
+    )
+    payload = {
+        "viga_fundo_seg_1_dim": {
+            "label": [{"source": "dxf_entity:42", "text": "19/55"}],
+        },
+    }
+    con.execute(
+        "INSERT INTO beams VALUES ('b', 'p', 'V1', ?, 0, '[]', '[]')",
+        (json.dumps(payload),),
+    )
+    decisions, findings, questions, records = generic_class_review(
+        con, project_id="p", classe="FV", run_id="run", selected=None, include_sealed=True,
+    )
+    assert not findings
+    assert not questions
+    assert len(records) == 1
+    assert decisions[0].decision == "TRILHA_N1_OBSERVADA"
+    assert decisions[0].confidence == "medium"
+    assert decisions[0].operations == []
+    assert "não confirma geometria ou vínculo" in decisions[0].reason
+    assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
+    con.close()
+
+
 def test_rag_consultation_is_contextual_and_partitioned_by_class(tmp_path: Path):
     db = tmp_path / "rag.vision"
     con = sqlite3.connect(db)
@@ -91,6 +125,51 @@ def test_rag_consultation_is_contextual_and_partitioned_by_class(tmp_path: Path)
     assert context["FV"][0]["rag_id"] == "1"
     assert context["LAJ"] == []
     assert context["FV"][0]["authority"].startswith("consultative_only")
+    assert context["FV"][0]["partition"]["exact"] is True
+    con.close()
+
+
+def test_rag_consultation_applies_typed_field_tier_and_scope_filters(tmp_path: Path):
+    db = tmp_path / "rag_typed.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE semantic_rag_kb (
+          id TEXT PRIMARY KEY, classe TEXT, regra_semantica TEXT,
+          obra_contexto TEXT, confianca REAL, created_at TEXT,
+          familia TEXT, campo TEXT, tier TEXT, pavimento TEXT
+        );
+        """
+    )
+    con.execute("INSERT INTO semantic_rag_kb VALUES ('1','PIL','Regra certa','OBRA',.9,'2026-07-13','face','vazio_topo','T1','13_PAV')")
+    con.execute("INSERT INTO semantic_rag_kb VALUES ('2','PIL','Outra regra','OBRA',.9,'2026-07-13','face','abertura','T3','13_PAV')")
+    context = load_rag_consultations(
+        con, ["PIL"], family="face", field="vazio_topo",
+        tiers=["T1", "T2"], obra="OBRA", pav="13_PAV",
+    )
+    assert [entry["rag_id"] for entry in context["PIL"]] == ["1"]
+    assert context["PIL"][0]["partition"]["exact"] is True
+    assert set(context["PIL"][0]["partition"]["applied"]) == {"family", "field", "tier", "obra", "pav"}
+    assert context["PIL"][0]["tier"] == "T1"
+    con.close()
+
+
+def test_rag_consultation_marks_unavailable_partition_as_degraded(tmp_path: Path):
+    db = tmp_path / "rag_legacy.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE semantic_rag_kb (
+          id TEXT PRIMARY KEY, classe TEXT, regra_semantica TEXT,
+          obra_contexto TEXT, confianca REAL, created_at TEXT
+        );
+        """
+    )
+    con.execute("INSERT INTO semantic_rag_kb VALUES ('1','PIL','Contexto legado','OBRA',.8,'2026-07-13')")
+    context = load_rag_consultations(con, ["PIL"], field="vazio_topo", tiers=["T1"])
+    assert context["PIL"][0]["partition"]["exact"] is False
+    assert set(context["PIL"][0]["partition"]["unavailable"]) == {"field", "tier"}
+    assert context["PIL"][0]["authority"].startswith("consultative_only")
     con.close()
 
 

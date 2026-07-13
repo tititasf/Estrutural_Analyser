@@ -1,0 +1,113 @@
+{
+  "number": "305",
+  "name": "V305_B_Passa",
+  "beam_name": "V305",
+  "floor": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+  "side": "B",
+  "behavior": "Passa",
+  "contract_id": "LV_B_PASSA",
+  "total_width": 19.0,
+  "total_height": 59.0,
+  "h_section": 55.0,
+  "h_face_rule": "section_depth + 4 cm",
+  "panels": [
+    {
+      "width": 122.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          4101.3825,
+          2242.038
+        ],
+        [
+          4387.3825,
+          2242.038
+        ]
+      ],
+      "contract_id": "LV_B_PASSA",
+      "source_key": "viga_b_seg_1_comp_total_passa"
+    },
+    {
+      "width": 164.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 2,
+      "points": [
+        [
+          4101.3825,
+          2242.038
+        ],
+        [
+          4387.3825,
+          2242.038
+        ]
+      ],
+      "contract_id": "LV_B_PASSA",
+      "source_key": "viga_b_seg_1_comp_total_passa"
+    }
+  ],
+  "structural_segments": [
+    {
+      "width": 286.0,
+      "segment_index": 1,
+      "points": [
+        [
+          4101.3825,
+          2242.038
+        ],
+        [
+          4387.3825,
+          2242.038
+        ]
+      ],
+      "source_key": "viga_b_seg_1_comp_total_passa",
+      "source_slot": "seg_side_b",
+      "contract_id": "LV_B_PASSA"
+    }
+  ],
+  "structural_segment_count": 1,
+  "segment_count": 2,
+  "geometry_length": 286.0,
+  "start_adjustment": 0.0,
+  "end_adjustment": 0.0,
+  "endpoint_events": [
+    {
+      "endpoint": "start",
+      "pillar": "P26",
+      "pillar_side": "B",
+      "affected_side": "A",
+      "adjustment_cm": 0.0,
+      "reason": "Passa: lado oposto ao volume do pilar recua 4 cm"
+    },
+    {
+      "endpoint": "end",
+      "pillar": "P27",
+      "pillar_side": "B",
+      "affected_side": "A",
+      "adjustment_cm": 0.0,
+      "reason": "Passa: lado oposto ao volume do pilar recua 4 cm"
+    }
+  ],
+  "total_length": 286.0,
+  "dimension_status": "sa_lv",
+  "generation_ready": true,
+  "_sa_meta": {
+    "source": "Structural Analyzer / N1 / beams.data_json.links",
+    "schema": "lv_generation_contract/v1",
+    "behavior_isolated": true,
+    "fv_dimension_fallback": false
+  },
+  "behavior_distinct_from_other": false
+}

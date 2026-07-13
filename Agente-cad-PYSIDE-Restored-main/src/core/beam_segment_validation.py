@@ -31,6 +31,22 @@ def existing_segment_indices(beam: dict, prefix: str) -> set:
     return indices
 
 
+def segments_for_behavior(beam: dict, prefix: str, behavior: str) -> set:
+    """Índices de segmento de `prefix` (viga_a/viga_b) cujo dado presente
+    corresponde ao `behavior` pedido ('para'/'passa') — mesma convenção de
+    sufixo usada pela ficha (`_comprimento_total` = Para,
+    `_comp_total_passa` = Passa)."""
+    suffix = "comprimento_total" if behavior.lower() == "para" else "comp_total_passa"
+    pattern = re.compile(rf"^{re.escape(prefix)}_seg_(\d+)_{suffix}$")
+    indices: set = set()
+    fields = beam.get("fields") if isinstance(beam.get("fields"), dict) else {}
+    for key in list(beam.keys()) + list(fields.keys()):
+        match = pattern.match(str(key))
+        if match:
+            indices.add(int(match.group(1)))
+    return indices
+
+
 def all_active_segment_keys(beam: dict) -> set:
     """Todas as chaves de segmento ativas neste beam — FV usa só
     `viga_fundo`; LV usa `viga_a`/`viga_b` conforme `beam['type']`."""

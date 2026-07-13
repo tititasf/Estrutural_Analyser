@@ -6,6 +6,18 @@
       "runtimeExecutable": "C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe",
       "runtimeArgs": ["portal/run_dev.py"],
       "port": 21380
+    },
+    {
+      "name": "consulta-publica-api",
+      "runtimeExecutable": "C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "main:app", "--app-dir", "consulta-publica-api", "--host", "127.0.0.1", "--port", "21390"],
+      "port": 21390
+    },
+    {
+      "name": "consulta-publica-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "consulta-publica-web", "run", "dev"],
+      "port": 21391
     }
   ]
 }

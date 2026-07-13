@@ -24,9 +24,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.arete.qa_rag_evidence import load_partitioned_rag
+
 
 DEFAULT_DB = Path(r"D:\Agente-cad-PYSIDE\project_data.vision")
-REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REPORT_ROOT = REPO_ROOT / "scripts" / "arete" / "relatorios" / "qa_evidencias"
 DEFAULT_WEB_EVIDENCE_ROOT = REPO_ROOT / "scripts" / "arete" / "html_fichas"
 REQUIRED_LAJ_FIELDS = (
@@ -1379,7 +1384,7 @@ FIX_PROMPTS = {
 _CONFIDENCE_SCORE = {"high": 1.0, "medium": 0.70, "low": 0.35}
 _DECISION_SCORE = {
     "CONFIRMAR": 1.0, "N/A_CONFIRMADO": 0.95, "PENDENTE": 0.50,
-    "CORRIGIR": 0.25, "REVISAR_HUMANO": 0.20,
+    "TRILHA_N1_OBSERVADA": 0.50, "CORRIGIR": 0.25, "REVISAR_HUMANO": 0.20,
 }
 
 
@@ -1682,31 +1687,22 @@ def resolve_project_scope(
     return str(rows[0][0])
 
 
-def load_rag_consultations(con: sqlite3.Connection, classes: Iterable[str]) -> dict[str, list[dict]]:
+def load_rag_consultations(
+    con: sqlite3.Connection, classes: Iterable[str], *,
+    family: str | None = None, field: str | None = None,
+    tiers: Iterable[str] | None = None, obra: str | None = None,
+    pav: str | None = None, limit: int = 50,
+) -> dict[str, list[dict]]:
     """Consulta a memória semântica da app sem promovê-la a prova do item.
 
     O schema atual de ``semantic_rag_kb`` ainda não carrega tier/campo estruturado;
     por isso toda entrada é etiquetada como consulta contextual e só pode elevar
     hipótese depois que a evidência CAD local concordar.
     """
-    tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    result = {classe: [] for classe in classes}
-    if "semantic_rag_kb" not in tables:
-        return result
-    con.row_factory = sqlite3.Row
-    for classe in result:
-        rows = con.execute(
-            "SELECT id, classe, regra_semantica, obra_contexto, confianca, created_at "
-            "FROM semantic_rag_kb WHERE upper(classe)=? ORDER BY created_at DESC, id DESC",
-            (classe,),
-        ).fetchall()
-        result[classe] = [{
-            "kind": "rag_semantic_context", "rag_id": row["id"], "classe": row["classe"],
-            "regra_semantica": row["regra_semantica"], "obra_contexto": row["obra_contexto"],
-            "confianca_declarada": row["confianca"], "created_at": row["created_at"],
-            "authority": "consultative_only; requires local CAD/ficha evidence and human-approved tier before confirmation",
-        } for row in rows]
-    return result
+    return load_partitioned_rag(
+        con, classes, family=family, field=field, tiers=tiers,
+        obra=obra, pav=pav, limit=limit,
+    )
 
 
 def _payload_geometry(payload: dict) -> list:
@@ -1901,8 +1897,8 @@ def generic_class_review(
             prevalidated = field_id in set(json_load(row["validated_fields_json"], [])) if "validated_fields_json" in columns else False
             if has_trace and category:
                 decision, confidence, reason = (
-                    "CONFIRMAR", "medium",
-                    f"contrato inicial categoria ({category}) e ligação N1 rastreável; confirmação permanece read-only até gate da classe",
+                    "TRILHA_N1_OBSERVADA", "medium",
+                    f"contrato inicial categoria ({category}) e ligação interna N1 rastreável; sem adaptador CAD independente não confirma geometria ou vínculo",
                 )
             elif has_trace:
                 decision, confidence, reason = (
@@ -1970,11 +1966,21 @@ def cmd_review(args: argparse.Namespace) -> int:
     rag_context: dict[str, list[dict]] = {}
     with sqlite3.connect(db) as con:
         project_id = resolve_project_scope(con, project_id=args.project_id, obra=args.obra, pav=args.pav)
-        rag_context = load_rag_consultations(con, requested) if args.rag_evidence != "off" else {classe: [] for classe in requested}
+        rag_context = load_rag_consultations(
+            con, requested, family=args.rag_family, field=args.rag_field,
+            tiers=args.rag_tier, obra=args.rag_obra, pav=args.rag_pav,
+            limit=args.rag_limit,
+        ) if args.rag_evidence != "off" else {classe: [] for classe in requested}
         if args.rag_evidence == "required":
             missing = [classe for classe, entries in rag_context.items() if not entries]
             if missing:
                 raise SystemExit("memória RAG ausente para: " + ", ".join(missing))
+            degraded = [
+                classe for classe, entries in rag_context.items()
+                if any(not entry.get("partition", {}).get("exact", False) for entry in entries)
+            ]
+            if degraded:
+                raise SystemExit("schema RAG não suporta partição requerida para: " + ", ".join(degraded))
         for classe in requested:
             if classe == "LAJ":
                 slabs = load_slabs(con, project_id)
@@ -2008,6 +2014,11 @@ def cmd_review(args: argparse.Namespace) -> int:
         "rag": {
             "mode": args.rag_evidence,
             "consultations": {classe: len(entries) for classe, entries in rag_context.items()},
+            "filters": {
+                "family": args.rag_family, "field": args.rag_field,
+                "tiers": args.rag_tier, "obra": args.rag_obra, "pav": args.rag_pav,
+                "limit": args.rag_limit,
+            },
             "policy": "consultative_only; RAG never proves a field or authorizes apply",
         },
     }
@@ -2208,6 +2219,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--rag-evidence", choices=("auto", "off", "required"), default="auto",
         help="consulta semantic_rag_kb como contexto; required falha se não houver memória da classe",
     )
+    review.add_argument("--rag-family", help="família/subclasse exata quando o schema RAG suportar")
+    review.add_argument("--rag-field", help="campo exato quando o schema RAG suportar")
+    review.add_argument("--rag-tier", action="append", choices=("T1", "T2", "T3"))
+    review.add_argument("--rag-obra", help="obra_contexto exata para consulta RAG")
+    review.add_argument("--rag-pav", help="pavimento exato quando o schema RAG suportar")
+    review.add_argument("--rag-limit", type=int, default=50)
     review.add_argument("--run-id")
     review.add_argument("--out-dir")
     review.set_defaults(func=cmd_review)

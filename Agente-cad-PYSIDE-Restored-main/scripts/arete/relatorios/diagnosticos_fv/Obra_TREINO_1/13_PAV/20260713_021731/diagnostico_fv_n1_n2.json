@@ -1,0 +1,406 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-13T05:17:34.734588+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260713_021731",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "c4479376893cfdcd16fbd2c03503d3a8b4fa5faa5330a5ba5202996c8fe22fac",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision"
+  },
+  "resumo": {
+    "itens": 5,
+    "n1_itens": 5,
+    "n2_itens": 5,
+    "alertas": 2,
+    "classificacoes": {
+      "EXCELENTE": 3,
+      "INDETERMINADO": 1,
+      "REGULAR": 1
+    },
+    "segmentacao": {
+      "comparaveis": 4,
+      "quantidade_pass": 4,
+      "quantidade_fail": 0,
+      "medidas_pass": 3,
+      "medidas_fail": 1,
+      "tolerancia_medida_cm": 0.05
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-13T05:17:34.734588+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V308",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "delta_relativo_max": 8.359326303060002e-16,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 8.359326303060002e-16
+        },
+        "segmentos_match": true,
+        "medidas_segmentos_match": true,
+        "comparacao_medidas_segmentos": {
+          "tolerancia_cm": 0.05,
+          "metodo": "multiconjunto_ordenado",
+          "match": true,
+          "pares": [
+            {
+              "n1_cm": 252.99999999999955,
+              "n2_cm": 253.0,
+              "delta_abs_cm": 4.547473508864641e-13,
+              "passa": true
+            },
+            {
+              "n1_cm": 291.0,
+              "n2_cm": 291.0,
+              "delta_abs_cm": 0.0,
+              "passa": true
+            }
+          ]
+        },
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0,
+            19.0
+          ],
+          "comprimento_total": 543.9999999999995,
+          "comprimentos": [
+            252.99999999999955,
+            291.0
+          ],
+          "comprimento_declarado_total": 544.0,
+          "comprimento_geometrico_total": 543.9999999999995,
+          "segmentos": 2,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 544.0,
+          "comprimentos": [
+            253.0,
+            291.0
+          ],
+          "segmentos": 2,
+          "segmentos_logicos": 2,
+          "detalhe_segmentos_n2": [
+            {
+              "index": 1,
+              "comprimento_cm": 253.0,
+              "multiplicador": 1,
+              "origem_multiplicador": "unitario"
+            },
+            {
+              "index": 2,
+              "comprimento_cm": 291.0,
+              "multiplicador": 1,
+              "origem_multiplicador": "unitario"
+            }
+          ],
+          "furos_ativos": 1,
+          "ficha_id": 972,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-13T05:17:34.734588+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V310",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "delta_relativo_max": 0.0,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.0
+        },
+        "segmentos_match": true,
+        "medidas_segmentos_match": true,
+        "comparacao_medidas_segmentos": {
+          "tolerancia_cm": 0.05,
+          "metodo": "multiconjunto_ordenado",
+          "match": true,
+          "pares": [
+            {
+              "n1_cm": 152.0,
+              "n2_cm": 152.0,
+              "delta_abs_cm": 0.0,
+              "passa": true
+            }
+          ]
+        },
+        "n1": {
+          "largura": 14.0,
+          "larguras": [
+            14.0
+          ],
+          "comprimento_total": 152.0,
+          "comprimentos": [
+            152.0
+          ],
+          "comprimento_declarado_total": 152.0,
+          "comprimento_geometrico_total": 152.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 14.0,
+          "comprimento_total": 152.0,
+          "comprimentos": [
+            152.0
+          ],
+          "segmentos": 1,
+          "segmentos_logicos": 1,
+          "detalhe_segmentos_n2": [
+            {
+              "index": 1,
+              "comprimento_cm": 152.0,
+              "multiplicador": 1,
+              "origem_multiplicador": "unitario"
+            }
+          ],
+          "furos_ativos": 0,
+          "ficha_id": 976,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-13T05:17:34.734588+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V311",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "extractor_bug",
+      "causa_descricao": "A quantidade de segmentos coincide, mas uma ou mais medidas individuais divergem além de ±0,05 cm.",
+      "confianca": 0.95,
+      "evidencia": {
+        "classificacao": "REGULAR",
+        "delta_relativo_max": 0.053691275167785234,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.053691275167785234
+        },
+        "segmentos_match": true,
+        "medidas_segmentos_match": false,
+        "comparacao_medidas_segmentos": {
+          "tolerancia_cm": 0.05,
+          "metodo": "multiconjunto_ordenado",
+          "match": false,
+          "pares": [
+            {
+              "n1_cm": 423.0,
+              "n2_cm": 447.0,
+              "delta_abs_cm": 24.0,
+              "passa": false
+            }
+          ]
+        },
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 423.0,
+          "comprimentos": [
+            423.0
+          ],
+          "comprimento_declarado_total": 423.0,
+          "comprimento_geometrico_total": 423.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 447.0,
+          "comprimentos": [
+            447.0
+          ],
+          "segmentos": 1,
+          "segmentos_logicos": 1,
+          "detalhe_segmentos_n2": [
+            {
+              "index": 1,
+              "comprimento_cm": 447.0,
+              "multiplicador": 1,
+              "origem_multiplicador": "unitario"
+            }
+          ],
+          "furos_ativos": 0,
+          "ficha_id": 977,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-13T05:17:34.734588+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V312",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "delta_relativo_max": 0.0,
+        "deltas": {
+          "largura": 0.0,
+          "comprimento_total": 0.0
+        },
+        "segmentos_match": true,
+        "medidas_segmentos_match": true,
+        "comparacao_medidas_segmentos": {
+          "tolerancia_cm": 0.05,
+          "metodo": "multiconjunto_ordenado",
+          "match": true,
+          "pares": [
+            {
+              "n1_cm": 461.0,
+              "n2_cm": 461.0,
+              "delta_abs_cm": 0.0,
+              "passa": true
+            }
+          ]
+        },
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 461.0,
+          "comprimentos": [
+            461.0
+          ],
+          "comprimento_declarado_total": 461.0,
+          "comprimento_geometrico_total": 461.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": {
+          "largura": 19.0,
+          "comprimento_total": 461.0,
+          "comprimentos": [
+            461.0
+          ],
+          "segmentos": 1,
+          "segmentos_logicos": 1,
+          "detalhe_segmentos_n2": [
+            {
+              "index": 1,
+              "comprimento_cm": 461.0,
+              "multiplicador": 1,
+              "origem_multiplicador": "unitario"
+            }
+          ],
+          "furos_ativos": 0,
+          "ficha_id": 978,
+          "status": "draft",
+          "confianca_origem": 0.9
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-13T05:17:34.734588+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "FV",
+      "item": "V314",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha FV correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "delta_relativo_max": null,
+        "deltas": {
+          "largura": null,
+          "comprimento_total": null
+        },
+        "segmentos_match": false,
+        "medidas_segmentos_match": false,
+        "comparacao_medidas_segmentos": null,
+        "n1": {
+          "largura": 19.0,
+          "larguras": [
+            19.0
+          ],
+          "comprimento_total": 382.0,
+          "comprimentos": [
+            382.0
+          ],
+          "comprimento_declarado_total": 382.0,
+          "comprimento_geometrico_total": 382.0,
+          "segmentos": 1,
+          "furos_ativos": null
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

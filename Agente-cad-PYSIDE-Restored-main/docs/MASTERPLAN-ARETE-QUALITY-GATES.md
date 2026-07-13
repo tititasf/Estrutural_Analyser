@@ -360,13 +360,14 @@ Teste: `convert(ficha_N1_SA)` vs `ficha_N2` campo a campo, agrupado por categori
 **PASS:** categorias (a)+(b) com delta ≤ tolerância em 100% dos itens; (c) coberto por
 config de estilo/RAG reverso; (d) explicitamente excluído com referência.
 
-> **N1-V OBRIGATÓRIO (veredito visual do G4 — o número não basta):** o diagnóstico
-> N1×N2 (`diagnostico_*_n1_n2.py`) é só bbox/dimensão — CEGO para forma, contorno e
-> **segmentação** errados (ex.: viga contínua detectada como 2 segmentos em vez de 16).
-> Rodar `python scripts/arete/g2v_harness.py --classe X --par n1xn2 --backend cli`: o
-> agente compara o card N1 (Structural Analyzer) × N2 e aponta divergência de
-> interpretação com `motor_suspeito: interpretacao_n1`. Sem N1-V, aprovar N1 por número
-> é alucinação de aprovação. Delta numérico "EXCELENTE" NÃO fecha o gate sozinho.
+> **Revisão humana obrigatória da ficha N1×N2 (G4):** o diagnóstico N1×N2
+> (`diagnostico_*_n1_n2.py`) é só bbox/dimensão e não fecha o gate sozinho. O julgamento é
+> semântico e campo a campo: ficha N1 convertida × ficha N2, incluindo dimensão, lados,
+> comportamento Para/Passa, segmentos, encontros e proveniência. O
+> `g2v_harness --par n1xn2` só pode ser usado se renderizar essas duas fichas; se mostrar
+> geometria bruta do SA contra o recorte N2, o resultado é **inconclusivo**, não FAIL nem
+> PASS. A validação visual de desenho começa em N2×N4 (G2-V) e depois N3×N4 (G5-V).
+> Delta numérico "EXCELENTE" também não fecha o gate sozinho.
 **O loop de aprendizado:** cada delta em (a)/(b) vira fix de extrator do SA, regra
 semântica nova, ou fix do conversor — N2 é o professor, o delta é a lição.
 

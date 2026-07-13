@@ -1,0 +1,1 @@
+{"classe": "LAJ", "code": "LAJ-NEIGHBOR-LEVEL-CONTAMINATION", "evidence": [{"expected": "852.12", "slot": "neighbor_east", "source_slab": "L1", "wrong": "402.5"}], "field_id": "laje_vizinhas_niveis", "finding_id": "qaev-f-048e6f609d94093f", "item": "L2", "message": "402.5 não é o nível confiável de L1 (852.12)", "project_id": "p", "run_id": "run"}

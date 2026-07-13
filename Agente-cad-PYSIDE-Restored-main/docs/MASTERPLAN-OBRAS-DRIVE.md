@@ -659,13 +659,58 @@ lógica de dados por trás — a mesma limitação de sempre pra PySide6).
   pavimento do arquivo em questão — decisão deliberada de errar pro lado
   de proteger demais.
 
+## Fase 14 — Validação individual por segmento (FV/LV) + harmonia com a web (2026-07-11)
+
+- ✅ **Novo módulo puro `src/core/beam_segment_validation.py`** — chaves de
+  segmento (`{prefix}_seg_{idx}`), descoberta de índices ativos, filtro por
+  comportamento (Para/Passa) e cascata segmento→item. Sem dependência de
+  Qt/DB — testado isoladamente com beam fake (2 segs validados de 3: não
+  cascateia; 3/3: cascateia pra `is_validated=True`).
+- ✅ **SA (`detail_card.py`)**: `beam['validated_segments']` novo (persistido
+  no `data_json` já existente — sem migration, `save_beam` ganhou merge
+  aditivo pra nunca perder selo de segmento entre saves). Cada segmento
+  (`_add_rich_segment_pack` p/ LV, `_add_fundo_segment_pack` p/ FV) ganhou
+  botão "✓ Segmento validado" checável, independente dos campos. Campos
+  validam o segmento automaticamente (`_sync_segment_flag_from_fields`,
+  ligado em `mark_field_validated`) quando os campos DAQUELE segmento
+  chegam a 100% — mas validar o segmento NUNCA valida os campos (só o
+  inverso). Quando todos os segmentos ativos do item ficam validados
+  (manual ou por campo), o item ganha selo verde automaticamente — nunca
+  o azul, que continua exigindo 100% dos campos do item inteiro. Validar
+  o item inteiro (botão existente) cascateia pra baixo: sela todos os
+  segmentos também.
+- ✅ **Sync web→app (`main.py`)** — `_sincronizar_selo_verde_drive` (Fase 12)
+  ganhou `_sincronizar_selo_verde_segmentos_drive`: lê as 5 classes de
+  segmento da web (`fundo`, `lateral_a_para/passa`, `lateral_b_para/passa`),
+  casa por nome de viga + número de segmento (regex no `titulo`
+  "V101 (segmento N)"), marca o segmento local e cascateia pro item quando
+  completo — harmonizando exatamente como pedido: só segmento, nunca campo.
+- ✅ **Comparison Engine (`comparison_engine.py`)** — decisão do dono
+  confirmada (checklist DENTRO da ficha existente, não 1 linha por
+  segmento na lista): `LevelColumn.append_segment_checklist` adiciona um
+  checklist ADITIVO ao fim da ficha N3 já renderizada (não mexe em
+  `set_ficha`/`set_lv_ficha`/`switch_to_lv_zones`), com 1 checkbox por
+  segmento ativo (side A/B pro comportamento do item_id em LV; viga_fundo
+  pra FV), lendo/gravando o MESMO `beam['validated_segments']` do SA —
+  qualquer um dos 3 lugares (SA, CE, web) reflete no mesmo selo.
+  **Limitação conhecida, não testável sem PySide6 real**: o checklist é
+  anexado só no caminho síncrono (DXF N3 já existe em disco); quando o N3
+  precisa ser gerado (`_start_n3_generation`/`_start_n4_lv_generation`,
+  assíncrono via callback), o checklist não é re-anexado automaticamente
+  depois — precisa reabrir o item depois de gerado pela primeira vez.
+- Todo o código compila limpo (`py_compile`) e a lógica pura foi testada
+  isoladamente; o fluxo de UI ponta a ponta (clicar no checkbox de verdade,
+  ver o selo aparecer) **não foi testado visualmente** — mesma limitação de
+  sempre (só navegador disponível, PySide6 precisa do dono rodar local).
+
 ## Fora de escopo (fases futuras, não implementadas agora)
 
 - Sincronizar ficha/validação SA campo-a-campo entre web e app (dono decidiu: NÃO — ver Fase 12/instrução do dono, app é só treino/validação interna, sem upload app→portal).
-- Selo verde de VIGAS (segmentos web × viga inteira local) — falta decidir regra de agregação (ver Fase 12).
 - Exportador HTML da ficha "Convenção de Níveis"/"Convenção de Pilares" — não existe em nenhum lugar hoje (ver Fase 12), pendente de explicação do dono sobre o conteúdo esperado.
+- Web/recortes: conectar dados de Convenção de Níveis/Pilares na Triagem pra ajudar a interpretação do recorte antes do SA — ideia do dono, ainda não detalhada.
 - Portal: polish de `foto_n3` PL em todos os pavimentos (materialização headless
   já grava `n3_variants`; render web pode ainda falhar em edge cases).
+- Checklist de segmento no CE não reaparece automaticamente após geração assíncrona do N3 (ver Fase 14) — precisa reabrir o item.
 - Upload no sentido reverso (app → portal) — decidido que NÃO vai ter.
 - Confirmação/aviso interativo (dialog) quando a atualização é pulada por item validado — hoje só loga; poderia virar um prompt visível na UI se o dono quiser.
 - Cache/expiração de arquivos baixados — recomendação dada (invalidação por versão + proteção de item já validado localmente, nunca sobrescrever silenciosamente), aguardando decisão do dono se implementa agora.

@@ -90,6 +90,9 @@ scripts/arete/html_fichas/**/*_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-
 # testes locais, nao usados por CI)
 .pytest-tmp*/
 
+# Cache local regenerável dos fast paths QA (chaveado por conteúdo)
+scripts/arete/.cache/
+
 # Estado real do SA fica no portal_data.db (ja ignorado acima) — os JSONs
 # soltos na raiz da obra e o cad_project.db sao dumps regeneraveis
 DADOS-OBRAS/**/estado_*.json

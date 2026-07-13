@@ -53,6 +53,49 @@ def test_generate_pl_n3_dialog_missing():
     assert failed == ["dialog-ausente"]
 
 
+@pytest.mark.parametrize(
+    'section', ('pilares', 'lajes', 'fundos_viga', 'laterais_viga')
+)
+def test_n3_scope_respects_each_explicit_section_filter(section):
+    mod = _load_headless()
+    assert mod._n3_sections_for_run({section}) == {section}
+
+
+def test_n3_scope_preserves_multiple_explicit_sections_and_full_default():
+    mod = _load_headless()
+    assert mod._n3_sections_for_run({"pilares", "lajes"}) == {
+        "pilares", "lajes"
+    }
+    assert mod._n3_sections_for_run(None) == mod._VALID_SECTIONS
+
+
+def test_attach_pl_variants_persists_the_same_para_and_passa_payloads():
+    mod = _load_headless()
+    payload = {'nome': 'P1', 'abertura_A_1': {'largura': 11}}
+    cache = {
+        ('P1', 'para'): {
+            'contract': {'schema': 'pil.n3_mode_contract.v2', 'modo_semantico': 'PARA'},
+            'payload': payload,
+            'paths': {'json': 'para/P1.json', 'abcd': 'para/P1.dxf'},
+        },
+        ('P1', 'passa'): {
+            'contract': {'schema': 'pil.n3_mode_contract.v2', 'modo_semantico': 'PASSA'},
+            'payload': payload,
+            'paths': {'json': 'passa/P1.json', 'abcd': 'passa/P1.dxf'},
+        },
+    }
+    pillars = [{'name': 'P1'}, {'name': 'P2'}]
+
+    assert mod._attach_pl_n3_variants_to_pillars(pillars, cache) == 1
+    variants = pillars[0]['pl_n3_variants']
+    assert set(variants) == {'para', 'passa'}
+    assert variants['passa']['payload']['abertura_A_1']['largura'] == 11
+    assert pillars[0]['pl_n3_variants_schema'] == 'pil.n3_variants/v1'
+    assert 'pl_n3_variants' not in pillars[1]
+    # O registro do SA não pode compartilhar o objeto mutável do cache HTML.
+    assert variants['para']['payload'] is not payload
+
+
 def test_pre_validation_has_materialize_pl_n3_api():
     # Import leve da classe (pode puxar Qt — skip se ambiente sem display)
     try:

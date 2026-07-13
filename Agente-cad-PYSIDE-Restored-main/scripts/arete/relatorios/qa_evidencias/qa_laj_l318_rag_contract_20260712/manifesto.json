@@ -1,0 +1,29 @@
+{
+  "authority": "read_only; only LAJ has a validation-ready apply path; all other decisions remain non-mutating",
+  "classe": "LAJ",
+  "classes": [
+    "LAJ"
+  ],
+  "created_at": "2026-07-13T00:03:14+00:00",
+  "db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+  "items": [
+    "L318"
+  ],
+  "mode": "global_read_only_review",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "rag": {
+    "consultations": {
+      "LAJ": 13
+    },
+    "mode": "auto",
+    "policy": "consultative_only; RAG never proves a field or authorizes apply"
+  },
+  "run_id": "qa_laj_l318_rag_contract_20260712",
+  "schema_version": 1,
+  "snapshots": {
+    "L318": {
+      "hash": "09ef593d73a10c0ecda5695df7ccbf9832df0bec9d160381f51acaa8ab9849cd",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_18"
+    }
+  }
+}

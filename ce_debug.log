@@ -33673,3 +33673,1340 @@ Current thread 0x00003238 (most recent call first):
 [17:40:06.805] N3 PIL materialize P4/para/grades mode=INI ents=2 → PL_GRADES_preview_P4.dxf
 [17:40:06.805] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=136 variant=PARA visual=INI
 [17:40:07.792] N3 PIL OK P4_Para mode=para visual=INI
+[17:42:09.856] N3 PIL mode=para item=P4_Para visual=NOVA force_regen=True obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:09.910] N3 PIL materialize P4/para/abcd mode=NOVA ents=93 → PL_ABCD_preview_P4.dxf
+[17:42:10.312] N3 PIL materialize P4/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P4.dxf
+[17:42:10.312] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=136 variant=PARA visual=NOVA
+[17:42:10.977] N3 PIL OK P4_Para mode=para visual=NOVA
+[17:42:12.347] ITEM_SELECTED classe=PL id=P1_Para flow=estrutural
+[17:42:12.419] N1 flow=estrutural classe=PL id=P1_Para auto_chain=True
+[17:42:12.674] N3 PIL mode=para item=P1_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:12.741] N3 PIL materialize P1/para/abcd mode=NOVA ents=120 → PL_ABCD_preview_P1.dxf
+[17:42:13.148] N3 PIL materialize P1/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P1.dxf
+[17:42:13.148] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=137 variant=PARA visual=NOVA
+[17:42:14.089] N3 PIL OK P1_Para mode=para visual=NOVA
+[17:42:28.917] ITEM_SELECTED classe=PL id=P3_Para flow=estrutural
+[17:42:28.988] N1 flow=estrutural classe=PL id=P3_Para auto_chain=True
+[17:42:29.250] N3 PIL mode=para item=P3_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:29.331] N3 PIL materialize P3/para/abcd mode=NOVA ents=141 → PL_ABCD_preview_P3.dxf
+[17:42:29.736] N3 PIL materialize P3/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P3.dxf
+[17:42:29.737] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=139 variant=PARA visual=NOVA
+[17:42:30.994] N3 PIL OK P3_Para mode=para visual=NOVA
+[17:42:32.627] ITEM_SELECTED classe=PL id=P9_Para flow=estrutural
+[17:42:32.700] N1 flow=estrutural classe=PL id=P9_Para auto_chain=True
+[17:42:32.958] N3 PIL mode=para item=P9_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:33.012] N3 PIL materialize P9/para/abcd mode=NOVA ents=86 → PL_ABCD_preview_P9.dxf
+[17:42:33.480] N3 PIL materialize P9/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P9.dxf
+[17:42:33.481] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=135 variant=PARA visual=NOVA
+[17:42:34.334] N3 PIL OK P9_Para mode=para visual=NOVA
+[17:42:36.203] ITEM_SELECTED classe=PL id=P5_Para flow=estrutural
+[17:42:36.270] N1 flow=estrutural classe=PL id=P5_Para auto_chain=True
+[17:42:36.539] N3 PIL mode=para item=P5_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:36.595] N3 PIL materialize P5/para/abcd mode=NOVA ents=93 → PL_ABCD_preview_P5.dxf
+[17:42:37.009] N3 PIL materialize P5/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P5.dxf
+[17:42:37.009] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=136 variant=PARA visual=NOVA
+[17:42:37.798] N3 PIL OK P5_Para mode=para visual=NOVA
+[17:42:39.563] ITEM_SELECTED classe=PL id=P4_Para flow=estrutural
+[17:42:39.632] N1 flow=estrutural classe=PL id=P4_Para auto_chain=True
+[17:42:39.891] N3 PIL mode=para item=P4_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:39.946] N3 PIL materialize P4/para/abcd mode=NOVA ents=93 → PL_ABCD_preview_P4.dxf
+[17:42:40.373] N3 PIL materialize P4/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P4.dxf
+[17:42:40.374] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=136 variant=PARA visual=NOVA
+[17:42:41.448] N3 PIL OK P4_Para mode=para visual=NOVA
+[17:42:42.170] ITEM_SELECTED classe=PL id=P3_Para flow=estrutural
+[17:42:42.238] N1 flow=estrutural classe=PL id=P3_Para auto_chain=True
+[17:42:42.500] N3 PIL mode=para item=P3_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:42.580] N3 PIL materialize P3/para/abcd mode=NOVA ents=141 → PL_ABCD_preview_P3.dxf
+[17:42:43.020] N3 PIL materialize P3/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P3.dxf
+[17:42:43.020] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=139 variant=PARA visual=NOVA
+[17:42:44.010] N3 PIL OK P3_Para mode=para visual=NOVA
+[17:42:45.466] ITEM_SELECTED classe=PL id=P1_Para flow=estrutural
+[17:42:45.541] N1 flow=estrutural classe=PL id=P1_Para auto_chain=True
+[17:42:45.806] N3 PIL mode=para item=P1_Para visual=NOVA force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:45.875] N3 PIL materialize P1/para/abcd mode=NOVA ents=120 → PL_ABCD_preview_P1.dxf
+[17:42:46.284] N3 PIL materialize P1/para/grades mode=NOVA ents=2 → PL_GRADES_preview_P1.dxf
+[17:42:46.284] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=137 variant=PARA visual=NOVA
+[17:42:47.482] N3 PIL OK P1_Para mode=para visual=NOVA
+[17:42:55.048] N3 PIL mode=para item=P1_Para visual=INI force_regen=True obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:42:55.126] N3 PIL materialize P1/para/abcd mode=INI ents=120 → PL_ABCD_preview_P1.dxf
+[17:42:55.521] N3 PIL materialize P1/para/grades mode=INI ents=2 → PL_GRADES_preview_P1.dxf
+[17:42:55.522] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=137 variant=PARA visual=INI
+[17:42:56.417] N3 PIL OK P1_Para mode=para visual=INI
+[17:43:46.357] ITEM_SELECTED classe=PL id=P2_Para flow=estrutural
+[17:43:46.430] N1 flow=estrutural classe=PL id=P2_Para auto_chain=True
+[17:43:46.685] N3 PIL mode=para item=P2_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:43:46.768] N3 PIL materialize P2/para/abcd mode=INI ents=136 → PL_ABCD_preview_P2.dxf
+[17:43:47.178] N3 PIL materialize P2/para/grades mode=INI ents=2 → PL_GRADES_preview_P2.dxf
+[17:43:47.179] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=138 variant=PARA visual=INI
+[17:43:48.443] N3 PIL OK P2_Para mode=para visual=INI
+[17:43:56.882] ITEM_SELECTED classe=PL id=P3_Para flow=estrutural
+[17:43:56.960] N1 flow=estrutural classe=PL id=P3_Para auto_chain=True
+[17:43:57.231] N3 PIL mode=para item=P3_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:43:57.309] N3 PIL materialize P3/para/abcd mode=INI ents=141 → PL_ABCD_preview_P3.dxf
+[17:43:57.711] N3 PIL materialize P3/para/grades mode=INI ents=2 → PL_GRADES_preview_P3.dxf
+[17:43:57.712] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=139 variant=PARA visual=INI
+[17:43:58.726] N3 PIL OK P3_Para mode=para visual=INI
+[17:44:22.164] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[17:44:22.171] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:45:27.297] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:46:05.923] ITEM_SELECTED classe=PL id=P2_Para flow=estrutural
+[17:46:06.000] N1 flow=estrutural classe=PL id=P2_Para auto_chain=True
+[17:46:06.278] N3 PIL mode=para item=P2_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:46:06.360] N3 PIL materialize P2/para/abcd mode=INI ents=136 → PL_ABCD_preview_P2.dxf
+[17:46:06.782] N3 PIL materialize P2/para/grades mode=INI ents=2 → PL_GRADES_preview_P2.dxf
+[17:46:06.782] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=138 variant=PARA visual=INI
+[17:46:07.805] N3 PIL OK P2_Para mode=para visual=INI
+[17:46:11.925] ITEM_SELECTED classe=PL id=P1_Para flow=estrutural
+[17:46:12.005] N1 flow=estrutural classe=PL id=P1_Para auto_chain=True
+[17:46:12.263] N3 PIL mode=para item=P1_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[17:46:12.342] N3 PIL materialize P1/para/abcd mode=INI ents=120 → PL_ABCD_preview_P1.dxf
+[17:46:12.802] N3 PIL materialize P1/para/grades mode=INI ents=2 → PL_GRADES_preview_P1.dxf
+[17:46:12.803] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=137 variant=PARA visual=INI
+[17:46:14.020] N3 PIL OK P1_Para mode=para visual=INI
+[17:46:47.562] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[17:46:47.571] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:47:50.246] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:48:23.415] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[17:48:23.483] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[17:48:24.379] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[17:48:30.472] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[17:48:45.454] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[17:49:20.184] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[17:49:20.240] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[17:49:24.113] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[17:49:37.015] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[17:58:28.843] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[17:58:28.851] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:59:29.770] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+Windows fatal exception: stack overflow
+
+Current thread 0x000048e8 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1289 in create_module
+  File "<frozen importlib._bootstrap>", line 813 in module_from_spec
+  File "<frozen importlib._bootstrap>", line 921 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x000048e8 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1289 in create_module
+  File "<frozen importlib._bootstrap>", line 813 in module_from_spec
+  File "<frozen importlib._bootstrap>", line 921 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x000048e8 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1289 in create_module
+  File "<frozen importlib._bootstrap>", line 813 in module_from_spec
+  File "<frozen importlib._bootstrap>", line 921 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x00003f4c (most recent call first):
+  File "Windows fatal exception: stack overflow
+
+Windows fatal exception: stack overflow
+
+Windows fatal exception: stack overflow
+
+Current thread 0x0000434c (most recent call first):
+  File "<frozen importlib._bootstrap>", line 75 in __new__
+  File "<frozen importlib._bootstrap>", line 132 in setdefault
+  File "<frozen importlib._bootstrap>", line 170 in __enter__
+  File "<frozen importlib._bootstrap>", line 311 in acquire
+  File "<frozen importlib._bootstrap>", line 418 in __enter__
+  File "<frozen importlib._bootstrap>", line 1357 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x0000434c (most recent call first):
+  File "<frozen importlib._bootstrap>", line 75 in __new__
+  File "<frozen importlib._bootstrap>", line 132 in setdefault
+  File "<frozen importlib._bootstrap>", line 170 in __enter__
+  File "<frozen importlib._bootstrap>", line 311 in acquire
+  File "<frozen importlib._bootstrap>", line 418 in __enter__
+  File "<frozen importlib._bootstrap>", line 1357 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x0000434c (most recent call first):
+  File "<frozen importlib._bootstrap>", line 75 in __new__
+  File "<frozen importlib._bootstrap>", line 132 in setdefault
+  File "<frozen importlib._bootstrap>", line 170 in __enter__
+  File "<frozen importlib._bootstrap>", line 311 in acquire
+  File "<frozen importlib._bootstrap>", line 418 in __enter__
+  File "<frozen importlib._bootstrap>", line 1357 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x00002e40 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 75 in __new__
+  File "<frozen importlib._bootstrap>", line 132 in setdefault
+  File "<frozen importlib._bootstrap>", line 170 in __enter__
+  File "<frozen importlib._bootstrap>", line 311 in acquire
+  File "<frozen importlib._bootstrap>", line 418 in __enter__
+  File "<frozen importlib._bootstrap>", line 1357 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x00002e40 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 75 in __new__
+  File "<frozen importlib._bootstrap>", line 132 in setdefault
+  File "<frozen importlib._bootstrap>", line 170 in __enter__
+  File "<frozen importlib._bootstrap>", line 311 in acquire
+  File "<frozen importlib._bootstrap>", line 418 in __enter__
+  File "<frozen importlib._bootstrap>", line 1357 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+Windows fatal exception: stack overflow
+
+Current thread 0x00002e40 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 75 in __new__
+  File "<frozen importlib._bootstrap>", line 132 in setdefault
+  File "<frozen importlib._bootstrap>", line 170 in __enter__
+  File "<frozen importlib._bootstrap>", line 311 in acquire
+  File "<frozen importlib._bootstrap>", line 418 in __enter__
+  File "<frozen importlib._bootstrap>", line 1357 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\tslibs\__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1297 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\_libs\__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\core\api.py", line 1 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pandas\__init__.py", line 61 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\fixes.py", line 19 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_array_api.py", line 23 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\validation.py", line 24 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_param_validation.py", line 17 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\_chunking.py", line 11 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\sklearn\utils\__init__.py", line 9 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 995 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  ...
+[18:12:39.837] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[18:12:39.844] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:13:46.027] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:29:26.304] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[18:29:26.311] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:30:29.342] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:42:52.553] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[18:42:52.561] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:43:55.538] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[19:02:14.002] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[19:02:14.013] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[19:03:31.448] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[19:29:59.721] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[19:29:59.729] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[19:30:57.991] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[19:32:50.135] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[19:32:50.143] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[19:33:51.409] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:37:00.977] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[23:37:00.987] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:38:05.025] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:47:46.373] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[23:47:46.382] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:48:49.927] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:33:51.483] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:33:51.493] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:35:06.245] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:51:55.022] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:51:55.032] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:53:08.395] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:02:15.260] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:02:15.269] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:03:20.341] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[12:33:41.553] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[12:33:41.561] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[12:34:57.701] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[12:35:18.691] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[12:35:18.699] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[12:36:39.912] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[12:49:09.133] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[12:49:09.143] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[12:50:21.967] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[14:17:10.358] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[14:17:10.367] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[14:18:20.210] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[14:19:48.868] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[14:19:48.940] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[14:19:49.753] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[14:20:08.223] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[14:20:23.852] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[14:20:59.503] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[14:20:59.563] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[14:21:02.425] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[14:21:10.310] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[14:27:34.955] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[14:27:34.964] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[14:28:41.321] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[14:29:00.435] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[14:29:00.546] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[14:29:01.932] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[14:29:10.551] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[14:29:22.946] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[14:30:53.538] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[14:30:53.601] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[14:30:56.549] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[14:31:06.101] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[14:34:35.841] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[14:34:35.850] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[14:35:38.316] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:45:50.816] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[17:45:50.824] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:47:01.706] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:49:36.580] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[17:49:36.590] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[17:50:46.330] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:20:14.460] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[18:20:14.471] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:21:44.199] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:23:07.923] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[18:23:07.959] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:24:39.537] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[18:24:48.669] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[18:24:48.804] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[18:24:50.048] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[18:24:52.757] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[18:25:04.893] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA: EL-(Torre-1)-(TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA)-(Obra_TREINO_1)_0000000000.dxf
+[18:25:36.549] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA' (obra_local='Obra_TREINO_1')
+[18:25:36.669] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[18:25:40.052] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[18:25:44.957] N1 project dxf obra=Obra_TREINO_1 pav=TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA: torre_1.dxf
+[18:25:51.455] ITEM_SELECTED classe=LV id=V327_Para flow=estrutural
+[18:25:51.466] N1 flow=estrutural classe=LV id=V327_Para auto_chain=True
+[18:26:10.775] ITEM_SELECTED classe=LV id=V327_Passa flow=estrutural
+[18:26:10.836] N1 flow=estrutural classe=LV id=V327_Passa auto_chain=True
+[18:26:18.661] ITEM_SELECTED classe=LV id=V327 flow=reverso
+[18:26:18.730] N1 flow=reverso classe=LV id=V327 auto_chain=True
+[18:26:18.733] N1 ER shortcircuit → chaining N2
+[18:26:18.794] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V327
+[18:26:18.796] N2 recorte via fichas pav=13_PAV: LV_V327_motor_178111333096.dxf
+[18:26:18.796] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V327_motor_178111333096.dxf
+[18:26:18.797] N2 loading DXF size=56KB
+[18:26:18.971] N2 recorte via fichas pav=13_PAV: LV_V327_motor_178111333096.dxf
+[18:26:18.999] LV ficha live V327: face_units=2 sections=1
+[18:26:19.177] N2 done ok. is_er=True auto_chain=True
+[18:26:19.243] N4 start classe=LV id=V327
+[18:26:19.245] N4 get_er_ficha classe=LV id=V327
+[18:26:19.246] N2 recorte via fichas pav=13_PAV: LV_V327_motor_178111333096.dxf
+[18:26:19.269] LV ficha live V327: face_units=2 sections=1
+[18:26:19.270] N4 set_ficha classe=LV id=V327 er_keys=31
+[18:26:19.465] N4 step0 ok
+[18:26:19.468] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LV_preview_V327_A.dxf force_regen=True
+[18:26:19.469] N4 generate classe=LV id=V327 via=lv_gen
+[18:26:19.477] N4 generate launched
+[18:26:32.347] Comparar N2 OK path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V327_motor_178111333096.dxf
+[18:34:17.958] ITEM_SELECTED classe=PL id=P1_Para flow=estrutural
+[18:34:18.020] N1 flow=estrutural classe=PL id=P1_Para auto_chain=True
+[18:34:18.313] N3 PIL mode=para item=P1_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:34:18.401] N3 PIL materialize P1/para/abcd mode=INI ents=114 → PL_ABCD_preview_P1.dxf
+[18:34:18.798] N3 PIL materialize P1/para/grades mode=INI ents=2 → PL_GRADES_preview_P1.dxf
+[18:34:18.800] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=138 variant=PARA visual=INI
+[18:34:19.833] N3 PIL OK P1_Para mode=para visual=INI
+[18:34:25.741] ITEM_SELECTED classe=PL id=P1_Passa flow=estrutural
+[18:34:25.812] N1 flow=estrutural classe=PL id=P1_Passa auto_chain=True
+[18:34:26.081] N3 PIL mode=passa item=P1_Passa visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:34:26.139] N3 PIL materialize P1/passa/abcd mode=INI ents=87 → PL_ABCD_preview_P1.dxf
+[18:34:26.542] N3 PIL materialize P1/passa/grades mode=INI ents=2 → PL_GRADES_preview_P1.dxf
+[18:34:26.543] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=135 variant=PASSA visual=INI
+[18:34:27.338] N3 PIL OK P1_Passa mode=passa visual=INI
+[18:34:37.398] Comparar N1 ok classe=PL item=P1_Passa points=5 bbox=(782.8824999999999, 2745.038, 1593.8825, 3603.038) full_map=True
+[18:34:52.390] ITEM_SELECTED classe=PL id=P2_Passa flow=estrutural
+[18:34:52.456] N1 flow=estrutural classe=PL id=P2_Passa auto_chain=True
+[18:34:53.499] Comparar N1 ok classe=PL item=P2_Passa points=5 bbox=(1207.3825, 2745.038, 2018.3825, 3603.038) full_map=True
+[18:34:53.609] N3 PIL mode=passa item=P2_Passa visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:34:53.666] N3 PIL materialize P2/passa/abcd mode=INI ents=87 → PL_ABCD_preview_P2.dxf
+[18:34:54.068] N3 PIL materialize P2/passa/grades mode=INI ents=2 → PL_GRADES_preview_P2.dxf
+[18:34:54.069] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=136 variant=PASSA visual=INI
+[18:34:55.033] N3 PIL OK P2_Passa mode=passa visual=INI
+[18:35:09.902] ITEM_SELECTED classe=PL id=P3_Para flow=estrutural
+[18:35:09.964] N1 flow=estrutural classe=PL id=P3_Para auto_chain=True
+[18:35:10.974] Comparar N1 ok classe=PL item=P3_Para points=5 bbox=(1644.3825, 2745.038, 2455.3825, 3603.038) full_map=True
+[18:35:11.085] N3 PIL mode=para item=P3_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:35:11.169] N3 PIL materialize P3/para/abcd mode=INI ents=134 → PL_ABCD_preview_P3.dxf
+[18:35:11.566] N3 PIL materialize P3/para/grades mode=INI ents=2 → PL_GRADES_preview_P3.dxf
+[18:35:11.567] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=141 variant=PARA visual=INI
+[18:35:12.715] N3 PIL OK P3_Para mode=para visual=INI
+[18:35:18.414] ITEM_SELECTED classe=PL id=P3_Passa flow=estrutural
+[18:35:18.485] N1 flow=estrutural classe=PL id=P3_Passa auto_chain=True
+[18:35:19.482] Comparar N1 ok classe=PL item=P3_Passa points=5 bbox=(1644.3825, 2745.038, 2455.3825, 3603.038) full_map=True
+[18:35:19.601] N3 PIL mode=passa item=P3_Passa visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:35:19.657] N3 PIL materialize P3/passa/abcd mode=INI ents=93 → PL_ABCD_preview_P3.dxf
+[18:35:20.050] N3 PIL materialize P3/passa/grades mode=INI ents=2 → PL_GRADES_preview_P3.dxf
+[18:35:20.050] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=136 variant=PASSA visual=INI
+[18:35:21.034] N3 PIL OK P3_Passa mode=passa visual=INI
+[18:35:29.926] ITEM_SELECTED classe=PL id=P35_Para flow=estrutural
+[18:35:29.991] N1 flow=estrutural classe=PL id=P35_Para auto_chain=True
+[18:35:31.011] Comparar N1 ok classe=PL item=P35_Para points=5 bbox=(4132.3825, 1603.038, 4912.3825, 2342.038) full_map=True
+[18:35:31.127] N3 PIL mode=para item=P35_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:35:31.190] N3 PIL materialize P35/para/abcd mode=INI ents=95 → PL_ABCD_preview_P35.dxf
+[18:35:31.592] N3 PIL materialize P35/para/grades mode=INI ents=2 → PL_GRADES_preview_P35.dxf
+[18:35:31.593] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=133 variant=PARA visual=INI
+[18:35:32.374] N3 PIL OK P35_Para mode=para visual=INI
+[18:35:41.550] ITEM_SELECTED classe=PL id=P35_Passa flow=estrutural
+[18:35:41.618] N1 flow=estrutural classe=PL id=P35_Passa auto_chain=True
+[18:35:42.864] Comparar N1 ok classe=PL item=P35_Passa points=5 bbox=(4132.3825, 1603.038, 4912.3825, 2342.038) full_map=True
+[18:35:42.967] N3 PIL mode=passa item=P35_Passa visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:35:43.027] N3 PIL materialize P35/passa/abcd mode=INI ents=87 → PL_ABCD_preview_P35.dxf
+[18:35:43.438] N3 PIL materialize P35/passa/grades mode=INI ents=2 → PL_GRADES_preview_P35.dxf
+[18:35:43.438] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=131 variant=PASSA visual=INI
+[18:35:44.226] N3 PIL OK P35_Passa mode=passa visual=INI
+[18:35:50.838] ITEM_SELECTED classe=PL id=P35 flow=reverso
+[18:35:50.919] N1 flow=reverso classe=PL id=P35 auto_chain=True
+[18:35:50.922] N1 ER shortcircuit → chaining N2
+[18:35:50.978] N2 is_er_flow=True obra=Obra_TREINO_1 classe=PL id=P35
+[18:35:50.981] N2 recorte via fichas pav=13_PAV: PIL_P35_motor_178111335719.dxf
+[18:35:50.982] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- PL - R00\PIL_P35_motor_178111335719.dxf
+[18:35:50.982] N2 loading DXF size=226KB
+[18:35:51.754] N2 done ok. is_er=True auto_chain=True
+[18:35:51.874] N4 start classe=PL id=P35
+[18:35:51.877] N4 get_er_ficha classe=PL id=P35
+[18:35:51.879] N4 set_ficha classe=PL id=P35 er_keys=113
+[18:35:52.259] N4 step0 ok
+[18:35:52.262] N2 recorte via fichas pav=13_PAV: PIL_P35_motor_178111335719.dxf
+[18:35:52.321] pd extraido do DXF N2: 321.0 (de 3 candidatos)
+[18:35:52.322] N4 PIL P35: pd_pavimento_cm=321.0 (DXF N2 geometry)
+[18:35:52.380] N2 DXF face A: paineis_intervals=[122.0, 97.0, 26.0, 15.0]
+[18:35:52.381] N2 DXF face A: abertura={'lado': 'direito', 'largura': 28.0, 'y_rel': 219.0, 'altura': 41.0}
+[18:35:52.381] N2 DXF face A: h_par=97 (via intervals)
+[18:35:52.382] N2 DXF face B: paineis_intervals=[122.0, 97.0, 26.0, 15.0]
+[18:35:52.383] N2 DXF face B: h_par=97 (via intervals)
+[18:35:52.383] N2 DXF face C: paineis_intervals=[219.0, 26.0, 15.0]
+[18:35:52.384] N2 DXF face C: h_par=26 (via intervals)
+[18:35:52.385] N2 DXF face D: paineis_intervals=[219.0, 26.0, 15.0]
+[18:35:52.386] N2 DXF face D: abertura={'lado': 'meio', 'largura': 26.4, 'x_offset': 42.3, 'y_rel': 219.0, 'altura': 41.0}
+[18:35:52.386] N2 DXF face D: h_par=26 (via intervals)
+[18:35:52.386] N4 PIL P35: per-face laje injetado: {'paineis_intervals_A': [122.0, 97.0, 26.0, 15.0], 'abertura_A': {'lado': 'direito', 'largura': 28.0, 'y_rel': 219.0, 'altura': 41.0}, 'h_par_A': 97.0, 'paineis_intervals_B': [122.0, 97.0, 26.0, 15.0], 'h_par_B': 97.0, 'paineis_intervals_C': [219.0, 26.0, 15.0], 'h_par_C': 26.0, 'paineis_intervals_D': [219.0, 26.0, 15.0], 'abertura_D': {'lado': 'meio', 'largura': 26.4, 'x_offset': 42.3, 'y_rel': 219.0, 'altura': 41.0}, 'h_par_D': 26.0}
+[18:36:54.048] ITEM_SELECTED classe=PL id=P35_Passa flow=estrutural
+[18:36:54.134] N1 flow=estrutural classe=PL id=P35_Passa auto_chain=True
+[18:36:55.319] Comparar N1 ok classe=PL item=P35_Passa points=5 bbox=(4132.3825, 1603.038, 4912.3825, 2342.038) full_map=True
+[18:36:55.455] N3 PIL mode=passa item=P35_Passa visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:36:55.536] N3 PIL materialize P35/passa/abcd mode=INI ents=87 → PL_ABCD_preview_P35.dxf
+[18:36:55.956] N3 PIL materialize P35/passa/grades mode=INI ents=2 → PL_GRADES_preview_P35.dxf
+[18:36:55.956] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=131 variant=PASSA visual=INI
+[18:36:56.957] N3 PIL OK P35_Passa mode=passa visual=INI
+[18:37:05.406] ITEM_SELECTED classe=PL id=P35_Para flow=estrutural
+[18:37:05.473] N1 flow=estrutural classe=PL id=P35_Para auto_chain=True
+[18:37:06.495] Comparar N1 ok classe=PL item=P35_Para points=5 bbox=(4132.3825, 1603.038, 4912.3825, 2342.038) full_map=True
+[18:37:06.638] N3 PIL mode=para item=P35_Para visual=INI force_regen=False obra_dir=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[18:37:06.699] N3 PIL materialize P35/para/abcd mode=INI ents=95 → PL_ABCD_preview_P35.dxf
+[18:37:07.101] N3 PIL materialize P35/para/grades mode=INI ents=2 → PL_GRADES_preview_P35.dxf
+[18:37:07.102] N3 PIL zones=['CIMA', 'ABCD', 'GRADES'] payload_keys=133 variant=PARA visual=INI
+[18:37:07.895] N3 PIL OK P35_Para mode=para visual=INI
+[20:58:07.734] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[20:58:07.756] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[20:59:12.776] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[21:46:05.003] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[21:46:05.011] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[21:47:08.652] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[21:56:13.346] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[21:56:13.355] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[21:57:17.878] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[22:17:31.170] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[22:17:31.178] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[22:18:37.430] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:07:12.237] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[23:07:12.244] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:08:14.307] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:46:59.464] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[23:46:59.473] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[23:48:01.142] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:09:27.677] N1 project dxf obra=Obra_TREINO_1 pav=13_PAV: torre_1.dxf
+[00:09:28.929] N3 FV contrato atual: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\.pytest-tmp\test_fv_n3_passes_the_fresh_n10\V305_fundo.json motor=ROBOT_FV_N3_N4
+[00:09:28.931] N1 flow=estrutural classe=FV id=V305 auto_chain=True
+[00:35:49.700] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:35:49.797] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:35:50.017] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:35:50.029] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:35:50.154] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:35:50.224] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:35:50.231] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:35:50.300] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:35:50.345] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:35:50.363] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:35:50.371] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:35:50.480] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:37:32.437] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[00:37:32.447] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[00:38:44.063] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:23:26.189] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:23:26.198] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:24:33.058] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:26:19.127] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:26:19.136] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:27:26.769] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:29:15.873] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:29:15.882] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:30:20.785] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:32:28.696] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:32:28.705] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:33:34.761] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:36:14.264] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:36:14.274] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:37:19.101] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:40:00.777] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:40:00.787] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:41:09.489] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:43:31.576] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:43:31.586] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:44:38.384] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:48:28.347] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:48:28.357] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:49:40.427] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:51:10.591] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:51:10.600] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:52:17.243] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:54:17.942] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:54:17.950] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:55:23.403] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:57:01.689] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[01:57:01.698] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[01:58:07.483] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[02:00:06.568] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[02:00:06.578] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[02:01:14.864] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[02:04:17.763] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[02:04:17.771] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[02:05:21.957] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[02:15:35.355] [CE] _on_obra_pav_changed obra='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial' pav='13_PAV' (obra_local='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial')
+[02:15:35.364] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf
+[02:16:39.912] N1 project dxf obra=D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\DADOS-OBRAS\thierry.tasf@gmail.com\Obra-Teste-Inicial pav=13_PAV: torre_1.dxf

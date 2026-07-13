@@ -476,12 +476,24 @@ def _align_panel_centerline(
     th = float(thickness)
     extra = float(edge_extra)
 
-    # Polilinha em L (3+ vertices): alinha a perna vertical na parede
+    # Polilinha em L (3+ vertices): flush parede (X) + flush fundo abertura (Y).
+    # MLINE com scale=face (7cm) centrada no eixo LINE: o H em yb invadia a
+    # abertura. Desce o path inteiro em th/2 para a FACE SUPERIOR do H
+    # encostar no fundo da abertura (linha da abertura).
     if len(vertices) >= 3:
         from collections import Counter
 
         xs = [float(p[0]) for p in vertices]
         ys = [float(p[1]) for p in vertices]
+        # L tem pelo menos um trecho H e um V
+        has_h = has_v = False
+        for i in range(len(xs) - 1):
+            if abs(ys[i] - ys[i + 1]) <= 1e-3 and abs(xs[i] - xs[i + 1]) > 1e-3:
+                has_h = True
+            if abs(xs[i] - xs[i + 1]) <= 1e-3 and abs(ys[i] - ys[i + 1]) > 1e-3:
+                has_v = True
+        is_l = has_h and has_v
+
         wall_x = None
         for edge_x in _panel_vertical_edges(panel_boxes):
             for x in xs:
@@ -490,22 +502,26 @@ def _align_panel_centerline(
                     break
             if wall_x is not None:
                 break
+        out = list(zip(xs, ys))
         if wall_x is not None:
             other_xs = [x for x in xs if abs(x - wall_x) > max(extra, 0.6)]
             if other_xs:
                 sarr_x = Counter(round(x, 3) for x in other_xs).most_common(1)[0][0]
                 target = _wall_flush_center_x(sarr_x, th, panel_boxes, extra)
                 if target is not None:
-                    out = []
-                    for x, y in zip(xs, ys):
+                    fixed = []
+                    for x, y in out:
                         if abs(x - wall_x) <= max(extra, 0.6):
-                            out.append((wall_x, y))
+                            fixed.append((wall_x, y))
                         elif abs(x - sarr_x) <= 1.0:
-                            out.append((target, y))
+                            fixed.append((target, y))
                         else:
-                            out.append((x, y))
-                    return out
-        return vertices
+                            fixed.append((x, y))
+                    out = fixed
+        if is_l and th > 0.2:
+            # Face superior do H do L = max(y) original (fundo da abertura)
+            out = [(x, y - th / 2.0) for x, y in out]
+        return out
 
     p0, p1 = vertices[0], vertices[-1]
     dx, dy = p1[0] - p0[0], p1[1] - p0[1]
@@ -546,19 +562,21 @@ def _align_panel_centerline(
         ]
 
     # Horizontal: braco L curto parede->eixo (~1 face) ou borda sup/inf
+    # Tambem desce th/2 se for o H do fundo da abertura (braco curto ~face).
     for edge_x in _panel_vertical_edges(panel_boxes):
         d0 = abs(float(p0[0]) - edge_x)
         d1 = abs(float(p1[0]) - edge_x)
+        y_flush = float(p0[1]) - th / 2.0
         if d0 <= max(extra, 0.6) and th * 0.35 <= d1 <= th + extra:
             free_target = (
                 edge_x - th / 2.0 if p1[0] < edge_x else edge_x + th / 2.0
             )
-            return [(edge_x, float(p0[1])), (free_target, float(p1[1]))]
+            return [(edge_x, y_flush), (free_target, y_flush)]
         if d1 <= max(extra, 0.6) and th * 0.35 <= d0 <= th + extra:
             free_target = (
                 edge_x - th / 2.0 if p0[0] < edge_x else edge_x + th / 2.0
             )
-            return [(free_target, float(p0[1])), (edge_x, float(p1[1]))]
+            return [(free_target, y_flush), (edge_x, y_flush)]
 
     candidates = [
         box for box in panel_boxes

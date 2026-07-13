@@ -1,0 +1,10 @@
+{
+  "campos": {
+    "laje_nivel": 1,
+    "laje_outline_segs": 1,
+    "laje_pilares_apoio": 1,
+    "laje_vizinhas_niveis": 1
+  },
+  "total_sessoes": 2,
+  "updated_at": "2026-07-12T23:02:57+00:00"
+}

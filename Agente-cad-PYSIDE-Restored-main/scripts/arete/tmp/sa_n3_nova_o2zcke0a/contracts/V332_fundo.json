@@ -1,0 +1,56 @@
+{
+  "contract_version": 3,
+  "motor_id": "ROBOT_FV_N3_N4",
+  "name": "V332",
+  "floor": "Pavimento",
+  "side": "C",
+  "total_width": 19.0,
+  "total_height": 55.0,
+  "panels": [
+    {
+      "total_width": 442.0,
+      "width": 442.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 442.0,
+      "altura_total": 55.0,
+      "texto_esq": "V330",
+      "texto_dir": "P9",
+      "row_break": false
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 442.0,
+      "width": 442.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 442.0,
+      "altura_total": 55.0,
+      "texto_esq": "V330",
+      "texto_dir": "P9",
+      "row_break": false
+    }
+  ],
+  "holes": [],
+  "label_left": "V330",
+  "label_right": "P9",
+  "pillar_left": {
+    "active": true,
+    "label": "V330",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": true,
+    "label": "P9",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "apoio_inicial": "V330",
+  "apoio_final": "P9",
+  "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+  "number": "332",
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0
+}

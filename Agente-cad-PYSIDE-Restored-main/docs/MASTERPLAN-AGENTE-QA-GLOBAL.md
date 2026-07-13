@@ -6,6 +6,12 @@
 **Loop/RAG:** `LOOPING-CANONICO.md`, `ARETE-LOOP-PROCEDIMENTO-GERAL.md` e
 `CONTRATO-QA-RAG-LOOPINGS.md` formam o contrato operacional único.
 
+**Orquestração reutilizável (13/07/2026):** a squad AIOS
+`squads/qa-global-evidencias/` e a skill Codex `$qa-global-evidencias` empacotam este
+contrato. Elas não criam outro motor: escolhem o menor microciclo canônico por
+obra/pavimento/classe/item/nível/parte/variante, aplicam gates e produzem dossiê. O
+comando AIOS é `/CAD:QAGlobalEvidencias-AIOS`.
+
 ## 1. Objetivo
 
 Transformar a validação granular do Structural Analyzer em um processo auditável:
@@ -40,6 +46,11 @@ Os contratos iniciais de proveniência de FV/PIL/LV servem para a decisão
 `CONFIRMAR` **read-only** quando há trilha N1 rastreável. Essa confirmação nunca
 entra no banco nem vira selo até a promoção QG7; ela separa "há evidência
 compatível" de "a classe está autorizada a ser selada".
+
+> **Precisão de vocabulário após auditoria de 13/07/2026:** enquanto PIL/FV/LV
+> continuarem no `generic_class_review`, a decisão deve ser apresentada ao usuário
+> como `TRILHA_N1_OBSERVADA`, não como validação plena de geometria, face, segmento
+> ou painel. `CONFIRMAR` pleno nessas classes exige adaptador CAD independente e QG7.
 
 ## 3. Núcleo e adaptadores
 
@@ -88,6 +99,44 @@ $py = 'D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe'
 ```
 
 Cada `discover` grava `manifesto.json`, `inventario_classes.json`, `resumo_global.md` e uma entrada append-only em `scripts/arete/relatorios/qa_evidencias/registro_sessoes.jsonl`.
+
+### 4.1 Teste rápido de vínculo e limite de autoridade
+
+Para uma dúvida localizada, preferir o probe declarativo antes do review amplo:
+
+```powershell
+& $py -X utf8 scripts/arete/qa_n1_field_probe.py `
+  --request scripts/arete/qa_requests/examples/pil_p35_face_d_v328.json
+```
+
+Cada request escolhe somente campos/fontes/caminhos/checks necessários e pode
+cruzar classes. `PASS` confirma apenas essas hipóteses, jamais a ficha ou o item.
+O overlay permite testar uma saída candidata sem gravar no DB. A leitura mínima,
+o snapshot por linha e o cache por conteúdo tornam o ciclo rápido e invalidável.
+
+`review --classe ... --item ...` é o teste rápido oficial para vínculos que já
+estão no snapshot persistido. Ele não instancia Qt, não disputa a trava do
+headless e não grava N1 em PIL/FV/LV:
+
+```powershell
+& $py -X utf8 scripts/arete/qa_evidence_auditor.py review `
+  --project-id <id> --classe PIL --item P1 P3 P35 `
+  --include-sealed --rag-evidence off
+```
+
+Use-o para detectar ausência de entidade de origem, slot sem proveniência,
+conflito entre campos e cobertura do contrato. Ele avalia **o DB atual**; não
+exercita uma alteração ainda não materializada no extrator. Se o código N1 foi
+alterado, o microciclo headless continua obrigatório antes de repetir o review.
+
+Mudança somente em geometria/estilo/cotas N3/N4 usa o gerador individual da
+classe e `scripts/arete/ficha_motor_item.py`; o QA lê seu manifesto/hash como
+evidência de iteração, sem tratá-lo como prova de interpretação N1.
+
+Para os campos de saída, `qa_artifact_parity.py` compara declarativamente
+contrato→payload→DXF→HTML e explicita metadado DXF ausente. A leitura visual
+continua separada. O benchmark `qa_fastpath_benchmark.py` mede o caminho frio e
+aquecido e exige checks semanticamente idênticos.
 
 ## 5. Regras de evidência e anti-alucinação
 
@@ -159,3 +208,20 @@ Um campo só pode alimentar T1/T2 após validação humana e gate correspondente
 2. Para FV, usar o inventário + diagnóstico canônico para escrever a proveniência antes de qualquer validação automática.
 3. Repetir para PIL e LV, mantendo LAJ como corpus de referência para o núcleo, não como regra semântica reaproveitada.
 4. Quando uma classe alcançar QG0–QG6, implementar seu adaptador de decisão e submetê-lo a revisão visual/humana antes de liberar `apply`.
+
+## 10. Arquitetura da squad e decisão MCP/hooks
+
+A squad segue task-first architecture: `ScopeResolver`, `EvidenceIndex`, adaptador de
+classe, paridade contrato→payload→DXF→HTML, gate visual, triagem, regressão e candidato
+RAG. O orquestrador apenas monta o DAG, aplica política e cache por conteúdo; não desenha,
+não interpreta domínio e não escreve N1.
+
+Fast paths disponíveis: probe N1 de campos/vínculos com leitura mínima e
+cross-classe; paridade declarativa de artefatos; render DXF→SVG cacheado; consulta
+RAG tipada que falha fechada quando o schema não suporta os filtros pedidos. O
+contrato detalhado está em `QA-FASTPATHS-CAMPOS-ARTEFATOS.md`.
+
+MCP e hooks automáticos ficam deliberadamente adiados. O QA já possui CLIs canônicos;
+um hook sem contexto pode disparar headless caro ou escolher nível incorreto. MCP só
+entra após adaptadores PIL/FV/LV, RAG tipado por classe/família/campo/tier/escopo,
+separação read/write e testes de anti-leakage/rollback atingirem QG1–QG6.

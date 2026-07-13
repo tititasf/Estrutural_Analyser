@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
+import hashlib
+import json
 import math
 import re
 from typing import Any
@@ -406,6 +408,130 @@ class FundoVigaInterpreter:
         return rectangle + [rectangle[0]]
 
     @classmethod
+    def build_provenance(
+        cls,
+        *,
+        contour: Iterable[tuple[float, float]],
+        boundary_lines: Iterable[Iterable[Any]] = (),
+        is_horizontal: bool | None = None,
+        segment_index: int | None = None,
+    ) -> dict[str, Any]:
+        """Cria prova observacional de um contorno FV a partir do DXF N1.
+
+        O loader não preserva handles DXF em todas as entidades. Por isso cada
+        face recebe um fingerprint determinístico de sua geometria normalizada,
+        que continua rastreável sem inventar uma identidade de N2/N4.
+        """
+        points = [(float(point[0]), float(point[1])) for point in contour or []]
+        if len(points) < 3:
+            return {}
+        xs = [point[0] for point in points]
+        ys = [point[1] for point in points]
+        inferred_horizontal = (max(xs) - min(xs)) >= (max(ys) - min(ys))
+        horizontal = inferred_horizontal if is_horizontal is None else bool(is_horizontal)
+        axis = 0 if horizontal else 1
+        transverse_axis = 1 - axis
+        span_min = min(point[axis] for point in points)
+        span_max = max(point[axis] for point in points)
+        width = max(point[transverse_axis] for point in points) - min(
+            point[transverse_axis] for point in points
+        )
+
+        faces: list[dict[str, Any]] = []
+        for raw in boundary_lines or []:
+            clean: list[tuple[float, float]] = []
+            for point in raw or []:
+                try:
+                    clean.append((float(point[0]), float(point[1])))
+                except (TypeError, ValueError, IndexError):
+                    continue
+            if len(clean) < 2:
+                continue
+            line_min = min(point[axis] for point in clean)
+            line_max = max(point[axis] for point in clean)
+            overlap = min(span_max, line_max) - max(span_min, line_min)
+            if overlap <= 0.05:
+                continue
+            normalized = [[round(x, 6), round(y, 6)] for x, y in clean]
+            digest = hashlib.sha256(
+                json.dumps(normalized, separators=(",", ":")).encode("utf-8")
+            ).hexdigest()[:20]
+            faces.append({
+                "entity_id": f"dxf_geom:{digest}",
+                "points": normalized,
+                "axis_span": [round(line_min, 6), round(line_max, 6)],
+                "transverse": round(
+                    sum(point[transverse_axis] for point in clean) / len(clean), 6
+                ),
+                "axial_overlap": round(overlap, 6),
+            })
+        faces.sort(key=lambda face: (face["transverse"], face["entity_id"]))
+        normalized_contour = [[round(x, 6), round(y, 6)] for x, y in points]
+        contour_hash = hashlib.sha256(
+            json.dumps(normalized_contour, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()[:20]
+        return {
+            "schema": "fv_provenance/v1",
+            "authority": "n1_dxf_observational",
+            "segment_index": segment_index,
+            "axis": "x" if horizontal else "y",
+            "axial_span": [round(span_min, 6), round(span_max, 6)],
+            "width": round(width, 6),
+            "contour_hash": f"contour:{contour_hash}",
+            "source_entity_ids": [face["entity_id"] for face in faces],
+            "physical_faces": faces,
+        }
+
+    @staticmethod
+    def rectangular_contours_align(
+        first: Iterable[tuple[float, float]],
+        second: Iterable[tuple[float, float]],
+        *,
+        tolerance: float = 0.05,
+    ) -> bool | None:
+        """Compara dois retângulos físicos sem reduzir polígonos especiais.
+
+        ``None`` significa que ao menos um contorno não é um retângulo axial;
+        nesse caso a regra conservadora não autoriza substituição automática.
+        """
+        def rectangle_bbox(raw: Iterable[tuple[float, float]]):
+            points: list[tuple[float, float]] = []
+            for point in raw or []:
+                try:
+                    candidate = (float(point[0]), float(point[1]))
+                except (TypeError, ValueError, IndexError):
+                    continue
+                if not any(
+                    abs(candidate[0] - known[0]) <= tolerance
+                    and abs(candidate[1] - known[1]) <= tolerance
+                    for known in points
+                ):
+                    points.append(candidate)
+            if len(points) != 4:
+                return None
+            min_x, max_x = min(x for x, _ in points), max(x for x, _ in points)
+            min_y, max_y = min(y for _, y in points), max(y for _, y in points)
+            if max_x - min_x <= tolerance or max_y - min_y <= tolerance:
+                return None
+            corners = ((min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y))
+            if not all(any(
+                abs(point[0] - corner[0]) <= tolerance
+                and abs(point[1] - corner[1]) <= tolerance
+                for point in points
+            ) for corner in corners):
+                return None
+            return min_x, min_y, max_x, max_y
+
+        first_bbox = rectangle_bbox(first)
+        second_bbox = rectangle_bbox(second)
+        if first_bbox is None or second_bbox is None:
+            return None
+        return all(
+            abs(left - right) <= tolerance
+            for left, right in zip(first_bbox, second_bbox)
+        )
+
+    @classmethod
     def repair_area_links(
         cls,
         beam: dict,
@@ -516,7 +642,15 @@ class FundoVigaInterpreter:
                 if key in link:
                     existing[key] = link[key]
 
-        def normalize_area_link(link: dict, points: list[tuple[float, float]], source: str) -> None:
+        def normalize_area_link(
+            link: dict,
+            points: list[tuple[float, float]],
+            source: str,
+            *,
+            boundary_lines: Iterable[Iterable[Any]] = (),
+            is_horizontal: bool | None = None,
+            segment_index: int | None = None,
+        ) -> None:
             length, width = cls._bbox_dimensions(points)
             link["points"] = points
             link["type"] = "poly"
@@ -542,6 +676,13 @@ class FundoVigaInterpreter:
                 if width > 0.05:
                     ficha["largura_total_fundo"] = cls._format_measure(width)
                 link["ficha"] = ficha
+            if not link.get("validated"):
+                link["fv_provenance"] = cls.build_provenance(
+                    contour=points,
+                    boundary_lines=boundary_lines,
+                    is_horizontal=is_horizontal,
+                    segment_index=segment_index,
+                )
 
         def normalize_special_diagonal_link(
             link: dict,
@@ -680,6 +821,66 @@ class FundoVigaInterpreter:
                                 link,
                                 area_points,
                                 "fundo_viga_interpreter_width_repair",
+                            )
+                            slots["contour"] = [link]
+                            sync_bottom_segment(index, link)
+                            continue
+                # Um polígono automático pode estar fechado e ter a largura
+                # correta, mas ainda perder parte do vão que o próprio
+                # BeamTracer consolidou (tipicamente quando uma face vem
+                # quebrada por encontro/cap). Isso NÃO é chanfro especial: os
+                # especiais já foram resolvidos acima por diagonal_pair e são
+                # marcados com fv_measure_source. Para o caso comum, o span
+                # N1 canônico prevalece; nunca aplicar a geometria validada.
+                special_measure = str(link.get("fv_measure_source") or "")
+                special_geometry = str(link.get("geometry_source") or "")
+                if (
+                    not use_run_segments
+                    and index <= len(coords)
+                    and not special_measure.startswith((
+                        "special_diagonal", "chamfer_half_cm_snap",
+                    ))
+                    and "special_diagonal" not in special_geometry
+                ):
+                    canonical_span = tuple(float(value) for value in coords[index - 1])
+                    span_min, span_max = sorted(canonical_span)
+                    expected_length = span_max - span_min
+                    current_is_horizontal = (
+                        max(point[0] for point in points)
+                        - min(point[0] for point in points)
+                    ) >= (
+                        max(point[1] for point in points)
+                        - min(point[1] for point in points)
+                    )
+                    current_length = (
+                        max(point[0] for point in points)
+                        - min(point[0] for point in points)
+                        if current_is_horizontal
+                        else max(point[1] for point in points)
+                        - min(point[1] for point in points)
+                    )
+                    if (
+                        expected_length > 0.05
+                        and abs(current_length - expected_length) > 0.05
+                    ):
+                        transverse_axis = 1 if current_is_horizontal else 0
+                        center = (
+                            max(point[transverse_axis] for point in points)
+                            + min(point[transverse_axis] for point in points)
+                        ) / 2.0
+                        area_points = cls.build_area_contour(
+                            axial_span=(span_min, span_max),
+                            width=width,
+                            is_horizontal=current_is_horizontal,
+                            transverse_center=center,
+                            boundary_lines=(),
+                        )
+                        if area_points and points != area_points:
+                            repaired += 1
+                            normalize_area_link(
+                                link,
+                                area_points,
+                                "fundo_viga_interpreter_canonical_span_repair",
                             )
                             slots["contour"] = [link]
                             sync_bottom_segment(index, link)
@@ -837,7 +1038,14 @@ class FundoVigaInterpreter:
                 continue
             if points != area_points:
                 repaired += 1
-            normalize_area_link(link, area_points, "fundo_viga_interpreter")
+            normalize_area_link(
+                link,
+                area_points,
+                "fundo_viga_interpreter",
+                boundary_lines=matching_lines,
+                is_horizontal=is_horizontal,
+                segment_index=index,
+            )
             slots["contour"] = [link]
             sync_bottom_segment(index, link)
         return repaired

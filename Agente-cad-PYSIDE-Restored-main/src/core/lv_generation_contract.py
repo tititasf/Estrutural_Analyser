@@ -128,6 +128,7 @@ def build_lv_generation_contracts(
     """
     name = str(beam_name or beam.get("name") or "").strip()
     links = beam.get("links") or {}
+    fields = beam.get("fields") or {}
     grouped: dict[tuple[str, str], list[tuple[int, dict[str, Any]]]] = {}
     for key, slots in links.items():
         match = _LINK_RE.match(str(key))
@@ -149,12 +150,29 @@ def build_lv_generation_contracts(
             rows = sorted(grouped.get((behavior, side), []), key=lambda row: row[0])
             structural_segments = []
             dimension = None
+            dimension_source = ""
             for index, entry in rows:
                 points = entry.get("points") or []
                 length = float(entry.get("len") or _length(points))
                 if length <= 0:
                     continue
-                dimension = dimension or _dimension_from_entry(entry)
+                entry_dimension = _dimension_from_entry(entry)
+                if not dimension and entry_dimension:
+                    dimension = entry_dimension
+                    dimension_source = str(
+                        entry.get("_lv_dimension_source") or "lv_length_link"
+                    )
+                if not dimension:
+                    # Campo N1 canônico do card LV. Pode ter sido enriquecido
+                    # cross-class pelo SA, mas a conversão não consulta FV/N2:
+                    # consome apenas o resultado já materializado neste contrato.
+                    field_key = f"viga_{side.lower()}_seg_{index}_dim"
+                    field_dimension = _dimension_from_entry({
+                        "lv_dimensao": fields.get(field_key) or beam.get(field_key)
+                    })
+                    if field_dimension:
+                        dimension = field_dimension
+                        dimension_source = "sa_lv_segment_field"
                 structural_segments.append({
                     "width": length,
                     "segment_index": index,
@@ -166,7 +184,10 @@ def build_lv_generation_contracts(
                     "source_slot": f"seg_side_{side.lower()}",
                     "contract_id": f"LV_{side}_{behavior.upper()}",
                 })
-            dimension = dimension or _dimension_from_beam_lv(beam)
+            if not dimension:
+                dimension = _dimension_from_beam_lv(beam)
+                if dimension:
+                    dimension_source = "beamtracer_lv_dimension_text"
             b, depth = dimension if dimension else (0.0, 0.0)
             # A lateral executiva inclui os 4 cm consolidados no guia LV.
             # Mantemos a profundidade estrutural separada para a visao de corte.
@@ -233,6 +254,7 @@ def build_lv_generation_contracts(
                     "schema": "lv_generation_contract/v1",
                     "behavior_isolated": True,
                     "fv_dimension_fallback": False,
+                    "dimension_source": dimension_source or "missing",
                 },
             }
     for side in ("A", "B"):

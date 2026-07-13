@@ -187,6 +187,14 @@ class PillarAnalyzer:
         
         # 3. Analisar Lados (Lajes e Vigas)
         sides_data = p_data.get('sides_data', {})
+        # Slots gerados por pillar_face_beams são geométricos e já têm o par
+        # nome+seção correto. A busca textual por raio é útil como fallback,
+        # mas não pode substituir essa evidência por um P#, L# ou uma cota de
+        # elemento vizinho. O marcador é efêmero, criado por main.py antes de
+        # chamar este analisador.
+        authoritative_fields = set(
+            p_data.get('_face_beam_authoritative_fields') or ()
+        )
         for side, content in sides_data.items():
             # Laje Nome
             f_id_n = f'p_s{side}_l1_n'
@@ -200,13 +208,20 @@ class PillarAnalyzer:
             # O ContextEngine suporta ref_origin mas aqui simplificamos usando o centro do pilar
             self._analyze_field(p_data, f_id_h, 'thick', {'prompt': "regex: h[=:]?\\d+", 'radius': 1000}, side=side)
             
-            # Vigas (Esquerda/Direita do lado)
-            # Simplificação: Apenas Viga Esquerda por enquanto (padrão do código original)
-            f_id_vn = f'p_s{side}_v_esq_n'
-            self._analyze_field(p_data, f_id_vn, 'label', {'prompt': "Buscar texto ('V')", 'radius': 600}, side=side)
-            
-            f_id_vd = f'p_s{side}_v_esq_d'
-            self._analyze_field(p_data, f_id_vd, 'dim', {'prompt': f"regex: {dim_regex}", 'radius': 600}, side=side)
+            # Vigas que passam: 2 slots por esquina (passa_esq / passa_dir)
+            for _slot in ('passa_esq', 'passa_dir'):
+                f_id_vn = f'p_s{side}_v_{_slot}_n'
+                if f_id_vn not in authoritative_fields:
+                    self._analyze_field(
+                        p_data, f_id_vn, 'label',
+                        {'prompt': "Buscar texto ('V')", 'radius': 600}, side=side,
+                    )
+                f_id_vd = f'p_s{side}_v_{_slot}_d'
+                if f_id_vd not in authoritative_fields:
+                    self._analyze_field(
+                        p_data, f_id_vd, 'dim',
+                        {'prompt': f"regex: {dim_regex}", 'radius': 600}, side=side,
+                    )
             
             # Validação de Vazio (X)
             # Se não achou Laje, verifica se tem X

@@ -90,6 +90,87 @@ def test_fv_physical_panel_mode_splits_short_support_gap_between_long_panels():
     assert groups == [(0.0, 254.0), (273.0, 691.0)]
 
 
+def test_fv_provenance_fingerprints_physical_faces_without_n2():
+    provenance = FundoVigaInterpreter.build_provenance(
+        contour=[(0.0, 10.0), (100.0, 10.0), (100.0, 29.0), (0.0, 29.0), (0.0, 10.0)],
+        boundary_lines=[
+            [(0.0, 10.0), (100.0, 10.0)],
+            [(0.0, 29.0), (100.0, 29.0)],
+        ],
+        is_horizontal=True,
+        segment_index=3,
+    )
+
+    assert provenance["schema"] == "fv_provenance/v1"
+    assert provenance["authority"] == "n1_dxf_observational"
+    assert provenance["segment_index"] == 3
+    assert provenance["axis"] == "x"
+    assert provenance["axial_span"] == [0.0, 100.0]
+    assert provenance["width"] == 19.0
+    assert len(provenance["source_entity_ids"]) == 2
+    assert all(item.startswith("dxf_geom:") for item in provenance["source_entity_ids"])
+
+
+def test_fv_rectangular_alignment_requires_exact_physical_position():
+    expected = [(0.0, 10.0), (100.0, 10.0), (100.0, 29.0), (0.0, 29.0), (0.0, 10.0)]
+    same = [(0.0, 10.0), (100.0, 10.0), (100.0, 29.0), (0.0, 29.0), (0.0, 10.0)]
+    displaced = [(10.0, 10.0), (110.0, 10.0), (110.0, 29.0), (10.0, 29.0), (10.0, 10.0)]
+    chamfer = [(0.0, 10.0), (100.0, 10.0), (90.0, 29.0), (0.0, 29.0), (0.0, 10.0)]
+
+    assert FundoVigaInterpreter.rectangular_contours_align(same, expected) is True
+    assert FundoVigaInterpreter.rectangular_contours_align(displaced, expected) is False
+    assert FundoVigaInterpreter.rectangular_contours_align(chamfer, expected) is None
+
+
+def test_fv_bridges_only_a_gap_marked_by_nascent_pillar():
+    tracer = BeamTracer(_FakeSpatialIndex([]))
+    lines = [[(0.0, 0.0), (100.0, 0.0)], [(120.0, 0.0), (220.0, 0.0)]]
+
+    joined = tracer._classify_lines(
+        (110.0, 10.0),
+        lines,
+        True,
+        label_pos=(110.0, 10.0),
+        visual_obstacles=[
+            {"type": "PILAR_NASCENTE", "bbox": (100.0, -10.0, 120.0, 10.0)}
+        ],
+    )
+    solid = tracer._classify_lines(
+        (110.0, 10.0),
+        lines,
+        True,
+        label_pos=(110.0, 10.0),
+        visual_obstacles=[
+            {"type": "PILAR_SOLIDO", "bbox": (100.0, -10.0, 120.0, 10.0)}
+        ],
+    )
+
+    assert joined["merged_bottom_groups_coords"] == [(0.0, 220.0)]
+    assert joined["merged_bottom_lengths"] == [220.0]
+    assert solid["merged_bottom_groups_coords"] == [(0.0, 100.0), (120.0, 220.0)]
+
+
+def test_nascent_pillar_bridge_is_never_reused_by_lateral_reading():
+    tracer = BeamTracer(_FakeSpatialIndex([]))
+    lines = [[(0.0, 0.0), (100.0, 0.0)], [(120.0, 0.0), (220.0, 0.0)]]
+
+    geometry = tracer._process_beam_geometry(
+        (110.0, 10.0),
+        lines,
+        True,
+        visual_obstacles=[
+            {"type": "PILAR_NASCENTE", "bbox": (100.0, -10.0, 120.0, 10.0)}
+        ],
+        lv_raw_lines=lines,
+        lv_is_h=True,
+    )
+
+    assert geometry["classified"]["merged_bottom_groups_coords"] == [(0.0, 220.0)]
+    assert geometry["classified"]["lv_merged_bottom_groups_coords"] == [
+        (0.0, 100.0), (120.0, 220.0)
+    ]
+
+
 def test_fv_discards_touching_narrow_cap_before_long_panel():
     interpreter = FundoVigaInterpreter()
 
@@ -483,6 +564,38 @@ def test_fundo_repairs_stale_area_when_run_span_is_longer():
     assert max(p[1] for p in points) - min(p[1] for p in points) == 259.5
     assert beam["links"]["viga_segs"]["seg_bottom"][0]["len"] == 259.5
     assert beam["links"]["viga_segs"]["seg_bottom"][0]["points"] == points
+
+
+def test_fundo_repairs_automatic_trapezoid_to_canonical_merged_span():
+    """Área fechada automática não pode encurtar o vão N1 consolidado."""
+    stale_points = [
+        (3788.3825, 2057.538),
+        (3788.3825, 2380.038),
+        (3807.3825, 2380.038),
+        (3807.3825, 2048.038),
+        (3788.3825, 2057.538),
+    ]
+    beam = {
+        "is_h": False,
+        "fv_is_h": False,
+        "pos": (3784.278996, 1985.177814),
+        "fields": {"viga_fundo_seg_1_dim": "19/55"},
+        "geometry": {"classified": {
+            "merged_bottom_groups_coords": [(1982.038, 2380.038)],
+        }},
+        "links": {"viga_fundo_seg_1_area_segs": {"contour": [{
+            "type": "poly", "points": list(stale_points),
+        }]}},
+    }
+
+    assert FundoVigaInterpreter.repair_area_links(beam) == 1
+    link = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    points = link["points"]
+
+    assert link["geometry_source"] == "fundo_viga_interpreter_canonical_span_repair"
+    assert max(p[0] for p in points) - min(p[0] for p in points) == 19.0
+    assert max(p[1] for p in points) - min(p[1] for p in points) == 398.0
+    assert min(p[1] for p in points) == 1982.038
 
 
 def test_fundo_repairs_simple_rectangle_width_from_dimension():

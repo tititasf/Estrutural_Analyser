@@ -1,0 +1,24 @@
+{
+  "schema": "arete.ficha_motor_item/v1",
+  "classe": "PIL",
+  "item": "P35",
+  "nivel": "N3",
+  "generated_at": "2026-07-13T00:38:35",
+  "artifacts": [
+    {
+      "label": "PARA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n3_variants\\para\\PL_ABCD_preview_P35.dxf",
+      "dxf_sha256": "d518a00570d94f410b2d5218e747d9d47eddbde8fcc22843326fff02f170a836",
+      "json": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n3_variants\\para\\P35.json",
+      "json_sha256": "82f663117412e3afeb56ce11be822fdc32d1ac2f50fbc25771cf41685d5cb5d5"
+    },
+    {
+      "label": "PASSA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n3_variants\\passa\\PL_ABCD_preview_P35.dxf",
+      "dxf_sha256": "17b2f3e55768a3addbbb53ee95988eb98c70f0942196b91feac32fd3beff6497",
+      "json": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n3_variants\\passa\\P35.json",
+      "json_sha256": "1a694598922f0d5a65cddf553fd5e9d523fd9098250ec4176b05c851dd1cfbf2"
+    }
+  ],
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write"
+}

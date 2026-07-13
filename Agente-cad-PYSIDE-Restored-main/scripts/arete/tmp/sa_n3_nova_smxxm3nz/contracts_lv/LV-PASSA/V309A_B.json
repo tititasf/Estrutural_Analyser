@@ -1,0 +1,31 @@
+{
+  "number": "309",
+  "name": "V309A_B_Passa",
+  "beam_name": "V309A",
+  "floor": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+  "side": "B",
+  "behavior": "Passa",
+  "contract_id": "LV_B_PASSA",
+  "total_width": 19.0,
+  "total_height": 59.0,
+  "h_section": 55.0,
+  "h_face_rule": "section_depth + 4 cm",
+  "panels": [],
+  "structural_segments": [],
+  "structural_segment_count": 0,
+  "segment_count": 0,
+  "geometry_length": 0,
+  "start_adjustment": 0.0,
+  "end_adjustment": 0.0,
+  "endpoint_events": [],
+  "total_length": 0,
+  "dimension_status": "sa_lv",
+  "generation_ready": false,
+  "_sa_meta": {
+    "source": "Structural Analyzer / N1 / beams.data_json.links",
+    "schema": "lv_generation_contract/v1",
+    "behavior_isolated": true,
+    "fv_dimension_fallback": false
+  },
+  "behavior_distinct_from_other": false
+}

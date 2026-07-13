@@ -32,9 +32,39 @@ from pathlib import Path
 from typing import IO
 
 
+_STARTED_AT_BY_HANDLE: dict[int, str] = {}
+
+
 def _lock_file_path(name: str, lock_dir: str | Path | None) -> Path:
     base = Path(lock_dir) if lock_dir else Path(__file__).resolve().parent
     return base / f'.{name}.lock'
+
+
+def _write_status(fh: IO, *, event: str) -> None:
+    """Atualiza telemetria sem tocar no byte 0 que o SO bloqueia.
+
+    A exclusão continua sendo exclusivamente do SO. Este registro só deixa a
+    fila informar se o dono ainda está em execução; nunca autoriza apagar ou
+    quebrar uma trava.
+    """
+    now = datetime.now().isoformat(timespec='seconds')
+    started_at = _STARTED_AT_BY_HANDLE.get(id(fh), now)
+    payload = (
+        f'pid={os.getpid()} inicio={started_at} heartbeat={now} '
+        f'event={event} cmd={" ".join(sys.argv[:8])}\n'
+    )
+    try:
+        fh.seek(1)
+        fh.truncate()
+        fh.write(payload)
+        fh.flush()
+    except OSError:
+        pass
+
+
+def refresh_lock(fh: IO, *, event: str = 'running') -> None:
+    """Registra progresso do dono sem modificar a trava exclusiva."""
+    _write_status(fh, event=event)
 
 
 def acquire_lock(name: str, lock_dir: str | Path | None = None) -> tuple[IO | None, str | None]:
@@ -46,6 +76,7 @@ def acquire_lock(name: str, lock_dir: str | Path | None = None) -> tuple[IO | No
     detentor (pid/início/argv) quando legível.
     """
     lock_path = _lock_file_path(name, lock_dir)
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
     fh = open(lock_path, 'a+', encoding='utf-8', errors='replace')
     try:
         fh.seek(0)
@@ -71,12 +102,8 @@ def acquire_lock(name: str, lock_dir: str | Path | None = None) -> tuple[IO | No
         fh.seek(0)
         fh.truncate()
         fh.write('\n')  # byte 0 (travado) — placeholder
-        fh.write(
-            f'pid={os.getpid()} '
-            f'inicio={datetime.now().isoformat(timespec="seconds")} '
-            f'cmd={" ".join(sys.argv[:8])}\n'
-        )
-        fh.flush()
+        _STARTED_AT_BY_HANDLE[id(fh)] = datetime.now().isoformat(timespec='seconds')
+        _write_status(fh, event='acquired')
     except OSError:
         pass  # a trava vale mesmo sem o diagnóstico gravado
     return fh, None
@@ -86,17 +113,20 @@ def wait_for_lock(
     name: str,
     lock_dir: str | Path | None = None,
     poll_s: float = 10.0,
-    timeout_s: float | None = 1800.0,
+    timeout_s: float | None = None,
 ) -> tuple[IO | None, str | None]:
     """Como `acquire_lock`, mas AGUARDA a trava vagar (poll a cada `poll_s`).
 
     Pensado para agentes/CLIs: em vez de abortar e depender de retry manual,
-    o processo espera sozinho. Retorna `(handle, None)` quando adquirir, ou
-    `(None, info)` se `timeout_s` estourar (info = detentor na última checagem).
+    o processo espera enquanto o dono real mantiver a trava. Por padrão não
+    há relógio artificial; passe ``timeout_s`` só para desistência explícita.
+    Retorna `(handle, None)` quando adquirir, ou `(None, info)` se
+    `timeout_s` estourar (info = detentor na última checagem).
     """
     import time
     inicio = time.monotonic()
     aviso_dado = False
+    ultimo_aviso = 0.0
     while True:
         fh, holder = acquire_lock(name, lock_dir)
         if fh is not None:
@@ -109,6 +139,12 @@ def wait_for_lock(
                   + (f', timeout {timeout_s/60:.0f}min' if timeout_s else '')
                   + ')... NÃO finalize o processo detentor.', flush=True)
             aviso_dado = True
+            ultimo_aviso = inicio
+        elif time.monotonic() - ultimo_aviso >= max(30.0, poll_s * 3):
+            elapsed = int(time.monotonic() - inicio)
+            print(f'[lock:{name}] Ainda aguardando o dono real ({elapsed}s): {holder}',
+                  flush=True)
+            ultimo_aviso = time.monotonic()
         if timeout_s is not None and (time.monotonic() - inicio) >= timeout_s:
             return None, holder
         time.sleep(poll_s)
@@ -117,6 +153,9 @@ def wait_for_lock(
 def release_lock(fh: IO) -> None:
     """Libera explicitamente (opcional — fechar o handle ou terminar o
     processo tem o mesmo efeito)."""
+    if getattr(fh, 'closed', False):
+        _STARTED_AT_BY_HANDLE.pop(id(fh), None)
+        return
     try:
         if sys.platform == 'win32':
             import msvcrt
@@ -125,9 +164,10 @@ def release_lock(fh: IO) -> None:
         else:
             import fcntl
             fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
-    except OSError:
+    except (OSError, ValueError):
         pass
     try:
         fh.close()
-    except OSError:
+    except (OSError, ValueError):
         pass
+    _STARTED_AT_BY_HANDLE.pop(id(fh), None)

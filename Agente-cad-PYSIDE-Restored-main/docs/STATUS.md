@@ -1,6 +1,6 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-11 17:07:56  
+**Gerado em:** 2026-07-13 02:09:06  
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 
@@ -44,7 +44,7 @@
 | Obra_TREINO_1_13_PAV_fundos_viga_posfix_20260707.jsonl | 9 | aberto: 5, corrigido_codigo_headless_pendente: 1, em_correcao: 1, verificado: 2 | auto: 9 |
 | Obra_TREINO_1_13_PAV_fv_contaminacao_validacao.jsonl | 3 | corrigido_codigo_dados_historicos_pendentes: 1, corrigido_verificado: 1, corrigido_verificado_visual: 1 | auto: 2, humano: 1 |
 | Obra_TREINO_1_13_PAV_lajes.jsonl | 144 | aberto: 64, verificado: 80 | auto: 111, dono: 16, humano: 17 |
-| Obra_TREINO_1_13_PAV_laterais_viga.jsonl | 7 | aberto: 4, corrigido: 1, verificado: 2 | humano: 7 |
+| Obra_TREINO_1_13_PAV_laterais_viga.jsonl | 9 | aberto: 5, corrigido: 1, invalidado: 1, verificado: 2 | humano: 9 |
 | Obra_TREINO_1_13_PAV_pilares.jsonl | 42 | aberto: 5, verificado: 37 | auto: 39, humano: 3 |
 
 ## Banco de dados (read-only)

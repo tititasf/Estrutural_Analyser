@@ -1,0 +1,12 @@
+{
+  "applied_at": "2026-07-12T23:02:57+00:00",
+  "project_id": "p",
+  "items": [
+    {
+      "item": "L1",
+      "operations": 2,
+      "complete": true,
+      "sealed": true
+    }
+  ]
+}

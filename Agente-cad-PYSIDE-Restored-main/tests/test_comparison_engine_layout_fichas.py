@@ -495,3 +495,27 @@ def test_lv_face_units_are_horizontal_with_exact_50cm_gap(monkeypatch):
     assert [call[0] for call in calls] == [0.0, 150.0]
     assert calls[1][0] - (calls[0][0] + calls[0][2]) == 50.0
     assert [call[3] for call in calls] == ["V1.A", "CONT. V1.A"]
+
+
+def test_lv_face_units_forward_detected_edge_vertical_sarrafos(monkeypatch):
+    calls = []
+
+    def record_face(_msp, _x0, _y0, _panels, _height, _label, **kwargs):
+        calls.append(kwargs)
+
+    monkeypatch.setattr(lv_generator, "draw_lv_face", record_face)
+    lv_generator.draw_viga_lateral_face_units(
+        None, 0, 0, "V1",
+        [{
+            "side": "A", "label": "V1.A",
+            "bbox": {"x_left": 0, "y_top": 100},
+            "h_body": 50, "panels": [{"width": 100}],
+            "sarrafo_vertical_esquerdo": True,
+            "sarrafo_vertical_direito": False,
+        }],
+        view="A",
+    )
+
+    assert len(calls) == 1
+    assert calls[0]["sarrafo_vertical_esquerdo"] is True
+    assert calls[0]["sarrafo_vertical_direito"] is False

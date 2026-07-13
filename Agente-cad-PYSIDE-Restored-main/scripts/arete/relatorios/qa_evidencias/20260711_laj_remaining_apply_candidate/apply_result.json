@@ -1,0 +1,84 @@
+{
+  "applied_at": "2026-07-11T21:54:09+00:00",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "items": [
+    {
+      "item": "L319",
+      "operations": 6,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L320",
+      "operations": 8,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L321",
+      "operations": 10,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L322",
+      "operations": 7,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L323",
+      "operations": 5,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L324",
+      "operations": 6,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L325",
+      "operations": 3,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L326",
+      "operations": 5,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L327",
+      "operations": 6,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L328",
+      "operations": 7,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L329",
+      "operations": 2,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L330",
+      "operations": 2,
+      "complete": true,
+      "sealed": true
+    },
+    {
+      "item": "L331",
+      "operations": 3,
+      "complete": true,
+      "sealed": true
+    }
+  ]
+}

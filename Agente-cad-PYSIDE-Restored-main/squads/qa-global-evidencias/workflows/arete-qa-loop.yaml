@@ -1,0 +1,87 @@
+name: arete-qa-loop
+version: "1.1.0"
+description: "DAG dinâmico para N1, N3, N4 e RAG sem criar entry point concorrente."
+participants:
+  - { name: aegis, role: orchestrator }
+  - { name: class-adapter, role: domain-evidence }
+  - { name: owner, role: visual-ground-truth }
+
+phases:
+  - name: scope
+    steps:
+      - task: tasks/resolve-scope.md
+        output: scope.json
+      - task: tasks/index-evidence.md
+        output: evidence-index.json
+    gate:
+      condition: "scope.project_id and scope.classe and scope.nivel"
+      on_fail: BLOCK
+
+  - name: route
+    steps:
+      - name: n1-route
+        when: "nivel == 'N1'"
+        task: tasks/review-n1.md
+      - name: n1-field-probe-route
+        when: "nivel == 'N1' and declared_fields and declared_checks"
+        task: tasks/review-n1.md
+      - name: artifact-route
+        when: "nivel in ['N3', 'N4']"
+        task: tasks/review-artifact.md
+      - name: parity-route
+        when: "payload or dxf or html changed"
+        task: tasks/parity-contract.md
+    gate:
+      condition: "provenance_graph.complete == true"
+      on_fail: PENDENTE
+
+  - name: visual
+    when: "gate_requires_visual == true"
+    steps:
+      - task: tasks/visual-gate.md
+        output: visual-verdict.json
+    gate:
+      condition: "visual_verdict.recorded == true"
+      on_fail: BLOCK
+
+  - name: triage
+    steps:
+      - task: tasks/plan-remediation.md
+      - task: tasks/structure-question.md
+        when: "unresolved_product_rule == true"
+    gate:
+      condition: "finding.has_general_cause or decision in ['PENDENTE', 'REVISAR_HUMANO']"
+      on_fail: BLOCK
+
+  - name: regression
+    when: "code_changed == true"
+    steps:
+      - task: tasks/regression-gate.md
+    gate:
+      condition: "regression.no_new_failures == true"
+      on_fail: BLOCK
+
+  - name: knowledge
+    when: "human_confirmed or deterministic_rule_reproduced"
+    steps:
+      - task: tasks/curate-rag.md
+        output: rag-candidate.json
+    gate:
+      condition: "rag_candidate.requires_human_approval == true"
+      on_fail: BLOCK
+
+cache:
+  key: "sha256(scope + request + overlay + relevant_field_snapshots + adapter_version + contract + payload + dxf + html)"
+  reuse_when: "all input hashes unchanged"
+  invalidate_when: "any input hash or authority state changes"
+
+concurrency:
+  allowed: "read-only indexing and independent renders"
+  forbidden: "headless, AutoCAD batch, DB apply, or shared generator writes in parallel"
+
+veto_conditions:
+  - "N2 or N4 appears in N3 input provenance"
+  - "visual gate requested with API backend"
+  - "headless invocation lacks --wait"
+  - "item-specific hardcode proposed"
+  - "PIL/FV/LV generic review is labeled as fully validated"

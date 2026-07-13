@@ -1,0 +1,38 @@
+{
+  "classe": "LAJ",
+  "created_at": "2026-07-12T22:25:53+00:00",
+  "db": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\.pytest-qa-global-2\\test_apply_is_transactional_se0\\test.vision",
+  "include_sealed": false,
+  "items": [
+    "L2"
+  ],
+  "mode": "read_only_audit",
+  "project_id": "p",
+  "required_fields": [
+    "name",
+    "laje_dim",
+    "laje_visao_corte",
+    "laje_vizinhas_niveis",
+    "laje_pilares_apoio",
+    "laje_nivel",
+    "laje_outline_segs",
+    "laje_islands"
+  ],
+  "run_id": "run",
+  "schema_version": 1,
+  "snapshots": {
+    "L2": {
+      "hash": "8267bbb0784c6ae801fd154601b9bef8591c298c7f591411027fee5b79e1e12c",
+      "id": "2"
+    }
+  },
+  "web_evidence": {
+    "available": 0,
+    "missing": [
+      "L2"
+    ],
+    "mode": "auto",
+    "policy": "presentation_only; persisted N1/DXF remain primary evidence",
+    "root": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas"
+  }
+}

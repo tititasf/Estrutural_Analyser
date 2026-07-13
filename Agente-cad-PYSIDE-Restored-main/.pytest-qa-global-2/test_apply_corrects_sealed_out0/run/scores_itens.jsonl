@@ -1,0 +1,1 @@
+{"achados": ["LAJ-LEVEL-OUTLIER-CORRECTION"], "campos_incerto": ["laje_nivel", "laje_outline_segs", "laje_pilares_apoio", "laje_vizinhas_niveis"], "campos_revisados": 8, "decisoes": {"CONFIRMAR": 3, "CORRIGIR": 1, "N/A_CONFIRMADO": 1, "PENDENTE": 2, "REVISAR_HUMANO": 1}, "faixa": "baixa", "item": "L1", "perguntas": ["qaev-q-fec269c1f8efd9b6"], "score_confianca": 57.8}

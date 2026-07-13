@@ -1,0 +1,179 @@
+{
+  "classe": "LAJ",
+  "created_at": "2026-07-11T22:51:17+00:00",
+  "db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+  "include_sealed": true,
+  "items": [
+    "L301",
+    "L302",
+    "L303",
+    "L304",
+    "L305",
+    "L306",
+    "L307",
+    "L308",
+    "L309",
+    "L310",
+    "L311",
+    "L312",
+    "L313",
+    "L314",
+    "L315",
+    "L316",
+    "L317",
+    "L318",
+    "L319",
+    "L320",
+    "L321",
+    "L322",
+    "L323",
+    "L324",
+    "L325",
+    "L326",
+    "L327",
+    "L328",
+    "L329",
+    "L330",
+    "L331"
+  ],
+  "mode": "read_only_audit",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "required_fields": [
+    "name",
+    "laje_dim",
+    "laje_visao_corte",
+    "laje_vizinhas_niveis",
+    "laje_pilares_apoio",
+    "laje_nivel",
+    "laje_outline_segs",
+    "laje_islands"
+  ],
+  "run_id": "20260711_laj_all_postfix_audit",
+  "schema_version": 1,
+  "snapshots": {
+    "L301": {
+      "hash": "5a975e26c965b95996b93ae5e07d78400f8bbf32d35f7df57fe704f45a5425ea",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_1"
+    },
+    "L302": {
+      "hash": "54bda6b5c26453dd0f8ec7eb1df33054dd1a1866ec354bbc84c4e2295437b9c4",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_2"
+    },
+    "L303": {
+      "hash": "49709364215428dbe5d4a3d4f2e7bc959c442bbfc4fcaa5153a4d4ef9dff6386",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_3"
+    },
+    "L304": {
+      "hash": "9680f950ecce90a5cd76710b5a2767dd6e44b96f538f5cd1a1af71e099b2b568",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_4"
+    },
+    "L305": {
+      "hash": "2c7a8eebcb6a610ce81bac542468895b4eed0a14064a69a24ef189718f5c1eb0",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_5"
+    },
+    "L306": {
+      "hash": "bc062ae30155aed669803b2ea6a5bda12d228bb1dab37a4a74bcbc50855842d6",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_6"
+    },
+    "L307": {
+      "hash": "61ba066c0ac3b077c7d79085c8758a8c43b28d07837448313da94b4fad7b56ef",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_7"
+    },
+    "L308": {
+      "hash": "ff6c459e158a99c4678d7c6b96506af79317fe6416395fc6191959daebf1c1bd",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_8"
+    },
+    "L309": {
+      "hash": "f4e66550ae189c67f96ca5469f9167b2b33bfcbc407136debdf18e19d6fe77a0",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_9"
+    },
+    "L310": {
+      "hash": "a96759507a1096a7f7034230745c99b55f1322254c4b96c51fa59b6df4df0721",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_10"
+    },
+    "L311": {
+      "hash": "f9d87657cd5a6fb456654ec3e755e31a69cfaa31ce075e46695f0267fb4bb5d7",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_11"
+    },
+    "L312": {
+      "hash": "589e9c7085271be3af64e1097c9cc2985063282fdf67ab471fe23fdf44254cee",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_12"
+    },
+    "L313": {
+      "hash": "f087ef3cfc1731a898430881af965452e5af0ef5e35175f5e3c175577ff4bb57",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_13"
+    },
+    "L314": {
+      "hash": "b182d18ba6d69fbface6dfa01ddfcbfc14435deb374e53d69feb8140eeaed82d",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_14"
+    },
+    "L315": {
+      "hash": "c745cb0d0efcdaf03dd0f0287a4ccfe298605d91454fb1cb26523347c501dd07",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_15"
+    },
+    "L316": {
+      "hash": "cf4397e74fdc369994ed7a553c4eef0c57caf4169199cd78ead02314baf62090",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_16"
+    },
+    "L317": {
+      "hash": "aa85e3246a507fada316af51fdc02f0b8d4057a04e494adbf6f05f5e827f235b",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_17"
+    },
+    "L318": {
+      "hash": "6935aa9231ee70c4fa946698dadd348704d879947408e18f8da24bf9da149a39",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_18"
+    },
+    "L319": {
+      "hash": "2bbe3a4919784fad10c784216bfb9853ae219d2660909f81b51d19fc60292057",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_19"
+    },
+    "L320": {
+      "hash": "3984e166e98d3a54e0334cfa00d554ab5fa3b9b942531250e03477e7f5098930",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_20"
+    },
+    "L321": {
+      "hash": "d50f67b0451f3a0f2554e51e095fcc48ba0d5c9a5b993d45abae31ac3745ccaa",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_21"
+    },
+    "L322": {
+      "hash": "87c6466fc23e3b2aa1c2ca6f93c5d337b3128612f5dac6f4f7ee72e8515e0d21",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_22"
+    },
+    "L323": {
+      "hash": "2ab50f4917700761c822affe01e35bdc23ef88fbdffad4023ed7dce95493e748",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_23"
+    },
+    "L324": {
+      "hash": "bdfb466042dad6aef9dee5400275471562431cf0d1cd8db3f871f06614b5c6c1",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_24"
+    },
+    "L325": {
+      "hash": "065b8252dc4d8811b9f034aa45349bbe7c53445c95d7089823dc67e1d61444f0",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_25"
+    },
+    "L326": {
+      "hash": "f5bdc41c11dbef27597965ede505b9d557e0b1feebe8e73da4f3d2efc52f0a84",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_26"
+    },
+    "L327": {
+      "hash": "59e049c81427ce9dcdcf243c792e880171321622e896a2d03a4b00c756437282",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_27"
+    },
+    "L328": {
+      "hash": "d7a398e07278851c744a936d473525d372d759d279314873379d6df52111eac1",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_28"
+    },
+    "L329": {
+      "hash": "71b930352454941c4f5d29b9bf2b4a96c3216fdd3c4cf439fdf3a0ef2a696c2a",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_29"
+    },
+    "L330": {
+      "hash": "4bded191e84edabd76813f657575c63914b10d2ba3b28641f5f32e6f38e45016",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_30"
+    },
+    "L331": {
+      "hash": "7bb4d46c1eb94ffc053556bdb9b9606008b5ed15bc90319afb71598b3dde3239",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_31"
+    }
+  }
+}

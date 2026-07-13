@@ -28,3 +28,28 @@
 ## Promoção
 
 Para promoção a `validation_ready`: golden FV, G2-V, três geometrias representativas, zero falso positivo crítico e evidência de cada família acima.
+
+## Sessão QA read-only — 2026-07-12
+
+**Projeto:** `dd238e47-1dc6-4f63-a760-4e7ce19a7386` (`Obra_TREINO_1`, `13_PAV`)  
+**Inventário:** `fv_qa_evidence_20260712_2015`  
+**Revisão por campo:** `fv_qa_review_20260712_2016`  
+**Diagnóstico N1×N2:** `scripts/arete/relatorios/qa_evidencias/fv_qa_diagnostico_20260712_2017/Obra_TREINO_1/13_PAV/20260712_185155/diagnostico_fv_n1_n2.json`
+
+### Evidência observada
+
+- O escopo contém 36 entidades FV N1 e 26 fichas N2 comparáveis. N2 foi usado apenas para detectar divergência; não é fonte de nenhum campo N1/N3.
+- Em 24 comparáveis, 17 coincidem na quantidade física de segmentos; somente 12 coincidem nas medidas na tolerância de `0,05 cm`.
+- Os campos `*_area_segs`, `*_dim`, `*_local_ini` e `*_local_fim` possuem vínculo N1 em parte dos itens, mas `viga_fundo_seg_*_exists`, `fv_is_h` e `seg_bottom` ainda não preservam a entidade CAD de origem de modo independente.
+- Um contorno FV automático só é aceitável quando o polígono fechado contém a extensão axial do segmento e suas duas faces físicas DXF; comprimento/bbox isolados não provam posição.
+- Uma geometria de área marcada `validated` por humano permanece autoritativa. Geometria automática deslocada, sem selo humano, deve ser reavaliada contra as faces DXF antes de ser reaproveitada.
+
+### Geometrias representativas para regressão
+
+1. painel retilíneo simples: V305;
+2. repetição física e chanfro: V306;
+3. pilar `NASCE` que não é obstáculo sólido: V312;
+4. fundo diagonal/em L: V307;
+5. associação espacial entre vigas próximas: V327/V328.
+
+**Sem promoção:** esta sessão é diagnóstica. Nenhum campo foi promovido para selo, golden, G2-V ou validação humana.

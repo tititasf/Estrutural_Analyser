@@ -1,0 +1,1548 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-11T22:31:50.732722+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260711_193142",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "601f7f692c2a09301d7563f0d1939e28b00ec8c6b6781d5ba1fdb5bd7fe4bf70",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+    "n4_human_locked_overrides": 30
+  },
+  "resumo": {
+    "itens": 13,
+    "n1_itens": 13,
+    "n2_itens": 13,
+    "alertas": 1,
+    "classificacoes": {
+      "EXCELENTE": 12,
+      "RUIM": 1
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L319",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n1_contorno_divergente",
+      "causa_descricao": "Contorno/área real da laje diverge entre N1 e N2. A comparação usa polígono normalizado, área total, IoU e área de diferença; ler a ficha granular (lajes/{nome}.html) antes de decidir o fix.",
+      "confianca": 0.7,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.03828649035321433,
+        "geometria": {
+          "iou": 0.7892423087774678,
+          "rotation_deg": 0,
+          "area_n1": 190783.9412395844,
+          "area_n2_poligono": 226855.45500000002,
+          "area_n2_ref": 226855.46,
+          "area_delta_pct": 0.15900661487457954,
+          "symmetric_diff_area": 49194.4073104156,
+          "symmetric_diff_pct": 0.21685353004250196,
+          "vertices_n1": 7,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 405.5,
+          "comprimento_bbox": 594.0,
+          "points": [
+            [
+              1603.3825,
+              2490.0
+            ],
+            [
+              1380.5,
+              2490.0
+            ],
+            [
+              1380.5,
+              2661.0
+            ],
+            [
+              1197.8825,
+              2661.0
+            ],
+            [
+              1197.8825,
+              2217.506423
+            ],
+            [
+              1356.845108,
+              2067.038
+            ],
+            [
+              1603.3825,
+              2067.0
+            ],
+            [
+              1603.3825,
+              2490.0
+            ]
+          ],
+          "nivel": "852.19",
+          "vertices": 8
+        },
+        "n2": {
+          "comprimento": 406.5,
+          "largura": 558.07,
+          "area_cm2": 226855.46,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              406.5,
+              0.0
+            ],
+            [
+              406.5,
+              558.07
+            ],
+            [
+              0.0,
+              558.07
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1107,
+          "status": "draft",
+          "confianca_origem": 0.85
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L320",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.00013971462544597345,
+        "geometria": {
+          "iou": 0.999718899521531,
+          "rotation_deg": 0,
+          "area_n1": 176764.2975,
+          "area_n2_poligono": 176814.0,
+          "area_n2_ref": 176814.0,
+          "area_delta_pct": 0.0002811004784689785,
+          "symmetric_diff_area": 49.70250000002693,
+          "symmetric_diff_pct": 0.0002811004784690518,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 417.88249999999994,
+          "comprimento_bbox": 423.0,
+          "points": [
+            [
+              2040.3825,
+              2067.0
+            ],
+            [
+              1622.5,
+              2067.0
+            ],
+            [
+              1622.5,
+              2490.0
+            ],
+            [
+              2040.3825,
+              2490.0
+            ],
+            [
+              2040.3825,
+              2423.038
+            ],
+            [
+              2040.3825,
+              2423.038
+            ],
+            [
+              2040.3825,
+              2067.0
+            ]
+          ],
+          "nivel": "852.19",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 423.0,
+          "area_cm2": 176814.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.0,
+              0.0
+            ],
+            [
+              418.0,
+              423.0
+            ],
+            [
+              0.0,
+              423.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L320.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-03T16:39:41+00:00",
+          "n2_db_ficha_substituida": 1108
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L321",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.0,
+        "geometria": {
+          "iou": 1.0,
+          "rotation_deg": 0,
+          "area_n1": 176814.0,
+          "area_n2_poligono": 176814.0,
+          "area_n2_ref": 176814.0,
+          "area_delta_pct": 0.0,
+          "symmetric_diff_area": 0.0,
+          "symmetric_diff_pct": 0.0,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 418.0,
+          "comprimento_bbox": 423.0,
+          "points": [
+            [
+              2477.3825,
+              2067.0
+            ],
+            [
+              2059.3825,
+              2067.0
+            ],
+            [
+              2059.3825,
+              2490.0
+            ],
+            [
+              2477.3825,
+              2490.0
+            ],
+            [
+              2477.3825,
+              2423.038
+            ],
+            [
+              2477.3825,
+              2423.038
+            ],
+            [
+              2477.3825,
+              2067.0
+            ]
+          ],
+          "nivel": "852.19",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 423.0,
+          "area_cm2": 176814.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.0,
+              0.0
+            ],
+            [
+              418.0,
+              423.0
+            ],
+            [
+              0.0,
+              423.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L321.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-03T16:39:46+00:00",
+          "n2_db_ficha_substituida": 1109
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L322",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.0,
+        "geometria": {
+          "iou": 1.0,
+          "rotation_deg": 0,
+          "area_n1": 176814.0,
+          "area_n2_poligono": 176814.0,
+          "area_n2_ref": 176814.0,
+          "area_delta_pct": 0.0,
+          "symmetric_diff_area": 0.0,
+          "symmetric_diff_pct": 0.0,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 418.0,
+          "comprimento_bbox": 423.0,
+          "points": [
+            [
+              2914.3825,
+              2067.0
+            ],
+            [
+              2496.3825,
+              2067.0
+            ],
+            [
+              2496.3825,
+              2490.0
+            ],
+            [
+              2914.3825,
+              2490.0
+            ],
+            [
+              2914.3825,
+              2423.038
+            ],
+            [
+              2914.3825,
+              2423.038
+            ],
+            [
+              2914.3825,
+              2067.0
+            ]
+          ],
+          "nivel": "852.19",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 423.0,
+          "area_cm2": 176814.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.0,
+              0.0
+            ],
+            [
+              418.0,
+              423.0
+            ],
+            [
+              0.0,
+              423.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L322.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-03T16:39:49+00:00",
+          "n2_db_ficha_substituida": 1110
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L323",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.0,
+        "geometria": {
+          "iou": 1.0,
+          "rotation_deg": 0,
+          "area_n1": 176814.0,
+          "area_n2_poligono": 176814.0,
+          "area_n2_ref": 176814.0,
+          "area_delta_pct": 0.0,
+          "symmetric_diff_area": 0.0,
+          "symmetric_diff_pct": 0.0,
+          "vertices_n1": 8,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 418.0,
+          "comprimento_bbox": 423.0,
+          "points": [
+            [
+              3351.3825,
+              2067.0
+            ],
+            [
+              2933.3825,
+              2067.0
+            ],
+            [
+              2933.3825,
+              2490.0
+            ],
+            [
+              3351.3825,
+              2490.0
+            ],
+            [
+              3351.3825,
+              2480.038
+            ],
+            [
+              3351.3825,
+              2480.038
+            ],
+            [
+              3351.3825,
+              2380.038
+            ],
+            [
+              3351.3825,
+              2380.038
+            ],
+            [
+              3351.3825,
+              2067.0
+            ]
+          ],
+          "nivel": "852.19",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 423.0,
+          "area_cm2": 176814.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.0,
+              0.0
+            ],
+            [
+              418.0,
+              423.0
+            ],
+            [
+              0.0,
+              423.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L323.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T14:54:29+00:00",
+          "n2_db_ficha_substituida": 1111
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L324",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.00013971462544570308,
+        "geometria": {
+          "iou": 0.9997188995215315,
+          "rotation_deg": 0,
+          "area_n1": 176764.29750000007,
+          "area_n2_poligono": 176814.0,
+          "area_n2_ref": 176814.0,
+          "area_delta_pct": 0.0002811004784684847,
+          "symmetric_diff_area": 49.70249999993075,
+          "symmetric_diff_pct": 0.00028110047846850787,
+          "vertices_n1": 8,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 417.88250000000016,
+          "comprimento_bbox": 423.0,
+          "points": [
+            [
+              3788.3825,
+              2067.0
+            ],
+            [
+              3370.5,
+              2067.0
+            ],
+            [
+              3370.5,
+              2490.0
+            ],
+            [
+              3788.3825,
+              2490.0
+            ],
+            [
+              3788.3825,
+              2460.038
+            ],
+            [
+              3788.3825,
+              2460.038
+            ],
+            [
+              3788.3825,
+              2380.038
+            ],
+            [
+              3788.3825,
+              2380.038
+            ],
+            [
+              3788.3825,
+              2067.0
+            ]
+          ],
+          "nivel": "859.12",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 423.0,
+          "area_cm2": 176814.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.0,
+              0.0
+            ],
+            [
+              418.0,
+              423.0
+            ],
+            [
+              0.0,
+              423.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L324.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-03T16:39:54+00:00",
+          "n2_db_ficha_substituida": 1112
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L325",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 6.462585034015461e-05,
+        "geometria": {
+          "iou": 0.999917211328976,
+          "rotation_deg": 0,
+          "area_n1": 59206.098,
+          "area_n2_poligono": 59211.0,
+          "area_n2_ref": 59211.0,
+          "area_delta_pct": 8.27886710239966e-05,
+          "symmetric_diff_area": 4.902000000001408,
+          "symmetric_diff_pct": 8.278867102398892e-05,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 129.0,
+          "comprimento_bbox": 458.962,
+          "points": [
+            [
+              3807.3825,
+              1982.038
+            ],
+            [
+              3936.3825,
+              1982.038
+            ],
+            [
+              3936.3825,
+              2441.0
+            ],
+            [
+              3807.3825,
+              2441.0
+            ],
+            [
+              3807.3825,
+              1982.038
+            ]
+          ],
+          "nivel": "859.12",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 129.0,
+          "largura": 459.0,
+          "area_cm2": 59211.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              129.0,
+              0.0
+            ],
+            [
+              129.0,
+              459.0
+            ],
+            [
+              0.0,
+              459.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L325.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-03T16:39:56+00:00",
+          "n2_db_ficha_substituida": 1663
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L326",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 6.877994356386024e-06,
+        "geometria": {
+          "iou": 0.9999887732033378,
+          "rotation_deg": 0,
+          "area_n1": 13767.530432999996,
+          "area_n2_poligono": 13767.685000000001,
+          "area_n2_ref": 13767.69,
+          "area_delta_pct": 1.1589961715018613e-05,
+          "symmetric_diff_area": 0.15456700000476786,
+          "symmetric_diff_pct": 1.1226792585013743e-05,
+          "vertices_n1": 6,
+          "vertices_n2": 6,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 233.73790399999984,
+          "comprimento_bbox": 71.0,
+          "points": [
+            [
+              1369.644596,
+              2048.038
+            ],
+            [
+              1603.3825,
+              2048.038
+            ],
+            [
+              1603.3825,
+              2043.038
+            ],
+            [
+              1600.8825,
+              2043.038
+            ],
+            [
+              1600.8825,
+              1977.038
+            ],
+            [
+              1444.654758,
+              1977.038
+            ],
+            [
+              1369.644596,
+              2048.038
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 233.74,
+          "largura": 71.0,
+          "area_cm2": 13767.69,
+          "coordenadas": [
+            [
+              0.0,
+              71.0
+            ],
+            [
+              233.74,
+              71.0
+            ],
+            [
+              233.74,
+              66.0
+            ],
+            [
+              231.24,
+              66.0
+            ],
+            [
+              231.24,
+              0.0
+            ],
+            [
+              75.01,
+              0.0
+            ],
+            [
+              0.0,
+              71.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L326.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T15:15:17+00:00",
+          "n2_db_ficha_substituida": 1113
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L327",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.00024028629856863735,
+        "geometria": {
+          "iou": 0.9983689214389151,
+          "rotation_deg": 0,
+          "area_n1": 29382.226965,
+          "area_n2_poligono": 29418.0,
+          "area_n2_ref": 29418.0,
+          "area_delta_pct": 0.001216025392616709,
+          "symmetric_diff_area": 47.99303500000699,
+          "symmetric_diff_pct": 0.001631417329526378,
+          "vertices_n1": 8,
+          "vertices_n2": 8,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 417.88249999999994,
+          "comprimento_bbox": 71.0,
+          "points": [
+            [
+              2040.3825,
+              2048.0
+            ],
+            [
+              2040.3825,
+              2029.038
+            ],
+            [
+              2037.8825,
+              2029.038
+            ],
+            [
+              2037.8825,
+              1977.0
+            ],
+            [
+              1624.8825,
+              1977.0
+            ],
+            [
+              1624.8825,
+              2043.038
+            ],
+            [
+              1622.5,
+              2043.038
+            ],
+            [
+              1622.5,
+              2048.0
+            ],
+            [
+              2040.3825,
+              2048.0
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 71.0,
+          "area_cm2": 29418.0,
+          "coordenadas": [
+            [
+              2.5,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              52.0
+            ],
+            [
+              418.0,
+              52.0
+            ],
+            [
+              418.0,
+              71.0
+            ],
+            [
+              0.0,
+              71.0
+            ],
+            [
+              0.0,
+              52.0
+            ],
+            [
+              2.5,
+              52.0
+            ],
+            [
+              2.5,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L327.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T15:15:23+00:00",
+          "n2_db_ficha_substituida": 1114
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L328",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.0,
+        "geometria": {
+          "iou": 0.9997892271746355,
+          "rotation_deg": 0,
+          "area_n1": 29411.98946500001,
+          "area_n2_poligono": 29418.0,
+          "area_n2_ref": 29418.0,
+          "area_delta_pct": 0.0002043148752461194,
+          "symmetric_diff_area": 6.200534999991519,
+          "symmetric_diff_pct": 0.00021077350601643617,
+          "vertices_n1": 8,
+          "vertices_n2": 8,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 418.0,
+          "comprimento_bbox": 71.0,
+          "points": [
+            [
+              2062.0,
+              1977.038
+            ],
+            [
+              2062.0,
+              2029.0
+            ],
+            [
+              2059.3825,
+              2029.0
+            ],
+            [
+              2059.3825,
+              2048.038
+            ],
+            [
+              2477.3825,
+              2048.038
+            ],
+            [
+              2477.3825,
+              2029.038
+            ],
+            [
+              2474.8825,
+              2029.038
+            ],
+            [
+              2474.8825,
+              1977.038
+            ],
+            [
+              2062.0,
+              1977.038
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 71.0,
+          "area_cm2": 29418.0,
+          "coordenadas": [
+            [
+              2.5,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              52.0
+            ],
+            [
+              418.0,
+              52.0
+            ],
+            [
+              418.0,
+              71.0
+            ],
+            [
+              0.0,
+              71.0
+            ],
+            [
+              0.0,
+              52.0
+            ],
+            [
+              2.5,
+              52.0
+            ],
+            [
+              2.5,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L328.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T15:15:32+00:00",
+          "n2_db_ficha_substituida": 1115
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L329",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.00024028629856817237,
+        "geometria": {
+          "iou": 0.9997131858046098,
+          "rotation_deg": 0,
+          "area_n1": 29409.56250000001,
+          "area_n2_poligono": 29418.0,
+          "area_n2_ref": 29418.0,
+          "area_delta_pct": 0.0002868141953902062,
+          "symmetric_diff_area": 8.437499999988404,
+          "symmetric_diff_pct": 0.000286814195390183,
+          "vertices_n1": 8,
+          "vertices_n2": 8,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 417.88250000000016,
+          "comprimento_bbox": 71.0,
+          "points": [
+            [
+              2499.0,
+              1977.0
+            ],
+            [
+              2499.0,
+              2029.0
+            ],
+            [
+              2496.5,
+              2029.0
+            ],
+            [
+              2496.5,
+              2048.0
+            ],
+            [
+              2914.3825,
+              2048.0
+            ],
+            [
+              2914.3825,
+              2029.038
+            ],
+            [
+              2911.8825,
+              2029.038
+            ],
+            [
+              2911.8825,
+              1977.0
+            ],
+            [
+              2499.0,
+              1977.0
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 71.0,
+          "area_cm2": 29418.0,
+          "coordenadas": [
+            [
+              2.5,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              52.0
+            ],
+            [
+              418.0,
+              52.0
+            ],
+            [
+              418.0,
+              71.0
+            ],
+            [
+              0.0,
+              71.0
+            ],
+            [
+              0.0,
+              52.0
+            ],
+            [
+              2.5,
+              52.0
+            ],
+            [
+              2.5,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L329.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T15:15:36+00:00",
+          "n2_db_ficha_substituida": 1116
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L330",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.00024028629856817237,
+        "geometria": {
+          "iou": 0.9997131858046098,
+          "rotation_deg": 0,
+          "area_n1": 29409.56250000001,
+          "area_n2_poligono": 29418.0,
+          "area_n2_ref": 29418.0,
+          "area_delta_pct": 0.0002868141953902062,
+          "symmetric_diff_area": 8.437499999988404,
+          "symmetric_diff_pct": 0.000286814195390183,
+          "vertices_n1": 8,
+          "vertices_n2": 8,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 417.88250000000016,
+          "comprimento_bbox": 71.0,
+          "points": [
+            [
+              2936.0,
+              1977.0
+            ],
+            [
+              2936.0,
+              2029.0
+            ],
+            [
+              2933.5,
+              2029.0
+            ],
+            [
+              2933.5,
+              2048.0
+            ],
+            [
+              3351.3825,
+              2048.0
+            ],
+            [
+              3351.3825,
+              2029.038
+            ],
+            [
+              3348.8825,
+              2029.038
+            ],
+            [
+              3348.8825,
+              1977.0
+            ],
+            [
+              2936.0,
+              1977.0
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 71.0,
+          "area_cm2": 29418.0,
+          "coordenadas": [
+            [
+              2.5,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              52.0
+            ],
+            [
+              418.0,
+              52.0
+            ],
+            [
+              418.0,
+              71.0
+            ],
+            [
+              0.0,
+              71.0
+            ],
+            [
+              0.0,
+              52.0
+            ],
+            [
+              2.5,
+              52.0
+            ],
+            [
+              2.5,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L330.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T15:15:41+00:00",
+          "n2_db_ficha_substituida": 1117
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-11T22:31:50.732722+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LAJ",
+      "item": "L331",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.00024028629856817237,
+        "geometria": {
+          "iou": 0.9997144485964328,
+          "rotation_deg": 0,
+          "area_n1": 29539.752500000013,
+          "area_n2_poligono": 29548.0,
+          "area_n2_ref": 29548.0,
+          "area_delta_pct": 0.0002791221064026925,
+          "symmetric_diff_area": 8.437499999988404,
+          "symmetric_diff_pct": 0.00028555232164574265,
+          "vertices_n1": 6,
+          "vertices_n2": 6,
+          "classificacao": "EXCELENTE"
+        },
+        "n1": {
+          "largura_bbox": 417.88250000000016,
+          "comprimento_bbox": 71.0,
+          "points": [
+            [
+              3373.0,
+              1977.038
+            ],
+            [
+              3788.3825,
+              1977.038
+            ],
+            [
+              3788.3825,
+              2048.038
+            ],
+            [
+              3370.5,
+              2048.038
+            ],
+            [
+              3370.5,
+              2029.0
+            ],
+            [
+              3373.0,
+              2029.0
+            ],
+            [
+              3373.0,
+              1977.038
+            ]
+          ],
+          "nivel": "852.12",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 418.0,
+          "largura": 71.0,
+          "area_cm2": 29548.0,
+          "coordenadas": [
+            [
+              2.5,
+              0.0
+            ],
+            [
+              418.0,
+              0.0
+            ],
+            [
+              418.0,
+              71.0
+            ],
+            [
+              0.0,
+              71.0
+            ],
+            [
+              0.0,
+              52.0
+            ],
+            [
+              2.5,
+              52.0
+            ],
+            [
+              2.5,
+              0.0
+            ]
+          ],
+          "ficha_id": null,
+          "status": "n4_human_locked",
+          "confianca_origem": 1.0,
+          "fonte_referencia": "n4_human_locked_dxf",
+          "n4_dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\LJ_preview_L331.dxf",
+          "validation_origin": "human_ui",
+          "validation_updated_at": "2026-07-08T15:15:46+00:00",
+          "n2_db_ficha_substituida": 1118
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

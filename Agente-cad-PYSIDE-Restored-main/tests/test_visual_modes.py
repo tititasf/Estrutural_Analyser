@@ -438,18 +438,25 @@ def test_wall_flush_center_aligns_opening_sarr():
     aligned = _align_panel_centerline(verts, 7.0, boxes, edge_extra=2.5)
     assert aligned[0][0] == pytest.approx(153.5)
     assert aligned[1][0] == pytest.approx(153.5)
-    # braco L horizontal parede→eixo
+    # braco L horizontal parede→eixo (+ Y flush sob a abertura)
     h = [(157.0, -224.0), (150.0, -224.0)]
     ah = _align_panel_centerline(h, 7.0, boxes, edge_extra=2.5)
     assert ah[0][0] == pytest.approx(157.0)
     assert ah[1][0] == pytest.approx(153.5)
-    # polilinha L continua
+    assert ah[0][1] == pytest.approx(-227.5)
+    assert ah[1][1] == pytest.approx(-227.5)
+    # polilinha L continua: X flush parede + Y desce th/2 (face sup. no fundo abertura)
     L = [(157.0, -224.0), (150.0, -224.0), (150.0, -231.0), (161.0, -231.0)]
     aL = _align_panel_centerline(L, 7.0, boxes, edge_extra=2.5)
     assert aL[0][0] == pytest.approx(157.0)
     assert aL[1][0] == pytest.approx(153.5)
     assert aL[2][0] == pytest.approx(153.5)
     assert aL[3][0] == pytest.approx(161.0)
+    # y original -224 → -227.5 (centro do MLINE 7cm; face superior em -224)
+    assert aL[0][1] == pytest.approx(-227.5)
+    assert aL[1][1] == pytest.approx(-227.5)
+    assert aL[2][1] == pytest.approx(-234.5)
+    assert aL[3][1] == pytest.approx(-234.5)
 
 
 def test_ini_opening_l_mline_flushes_to_wall():
@@ -477,10 +484,19 @@ def test_ini_opening_l_mline_flushes_to_wall():
     )
     apply_visual_mode(doc, "INI", "PL")
     xs = []
+    l_ys = []
     for e in msp.query("MLINE"):
-        for v in e.vertices:
-            xs.append(round(float(v.location.x), 2))
+        verts = list(e.vertices)
+        pts = [(float(v.location.x), float(v.location.y)) for v in verts]
+        for x, y in pts:
+            xs.append(round(x, 2))
+        # L tem 3+ vertices
+        if len(pts) >= 3:
+            l_ys = [y for _, y in pts]
     # eixos do fuste/L (exceto pressao 161 e parede 157) em ~153.5
     sarr_xs = [x for x in xs if 148 <= x <= 156]
     assert sarr_xs, xs
     assert all(abs(x - 153.5) < 0.2 for x in sarr_xs), sarr_xs
+    # L desceu th/2: topo do H em -224 (face) → centro -227.5
+    assert l_ys, "L MLINE multi-vertex esperado"
+    assert max(l_ys) == pytest.approx(-227.5, abs=0.2)

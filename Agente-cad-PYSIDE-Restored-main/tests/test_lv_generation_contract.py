@@ -56,6 +56,29 @@ def test_missing_lv_dimension_blocks_generation_and_never_uses_fv_dimension():
     assert contract["_sa_meta"]["fv_dimension_fallback"] is False
 
 
+def test_uses_canonical_lv_segment_field_after_cross_class_autofill():
+    beam = {
+        "name": "V308",
+        "fields": {
+            "viga_fundo_seg_1_dim": "19/55",
+            "viga_a_seg_1_dim": "100/19",
+        },
+        "links": {
+            "viga_a_seg_1_comprimento_total": {
+                "seg_side_a": [_entry(291, dim="")]
+            }
+        },
+    }
+
+    contract = build_lv_generation_contracts(beam)["Para"]["A"]
+
+    assert contract["total_width"] == 19
+    assert contract["h_section"] == 100
+    assert contract["generation_ready"] is True
+    assert contract["_sa_meta"]["dimension_source"] == "sa_lv_segment_field"
+    assert contract["_sa_meta"]["fv_dimension_fallback"] is False
+
+
 def test_uses_beamtracer_lv_dimension_without_fv_fallback():
     beam = {
         "name": "V327",

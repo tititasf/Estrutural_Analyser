@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-07-11T17:27:17.212400",
+  "timestamp": "2026-07-13T02:17:09.158555",
   "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
   "total_slabs": 31,
-  "validated_count": 11,
-  "non_validated_count": 20,
+  "validated_count": 31,
+  "non_validated_count": 0,
   "n2_available_count": 31,
   "n2_quality": {
     "excelente": 31,
@@ -43,166 +43,85 @@
     },
     {
       "name": "L311"
+    },
+    {
+      "name": "L312"
+    },
+    {
+      "name": "L313"
+    },
+    {
+      "name": "L314"
+    },
+    {
+      "name": "L315"
+    },
+    {
+      "name": "L316"
+    },
+    {
+      "name": "L317"
+    },
+    {
+      "name": "L318"
+    },
+    {
+      "name": "L319"
+    },
+    {
+      "name": "L320"
+    },
+    {
+      "name": "L321"
+    },
+    {
+      "name": "L322"
+    },
+    {
+      "name": "L323"
+    },
+    {
+      "name": "L324"
+    },
+    {
+      "name": "L325"
+    },
+    {
+      "name": "L326"
+    },
+    {
+      "name": "L327"
+    },
+    {
+      "name": "L328"
+    },
+    {
+      "name": "L329"
+    },
+    {
+      "name": "L330"
+    },
+    {
+      "name": "L331"
     }
   ],
-  "non_validated_slabs": [
-    {
-      "name": "L312",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L313",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0002
-    },
-    {
-      "name": "L314",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L315",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L316",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0002
-    },
-    {
-      "name": "L317",
-      "confidence": 0.486,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0002
-    },
-    {
-      "name": "L318",
-      "confidence": 0.44,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L319",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L320",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0001
-    },
-    {
-      "name": "L321",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L322",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L323",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L324",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0001
-    },
-    {
-      "name": "L325",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L326",
-      "confidence": 0.46,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L327",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0049
-    },
-    {
-      "name": "L328",
-      "confidence": 0.4,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0
-    },
-    {
-      "name": "L329",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0002
-    },
-    {
-      "name": "L330",
-      "confidence": 0.5,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0002
-    },
-    {
-      "name": "L331",
-      "confidence": 0.46,
-      "confidence_level": "LOW",
-      "n2_quality": "EXCELENTE",
-      "dim_delta": 0.0002
-    }
-  ],
+  "non_validated_slabs": [],
   "slabs": [
     {
       "name": "L301",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_1",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "area",
         "name",
         "laje_islands",
-        "id_item",
         "laje_nivel",
-        "area",
-        "laje_pilares_apoio"
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 74206.5,
       "points_count": 7,
@@ -252,16 +171,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_2",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "area",
         "name",
         "laje_islands",
-        "id_item",
         "laje_nivel",
-        "area",
-        "laje_pilares_apoio"
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 76494.0,
       "points_count": 7,
@@ -311,16 +230,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_3",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_outline_segs",
-        "name",
-        "laje_islands",
-        "id_item",
-        "laje_nivel",
         "area",
-        "laje_pilares_apoio"
+        "id_item",
+        "laje_dim",
+        "laje_islands",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ],
       "area": 76494.0,
       "points_count": 5,
@@ -370,16 +289,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_4",
       "validated": true,
       "validated_fields": [
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "name",
-        "laje_outline_segs",
-        "laje_islands",
-        "id_item",
-        "laje_nivel",
-        "area",
         "laje_pilares_apoio",
-        "laje_visao_corte"
+        "area",
+        "name",
+        "laje_islands",
+        "laje_nivel",
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 76494.0,
       "points_count": 7,
@@ -429,16 +348,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_5",
       "validated": true,
       "validated_fields": [
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_visao_corte",
-        "name",
-        "laje_outline_segs",
-        "laje_islands",
-        "id_item",
-        "laje_nivel",
+        "laje_pilares_apoio",
         "area",
-        "laje_pilares_apoio"
+        "name",
+        "laje_islands",
+        "laje_nivel",
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 76494.0,
       "points_count": 7,
@@ -488,16 +407,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_6",
       "validated": true,
       "validated_fields": [
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_visao_corte",
-        "name",
-        "laje_outline_segs",
-        "laje_islands",
-        "id_item",
-        "laje_nivel",
+        "laje_pilares_apoio",
         "area",
-        "laje_pilares_apoio"
+        "name",
+        "laje_islands",
+        "laje_nivel",
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 76494.0,
       "points_count": 7,
@@ -547,14 +466,14 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_7",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
+        "laje_pilares_apoio",
         "laje_vizinhas_niveis",
         "name",
-        "laje_outline_segs",
         "laje_islands",
-        "laje_nivel",
-        "laje_pilares_apoio"
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_nivel"
       ],
       "area": 76493.99999999991,
       "points_count": 7,
@@ -604,16 +523,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_8",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "area",
         "name",
         "laje_islands",
-        "id_item",
         "laje_nivel",
-        "area",
-        "laje_pilares_apoio"
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 52887.0,
       "points_count": 5,
@@ -663,16 +582,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_9",
       "validated": true,
       "validated_fields": [
+        "laje_pilares_apoio",
+        "area",
+        "name",
+        "laje_islands",
+        "laje_nivel",
+        "id_item",
+        "laje_outline_segs",
         "laje_visao_corte",
         "laje_dim",
-        "laje_vizinhas_niveis",
-        "name",
-        "laje_outline_segs",
-        "laje_islands",
-        "id_item",
-        "laje_nivel",
-        "area",
-        "laje_pilares_apoio"
+        "laje_vizinhas_niveis"
       ],
       "area": 126110.5,
       "points_count": 5,
@@ -722,16 +641,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_10",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
-        "laje_vizinhas_niveis",
         "laje_outline_segs",
-        "name",
-        "laje_islands",
-        "id_item",
-        "laje_nivel",
         "area",
-        "laje_pilares_apoio"
+        "laje_dim",
+        "laje_pilares_apoio",
+        "name",
+        "id_item",
+        "laje_islands",
+        "laje_nivel",
+        "laje_vizinhas_niveis",
+        "laje_visao_corte"
       ],
       "area": 129961.45749999996,
       "points_count": 9,
@@ -781,16 +700,16 @@
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_11",
       "validated": true,
       "validated_fields": [
-        "laje_visao_corte",
-        "laje_dim",
-        "laje_vizinhas_niveis",
-        "laje_outline_segs",
+        "laje_pilares_apoio",
+        "area",
         "name",
         "laje_islands",
-        "id_item",
         "laje_nivel",
-        "area",
-        "laje_pilares_apoio"
+        "id_item",
+        "laje_outline_segs",
+        "laje_visao_corte",
+        "laje_dim",
+        "laje_vizinhas_niveis"
       ],
       "area": 129998.0,
       "points_count": 7,
@@ -838,15 +757,16 @@
     {
       "name": "L312",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_12",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
+        "laje_outline_segs",
         "laje_dim",
+        "laje_pilares_apoio",
+        "name",
         "laje_islands",
         "laje_nivel",
-        "laje_outline_segs",
-        "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "name"
+        "laje_visao_corte"
       ],
       "area": 129998.0,
       "points_count": 9,
@@ -873,7 +793,7 @@
       "n2_comparison": {
         "comprimento_n2": 418.0,
         "largura_n2": 311.0,
-        "area_n2_cm2": 129985.08,
+        "area_n2_cm2": 129998.0,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -881,27 +801,29 @@
         "detected_height": 311.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L313",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_13",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
+        "laje_outline_segs",
         "laje_dim",
+        "laje_pilares_apoio",
+        "name",
         "laje_islands",
         "laje_nivel",
-        "laje_outline_segs",
-        "laje_pilares_apoio",
-        "name"
+        "laje_vizinhas_niveis",
+        "laje_visao_corte"
       ],
       "area": 129961.45750000005,
       "points_count": 9,
@@ -926,35 +848,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 418.0,
+        "comprimento_n2": 417.88,
         "largura_n2": 311.0,
-        "area_n2_cm2": 129986.25,
+        "area_n2_cm2": 129961.46,
         "has_coords": true,
-        "dim_delta": 0.0002,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 311.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L314",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_14",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
         "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 129998.0,
@@ -982,7 +907,7 @@
       "n2_comparison": {
         "comprimento_n2": 418.0,
         "largura_n2": 311.0,
-        "area_n2_cm2": 129982.61,
+        "area_n2_cm2": 129998.0,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -990,26 +915,29 @@
         "detected_height": 311.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L315",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_15",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
+        "laje_outline_segs",
         "laje_dim",
+        "laje_pilares_apoio",
+        "name",
         "laje_islands",
         "laje_nivel",
-        "laje_outline_segs",
-        "name"
+        "laje_vizinhas_niveis",
+        "laje_visao_corte"
       ],
       "area": 129997.99999999985,
       "points_count": 5,
@@ -1044,25 +972,29 @@
         "detected_height": 311.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L316",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_16",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
-        "laje_dim",
-        "laje_islands",
         "laje_outline_segs",
-        "name"
+        "laje_dim",
+        "laje_pilares_apoio",
+        "name",
+        "laje_islands",
+        "laje_nivel",
+        "laje_vizinhas_niveis",
+        "laje_visao_corte"
       ],
       "area": 89842.4574999999,
       "points_count": 7,
@@ -1087,35 +1019,39 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 289.0,
+        "comprimento_n2": 288.88,
         "largura_n2": 311.0,
-        "area_n2_cm2": 89875.36,
+        "area_n2_cm2": 89842.46,
         "has_coords": true,
-        "dim_delta": 0.0002,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 288.88,
         "detected_height": 311.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L317",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_17",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
-        "laje_dim",
-        "laje_islands",
         "laje_outline_segs",
-        "name"
+        "laje_dim",
+        "laje_pilares_apoio",
+        "name",
+        "laje_islands",
+        "laje_nivel",
+        "laje_vizinhas_niveis",
+        "laje_visao_corte"
       ],
       "area": 49953.56773477484,
       "points_count": 7,
@@ -1140,34 +1076,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 97.5,
+        "comprimento_n2": 97.38,
         "largura_n2": 512.96,
-        "area_n2_cm2": 50003.27,
+        "area_n2_cm2": 49953.57,
         "has_coords": true,
-        "dim_delta": 0.0002,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 97.38,
         "detected_height": 512.96
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L318",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_18",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 512693.2025,
@@ -1193,9 +1133,9 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 3139.12,
+        "comprimento_n2": 3139.0,
         "largura_n2": 201.0,
-        "area_n2_cm2": 512709.77,
+        "area_n2_cm2": 512693.2,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -1203,25 +1143,28 @@
         "detected_height": 201.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L319",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_19",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
         "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 190783.9412395844,
@@ -1249,7 +1192,7 @@
       "n2_comparison": {
         "comprimento_n2": 405.5,
         "largura_n2": 594.0,
-        "area_n2_cm2": 190772.69,
+        "area_n2_cm2": 190783.94,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -1257,24 +1200,28 @@
         "detected_height": 594.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L320",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_20",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 176764.2975,
@@ -1300,35 +1247,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 418.0,
+        "comprimento_n2": 417.88,
         "largura_n2": 423.0,
-        "area_n2_cm2": 176806.13,
+        "area_n2_cm2": 176764.3,
         "has_coords": true,
-        "dim_delta": 0.0001,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 423.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L321",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_21",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
         "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 176814.0,
@@ -1356,7 +1306,7 @@
       "n2_comparison": {
         "comprimento_n2": 418.0,
         "largura_n2": 423.0,
-        "area_n2_cm2": 176806.13,
+        "area_n2_cm2": 176814.0,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -1364,24 +1314,28 @@
         "detected_height": 423.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L322",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_22",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 176814.0,
@@ -1409,7 +1363,7 @@
       "n2_comparison": {
         "comprimento_n2": 418.0,
         "largura_n2": 423.0,
-        "area_n2_cm2": 176806.13,
+        "area_n2_cm2": 176814.0,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -1417,25 +1371,28 @@
         "detected_height": 423.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L323",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_23",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
         "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 176814.0,
@@ -1463,7 +1420,7 @@
       "n2_comparison": {
         "comprimento_n2": 418.0,
         "largura_n2": 423.0,
-        "area_n2_cm2": 176802.25,
+        "area_n2_cm2": 176814.0,
         "has_coords": true,
         "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
@@ -1471,25 +1428,28 @@
         "detected_height": 423.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L324",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_24",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
         "laje_nivel",
         "laje_outline_segs",
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 176764.29750000007,
@@ -1515,35 +1475,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 418.0,
+        "comprimento_n2": 417.88,
         "largura_n2": 423.0,
-        "area_n2_cm2": 176804.6,
+        "area_n2_cm2": 176764.3,
         "has_coords": true,
-        "dim_delta": 0.0001,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 423.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L325",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_25",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
         "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 59206.098,
@@ -1579,26 +1542,28 @@
         "detected_height": 458.96
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L326",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_26",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
         "laje_pilares_apoio",
         "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 13767.530432999996,
@@ -1634,20 +1599,20 @@
         "detected_height": 71.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L327",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_27",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
@@ -1655,6 +1620,7 @@
         "laje_outline_segs",
         "laje_pilares_apoio",
         "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 29382.226965,
@@ -1680,36 +1646,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 415.5,
+        "comprimento_n2": 417.88,
         "largura_n2": 71.0,
-        "area_n2_cm2": 29213.16,
+        "area_n2_cm2": 29382.23,
         "has_coords": true,
-        "dim_delta": 0.0049,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 71.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L328",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_28",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
         "laje_nivel",
         "laje_outline_segs",
         "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 29411.98946500001,
@@ -1745,20 +1713,20 @@
         "detected_height": 71.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L329",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_29",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
@@ -1766,6 +1734,7 @@
         "laje_outline_segs",
         "laje_pilares_apoio",
         "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 29409.56250000001,
@@ -1791,36 +1760,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 418.0,
+        "comprimento_n2": 417.88,
         "largura_n2": 71.0,
-        "area_n2_cm2": 29411.79,
+        "area_n2_cm2": 29409.56,
         "has_coords": true,
-        "dim_delta": 0.0002,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 71.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L330",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_30",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
+        "laje_nivel",
         "laje_outline_segs",
         "laje_pilares_apoio",
         "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 29409.56250000001,
@@ -1846,36 +1817,38 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 418.0,
+        "comprimento_n2": 417.88,
         "largura_n2": 71.0,
-        "area_n2_cm2": 29411.79,
+        "area_n2_cm2": 29409.56,
         "has_coords": true,
-        "dim_delta": 0.0002,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 71.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     },
     {
       "name": "L331",
       "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_l_31",
-      "validated": false,
+      "validated": true,
       "validated_fields": [
         "laje_dim",
         "laje_islands",
         "laje_nivel",
         "laje_outline_segs",
         "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
         "name"
       ],
       "area": 29539.752500000013,
@@ -1901,24 +1874,24 @@
       },
       "issues": [],
       "n2_comparison": {
-        "comprimento_n2": 418.0,
+        "comprimento_n2": 417.88,
         "largura_n2": 71.0,
-        "area_n2_cm2": 29548.1,
+        "area_n2_cm2": 29539.75,
         "has_coords": true,
-        "dim_delta": 0.0002,
+        "dim_delta": 0.0,
         "match_quality": "EXCELENTE",
         "detected_width": 417.88,
         "detected_height": 71.0
       },
       "link_slots": [
-        "name",
+        "_laje_complex",
         "laje_dim",
-        "laje_visao_corte",
-        "laje_vizinhas_niveis",
-        "laje_pilares_apoio",
         "laje_nivel",
         "laje_outline_segs",
-        "_laje_complex"
+        "laje_pilares_apoio",
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "name"
       ]
     }
   ]

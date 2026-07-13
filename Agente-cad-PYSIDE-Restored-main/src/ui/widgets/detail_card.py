@@ -1835,33 +1835,54 @@ class DetailCard(QWidget):
 
                 tab_l.addWidget(grp)
 
-            # ── Nova classe: Vigas Internas / Vigas que passam ──
-            v_int_grp = QGroupBox(f"Vigas que Passam ou Internas — Lado {side}")
-            v_int_grp.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.ACCENT_MINT}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 10px; padding-top: 5px; }}")
-            f_v_int = QFormLayout(v_int_grp)
-            f_v_int.setSpacing(1)
-            f_v_int.setContentsMargins(2, 5, 2, 2)
-            
-            id_v_int = f'p_s{side}_v_int'
-            self._add_linked_row(f_v_int, "Nome da Viga:", f'{id_v_int}_n', "text")
-            self._add_linked_row(f_v_int, "Dimensão (B x H):", f'{id_v_int}_d', "text")
-            self._add_linked_row(f_v_int, "Nível da Viga:", f'{id_v_int}_v', "text")
-            self._add_info_row(f_v_int, "Distância ao Topo:", f'{id_v_int}_dist_t')
-            self._add_info_row(f_v_int, "Distância Parede Esquerda:", f'{id_v_int}_dist_esq')
-            self._add_info_row(f_v_int, "Distância Parede Direita:", f'{id_v_int}_dist_dir')
-            tab_l.addWidget(v_int_grp)
+            # ── Vigas que passam: 2 slots por face (esquina esq / dir) ──
+            # Contorno esq/dir REMOVIDO — não é usado no fluxo N1/N3.
+            # Cantos canônicos (INTERPRETACAO-PILARES-ABCD + aberturas NOVA):
+            #   A: AC|AD  B: BD|BC  C: CA|CB  D: DA|DB
+            _FACE_PASS_CORNERS = {
+                'A': ('AC', 'AD'),
+                'B': ('BD', 'BC'),
+                'C': ('CA', 'CB'),
+                'D': ('DA', 'DB'),
+            }
+            _c_esq, _c_dir = _FACE_PASS_CORNERS.get(side, ('ESQ', 'DIR'))
+            for _slot, _corner, _title_side in (
+                ('passa_esq', _c_esq, 'Esquerda'),
+                ('passa_dir', _c_dir, 'Direita'),
+            ):
+                v_pass_grp = QGroupBox(
+                    f"Vigas que Passam — Esquina {_corner} "
+                    f"({_title_side} · Lado {side})"
+                )
+                v_pass_grp.setStyleSheet(
+                    f"QGroupBox {{ font-size: 10px; font-weight: bold; "
+                    f"color: {Colors.ACCENT_MINT}; border: 1px solid "
+                    f"{Colors.BORDER_DEFAULT}; margin-top: 10px; padding-top: 5px; }}"
+                )
+                f_vp = QFormLayout(v_pass_grp)
+                f_vp.setSpacing(1)
+                f_vp.setContentsMargins(2, 5, 2, 2)
+                id_vp = f'p_s{side}_v_{_slot}'
+                self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
+                self._add_linked_row(f_vp, "Dimensão (B x H):", f'{id_vp}_d', "text")
+                self._add_linked_row(f_vp, "Nível da Viga:", f'{id_vp}_v', "text")
+                self._add_info_row(f_vp, "Distância ao Topo:", f'{id_vp}_dist_t')
+                self._add_info_row(f_vp, "Distância Parede Esquerda:", f'{id_vp}_dist_esq')
+                self._add_info_row(f_vp, "Distância Parede Direita:", f'{id_vp}_dist_dir')
+                # Legado v_int → migra para passa_esq se o novo slot estiver vazio
+                if _slot == 'passa_esq':
+                    self._migrate_legacy_v_int_to_passa_esq(side)
+                tab_l.addWidget(v_pass_grp)
 
-            # Pre-fill N/A: Laje 2 e Viga Passam vazios → N/A (após UI construída)
+            # Pre-fill N/A: Laje 2 e Vigas Passam vazios → N/A (após UI construída)
             from PySide6.QtCore import QTimer as _QTna
             _QTna.singleShot(10, lambda _s=side: self._init_side_na_defaults(_s))
 
-            # Categorias de Vigas
+            # Chegadas: até 3 vigas que param / chegam no pilar por face
             beam_categories = [
-                ("Viga de Contorno Esquerda", "esq", False),
-                ("Viga de Contorno Direita", "dir", False),
                 ("Viga de Chegada 1", "ch1", True),
                 ("Viga de Chegada 2", "ch2", True),
-                ("Viga de Chegada 3", "ch3", True)
+                ("Viga de Chegada 3", "ch3", True),
             ]
             
             for cat_name, cat_id, is_arrival in beam_categories:
@@ -2604,8 +2625,28 @@ class DetailCard(QWidget):
             
         return None
 
+    def _migrate_legacy_v_int_to_passa_esq(self, side: str) -> None:
+        """Copia p_sX_v_int_* → p_sX_v_passa_esq_* se o slot novo estiver vazio."""
+        legacy_n = str(self.item_data.get(f'p_s{side}_v_int_n') or '').strip()
+        new_n = str(self.item_data.get(f'p_s{side}_v_passa_esq_n') or '').strip()
+        empty = ('', 'N/A', 'N.A.', 'NONE', '—')
+        if legacy_n.upper() in empty or new_n.upper() not in empty:
+            return
+        for sfx in ('_n', '_d', '_v', '_dist_t', '_dist_esq', '_dist_dir'):
+            src = f'p_s{side}_v_int{sfx}'
+            dst = f'p_s{side}_v_passa_esq{sfx}'
+            val = self.item_data.get(src)
+            if val in (None, ''):
+                continue
+            self.item_data[dst] = val
+            w = self.fields.get(dst)
+            if w and hasattr(w, 'setText') and not str(w.text() or '').strip():
+                w.blockSignals(True)
+                w.setText(str(val))
+                w.blockSignals(False)
+
     def _init_side_na_defaults(self, side: str) -> None:
-        """Pre-fill N/A em campos de Laje 1/2 e Viga que Passa quando vazios.
+        """Pre-fill N/A em campos de Laje 1/2 e Vigas que Passam quando vazios.
 
         Chamado via QTimer após a aba do lado ser construída. Só preenche campos
         ainda vazios — nunca sobrescreve valor já digitado pelo usuário.
@@ -2613,7 +2654,7 @@ class DetailCard(QWidget):
         Regras:
           Laje 1: se nome vazio ou 'N/A' → H e Nível recebem N/A
           Laje 2: se nome vazio          → nome + H + Nível recebem N/A
-          Viga:   se nome vazio          → nome + Dimensão + Nível recebem N/A
+          Passa esq/dir: se nome vazio   → nome + Dimensão + Nível recebem N/A
         """
         def _na(fid: str) -> None:
             w = self.fields.get(fid)
@@ -2636,11 +2677,16 @@ class DetailCard(QWidget):
             for fid in (f'p_s{side}_l2_n', f'p_s{side}_l2_h', f'p_s{side}_l2_v'):
                 _na(fid)
 
-        # Viga que Passa: se nome vazio → campos de viga recebem N/A
-        v_n_w = self.fields.get(f'p_s{side}_v_int_n')
-        if v_n_w and hasattr(v_n_w, 'text') and not v_n_w.text().strip():
-            for fid in (f'p_s{side}_v_int_n', f'p_s{side}_v_int_d', f'p_s{side}_v_int_v'):
-                _na(fid)
+        # Vigas que Passam (2 esquinas): se nome vazio → N/A nos campos principais
+        for slot in ('passa_esq', 'passa_dir'):
+            v_n_w = self.fields.get(f'p_s{side}_v_{slot}_n')
+            if v_n_w and hasattr(v_n_w, 'text') and not v_n_w.text().strip():
+                for fid in (
+                    f'p_s{side}_v_{slot}_n',
+                    f'p_s{side}_v_{slot}_d',
+                    f'p_s{side}_v_{slot}_v',
+                ):
+                    _na(fid)
 
     def _on_panel_slab_name_changed(self, side: str, laje_idx: int, slab_name: str):
         """Auto-preenche Altura e Nível da Laje quando o nome é informado.

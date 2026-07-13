@@ -74,6 +74,11 @@ por número global de acertos:
 de motor, outra obra/pavimento ou ausência de evidência rebaixa o caso para Q0/Q1.
 O contrato QA↔RAG está em `CONTRATO-QA-RAG-LOOPINGS.md`.
 
+Ativação reutilizável: `$qa-global-evidencias` no Codex ou
+`/CAD:QAGlobalEvidencias-AIOS` no AIOS. A implementação está em
+`squads/qa-global-evidencias/`; ela formaliza o roteamento e os gates, mas não substitui
+nenhum script canônico descrito neste procedimento.
+
 O ponto central pedido pelo dono (02/07): **os dois diagnósticos convivem, sempre.** O
 automático não é descartado quando o humano discorda — a divergência em si é o dado mais
 valioso, porque é como se mede, ao longo do tempo, se o diagnóstico automático está
@@ -121,7 +126,49 @@ G0–G6.
 
 ---
 
-## 1. Passo 1 — Geração headless (já genérico, pronto para qualquer classe)
+## 0.1 — Selecionar o microciclo pela camada alterada
+
+O headless canônico é obrigatório para refinar **N1**, pois a interpretação e
+os vínculos dependem do contexto estrutural completo. Ele não deve ser usado
+para uma alteração restrita ao desenho N3/N4, que já recebe uma ficha/payload
+estável e não precisa reconstruir o SA.
+
+1. **Hipótese de campo/vínculo persistido:** rode `qa_n1_field_probe.py` com
+   somente os campos necessários. Ele pode cruzar classes e testar overlay sem
+   persistir; o resultado vale apenas para os checks declarados.
+2. **Cobertura do item persistido:** rode o Agente QA Global em `review`; é
+   read-only e responde em segundos. Serve para inventário e proveniência do DB.
+3. **Contrato puro:** rode testes unitários contrato→payload, incluindo slots,
+   vazios, espelhamento e neutralização. Não abra Qt nem DB.
+4. **Motor visual N3/N4:** gere somente o item com o CLI da classe e publique
+   uma ficha com `ficha_motor_item.py`. Use `qa_artifact_parity.py` para campos
+   declarados e compare o SVG/PNG; a paridade não substitui o veredito visual.
+5. **Extrator/interpretação N1:** rode `headless_sa_analise.py --secao --item
+   --wait`; somente essa camada requer reconstrução contextual do pavimento.
+6. **Fechamento:** regressão completa e gate visual continuam obrigatórios.
+
+Exemplo de ficha visual focada, válido para PIL/LAJ/FV/LV:
+
+```bash
+python scripts/arete/ficha_motor_item.py \
+  --classe PIL --item P35 --nivel N3 \
+  --artefato PARA=D:/.../para/PL_ABCD_preview_P35.dxf \
+  --json PARA=D:/.../para/P35.json \
+  --contract PARA=D:/.../para/P35_contract.json \
+  --artefato PASSA=D:/.../passa/PL_ABCD_preview_P35.dxf \
+  --json PASSA=D:/.../passa/P35.json --open
+```
+
+Essa ficha não altera o DB, não disputa a trava headless e não pode receber
+veredito de N1. Seu manifesto contém hashes para provar que o JSON mostrado é o
+mesmo artefato que foi revisado.
+
+O cache local de render/probe é regenerável e só reutiliza resultado quando
+versão do motor e hashes de todas as entradas coincidem. Ele reduz iteração, não
+eleva autoridade nem dispensa regressão. Ver
+`docs/QA-FASTPATHS-CAMPOS-ARTEFATOS.md`.
+
+## 1. Passo 1 — Geração headless (N1 contextual, pronto para qualquer classe)
 
 ```bash
 # Rodada completa (certificação/regressão do pavimento)

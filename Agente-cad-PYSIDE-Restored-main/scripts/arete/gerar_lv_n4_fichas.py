@@ -205,21 +205,26 @@ def gerar_lv_n4(elem: str, entry: dict,
     out_fase6 = obra_dir / 'Fase-6_Execucao_CAD'
     out_fase6.mkdir(exist_ok=True)
 
-    # Rodar gerador
-    cmd = [
+    # Gerar o combinado e os três artefatos dedicados. O Comparison Engine
+    # usa CORTE/A/B separadamente; depender do bbox do combinado deixa Corte
+    # preto quando a seção fica fora do autofit.
+    base_cmd = [
         sys.executable, str(GERADOR),
         '--obra', str(obra_dir),
         '--item', elem + '_A',
         '--max', '1',
         '--visual-mode', visual_mode,
-        '--view', 'ALL',
     ]
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=90, cwd=str(REPO))
-        result['log'] = (r.stdout or '') + (r.stderr or '')
-        if r.returncode != 0:
-            result['log'] += f'\n[rc={r.returncode}]'
-            return result
+        for view in ('ALL', 'CORTE', 'A', 'B'):
+            r = subprocess.run(
+                [*base_cmd, '--view', view], capture_output=True, text=True,
+                timeout=90, cwd=str(REPO),
+            )
+            result['log'] += (r.stdout or '') + (r.stderr or '')
+            if r.returncode != 0:
+                result['log'] += f'\n[{view} rc={r.returncode}]'
+                return result
 
         # Copiar DXF N4 para out_dir
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -235,6 +240,18 @@ def gerar_lv_n4(elem: str, entry: dict,
                 shutil.copy2(dxf_src, dxf_dst)
             result['dxf_path'] = str(dxf_dst)
             result['view_paths']['ALL'] = str(dxf_dst)
+
+            for view, suffix in (
+                ('CORTE', 'CORTE'), ('A', 'VIEW_A'), ('B', 'VIEW_B'),
+            ):
+                src = out_fase6 / f"LV_preview_{elem}_{suffix}.dxf"
+                if not src.exists():
+                    result['log'] += f'\n[{view} DXF não encontrado em {out_fase6}]'
+                    return result
+                dst = out_dir / src.name
+                if src.resolve() != dst.resolve():
+                    shutil.copy2(src, dst)
+                result['view_paths'][view] = str(dst)
 
             result['ok'] = True
         else:

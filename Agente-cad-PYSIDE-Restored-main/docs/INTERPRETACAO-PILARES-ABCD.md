@@ -63,7 +63,8 @@ TOP VIEW:
 ```
 
 **C = VIGA** — Face C (topo do pilar) encosta na parede inferior da viga acima.  
-Preencher: campo `Viga que Passa` com nome e dimensão da viga.
+Preencher: slots **Vigas que Passam — Esquina CA / CB** (esquerda/direita da face C)
+com nome e dimensão. Contorno esq/dir foi removido da UI.
 
 ---
 

@@ -199,8 +199,15 @@ def _render_dxf_zone_svg(
         dpi = 150
         document = ezdxf.readfile(dxf_path)
         with matplotlib.rc_context({"svg.fonttype": "none"}):
-            figure = plt.figure(figsize=(1900 / dpi, 1240 / dpi), dpi=dpi)
+            # O recorte é um SVG independente: o fundo tem de estar gravado
+            # nele, pois o CSS externo não substitui o branco do Matplotlib.
+            dark_background = "#1b2125"
+            figure = plt.figure(
+                figsize=(1900 / dpi, 1240 / dpi), dpi=dpi,
+                facecolor=dark_background,
+            )
             axes = figure.add_axes([0, 0, 1, 1])
+            axes.set_facecolor(dark_background)
             Frontend(
                 RenderContext(document), MatplotlibBackend(axes)
             ).draw_layout(document.modelspace())
@@ -213,7 +220,9 @@ def _render_dxf_zone_svg(
                 buffer,
                 format="svg",
                 dpi=dpi,
-                facecolor="white",
+                facecolor=dark_background,
+                edgecolor="none",
+                transparent=False,
                 bbox_inches="tight",
             )
             plt.close(figure)
@@ -520,6 +529,14 @@ def write_lateral_pages(
                 return []
 
     reverse_beams = list(dict.fromkeys(reverse_beams_fn()))
+    requested_beams = getattr(dialog, "_headless_item_names", None)
+    if requested_beams:
+        allowed = {
+            _canonical_beam_name(name)
+            for name in requested_beams
+            if str(name or "").strip()
+        }
+        reverse_beams = [beam for beam in reverse_beams if beam in allowed]
     if ficha_data_fn is None:
         ficha_data_fn = lambda beam: reverse_ficha_cache.get(beam, {})  # noqa: E731
     zone_render_fn = zone_render_fn or _render_dxf_zone_svg

@@ -4936,13 +4936,23 @@ class PreValidationDialog(QDialog):
             msp = doc.modelspace()
             rc = {'svg.fonttype': 'none'} if fmt == 'svg' else {}
             with matplotlib.rc_context(rc):
-                fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
+                # SVGs exportados pelo Matplotlib carregam o próprio fundo;
+                # o CSS do card não substitui o branco já gravado no desenho.
+                dark_background = '#1b2125'
+                fig = plt.figure(
+                    figsize=(width / dpi, height / dpi), dpi=dpi,
+                    facecolor=dark_background,
+                )
                 ax = fig.add_axes([0, 0, 1, 1])
+                ax.set_facecolor(dark_background)
                 ctx = RenderContext(doc)
                 out = MatplotlibBackend(ax)
                 Frontend(ctx, out).draw_layout(msp)
                 buf = io.BytesIO()
-                fig.savefig(buf, format=fmt, dpi=dpi, facecolor='white', bbox_inches='tight')
+                fig.savefig(
+                    buf, format=fmt, dpi=dpi, facecolor=dark_background,
+                    edgecolor='none', bbox_inches='tight', transparent=False,
+                )
                 plt.close(fig)
             buf.seek(0)
             if fmt == 'svg':
@@ -5315,21 +5325,36 @@ class PreValidationDialog(QDialog):
         return (f'<table style="font-size:9px;border-collapse:collapse;'
                 f'background:#181818;min-width:340px">{"".join(rows)}</table>')
 
-    def _n3_ficha_html_pilar(self, item_name: str) -> str:
-        """Retorna HTML compacto com dados Fase-4 JSON do pilar (Ficha N3 informacional)."""
+    def _n3_ficha_html_pilar(
+        self, item_name: str, payload: dict | None = None,
+    ) -> str:
+        """Renderiza o payload N3 que efetivamente alimenta o DXF.
+
+        Sem ``payload`` preserva a ficha histórica da Fase-4. As páginas PIL
+        atuais passam explicitamente os payloads PARA/PASSA materializados,
+        para que não exista uma ficha N3-base parecendo representar ambos os
+        desenhos sem conter suas aberturas e vazios derivados.
+        """
         import html as _hl, json as _json
-        if not self._obra:
+        if payload is None and not self._obra:
             return '<span style="color:#555">sem obra</span>'
-        json_path = os.path.join(
-            'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
-            'Fase-4_Sincronizacao', 'JSON_Pilares', f'{item_name}.json'
-        )
-        if not os.path.exists(json_path):
-            return '<span style="color:#555">sem JSON N3</span>'
         try:
-            with open(json_path, encoding='utf-8') as f:
-                data = _json.load(f)
-            skip = {'_sa_meta', 'numero', 'nome', 'pavimento', 'modo_distribuicao'}
+            if payload is None:
+                json_path = os.path.join(
+                    'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                    'Fase-4_Sincronizacao', 'JSON_Pilares', f'{item_name}.json'
+                )
+                if not os.path.exists(json_path):
+                    return '<span style="color:#555">sem JSON N3</span>'
+                with open(json_path, encoding='utf-8') as f:
+                    data = _json.load(f)
+            else:
+                data = payload
+            skip = {
+                '_sa_meta', '_sa_mode_contract', '_sa_mode_variant',
+                '_pl_nova_enriched', 'numero', 'nome', 'pavimento',
+                'modo_distribuicao',
+            }
             entries = []
             for k, v in data.items():
                 if k in skip:
@@ -7143,6 +7168,28 @@ class PreValidationDialog(QDialog):
                                 'regra': 'Ini=7,5; Nova=11; profundidade=viga+4',
                             })
 
+                    # No contrato PASSA a viga não é convertida em ``para``;
+                    # ela continua sendo passante e também precisa abrir o
+                    # painel A/B no canto que ocupa. Antes este dado era usado
+                    # apenas para calcular ``vazio_topo`` e desaparecia do DXF.
+                    # Mantemos uma coleção distinta para a ficha deixar clara a
+                    # semântica: abertura de viga que PASSA, não de viga que
+                    # PARA.
+                    pass_openings = []
+                    if mode == 'passa' and fid in ('A', 'B'):
+                        for beam in passes:
+                            pos = _mode_slot(row, pillar, fid, beam['nome'], False)
+                            if pos not in ('C', 'D'):
+                                continue
+                            slot = f'{fid}{pos}'
+                            pass_openings.append({
+                                **beam, 'slot': slot, 'estado': 'ativa',
+                                'largura_ini': 7.5,
+                                'largura_nova': 11.0,
+                                'altura': ((beam.get('profundidade') or 0.0) + 4.0),
+                                'regra': 'Ini=7,5; Nova=11; profundidade=viga+4',
+                            })
+
                     arrival_openings = []
                     for beam in arrivals:
                         pos = _mode_slot(row, pillar, fid, beam['nome'], True)
@@ -7208,6 +7255,7 @@ class PreValidationDialog(QDialog):
                         },
                         'viga_passante_referencia': reference,
                         'aberturas_vigas_que_param': stop_openings,
+                        'aberturas_vigas_que_passam': pass_openings,
                         'aberturas_vigas_que_chegam': arrival_openings,
                         'fontes_n1': data,
                         'rebaixo_laje_cm': laje_m.get('rebaixo_laje_cm', 0.0) if laje_m else 0.0,
@@ -7280,8 +7328,13 @@ class PreValidationDialog(QDialog):
                     # Conteúdo útil do painel sob o rebaixo (rebaixo é faixa sólida no topo)
                     content_cap = max(h1, panel_height - rebaixo)
                     openings = []
-                    if mode == 'para':
-                        for opening in face.get('aberturas_vigas_que_param') or []:
+                    if mode in ('para', 'passa'):
+                        edge_openings = (
+                            face.get('aberturas_vigas_que_param')
+                            if mode == 'para'
+                            else face.get('aberturas_vigas_que_passam')
+                        ) or []
+                        for opening in edge_openings:
                             if opening.get('estado') != 'ativa' or not opening.get('altura'):
                                 continue
                             pos = str(opening.get('slot') or '')[-1:]
@@ -8418,16 +8471,36 @@ class PreValidationDialog(QDialog):
                 # Fichas
                 n1f = self._n1_ficha_html_pilar(nome)
                 n2f = self._n2_ficha_html('PIL', nome)
-                n3f = self._n3_ficha_html_pilar(nome)
+                # Não exibir o JSON-base da Fase-4 como se ele fosse os dois
+                # desenhos. O cache já utilizado nos cards/imagens N3 contém
+                # exatamente o payload entregue a cada DXF PARA/PASSA.
+                n3_variants_for_ficha = {
+                    mode: (
+                        _pl_n3_cache.get((nome, mode))
+                        or _materialize_n3_variant(row, pillar, mode)
+                    )
+                    for mode in ('para', 'passa')
+                }
+                n3f_para = self._n3_ficha_html_pilar(
+                    nome,
+                    (n3_variants_for_ficha.get('para') or {}).get('payload') or {},
+                )
+                n3f_passa = self._n3_ficha_html_pilar(
+                    nome,
+                    (n3_variants_for_ficha.get('passa') or {}).get('payload') or {},
+                )
                 fichas = (
-                    '<div class="sec"><div class="sec-title">Fichas N1 / N2 / N3</div>'
-                    '<div class="sec-body"><div class="fichas-grid">'
+                    '<div class="sec"><div class="sec-title">Fichas N1 / N2 / N3 por modo</div>'
+                    '<div class="sec-body"><div class="fichas-grid" '
+                    'style="grid-template-columns:repeat(4,minmax(240px,1fr))">'
                     f'<div><div class="ficha-col-title">Ficha N1 (SA)</div>'
                     f'<div class="ficha-cell">{n1f}</div></div>'
                     f'<div><div class="ficha-col-title">Ficha N2</div>'
                     f'<div class="ficha-cell">{n2f}</div></div>'
-                    f'<div><div class="ficha-col-title">Ficha N3 (JSON)</div>'
-                    f'<div class="ficha-cell">{n3f}</div></div>'
+                    f'<div><div class="ficha-col-title">N3 PARA — payload do DXF</div>'
+                    f'<div class="ficha-cell">{n3f_para}</div></div>'
+                    f'<div><div class="ficha-col-title">N3 PASSA — payload do DXF</div>'
+                    f'<div class="ficha-cell">{n3f_passa}</div></div>'
                     '</div></div></div>'
                 )
 

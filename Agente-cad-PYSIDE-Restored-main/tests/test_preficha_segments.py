@@ -9,7 +9,9 @@ from src.core.preficha_segments import (
     restore_locked_fundo_topology,
 )
 from scripts.analise_geral_headless import (
+    _has_declared_chamfer,
     _filter_fv_visual_obstacles,
+    _fundo_segment_contour,
     process_beam_fv,
 )
 
@@ -107,6 +109,54 @@ def test_fundo_preficha_special_diagonal_uses_canonical_measure_length():
     assert collected["length"] == 255.7
     assert collected["width"] == "19"
     assert collected["measure_source"] == "special_diagonal_longest_edge"
+
+
+def test_chamfer_snap_rejects_lost_face_masquerading_as_chamfer():
+    # Uma diferença de 75,5/332 cm em uma seção de 19 cm é perda de face,
+    # não recuo local de término. Não pode congelar a medida automática.
+    assert not _has_declared_chamfer(
+        {"chanfro_esq_top": "75,5", "chanfro_dir_fun": "332"},
+        structural_width=19,
+    )
+    assert _has_declared_chamfer(
+        {"chanfro_esq_top": "15,5", "chanfro_dir_fun": "35,4"},
+        structural_width=19,
+    )
+
+
+def test_fundo_contour_uses_single_physical_face_as_boundary_not_center():
+    contour = _fundo_segment_contour(
+        coord=(1982.038, 2380.038),
+        beam_pos=(3784.278996, 1985.177814),
+        is_horizontal=False,
+        width=19.0,
+        raw_lines=[[(3807.3825, 2057.538), (3807.3825, 2380.038)]],
+    )
+
+    assert contour[0] == contour[-1]
+    assert min(point[0] for point in contour) == 3788.3825
+    assert max(point[0] for point in contour) == 3807.3825
+    assert min(point[1] for point in contour) == 1982.038
+    assert max(point[1] for point in contour) == 2380.038
+
+
+def test_process_fundo_keeps_canonical_coord_length_when_contour_is_partial():
+    beam = {
+        "name": "V321",
+        "pos": (3784.278996, 1985.177814),
+        "is_h": False,
+        "fv_is_h": False,
+        "geometry": {"classified": {
+            "merged_bottom_groups_coords": [(1982.038, 2380.038)],
+            "merged_bottom_lengths": [398.0],
+            "seg_bottom": [[(3807.3825, 2057.538), (3807.3825, 2380.038)]],
+        }},
+    }
+
+    result = process_beam_fv(beam)
+
+    assert result["comprimento_fundo"] == 398.0
+    assert result["segmentos_fundo"][0]["length"] == 398.0
 
 
 def test_lateral_dimension_override_propagates_to_sibling_links():
@@ -394,7 +444,49 @@ def test_fv_visual_obstacles_ignore_nasce_pillars():
         {"type": "VISAO_CORTE", "bbox": (40, 0, 50, 10)},
     ])
 
-    assert [item["type"] for item in filtered] == ["PILAR_SOLIDO", "VISAO_CORTE"]
+    assert [item["type"] for item in filtered] == [
+        "PILAR_NASCENTE", "PILAR_SOLIDO", "VISAO_CORTE"
+    ]
+
+
+def test_fv_contour_uses_fv_axis_and_pair_of_parallel_physical_faces():
+    contour = _fundo_segment_contour(
+        (100.0, 300.0),
+        beam_pos=(55.0, 200.0),
+        # The legacy LV orientation is horizontal; FV must be vertical here.
+        is_horizontal=False,
+        width=19.0,
+        raw_lines=[
+            [(40.0, 100.0), (40.0, 300.0)],
+            [(59.0, 100.0), (59.0, 300.0)],
+            [(40.0, 100.0), (59.0, 100.0)],  # cap: must not define a face
+        ],
+    )
+
+    assert contour == [
+        (40.0, 100.0), (40.0, 300.0), (59.0, 300.0),
+        (59.0, 100.0), (40.0, 100.0),
+    ]
+
+
+def test_fv_contour_rejoins_collinear_faces_across_nascent_gap():
+    contour = _fundo_segment_contour(
+        (100.0, 300.0),
+        beam_pos=(55.0, 200.0),
+        is_horizontal=False,
+        width=19.0,
+        raw_lines=[
+            [(40.0, 100.0), (40.0, 190.0)],
+            [(40.0, 210.0), (40.0, 300.0)],
+            [(59.0, 100.0), (59.0, 190.0)],
+            [(59.0, 210.0), (59.0, 300.0)],
+        ],
+    )
+
+    assert contour == [
+        (40.0, 100.0), (40.0, 300.0), (59.0, 300.0),
+        (59.0, 100.0), (40.0, 100.0),
+    ]
 
 
 def test_fv_bridge_does_not_merge_solid_pillar_support_gaps():

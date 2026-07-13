@@ -1,0 +1,174 @@
+{
+  "contract_version": 3,
+  "motor_id": "ROBOT_FV_N3_N4",
+  "name": "V303",
+  "floor": "Pavimento",
+  "side": "C",
+  "total_width": 19.0,
+  "total_height": 55.0,
+  "panels": [
+    {
+      "total_width": 192.5,
+      "width": 192.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 192.5,
+      "altura_total": 55.0,
+      "texto_esq": "V310",
+      "texto_dir": "P19",
+      "row_break": false,
+      "chanfro_esq_top": "14"
+    },
+    {
+      "total_width": 387.5,
+      "width": 387.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 387.5,
+      "altura_total": 55.0,
+      "texto_esq": "P19",
+      "texto_dir": "P20",
+      "row_break": true
+    },
+    {
+      "total_width": 418.0,
+      "width": 418.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 418.0,
+      "altura_total": 55.0,
+      "texto_esq": "P20",
+      "texto_dir": "P21",
+      "row_break": true
+    },
+    {
+      "total_width": 418.0,
+      "width": 418.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 418.0,
+      "altura_total": 55.0,
+      "texto_esq": "P21",
+      "texto_dir": "P22",
+      "row_break": true
+    },
+    {
+      "total_width": 427.5,
+      "width": 427.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 427.5,
+      "altura_total": 55.0,
+      "texto_esq": "P22",
+      "texto_dir": "P23",
+      "row_break": true,
+      "chanfro_dir_fun": "9,5"
+    },
+    {
+      "total_width": 446.5,
+      "width": 446.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 446.5,
+      "altura_total": 55.0,
+      "texto_esq": "P23",
+      "texto_dir": "V304",
+      "row_break": true,
+      "chanfro_esq_fun": "9,5",
+      "chanfro_dir_fun": "19"
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 192.5,
+      "width": 192.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 192.5,
+      "altura_total": 55.0,
+      "texto_esq": "V310",
+      "texto_dir": "P19",
+      "row_break": false,
+      "chanfro_esq_top": "14"
+    },
+    {
+      "total_width": 387.5,
+      "width": 387.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 387.5,
+      "altura_total": 55.0,
+      "texto_esq": "P19",
+      "texto_dir": "P20",
+      "row_break": true
+    },
+    {
+      "total_width": 418.0,
+      "width": 418.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 418.0,
+      "altura_total": 55.0,
+      "texto_esq": "P20",
+      "texto_dir": "P21",
+      "row_break": true
+    },
+    {
+      "total_width": 418.0,
+      "width": 418.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 418.0,
+      "altura_total": 55.0,
+      "texto_esq": "P21",
+      "texto_dir": "P22",
+      "row_break": true
+    },
+    {
+      "total_width": 427.5,
+      "width": 427.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 427.5,
+      "altura_total": 55.0,
+      "texto_esq": "P22",
+      "texto_dir": "P23",
+      "row_break": true,
+      "chanfro_dir_fun": "9,5"
+    },
+    {
+      "total_width": 446.5,
+      "width": 446.5,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 446.5,
+      "altura_total": 55.0,
+      "texto_esq": "P23",
+      "texto_dir": "V304",
+      "row_break": true,
+      "chanfro_esq_fun": "9,5",
+      "chanfro_dir_fun": "19"
+    }
+  ],
+  "holes": [],
+  "label_left": "V310",
+  "label_right": "V304",
+  "pillar_left": {
+    "active": true,
+    "label": "V310",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": true,
+    "label": "V304",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "apoio_inicial": "V310",
+  "apoio_final": "V304",
+  "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+  "number": "303",
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0
+}

@@ -370,7 +370,8 @@ def draw_sarrafo_spans(msp, x0, y0, panels, positions, layer):
         x_cur += pw
 
 
-def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths):
+def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths,
+                                draw_left=False, draw_right=False):
     """SARR_3.5x7 vertical pairs at outer edges ONLY.
 
     SCR anatomy calibration: the real STOG has very few SARR_3.5x7 entities
@@ -390,21 +391,23 @@ def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths):
     def bot35(xl_abs, xr_abs):
         msp.add_line((xl_abs, y0), (xr_abs, y0), dxfattribs={'layer': s35})
 
-    # Left edge pair: [15, 18.5]
-    xl = x0 + LV_SARR_INSET
-    xr = xl + LV_SARR_W
-    if xr < x0 + L + 0.1:
-        line35(xl, h)
-        line35(xr, h_inner)
-        bot35(xl, xr)
+    if draw_left:
+        # Left edge pair: [15, 18.5]
+        xl = x0 + LV_SARR_INSET
+        xr = xl + LV_SARR_W
+        if xr < x0 + L + 0.1:
+            line35(xl, h)
+            line35(xr, h_inner)
+            bot35(xl, xr)
 
-    # Right edge pair: [L-18.5, L-15]
-    xr = x0 + L - LV_SARR_INSET
-    xl = xr - LV_SARR_W
-    if xl > x0 - 0.1:
-        line35(xl, h_inner)
-        line35(xr, h)
-        bot35(xl, xr)
+    if draw_right:
+        # Right edge pair: [L-18.5, L-15]
+        xr = x0 + L - LV_SARR_INSET
+        xl = xr - LV_SARR_W
+        if xl > x0 - 0.1:
+            line35(xl, h_inner)
+            line35(xr, h)
+            bot35(xl, xr)
 
 
 def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
@@ -849,7 +852,8 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  laje_sup=7.0, laje_inf=7.0, border_strip_width=0.0,
                  skip_layers=None, nota_face=None, pontaletes_face=None,
                  fallback_panel_ids=True, nom_height=None,
-                 reverse_grade_style=False, suppress_sarrafo_spans=False):
+                 reverse_grade_style=False, suppress_sarrafo_spans=False,
+                 sarrafo_vertical_esquerdo=False, sarrafo_vertical_direito=False):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -1064,8 +1068,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         sarr_layer_face, _, positions_face = _get_sarrafo_positions(h)
         draw_sarrafo_spans(msp, x0, y0, panels, positions_face, sarr_layer_face)
 
-    # SARR_3.5x7 vertical pairs disabled for count matching (not in SCR face anatomy)
-    # draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths)
+    # A ficha N2 define se há sarrafo vertical em cada extremidade. Não
+    # inferir por default: reproduzir somente os lados detectados pelo reverso.
+    draw_sarr_lv_vertical_pairs(
+        msp, x0, y0, h, panel_widths,
+        draw_left=bool(sarrafo_vertical_esquerdo),
+        draw_right=bool(sarrafo_vertical_direito),
+    )
 
     # ── 5. PILARES/OBSTACULOS -- retangulos hachurados nas bordas ─────────
     def _draw_pillar(px, py, pw_p, ph_p):
@@ -1218,7 +1227,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         ('Altura 2', h2_0_d if has_lc else 0),
         ('Laje Sup', laje_sup),
     ]
-    _dim_seg_v(x0, seg_left, 'left')
+    # A cadeia vertical esquerda só é necessária quando existe abertura
+    # física à esquerda (holes 0/1); fora disso ela duplica a cota direita.
+    has_left_opening = any(
+        bool(hole.get('active')) for hole in (holes or [])[:2]
+    )
+    if has_left_opening:
+        _dim_seg_v(x0, seg_left, 'left')
 
     # Lado direito (ultimo painel) -- cota total
     dim_h_lateral(msp, x0 + comprimento, y0 - laje_inf,
@@ -1226,7 +1241,8 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
     # SCR anatomy: 4 vertical dims (left seg + left h_lateral + right seg + right h_lateral)
     _dim_seg_v(x0 + comprimento, seg_left, 'right')
-    dim_h_lateral(msp, x0, y0 - laje_inf, h + laje_inf + laje_sup)
+    if has_left_opening:
+        dim_h_lateral(msp, x0, y0 - laje_inf, h + laje_inf + laje_sup)
 
     # ── 10. ABERTURAS -- retangulos fechados + hachura diagonal ────────────
     if holes:
@@ -1584,6 +1600,8 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             nom_height=8.0,
             reverse_grade_style=reverse_grade,
             suppress_sarrafo_spans=reverse_grade,
+            sarrafo_vertical_esquerdo=bool(unit.get('sarrafo_vertical_esquerdo')),
+            sarrafo_vertical_direito=bool(unit.get('sarrafo_vertical_direito')),
         )
         unit_width = sum(p['width'] for p in panels)
         x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)

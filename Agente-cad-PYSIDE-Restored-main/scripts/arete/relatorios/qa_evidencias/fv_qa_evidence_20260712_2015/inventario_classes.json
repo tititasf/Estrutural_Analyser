@@ -1,0 +1,1003 @@
+[
+  {
+    "classe": "FV",
+    "diagnostic": "scripts/arete/diagnostico_fv_n1_n2.py",
+    "field_frequency": {
+      "fv_is_h": 36,
+      "seg_bottom": 36,
+      "viga_fundo_seg_1_area_segs": 35,
+      "viga_fundo_seg_1_dim": 35,
+      "viga_fundo_seg_1_exists": 35,
+      "viga_fundo_seg_1_local_fim": 35,
+      "viga_fundo_seg_1_local_ini": 35,
+      "viga_fundo_seg_2_area_segs": 10,
+      "viga_fundo_seg_2_dim": 10,
+      "viga_fundo_seg_2_exists": 10,
+      "viga_fundo_seg_2_local_fim": 10,
+      "viga_fundo_seg_2_local_ini": 10,
+      "viga_fundo_seg_3_area_segs": 7,
+      "viga_fundo_seg_3_dim": 7,
+      "viga_fundo_seg_3_exists": 7,
+      "viga_fundo_seg_3_local_fim": 7,
+      "viga_fundo_seg_3_local_ini": 7,
+      "viga_fundo_seg_4_area_segs": 7,
+      "viga_fundo_seg_4_dim": 7,
+      "viga_fundo_seg_4_exists": 7,
+      "viga_fundo_seg_4_local_fim": 7,
+      "viga_fundo_seg_4_local_ini": 7,
+      "viga_fundo_seg_5_area_segs": 6,
+      "viga_fundo_seg_5_dim": 6,
+      "viga_fundo_seg_5_exists": 6,
+      "viga_fundo_seg_5_local_fim": 6,
+      "viga_fundo_seg_5_local_ini": 6,
+      "viga_fundo_seg_6_area_segs": 5,
+      "viga_fundo_seg_6_dim": 5,
+      "viga_fundo_seg_6_exists": 5,
+      "viga_fundo_seg_6_local_fim": 5,
+      "viga_fundo_seg_6_local_ini": 5,
+      "viga_fundo_seg_7_area_segs": 1,
+      "viga_fundo_seg_7_dim": 1,
+      "viga_fundo_seg_7_exists": 1,
+      "viga_fundo_seg_7_local_fim": 1,
+      "viga_fundo_seg_7_local_ini": 1
+    },
+    "items": [
+      {
+        "field_count": 37,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini",
+          "viga_fundo_seg_5_area_segs",
+          "viga_fundo_seg_5_dim",
+          "viga_fundo_seg_5_exists",
+          "viga_fundo_seg_5_local_fim",
+          "viga_fundo_seg_5_local_ini",
+          "viga_fundo_seg_6_area_segs",
+          "viga_fundo_seg_6_dim",
+          "viga_fundo_seg_6_exists",
+          "viga_fundo_seg_6_local_fim",
+          "viga_fundo_seg_6_local_ini",
+          "viga_fundo_seg_7_area_segs",
+          "viga_fundo_seg_7_dim",
+          "viga_fundo_seg_7_exists",
+          "viga_fundo_seg_7_local_fim",
+          "viga_fundo_seg_7_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1",
+        "item": "V301",
+        "sealed": false
+      },
+      {
+        "field_count": 32,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini",
+          "viga_fundo_seg_5_area_segs",
+          "viga_fundo_seg_5_dim",
+          "viga_fundo_seg_5_exists",
+          "viga_fundo_seg_5_local_fim",
+          "viga_fundo_seg_5_local_ini",
+          "viga_fundo_seg_6_area_segs",
+          "viga_fundo_seg_6_dim",
+          "viga_fundo_seg_6_exists",
+          "viga_fundo_seg_6_local_fim",
+          "viga_fundo_seg_6_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_2",
+        "item": "V302",
+        "sealed": false
+      },
+      {
+        "field_count": 32,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini",
+          "viga_fundo_seg_5_area_segs",
+          "viga_fundo_seg_5_dim",
+          "viga_fundo_seg_5_exists",
+          "viga_fundo_seg_5_local_fim",
+          "viga_fundo_seg_5_local_ini",
+          "viga_fundo_seg_6_area_segs",
+          "viga_fundo_seg_6_dim",
+          "viga_fundo_seg_6_exists",
+          "viga_fundo_seg_6_local_fim",
+          "viga_fundo_seg_6_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_3",
+        "item": "V303",
+        "sealed": false
+      },
+      {
+        "field_count": 27,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini",
+          "viga_fundo_seg_5_area_segs",
+          "viga_fundo_seg_5_dim",
+          "viga_fundo_seg_5_exists",
+          "viga_fundo_seg_5_local_fim",
+          "viga_fundo_seg_5_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_4",
+        "item": "V304",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5",
+        "item": "V305",
+        "sealed": false
+      },
+      {
+        "field_count": 32,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini",
+          "viga_fundo_seg_5_area_segs",
+          "viga_fundo_seg_5_dim",
+          "viga_fundo_seg_5_exists",
+          "viga_fundo_seg_5_local_fim",
+          "viga_fundo_seg_5_local_ini",
+          "viga_fundo_seg_6_area_segs",
+          "viga_fundo_seg_6_dim",
+          "viga_fundo_seg_6_exists",
+          "viga_fundo_seg_6_local_fim",
+          "viga_fundo_seg_6_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6",
+        "item": "V306",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7",
+        "item": "V307",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8",
+        "item": "V308",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_9",
+        "item": "V309",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_10",
+        "item": "V309A",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11",
+        "item": "V310",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12",
+        "item": "V311",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13",
+        "item": "V312",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_14",
+        "item": "V313",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15",
+        "item": "V314",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_16",
+        "item": "V315",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_17",
+        "item": "V316",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_18",
+        "item": "V317",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_19",
+        "item": "V318",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_20",
+        "item": "V319",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_21",
+        "item": "V320",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_22",
+        "item": "V321",
+        "sealed": false
+      },
+      {
+        "field_count": 22,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_23",
+        "item": "V322",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_24",
+        "item": "V323",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_25",
+        "item": "V324",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_26",
+        "item": "V325",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_27",
+        "item": "V326",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28",
+        "item": "V327",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_29",
+        "item": "V328",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_30",
+        "item": "V329",
+        "sealed": true
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_31",
+        "item": "V330",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_32",
+        "item": "V331",
+        "sealed": false
+      },
+      {
+        "field_count": 7,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_33",
+        "item": "V332",
+        "sealed": false
+      },
+      {
+        "field_count": 32,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini",
+          "viga_fundo_seg_3_area_segs",
+          "viga_fundo_seg_3_dim",
+          "viga_fundo_seg_3_exists",
+          "viga_fundo_seg_3_local_fim",
+          "viga_fundo_seg_3_local_ini",
+          "viga_fundo_seg_4_area_segs",
+          "viga_fundo_seg_4_dim",
+          "viga_fundo_seg_4_exists",
+          "viga_fundo_seg_4_local_fim",
+          "viga_fundo_seg_4_local_ini",
+          "viga_fundo_seg_5_area_segs",
+          "viga_fundo_seg_5_dim",
+          "viga_fundo_seg_5_exists",
+          "viga_fundo_seg_5_local_fim",
+          "viga_fundo_seg_5_local_ini",
+          "viga_fundo_seg_6_area_segs",
+          "viga_fundo_seg_6_dim",
+          "viga_fundo_seg_6_exists",
+          "viga_fundo_seg_6_local_fim",
+          "viga_fundo_seg_6_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_34",
+        "item": "VF202",
+        "sealed": false
+      },
+      {
+        "field_count": 2,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_35",
+        "item": "VF203",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "fv_is_h",
+          "seg_bottom",
+          "viga_fundo_seg_1_area_segs",
+          "viga_fundo_seg_1_dim",
+          "viga_fundo_seg_1_exists",
+          "viga_fundo_seg_1_local_fim",
+          "viga_fundo_seg_1_local_ini",
+          "viga_fundo_seg_2_area_segs",
+          "viga_fundo_seg_2_dim",
+          "viga_fundo_seg_2_exists",
+          "viga_fundo_seg_2_local_fim",
+          "viga_fundo_seg_2_local_ini"
+        ],
+        "geometry": {
+          "area": null,
+          "bbox": null,
+          "perimeter": null,
+          "points": 0
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_36",
+        "item": "VF301",
+        "sealed": false
+      }
+    ],
+    "payload_column": "data_json",
+    "provenance": "docs/PROVENIENCIA-CAMPOS-FV.md",
+    "schema_columns": [
+      "data_json",
+      "id",
+      "id_item",
+      "is_validated",
+      "issues_json",
+      "laje_inf_algorithm_version",
+      "laje_inf_enriched_at",
+      "links_json",
+      "na_fields_json",
+      "na_link_classes_json",
+      "na_reasons_json",
+      "name",
+      "pkl_path",
+      "project_id",
+      "seg_a_laje_inf",
+      "seg_b_laje_inf",
+      "sides_data_json",
+      "validated_fields_json",
+      "validated_link_classes_json"
+    ],
+    "table": "beams",
+    "validation_mode": "diagnostic_only"
+  }
+]
