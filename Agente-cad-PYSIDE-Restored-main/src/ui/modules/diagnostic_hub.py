@@ -1596,12 +1596,15 @@ class DiagnosticHubModule(QWidget):
             if thread in self._code_publico_pav_threads:
                 self._code_publico_pav_threads.remove(thread)
 
-        def _on_code(code, _obra=obra_nome, _pav=pavimento):
+        def _on_code(code, referencia, _obra=obra_nome, _pav=pavimento):
             # Usuário pode ter trocado de bruto/obra enquanto a busca rodava.
             if code and self._current_obra == _obra and self._pavimento_da_notes(
                 (self._list_brutos.currentItem().data(Qt.UserRole) if self._list_brutos.currentItem() else {}) or {}
             ) == _pav:
-                self._lbl_code_publico_pavimento.setText(f"📱 Código de Pavimento: {code}")
+                texto = f"📱 Código de Pavimento: {code}"
+                if referencia:
+                    texto += f" ({referencia})"
+                self._lbl_code_publico_pavimento.setText(texto)
                 self._lbl_code_publico_pavimento.setVisible(True)
             thread.quit()
 

@@ -7646,11 +7646,14 @@ class ProjectManager(QWidget):
             if thread in self._code_publico_threads:
                 self._code_publico_threads.remove(thread)
 
-        def _on_code(code, _obra=obra_nome):
+        def _on_code(code, referencia, _obra=obra_nome):
             # Obra pode ter sido trocada enquanto a busca rodava — nao aplica
             # um resultado tardio na obra errada.
             if code and self.current_work_name == _obra:
-                self.lbl_code_publico_obra.setText(f"📱 Código de Obra: {code}")
+                texto = f"📱 Código de Obra: {code}"
+                if referencia:
+                    texto += f" ({referencia})"
+                self.lbl_code_publico_obra.setText(texto)
                 self.lbl_code_publico_obra.setVisible(True)
             thread.quit()
 

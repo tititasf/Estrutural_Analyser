@@ -14,7 +14,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 
 class CodePublicoWorker(QObject):
-    finished = Signal(object)  # str | None
+    finished = Signal(object, object)  # (code: str | None, referencia: str | None)
     error = Signal(str)
 
     def __init__(self, obra_id: str, pavimento: Optional[str] = None):
@@ -28,9 +28,9 @@ class CodePublicoWorker(QObject):
             from src.core.drive_client import obter_cliente_padrao
             cliente = obter_cliente_padrao()
             if self.pavimento:
-                code = cliente.obter_code_publico_pavimento(self.obra_id, self.pavimento)
+                code, referencia = cliente.obter_code_publico_pavimento(self.obra_id, self.pavimento)
             else:
-                code = cliente.obter_code_publico_obra(self.obra_id)
-            self.finished.emit(code)
+                code, referencia = cliente.obter_code_publico_obra(self.obra_id)
+            self.finished.emit(code, referencia)
         except Exception as e:
             self.error.emit(str(e))

@@ -86,17 +86,21 @@ class DriveClient:
         """Detalhe completo — inclui `documentos` (Triagem: pavimento/tipo/classe)."""
         return self._get(f"/obras/{obra_id}")
 
-    def obter_code_publico_obra(self, obra_id: str) -> Optional[str]:
+    def obter_code_publico_obra(self, obra_id: str) -> tuple[Optional[str], Optional[str]]:
         """Código público (App de Consulta) da obra inteira, se já
-        publicada — None se ainda não sincronizada [2026-07-13]."""
-        return self._get(f"/obras/{obra_id}/obra-code").get("code_publico")
+        publicada, + referência legível (ex: "Obra X") — (None, None) se
+        ainda não sincronizada [2026-07-13]."""
+        dados = self._get(f"/obras/{obra_id}/obra-code")
+        return dados.get("code_publico"), dados.get("referencia")
 
-    def obter_code_publico_pavimento(self, obra_id: str, pavimento: str) -> Optional[str]:
+    def obter_code_publico_pavimento(self, obra_id: str, pavimento: str) -> tuple[Optional[str], Optional[str]]:
         """Código público (App de Consulta) de 1 pavimento, se já
-        publicado — None se ainda não sincronizado [2026-07-13]."""
+        publicado, + referência legível (ex: "Obra X › Térreo") — (None, None)
+        se ainda não sincronizado [2026-07-13]."""
         from urllib.parse import quote
         path = f"/obras/{obra_id}/pavimento-code?pavimento={quote(pavimento)}"
-        return self._get(path).get("code_publico")
+        dados = self._get(path)
+        return dados.get("code_publico"), dados.get("referencia")
 
     def listar_brutos(self, obra_id: str) -> list[dict]:
         return self._get(f"/obras/{obra_id}/recortes/brutos").get("brutos", [])
