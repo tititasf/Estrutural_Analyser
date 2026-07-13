@@ -349,6 +349,7 @@ class Colors:
     # ── Contextual (mantidos com namespace fixo) ──────────────────────────────
     ACCENT_GOLD          = Contextual.GOLD            # Admin only
     ACCENT_MAGENTA       = Contextual.MAGENTA         # data-viz only
+    ACCENT_ROSA          = Contextual.MAGENTA         # [2026-07-13] selo/campo validado via Portal de Formas (humano_portal)
     ACCENT_PURPLE        = Contextual.PURPLE          # IA only
     ACCENT_SLATE         = Contextual.SLATE           # chrome neutro
     ACCENT_FOREST        = Contextual.FOREST

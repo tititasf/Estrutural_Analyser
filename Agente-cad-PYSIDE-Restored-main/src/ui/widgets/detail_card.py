@@ -55,9 +55,14 @@ class DetailCard(QWidget):
     })
     
     # Estilos CSS Reutilizáveis — usando tokens do design system
-    STYLE_DEFAULT = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
-    STYLE_VALID   = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
-    STYLE_NA      = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
+    # [2026-07-13] Campo validado por humano no app desktop é AZUL (era
+    # verde) — harmoniza com o modelo de 3 origens de campo (azul=app,
+    # rosa=Portal, laranja=agente QA), ver `src/core/validation_model.py`.
+    STYLE_DEFAULT        = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
+    STYLE_VALID          = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
+    STYLE_VALID_ROSA     = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_ROSA}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
+    STYLE_VALID_LARANJA  = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_WARNING}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
+    STYLE_NA             = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
 
     def __init__(self, item_data: dict, parent=None,
                  obra_path=None, db=None, project_id: str = ''):
@@ -609,31 +614,40 @@ class DetailCard(QWidget):
         if self.item_data.get('is_validated'):
             self.item_data['is_validated'] = False
 
-    def _fields_reach_full_validation(self) -> bool:
-        """Retorna se o mesmo conjunto contado na lista chegou a 100%."""
-        validated = self.item_data.get('validated_fields', [])
-        na_fields = self.item_data.get('na_fields', [])
-        validated = set(validated.keys()) if isinstance(validated, dict) else set(validated)
-        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
-        completed = validated | na_fields
-
+    def _campos_obrigatorios_do_item(self) -> set:
         item_type = str(self.item_data.get('type') or '').lower()
         if 'laje' in item_type:
-            required = self._LAJE_REQUIRED_VALIDATION_FIELDS
-        else:
-            # Fora de LAJ, sela somente quando cada campo que a UI oferece
-            # para Validar/N/A foi resolvido pelo usuario.
-            required = set(self.action_btns)
-        return bool(required) and required.issubset(completed)
+            return set(self._LAJE_REQUIRED_VALIDATION_FIELDS)
+        # Fora de LAJ, sela somente quando cada campo que a UI oferece
+        # para Validar/N/A foi resolvido pelo usuario.
+        return set(self.action_btns)
 
     def _auto_seal_completed_item(self) -> bool:
-        """Concede selo azul sem dialogo quando os campos chegam a 100%."""
-        if self.item_data.get('is_fully_validated') or not self._fields_reach_full_validation():
+        """Recalcula os 3 selos de campo (azul/rosa/laranja,
+        `src/core/validation_model.calcular_selos_item`) sempre que os
+        campos mudam, e concede — sem diálogo — o selo azul + o selo verde
+        (cascata já existente) na primeira vez que os campos completam
+        100% via `humano_app` [2026-07-13, modelo de 4 selos]."""
+        from src.core.validation_model import calcular_selos_item
+
+        na_fields = self.item_data.get('na_fields', [])
+        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
+        selos = calcular_selos_item(
+            self.item_data.get('validated_fields', {}), na_fields, self._campos_obrigatorios_do_item(),
+        )
+        self.item_data['selo_rosa'] = selos['rosa']
+        self.item_data['selo_laranja'] = selos['laranja']
+
+        if self.item_data.get('is_fully_validated') or not selos['azul']:
+            self.item_data['selo_azul'] = selos['azul']
             return False
 
-        # Azul = todos os campos resolvidos + validacao do item. O verde
-        # permanece reservado ao fluxo manual de validacao simples.
-        self.item_data['is_fully_validated'] = True
+        # Azul = todos os campos resolvidos por humano no app + validacao
+        # do item. O verde permanece reservado ao fluxo manual de
+        # validacao simples, mas a cascata já existente se mantém:
+        # atingir azul também liga verde.
+        self.item_data['selo_azul'] = True
+        self.item_data['is_fully_validated'] = True  # alias de compat (nome antigo)
         self.item_data['is_validated'] = True
         self.refresh_validation_styles()
         self.validation_changed.emit({
@@ -642,7 +656,7 @@ class DetailCard(QWidget):
             'scope': 'item_auto_complete',
         })
         self.data_validated.emit(self.item_data)
-        self.log_requested.emit('Item certificado automaticamente: 100% dos campos validados/N/A.')
+        self.log_requested.emit('Item certificado automaticamente: 100% dos campos validados/N/A (selo azul).')
         return True
 
     # ── Validação individual por segmento (FV/LV) ──────────────────────────
@@ -773,36 +787,42 @@ class DetailCard(QWidget):
         return btn
 
     def mark_field_validated(self, field_id, is_valid=True, emit_data_changed=True):
-        """Aplica estilo visual de validação no widget do campo de forma otimizada"""
-        validated = self.item_data.setdefault('validated_fields', [])
-        
+        """Aplica estilo visual de validação no widget do campo de forma
+        otimizada — validação humana feita aqui no app desktop é sempre
+        origem `humano_app` (selo azul), ver `src/core/validation_model.py`."""
+        from src.core.validation_model import (
+            ORIGEM_HUMANO_APP, adicionar_validacao_campo, origens_do_campo, remover_validacao_campo,
+        )
+        validated = self.item_data.get('validated_fields')
+
         # Otimização: Se já estiver no estado desejado, não faz nada
-        if is_valid and field_id in validated: return
-        if not is_valid and field_id not in validated: return
+        ja_validado_humano = ORIGEM_HUMANO_APP in origens_do_campo(validated, field_id)
+        if is_valid and ja_validado_humano: return
+        if not is_valid and not ja_validado_humano: return
 
         if is_valid:
-            validated.append(field_id)
-            
+            self.item_data['validated_fields'] = adicionar_validacao_campo(validated, field_id, ORIGEM_HUMANO_APP)
+
             # --- CASCADE VALIDATION TO LINKS ---
             if 'links' in self.item_data and field_id in self.item_data['links']:
                 links_data = self.item_data['links'][field_id]
                 if isinstance(links_data, dict):
                     valid_map = self.item_data.setdefault('validated_link_classes', {})
                     valid_map[field_id] = list(links_data.keys())
-                    
+
                     for slot_id, link_list in links_data.items():
                         for link in link_list:
                             link['validated'] = True
-            
+
             if field_id in self.embedded_managers:
                 lm = self.embedded_managers[field_id]
                 lm.links = self.item_data['links'].get(field_id, {})
                 lm.validated_slots = set(self.item_data.get('validated_link_classes', {}).get(field_id, []))
                 lm.refresh_list()
         else:
-            validated.remove(field_id)
+            self.item_data['validated_fields'] = remover_validacao_campo(validated, field_id, origem=ORIGEM_HUMANO_APP)
             self._clear_full_validation_state()
-            
+
         self._refresh_link_conf_badge(field_id)
         seg = self._extract_segment_from_field(field_id) if is_valid else None
         if seg:
@@ -1200,18 +1220,48 @@ class DetailCard(QWidget):
                     except: pass
                     break
 
+    # [2026-07-13] Rótulo + emoji de cada origem, pra tooltip "quem validou".
+    _ORIGEM_ROTULO = {
+        'humano_app': ('🔵', 'App Desktop (humano)'),
+        'humano_portal': ('🌸', 'Portal de Formas (humano)'),
+        'qa_agente': ('🟠', 'Agente QA-Global-Evidências'),
+    }
+
+    def _estilo_e_tooltip_por_origem(self, fid: str):
+        """Escolhe a cor de borda (prioridade azul > laranja > rosa quando
+        o campo tem mais de 1 origem — só pra escolha visual da ÚNICA
+        borda possível, não é peso/hierarquia de confiança) e monta o
+        tooltip listando TODAS as origens presentes (pode ter até 3)."""
+        from src.core.validation_model import origens_do_campo
+        origens = origens_do_campo(self.item_data.get('validated_fields'), fid)
+        if 'humano_app' in origens:
+            estilo = self.STYLE_VALID
+        elif 'qa_agente' in origens:
+            estilo = self.STYLE_VALID_LARANJA
+        elif 'humano_portal' in origens:
+            estilo = self.STYLE_VALID_ROSA
+        else:
+            estilo = None
+        if origens:
+            partes = [self._ORIGEM_ROTULO[o][0] + ' ' + self._ORIGEM_ROTULO[o][1] for o in origens if o in self._ORIGEM_ROTULO]
+            tooltip = 'Validado por:\n' + '\n'.join(partes)
+        else:
+            tooltip = ''
+        return estilo, tooltip
+
     def refresh_validation_styles(self):
         """Otimizado: Varre campos e aplica estilos apenas em mudanças de estado"""
-        validated_fields = set(self.item_data.get('validated_fields', []))
+        validated_fields_raw = self.item_data.get('validated_fields', [])
+        validated_fields = set(validated_fields_raw.keys()) if isinstance(validated_fields_raw, dict) else set(validated_fields_raw)
         na_fields = set(self.item_data.get('na_fields', []))
-        
+
         for fid, w in list(self.fields.items()):
             try:
                 if isinstance(w, QButtonGroup): continue
-                
+
                 is_valid = fid in validated_fields
                 is_na = fid in na_fields
-                
+
                 # 1. Input Fields (Optimized Stylesheet)
                 if isinstance(w, (QLineEdit, QComboBox)):
                     if not is_na and fid.endswith(('_prof', '_boca', '_dist', '_larg', '_h_sel')):
@@ -1225,11 +1275,14 @@ class DetailCard(QWidget):
                                      is_na = True
                                      parent_na = True
                                      break
-                    
-                    target_style = self.STYLE_NA if is_na else (self.STYLE_VALID if is_valid else self.STYLE_DEFAULT)
+
+                    estilo_origem, tooltip_origem = self._estilo_e_tooltip_por_origem(fid)
+                    target_style = self.STYLE_NA if is_na else (estilo_origem or self.STYLE_DEFAULT)
                     if w.styleSheet() != target_style:
                         w.setStyleSheet(target_style)
-                    
+                    if not is_na and w.toolTip() != tooltip_origem:
+                        w.setToolTip(tooltip_origem)
+
                     target_enabled = not is_na
                     if w.isEnabled() != target_enabled:
                         w.setEnabled(target_enabled)
@@ -1272,10 +1325,22 @@ class DetailCard(QWidget):
                             count = len(links)
                         
                         if is_valid:
-                            txt = f"{count} Vínculo(s) ✅" if count > 0 else "Validado ✅"
+                            from src.core.validation_model import origens_do_campo
+                            origens = origens_do_campo(self.item_data.get('validated_fields'), fid)
+                            if 'humano_app' in origens:
+                                cor_link, icone_link = Colors.ACCENT_PRIMARY, '🔵'
+                            elif 'qa_agente' in origens:
+                                cor_link, icone_link = Colors.ACCENT_WARNING, '🟠'
+                            elif 'humano_portal' in origens:
+                                cor_link, icone_link = Colors.ACCENT_ROSA, '🌸'
+                            else:
+                                cor_link, icone_link = Colors.ACCENT_SUCCESS_ALT, '✅'
+                            txt = f"{count} Vínculo(s) {icone_link}" if count > 0 else f"Validado {icone_link}"
                             if w.text() != txt:
                                 w.setText(txt)
-                                w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
+                                w.setStyleSheet(f"color: {cor_link}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {cor_link}; border-radius: 4px; padding: 2px;")
+                                _, tooltip_link = self._estilo_e_tooltip_por_origem(fid)
+                                w.setToolTip(tooltip_link or '')
                         elif count > 0:
                             txt = f"{count} Vínculo(s) Ok"
                             if w.text() != txt:
@@ -1297,7 +1362,17 @@ class DetailCard(QWidget):
                 if is_na:
                     st = f"color: {Colors.ACCENT_INFO}; font-size: 14px; margin-right: 5px;"
                 elif is_valid:
-                    st = f"color: {Colors.ACCENT_SUCCESS_ALT}; font-size: 14px; margin-right: 5px;"
+                    from src.core.validation_model import origens_do_campo
+                    origens = origens_do_campo(self.item_data.get('validated_fields'), fid)
+                    if 'humano_app' in origens:
+                        cor_ind = Colors.ACCENT_PRIMARY
+                    elif 'qa_agente' in origens:
+                        cor_ind = Colors.ACCENT_WARNING
+                    elif 'humano_portal' in origens:
+                        cor_ind = Colors.ACCENT_ROSA
+                    else:
+                        cor_ind = Colors.ACCENT_SUCCESS_ALT
+                    st = f"color: {cor_ind}; font-size: 14px; margin-right: 5px;"
                 else:
                     conf = self.item_data.get('confidence_map', {}).get(fid, 0.0)
                     clr = Colors.ACCENT_DANGER if conf <= 0.4 else (Colors.ACCENT_INFO if conf <= 0.8 else Colors.ACCENT_SUCCESS_ALT)
