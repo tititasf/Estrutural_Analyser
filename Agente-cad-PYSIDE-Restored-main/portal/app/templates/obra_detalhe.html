@@ -463,7 +463,8 @@
         if (!data.code_publico) return;
         slot.innerHTML = '📱 Código de Obra: <strong style="cursor:pointer" title="Clique para copiar" ' +
           'onclick="navigator.clipboard.writeText(\'' + data.code_publico + '\')">' +
-          data.code_publico + ' 📋</strong>';
+          data.code_publico + ' 📋</strong>' +
+          (data.referencia ? ' <span class="muted" style="font-size:.8em">(' + data.referencia.replace(/</g, '&lt;') + ')</span>' : '');
       })
       .catch(function () { /* silencioso — não é crítico pro resto da página */ });
   })();
@@ -2095,6 +2096,26 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     btnInvalidar.classList.toggle('ativo', !!_recortesInvalidadosLocal[chave]);
   }
 
+  // [2026-07-13] Preenche 1 slot de código público (obra/pavimento/recorte/
+  // item) sempre com o MESMO formato: rótulo, código monoespaçado+copiável,
+  // e a referência legível ao lado (breadcrumb tipo "Obra X › Pavimento Y")
+  // — pedido do dono: "todo lugar que referencie o codigo ao lado tenha a
+  // referencia agradável". `referencia` nunca é o código de verdade, só
+  // texto de apoio pra humano entender de cabeça.
+  window.preencherSlotCodePublico = function (slotId, rotulo, code, referencia, textoAusente) {
+    var slot = document.getElementById(slotId);
+    if (!slot) return;
+    if (!code) {
+      slot.innerHTML = '<span class="n1-campo-label">' + rotulo + '</span><br>' +
+        '<span class="muted">' + (textoAusente || 'ainda não publicado') + '</span>';
+      return;
+    }
+    slot.innerHTML = '<span class="n1-campo-label">' + rotulo + '</span><br>' +
+      '<span style="font-family:monospace;cursor:pointer" title="Clique para copiar" ' +
+      'onclick="navigator.clipboard.writeText(\'' + code + '\')">' + code + ' 📋</span>' +
+      (referencia ? ' <span class="muted" style="font-size:.85em">(' + String(referencia).replace(/</g, '&lt;') + ')</span>' : '');
+  };
+
   function marcarValidacaoRecorte(item, validado) {
     var statusEl = document.getElementById('recorte-validacao-status');
     statusEl.textContent = 'Salvando…';
@@ -2103,7 +2124,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ validado: validado }),
     }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
-      .then(function () {
+      .then(function (data) {
         var itens = _recortesItensPorBruto[item.brutoId] || [];
         var it = itens.find(function (x) { return x.item_id === item.itemId; });
         if (it) it.validado = validado;
@@ -2111,6 +2132,21 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         _recortesInvalidadosLocal[chave] = !validado;
         statusEl.textContent = validado ? 'Validado ✔' : 'Invalidado ✖';
         atualizarBotoesValidacao(item.brutoId, item.itemId);
+        // [2026-07-13, pedido do dono] selo de validado na lista lateral
+        // tem que atualizar na hora, sem reload — mesma função já usada
+        // por Regenerar/Excluir pra refazer só a subclasse deste bruto.
+        atualizarSubclassesDoBruto(item.brutoId);
+        // [2026-07-13, pedido do dono] validar já minta o código de
+        // pavimento + o código próprio deste recorte — popula os slots na
+        // hora, sem esperar o próximo fetch (a resposta já traz tudo).
+        if (validado) {
+          if (data.code_publico_pavimento) {
+            window.preencherSlotCodePublico('recorte-pavimento-code-slot', 'Código de Pavimento', data.code_publico_pavimento, data.referencia_pavimento);
+          }
+          if (data.code_publico_recorte) {
+            window.preencherSlotCodePublico('recorte-code-slot', 'Código de Recorte', data.code_publico_recorte, data.referencia_recorte, 'ainda não validado');
+          }
+        }
       })
       .catch(function () { statusEl.textContent = 'Falha ao salvar.'; });
   }
@@ -2237,6 +2273,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         '<div><span class="n1-campo-label">Categoria</span><br>' + item.categoria + '</div>' +
         '<div><span class="n1-campo-label">Pavimento</span><br>' + (item.pavimento === 'Indeterminado' ? 'Docs Gerais' : item.pavimento) + '</div>' +
         '<div id="recorte-pavimento-code-slot"><span class="n1-campo-label">Código de Pavimento</span><br>—</div>' +
+        '<div id="recorte-code-slot"><span class="n1-campo-label">Código de Recorte</span><br>—</div>' +
       '</div>' +
       '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
         '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
@@ -2262,20 +2299,21 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     // recorte limpo da torre) — "Indeterminado" (Docs Gerais) não tem
     // pavimento real, nunca busca.
     if (item.pavimento && item.pavimento !== 'Indeterminado') {
-      var slotPav = document.getElementById('recorte-pavimento-code-slot');
       fetch('/obras/' + OBRA_ID + '/pavimento-code?pavimento=' + encodeURIComponent(item.pavimento))
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          if (!slotPav) return;
-          if (!data.code_publico) {
-            slotPav.innerHTML = '<span class="n1-campo-label">Código de Pavimento</span><br>' +
-              '<span class="muted">ainda não publicado</span>';
-            return;
-          }
-          slotPav.innerHTML = '<span class="n1-campo-label">Código de Pavimento</span><br>' +
-            '<span style="font-family:monospace;cursor:pointer" title="Clique para copiar" ' +
-            'onclick="navigator.clipboard.writeText(\'' + data.code_publico + '\')">' +
-            data.code_publico + ' 📋</span>';
+          window.preencherSlotCodePublico('recorte-pavimento-code-slot', 'Código de Pavimento', data.code_publico, data.referencia);
+        })
+        .catch(function () { /* silencioso */ });
+
+      // [2026-07-13, pedido do dono] código PRÓPRIO deste recorte (Torre
+      // 1/Detalhes/etc) — só existe depois de validado ao menos 1 vez.
+      fetch('/obras/' + OBRA_ID + '/recorte-code?pavimento=' + encodeURIComponent(item.pavimento) +
+        '&recorte_tipo=' + encodeURIComponent(item.itemId) + '&bruto_id=' + encodeURIComponent(item.brutoId))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          window.preencherSlotCodePublico('recorte-code-slot', 'Código de Recorte', data.code_publico, data.referencia,
+            'ainda não validado');
         })
         .catch(function () { /* silencioso */ });
     }

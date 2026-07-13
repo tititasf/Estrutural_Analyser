@@ -137,7 +137,9 @@ async def test_endpoint_n1_item_inclui_code_publico_quando_ja_publicado(settings
             await client.post("/login", json={"login": "ana2", "senha": "segredo123"})
             r = await client.get(f"/obras/{obra_id}/n1/pilares/P1")
             assert r.status_code == 200
-            assert r.json()["code_publico"] == "ITEMCODEX1"
+            body = r.json()
+            assert body["code_publico"] == "ITEMCODEX1"
+            assert body["referencia"] == "ObraComCode › Térreo › P1"
 
 
 @pytest.mark.asyncio
@@ -168,7 +170,9 @@ async def test_endpoint_obra_code_retorna_code_publico_da_obra(settings, tmp_pat
             await client.post("/login", json={"login": "ana3", "senha": "segredo123"})
             r = await client.get(f"/obras/{obra_id}/obra-code")
             assert r.status_code == 200
-            assert r.json()["code_publico"] == "OBRACODEX1"
+            body = r.json()
+            assert body["code_publico"] == "OBRACODEX1"
+            assert body["referencia"] == "ObraComCodeObra"
 
 
 @pytest.mark.asyncio
@@ -199,8 +203,63 @@ async def test_endpoint_pavimento_code_retorna_code_publico_do_pavimento(setting
             await client.post("/login", json={"login": "ana4", "senha": "segredo123"})
             r = await client.get(f"/obras/{obra_id}/pavimento-code", params={"pavimento": "TERREO"})
             assert r.status_code == 200
-            assert r.json()["code_publico"] == "PAVCODEX1"
+            body = r.json()
+            assert body["code_publico"] == "PAVCODEX1"
+            assert body["referencia"] == "ObraComCodePav › Térreo"
 
             r_outro = await client.get(f"/obras/{obra_id}/pavimento-code", params={"pavimento": "COBERTURA"})
+            assert r_outro.status_code == 200
+            assert r_outro.json()["code_publico"] is None
+
+
+@pytest.mark.asyncio
+async def test_endpoint_recorte_code_retorna_code_publico_do_recorte(settings, tmp_path: Path):
+    """[2026-07-13] `GET /obras/{id}/recorte-code` — código próprio de 1
+    recorte (Torre 1/Detalhes/etc), mintado ao validar."""
+    obra_dir = tmp_path / "obra_com_code_recorte"
+    obra_dir.mkdir()
+
+    c = connection.init_db(settings.db_path)
+    repo.criar_membro(
+        c, login="ana5", nome="Ana Silva",
+        senha_hash=auth.hash_senha("segredo123"), drive_folder_id="folder-ana5",
+    )
+    ana = repo.obter_membro_por_login(c, "ana5")
+    obra_id = repo.criar_obra(
+        c, membro_id=ana["id"], nome="ObraComCodeRecorte", pasta_drive_id="folder-ana5",
+        arquivo_hash="hash-com-code-recorte", estado="processando", local_path=str(obra_dir),
+    )
+    c.close()
+
+    schema = (_CONSULTA_PUBLICA_DIR / "publisher" / "schema.sql").read_text(encoding="utf-8")
+    pub = sqlite3.connect(str(settings.public_consulta_db_path))
+    pub.executescript(schema)
+    pub.execute(
+        "INSERT INTO public_codes (code, kind, obra_id, obra_dir, pavimento, classe, item_id, "
+        "titulo_publico, obra_rotulo, revoked) VALUES "
+        "('RECCODEX1', 'recorte', ?, '/fake', 'TERREO', 'torre_1', 'BRUTO-X', 'Torre 1', 'ObraComCodeRecorte', 0)",
+        (obra_id,),
+    )
+    pub.commit()
+    pub.close()
+
+    app = create_app(settings)
+    transport = httpx.ASGITransport(app=app)
+    async with app.router.lifespan_context(app):
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            await client.post("/login", json={"login": "ana5", "senha": "segredo123"})
+            r = await client.get(
+                f"/obras/{obra_id}/recorte-code",
+                params={"pavimento": "TERREO", "recorte_tipo": "torre_1", "bruto_id": "BRUTO-X"},
+            )
+            assert r.status_code == 200
+            body = r.json()
+            assert body["code_publico"] == "RECCODEX1"
+            assert body["referencia"] == "ObraComCodeRecorte › Térreo › Torre 1"
+
+            r_outro = await client.get(
+                f"/obras/{obra_id}/recorte-code",
+                params={"pavimento": "TERREO", "recorte_tipo": "detalhes", "bruto_id": "BRUTO-X"},
+            )
             assert r_outro.status_code == 200
             assert r_outro.json()["code_publico"] is None

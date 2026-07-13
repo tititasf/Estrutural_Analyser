@@ -8,13 +8,14 @@ recorte gerado pelo RecorteMotor).
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, Response
 
-from .. import access, auth, dxf_preview, pipeline_runner, recortes_reader, torre_crop
+from .. import access, auth, dxf_preview, ficha_reader, pipeline_runner, recortes_reader, torre_crop
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -385,6 +386,62 @@ def excluir_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, request:
         raise HTTPException(status_code=404, detail="recorte nao encontrado")
     return {"status": "ok", "removido": True}
 
+def _publicar_pavimento_e_recorte_ao_validar(
+    request: Request, obra: dict, obra_dir: Path, conn: sqlite3.Connection,
+    bruto_id: str, item_id: str,
+) -> dict:
+    """[2026-07-13, pedido do dono] Ao validar um recorte (Torre 1/Detalhes)
+    na Triagem — bem antes do SA rodar — minta na hora o código de
+    pavimento (que antes só existia quando a obra INTEIRA chegava em
+    'pronta', via auto_publish_poller) e o código PRÓPRIO deste recorte.
+    Falha aqui NUNCA derruba a validação em si — é só um bônus de
+    referência, não o dado principal."""
+    resultado: dict = {
+        "code_publico_pavimento": None, "code_publico_recorte": None,
+        "referencia_pavimento": None, "referencia_recorte": None,
+    }
+    try:
+        docs = repo.listar_documentos_por_obra(conn, obra["id"])
+        bruto_doc = next(
+            (d for d in docs if Path(d["arquivo_nome"]).stem.lower() == bruto_id.lower()), None,
+        )
+        pavimento = bruto_doc.get("pavimento_confirmado") or bruto_doc.get("pavimento_sugerido") if bruto_doc else None
+        if not pavimento:
+            return resultado  # sem pavimento classificado ainda, nada a mintar
+
+        settings = request.app.state.settings
+        titulo = torre_crop._TITULOS_RECORTE.get(item_id, item_id)
+        pav_label = ficha_reader.pavimento_label(pavimento)
+        nome_obra = obra.get("nome", "")
+
+        import sys
+        _repo_root = Path(__file__).resolve().parents[3]
+        if str(_repo_root) not in sys.path:
+            sys.path.insert(0, str(_repo_root))
+        _consulta_dir = _repo_root / "consulta-publica-api"
+        if str(_consulta_dir) not in sys.path:
+            sys.path.insert(0, str(_consulta_dir))
+        from publisher.publish import publicar_pavimento_minimo, publicar_recorte
+
+        mint_pav = publicar_pavimento_minimo(
+            obra["id"], obra_dir, pavimento, nome_obra,
+            db_path=settings.public_consulta_db_path,
+        )
+        resultado["code_publico_pavimento"] = mint_pav["code_pavimento"]
+        resultado["referencia_pavimento"] = f"{nome_obra} › {pav_label}"
+        resultado["code_publico_recorte"] = publicar_recorte(
+            obra["id"], obra_dir, pavimento, item_id, bruto_id, titulo, nome_obra,
+            db_path=settings.public_consulta_db_path,
+        )
+        resultado["referencia_recorte"] = f"{nome_obra} › {pav_label} › {titulo}"
+    except Exception:
+        logging.getLogger("portal.recortes_routes").exception(
+            "falha ao mintar codigo publico ao validar recorte (obra=%s, bruto=%s, item=%s)",
+            obra.get("id"), bruto_id, item_id,
+        )
+    return resultado
+
+
 @router.post("/{obra_id}/recortes/brutos/{bruto_id}/{item_id}/validar")
 def validar_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, payload: ValidacaoPayload,
                              request: Request,
@@ -393,4 +450,9 @@ def validar_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, payload:
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
     torre_crop.set_recorte_validado(obra_dir, bruto_id, item_id, payload.validado)
-    return {"status": "ok", "validado": payload.validado}
+    resposta = {"status": "ok", "validado": payload.validado}
+    if payload.validado:
+        resposta.update(_publicar_pavimento_e_recorte_ao_validar(
+            request, obra, obra_dir, conn, bruto_id, item_id,
+        ))
+    return resposta

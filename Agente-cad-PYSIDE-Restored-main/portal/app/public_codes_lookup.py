@@ -79,6 +79,28 @@ def buscar_code_item(
         conn.close()
 
 
+def buscar_code_recorte(
+    db_path: Path, obra_id: str, pavimento: str, recorte_tipo: str, bruto_id: str,
+) -> Optional[str]:
+    """Código público de 1 recorte (Torre 1/Detalhes/etc) já mintado ao
+    validar [2026-07-13] — usado pra reabrir o painel de recorte depois e
+    mostrar o código sem precisar validar de novo."""
+    conn = _conectar_ro(db_path)
+    if conn is None:
+        return None
+    try:
+        row = conn.execute(
+            "SELECT code FROM public_codes WHERE obra_id = ? AND pavimento = ? AND classe = ? "
+            "AND item_id = ? AND kind = 'recorte' AND revoked = 0",
+            (obra_id, pavimento, recorte_tipo, bruto_id),
+        ).fetchone()
+        return row["code"] if row else None
+    except sqlite3.OperationalError:
+        return None
+    finally:
+        conn.close()
+
+
 def buscar_codes_obras_batch(db_path: Path, obra_ids: list[str]) -> dict[str, str]:
     """Código público de N obras em 1 única consulta [2026-07-13] — usado na
     lista `/app/obras` pra mostrar o código de cada obra sem 1 conexão/query

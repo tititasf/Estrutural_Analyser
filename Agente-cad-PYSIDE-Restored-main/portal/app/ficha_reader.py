@@ -87,6 +87,32 @@ TITULOS_CLASSE = {
 _PILARES_N3_VARIANTE = {"pilares_n3_para": "Para", "pilares_n3_passa": "Passa"}
 
 
+_PAVIMENTO_LABELS = {
+    "TERREO": "Térreo",
+    "TIPO": "Pavimento Tipo",
+    "COBERTURA": "Cobertura",
+    "ATICO": "Ático",
+    "FUNDACAO": "Fundação",
+}
+
+
+def pavimento_label(pavimento: str) -> str:
+    """Rótulo amigável do pavimento — nunca a string crua interna
+    (`"13_PAV"`) exposta sem formatação [2026-07-13, portado de
+    `consulta-publica-api/services/ficha_service.py::pavimento_label` —
+    mesma lógica, cópia isolada pra evitar acoplar o portal ao processo da
+    Consulta Pública; usada nas referências legíveis ao lado de cada
+    código público]."""
+    pav = str(pavimento or "").strip()
+    if pav in _PAVIMENTO_LABELS:
+        return _PAVIMENTO_LABELS[pav]
+    if pav.upper().endswith("_PAV"):
+        numero = pav.upper().removesuffix("_PAV")
+        if numero.isdigit():
+            return f"{numero}º Pavimento"
+    return pav.replace("_", " ").title() or "Pavimento"
+
+
 def descobrir_pavimentos(obra_dir: Path) -> list[str]:
     """Pavimentos com estado real salvo (`estado_<pav>.json` no root da obra)."""
     if not obra_dir.exists():
