@@ -29,6 +29,12 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.arete.qa_rag_evidence import load_partitioned_rag
+from src.core.validation_model import (
+    ORIGEM_QA_AGENTE,
+    adicionar_validacao_campo,
+    migrar_validated_fields_legado,
+    remover_validacao_campo,
+)
 
 
 DEFAULT_DB = Path(r"D:\Agente-cad-PYSIDE\project_data.vision")
@@ -1528,7 +1534,7 @@ def current_snapshot(con: sqlite3.Connection, slab_id: str) -> tuple[str, dict[s
 def apply_operation(state: dict, operation: dict) -> None:
     op = operation["op"]
     links = state["links"]
-    validated_fields: set[str] = state["validated_fields"]
+    validated_fields: dict = state["validated_fields"]  # [2026-07-13] dict com origem, ver src/core/validation_model.py
     na_fields: set[str] = state["na_fields"]
     validated_links: dict = state["validated_link_classes"]
     na_reasons: dict = state["na_reasons"]
@@ -1552,7 +1558,7 @@ def apply_operation(state: dict, operation: dict) -> None:
         extra.setdefault("fields", {})["laje_nivel"] = value
         extra["laje_nivel"] = value
     elif op == "validate_field":
-        validated_fields.add(field_id)
+        adicionar_validacao_campo(validated_fields, field_id, ORIGEM_QA_AGENTE)
         na_fields.discard(field_id)
         na_reasons.pop(field_id, None)
         slots = operation.get("slots") or []
@@ -1566,11 +1572,13 @@ def apply_operation(state: dict, operation: dict) -> None:
                     if isinstance(link, dict):
                         link["validated"] = True
     elif op == "unvalidate_field":
-        validated_fields.discard(field_id)
+        remover_validacao_campo(validated_fields, field_id, origem=ORIGEM_QA_AGENTE)
         validated_links.pop(field_id, None)
     elif op == "mark_na":
+        # [2026-07-13] N/A não é "validado" por nenhuma origem — fica fora do
+        # sistema de selo (calcular_selos_item já trata na_fields como
+        # resolvido independente de origem), só o motivo em na_reasons importa.
         na_fields.add(field_id)
-        validated_fields.add(field_id)
         na_reasons[field_id] = operation.get("reason") or "N/A confirmado pelo QA"
     elif op == "repair_cut_ficha":
         slot = operation["slot"]
@@ -2077,7 +2085,7 @@ def cmd_apply(args: argparse.Namespace) -> int:
                     raise RuntimeError(f"item fora do projeto: {item}")
                 state = {
                     "links": json_load(row["links_json"], {}),
-                    "validated_fields": set(json_load(row["validated_fields_json"], [])),
+                    "validated_fields": migrar_validated_fields_legado(json_load(row["validated_fields_json"], [])),
                     "na_fields": set(json_load(row["na_fields_json"], [])),
                     "validated_link_classes": json_load(row["validated_link_classes_json"], {}),
                     "na_link_classes": json_load(row["na_link_classes_json"], {}),
@@ -2094,7 +2102,7 @@ def cmd_apply(args: argparse.Namespace) -> int:
                     continue
                 for operation in operations:
                     apply_operation(state, operation)
-                complete = set(REQUIRED_LAJ_FIELDS).issubset(state["validated_fields"] | state["na_fields"])
+                complete = set(REQUIRED_LAJ_FIELDS).issubset(set(state["validated_fields"]) | state["na_fields"])
                 new_seal = 1 if args.seal_complete and complete else int(state["is_validated"])
                 rollback_rows.append({"item": item, "id": snapshot["id"], "old": old_raw})
                 con.execute(
@@ -2102,7 +2110,7 @@ def cmd_apply(args: argparse.Namespace) -> int:
                     "validated_link_classes_json=?, na_link_classes_json=?, na_reasons_json=?, "
                     "extra_data_json=?, is_validated=? WHERE id=? AND project_id=?",
                     (
-                        canonical_json(state["links"]), canonical_json(sorted(state["validated_fields"])),
+                        canonical_json(state["links"]), canonical_json(state["validated_fields"]),
                         canonical_json(sorted(state["na_fields"])), canonical_json(state["validated_link_classes"]),
                         canonical_json(state["na_link_classes"]), canonical_json(state["na_reasons"]),
                         canonical_json(state["extra"]), new_seal, snapshot["id"], args.project_id,

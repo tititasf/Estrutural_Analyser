@@ -581,6 +581,26 @@ def test_apply_is_transactional_seals_complete_and_rollback_restores(tmp_path: P
     con.close()
 
 
+def test_apply_grava_validated_fields_com_origem_qa_agente(tmp_path: Path):
+    """[2026-07-13] validate_field agora grava no formato com origem —
+    depois do apply, validated_fields_json é um dict e o campo recém
+    validado (laje_vizinhas_niveis, o único que faltava) tem origem
+    qa_agente, sem perder os campos antigos (formato legado migrado)."""
+    db = tmp_path / "test.vision"
+    create_db(db)
+    run_dir = tmp_path / "run"
+    cmd_audit(argparse.Namespace(db=str(db), project_id="p", item=["L2"], include_sealed=False, run_id="run", out_dir=str(run_dir)))
+    cmd_apply(argparse.Namespace(db=str(db), project_id="p", run=str(run_dir), decision_file=None, seal_complete=True))
+    con = sqlite3.connect(db)
+    row = con.execute("SELECT validated_fields_json FROM slabs WHERE id='2'").fetchone()
+    con.close()
+    validated = json.loads(row[0])
+    assert isinstance(validated, dict)
+    assert {e["origem"] for e in validated["laje_vizinhas_niveis"]} == {"qa_agente"}
+    # campos que já vinham validados (formato legado) continuam presentes
+    assert "laje_dim" in validated
+
+
 def test_apply_rejects_stale_snapshot(tmp_path: Path):
     db = tmp_path / "test.vision"
     create_db(db)
