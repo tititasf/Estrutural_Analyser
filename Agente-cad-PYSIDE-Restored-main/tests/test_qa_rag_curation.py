@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import sqlite3
 from pathlib import Path
 
 
@@ -29,3 +31,35 @@ def test_build_candidates_groups_only_high_nonhuman_decisions() -> None:
     assert candidate["tier_candidate"] == "T1"
     assert candidate["items"] == ["L319"]
     assert candidate["decision_ids"] == ["d2"]
+
+
+def test_promote_candidates_is_idempotent_and_records_t1(tmp_path: Path) -> None:
+    db = tmp_path / "rag.vision"
+    conn = sqlite3.connect(db)
+    conn.executescript("""
+        CREATE TABLE semantic_rag_kb (id INTEGER PRIMARY KEY, classe TEXT, regra_semantica TEXT, obra_contexto TEXT, confianca REAL);
+        CREATE TABLE human_event_logs (
+            log_id TEXT PRIMARY KEY, timestamp TEXT, obra_id TEXT, classe TEXT, item_id TEXT, fase_editada TEXT,
+            ui_context TEXT, estado_anterior_json TEXT, estado_novo_json TEXT, campos_alterados TEXT,
+            processado_por_rag INTEGER, event_kind TEXT, status TEXT, tier TEXT, validation_origin TEXT,
+            user_reason TEXT, source_agent TEXT, actor_id TEXT, session_id TEXT, idempotency_key TEXT,
+            approved_at TEXT, approved_by TEXT, updated_at TEXT
+        );
+    """)
+    conn.close()
+    candidates = [{
+        "candidate_id": "qa-rag-1", "project_id": "p1", "classe": "LAJ", "field_id": "laje_dim",
+        "items": ["L318"], "source_run": "run", "decision_ids": ["d1"], "evidence": [],
+    }]
+    path = tmp_path / "candidates.json"
+    path.write_text(json.dumps(candidates), encoding="utf-8")
+
+    first = curation.promote_candidates(db, path, approved_by="dono")
+    second = curation.promote_candidates(db, path, approved_by="dono")
+
+    assert first == {"selected": 1, "inserted": 1, "already_promoted": 0}
+    assert second == {"selected": 1, "inserted": 0, "already_promoted": 1}
+    conn = sqlite3.connect(db)
+    rule = json.loads(conn.execute("SELECT regra_semantica FROM semantic_rag_kb").fetchone()[0])
+    assert rule["tier"] == "T1"
+    assert conn.execute("SELECT tier FROM human_event_logs").fetchone()[0] == "T1"

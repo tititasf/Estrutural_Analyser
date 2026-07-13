@@ -44,3 +44,18 @@ explícito do dono. Isto não reabre o veredito visual já dado à classe LAJ.
 O dono revisa o pacote T1 e aprova/rejeita candidatos específicos. Depois da
 aprovação, o curador pode promover apenas os selecionados; os dois achados
 técnicos seguem para microciclos de motor e regressão antes de qualquer T2.
+
+## Execução rastreável
+
+```powershell
+# somente materializa a proposta, sem escrever no banco
+python scripts/arete/qa_rag_curation.py materialize --run <dossie-qa>
+
+# promoção explícita, idempotente e com ator humano registrado
+python scripts/arete/qa_rag_curation.py promote --db D:/Agente-cad-PYSIDE/project_data.vision `
+  --candidates <dossie-qa>/rag_candidatos_t1_aprovacao/candidatos_t1.json `
+  --approved-by dono --approve-all
+```
+
+O promotor cria uma entrada semanticamente marcada como `T1` e um evento humano
+por candidato. Ele não altera N1, N2, DXF ou JSONs Fase-4.
