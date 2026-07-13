@@ -15,7 +15,12 @@ CREATE TABLE IF NOT EXISTS public_codes (
     -- [2026-07-12] 'pavimento' adicionado — código próprio por pavimento
     -- (a "ficha do pavimento"/recorte limpo da torre), resolvendo direto
     -- pra lista de itens DAQUELE pavimento (não do obra inteiro).
-    kind            TEXT NOT NULL CHECK (kind IN ('obra', 'pavimento', 'item')),
+    -- [2026-07-13] 'recorte' adicionado — código próprio de 1 recorte
+    -- (Torre 1/Detalhes/etc) mintado assim que o dono valida o recorte na
+    -- Triagem, ANTES do SA rodar (classe=tipo do recorte, item_id=bruto_id).
+    -- Só existe no Portal por enquanto (a Consulta Pública não expõe/
+    -- renderiza recorte ainda).
+    kind            TEXT NOT NULL CHECK (kind IN ('obra', 'pavimento', 'item', 'recorte')),
     obra_id         TEXT NOT NULL,
     obra_dir        TEXT NOT NULL,
     pavimento       TEXT,
@@ -42,3 +47,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_public_codes_item_identity
 CREATE UNIQUE INDEX IF NOT EXISTS idx_public_codes_pavimento_identity
     ON public_codes(obra_id, pavimento)
     WHERE kind = 'pavimento';
+
+-- [2026-07-13] Mesma disciplina de upsert para códigos de recorte — 1
+-- código por (obra_id, pavimento, classe=tipo_do_recorte, item_id=bruto_id).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_public_codes_recorte_identity
+    ON public_codes(obra_id, pavimento, classe, item_id)
+    WHERE kind = 'recorte';

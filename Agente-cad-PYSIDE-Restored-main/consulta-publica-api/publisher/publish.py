@@ -67,6 +67,157 @@ def _obra_rotulo_default() -> str:
     return f"Obra ·· {sufixo}"
 
 
+def _upsert_obra(
+    conn: sqlite3.Connection, obra_id: str, obra_dir: Path, rotulo: str, batch: str,
+) -> str:
+    """Upsert do registro `kind='obra'` — code preservado se já existir.
+    Extraído de `publicar()` [2026-07-13] pra reuso por
+    `publicar_pavimento_minimo` (mint antes do SA rodar, na Triagem)."""
+    row = conn.execute(
+        "SELECT code FROM public_codes WHERE obra_id = ? AND kind = 'obra'",
+        (obra_id,),
+    ).fetchone()
+    code = row["code"] if row else gerar_code(conn)
+    conn.execute(
+        """
+        INSERT INTO public_codes
+            (code, kind, obra_id, obra_dir, obra_rotulo, publish_batch)
+        VALUES (?, 'obra', ?, ?, ?, ?)
+        ON CONFLICT(code) DO UPDATE SET
+            obra_dir=excluded.obra_dir,
+            obra_rotulo=excluded.obra_rotulo,
+            publish_batch=excluded.publish_batch,
+            revoked=0
+        """,
+        (code, obra_id, str(obra_dir), rotulo, batch),
+    )
+    return code
+
+
+def _upsert_pavimento(
+    conn: sqlite3.Connection, obra_id: str, obra_dir: Path, pavimento: str, rotulo: str, batch: str,
+) -> str:
+    """Upsert do registro `kind='pavimento'` — code preservado se já existir.
+    Extraído de `publicar()` [2026-07-13], mesmo motivo de `_upsert_obra`."""
+    row = conn.execute(
+        "SELECT code FROM public_codes WHERE obra_id = ? AND pavimento = ? AND kind = 'pavimento'",
+        (obra_id, pavimento),
+    ).fetchone()
+    code = row["code"] if row else gerar_code(conn)
+    conn.execute(
+        """
+        INSERT INTO public_codes
+            (code, kind, obra_id, obra_dir, pavimento, obra_rotulo, publish_batch)
+        VALUES (?, 'pavimento', ?, ?, ?, ?, ?)
+        ON CONFLICT(code) DO UPDATE SET
+            obra_dir=excluded.obra_dir,
+            pavimento=excluded.pavimento,
+            obra_rotulo=excluded.obra_rotulo,
+            publish_batch=excluded.publish_batch,
+            revoked=0
+        """,
+        (code, obra_id, str(obra_dir), pavimento, rotulo, batch),
+    )
+    return code
+
+
+def publicar_pavimento_minimo(
+    obra_id: str,
+    obra_dir: Path,
+    pavimento: str,
+    obra_rotulo: Optional[str] = None,
+    *,
+    conn: Optional[sqlite3.Connection] = None,
+    db_path: Optional[Path] = None,
+) -> dict:
+    """Mint mínimo — só obra + 1 pavimento, SEM depender de
+    `estado_<pavimento>.json` (SA) existir [2026-07-13, pedido do dono]:
+    "o código de pavimento continua 'ainda não publicado' mesmo depois de
+    validar [um recorte], porque só minta quando a obra inteira chega em
+    'pronta'". Chamado no momento em que o dono valida um recorte na
+    Triagem/Recortes — bem antes do SA rodar. Preserva code de chamadas
+    anteriores (mesmo upsert de `publicar()`), nunca gera um novo
+    `publish_batch` (não revoga nada — só adiciona/atualiza)."""
+    obra_id = str(obra_id)
+    fechar_no_final = conn is None
+    if conn is None:
+        conn = get_connection(db_path) if db_path else get_connection()
+    assert_no_blacklisted_columns(conn)
+    try:
+        rotulo = obra_rotulo or _obra_rotulo_default()
+        batch = str(uuid.uuid4())
+        with conn:
+            code_obra = _upsert_obra(conn, obra_id, obra_dir, rotulo, batch)
+            code_pavimento = _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, batch)
+        return {"code_obra": code_obra, "code_pavimento": code_pavimento}
+    finally:
+        if fechar_no_final:
+            conn.close()
+
+
+def publicar_recorte(
+    obra_id: str,
+    obra_dir: Path,
+    pavimento: str,
+    recorte_tipo: str,
+    bruto_id: str,
+    titulo: str,
+    obra_rotulo: Optional[str] = None,
+    *,
+    conn: Optional[sqlite3.Connection] = None,
+    db_path: Optional[Path] = None,
+) -> str:
+    """Mint de 1 código PRÓPRIO de recorte (Torre 1/Detalhes/etc, ainda sem
+    SA rodado) [2026-07-13] — kind='recorte', identidade
+    (obra_id, pavimento, classe=recorte_tipo, item_id=bruto_id). Reusa
+    `_upsert_obra`/`_upsert_pavimento` pra garantir que obra/pavimento
+    também existam. Só existe no Portal por enquanto — a Consulta Pública
+    não expõe/renderiza recorte (ela só lê SVG já pronto do SA)."""
+    obra_id = str(obra_id)
+    fechar_no_final = conn is None
+    if conn is None:
+        conn = get_connection(db_path) if db_path else get_connection()
+    assert_no_blacklisted_columns(conn)
+    try:
+        rotulo = obra_rotulo or _obra_rotulo_default()
+        batch = str(uuid.uuid4())
+        with conn:
+            _upsert_obra(conn, obra_id, obra_dir, rotulo, batch)
+            _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, batch)
+
+            existente = conn.execute(
+                """
+                SELECT code FROM public_codes
+                WHERE obra_id = ? AND pavimento = ? AND classe = ? AND item_id = ?
+                      AND kind = 'recorte'
+                """,
+                (obra_id, pavimento, recorte_tipo, bruto_id),
+            ).fetchone()
+            code = existente["code"] if existente else gerar_code(conn)
+            conn.execute(
+                """
+                INSERT INTO public_codes
+                    (code, kind, obra_id, obra_dir, pavimento, classe,
+                     item_id, titulo_publico, obra_rotulo, publish_batch)
+                VALUES (?, 'recorte', ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(code) DO UPDATE SET
+                    obra_dir=excluded.obra_dir,
+                    pavimento=excluded.pavimento,
+                    classe=excluded.classe,
+                    item_id=excluded.item_id,
+                    titulo_publico=excluded.titulo_publico,
+                    obra_rotulo=excluded.obra_rotulo,
+                    publish_batch=excluded.publish_batch,
+                    revoked=0
+                """,
+                (code, obra_id, str(obra_dir), pavimento, recorte_tipo, bruto_id, titulo, rotulo, batch),
+            )
+        return code
+    finally:
+        if fechar_no_final:
+            conn.close()
+
+
 def publicar(
     obra: dict,
     obra_dir: Path,
@@ -101,25 +252,7 @@ def publicar(
         itens_preservados = 0
 
         with conn:
-            # Upsert do registro "obra" — code preservado se já existir.
-            row_obra = conn.execute(
-                "SELECT code FROM public_codes WHERE obra_id = ? AND kind = 'obra'",
-                (obra_id,),
-            ).fetchone()
-            code_obra = row_obra["code"] if row_obra else gerar_code(conn)
-            conn.execute(
-                """
-                INSERT INTO public_codes
-                    (code, kind, obra_id, obra_dir, obra_rotulo, publish_batch)
-                VALUES (?, 'obra', ?, ?, ?, ?)
-                ON CONFLICT(code) DO UPDATE SET
-                    obra_dir=excluded.obra_dir,
-                    obra_rotulo=excluded.obra_rotulo,
-                    publish_batch=excluded.publish_batch,
-                    revoked=0
-                """,
-                (code_obra, obra_id, str(obra_dir), rotulo, novo_batch),
-            )
+            code_obra = _upsert_obra(conn, obra_id, obra_dir, rotulo, novo_batch)
 
             for pavimento in pavimentos:
                 estado = ficha_reader.ler_estado_pavimento(obra_dir, pavimento)
@@ -129,25 +262,7 @@ def publicar(
                 # [2026-07-12] código próprio por pavimento — "ficha do
                 # pavimento"/recorte limpo da torre, resolve direto pra
                 # lista de itens DAQUELE pavimento (não do obra inteiro).
-                row_pav = conn.execute(
-                    "SELECT code FROM public_codes WHERE obra_id = ? AND pavimento = ? AND kind = 'pavimento'",
-                    (obra_id, pavimento),
-                ).fetchone()
-                code_pavimento = row_pav["code"] if row_pav else gerar_code(conn)
-                conn.execute(
-                    """
-                    INSERT INTO public_codes
-                        (code, kind, obra_id, obra_dir, pavimento, obra_rotulo, publish_batch)
-                    VALUES (?, 'pavimento', ?, ?, ?, ?, ?)
-                    ON CONFLICT(code) DO UPDATE SET
-                        obra_dir=excluded.obra_dir,
-                        pavimento=excluded.pavimento,
-                        obra_rotulo=excluded.obra_rotulo,
-                        publish_batch=excluded.publish_batch,
-                        revoked=0
-                    """,
-                    (code_pavimento, obra_id, str(obra_dir), pavimento, rotulo, novo_batch),
-                )
+                _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, novo_batch)
 
                 for classe, tipo_elemento in _CLASSE_PARA_TIPO_ELEMENTO.items():
                     itens = ficha_reader.listar_itens_n1(estado, classe)

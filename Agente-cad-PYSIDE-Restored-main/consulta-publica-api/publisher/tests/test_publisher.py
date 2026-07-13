@@ -22,7 +22,9 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from publisher.db import get_connection, assert_no_blacklisted_columns  # noqa: E402
-from publisher.publish import gerar_code, publicar, revogar  # noqa: E402
+from publisher.publish import (  # noqa: E402
+    gerar_code, publicar, publicar_pavimento_minimo, publicar_recorte, revogar,
+)
 
 
 _ESTADO_TERREO = {
@@ -197,6 +199,88 @@ def test_revogar_item_individual(conn, obra_dir):
         "SELECT revoked FROM public_codes WHERE obra_id='obra-item-revoke' AND item_id='P2'"
     ).fetchone()
     assert p2["revoked"] == 0
+
+
+def test_publicar_pavimento_minimo_sem_estado_sa(conn, tmp_path):
+    """[2026-07-13] Mint mínimo (obra+pavimento) tem que funcionar mesmo
+    quando `estado_<pav>.json` NÃO existe ainda (Triagem/Recortes, antes do
+    SA rodar) — é exatamente o cenário que motivou essa função: pedido do
+    dono pra ter o código de pavimento assim que ele valida um recorte."""
+    obra_dir = tmp_path / "obra_sem_sa"
+    obra_dir.mkdir()  # nenhum estado_*.json aqui de propósito
+
+    resultado = publicar_pavimento_minimo("obra-min-1", obra_dir, "TERREO", conn=conn)
+    assert resultado["code_obra"]
+    assert resultado["code_pavimento"]
+
+    row_obra = conn.execute(
+        "SELECT code FROM public_codes WHERE obra_id='obra-min-1' AND kind='obra'"
+    ).fetchone()
+    assert row_obra["code"] == resultado["code_obra"]
+    row_pav = conn.execute(
+        "SELECT code FROM public_codes WHERE obra_id='obra-min-1' AND pavimento='TERREO' AND kind='pavimento'"
+    ).fetchone()
+    assert row_pav["code"] == resultado["code_pavimento"]
+
+
+def test_publicar_pavimento_minimo_preserva_code_em_2a_chamada(conn, tmp_path):
+    obra_dir = tmp_path / "obra_sem_sa2"
+    obra_dir.mkdir()
+
+    r1 = publicar_pavimento_minimo("obra-min-2", obra_dir, "TERREO", conn=conn)
+    r2 = publicar_pavimento_minimo("obra-min-2", obra_dir, "TERREO", conn=conn)
+    assert r1["code_obra"] == r2["code_obra"]
+    assert r1["code_pavimento"] == r2["code_pavimento"]
+
+
+def test_publicar_recorte_minta_codigo_proprio(conn, tmp_path):
+    """[2026-07-13] Cada recorte (Torre 1/Detalhes/etc) ganha seu próprio
+    código, distinto do código de pavimento — pedido do dono: "cada um
+    tenha seu codigo conforme seja validado"."""
+    obra_dir = tmp_path / "obra_recorte"
+    obra_dir.mkdir()
+
+    code_recorte = publicar_recorte(
+        "obra-rec-1", obra_dir, "TERREO", "torre_1", "bruto-abc", "Torre 1", conn=conn,
+    )
+    assert code_recorte
+
+    row = conn.execute(
+        "SELECT * FROM public_codes WHERE code=?", (code_recorte,)
+    ).fetchone()
+    assert row["kind"] == "recorte"
+    assert row["obra_id"] == "obra-rec-1"
+    assert row["pavimento"] == "TERREO"
+    assert row["classe"] == "torre_1"
+    assert row["item_id"] == "bruto-abc"
+    assert row["titulo_publico"] == "Torre 1"
+
+    # obra + pavimento também foram mintados junto (dependência implícita).
+    row_pav = conn.execute(
+        "SELECT code FROM public_codes WHERE obra_id='obra-rec-1' AND pavimento='TERREO' AND kind='pavimento'"
+    ).fetchone()
+    assert row_pav is not None
+    assert row_pav["code"] != code_recorte
+
+
+def test_publicar_recorte_preserva_code_em_revalidacao(conn, tmp_path):
+    obra_dir = tmp_path / "obra_recorte2"
+    obra_dir.mkdir()
+
+    c1 = publicar_recorte("obra-rec-2", obra_dir, "TERREO", "torre_1", "bruto-x", "Torre 1", conn=conn)
+    c2 = publicar_recorte("obra-rec-2", obra_dir, "TERREO", "torre_1", "bruto-x", "Torre 1", conn=conn)
+    assert c1 == c2
+
+
+def test_publicar_recorte_dois_tipos_mesmo_bruto_tem_codes_diferentes(conn, tmp_path):
+    obra_dir = tmp_path / "obra_recorte3"
+    obra_dir.mkdir()
+
+    c_torre = publicar_recorte("obra-rec-3", obra_dir, "TERREO", "torre_1", "bruto-y", "Torre 1", conn=conn)
+    c_detalhes = publicar_recorte(
+        "obra-rec-3", obra_dir, "TERREO", "detalhes", "bruto-y", "Detalhes e Convenções Gerais", conn=conn,
+    )
+    assert c_torre != c_detalhes
 
 
 def test_db_fecha_sem_lock_pendente(tmp_path, obra_dir):
