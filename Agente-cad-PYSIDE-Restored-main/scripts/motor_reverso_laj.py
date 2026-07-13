@@ -845,6 +845,206 @@ def _canonicalize_panel_axes_for_outline(
     # alguns itens (ex.: L319) ainda têm paginação antiga armazenada ali.
     return linhas_v, linhas_h
 
+def _label_anchor(msp, elemento_id: str | None) -> tuple[float, float] | None:
+    """Retorna a âncora de um identificador LAJ escrito no próprio recorte.
+
+    O identificador é apenas uma evidência de localização: nunca carrega
+    geometria nem consulta N1/Fase-4.  Isso permite separar, de forma geral,
+    a malha da laje da malha de contexto que também vem no recorte reverso.
+    """
+    target = str(elemento_id or '').strip().upper()
+    if not target:
+        return None
+    for entity in msp:
+        if entity.dxftype() not in ('TEXT', 'MTEXT'):
+            continue
+        if _plain_text(entity).strip().upper() != target:
+            continue
+        insert = entity.dxf.insert
+        return float(insert.x), float(insert.y)
+    return None
+
+
+def _box_gap(left, right) -> float:
+    """Menor distância ortogonal entre dois bboxes (zero se tocam)."""
+    dx = max(left[0] - right[2], right[0] - left[2], 0.0)
+    dy = max(left[1] - right[3], right[1] - left[3], 0.0)
+    return math.hypot(dx, dy)
+
+
+def _union_box(left, right) -> tuple[float, float, float, float]:
+    return (
+        min(left[0], right[0]), min(left[1], right[1]),
+        max(left[2], right[2]), max(left[3], right[3]),
+    )
+
+
+def _expand_local_box_with_aligned_boundary_segments(msp, box, structural_layers):
+    """Recupera bordas locais quebradas por hachura de apoio/cota.
+
+    A expansão exige que o segmento cubra a maior parte da borda já encontrada
+    e fique próximo dela. Assim uma linha de viga remota não vira contorno da
+    laje, mas uma borda estrutural interrompida por um apoio continua legível.
+    """
+    x0, y0, x1, y1 = box
+    for _ in range(2):
+        width, height = x1 - x0, y1 - y0
+        max_gap = max(30.0, min(60.0, max(width, height) * 0.13))
+        candidates = {'left': [], 'right': [], 'bottom': [], 'top': []}
+        for entity in msp:
+            if entity.dxftype() != 'LINE':
+                continue
+            if str(getattr(entity.dxf, 'layer', '')) in structural_layers:
+                continue
+            a, b = _line_points(entity)
+            if abs(a[1] - b[1]) <= TOL:
+                lo, hi = sorted((a[0], b[0]))
+                overlap = max(0.0, min(x1, hi) - max(x0, lo))
+                if width and overlap / width < 0.65:
+                    continue
+                y = (a[1] + b[1]) / 2.0
+                if y0 - max_gap <= y < y0:
+                    candidates['bottom'].append(y)
+                elif y1 < y <= y1 + max_gap:
+                    candidates['top'].append(y)
+            elif abs(a[0] - b[0]) <= TOL:
+                lo, hi = sorted((a[1], b[1]))
+                overlap = max(0.0, min(y1, hi) - max(y0, lo))
+                if height and overlap / height < 0.65:
+                    continue
+                x = (a[0] + b[0]) / 2.0
+                if x0 - max_gap <= x < x0:
+                    candidates['left'].append(x)
+                elif x1 < x <= x1 + max_gap:
+                    candidates['right'].append(x)
+        if candidates['left']:
+            x0 = min(candidates['left'])
+        if candidates['right']:
+            x1 = max(candidates['right'])
+        if candidates['bottom']:
+            y0 = min(candidates['bottom'])
+        if candidates['top']:
+            y1 = max(candidates['top'])
+    return x0, y0, x1, y1
+
+
+def _local_structural_box_for_label(
+    msp, structural_layers, elemento_id: str | None, *, expand_boundaries: bool = True
+):
+    """Isola a ilha de linhas estruturais que contém o rótulo da laje.
+
+    Recortes N2 trazem frequentemente partes de vigas e lajes vizinhas na
+    mesma layer ``Painéis``.  A regra antiga escolhia a maior guia horizontal
+    e vertical do arquivo e por isso transformava esse contexto em contorno.
+    Aqui os segmentos são agrupados por conectividade local; o agrupamento é
+    aceito somente se contém um rótulo exato e continua significativamente
+    menor que uma expansão ampla do próprio componente.  Sem essa evidência,
+    o caminho histórico permanece intacto.
+    """
+    anchor = _label_anchor(msp, elemento_id)
+    if anchor is None or not structural_layers:
+        return None
+
+    segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    for entity in msp:
+        if entity.dxftype() != 'LINE':
+            continue
+        if str(getattr(entity.dxf, 'layer', '')) not in structural_layers:
+            continue
+        axis = _line_axis(entity)
+        if not axis:
+            continue
+        a, b = _line_points(entity)
+        if math.hypot(b[0] - a[0], b[1] - a[1]) < 10.0:
+            continue
+        segments.append((a, b))
+    if not segments:
+        return None
+
+    # União por endpoint com índice espacial: evita O(n²) nos recortes grandes.
+    tolerance = 3.5
+    cell = tolerance
+    parent = list(range(len(segments)))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    def union(left: int, right: int) -> None:
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    buckets: dict[tuple[int, int], list[int]] = {}
+    for index, segment in enumerate(segments):
+        for point in segment:
+            key = (round(point[0] / cell), round(point[1] / cell))
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    for other in buckets.get((key[0] + dx, key[1] + dy), []):
+                        if min(
+                            math.hypot(point[0] - endpoint[0], point[1] - endpoint[1])
+                            for endpoint in segments[other]
+                        ) <= tolerance:
+                            union(index, other)
+            buckets.setdefault(key, []).append(index)
+
+    components: dict[int, list[int]] = {}
+    for index in range(len(segments)):
+        components.setdefault(find(index), []).append(index)
+    boxes = []
+    for indexes in components.values():
+        points = [point for index in indexes for point in segments[index]]
+        xs, ys = [point[0] for point in points], [point[1] for point in points]
+        box = (min(xs), min(ys), max(xs), max(ys))
+        width, height = box[2] - box[0], box[3] - box[1]
+        if len(indexes) >= 2 and width >= 30.0 and height >= 15.0:
+            boxes.append(box)
+    if not boxes:
+        return None
+
+    # A âncora pode ficar sobre a cota interna; uma margem pequena é aceitável.
+    candidates = [
+        box for box in boxes
+        if box[0] - 5.0 <= anchor[0] <= box[2] + 5.0
+        and box[1] - 5.0 <= anchor[1] <= box[3] + 5.0
+    ]
+    if not candidates:
+        return None
+    selected = min(candidates, key=lambda box: (box[2] - box[0]) * (box[3] - box[1]))
+    base_width, base_height = selected[2] - selected[0], selected[3] - selected[1]
+    anchor_x_ratio = (anchor[0] - selected[0]) / base_width
+    # Rótulo encostado numa ponta indica, em geral, uma submalha lateral e não
+    # a área inteira. Falha fechado para evitar recortar uma laje complexa.
+    if not 0.20 <= anchor_x_ratio <= 0.80:
+        return None
+
+    # Reconecta partes da mesma ilha separadas por setas/hachuras, sem deixar a
+    # ilha crescer até a laje vizinha. Os limites são relativos ao componente,
+    # não a qualquer obra, pavimento ou identificador.
+    max_width = base_width * 1.35 + 10.0
+    max_height = max(base_height * 5.0, 100.0)
+    changed = True
+    while changed:
+        changed = False
+        for box in boxes:
+            if box == selected or _box_gap(selected, box) > 8.0:
+                continue
+            expanded = _union_box(selected, box)
+            if expanded[2] - expanded[0] > max_width or expanded[3] - expanded[1] > max_height:
+                continue
+            if expanded != selected:
+                selected = expanded
+                changed = True
+    if expand_boundaries and min(base_width, base_height) < 60.0:
+        selected = _expand_local_box_with_aligned_boundary_segments(
+            msp, selected, structural_layers
+        )
+    return tuple(round(value, 3) for value in selected)
+
+
 def _extract_panel_geometry(msp, structural_layers=None):
     """Inferencia universal da area interna e linhas a partir da layer Paineis."""
     h_groups, v_groups = _panel_axis_groups(msp, structural_layers=structural_layers)
@@ -1275,7 +1475,7 @@ def _filter_obstacles_by_outline(obstacles: list[dict], outline) -> list[dict]:
             valid.append(obstacle)
     return valid
 
-def _extract_laj_from_dxf(dxf_path: str) -> dict:
+def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict:
     """Extrai campos LAJ do DXF recorte."""
     result = {'_confianca_extracao': 0.4}
     try:
@@ -1299,7 +1499,32 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
         panel_linhas_v = []
         panel_linhas_h = []
         panel_box = None
-        if panel_geom:
+        local_panel_box = _local_structural_box_for_label(
+            msp,
+            structural_layers,
+            elemento_id,
+            expand_boundaries=not result['_has_diagonal_geometry'],
+        )
+        if local_panel_box and panel_geom:
+            global_box = panel_geom[0]
+            global_area = max(
+                (global_box[2] - global_box[0]) * (global_box[3] - global_box[1]),
+                1.0,
+            )
+            local_area = (local_panel_box[2] - local_panel_box[0]) * (local_panel_box[3] - local_panel_box[1])
+            # A ancoragem só substitui a malha global quando revela uma ilha
+            # realmente compacta. Ajustes marginais preservam o caminho já
+            # certificado do golden e evitam troca de borda por ruído.
+            if local_area / global_area > 0.75:
+                local_panel_box = None
+        if local_panel_box:
+            # Evidência local vence o bbox global do recorte. As linhas internas
+            # serão reconstituídas a partir do próprio contorno/grade local mais
+            # abaixo; não reutilizamos offsets da malha global.
+            panel_box = local_panel_box
+            slab_box = local_panel_box
+            result['_local_label_geometry'] = True
+        elif panel_geom:
             panel_box, panel_linhas_v, panel_linhas_h = panel_geom
             # A layer Paineis representa a area interna da laje. O bbox amplo
             # de layer 3 pode conter vigas/pilares de contexto ao redor.
@@ -1323,10 +1548,17 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
                     panel_linhas_h = complex_h
                     result['_stog_clip_unions'] = True
                 slab_box = source_form_box
-        panel_union_outline = _extract_panel_union_outline(msp, slab_box)
-        outline = panel_union_outline or _extract_outline_polygon(msp, slab_box)
-        if not outline:
-            outline = _extract_stepped_outline_from_segments(msp, slab_box, contour_layers)
+        if local_panel_box:
+            # Contornos fechados amplos pertencem, com frequência, ao recorte
+            # inteiro. Para a ilha ancorada só aceitamos reconstrução local.
+            outline = _extract_stepped_outline_from_segments(
+                msp, slab_box, structural_layers
+            )
+        else:
+            panel_union_outline = _extract_panel_union_outline(msp, slab_box)
+            outline = panel_union_outline or _extract_outline_polygon(msp, slab_box)
+            if not outline:
+                outline = _extract_stepped_outline_from_segments(msp, slab_box, contour_layers)
         outline_coords = None
         if outline:
             old_box = slab_box
@@ -1657,13 +1889,18 @@ def extrair_ficha_laje(
     if obra_name and obra_root_path is None:
         obra_root_path = DADOS_OBRAS_ROOT / obra_name
     fase4 = _lookup_fase4_laj(elemento_id, obra_root_path) if obra_root_path else None
-    dxf_data = _extract_laj_from_dxf(recorte_path)
+    dxf_data = _extract_laj_from_dxf(recorte_path, elemento_id)
     dxf_conf = dxf_data.pop('_confianca_extracao', 0.4)
     dxf_data.pop('_extracao_erro', None)
     has_diagonal_geometry = bool(dxf_data.pop('_has_diagonal_geometry', False))
+    # Compatibilidade dos recortes antigos: a recuperação histórica de
+    # contorno complexo continua apenas quando NÃO existe uma ilha N2 local
+    # inequívoca. Quando a evidência local existe, ela nunca é substituída por
+    # SA/N1 (a comparação posterior continua capaz de acusar divergência).
     sa_outline = _lookup_sa_outline(fase4, elemento_id, dxf_data)
-    if has_diagonal_geometry and sa_outline:
+    if has_diagonal_geometry and sa_outline and not dxf_data.get('_local_label_geometry'):
         dxf_data.update(sa_outline)
+    if has_diagonal_geometry:
         dxf_data['linhas_verticais'] = _fill_oversized_panel_spans(
             dxf_data.get('linhas_verticais') or [], float(dxf_data.get('comprimento') or 0)
         )

@@ -37,6 +37,27 @@ def test_extracts_dimensions_from_geometry_and_cotas_with_arbitrary_layer(tmp_pa
     assert ficha["largura"] == 183.0
 
 
+def test_label_local_component_does_not_absorb_neighbor_panel_grid(tmp_path):
+    """O rótulo exato isola a ilha local, mesmo com vizinho maior na mesma layer."""
+    doc = ezdxf.new("R2018")
+    msp = doc.modelspace()
+    layer = "MALHA_ESTRUTURAL"
+    _add_rect_lines(msp, layer, 405.5, 71.0)
+    # Contexto do recorte: maior e separado por uma folga, mas na mesma layer.
+    for x0, y0, x1, y1 in ((450, 0, 1100, 0), (1100, 0, 1100, 240),
+                            (1100, 240, 450, 240), (450, 240, 450, 0)):
+        msp.add_line((x0, y0), (x1, y1), dxfattribs={"layer": layer})
+    msp.add_text("L900", dxfattribs={"layer": "4"}).set_placement((180, 35))
+    path = tmp_path / "local_label_component.dxf"
+    doc.saveas(path)
+
+    ficha = _extract_laj_from_dxf(str(path), "L900")
+
+    assert ficha["comprimento"] == 405.5
+    assert ficha["largura"] == 71.0
+    assert ficha["_local_label_geometry"] is True
+
+
 def test_full_shallow_slab_is_not_classified_as_hlaz(tmp_path):
     doc = ezdxf.new("R2018")
     msp = doc.modelspace()
@@ -260,7 +281,7 @@ def test_long_noisy_panel_axis_is_canonicalized_to_preferred_modules():
     assert lengths[-1] == 211.0
 
 
-def test_complex_sa_outline_replaces_rectangular_fallback(tmp_path, monkeypatch):
+def test_diagonal_recorte_keeps_legacy_complex_outline_without_local_evidence(tmp_path, monkeypatch):
     obra = tmp_path / "Obra_TESTE"
     json_dir = obra / "Fase-4_Sincronizacao" / "JSON_Lajes"
     json_dir.mkdir(parents=True)
@@ -300,5 +321,6 @@ def test_complex_sa_outline_replaces_rectangular_fallback(tmp_path, monkeypatch)
 
     assert ficha["comprimento"] == 400.0
     assert ficha["largura"] == 500.0
+    # Sem ilha N2 ancorada, preserva-se a compatibilidade dos recortes legados.
     assert ficha["area_cm2"] == 170000.0
     assert len(ficha["coordenadas"]) == 7
