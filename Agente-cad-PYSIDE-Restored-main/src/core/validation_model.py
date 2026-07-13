@@ -101,13 +101,10 @@ def calcular_selos_item(validated_fields, na_fields, campos_obrigatorios) -> dic
       pro antigo `is_fully_validated`).
     - **rosa**: todo campo obrigatório tem origem `humano_portal` OU está
       em `na_fields`.
-    - **laranja**: todo campo obrigatório tem origem `qa_agente` OU
-      `humano_app` OU está em `na_fields` (agente sozinho completa, ou
-      agente+humano juntos completam), **E pelo menos 1 campo tem origem
-      `qa_agente` de fato** — pedido do dono, textual: "todos os campos
-      validados laranjas OU alguns laranja e alguns azuis". Cobertura
-      100% só com `humano_app` (zero campo laranja) NÃO conta — isso é
-      só o selo azul, não o laranja.
+    - **laranja**: todo campo obrigatório tem origem `qa_agente` OU está
+      em `na_fields` — isolado, igual azul/rosa, sem mistura com outras
+      origens (correção do dono: "laranja seja só qa agente mesmo, pra
+      ficar isolado").
 
     Lista vazia de `campos_obrigatorios` nunca gera selo (sem campo, não
     há o que "completar")."""
@@ -125,12 +122,8 @@ def calcular_selos_item(validated_fields, na_fields, campos_obrigatorios) -> dic
                 return False
         return True
 
-    tem_algum_laranja = any(
-        ORIGEM_QA_AGENTE in origens_do_campo(dados, field_id) for field_id in obrigatorios
-    )
-
     return {
         "azul": _cobertura({ORIGEM_HUMANO_APP}),
         "rosa": _cobertura({ORIGEM_HUMANO_PORTAL}),
-        "laranja": tem_algum_laranja and _cobertura({ORIGEM_QA_AGENTE, ORIGEM_HUMANO_APP}),
+        "laranja": _cobertura({ORIGEM_QA_AGENTE}),
     }

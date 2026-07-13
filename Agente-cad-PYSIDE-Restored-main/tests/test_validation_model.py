@@ -111,14 +111,14 @@ def test_calcular_selos_laranja_puro():
     assert selos == {"azul": False, "rosa": False, "laranja": True}
 
 
-def test_calcular_selos_laranja_mix_com_azul():
-    """Pedido do dono: "todos os campos validados laranjas ou alguns
-    laranja e alguns azuis" — mix conta pro selo laranja."""
+def test_calcular_selos_laranja_e_isolado_mix_com_azul_nao_conta():
+    """Correção do dono: laranja fica ISOLADO (só qa_agente) — mix com
+    azul NÃO conta mais pro selo laranja (era a regra anterior, revogada)."""
     dados = adicionar_validacao_campo({}, "nivel", ORIGEM_QA_AGENTE)
     dados = adicionar_validacao_campo(dados, "classificacao", ORIGEM_HUMANO_APP)
     selos = calcular_selos_item(dados, na_fields=[], campos_obrigatorios=["nivel", "classificacao"])
-    assert selos["laranja"] is True
-    assert selos["azul"] is False  # nivel não foi humano_app
+    assert selos["laranja"] is False  # só 1 dos 2 campos é qa_agente
+    assert selos["azul"] is False  # só 1 dos 2 campos é humano_app
 
 
 def test_calcular_selos_rosa_puro():
