@@ -26,6 +26,7 @@ function fichaBase(overrides: Partial<fichaApi.FichaData> = {}): fichaApi.FichaD
     titulo: "Pilar P1",
     obra_rotulo: "Obra Teste",
     pavimento_label: "Térreo",
+    pavimento_code: null,
     campos: { Classificação: "Pilar de canto", "Dimensões": "30 x 60 cm" },
     atencao: "",
     svg: { n1: "/api/v1/ficha/ITEMCODE01/svg/n1", n3: "/api/v1/ficha/ITEMCODE01/svg/n3" },
@@ -177,5 +178,32 @@ describe("Ficha do Item — 404 genérico", () => {
 
     render(<FichaPage params={{ code: "NAOEXISTE1" }} />);
     expect(await screen.findByText("Código não encontrado")).toBeInTheDocument();
+  });
+});
+
+describe("Ficha do Item — link recíproco pro pavimento [2026-07-13]", () => {
+  it("mostra link pro pavimento quando pavimento_code vem preenchido", async () => {
+    jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({
+      status: "ok",
+      data: fichaBase({ pavimento_code: "PAVCODE01" }),
+    });
+
+    render(<FichaPage params={{ code: "ITEMCODE01" }} />);
+    await screen.findByText("Pilar P1");
+
+    const link = screen.getByRole("link", { name: /abrir ficha do pavimento térreo/i });
+    expect(link).toHaveAttribute("href", "/pavimento/PAVCODE01");
+  });
+
+  it("sem link quando pavimento_code é null (ainda não publicado)", async () => {
+    jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({
+      status: "ok",
+      data: fichaBase({ pavimento_code: null }),
+    });
+
+    render(<FichaPage params={{ code: "ITEMCODE01" }} />);
+    await screen.findByText("Pilar P1");
+
+    expect(screen.queryByRole("link", { name: /abrir ficha do pavimento/i })).not.toBeInTheDocument();
   });
 });

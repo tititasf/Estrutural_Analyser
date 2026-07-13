@@ -67,3 +67,49 @@ def test_existing_unvalidated_distant_cut_is_pruned_but_human_link_is_preserved(
     linked = target["links"]["laje_visao_corte"]["cut_view_geom"]
     assert len(linked) == 1
     assert linked[0]["validated"] is True
+
+
+def test_existing_validated_inference_is_pruned_but_validated_human_link_is_preserved():
+    window = _window([])
+    target = _slab()
+    target["links"] = {
+        "laje_visao_corte": {
+            "cut_view_geom": [
+                {
+                    "points": _t_shape(-30), "is_inferred": True,
+                    "validated": True, "source": "geometry_near_slab_boundary",
+                },
+                {
+                    "points": _t_shape(-30), "validated": True,
+                    "source": "human_ui",
+                },
+            ]
+        }
+    }
+
+    window._auto_link_slab_cut_views([target])
+
+    linked = target["links"]["laje_visao_corte"]["cut_view_geom"]
+    assert len(linked) == 1
+    assert linked[0]["source"] == "human_ui"
+
+
+def test_prune_neighbor_level_removes_stale_inference_even_when_slab_is_sealed():
+    window = MainWindow.__new__(MainWindow)
+    source = {
+        "id": "s2", "name": "L2", "fields": {"laje_nivel": "855.12"},
+        "links": {"laje_nivel": {"label": [{"text": "855.12", "role": "Nivel CAD"}]}},
+    }
+    target = {
+        "id": "s1", "name": "L1", "is_validated": True,
+        "validated_fields": ["laje_vizinhas_niveis"],
+        "links": {"laje_vizinhas_niveis": {"neighbor_east": [{
+            "text": "206.5", "source": "orthogonal_neighbor_level",
+            "source_slab": "L2", "is_inferred": True,
+        }]}},
+    }
+
+    removed = window._prune_stale_neighbor_level_links([target, source])
+
+    assert removed == 1
+    assert target["links"]["laje_vizinhas_niveis"]["neighbor_east"] == []

@@ -88,6 +88,11 @@ def public_db_com_item(tmp_path: Path) -> tuple[Path, Path]:
         "('ITEMCODE01', 'item', 'obra-1', ?, 'TERREO', 'pilares', 'P1', 'pilar', 'Pilar P1', 0)",
         (str(obra_dir),),
     )
+    conn.execute(
+        "INSERT INTO public_codes (code, kind, obra_id, obra_dir, pavimento, obra_rotulo, revoked) "
+        "VALUES ('PAVCODE01', 'pavimento', 'obra-1', ?, 'TERREO', 'Obra Teste', 0)",
+        (str(obra_dir),),
+    )
     conn.commit()
     conn.close()
     return db_path, obra_dir
@@ -133,6 +138,7 @@ def test_ficha_completa_com_n1_n3_lv(public_db_com_item):
     assert body["titulo"] == "Pilar P1"
     assert body["obra_rotulo"] is None or isinstance(body["obra_rotulo"], str)
     assert body["pavimento_label"] == "Térreo"
+    assert body["pavimento_code"] == "PAVCODE01"
     assert isinstance(body["campos"], dict)
     assert body["atencao"] == ""
     assert body["svg"]["n1"] == "/api/v1/ficha/ITEMCODE01/svg/n1"
@@ -151,6 +157,7 @@ def test_ficha_svg_n3_null_quando_ausente(public_db_sem_n3: Path):
     assert body["svg"]["n1"] is not None
     assert body["svg"]["n3"] is None
     assert body["tem_lv"] is False
+    assert body["pavimento_code"] is None
 
 
 def test_ficha_404_generico_para_codigo_de_obra(public_db_com_item):

@@ -14,6 +14,7 @@ jest.mock("@/lib/api/pavimento");
 function pavimentoBase(overrides: Partial<pavimentoApi.PavimentoData> = {}): pavimentoApi.PavimentoData {
   return {
     obra_rotulo: "Obra ·· A3F",
+    obra_code: null,
     pavimento_label: "Térreo",
     itens: [
       { code: "ITEM_P1", titulo: "Pilar P1", tipo: "pilar" },
@@ -79,5 +80,25 @@ describe("Ficha do Pavimento", () => {
 
     render(<PavimentoPage params={{ code: "OBRACODE1" }} />);
     expect(await screen.findByText("Código não encontrado")).toBeInTheDocument();
+  });
+
+  it("mostra link pra obra quando obra_code vem preenchido [2026-07-13]", async () => {
+    jest.spyOn(pavimentoApi, "buscarPavimento").mockResolvedValue({
+      status: "ok", data: pavimentoBase({ obra_code: "OBRACODEP" }),
+    });
+
+    render(<PavimentoPage params={{ code: "PAVCODE1" }} />);
+    const link = await screen.findByRole("link", { name: /abrir índice da obra/i });
+    expect(link).toHaveAttribute("href", "/obra/OBRACODEP");
+  });
+
+  it("sem link quando obra_code é null (obra ainda não publicada)", async () => {
+    jest.spyOn(pavimentoApi, "buscarPavimento").mockResolvedValue({
+      status: "ok", data: pavimentoBase({ obra_code: null }),
+    });
+
+    render(<PavimentoPage params={{ code: "PAVCODE1" }} />);
+    await screen.findByText("Obra ·· A3F");
+    expect(screen.queryByRole("link", { name: /abrir índice da obra/i })).not.toBeInTheDocument();
   });
 });

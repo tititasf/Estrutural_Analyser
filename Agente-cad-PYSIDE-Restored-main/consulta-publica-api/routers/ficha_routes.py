@@ -36,7 +36,7 @@ def obter_ficha(code: str, response: Response, conn: sqlite3.Connection = Depend
     if row is None:
         return _nao_encontrado()
 
-    ficha = montar_ficha(row)
+    ficha = montar_ficha(conn, row)
     if ficha is None:
         # Inclui kind='obra' (fora de escopo deste endpoint) E item cuja
         # fonte real sumiu desde a publicação — ambos tratados igual: 404

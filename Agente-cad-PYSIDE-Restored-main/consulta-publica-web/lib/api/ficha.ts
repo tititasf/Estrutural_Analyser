@@ -6,6 +6,7 @@ export interface FichaData {
   titulo: string;
   obra_rotulo: string | null;
   pavimento_label: string;
+  pavimento_code: string | null;
   campos: Record<string, string>;
   atencao: string;
   svg: { n1: string | null; n3: string | null };

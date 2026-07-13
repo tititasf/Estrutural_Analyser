@@ -129,6 +129,7 @@ export default function FichaPage({ params }: { params: { code: string } }) {
       <FichaHeader
         obraRotulo={ficha.obra_rotulo}
         pavimentoLabel={ficha.pavimento_label}
+        pavimentoCode={ficha.pavimento_code}
         tipo={ficha.tipo}
         titulo={ficha.titulo}
         code={ficha.code}

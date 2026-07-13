@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Copy } from "lucide-react";
+import { ArrowLeft, Copy, Layers } from "lucide-react";
+import Link from "next/link";
 import { TypeIcon, type TipoElemento } from "@/components/ui/TypeIcon";
 import styles from "./FichaHeader.module.css";
 
 interface FichaHeaderProps {
   obraRotulo: string | null;
   pavimentoLabel: string;
+  pavimentoCode: string | null;
   tipo: string;
   titulo: string;
   code: string;
@@ -20,7 +22,7 @@ function ehTipoElemento(tipo: string): tipo is TipoElemento {
 
 /** Cabeçalho da Ficha — breadcrumb neutro (nunca expõe item_id/pavimento
  * cru, só os rótulos públicos), tipo+título, código + copiar (AC1/AC3). */
-export function FichaHeader({ obraRotulo, pavimentoLabel, tipo, titulo, code, onVoltar }: FichaHeaderProps) {
+export function FichaHeader({ obraRotulo, pavimentoLabel, pavimentoCode, tipo, titulo, code, onVoltar }: FichaHeaderProps) {
   const [copiado, setCopiado] = useState(false);
 
   async function copiarCodigo() {
@@ -40,7 +42,18 @@ export function FichaHeader({ obraRotulo, pavimentoLabel, tipo, titulo, code, on
           <ArrowLeft size={20} aria-hidden="true" /> Voltar
         </button>
         {obraRotulo && <span> · {obraRotulo}</span>}
-        <span> · {pavimentoLabel}</span>
+        {pavimentoCode ? (
+          <Link
+            href={`/pavimento/${pavimentoCode}`}
+            className={styles.pavimentoLink}
+            aria-label={`Abrir ficha do pavimento ${pavimentoLabel} (código ${pavimentoCode})`}
+          >
+            {" "}
+            · <Layers size={14} aria-hidden="true" /> {pavimentoLabel}
+          </Link>
+        ) : (
+          <span> · {pavimentoLabel}</span>
+        )}
       </div>
 
       <div className={styles.tituloLinha}>

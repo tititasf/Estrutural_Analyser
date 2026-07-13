@@ -19,6 +19,7 @@ from typing import Optional
 
 from portal.app import ficha_reader
 
+from .code_lookup import code_da_obra, code_do_pavimento
 from .ficha_service import pavimento_label
 
 
@@ -37,14 +38,6 @@ def _listar_itens_do_pavimento(conn: sqlite3.Connection, obra_id: str, pavimento
     ]
 
 
-def _code_do_pavimento(conn: sqlite3.Connection, obra_id: str, pavimento: str) -> Optional[str]:
-    row = conn.execute(
-        "SELECT code FROM public_codes WHERE obra_id = ? AND pavimento = ? AND kind = 'pavimento' AND revoked = 0",
-        (obra_id, pavimento),
-    ).fetchone()
-    return row["code"] if row else None
-
-
 def montar_indice_obra(conn: sqlite3.Connection, row) -> Optional[dict]:
     """Monta a resposta de `/obra/{code}` a partir de uma linha resolvida de
     `public_codes` com `kind='obra'`. Retorna None se `kind != 'obra'` —
@@ -60,7 +53,7 @@ def montar_indice_obra(conn: sqlite3.Connection, row) -> Optional[dict]:
     resultado_pavimentos = []
     for pavimento in pavimentos_reais:
         resultado_pavimentos.append({
-            "code": _code_do_pavimento(conn, obra_id, pavimento),
+            "code": code_do_pavimento(conn, obra_id, pavimento),
             "pavimento_label": pavimento_label(pavimento),
             "itens": _listar_itens_do_pavimento(conn, obra_id, pavimento),
         })
@@ -83,6 +76,7 @@ def montar_ficha_pavimento(conn: sqlite3.Connection, row) -> Optional[dict]:
 
     return {
         "obra_rotulo": row["obra_rotulo"],
+        "obra_code": code_da_obra(conn, obra_id),
         "pavimento_label": pavimento_label(pavimento),
         "itens": _listar_itens_do_pavimento(conn, obra_id, pavimento),
     }

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Search } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Building2, Search } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ItemListRow } from "@/components/obra/ItemListRow";
@@ -118,7 +119,19 @@ export default function PavimentoPage({ params }: { params: { code: string } }) 
         </button>
         <div className={styles.titulos}>
           <span className={styles.pavimentoLabel}>{pavimento.pavimento_label}</span>
-          {pavimento.obra_rotulo && <span className={styles.obraRotulo}>{pavimento.obra_rotulo}</span>}
+          {pavimento.obra_rotulo && (
+            pavimento.obra_code ? (
+              <Link
+                href={`/obra/${pavimento.obra_code}`}
+                className={styles.obraRotulo}
+                aria-label={`Abrir índice da obra ${pavimento.obra_rotulo} (código ${pavimento.obra_code})`}
+              >
+                <Building2 size={14} aria-hidden="true" /> {pavimento.obra_rotulo}
+              </Link>
+            ) : (
+              <span className={styles.obraRotulo}>{pavimento.obra_rotulo}</span>
+            )
+          )}
         </div>
       </header>
 

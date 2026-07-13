@@ -93,6 +93,7 @@ def test_pavimento_resolve_direto_para_seus_proprios_itens(tmp_path: Path):
     assert resp.status_code == 200
     body = resp.json()
     assert body["obra_rotulo"] == "Obra Pavimento"
+    assert body["obra_code"] == "OBRACODEP"
     assert body["pavimento_label"] == "Térreo"
     assert {it["code"] for it in body["itens"]} == {"ITEMP1PAV"}
     # nunca o item do OUTRO pavimento (COBERTURA) vaza aqui

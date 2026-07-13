@@ -3,6 +3,7 @@ import type { ObraItem } from "@/lib/api/obra";
 
 export interface PavimentoData {
   obra_rotulo: string | null;
+  obra_code: string | null;
   pavimento_label: string;
   itens: ObraItem[];
 }

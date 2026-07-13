@@ -14,6 +14,7 @@ SVG nunca é embutido aqui — só a URL (`/ficha/{code}/svg/{nivel}`, STORY-06)
 
 from __future__ import annotations
 
+import sqlite3
 import sys
 from pathlib import Path
 from typing import Optional
@@ -23,6 +24,8 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from portal.app import ficha_reader  # noqa: E402
+
+from .code_lookup import code_do_pavimento
 
 _PAVIMENTO_LABELS = {
     "TERREO": "Térreo",
@@ -99,7 +102,7 @@ def resolver_item_e_fichas(row) -> Optional[tuple[Path, dict, Optional[Path]]]:
     return obra_dir, item, dir_fichas
 
 
-def montar_ficha(row) -> Optional[dict]:
+def montar_ficha(conn: sqlite3.Connection, row) -> Optional[dict]:
     """Monta a resposta pública de `/ficha/{code}` a partir da linha
     resolvida de `public_codes` (STORY-03). Retorna None se o item não for
     encontrado na fonte real (estado_<pav>.json pode ter mudado desde a
@@ -121,6 +124,7 @@ def montar_ficha(row) -> Optional[dict]:
         "titulo": row["titulo_publico"] or item["titulo"],
         "obra_rotulo": row["obra_rotulo"],
         "pavimento_label": pavimento_label(row["pavimento"]),
+        "pavimento_code": code_do_pavimento(conn, row["obra_id"], row["pavimento"]),
         "campos": item["campos"],
         "atencao": item["atencao"],
         "svg": {
