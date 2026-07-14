@@ -1,0 +1,65 @@
+{
+  "schema": "arete.qa_class_profile/v1",
+  "class": "FV",
+  "version": "1.1.0",
+  "authority": "diagnostic_only until the FV adapter is promoted; segment checks do not approve the full beam",
+  "model": "Fundo de viga é um contrato próprio: segmentos de fundo, dimensão por segmento, apoios inicial/final, furos e recortes. LV nunca é fallback semântico de FV.",
+  "manual_guides": [
+    "docs/ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md",
+    "src/ui/widgets/preficha_fundo_html.py",
+    "src/core/beam_interpreters/fundo_viga.py",
+    "src/core/fv_generation_contract.py"
+  ],
+  "n1": {
+    "table": "beams",
+    "payload": "data_json",
+    "families": {
+      "identity": ["fields.nome", "fields.numero", "fields.dimensao"],
+      "segments": ["links.viga_segs.seg_bottom", "fields.viga_fundo_seg_N_dim", "viga_fundo_seg_N_exists"],
+      "supports": ["fields.viga_fundo_seg_N_local_ini/fim (apoio de cada segmento)", "links.apoios.inicio/fim (limites globais da viga; não são equivalentes aos apoios do segmento)"],
+      "exceptions": ["links.cortes", "links.aberturas", "holes", "preficha_segmentos"]
+    },
+    "probes": {
+      "first_segment_support_and_dimension": {
+        "question": "O primeiro segmento de fundo de {item} tem dimensão e apoio inicial coerentes entre campos e vínculos?",
+        "fields": [
+          {"id": "fv.name", "class": "FV", "item": "{item}", "source": "payload", "path": "fields.nome", "transform": "entity"},
+          {"id": "fv.segment.exists", "class": "FV", "item": "{item}", "source": "payload", "path": "viga_fundo_seg_1_exists", "transform": "raw"},
+          {"id": "fv.segment.dim", "class": "FV", "item": "{item}", "source": "payload", "path": "fields.viga_fundo_seg_1_dim", "transform": "dimension"},
+          {"id": "fv.segment.bbox", "class": "FV", "item": "{item}", "source": "payload", "path": "links.viga_segs.seg_bottom.0.points", "transform": "bbox"},
+          {"id": "fv.support.field", "class": "FV", "item": "{item}", "source": "payload", "path": "fields.viga_fundo_seg_1_local_ini", "transform": "entity"},
+          {"id": "fv.global.support.link", "class": "FV", "item": "{item}", "source": "payload", "path": "links.apoios.inicio.0.text", "transform": "entity"},
+          {"id": "pillar.name", "class": "PIL", "item_from": "fv.support.field", "source": "payload", "path": "name.label.0.text", "transform": "entity"}
+        ],
+        "checks": [
+          {"id": "beam_identity", "op": "same_entity", "left": "fv.name", "value": "{item}"},
+          {"id": "segment_exists", "op": "one_of", "left": "fv.segment.exists", "value": [true, 1, "1"]},
+          {"id": "dimension_present", "op": "present", "left": "fv.segment.dim"},
+          {"id": "geometry_present", "op": "present", "left": "fv.segment.bbox"},
+          {"id": "global_support_is_independently_present", "op": "present", "left": "fv.global.support.link", "reason": "o limite global da viga é rastreável, sem equipará-lo ao apoio do primeiro segmento"},
+          {"id": "support_exists_as_pillar", "op": "same_entity", "left": "fv.support.field", "right": "pillar.name"}
+        ]
+      }
+    }
+  },
+  "n3": {
+    "motor": "ROBOT_FV_N3_N4",
+    "variants": ["FUNDO_C"],
+    "identity_path": "name",
+    "expected_layers": ["NOMENCLATURA", "Painéis"],
+    "contract_families": {
+      "base": ["contract_version", "motor_id", "name", "number", "floor", "side", "total_width", "total_height"],
+      "segments": ["panels[].width", "panels[].dim_text", "panels[].altura_total", "texto_esq", "texto_dir", "row_break"],
+      "exceptions": ["holes", "observations", "pillar_left/right", "apoio_inicial/final"],
+      "provenance": ["motor_id", "contract_version", "segments_rich"]
+    },
+    "equivalence_strategy": [
+      "nome Vxxx.C e apoios devem aparecer no DXF",
+      "quantidade/ordem dos segmentos deve corresponder ao contrato",
+      "dimensão é isolada por segmento; dimensão global não substitui segmento",
+      "furos/recortes exigem metadado ou inspeção visual",
+      "nenhum campo LV pode preencher lacuna FV"
+    ]
+  },
+  "sample": {"project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386", "item": "V301"}
+}

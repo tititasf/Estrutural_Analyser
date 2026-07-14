@@ -31,6 +31,9 @@ def test_build_ficha_motor_item_embeds_dxf_json_and_hashes(tmp_path):
     assert 'abertura_A_1' in document
     assert manifesto['authority'].startswith('visual_iteration_only')
     assert len(manifesto['artifacts'][0]['dxf_sha256']) == 64
+    assert len(manifesto['artifacts'][0]['svg_sha256']) == 64
+    assert manifesto['html'] == str(index)
+    assert len(manifesto['html_sha256']) == 64
 
 
 def test_build_ficha_reuses_svg_cache_and_tracks_contract(tmp_path):

@@ -49,6 +49,10 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _sha256_text(value: str) -> str:
+    return hashlib.sha256(value.encode('utf-8')).hexdigest()
+
+
 def build_ficha(
     *, classe: str, item: str, nivel: str,
     artifacts: list[tuple[str, Path]],
@@ -108,6 +112,7 @@ def build_ficha(
             )
         manifesto.append({
             'label': label, 'dxf': str(path), 'dxf_sha256': dxf_hash,
+            'svg_sha256': _sha256_text(svg),
             'json': str(json_path) if json_path else None,
             'json_sha256': json_hash,
             'contract': str(contract_path) if contract_path else None,
@@ -140,9 +145,6 @@ def build_ficha(
         }),
         'authority': 'visual_iteration_only; no N1 interpretation; no DB write',
     }
-    (output_dir / 'manifesto.json').write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8'
-    )
     document = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <title>{html.escape(classe)} {html.escape(nivel)} {html.escape(item)}</title>
 <style>
@@ -158,6 +160,11 @@ code{{color:#d8ad61}}
 {''.join(cards)}</body></html>'''
     index = output_dir / 'index.html'
     index.write_text(document, encoding='utf-8')
+    manifest['html'] = str(index)
+    manifest['html_sha256'] = _sha256(index)
+    (output_dir / 'manifesto.json').write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8'
+    )
     return index
 
 

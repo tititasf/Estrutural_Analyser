@@ -1,0 +1,124 @@
+{
+  "schema": "arete.qa_class_profile/v1",
+  "class": "PIL",
+  "version": "1.4.0",
+  "authority": "coverage_ready; apply remains diagnostic_only until human QG7 promotion",
+  "model": "Pilar é interpretado por geometria, identidade, faces A-H e relações localizadas com lajes/vigas. PARA e PASSA são contratos distintos; CIMA é único; GRADES é parte separada.",
+  "manual_guides": [
+    "docs/INTERPRETACAO-PILARES-ABCD.md",
+    "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260630_203509/pilares/interpretacao_abcd.html"
+  ],
+  "protected_guides": ["interpretacao_abcd.html"],
+  "n1": {
+    "table": "pillars",
+    "payload": "links_json",
+    "geometry": "points_json",
+    "families": {
+      "identity_geometry": ["name.label", "pilar_segs.segments", "points_json", "extra_data_json.fields.Dimensão (b x h)"],
+      "faces": ["p_s{face}_l1_n", "p_s{face}_v_passa_*", "p_s{face}_v_chega_*", "connections.lajes_conectadas"],
+      "para": ["vazio_topo", "aberturas_vigas_que_param", "aberturas_vigas_que_chegam", "altura/niveis"],
+      "passa": ["viga_mais_profunda", "vazio_topo", "neutralizacao_de_chegadas", "altura/niveis"],
+      "assembly": ["grades", "parafusos", "espacamentos A/B", "sarrafo 7 externo", "sarrafo 3.5 interno"]
+    },
+    "coverage_adapter": {
+      "cli": "scripts/arete/qa_pil_coverage.py",
+      "schema": "arete.qa_pil_coverage/v1",
+      "required_families": ["identity_geometry", "faces", "para", "passa", "assembly"],
+      "face_slots": ["passa_esq", "passa_dir", "ch1", "ch2", "ch3"],
+      "human_checkpoints": [
+        "regra estrutural ambigua ou lacuna do manual",
+        "veredito visual N1/N3",
+        "promocao QG7 para validation_ready",
+        "promocao RAG T1/T2"
+      ]
+    },
+    "probes": {
+      "face_beam_identity_dimension_contact": {
+        "question": "A viga vinculada à face {face} de {item} conserva identidade, dimensão, rastro e contato geométrico?",
+        "fields": [
+          {"id": "pil.face.beam_name", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_passa_esq_n.label.0.text", "transform": "entity"},
+          {"id": "pil.face.beam_dim", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_passa_esq_d.label.0.text", "transform": "dimension"},
+          {"id": "pil.face.trace", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_passa_esq_n.label.0", "transform": "trace"},
+          {"id": "pil.bbox", "class": "PIL", "item": "{item}", "source": "geometry", "path": "", "transform": "bbox"},
+          {"id": "beam.name", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "fields.nome", "transform": "entity"},
+          {"id": "beam.dim", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "fields.dimensao", "transform": "dimension"},
+          {"id": "beam.bottom_bboxes", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "links.viga_segs.seg_bottom.*.points", "transform": "bboxes"}
+        ],
+        "checks": [
+          {"id": "identity", "op": "same_entity", "left": "pil.face.beam_name", "right": "beam.name"},
+          {"id": "dimension", "op": "dimension_equal", "left": "pil.face.beam_dim", "right": "beam.dim", "order_sensitive": true},
+          {"id": "trace", "op": "equal", "left": "pil.face.trace", "value": true},
+          {"id": "contact", "op": "any_bbox_intersects", "left": "pil.bbox", "right": "beam.bottom_bboxes"}
+        ]
+      },
+      "face_pass_slot_identity_dimension_contact": {
+        "question": "O slot {slot} da face {face} de {item} conserva identidade, dimensao, rastro e contato?",
+        "fields": [
+          {"id": "pil.face.beam_name", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_{slot}_n.label.0.text", "transform": "entity"},
+          {"id": "pil.face.beam_dim", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_{slot}_d.label.0.text", "transform": "dimension"},
+          {"id": "pil.face.trace", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_{slot}_n.label.0", "transform": "trace"},
+          {"id": "pil.bbox", "class": "PIL", "item": "{item}", "source": "geometry", "path": "", "transform": "bbox"},
+          {"id": "beam.name", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "fields.nome", "transform": "entity"},
+          {"id": "beam.dim", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "fields.dimensao", "transform": "dimension"},
+          {"id": "beam.bottom_bboxes", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "links.viga_segs.seg_bottom.*.points", "transform": "bboxes"}
+        ],
+        "checks": [
+          {"id": "identity", "op": "same_entity", "left": "pil.face.beam_name", "right": "beam.name"},
+          {"id": "dimension", "op": "dimension_equal", "left": "pil.face.beam_dim", "right": "beam.dim", "order_sensitive": true},
+          {"id": "trace", "op": "equal", "left": "pil.face.trace", "value": true},
+          {"id": "contact", "op": "any_bbox_intersects", "left": "pil.bbox", "right": "beam.bottom_bboxes"}
+        ]
+      },
+      "face_slot_identity_dimension_contact": {
+        "question": "O slot {slot} da face {face} de {item} conserva identidade, dimensao, rastro e contato cross-classe?",
+        "fields": [
+          {"id": "pil.face.beam_name", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_{slot}_n.label.0.text", "transform": "entity"},
+          {"id": "pil.face.beam_dim", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_{slot}_d.label.0.text", "transform": "dimension"},
+          {"id": "pil.face.trace", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_s{face}_v_{slot}_n.label.0", "transform": "trace"},
+          {"id": "pil.bbox", "class": "PIL", "item": "{item}", "source": "geometry", "path": "", "transform": "bbox"},
+          {"id": "beam.name", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "fields.nome", "transform": "entity"},
+          {"id": "beam.dim", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "fields.dimensao", "transform": "dimension"},
+          {"id": "beam.bottom_bboxes", "class": "FV", "item_from": "pil.face.beam_name", "source": "payload", "path": "links.viga_segs.seg_bottom.*.points", "transform": "bboxes"}
+        ],
+        "checks": [
+          {"id": "identity", "op": "same_entity", "left": "pil.face.beam_name", "right": "beam.name"},
+          {"id": "dimension", "op": "dimension_equal", "left": "pil.face.beam_dim", "right": "beam.dim", "order_sensitive": true},
+          {"id": "trace", "op": "equal", "left": "pil.face.trace", "value": true},
+          {"id": "contact", "op": "any_bbox_intersects", "left": "pil.bbox", "right": "beam.bottom_bboxes"}
+        ]
+      }
+    }
+  },
+  "n3": {
+    "motor": "ROBOT_PL_N3_N4",
+    "variants": ["CIMA", "ABCD_PARA", "ABCD_PASSA", "GRADES_PARA", "GRADES_PASSA"],
+    "identity_path": "nome",
+    "expected_layers": ["NOMENCLATURA", "Painéis"],
+    "contract_families": {
+      "base": ["nome", "numero", "comprimento", "largura", "altura", "nivel_saida", "nivel_chegada", "modo_distribuicao"],
+      "faces": ["h1_X..h5_X", "larg1_X..larg3_X", "laje_X", "posicao_laje_X", "vazio_laje_X", "abertura_X_N"],
+      "assembly": ["grade_1..3", "distancia_1..2", "par_1_2..par_8_9"],
+      "provenance": ["_sa_meta", "_sa_mode_contract", "_sa_mode_variant", "paineis_intervals_X"]
+    },
+    "equivalence_strategy": [
+      "contrato PARA e PASSA devem permanecer separados",
+      "nome e faces devem aparecer no DXF",
+      "aberturas/vazios ativos exigem metadado DXF ou inspeção visual",
+      "GRADES nunca pode contaminar ABCD/CIMA",
+      "paridade estrutural não substitui leitura visual"
+    ],
+    "promotion_gate": {
+      "current": "diagnostic_only",
+      "target": "validation_ready",
+      "requires": [
+        "cobertura completa das cinco familias",
+        "probes cross-classe sem FAIL/PENDENTE",
+        "veredito visual registrado",
+        "regressao representativa sem nova falha",
+        "decisao humana QG7 explicita"
+      ],
+      "automatic_promotion": false
+    }
+  },
+  "sample": {"project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386", "item": "P35", "variables": {"face": "D"}}
+}

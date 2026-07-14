@@ -37,7 +37,7 @@ de conhecimento segue o contrato QA↔RAG, não um score isolado.
 |---|---|---|---|---|---|
 | LAJ | `slabs.links_json` + `points_json` | `LajEvidenceAuditor` | `validation_ready` | Sim, somente `apply` explícito e snapshot íntegro | RAG T1/T2 + generalização em outra obra |
 | FV | `beams.data_json`, família `viga_fundo*`/`fv_*` | revisão global + contrato inicial | `diagnostic_only` | Não | golden visual próprio |
-| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | revisão global + contrato inicial | `diagnostic_only` | Não | golden de faces/seções e relações verticais |
+| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | `qa_pil_coverage.py` + probes por face/slot | `coverage_ready`, apply ainda `diagnostic_only` | Não | regressão + visual + promoção QG7 humana |
 | LV | `beams.data_json`, famílias `viga_a_*`, `viga_b_*`, `lv_*` | revisão global + contrato inicial | `diagnostic_only` | Não | golden de segmentos/lados |
 
 `diagnostic_only` é uma capacidade útil já: lê o projeto, inventaria campos de verdade, evidencia cobertura e registra sessão. Ela é deliberadamente incapaz de alterar N1. Assim o agente pode ser usado em todas as classes agora, sem criar falso selo.
@@ -72,6 +72,19 @@ O núcleo é comum: seleção de escopo, snapshots, hashes, sessões, perguntas 
 - regras de visão de corte/cotas quando aplicável;
 - fontes cross-classe permitidas;
 - teste golden, gate visual e condição para `validation_ready`.
+
+### Executor persistente de microciclos
+
+`qa_loop_executor.py` implementa a retomada que antes existia apenas como comando
+conceitual da squad. Cada run mantém `state.json`, ledger `events.jsonl`, orçamento de
+ciclos e `RESUME.md`. Passos read-only seguros avançam automaticamente; um fix invalida
+snapshot/cobertura e força nova prova. O executor nunca edita código sozinho, nunca
+promove RAG e nunca habilita `apply` de classe `diagnostic_only`.
+
+Estados humanos são explícitos: `WAITING_HUMAN_VISUAL`, `WAITING_HUMAN_QG7` e ensino
+de regra estrutural. O ensino exige regra, exemplo, exceção/contraexemplo, escopo e
+evidência; vira candidato T1 e tarefa de fórmula geral + testes, não treinamento de
+pesos do LLM.
 
 ## 4. Consulta global e comandos
 
@@ -114,6 +127,13 @@ cruzar classes. `PASS` confirma apenas essas hipóteses, jamais a ficha ou o ite
 O overlay permite testar uma saída candidata sem gravar no DB. A leitura mínima,
 o snapshot por linha e o cache por conteúdo tornam o ciclo rápido e invalidável.
 
+Hipóteses recorrentes devem virar perfis executáveis em
+`squads/qa-global-evidencias/data/class_profiles`. O runner
+`qa_profile_probe.py` exige escopo explícito e aplica fronteiras semânticas por
+classe; especialmente, FV e LV não podem consultar famílias uma da outra no
+`beams.data_json`. A premissa completa está em
+`docs/QA-PERFIS-CLASSES-SA-N1-N3.md`.
+
 `review --classe ... --item ...` é o teste rápido oficial para vínculos que já
 estão no snapshot persistido. Ele não instancia Qt, não disputa a trava do
 headless e não grava N1 em PIL/FV/LV:
@@ -129,6 +149,28 @@ conflito entre campos e cobertura do contrato. Ele avalia **o DB atual**; não
 exercita uma alteração ainda não materializada no extrator. Se o código N1 foi
 alterado, o microciclo headless continua obrigatório antes de repetir o review.
 
+### 4.2 Gate anti-loop caro: aceite antes da materialização
+
+Antes de editar um extrator/vínculo N1, o run deve declarar um predicado de aceite
+executável por campo ou relação. O predicado diferencia explicitamente o objetivo
+final de fatos intermediários. Exemplo: “V308 tem dimensão 19/55” não substitui
+“P35 A/B vinculam V308 e o vão de V308 alcança P35”.
+
+Roteiro obrigatório:
+
+1. capturar o antes com `qa_n1_field_probe.py`;
+2. provar a hipótese em teste puro/overlay;
+3. executar um headless granular para materializar;
+4. repetir imediatamente a mesma probe;
+5. se o predicado final não mudar, interromper a repetição e investigar o elo
+   anterior da cadeia fonte→vínculo.
+
+Uma segunda execução headless para o mesmo item exige nova causa reproduzível e uma
+probe/teste barato que demonstre por que o próximo resultado será diferente. Uma
+dependência cross-classe não pode ser persistida em microciclo parcial se perder
+segmentos ou cobertura geométrica em relação ao snapshot anterior. Pós-mortem de
+referência: `docs/POSTMORTEM-PIL-P35-MICROCICLO-20260713.md`.
+
 Mudança somente em geometria/estilo/cotas N3/N4 usa o gerador individual da
 classe e `scripts/arete/ficha_motor_item.py`; o QA lê seu manifesto/hash como
 evidência de iteração, sem tratá-lo como prova de interpretação N1.
@@ -137,6 +179,10 @@ Para os campos de saída, `qa_artifact_parity.py` compara declarativamente
 contrato→payload→DXF→HTML e explicita metadado DXF ausente. A leitura visual
 continua separada. O benchmark `qa_fastpath_benchmark.py` mede o caminho frio e
 aquecido e exige checks semanticamente idênticos.
+
+O caminho N3 padrão usa `qa_n3_smoke.py` antes da ficha individual. O smoke
+confirma somente identidade, texto e camadas mínimas em todas as variantes
+declaradas; a ficha/PNG continua responsável pela geometria e o gate visual.
 
 ## 5. Regras de evidência e anti-alucinação
 

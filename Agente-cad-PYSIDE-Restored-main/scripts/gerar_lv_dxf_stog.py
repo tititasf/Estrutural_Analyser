@@ -277,13 +277,15 @@ def add_text(msp, x, y, text, height, layer, halign=0, valign=0, color=None):
     msp.add_text(text, dxfattribs=attribs)
 
 
-def draw_panel_lines(msp, x0, y0, pw, h):
-    """4 LINE entities por painel LV (borda inferior, superior, esquerda, direita)."""
+def draw_panel_lines(msp, x0, y0, pw, h, *, draw_left=True, draw_right=True):
+    """Contorno de painel LV sem duplicar a linha de união entre painéis."""
     a = {'layer': 'Painéis'}
     msp.add_line((x0,    y0),   (x0+pw, y0),   dxfattribs=a)   # bottom
     msp.add_line((x0,    y0+h), (x0+pw, y0+h), dxfattribs=a)   # top
-    msp.add_line((x0,    y0),   (x0,    y0+h), dxfattribs=a)   # left
-    msp.add_line((x0+pw, y0),   (x0+pw, y0+h), dxfattribs=a)   # right
+    if draw_left:
+        msp.add_line((x0, y0), (x0, y0+h), dxfattribs=a)
+    if draw_right:
+        msp.add_line((x0+pw, y0), (x0+pw, y0+h), dxfattribs=a)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -372,42 +374,24 @@ def draw_sarrafo_spans(msp, x0, y0, panels, positions, layer):
 
 def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths,
                                 draw_left=False, draw_right=False):
-    """SARR_3.5x7 vertical pairs at outer edges ONLY.
+    """Sarrafo vertical simples de 7 cm, recuado nas extremidades da face.
 
-    SCR anatomy calibration: the real STOG has very few SARR_3.5x7 entities
-    (~105 for 22 vigas = ~2-3 per face). Only outer edge pairs are drawn;
-    divisor-zone sarrafos are handled by the horizontal sarrafo distribution.
+    Isto não é pontalete: o par vertical anteriormente desenhado representava
+    indevidamente o meio-pontalete de painéis com grade. A ficha lateral usa
+    uma única linha de sarrafo 2.2x7, a 7 cm para dentro de cada parede.
     """
     L = sum(panel_widths)
-    s35 = LV_SARR_LAYER    # 'SARR_3.5x7'
-    h_inner = h - 2.2
-
-    if L < 2 * LV_SARR_INSET:
+    if L < 2 * SARR_INSET_H:
         return
 
-    def line35(x_abs, h_use):
-        msp.add_line((x_abs, y0), (x_abs, y0 + h_use), dxfattribs={'layer': s35})
-
-    def bot35(xl_abs, xr_abs):
-        msp.add_line((xl_abs, y0), (xr_abs, y0), dxfattribs={'layer': s35})
+    attrs = {'layer': 'SARR_2.2x7'}
 
     if draw_left:
-        # Left edge pair: [15, 18.5]
-        xl = x0 + LV_SARR_INSET
-        xr = xl + LV_SARR_W
-        if xr < x0 + L + 0.1:
-            line35(xl, h)
-            line35(xr, h_inner)
-            bot35(xl, xr)
-
+        msp.add_line((x0 + SARR_INSET_H, y0),
+                     (x0 + SARR_INSET_H, y0 + h), dxfattribs=attrs)
     if draw_right:
-        # Right edge pair: [L-18.5, L-15]
-        xr = x0 + L - LV_SARR_INSET
-        xl = xr - LV_SARR_W
-        if xl > x0 - 0.1:
-            line35(xl, h_inner)
-            line35(xr, h)
-            bot35(xl, xr)
+        msp.add_line((x0 + L - SARR_INSET_H, y0),
+                     (x0 + L - SARR_INSET_H, y0 + h), dxfattribs=attrs)
 
 
 def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
@@ -853,7 +837,8 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  skip_layers=None, nota_face=None, pontaletes_face=None,
                  fallback_panel_ids=True, nom_height=None,
                  reverse_grade_style=False, suppress_sarrafo_spans=False,
-                 sarrafo_vertical_esquerdo=False, sarrafo_vertical_direito=False):
+                 sarrafo_vertical_esquerdo=False, sarrafo_vertical_direito=False,
+                 endpoint_start_label=None, endpoint_end_label=None):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -958,7 +943,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
         # Contorno externo do painel: degrau (P1) usa height1 < h_face
         h_draw = h1 if (0 < h1 < h - 5.0 and not has_laje_central) else h
-        draw_panel_lines(msp, x_cur, y0, pw, h_draw)
+        # A união é desenhada uma única vez logo abaixo. Não repetir a borda
+        # direita/esquerda dos painéis adjacentes, pois ela engrossa no viewer.
+        draw_panel_lines(
+            msp, x_cur, y0, pw, h_draw,
+            draw_left=is_first,
+            draw_right=is_last,
+        )
 
         # Reproduz somente as faixas detectadas no N2. O fallback de painel
         # inteiro atende fichas antigas que possuem apenas o booleano reuse.
@@ -1188,6 +1179,16 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     if len(panel_widths) > 1:
         dim_total_lv(msp, x0, x0 + comprimento, y0)
 
+    # Apoios/limites capturados no N1: deixam explícito o ponto inicial e o
+    # ponto final da lateral sem inventar referências a partir do N2.
+    endpoint_y = y0 - DIM_TOTAL_BELOW - 12.0
+    if endpoint_start_label:
+        add_text(msp, x0, endpoint_y, str(endpoint_start_label), 12.0,
+                 'NOMENCLATURA', halign=0, valign=2, color=5)
+    if endpoint_end_label:
+        add_text(msp, x0 + comprimento, endpoint_y, str(endpoint_end_label),
+                 12.0, 'NOMENCLATURA', halign=2, valign=2, color=5)
+
     # ── 9. COTAS VERTICAIS SEGMENTADAS (Laje Inf + Altura + Laje Sup) ────
     def _dim_seg_v(x_base, segments, side='left'):
         x_dim = x_base - DIM_H_RIGHT if side == 'left' else x_base + DIM_H_RIGHT
@@ -1381,6 +1382,66 @@ def draw_section_visual_primitives(msp, section_view, x_center, y_center):
     return drew
 
 
+def draw_section_n1_contract_clean(msp, section_view, x_center, y_center,
+                                   viga_nome=''):
+    """Visão de corte limpa quando N3 possui só o contrato N1.
+
+    O N3 não pode reutilizar as primitivas do recorte N2. Em vez do desenho
+    anatômico legado (hachura, letras a/b/c e ``pontalete``), monta uma seção
+    legível exclusivamente a partir de B, H, h_A e h_B do contrato N1.
+    """
+    if not section_view or not section_view.get('n1_contract_clean'):
+        return False
+    b = max(float(section_view.get('b', 0) or 0), 1.0)
+    h_core = max(float(section_view.get('h_section', 0) or 0), 1.0)
+    h_a = max(float(section_view.get('h_A', h_core) or h_core), h_core)
+    h_b = max(float(section_view.get('h_B', h_core) or h_core), h_core)
+    y0 = y_center - h_core / 2.0
+    board_w, panel_gap = 14.0, 8.0
+    x_core_l, x_core_r = x_center - b / 2.0, x_center + b / 2.0
+    x_a_l, x_a_r = x_core_l - panel_gap - board_w, x_core_l - panel_gap
+    x_b_l, x_b_r = x_core_r + panel_gap, x_core_r + panel_gap + board_w
+
+    def rect(x1, y1, x2, y2, layer):
+        msp.add_lwpolyline([(x1, y1), (x2, y1), (x2, y2), (x1, y2)],
+                           close=True, dxfattribs={'layer': layer})
+
+    # Faces laterais e alma: estrutura simples, sem elementos inventados.
+    rect(x_a_l, y0, x_a_r, y0 + h_a, 'Madeira')
+    rect(x_b_l, y0, x_b_r, y0 + h_b, 'Madeira')
+    rect(x_core_l, y0, x_core_r, y0 + h_core, 'CONCRETO')
+    # Pares de painel entre madeira e concreto, tal como as duas faces A/B.
+    msp.add_line((x_a_r, y0), (x_a_r, y0 + h_a), dxfattribs={'layer': 'Painéis'})
+    msp.add_line((x_b_l, y0), (x_b_l, y0 + h_b), dxfattribs={'layer': 'Painéis'})
+
+    def dim_v(x, height, base_x):
+        try:
+            d = msp.add_linear_dim(
+                base=(base_x, y0), p1=(x, y0), p2=(x, y0 + height),
+                angle=90, dimstyle='PAINEL', dxfattribs={'layer': 'COTA'})
+            d.render()
+        except Exception:
+            pass
+
+    def dim_h(x1, x2, base_y):
+        try:
+            d = msp.add_linear_dim(
+                base=(x1, base_y), p1=(x1, y0), p2=(x2, y0),
+                angle=0, dimstyle='PAINEL', dxfattribs={'layer': 'COTA'})
+            d.render()
+        except Exception:
+            pass
+
+    dim_v(x_a_l, h_a, x_a_l - 30.0)
+    dim_v(x_b_r, h_b, x_b_r + 30.0)
+    dim_h(x_core_l, x_core_r, y0 - 24.0)
+    if viga_nome:
+        add_text(msp, x_center, y0 + max(h_a, h_b) + 24.0,
+                 f'{viga_nome} ({b:.0f}x{h_core:.0f})', 8.0,
+                 'Texto Seção', halign=1, valign=2)
+    return True
+
+
 def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                       h_A, h_B, b, h_section=None, b_alma=19,
                       panels_A=None, panels_B=None,
@@ -1537,6 +1598,9 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
         label = viga_nome if idx == 0 else f'{viga_nome}-{idx + 1}'
         if not draw_section_visual_primitives(
             msp, sv, x_origin + 95, y_section + h_sec / 2.0
+        ) and not draw_section_n1_contract_clean(
+            msp, sv, x_origin + 95, y_section + h_sec / 2.0,
+            viga_nome=label,
         ):
             draw_section_detail(msp, x_origin + 95, y_section, b, h_sec,
                                 viga_nome=label, b_alma=b, h_A=h_a, h_B=h_b,
@@ -1602,6 +1666,8 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             suppress_sarrafo_spans=reverse_grade,
             sarrafo_vertical_esquerdo=bool(unit.get('sarrafo_vertical_esquerdo')),
             sarrafo_vertical_direito=bool(unit.get('sarrafo_vertical_direito')),
+            endpoint_start_label=unit.get('endpoint_start_label'),
+            endpoint_end_label=unit.get('endpoint_end_label'),
         )
         unit_width = sum(p['width'] for p in panels)
         x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)
@@ -1988,10 +2054,21 @@ def main():
                     {
                         'side': 'A', 'label': f'{vname}.A',
                         'panels': panels_A, 'h_body': h_A,
+                        # O contrato executivo N3 fecha cada painel lateral
+                        # com os dois sarrafos verticais de extremidade. Essa
+                        # regra nasce do contrato N1/robô, não da ficha N2.
+                        'sarrafo_vertical_esquerdo': True,
+                        'sarrafo_vertical_direito': True,
+                        'endpoint_start_label': (da.get('endpoint_labels') or {}).get('start'),
+                        'endpoint_end_label': (da.get('endpoint_labels') or {}).get('end'),
                     },
                     {
                         'side': 'B', 'label': f'{vname}.B',
                         'panels': panels_B, 'h_body': h_B,
+                        'sarrafo_vertical_esquerdo': True,
+                        'sarrafo_vertical_direito': True,
+                        'endpoint_start_label': (db.get('endpoint_labels') or {}).get('start'),
+                        'endpoint_end_label': (db.get('endpoint_labels') or {}).get('end'),
                     },
                 ]
                 isolated_section_views = [{
@@ -1999,6 +2076,7 @@ def main():
                     'h_section': h_section,
                     'laje_sup_A': 0.0, 'laje_inf_A': 0.0,
                     'laje_sup_B': 0.0, 'laje_inf_B': 0.0,
+                    'n1_contract_clean': True,
                 }]
             vigas.append({
                 'nome':     vname,

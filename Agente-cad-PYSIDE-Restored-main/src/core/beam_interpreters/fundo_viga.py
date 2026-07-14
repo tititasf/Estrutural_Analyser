@@ -634,10 +634,12 @@ class FundoVigaInterpreter:
             for key in (
                 "type",
                 "points",
+                "evidence_segments",
                 "len",
                 "closed",
                 "geometry_role",
                 "geometry_source",
+                "fv_provenance",
             ):
                 if key in link:
                     existing[key] = link[key]
@@ -657,6 +659,15 @@ class FundoVigaInterpreter:
             link["closed"] = True
             link["geometry_role"] = "area_fundo"
             link["geometry_source"] = source
+            # Metadado observacional do próprio slot FV.  Não usa campos LV,
+            # não altera os vértices humanos e permite a ficha distinguir o
+            # segmento selecionado do contexto global da viga.
+            link.setdefault("evidence_segments", [{
+                "source_segment": int(segment_index or 0),
+                "source_slot": "seg_bottom",
+                "role": "fv_segment_local_contour",
+                "points": [[round(float(x), 6), round(float(y), 6)] for x, y in points],
+            }])
             canonical_length = None
             if str(link.get("fv_measure_source") or "").startswith(
                 "chamfer_half_cm_snap"

@@ -17,6 +17,8 @@ import copy
 import types
 import argparse
 import importlib
+import hashlib
+import pickle
 import subprocess
 import tempfile
 import time
@@ -32,6 +34,79 @@ os.environ['CAD_MOTOR_HEADLESS'] = '1'
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT   = _SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
+
+_FAST_CONTEXT_CACHE_SCHEMA = 1
+_FAST_CONTEXT_ENGINE_FILES = (
+    'main.py',
+    'src/core/dxf_loader.py',
+    'src/core/spatial_index.py',
+    'src/core/slab_tracer.py',
+    'src/core/beam_tracer.py',
+    'src/core/beam_interpreters/__init__.py',
+    'src/core/beam_interpreters/fundo_viga.py',
+    'src/core/beam_interpreters/lateral_viga.py',
+    'src/core/beam_interpreters/pilar_viga.py',
+    'src/core/pillar_face_beams.py',
+)
+
+
+def _fast_context_cache_path(dxf_path: str) -> Path:
+    """Cache local invalidado pela fonte e pelos motores que criam o N1."""
+    signature: list[tuple[str, int, int]] = []
+    for relative in _FAST_CONTEXT_ENGINE_FILES:
+        path = _REPO_ROOT / relative
+        stat = path.stat()
+        signature.append((relative, stat.st_size, stat.st_mtime_ns))
+    source = Path(dxf_path).resolve()
+    stat = source.stat()
+    payload = repr((
+        _FAST_CONTEXT_CACHE_SCHEMA,
+        str(source),
+        stat.st_size,
+        stat.st_mtime_ns,
+        signature,
+    )).encode('utf-8')
+    digest = hashlib.sha256(payload).hexdigest()
+    return _REPO_ROOT / 'scripts' / 'arete' / '.cache' / 'n1_context' / f'{digest}.pkl'
+
+
+def _restore_fast_context_cache(runner: 'HeadlessRunner', path: Path) -> bool:
+    if not path.is_file():
+        return False
+    try:
+        with path.open('rb') as stream:
+            state = pickle.load(stream)
+        if state.get('schema') != _FAST_CONTEXT_CACHE_SCHEMA:
+            return False
+        for name in (
+            'dxf_data', 'slabs_found', 'beams_found',
+            'pavimento_pillar_report', 'pavimento_nivel_report',
+            'slab_learning_config',
+        ):
+            setattr(runner, name, state[name])
+        runner._analysis_texts = list(runner.dxf_data.get('texts', []))
+        _bind_mainwindow_methods(runner)
+        return True
+    except Exception as exc:
+        print(f'[SA] Cache N1 ignorado: {exc}', flush=True)
+        return False
+
+
+def _store_fast_context_cache(runner: 'HeadlessRunner', path: Path) -> None:
+    state = {
+        'schema': _FAST_CONTEXT_CACHE_SCHEMA,
+        'dxf_data': runner.dxf_data,
+        'slabs_found': runner.slabs_found,
+        'beams_found': runner.beams_found,
+        'pavimento_pillar_report': runner.pavimento_pillar_report,
+        'pavimento_nivel_report': runner.pavimento_nivel_report,
+        'slab_learning_config': runner.slab_learning_config,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix('.tmp')
+    with temporary.open('wb') as stream:
+        pickle.dump(state, stream, protocol=pickle.HIGHEST_PROTOCOL)
+    temporary.replace(path)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -116,7 +191,18 @@ def _partial_collections_for_sections(
     collections: dict[str, list[dict]],
     sections: set[str],
     wanted: set[str],
+    *,
+    beam_dependencies: set[str] | None = None,
 ) -> dict[str, list[dict]]:
+    """Coleção mínima do microciclo, incluindo fatos de viga que ele corrigiu.
+
+    PIL não deve regravar todas as vigas da planta. Porém, se a própria rodada
+    corrigiu uma viga por sua ficha FV canônica, o commit parcial precisa levar
+    essa dependência explícita; caso contrário o HTML vê o fato novo e o DB
+    conserva o legado.
+    """
+    requested_beams = set(wanted) if {'fundos_viga', 'laterais_viga'} & sections else set()
+    requested_beams.update(str(name).upper() for name in (beam_dependencies or set()))
     return {
         'pillars': (
             _filter_named(collections.get('pillars', []), wanted)
@@ -127,10 +213,152 @@ def _partial_collections_for_sections(
             if 'lajes' in sections else []
         ),
         'beams': (
-            _filter_named(collections.get('beams', []), wanted)
-            if {'fundos_viga', 'laterais_viga'} & sections else []
+            _filter_named(collections.get('beams', []), requested_beams)
+            if requested_beams else []
         ),
     }
+
+
+def _log_selected_pillar_topology(pillars: list[dict], wanted: set[str] | None) -> None:
+    if not wanted:
+        return
+    for pillar in pillars:
+        if _item_name(pillar) not in wanted:
+            continue
+        facts = {
+            key: value for key, value in pillar.items()
+            if re.fullmatch(r'p_s[ABCD]_v_(?:passa_(?:esq|dir)|ch\d)_[nd]', key)
+        }
+        geometry_links = sum(
+            1 for key, payload in (pillar.get('links') or {}).items()
+            if key in facts and isinstance(payload, dict) and payload.get('geometry')
+        )
+        print(
+            f'[SA-HUMAN] Topologia {_item_name(pillar)}: '
+            f'{json.dumps(facts, ensure_ascii=False, sort_keys=True)}; '
+            f'links_geometricos={geometry_links}',
+            flush=True,
+        )
+
+
+def _beam_semantic_facts(beam: dict) -> tuple:
+    """Assinatura dos fatos canônicos que justificam persistir uma dependência.
+
+    Metadados de proveniência não contam como mudança semântica. Isso impede que
+    um microciclo PIL regrave todas as vigas apenas porque o reconciliador marcou
+    a fonte canônica em memória.
+    """
+    fields = beam.get('fields') or {}
+    fundo_dims = tuple(sorted(
+        (str(key), str(value))
+        for key, value in fields.items()
+        if re.fullmatch(r'viga_fundo_seg_\d+_dim', str(key))
+    ))
+    return (
+        str(beam.get('dim') or ''),
+        str(fields.get('dimensao') or ''),
+        str(fields.get('altura_h1') or ''),
+        bool(beam.get('fv_is_h', beam.get('is_h', True))),
+        fundo_dims,
+    )
+
+
+def _changed_canonical_beam_names(
+    old_beams: list[dict], new_beams: list[dict], candidates: set[str],
+) -> set[str]:
+    """Limita dependências às vigas cujo conteúdo canônico realmente mudou."""
+    old_by_name = {_item_name(beam): beam for beam in old_beams or []}
+    new_by_name = {_item_name(beam): beam for beam in new_beams or []}
+    changed: set[str] = set()
+    for name in {str(value).upper() for value in candidates or set()}:
+        fresh = new_by_name.get(name)
+        previous = old_by_name.get(name)
+        if fresh is None:
+            continue
+        if previous is None or _beam_semantic_facts(previous) != _beam_semantic_facts(fresh):
+            changed.add(name)
+    return changed
+
+
+def _beam_topology_coverage(beam: dict) -> tuple[int, float]:
+    """Retorna (segmentos, cobertura axial) para detectar regressão parcial.
+
+    Usa uma única autoridade geométrica por vez. Contorno FV, espelho
+    ``seg_bottom`` e laterais LV são representações do mesmo vão; somá-las
+    triplicava artificialmente a cobertura e recusava uma reconstrução mais
+    completa como regressão. A prioridade conserva a fonte física mais forte e
+    usa as laterais apenas quando as duas topologias de fundo estão ausentes.
+    """
+    links = beam.get('links') or {}
+    spans: set[tuple[str, float, float]] = set()
+
+    def _add_slots(slots: object) -> None:
+        if not isinstance(slots, dict):
+            return
+        for values in slots.values():
+            for link in values or []:
+                points = link.get('points') if isinstance(link, dict) else None
+                if not points or len(points) < 2:
+                    continue
+                xs = [float(point[0]) for point in points]
+                ys = [float(point[1]) for point in points]
+                dx, dy = max(xs) - min(xs), max(ys) - min(ys)
+                axis = 'x' if dx >= dy else 'y'
+                lo, hi = (min(xs), max(xs)) if axis == 'x' else (min(ys), max(ys))
+                spans.add((axis, round(lo, 3), round(hi, 3)))
+
+    # 1. Contornos físicos FV por segmento.
+    for source_key, slots in links.items():
+        if re.fullmatch(r'viga_fundo_seg_\d+_area_segs', str(source_key)):
+            _add_slots(slots)
+
+    # 2. Espelho canônico de fundo, se não houver contornos por segmento.
+    if not spans:
+        for link in ((links.get('viga_segs') or {}).get('seg_bottom') or []):
+            points = link.get('points') if isinstance(link, dict) else None
+            if not points or len(points) < 2:
+                continue
+            xs = [float(point[0]) for point in points]
+            ys = [float(point[1]) for point in points]
+            dx, dy = max(xs) - min(xs), max(ys) - min(ys)
+            axis = 'x' if dx >= dy else 'y'
+            lo, hi = (min(xs), max(xs)) if axis == 'x' else (min(ys), max(ys))
+            spans.add((axis, round(lo, 3), round(hi, 3)))
+
+    # 3. Laterais LV somente como último fallback topológico.
+    if not spans:
+        for source_key, slots in links.items():
+            if re.fullmatch(
+                r'viga_[ab]_seg_\d+_(?:comprimento_total|comp_total_passa)',
+                str(source_key),
+            ):
+                _add_slots(slots)
+
+    return len(spans), round(sum(max(0.0, hi - lo) for _, lo, hi in spans), 3)
+
+
+def _non_regressive_beam_dependencies(
+    old_beams: list[dict], new_beams: list[dict], candidates: set[str],
+) -> tuple[set[str], dict[str, dict[str, tuple[int, float]]]]:
+    """Recusa dependência cujo candidato perdeu segmentos ou cobertura axial."""
+    old_by_name = {_item_name(beam): beam for beam in old_beams or []}
+    new_by_name = {_item_name(beam): beam for beam in new_beams or []}
+    accepted: set[str] = set()
+    rejected: dict[str, dict[str, tuple[int, float]]] = {}
+    for name in {str(value).upper() for value in candidates or set()}:
+        fresh = new_by_name.get(name)
+        if fresh is None:
+            continue
+        previous = old_by_name.get(name)
+        old_coverage = _beam_topology_coverage(previous or {})
+        new_coverage = _beam_topology_coverage(fresh)
+        loses_segments = old_coverage[0] > new_coverage[0]
+        loses_span = old_coverage[1] > new_coverage[1] + 0.5
+        if previous is not None and (loses_segments or loses_span):
+            rejected[name] = {'old': old_coverage, 'new': new_coverage}
+        else:
+            accepted.add(name)
+    return accepted, rejected
 
 
 def _attach_pl_n3_variants_to_pillars(
@@ -380,8 +608,10 @@ class HeadlessRunner:
         self.dxf_data: dict = {}
         self.slabs_found: list = []
         self.beams_found: list = []
+        self.pillars_found: list = []
         self.pavimento_pillar_report: dict = {}
         self.pavimento_nivel_report: dict = {}
+        self.pavimento_preprocess: dict = {}
         self.slab_learning_config: dict = {}
         self._analysis_texts: list | None = None
         self.current_project_id: str = 'headless_01'
@@ -394,6 +624,19 @@ class HeadlessRunner:
     def update_progress(self, *a, **kw): pass
     def hide_progress(self): pass
     def _dump_slab_diagnostics(self): pass
+    def close(self): pass
+
+    def get_pillar_report(self) -> dict:
+        return self.pavimento_pillar_report
+
+    def get_nivel_report(self) -> dict:
+        return self.pavimento_nivel_report
+
+    def is_pillar_nasce(self, pillar_name: str) -> bool:
+        entry = self.pavimento_pillar_report.get(
+            str(pillar_name or '').strip().upper()
+        )
+        return bool(entry and entry.get('ignore_in_beams'))
 
     def _apply_preficha_rejections(self, report: dict) -> None:
         pass  # sem DB history em modo headless
@@ -438,6 +681,10 @@ def _run_legacy_analysis(
     dxf_path: str,
     obra: str,
     pavimento: str,
+    *,
+    project_id: str = 'headless_01',
+    build_html: bool = True,
+    db_path: str = 'D:/Agente-cad-PYSIDE/project_data.vision',
 ) -> dict:
     """
     Executa pipeline SA completo e gera HTMLs.
@@ -448,6 +695,24 @@ def _run_legacy_analysis(
     from src.core.beam_tracer import BeamTracer
 
     runner = HeadlessRunner()
+    runner.current_project_id = project_id
+    runner.pavimento_preprocess = {
+        'obra': obra,
+        'pavimento': pavimento,
+        'convention': {},
+        'term_type_map': {},
+    }
+    cache_path = _fast_context_cache_path(dxf_path) if not build_html else None
+    if cache_path and _restore_fast_context_cache(runner, cache_path):
+        print(f'[SA] Cache N1 contextual: HIT {cache_path.name[:12]}', flush=True)
+        return {
+            'runner': runner,
+            'texts': list(runner.dxf_data.get('texts', [])),
+            'n_pilares': len(runner.pavimento_pillar_report),
+            'n_slabs': len(runner.slabs_found),
+            'n_beams': len(runner.beams_found),
+            'cache_hit': True,
+        }
 
     # 1. Carregar DXF
     print(f'[SA] Carregando DXF: {dxf_path}', flush=True)
@@ -500,7 +765,7 @@ def _run_legacy_analysis(
     for i, s in enumerate(runner.slabs_found):
         s['id']         = f'headless_l_{i+1}'
         s['id_item']    = f'{i+1:02}'
-        s['project_id'] = 'headless_01'
+        s['project_id'] = project_id
         s['type']       = 'Laje'
         s['laje_name']  = s['name']
         runner._process_slab_intelligent(s)
@@ -562,7 +827,7 @@ def _run_legacy_analysis(
         b['id']         = f'headless_b_{i+1}'
         b['id_item']    = f'{i+1:02}'
         b['id_num']     = i + 1
-        b['project_id'] = 'headless_01'
+        b['project_id'] = project_id
         try:
             runner._process_beam_intelligent(b)
             # Mesmo contrato da GUI: FV precisa ser uma área fechada. O
@@ -582,6 +847,13 @@ def _run_legacy_analysis(
             b, context_beams=runner.beams_found
         )
 
+    # FV fecha as fichas depois dos campos textuais/LV. Reconciliar agora
+    # garante que PIL e o DB consumam B/H e eixo da geometria real da viga.
+    from src.core.pillar_face_beams import reconcile_beam_fundo_facts
+    n_fundo_facts = reconcile_beam_fundo_facts(runner.beams_found)
+    if n_fundo_facts:
+        print(f'[SA] Fatos FV canônicos reaplicados: {n_fundo_facts} viga(s)', flush=True)
+
     print(f'[SA] Vigas: {len(runner.beams_found)}', flush=True)
 
     # 9. Enriquecer pilares com dados de vigas (laje vs viga por face)
@@ -595,6 +867,19 @@ def _run_legacy_analysis(
     if n_fixed:
         print(f'[SA] Sides corrigidos por fallback de posicao relativa: {n_fixed}', flush=True)
 
+    if not build_html:
+        if cache_path:
+            _store_fast_context_cache(runner, cache_path)
+            print(f'[SA] Cache N1 contextual: STORED {cache_path.name[:12]}', flush=True)
+        return {
+            'runner': runner,
+            'texts': texts,
+            'n_pilares': n_pil,
+            'n_slabs': len(runner.slabs_found),
+            'n_beams': len(runner.beams_found),
+            'cache_hit': False,
+        }
+
     # 10. Criar PreValidationDialog headless (sem show/exec)
     print('[SA] Criando PreValidationDialog headless...', flush=True)
 
@@ -602,7 +887,7 @@ def _run_legacy_analysis(
     _convention_file = (
         os.path.join(_dados_root, obra, 'convencao_pilares.json') if obra else None
     )
-    _db_path = 'D:/Agente-cad-PYSIDE/project_data.vision'
+    _db_path = db_path
 
     beam_texts = [
         {
@@ -646,6 +931,46 @@ def _run_legacy_analysis(
         'n_beams':    len(runner.beams_found),
         'html_dir':   str(html_dir) if html_dir else '',
     }
+
+
+def _build_fast_pre_validation_dialog(
+    runner: HeadlessRunner,
+    *,
+    obra: str,
+    pavimento: str,
+    db_path: str,
+):
+    """Constroi a mesma ficha humana sem depender da arvore completa da UI."""
+    from src.ui.widgets.pre_validation_dialog import PreValidationDialog
+
+    convention_file = (
+        _REPO_ROOT.parent / 'DADOS-OBRAS' / obra / 'convencao_pilares.json'
+    )
+    beam_texts = [
+        {
+            'text': text.get('text', ''),
+            'pos': list(text.get('pos') or [0, 0]),
+            'layer': text.get('layer', ''),
+        }
+        for text in (runner.dxf_data or {}).get('texts', [])
+    ]
+    return PreValidationDialog(
+        pillar_report=runner.pavimento_pillar_report,
+        nivel_report=runner.pavimento_nivel_report,
+        slabs=runner.slabs_found,
+        convention={},
+        obra=obra,
+        pavimento=pavimento,
+        beam_texts=beam_texts,
+        canvas=None,
+        convention_file=(
+            str(convention_file) if convention_file.is_file() else None
+        ),
+        db_path=db_path,
+        dxf_data=runner.dxf_data,
+        beams=runner.beams_found,
+        parent=None,
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1309,14 +1634,62 @@ def run_analysis(
 
     # Deve existir antes do MainWindow: alguns robôs inicializam durante o
     # construtor. Qualquer escrita incidental será desviada para candidato.
+    fast_pillar_path = bool(sections == {'pilares'} and item_names)
     os.environ['CAD_MOTOR_HEADLESS'] = '1'
-    from main import MainWindow
+    if fast_pillar_path:
+        print(
+            '[SA-HUMAN] Fast path N1 PIL: motores canonicos sem MainWindow',
+            flush=True,
+        )
+        fast_result = _run_legacy_analysis(
+            source_path,
+            obra,
+            pavimento,
+            project_id=project_id,
+            build_html=False,
+            db_path=db_path,
+        )
+        window = fast_result['runner']
+        from src.core.database import DatabaseManager
+        db = DatabaseManager(db_path)
+        old_snapshot = {
+            'pillars': db.load_pillars(project_id),
+            'slabs': db.load_slabs(project_id),
+            'beams': db.load_beams(project_id),
+        }
+        fresh_snapshot = {
+            'pillars': copy.deepcopy(old_snapshot['pillars']),
+            'slabs': copy.deepcopy(window.slabs_found),
+            'beams': copy.deepcopy(window.beams_found),
+        }
+        window.pillars_found = copy.deepcopy(old_snapshot['pillars'])
+        window.slabs_found = copy.deepcopy(old_snapshot['slabs'])
+        window.beams_found = copy.deepcopy(old_snapshot['beams'])
+        window.active_project_id = project_id
+        window.current_project_name = project_name
+        window._analysis_in_progress = False
+        window.load_project_action = lambda: None
 
-    window = MainWindow()
-    window._sa_read_only_run = True
-    window.current_project_id = project_id
-    window.active_project_id = project_id
-    window.current_project_name = project_name
+        def _activate_fast_snapshot(*_args, **_kwargs):
+            window.pillars_found = fresh_snapshot['pillars']
+            window.slabs_found = fresh_snapshot['slabs']
+            window.beams_found = fresh_snapshot['beams']
+
+        window.process_pillars_action = _activate_fast_snapshot
+        window._build_pre_validation_dialog = lambda: _build_fast_pre_validation_dialog(
+            window,
+            obra=obra,
+            pavimento=pavimento,
+            db_path=db_path,
+        )
+        report_stage('analise N1 contextual incremental')
+    else:
+        from main import MainWindow
+        window = MainWindow()
+        window._sa_read_only_run = True
+        window.current_project_id = project_id
+        window.active_project_id = project_id
+        window.current_project_name = project_name
     try:
         window.load_project_action()
         if not window.dxf_data:
@@ -1352,6 +1725,22 @@ def run_analysis(
         window.pillars_found = merged['pillars']
         window.slabs_found = merged['slabs']
         window.beams_found = merged['beams']
+        # O merge preserva memoria humana, mas pode reintroduzir slots PIL
+        # automaticos de uma rodada antiga. Reaplicar a topologia depois do
+        # merge mantem DB, ficha N1 e contratos N3 na mesma autoridade. Em
+        # microciclo, somente o item solicitado e' materializado.
+        from src.core.pillar_face_beams import materialize_face_beams_in_pillars
+        face_beams_materialized = materialize_face_beams_in_pillars(
+            merged['pillars'],
+            getattr(window, 'pavimento_pillar_report', {}) or {},
+            item_names=item_names,
+        )
+        if face_beams_materialized:
+            print(
+                '[SA-HUMAN] Slots topologicos PIL reaplicados pos-merge: '
+                f'{face_beams_materialized} pilar(es)',
+                flush=True,
+            )
         # O merge preserva memória humana, mas pode repor inferências antigas.
         # Reexecuta o saneamento derivável na coleção efetivamente persistida:
         # apoio automático precisa tocar a fronteira e ter face/lado; nível de
@@ -1366,6 +1755,43 @@ def run_analysis(
             FundoVigaInterpreter.repair_area_links(
                 beam, context_beams=window.beams_found
             )
+
+        # A ficha FV fica completa só depois do merge e do reparador. Releia
+        # aqui a seção/eixo canônicos antes da exportação e do commit: PIL não
+        # pode consumir uma cota textual espacial de outra entidade.
+        from src.core.pillar_face_beams import reconcile_beam_fundo_facts
+        n_fundo_facts = reconcile_beam_fundo_facts(window.beams_found)
+        reconciled_beam_names = {
+            _item_name(beam)
+            for beam in window.beams_found
+            if isinstance(beam, dict)
+            and beam.get('_section_dimension_source') == 'fundo_ficha_geometrica'
+        }
+        if n_fundo_facts:
+            print(
+                '[SA-HUMAN] Fatos FV canonicos reaplicados: '
+                f'{n_fundo_facts} viga(s)',
+                flush=True,
+            )
+        # O relatório de faces foi calculado antes do merge. Atualizá-lo com
+        # as vigas reconciliadas mantém ficheiro HTML, N3 e DB sob a mesma
+        # evidência; a segunda materialização preserva campos humanos.
+        window._enrich_pillar_report_with_beams(
+            getattr(window, 'pavimento_pillar_report', {}) or {},
+            window.beams_found,
+        )
+        face_beams_materialized = materialize_face_beams_in_pillars(
+            window.pillars_found,
+            getattr(window, 'pavimento_pillar_report', {}) or {},
+            item_names=item_names,
+        )
+        if face_beams_materialized:
+            print(
+                '[SA-HUMAN] Slots topologicos PIL reaplicados pos-FV: '
+                f'{face_beams_materialized} pilar(es)',
+                flush=True,
+            )
+        _log_selected_pillar_topology(window.pillars_found, item_names)
         report_stage('merge granular e saneamento N1')
         if 'laterais_viga' in active_sections:
             lv_contracts_attached = _attach_lv_generation_contracts(
@@ -1395,10 +1821,25 @@ def run_analysis(
             # todos os itens N2 classificados Para/Passa na pasta filtrada.
             # A janela normal nao possui este atributo e mantem a uniao total.
             window._headless_item_names = set(item_names)
+            changed_beam_names = _changed_canonical_beam_names(
+                old_snapshot['beams'], merged['beams'], reconciled_beam_names,
+            )
+            safe_beam_names, rejected_beam_dependencies = (
+                _non_regressive_beam_dependencies(
+                    old_snapshot['beams'], merged['beams'], changed_beam_names,
+                )
+            )
+            if rejected_beam_dependencies:
+                print(
+                    '[SA-HUMAN] Dependencias de viga recusadas por regressao '
+                    f'de topologia: {rejected_beam_dependencies}',
+                    flush=True,
+                )
             partial_collections = _partial_collections_for_sections(
                 merged,
                 active_sections,
                 item_names,
+                beam_dependencies=safe_beam_names,
             )
             _apply_item_filter_to_window(window, active_sections, item_names)
             print(

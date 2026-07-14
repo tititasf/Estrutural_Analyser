@@ -793,3 +793,72 @@ def test_lv_dimension_rejects_reversed_pillar_dimension():
     )
 
     assert result["text"] == "19/55"
+
+
+def test_lv_dimension_prefers_section_inside_its_collinear_segment():
+    """Seções de trechos consecutivos não podem vazar pela proximidade do nome."""
+
+    class FakeSpatialIndex:
+        def query_bbox(self, _bbox):
+            return [
+                # Mais perto do rótulo, mas longitudinalmente fora do trecho.
+                {"text": "19/55", "pos": (0.0, -114.0), "rotation": 90},
+                # Mais longe do rótulo, porém dentro do trecho capturado.
+                {"text": "19/120", "pos": (0.0, 380.0), "rotation": 90},
+            ]
+
+    tracer = BeamTracer(FakeSpatialIndex())
+
+    result = tracer._nearest_beam_dimension(
+        (0.0, 0.0),
+        [[(-9.5, 0.0), (-9.5, 460.0)], [(9.5, 0.0), (9.5, 460.0)]],
+        False,
+    )
+
+    assert result["text"] == "19/120"
+
+
+def test_parallel_beam_labels_compete_by_transverse_axis_distance():
+    near = {"text": "V328", "pos": (100.0, 0.0)}
+    far = {"text": "V327", "pos": (0.0, 0.0)}
+    labels = [far, near]
+    orientations = {id(far): False, id(near): False}
+    points = [(98.0, 20.0), (102.0, 200.0)]
+
+    assert BeamTracer._label_owns_points(
+        points, near["pos"], False, orientations, labels, "V328"
+    )
+    assert not BeamTracer._label_owns_points(
+        points, far["pos"], False, orientations, labels, "V327"
+    )
+
+
+def test_collinear_consecutive_beams_compete_by_longitudinal_distance():
+    lower = {"text": "V309", "pos": (0.0, 0.0)}
+    upper = {"text": "V309A", "pos": (0.0, 400.0)}
+    labels = [lower, upper]
+    orientations = {id(lower): False, id(upper): False}
+    points = [(-9.5, 280.0), (9.5, 320.0)]
+
+    assert BeamTracer._label_owns_points(
+        points, upper["pos"], False, orientations, labels, "V309A"
+    )
+    assert not BeamTracer._label_owns_points(
+        points, lower["pos"], False, orientations, labels, "V309"
+    )
+
+
+def test_off_axis_label_cannot_steal_collinear_beam_continuation():
+    """Distância euclidiana menor não vence quando o rótulo está fora do corredor."""
+
+    owner = {"text": "V308", "pos": (0.0, 0.0)}
+    off_axis = {"text": "V305", "pos": (210.0, 260.0)}
+    labels = [owner, off_axis]
+    orientations = {id(owner): True, id(off_axis): True}
+    points = [(300.0, 18.0), (500.0, 18.0)]
+
+    # O centro do trecho está mais perto em 2D de V305, mas continua quase
+    # sobre o eixo transversal de V308. V305 não pode capturá-lo.
+    assert BeamTracer._label_owns_points(
+        points, owner["pos"], True, orientations, labels, "V308"
+    )

@@ -9,6 +9,11 @@ O QA executa o looping canônico com disciplina de evidência; o RAG preserva e
 recupera conhecimento curado. Eles convergem para reduzir repetição de análise,
 não para aumentar automaticamente a autoridade do QA.
 
+Microciclos iterativos persistem em `qa_loop_executor.py`. Uma resposta humana a
+uma dúvida estrutural é registrada por `teach` com regra, exemplos, exceções, escopo
+e evidência. Isso cria material candidato T1, ainda sem promoção: primeiro a regra
+deve ser codificada como fórmula geral, testada e reverificada no artefato/visão.
+
 ```text
 QA lê item atual + evidências CAD/DB/HTML/visual
   → consulta RAG particionado e citado

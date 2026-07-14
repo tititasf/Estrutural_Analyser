@@ -1,0 +1,23 @@
+{
+  "schema": "arete.qa_n1_field_probe/v1",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "question": "O aceite localizado P35 A/B esta materializado por V308/19x55 e sua topologia conserva o vao que alcança P35?",
+  "fields": [
+    {"id": "p35.face_a.name", "class": "PIL", "item": "P35", "source": "payload", "path": "p_sA_v_passa_esq_n.label.0.text", "transform": "entity"},
+    {"id": "p35.face_b.name", "class": "PIL", "item": "P35", "source": "payload", "path": "p_sB_v_passa_dir_n.label.0.text", "transform": "entity"},
+    {"id": "p35.bbox", "class": "PIL", "item": "P35", "source": "geometry", "path": "", "transform": "bbox"},
+    {"id": "v308.name", "class": "FV", "item": "V308", "source": "payload", "path": "fields.nome", "transform": "entity"},
+    {"id": "v308.dim", "class": "FV", "item": "V308", "source": "payload", "path": "fields.dimensao", "transform": "dimension"},
+    {"id": "v308.bottom_count", "class": "FV", "item": "V308", "source": "payload", "path": "links.viga_segs.seg_bottom", "transform": "count"},
+    {"id": "v308.second_bottom_bbox", "class": "FV", "item": "V308", "source": "payload", "path": "links.viga_segs.seg_bottom.1.points", "transform": "bbox"}
+  ],
+  "checks": [
+    {"id": "face_a_has_beam", "op": "present", "left": "p35.face_a.name"},
+    {"id": "face_b_has_beam", "op": "present", "left": "p35.face_b.name"},
+    {"id": "face_a_is_v308", "op": "same_entity", "left": "p35.face_a.name", "right": "v308.name"},
+    {"id": "face_b_is_v308", "op": "same_entity", "left": "p35.face_b.name", "right": "v308.name"},
+    {"id": "v308_dimension_is_19x55", "op": "dimension_equal", "left": "v308.dim", "value": [19, 55], "order_sensitive": true},
+    {"id": "v308_keeps_two_bottom_spans", "op": "equal", "left": "v308.bottom_count", "value": 2},
+    {"id": "second_span_reaches_p35", "op": "bbox_intersects", "left": "p35.bbox", "right": "v308.second_bottom_bbox"}
+  ]
+}

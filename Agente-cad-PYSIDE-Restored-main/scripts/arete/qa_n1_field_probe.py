@@ -27,7 +27,7 @@ from scripts.arete.qa_content_cache import ContentAddressedCache, content_hash
 from scripts.arete.qa_n1_sources import json_value, load_requested_fields, resolve_project_scope
 
 
-ENGINE_VERSION = "1.2.0"
+ENGINE_VERSION = "1.4.0"
 REQUEST_SCHEMA = "arete.qa_n1_field_probe/v1"
 RESULT_SCHEMA = "arete.qa_n1_field_probe_result/v1"
 DEFAULT_DB = Path(r"D:\Agente-cad-PYSIDE\project_data.vision")
@@ -115,6 +115,23 @@ def _bbox(value: Any) -> list[float] | None:
     return [min(xs), min(ys), max(xs), max(ys)]
 
 
+def _bboxes(value: Any) -> list[list[float]]:
+    """Preserva bboxes por segmento; não fecha artificialmente os vãos."""
+    if not isinstance(value, list):
+        box = _bbox(value)
+        return [box] if box else []
+    if value and isinstance(value[0], (list, tuple)) and len(value[0]) >= 2 \
+            and all(isinstance(entry, (int, float)) for entry in value[0][:2]):
+        box = _bbox(value)
+        return [box] if box else []
+    result: list[list[float]] = []
+    for entry in value:
+        box = _bbox(entry)
+        if box:
+            result.append(box)
+    return result
+
+
 def _has_trace(value: Any) -> bool:
     if isinstance(value, dict):
         for key in ("source", "points", "pos", "text", "entity", "handle"):
@@ -158,6 +175,8 @@ def _transform(value: Any, transform: str) -> Any:
         return _dimension(value, ordered=False)
     if transform == "bbox":
         return _bbox(value)
+    if transform == "bboxes":
+        return _bboxes(value)
     if transform == "count":
         return len(value) if isinstance(value, (list, dict, str)) else 0 if value is None else 1
     if transform == "trace":
@@ -245,6 +264,27 @@ def _check(check: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
         passed = right in left if isinstance(left, (list, str, dict)) else False
     elif operation == "one_of":
         passed = left in right if isinstance(right, list) else False
+    elif operation == "all_equal":
+        entries = _flatten(left)
+        passed = bool(entries) and all(entry == right for entry in entries)
+        metric = {"entries": len(entries)}
+    elif operation == "all_match":
+        entries = _flatten(left)
+        try:
+            pattern = re.compile(str(right))
+        except re.error as exc:
+            raise ProbeError(f"regex inválida em {check_id}: {exc}") from exc
+        passed = bool(entries) and all(
+            entry is not None and pattern.fullmatch(str(entry)) is not None
+            for entry in entries
+        )
+        metric = {"entries": len(entries), "pattern": str(right)}
+    elif operation == "disjoint":
+        left_entries = {_canonical_text(entry) for entry in _flatten(left)}
+        right_entries = {_canonical_text(entry) for entry in _flatten(right)}
+        overlap = sorted(left_entries & right_entries, key=str)
+        passed = bool(left_entries) and bool(right_entries) and not overlap
+        metric = {"overlap": overlap}
     elif operation in {"bbox_distance_le", "bbox_intersects"}:
         left_bbox, right_bbox = _as_bbox(left), _as_bbox(right)
         if not (isinstance(left_bbox, list) and len(left_bbox) == 4 and isinstance(right_bbox, list) and len(right_bbox) == 4):
@@ -253,6 +293,17 @@ def _check(check: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
         threshold = 0.0 if operation == "bbox_intersects" else tolerance
         metric = {"distance": distance, "threshold": threshold}
         passed = distance <= threshold
+    elif operation == "any_bbox_intersects":
+        left_bbox = _as_bbox(left)
+        right_bboxes = [
+            box for entry in (right if isinstance(right, list) else [right])
+            if (box := _as_bbox(entry)) is not None
+        ]
+        if not (left_bbox and right_bboxes):
+            return {"id": check_id, "op": operation, "status": "PENDENTE", "reason": "bbox por segmento indisponível", "left": _summary(left), "right": _summary(right)}
+        distances = [_bbox_distance(left_bbox, box) for box in right_bboxes]
+        metric = {"distances": distances, "segments": len(right_bboxes)}
+        passed = any(distance <= 0.0 for distance in distances)
     else:
         raise ProbeError(f"op desconhecida: {operation}")
     return {
@@ -429,7 +480,7 @@ def main(argv: list[str] | None = None) -> int:
         "cache_hit": result["runtime"]["cache_hit"],
         "total_ms": result["runtime"]["total_ms"],
     }, ensure_ascii=False))
-    return 1 if result["overall"] == "FAIL" else 0
+    return 0 if result["overall"] == "PASS" else 1 if result["overall"] == "FAIL" else 2
 
 
 if __name__ == "__main__":

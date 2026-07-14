@@ -5421,7 +5421,10 @@ class PreValidationDialog(QDialog):
         width: int = 910,
         height: int = 650,
         focus_mode: str = 'pillar',
+        focus_label: str = 'SEGMENTO',
         fmt: str = 'png',
+        context_view: str = 'near',
+        context_points: list | None = None,
     ) -> str:
         """
         Renderiza o contexto DXF ao redor do pilar com as cores reais do DXF (ACI/RGB),
@@ -5429,6 +5432,12 @@ class PreValidationDialog(QDialog):
 
         fmt='png' (default): base64 PNG. fmt='svg': markup SVG cru com texto/cota
         preservado como <text> real do DOM (ver `_render_ezdxf_b64` para o racional).
+
+        ``context_view='near'`` Ã© a evidÃªncia de contato: mostra a face, a seÃ§Ã£o
+        e as cotas imediatamente ligadas ao pilar. ``'far'`` abre a mesma origem DXF
+        (nÃ£o uma imagem ampliada) para tornar visÃ­veis o eixo, a continuidade e a
+        etiqueta que podem nascer fora do recorte local. As duas imagens sÃ£o
+        complementares: a distante nunca Ã© usada isoladamente para criar um vÃ­nculo.
         """
         if not pilar_pts or not self._dxf_data:
             return ''
@@ -5449,25 +5458,62 @@ class PreValidationDialog(QDialog):
             if focus_mode == 'segment':
                 long_span = max(pw, ph, 1.0)
                 short_span = max(min(pw, ph), 1.0)
-                pad_long = max(60.0, long_span * 0.20)
-                pad_short = max(90.0, short_span * 5.0)
-                if pw >= ph:
-                    vx0, vx1 = min(xs) - pad_long, max(xs) + pad_long
-                    vy0, vy1 = min(ys) - pad_short, max(ys) + pad_short
+                # A ficha deve mostrar o trecho selecionado *e* os apoios,
+                # vigas e cotas que explicam seu vínculo. A margem anterior
+                # era curta demais e produzia um zoom de inspeção, sem leitura
+                # do entorno. Mantemos o foco, mas abrimos a janela ~1,7x.
+                if context_view == 'far' and context_points:
+                    context_xy = [
+                        (float(point[0]), float(point[1]))
+                        for point in context_points
+                        if isinstance(point, (list, tuple)) and len(point) >= 2
+                    ]
                 else:
-                    vx0, vx1 = min(xs) - pad_short, max(xs) + pad_short
-                    vy0, vy1 = min(ys) - pad_long, max(ys) + pad_long
+                    context_xy = list(zip(xs, ys))
+                context_xs = [point[0] for point in context_xy] or xs
+                context_ys = [point[1] for point in context_xy] or ys
+                context_pw = max(context_xs) - min(context_xs)
+                context_ph = max(context_ys) - min(context_ys)
+                context_long = max(context_pw, context_ph, long_span)
+                context_short = max(min(context_pw, context_ph), short_span, 1.0)
+                if context_view == 'far':
+                    # A imagem distante enquadra a mesma viga inteira, mas o
+                    # destaque laranja continua sendo somente o segmento local.
+                    pad_long = max(180.0, context_long * 0.22)
+                    pad_short = max(180.0, context_short * 8.0)
+                else:
+                    pad_long = max(100.0, long_span * 0.35)
+                    pad_short = max(150.0, short_span * 8.0)
+                if context_pw >= context_ph:
+                    vx0, vx1 = min(context_xs) - pad_long, max(context_xs) + pad_long
+                    vy0, vy1 = min(context_ys) - pad_short, max(context_ys) + pad_short
+                else:
+                    vx0, vx1 = min(context_xs) - pad_short, max(context_xs) + pad_short
+                    vy0, vy1 = min(context_ys) - pad_long, max(context_ys) + pad_long
             elif focus_mode == 'slab':
                 # Lajes são áreas (não pontos como pilar nem linhas como
                 # segmento de viga) — margem proporcional ao próprio
                 # tamanho é suficiente para mostrar vizinhança/apoios sem
                 # zoom fora a ponto de virar o mapa inteiro do pavimento.
-                pad_x = max(40.0, pw * 0.35)
-                pad_y = max(40.0, ph * 0.35)
+                if context_view == 'far':
+                    # Mesma origem DXF, janela ampliada para vizinhos, cortes,
+                    # eixos e etiquetas. O contexto nunca prova apoio sozinho.
+                    pad_x = max(180.0, pw * 1.25)
+                    pad_y = max(180.0, ph * 1.25)
+                else:
+                    # Prova local de contorno, contato, obstáculo e união.
+                    pad_x = max(40.0, pw * 0.35)
+                    pad_y = max(40.0, ph * 0.35)
                 vx0, vx1 = min(xs) - pad_x, max(xs) + pad_x
                 vy0, vy1 = min(ys) - pad_y, max(ys) + pad_y
             else:
                 margin = (max(pw, ph) * 3.0 + 60) * 1.3
+                if context_view == 'far':
+                    # O nome de uma viga Ã© frequentemente escrito ao longo de seu
+                    # eixo, a centenas de cm do encontro com o pilar. Mantemos o
+                    # pilar centralizado, mas abrimos o *crop* real do DXF; CSS zoom
+                    # de uma mesma imagem nÃ£o recuperaria esse contexto.
+                    margin = max(margin * 3.6, max(pw, ph) * 10.0 + 320.0)
                 vx0, vx1 = min(xs) - margin, max(xs) + margin
                 vy0, vy1 = min(ys) - margin, max(ys) + margin
             view_w = max(vx1 - vx0, 1.0)
@@ -5553,12 +5599,20 @@ class PreValidationDialog(QDialog):
                 )
                 ax.text(
                     min(xs), max(ys) + max(short_span * 0.35, 8.0),
-                    'SEGMENTO FV', color='#ffcc80', fontsize=8,
+                    str(focus_label or 'SEGMENTO'), color='#ffcc80', fontsize=8,
                     ha='left', va='bottom', zorder=12,
                     bbox={
                         'facecolor': BG, 'edgecolor': '#ff3d00',
                         'alpha': 0.85,
                     },
+                )
+            elif focus_mode == 'slab':
+                ax.text(
+                    min(xs), max(ys) + max(ph * 0.12, 8.0),
+                    f'ALVO N1: {focus_label or "LAJE"}',
+                    color='#00e5ff', fontsize=8, ha='left', va='bottom',
+                    zorder=12,
+                    bbox={'facecolor': BG, 'edgecolor': '#00bcd4', 'alpha': 0.85},
                 )
 
             buf = io.BytesIO()
@@ -5901,8 +5955,11 @@ class PreValidationDialog(QDialog):
             'th{position:sticky;top:0;background:#2a2a2a;color:#4fc3a1;padding:6px;white-space:nowrap}'
             'td{padding:5px 7px;border-bottom:1px solid #303030;vertical-align:top;white-space:pre-wrap}'
             '.img-geo{width:910px;height:650px;object-fit:contain;background:#111}'
-            '.img-n3{width:900px;height:600px;object-fit:contain;background:#fff}'
-            '.img-n4{width:750px;height:550px;object-fit:contain;background:#fff}'
+            # The rendered DXF itself is dark; keep the containing viewer dark too.
+            # A white fallback canvas made N3/N4 look inconsistent whenever an SVG
+            # did not occupy its full viewBox.
+            '.img-n3{width:900px;height:600px;object-fit:contain;background:#1b2125}'
+            '.img-n4{width:750px;height:550px;object-fit:contain;background:#1b2125}'
             '.img-n2{width:600px;height:400px;object-fit:contain;background:#111}'
             '.ficha-cell{max-width:380px;overflow:auto}'
             'tr:hover td{background:#222}'
@@ -6367,7 +6424,7 @@ class PreValidationDialog(QDialog):
                 pts = row.get('_points') or pillar.get('points') or []
                 if not pts:
                     return {
-                        fid: {'lajes': [], 'passa': [], 'chega': [], 'interior': []}
+                        fid: {'lajes': [], 'passa': [], 'param': [], 'chega': [], 'interior': []}
                         for fid in ('A', 'B', 'C', 'D')
                     }
                 xs = [float(p[0]) for p in pts]
@@ -6380,9 +6437,29 @@ class PreValidationDialog(QDialog):
                 tol = max(6.0, min(max(pw, ph) * 0.12, 18.0))
                 influence = max(160.0, max(pw, ph) * 2.2)
                 result = {
-                    fid: {'lajes': [], 'passa': [], 'chega': [], 'interior': []}
+                    fid: {'lajes': [], 'passa': [], 'param': [], 'chega': [], 'interior': []}
                     for fid in ('A', 'B', 'C', 'D')
                 }
+
+                # A topologia do PillarAnalyzer é a fonte canônica.  Os grupos de
+                # segmentos são auxiliares de desenho e podem conter heranças de
+                # uma viga vizinha; se houver nomes topológicos, nenhum deles pode
+                # atravessar essa fronteira apenas por proximidade geométrica.
+                canonical_beam_names: set[str] = set()
+                for key in ('viga_que_passa', 'viga_que_para'):
+                    for item in pillar.get(key) or []:
+                        if isinstance(item, dict) and str(item.get('name') or '').strip():
+                            canonical_beam_names.add(str(item['name']).strip())
+                for face_data in (pillar.get('face_beams') or {}).values():
+                    if not isinstance(face_data, dict):
+                        continue
+                    for key in ('passa_esq', 'passa_dir'):
+                        item = face_data.get(key)
+                        if isinstance(item, dict) and str(item.get('name') or '').strip():
+                            canonical_beam_names.add(str(item['name']).strip())
+                    for item in face_data.get('para') or []:
+                        if isinstance(item, dict) and str(item.get('name') or '').strip():
+                            canonical_beam_names.add(str(item['name']).strip())
 
                 for fid in ('A', 'B', 'C', 'D'):
                     entries = _entries_for_side(pillar, fid)
@@ -6402,6 +6479,37 @@ class PreValidationDialog(QDialog):
                             return
                     if text not in result[fid][kind]:
                         result[fid][kind].append(text)
+
+                # ``face_beams`` Ã© o vÃ­nculo topolÃ³gico consolidado pelo SA: Ã© a
+                # fonte de fatos para a ficha. A varredura geomÃ©trica abaixo serve
+                # apenas para complementar casos ainda sem slot canÃ´nico, e jamais
+                # para reintroduzir um nome que ela nÃ£o tenha confirmado.
+                for _fid, _face_data in (pillar.get('face_beams') or {}).items():
+                    if _fid not in result or not isinstance(_face_data, dict):
+                        continue
+                    for _slot in ('passa_esq', 'passa_dir'):
+                        _beam = _face_data.get(_slot)
+                        if not isinstance(_beam, dict) or not str(_beam.get('name') or '').strip():
+                            continue
+                        _bits = [f'Viga: {str(_beam["name"]).strip()}']
+                        if str(_beam.get('dim') or '').strip():
+                            _bits.append(f'dim: {str(_beam["dim"]).strip()}')
+                        _bits.append(f'vÃ­nculo topolÃ³gico SA: corre ao longo da face {_fid}')
+                        _detail = ('  ' + chr(0x00B7) + '  ').join(_bits)
+                        _add(_fid, 'passa', _detail)
+                        if (
+                            _fid in ('A', 'B')
+                            and str(_beam.get('behavior') or '').lower() == 'para'
+                        ):
+                            _add(_fid, 'param', _detail)
+                    for _beam in _face_data.get('para') or []:
+                        if not isinstance(_beam, dict) or not str(_beam.get('name') or '').strip():
+                            continue
+                        _bits = [f'Viga: {str(_beam["name"]).strip()}']
+                        if str(_beam.get('dim') or '').strip():
+                            _bits.append(f'dim: {str(_beam["dim"]).strip()}')
+                        _bits.append(f'vÃ­nculo topolÃ³gico SA: chega perpendicularmente na face {_fid}')
+                        _add(_fid, 'chega', ('  ' + chr(0x00B7) + '  ').join(_bits))
 
                 def _seg_bbox(seg: dict) -> tuple[float, float, float, float] | None:
                     pts = [_as_point(p) for p in (seg.get('points') or [])]
@@ -6453,13 +6561,91 @@ class PreValidationDialog(QDialog):
                     name = str(seg.get('beam_name') or '').strip()
                     if not name:
                         name = 'SEM_NOME'
-                    name = re.sub(r'(?<=\d)[AB]$', '', name, flags=re.IGNORECASE)
+                    # V309 e V309A podem ser vigas físicas distintas.  Não
+                    # normalizar um sufixo de trecho para não trocar identidade.
                     bits = [f'Viga: {name}']
                     width = _seg_width_completa(seg)
                     if width:
                         bits.append(f'dim: {width}')
                     bits.append(note)
                     return '  ·  '.join(bits)
+
+                def _beam_geometry_touches_pillar(beam_name: str) -> bool:
+                    """Confirma a evidência de um segmento no eixo canônico da viga.
+
+                    ``_segment_data`` pode carregar um trecho lateral herdado de
+                    outra associação.  Ele só pode alimentar ABCD se a geometria
+                    original da mesma viga também chega ao contorno do pilar.  Sem
+                    essa dupla evidência o caso fica ausente/a confirmar, nunca
+                    vira uma abertura ou vazio inventado.
+                    """
+                    name = str(beam_name or '').strip()
+                    if not name:
+                        return False
+                    for beam in self._beams or []:
+                        if str(beam.get('name') or '').strip() != name:
+                            continue
+                        # Nunca use ``_beam_segment_bboxes`` aqui: ele incorpora
+                        # segmentos derivados e pode importar uma viga vizinha para
+                        # a face errada. Para afirmar um vÃ­nculo ABCD, sÃ³ valem o
+                        # polÃ­gono/points primÃ¡rios da prÃ³pria viga.
+                        geometry = beam.get('geometry') or {}
+                        raw_sources = (
+                            beam.get('points'),
+                            geometry.get('poly'),
+                            geometry.get('points'),
+                        )
+                        for raw in raw_sources:
+                            bb = _segment_bbox(raw) if isinstance(raw, list) else None
+                            if bb is None:
+                                continue
+                            bx0, by0, bx1, by1 = bb
+                            if (
+                                _interval_gap(bx0, bx1, px0, px1) <= tol
+                                and _interval_gap(by0, by1, py0, py1) <= tol
+                            ):
+                                return True
+                    return False
+
+                def _noncanonical_beam_has_primary_contact(beam_name: str) -> bool:
+                    """Aceita exceção ao índice topológico só com polígono próprio.
+
+                    Alguns fundos válidos (como VF) ainda não entram na lista
+                    resumida ``viga_que_*``.  Eles podem complementar a ficha se
+                    o polígono/points da própria viga toca o pilar.  Segmentos
+                    classificados auxiliares não bastam — essa é exatamente a
+                    origem de associações vizinhas como V327.
+                    """
+                    name = str(beam_name or '').strip()
+                    for beam in self._beams or []:
+                        if str(beam.get('name') or '').strip() != name:
+                            continue
+                        raw_sources = [
+                            beam.get('points'),
+                            (beam.get('geometry') or {}).get('poly'),
+                        ]
+                        # Fundo persistido da própria viga: é a fonte primária
+                        # quando a entidade não expõe points/poly (caso comum VF).
+                        for link in ((beam.get('links') or {}).get('viga_segs') or {}).get('seg_bottom') or []:
+                            if isinstance(link, dict):
+                                raw_sources.append(link.get('points') or link.get('coords'))
+                        for raw in raw_sources:
+                            bb = _segment_bbox(raw) if isinstance(raw, list) else None
+                            if bb is None:
+                                continue
+                            bx0, by0, bx1, by1 = bb
+                            if (
+                                _interval_gap(bx0, bx1, px0, px1) <= tol
+                                and _interval_gap(by0, by1, py0, py1) <= tol
+                            ):
+                                return True
+                    return False
+
+                def _beam_allowed_by_topology(beam_name: str) -> bool:
+                    if not canonical_beam_names:
+                        return True
+                    name = str(beam_name or '').strip()
+                    return name in canonical_beam_names or _noncanonical_beam_has_primary_contact(name)
 
                 # Fonte preferencial para nome de viga: segmentos já consolidados
                 # para FV/LV. Eles carregam beam_name por trecho; texto próximo fica
@@ -6470,6 +6656,8 @@ class PreValidationDialog(QDialog):
                     'fundo',
                 ):
                     for seg in segment_groups.get(group_name, []) or []:
+                        if not _beam_geometry_touches_pillar(seg.get('beam_name') or ''):
+                            continue
                         bb = _seg_bbox(seg)
                         if not bb:
                             continue
@@ -6506,10 +6694,12 @@ class PreValidationDialog(QDialog):
                                 # pilar: para faces longas A/B, registrar chegada sem
                                 # inventar nome por texto local.
                                 gap_y = _interval_gap(by0, by1, py0, py1)
-                                if gap_y <= influence and _interval_overlap(bx0, bx1, px0, px1) > 0:
+                                # Uma chegada só existe se o segmento toca a faixa
+                                # do pilar; proximidade distante não é vínculo.
+                                if gap_y <= tol and _interval_overlap(bx0, bx1, px0, px1) > 0:
                                     _add('A', 'chega', _seg_detail(seg, 'chega perpendicularmente na face A'))
                                     _add('B', 'chega', _seg_detail(seg, 'chega perpendicularmente na face B'))
-                                elif gap_y <= influence:
+                                elif gap_y <= tol:
                                     if min(abs(bx0 - px0), abs(bx1 - px0)) <= tol and min(bx0, bx1) < px0 - tol:
                                         _add('A', 'chega', _seg_detail(seg, 'chega perpendicularmente na face A'))
                                     if min(abs(bx0 - px1), abs(bx1 - px1)) <= tol and max(bx0, bx1) > px1 + tol:
@@ -6556,9 +6746,7 @@ class PreValidationDialog(QDialog):
                     """
                     if not text.startswith('Viga:'):
                         return ''
-                    return re.sub(
-                        r'(?<=\d)[AB]$', '', text[5:].split('  ·', 1)[0].strip(), flags=re.IGNORECASE
-                    )
+                    return text[5:].split('  ·', 1)[0].strip()
 
                 # Um fundo de viga pode produzir laterais auxiliares encostadas em A
                 # e C/D. Não são duas vigas que "passam" pela face A. Quando há
@@ -6595,28 +6783,14 @@ class PreValidationDialog(QDialog):
                     b_arrivals = {_viga_name_from_detail(x) for x in result['B']['chega']}
                     shared_long_arrivals = (a_arrivals & b_arrivals) - {''}
 
-                # Em pilares verticais seriados (P2/P3...), a face C pode depender
-                # dos vínculos SIMÉTRICOS de A↔B: uma viga passa no eixo do pilar e
-                # outra cruza perpendicularmente. Não usar uma chegada isolada de
-                # A ou B; ela não prova que exista uma segunda viga em C (caso P1).
-                if vertical_pillar and not result['C']['passa']:
-                    seen_c_sources: set[str] = set()
-                    for source in result['A']['passa'] + result['A']['chega']:
-                        source_name = _viga_name_from_detail(source)
-                        if (
-                            source_name in (shared_long_faces | shared_long_arrivals)
-                            and source_name not in seen_c_sources
-                        ):
-                            seen_c_sources.add(source_name)
-                            _add(
-                                'C',
-                                'passa',
-                                _retag_viga_detail(source, 'vínculo simétrico A↔B para validação da face C'),
-                            )
-
                 for beam in self._beams:
                     bname = str(beam.get('name') or '')
                     if not bname or bname.upper().startswith('LV-'):
+                        continue
+                    # O fallback de beam inteiro tambÃ©m precisa obedecer Ã  mesma
+                    # regra do trecho: bbox derivada nÃ£o Ã© contato. Sem geometria
+                    # primÃ¡ria tocando o pilar, nÃ£o promover o nome a passa/chega.
+                    if not _beam_geometry_touches_pillar(bname):
                         continue
                     segments = _beam_segment_bboxes(beam)
                     if not segments:
@@ -6646,7 +6820,7 @@ class PreValidationDialog(QDialog):
                                         left_cand = _prefer_segment(left_cand, score, bb)
                                     if min(abs(bx0 - px1), abs(bx1 - px1)) <= tol:
                                         right_cand = _prefer_segment(right_cand, score, bb)
-                            if is_horiz_seg and py0 - influence <= (by0 + by1) / 2.0 <= py1 + influence:
+                            if is_horiz_seg and _interval_gap(by0, by1, py0, py1) <= tol:
                                 touches_a = min(abs(bx0 - px0), abs(bx1 - px0)) <= tol
                                 touches_b = min(abs(bx0 - px1), abs(bx1 - px1)) <= tol
                                 if touches_a and min(bx0, bx1) < px0 - tol:
@@ -6662,7 +6836,7 @@ class PreValidationDialog(QDialog):
                                         bottom_cand = _prefer_segment(bottom_cand, score, bb)
                                     if min(abs(by0 - py1), abs(by1 - py1)) <= tol:
                                         top_cand = _prefer_segment(top_cand, score, bb)
-                            if is_vert_seg and px0 - influence <= (bx0 + bx1) / 2.0 <= px1 + influence:
+                            if is_vert_seg and _interval_gap(bx0, bx1, px0, px1) <= tol:
                                 touches_c = min(abs(by0 - py0), abs(by1 - py0)) <= tol
                                 touches_d = min(abs(by0 - py1), abs(by1 - py1)) <= tol
                                 if touches_c and min(by0, by1) < py0 - tol:
@@ -6764,10 +6938,11 @@ class PreValidationDialog(QDialog):
                             candidates.append((math.hypot(dx, dy), raw))
                     return min(candidates, key=lambda item: item[0])[1] if candidates else fallback
 
-                # Substituição conservadora: somente uma chegada detectada e uma
-                # etiqueta de outra viga encostada no canto correspondente. Assim,
-                # não se apaga uma lista real de chegadas múltiplas.
-                for _face_id in ('A', 'B'):
+                # A etiqueta DXF pode complementar o diagnóstico humano, mas não
+                # rebatiza um trecho já classificado. V301 e VF301 podem coexistir
+                # no mesmo recorte; a identidade exibida deve vir da geometria que
+                # tocou a face, nunca de uma etiqueta apenas próxima.
+                for _face_id in ():
                     _arrivals = result[_face_id]['chega']
                     _override = _corner_label_override(_face_id)
                     if len(_arrivals) != 1 or not _override:
@@ -6789,6 +6964,23 @@ class PreValidationDialog(QDialog):
                         _detail += f'  ·  dim: {_new_dim}'
                     _detail += f'  ·  chega perpendicularmente na face {_face_id} (nome ancorado no canto do pilar)'
                     result[_face_id]['chega'] = [_detail]
+
+                # O mesmo eixo nÃ£o pode simultaneamente passar e chegar na mesma
+                # face. Segmentos auxiliares das duas bordas de um fundo podem
+                # sugerir esse falso positivo; uma chegada sÃ³ sobrevive se tiver
+                # identidade distinta da viga contÃ­nua e portanto justificar uma
+                # abertura independente no N3.
+                for _face_id in ('A', 'B', 'C', 'D'):
+                    _continuous_names = {
+                        _viga_name_from_detail(item)
+                        for kind in ('passa', 'interior')
+                        for item in result[_face_id][kind]
+                    } - {''}
+                    if _continuous_names:
+                        result[_face_id]['chega'] = [
+                            item for item in result[_face_id]['chega']
+                            if _viga_name_from_detail(item) not in _continuous_names
+                        ]
 
                 return result
 
@@ -6997,7 +7189,9 @@ class PreValidationDialog(QDialog):
                 except (AttributeError, ValueError):
                     width = depth = None
                 return {
-                    'nome': re.sub(r'(?<=\d)[AB]$', '', match.group(1).strip(), flags=re.I),
+                    # Preserve the exact segment identity.  A suffix is not a
+                    # cosmetic variant when two physical beams share a base name.
+                    'nome': match.group(1).strip(),
                     'largura': width,
                     'profundidade': depth,
                     'evidencia': str(detail or ''),
@@ -7006,6 +7200,16 @@ class PreValidationDialog(QDialog):
             def _mode_slot(row: dict, pillar: dict, fid: str, beam_name: str,
                            arrival: bool) -> str | None:
                 """Resolve AC/AD/AA e BC/BD/BB pela geometria consolidada do SA."""
+                face_data = (pillar.get('face_beams') or {}).get(fid) or {}
+                for physical_slot in ('passa_esq', 'passa_dir'):
+                    linked = face_data.get(physical_slot)
+                    if not isinstance(linked, dict):
+                        continue
+                    if str(linked.get('name') or '').strip() != str(beam_name or '').strip():
+                        continue
+                    corner = str(linked.get('corner') or '').upper()
+                    if corner.startswith(fid) and corner[-1:] in ('C', 'D'):
+                        return corner[-1]
                 pts = row.get('_points') or pillar.get('points') or []
                 if not pts:
                     return None
@@ -7014,13 +7218,11 @@ class PreValidationDialog(QDialog):
                 px0, px1, py0, py1 = min(xs), max(xs), min(ys), max(ys)
                 vertical = (py1 - py0) > (px1 - px0)
                 tol = max(6.0, min(max(px1 - px0, py1 - py0) * 0.12, 18.0))
-                normalized = re.sub(r'(?<=\d)[AB]$', '', str(beam_name), flags=re.I)
+                normalized = str(beam_name).strip()
                 candidates: list[tuple[float, str]] = []
                 for group in (getattr(self, '_segment_data', {}) or {}).values():
                     for seg in group or []:
-                        seg_name = re.sub(
-                            r'(?<=\d)[AB]$', '', str(seg.get('beam_name') or ''), flags=re.I,
-                        )
+                        seg_name = str(seg.get('beam_name') or '').strip()
                         if seg_name != normalized:
                             continue
                         seg_pts = [_as_point(p) for p in (seg.get('points') or [])]
@@ -7045,7 +7247,13 @@ class PreValidationDialog(QDialog):
                                     candidates.append((abs(by1 - py0), 'D'))
                             elif arrival and is_horizontal:
                                 mid = (by0 + by1) / 2.0
-                                if mid < py0:
+                                # A chegada encostada no limite curto é uma abertura
+                                # de canto (BC/BD), não uma abertura BB central.
+                                if abs(mid - py1) <= tol:
+                                    candidates.append((abs(mid - py1), 'C'))
+                                elif abs(mid - py0) <= tol:
+                                    candidates.append((abs(mid - py0), 'D'))
+                                elif mid < py0:
                                     candidates.append((py0 - mid, 'C'))
                                 elif mid > py1:
                                     candidates.append((mid - py1, 'D'))
@@ -7127,6 +7335,7 @@ class PreValidationDialog(QDialog):
                 for fid in ('A', 'B', 'C', 'D'):
                     data = face_interp.get(fid, {})
                     passes = [_mode_beam_parts(item) for item in data.get('passa') or []]
+                    stops = [_mode_beam_parts(item) for item in data.get('param') or []]
                     interiors = [_mode_beam_parts(item) for item in data.get('interior') or []]
                     arrivals = [_mode_beam_parts(item) for item in data.get('chega') or []]
                     slab_depth, slab_evidence = _mode_slab_depth(data)
@@ -7155,7 +7364,11 @@ class PreValidationDialog(QDialog):
 
                     stop_openings = []
                     if mode == 'para' and fid in ('A', 'B'):
-                        for beam in passes:
+                        # ``param`` vem do vínculo canônico ``face_beams`` e
+                        # identifica somente a viga passante que termina no
+                        # canto desta face. O fallback preserva snapshots
+                        # antigos sem a classificação de comportamento.
+                        for beam in (stops or passes):
                             pos = _mode_slot(row, pillar, fid, beam['nome'], False)
                             if pos not in ('C', 'D'):
                                 continue
@@ -8012,6 +8225,19 @@ class PreValidationDialog(QDialog):
 
                     def _slot_for_segment(fid: str, beam_name: str, arrival: bool) -> str | None:
                         """Localiza ponta/canto pelo trecho geométrico, não pelo texto próximo."""
+                        # O N1 já consolidou identidade, face e canto a partir
+                        # do fundo de viga. Isso prevalece sobre uma nova
+                        # inferência por proximidade feita apenas para o HTML.
+                        face_data = (pillar.get('face_beams') or {}).get(fid) or {}
+                        for physical_slot in ('passa_esq', 'passa_dir'):
+                            linked = face_data.get(physical_slot)
+                            if not isinstance(linked, dict):
+                                continue
+                            if str(linked.get('name') or '').strip() != str(beam_name or '').strip():
+                                continue
+                            corner = str(linked.get('corner') or '').upper()
+                            if corner.startswith(fid) and corner[-1:] in ('C', 'D'):
+                                return corner[-1]
                         candidate_slots: list[tuple[float, str]] = []
                         normalized_name = re.sub(
                             r'(?<=\d)[AB]$', '', str(beam_name or '').strip(), flags=re.I,
@@ -8163,12 +8389,13 @@ class PreValidationDialog(QDialog):
                     for fid in ('A', 'B', 'C', 'D'):
                         data = face_interp.get(fid, {})
                         passa = data.get('passa') or []
+                        param = data.get('param') or passa
                         chega = data.get('chega') or []
                         cards.append(
                             f'<div class="valid-card">'
                             f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
                             + _valid_row(base_key, f'abcd_para_{fid}_vazio_topo', 'Vazio topo', 'vb-sa', _vazio_topo(fid, data))
-                            + _valid_row(base_key, f'abcd_para_{fid}_aberturas_param', 'Aberturas vigas que param', 'vb-para', _corner_openings(fid, passa, 'passa'))
+                            + _valid_row(base_key, f'abcd_para_{fid}_aberturas_param', 'Aberturas vigas que param', 'vb-para', _corner_openings(fid, param, 'passa'))
                             + _valid_row(base_key, f'abcd_para_{fid}_aberturas_chegam', 'Aberturas vigas que chegam', 'vb-para', _corner_openings(fid, chega, 'chega'))
                             + '</div>'
                         )
@@ -8363,19 +8590,35 @@ class PreValidationDialog(QDialog):
                 face_validation_section = _face_validation_section(row, pillar, _lbls, valid_base_key)
 
                 # Foto N1
-                geo_b64 = self._render_pilar_dxf_context_b64(
-                    pts, width=1820, height=1300, fmt='svg'
+                geo_near_b64 = self._render_pilar_dxf_context_b64(
+                    pts, width=1820, height=1300, fmt='svg', context_view='near'
+                ) if pts else ''
+                geo_far_b64 = self._render_pilar_dxf_context_b64(
+                    pts, width=1820, height=1300, fmt='svg', context_view='far'
                 ) if pts else ''
                 geo_fmt = 'svg'
-                if not geo_b64:
-                    geo_b64 = _photo(pts)
+                if not geo_near_b64:
+                    geo_near_b64 = _photo(pts)
                     geo_fmt = 'png'
+                n1_views = []
+                if geo_near_b64:
+                    n1_views.append(
+                        '<div class="view-block"><div class="view-label">N1 pr&oacute;ximo &mdash; contato/local</div>'
+                        '<div class="mode-note">Valida face tocada, se&ccedil;&atilde;o, cota e chegada/passagem no contorno do pilar.</div>'
+                        f'{_embed_visual(geo_near_b64, geo_fmt, "img-geo", "N1 proximo")}</div>'
+                    )
+                if geo_far_b64:
+                    n1_views.append(
+                        '<div class="view-block"><div class="view-label">N1 contexto &mdash; eixo/etiqueta distante</div>'
+                        '<div class="mode-note">Rastreia continuidade e nome fora do recorte pr&oacute;ximo. N&atilde;o cria v&iacute;nculo sem contato confirmado no N1 pr&oacute;ximo.</div>'
+                        f'{_embed_visual(geo_far_b64, "svg", "img-geo", "N1 contexto")}</div>'
+                    )
                 foto_n1 = (
                     '<div class="sec"><div class="sec-title">Foto N1 (SA) — Contexto DXF</div>'
-                    f'<div class="sec-body"><div class="img-wrap">'
-                    f'{_embed_visual(geo_b64, geo_fmt, "img-geo", "N1")}'
-                    f'</div></div></div>'
-                ) if geo_b64 else ''
+                    '<div class="sec-body"><div class="mode-note">Leitura em duas escalas da mesma planta: '
+                    'o nome s&oacute; &eacute; aceito quando o contexto distante e o contato local forem compat&iacute;veis.</div>'
+                    f'<div class="views-row">{"".join(n1_views)}</div></div></div>'
+                ) if n1_views else ''
 
                 # N3 / N4
                 def _views_sec(n4: bool) -> str:

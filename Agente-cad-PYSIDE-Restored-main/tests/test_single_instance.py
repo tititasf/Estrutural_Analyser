@@ -7,7 +7,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / 'scripts' / 'arete'))
 
-from single_instance import acquire_lock, refresh_lock, release_lock, wait_for_lock  # noqa: E402
+from single_instance import (  # noqa: E402
+    acquire_lock, describe_holder, refresh_lock, release_lock, wait_for_lock,
+)
 
 
 def test_wait_adquire_quando_liberar(tmp_path):
@@ -76,6 +78,15 @@ def test_liberacao_eh_idempotente(tmp_path):
     assert handle is not None
     release_lock(handle)
     release_lock(handle)  # atexit pode executar depois da liberação normal
+
+
+def test_metadado_antigo_e_so_telemetria_nao_trava_orfa():
+    """PID inexistente explica a fila, mas nao concede quebra manual do lock."""
+    described = describe_holder(
+        "pid=99999999 inicio=2026-01-01T00:00:00 heartbeat=2026-01-01T00:00:00"
+    )
+    assert "telemetria-antiga" in described
+    assert "lock do SO" in described
 
 
 def test_lock_sobrevive_entre_processos(tmp_path):

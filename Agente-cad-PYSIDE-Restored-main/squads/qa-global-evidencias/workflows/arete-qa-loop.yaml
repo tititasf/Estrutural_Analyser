@@ -1,5 +1,5 @@
 name: arete-qa-loop
-version: "1.1.0"
+version: "1.3.0"
 description: "DAG dinâmico para N1, N3, N4 e RAG sem criar entry point concorrente."
 participants:
   - { name: aegis, role: orchestrator }
@@ -15,7 +15,7 @@ phases:
         output: evidence-index.json
     gate:
       condition: "scope.project_id and scope.classe and scope.nivel"
-      on_fail: BLOCK
+      on_fail: NEEDS_SCOPE
 
   - name: route
     steps:
@@ -25,15 +25,21 @@ phases:
       - name: n1-field-probe-route
         when: "nivel == 'N1' and declared_fields and declared_checks"
         task: tasks/review-n1.md
+      - name: n1-class-profile-route
+        when: "nivel == 'N1' and class_profile_probe"
+        task: tasks/review-n1.md
       - name: artifact-route
         when: "nivel in ['N3', 'N4']"
         task: tasks/review-artifact.md
+      - name: n3-smoke-route
+        when: "nivel == 'N3' and contract and dxf"
+        task: tasks/parity-contract.md
       - name: parity-route
         when: "payload or dxf or html changed"
         task: tasks/parity-contract.md
     gate:
       condition: "provenance_graph.complete == true"
-      on_fail: PENDENTE
+      on_fail: NEEDS_EVIDENCE
 
   - name: visual
     when: "gate_requires_visual == true"
@@ -42,7 +48,7 @@ phases:
         output: visual-verdict.json
     gate:
       condition: "visual_verdict.recorded == true"
-      on_fail: BLOCK
+      on_fail: WAITING_HUMAN_VISUAL
 
   - name: triage
     steps:
@@ -51,7 +57,7 @@ phases:
         when: "unresolved_product_rule == true"
     gate:
       condition: "finding.has_general_cause or decision in ['PENDENTE', 'REVISAR_HUMANO']"
-      on_fail: BLOCK
+      on_fail: NEEDS_IMPLEMENTATION
 
   - name: regression
     when: "code_changed == true"
@@ -59,7 +65,7 @@ phases:
       - task: tasks/regression-gate.md
     gate:
       condition: "regression.no_new_failures == true"
-      on_fail: BLOCK
+      on_fail: NEEDS_IMPLEMENTATION
 
   - name: knowledge
     when: "human_confirmed or deterministic_rule_reproduced"
@@ -68,7 +74,21 @@ phases:
         output: rag-candidate.json
     gate:
       condition: "rag_candidate.requires_human_approval == true"
-      on_fail: BLOCK
+      on_fail: WAITING_HUMAN_RAG_PROMOTION
+
+persistence:
+  executor: "scripts/arete/qa_loop_executor.py"
+  schema: "arete.qa_loop_state/v1"
+  ledger: "events.jsonl"
+  resume: "state.json + RESUME.md"
+  max_cycles_default: 8
+  budget_exhausted: "NEEDS_STRATEGY"
+
+human_checkpoints:
+  - "regra estrutural ambígua ou lacuna do manual"
+  - "veredito visual"
+  - "promoção QG7"
+  - "promoção RAG T1/T2"
 
 cache:
   key: "sha256(scope + request + overlay + relevant_field_snapshots + adapter_version + contract + payload + dxf + html)"

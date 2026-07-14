@@ -1,0 +1,65 @@
+{
+  "schema": "arete.qa_class_profile/v1",
+  "class": "LAJ",
+  "version": "1.1.0",
+  "authority": "validation_ready only for promoted adapters; profile probes remain field-scoped",
+  "model": "Laje é interpretada por identidade, contorno, dimensão/nível, visão de corte, apoios, vizinhança e obstáculos. O contorno N1 é fonte do N3; padrões aprendidos não podem copiar geometria N2/N4.",
+  "manual_guides": [
+    "docs/MASTERPLAN-INTERPRETACAO-VALIDACAO.md",
+    "src/ui/widgets/preficha_laje_html.py"
+  ],
+  "n1": {
+    "table": "slabs",
+    "payload": "links_json",
+    "geometry": "points_json",
+    "families": {
+      "identity": ["name.label", "laje_dim.label", "laje_nivel.label"],
+      "geometry": ["points_json", "laje_outline_segs.contour", "trace_diagnostics"],
+      "supports": ["laje_pilares_apoio.pillar_geom", "pillar_side", "touch_face", "hatch_description"],
+      "context": ["laje_visao_corte", "laje_vizinhas_niveis", "obstaculos", "unioes_nos_bordes"]
+    },
+    "probes": {
+      "support_identity_and_contact": {
+        "question": "O primeiro apoio de {item} conserva identidade e geometria iguais ao pilar relacionado?",
+        "fields": [
+          {"id": "slab.name", "class": "LAJ", "item": "{item}", "source": "payload", "path": "name.label.0.text", "transform": "entity"},
+          {"id": "slab.dim", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_dim.label.0.text", "transform": "number"},
+          {"id": "slab.bbox", "class": "LAJ", "item": "{item}", "source": "geometry", "path": "", "transform": "bbox"},
+          {"id": "slab.support.name", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_pilares_apoio.pillar_geom.0.ficha.pillar_name", "transform": "entity"},
+          {"id": "slab.support.bbox", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_pilares_apoio.pillar_geom.0.points", "transform": "bbox"},
+          {"id": "slab.support.trace", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_pilares_apoio.pillar_geom.0", "transform": "trace"},
+          {"id": "pillar.name", "class": "PIL", "item_from": "slab.support.name", "source": "payload", "path": "name.label.0.text", "transform": "entity"},
+          {"id": "pillar.bbox", "class": "PIL", "item_from": "slab.support.name", "source": "geometry", "path": "", "transform": "bbox"}
+        ],
+        "checks": [
+          {"id": "slab_identity", "op": "same_entity", "left": "slab.name", "value": "{item}"},
+          {"id": "dimension_present", "op": "present", "left": "slab.dim"},
+          {"id": "support_identity", "op": "same_entity", "left": "slab.support.name", "right": "pillar.name"},
+          {"id": "support_geometry", "op": "equal", "left": "slab.support.bbox", "right": "pillar.bbox"},
+          {"id": "support_touches_slab", "op": "bbox_intersects", "left": "slab.bbox", "right": "pillar.bbox"},
+          {"id": "support_trace", "op": "equal", "left": "slab.support.trace", "value": true}
+        ]
+      }
+    }
+  },
+  "n3": {
+    "motor": "ROBOT_LJ_N3_N4",
+    "variants": ["PAINEIS", "OBSTACULOS", "UNIOES"],
+    "identity_path": "nome",
+    "expected_layers": ["NOMENCLATURA", "PAINEIS"],
+    "contract_families": {
+      "base": ["nome", "numero", "coordenadas", "comprimento", "largura", "area_cm2", "modo_selecionado"],
+      "panelization": ["linhas_verticais", "linhas_horizontais", "is_union"],
+      "exceptions": ["obstaculos", "unioes_nos_bordes", "observacoes"],
+      "provenance": ["_sa_meta.source", "_sa_meta.gabarito_patterns_allowed", "_sa_meta.n3_pose_source", "_stog_pose"]
+    },
+    "equivalence_strategy": [
+      "nome do contrato deve aparecer no DXF",
+      "contorno e área precisam ser coerentes antes de validar divisões",
+      "cada linha de painel deve ter representação rastreável",
+      "obstáculo/união ausente não pode ser inventado",
+      "padrão validado pode orientar regra, nunca copiar N2/N4 para N3"
+    ]
+  },
+  "sample": {"project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386", "item": "L318"}
+}

@@ -37,6 +37,66 @@ class BeamTracer:
                 continue
         return points
 
+    @staticmethod
+    def _label_owns_points(
+        pts,
+        pos: Tuple[float, float],
+        is_h: bool,
+        orientations: Dict[int, bool],
+        beam_labels: List[Dict],
+        my_name: str,
+    ) -> bool:
+        """Resolve a propriedade geométrica entre rótulos paralelos.
+
+        Usa a distância bidimensional ao rótulo, com transversal e longitudinal
+        como desempates. A versão anterior comparava só o eixo longitudinal e
+        deixava uma viga absorver o fundo da paralela vizinha; priorizar apenas
+        o transversal, por outro lado, fundiria vigas colineares consecutivas.
+        """
+        cx = sum(p[0] for p in pts) / len(pts)
+        cy = sum(p[1] for p in pts) / len(pts)
+
+        def _score(label_pos) -> tuple[float, float, float]:
+            if is_h:
+                transverse = abs(cy - label_pos[1])
+                longitudinal = abs(cx - label_pos[0])
+            else:
+                transverse = abs(cx - label_pos[0])
+                longitudinal = abs(cy - label_pos[1])
+            return (
+                (transverse ** 2 + longitudinal ** 2) ** 0.5,
+                transverse,
+                longitudinal,
+            )
+
+        my_score = _score(pos)
+        my_key = (my_score, str(my_name).upper())
+        # Um rótulo de outra viga só pode disputar uma geometria quando está
+        # no mesmo corredor transversal. Sem este filtro, um nome globalmente
+        # mais perto, porém centenas de unidades acima/ao lado do eixo, rouba
+        # continuações colineares legítimas. A margem mantém a competição entre
+        # vigas paralelas próximas e, para rótulos colineares, deixa o eixo
+        # longitudinal decidir qual trecho consecutivo pertence a cada uma.
+        transverse_competition_margin = 60.0
+        for other in beam_labels:
+            other_name = str(other.get('text') or '').strip()
+            if other_name == my_name:
+                continue
+            if orientations.get(id(other), True) != is_h:
+                continue
+            op = other.get('pos')
+            if not op:
+                continue
+            if abs(op[0] - pos[0]) < 5 and abs(op[1] - pos[1]) < 5:
+                continue
+            other_score = _score(op)
+            if other_score[1] > my_score[1] + transverse_competition_margin:
+                continue
+            other_key = (other_score, other_name.upper())
+            if other_key < my_key:
+                return False
+        return True
+
     def detect_beams(self, texts: List[Dict], lines: List[Dict], visual_obstacles: List[Dict] = None) -> List[Dict]:
         beam_labels = []
         for t in texts:
@@ -390,27 +450,9 @@ class BeamTracer:
             return False
 
         def _owns(pts):
-            cx = sum(p[0] for p in pts) / len(pts)
-            cy = sum(p[1] for p in pts) / len(pts)
-            my_dist = abs(cx - pos[0]) if is_h else abs(cy - pos[1])
-
-            for other in beam_labels:
-                other_name = other['text'].strip()
-                if other_name == my_name:
-                    continue
-                if orientations.get(id(other), True) != is_h:
-                    continue
-
-                op = other['pos']
-                if abs(op[0] - pos[0]) < 5 and abs(op[1] - pos[1]) < 5:
-                    continue
-                if is_h and abs(op[1] - pos[1]) < 30:
-                    if abs(cx - op[0]) < my_dist:
-                        return False
-                elif not is_h and abs(op[0] - pos[0]) < 30:
-                    if abs(cy - op[1]) < my_dist:
-                        return False
-            return True
+            return self._label_owns_points(
+                pts, pos, is_h, orientations, beam_labels, my_name
+            )
 
         sementes = []
         seed_cands = self.spatial_index.query_bbox(
@@ -477,25 +519,9 @@ class BeamTracer:
             return False
 
         def _owns(pts):
-            cx = sum(p[0] for p in pts) / len(pts)
-            cy = sum(p[1] for p in pts) / len(pts)
-            my_dist = abs(cx - pos[0]) if is_h else abs(cy - pos[1])
-            
-            for other in beam_labels:
-                other_name = other['text'].strip()
-                if other_name == my_name: continue
-                # Somente compite com labels da mesma orientação
-                if orientations.get(id(other), True) != is_h: continue
-                
-                op = other['pos']
-                if abs(op[0] - pos[0]) < 5 and abs(op[1] - pos[1]) < 5:
-                    continue
-                # CRITICAL FIX: use 30 instead of 80 to isolate parallel beams
-                if is_h and abs(op[1] - pos[1]) < 30:
-                    if abs(cx - op[0]) < my_dist: return False
-                elif not is_h and abs(op[0] - pos[0]) < 30:
-                    if abs(cy - op[1]) < my_dist: return False
-            return True
+            return self._label_owns_points(
+                pts, pos, is_h, orientations, beam_labels, my_name
+            )
 
         seed_cands = self.spatial_index.query_bbox((pos[0]-60, pos[1]-60, pos[0]+60, pos[1]+60))
         layer_scores = {}
@@ -826,9 +852,17 @@ class BeamTracer:
             label_pos=pos,
             visual_obstacles=lv_visual_obstacles,
         )
+        # A nuvem bruta inclui cruzamentos e cotas vizinhas alcançados pelo
+        # region-growing. Para vincular a seção B/H, use primeiro o fundo já
+        # classificado da própria viga; só recorra à nuvem quando não houver
+        # eixo/fundo utilizável.
+        dimension_geometry = (
+            lv_classified.get('seg_bottom')
+            or (lv_raw_lines if lv_raw_lines is not None else raw_lines)
+        )
         beam_geometry['lv_dimension_text'] = self._nearest_beam_dimension(
             pos,
-            lv_raw_lines if lv_raw_lines is not None else raw_lines,
+            dimension_geometry,
             is_h if lv_is_h is None else lv_is_h,
         )
         beam_geometry['classified'].update({
@@ -861,6 +895,40 @@ class BeamTracer:
         )
         preferred = []  # B/H com B <= H (contrato LV clássico)
         fallback = []   # H/B (ex. 100/19 de viga larga / parede)
+
+        def _geometry_score(point) -> tuple[float, float, float]:
+            """Prioriza a seção que pertence ao trecho geométrico capturado.
+
+            Distância ao rótulo da viga é apenas desempate. Em plantas com
+            trechos colineares consecutivos (por exemplo, uma viga termina e
+            outra começa no mesmo eixo), o rótulo pode ficar junto da emenda e
+            mais perto da seção do trecho vizinho. O vínculo correto é:
+            coordenada longitudinal dentro do bbox do trecho, depois distância
+            transversal ao seu eixo, só então proximidade ao nome.
+            """
+            px, py = float(point[0]), float(point[1])
+            if is_h:
+                longitudinal = px
+                lo, hi = min(all_x), max(all_x)
+                transverse = py
+                transverse_center = (min(all_y) + max(all_y)) / 2.0
+            else:
+                longitudinal = py
+                lo, hi = min(all_y), max(all_y)
+                transverse = px
+                transverse_center = (min(all_x) + max(all_x)) / 2.0
+            if longitudinal < lo:
+                longitudinal_gap = lo - longitudinal
+            elif longitudinal > hi:
+                longitudinal_gap = longitudinal - hi
+            else:
+                longitudinal_gap = 0.0
+            transverse_gap = abs(transverse - transverse_center)
+            label_distance = (
+                (px - float(pos[0])) ** 2 + (py - float(pos[1])) ** 2
+            ) ** 0.5
+            return (longitudinal_gap, transverse_gap, label_distance)
+
         for candidate in self.spatial_index.query_bbox(search_box):
             if not isinstance(candidate, dict) or 'text' not in candidate:
                 continue
@@ -879,16 +947,14 @@ class BeamTracer:
             if text_orientation is not None and text_orientation != is_h:
                 continue
             point = candidate.get('pos') or pos
-            distance = (
-                (float(point[0]) - float(pos[0])) ** 2
-                + (float(point[1]) - float(pos[1])) ** 2
-            )
+            score = _geometry_score(point)
+            label_distance_sq = score[2] ** 2
             # Preferir B/H; aceitar H/B só se bem perto do rótulo da viga
             # (vigas largas tipo 100/19; cotas de pilar 120/19 ficam mais longe).
             if dimensions[0] <= dimensions[1]:
-                preferred.append((distance, candidate))
-            elif distance <= (120.0 ** 2):
-                fallback.append((distance, candidate))
+                preferred.append((score, candidate))
+            elif label_distance_sq <= (120.0 ** 2):
+                fallback.append((score, candidate))
         pool = preferred or fallback
         return min(pool, key=lambda item: item[0])[1] if pool else None
 

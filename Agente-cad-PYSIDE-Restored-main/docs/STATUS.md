@@ -1,6 +1,6 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-13 02:09:06  
+**Gerado em:** 2026-07-14 01:20:28
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 
@@ -9,7 +9,7 @@
 | Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |
 |--------|-----|-----|------|------|---------|---------|---------------|--------|
 | FV | 13_PAV | 20260703_164825 | 26 | 0 | 0 | 100.0% | 26 |  |
-| LAJ | 13_PAV | 20260708_120831 | 31 | 0 | 0 | 100.0% | 31 |  |
+| LAJ | 13_PAV | 20260713_202844 | 31 | 0 | 0 | 100.0% | 31 |  |
 | LV | 13_PAV | 20260703_164510 | 32 | 0 | 0 | 100.0% | 32 |  |
 | LV | 14_PAV | 20260626_194156 | 10 | 17 | 0 | 37.0% | 10 | ❌ FAIL aberto |
 | PIL | 12_PAV | 20260711_000051 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
@@ -46,6 +46,8 @@
 | Obra_TREINO_1_13_PAV_lajes.jsonl | 144 | aberto: 64, verificado: 80 | auto: 111, dono: 16, humano: 17 |
 | Obra_TREINO_1_13_PAV_laterais_viga.jsonl | 9 | aberto: 5, corrigido: 1, invalidado: 1, verificado: 2 | humano: 9 |
 | Obra_TREINO_1_13_PAV_pilares.jsonl | 42 | aberto: 5, verificado: 37 | auto: 39, humano: 3 |
+| Obra_TREINO_1_13_PAV_pilares_20260713.jsonl | 8 | aberto: 8 | auto: 8 |
+| Obra_TREINO_1_13_PAV_pilares_20260713_postfix.jsonl | 4 | aberto: 1, verificado: 3 | auto: 4 |
 
 ## Banco de dados (read-only)
 
@@ -63,10 +65,9 @@
 
 | Status | Qtde |
 |--------|------|
-| aprovado | 328 |
-| auto_aprovado | 445 |
-| manual_sel | 1 |
-| motor | 5 |
+| aprovado | 734 |
+| auto_aprovado | 63 |
+| motor | 9 |
 
 ---
 *Gerado por `scripts/arete/gerar_status.py` — MASTERPLAN-PRODUCAO-SOBERANIA WS-D.*

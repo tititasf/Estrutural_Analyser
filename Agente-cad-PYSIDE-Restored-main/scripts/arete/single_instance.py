@@ -26,6 +26,7 @@ detém a trava (leitura não toca o byte travado).
 from __future__ import annotations
 
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -33,6 +34,7 @@ from typing import IO
 
 
 _STARTED_AT_BY_HANDLE: dict[int, str] = {}
+_PID_RE = re.compile(r"(?:^|\s)pid=(\d+)(?:\s|$)")
 
 
 def _lock_file_path(name: str, lock_dir: str | Path | None) -> Path:
@@ -60,6 +62,63 @@ def _write_status(fh: IO, *, event: str) -> None:
         fh.flush()
     except OSError:
         pass
+
+
+def _pid_is_alive(pid: int) -> bool | None:
+    """Informa se o PID local existe, sem usar isso para quebrar locks."""
+    if pid <= 0:
+        return False
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel32.OpenProcess.argtypes = [
+                ctypes.c_uint32, ctypes.c_int, ctypes.c_uint32,
+            ]
+            kernel32.OpenProcess.restype = ctypes.c_void_p
+            handle = kernel32.OpenProcess(
+                PROCESS_QUERY_LIMITED_INFORMATION, False, pid
+            )
+            if not handle:
+                # ERROR_INVALID_PARAMETER = PID nao existe. Acesso negado e
+                # demais falhas continuam desconhecidas e nunca liberam lock.
+                if ctypes.get_last_error() == 87:
+                    return False
+                return None
+            try:
+                exit_code = ctypes.c_ulong()
+                if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
+                    return None
+                return exit_code.value == 259  # STILL_ACTIVE
+            finally:
+                kernel32.CloseHandle(handle)
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return None
+    except OSError:
+        return None
+
+
+def describe_holder(holder: str | None) -> str:
+    """Anota liveness do metadado sem confundi-lo com a trava real."""
+    text = str(holder or "").strip()
+    if not text:
+        return "instancia ativa (detalhes indisponiveis)"
+    match = _PID_RE.search(text)
+    if not match:
+        return text
+    alive = _pid_is_alive(int(match.group(1)))
+    if alive is True:
+        suffix = "telemetria=processo-vivo"
+    elif alive is False:
+        suffix = "telemetria-antiga; lock do SO continua sendo a autoridade"
+    else:
+        suffix = "telemetria=liveness-indisponivel"
+    return f"{text} {suffix}"
 
 
 def refresh_lock(fh: IO, *, event: str = 'running') -> None:
@@ -95,7 +154,7 @@ def acquire_lock(name: str, lock_dir: str | Path | None = None) -> tuple[IO | No
         except OSError:
             info = ''
         fh.close()
-        return None, info or 'instância ativa (detalhes indisponíveis)'
+        return None, describe_holder(info)
 
     # Trava adquirida — registrar quem somos, a partir do byte 1.
     try:
@@ -156,6 +215,10 @@ def release_lock(fh: IO) -> None:
     if getattr(fh, 'closed', False):
         _STARTED_AT_BY_HANDLE.pop(id(fh), None)
         return
+    # Mantemos o inode porque waiters ja podem te-lo aberto; a ultima
+    # telemetria deixa claro que a liberacao foi limpa. Em crash o byte e'
+    # solto pelo SO e metadado antigo jamais autoriza quebrar a exclusao.
+    _write_status(fh, event='released')
     try:
         if sys.platform == 'win32':
             import msvcrt

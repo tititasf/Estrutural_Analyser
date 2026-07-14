@@ -1669,11 +1669,6 @@ class _CenterPanel(QFrame):
             )
             new_hash = hashlib.sha256(out_path.read_bytes()).hexdigest()
             if old_hash != new_hash or removed_count:
-                reason, accepted = QInputDialog.getText(
-                    self,
-                    "Motivo da edição",
-                    "Por que este recorte foi ajustado? (opcional)",
-                )
                 save_human_edit_event(
                     obra_id=getattr(self, "_current_obra", "") or _obra_name_from_path(out_path),
                     classe=classe,
@@ -1682,7 +1677,9 @@ class _CenterPanel(QFrame):
                     ui_context="DiagnosticReverseHub",
                     estado_anterior={"dxf_sha256": old_hash},
                     estado_novo={"dxf_sha256": new_hash, "entities_copied": n},
-                    nota_usuario=reason.strip() if accepted else "",
+                    # O hash anterior/novo e a contagem já registram a
+                    # evidência técnica; salvar não exige comentário manual.
+                    nota_usuario="",
                     source_agent="diagnostic_reverse_hub",
                     correlation_id=str(out_path.resolve()),
                 )
@@ -2463,12 +2460,12 @@ class _RightPanel(QFrame):
         btn_salvar = QPushButton("💾 Salvar")
         btn_salvar.setStyleSheet(f"""
             QPushButton {{ color: white;
-                background: rgba(80, 80, 220, 160); color: #FFFFFF;
-                border: 1px solid {{Accent.INTERACTIVE_HOVER}}; border-radius: 4px;
+                background: rgba(0, 180, 180, 160); color: #FFFFFF;
+                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
+            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
         """)
         btn_salvar.clicked.connect(self._on_salvar)
         lay.addWidget(btn_salvar)
@@ -3439,11 +3436,6 @@ class DiagnosticReverseHub(QWidget):
         try:
             new_hash = hashlib.sha256(recorte_file.read_bytes()).hexdigest() if recorte_file.exists() else ""
             if old_cls != new_cls or old_hash != new_hash:
-                reason, accepted = QInputDialog.getText(
-                    self,
-                    "Motivo da edição",
-                    "Por que a classe ou o recorte foi ajustado? (opcional)",
-                )
                 save_human_edit_event(
                     obra_id=obra_name,
                     classe=new_cls,
@@ -3452,7 +3444,7 @@ class DiagnosticReverseHub(QWidget):
                     ui_context="DiagnosticReverseHub",
                     estado_anterior={"classe": old_cls, "dxf_sha256": old_hash},
                     estado_novo={"classe": new_cls, "dxf_sha256": new_hash},
-                    nota_usuario=reason.strip() if accepted else "",
+                    nota_usuario="",
                     source_agent="diagnostic_reverse_hub",
                     correlation_id=str(recorte_file.resolve()),
                 )

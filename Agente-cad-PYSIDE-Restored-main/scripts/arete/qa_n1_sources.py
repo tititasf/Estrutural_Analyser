@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import fnmatch
 import hashlib
 import json
 import sqlite3
@@ -15,6 +16,7 @@ class ClassSource:
     table: str
     payload_column: str
     source_columns: dict[str, str]
+    allowed_paths: dict[str, tuple[str, ...]] | None = None
 
 
 CLASS_SOURCES: dict[str, ClassSource] = {
@@ -39,6 +41,16 @@ CLASS_SOURCES: dict[str, ClassSource] = {
             "payload": "data_json", "links": "links_json",
             "sides": "sides_data_json",
         },
+        allowed_paths={
+            "payload": (
+                "fields.nome", "fields.numero", "fields.dimensao",
+                "fields.viga_fundo_*", "viga_fundo_*", "links.viga_segs.*",
+                "links.apoios.*", "links.name.*", "links.cortes*",
+                "links.aberturas*", "holes*", "preficha_segmentos*",
+            ),
+            "links": ("viga_fundo_*", "viga_segs.*", "apoios.*", "name.*", "cortes*", "aberturas*"),
+            "sides": ("*",),
+        },
     ),
     "LV": ClassSource(
         table="beams", payload_column="data_json",
@@ -46,8 +58,29 @@ CLASS_SOURCES: dict[str, ClassSource] = {
             "payload": "data_json", "links": "links_json",
             "sides": "sides_data_json",
         },
+        allowed_paths={
+            "payload": (
+                "fields.nome", "fields.numero", "fields.dimensao",
+                "fields.viga_a_*", "fields.viga_b_*",
+                "links.viga_a_*", "links.viga_b_*",
+                "lv_generation_contracts.*", "lv_interpreter_contract_version",
+            ),
+            "links": ("viga_a_*", "viga_b_*", "apoios.*", "name.*"),
+            "sides": ("*",),
+        },
     ),
 }
+
+
+def _assert_semantic_path(spec: ClassSource, classe: str, source: str, path: str) -> None:
+    """Impede que FV e LV leiam famílias da outra classe no mesmo data_json."""
+    if spec.allowed_paths is None:
+        return
+    patterns = spec.allowed_paths.get(source, ())
+    if not path or not any(fnmatch.fnmatchcase(path, pattern) for pattern in patterns):
+        raise ValueError(
+            f"path fora da família semântica de {classe}: source={source!r} path={path!r}"
+        )
 
 
 def json_value(raw: Any) -> Any:
@@ -119,6 +152,21 @@ def load_requested_fields(
             column, _, remaining = path.partition(".")
             if column not in available:
                 raise ValueError(f"coluna indisponível em {spec.table}: {column}")
+            if spec.allowed_paths is not None and column in spec.source_columns.values():
+                semantic_sources = [
+                    semantic_source for semantic_source, source_column in spec.source_columns.items()
+                    if source_column == column
+                ]
+                if not semantic_sources or not any(
+                    remaining and any(
+                        fnmatch.fnmatchcase(remaining, pattern)
+                        for pattern in spec.allowed_paths.get(semantic_source, ())
+                    )
+                    for semantic_source in semantic_sources
+                ):
+                    raise ValueError(
+                        f"path de coluna fora da família semântica de {classe}: {path!r}"
+                    )
             selections.append(f'"{column}" AS {alias}')
             selected_columns.add(column)
             descriptors.append({
@@ -130,6 +178,7 @@ def load_requested_fields(
         column = spec.source_columns.get(source)
         if not column or column not in available:
             raise ValueError(f"fonte indisponível para {classe}: {source}")
+        _assert_semantic_path(spec, classe, source, path)
         selected_columns.add(column)
         exact_path = bool(path) and "*" not in path
         if exact_path:

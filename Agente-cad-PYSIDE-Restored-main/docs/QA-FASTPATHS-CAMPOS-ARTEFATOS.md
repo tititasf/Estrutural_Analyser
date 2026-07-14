@@ -29,6 +29,16 @@ Um overlay tem o formato abaixo e nunca é persistido:
 {"fields": {"pillar.face_d.beam_name": "V999"}}
 ```
 
+Para hipóteses recorrentes, use `qa_profile_probe.py`; ele carrega o catálogo
+específico de PIL/LAJ/FV/LV. O escopo é obrigatório e as famílias FV/LV têm
+allowlists separadas apesar de compartilharem `beams.data_json`.
+
+```powershell
+py -3.12 -X utf8 scripts/arete/qa_profile_probe.py `
+  --classe PIL --probe face_beam_identity_dimension_contact `
+  --item P35 --var face=D --project-id <ID>
+```
+
 ## 2. Quando ainda usar headless
 
 - Ajuste de regra sobre valores já persistidos: probe focado, sem headless.
@@ -45,6 +55,19 @@ Metadado DXF ausente fica explícito; não é inferido do HTML.
 
 `ficha_motor_item.py --contract ROTULO=arquivo.json` registra hashes do contrato,
 DXF, SVG e HTML. O render DXF→SVG usa cache por conteúdo.
+
+Antes da ficha, `qa_n3_smoke.py` verifica cada variante declarada: identidade do
+contrato no DXF, texto e camadas mínimas do perfil. Esse PASS não valida abertura,
+vazio, recorte, cotagem ou equivalência geométrica.
+
+```powershell
+py -3.12 -X utf8 scripts/arete/qa_n3_smoke.py `
+  --classe LV --item V301 `
+  --contract A_PARA=<contrato.json> --dxf A_PARA=<artefato.dxf> `
+  --contract A_PASSA=<contrato.json> --dxf A_PASSA=<artefato.dxf>
+```
+
+Catálogo detalhado: `docs/QA-PERFIS-CLASSES-SA-N1-N3.md`.
 
 ## 4. Cache e benchmark
 

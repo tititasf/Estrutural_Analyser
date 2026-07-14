@@ -323,17 +323,24 @@ def write_laje_pages(
         n4_path = dialog._find_beam_dxf("LJ", name, n4=True)
         n2_path = dialog._find_n2_recorte_dxf("LAJ", name)
 
-        sa_b64 = (
+        # N1 local prova contato; N1 contextual explica topologia. Ambos vêm
+        # do mesmo DXF e não recebem geometria, obstáculo ou união de N2/N4.
+        sa_near_b64 = (
             dialog._render_pilar_dxf_context_b64(
-                points, width=1820, height=1300, focus_mode="slab", fmt="svg",
+                points, width=1820, height=1300, focus_mode="slab",
+                focus_label=name, fmt="svg", context_view="near",
             )
             if points
             else ""
         )
-        sa_fmt = "svg"
-        if not sa_b64:
-            sa_b64 = photo_fn(points)
-            sa_fmt = "png"
+        sa_far_b64 = (
+            dialog._render_pilar_dxf_context_b64(
+                points, width=1820, height=1300, focus_mode="slab",
+                focus_label=name, fmt="svg", context_view="far",
+            )
+            if points
+            else ""
+        )
         n3_b64 = dialog._render_ezdxf_b64(n3_path, 1900, 1240, fmt="svg") if n3_path else ""
         n4_b64 = dialog._render_ezdxf_b64(n4_path, 1900, 1240, fmt="svg") if n4_path else ""
         n2_b64 = dialog._render_ezdxf_b64(n2_path, 1900, 1240, fmt="svg") if n2_path else ""
@@ -429,11 +436,18 @@ def write_laje_pages(
 
         evidence = (
             _artifact_card(
-                "N1 / SA",
-                "DXF estrutural com a laje destacada",
-                sa_b64,
+                "N1 próximo / SA",
+                "Prova local: contorno, degraus/chanfros, nível, face e contato real dos apoios; obstáculos e uniões no bordo.",
+                sa_near_b64,
                 image_class="img-geo",
-                fmt=sa_fmt,
+                fmt="svg",
+            )
+            + _artifact_card(
+                "N1 contexto / SA",
+                "Contexto: lajes/níveis vizinhos, cortes, eixos, pilares/vigas e etiquetas. Explica topologia; não prova apoio por proximidade.",
+                sa_far_b64,
+                image_class="img-geo",
+                fmt="svg",
             )
             + _artifact_card(
                 "N2", "Recorte humano usado pelo motor reverso", n2_b64, n2_path
@@ -463,8 +477,8 @@ def write_laje_pages(
                 _pipeline_stage(
                     dialog,
                     "N1 / SA",
-                    bool(sa_b64),
-                    "Contorno autoritativo e vínculos do Structural Analyzer.",
+                    bool(sa_near_b64 and sa_far_b64),
+                    "Dois SVGs do DXF: prova local de contato e contexto topológico.",
                     name,
                 ),
                 _pipeline_stage(

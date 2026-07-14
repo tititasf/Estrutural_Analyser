@@ -41,10 +41,12 @@ class _FakeDialog:
         return f"n2_{class_prefix}_{item_name}.dxf"
 
     def _render_pilar_dxf_context_b64(
-        self, points, width=1000, height=680, focus_mode="pillar", fmt="png"
+        self, points, width=1000, height=680, focus_mode="pillar", fmt="png", **kwargs
     ):
         assert focus_mode == "segment"
         assert (width, height) == (2400, 600)
+        assert fmt == "svg"
+        assert kwargs["context_view"] in {"near", "far"}
         if fmt == "svg":
             return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
         return "U0E="
@@ -109,7 +111,7 @@ def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pa
     assert result == ("fundos_viga/index.html", "Fundos", 1)
     page = tmp_path / "fundos_viga" / "V301.html"
     soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
-    assert len(soup.select(".evidence-card svg")) == 4
+    assert len(soup.select(".evidence-card svg")) == 5
     style = soup.style.get_text()
     assert "grid-template-columns:1fr!important" in style
     assert "max-height:none!important" in style
@@ -157,7 +159,8 @@ def test_fundo_writer_groups_segments_and_renders_shared_stages_once(tmp_path: P
     soup = BeautifulSoup(
         (section / "V301.html").read_text(encoding="utf-8"), "html.parser"
     )
-    assert len(soup.select('svg[alt="N1 / SA"]')) == 2
+    assert len(soup.select('svg[alt="N1 / SA local"]')) == 2
+    assert len(soup.select('svg[alt="N1 / SA contextual"]')) == 2
     assert len(soup.select('svg[alt="N2"]')) == 1
     assert len(soup.select('svg[alt="N3 / NOVA"]')) == 1
     assert len(soup.select('svg[alt="N4"]')) == 1

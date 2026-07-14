@@ -194,6 +194,29 @@ def _beam_for(dialog, segment: dict) -> dict:
     return {}
 
 
+def _fv_context_points(beam: dict) -> list[tuple[float, float]]:
+    """Retorna somente contornos FV da própria viga para o SVG contextual.
+
+    O contexto distante explica a continuidade do fundo, mas não pode herdar
+    geometria de LV.  Por isso esta coleta aceita exclusivamente os slots
+    ``viga_fundo_seg_*_area_segs`` já persistidos no contrato FV.
+    """
+    points: list[tuple[float, float]] = []
+    links = beam.get("links") if isinstance(beam, dict) else {}
+    for key, slots in (links or {}).items():
+        if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(key)):
+            continue
+        for link in (slots or {}).get("contour") or []:
+            if not isinstance(link, dict):
+                continue
+            for point in link.get("points") or []:
+                try:
+                    points.append((float(point[0]), float(point[1])))
+                except (TypeError, ValueError, IndexError):
+                    continue
+    return points
+
+
 def _copy_latest_guide(output_dir: str, section_dir: str) -> None:
     """Copia somente documentação do pack anterior; nunca artefatos N3/N4."""
     base_dir = os.path.dirname(output_dir)
@@ -338,22 +361,45 @@ def write_fundo_pages(
                 context_width, context_height = 840, 2000
             else:
                 context_width, context_height = 1800, 1360
-            sa_b64 = (
+            context_points = _fv_context_points(raw_beam)
+            source_key = str(segment.get("source_key") or "segmento_fundo")
+            support_start = str(segment_fields.get(f"viga_fundo_seg_{segment_index}_local_ini") or "")
+            support_end = str(segment_fields.get(f"viga_fundo_seg_{segment_index}_local_fim") or "")
+            local_subtitle = (
+                f"Segmento {label} · {source_key} · dimensão {segment.get('width') or '—'}"
+                f" · apoios locais {support_start or '—'} → {support_end or '—'}"
+            )
+            sa_local_b64 = (
                 dialog._render_pilar_dxf_context_b64(
                     points,
                     width=context_width,
                     height=context_height,
                     focus_mode="segment",
+                    focus_label=f"FV {source_key} · local",
                     fmt="svg",
+                    context_view="near",
                 )
                 if points
                 else ""
             )
-            sa_fmt = "svg"
-            if not sa_b64:
-                sa_b64 = photo_fn(points)
-                sa_fmt = "png"
-            n1_available += bool(sa_b64)
+            sa_context_b64 = (
+                dialog._render_pilar_dxf_context_b64(
+                    points,
+                    width=context_width,
+                    height=context_height,
+                    focus_mode="segment",
+                    focus_label=f"FV {source_key} · contexto",
+                    fmt="svg",
+                    context_view="far",
+                    context_points=context_points,
+                )
+                if points
+                else ""
+            )
+            # A ficha FV tem exatamente duas provas N1: local e contextual.
+            # Não há fallback PNG nem terceiro zoom que poderia mascarar a
+            # proveniência vetorial exigida pelo gate.
+            n1_available += bool(sa_local_b64 and sa_context_b64)
 
             identity_rows = (
                 _table_sep("IDENTIDADE E DECISÃO SA")
@@ -427,11 +473,19 @@ def write_fundo_pages(
                 '</div><div class="sec-body">'
                 '<div class="evidence-grid">'
                 + _artifact_card(
-                    "N1 / SA",
-                    f"DXF estrutural focado exclusivamente no segmento {label}",
-                    sa_b64,
+                    "N1 / SA local",
+                    local_subtitle,
+                    sa_local_b64,
                     image_class="img-geo",
-                    fmt=sa_fmt,
+                    fmt="svg",
+                )
+                + _artifact_card(
+                    "N1 / SA contextual",
+                    f"Mesma origem DXF; continuidade da viga sem criar apoios. "
+                    f"Destaque: {source_key}.",
+                    sa_context_b64,
+                    image_class="img-geo",
+                    fmt="svg",
                 )
                 + '</div><div class="fichas-grid" style="margin-top:10px">'
                 '<div><div class="ficha-col-title">Ficha N1/SA do segmento</div>'
@@ -449,7 +503,7 @@ def write_fundo_pages(
                 _pipeline_stage(
                     dialog,
                     "N1 / SA",
-                    bool(sa_b64),
+                    bool(sa_local_b64 and sa_context_b64),
                     f"Segmentação e vínculo SA do segmento {label}.",
                     beam,
                     label,

@@ -21,12 +21,15 @@ class _FakeDialog:
         return f"n2_{class_prefix}_{item_name}.dxf"
 
     def _render_pilar_dxf_context_b64(
-        self, points, width=1000, height=680, focus_mode="pillar", fmt="png"
+        self, points, width=1000, height=680, focus_mode="pillar", fmt="png",
+        focus_label="SEGMENTO", context_view="near",
     ):
         assert (width, height) == (1820, 1300)
         assert focus_mode == "slab"
+        assert focus_label == "L301"
+        assert context_view in {"near", "far"}
         if fmt == "svg":
-            return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
+            return f'<svg viewBox="0 0 10 10"><text>SA-{context_view}</text></svg>'
         return "U0E="
 
     def _render_ezdxf_b64(self, path, width=950, height=620, fmt="png"):
@@ -40,7 +43,7 @@ class _FakeDialog:
         return "<table><tr><td>N2 completo</td></tr></table>"
 
 
-def test_laje_writer_creates_granular_page_with_four_visual_stages(tmp_path: Path):
+def test_laje_writer_creates_granular_page_with_two_n1_svg_evidences(tmp_path: Path):
     rows = [{
         "Nome": "L301",
         "Nível": "+3.05",
@@ -66,12 +69,15 @@ def test_laje_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pat
     assert result == ("lajes/index.html", "Lajes", 1)
     page = tmp_path / "lajes" / "L301.html"
     soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
-    assert len(soup.select(".evidence-card svg")) == 4
+    assert len(soup.select(".evidence-card svg")) == 5
     style = soup.style.get_text()
     assert "grid-template-columns:1fr!important" in style
     assert "max-height:none!important" in style
     text = soup.get_text(" ", strip=True)
-    assert "N1 / SA" in text
+    assert "N1 próximo / SA" in text
+    assert "N1 contexto / SA" in text
+    assert "Prova local" in text
+    assert "não prova apoio por proximidade" in text
     assert "N2 / STOG real" in text
     assert "N3 / Robô SA" in text
     assert "N4 / Robô ER" in text

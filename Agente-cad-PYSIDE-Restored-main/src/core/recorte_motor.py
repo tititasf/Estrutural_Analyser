@@ -64,6 +64,7 @@ class RecorteMotor:
         self._pkl: dict | None = None
         self._laj_dimension_hints: dict[str, dict] | None = None
         self._laj_layer_cache: dict[bool, set[str]] = {}
+        self._lv_partitioned_bboxes: set[tuple[float, float, float, float]] = set()
 
     # ──────────────────────────────────────────────────────────────────────
     # Público: run()
@@ -150,6 +151,8 @@ class RecorteMotor:
            olhando se face A está mais de 0.7×PITCH à direita do frame que a contém
         """
         msp = self._dxf.modelspace()
+        if self.er_type == 'LV':
+            self._lv_partitioned_bboxes.clear()
 
         # 1. Frames — bbox de conteúdo: x1 e y1 iguais ao inner frame,
         #             y0 acima do title block, x0 do inner (o left pode ter margem variável)
@@ -178,13 +181,13 @@ class RecorteMotor:
             # Padrão 1: seção só no final — "V1.A", "V1-V2.A"
             label_pat = re.compile(
                 r'^(?:CONT\.\s+)?'
-                r'(V[A-Z]?\d+(?:[A-Z])?(?:\s*[-/eE]\s*V[A-Z]?\d+(?:[A-Z])?)*)\s*\.\s*[A-Z]$'
+                r'(V[A-Z]?\d+(?:[A-Z])?(?:\s*[-/+eE]\s*V[A-Z]?\d+(?:[A-Z])?)*)\s*\.\s*[A-Z]$'
             )
             # Padrão 2: seção em cada viga — "V323.C - V328.C"
             pat_multi_sec = re.compile(
                 r'^(?:CONT\.\s+)?'
                 r'(V[A-Z]?\d+(?:[A-Z])?)\s*\.\s*[A-Z]'
-                r'(\s*[-/eE]\s*V[A-Z]?\d+(?:[A-Z])?\s*\.\s*[A-Z])+$'
+                r'(\s*[-/+eE]\s*V[A-Z]?\d+(?:[A-Z])?\s*\.\s*[A-Z])+$'
             )
             pat_extract_names = re.compile(r'(V[A-Z]?\d+(?:[A-Z])?)\s*\.\s*[A-Z]')
 
@@ -199,7 +202,7 @@ class RecorteMotor:
             m = label_pat.match(txt)
             if m:
                 eid_raw = m.group(1)
-                eid = re.sub(r'\s*[-/eE]\s*', '-', eid_raw)
+                eid = re.sub(r'\s*[-/+eE]\s*', '-', eid_raw)
             elif pat_multi_sec and pat_multi_sec.match(txt):
                 names = pat_extract_names.findall(txt)
                 if names:
@@ -214,6 +217,64 @@ class RecorteMotor:
             return self._discover_by_expansion()
 
         # 3. Mapear cada elemento → frames com suas labels
+        def _lv_partition_frame(frame: tuple, eid: str) -> tuple:
+            """Divide frame LV que contém laterais independentes."""
+            fx0, fy0, fx1, fy1 = frame
+            anchors = []
+            for other_id, other_pts in elem_labels.items():
+                local = [(x, y) for x, y in other_pts if fx0 <= x <= fx1 and fy0 <= y <= fy1]
+                if local:
+                    anchors.append((other_id, sum(x for x, _ in local) / len(local), sum(y for _, y in local) / len(local)))
+            if len(anchors) < 2:
+                return frame
+            own = next((row for row in anchors if row[0] == eid), None)
+            if own is None:
+                return frame
+            span_x = max(row[1] for row in anchors) - min(row[1] for row in anchors)
+            span_y = max(row[2] for row in anchors) - min(row[2] for row in anchors)
+            # Comparação normalizada pelo frame: duas seções empilhadas podem
+            # ter pequena diferença em X, mas ainda são essencialmente uma
+            # divisão vertical de folha.
+            axis = 1 if span_x / max(1.0, fx1 - fx0) >= span_y / max(1.0, fy1 - fy0) else 2
+            ordered = sorted(anchors, key=lambda row: row[axis])
+            idx = next(i for i, row in enumerate(ordered) if row[0] == eid)
+            value = own[axis]
+            low = (ordered[idx - 1][axis] + value) / 2.0 if idx else (fx0 if axis == 1 else fy0)
+            high = (value + ordered[idx + 1][axis]) / 2.0 if idx + 1 < len(ordered) else (fx1 if axis == 1 else fy1)
+            # Metades LV não se sobrepõem: a linha de fronteira pode aparecer
+            # nos dois DXFs por ser compartilhada, mas a área do vizinho não.
+            # A divisao da folha ainda precisa conservar a cadeia de cotas da
+            # extremidade direita. 65 cortava o ultimo valor em laterais
+            # humanas; 125 mantem mais 60 unidades de folga sem abandonar a
+            # fronteira dinamica calculada entre os labels.
+            right_pad = 125.0
+            if axis == 1:
+                if idx:
+                    previous_value = ordered[idx - 1][axis]
+                    distance_to_previous = max(0.0, value - previous_value)
+                    own_content_guard = min(140.0, max(35.0, distance_to_previous * 0.20))
+                    shifted_low = max(low + right_pad, value - own_content_guard)
+                else:
+                    shifted_low = low
+                partition = (
+                    max(fx0, shifted_low), fy0,
+                    min(fx1, high + right_pad), fy1,
+                )
+                self._lv_partitioned_bboxes.add(partition)
+                return partition
+            # Em seções empilhadas não há "extremidade direita" a ampliar;
+            # não sobrepor Y evita que o desenho de cima/desça no vizinho.
+            lower_gap = min(30.0, max(0.0, span_y * 0.08))
+            upper_gap = min(70.0, max(0.0, span_y * 0.18))
+            shifted_low = low + lower_gap if idx else low
+            shifted_high = high - upper_gap if idx + 1 < len(ordered) else high
+            partition = (
+                fx0, max(fy0, shifted_low),
+                fx1, min(fy1, shifted_high),
+            )
+            self._lv_partitioned_bboxes.add(partition)
+            return partition
+
         results = []
         for eid, label_pts in sorted(elem_labels.items(), key=lambda x: _sort_key_elem(x[0])):
             # Frames que contêm labels deste elemento
@@ -244,7 +305,10 @@ class RecorteMotor:
                     if not placed:
                         lv_row_groups[int(f[1])] = [f]
                 # Uma bbox por grupo de row (merged apenas dentro do row)
-                multi_bboxes = [_merge_bboxes(grp) for grp in lv_row_groups.values()]
+                multi_bboxes = [
+                    _lv_partition_frame(_merge_bboxes(grp), eid)
+                    for grp in lv_row_groups.values()
+                ]
                 results.append((eid, label_pts, multi_bboxes))
                 continue  # pular o merge e append abaixo
             else:
@@ -367,11 +431,42 @@ class RecorteMotor:
         results = []
         for eid, pts in sorted(elem_labels.items(), key=lambda x: _sort_key_elem(x[0])):
             lxs = [p[0] for p in pts]; lys = [p[1] for p in pts]
+            label_x = min(lxs)
+            label_y = sum(lys) / len(lys)
+            # Perfil FV vizinho na mesma fileira delimita a janela local.
+            # Não usamos o ponto médio: perfis podem terminar perto do próximo
+            # nome e ainda precisam conservar sarrafo, cota e texto finais.
+            same_row_right = [
+                x for other_id, other_pts in elem_labels.items()
+                if other_id != eid
+                for x, y in other_pts
+                if x > label_x + 20.0 and abs(y - label_y) <= 65.0
+            ]
+            right_limit = label_x + 1500.0
+            if same_row_right:
+                # Reserva somente uma faixa antes da próxima nomenclatura;
+                # ela impede misturar o próximo fundo sem amputar a ponta do
+                # perfil atual.
+                # 6 unidades deixam ar para o texto da cota terminal sem
+                # alcançar a nomenclatura/desenho do fundo seguinte.
+                right_limit = min(right_limit, min(same_row_right) - 6.0)
+            same_column = [
+                y for other_id, other_pts in elem_labels.items()
+                if other_id != eid
+                for x, y in other_pts
+                if abs(x - label_x) <= 250.0 and abs(y - label_y) > 10.0
+            ]
+            below = [y for y in same_column if y < label_y]
+            above = [y for y in same_column if y > label_y]
             # Label ao TOPO esquerdo — conteúdo desce e vai para direita
-            x0 = min(lxs) - 30
+            x0 = label_x - 15
             y0 = min(lys) - 130     # conteúdo estende max ~120 abaixo da label inferior
-            x1 = min(lxs) + 1500   # largura FV ~1250-1345, margem extra
-            y1 = max(lys) + 50     # pequena margem acima da label superior
+            x1 = right_limit
+            y1 = max(lys) + 20     # elimina textos de apoio acima
+            if below:
+                y0 = max(y0, max(below) + 20.0)
+            if above:
+                y1 = min(y1, min(above) - 20.0)
             results.append((eid, pts, [(x0, y0, x1, y1)]))
 
         return results
@@ -443,14 +538,50 @@ class RecorteMotor:
             y0 = (max(below_ys) + cy) / 2 - MARGIN_Y if below_ys else cy - MAX_HALF_Y
             y1 = (min(above_ys) + cy) / 2 + MARGIN_Y if above_ys else cy + MAX_HALF_Y
 
-            bbox = (
-                self._laj_bbox_from_dimension_hint(eid, cx, cy)
-                or self._laj_bbox_from_structural_edges(cx, cy)
-                or self._expand_laj_bbox_from_panel_edges(
-                    (x0, y0, x1, y1),
-                    eid=eid,
-                    all_centroids=all_centroids,
+            structural_bbox = self._laj_bbox_from_structural_edges(cx, cy)
+            if structural_bbox:
+                # Um span estrutural longo pode cruzar varios paineis da mesma
+                # fileira. A borda so e evidencia do item se a janela final
+                # nao engolir o label de outra laje.
+                structural_bbox = _shrink_bbox_away_from_laj_labels(
+                    structural_bbox, eid, all_centroids
                 )
+                structural_bbox = _constrain_laj_bbox_to_neighbor_cells(
+                    structural_bbox, eid, all_centroids
+                )
+
+            stog_bbox = self._laj_bbox_from_stog_dimensions(
+                eid, cx, cy, all_centroids=all_centroids
+            )
+            if stog_bbox:
+                stog_bbox = _constrain_laj_bbox_to_neighbor_cells(
+                    stog_bbox, eid, all_centroids
+                )
+            legacy_bbox = self._laj_bbox_from_dimension_hint(eid, cx, cy)
+            # Cotas ortogonais locais do STOG descrevem o painel do proprio
+            # item. Quando elas fecham uma janela substancialmente menor que
+            # um span estrutural, a menor janela e' a evidencia mais precisa:
+            # o span maior costuma carregar a cadeia de lajes vizinhas.
+            preferred_bbox = None
+            if stog_bbox:
+                stog_area = (stog_bbox[2] - stog_bbox[0]) * (stog_bbox[3] - stog_bbox[1])
+                struct_area = (
+                    (structural_bbox[2] - structural_bbox[0])
+                    * (structural_bbox[3] - structural_bbox[1])
+                    if structural_bbox else None
+                )
+                if struct_area is None or stog_area <= struct_area * 0.78:
+                    preferred_bbox = stog_bbox
+            bbox = self._choose_laj_bbox(
+                eid,
+                pts,
+                independent_bboxes=(structural_bbox, stog_bbox),
+                legacy_bbox=legacy_bbox,
+                preferred_bbox=preferred_bbox,
+            ) or self._expand_laj_bbox_from_panel_edges(
+                (x0, y0, x1, y1),
+                eid=eid,
+                all_centroids=all_centroids,
             )
             bboxes = [bbox]
             if not _pt_in_bbox(cx, cy, bbox):
@@ -544,8 +675,254 @@ class RecorteMotor:
         self._laj_layer_cache[include_context] = result
         return result
 
+    def _laj_bbox_from_stog_dimensions(
+        self,
+        eid: str,
+        cx: float,
+        cy: float,
+        *,
+        all_centroids: dict[str, tuple] | None = None,
+    ) -> tuple | None:
+        """Fecha a janela LAJ pelas cotas do proprio STOG, nunca pelo N1.
+
+        Algumas lajes estreitas nao expõem duas bordas horizontais longas ao
+        redor do label. Nesses casos o desenho humano ainda traz duas cadeias
+        de cotas ortogonais dos paineis (por exemplo 156.5 + 238.5 e
+        35.5 + 35.5). Somar uma cadeia local de cada eixo permite usar a
+        mesma busca estrutural de bordas sem importar medidas da ficha N1.
+
+        A regra e conservadora: se nao houver uma cadeia horizontal e uma
+        vertical que atravessem o label, retorna ``None`` e o motor segue para
+        os fallbacks existentes.
+        """
+        if not self._pkl:
+            return None
+
+        # Uma cadeia horizontal pertence ao intervalo entre os labels vizinhos
+        # da mesma fileira; sem essa divisao, a soma L51+L52 parece uma cota
+        # valida de L51. O mesmo vale para cotas verticais de outra coluna.
+        row_neighbors = [
+            (x, y) for x, y in (all_centroids or {}).values()
+            if abs(y - cy) < 150.0 and abs(x - cx) > 10.0
+        ]
+        col_neighbors = [
+            (x, y) for x, y in (all_centroids or {}).values()
+            if abs(x - cx) < 400.0 and abs(y - cy) > 10.0
+        ]
+        left = [x for x, _ in row_neighbors if x < cx]
+        right = [x for x, _ in row_neighbors if x > cx]
+        below = [y for _, y in col_neighbors if y < cy]
+        above = [y for _, y in col_neighbors if y > cy]
+        row_x0 = (max(left) + cx) / 2.0 if left else float("-inf")
+        row_x1 = (min(right) + cx) / 2.0 if right else float("inf")
+        col_y0 = (max(below) + cy) / 2.0 if below else float("-inf")
+        col_y1 = (min(above) + cy) / 2.0 if above else float("inf")
+
+        layer_keys = {
+            _layer_key(layer)
+            for layer in self._laj_geometry_layers(include_context=True)
+        }
+        horizontal: list[tuple[float, float, float]] = []  # y, x, valor
+        vertical: list[tuple[float, float, float]] = []    # x, y, valor
+        numeric_re = re.compile(r"^\d+(?:[.,]\d+)?$")
+
+        for text in self._pkl.get("texts", []):
+            if _layer_key(text.get("layer")) not in layer_keys:
+                continue
+            raw = str(text.get("text") or "").strip()
+            if not numeric_re.fullmatch(raw):
+                continue
+            value = float(raw.replace(",", "."))
+            if not 8.0 <= value <= 1250.0:
+                continue
+            pos = text.get("pos")
+            if not pos:
+                continue
+            x, y = float(pos[0]), float(pos[1])
+            # So cotas realmente locais podem delimitar este recorte.
+            if abs(x - cx) > 650.0 or abs(y - cy) > 400.0:
+                continue
+            angle = float(text.get("rotation") or 0.0) % 180.0
+            if min(abs(angle), abs(180.0 - angle)) <= 25.0:
+                if row_x0 - 35.0 <= x <= row_x1 + 35.0:
+                    horizontal.append((y, x, value))
+            elif abs(angle - 90.0) <= 25.0:
+                if col_y0 - 35.0 <= y <= col_y1 + 35.0:
+                    vertical.append((x, y, value))
+
+        def _chain(
+            values: list[tuple[float, float, float]],
+            *,
+            coordinate_index: int,
+            run_index: int,
+            anchor: float,
+            axis_limit: float,
+            cluster_gap: float,
+        ) -> float | None:
+            """Escolhe uma unica cadeia de cotas que atravessa o label."""
+            if len(values) < 2:
+                return None
+            ordered = sorted(values, key=lambda item: item[coordinate_index])
+            groups: list[list[tuple[float, float, float]]] = []
+            for item in ordered:
+                if not groups or item[coordinate_index] - groups[-1][-1][coordinate_index] > cluster_gap:
+                    groups.append([item])
+                else:
+                    groups[-1].append(item)
+
+            candidates: list[tuple[float, float]] = []
+            for group in groups:
+                if len(group) < 2:
+                    continue
+                runs = [item[run_index] for item in group]
+                # Sem cruzar a projecao do label, a cadeia e de um vizinho.
+                if not min(runs) - 35.0 <= anchor <= max(runs) + 35.0:
+                    continue
+                total = sum(item[2] for item in group)
+                if not 45.0 <= total <= axis_limit:
+                    continue
+                proximity = abs(
+                    sum(item[coordinate_index] for item in group) / len(group) - anchor
+                )
+                candidates.append((proximity, total))
+            return min(candidates, default=(0.0, None), key=lambda row: row[0])[1]
+
+        width = _chain(
+            horizontal,
+            coordinate_index=0,
+            run_index=1,
+            anchor=cx,
+            axis_limit=1250.0,
+            cluster_gap=16.0,
+        )
+        height = _chain(
+            vertical,
+            coordinate_index=0,
+            run_index=1,
+            anchor=cy,
+            axis_limit=850.0,
+            cluster_gap=32.0,
+        )
+        if width is None or height is None:
+            return None
+        bbox = self._laj_bbox_from_expected_dimensions(cx, cy, width, height)
+        if not bbox:
+            return None
+        # As cotas descrevem o painel interno; o recorte humano conserva a
+        # faixa curta de apoio/hachura imediatamente nas duas laterais.
+        # A tolerancia e uma margem CAD fixa de desenho, nao uma dimensao de
+        # item, e so e aplicada ao candidato derivado das cotas do STOG.
+        bbox = (bbox[0] - 6.0, bbox[1], bbox[2] + 6.0, bbox[3])
+        # A cadeia pode parecer local e ainda atravessar uma laje vizinha em
+        # desenhos com viga de transicao. Nesse caso, a evidencia e ambigua:
+        # nao misturamos os dois recortes, deixamos o fallback conservador agir.
+        for other_id, (other_x, other_y) in (all_centroids or {}).items():
+            if other_id != eid and _pt_in_bbox(other_x, other_y, bbox):
+                return None
+        return bbox
+
+    def _choose_laj_bbox(
+        self,
+        eid: str,
+        label_positions: list,
+        *,
+        independent_bboxes: tuple[tuple | None, ...],
+        legacy_bbox: tuple | None,
+        preferred_bbox: tuple | None = None,
+    ) -> tuple | None:
+        """Escolhe o recorte com maior evidencia local, sem premiar volume.
+
+        Bordas estruturais e cotas do STOG sao evidencias independentes do N1.
+        O fallback legado da ficha N1 somente participa quando nenhuma delas
+        fecha uma janela com confianca suficiente. Isso evita que um span longo
+        de desenho (que visualmente parece uma laje inteira) vença uma janela
+        menor, completa e local; e preserva compatibilidade com pranchas antigas
+        sem cadeia de cotas utilizavel.
+        """
+        scored_independent: list[tuple[float, tuple]] = []
+        seen: set[tuple] = set()
+        for bbox in independent_bboxes:
+            if not bbox or bbox in seen:
+                continue
+            seen.add(bbox)
+            # Uma borda estrutural longa pode ser uma linha de prancha ou uma
+            # cadeia de varias lajes. Ela nao vira evidencia local so por
+            # atravessar o label: janelas desproporcionais devem cair no
+            # fallback Voronoi/painel, que e limitado pelos vizinhos reais.
+            width = bbox[2] - bbox[0]
+            height = bbox[3] - bbox[1]
+            if (
+                width < 45.0 or height < 45.0
+                or width > 1250.0 or height > 850.0
+                or max(width / height, height / width) > 12.0
+                # Span horizontal muito largo e raso é tipicamente linha de
+                # prancha/uma cadeia de lajes, não uma área local. A regra só
+                # vale acima de 1.000 unidades para não penalizar lajes
+                # estreitas reais.
+                or (width > 1000.0 and width / height > 4.0)
+            ):
+                continue
+            ents = self._collect_in_bboxes([bbox])
+            if not ents:
+                continue
+            pts = _all_pts_from_ents(ents)
+            final_bbox = _pts_to_bbox(pts) if pts else bbox
+            confidence = self._compute_laj_confidence(
+                ents,
+                elem_id=eid,
+                label_positions=label_positions,
+                search_bboxes=[bbox],
+                final_bbox=final_bbox,
+            )
+            scored_independent.append((confidence, bbox))
+
+        best_independent = max(scored_independent, default=None, key=lambda row: row[0])
+        # A preferencia somente e' aceita se a janela ainda tiver evidencia
+        # local minima. Ela nunca vem de N1: e' exclusivamente a cadeia de
+        # cotas encontrada no proprio desenho STOG.
+        if preferred_bbox:
+            preferred_score = next(
+                (score for score, candidate in scored_independent if candidate == preferred_bbox),
+                None,
+            )
+            if preferred_score is not None and preferred_score >= 55.0:
+                return preferred_bbox
+        # 80 e' o limiar ja usado pela propria UI para os recortes automaticos
+        # confiaveis. Abaixo dele, o fallback pode ajudar, mas nunca silenciosamente
+        # substituir evidencia local que ja esta boa.
+        if best_independent and best_independent[0] >= 80.0:
+            return best_independent[1]
+
+        if legacy_bbox:
+            legacy_width = legacy_bbox[2] - legacy_bbox[0]
+            legacy_height = legacy_bbox[3] - legacy_bbox[1]
+            legacy_is_local = (
+                45.0 <= legacy_width <= 1250.0
+                and 45.0 <= legacy_height <= 850.0
+                and max(legacy_width / legacy_height, legacy_height / legacy_width) <= 12.0
+                and not (legacy_width > 1000.0 and legacy_width / legacy_height > 4.0)
+            )
+            if legacy_is_local:
+                legacy_ents = self._collect_in_bboxes([legacy_bbox])
+            else:
+                legacy_ents = []
+            if legacy_ents:
+                legacy_pts = _all_pts_from_ents(legacy_ents)
+                legacy_final = _pts_to_bbox(legacy_pts) if legacy_pts else legacy_bbox
+                legacy_confidence = self._compute_laj_confidence(
+                    legacy_ents,
+                    elem_id=eid,
+                    label_positions=label_positions,
+                    search_bboxes=[legacy_bbox],
+                    final_bbox=legacy_final,
+                )
+                if not best_independent or legacy_confidence > best_independent[0]:
+                    return legacy_bbox
+
+        return best_independent[1] if best_independent else None
+
     def _laj_bbox_from_dimension_hint(self, eid: str, cx: float, cy: float) -> tuple | None:
-        """Escolhe bordas ER locais usando dimensoes N1/SA da mesma laje."""
+        """Fallback legado por N1, sem prioridade sobre evidencia do STOG."""
         hint = self._load_laj_dimension_hints().get(str(eid).upper())
         if not hint or not self._pkl:
             return None
@@ -567,6 +944,19 @@ class RecorteMotor:
                     pose_x + exp_w + 1.0,
                     pose_y + exp_h + 1.0,
                 )
+
+        return self._laj_bbox_from_expected_dimensions(cx, cy, exp_w, exp_h)
+
+    def _laj_bbox_from_expected_dimensions(
+        self,
+        cx: float,
+        cy: float,
+        exp_w: float,
+        exp_h: float,
+    ) -> tuple | None:
+        """Localiza bordas estruturais que fecham uma dimensao esperada."""
+        if not self._pkl or exp_w <= 0 or exp_h <= 0:
+            return None
 
         def _merged_h_segments(h_segments: list[tuple[float, float, float]]):
             by_y: dict[float, list[tuple[float, float]]] = {}
@@ -832,11 +1222,36 @@ class RecorteMotor:
         if len(candidates) < 3:
             return bbox
 
+        # Nao basta reunir todos os segmentos dentro de uma margem: em uma
+        # prancha cheia eles incluem paines de lajes diferentes. Partimos dos
+        # segmentos que tocam a janela Voronoi do label e crescemos somente o
+        # componente geometricamente conectado (linhas horizontais/verticais
+        # do mesmo marco). Assim o contorno conserva apoios e recortes locais,
+        # sem "puxar" a malha do vizinho.
+        def _touches(a: tuple, b: tuple, gap: float = 8.0) -> bool:
+            return not (
+                a[2] < b[0] - gap or b[2] < a[0] - gap
+                or a[3] < b[1] - gap or b[3] < a[1] - gap
+            )
+
+        seed = [candidate for candidate in candidates if _touches(candidate, bbox, gap=8.0)]
+        if not seed:
+            return bbox
+        selected = list(seed)
+        remaining = [candidate for candidate in candidates if candidate not in seed]
+        while remaining:
+            connected = [candidate for candidate in remaining if any(_touches(candidate, node) for node in selected)]
+            if not connected:
+                break
+            selected.extend(connected)
+            connected_ids = {id(candidate) for candidate in connected}
+            remaining = [candidate for candidate in remaining if id(candidate) not in connected_ids]
+
         panel_bbox = (
-            min(b[0] for b in candidates),
-            min(b[1] for b in candidates),
-            max(b[2] for b in candidates),
-            max(b[3] for b in candidates),
+            min(b[0] for b in selected),
+            min(b[1] for b in selected),
+            max(b[2] for b in selected),
+            max(b[3] for b in selected),
         )
         expanded = (
             min(bbox[0], panel_bbox[0]) - pad,
@@ -845,6 +1260,7 @@ class RecorteMotor:
             max(bbox[3], panel_bbox[3]) + pad,
         )
         expanded = _shrink_bbox_away_from_laj_labels(expanded, eid, all_centroids)
+        expanded = _constrain_laj_bbox_to_neighbor_cells(expanded, eid, all_centroids)
 
         w = expanded[2] - expanded[0]
         h = expanded[3] - expanded[1]
@@ -909,10 +1325,16 @@ class RecorteMotor:
         # FV/LAJ: coleta com bbox fixa calculada em _discover_*
         #   FV/LAJ NÃO usa expansão iterativa — a bbox calculada já é precisa
         all_ents = self._collect_in_bboxes(search_bboxes)
+        partitioned_lv = self._is_lv_partitioned_search(search_bboxes)
 
         # 2ª passagem de refinamento apenas para PIL/LV com bbox única
         # (sem risco de capturar entidades entre rows)
-        if self.er_type in ('PIL', 'LV') and all_ents and len(search_bboxes) == 1:
+        if (
+            self.er_type in ('PIL', 'LV')
+            and all_ents
+            and len(search_bboxes) == 1
+            and not partitioned_lv
+        ):
             pts = _all_pts_from_ents(all_ents)
             if pts:
                 tighter = _pts_to_bbox(pts, margin=5)
@@ -965,14 +1387,28 @@ class RecorteMotor:
 
         lines = self._pkl.get('lines', [])
         polys = self._pkl.get('polylines', [])
+        partitioned_lv = self._is_lv_partitioned_search(bboxes)
 
         # ── Lines ────────────────────────────────────────────────────────────
         for i, ln in enumerate(lines):
             if self.er_type == 'LAJ' and not _is_laj_relevant_entity('line', ln):
                 continue
             s, e2 = ln['start'], ln['end']
+            if partitioned_lv:
+                for j, clipped_ln in enumerate(_clip_line_to_bboxes(ln, bboxes)):
+                    key = ('l', i, j)
+                    if key not in seen:
+                        seen.add(key); found.append(('line', clipped_ln))
+                continue
             if self.er_type == 'LAJ':
-                clipped = _clip_line_to_bboxes(ln, bboxes)
+                # Painéis ficam estritamente no recorte, mas linhas de
+                # contexto (marco, apoio e viga) precisam ultrapassar um pouco
+                # a borda: são justamente elas que fecham visualmente a área
+                # da laje. Sem essa faixa, o DXF parece ter a laje "aberta".
+                clip_bboxes = bboxes
+                if _is_laj_structural_context(ln):
+                    clip_bboxes = [_expand_bbox(b, 32.0) for b in bboxes]
+                clipped = _clip_line_to_bboxes(ln, clip_bboxes)
                 if clipped:
                     for j, clipped_ln in enumerate(clipped):
                         key = ('l', i, j)
@@ -1000,8 +1436,17 @@ class RecorteMotor:
             # Excluir bordas do frame 9999999999
             if pl.get('is_block', False) and _is_frame_border(pts):
                 continue
+            if partitioned_lv:
+                for j, clipped_pl in enumerate(_clip_poly_to_bboxes(pl, bboxes)):
+                    key = ('p', i, j)
+                    if key not in seen:
+                        seen.add(key); found.append(('poly', clipped_pl))
+                continue
             if self.er_type == 'LAJ':
-                clipped = _clip_poly_to_bboxes(pl, bboxes)
+                clip_bboxes = bboxes
+                if _is_laj_structural_context(pl):
+                    clip_bboxes = [_expand_bbox(b, 32.0) for b in bboxes]
+                clipped = _clip_poly_to_bboxes(pl, clip_bboxes)
                 if clipped:
                     for j, clipped_pl in enumerate(clipped):
                         key = ('p', i, j)
@@ -1038,6 +1483,12 @@ class RecorteMotor:
                 continue
             paths = ht.get('paths', [])
             if not paths: continue
+            if partitioned_lv:
+                for j, clipped_ht in enumerate(_clip_hatch_to_bboxes(ht, bboxes)):
+                    key = ('h', i, j)
+                    if key not in seen:
+                        seen.add(key); found.append(('hatch', clipped_ht))
+                continue
             # Centróide de todos os pontos do boundary
             all_pts = [pt for path in paths for pt in path]
             if not all_pts: continue
@@ -1060,6 +1511,19 @@ class RecorteMotor:
                         seen.add(key); found.append(('circle', ci))
 
         return found
+
+    def _is_lv_partitioned_search(self, bboxes: list) -> bool:
+        """True quando a busca usa uma subarea de um frame LV compartilhado."""
+        if self.er_type != 'LV' or not self._lv_partitioned_bboxes:
+            return False
+        return any(
+            all(
+                abs(float(value) - float(expected)) <= 1e-6
+                for value, expected in zip(bbox, known)
+            )
+            for bbox in bboxes
+            for known in self._lv_partitioned_bboxes
+        )
 
     def _collect_with_expansion(self, initial_bboxes: list, max_iters: int = 5) -> list:
         """Expansão iterativa de bbox: coleta, expande, repete até estabilizar."""
@@ -1468,10 +1932,67 @@ def _shrink_bbox_away_from_laj_labels(
     return (x0, y0, x1, y1)
 
 
+def _constrain_laj_bbox_to_neighbor_cells(
+    bbox: tuple,
+    eid: str,
+    all_centroids: dict[str, tuple],
+    *,
+    clearance: float = 10.0,
+) -> tuple:
+    """Keep a LAJ candidate on its side of nearby label-cell boundaries.
+
+    A neighboring label need not be *inside* an erroneous crop: thin slabs
+    frequently reach past the perpendicular bisector while the neighbor label
+    sits a few drawing units above or below the strip.  This is a geometric
+    separator, not an item rule: it acts only in the direction in which the
+    candidate has actually crossed toward a nearby label and preserves a
+    minimum usable window.
+    """
+    if eid not in all_centroids:
+        return bbox
+    cx, cy = all_centroids[eid]
+    x0, y0, x1, y1 = map(float, bbox)
+
+    for _other_id, (ox, oy) in all_centroids.items():
+        if _other_id == eid:
+            continue
+        dx, dy = float(ox) - cx, float(oy) - cy
+        if abs(dx) < 10.0 and abs(dy) < 10.0:
+            continue
+        width, height = x1 - x0, y1 - y0
+        transverse = max(55.0, min(110.0, (height if abs(dx) >= abs(dy) else width) + 25.0))
+
+        # Vizinhos predominantemente laterais delimitam X se pertencem a
+        # mesma faixa visual (inclusive uma faixa estreita com cotas acima).
+        if abs(dx) >= abs(dy) and y0 - transverse <= oy <= y1 + transverse:
+            boundary = (cx + ox) / 2.0
+            if dx > 0 and x1 > boundary + clearance and boundary + clearance - x0 >= 45.0:
+                x1 = boundary + clearance
+            elif dx < 0 and x0 < boundary - clearance and x1 - (boundary - clearance) >= 45.0:
+                x0 = boundary - clearance
+
+        # Vizinhos predominantemente acima/abaixo delimitam Y somente quando
+        # o crop ja avancou na direcao deles; isso nao expande nem desloca a
+        # janela de uma geometria em degrau.
+        elif abs(dy) > abs(dx) and x0 - transverse <= ox <= x1 + transverse:
+            boundary = (cy + oy) / 2.0
+            if dy > 0 and y1 > boundary + clearance and boundary + clearance - y0 >= 45.0:
+                y1 = boundary + clearance
+            elif dy < 0 and y0 < boundary - clearance and y1 - (boundary - clearance) >= 45.0:
+                y0 = boundary - clearance
+
+    return (x0, y0, x1, y1)
+
+
 def _is_laj_relevant_entity(typ: str, entity: dict) -> bool:
     """Filter entities that are not local slab-recorte evidence."""
     layer = _layer_key(entity.get('layer'))
-    if layer == '0' or 'REAPROVEITAMENTO' in layer:
+    # Marco de recorte e bordas estruturais são frequentemente desenhados em
+    # layer 0. Para linhas/polylines elas são seguras porque o clipping mantém
+    # apenas o trecho local; textos/hatches genéricos continuam excluídos.
+    if layer == '0' and typ not in {'line', 'poly'}:
+        return False
+    if 'REAPROVEITAMENTO' in layer:
         return False
 
     if typ == 'hatch':
@@ -1487,6 +2008,19 @@ def _is_laj_relevant_entity(typ: str, entity: dict) -> bool:
             return False
 
     return True
+
+
+def _is_laj_structural_context(entity: dict) -> bool:
+    """True para geometria de contorno/apoio, nunca para a malha de painéis."""
+    layer = _layer_key(entity.get('layer'))
+    return layer not in {'PAINEIS', 'PAINEL'}
+
+
+def _expand_bbox(bbox: tuple, margin: float) -> tuple:
+    return (
+        bbox[0] - margin, bbox[1] - margin,
+        bbox[2] + margin, bbox[3] + margin,
+    )
 
 
 def _clip_line_to_bboxes(line: dict, bboxes: list) -> list[dict]:
@@ -1538,6 +2072,71 @@ def _clip_poly_to_bboxes(poly: dict, bboxes: list) -> list[dict]:
             segments.append(new_poly)
 
     return segments
+
+
+def _clip_hatch_to_bboxes(hatch: dict, bboxes: list) -> list[dict]:
+    """Recorta os contornos poligonais de uma hachura nas caixas indicadas."""
+    clipped_hatches = []
+    for bbox in bboxes:
+        clipped_paths = []
+        for path in hatch.get('paths') or []:
+            polygon = _clip_polygon_to_bbox(path, bbox)
+            if len(polygon) >= 3:
+                clipped_paths.append(polygon)
+        if clipped_paths:
+            new_hatch = dict(hatch)
+            new_hatch['paths'] = clipped_paths
+            clipped_hatches.append(new_hatch)
+    return clipped_hatches
+
+
+def _clip_polygon_to_bbox(points: list, bbox: tuple) -> list[tuple[float, float]]:
+    """Sutherland-Hodgman para um poligono e um retangulo axis-aligned."""
+    polygon = [(float(point[0]), float(point[1])) for point in points]
+    if len(polygon) > 1 and polygon[0] == polygon[-1]:
+        polygon.pop()
+    if len(polygon) < 3:
+        return []
+
+    xmin, ymin, xmax, ymax = map(float, bbox)
+
+    def clip_edge(vertices, inside, intersection):
+        if not vertices:
+            return []
+        output = []
+        previous = vertices[-1]
+        previous_inside = inside(previous)
+        for current in vertices:
+            current_inside = inside(current)
+            if current_inside:
+                if not previous_inside:
+                    output.append(intersection(previous, current))
+                output.append(current)
+            elif previous_inside:
+                output.append(intersection(previous, current))
+            previous = current
+            previous_inside = current_inside
+        return output
+
+    def at_x(a, b, x):
+        dx = b[0] - a[0]
+        if abs(dx) < 1e-12:
+            return (x, a[1])
+        ratio = (x - a[0]) / dx
+        return (x, a[1] + ratio * (b[1] - a[1]))
+
+    def at_y(a, b, y):
+        dy = b[1] - a[1]
+        if abs(dy) < 1e-12:
+            return (a[0], y)
+        ratio = (y - a[1]) / dy
+        return (a[0] + ratio * (b[0] - a[0]), y)
+
+    polygon = clip_edge(polygon, lambda p: p[0] >= xmin, lambda a, b: at_x(a, b, xmin))
+    polygon = clip_edge(polygon, lambda p: p[0] <= xmax, lambda a, b: at_x(a, b, xmax))
+    polygon = clip_edge(polygon, lambda p: p[1] >= ymin, lambda a, b: at_y(a, b, ymin))
+    polygon = clip_edge(polygon, lambda p: p[1] <= ymax, lambda a, b: at_y(a, b, ymax))
+    return polygon
 
 
 def _clip_segment_to_bbox(x0: float, y0: float, x1: float, y1: float, bbox: tuple):

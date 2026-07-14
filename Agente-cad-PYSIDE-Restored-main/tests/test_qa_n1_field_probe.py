@@ -5,7 +5,12 @@ import sqlite3
 from pathlib import Path
 
 from scripts.arete.qa_content_cache import ContentAddressedCache
-from scripts.arete.qa_n1_field_probe import REQUEST_SCHEMA, run_probe
+from scripts.arete.qa_n1_field_probe import (
+    REQUEST_SCHEMA,
+    evaluate_check,
+    run_probe,
+    transform_value,
+)
 
 
 def _db() -> sqlite3.Connection:
@@ -149,3 +154,32 @@ def test_probe_present_and_absent_are_field_level_results(tmp_path: Path):
     assert result["overall"] == "FAIL"
     assert [row["status"] for row in result["checks"]] == ["FAIL", "PASS"]
     con.close()
+
+
+def test_collection_checks_support_lv_provenance_contracts():
+    values = {
+        "slots": ["seg_side_a", "seg_side_a"],
+        "para": ["viga_a_seg_1_comprimento_total", "viga_a_seg_2_comprimento_total"],
+        "passa": ["viga_a_seg_1_comp_total_passa", "viga_a_seg_2_comp_total_passa"],
+    }
+    assert evaluate_check({"id": "slots", "op": "all_equal", "left": "slots", "value": "seg_side_a"}, values)["status"] == "PASS"
+    assert evaluate_check({"id": "keys", "op": "all_match", "left": "para", "value": r"^viga_a_seg_\d+_comprimento_total$"}, values)["status"] == "PASS"
+    assert evaluate_check({"id": "isolated", "op": "disjoint", "left": "para", "right": "passa"}, values)["status"] == "PASS"
+
+
+def test_any_segment_contact_does_not_assume_seg_bottom_zero():
+    segment_points = [
+        [[0, 0], [100, 0], [100, 20], [0, 20]],
+        [[200, 0], [300, 0], [300, 20], [200, 20]],
+    ]
+    values = {
+        "pillar": [250, 5, 270, 15],
+        "segments": transform_value(segment_points, "bboxes"),
+    }
+    result = evaluate_check({
+        "id": "contact", "op": "any_bbox_intersects",
+        "left": "pillar", "right": "segments",
+    }, values)
+    assert values["segments"] == [[0.0, 0.0, 100.0, 20.0], [200.0, 0.0, 300.0, 20.0]]
+    assert result["status"] == "PASS"
+    assert result["metric"]["segments"] == 2

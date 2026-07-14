@@ -1,5 +1,5 @@
 name: qa-global-evidencias
-version: "1.2.0"
+version: "1.3.0"
 description: >-
   Orquestra auditoria Arete por evidencia para obra, pavimento, classe, item,
   nivel e variante. Seleciona o microciclo canonico N1, N3 ou N4, exige
@@ -96,7 +96,7 @@ operation_map:
     trigger: "*loop"
     type: EXECUTIVA
     workflow: workflows/arete-qa-loop.yaml
-    description: "Executa o microciclo apropriado ao nivel e ao tipo de mudanca."
+    description: "Cria/avanca microciclo persistente pelo qa_loop_executor.py."
   - id: questions
     trigger: "*questions"
     type: INFORMATIVA
@@ -111,7 +111,12 @@ operation_map:
     trigger: "*resume"
     type: EXECUTIVA
     workflow: workflows/arete-qa-loop.yaml
-    description: "Retoma dossie append-only pelo run id e invalida cache obsoleto."
+    description: "Retoma estado append-only pelo run id, proxima acao e budget."
+  - id: teach
+    trigger: "*teach"
+    type: EXECUTIVA
+    workflow: workflows/arete-qa-loop.yaml
+    description: "Registra regra humana, exemplos e excecoes como ensino T1 nao promovido."
 
 dependencies:
   squads:

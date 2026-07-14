@@ -149,6 +149,34 @@ def test_face_beams_para_goes_to_chegada_not_passa():
     assert report["P2"].get("viga_que_para")
 
 
+def test_beam_stopping_on_short_face_materializes_corner_openings_on_long_faces():
+    report = {
+        "P35": {
+            "name": "P35",
+            "points": [(100, 0), (160, 0), (160, 19), (100, 19)],
+            "lajes": [],
+        }
+    }
+    beams = [{
+        "name": "V308",
+        "dim": "19/55",
+        # Viga horizontal termina em C e suas paredes coincidem com A/B.
+        "points": [(0, 0), (100, 0), (100, 19), (0, 19)],
+        "is_h": True,
+    }]
+
+    enrich_pillar_report_with_beams(report, beams)
+
+    faces = report["P35"]["face_beams"]
+    assert faces["A"]["passa_esq"] == {
+        "name": "V308", "dim": "19/55", "corner": "AC", "behavior": "para",
+    }
+    assert faces["B"]["passa_dir"] == {
+        "name": "V308", "dim": "19/55", "corner": "BC", "behavior": "para",
+    }
+    assert {entry["name"] for entry in faces["C"]["para"]} == {"V308"}
+
+
 def test_beam_section_dim_rejects_names():
     from src.core.pillar_face_beams import (
         clean_beam_section_dim,
@@ -162,6 +190,162 @@ def test_beam_section_dim_rejects_names():
     assert not is_beam_section_dim("L325")
     assert clean_beam_section_dim("VF301") == ""
     assert clean_beam_section_dim("19/55") == "19/55"
+
+
+def test_beam_section_dim_prefers_own_bottom_ficha_over_spatial_text():
+    """Cota espacial 100/19 não pode vencer a ficha FV 19/55 da própria viga."""
+    from src.core.pillar_face_beams import beam_section_dim
+
+    beam = {
+        "dim": "100/19",
+        "fields": {
+            "dimensao": "100/19",
+            "viga_fundo_seg_1_dim": "100/19",
+        },
+        "links": {
+            "viga_segs": {
+                "seg_bottom": [
+                    {"ficha": {"largura_total_fundo": "19", "altura_total": "55"}},
+                    {"ficha": {"largura_total_fundo": 19, "altura_total": 55}},
+                ]
+            }
+        },
+    }
+    assert beam_section_dim(beam) == "19/55"
+
+
+def test_beam_section_dim_uses_direct_fundo_label_when_ficha_is_not_materialized():
+    from src.core.pillar_face_beams import beam_section_dim
+
+    beam = {
+        "fields": {"dimensao": "100/19"},
+        "links": {
+            "viga_segs": {"seg_bottom": []},
+            "viga_fundo_seg_1_dim": {"label": [{"text": "19/55"}]},
+        },
+    }
+    assert beam_section_dim(beam) == "19/55"
+
+
+def test_beam_axis_prefers_current_bottom_runs_over_stale_is_h():
+    from src.core.pillar_face_beams import beam_axis_is_horizontal
+
+    beam = {
+        "is_h": False,
+        "geometry": {
+            "classified": {
+                "bottom_runs": [{"is_h": True, "coords": [[0, 100]]}],
+            }
+        },
+    }
+    assert beam_axis_is_horizontal(beam) is True
+
+
+def test_reconcile_fundo_facts_repairs_stale_dim_height_and_axis():
+    from src.core.pillar_face_beams import reconcile_beam_fundo_facts
+
+    beam = {
+        "is_h": False,
+        "dim": "100/19",
+        "fields": {
+            "dimensao": "100/19",
+            "altura_h1": 415,
+            "viga_fundo_seg_1_dim": "100/19",
+        },
+        "geometry": {"classified": {"bottom_runs": [{"is_h": True}]}},
+        "links": {
+            "viga_segs": {
+                "seg_bottom": [
+                    {"ficha": {"largura_total_fundo": 19, "altura_total": 55}},
+                ]
+            }
+        },
+    }
+    assert reconcile_beam_fundo_facts([beam]) == 1
+    assert beam["dim"] == "19/55"
+    assert beam["fields"]["dimensao"] == "19/55"
+    assert beam["fields"]["viga_fundo_seg_1_dim"] == "19/55"
+    assert beam["fields"]["altura_h1"] == 55.0
+    assert beam["is_h"] is True
+
+
+def test_materialize_face_beams_clears_stale_slots_but_keeps_validated_human_field():
+    """Merge antigo nao pode manter V327 quando topologia so confirma V328."""
+    from src.core.pillar_face_beams import materialize_face_beams_in_pillars
+
+    pillar = {
+        "name": "P35",
+        "p_sA_v_passa_esq_n": "V327",
+        "p_sA_v_passa_esq_d": "14/50",
+        "p_sD_v_passa_dir_n": "V327",
+        "p_sD_v_passa_dir_d": "14/50",
+        "p_sD_v_passa_esq_n": "VANTIGA",
+        "p_sD_v_passa_esq_d": "99/99",
+        "sides_data": {
+            "A": {"v_passa_esq_n": "V327", "v_passa_esq_d": "14/50"},
+            "D": {
+                "v_passa_esq_n": "VANTIGA", "v_passa_esq_d": "99/99",
+                "v_passa_dir_n": "V327", "v_passa_dir_d": "14/50",
+            },
+        },
+        "links": {
+            "p_sA_v_passa_esq_n": {"old": True},
+            "p_sD_v_passa_dir_n": {"old": True},
+        },
+    }
+    report = {
+        "P35": {
+            "face_beams": {
+                face: {"passa_esq": None, "passa_dir": None, "para": []}
+                for face in "ABCD"
+            }
+        }
+    }
+    report["P35"]["face_beams"]["D"]["passa_esq"] = {
+        "name": "V328", "dim": "19/55",
+    }
+
+    assert materialize_face_beams_in_pillars([pillar], report, item_names={"P35"}) == 1
+    assert "p_sA_v_passa_esq_n" not in pillar
+    assert "v_passa_esq_n" not in pillar["sides_data"]["A"]
+    assert pillar["p_sD_v_passa_esq_n"] == "V328"
+    assert pillar["p_sD_v_passa_esq_d"] == "19/55"
+    assert "p_sD_v_passa_dir_n" not in pillar
+    assert "v_passa_dir_n" not in pillar["sides_data"]["D"]
+
+    # Um campo humano explicitamente validado continua soberano.
+    pillar["validated_fields"] = ["p_sA_v_passa_esq_n"]
+    pillar["p_sA_v_passa_esq_n"] = "V_HUMANA"
+    pillar["sides_data"]["A"]["v_passa_esq_n"] = "V_HUMANA"
+    materialize_face_beams_in_pillars([pillar], report, item_names={"P35"})
+    assert pillar["p_sA_v_passa_esq_n"] == "V_HUMANA"
+
+
+def test_materialized_face_beam_link_preserves_geometric_evidence():
+    from src.core.pillar_face_beams import materialize_face_beams_in_pillars
+
+    pillar = {"name": "P35", "sides_data": {}, "links": {}}
+    evidence = [{
+        "type": "line",
+        "points": [[1.0, 2.0], [3.0, 4.0]],
+        "source": "pillar_face_beams_topology",
+    }]
+    report = {"P35": {"face_beams": {
+        face: {"passa_esq": None, "passa_dir": None, "para": []}
+        for face in "ABCD"
+    }}}
+    report["P35"]["face_beams"]["A"]["passa_esq"] = {
+        "name": "V308",
+        "dim": "19/55",
+        "evidence_segments": evidence,
+    }
+
+    assert materialize_face_beams_in_pillars([pillar], report) == 1
+    name_link = pillar["links"]["p_sA_v_passa_esq_n"]
+    dim_link = pillar["links"]["p_sA_v_passa_esq_d"]
+    assert name_link["geometry"] == evidence
+    assert dim_link["geometry"] == evidence
+    assert name_link["evidence_source"] == "beam_bottom_geometry"
 
 
 def test_bbox_from_classified_segs():

@@ -136,12 +136,15 @@ estável e não precisa reconstruir o SA.
 1. **Hipótese de campo/vínculo persistido:** rode `qa_n1_field_probe.py` com
    somente os campos necessários. Ele pode cruzar classes e testar overlay sem
    persistir; o resultado vale apenas para os checks declarados.
+   Se a hipótese já consta no perfil da classe, use `qa_profile_probe.py` com
+   escopo explícito. O exemplo do perfil nunca seleciona projeto implicitamente.
 2. **Cobertura do item persistido:** rode o Agente QA Global em `review`; é
    read-only e responde em segundos. Serve para inventário e proveniência do DB.
 3. **Contrato puro:** rode testes unitários contrato→payload, incluindo slots,
    vazios, espelhamento e neutralização. Não abra Qt nem DB.
 4. **Motor visual N3/N4:** gere somente o item com o CLI da classe e publique
-   uma ficha com `ficha_motor_item.py`. Use `qa_artifact_parity.py` para campos
+   primeiro o smoke com `qa_n3_smoke.py`, depois uma ficha com
+   `ficha_motor_item.py`. Use `qa_artifact_parity.py` para campos
    declarados e compare o SVG/PNG; a paridade não substitui o veredito visual.
 5. **Extrator/interpretação N1:** rode `headless_sa_analise.py --secao --item
    --wait`; somente essa camada requer reconstrução contextual do pavimento.
@@ -167,6 +170,8 @@ O cache local de render/probe é regenerável e só reutiliza resultado quando
 versão do motor e hashes de todas as entradas coincidem. Ele reduz iteração, não
 eleva autoridade nem dispensa regressão. Ver
 `docs/QA-FASTPATHS-CAMPOS-ARTEFATOS.md`.
+Para a semântica de PIL/LAJ/FV/LV, ler também
+`docs/QA-PERFIS-CLASSES-SA-N1-N3.md`.
 
 ## 1. Passo 1 — Geração headless (N1 contextual, pronto para qualquer classe)
 

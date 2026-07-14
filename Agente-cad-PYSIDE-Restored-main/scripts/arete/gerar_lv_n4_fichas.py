@@ -30,6 +30,7 @@ sys.path.insert(0, str(SCRIPTS))
 OBRA_DIR    = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1")
 FICHAS_PATH = OBRA_DIR / "Fase-6_Execucao_CAD/granular/fichas/fichas_lv_v2.json"
 N4_OUT      = OBRA_DIR / "Fase-6_Execucao_CAD/n4"
+PROJECT_DB  = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 
 
 def _entry_from_motor_ficha(elem: str, ficha: dict) -> dict:
@@ -81,6 +82,44 @@ def _entry_from_motor_ficha(elem: str, ficha: dict) -> dict:
         'pillar_left': ficha.get('pillar_left', {'active': False}),
         'pillar_right': ficha.get('pillar_right', {'active': False}),
     }
+
+
+def _entry_from_live_recorte(elem: str) -> dict | None:
+    """Lê novamente o recorte N2 aprovado antes de materializar o N4.
+
+    ``fichas_lv_v2.json`` é um cache regenerável. Ele pode ter sido produzido
+    por uma versão anterior do reverso e, nesse caso, conter painel/cota que já
+    não existe no recorte humano. N4 deve sempre preferir a extração atual do
+    próprio recorte aprovado; o cache continua como fallback seguro se o DB ou
+    a extração não estiverem disponíveis.
+    """
+    try:
+        import sqlite3
+        from motor_reverso_lv import extrair_ficha_lateral_viga
+
+        if not PROJECT_DB.is_file():
+            return None
+        with sqlite3.connect(PROJECT_DB) as conn:
+            row = conn.execute(
+                """
+                SELECT recorte_path
+                  FROM reverse_eng_recortes
+                 WHERE UPPER(elemento_id) = ? AND UPPER(classe) = 'LV'
+                 ORDER BY id DESC
+                 LIMIT 1
+                """,
+                (str(elem).upper(),),
+            ).fetchone()
+        if not row:
+            return None
+        ficha = extrair_ficha_lateral_viga(str(row[0]), f"{elem}_A")
+        confidence = float(ficha.get("_confianca", 0.0) or 0.0)
+        if confidence < 0.55 or not ficha.get("panels_A"):
+            return None
+        return _entry_from_motor_ficha(elem, ficha)
+    except Exception as exc:
+        print(f"[{elem}] recorte N2 live indisponível: {exc}")
+        return None
 
 
 def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
@@ -300,7 +339,9 @@ if __name__ == '__main__':
 
     ok = 0
     for elem in elems:
-        entry = fichas_map.get(elem)
+        # N4 = N2 -> robô.  Nunca usar o cache antigo se o recorte aprovado
+        # ainda pode fornecer a ficha atual via motor reverso.
+        entry = _entry_from_live_recorte(elem) or fichas_map.get(elem)
         if not entry:
             print(f'[{elem}] Não encontrado em fichas_lv_v2.json')
             continue
