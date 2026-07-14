@@ -1464,24 +1464,23 @@ class DetailCard(QWidget):
                 self.fields['format'].currentTextChanged.connect(lambda txt: self._on_field_changed('format', txt))
                 h_layout.addRow("Formato da Seção [format]:", self.fields['format'])
 
-                # Classificação (Apenas Pilar)
+                # Classificação (Apenas Pilar) — [2026-07-13, Fase 3.2] vira
+                # campo validável de verdade (_add_linked_row com combo),
+                # antes era um QComboBox solto fora do sistema de selos.
                 _classif_raw = (
                     self.item_data.get('classification')
                     or (self.item_data.get('fields') or {}).get('Classificação')
                     or 'INDETERMINADO'
                 )
                 _classif_val = str(_classif_raw).strip().upper() or 'INDETERMINADO'
-                self.fields['classification'] = QComboBox()
-                self.fields['classification'].addItems([
-                    "INDETERMINADO", "NASCE", "SEGUE", "MORRE", "PASSA", "CONTINUA",
-                ])
-                self.fields['classification'].setCurrentText(
-                    _classif_val if _classif_val in ("INDETERMINADO", "NASCE", "SEGUE", "MORRE", "PASSA", "CONTINUA") else "INDETERMINADO"
+                _CLASSIF_ITEMS = ["INDETERMINADO", "NASCE", "SEGUE", "MORRE", "PASSA", "CONTINUA"]
+                self._add_linked_row(
+                    h_layout, "Classificação [classification]:", "classification", "text",
+                    is_combo=True, combo_items=_CLASSIF_ITEMS,
                 )
-                self.fields['classification'].setFixedHeight(24)
-                self.fields['classification'].setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
-                self.fields['classification'].currentTextChanged.connect(lambda txt: self._on_field_changed('classification', txt))
-                h_layout.addRow("Classificação [classification]:", self.fields['classification'])
+                self.fields['classification'].setCurrentText(
+                    _classif_val if _classif_val in _CLASSIF_ITEMS else "INDETERMINADO"
+                )
 
             layout.addWidget(header)
 
