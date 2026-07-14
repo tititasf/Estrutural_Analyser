@@ -1773,11 +1773,28 @@
           linhas += '<div class="n1-campo"><span class="n1-campo-label">Atenção</span><span class="n1-campo-valor">' +
             item.atencao.replace(/</g, '&lt;') + '</span></div>';
         }
-        var btns = '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
+        var btns;
+        if (_painel3Estado.classe === 'cortes') {
+          // [2026-07-13, Fase 3.5] "cortes" não passa pelo fluxo genérico
+          // de item (Validar/Excluir/Regenerar são pra pilares/lajes/vigas
+          // reais no DB) — confirmar 1 corte usa o MESMO endpoint de campo
+          // com o field_id sentinela "_item_" (sem sub-campo próprio no
+          // SA). Confirmar todos os cortes de 1 laje marca
+          // laje_visao_corte validado nela (motor de cruzamento, main.py).
+          var corteConfirmado = validados.has('_item_');
+          btns = '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
+            '<button class="btn btn-sm" style="padding:4px 8px;' +
+            (corteConfirmado ? ' background:#d63384; color:white; border:none;' : ' background:#28a745; color:white; border:none;') + '" ' +
+            'onclick="validarCampoN1(\'' + itemId + '\', \'_item_\', ' + (!corteConfirmado) + ')">' +
+            (corteConfirmado ? '🌸 Corte confirmado' : '✔ Confirmar corte') + '</button>' +
+            '</div>';
+        } else {
+          btns = '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
 '<button class="btn btn-sm" style="background:#28a745; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'validar\')">Validar</button>' +
 '<button class="btn btn-sm" style="background:#dc3545; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'excluir\')">Excluir</button>' +
 '<button class="btn btn-sm btn-sec" style="padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'regenerar\')">Invalidar e Regenerar Geometria</button>' +
 '</div>';
+        }
 camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
 
         var fotos = '';

@@ -88,7 +88,12 @@ def listar_itens_n1_endpoint(obra_id: str, classe: str, request: Request,
     itens = ficha_reader.listar_itens_n1(estado, classe) if estado else []
     return {
         "obra_id": obra_id, "classe": classe, "pavimento": pav,
-        "itens": [{"item_id": i["item_id"], "titulo": i["titulo"], "validado": request.app.state.validacoes.get(obra_id, {}).get(classe, {}).get(i["item_id"], {}).get("n1_ok", False)} for i in itens],
+        "itens": [{
+            "item_id": i["item_id"], "titulo": i["titulo"],
+            "validado": request.app.state.validacoes.get(obra_id, {}).get(classe, {}).get(i["item_id"], {}).get("n1_ok", False),
+            # [2026-07-13, Fase 3.5] motor de cruzamento corte->laje (main.py)
+            **({"own_laje": i["own_laje"], "neigh_laje": i["neigh_laje"]} if classe == "cortes" else {}),
+        } for i in itens],
     }
 
 

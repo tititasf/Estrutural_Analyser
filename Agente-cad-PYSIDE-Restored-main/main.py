@@ -8657,6 +8657,8 @@ class MainWindow(QMainWindow):
             portal_obra_id = self.db.obter_portal_obra_id(obra_nome)
             if not portal_obra_id:
                 return 0
+            p_info = self.db.get_project_by_id(self.current_project_id) or {}
+            pavimento = p_info.get('pavement_name') or ''
 
             from src.core.drive_client import obter_cliente_padrao
             from src.core.validation_model import (
@@ -8716,6 +8718,7 @@ class MainWindow(QMainWindow):
                     marcados += 1
 
             marcados += self._sincronizar_selo_rosa_segmentos_drive(campos_web)
+            marcados += self._sincronizar_cruzamento_laje_drive(portal_obra_id, pavimento, campos_web)
 
             if marcados:
                 self.log(f"🌸 Selo rosa Drive: {marcados} item(ns) com campo(s) sincronizado(s) do Portal.")
@@ -8723,6 +8726,109 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.log(f"⚠ Selo rosa Drive: falha geral ({e})")
             return 0
+
+    def _sincronizar_cruzamento_laje_drive(self, portal_obra_id: str, pavimento: str, campos_web: list) -> int:
+        """Motor de cruzamento corte/pilar → laje (Fase 3.5,
+        `docs/CONVENCAO-SELOS-VALIDACAO.md`). O Portal N1 não expõe UI
+        própria pros ~18 campos exclusivos da laje (visão de corte, pilares
+        de apoio etc) — em vez disso, confirmações já feitas em OUTRAS
+        classes (cortes, contato granular do pilar) alimentam esses campos
+        por cruzamento de nome:
+
+        1. **Cortes → `laje_visao_corte`**: conta, usando só dados do
+           Portal (nunca cruza com a lista local `cut_view_geom`, uids
+           diferentes), quantos cortes referenciam cada laje (`own_laje`/
+           `neigh_laje`) vs. quantos foram confirmados (sentinela `_item_`
+           via `POST .../campo/_item_/validar`) — só marca quando 100%
+           baterem (campo atômico, não dá pra validar "meio corte").
+        2. **Contato pilar↔laje → `laje_pilares_apoio`**: quando um campo
+           granular `p_s{lado}_l{i}_n` (Fase 3.3) é validado no Portal, lê
+           o VALOR já local desse campo no pilar (nome da laje digitado) —
+           o Portal só confirma QUE foi validado, o valor em si já mora no
+           pilar local — e marca a laje referenciada.
+
+        Best-effort, nunca bloqueante (mesmo padrão de
+        `_sincronizar_selo_verde_drive`)."""
+        import re as _re
+        from src.core.drive_client import obter_cliente_padrao
+        from src.core.validation_model import ORIGEM_HUMANO_PORTAL, adicionar_validacao_campo
+
+        marcados = 0
+        client = obter_cliente_padrao()
+
+        # --- 1. Cortes -> laje_visao_corte ---
+        try:
+            cortes_web = client.listar_itens_n1(portal_obra_id, 'cortes', pavimento)
+        except Exception as e:
+            self.log(f"⚠ Cruzamento laje (cortes): {e}")
+            cortes_web = []
+        if cortes_web:
+            confirmados_ids = {
+                str(c.get('item_id') or '').strip()
+                for c in campos_web
+                if str(c.get('classe') or '').strip().upper() == 'CORTES' and c.get('field_id') == '_item_'
+            }
+            total_por_laje: dict = {}
+            confirmado_por_laje: dict = {}
+            for corte in cortes_web:
+                cid = str(corte.get('item_id') or '').strip()
+                confirmado = cid in confirmados_ids
+                for laje_nome in (corte.get('own_laje'), corte.get('neigh_laje')):
+                    if not laje_nome:
+                        continue
+                    nome_up = str(laje_nome).strip().upper()
+                    total_por_laje[nome_up] = total_por_laje.get(nome_up, 0) + 1
+                    if confirmado:
+                        confirmado_por_laje[nome_up] = confirmado_por_laje.get(nome_up, 0) + 1
+
+            for laje in self.slabs_found or []:
+                nome = str(laje.get('name') or '').strip().upper()
+                total = total_por_laje.get(nome, 0)
+                if total <= 0 or confirmado_por_laje.get(nome, 0) < total:
+                    continue
+                vf = laje.get('validated_fields') or {}
+                ja_tinha = 'laje_visao_corte' in vf if isinstance(vf, dict) else 'laje_visao_corte' in set(vf)
+                if ja_tinha:
+                    continue
+                vf = adicionar_validacao_campo(vf, 'laje_visao_corte', ORIGEM_HUMANO_PORTAL)
+                laje['validated_fields'] = vf
+                self.db.save_slab(laje, self.current_project_id)
+                marcados += 1
+
+        # --- 2. Contato pilar<->laje -> laje_pilares_apoio ---
+        padrao_lado = _re.compile(r'^p_s[A-H]_l\d+_n$')
+        campos_pilar = [
+            c for c in campos_web
+            if str(c.get('classe') or '').strip().upper() in ('PILARES', 'PILARES_ESPECIAIS')
+            and padrao_lado.match(str(c.get('field_id') or ''))
+        ]
+        if campos_pilar:
+            lajes_por_nome_local = {
+                str(l.get('name') or '').strip().upper(): l for l in (self.slabs_found or [])
+            }
+            por_pilar_id: dict = {}
+            for c in campos_pilar:
+                por_pilar_id.setdefault(str(c.get('item_id') or '').strip().upper(), []).append(c.get('field_id'))
+            for pilar in self.pillars_found or []:
+                nome_pilar = str(pilar.get('name') or pilar.get('id_item') or '').strip().upper()
+                fids = por_pilar_id.get(nome_pilar)
+                if not fids:
+                    continue
+                for fid in fids:
+                    laje_nome = str(pilar.get(fid) or '').strip().upper()
+                    laje = lajes_por_nome_local.get(laje_nome) if laje_nome else None
+                    if not laje:
+                        continue
+                    vf = laje.get('validated_fields') or {}
+                    ja_tinha = 'laje_pilares_apoio' in vf if isinstance(vf, dict) else 'laje_pilares_apoio' in set(vf)
+                    if ja_tinha:
+                        continue
+                    vf = adicionar_validacao_campo(vf, 'laje_pilares_apoio', ORIGEM_HUMANO_PORTAL)
+                    laje['validated_fields'] = vf
+                    self.db.save_slab(laje, self.current_project_id)
+                    marcados += 1
+
+        return marcados
 
     def _sincronizar_selo_rosa_segmentos_drive(self, campos_web: list) -> int:
         """Selo rosa de campo GRANULAR de segmentos de viga (fundo/lateral) —

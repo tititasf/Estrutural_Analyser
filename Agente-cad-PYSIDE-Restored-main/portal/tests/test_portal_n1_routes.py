@@ -83,6 +83,25 @@ async def test_listar_itens_de_uma_classe(settings):
 
 
 @pytest.mark.asyncio
+async def test_listar_itens_cortes_expoe_own_laje_e_neigh_laje(settings):
+    """[2026-07-13, Fase 3.5] motor de cruzamento corte->laje_visao_corte
+    (main.py) precisa de own_laje/neigh_laje crus na listagem, não só em
+    pilares/lajes."""
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_com_sa_real(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.get(f"/obras/{obra_id}/n1/cortes")
+        assert r.status_code == 200
+        itens = r.json()["itens"]
+        assert len(itens) > 0
+        assert "own_laje" in itens[0]
+        assert "neigh_laje" in itens[0]
+        # pilares não ganham essas chaves (só faz sentido pra cortes)
+        r2 = await client.get(f"/obras/{obra_id}/n1/pilares")
+        assert "own_laje" not in r2.json()["itens"][0]
+
+
+@pytest.mark.asyncio
 async def test_obter_item_n1_pilar_com_foto_real(settings):
     async with _app_cliente(settings) as (_app, client):
         obra_id = _obra_com_sa_real(settings)

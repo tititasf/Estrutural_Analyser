@@ -300,6 +300,12 @@ def _normalizar_corte(c: dict, lajes_por_nome: Optional[dict] = None) -> dict:
             "Confiança": f"{c.get('conf_pct')}%" if c.get("conf_pct") is not None else None,
             "Status": c.get("status"),
         },
+        # [2026-07-13, Fase 3.5] nomes CRUS (não formatados) das lajes que
+        # esse corte referencia — usados pelo motor de cruzamento do app
+        # desktop (main.py) pra saber quais lajes marcar `laje_visao_corte`
+        # validado quando TODOS os cortes delas forem confirmados no Portal.
+        "own_laje": (c.get("own_laje") or "").strip() or None,
+        "neigh_laje": (c.get("neigh_laje") or "").strip() or None,
         "atencao": c.get("atencao") or "",
         "points": c.get("pts") or [],
         "beam_name": c.get("beam_name"),
