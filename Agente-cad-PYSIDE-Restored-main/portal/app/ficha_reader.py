@@ -157,7 +157,44 @@ def ler_estado_pavimento(obra_dir: Path, pavimento: str) -> Optional[dict]:
         return None
 
 
-def _normalizar_pilar(p: dict) -> dict:
+def _pilar_lajes_granular(p: dict, lajes_por_nome: dict) -> tuple[dict, dict]:
+    """[2026-07-13, Fase 3.3] Quebra `p['lajes']` (lista de
+    `{'laje','side','face'}`, `main.py:14854`) em campos granulares POR
+    lado × índice (1/2) — MESMO field_id que o app desktop já usa
+    (`p_s{lado}_l{i}_n/h/v`, `detail_card.py:1875-1892`), zero tradução
+    necessária. "Lado A-D" e "Lajes contíguas" continuam existindo como
+    texto agregado (não removidos, só complementados) — são a MESMA fonte
+    de dado (`p['lajes']`), só formatada agregada; a granular é que fica
+    validável campo a campo."""
+    campos: dict[str, object] = {}
+    field_ids: dict[str, str] = {}
+    por_lado: dict[str, list] = {}
+    for entrada in (p.get("lajes") or []):
+        if not isinstance(entrada, dict):
+            continue
+        lado = str(entrada.get("side") or "").strip().upper()
+        if not lado:
+            continue
+        por_lado.setdefault(lado, []).append(entrada)
+    for lado, entradas in por_lado.items():
+        for i, entrada in enumerate(entradas[:2], start=1):
+            nome = (entrada.get("laje") or "").strip()
+            laje = lajes_por_nome.get(nome) or {}
+            rotulo_n = f"Laje {lado} #{i} — Nome"
+            campos[rotulo_n] = nome or "Nenhuma"
+            field_ids[rotulo_n] = f"p_s{lado}_l{i}_n"
+            if nome:
+                rotulo_h = f"Laje {lado} #{i} — Altura"
+                campos[rotulo_h] = laje.get("height") or ""
+                field_ids[rotulo_h] = f"p_s{lado}_l{i}_h"
+                rotulo_v = f"Laje {lado} #{i} — Nível"
+                campos[rotulo_v] = laje.get("nivel") or ""
+                field_ids[rotulo_v] = f"p_s{lado}_l{i}_v"
+    return campos, field_ids
+
+
+def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
+    lajes_por_nome = lajes_por_nome or {}
     campos = {
         "Nome": p.get("name"),
         "Classificação": p.get("classification"),
@@ -175,22 +212,26 @@ def _normalizar_pilar(p: dict) -> dict:
             if p.get("lajes") else "Nenhuma"
         ),
     }
+    field_ids = dict(_com_field_id(campos, _FIELD_ID_PILAR))
+    campos_granular, field_ids_granular = _pilar_lajes_granular(p, lajes_por_nome)
+    campos.update(campos_granular)
+    field_ids.update(field_ids_granular)
     return {
         "item_id": p.get("name") or p.get("key"),
         "titulo": p.get("name") or p.get("key"),
         "campos": campos,
-        "campos_field_id": _com_field_id(campos, _FIELD_ID_PILAR),
+        "campos_field_id": field_ids,
         "atencao": p.get("atencao") or "",
         "points": p.get("points") or [],
         "beam_name": p.get("name") or p.get("key"),
     }
 
 
-def _normalizar_pilar_n3_variante(p: dict, variante: str) -> dict:
+def _normalizar_pilar_n3_variante(p: dict, variante: str, lajes_por_nome: Optional[dict] = None) -> dict:
     """Ficha N3 do pilar pra 1 variante (Para/Passa) — mesma interpretacao SA
     do N1 (`_normalizar_pilar`), mas item_id/titulo com sufixo pra nao colidir
     com a ficha N1 nem com a outra variante."""
-    base = _normalizar_pilar(p)
+    base = _normalizar_pilar(p, lajes_por_nome)
     nome_base = base["item_id"]
     base["item_id"] = f"{nome_base}_{variante}"
     base["titulo"] = f"{nome_base} ({variante})"
@@ -341,13 +382,14 @@ def listar_itens_n1(estado: dict, classe: str) -> list[dict]:
             "points": [],
             "beam_name": "interpretacao_niveis"
         }]
-    if classe == "pilares":
-        return [_normalizar_pilar(p) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) == 'Retangular']
-    if classe == "pilares_especiais":
-        return [_normalizar_pilar(p) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) != 'Retangular']
-    if classe in _PILARES_N3_VARIANTE:
+    if classe in ("pilares", "pilares_especiais") or classe in _PILARES_N3_VARIANTE:
+        lajes_por_nome = {s.get("name"): s for s in estado.get("slabs", []) if s.get("name")}
+        if classe == "pilares":
+            return [_normalizar_pilar(p, lajes_por_nome) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) == 'Retangular']
+        if classe == "pilares_especiais":
+            return [_normalizar_pilar(p, lajes_por_nome) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) != 'Retangular']
         variante = _PILARES_N3_VARIANTE[classe]
-        return [_normalizar_pilar_n3_variante(p, variante) for p in estado.get("pilares", [])]
+        return [_normalizar_pilar_n3_variante(p, variante, lajes_por_nome) for p in estado.get("pilares", [])]
     if classe == "lajes":
         return [_normalizar_laje(s) for s in estado.get("slabs", [])]
     if classe == "cortes":

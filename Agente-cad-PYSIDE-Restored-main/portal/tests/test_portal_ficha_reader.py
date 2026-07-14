@@ -51,12 +51,29 @@ def test_listar_itens_n1_pilares_tem_campos_reais():
 
 def test_listar_itens_n1_pilares_expoe_campos_field_id():
     """[2026-07-13, Fase 3.1] campos_field_id mapeia só os campos com field_id
-    real conhecido do SA (Nome/Classificação) — Orientação/Nível Relativo/
-    Lado A-D/Lajes contíguas ficam de fora (gap documentado, tratado à parte
-    nas Fases 3.2/3.3)."""
+    real conhecido do SA (Nome/Classificação) — Orientação/Nível Relativo
+    ficam de fora (gap documentado). Lado A-D/Lajes contíguas viram campos
+    GRANULARES por lado×índice na Fase 3.3 (ver teste dedicado abaixo)."""
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
     p1 = fr.obter_item_n1(estado, "pilares", "P1")
-    assert p1["campos_field_id"] == {"Nome": "name", "Classificação": "classification"}
+    assert p1["campos_field_id"]["Nome"] == "name"
+    assert p1["campos_field_id"]["Classificação"] == "classification"
+    assert "Orientação" not in p1["campos_field_id"]
+    assert "Nível Relativo" not in p1["campos_field_id"]
+
+
+def test_listar_itens_n1_pilares_expoe_lajes_contiguas_granular():
+    """[2026-07-13, Fase 3.3] "Lajes contíguas" (texto agregado) continua
+    existindo, mas cada laje que toca um lado do pilar também vira campo
+    GRANULAR (Nome/Altura/Nível), field_id IDÊNTICO ao do app desktop
+    (`p_s{lado}_l{i}_n/h/v`) — P1 nesta obra toca 1 laje (L301) no lado B."""
+    estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
+    p1 = fr.obter_item_n1(estado, "pilares", "P1")
+    assert p1["campos"]["Laje B #1 — Nome"] == "L301"
+    assert p1["campos_field_id"]["Laje B #1 — Nome"] == "p_sB_l1_n"
+    assert p1["campos_field_id"]["Laje B #1 — Nível"] == "p_sB_l1_v"
+    # "Lajes contíguas" (agregado) continua presente, não foi removido
+    assert p1["campos"]["Lajes contíguas"] == "L301"
 
 
 def test_listar_itens_n1_lajes_expoe_campos_field_id():
