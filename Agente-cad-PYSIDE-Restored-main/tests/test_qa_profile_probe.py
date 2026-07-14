@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -56,6 +57,32 @@ def test_profile_fails_closed_when_reference_is_missing(tmp_path: Path):
     )
     assert result["overall"] == "PENDENTE"
     assert "referência cross-classe ausente" in result["reason"]
+    con.close()
+
+
+def test_profile_marks_pending_when_resolved_cross_class_item_is_not_materialized(tmp_path: Path):
+    profile = {
+        "schema": PROFILE_SCHEMA,
+        "class": "PIL",
+        "version": "test",
+        "n1": {"probes": {"face": {
+            "fields": [
+                {"id": "ref", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_sD_v_passa_esq_n.label.0.text", "transform": "entity"},
+                {"id": "beam", "class": "FV", "item_from": "ref", "source": "payload", "path": "fields.nome", "transform": "entity"},
+            ],
+            "checks": [{"id": "identity", "op": "same_entity", "left": "ref", "right": "beam"}],
+        }}},
+    }
+    con = _db()
+    links = {
+        "p_sD_v_passa_esq_n": {"label": [{"text": "V999", "source": "face_adapter"}]},
+    }
+    con.execute("UPDATE pillars SET links_json=? WHERE id='pil'", (json.dumps(links),))
+    result = run_profile_probe(
+        con, profile, probe_id="face", item="P35", project_id="p",
+        cache=ContentAddressedCache(tmp_path / "cache"),
+    )
+    assert result["overall"] == "PENDENTE"
     con.close()
 
 

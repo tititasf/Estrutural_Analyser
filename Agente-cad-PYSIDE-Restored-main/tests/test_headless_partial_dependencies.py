@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import scripts.arete.headless_sa_analise as headless
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -23,6 +24,33 @@ def test_fast_context_cache_key_tracks_source_identity():
 
     assert first != second
     assert first.parent.name == 'n1_context'
+
+
+def test_fast_context_cache_key_is_invalidated_by_dxf_and_fv_owner_content(
+    tmp_path: Path, monkeypatch,
+):
+    """O atalho FV não pode reaproveitar N1 ao mudar DXF ou interpretador."""
+    source = tmp_path / 'source.dxf'
+    source.write_bytes(b'DXF-A')
+    engine = tmp_path / 'src' / 'core' / 'beam_interpreters' / 'fundo_viga.py'
+    engine.parent.mkdir(parents=True)
+    engine.write_text('owner=A', encoding='utf-8')
+    contract = tmp_path / 'src' / 'core' / 'fv_generation_contract.py'
+    contract.write_text('contract=A', encoding='utf-8')
+
+    monkeypatch.setattr(headless, '_REPO_ROOT', tmp_path)
+    monkeypatch.setattr(headless, '_FAST_CONTEXT_ENGINE_FILES', (
+        'src/core/beam_interpreters/fundo_viga.py',
+        'src/core/fv_generation_contract.py',
+    ))
+    first = headless._fast_context_cache_path(str(source))
+    source.write_bytes(b'DXF-B')
+    after_dxf = headless._fast_context_cache_path(str(source))
+    engine.write_text('owner=B', encoding='utf-8')
+    after_owner = headless._fast_context_cache_path(str(source))
+
+    assert first != after_dxf
+    assert after_dxf != after_owner
 
 
 def test_pil_microcycle_persists_only_reconciled_beam_dependency():

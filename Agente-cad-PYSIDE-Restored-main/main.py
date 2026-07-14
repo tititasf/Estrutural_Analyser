@@ -7361,11 +7361,25 @@ class MainWindow(QMainWindow):
                                 if seg.get('apoio_inicial'):
                                     b['fields'][f'{field_prefix}_local_ini'] = seg.get('apoio_inicial')
                                     if seg.get('apoio_inicial_link'):
-                                        b['links'][f'{field_prefix}_local_ini'] = {'label': [seg.get('apoio_inicial_link')]}
+                                        _local_ini = dict(seg.get('apoio_inicial_link'))
+                                        _local_ini.update({
+                                            'evidence_role': 'fv_segment_local_support',
+                                            'scope': 'segment_local',
+                                            'source_segment': idx,
+                                            'source_slot': 'seg_bottom',
+                                        })
+                                        b['links'][f'{field_prefix}_local_ini'] = {'label': [_local_ini]}
                                 if seg.get('apoio_final'):
                                     b['fields'][f'{field_prefix}_local_fim'] = seg.get('apoio_final')
                                     if seg.get('apoio_final_link'):
-                                        b['links'][f'{field_prefix}_local_fim'] = {'label': [seg.get('apoio_final_link')]}
+                                        _local_fim = dict(seg.get('apoio_final_link'))
+                                        _local_fim.update({
+                                            'evidence_role': 'fv_segment_local_support',
+                                            'scope': 'segment_local',
+                                            'source_segment': idx,
+                                            'source_slot': 'seg_bottom',
+                                        })
+                                        b['links'][f'{field_prefix}_local_fim'] = {'label': [_local_fim]}
 
                         _fv_results.append(fv_data)
 
@@ -10450,6 +10464,36 @@ class MainWindow(QMainWindow):
             links['apoios'] = {'inicio': [], 'fim': []}
         links['apoios'].setdefault('inicio', [])
         links['apoios'].setdefault('fim', [])
+
+        _is_fv_context = bool(cross.get('fundo_segs')) or any(
+            str(field).startswith('viga_fundo_seg_') for field in fields
+        )
+
+        def _fv_global_boundary_link(link):
+            """Marca o apoio que descreve a viga inteira, sem reutilizá-lo como
+            prova de apoio de um painel FV.
+
+            Os slots ``viga_fundo_seg_*_local_*`` são a evidência local do
+            segmento; ``apoios.inicio/fim`` continuam sendo limites globais.
+            Copiar evita contaminar o candidato geométrico compartilhado.
+            """
+            tagged = dict(link) if isinstance(link, dict) else {
+                'type': 'text', 'text': str(link), 'name': str(link),
+            }
+            if not _is_fv_context:
+                return tagged
+            tagged['evidence_role'] = 'fv_beam_global_boundary'
+            tagged['scope'] = 'beam_global'
+            return tagged
+
+        # Migra em memória vínculos legados antes de qualquer consumer do
+        # dicionário.  A persistência parcial mantém os campos humanos; só a
+        # proveniência automática do link é enriquecida.
+        for _boundary in ('inicio', 'fim'):
+            links['apoios'][_boundary] = [
+                _fv_global_boundary_link(link)
+                for link in (links['apoios'].get(_boundary) or [])
+            ]
         if not isinstance(links.get('lajes'), dict):
             links['lajes'] = {'lado_a': [], 'lado_b': []}
         links['lajes'].setdefault('lado_a', [])
@@ -10552,9 +10596,9 @@ class MainWindow(QMainWindow):
                 if str(k).endswith('_local_fim') and not fim_txt:
                     fim_txt = v
         if ini_txt:
-            links['apoios']['inicio'] = [{'type': 'text', 'text': str(ini_txt), 'name': str(ini_txt)}]
+            links['apoios']['inicio'] = [_fv_global_boundary_link(ini_txt)]
         if fim_txt:
-            links['apoios']['fim'] = [{'type': 'text', 'text': str(fim_txt), 'name': str(fim_txt)}]
+            links['apoios']['fim'] = [_fv_global_boundary_link(fim_txt)]
 
         # 2) Fallback espacial: support_candidates (P* preferido nas pontas)
         supports = list(geo.get('support_candidates') or [])
@@ -10583,9 +10627,9 @@ class MainWindow(QMainWindow):
             end_pool = pillars_only if len(pillars_only) >= 2 else supports
             sorted_s = sorted(end_pool, key=_sk)
             if not links['apoios']['inicio'] and sorted_s:
-                links['apoios']['inicio'] = [sorted_s[0]]
+                links['apoios']['inicio'] = [_fv_global_boundary_link(sorted_s[0])]
             if not links['apoios']['fim'] and len(sorted_s) > 1:
-                links['apoios']['fim'] = [sorted_s[-1]]
+                links['apoios']['fim'] = [_fv_global_boundary_link(sorted_s[-1])]
             # Intermediários: só pilares P* que não são extremos
             end_labels = {
                 str((links['apoios']['inicio'] or [{}])[0].get('text')
@@ -12645,9 +12689,13 @@ class MainWindow(QMainWindow):
             # Por simplificação atual: O mais "menor coord" é Inicio, o "maior coord" é Fim.
             
             if sorted_supports:
-                b['links']['apoios']['inicio'].append(sorted_supports[0])
+                b['links']['apoios']['inicio'].append(
+                    _fv_global_boundary_link(sorted_supports[0])
+                )
                 if len(sorted_supports) > 1:
-                    b['links']['apoios']['fim'].append(sorted_supports[-1])
+                    b['links']['apoios']['fim'].append(
+                        _fv_global_boundary_link(sorted_supports[-1])
+                    )
 
         # 7. ALTURAS (H1, H2)
         h1 = 0

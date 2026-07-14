@@ -365,6 +365,16 @@ def write_fundo_pages(
             source_key = str(segment.get("source_key") or "segmento_fundo")
             support_start = str(segment_fields.get(f"viga_fundo_seg_{segment_index}_local_ini") or "")
             support_end = str(segment_fields.get(f"viga_fundo_seg_{segment_index}_local_fim") or "")
+            all_links = raw_beam.get("links") or {}
+            local_support_links = {
+                "inicio": all_links.get(f"viga_fundo_seg_{segment_index}_local_ini") or {},
+                "fim": all_links.get(f"viga_fundo_seg_{segment_index}_local_fim") or {},
+            }
+            global_boundaries = all_links.get("apoios") or {}
+            local_exceptions = {
+                "cortes": all_links.get("cortes") or [],
+                "aberturas": all_links.get("aberturas") or {},
+            }
             local_subtitle = (
                 f"Segmento {label} · {source_key} · dimensão {segment.get('width') or '—'}"
                 f" · apoios locais {support_start or '—'} → {support_end or '—'}"
@@ -447,7 +457,14 @@ def write_fundo_pages(
                 + _table_row("source_slot", segment.get("source_slot"))
                 + _table_row("tag", segment.get("tag"))
                 + _table_row("ficha do link", segment.get("ficha") or {})
+                + _table_row("evidence_segments", link_slots.get("contour") or [])
                 + _table_row("campos SA do segmento", segment_fields)
+                + _table_row("apoios locais do segmento", local_support_links)
+                + _table_row("limites globais da viga", global_boundaries)
+                + _table_row(
+                    "furos/recortes no contexto local",
+                    local_exceptions if any(local_exceptions.values()) else "N/A",
+                )
                 + _table_row("slots vinculados", link_slots)
             )
             vertex_rows = "".join(

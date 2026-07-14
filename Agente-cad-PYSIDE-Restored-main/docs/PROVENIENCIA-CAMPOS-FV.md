@@ -53,3 +53,56 @@ Para promoção a `validation_ready`: golden FV, G2-V, três geometrias represen
 5. associação espacial entre vigas próximas: V327/V328.
 
 **Sem promoção:** esta sessão é diagnóstica. Nenhum campo foi promovido para selo, golden, G2-V ou validação humana.
+
+## Sessão QA de evidências — 2026-07-14
+
+**Escopo:** `Obra_TREINO_1` / `13_PAV` / `FV` / projeto
+`dd238e47-1dc6-4f63-a760-4e7ce19a7386`.  Consulta de PIL é permitida apenas
+para provar o apoio físico; LV não é fonte nem fallback semântico de FV.
+
+### Contrato observado e materializado
+
+| Campo/vínculo FV | Fonte permitida | Persistência exigida | Limite de uso |
+|---|---|---|---|
+| `viga_fundo_seg_N_area_segs.contour` | `seg_bottom` e faces DXF da própria FV | `points`, `evidence_segments[N]`, `source_slot=seg_bottom`, ficha de medida | prova local; não é o eixo inteiro da viga |
+| `viga_fundo_seg_N_local_ini/fim` | texto/entidade em contato com a extremidade daquele segmento; PIL pode confirmar | `scope=segment_local`, `evidence_role=fv_segment_local_support`, pontos quando a entidade os possui | não pode ser inferido apenas pelo zoom distante |
+| `links.apoios.inicio/fim` | extremos da continuidade global já encontrada no N1 | `scope=beam_global`, `evidence_role=fv_beam_global_boundary` | não substitui o apoio de cada painel FV |
+| furo/recorte | entidade DXF que toca/interrompe o contorno local | vínculo em `cortes`/`aberturas` e pontos da entidade | ausência no DB é `N/A`, nunca geometria inventada |
+
+### Duas evidências N1, sem terceiro zoom
+
+- **Local:** recorte SVG do DXF que destaca somente o segmento escolhido, suas
+  extremidades, dimensão, apoios locais e as exceções em contato.
+- **Contextual:** outro recorte SVG da mesma origem DXF, usando exclusivamente
+  os contornos FV já persistidos da mesma viga. Ele explica nome, eixo,
+  continuidade, pilares/apoios globais e transições, mas não cria segmento nem
+  apoio.
+- Ambos mantêm textos DXF como elementos `<text>` SVG. A ficha expõe o
+  `source_key`, `source_slot`, `evidence_segments`, apoios locais e limites
+  globais para tornar a diferença auditável.
+
+### Cache e preservação
+
+O atalho headless não instancia `MainWindow`: reutiliza o contexto canônico que
+foi calculado por `BeamTracer` e `FundoVigaInterpreter`. Seu cache é
+content-addressed pelo conteúdo do DXF, `BeamTracer`, interpretador FV,
+contrato FV e dependências N1 comuns. Ele é apenas desempenho: não sela campo,
+não altera N1/N3 e não dispensa a execução canônica com `--wait` quando houver
+mudança real de interpretação.
+
+Na persistência parcial, a topologia/contorno humano validado continua soberano;
+o enriquecimento automático só atualiza a sua própria proveniência em links não
+validados. Um `evidence_segments.source_segment=0` é inválido e é migrado para o
+índice FV real durante reparo automático, nunca em geometria validada.
+
+### Amostra e estado de exceções
+
+- Casos escolhidos para prova: V305 (simples), V301 e V306 (multi-segmento e
+  apoios distintos), V307 (diagonal/especial). A seleção é N1/DB/DXF; N2/N4
+  seguem exclusivamente comparação posterior.
+- A inventariação read-only atual não encontrou item FV deste pavimento com
+  `holes` ou `cuts` persistidos. Portanto o requisito de furo/recorte fica
+  explicitamente **N/A pendente de caso real**, sem fabricar um terceiro zoom ou
+  exceção sintética.
+- Nenhuma promoção para golden, G2-V, selo ou validação humana ocorreu nesta
+  sessão; ainda dependem de geração canônica, diagnóstico e veredito visual CLI.

@@ -662,12 +662,33 @@ class FundoVigaInterpreter:
             # Metadado observacional do próprio slot FV.  Não usa campos LV,
             # não altera os vértices humanos e permite a ficha distinguir o
             # segmento selecionado do contexto global da viga.
-            link.setdefault("evidence_segments", [{
+            generated_evidence = {
                 "source_segment": int(segment_index or 0),
                 "source_slot": "seg_bottom",
                 "role": "fv_segment_local_contour",
                 "points": [[round(float(x), 6), round(float(y), 6)] for x, y in points],
-            }])
+            }
+            # Um reparo automático pode mover o contorno; sua própria prova
+            # precisa acompanhar os novos pontos. Preservamos evidências
+            # humanas/adicionais e substituímos somente o registro automático
+            # deste segmento. ``0`` nunca é índice FV válido e é migrado.
+            prior_evidence = list(link.get("evidence_segments") or [])
+            def _same_automatic_segment(evidence: Any) -> bool:
+                if not isinstance(evidence, dict):
+                    return False
+                if evidence.get("role") != "fv_segment_local_contour":
+                    return False
+                try:
+                    recorded = int(evidence.get("source_segment") or 0)
+                except (TypeError, ValueError):
+                    return False
+                return recorded in {0, int(segment_index or 0)}
+
+            retained_evidence = [
+                evidence for evidence in prior_evidence
+                if not _same_automatic_segment(evidence)
+            ]
+            link["evidence_segments"] = [generated_evidence, *retained_evidence]
             canonical_length = None
             if str(link.get("fv_measure_source") or "").startswith(
                 "chamfer_half_cm_snap"
@@ -700,8 +721,11 @@ class FundoVigaInterpreter:
             points: list[tuple[float, float]],
             source: str,
             structural_width: float,
+            segment_index: int,
         ) -> None:
-            normalize_area_link(link, points, source)
+            normalize_area_link(
+                link, points, source, segment_index=segment_index,
+            )
             measure_length = cls._longest_axis_edge(points)
             if measure_length > 0.05:
                 link["fv_measure_length"] = measure_length
@@ -783,6 +807,7 @@ class FundoVigaInterpreter:
                         link,
                         diagonal_area_points,
                         "fundo_viga_interpreter_diagonal_pair",
+                        segment_index=index,
                     )
                     slots["contour"] = [link]
                     sync_bottom_segment(index, link)
@@ -795,6 +820,7 @@ class FundoVigaInterpreter:
                         diagonal_area_points,
                         "fundo_viga_interpreter_special_diagonal_l",
                         structural_width,
+                        index,
                     )
                     slots["contour"] = [link]
                     sync_bottom_segment(index, link)
@@ -832,6 +858,7 @@ class FundoVigaInterpreter:
                                 link,
                                 area_points,
                                 "fundo_viga_interpreter_width_repair",
+                                segment_index=index,
                             )
                             slots["contour"] = [link]
                             sync_bottom_segment(index, link)
@@ -892,6 +919,7 @@ class FundoVigaInterpreter:
                                 link,
                                 area_points,
                                 "fundo_viga_interpreter_canonical_span_repair",
+                                segment_index=index,
                             )
                             slots["contour"] = [link]
                             sync_bottom_segment(index, link)
@@ -935,6 +963,7 @@ class FundoVigaInterpreter:
                                 link,
                                 area_points,
                                 "fundo_viga_interpreter_run_span_repair",
+                                segment_index=index,
                             )
                             slots["contour"] = [link]
                             sync_bottom_segment(index, link)
@@ -946,6 +975,7 @@ class FundoVigaInterpreter:
                     link,
                     points,
                     link.get("geometry_source") or "fundo_viga_interpreter",
+                    segment_index=index,
                 )
                 slots["contour"] = [link]
                 sync_bottom_segment(index, link)

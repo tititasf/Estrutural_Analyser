@@ -29,8 +29,21 @@ class _FakeDialog:
         "fields": {"viga_fundo_seg_1_largura": 19},
         "links": {
             "viga_fundo_seg_1_area_segs": {
-                "contour": [{"points": [(0, 0), (10, 0), (10, 4), (0, 4)]}]
-            }
+                "contour": [{
+                    "points": [(0, 0), (10, 0), (10, 4), (0, 4)],
+                    "evidence_segments": [{"source_segment": 1}],
+                }]
+            },
+            "viga_fundo_seg_1_local_ini": {
+                "label": [{"text": "P1", "scope": "segment_local"}]
+            },
+            "viga_fundo_seg_1_local_fim": {
+                "label": [{"text": "P2", "scope": "segment_local"}]
+            },
+            "apoios": {
+                "inicio": [{"text": "P1", "scope": "beam_global"}],
+                "fim": [{"text": "P2", "scope": "beam_global"}],
+            },
         },
     }]
 
@@ -122,6 +135,10 @@ def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pa
     assert "N3 / NOVA" in text
     assert "N4 / Robô ER" in text
     assert "Vértices brutos do contorno" in text
+    assert "evidence_segments" in text
+    assert "apoios locais do segmento" in text
+    assert "limites globais da viga" in text
+    assert "furos/recortes no contexto local" in text
     assert "Quality gates da viga FV" in text
     assert "Marcar esta ficha como ERRADA" in text
     assert soup.select_one("#erro_check") is not None

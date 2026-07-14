@@ -30,9 +30,12 @@ class _FakeDialog:
         return "n2_V301.dxf"
 
     def _render_pilar_dxf_context_b64(
-        self, points, width=1000, height=680, focus_mode="pillar", fmt="png"
+        self, points, width=1000, height=680, focus_mode="pillar", fmt="png",
+        context_view="near", context_points=None, focus_label="SEGMENTO",
     ):
         assert focus_mode == "segment"
+        assert fmt == "svg"
+        assert context_view in {"near", "far"}
         if fmt == "svg":
             return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
         return "U0E="
@@ -134,8 +137,9 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
     assert "N3 completo (1 lado)" in text
     assert "limitação conhecida" in text.lower()
 
-    # N1 por segmento (2) + N2 compartilhado (1) + três N3 + três N4 = 9.
-    assert len(soup.select(".evidence-card svg")) == 9
+    # Duas provas N1 SVG por segmento (4) + N2 compartilhado (1) +
+    # três N3 + três N4 = 11.
+    assert len(soup.select(".evidence-card svg")) == 11
     titles = [
         item.get_text(" ", strip=True)
         for item in soup.select(".evidence-title b")
@@ -161,6 +165,9 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
     # vínculos de contexto (apoio/laje) aparecem na ficha N1 do segmento
     assert "Apoio início" in text
     assert "Lajes adjacentes" in text
+    assert "N1 próximo / local" in text
+    assert "N1 distante / contextual" in text
+    assert "source_key" in text
 
 
 def test_lateral_writer_marks_missing_n4_side_as_ausente(tmp_path: Path):

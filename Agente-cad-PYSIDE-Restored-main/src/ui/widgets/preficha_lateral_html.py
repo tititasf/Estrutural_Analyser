@@ -584,7 +584,17 @@ def write_lateral_pages(
             entries.append((beam, beam_rows_sorted, page_slug))
         entries_by_behavior[behavior] = entries
 
-    def _n1_card_for_segment(row: dict, beam: str) -> tuple[str, bool]:
+    def _n1_card_for_segment(
+        row: dict,
+        beam: str,
+        context_points: list,
+    ) -> tuple[str, bool]:
+        """Monta as duas provas N1 vetoriais de um contrato LV.
+
+        A primeira prova o contato local do segmento; a segunda abre a mesma
+        face/comportamento para exibir eixo, apoio e continuidade. O contexto
+        distante nunca cria evento: os fatos continuam sendo do segmento local.
+        """
         segment = row.get("_segment") or {}
         side = str(segment.get("side") or "A")
         behavior = str(segment.get("behavior") or "—")
@@ -612,21 +622,39 @@ def write_lateral_pages(
             context_width, context_height = 840, 2000
         else:
             context_width, context_height = 1800, 1360
-        sa_b64 = (
+        source_key = str(segment.get("source_key") or "—")
+        source_slot = str(segment.get("source_slot") or "—")
+        focus_label = (
+            f"{beam}.{side} · {behavior} · SEG {label}\n"
+            f"{source_key} / {source_slot}"
+        )
+        sa_local_b64 = (
             dialog._render_pilar_dxf_context_b64(
                 points,
                 width=context_width,
                 height=context_height,
                 focus_mode="segment",
+                focus_label=focus_label,
                 fmt="svg",
+                context_view="near",
             )
             if points
             else ""
         )
-        sa_fmt = "svg"
-        if not sa_b64:
-            sa_b64 = photo_fn(points)
-            sa_fmt = "png"
+        sa_context_b64 = (
+            dialog._render_pilar_dxf_context_b64(
+                points,
+                width=context_width,
+                height=context_height,
+                focus_mode="segment",
+                focus_label=focus_label,
+                fmt="svg",
+                context_view="far",
+                context_points=context_points,
+            )
+            if points and context_points
+            else ""
+        )
 
         identity_rows = (
             _table_sep("IDENTIDADE E DECISÃO SA")
@@ -684,8 +712,8 @@ def write_lateral_pages(
         identity_rows += (
             _table_sep("RASTREABILIDADE DO VÍNCULO")
             + _table_row("beam_identity", segment.get("beam_identity"))
-            + _table_row("source_key", segment.get("source_key"))
-            + _table_row("source_slot", segment.get("source_slot"))
+            + _table_row("source_key", source_key)
+            + _table_row("source_slot", source_slot)
             + _table_row("tag", segment.get("tag"))
             + _table_row("ficha do link", segment.get("ficha") or {})
             + _table_row("campos SA do segmento", segment_fields)
@@ -712,13 +740,22 @@ def write_lateral_pages(
             '<div class="sec"><div class="sec-title">'
             f"N1 / SA — {html.escape(beam)} · lado {html.escape(side)} · "
             f"segmento {html.escape(full_label)}</div><div class=\"sec-body\">"
-            '<div class="evidence-grid">'
+            '<div class="evidence-grid n1-pair">'
             + _artifact_card(
-                "N1 / SA",
-                f"DXF estrutural focado no segmento {full_label} (lado {side})",
-                sa_b64,
+                "N1 próximo / local",
+                f"Contato, seção, apoios e endpoint events de {full_label}; "
+                f"fonte real: {source_key} / {source_slot}.",
+                sa_local_b64,
                 image_class="img-geo",
-                fmt=sa_fmt,
+                fmt="svg",
+            )
+            + _artifact_card(
+                "N1 distante / contextual",
+                f"Eixo, nome, dimensão e continuidade de {beam}.{side} / {behavior}. "
+                "Contexto não cria evento: a prova continua sendo a vista local.",
+                sa_context_b64,
+                image_class="img-geo",
+                fmt="svg",
             )
             + '</div><div class="fichas-grid" style="margin-top:10px">'
             '<div><div class="ficha-col-title">Ficha N1/SA do segmento</div>'
@@ -732,7 +769,8 @@ def write_lateral_pages(
             f'<div class="ficha-cell"><table>{segment_check_rows}</table></div></div>'
             '</div></div></div>'
         )
-        return card_html, bool(sa_b64)
+        # Não há fallback PNG: os dois SVGs preservam <text>, cotas e origem.
+        return card_html, bool(sa_local_b64 and sa_context_b64)
 
     zone_render_cache: dict[tuple, str] = {}
 
@@ -884,11 +922,25 @@ def write_lateral_pages(
 
         for side in ("A", "B"):
             side_rows = rows_by_side.get(side) or []
+            # Contexto limitado ao mesmo lado e comportamento desta página.
+            # Não reúne A/B, portanto não autoriza espelho nem evento novo.
+            side_context_points = [
+                point
+                for side_row in side_rows
+                for point in (
+                    (side_row.get("_segment") or {}).get("points")
+                    or side_row.get("_points")
+                    or []
+                )
+                if isinstance(point, (list, tuple)) and len(point) >= 2
+            ]
 
             n1_cards = []
             side_available = 0
             for row in side_rows:
-                card_html, has_geo = _n1_card_for_segment(row, beam)
+                card_html, has_geo = _n1_card_for_segment(
+                    row, beam, side_context_points
+                )
                 n1_cards.append(card_html)
                 side_available += bool(has_geo)
             n1_available += side_available

@@ -622,6 +622,11 @@ def test_fundo_repairs_simple_rectangle_width_from_dimension():
     assert max(xs) - min(xs) == 398
     assert max(ys) - min(ys) == 19
     assert repaired["geometry_source"] == "fundo_viga_interpreter_width_repair"
+    evidence = repaired["evidence_segments"][0]
+    assert evidence["source_segment"] == 1
+    assert evidence["source_slot"] == "seg_bottom"
+    assert evidence["role"] == "fv_segment_local_contour"
+    assert evidence["points"] == [list(point) for point in repaired["points"]]
 
 
 def test_fundo_width_repair_prefers_link_ficha_over_automatic_dimension():

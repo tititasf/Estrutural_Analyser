@@ -154,9 +154,30 @@ def run_profile_probe(
         "fields": [{key: value for key, value in field.items() if key != "item_from"} for field in fields],
         "checks": checks,
     }
-    result = run_probe(
-        con, final_request, project_id=project_id, obra=obra, pav=pav, cache=cache,
-    )
+    try:
+        result = run_probe(
+            con, final_request, project_id=project_id, obra=obra, pav=pav, cache=cache,
+        )
+    except ValueError as exc:
+        # Uma referência resolvida no payload pode não ter sido materializada
+        # na tabela cross-classe deste projeto. Isso é falta de evidência,
+        # nunca autorização para inventar o vínculo nem erro fatal do ciclo.
+        if not dynamic or "item ausente:" not in str(exc):
+            raise
+        return {
+            "schema": RESULT_SCHEMA,
+            "overall": "PENDENTE",
+            "scope_authority": "field_checks_only; unresolved cross-class materialization",
+            "reason": f"referência cross-classe não materializada: {exc}",
+            "profile": {
+                "class": profile["class"],
+                "version": profile.get("version"),
+                "probe": probe_id,
+                "item": item,
+                "resolved_cross_class": resolved,
+            },
+            "preflight": preflight,
+        }
     result["profile"] = {
         "schema": PROFILE_SCHEMA,
         "class": profile["class"],

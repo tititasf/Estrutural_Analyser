@@ -35,9 +35,13 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT   = _SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-_FAST_CONTEXT_CACHE_SCHEMA = 1
+# A cache is only a performance artifact.  It must be invalidated by the
+# *contents* of the source and of each N1 owner, never only by mtimes (which
+# are particularly unreliable when a workspace is restored/copied).
+_FAST_CONTEXT_CACHE_SCHEMA = 2
 _FAST_CONTEXT_ENGINE_FILES = (
     'main.py',
+    'scripts/analise_geral_headless.py',
     'src/core/dxf_loader.py',
     'src/core/spatial_index.py',
     'src/core/slab_tracer.py',
@@ -46,24 +50,32 @@ _FAST_CONTEXT_ENGINE_FILES = (
     'src/core/beam_interpreters/fundo_viga.py',
     'src/core/beam_interpreters/lateral_viga.py',
     'src/core/beam_interpreters/pilar_viga.py',
+    # O fast path reaplica este contrato depois de restaurar o snapshot. Logo
+    # ele é dono real do resultado LV e precisa participar da assinatura.
+    'src/core/lv_generation_contract.py',
+    'src/core/fv_generation_contract.py',
     'src/core/pillar_face_beams.py',
 )
 
 
 def _fast_context_cache_path(dxf_path: str) -> Path:
-    """Cache local invalidado pela fonte e pelos motores que criam o N1."""
-    signature: list[tuple[str, int, int]] = []
+    """Cache N1 content-addressed para o caminho rápido, sem MainWindow.
+
+    O estado em cache foi produzido pelo mesmo ``BeamTracer`` e pelos
+    interpretadores canônicos.  A assinatura inclui todos os donos reais de
+    FV (inclusive o contrato N3, porque a ficha/preview dependem dele) e o
+    conteúdo do DXF.  Assim uma alteração de motor, contrato ou fonte nunca
+    reaproveita uma interpretação antiga.
+    """
+    signature: list[tuple[str, str]] = []
     for relative in _FAST_CONTEXT_ENGINE_FILES:
         path = _REPO_ROOT / relative
-        stat = path.stat()
-        signature.append((relative, stat.st_size, stat.st_mtime_ns))
+        signature.append((relative, hashlib.sha256(path.read_bytes()).hexdigest()))
     source = Path(dxf_path).resolve()
-    stat = source.stat()
     payload = repr((
         _FAST_CONTEXT_CACHE_SCHEMA,
         str(source),
-        stat.st_size,
-        stat.st_mtime_ns,
+        hashlib.sha256(source.read_bytes()).hexdigest(),
         signature,
     )).encode('utf-8')
     digest = hashlib.sha256(payload).hexdigest()
