@@ -93,6 +93,24 @@ def test_listar_itens_n1_segmentos_fundo_reais():
     assert v1["campos"]["Comprimento"] > 0
 
 
+def test_listar_itens_n1_segmentos_expoe_campos_field_id_por_classe():
+    """[2026-07-13, Fase 3.4] field_id de segmento é um SUFIXO (prefixo "_")
+    resolvido só no app desktop via seg_uid — fundo usa _dim (largura E
+    comprimento aproximam pro mesmo campo), lateral usa
+    _comprimento_total/_comp_total_passa conforme a classe (para/passa)."""
+    estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
+    fundo = next(i for i in fr.listar_itens_n1(estado, "fundo") if i["beam_name"] == "V1")
+    assert fundo["campos_field_id"] == {"Nome": "name", "Comprimento": "_dim", "Largura": "_dim"}
+
+    lateral_para = fr.listar_itens_n1(estado, "lateral_a_para")
+    if lateral_para:
+        assert lateral_para[0]["campos_field_id"]["Comprimento"] == "_comprimento_total"
+
+    lateral_passa = fr.listar_itens_n1(estado, "lateral_a_passa")
+    if lateral_passa:
+        assert lateral_passa[0]["campos_field_id"]["Comprimento"] == "_comp_total_passa"
+
+
 def test_listar_itens_n1_classe_desconhecida_devolve_vazio():
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
     assert fr.listar_itens_n1(estado, "classe_que_nao_existe") == []

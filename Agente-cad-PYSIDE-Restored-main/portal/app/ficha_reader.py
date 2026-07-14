@@ -71,6 +71,21 @@ _FIELD_ID_LAJE = {
     "Nível": "laje_nivel",
 }
 
+# [2026-07-13, Fase 3.4] classe de segmento -> {label: valor}. Valores que
+# começam com "_" são SUFIXOS relativos ao seg_uid (`{prefix}_seg_{idx}`,
+# resolvido só no lado do app desktop via título "V101 (segmento N)" — ver
+# `main.py::_sincronizar_selo_rosa_drive`); valores sem "_" na frente são
+# field_id ABSOLUTO (compartilhado com o header do item, ex. "name").
+# "Largura"/"Comprimento" em fundo mapeiam pro MESMO `_dim` (SA não separa
+# largura de comprimento nesse segmento — aproximação documentada).
+_FIELD_ID_SEGMENTO_SUFIXO = {
+    "fundo": {"Nome": "name", "Comprimento": "_dim", "Largura": "_dim"},
+    "lateral_a_para": {"Nome": "name", "Comprimento": "_comprimento_total"},
+    "lateral_b_para": {"Nome": "name", "Comprimento": "_comprimento_total"},
+    "lateral_a_passa": {"Nome": "name", "Comprimento": "_comp_total_passa"},
+    "lateral_b_passa": {"Nome": "name", "Comprimento": "_comp_total_passa"},
+}
+
 
 def _com_field_id(campos: dict, mapa: dict) -> dict:
     """Subconjunto de `campos` que tem field_id real conhecido do SA —
@@ -291,19 +306,22 @@ def _normalizar_corte(c: dict, lajes_por_nome: Optional[dict] = None) -> dict:
     }
 
 
-def _normalizar_segmento(s: dict) -> dict:
+def _normalizar_segmento(s: dict, classe: Optional[str] = None) -> dict:
+    campos = {
+        "Nome": s.get("beam_name"),
+        "Segmento": s.get("segment_label"),
+        "Lado": s.get("side"),
+        "Comportamento": s.get("behavior"),
+        "Comprimento": s.get("length"),
+        "Largura": s.get("width") or None,
+        "Status": s.get("status"),
+    }
+    mapa = _FIELD_ID_SEGMENTO_SUFIXO.get(classe or "", {})
     return {
         "item_id": s.get("uid"),
         "titulo": f"{s.get('beam_name')} (segmento {s.get('segment_label')})",
-        "campos": {
-            "Nome": s.get("beam_name"),
-            "Segmento": s.get("segment_label"),
-            "Lado": s.get("side"),
-            "Comportamento": s.get("behavior"),
-            "Comprimento": s.get("length"),
-            "Largura": s.get("width") or None,
-            "Status": s.get("status"),
-        },
+        "campos": campos,
+        "campos_field_id": _com_field_id(campos, mapa),
         "atencao": s.get("atencao") or "",
         "points": s.get("points") or [],
         "beam_name": s.get("beam_name"),
@@ -396,9 +414,9 @@ def listar_itens_n1(estado: dict, classe: str) -> list[dict]:
         lajes_por_nome = {s.get("name"): s for s in estado.get("slabs", []) if s.get("name")}
         return [_normalizar_corte(c, lajes_por_nome) for c in estado.get("cortes", [])]
     if classe == "fundo":
-        return [_normalizar_segmento(s) for s in estado.get("segmentos", {}).get("fundo", [])]
+        return [_normalizar_segmento(s, classe) for s in estado.get("segmentos", {}).get("fundo", [])]
     if classe in _SEGMENTO_LADO_SUFIXO:
-        return [_normalizar_segmento(s) for s in estado.get("segmentos", {}).get(classe, [])]
+        return [_normalizar_segmento(s, classe) for s in estado.get("segmentos", {}).get(classe, [])]
     return []
 
 

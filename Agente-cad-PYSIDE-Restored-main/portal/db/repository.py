@@ -295,11 +295,16 @@ def set_sa_validado(
 def set_campo_validado(
     conn: sqlite3.Connection, obra_id: str, pavimento: str, classe: str, item_id: str,
     field_id: str, validado: bool, validado_por: Optional[str] = None,
+    titulo: Optional[str] = None,
 ) -> None:
     """Marca/desmarca a validação de 1 campo específico de 1 item (granularidade
     real de campo — gera a origem `humano_portal` no app desktop via sync,
     ver docs/CONVENCAO-SELOS-VALIDACAO.md). `validado=False` remove a linha
-    (campo some da lista de validados, igual `remover_validacao_campo`)."""
+    (campo some da lista de validados, igual `remover_validacao_campo`).
+    `titulo` [2026-07-13, Fase 3.4] — só relevante pra classes de segmento
+    (fundo/lateral_*): o app desktop regex-parseia "V101 (segmento N)" pra
+    resolver o field_id real (`{prefix}_seg_{idx}{sufixo}`), já que o
+    `item_id` de segmento é um uid geométrico opaco."""
     if not validado:
         conn.execute(
             "DELETE FROM portal_validacoes_campo WHERE obra_id=? AND pavimento=? AND classe=? AND item_id=? AND field_id=?",
@@ -309,13 +314,14 @@ def set_campo_validado(
         return
     conn.execute(
         """
-        INSERT INTO portal_validacoes_campo (obra_id, pavimento, classe, item_id, field_id, validado_por, validado_em)
-        VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+        INSERT INTO portal_validacoes_campo (obra_id, pavimento, classe, item_id, field_id, validado_por, validado_em, titulo)
+        VALUES (?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ','now'), ?)
         ON CONFLICT(obra_id, pavimento, classe, item_id, field_id) DO UPDATE SET
             validado_por=excluded.validado_por,
-            validado_em=excluded.validado_em
+            validado_em=excluded.validado_em,
+            titulo=excluded.titulo
         """,
-        (obra_id, pavimento, classe.upper(), item_id, field_id, validado_por),
+        (obra_id, pavimento, classe.upper(), item_id, field_id, validado_por, titulo),
     )
     conn.commit()
 
@@ -323,9 +329,9 @@ def set_campo_validado(
 def listar_campos_validados(
     conn: sqlite3.Connection, obra_id: str, pavimento: str, classe: str, item_id: str,
 ) -> list[dict[str, Any]]:
-    """Campos validados de 1 item — [{field_id, validado_por, validado_em}, ...]."""
+    """Campos validados de 1 item — [{field_id, validado_por, validado_em, titulo}, ...]."""
     rows = conn.execute(
-        "SELECT field_id, validado_por, validado_em FROM portal_validacoes_campo "
+        "SELECT field_id, validado_por, validado_em, titulo FROM portal_validacoes_campo "
         "WHERE obra_id=? AND pavimento=? AND classe=? AND item_id=?",
         (obra_id, pavimento, classe.upper(), item_id),
     ).fetchall()
@@ -336,7 +342,7 @@ def listar_campos_validados_por_obra(conn: sqlite3.Connection, obra_id: str) -> 
     """Todos os campos validados dessa obra (todas classes/pavimentos/itens) —
     usado pela app pra espelhar em lote, igual `listar_sa_validacoes_por_obra`."""
     rows = conn.execute(
-        "SELECT pavimento, classe, item_id, field_id, validado_por, validado_em "
+        "SELECT pavimento, classe, item_id, field_id, validado_por, validado_em, titulo "
         "FROM portal_validacoes_campo WHERE obra_id=?",
         (obra_id,),
     ).fetchall()

@@ -137,9 +137,12 @@ def validar_campo_endpoint(obra_id: str, classe: str, item_id: str, field_id: st
     pav = _pavimento_da_obra(obra_dir, pavimento)
     if pav is None:
         raise HTTPException(status_code=404, detail="obra ainda sem SA rodado (nenhum estado_<pav>.json)")
+    estado = ficha_reader.ler_estado_pavimento(obra_dir, pav)
+    item = ficha_reader.obter_item_n1(estado, classe, item_id) if estado else None
+    titulo = item.get("titulo") if item else None
     repo.set_campo_validado(
         conn, obra_id, pav, classe, item_id, field_id, payload.validado,
-        validado_por=membro.get("login"),
+        validado_por=membro.get("login"), titulo=titulo,
     )
     return {"status": "ok", "pavimento": pav, "classe": classe, "item_id": item_id,
             "field_id": field_id, "validado": payload.validado}

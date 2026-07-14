@@ -8630,14 +8630,20 @@ class MainWindow(QMainWindow):
         Drive; mesmo padrão PULL de `_sincronizar_selo_verde_drive` (nunca
         empurra dado da app pro Portal).
 
-        LIMITAÇÃO CONHECIDA (documentada, não um bug): o `field_id` que o
-        Portal grava é a própria chave do label exibido (ex. "Nível
-        Relativo") — ainda não alinhado ao field_id interno do app desktop
-        (ex. "laje_nivel"). O match é por string exata; enquanto a
-        nomenclatura não for unificada, isso é um no-op seguro pra campos
-        que não baterem (nunca marca campo errado, só não gera selo até
-        alinhar). Vigas ficam de fora, mesmo motivo do selo verde (Fase 12):
-        campo por SEGMENTO na web, não implementado aqui ainda.
+        LIMITAÇÃO CONHECIDA (documentada, não um bug): campos sem mapeamento
+        oficial no Portal (`ficha_reader._FIELD_ID_*`, ex. Orientação/Nível
+        Relativo do pilar) continuam sendo um no-op seguro — nunca marca
+        campo errado, só não gera selo até ganhar mapeamento (ver
+        `docs/CONVENCAO-SELOS-VALIDACAO.md`).
+
+        Vigas/segmentos (Fase 3.4): reusa o MESMO esquema de
+        `_sincronizar_selo_verde_segmentos_drive` (regex no título "V101
+        (segmento N)" + `_SEG_WEB_CLASSE_PREFIX`) pra resolver o
+        `seg_uid = f'{prefix}_seg_{idx}'` — o `field_id` vindo do Portal pra
+        segmento é um SUFIXO (`_dim`, `_comprimento_total` etc, começa com
+        "_") combinado com esse `seg_uid`, ou um field_id absoluto
+        (ex. "name", compartilhado com o header do item) quando não começa
+        com "_" — ver `ficha_reader._FIELD_ID_SEGMENTO_SUFIXO`.
 
         Recalcula `selo_rosa` no item na hora só pra LAJ (campos obrigatórios
         estáticos, ver `_calculate_completion`); pra pilares o recálculo é
@@ -8709,12 +8715,65 @@ class MainWindow(QMainWindow):
                     save_fn(item, self.current_project_id)
                     marcados += 1
 
+            marcados += self._sincronizar_selo_rosa_segmentos_drive(campos_web)
+
             if marcados:
                 self.log(f"🌸 Selo rosa Drive: {marcados} item(ns) com campo(s) sincronizado(s) do Portal.")
             return marcados
         except Exception as e:
             self.log(f"⚠ Selo rosa Drive: falha geral ({e})")
             return 0
+
+    def _sincronizar_selo_rosa_segmentos_drive(self, campos_web: list) -> int:
+        """Selo rosa de campo GRANULAR de segmentos de viga (fundo/lateral) —
+        Fase 3.4. Reusa o mesmo esquema de
+        `_sincronizar_selo_verde_segmentos_drive` (regex no título "V101
+        (segmento N)" via `_SEG_WEB_CLASSE_PREFIX`) pra resolver
+        `seg_uid = f'{prefix}_seg_{idx}'`; o field_id vindo do Portal é um
+        SUFIXO (começa com "_", combinado com o seg_uid) ou absoluto
+        (ex. "name", usado como está — ver
+        `ficha_reader._FIELD_ID_SEGMENTO_SUFIXO`)."""
+        import re as _re
+        from src.core.validation_model import ORIGEM_HUMANO_PORTAL, adicionar_validacao_campo
+
+        titulo_re = _re.compile(r'^(\S+)\s*\(segmento\s*(\d+)\)', _re.IGNORECASE)
+        beams_por_nome: dict = {}
+        for beam in self.beams_found or []:
+            nome = str(beam.get('name') or '').strip().upper()
+            if nome:
+                beams_por_nome.setdefault(nome, []).append(beam)
+
+        vigas_tocadas: set = set()
+        marcados = 0
+        for c in campos_web:
+            classe = str(c.get('classe') or '').strip().lower()
+            prefix = self._SEG_WEB_CLASSE_PREFIX.get(classe)
+            if not prefix:
+                continue
+            field_id = c.get('field_id')
+            titulo = c.get('titulo')
+            if not field_id or not titulo:
+                continue
+            match = titulo_re.match(str(titulo))
+            if not match:
+                continue
+            beam_nome = match.group(1).strip().upper()
+            seg_idx = int(match.group(2))
+            seg_uid = f'{prefix}_seg_{seg_idx}'
+            fid_real = f'{seg_uid}{field_id}' if str(field_id).startswith('_') else str(field_id)
+            for beam in beams_por_nome.get(beam_nome, []):
+                vf = beam.get('validated_fields') or {}
+                ja_tinha = fid_real in vf if isinstance(vf, dict) else fid_real in set(vf)
+                vf = adicionar_validacao_campo(vf, fid_real, ORIGEM_HUMANO_PORTAL)
+                beam['validated_fields'] = vf
+                if not ja_tinha:
+                    marcados += 1
+                    vigas_tocadas.add(id(beam))
+
+        for beam in self.beams_found or []:
+            if id(beam) in vigas_tocadas:
+                self.db.save_beam(beam, self.current_project_id)
+        return marcados
 
     def load_project_action(self):
         """Carrega e restaura o estado do projeto."""
@@ -10036,6 +10095,7 @@ class MainWindow(QMainWindow):
         """
         import re as _re
         import uuid as _uuid
+        from src.core.pillar_face_beams import canonical_fundo_section_dim
 
         if not isinstance(b, dict):
             return
@@ -10137,8 +10197,14 @@ class MainWindow(QMainWindow):
             return str(best.get('text')).strip(), best
 
         # Prioridade dim (cross-classe):
-        #   LV texto dedicado → override → FV fundo → PIL face → espacial → sticky
-        if isinstance(lv_dim, dict) and _is_section_dim(lv_dim.get('text')):
+        #   ficha FV do próprio fundo → LV dedicado → override → PIL → espacial.
+        # A ficha fechada do fundo tem proveniência geométrica; um texto
+        # espacial como 100/19 pode pertencer a um detalhe/pilar vizinho.
+        canonical_fundo_dim = canonical_fundo_section_dim(b)
+        if canonical_fundo_dim:
+            dim_global = canonical_fundo_dim
+            dim_global_source = 'fundo_ficha_geometrica'
+        if not dim_global and isinstance(lv_dim, dict) and _is_section_dim(lv_dim.get('text')):
             dim_global = str(lv_dim.get('text')).strip()
             dim_global_source = 'lv_dimension_text'
             dim_global_link = lv_dim
@@ -10303,6 +10369,21 @@ class MainWindow(QMainWindow):
                 fields['dimensao'] = dim_global
             if 'dim' not in validated and 'dimensao' not in validated:
                 b['dim'] = dim_global
+            # A mesma origem canônica deve corrigir os espelhos automáticos de
+            # fundo e a altura usada pelos motores N3. Valores humanos seguem
+            # soberanos via validated_fields.
+            if dim_global_source == 'fundo_ficha_geometrica':
+                for field_name in list(fields):
+                    if (
+                        _re.fullmatch(r'viga_fundo_seg_\d+_dim', str(field_name))
+                        and field_name not in validated
+                    ):
+                        fields[field_name] = dim_global
+                        b[field_name] = dim_global
+                parts = _section_nums(dim_global)
+                if len(parts) >= 2 and 'altura_h1' not in validated:
+                    fields['altura_h1'] = parts[1]
+                    b['altura_h1'] = parts[1]
             b['_lv_dimension_source'] = dim_global_source or 'unknown'
 
         # Cortes: somente A-A / B-B / CORTE A (letra isolada gera falso-positivo)
@@ -14639,7 +14720,11 @@ class MainWindow(QMainWindow):
 
     def _enrich_pillar_report_with_beams(self, report: dict, beams: list) -> None:
         """Delega ao motor puro (src.core.pillar_face_beams)."""
-        from src.core.pillar_face_beams import enrich_pillar_report_with_beams
+        from src.core.pillar_face_beams import (
+            enrich_pillar_report_with_beams,
+            reconcile_beam_fundo_facts,
+        )
+        reconcile_beam_fundo_facts(beams)
         enrich_pillar_report_with_beams(report, beams)
 
 

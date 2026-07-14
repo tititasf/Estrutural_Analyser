@@ -49,11 +49,11 @@ def test_init_db_cria_as_6_tabelas(conn):
     ).fetchall()
     nomes = {r["name"] for r in rows}
     assert TABELAS_ESPERADAS.issubset(nomes)
-    # tabela de versão registrou as migrations 001..008 (2026-07-13:
+    # tabela de versão registrou as migrations 001..009 (2026-07-13:
     # portal_validacoes_campo, a mais recente — ver CHANGELOG das migrations
     # em portal/db/migrations/ pro histórico completo)
     ver = conn.execute("SELECT MAX(version) FROM portal_schema_version").fetchone()[0]
-    assert ver == 8
+    assert ver == 9
 
 
 def test_init_db_idempotente(tmp_path):
@@ -63,7 +63,7 @@ def test_init_db_idempotente(tmp_path):
     # rodar de novo não duplica versão nem quebra
     c2 = connection.init_db(db_path)
     n = c2.execute("SELECT COUNT(*) FROM portal_schema_version").fetchone()[0]
-    assert n == 8  # 001..008, cada migration registra 1 linha
+    assert n == 9  # 001..009, cada migration registra 1 linha
     c2.close()
 
 
@@ -497,6 +497,18 @@ def test_set_campo_validado_e_idempotente_e_atualiza_validado_por(conn, membro_i
     campos = repo.listar_campos_validados(conn, obra_id, "Térreo", "pilar", "P1")
     assert len(campos) == 1
     assert campos[0]["validado_por"] == "bruno"
+
+
+def test_set_campo_validado_grava_titulo(conn, membro_id):
+    """[2026-07-13, Fase 3.4] titulo persiste pro app desktop regex-parsear
+    segmentos de viga ("V101 (segmento N)") no sync."""
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Campo Titulo", pasta_drive_id="p")
+    repo.set_campo_validado(
+        conn, obra_id, "Térreo", "fundo", "uid-123", "Comprimento", True,
+        validado_por="ana", titulo="V101 (segmento 2)",
+    )
+    campos = repo.listar_campos_validados(conn, obra_id, "Térreo", "fundo", "uid-123")
+    assert campos[0]["titulo"] == "V101 (segmento 2)"
 
 
 def test_listar_campos_validados_por_obra_agrupa_pavimento_classe_item(conn, membro_id):
