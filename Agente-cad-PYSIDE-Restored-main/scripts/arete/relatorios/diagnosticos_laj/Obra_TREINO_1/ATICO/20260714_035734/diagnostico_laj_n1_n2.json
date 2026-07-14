@@ -1,0 +1,398 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-14T06:57:38.315597+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "ATICO",
+  "run_id": "20260714_035734",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "5b9287449e82b0b859eee49631fe748f27ecce53e7d40eb01a9afcc1f7eb6d6f",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+    "n4_human_locked_overrides": 0
+  },
+  "resumo": {
+    "itens": 5,
+    "n1_itens": 5,
+    "n2_itens": 0,
+    "alertas": 5,
+    "classificacoes": {
+      "INDETERMINADO": 5
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-14T06:57:38.315597+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "ATICO",
+      "classe": "LAJ",
+      "item": "L601",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 340.44513599999993,
+          "comprimento_bbox": 394.28045299999997,
+          "points": [
+            [
+              898.544,
+              1237.232538
+            ],
+            [
+              1238.989136,
+              1237.232538
+            ],
+            [
+              1238.989136,
+              842.952085
+            ],
+            [
+              898.544,
+              842.952085
+            ],
+            [
+              898.544,
+              1237.232538
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T06:57:38.315597+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "ATICO",
+      "classe": "LAJ",
+      "item": "L602",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 418.0,
+          "comprimento_bbox": 366.0,
+          "points": [
+            [
+              1763.044,
+              1711.8827
+            ],
+            [
+              1763.044,
+              1692.8827
+            ],
+            [
+              1778.544,
+              1692.8827
+            ],
+            [
+              1778.544,
+              1382.0
+            ],
+            [
+              1360.544,
+              1382.0
+            ],
+            [
+              1360.544,
+              1480.8827
+            ],
+            [
+              1360.544,
+              1480.8827
+            ],
+            [
+              1360.544,
+              1580.8827
+            ],
+            [
+              1360.544,
+              1580.8827
+            ],
+            [
+              1360.544,
+              1661.8827
+            ],
+            [
+              1360.544,
+              1661.8827
+            ],
+            [
+              1360.544,
+              1711.8827
+            ],
+            [
+              1360.544,
+              1711.8827
+            ],
+            [
+              1360.544,
+              1748.0
+            ],
+            [
+              1382.572762,
+              1748.0
+            ],
+            [
+              1382.572762,
+              1747.8827
+            ],
+            [
+              1401.572762,
+              1747.8827
+            ],
+            [
+              1401.572762,
+              1748.0
+            ],
+            [
+              1778.544,
+              1748.0
+            ],
+            [
+              1778.544,
+              1711.8827
+            ],
+            [
+              1763.044,
+              1711.8827
+            ]
+          ],
+          "nivel": "",
+          "vertices": 21
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T06:57:38.315597+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "ATICO",
+      "classe": "LAJ",
+      "item": "L603",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 289.04399999999987,
+          "comprimento_bbox": 366.0,
+          "points": [
+            [
+              1857.542166,
+              1748.0
+            ],
+            [
+              1857.542166,
+              1747.8827
+            ],
+            [
+              1876.542166,
+              1747.8827
+            ],
+            [
+              1876.542166,
+              1748.0
+            ],
+            [
+              2086.544,
+              1748.0
+            ],
+            [
+              2086.544,
+              1382.0
+            ],
+            [
+              1797.5,
+              1382.0
+            ],
+            [
+              1797.5,
+              1692.8827
+            ],
+            [
+              1813.044,
+              1692.8827
+            ],
+            [
+              1813.044,
+              1711.8827
+            ],
+            [
+              1797.5,
+              1711.8827
+            ],
+            [
+              1797.5,
+              1748.0
+            ],
+            [
+              1857.542166,
+              1748.0
+            ]
+          ],
+          "nivel": "",
+          "vertices": 13
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T06:57:38.315597+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "ATICO",
+      "classe": "LAJ",
+      "item": "L604",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 418.0,
+          "comprimento_bbox": 201.0,
+          "points": [
+            [
+              1778.5,
+              1162.0
+            ],
+            [
+              1360.5,
+              1162.0
+            ],
+            [
+              1360.5,
+              1363.0
+            ],
+            [
+              1758.044,
+              1363.0
+            ],
+            [
+              1758.044,
+              1362.8827
+            ],
+            [
+              1778.5,
+              1362.8827
+            ],
+            [
+              1778.5,
+              1162.0
+            ]
+          ],
+          "nivel": "",
+          "vertices": 7
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T06:57:38.315597+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "ATICO",
+      "classe": "LAJ",
+      "item": "L605",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 129.0440000000001,
+          "comprimento_bbox": 459.1173,
+          "points": [
+            [
+              1360.5,
+              683.8827
+            ],
+            [
+              1489.544,
+              683.8827
+            ],
+            [
+              1489.544,
+              1143.0
+            ],
+            [
+              1360.5,
+              1143.0
+            ],
+            [
+              1360.5,
+              683.8827
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

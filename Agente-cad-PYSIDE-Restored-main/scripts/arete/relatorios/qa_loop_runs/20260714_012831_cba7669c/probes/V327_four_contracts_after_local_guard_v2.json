@@ -1,0 +1,1200 @@
+{
+  "schema": "arete.qa_n1_field_probe_result/v1",
+  "engine_version": "1.4.0",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "question": "V327 mantém A/B × PARA/PASSA com origem por segmento, isolamento explícito e um apoio extremo local rastreável?",
+  "overall": "PASS",
+  "scope_authority": "field_checks_only; never validates full item or ficha",
+  "fields": [
+    {
+      "id": "lv.name",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "fields.nome",
+      "transform": "entity",
+      "value": "V327",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.dim",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "fields.dimensao",
+      "transform": "dimension",
+      "value": [
+        14.0,
+        50.0
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.a.dim",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "fields.viga_a_seg_1_dim",
+      "transform": "dimension",
+      "value": [
+        14.0,
+        50.0
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.b.dim",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "fields.viga_b_seg_1_dim",
+      "transform": "dimension",
+      "value": [
+        14.0,
+        50.0
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.support.name",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "fields.viga_a_seg_1_end_name",
+      "transform": "entity",
+      "value": "P27",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.id",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.contract_id",
+      "transform": "text",
+      "value": "LV_A_PARA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.id",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B.contract_id",
+      "transform": "text",
+      "value": "LV_B_PARA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.id",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A.contract_id",
+      "transform": "text",
+      "value": "LV_A_PASSA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.id",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B.contract_id",
+      "transform": "text",
+      "value": "LV_B_PASSA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.side",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.side",
+      "transform": "text",
+      "value": "A",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.side",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B.side",
+      "transform": "text",
+      "value": "B",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.side",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A.side",
+      "transform": "text",
+      "value": "A",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.side",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B.side",
+      "transform": "text",
+      "value": "B",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.behavior",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.behavior",
+      "transform": "text",
+      "value": "PARA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.behavior",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B.behavior",
+      "transform": "text",
+      "value": "PARA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.behavior",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A.behavior",
+      "transform": "text",
+      "value": "PASSA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.behavior",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B.behavior",
+      "transform": "text",
+      "value": "PASSA",
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.ready",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.generation_ready",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.ready",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B.generation_ready",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.ready",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A.generation_ready",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.ready",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B.generation_ready",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.source_keys",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.structural_segments.*.source_key",
+      "transform": "flatten",
+      "value": [
+        "viga_a_seg_1_comprimento_total"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.source_keys",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B.structural_segments.*.source_key",
+      "transform": "flatten",
+      "value": [
+        "viga_b_seg_1_comprimento_total"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.source_keys",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A.structural_segments.*.source_key",
+      "transform": "flatten",
+      "value": [
+        "viga_a_seg_1_comp_total_passa"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.source_keys",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B.structural_segments.*.source_key",
+      "transform": "flatten",
+      "value": [
+        "viga_b_seg_1_comp_total_passa"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.source_slots",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.structural_segments.*.source_slot",
+      "transform": "flatten",
+      "value": [
+        "seg_side_a"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.source_slots",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B.structural_segments.*.source_slot",
+      "transform": "flatten",
+      "value": [
+        "seg_side_b"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.source_slots",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A.structural_segments.*.source_slot",
+      "transform": "flatten",
+      "value": [
+        "seg_side_a"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.source_slots",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B.structural_segments.*.source_slot",
+      "transform": "flatten",
+      "value": [
+        "seg_side_b"
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.isolated",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A._sa_meta.behavior_isolated",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.isolated",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B._sa_meta.behavior_isolated",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.isolated",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A._sa_meta.behavior_isolated",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.isolated",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B._sa_meta.behavior_isolated",
+      "transform": "raw",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.fv_fallback",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A._sa_meta.fv_dimension_fallback",
+      "transform": "raw",
+      "value": 0,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.b.fv_fallback",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.B._sa_meta.fv_dimension_fallback",
+      "transform": "raw",
+      "value": 0,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.a.fv_fallback",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.A._sa_meta.fv_dimension_fallback",
+      "transform": "raw",
+      "value": 0,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.passa.b.fv_fallback",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Passa.B._sa_meta.fv_dimension_fallback",
+      "transform": "raw",
+      "value": 0,
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "lv.para.a.bbox",
+      "class": "LV",
+      "item": "V327",
+      "source": "payload",
+      "path": "lv_generation_contracts.Para.A.structural_segments.0.points",
+      "transform": "bbox",
+      "value": [
+        4387.3825,
+        1982.038,
+        4387.3825,
+        2242.038
+      ],
+      "overridden": false,
+      "snapshot_hash": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "support.name",
+      "class": "PIL",
+      "item": "P27",
+      "source": "column",
+      "path": "name",
+      "transform": "entity",
+      "value": "P27",
+      "overridden": false,
+      "snapshot_hash": "3d9c27ef0e8bf7b250486a0a92e3e7b634067d2576bbe53e1fdad0fcfe060909",
+      "selected_columns": [
+        "id",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "support.bbox",
+      "class": "PIL",
+      "item": "P27",
+      "source": "geometry",
+      "path": "",
+      "transform": "bbox",
+      "value": [
+        4387.3825,
+        2242.038,
+        4552.3825,
+        2460.038
+      ],
+      "overridden": false,
+      "snapshot_hash": "3d9c27ef0e8bf7b250486a0a92e3e7b634067d2576bbe53e1fdad0fcfe060909",
+      "selected_columns": [
+        "id",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "beam_identity",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "V327",
+      "right": "V327",
+      "metric": {}
+    },
+    {
+      "id": "dim_A",
+      "op": "present",
+      "status": "PASS",
+      "reason": "dimensão própria do lado A presente; não espelhar nem confundir com a seção global",
+      "left": [
+        14.0,
+        50.0
+      ],
+      "right": null,
+      "metric": {}
+    },
+    {
+      "id": "dim_B",
+      "op": "present",
+      "status": "PASS",
+      "reason": "dimensão própria do lado B presente; não espelhar nem confundir com a seção global",
+      "left": [
+        14.0,
+        50.0
+      ],
+      "right": null,
+      "metric": {}
+    },
+    {
+      "id": "contract_A_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "LV_A_PARA",
+      "right": "LV_A_PARA",
+      "metric": {}
+    },
+    {
+      "id": "contract_B_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "LV_B_PARA",
+      "right": "LV_B_PARA",
+      "metric": {}
+    },
+    {
+      "id": "contract_A_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "LV_A_PASSA",
+      "right": "LV_A_PASSA",
+      "metric": {}
+    },
+    {
+      "id": "contract_B_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "LV_B_PASSA",
+      "right": "LV_B_PASSA",
+      "metric": {}
+    },
+    {
+      "id": "side_A_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "A",
+      "right": "A",
+      "metric": {}
+    },
+    {
+      "id": "side_B_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "B",
+      "right": "B",
+      "metric": {}
+    },
+    {
+      "id": "side_A_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "A",
+      "right": "A",
+      "metric": {}
+    },
+    {
+      "id": "side_B_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "B",
+      "right": "B",
+      "metric": {}
+    },
+    {
+      "id": "behavior_A_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "PARA",
+      "right": "PARA",
+      "metric": {}
+    },
+    {
+      "id": "behavior_B_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "PARA",
+      "right": "PARA",
+      "metric": {}
+    },
+    {
+      "id": "behavior_A_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "PASSA",
+      "right": "PASSA",
+      "metric": {}
+    },
+    {
+      "id": "behavior_B_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": "PASSA",
+      "right": "PASSA",
+      "metric": {}
+    },
+    {
+      "id": "ready_A_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "ready_B_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "ready_A_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "ready_B_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "source_A_PARA",
+      "op": "all_match",
+      "status": "PASS",
+      "reason": "all_match satisfeita",
+      "left": [
+        "viga_a_seg_1_comprimento_total"
+      ],
+      "right": "^viga_a_seg_[0-9]+_comprimento_total$",
+      "metric": {
+        "entries": 1,
+        "pattern": "^viga_a_seg_[0-9]+_comprimento_total$"
+      }
+    },
+    {
+      "id": "source_B_PARA",
+      "op": "all_match",
+      "status": "PASS",
+      "reason": "all_match satisfeita",
+      "left": [
+        "viga_b_seg_1_comprimento_total"
+      ],
+      "right": "^viga_b_seg_[0-9]+_comprimento_total$",
+      "metric": {
+        "entries": 1,
+        "pattern": "^viga_b_seg_[0-9]+_comprimento_total$"
+      }
+    },
+    {
+      "id": "source_A_PASSA",
+      "op": "all_match",
+      "status": "PASS",
+      "reason": "all_match satisfeita",
+      "left": [
+        "viga_a_seg_1_comp_total_passa"
+      ],
+      "right": "^viga_a_seg_[0-9]+_comp_total_passa$",
+      "metric": {
+        "entries": 1,
+        "pattern": "^viga_a_seg_[0-9]+_comp_total_passa$"
+      }
+    },
+    {
+      "id": "source_B_PASSA",
+      "op": "all_match",
+      "status": "PASS",
+      "reason": "all_match satisfeita",
+      "left": [
+        "viga_b_seg_1_comp_total_passa"
+      ],
+      "right": "^viga_b_seg_[0-9]+_comp_total_passa$",
+      "metric": {
+        "entries": 1,
+        "pattern": "^viga_b_seg_[0-9]+_comp_total_passa$"
+      }
+    },
+    {
+      "id": "slot_A_PARA",
+      "op": "all_equal",
+      "status": "PASS",
+      "reason": "all_equal satisfeita",
+      "left": [
+        "seg_side_a"
+      ],
+      "right": "seg_side_a",
+      "metric": {
+        "entries": 1
+      }
+    },
+    {
+      "id": "slot_B_PARA",
+      "op": "all_equal",
+      "status": "PASS",
+      "reason": "all_equal satisfeita",
+      "left": [
+        "seg_side_b"
+      ],
+      "right": "seg_side_b",
+      "metric": {
+        "entries": 1
+      }
+    },
+    {
+      "id": "slot_A_PASSA",
+      "op": "all_equal",
+      "status": "PASS",
+      "reason": "all_equal satisfeita",
+      "left": [
+        "seg_side_a"
+      ],
+      "right": "seg_side_a",
+      "metric": {
+        "entries": 1
+      }
+    },
+    {
+      "id": "slot_B_PASSA",
+      "op": "all_equal",
+      "status": "PASS",
+      "reason": "all_equal satisfeita",
+      "left": [
+        "seg_side_b"
+      ],
+      "right": "seg_side_b",
+      "metric": {
+        "entries": 1
+      }
+    },
+    {
+      "id": "isolated_A_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "isolated_B_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "isolated_A_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "isolated_B_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 1,
+      "right": true,
+      "metric": {}
+    },
+    {
+      "id": "no_fv_fallback_A_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 0,
+      "right": false,
+      "metric": {}
+    },
+    {
+      "id": "no_fv_fallback_B_PARA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 0,
+      "right": false,
+      "metric": {}
+    },
+    {
+      "id": "no_fv_fallback_A_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 0,
+      "right": false,
+      "metric": {}
+    },
+    {
+      "id": "no_fv_fallback_B_PASSA",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": 0,
+      "right": false,
+      "metric": {}
+    },
+    {
+      "id": "sources_A_PARA_vs_PASSA",
+      "op": "disjoint",
+      "status": "PASS",
+      "reason": "disjoint satisfeita",
+      "left": [
+        "viga_a_seg_1_comprimento_total"
+      ],
+      "right": [
+        "viga_a_seg_1_comp_total_passa"
+      ],
+      "metric": {
+        "overlap": []
+      }
+    },
+    {
+      "id": "sources_B_PARA_vs_PASSA",
+      "op": "disjoint",
+      "status": "PASS",
+      "reason": "disjoint satisfeita",
+      "left": [
+        "viga_b_seg_1_comprimento_total"
+      ],
+      "right": [
+        "viga_b_seg_1_comp_total_passa"
+      ],
+      "metric": {
+        "overlap": []
+      }
+    },
+    {
+      "id": "support_identity",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "P27",
+      "right": "P27",
+      "metric": {}
+    },
+    {
+      "id": "support_contact",
+      "op": "bbox_intersects",
+      "status": "PASS",
+      "reason": "bbox_intersects satisfeita",
+      "left": [
+        4387.3825,
+        1982.038,
+        4387.3825,
+        2242.038
+      ],
+      "right": [
+        4387.3825,
+        2242.038,
+        4552.3825,
+        2460.038
+      ],
+      "metric": {
+        "distance": 0.0,
+        "threshold": 0.0
+      }
+    }
+  ],
+  "snapshots": {
+    "LV:V327": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048",
+    "PIL:P27": "3d9c27ef0e8bf7b250486a0a92e3e7b634067d2576bbe53e1fdad0fcfe060909"
+  },
+  "provenance": {
+    "allowed": "persisted N1 + explicit candidate overlay",
+    "forbidden": "N2/N4 as N1 proof or N3 input",
+    "cross_class": [
+      "LV",
+      "PIL"
+    ]
+  },
+  "executed_at": "2026-07-14T07:14:08+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "492de68954f5cd371fb3ecfbc8f3bed54e60b850feca6c82f8a9c7c9429bfed9",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\49\\492de68954f5cd371fb3ecfbc8f3bed54e60b850feca6c82f8a9c7c9429bfed9.json",
+    "db_load_ms": 24.521,
+    "evaluation_ms": 9.539,
+    "total_ms": 34.043,
+    "loaded_rows": 2,
+    "requested_fields": 40,
+    "requested_checks": 39
+  },
+  "profile": {
+    "schema": "arete.qa_class_profile/v1",
+    "class": "LV",
+    "version": "1.4.1",
+    "probe": "four_contracts_and_support",
+    "item": "V327",
+    "variables": {},
+    "resolved_cross_class": {
+      "support.name": {
+        "item_from": "lv.support.name",
+        "item": "P27",
+        "class": "PIL"
+      },
+      "support.bbox": {
+        "item_from": "lv.support.name",
+        "item": "P27",
+        "class": "PIL"
+      }
+    },
+    "authority": "diagnostic_only; A/B and PARA/PASSA are four independent contracts",
+    "manual_guides": [
+      "docs/LV-COMPREENDER-INTERPRETACAO-FICHAS-N2-N4.md",
+      "docs/MASTERPLAN-ARETE-LATERAL-VIGA.md",
+      "scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260706_103941/laterais_viga/interpretacao_laterais.html",
+      "src/ui/widgets/preficha_lateral_html.py",
+      "src/core/lv_generation_contract.py"
+    ],
+    "preflight_snapshots": {
+      "LV:V327": "a5484305a9fc303739e07c9882ae9360db1181217b2038aa225ab57d103b2048"
+    }
+  }
+}

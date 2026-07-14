@@ -1480,7 +1480,14 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     section_view = (section_views or [None])[0]
     y_center_sect = y0_sect + h_sect / 2.0
     if view in {'ALL', 'CORTE'}:
-        if not draw_section_visual_primitives(
+        # N3 isolado nasce do contrato canônico do SA.  Um payload pode ainda
+        # carregar ``visual_primitives`` de uma extração antiga/N2; essas
+        # primitivas são úteis apenas no fluxo reverso (N4), mas não podem
+        # substituir a seção N1 nem introduzir pontalete/hachura sem fonte N1.
+        if not draw_section_n1_contract_clean(
+            msp, section_view, x_sect_center, y_center_sect,
+            viga_nome=viga_nome,
+        ) and not draw_section_visual_primitives(
             msp, section_view, x_sect_center, y_center_sect
         ):
             draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
@@ -1596,11 +1603,13 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
         h_a = float(sv.get('h_A', h_sec) or h_sec)
         h_b = float(sv.get('h_B', h_sec) or h_sec)
         label = viga_nome if idx == 0 else f'{viga_nome}-{idx + 1}'
-        if not draw_section_visual_primitives(
-            msp, sv, x_origin + 95, y_section + h_sec / 2.0
-        ) and not draw_section_n1_contract_clean(
+        # Mesmo princípio da rota sem face_units: a marca explícita de
+        # contrato N1 é autoritativa e vence qualquer primitiva residual.
+        if not draw_section_n1_contract_clean(
             msp, sv, x_origin + 95, y_section + h_sec / 2.0,
             viga_nome=label,
+        ) and not draw_section_visual_primitives(
+            msp, sv, x_origin + 95, y_section + h_sec / 2.0
         ):
             draw_section_detail(msp, x_origin + 95, y_section, b, h_sec,
                                 viga_nome=label, b_alma=b, h_A=h_a, h_B=h_b,

@@ -1,0 +1,240 @@
+{
+  "schema": "arete.qa_artifact_parity_result/v1",
+  "engine_version": "1.1.0",
+  "question": "Smoke N3 PIL:P3: identidade do contrato chega ao DXF e as camadas mínimas existem?",
+  "overall": "PASS",
+  "scope_authority": "declared_artifact_fields_only; visual reading remains separate",
+  "variants": {
+    "ABCD_PARA": {
+      "paths": {
+        "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\P3.json",
+        "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\PL_ABCD_preview_P3.dxf"
+      },
+      "hashes": {
+        "contract": "79bc9dbde5bd774432a069225341504e33a3a70c7ce2412ad79fa1dec189bfab",
+        "dxf": "2a6ac9c78f062aeaca14a4036acb8ef126d253ccc1fcd6e09a76bc64dfd93727"
+      }
+    },
+    "ABCD_PASSA": {
+      "paths": {
+        "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\P3.json",
+        "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\PL_ABCD_preview_P3.dxf"
+      },
+      "hashes": {
+        "contract": "c1e74a61e9085c7b96570b20cc63a8d41494c1e12011b17614b7841f672be70e",
+        "dxf": "31fa6a4e3497882e352369e84814a191a7280888a6d7104b00259ca5a98eb709"
+      }
+    }
+  },
+  "fields": [
+    {
+      "id": "abcd_para.contract.identity",
+      "variant": "ABCD_PARA",
+      "source": "contract",
+      "path": "nome",
+      "transform": "entity",
+      "value": "P3",
+      "artifact_hash": "79bc9dbde5bd774432a069225341504e33a3a70c7ce2412ad79fa1dec189bfab"
+    },
+    {
+      "id": "abcd_para.dxf.text",
+      "variant": "ABCD_PARA",
+      "source": "dxf_text_blob",
+      "path": "",
+      "transform": "text",
+      "value": "CENARIOS - PD: 2.80 NIVEL DE SAIDA: 852.19 NIVEL DE CHEGADA: 849.39 P3.A SP SP P3.B SP SP P3.C P3.D",
+      "artifact_hash": "2a6ac9c78f062aeaca14a4036acb8ef126d253ccc1fcd6e09a76bc64dfd93727"
+    },
+    {
+      "id": "abcd_para.dxf.text_count",
+      "variant": "ABCD_PARA",
+      "source": "dxf_entity_count",
+      "path": "TEXT",
+      "transform": "number",
+      "value": 7.0,
+      "artifact_hash": "2a6ac9c78f062aeaca14a4036acb8ef126d253ccc1fcd6e09a76bc64dfd93727"
+    },
+    {
+      "id": "abcd_para.dxf.layer_1",
+      "variant": "ABCD_PARA",
+      "source": "dxf_layer_count",
+      "path": "NOMENCLATURA",
+      "transform": "number",
+      "value": 7.0,
+      "artifact_hash": "2a6ac9c78f062aeaca14a4036acb8ef126d253ccc1fcd6e09a76bc64dfd93727"
+    },
+    {
+      "id": "abcd_para.dxf.layer_2",
+      "variant": "ABCD_PARA",
+      "source": "dxf_layer_count",
+      "path": "Painéis",
+      "transform": "number",
+      "value": 36.0,
+      "artifact_hash": "2a6ac9c78f062aeaca14a4036acb8ef126d253ccc1fcd6e09a76bc64dfd93727"
+    },
+    {
+      "id": "abcd_passa.contract.identity",
+      "variant": "ABCD_PASSA",
+      "source": "contract",
+      "path": "nome",
+      "transform": "entity",
+      "value": "P3",
+      "artifact_hash": "c1e74a61e9085c7b96570b20cc63a8d41494c1e12011b17614b7841f672be70e"
+    },
+    {
+      "id": "abcd_passa.dxf.text",
+      "variant": "ABCD_PASSA",
+      "source": "dxf_text_blob",
+      "path": "",
+      "transform": "text",
+      "value": "CENARIOS - PD: 2.80 NIVEL DE SAIDA: 852.19 NIVEL DE CHEGADA: 849.39 P3.A SP SP P3.B SP SP P3.C P3.D",
+      "artifact_hash": "31fa6a4e3497882e352369e84814a191a7280888a6d7104b00259ca5a98eb709"
+    },
+    {
+      "id": "abcd_passa.dxf.text_count",
+      "variant": "ABCD_PASSA",
+      "source": "dxf_entity_count",
+      "path": "TEXT",
+      "transform": "number",
+      "value": 7.0,
+      "artifact_hash": "31fa6a4e3497882e352369e84814a191a7280888a6d7104b00259ca5a98eb709"
+    },
+    {
+      "id": "abcd_passa.dxf.layer_1",
+      "variant": "ABCD_PASSA",
+      "source": "dxf_layer_count",
+      "path": "NOMENCLATURA",
+      "transform": "number",
+      "value": 7.0,
+      "artifact_hash": "31fa6a4e3497882e352369e84814a191a7280888a6d7104b00259ca5a98eb709"
+    },
+    {
+      "id": "abcd_passa.dxf.layer_2",
+      "variant": "ABCD_PASSA",
+      "source": "dxf_layer_count",
+      "path": "Painéis",
+      "transform": "number",
+      "value": 27.0,
+      "artifact_hash": "31fa6a4e3497882e352369e84814a191a7280888a6d7104b00259ca5a98eb709"
+    }
+  ],
+  "checks": [
+    {
+      "id": "abcd_para.contract_item",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "P3",
+      "right": "P3",
+      "metric": {}
+    },
+    {
+      "id": "abcd_para.identity_in_dxf",
+      "op": "contains",
+      "status": "PASS",
+      "reason": "contains satisfeita",
+      "left": "CENARIOS - PD: 2.80 NIVEL DE SAIDA: 852.19 NIVEL DE CHEGADA: 849.39 P3.A SP SP P3.B SP SP P3.C P3.D",
+      "right": "P3",
+      "metric": {}
+    },
+    {
+      "id": "abcd_para.has_text",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "not_equal satisfeita",
+      "left": 7.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "abcd_para.has_layer_1",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'NOMENCLATURA' presente no DXF",
+      "left": 7.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "abcd_para.has_layer_2",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'Painéis' presente no DXF",
+      "left": 36.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "abcd_passa.contract_item",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "P3",
+      "right": "P3",
+      "metric": {}
+    },
+    {
+      "id": "abcd_passa.identity_in_dxf",
+      "op": "contains",
+      "status": "PASS",
+      "reason": "contains satisfeita",
+      "left": "CENARIOS - PD: 2.80 NIVEL DE SAIDA: 852.19 NIVEL DE CHEGADA: 849.39 P3.A SP SP P3.B SP SP P3.C P3.D",
+      "right": "P3",
+      "metric": {}
+    },
+    {
+      "id": "abcd_passa.has_text",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "not_equal satisfeita",
+      "left": 7.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "abcd_passa.has_layer_1",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'NOMENCLATURA' presente no DXF",
+      "left": 7.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "abcd_passa.has_layer_2",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'Painéis' presente no DXF",
+      "left": 27.0,
+      "right": 0,
+      "metric": {}
+    }
+  ],
+  "provenance": {
+    "chain": [
+      "contract",
+      "dxf"
+    ],
+    "missing_dxf_metadata": false
+  },
+  "executed_at": "2026-07-13T06:13:30+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "f0e996aacd511d0195cab97513e0a19237b4ad65bff089a39ee97b1294f7e617",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\artifact_parity\\f0\\f0e996aacd511d0195cab97513e0a19237b4ad65bff089a39ee97b1294f7e617.json",
+    "total_ms": 111.947,
+    "variants": 2,
+    "fields": 10,
+    "checks": 10
+  },
+  "profile": {
+    "class": "PIL",
+    "version": "1.1.0",
+    "motor": "ROBOT_PL_N3_N4",
+    "authority": "n3_structural_smoke_only; visual and semantic geometry remain separate",
+    "variant_resolution": {
+      "ABCD_PARA": "ABCD_PARA",
+      "ABCD_PASSA": "ABCD_PASSA"
+    }
+  }
+}

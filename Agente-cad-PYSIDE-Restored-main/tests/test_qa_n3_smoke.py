@@ -69,3 +69,16 @@ def test_n3_smoke_rejects_variant_outside_profile(tmp_path: Path):
         assert "fora do perfil PIL" in str(exc)
     else:
         raise AssertionError("variante fora do perfil foi aceita")
+
+
+def test_n3_smoke_accepts_layers_declared_per_variant(tmp_path: Path):
+    contract, dxf = _variant(tmp_path, "CORTE", "P35")
+    profile = _profile()
+    profile["n3"]["variants"] = ["CORTE"]
+    profile["n3"]["expected_layers_by_variant"] = {"CORTE": ["PainÃ©is"]}
+    spec = build_smoke_spec(
+        profile=profile, item="P35",
+        contracts={"CORTE": contract}, dxfs={"CORTE": dxf},
+    )
+    paths = {field["path"] for field in spec["fields"] if field["source"] == "dxf_layer_count"}
+    assert paths == {"PainÃ©is"}

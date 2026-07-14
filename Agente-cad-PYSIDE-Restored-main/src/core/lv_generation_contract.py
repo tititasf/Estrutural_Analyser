@@ -41,25 +41,26 @@ def _dimension_from_beam_lv(beam: dict[str, Any]) -> tuple[float, float] | None:
     return _dimension_from_entry({"lv_dimensao": lv_dimension.get("text")})
 
 
-def _endpoint_support_labels(links: dict[str, Any]) -> dict[str, str]:
+def _endpoint_support_labels(
+    fields: dict[str, Any], side: str, structural_segments: list[dict[str, Any]]
+) -> dict[str, str]:
     """Preserva no contrato N3 os apoios que o próprio SA já capturou.
 
     São apenas rótulos de contexto (ex.: P34/P35), nunca dados do N2. O
     gerador os usa sob a cota total para tornar visível início/fim da lateral.
     """
-    supports = links.get("apoios") or {}
-
-    def first_label(slot: str) -> str:
-        values = supports.get(slot) or []
-        for value in values:
-            if not isinstance(value, dict):
-                continue
-            label = str(value.get("text") or value.get("name") or "").strip()
-            if label:
-                return label
-        return ""
-
-    return {"start": first_label("inicio"), "end": first_label("fim")}
+    # ``links.apoios`` descreve o limite global do fundo; não é uma prova de
+    # contato da face lateral. Os campos LV abaixo já passaram pelo guard de
+    # contato local e ausência de rótulo é uma informação válida.
+    if not structural_segments:
+        return {"start": "", "end": ""}
+    first = int(structural_segments[0].get("segment_index") or 1)
+    last = int(structural_segments[-1].get("segment_index") or first)
+    side_key = str(side or "").lower()
+    return {
+        "start": str(fields.get(f"viga_{side_key}_seg_{first}_ini_name") or "").strip(),
+        "end": str(fields.get(f"viga_{side_key}_seg_{last}_end_name") or "").strip(),
+    }
 
 
 def distribute_lv_panels(length: float) -> list[float]:
@@ -267,7 +268,9 @@ def build_lv_generation_contracts(
                 "start_adjustment": start_adjustment,
                 "end_adjustment": end_adjustment,
                 "endpoint_events": endpoint_events,
-                "endpoint_labels": _endpoint_support_labels(links),
+                "endpoint_labels": _endpoint_support_labels(
+                    fields, side, structural_segments
+                ),
                 "total_length": sum(panel["width"] for panel in panels),
                 "dimension_status": "sa_lv" if dimension else "missing",
                 "generation_ready": bool(panels and dimension),

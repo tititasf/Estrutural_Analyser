@@ -55,6 +55,25 @@ def _render(value: Any, context: dict[str, Any]) -> Any:
     return copy.deepcopy(value)
 
 
+def _structural_class_from_item(item: str) -> str:
+    """Resolve a classe de um apoio estrutural pelo identificador canônico.
+
+    Um endpoint LV pode tocar um pilar (``P``) ou outra viga (``V``). A
+    inferência localiza somente a entidade N1 para prova; não cria geometria,
+    dimensão ou evento.
+    """
+    normalized = str(item or "").strip().upper()
+    if normalized.startswith("P"):
+        return "PIL"
+    if normalized.startswith("V"):
+        return "LV"
+    if normalized.startswith("L"):
+        return "LAJ"
+    raise ProfileProbeError(
+        f"classe estrutural não inferível para referência: {item!r}"
+    )
+
+
 def load_profile(classe: str, root: Path = DEFAULT_PROFILES) -> dict[str, Any]:
     path = root / f"{classe.lower()}.json"
     if not path.is_file():
@@ -143,7 +162,31 @@ def run_profile_probe(
         for field in dynamic:
             reference = str(field.pop("item_from"))
             field["item"] = str(pre_values[reference])
-            resolved[field["id"]] = {"item_from": reference, "item": field["item"]}
+            class_from = field.pop("class_from", None)
+            if class_from:
+                if str(class_from) != reference:
+                    raise ProfileProbeError(
+                        f"class_from deve referenciar o mesmo campo de item_from: {field['id']}"
+                    )
+                resolved_class = _structural_class_from_item(field["item"])
+                field["class"] = resolved_class
+                # Uma prova cross-classe pode pedir a mesma evidência física
+                # em armazenamentos distintos: PIL expõe points_json, enquanto
+                # LV expõe geometry.classified. A rota é declarativa e só
+                # escolhe fonte/path; não cria nem transforma a geometria.
+                source_by_class = field.pop("source_by_class", None)
+                if isinstance(source_by_class, dict):
+                    selected_source = source_by_class.get(resolved_class)
+                    if selected_source:
+                        field["source"] = selected_source
+                path_by_class = field.pop("path_by_class", None)
+                if isinstance(path_by_class, dict) and resolved_class in path_by_class:
+                    field["path"] = path_by_class[resolved_class]
+            resolved[field["id"]] = {
+                "item_from": reference,
+                "item": field["item"],
+                "class": field.get("class"),
+            }
 
     final_request = {
         "schema": REQUEST_SCHEMA,

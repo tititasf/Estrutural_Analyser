@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-14T05:18:04.835533+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260714_021725",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "46309254d0e9751a7d6a129f580cb5b5548ad58a500278abdfc2e01f42db93f4",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+    "n1_dimensoes_lv_persistidas": 0
+  },
+  "resumo": {
+    "itens": 1,
+    "n1_itens": 1,
+    "n2_itens": 1,
+    "alertas": 0,
+    "classificacoes": {
+      "EXCELENTE": 1
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-14T05:18:04.835533+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "LV",
+      "item": "V301",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Todas as dimensões declaradas no N1 aparecem em algum campo do N2.",
+      "confianca": 0.85,
+      "evidencia": {
+        "classificacao": "EXCELENTE",
+        "numeros_ausentes_no_n2": [],
+        "n1": {
+          "declared_numbers": [
+            19.0,
+            55.0
+          ],
+          "segmentos_lado_a": 14,
+          "segmentos_lado_b": 14
+        },
+        "n2": {
+          "candidate_numbers": [
+            19.0,
+            55.0,
+            120.0,
+            125.0
+          ],
+          "ficha_id": 1298,
+          "status": "draft",
+          "confianca_origem": 0.93
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

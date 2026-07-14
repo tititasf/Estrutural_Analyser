@@ -1,0 +1,1514 @@
+[
+  {
+    "classe": "PIL",
+    "diagnostic": "scripts/arete/diagnostico_pil_n1_n2.py",
+    "field_frequency": {
+      "connections": 46,
+      "dim": 46,
+      "name": 46,
+      "p_sA_l1_n": 45,
+      "p_sA_v_ch1_d": 5,
+      "p_sA_v_ch1_n": 5,
+      "p_sA_v_ch2_d": 1,
+      "p_sA_v_ch2_n": 1,
+      "p_sA_v_ch3_d": 1,
+      "p_sA_v_ch3_n": 1,
+      "p_sA_v_passa_dir_d": 2,
+      "p_sA_v_passa_dir_n": 2,
+      "p_sA_v_passa_esq_d": 10,
+      "p_sA_v_passa_esq_n": 10,
+      "p_sB_l1_n": 46,
+      "p_sB_v_ch1_d": 6,
+      "p_sB_v_ch1_n": 6,
+      "p_sB_v_ch2_d": 1,
+      "p_sB_v_ch2_n": 1,
+      "p_sB_v_passa_dir_d": 2,
+      "p_sB_v_passa_dir_n": 2,
+      "p_sB_v_passa_esq_d": 10,
+      "p_sB_v_passa_esq_n": 10,
+      "p_sC_l1_n": 46,
+      "p_sC_v_ch1_d": 4,
+      "p_sC_v_ch1_n": 4,
+      "p_sC_v_passa_dir_d": 9,
+      "p_sC_v_passa_dir_n": 9,
+      "p_sC_v_passa_esq_d": 20,
+      "p_sC_v_passa_esq_n": 20,
+      "p_sD_l1_n": 46,
+      "p_sD_v_ch1_d": 10,
+      "p_sD_v_ch1_n": 10,
+      "p_sD_v_ch2_d": 1,
+      "p_sD_v_ch2_n": 1,
+      "p_sD_v_passa_dir_d": 2,
+      "p_sD_v_passa_dir_n": 2,
+      "p_sD_v_passa_esq_d": 12,
+      "p_sD_v_passa_esq_n": 12,
+      "p_sE_l1_n": 2,
+      "p_sF_l1_n": 2,
+      "pilar_segs": 46
+    },
+    "items": [
+      {
+        "field_count": 9,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1254.0000000004657,
+          "bbox": [
+            1178.8825,
+            3141.038,
+            1197.8825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_1",
+        "item": "P1",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_ch1_d",
+          "p_sC_v_ch1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1140.0,
+          "bbox": [
+            1178.8825,
+            2620.038,
+            1197.8825,
+            2680.038
+          ],
+          "perimeter": 158.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_10",
+        "item": "P10",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sB_v_ch1_d",
+          "p_sB_v_ch1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1520.0,
+          "bbox": [
+            1572.8825,
+            2661.038,
+            1652.8825,
+            2680.038
+          ],
+          "perimeter": 198.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_11",
+        "item": "P11",
+        "sealed": false
+      },
+      {
+        "field_count": 16,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 465.52714149979874,
+          "bbox": [
+            2040.3825,
+            2825.473324,
+            2059.3825,
+            2851.36895
+          ],
+          "perimeter": 87.2063761221828,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_12",
+        "item": "P12",
+        "sealed": false
+      },
+      {
+        "field_count": 16,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 465.5271415002644,
+          "bbox": [
+            2477.3825,
+            2825.473324,
+            2496.3825,
+            2851.36895
+          ],
+          "perimeter": 87.20637612218235,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_13",
+        "item": "P13",
+        "sealed": false
+      },
+      {
+        "field_count": 16,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 465.52714149979874,
+          "bbox": [
+            2914.3825,
+            2825.473324,
+            2933.3825,
+            2851.36895
+          ],
+          "perimeter": 87.20637612218235,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_14",
+        "item": "P14",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1900.0,
+          "bbox": [
+            3351.3825,
+            2781.538,
+            3370.3825,
+            2881.538
+          ],
+          "perimeter": 238.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_15",
+        "item": "P15",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1900.0,
+          "bbox": [
+            3788.3825,
+            2779.038,
+            3807.3825,
+            2879.038
+          ],
+          "perimeter": 238.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_16",
+        "item": "P16",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 2280.0,
+          "bbox": [
+            4174.8825,
+            2661.038,
+            4294.8825,
+            2680.038
+          ],
+          "perimeter": 278.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_17",
+        "item": "P17",
+        "sealed": false
+      },
+      {
+        "field_count": 14,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_ch1_d",
+          "p_sA_v_ch1_n",
+          "p_sB_l1_n",
+          "p_sB_v_ch1_d",
+          "p_sB_v_ch1_n",
+          "p_sC_l1_n",
+          "p_sC_v_ch1_d",
+          "p_sC_v_ch1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1501.0000000018626,
+          "bbox": [
+            4533.3825,
+            2601.038,
+            4552.3825,
+            2680.038
+          ],
+          "perimeter": 196.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_18",
+        "item": "P18",
+        "sealed": false
+      },
+      {
+        "field_count": 18,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_ch1_d",
+          "p_sA_v_ch1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1520.0,
+          "bbox": [
+            1572.8825,
+            2490.038,
+            1652.8825,
+            2509.038
+          ],
+          "perimeter": 198.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_19",
+        "item": "P19",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1254.0,
+          "bbox": [
+            1603.3825,
+            3141.038,
+            1622.3825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_2",
+        "item": "P2",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1633.9999999990687,
+          "bbox": [
+            2040.3825,
+            2423.038,
+            2059.3825,
+            2509.038
+          ],
+          "perimeter": 210.00000000000045,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_20",
+        "item": "P20",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1634.0,
+          "bbox": [
+            2477.3825,
+            2423.038,
+            2496.3825,
+            2509.038
+          ],
+          "perimeter": 210.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_21",
+        "item": "P21",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1634.0,
+          "bbox": [
+            2914.3825,
+            2423.038,
+            2933.3825,
+            2509.038
+          ],
+          "perimeter": 210.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_22",
+        "item": "P22",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1900.0,
+          "bbox": [
+            3351.3825,
+            2380.038,
+            3370.3825,
+            2480.038
+          ],
+          "perimeter": 238.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_23",
+        "item": "P23",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_ch1_d",
+          "p_sC_v_ch1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1520.0,
+          "bbox": [
+            3788.3825,
+            2380.038,
+            3807.3825,
+            2460.038
+          ],
+          "perimeter": 198.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_24",
+        "item": "P24",
+        "sealed": false
+      },
+      {
+        "field_count": 14,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_ch1_d",
+          "p_sC_v_ch1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "p_sD_v_ch2_d",
+          "p_sD_v_ch2_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1140.0,
+          "bbox": [
+            1178.8825,
+            2240.038,
+            1197.8825,
+            2300.038
+          ],
+          "perimeter": 158.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_25",
+        "item": "P25",
+        "sealed": false
+      },
+      {
+        "field_count": 16,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_ch1_d",
+          "p_sA_v_ch1_n",
+          "p_sB_l1_n",
+          "p_sB_v_ch1_d",
+          "p_sB_v_ch1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "p_sE_l1_n",
+          "p_sF_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 6916.0,
+          "bbox": [
+            3936.3825,
+            2242.038,
+            4101.3825,
+            2460.038
+          ],
+          "perimeter": 765.9999999999991,
+          "points": 7
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_26",
+        "item": "P26",
+        "sealed": false
+      },
+      {
+        "field_count": 20,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_ch1_d",
+          "p_sA_v_ch1_n",
+          "p_sA_v_ch2_d",
+          "p_sA_v_ch2_n",
+          "p_sA_v_ch3_d",
+          "p_sA_v_ch3_n",
+          "p_sB_l1_n",
+          "p_sB_v_ch1_d",
+          "p_sB_v_ch1_n",
+          "p_sB_v_ch2_d",
+          "p_sB_v_ch2_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sE_l1_n",
+          "p_sF_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 6916.000000001863,
+          "bbox": [
+            4387.3825,
+            2242.038,
+            4552.3825,
+            2460.038
+          ],
+          "perimeter": 766.0,
+          "points": 7
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_27",
+        "item": "P27",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1920.0,
+          "bbox": [
+            1600.8825,
+            1963.038,
+            1624.8825,
+            2043.038
+          ],
+          "perimeter": 208.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_28",
+        "item": "P28",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1584.0,
+          "bbox": [
+            2037.8825,
+            1963.038,
+            2061.8825,
+            2029.038
+          ],
+          "perimeter": 180.00000000000045,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_29",
+        "item": "P29",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1254.0000000009313,
+          "bbox": [
+            2040.3825,
+            3141.038,
+            2059.3825,
+            3207.038
+          ],
+          "perimeter": 170.00000000000045,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_3",
+        "item": "P3",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1584.0,
+          "bbox": [
+            2474.8825,
+            1963.038,
+            2498.8825,
+            2029.038
+          ],
+          "perimeter": 180.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_30",
+        "item": "P30",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1584.0000000009313,
+          "bbox": [
+            2911.8825,
+            1963.038,
+            2935.8825,
+            2029.038
+          ],
+          "perimeter": 180.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_31",
+        "item": "P31",
+        "sealed": false
+      },
+      {
+        "field_count": 12,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1584.0,
+          "bbox": [
+            3348.8825,
+            1963.038,
+            3372.8825,
+            2029.038
+          ],
+          "perimeter": 180.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_32",
+        "item": "P32",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sB_v_ch1_d",
+          "p_sB_v_ch1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1900.0,
+          "bbox": [
+            3788.3825,
+            1963.038,
+            3888.3825,
+            1982.038
+          ],
+          "perimeter": 238.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_33",
+        "item": "P33",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1140.0,
+          "bbox": [
+            4141.3825,
+            1963.038,
+            4201.3825,
+            1982.038
+          ],
+          "perimeter": 158.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_34",
+        "item": "P34",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1140.0,
+          "bbox": [
+            4492.3825,
+            1963.038,
+            4552.3825,
+            1982.038
+          ],
+          "perimeter": 158.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_35",
+        "item": "P35",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1254.0,
+          "bbox": [
+            2477.3825,
+            3141.038,
+            2496.3825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_4",
+        "item": "P4",
+        "sealed": false
+      },
+      {
+        "field_count": 18,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_ch1_d",
+          "p_sB_v_ch1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            1178.8825,
+            2960.038,
+            1197.8825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_36",
+        "item": "P41",
+        "sealed": false
+      },
+      {
+        "field_count": 24,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_dir_d",
+          "p_sA_v_passa_dir_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_dir_d",
+          "p_sB_v_passa_dir_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_dir_d",
+          "p_sD_v_passa_dir_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 949.9999999990687,
+          "bbox": [
+            1587.8825,
+            2991.038,
+            1637.8825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_37",
+        "item": "P42",
+        "sealed": false
+      },
+      {
+        "field_count": 18,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            2040.3825,
+            2960.038,
+            2059.3825,
+            3010.038
+          ],
+          "perimeter": 138.00000000000045,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_38",
+        "item": "P43",
+        "sealed": false
+      },
+      {
+        "field_count": 24,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_dir_d",
+          "p_sA_v_passa_dir_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_dir_d",
+          "p_sB_v_passa_dir_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_dir_d",
+          "p_sD_v_passa_dir_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            2461.8825,
+            2991.038,
+            2511.8825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_39",
+        "item": "P44",
+        "sealed": false
+      },
+      {
+        "field_count": 18,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_dir_d",
+          "p_sC_v_passa_dir_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            2914.3825,
+            2960.038,
+            2933.3825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_40",
+        "item": "P45",
+        "sealed": false
+      },
+      {
+        "field_count": 16,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_passa_esq_d",
+          "p_sA_v_passa_esq_n",
+          "p_sB_l1_n",
+          "p_sB_v_passa_esq_d",
+          "p_sB_v_passa_esq_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "p_sD_v_passa_esq_d",
+          "p_sD_v_passa_esq_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0000000018626,
+          "bbox": [
+            3335.8825,
+            2991.038,
+            3385.8825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_41",
+        "item": "P46",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sC_v_passa_esq_d",
+          "p_sC_v_passa_esq_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            3788.3825,
+            2960.038,
+            3807.3825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_42",
+        "item": "P47",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sA_v_ch1_d",
+          "p_sA_v_ch1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            4209.8825,
+            2991.038,
+            4259.8825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_43",
+        "item": "P48",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            4533.3825,
+            2960.038,
+            4552.3825,
+            3010.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_44",
+        "item": "P49",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1254.0000000018626,
+          "bbox": [
+            2914.3825,
+            3141.038,
+            2933.3825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_5",
+        "item": "P5",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 949.9999999990687,
+          "bbox": [
+            2461.882476,
+            2661.038,
+            2511.882476,
+            2680.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_45",
+        "item": "P50",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 950.0,
+          "bbox": [
+            3335.8825,
+            2661.038,
+            3385.8825,
+            2680.038
+          ],
+          "perimeter": 138.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_46",
+        "item": "P51",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1254.0000000018626,
+          "bbox": [
+            3351.3825,
+            3141.038,
+            3370.3825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_6",
+        "item": "P6",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1253.9999999981374,
+          "bbox": [
+            3788.3825,
+            3141.038,
+            3807.3825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_7",
+        "item": "P7",
+        "sealed": false
+      },
+      {
+        "field_count": 8,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1253.9999999981374,
+          "bbox": [
+            4225.3825,
+            3141.038,
+            4244.3825,
+            3207.038
+          ],
+          "perimeter": 170.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_8",
+        "item": "P8",
+        "sealed": false
+      },
+      {
+        "field_count": 10,
+        "fields": [
+          "connections",
+          "dim",
+          "name",
+          "p_sA_l1_n",
+          "p_sB_l1_n",
+          "p_sC_l1_n",
+          "p_sD_l1_n",
+          "p_sD_v_ch1_d",
+          "p_sD_v_ch1_n",
+          "pilar_segs"
+        ],
+        "geometry": {
+          "area": 1976.0000000018626,
+          "bbox": [
+            4649.8825,
+            3103.038,
+            4668.8825,
+            3207.038
+          ],
+          "perimeter": 246.0,
+          "points": 5
+        },
+        "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_9",
+        "item": "P9",
+        "sealed": false
+      }
+    ],
+    "payload_column": "links_json",
+    "provenance": "docs/PROVENIENCIA-CAMPOS-PIL.md",
+    "schema_columns": [
+      "area",
+      "conf_map_json",
+      "extra_data_json",
+      "id",
+      "id_item",
+      "is_validated",
+      "issues_json",
+      "links_json",
+      "na_fields_json",
+      "na_link_classes_json",
+      "na_reasons_json",
+      "name",
+      "pkl_path",
+      "points_json",
+      "project_id",
+      "sides_data_json",
+      "type",
+      "validated_fields_json",
+      "validated_link_classes_json"
+    ],
+    "table": "pillars",
+    "validation_mode": "diagnostic_only"
+  }
+]

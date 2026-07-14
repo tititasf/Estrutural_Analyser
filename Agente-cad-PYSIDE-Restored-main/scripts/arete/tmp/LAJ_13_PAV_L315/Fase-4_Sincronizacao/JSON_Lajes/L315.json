@@ -54,28 +54,31 @@
     "source": "structural_analyzer",
     "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
     "id_item": "15",
-    "validated_fields": [],
-    "validated_link_classes": {},
-    "n3_line_source": "learned_n4_patterns",
-    "n3_pattern_nome": "L315",
-    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L315",
-    "n3_pattern_score": 0.4051,
-    "n3_exact_geometry_from_validated_pattern": true,
+    "validated_fields": [
+      "name",
+      "laje_islands",
+      "laje_outline_segs",
+      "laje_dim",
+      "laje_nivel"
+    ],
+    "validated_link_classes": {
+      "name": [
+        "label"
+      ],
+      "laje_dim": [
+        "label"
+      ],
+      "laje_nivel": [
+        "label"
+      ],
+      "laje_outline_segs": [
+        "contour"
+      ]
+    },
     "n3_source": "structural_analyzer_n1",
-    "n3_teacher": null
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false
   },
-  "_stog_pose": {
-    "x": 5352.07,
-    "y": 2280.94
-  },
-  "_hlaz": [
-    {
-      "x": -0.0,
-      "y": 122.0,
-      "width": 418.0,
-      "height": 47.0
-    }
-  ],
   "apoios_hachurados": [
     {
       "x1": 476.46,
@@ -255,6 +258,18 @@
     }
   ],
   "pontaletes": {},
+  "_hlaz": [
+    {
+      "x": -0.0,
+      "y": 122.0,
+      "width": 418.0,
+      "height": 47.0
+    }
+  ],
+  "_stog_pose": {
+    "x": 5352.07,
+    "y": 2280.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       20.0,

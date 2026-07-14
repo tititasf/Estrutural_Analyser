@@ -3686,3 +3686,11 @@ Traceback (most recent call last):
                         ~~~~~~~~~~~~^^^
 IndexError: list index out of range
 
+
+[2026-07-13 13:43:52] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9549, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+

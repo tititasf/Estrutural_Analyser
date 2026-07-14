@@ -1,0 +1,2535 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-14T07:17:30.939671+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "TERREO",
+  "run_id": "20260714_033458",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "20f25902ab1d2d3740f775245a7012fde1d796554648c32eb1c09bc876ea6089",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+    "n4_human_locked_overrides": 0
+  },
+  "resumo": {
+    "itens": 25,
+    "n1_itens": 25,
+    "n2_itens": 22,
+    "alertas": 25,
+    "classificacoes": {
+      "INDETERMINADO": 3,
+      "RUIM": 22
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L101",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.5989724703289505,
+        "geometria": {
+          "iou": 0.1264479120220265,
+          "rotation_deg": 0,
+          "area_n1": 52764.22151224882,
+          "area_n2_poligono": 417280.29089999996,
+          "area_n2_ref": 417280.29,
+          "area_delta_pct": 0.8735520877052477,
+          "symmetric_diff_area": 364516.0693877511,
+          "symmetric_diff_pct": 0.8735520898620712,
+          "vertices_n1": 5,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 290.205784,
+          "comprimento_bbox": 248.39824999999973,
+          "points": [
+            [
+              1777.031636,
+              3461.0645
+            ],
+            [
+              1777.031636,
+              3441.0645
+            ],
+            [
+              1937.503739,
+              3441.0645
+            ],
+            [
+              1937.517304,
+              3212.66625
+            ],
+            [
+              1647.31152,
+              3212.66625
+            ],
+            [
+              1777.031636,
+              3461.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 6
+        },
+        "n2": {
+          "comprimento": 855.03,
+          "largura": 488.03,
+          "area_cm2": 417280.29,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              855.03,
+              0.0
+            ],
+            [
+              855.03,
+              488.03
+            ],
+            [
+              0.0,
+              488.03
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1031,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L102",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.8963032436609578,
+        "geometria": {
+          "iou": 0.010328951000787503,
+          "rotation_deg": 0,
+          "area_n1": 5820.0,
+          "area_n2_poligono": 563464.77,
+          "area_n2_ref": 563464.77,
+          "area_delta_pct": 0.9896710489992125,
+          "symmetric_diff_area": 557644.77,
+          "symmetric_diff_pct": 0.9896710489992125,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 97.0,
+          "comprimento_bbox": 60.0,
+          "points": [
+            [
+              2117.0,
+              3245.5
+            ],
+            [
+              2214.0,
+              3245.5
+            ],
+            [
+              2214.0,
+              3305.5
+            ],
+            [
+              2117.0,
+              3305.5
+            ],
+            [
+              2117.0,
+              3245.5
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 855.03,
+          "largura": 659.0,
+          "area_cm2": 563464.77,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              855.03,
+              0.0
+            ],
+            [
+              855.03,
+              659.0
+            ],
+            [
+              0.0,
+              659.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1032,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L103",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.5569504291307754,
+        "geometria": {
+          "iou": 0.21444537241034267,
+          "rotation_deg": 0,
+          "area_n1": 77374.03481937574,
+          "area_n2_poligono": 360810.0,
+          "area_n2_ref": 360810.0,
+          "area_delta_pct": 0.7855546275896573,
+          "symmetric_diff_area": 283435.9651806243,
+          "symmetric_diff_pct": 0.7855546275896573,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 334.376037,
+          "comprimento_bbox": 231.3982649999998,
+          "points": [
+            [
+              2393.5315,
+              3444.064515
+            ],
+            [
+              2727.907537,
+              3444.064515
+            ],
+            [
+              2727.907537,
+              3212.66625
+            ],
+            [
+              2393.5315,
+              3212.66625
+            ],
+            [
+              2393.5315,
+              3444.064515
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 855.0,
+          "largura": 422.0,
+          "area_cm2": 360810.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              855.0,
+              0.0
+            ],
+            [
+              855.0,
+              422.0
+            ],
+            [
+              0.0,
+              422.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1033,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L104",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.7215892491966112,
+        "geometria": {
+          "iou": 0.0459232334072687,
+          "rotation_deg": 0,
+          "area_n1": 24990.0,
+          "area_n2_poligono": 544169.0,
+          "area_n2_ref": 544169.0,
+          "area_delta_pct": 0.9540767665927313,
+          "symmetric_diff_area": 519179.0,
+          "symmetric_diff_pct": 0.9540767665927313,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 416.5,
+          "comprimento_bbox": 60.0,
+          "points": [
+            [
+              2811.5,
+              3245.5
+            ],
+            [
+              3228.0,
+              3245.5
+            ],
+            [
+              3228.0,
+              3305.5
+            ],
+            [
+              2811.5,
+              3305.5
+            ],
+            [
+              2811.5,
+              3245.5
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 1289.5,
+          "largura": 422.0,
+          "area_cm2": 544169.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1289.5,
+              0.0
+            ],
+            [
+              1289.5,
+              422.0
+            ],
+            [
+              0.0,
+              422.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1034,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L105",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.6537136924203589,
+        "geometria": {
+          "iou": 0.056641656359863464,
+          "rotation_deg": 0,
+          "area_n1": 24771.23717999999,
+          "area_n2_poligono": 437332.5,
+          "area_n2_ref": 437332.5,
+          "area_delta_pct": 0.9433583436401365,
+          "symmetric_diff_area": 412561.26282,
+          "symmetric_diff_pct": 0.9433583436401365,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 412.8539529999998,
+          "comprimento_bbox": 60.0,
+          "points": [
+            [
+              3228.0,
+              3245.5
+            ],
+            [
+              3640.853953,
+              3245.5
+            ],
+            [
+              3640.853953,
+              3305.5
+            ],
+            [
+              3228.0,
+              3305.5
+            ],
+            [
+              3228.0,
+              3245.5
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 852.5,
+          "largura": 513.0,
+          "area_cm2": 437332.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              852.5,
+              0.0
+            ],
+            [
+              852.5,
+              513.0
+            ],
+            [
+              0.0,
+              513.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1035,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L106",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.3870026405023548,
+        "geometria": {
+          "iou": 0.215405509619244,
+          "rotation_deg": 0,
+          "area_n1": 48330.53419326977,
+          "area_n2_poligono": 224370.0,
+          "area_n2_ref": 224370.0,
+          "area_delta_pct": 0.784594490380756,
+          "symmetric_diff_area": 176039.46580673024,
+          "symmetric_diff_pct": 0.784594490380756,
+          "vertices_n1": 9,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 304.11722699999973,
+          "comprimento_bbox": 281.60175000000027,
+          "points": [
+            [
+              3707.0315,
+              3109.0645
+            ],
+            [
+              3717.5315,
+              3109.0645
+            ],
+            [
+              3717.5315,
+              3154.0645
+            ],
+            [
+              3707.0315,
+              3154.0645
+            ],
+            [
+              3707.0315,
+              3212.66625
+            ],
+            [
+              3942.650397,
+              3212.66625
+            ],
+            [
+              3942.650397,
+              3141.0645
+            ],
+            [
+              4011.148727,
+              3141.0645
+            ],
+            [
+              3707.0315,
+              2931.0645
+            ],
+            [
+              3707.0315,
+              3109.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 10
+        },
+        "n2": {
+          "comprimento": 415.5,
+          "largura": 540.0,
+          "area_cm2": 224370.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              540.0
+            ],
+            [
+              0.0,
+              540.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1036,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L107",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.3639940764674205,
+        "geometria": {
+          "iou": 0.3344007079471644,
+          "rotation_deg": 90,
+          "area_n1": 71278.01250000001,
+          "area_n2_poligono": 213151.5,
+          "area_n2_ref": 213151.5,
+          "area_delta_pct": 0.6655992920528356,
+          "symmetric_diff_area": 141873.4875,
+          "symmetric_diff_pct": 0.6655992920528356,
+          "vertices_n1": 8,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 415.53150000000005,
+          "comprimento_bbox": 175.0,
+          "points": [
+            [
+              4557.0315,
+              2931.0
+            ],
+            [
+              4141.5,
+              2931.0
+            ],
+            [
+              4141.5,
+              3106.0
+            ],
+            [
+              4557.0315,
+              3106.0
+            ],
+            [
+              4557.0315,
+              2985.5645
+            ],
+            [
+              4509.0315,
+              2985.5645
+            ],
+            [
+              4509.0315,
+              2955.5645
+            ],
+            [
+              4557.0315,
+              2955.5645
+            ],
+            [
+              4557.0315,
+              2931.0
+            ]
+          ],
+          "nivel": "",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 415.5,
+          "largura": 513.0,
+          "area_cm2": 213151.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              513.0
+            ],
+            [
+              0.0,
+              513.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1037,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L108",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.22887736322569852,
+        "geometria": {
+          "iou": 0.6504072387535432,
+          "rotation_deg": 180,
+          "area_n1": 53341.864531750005,
+          "area_n2_poligono": 75704.09999999999,
+          "area_n2_ref": 75704.1,
+          "area_delta_pct": 0.29539001808686716,
+          "symmetric_diff_area": 27334.78986825,
+          "symmetric_diff_pct": 0.36107410124748857,
+          "vertices_n1": 10,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 287.5,
+          "comprimento_bbox": 191.0,
+          "points": [
+            [
+              4580.0,
+              2955.5645
+            ],
+            [
+              4629.0315,
+              2955.5645
+            ],
+            [
+              4629.0315,
+              2985.5645
+            ],
+            [
+              4580.0,
+              2985.5645
+            ],
+            [
+              4580.0,
+              3122.0
+            ],
+            [
+              4867.5,
+              3122.0
+            ],
+            [
+              4867.5,
+              2951.0645
+            ],
+            [
+              4862.5315,
+              2951.0645
+            ],
+            [
+              4862.5315,
+              2931.0
+            ],
+            [
+              4580.0,
+              2931.0
+            ],
+            [
+              4580.0,
+              2955.5645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 11
+        },
+        "n2": {
+          "comprimento": 415.5,
+          "largura": 182.2,
+          "area_cm2": 75704.1,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              182.2
+            ],
+            [
+              0.0,
+              182.2
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1038,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L109",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.6493028542458809,
+        "geometria": {
+          "iou": 0.03787426986712496,
+          "rotation_deg": 0,
+          "area_n1": 35656.67455499999,
+          "area_n2_poligono": 941448.5,
+          "area_n2_ref": 941448.5,
+          "area_delta_pct": 0.962125730132875,
+          "symmetric_diff_area": 905791.8254449998,
+          "symmetric_diff_pct": 0.9621257301328748,
+          "vertices_n1": 7,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 618.2501199999999,
+          "comprimento_bbox": 73.5,
+          "points": [
+            [
+              1907.0315,
+              2958.5645
+            ],
+            [
+              1907.0315,
+              2955.5645
+            ],
+            [
+              1987.0315,
+              2955.5645
+            ],
+            [
+              1987.0315,
+              2958.5645
+            ],
+            [
+              2265.56164,
+              2958.5645
+            ],
+            [
+              2265.56164,
+              2885.0645
+            ],
+            [
+              1647.31152,
+              2885.0645
+            ],
+            [
+              1907.0315,
+              2958.5645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 8
+        },
+        "n2": {
+          "comprimento": 809.5,
+          "largura": 1163.0,
+          "area_cm2": 941448.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              809.5,
+              0.0
+            ],
+            [
+              809.5,
+              1163.0
+            ],
+            [
+              0.0,
+              1163.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1039,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L110",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.525063075419266,
+        "geometria": {
+          "iou": 0.16418420829305783,
+          "rotation_deg": 0,
+          "area_n1": 151040.38075,
+          "area_n2_poligono": 919944.63,
+          "area_n2_ref": 919944.63,
+          "area_delta_pct": 0.8358157917069422,
+          "symmetric_diff_area": 768904.24925,
+          "symmetric_diff_pct": 0.8358157917069422,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 717.5315,
+          "comprimento_bbox": 210.5,
+          "points": [
+            [
+              2531.0,
+              2787.5
+            ],
+            [
+              3248.5315,
+              2787.5
+            ],
+            [
+              3248.5315,
+              2998.0
+            ],
+            [
+              2531.0,
+              2998.0
+            ],
+            [
+              2531.0,
+              2787.5
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 791.01,
+          "largura": 1163.0,
+          "area_cm2": 919944.63,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              791.01,
+              0.0
+            ],
+            [
+              791.01,
+              1163.0
+            ],
+            [
+              0.0,
+              1163.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1041,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L111",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.5973826417484954,
+        "geometria": {
+          "iou": 0.1891802912298891,
+          "rotation_deg": 90,
+          "area_n1": 91416.93000000001,
+          "area_n2_poligono": 483226.5,
+          "area_n2_ref": 483226.5,
+          "area_delta_pct": 0.8108197087701109,
+          "symmetric_diff_area": 391809.56999999995,
+          "symmetric_diff_pct": 0.8108197087701108,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 415.53150000000005,
+          "comprimento_bbox": 220.0,
+          "points": [
+            [
+              3267.5,
+              2778.0
+            ],
+            [
+              3683.0315,
+              2778.0
+            ],
+            [
+              3683.0315,
+              2998.0
+            ],
+            [
+              3267.5,
+              2998.0
+            ],
+            [
+              3267.5,
+              2778.0
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 415.5,
+          "largura": 1163.0,
+          "area_cm2": 483226.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              1163.0
+            ],
+            [
+              0.0,
+              1163.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1042,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L112",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.7850984605516357,
+        "geometria": {
+          "iou": 0.04751077244658179,
+          "rotation_deg": 0,
+          "area_n1": 27820.788000000008,
+          "area_n2_poligono": 585568.0,
+          "area_n2_ref": 585568.0,
+          "area_delta_pct": 0.9524892275534181,
+          "symmetric_diff_area": 557747.212,
+          "symmetric_diff_pct": 0.9524892275534184,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 183.03150000000005,
+          "comprimento_bbox": 152.0,
+          "points": [
+            [
+              3939.5,
+              2760.0
+            ],
+            [
+              4122.5315,
+              2760.0
+            ],
+            [
+              4122.5315,
+              2912.0
+            ],
+            [
+              3939.5,
+              2912.0
+            ],
+            [
+              3939.5,
+              2760.0
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 928.0,
+          "largura": 631.0,
+          "area_cm2": 585568.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              928.0,
+              0.0
+            ],
+            [
+              928.0,
+              631.0
+            ],
+            [
+              0.0,
+              631.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1043,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L113",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.36915859271523316,
+        "geometria": {
+          "iou": 0.42663974020507994,
+          "rotation_deg": 0,
+          "area_n1": 55753.281249999854,
+          "area_n2_poligono": 130680.0,
+          "area_n2_ref": 130680.0,
+          "area_delta_pct": 0.57336025979492,
+          "symmetric_diff_area": 74926.71875000015,
+          "symmetric_diff_pct": 0.57336025979492,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 446.5423149999988,
+          "comprimento_bbox": 125.0,
+          "points": [
+            [
+              4420.989185000001,
+              2885.0645
+            ],
+            [
+              4862.5315,
+              2885.0645
+            ],
+            [
+              4862.5315,
+              2872.162875
+            ],
+            [
+              4867.5315,
+              2872.162875
+            ],
+            [
+              4867.5315,
+              2760.0645
+            ],
+            [
+              4420.989185000001,
+              2760.0645
+            ],
+            [
+              4420.989185000001,
+              2885.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 726.0,
+          "largura": 180.0,
+          "area_cm2": 130680.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              726.0,
+              0.0
+            ],
+            [
+              726.0,
+              180.0
+            ],
+            [
+              0.0,
+              180.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1044,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L114",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.22348197875654383,
+        "geometria": {
+          "iou": 0.4896364874694369,
+          "rotation_deg": 0,
+          "area_n1": 103669.32823518483,
+          "area_n2_poligono": 211727.13,
+          "area_n2_ref": 211727.13,
+          "area_delta_pct": 0.5103635125305631,
+          "symmetric_diff_area": 108057.80176481517,
+          "symmetric_diff_pct": 0.5103635125305631,
+          "vertices_n1": 10,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 379.5,
+          "comprimento_bbox": 338.4064410000001,
+          "points": [
+            [
+              1937.5315,
+              2343.0645
+            ],
+            [
+              1932.0315,
+              2343.0645
+            ],
+            [
+              1932.0315,
+              2291.0645
+            ],
+            [
+              1772.739073,
+              2291.0645
+            ],
+            [
+              1703.8703599622172,
+              2356.2532196144116
+            ],
+            [
+              1620.3522026959008,
+              2435.3085917361373
+            ],
+            [
+              1558.0315,
+              2494.299193346296
+            ],
+            [
+              1558.0315,
+              2570.064542
+            ],
+            [
+              1647.31152,
+              2629.470941
+            ],
+            [
+              1937.5315,
+              2629.470941
+            ],
+            [
+              1937.5315,
+              2343.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 11
+        },
+        "n2": {
+          "comprimento": 418.02,
+          "largura": 506.5,
+          "area_cm2": 211727.13,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.02,
+              0.0
+            ],
+            [
+              418.02,
+              506.5
+            ],
+            [
+              0.0,
+              506.5
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1045,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L115",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.5159650413187383,
+        "geometria": {
+          "iou": 0.10981115174045007,
+          "rotation_deg": 0,
+          "area_n1": 23250.0,
+          "area_n2_poligono": 211727.13,
+          "area_n2_ref": 211727.13,
+          "area_delta_pct": 0.8901888482595499,
+          "symmetric_diff_area": 188477.13,
+          "symmetric_diff_pct": 0.8901888482595499,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 387.5,
+          "comprimento_bbox": 60.0,
+          "points": [
+            [
+              1956.5,
+              2469.5
+            ],
+            [
+              2344.0,
+              2469.5
+            ],
+            [
+              2344.0,
+              2517.5
+            ],
+            [
+              2344.0,
+              2517.5
+            ],
+            [
+              2344.0,
+              2529.5
+            ],
+            [
+              1956.5,
+              2529.5
+            ],
+            [
+              1956.5,
+              2469.5
+            ]
+          ],
+          "nivel": "",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 418.02,
+          "largura": 506.5,
+          "area_cm2": 211727.13,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              418.02,
+              0.0
+            ],
+            [
+              418.02,
+              506.5
+            ],
+            [
+              0.0,
+              506.5
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1046,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L116",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.5126636306346113,
+        "geometria": {
+          "iou": 0.2553896010713495,
+          "rotation_deg": 0,
+          "area_n1": 113060.00463685434,
+          "area_n2_poligono": 442696.195,
+          "area_n2_ref": 442696.2,
+          "area_delta_pct": 0.7446104018131298,
+          "symmetric_diff_area": 329636.19036314567,
+          "symmetric_diff_pct": 0.7446103905187026,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 334.376037,
+          "comprimento_bbox": 338.4064410000001,
+          "points": [
+            [
+              2393.5315,
+              2629.470941
+            ],
+            [
+              2727.907537,
+              2629.470941
+            ],
+            [
+              2727.907537,
+              2291.0645
+            ],
+            [
+              2396.0315,
+              2291.0645
+            ],
+            [
+              2396.0315,
+              2329.0645
+            ],
+            [
+              2393.5315,
+              2329.0645
+            ],
+            [
+              2393.5315,
+              2629.470941
+            ]
+          ],
+          "nivel": "",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 874.03,
+          "largura": 506.5,
+          "area_cm2": 442696.2,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              874.03,
+              0.0
+            ],
+            [
+              874.03,
+              506.5
+            ],
+            [
+              0.0,
+              506.5
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1047,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L117",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.4842637822749476,
+        "geometria": {
+          "iou": 0.3340141130454512,
+          "rotation_deg": 270,
+          "area_n1": 203740.61600000004,
+          "area_n2_poligono": 609976.07,
+          "area_n2_ref": 609976.07,
+          "area_delta_pct": 0.6659858869545487,
+          "symmetric_diff_area": 406235.4539999999,
+          "symmetric_diff_pct": 0.6659858869545487,
+          "vertices_n1": 12,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 418.03150000000005,
+          "comprimento_bbox": 491.0,
+          "points": [
+            [
+              3248.5315,
+              2754.0
+            ],
+            [
+              3248.5315,
+              2309.5645
+            ],
+            [
+              3218.0315,
+              2309.5645
+            ],
+            [
+              3218.0315,
+              2282.5645
+            ],
+            [
+              3248.5315,
+              2282.5645
+            ],
+            [
+              3248.5315,
+              2263.0
+            ],
+            [
+              2830.5,
+              2263.0
+            ],
+            [
+              2830.5,
+              2282.5645
+            ],
+            [
+              2856.0315,
+              2282.5645
+            ],
+            [
+              2856.0315,
+              2309.5645
+            ],
+            [
+              2830.5,
+              2309.5645
+            ],
+            [
+              2830.5,
+              2754.0
+            ],
+            [
+              3248.5315,
+              2754.0
+            ]
+          ],
+          "nivel": "",
+          "vertices": 13
+        },
+        "n2": {
+          "comprimento": 1289.59,
+          "largura": 473.0,
+          "area_cm2": 609976.07,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              1289.59,
+              0.0
+            ],
+            [
+              1289.59,
+              473.0
+            ],
+            [
+              0.0,
+              473.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1048,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L118",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.658666281403244,
+        "geometria": {
+          "iou": 0.09569903529965149,
+          "rotation_deg": 0,
+          "area_n1": 38588.96125146672,
+          "area_n2_poligono": 403232.5,
+          "area_n2_ref": 403232.5,
+          "area_delta_pct": 0.9043009647003485,
+          "symmetric_diff_area": 364643.53874853323,
+          "symmetric_diff_pct": 0.9043009647003484,
+          "vertices_n1": 7,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 114.03140299999995,
+          "comprimento_bbox": 338.4064410000001,
+          "points": [
+            [
+              3590.562903,
+              2629.470941
+            ],
+            [
+              3590.562903,
+              2309.5645
+            ],
+            [
+              3590.562903,
+              2291.0645
+            ],
+            [
+              3477.531052,
+              2291.0645
+            ],
+            [
+              3476.5315,
+              2291.0645
+            ],
+            [
+              3476.5315,
+              2475.922178
+            ],
+            [
+              3476.5315,
+              2629.470941
+            ],
+            [
+              3590.562903,
+              2629.470941
+            ]
+          ],
+          "nivel": "",
+          "vertices": 8
+        },
+        "n2": {
+          "comprimento": 852.5,
+          "largura": 473.0,
+          "area_cm2": 403232.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              852.5,
+              0.0
+            ],
+            [
+              852.5,
+              473.0
+            ],
+            [
+              0.0,
+              473.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1049,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L119",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.47261687434304817,
+        "geometria": {
+          "iou": 0.27394972224669656,
+          "rotation_deg": 0,
+          "area_n1": 71824.27515350003,
+          "area_n2_poligono": 262180.5,
+          "area_n2_ref": 262180.5,
+          "area_delta_pct": 0.7260502777533034,
+          "symmetric_diff_area": 190356.22484649997,
+          "symmetric_diff_pct": 0.7260502777533034,
+          "vertices_n1": 6,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 213.5,
+          "comprimento_bbox": 338.4064410000001,
+          "points": [
+            [
+              3730.0315,
+              2291.0645
+            ],
+            [
+              3730.0315,
+              2309.5645
+            ],
+            [
+              3707.0315,
+              2309.5645
+            ],
+            [
+              3707.0315,
+              2629.470941
+            ],
+            [
+              3920.5315,
+              2629.470941
+            ],
+            [
+              3920.5315,
+              2291.0645
+            ],
+            [
+              3730.0315,
+              2291.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 7
+        },
+        "n2": {
+          "comprimento": 415.5,
+          "largura": 631.0,
+          "area_cm2": 262180.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              415.5,
+              0.0
+            ],
+            [
+              415.5,
+              631.0
+            ],
+            [
+              0.0,
+              631.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1050,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L120",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.4744267251631613,
+        "geometria": {
+          "iou": 0.22651097562517408,
+          "rotation_deg": 0,
+          "area_n1": 26517.073639000067,
+          "area_n2_poligono": 117067.5,
+          "area_n2_ref": 117067.5,
+          "area_delta_pct": 0.7734890243748259,
+          "symmetric_diff_area": 90550.42636099993,
+          "symmetric_diff_pct": 0.7734890243748259,
+          "vertices_n1": 8,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 111.38277300000027,
+          "comprimento_bbox": 251.0,
+          "points": [
+            [
+              4032.531351,
+              2291.0645
+            ],
+            [
+              4011.1487275,
+              2291.0645
+            ],
+            [
+              4011.148727,
+              2291.0645005
+            ],
+            [
+              4011.148727,
+              2542.0645
+            ],
+            [
+              4011.1487275,
+              2542.0645
+            ],
+            [
+              4122.5315,
+              2542.0645
+            ],
+            [
+              4122.5315,
+              2307.0645
+            ],
+            [
+              4032.531351,
+              2307.0645
+            ],
+            [
+              4032.531351,
+              2291.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 9
+        },
+        "n2": {
+          "comprimento": 302.5,
+          "largura": 387.0,
+          "area_cm2": 117067.5,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              302.5,
+              0.0
+            ],
+            [
+              302.5,
+              387.0
+            ],
+            [
+              0.0,
+              387.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1052,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L121",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.3075824108241082,
+        "geometria": {
+          "iou": 0.34031880828763544,
+          "rotation_deg": 180,
+          "area_n1": 55977.679500000006,
+          "area_n2_poligono": 164486.0,
+          "area_n2_ref": 164486.0,
+          "area_delta_pct": 0.6596811917123646,
+          "symmetric_diff_area": 108508.32049999999,
+          "symmetric_diff_pct": 0.6596811917123645,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 129.0,
+          "comprimento_bbox": 433.93550000000005,
+          "points": [
+            [
+              4141.5315,
+              2307.0645
+            ],
+            [
+              4270.5315,
+              2307.0645
+            ],
+            [
+              4270.5315,
+              2741.0
+            ],
+            [
+              4141.5315,
+              2741.0
+            ],
+            [
+              4141.5315,
+              2307.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 379.0,
+          "largura": 434.0,
+          "area_cm2": 164486.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              379.0,
+              0.0
+            ],
+            [
+              379.0,
+              434.0
+            ],
+            [
+              0.0,
+              434.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1053,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L122",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "n2_ficha_geometria_desatualizada",
+      "causa_descricao": "O recorte N2 está aprovado humanamente, mas os campos geométricos da ficha N2 ainda estão em status draft. A divergência numérica é evidência de proveniência desatualizada, não prova de contorno N1 errado. Regerar/revalidar os campos N2 a partir do recorte aprovado e executar novamente N1×N2; não copiar geometria N2 para N1.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "RUIM",
+        "dim_delta": 0.6786091543810847,
+        "geometria": {
+          "iou": 0.19337821950583703,
+          "rotation_deg": 270,
+          "area_n1": 44569.607227790686,
+          "area_n2_poligono": 128860.0,
+          "area_n2_ref": 128860.0,
+          "area_delta_pct": 0.6541237992566298,
+          "symmetric_diff_area": 117223.60630179042,
+          "symmetric_diff_pct": 0.9096973948610152,
+          "vertices_n1": 4,
+          "vertices_n2": 4,
+          "classificacao": "RUIM"
+        },
+        "n1": {
+          "largura_bbox": 74.15039700000034,
+          "comprimento_bbox": 601.0703790000002,
+          "points": [
+            [
+              4999.5,
+              2263.0645
+            ],
+            [
+              5073.650397,
+              2263.0645
+            ],
+            [
+              5073.650397,
+              2864.134879
+            ],
+            [
+              4999.5,
+              2864.134879
+            ],
+            [
+              4999.5,
+              2263.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": {
+          "comprimento": 379.0,
+          "largura": 340.0,
+          "area_cm2": 128860.0,
+          "coordenadas": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              379.0,
+              0.0
+            ],
+            [
+              379.0,
+              340.0
+            ],
+            [
+              0.0,
+              340.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "ficha_id": 1054,
+          "status": "draft",
+          "confianca_origem": 0.85,
+          "recorte_humano_aprovado": true
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "L122A",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 96.4972970000008,
+          "comprimento_bbox": 65.0935669999999,
+          "points": [
+            [
+              5176.249252,
+              2428.0645
+            ],
+            [
+              5176.249252,
+              2457.335315
+            ],
+            [
+              5272.746549,
+              2457.335315
+            ],
+            [
+              5272.746549,
+              2392.241748
+            ],
+            [
+              5176.249252,
+              2392.241748
+            ],
+            [
+              5176.249252,
+              2428.0645
+            ]
+          ],
+          "nivel": "",
+          "vertices": 6
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "LF101",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 928.0,
+          "comprimento_bbox": 130.5,
+          "points": [
+            [
+              3939.5315,
+              2629.5
+            ],
+            [
+              4867.5315,
+              2629.5
+            ],
+            [
+              4867.5315,
+              2760.0
+            ],
+            [
+              3939.5315,
+              2760.0
+            ],
+            [
+              3939.5315,
+              2629.5
+            ]
+          ],
+          "nivel": "",
+          "vertices": 5
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    },
+    {
+      "data": "2026-07-14T07:17:30.939671+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "TERREO",
+      "classe": "LAJ",
+      "item": "LR3",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 173.09615200000007,
+          "comprimento_bbox": 387.7995640000004,
+          "points": [
+            [
+              5150.249252,
+              2467.335315
+            ],
+            [
+              5150.249252,
+              2457.335315
+            ],
+            [
+              5073.650397,
+              2457.335315
+            ],
+            [
+              5073.650397,
+              2504.657777
+            ],
+            [
+              5073.650397,
+              2621.064595
+            ],
+            [
+              5073.650397,
+              2640.064595
+            ],
+            [
+              5073.650397,
+              2845.134879
+            ],
+            [
+              5246.746549,
+              2845.134879
+            ],
+            [
+              5246.746549,
+              2839.13431
+            ],
+            [
+              5246.746549,
+              2831.61431
+            ],
+            [
+              5246.746549,
+              2703.06465
+            ],
+            [
+              5246.746549,
+              2678.06465
+            ],
+            [
+              5150.249252,
+              2593.06465
+            ],
+            [
+              5150.249252,
+              2568.06465
+            ],
+            [
+              5150.249252,
+              2467.335315
+            ]
+          ],
+          "nivel": "",
+          "vertices": 15
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

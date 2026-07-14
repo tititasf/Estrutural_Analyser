@@ -1,0 +1,240 @@
+{
+  "schema": "arete.qa_artifact_parity_result/v1",
+  "engine_version": "1.1.0",
+  "question": "Smoke N3 LV:V301: identidade do contrato chega ao DXF e as camadas mínimas existem?",
+  "overall": "PASS",
+  "scope_authority": "declared_artifact_fields_only; visual reading remains separate",
+  "variants": {
+    "A_PARA": {
+      "paths": {
+        "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\sa_n3_nova_3h9qktrx\\contracts_lv\\LV-PARA\\V301_A.json",
+        "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\sa_n3_nova_3h9qktrx\\dxf\\LV_preview_V301_Para_VIEW_A.dxf"
+      },
+      "hashes": {
+        "contract": "8c77aee9f8320ca23ab4569cdbc058cd9269a5fece577c062545b87fd5fd626c",
+        "dxf": "34abe0961c729b2d9a0c178aa2210dd5c8b069cd108c35cd4f93598ea5e35924"
+      }
+    },
+    "A_PASSA": {
+      "paths": {
+        "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\sa_n3_nova_3h9qktrx\\contracts_lv\\LV-PASSA\\V301_A.json",
+        "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\sa_n3_nova_3h9qktrx\\dxf\\LV_preview_V301_Passa_VIEW_A.dxf"
+      },
+      "hashes": {
+        "contract": "35b8c55e37946ce43a2c6e7d2da097ee6359133ff1ca55c6ce87c55256cfd71a",
+        "dxf": "40d6398215ccdab388343251baf2f5dd6b2162a9b5b02a4a94738c8cf2181096"
+      }
+    }
+  },
+  "fields": [
+    {
+      "id": "a_para.contract.identity",
+      "variant": "A_PARA",
+      "source": "contract",
+      "path": "beam_name",
+      "transform": "entity",
+      "value": "V301",
+      "artifact_hash": "8c77aee9f8320ca23ab4569cdbc058cd9269a5fece577c062545b87fd5fd626c"
+    },
+    {
+      "id": "a_para.dxf.text",
+      "variant": "A_PARA",
+      "source": "dxf_text_blob",
+      "path": "",
+      "transform": "text",
+      "value": "V301.A",
+      "artifact_hash": "34abe0961c729b2d9a0c178aa2210dd5c8b069cd108c35cd4f93598ea5e35924"
+    },
+    {
+      "id": "a_para.dxf.text_count",
+      "variant": "A_PARA",
+      "source": "dxf_entity_count",
+      "path": "TEXT",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "34abe0961c729b2d9a0c178aa2210dd5c8b069cd108c35cd4f93598ea5e35924"
+    },
+    {
+      "id": "a_para.dxf.layer_1",
+      "variant": "A_PARA",
+      "source": "dxf_layer_count",
+      "path": "NOMENCLATURA",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "34abe0961c729b2d9a0c178aa2210dd5c8b069cd108c35cd4f93598ea5e35924"
+    },
+    {
+      "id": "a_para.dxf.layer_2",
+      "variant": "A_PARA",
+      "source": "dxf_layer_count",
+      "path": "Painéis",
+      "transform": "number",
+      "value": 69.0,
+      "artifact_hash": "34abe0961c729b2d9a0c178aa2210dd5c8b069cd108c35cd4f93598ea5e35924"
+    },
+    {
+      "id": "a_passa.contract.identity",
+      "variant": "A_PASSA",
+      "source": "contract",
+      "path": "beam_name",
+      "transform": "entity",
+      "value": "V301",
+      "artifact_hash": "35b8c55e37946ce43a2c6e7d2da097ee6359133ff1ca55c6ce87c55256cfd71a"
+    },
+    {
+      "id": "a_passa.dxf.text",
+      "variant": "A_PASSA",
+      "source": "dxf_text_blob",
+      "path": "",
+      "transform": "text",
+      "value": "V301.A",
+      "artifact_hash": "40d6398215ccdab388343251baf2f5dd6b2162a9b5b02a4a94738c8cf2181096"
+    },
+    {
+      "id": "a_passa.dxf.text_count",
+      "variant": "A_PASSA",
+      "source": "dxf_entity_count",
+      "path": "TEXT",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "40d6398215ccdab388343251baf2f5dd6b2162a9b5b02a4a94738c8cf2181096"
+    },
+    {
+      "id": "a_passa.dxf.layer_1",
+      "variant": "A_PASSA",
+      "source": "dxf_layer_count",
+      "path": "NOMENCLATURA",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "40d6398215ccdab388343251baf2f5dd6b2162a9b5b02a4a94738c8cf2181096"
+    },
+    {
+      "id": "a_passa.dxf.layer_2",
+      "variant": "A_PASSA",
+      "source": "dxf_layer_count",
+      "path": "Painéis",
+      "transform": "number",
+      "value": 69.0,
+      "artifact_hash": "40d6398215ccdab388343251baf2f5dd6b2162a9b5b02a4a94738c8cf2181096"
+    }
+  ],
+  "checks": [
+    {
+      "id": "a_para.contract_item",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "V301",
+      "right": "V301",
+      "metric": {}
+    },
+    {
+      "id": "a_para.identity_in_dxf",
+      "op": "contains",
+      "status": "PASS",
+      "reason": "contains satisfeita",
+      "left": "V301.A",
+      "right": "V301",
+      "metric": {}
+    },
+    {
+      "id": "a_para.has_text",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "not_equal satisfeita",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "a_para.has_layer_1",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'NOMENCLATURA' presente no DXF",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "a_para.has_layer_2",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'Painéis' presente no DXF",
+      "left": 69.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "a_passa.contract_item",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "V301",
+      "right": "V301",
+      "metric": {}
+    },
+    {
+      "id": "a_passa.identity_in_dxf",
+      "op": "contains",
+      "status": "PASS",
+      "reason": "contains satisfeita",
+      "left": "V301.A",
+      "right": "V301",
+      "metric": {}
+    },
+    {
+      "id": "a_passa.has_text",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "not_equal satisfeita",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "a_passa.has_layer_1",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'NOMENCLATURA' presente no DXF",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "a_passa.has_layer_2",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'Painéis' presente no DXF",
+      "left": 69.0,
+      "right": 0,
+      "metric": {}
+    }
+  ],
+  "provenance": {
+    "chain": [
+      "contract",
+      "dxf"
+    ],
+    "missing_dxf_metadata": false
+  },
+  "executed_at": "2026-07-13T05:50:06+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "d26c57cef68fe3ff293641a469eff8660483fda2250a8f3f6299f00de316d682",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\artifact_parity\\d2\\d26c57cef68fe3ff293641a469eff8660483fda2250a8f3f6299f00de316d682.json",
+    "total_ms": 81.354,
+    "variants": 2,
+    "fields": 10,
+    "checks": 10
+  },
+  "profile": {
+    "class": "LV",
+    "version": "1.1.0",
+    "motor": "ROBOT_LV_N3_N4",
+    "authority": "n3_structural_smoke_only; visual and semantic geometry remain separate",
+    "variant_resolution": {
+      "A_PARA": "A_PARA",
+      "A_PASSA": "A_PASSA"
+    }
+  }
+}

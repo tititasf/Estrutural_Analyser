@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-14T00:58:57.569367+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260713_215850",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.json",
+    "n1_estado_sha256": "f30b5891dd97d88e2c10faca05bc61ec1c0cdbcf99fbc1b54324a6d376de5bf2",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision"
+  },
+  "resumo": {
+    "itens": 1,
+    "n1_itens": 1,
+    "n2_itens": 1,
+    "alertas": 0,
+    "fora_de_escopo_nao_retangular": 0,
+    "classificacoes": {
+      "EXCELENTE": 1
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-14T00:58:57.569367+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "13_PAV",
+      "classe": "PIL",
+      "item": "P35",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": null,
+      "causa_descricao": "Sem divergência numérica relevante entre N1 e N2.",
+      "confianca": 0.98,
+      "evidencia": {
+        "formato": "Retangular",
+        "classificacao": "EXCELENTE",
+        "dim_delta": 0.0,
+        "faces_preenchidas_n1": 2,
+        "faces_preenchidas_n2": 4,
+        "n1": {
+          "formato": "Retangular",
+          "largura_bbox": 60.0,
+          "comprimento_bbox": 19.0,
+          "classification": "INDETERMINADO",
+          "faces_preenchidas": 2
+        },
+        "n2": {
+          "comprimento": 60.0,
+          "largura": 19.0,
+          "faces_preenchidas": 4,
+          "ficha_id": 1620,
+          "status": "draft",
+          "confianca_origem": 0.95
+        }
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "nao_reproduzido",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

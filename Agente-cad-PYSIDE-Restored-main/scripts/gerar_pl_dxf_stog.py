@@ -1086,27 +1086,21 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # ── 4. Header texts (nomenclatura layer, TEXT entities) ───────────────────
     # SCR: x=-6969 (≈x_a-49), y=280/255/230 (= base_y + 280/255/230)
     header_x = x_a - 49
-    # Níveis absolutos (m) quando o payload traz *_abs; senão usa cm/100.
+    # Níveis absolutos (m) quando o payload traz *_abs; senão os campos
+    # nivel_saida/nivel_chegada continuam na convenção legada em centímetros.
+    # Não inferir "cota absoluta" apenas porque o valor é > 20: P35 traz
+    # nivel_saida=280 cm e pd_pavimento_cm=321 cm, por exemplo.
     _ns_abs = pj.get('nivel_saida_abs', None)
     _nc_abs = pj.get('nivel_chegada_abs', None)
     try:
         _ns_show = float(_ns_abs) if _ns_abs is not None else float(nivel_saida) / 100.0
         _nc_show = float(_nc_abs) if _nc_abs is not None else float(nivel_chegada) / 100.0
-        # se valores > 20, já estão em cota de obra (ex. 852.19) → não dividir
-        if _ns_abs is None and float(nivel_saida) > 20:
-            _ns_show = float(nivel_saida)
-        if _nc_abs is None and float(nivel_chegada) > 20:
-            _nc_show = float(nivel_chegada)
-        if _ns_abs is not None and float(_ns_abs) > 20:
-            _ns_show = float(_ns_abs)
-        if _nc_abs is not None and float(_nc_abs) > 20:
-            _nc_show = float(_nc_abs)
     except Exception:
         _ns_show = float(nivel_saida) / 100.0
         _nc_show = float(nivel_chegada) / 100.0
-    _pd_show = abs(_ns_show - _nc_show)
-    if _pd_show < 0.5:  # fallback cm
-        _pd_show = pd_cm / 100.0
+    # O PD extraído do cabeçalho N2 é a autoridade da reprodução N4.
+    # A diferença entre níveis é apenas fallback para payloads N3 antigos.
+    _pd_show = pd_cm / 100.0 if pd_cm > 0.0 else abs(_ns_show - _nc_show)
     for i, txt in enumerate([
         f'CENARIOS - PD: {_pd_show:.2f}',
         f'NIVEL DE SAIDA: {_ns_show:.2f}',
@@ -1127,7 +1121,16 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
 
         # Painéis — N2 pattern: C/D faces are taller than A/B (N2 verified 13°PAV)
         y0      = y_bot
-        h1      = float(pj.get(f'h1_geom_{fid}', pj.get(f'h1_{fid}', H1_DEFAULT)))
+        # h1_* é a cinta/offset confirmado pela ficha. h1_geom_*=0 significa
+        # apenas que o recorte explodido não tinha uma junta horizontal explícita
+        # nesse trecho; não pode apagar a cinta (P35: 2 + 122 = cota 124).
+        _h1_declared = float(pj.get(f'h1_{fid}', H1_DEFAULT) or 0.0)
+        _h1_geom_raw = pj.get(f'h1_geom_{fid}', None)
+        try:
+            _h1_geom = float(_h1_geom_raw) if _h1_geom_raw is not None else None
+        except (TypeError, ValueError):
+            _h1_geom = None
+        h1 = _h1_geom if _h1_geom is not None and _h1_geom > 0.5 else _h1_declared
         h2_face = float(pj.get(f'h2_{fid}', 244.0))
         h_low   = h1 + h2_face / 2.0   # first sub-panel boundary
         y_low   = y0 + h_low
@@ -1450,6 +1453,31 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             msp.add_line((x_right, y_mid_face), (x_left, y_mid_face), dxfattribs={'layer': 'Painéis'})
             entity_count += 2
 
+        # Contrato N3: o corpo abaixo da primeira abertura é painel sólido e
+        # recebe a mesma leitura ANSI31 usada pela referência N2/N4. A regra
+        # deriva apenas da geometria publicada no payload: sem abertura,
+        # hachura até o topo do painel; com abertura, até o menor fundo de vão.
+        # N2 é tratado separadamente no bloco de reprodução de sua malha.
+        if isinstance(pj.get('_sa_mode_contract'), dict):
+            _solid_n3_top = panel_top_face
+            if _aberturas:
+                _solid_n3_top = min(
+                    _solid_n3_top,
+                    min(float(_ab['y_bot']) for _ab in _aberturas),
+                )
+            if _solid_n3_top > y_bot + 0.5:
+                hatch_rect(
+                    msp,
+                    x_left,
+                    y_bot,
+                    x_right - x_left,
+                    _solid_n3_top - y_bot,
+                    'Hachura',
+                    pattern='ANSI31',
+                    scale=1.0,
+                )
+                entity_count += 1
+
         # ── 5d. Retângulo da zona de laje (acima do painel → até nível superior) ───
         # Com aberturas A/B o contorno do vazio é COTA parcial (void_outer NOVA) +
         # stubs; NÃO desenhar retângulo full-width (manual A não tem H88 COTA no topo).
@@ -1648,7 +1676,76 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             )
             # Cotas N2/N3 a partir dos intervals LÓGICOS (+ parts se unido)
             _iv_src = [float(x) for x in (_iv_logical or _intervals)]
-            if _totals_n3:
+            _is_n2_reference_mesh = (
+                not isinstance(pj.get('_sa_mode_contract'), dict)
+                and not _totals_n3
+                and bool(_iv_src)
+            )
+            if _is_n2_reference_mesh:
+                # No N2 humano, as duas faixas curtas finais são partes do
+                # painel (ex. 26+15=41), não degraus da cadeia principal.
+                # A primeira cota principal inclui a cinta: 2+122=124 (A/B)
+                # ou 2+219=221 (C/D). A geometria continua usando todas as
+                # fronteiras extraídas; muda somente a semântica da cota.
+                _tail_parts = []
+                _major_iv = list(_iv_src)
+                if (
+                    len(_iv_src) >= 3
+                    and _iv_src[-1] <= 60.0
+                    and _iv_src[-2] <= 60.0
+                ):
+                    _tail_parts = _iv_src[-2:]
+                    _major_iv = _iv_src[:-2]
+
+                _y_cursor = y0 + h1
+                for _i, _iv in enumerate(_major_iv):
+                    _y_n = min(round(_y_cursor + float(_iv), 4), y_top)
+                    if _i == 0:
+                        dim_specs.append((y_bot, _y_n, _LVL2))
+                    else:
+                        dim_specs.append((_y_cursor, _y_n, _LVL2))
+                    _y_cursor = _y_n
+                    _mod_ys.append(_y_n)
+
+                # Corpo sólido do painel no N2: ANSI31 até o fim da cadeia
+                # principal. As faixas curtas finais (partes 26/15, etc.) ficam
+                # fora dessa hachura, exatamente como no desenho humano.
+                _solid_panel_top = y0 + h1 + sum(_major_iv)
+                if _solid_panel_top > y_bot + 0.5:
+                    hatch_rect(
+                        msp,
+                        x_left,
+                        y_bot,
+                        x_right - x_left,
+                        _solid_panel_top - y_bot,
+                        'Hachura',
+                        pattern='ANSI31',
+                        scale=1.0,
+                    )
+                    entity_count += 1
+
+                if _tail_parts:
+                    _tail_y = y0 + h1 + sum(_major_iv)
+                    _tail_total = sum(_tail_parts)
+                    msp.add_text(f'{_tail_total:g}', dxfattribs={
+                        'layer': 'Painéis',
+                        'insert': (x_dim + _LVL2, _tail_y + _tail_total / 2.0),
+                        'height': 10,
+                        'rotation': 90,
+                    })
+                    entity_count += 1
+                    _part_y = _tail_y
+                    for _part in _tail_parts:
+                        msp.add_text(f'{_part:g}', dxfattribs={
+                            'layer': 'Painéis',
+                            'insert': (x_dim + _LVL1, _part_y + _part / 2.0),
+                            'height': 10,
+                            'rotation': 90,
+                        })
+                        entity_count += 1
+                        _part_y += _part
+                        _mod_ys.append(_part_y)
+            elif _totals_n3:
                 for _t in _totals_n3:
                     _ya = y0 + h1 + float(_t['y0_rel'])
                     _yb = y0 + h1 + float(_t['y1_rel'])

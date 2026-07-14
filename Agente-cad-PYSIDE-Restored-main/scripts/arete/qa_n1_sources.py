@@ -56,7 +56,7 @@ CLASS_SOURCES: dict[str, ClassSource] = {
         table="beams", payload_column="data_json",
         source_columns={
             "payload": "data_json", "links": "links_json",
-            "sides": "sides_data_json",
+            "sides": "sides_data_json", "geometry": "data_json",
         },
         allowed_paths={
             "payload": (
@@ -66,6 +66,7 @@ CLASS_SOURCES: dict[str, ClassSource] = {
                 "lv_generation_contracts.*", "lv_interpreter_contract_version",
             ),
             "links": ("viga_a_*", "viga_b_*", "apoios.*", "name.*"),
+            "geometry": ("geometry.*",),
             "sides": ("*",),
         },
     ),

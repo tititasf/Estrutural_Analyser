@@ -1,0 +1,25 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "PIL",
+  "item": "P35",
+  "nivel": "N3",
+  "generated_at": "2026-07-14T04:01:57",
+  "artifacts": [
+    {
+      "label": "ABCD_PASSA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n3_variants\\passa\\PL_ABCD_preview_P35.dxf",
+      "dxf_sha256": "bc43699e046c2d41ed99ef137ff1330b48db209a1f68b7078460f786b38ce043",
+      "svg_sha256": "3b2f8b1afd27f5821f46abb7fac1f0ae755726a4cec55b5072e486dd5632a38a",
+      "json": null,
+      "json_sha256": null,
+      "contract": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n3_variants\\passa\\P35.json",
+      "contract_sha256": "769cfeb73b61bfb38ca67432804218dba12c597a14c9c1c44003f5412a2f2f7c",
+      "render_cache_hit": false,
+      "render_cache_key": "6a0d641c86fb2a5a5c6bcad6099e8df29325026b8980bdd1a99a4a8f2b926f27"
+    }
+  ],
+  "input_signature": "98f2fb3e0f0d5ba2b28c7ebf841cb47ad51555f41e31f00d3f9cb4788df78b0a",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write",
+  "html": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\fichas_motor\\P35_N3_PASSA_20260714_after_contract\\index.html",
+  "html_sha256": "3f6dec808f848b00f54dfe8a0f39fc0cd643a9fc63cf1f73f9f977150acc2ec0"
+}

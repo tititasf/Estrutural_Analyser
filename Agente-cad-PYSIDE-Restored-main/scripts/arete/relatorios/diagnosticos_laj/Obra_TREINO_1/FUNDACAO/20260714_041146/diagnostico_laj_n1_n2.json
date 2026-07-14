@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "gerado_em": "2026-07-14T07:11:47.146029+00:00",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "FUNDACAO",
+  "run_id": "20260714_041146",
+  "fontes": {
+    "n1_estado": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\estado_TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA_lajes.json",
+    "n1_estado_sha256": "fd5fbb675b3fa898313ac32938e7a22f86dd659572bf9ff8cd3c59ffa69bab32",
+    "n2_db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+    "n4_human_locked_overrides": 0
+  },
+  "resumo": {
+    "itens": 1,
+    "n1_itens": 1,
+    "n2_itens": 0,
+    "alertas": 1,
+    "classificacoes": {
+      "INDETERMINADO": 1
+    }
+  },
+  "itens": [
+    {
+      "data": "2026-07-14T07:11:47.146029+00:00",
+      "obra": "Obra_TREINO_1",
+      "pavimento": "FUNDACAO",
+      "classe": "LAJ",
+      "item": "LR1",
+      "marcado_por": "auto",
+      "nota_original": null,
+      "causa_raiz": "schema_gap",
+      "causa_descricao": "Item presente apenas no N1; falta ficha LAJ correspondente no N2.",
+      "confianca": 0.99,
+      "evidencia": {
+        "classificacao": "INDETERMINADO",
+        "dim_delta": null,
+        "geometria": null,
+        "n1": {
+          "largura_bbox": 134.50384100000065,
+          "comprimento_bbox": 209.985506,
+          "points": [
+            [
+              4481.191,
+              3192.876254
+            ],
+            [
+              4400.191,
+              3177.348554
+            ],
+            [
+              4400.191,
+              3285.858
+            ],
+            [
+              4435.191285,
+              3285.858
+            ],
+            [
+              4515.469591,
+              3285.858
+            ],
+            [
+              4534.694841,
+              3285.858
+            ],
+            [
+              4534.694841,
+              3075.872494
+            ],
+            [
+              4400.191,
+              3075.872494
+            ],
+            [
+              4400.191,
+              3123.706254
+            ],
+            [
+              4400.191,
+              3163.093633
+            ],
+            [
+              4483.826805,
+              3179.126617
+            ],
+            [
+              4481.191,
+              3192.876254
+            ]
+          ],
+          "nivel": "",
+          "vertices": 12
+        },
+        "n2": null
+      },
+      "campos_afetados": [
+        "N1",
+        "N2"
+      ],
+      "concordancia": "pendente",
+      "status": "aberto",
+      "fix_aplicado": null,
+      "verificado_em": null
+    }
+  ]
+}

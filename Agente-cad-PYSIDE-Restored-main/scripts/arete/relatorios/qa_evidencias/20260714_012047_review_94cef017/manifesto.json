@@ -1,0 +1,57 @@
+{
+  "authority": "read_only; only LAJ has a validation-ready apply path; all other decisions remain non-mutating",
+  "classe": "FV",
+  "classes": [
+    "FV"
+  ],
+  "created_at": "2026-07-14T04:20:47+00:00",
+  "db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+  "items": [
+    "V301",
+    "V305",
+    "V306",
+    "V307",
+    "V311"
+  ],
+  "mode": "global_read_only_review",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "rag": {
+    "consultations": {
+      "FV": 43
+    },
+    "filters": {
+      "family": null,
+      "field": null,
+      "limit": 50,
+      "obra": null,
+      "pav": null,
+      "tiers": null
+    },
+    "mode": "auto",
+    "policy": "consultative_only; RAG never proves a field or authorizes apply"
+  },
+  "run_id": "20260714_012047_review_94cef017",
+  "schema_version": 1,
+  "snapshots": {
+    "V301": {
+      "hash": "c889487e0aabbc2d554965d43b4ea75a32da5b335878672ae613002d50e9e52e",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_1"
+    },
+    "V305": {
+      "hash": "f2aa04d5f7849f72aa12fe495bffc3ba42dbf03e338232a4d3e9330ca6557438",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_5"
+    },
+    "V306": {
+      "hash": "c8f0db958e3b260036905da7f7b0679eded0484e209fd9008cdcc5ae1e76b120",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_6"
+    },
+    "V307": {
+      "hash": "0747516e79ad61c08ce4215ea05b5ad7b2aa90c14dfaa3034ac9b99d3ceebc0d",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_7"
+    },
+    "V311": {
+      "hash": "a01ccf3d4b240b93079676416539498fca1f64a716b9283c66a934c47e652c1b",
+      "id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12"
+    }
+  }
+}

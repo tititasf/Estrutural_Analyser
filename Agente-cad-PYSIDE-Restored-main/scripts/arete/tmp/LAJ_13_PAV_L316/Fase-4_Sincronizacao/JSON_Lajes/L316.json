@@ -54,15 +54,26 @@
     "source": "structural_analyzer",
     "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
     "id_item": "16",
-    "validated_fields": [],
-    "validated_link_classes": {},
-    "n3_line_source": "learned_n4_patterns",
-    "n3_pattern_nome": "L316",
-    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L316",
-    "n3_pattern_score": 0.0,
-    "n3_exact_geometry_from_validated_pattern": true,
+    "validated_fields": [
+      "laje_islands",
+      "laje_outline_segs",
+      "laje_dim",
+      "name"
+    ],
+    "validated_link_classes": {
+      "name": [
+        "label"
+      ],
+      "laje_dim": [
+        "label"
+      ],
+      "laje_outline_segs": [
+        "contour"
+      ]
+    },
     "n3_source": "structural_analyzer_n1",
-    "n3_teacher": null
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false
   },
   "apoios_hachurados": [
     {

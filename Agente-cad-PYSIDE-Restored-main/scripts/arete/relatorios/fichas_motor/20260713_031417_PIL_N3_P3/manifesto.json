@@ -1,0 +1,61 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "PIL",
+  "item": "P3",
+  "nivel": "N3",
+  "generated_at": "2026-07-13T03:14:20",
+  "artifacts": [
+    {
+      "label": "ABCD_PARA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\PL_ABCD_preview_P3.dxf",
+      "dxf_sha256": "2a6ac9c78f062aeaca14a4036acb8ef126d253ccc1fcd6e09a76bc64dfd93727",
+      "svg_sha256": "d953427a81126554d1358b068121351a886f20de6812445e8a28d6ad69e395c3",
+      "json": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\P3.json",
+      "json_sha256": "79bc9dbde5bd774432a069225341504e33a3a70c7ce2412ad79fa1dec189bfab",
+      "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\P3.json",
+      "contract_sha256": "79bc9dbde5bd774432a069225341504e33a3a70c7ce2412ad79fa1dec189bfab",
+      "render_cache_hit": false,
+      "render_cache_key": "469244763540ad6dc949834e0614030898b4148b2d7447b655ba1cf4ca7b4c8f"
+    },
+    {
+      "label": "ABCD_PASSA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\PL_ABCD_preview_P3.dxf",
+      "dxf_sha256": "31fa6a4e3497882e352369e84814a191a7280888a6d7104b00259ca5a98eb709",
+      "svg_sha256": "ce2b7ebf00532ce9c30253f9a76e0ec49d4f30aefdab37dfbff3183a82b7c30b",
+      "json": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\P3.json",
+      "json_sha256": "c1e74a61e9085c7b96570b20cc63a8d41494c1e12011b17614b7841f672be70e",
+      "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\P3.json",
+      "contract_sha256": "c1e74a61e9085c7b96570b20cc63a8d41494c1e12011b17614b7841f672be70e",
+      "render_cache_hit": false,
+      "render_cache_key": "b9a06fcbe2f05c2740b1d97cf69b25696d0fb890f836aba14e8dcb64a6bbaaa6"
+    },
+    {
+      "label": "GRADES_PARA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\PL_GRADES_preview_P3.dxf",
+      "dxf_sha256": "7d6c2f7f0db51e4ec59eabdd3b296080c686b3ed809a6a3c94121af15c66e18b",
+      "svg_sha256": "8fe02a8bc6a9128a49a685a2ccb93aa8fef58c23ee878c94b534a2120f66bfdc",
+      "json": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\P3.json",
+      "json_sha256": "79bc9dbde5bd774432a069225341504e33a3a70c7ce2412ad79fa1dec189bfab",
+      "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\para\\P3.json",
+      "contract_sha256": "79bc9dbde5bd774432a069225341504e33a3a70c7ce2412ad79fa1dec189bfab",
+      "render_cache_hit": false,
+      "render_cache_key": "2167aa41fbdfe5d750ec308fcdfaf9730c4e2f243d7a9ed865ec393275019e66"
+    },
+    {
+      "label": "GRADES_PASSA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\PL_GRADES_preview_P3.dxf",
+      "dxf_sha256": "0aae8b63317319531fca5d61abebac425b59de288a83b09950c59e97f3f13ac7",
+      "svg_sha256": "a301287fed00cd79c2c0a2c15f47e52fcda6940f06fddf4c487b66fa2a010016",
+      "json": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\P3.json",
+      "json_sha256": "c1e74a61e9085c7b96570b20cc63a8d41494c1e12011b17614b7841f672be70e",
+      "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_031233\\pilares\\n3_variants\\passa\\P3.json",
+      "contract_sha256": "c1e74a61e9085c7b96570b20cc63a8d41494c1e12011b17614b7841f672be70e",
+      "render_cache_hit": false,
+      "render_cache_key": "bf26892b6d6e6bbf3ece64508e66e22fc63ca421ba334d68ad6c11e25e09345c"
+    }
+  ],
+  "input_signature": "9d8e4cdd0ce994f1bbda80f3cb7618579739ba7871a761ca5a5a5c67af8f9295",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write",
+  "html": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\fichas_motor\\20260713_031417_PIL_N3_P3\\index.html",
+  "html_sha256": "3f69cfd0c79f30bb5834842cb582836fa96c79713feba5035629cbad240b5e6f"
+}

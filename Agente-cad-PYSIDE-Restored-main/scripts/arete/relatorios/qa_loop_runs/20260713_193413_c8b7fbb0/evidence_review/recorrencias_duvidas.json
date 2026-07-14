@@ -1,0 +1,22 @@
+{
+  "campos": {
+    "connections": 2,
+    "dim": 2,
+    "name": 2,
+    "p_sA_l1_n": 2,
+    "p_sA_v_passa_esq_d": 1,
+    "p_sA_v_passa_esq_n": 1,
+    "p_sB_l1_n": 2,
+    "p_sB_v_passa_dir_d": 1,
+    "p_sB_v_passa_dir_n": 1,
+    "p_sC_l1_n": 2,
+    "p_sC_v_ch1_d": 1,
+    "p_sC_v_ch1_n": 1,
+    "p_sD_l1_n": 2,
+    "p_sD_v_passa_esq_d": 2,
+    "p_sD_v_passa_esq_n": 2,
+    "pilar_segs": 2
+  },
+  "total_sessoes": 2,
+  "updated_at": "2026-07-14T17:41:57+00:00"
+}

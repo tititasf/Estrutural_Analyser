@@ -1,0 +1,13 @@
+{
+  "run_id": "20260713T200246_20d3b446b0",
+  "motor_id": "ROBOT_LV_N3_N4",
+  "version_id": "245965354288e7d6",
+  "mode": "publish",
+  "status": "published",
+  "official_path": "scripts\\arete\\tmp\\n3_v327_section_clean\\LV_preview_V327_Passa_CORTE.dxf",
+  "output_path": "scripts\\arete\\tmp\\n3_v327_section_clean\\LV_preview_V327_Passa_CORTE.dxf",
+  "baseline_sha256": null,
+  "output_sha256": "3bd9e053c7db0cc66629164da4dd70e971b4661840f0c79be926db17f660f315",
+  "effect": "new",
+  "created_at": "2026-07-13T20:02:47+00:00"
+}

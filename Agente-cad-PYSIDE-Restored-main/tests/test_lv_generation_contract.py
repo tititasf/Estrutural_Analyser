@@ -137,3 +137,24 @@ def test_v327_passa_reaches_expected_panels_from_n1_geometry_and_pillar():
     assert contracts["B"]["end_adjustment"] == 0.0
     assert contracts["A"]["total_length"] == 256.0
     assert contracts["B"]["total_length"] == 260.0
+
+
+def test_endpoint_labels_use_only_proven_local_lv_fields_not_global_fundo_links():
+    beam = {
+        "name": "V327",
+        "geometry": {"lv_dimension_text": {"text": "14/50"}},
+        "fields": {"viga_a_seg_1_end_name": "P27"},
+        "links": {
+            "apoios": {
+                "inicio": [{"name": "V328"}],
+                "fim": [{"name": "P27"}],
+            },
+            "viga_a_seg_1_comprimento_total": {
+                "seg_side_a": [_entry(260)]
+            },
+        },
+    }
+
+    contract = build_lv_generation_contracts(beam)["Para"]["A"]
+
+    assert contract["endpoint_labels"] == {"start": "", "end": "P27"}

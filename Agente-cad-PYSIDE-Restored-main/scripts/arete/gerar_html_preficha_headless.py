@@ -413,11 +413,23 @@ def main() -> None:
     # fila): este script também renderiza matplotlib pesado e escreve nas
     # mesmas pastas de saída — nunca rodar em paralelo com a análise completa.
     try:
-        from scripts.arete.single_instance import acquire_lock, wait_for_lock
+        from scripts.arete.single_instance import acquire_lock, wait_for_lock, release_lock
     except ImportError:
-        from single_instance import acquire_lock, wait_for_lock
-    _lock, _holder = (wait_for_lock if args.wait else acquire_lock)('headless_sa')
-    if _lock is None:
+        from single_instance import acquire_lock, wait_for_lock, release_lock
+    _lock_names = (
+        'headless_sa_global', 'headless_sa_pil', 'headless_sa_laj',
+        'headless_sa_fv', 'headless_sa_lv',
+    )
+    _locks = []
+    _holder = None
+    for _lock_name in _lock_names:
+        _lock, _holder = (wait_for_lock if args.wait else acquire_lock)(_lock_name)
+        if _lock is None:
+            break
+        _locks.append(_lock)
+    if len(_locks) != len(_lock_names):
+        for _acquired in reversed(_locks):
+            release_lock(_acquired)
         print('[FICHAS] ABORTADO: outro headless em execução (proteção anti-OOM).', flush=True)
         if _holder:
             print(f'[FICHAS] Instância ativa: {_holder}', flush=True)

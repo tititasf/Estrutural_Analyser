@@ -36,10 +36,20 @@ def test_intervals_long_vs_short_faces():
     assert paineis_intervals_for_face(
         face_id="C", height_cm=304, h1_cm=2, top_void_cm=120, has_side_openings=False
     ) == [182.0]
-    # C com abertura lateral: pilha completa
+    # C com abertura lateral e sem void publicado: pilha completa (o
+    # chamador zera o void de laje nas faces com abertura)
+    assert paineis_intervals_for_face(
+        face_id="C", height_cm=304, h1_cm=2, top_void_cm=0.0, has_side_openings=True
+    ) == [122.0, 122.0, 58.0]
+    # Void publicado desconta a pilha em QUALQUER face (viga que passa
+    # ocupa o topo): A longa com void 55 em PD 280 → painel útil 223.
+    assert paineis_intervals_for_face(
+        face_id="A", height_cm=280, h1_cm=2, top_void_cm=55
+    ) == [122.0, 101.0]
+    # C com abertura lateral mas void de viga repassado: também desconta.
     assert paineis_intervals_for_face(
         face_id="C", height_cm=304, h1_cm=2, top_void_cm=120, has_side_openings=True
-    ) == [122.0, 122.0, 58.0]
+    ) == [122.0, 60.0]
 
 
 def test_top_void_from_n2_residual_and_beam_dim():
@@ -74,6 +84,110 @@ def test_opening_y_rel_preserves_mid_openings():
     ab2 = {"lado": "direito", "altura": 124.0, "y_rel": 177.8}
     y2 = normalize_opening_y_rel(ab2, height_cm=304, h1_cm=2)
     assert abs(y2 - (304 - 2 - 124)) < 0.5
+
+
+def test_passa_contract_opening_is_aligned_to_panel_top():
+    """PASSA: abertura derivada da viga termina no topo, sem vazio intermediario."""
+    pj = {
+        "nome": "PPASSA",
+        "altura": 280.0,
+        "h1_A": 2.0,
+        "abertura_A_1": {
+            "lado": "direito",
+            "largura": 11.0,
+            "altura": 59.0,
+            "y_rel": 164.0,
+            "_origem": "AD",
+        },
+        "modo_distribuicao": "NOVA",
+        "_sa_mode_variant": "PASSA",
+        "_sa_mode_contract": {
+            "modo_semantico": "PASSA",
+            "faces": {"A": {}, "B": {}, "C": {}, "D": {}},
+        },
+    }
+
+    out = enrich_payload_for_abcd_nova(pj)
+
+    assert out["abertura_A_1"]["y_rel"] == pytest.approx(219.0)
+    assert out["abertura_A_1"]["y_rel"] + out["abertura_A_1"]["altura"] == pytest.approx(278.0)
+
+
+def test_beam_top_void_shrinks_long_faces_in_passa():
+    """Vazio de topo publicado por VIGA desconta a pilha também em A/B.
+
+    Contrato PASSA (caso P35): vazio_topo=55 com fonte viga_que_passa em
+    A/B/D → painel útil 223 em todas; abertura de canto continua alinhada
+    ao topo da face.
+    """
+    beam_void = {
+        "valor_cm": 55.0,
+        "fonte": "viga_que_passa",
+        "evidencia": "viga 19/55 corre ao longo da face",
+    }
+    pj = {
+        "nome": "PVOID",
+        "altura": 280.0,
+        "h1_A": 2.0,
+        "h1_B": 2.0,
+        "h1_C": 2.0,
+        "h1_D": 2.0,
+        "abertura_A_1": {
+            "lado": "esquerdo",
+            "largura": 11.0,
+            "altura": 59.0,
+            "y_rel": 164.0,
+            "_origem": "AC",
+        },
+        "modo_distribuicao": "NOVA",
+        "_sa_mode_variant": "PASSA",
+        "_sa_mode_contract": {
+            "modo_semantico": "PASSA",
+            "faces": {
+                "A": {"vazio_topo": dict(beam_void)},
+                "B": {"vazio_topo": dict(beam_void)},
+                "C": {"vazio_topo": {"valor_cm": 0.0, "fonte": "nulo"}},
+                "D": {"vazio_topo": dict(beam_void)},
+            },
+        },
+    }
+
+    out = enrich_payload_for_abcd_nova(pj)
+
+    assert out["paineis_intervals_A"] == [122.0, 101.0]
+    assert out["paineis_intervals_B"] == [122.0, 101.0]
+    # C curta sem abertura e sem void → painel contínuo até o topo
+    assert out["paineis_intervals_C"] == [278.0]
+    assert out["paineis_intervals_D"] == [223.0]
+    # vazio de LAJE em face longa segue sem encolher módulos
+    assert out["abertura_A_1"]["y_rel"] == pytest.approx(219.0)
+
+
+def test_laje_top_void_keeps_long_face_stack():
+    """Vazio de topo com fonte de LAJE não encolhe a pilha das faces longas."""
+    pj = {
+        "nome": "PLAJE",
+        "altura": 280.0,
+        "h1_A": 2.0,
+        "h1_B": 2.0,
+        "h1_C": 2.0,
+        "h1_D": 2.0,
+        "modo_distribuicao": "NOVA",
+        "_sa_mode_contract": {
+            "modo_semantico": "PARA",
+            "faces": {
+                "A": {"vazio_topo": {"valor_cm": 14.0, "fonte": "laje_espessura_mais_2"}},
+                "B": {"vazio_topo": {"valor_cm": 14.0, "fonte": "laje_espessura_mais_2"}},
+                "C": {},
+                "D": {},
+            },
+        },
+    }
+
+    out = enrich_payload_for_abcd_nova(pj)
+
+    assert out["paineis_intervals_A"] == [122.0, 122.0, 34.0]
+    assert out["paineis_intervals_B"] == [122.0, 122.0, 34.0]
 
 
 def test_enrich_any_item_not_only_p1():
@@ -121,6 +235,7 @@ def test_prepare_pj_called_from_motor_zone():
 
     pj = {
         "nome": "PZ",
+        "_sa_mode_contract": {"faces": {"A": {}, "B": {}, "C": {}, "D": {}}},
         "comprimento": 66,
         "largura": 19,
         "altura": 304.0,
@@ -136,6 +251,78 @@ def test_prepare_pj_called_from_motor_zone():
     n = generate_pilar_zone(doc.modelspace(), pj, "abcd", visual_mode="NOVA")
     assert n > 10
     assert pj["paineis_intervals_A"] == [122.0, 122.0, 58.0]
+
+
+def test_n2_mesh_is_preserved_for_n4_reproduction():
+    """Payload N2 sem contrato SA mantém a malha medida no desenho humano."""
+    pj = {
+        "nome": "PN2",
+        "altura": 280.0,
+        "h1_A": 2.0,
+        "h2_A": 244.0,
+        "h3_A": 34.0,
+        "paineis_intervals_A": [122.0, 97.0, 26.0, 15.0],
+        "paineis_intervals_B": [122.0, 97.0, 26.0, 15.0],
+        "paineis_intervals_C": [219.0, 26.0, 15.0],
+        "paineis_intervals_D": [219.0, 26.0, 15.0],
+    }
+
+    out = enrich_payload_for_abcd_nova(pj)
+
+    assert out["paineis_intervals_A"] == [122.0, 97.0, 26.0, 15.0]
+    assert out["paineis_intervals_B"] == [122.0, 97.0, 26.0, 15.0]
+    assert out["paineis_intervals_C"] == [219.0, 26.0, 15.0]
+    assert out["paineis_intervals_D"] == [219.0, 26.0, 15.0]
+    # h2/h3 também são fatos extraídos; não podem ser recalculados pelo N4.
+    assert out["h2_A"] == 244.0
+    assert out["h3_A"] == 34.0
+
+
+def test_n4_n2_reference_uses_pd_h1_and_panel_part_semantics():
+    """N4 deve reproduzir as cotas do N2, não reinterpretar seus intervalos."""
+    from gerar_pl_dxf_stog import generate_pilar_zone, setup_doc
+
+    pj = {
+        "nome": "PN2",
+        "comprimento": 60.0,
+        "largura": 19.0,
+        "altura": 280.0,
+        "pd_pavimento_cm": 321.0,
+        "nivel_saida": 280.0,
+        "nivel_chegada": 0.0,
+    }
+    for face in "ABCD":
+        pj[f"h1_{face}"] = 2.0
+        pj[f"h1_geom_{face}"] = 0.0
+        pj[f"larg1_{face}"] = 60.0 if face in "AB" else 19.0
+    pj["paineis_intervals_A"] = [122.0, 97.0, 26.0, 15.0]
+    pj["paineis_intervals_B"] = [122.0, 97.0, 26.0, 15.0]
+    pj["paineis_intervals_C"] = [219.0, 26.0, 15.0]
+    pj["paineis_intervals_D"] = [219.0, 26.0, 15.0]
+
+    doc = setup_doc()
+    msp = doc.modelspace()
+    assert generate_pilar_zone(msp, pj, "abcd", visual_mode="NOVA") > 10
+
+    texts = [entity.dxf.text for entity in msp.query("TEXT")]
+    assert "CENARIOS - PD: 3.21" in texts
+    assert "NIVEL DE SAIDA: 2.80" in texts
+    assert texts.count("41") >= 2
+    assert texts.count("26") >= 4
+    assert texts.count("15") >= 4
+
+    measurements = [round(float(entity.get_measurement()), 1)
+                    for entity in msp.query("DIMENSION")]
+    assert measurements.count(2.0) >= 4
+    assert measurements.count(124.0) >= 2
+    assert measurements.count(221.0) >= 2
+    assert measurements.count(59.0) >= 4
+    assert 61.0 not in measurements
+
+    panel_hatches = [entity for entity in msp.query("HATCH")
+                     if entity.dxf.layer == "Hachura"]
+    assert len(panel_hatches) == 4
+    assert all(entity.dxf.pattern_name == "ANSI31" for entity in panel_hatches)
 
 
 def test_dual_laje_infers_rebaixo_forma_strip():

@@ -1,6 +1,6 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-14 01:33:17
+**Gerado em:** 2026-07-14 02:43:47  
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 

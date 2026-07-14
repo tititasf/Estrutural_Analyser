@@ -4,6 +4,15 @@ from pathlib import Path
 from src.ui.widgets.pre_validation_dialog import PreValidationDialog
 
 
+def test_analysis_state_path_is_scoped_for_headless_class():
+    dialog = PreValidationDialog.__new__(PreValidationDialog)
+    dialog._obra = 'Obra_TREINO_1'
+    dialog._pavimento = '13_PAV'
+    assert dialog._analysis_state_path().endswith('estado_13_PAV.json')
+    dialog._headless_run_scope = 'pilares'
+    assert dialog._analysis_state_path().endswith('estado_13_PAV_pilares.json')
+
+
 def _make_db(tmp_path: Path) -> str:
     db_path = str(tmp_path / "project_data.vision")
     conn = sqlite3.connect(db_path)

@@ -238,17 +238,47 @@ def load_n2_slabs(
         raise FileNotFoundError(f"DB N2 não encontrado: {path}")
     connection = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
     try:
+        # A ficha N2 e o recorte humano têm ciclos de vida independentes.  Em
+        # especial, o operador pode aprovar visualmente o DXF do recorte e só
+        # depois atualizar os campos derivados em ``reverse_eng_fichas``.  Não
+        # podemos atribuir ao N1 uma divergência calculada a partir desses
+        # campos ainda ``draft``.  A junção usa projeto + elemento (ambos
+        # persistidos), nunca nome de pavimento/obra inferido do path.
+        has_recortes = bool(
+            connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' "
+                "AND name='reverse_eng_recortes'"
+            ).fetchone()
+        )
+        recorte_provenance = (
+            "COALESCE((SELECT MAX(CASE WHEN r.status='aprovado' THEN 1 ELSE 0 END) "
+            "FROM reverse_eng_recortes r "
+            "WHERE r.obra_name=f.obra_name AND r.classe=f.classe "
+            "AND r.projeto_id=f.projeto_id AND r.elemento_id=f.elemento_id), 0) "
+            "AS recorte_humano_aprovado"
+            if has_recortes
+            else "0 AS recorte_humano_aprovado"
+        )
         rows = connection.execute(
-            "SELECT id, elemento_id, pavimento, campos_json, status, confianca "
-            "FROM reverse_eng_fichas WHERE obra_name=? AND classe='LAJ' "
-            "ORDER BY id DESC",
+            "SELECT f.id, f.elemento_id, f.pavimento, f.campos_json, f.status, "
+            f"f.confianca, {recorte_provenance} "
+            "FROM reverse_eng_fichas f WHERE f.obra_name=? AND f.classe='LAJ' "
+            "ORDER BY f.id DESC",
             (obra,),
         ).fetchall()
     finally:
         connection.close()
 
     slabs: dict[str, dict] = {}
-    for row_id, item, row_pavimento, raw_json, status, confidence in rows:
+    for (
+        row_id,
+        item,
+        row_pavimento,
+        raw_json,
+        status,
+        confidence,
+        recorte_humano_aprovado,
+    ) in rows:
         name = str(item or "").strip().upper()
         if not name or name in slabs or not same_pavimento(str(row_pavimento or ""), pavimento):
             continue
@@ -264,6 +294,7 @@ def load_n2_slabs(
             "ficha_id": row_id,
             "status": status,
             "confianca_origem": as_float(confidence),
+            "recorte_humano_aprovado": bool(recorte_humano_aprovado),
         }
     return slabs
 
@@ -356,6 +387,25 @@ def diagnose_item(
             "Item presente apenas no N2; falta representação de laje no estado N1."
             if n1 is None
             else "Item presente apenas no N1; falta ficha LAJ correspondente no N2."
+        )
+        confidence = 0.99
+    elif (
+        n2.get("recorte_humano_aprovado")
+        and str(n2.get("status") or "").strip().casefold() != "aprovado"
+        and quality in {"REGULAR", "RUIM"}
+    ):
+        # O recorte é a evidência humana, mas os campos da ficha ainda são um
+        # snapshot técnico local.  Não é lícito transformar esta diferença em
+        # bug do N1 nem ensinar o SlabTracer com N2.  A próxima ação é
+        # materializar/revalidar os campos N2 a partir do recorte aprovado e
+        # então rodar novamente o comparador canônico.
+        cause = "n2_ficha_geometria_desatualizada"
+        description = (
+            "O recorte N2 está aprovado humanamente, mas os campos geométricos "
+            "da ficha N2 ainda estão em status draft. A divergência numérica é "
+            "evidência de proveniência desatualizada, não prova de contorno N1 "
+            "errado. Regerar/revalidar os campos N2 a partir do recorte aprovado "
+            "e executar novamente N1×N2; não copiar geometria N2 para N1."
         )
         confidence = 0.99
     elif quality in {"REGULAR", "RUIM"}:

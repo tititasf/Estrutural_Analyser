@@ -7,23 +7,23 @@
       423.0
     ],
     [
-      182.5,
+      182.62,
       423.0
     ],
     [
-      182.5,
-      613.0
+      182.62,
+      594.0
     ],
     [
       0.0,
-      613.0
+      594.0
     ],
     [
       0.0,
       150.51
     ],
     [
-      158.85,
+      158.96,
       0.04
     ],
     [
@@ -36,8 +36,8 @@
     ]
   ],
   "comprimento": 405.5,
-  "largura": 613.0,
-  "area_cm2": 194240.19,
+  "largura": 594.0,
+  "area_cm2": 190783.94,
   "modo_selecionado": 0,
   "linhas_verticais": [
     {
@@ -74,19 +74,30 @@
     "source": "structural_analyzer",
     "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
     "id_item": "19",
-    "validated_fields": [],
-    "validated_link_classes": {},
-    "n3_line_source": "learned_n4_patterns",
-    "n3_pattern_nome": "L319",
-    "n3_pattern_source": "N4_DXF:Obra_TREINO_1:L319",
-    "n3_pattern_score": 0.053,
-    "n3_exact_geometry_from_validated_pattern": true,
+    "validated_fields": [
+      "name",
+      "laje_islands",
+      "laje_outline_segs",
+      "laje_dim",
+      "laje_nivel"
+    ],
+    "validated_link_classes": {
+      "name": [
+        "label"
+      ],
+      "laje_dim": [
+        "label"
+      ],
+      "laje_nivel": [
+        "label"
+      ],
+      "laje_outline_segs": [
+        "contour"
+      ]
+    },
     "n3_source": "structural_analyzer_n1",
-    "n3_teacher": null
-  },
-  "_stog_pose": {
-    "x": 2741.57,
-    "y": 1667.94
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false
   },
   "apoios_hachurados": [
     {
@@ -331,6 +342,10 @@
     }
   ],
   "pontaletes": {},
+  "_stog_pose": {
+    "x": 2741.57,
+    "y": 1667.94
+  },
   "_forma_canonica": {
     "cotas_valor": [
       20.0,

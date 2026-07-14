@@ -1,0 +1,134 @@
+{
+  "schema": "arete.qa_profile_probe_result/v1",
+  "overall": "PENDENTE",
+  "scope_authority": "field_checks_only; unresolved cross-class reference",
+  "profile": {
+    "class": "PIL",
+    "version": "1.1.0",
+    "probe": "face_beam_identity_dimension_contact"
+  },
+  "reason": "referência cross-classe ausente: pil.face.beam_name",
+  "preflight": {
+    "schema": "arete.qa_n1_field_probe_result/v1",
+    "engine_version": "1.3.0",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "question": "Resolver entidades relacionadas para face_beam_identity_dimension_contact",
+    "overall": "FAIL",
+    "scope_authority": "field_checks_only; never validates full item or ficha",
+    "fields": [
+      {
+        "id": "pil.face.beam_name",
+        "class": "PIL",
+        "item": "P3",
+        "source": "payload",
+        "path": "p_sD_v_passa_esq_n.label.0.text",
+        "transform": "entity",
+        "value": null,
+        "overridden": false,
+        "snapshot_hash": "c32bffbaa1efbf968d5530a9dbb2dcabb7fa7ecac03913998a99d16d25d8cdbe",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "pil.face.beam_dim",
+        "class": "PIL",
+        "item": "P3",
+        "source": "payload",
+        "path": "p_sD_v_passa_esq_d.label.0.text",
+        "transform": "dimension",
+        "value": [
+          14.0,
+          55.0
+        ],
+        "overridden": false,
+        "snapshot_hash": "c32bffbaa1efbf968d5530a9dbb2dcabb7fa7ecac03913998a99d16d25d8cdbe",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "pil.face.trace",
+        "class": "PIL",
+        "item": "P3",
+        "source": "payload",
+        "path": "p_sD_v_passa_esq_n.label.0",
+        "transform": "trace",
+        "value": false,
+        "overridden": false,
+        "snapshot_hash": "c32bffbaa1efbf968d5530a9dbb2dcabb7fa7ecac03913998a99d16d25d8cdbe",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "pil.bbox",
+        "class": "PIL",
+        "item": "P3",
+        "source": "geometry",
+        "path": "",
+        "transform": "bbox",
+        "value": [
+          2040.3825,
+          3141.038,
+          2059.3825,
+          3207.038
+        ],
+        "overridden": false,
+        "snapshot_hash": "c32bffbaa1efbf968d5530a9dbb2dcabb7fa7ecac03913998a99d16d25d8cdbe",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "resolve:pil.face.beam_name",
+        "op": "present",
+        "status": "FAIL",
+        "reason": "present divergente",
+        "left": null,
+        "right": null,
+        "metric": {}
+      }
+    ],
+    "snapshots": {
+      "PIL:P3": "c32bffbaa1efbf968d5530a9dbb2dcabb7fa7ecac03913998a99d16d25d8cdbe"
+    },
+    "provenance": {
+      "allowed": "persisted N1 + explicit candidate overlay",
+      "forbidden": "N2/N4 as N1 proof or N3 input",
+      "cross_class": [
+        "PIL"
+      ]
+    },
+    "executed_at": "2026-07-13T06:24:39+00:00",
+    "runtime": {
+      "cache_hit": false,
+      "cache_key": "01248f7a62d20d399f32785dce8a4ccd6cc141dd2d05a76005b1d786aa3f23da",
+      "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\01\\01248f7a62d20d399f32785dce8a4ccd6cc141dd2d05a76005b1d786aa3f23da.json",
+      "db_load_ms": 23.444,
+      "evaluation_ms": 0.489,
+      "total_ms": 23.914,
+      "loaded_rows": 1,
+      "requested_fields": 4,
+      "requested_checks": 1
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "schema": "arete.qa_artifact_parity_result/v1",
+  "engine_version": "1.1.0",
+  "question": "Smoke N3 LAJ:L319: identidade do contrato chega ao DXF e as camadas mínimas existem?",
+  "overall": "PASS",
+  "scope_authority": "declared_artifact_fields_only; visual reading remains separate",
+  "variants": {
+    "OBSTACULOS": {
+      "paths": {
+        "contract": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-4_Sincronizacao\\JSON_Lajes\\L319.json",
+        "dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\LJ_preview_L319.dxf"
+      },
+      "hashes": {
+        "contract": "c841c7e630f61e7a4f7d2199df55daf059991917d0d2a7f5e8035bbb00601745",
+        "dxf": "f4a7736f4cc5086a38c87670b1efc81be6e90181fb1f002ff728dc78173fdcc7"
+      }
+    }
+  },
+  "fields": [
+    {
+      "id": "obstaculos.contract.identity",
+      "variant": "OBSTACULOS",
+      "source": "contract",
+      "path": "nome",
+      "transform": "entity",
+      "value": "L319",
+      "artifact_hash": "c841c7e630f61e7a4f7d2199df55daf059991917d0d2a7f5e8035bbb00601745"
+    },
+    {
+      "id": "obstaculos.dxf.text",
+      "variant": "OBSTACULOS",
+      "source": "dxf_text_blob",
+      "path": "",
+      "transform": "text",
+      "value": "L319",
+      "artifact_hash": "f4a7736f4cc5086a38c87670b1efc81be6e90181fb1f002ff728dc78173fdcc7"
+    },
+    {
+      "id": "obstaculos.dxf.text_count",
+      "variant": "OBSTACULOS",
+      "source": "dxf_entity_count",
+      "path": "TEXT",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "f4a7736f4cc5086a38c87670b1efc81be6e90181fb1f002ff728dc78173fdcc7"
+    },
+    {
+      "id": "obstaculos.dxf.layer_1",
+      "variant": "OBSTACULOS",
+      "source": "dxf_layer_count",
+      "path": "NOMENCLATURA",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "f4a7736f4cc5086a38c87670b1efc81be6e90181fb1f002ff728dc78173fdcc7"
+    },
+    {
+      "id": "obstaculos.dxf.layer_2",
+      "variant": "OBSTACULOS",
+      "source": "dxf_layer_count",
+      "path": "PAINEIS",
+      "transform": "number",
+      "value": 7.0,
+      "artifact_hash": "f4a7736f4cc5086a38c87670b1efc81be6e90181fb1f002ff728dc78173fdcc7"
+    }
+  ],
+  "checks": [
+    {
+      "id": "obstaculos.contract_item",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "L319",
+      "right": "L319",
+      "metric": {}
+    },
+    {
+      "id": "obstaculos.identity_in_dxf",
+      "op": "contains",
+      "status": "PASS",
+      "reason": "contains satisfeita",
+      "left": "L319",
+      "right": "L319",
+      "metric": {}
+    },
+    {
+      "id": "obstaculos.has_text",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "not_equal satisfeita",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "obstaculos.has_layer_1",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'NOMENCLATURA' presente no DXF",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "obstaculos.has_layer_2",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'PAINEIS' presente no DXF",
+      "left": 7.0,
+      "right": 0,
+      "metric": {}
+    }
+  ],
+  "provenance": {
+    "chain": [
+      "contract",
+      "dxf"
+    ],
+    "missing_dxf_metadata": false
+  },
+  "executed_at": "2026-07-14T05:01:50+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "2617f4a0940d6c2c0b502a603a57dd1f8324aa9c975403b3451b38270e72d20c",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\artifact_parity\\26\\2617f4a0940d6c2c0b502a603a57dd1f8324aa9c975403b3451b38270e72d20c.json",
+    "total_ms": 35.176,
+    "variants": 1,
+    "fields": 5,
+    "checks": 5
+  },
+  "profile": {
+    "class": "LAJ",
+    "version": "1.1.0",
+    "motor": "ROBOT_LJ_N3_N4",
+    "authority": "n3_structural_smoke_only; visual and semantic geometry remain separate",
+    "variant_resolution": {
+      "OBSTACULOS": "OBSTACULOS"
+    }
+  }
+}

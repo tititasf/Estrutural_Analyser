@@ -17,8 +17,9 @@
    Nunca confiar em número escrito à mão em doc.
 4. **Loop de qualidade**: usar SOMENTE o canônico — `docs/LOOPING-CANONICO.md` seção 1.
    Headless de fichas é UM só: `scripts/arete/headless_sa_analise.py` sempre com
-   `--wait` (trava anti-OOM: se outro estiver rodando, aguarde — **NUNCA finalize o
-   processo detentor**). Scripts de loop fora dessa lista = legado em quarentena.
+   `--wait`. Microciclos read-only `--secao + --item` têm filas isoladas por classe;
+   rodada completa, multiclasse ou com `--persist-db` espera todas as classes.
+   **NUNCA finalize o processo detentor.** Scripts fora dessa lista = legado em quarentena.
 5. **Motor universal (Regra de Ouro)**: zero hardcode por item/pavimento/obra — fix é
    fórmula geral a partir da ficha. Golden set: PROIBIDO selar com gate FAIL;
    regressão Arete obrigatória após qualquer toque em `gerar_*`/`motor_*`.

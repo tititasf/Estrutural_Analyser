@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "run_id": "20260714_042427",
+  "html_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260714_042512_245519_laterais_viga_12712",
+  "diagnosticos": {
+    "laterais_viga": {
+      "status": "ok",
+      "run_id": "20260714_042427",
+      "json_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_lv\\Obra_TREINO_1\\13_PAV\\20260714_042427\\diagnostico_lv_n1_n2.json",
+      "jsonl_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\diagnosticos_lv\\Obra_TREINO_1\\13_PAV\\20260714_042427\\triagem_auto_lv.jsonl",
+      "resumo": {
+        "itens": 1,
+        "n1_itens": 1,
+        "n2_itens": 1,
+        "alertas": 0,
+        "classificacoes": {
+          "EXCELENTE": 1
+        }
+      },
+      "json_relative": "../../../relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260714_042427/diagnostico_lv_n1_n2.json",
+      "jsonl_relative": "../../../relatorios/diagnosticos_lv/Obra_TREINO_1/13_PAV/20260714_042427/triagem_auto_lv.jsonl"
+    }
+  }
+}

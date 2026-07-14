@@ -69,7 +69,7 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 | Render/scoring ref | `scripts/validar_granular_nim.py` (reusar lógica; NIM vision BANIDO como scorer) |
 | Veredito visual (G2-V/N1-V/G5-V) | `scripts/arete/g2v_harness.py --backend cli` (agente lê a imagem) é OBRIGATÓRIO antes de selar/avançar qualquer gate visual — número sozinho = alucinação de aprovação (`docs/LOOPING-CANONICO.md §1.5`). **Ordem do dono (03/07): backends de API (claude/gemini/nim) DESLIGADOS/bloqueados no código** — só com `--permitir-api` + calibração. |
 | Headless de fichas — SÓ UM | **Único ponto de entrada = `scripts/arete/headless_sa_analise.py`** (análise SA completa + fichas 4 classes + diagnósticos). `gerar_html_preficha_headless.py` foi DESCONTINUADO como CLI (aborta sem `--legacy`; risco de ficha com estado velho) — segue vivo só como biblioteca do `playwright_loop`. Os demais `*headless*.py` em `scripts/` são bibliotecas/utilitários de OUTROS pipelines (`analise_geral_headless` é importado pelo próprio `main.py`) — não são alternativas de fichas. |
-| Headless — 1 por vez | Os dois de fichas compartilham trava anti-OOM (instância única, mesma fila). Em automação use SEMPRE `--wait` (aguarda a vez sozinho). Se abortar com "já existe execução": aguarde. **NUNCA finalize o processo detentor.** |
+| Headless — filas por classe | O entry point continua único. Microciclo read-only com **uma** `--secao` + `--item` usa lock isolado PIL/LAJ/FV/LV e pode coexistir com outra classe. Execução sem item, multiclasse ou com `--persist-db` adquire lock global + todas as classes. Cada microciclo grava estado e pack próprios por classe/PID. Em automação use SEMPRE `--wait`; **NUNCA finalize o processo detentor.** |
 
 ## Regras inegociáveis
 

@@ -45,6 +45,10 @@ def build_smoke_spec(
     n3 = profile.get("n3") or {}
     identity_path = str(n3.get("identity_path") or "")
     layers = [str(value) for value in n3.get("expected_layers") or []]
+    layers_by_variant = {
+        str(key): [str(value) for value in values]
+        for key, values in (n3.get("expected_layers_by_variant") or {}).items()
+    }
     if not identity_path or not layers:
         raise ValueError(f"perfil {profile.get('class')} sem identity_path/expected_layers N3")
     labels = set(contracts) | set(dxfs)
@@ -92,7 +96,10 @@ def build_smoke_spec(
             {"id": f"{prefix}.identity_in_dxf", "op": "contains", "left": text_id, "right": identity_id},
             {"id": f"{prefix}.has_text", "op": "not_equal", "left": count_id, "value": 0},
         ])
-        for index, layer in enumerate(layers, start=1):
+        variant_layers = layers_by_variant.get(label)
+        if variant_layers is None:
+            variant_layers = layers_by_variant.get(aliases.get(label, ""), layers)
+        for index, layer in enumerate(variant_layers, start=1):
             layer_id = f"{prefix}.dxf.layer_{index}"
             spec["fields"].append({
                 "id": layer_id, "variant": label, "source": "dxf_layer_count",

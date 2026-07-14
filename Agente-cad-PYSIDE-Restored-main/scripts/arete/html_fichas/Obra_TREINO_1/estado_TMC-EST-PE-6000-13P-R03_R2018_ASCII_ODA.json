@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-07-13T02:17:38",
+  "gerado_em": "2026-07-14T04:02:15",
   "obra": "Obra_TREINO_1",
   "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
   "db_path": "D:\\Agente-cad-PYSIDE\\project_data.vision",
@@ -51,7 +51,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V309A",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -116,7 +116,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V312",
-            "dim": "14/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -376,7 +376,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V320",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -441,7 +441,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -506,7 +506,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V325",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -565,7 +565,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V332",
-            "dim": "14/40"
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -635,7 +635,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V309A",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -1045,7 +1045,7 @@
           "content_type": "both",
           "viga": {
             "name": "V320",
-            "dim": "19/55"
+            "dim": "19/120"
           }
         },
         {
@@ -1055,7 +1055,7 @@
           "content_type": "both",
           "viga": {
             "name": "V320",
-            "dim": "19/55"
+            "dim": "19/120"
           }
         },
         {
@@ -1065,7 +1065,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V320",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -1076,7 +1076,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V320",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -1129,7 +1129,7 @@
           "content_type": "both",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           }
         },
         {
@@ -1139,7 +1139,7 @@
           "content_type": "both",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           }
         },
         {
@@ -1149,7 +1149,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -1160,7 +1160,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -1327,7 +1327,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V331",
-            "dim": "19/60"
+            "dim": "14/40"
           },
           "source": "beam_wall_alignment"
         },
@@ -1792,7 +1792,7 @@
           "content_type": "both",
           "viga": {
             "name": "V304",
-            "dim": "19/55"
+            "dim": "19/50"
           }
         },
         {
@@ -1808,8 +1808,8 @@
           "face": "VIGA",
           "content_type": "viga",
           "viga": {
-            "name": "V303",
-            "dim": "19/55"
+            "name": "V322",
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -1820,7 +1820,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V321",
-            "dim": "19/50"
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -1951,7 +1951,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V304",
-            "dim": "19/55"
+            "dim": "19/50"
           }
         },
         {
@@ -1967,7 +1967,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V324",
-            "dim": "19/55"
+            "dim": "19/50"
           },
           "source": "beam_wall_alignment"
         },
@@ -2039,7 +2039,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V304",
-            "dim": "19/55"
+            "dim": "19/50"
           }
         },
         {
@@ -2049,7 +2049,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V326",
-            "dim": "14/50"
+            "dim": "19/50"
           },
           "source": "beam_wall_alignment"
         },
@@ -2063,13 +2063,24 @@
             "dim": "19/60"
           },
           "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V327",
+            "dim": "14/50"
+          },
+          "source": "beam_wall_alignment"
         }
       ],
       "nivel_str": "852.19",
       "lado_A": "Laje: ?\nAltura:\nNivel:",
       "lado_B": "Laje: ?\nAltura:\nNivel:",
       "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
-      "lado_D": "nulo",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
       "atencao": ""
     },
     {
@@ -2125,7 +2136,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V306",
-            "dim": "14/55"
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -2189,8 +2200,8 @@
           "face": "VIGA",
           "content_type": "viga",
           "viga": {
-            "name": "V306",
-            "dim": "14/55"
+            "name": "VF202",
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -2254,8 +2265,8 @@
           "face": "VIGA",
           "content_type": "viga",
           "viga": {
-            "name": "V306",
-            "dim": "14/55"
+            "name": "VF202",
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -2319,8 +2330,8 @@
           "face": "VIGA",
           "content_type": "viga",
           "viga": {
-            "name": "V306",
-            "dim": "14/55"
+            "name": "VF202",
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -2384,8 +2395,8 @@
           "face": "VIGA",
           "content_type": "viga",
           "viga": {
-            "name": "V306",
-            "dim": "14/55"
+            "name": "VF202",
+            "dim": "19/55"
           },
           "source": "beam_wall_alignment"
         }
@@ -2438,7 +2449,7 @@
           "content_type": "both",
           "viga": {
             "name": "V321",
-            "dim": "19/50"
+            "dim": "19/55"
           }
         },
         {
@@ -2657,7 +2668,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2674,7 +2685,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V309A",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -2685,7 +2696,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V309A",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -2696,7 +2707,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V309A",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -2749,7 +2760,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2759,7 +2770,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2769,7 +2780,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2779,7 +2790,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2789,7 +2800,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -2800,7 +2811,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -2887,7 +2898,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -2951,7 +2962,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2961,7 +2972,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2971,7 +2982,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2981,7 +2992,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -2991,7 +3002,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -3002,7 +3013,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -3089,7 +3100,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -3153,7 +3164,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3163,7 +3174,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3173,7 +3184,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3183,7 +3194,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3193,7 +3204,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -3204,7 +3215,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -3257,7 +3268,7 @@
           "content_type": "both",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           }
         },
         {
@@ -3267,7 +3278,7 @@
           "content_type": "both",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           }
         },
         {
@@ -3291,7 +3302,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -3302,7 +3313,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V322",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -3355,7 +3366,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3365,7 +3376,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3375,7 +3386,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3385,7 +3396,7 @@
           "content_type": "both",
           "viga": {
             "name": "V301",
-            "dim": "19/50"
+            "dim": "19/120"
           }
         },
         {
@@ -3395,7 +3406,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V325",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         },
@@ -3406,7 +3417,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V325",
-            "dim": "19/55"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -3478,7 +3489,7 @@
           "content_type": "viga",
           "viga": {
             "name": "V330",
-            "dim": "14/40"
+            "dim": "19/120"
           },
           "source": "beam_wall_alignment"
         }
@@ -6243,964 +6254,127 @@
   "segmentos": {
     "fundo": [
       {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
-        "beam_name": "V308",
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
         "segment_label": "1",
         "side": "Fundo",
         "behavior": "Fundo",
-        "length": 253.0,
-        "width": "19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3888.3825,
-            1944.038
-          ],
-          [
-            4141.3825,
-            1944.038
-          ],
-          [
-            4141.3825,
-            1963.038
-          ],
-          [
-            3888.3825,
-            1963.038
-          ],
-          [
-            3888.3825,
-            1944.038
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|2|1",
-        "beam_name": "V308",
-        "segment_label": "2",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 291.0,
-        "width": "19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4201.3825,
-            1944.038
-          ],
-          [
-            4492.3825,
-            1944.038
-          ],
-          [
-            4492.3825,
-            1963.038
-          ],
-          [
-            4201.3825,
-            1963.038
-          ],
-          [
-            4201.3825,
-            1944.038
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
-        "beam_name": "V310",
-        "segment_label": "1",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 152.0,
+        "length": 260.0,
         "width": "14",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1380.3825,
-            2509.038
+            4387.3825,
+            1982.038
           ],
           [
-            1394.3825,
-            2509.038
+            4387.3825,
+            2242.038
           ],
           [
-            1394.3825,
-            2661.038
+            4401.3825,
+            2242.038
           ],
           [
-            1380.3825,
-            2661.038
+            4401.3825,
+            1982.038
           ],
           [
-            1380.3825,
-            2509.038
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
-        "beam_name": "V311",
-        "segment_label": "1",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 423.0,
-        "width": "19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1603.3825,
-            2067.038
-          ],
-          [
-            1603.3825,
-            2490.038
-          ],
-          [
-            1622.3825,
-            2490.038
-          ],
-          [
-            1622.3825,
-            2067.038
-          ],
-          [
-            1603.3825,
-            2067.038
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
-        "beam_name": "V312",
-        "segment_label": "1",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 461.0,
-        "width": "19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1603.3825,
-            2680.038
-          ],
-          [
-            1603.3825,
-            3141.038
-          ],
-          [
-            1622.3825,
-            3141.038
-          ],
-          [
-            1622.3825,
-            2680.038
-          ],
-          [
-            1603.3825,
-            2680.038
-          ]
-        ]
-      },
-      {
-        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
-        "beam_name": "V314",
-        "segment_label": "1",
-        "side": "Fundo",
-        "behavior": "Fundo",
-        "length": 382.0,
-        "width": "19",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2040.3825,
-            2759.038
-          ],
-          [
-            2040.3825,
-            3141.038
-          ],
-          [
-            2059.3825,
-            3141.038
-          ],
-          [
-            2059.3825,
-            2759.038
-          ],
-          [
-            2040.3825,
-            2759.038
+            4387.3825,
+            1982.038
           ]
         ]
       }
     ],
     "lateral_a_para": [
       {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
-        "beam_name": "V308",
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
         "segment_label": "1",
         "side": "A",
         "behavior": "Para",
-        "length": 253.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3888.3825,
-            1963.038
-          ],
-          [
-            4141.3825,
-            1963.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|2|1",
-        "beam_name": "V308",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Para",
-        "length": 291.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4201.3825,
-            1963.038
-          ],
-          [
-            4492.3825,
-            1963.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
-        "beam_name": "V310",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 192.5,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1380.3825,
-            2661.038
-          ],
-          [
-            1572.8825,
-            2661.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
-        "beam_name": "V311",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 423.0,
-        "width": "14/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1603.3825,
-            2067.038
-          ],
-          [
-            1603.3825,
-            2490.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
-        "beam_name": "V312",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 311.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1603.3825,
-            2680.038
+            4387.3825,
+            1982.038
           ],
           [
-            1603.3825,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|2|1",
-        "beam_name": "V312",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Para",
-        "length": 131.0,
-        "width": "14/50",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1599.6325,
-            3010.038
-          ],
-          [
-            1599.6325,
-            3141.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
-        "beam_name": "V314",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Para",
-        "length": 66.44,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2040.3825,
-            2759.038
-          ],
-          [
-            2040.3825,
-            2825.473324
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
-        "beam_name": "V314",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Para",
-        "length": 139.67,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            2851.36895
-          ],
-          [
-            2036.356186,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
-        "beam_name": "V314",
-        "segment_label": "3",
-        "side": "A",
-        "behavior": "Para",
-        "length": 131.0,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            3010.038
-          ],
-          [
-            2036.356186,
-            3141.038
+            4387.3825,
+            2242.038
           ]
         ]
       }
     ],
     "lateral_b_para": [
       {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
-        "beam_name": "V308",
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
         "segment_label": "1",
         "side": "B",
         "behavior": "Para",
-        "length": 253.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3888.3825,
-            1944.038
-          ],
-          [
-            4141.3825,
-            1944.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|2|1",
-        "beam_name": "V308",
-        "segment_label": "2",
-        "side": "B",
-        "behavior": "Para",
-        "length": 291.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4201.3825,
-            1944.038
-          ],
-          [
-            4492.3825,
-            1944.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
-        "beam_name": "V310",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Para",
-        "length": 14.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1380.3825,
-            2509.038
-          ],
-          [
-            1394.3825,
-            2509.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
-        "beam_name": "V311",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Para",
-        "length": 423.0,
-        "width": "14/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1622.3825,
-            2067.038
-          ],
-          [
-            1622.3825,
-            2490.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
-        "beam_name": "V312",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Para",
-        "length": 311.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
-            2680.038
+            4401.3825,
+            1982.038
           ],
           [
-            1622.3825,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|2|1",
-        "beam_name": "V312",
-        "segment_label": "2",
-        "side": "B",
-        "behavior": "Para",
-        "length": 131.0,
-        "width": "14/50",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1599.6325,
-            3010.038
-          ],
-          [
-            1599.6325,
-            3141.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
-        "beam_name": "V314",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Para",
-        "length": 66.44,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2059.3825,
-            2759.038
-          ],
-          [
-            2059.3825,
-            2825.473324
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
-        "beam_name": "V314",
-        "segment_label": "2",
-        "side": "B",
-        "behavior": "Para",
-        "length": 139.67,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            2851.36895
-          ],
-          [
-            2036.356186,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
-        "beam_name": "V314",
-        "segment_label": "3",
-        "side": "B",
-        "behavior": "Para",
-        "length": 131.0,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            3010.038
-          ],
-          [
-            2036.356186,
-            3141.038
+            4401.3825,
+            2242.038
           ]
         ]
       }
     ],
     "lateral_a_passa": [
       {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
-        "beam_name": "V308",
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
         "segment_label": "1",
         "side": "A",
         "behavior": "Passa",
-        "length": 253.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3888.3825,
-            1963.038
-          ],
-          [
-            4141.3825,
-            1963.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|2|1",
-        "beam_name": "V308",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 291.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4201.3825,
-            1963.038
-          ],
-          [
-            4492.3825,
-            1963.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
-        "beam_name": "V310",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 192.5,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1380.3825,
-            2661.038
-          ],
-          [
-            1572.8825,
-            2661.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
-        "beam_name": "V311",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 423.0,
-        "width": "14/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1603.3825,
-            2067.038
-          ],
-          [
-            1603.3825,
-            2490.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
-        "beam_name": "V312",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 311.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1603.3825,
-            2680.038
+            4387.3825,
+            1982.038
           ],
           [
-            1603.3825,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|2|1",
-        "beam_name": "V312",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 131.0,
-        "width": "14/50",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1599.6325,
-            3010.038
-          ],
-          [
-            1599.6325,
-            3141.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
-        "beam_name": "V314",
-        "segment_label": "1",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 66.44,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2040.3825,
-            2759.038
-          ],
-          [
-            2040.3825,
-            2825.473324
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
-        "beam_name": "V314",
-        "segment_label": "2",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 139.67,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            2851.36895
-          ],
-          [
-            2036.356186,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
-        "beam_name": "V314",
-        "segment_label": "3",
-        "side": "A",
-        "behavior": "Passa",
-        "length": 131.0,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            3010.038
-          ],
-          [
-            2036.356186,
-            3141.038
+            4387.3825,
+            2242.038
           ]
         ]
       }
     ],
     "lateral_b_passa": [
       {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|1|1",
-        "beam_name": "V308",
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
         "segment_label": "1",
         "side": "B",
         "behavior": "Passa",
-        "length": 253.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            3888.3825,
-            1944.038
-          ],
-          [
-            4141.3825,
-            1944.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_8|2|1",
-        "beam_name": "V308",
-        "segment_label": "2",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 291.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            4201.3825,
-            1944.038
-          ],
-          [
-            4492.3825,
-            1944.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_11|1|1",
-        "beam_name": "V310",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 14.0,
-        "width": "19/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1380.3825,
-            2509.038
-          ],
-          [
-            1394.3825,
-            2509.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_12|1|1",
-        "beam_name": "V311",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 423.0,
-        "width": "14/55",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1622.3825,
-            2067.038
-          ],
-          [
-            1622.3825,
-            2490.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|1|1",
-        "beam_name": "V312",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 311.0,
+        "length": 260.0,
         "width": "14/50",
         "status": "valid",
         "atencao": "",
         "points": [
           [
-            1622.3825,
-            2680.038
+            4401.3825,
+            1982.038
           ],
           [
-            1622.3825,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_13|2|1",
-        "beam_name": "V312",
-        "segment_label": "2",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 131.0,
-        "width": "14/50",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            1599.6325,
-            3010.038
-          ],
-          [
-            1599.6325,
-            3141.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|1|1",
-        "beam_name": "V314",
-        "segment_label": "1",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 66.44,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2059.3825,
-            2759.038
-          ],
-          [
-            2059.3825,
-            2825.473324
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|2|1",
-        "beam_name": "V314",
-        "segment_label": "2",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 139.67,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            2851.36895
-          ],
-          [
-            2036.356186,
-            2991.038
-          ]
-        ]
-      },
-      {
-        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_15|3|1",
-        "beam_name": "V314",
-        "segment_label": "3",
-        "side": "B",
-        "behavior": "Passa",
-        "length": 131.0,
-        "width": "19/120",
-        "status": "valid",
-        "atencao": "",
-        "points": [
-          [
-            2036.356186,
-            3010.038
-          ],
-          [
-            2036.356186,
-            3141.038
+            4401.3825,
+            2242.038
           ]
         ]
       }

@@ -1,0 +1,41 @@
+{
+  "schema": "arete.qa_structured_question/v1",
+  "question_id": "b26d77ba-3f73-41ad-858d-45743939eb3f",
+  "at": "2026-07-13T23:31:03+00:00",
+  "scope": {
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "class": "PIL",
+    "items": [
+      "P35"
+    ],
+    "level": "N1",
+    "pav": "13_PAV",
+    "part": null,
+    "variant": null
+  },
+  "gate": "PIL/N1/P35/A-B",
+  "observation": "A ficha agora removeu V327 falso e prova D=V328/19x55, mas A/B continuam sem viga; o dono informa que existe uma viga horizontal passante A/B cujo nome nao aparece no recorte proximo.",
+  "evidence": [
+    "P35.html run 20260713_202404; DB P35; probe V308 orientacao geometrica; screenshot do dono chrome_ZU3OFur5tu.png"
+  ],
+  "attempts": [
+    "Rastreio topologico persistido: somente D=V328",
+    "Simulacao em memoria com V308 orientada pela caixa geometrica horizontal: classifica V308 como chegada em C, nao como passante A/B"
+  ],
+  "rejected_hypotheses": [
+    "Usar o texto de viga mais proximo ou inferir V327/V328 para A/B"
+  ],
+  "plausible_alternatives": [
+    "A identidade A/B vem de segmento de fundo que atravessa o eixo do pilar fora do recorte proximo",
+    "A/B nao sao vinculadas por contato local e exigem regra de continuidade/contexto distante"
+  ],
+  "answer_needed": "Qual e o nome e a regra geral que conecta a viga horizontal A/B ao P35: ela atravessa integralmente o pilar, termina em qual canto, ou deve permanecer como pendencia quando o nome estiver fora das duas escalas N1?",
+  "how_to_teach": {
+    "rule": "descreva a regra no vocabulário da ficha",
+    "positive_example": "informe um caso que deve seguir a regra",
+    "counterexample_or_exception": "informe quando a regra não se aplica",
+    "scope": "delimite classe, família, modo e faces afetadas",
+    "expected_drawing_effect": "diga o efeito esperado no N3/N4"
+  },
+  "status": "PENDENTE"
+}

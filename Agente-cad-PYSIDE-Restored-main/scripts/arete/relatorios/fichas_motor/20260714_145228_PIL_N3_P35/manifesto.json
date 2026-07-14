@@ -1,0 +1,25 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "PIL",
+  "item": "P35",
+  "nivel": "N3",
+  "generated_at": "2026-07-14T14:52:30",
+  "artifacts": [
+    {
+      "label": "PARA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_13_PAV_P35_N3\\Fase-6_Execucao_CAD\\PL_ABCD_preview_P35.dxf",
+      "dxf_sha256": "d7d4ff46c450e7fdc3025016e0bf91fdaaa0316736321e1ba52ff906342c0d05",
+      "svg_sha256": "116d635aae10e3d481cee0ccdf418b84fcb74c985f0b87e3c4414c0e56f60f9f",
+      "json": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\tmp\\PIL_13_PAV_P35_N3\\Fase-4_Sincronizacao\\JSON_Pilares\\P35.json",
+      "json_sha256": "c8b3dce335d352c02829814f69cde43b9a453c1121cc9e33f53a9dadfe6e2347",
+      "contract": null,
+      "contract_sha256": null,
+      "render_cache_hit": false,
+      "render_cache_key": "de68c2b8503eb67225832d15c187997ba2977ecd85c7fcaf0a40f9a6756de9c4"
+    }
+  ],
+  "input_signature": "6c79c635553c243b06cde091a73dad25a1c6ce480fc539783934760940f2fa36",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write",
+  "html": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\fichas_motor\\20260714_145228_PIL_N3_P35\\index.html",
+  "html_sha256": "068b67b43fd232bf37c9cc40b504a716732f7e5ed7f1e0431e4a5e28c7777428"
+}

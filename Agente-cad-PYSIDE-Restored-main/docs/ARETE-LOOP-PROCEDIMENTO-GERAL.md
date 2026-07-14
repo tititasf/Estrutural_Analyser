@@ -202,8 +202,14 @@ evolução do motor mais rápido sem mudar o caminho de produção.
 O recorte não é um atalho sem contexto: o `headless_sa_analise.py` continua executando a
 análise SA completa, reparos e consolidação usuais; filtra apenas a materialização para
 ficha/diagnóstico/persistência. Portanto, o resultado do item percorre a mesma cadeia da
-rodada completa. Sempre usar `--wait`: há uma única fila headless e nunca se encerra quem
-está com a trava.
+rodada completa. Sempre usar `--wait` e nunca encerrar quem está com a trava.
+
+Para reduzir espera sem cruzar artefatos, cada microciclo **read-only** com uma classe e
+item explícito possui fila própria (PIL/LAJ/FV/LV), snapshot
+`estado_{PAV}_{secao}.json` e pasta de run com seção + PID. Classes diferentes podem
+coexistir; a mesma classe permanece serializada. Sem `--item`, com mais de uma seção ou
+com `--persist-db`, a execução reserva a fila global e as quatro classes, pois memória,
+consolidação e transação deixam de ser isoláveis.
 
 #### Protocolo por causa
 

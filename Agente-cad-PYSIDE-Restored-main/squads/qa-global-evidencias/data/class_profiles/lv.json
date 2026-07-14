@@ -1,7 +1,7 @@
 {
   "schema": "arete.qa_class_profile/v1",
   "class": "LV",
-  "version": "1.2.0",
+  "version": "1.4.1",
   "authority": "diagnostic_only; A/B and PARA/PASSA are four independent contracts",
   "model": "Lateral de viga possui dois lados e dois comportamentos. A_PARA, B_PARA, A_PASSA e B_PASSA têm seleção, ajustes, painéis e prova independentes. O corte é contexto comum, não licença para espelhar dados.",
   "manual_guides": [
@@ -24,13 +24,13 @@
     },
     "probes": {
       "four_contracts_and_support": {
-        "question": "{item} mantém A/B × PARA/PASSA com origem por segmento, isolamento explícito e apoio inicial rastreável?",
+        "question": "{item} mantém A/B × PARA/PASSA com origem por segmento, isolamento explícito e um apoio extremo local rastreável?",
         "fields": [
           {"id": "lv.name", "class": "LV", "item": "{item}", "source": "payload", "path": "fields.nome", "transform": "entity"},
           {"id": "lv.dim", "class": "LV", "item": "{item}", "source": "payload", "path": "fields.dimensao", "transform": "dimension"},
           {"id": "lv.a.dim", "class": "LV", "item": "{item}", "source": "payload", "path": "fields.viga_a_seg_1_dim", "transform": "dimension"},
           {"id": "lv.b.dim", "class": "LV", "item": "{item}", "source": "payload", "path": "fields.viga_b_seg_1_dim", "transform": "dimension"},
-          {"id": "lv.support.name", "class": "LV", "item": "{item}", "source": "payload", "path": "fields.viga_a_seg_1_ini_name", "transform": "entity"},
+          {"id": "lv.support.name", "class": "LV", "item": "{item}", "source": "payload", "path": "fields.viga_a_seg_1_end_name", "transform": "entity"},
           {"id": "lv.para.a.id", "class": "LV", "item": "{item}", "source": "payload", "path": "lv_generation_contracts.Para.A.contract_id", "transform": "text"},
           {"id": "lv.para.b.id", "class": "LV", "item": "{item}", "source": "payload", "path": "lv_generation_contracts.Para.B.contract_id", "transform": "text"},
           {"id": "lv.passa.a.id", "class": "LV", "item": "{item}", "source": "payload", "path": "lv_generation_contracts.Passa.A.contract_id", "transform": "text"},
@@ -64,13 +64,13 @@
           {"id": "lv.passa.a.fv_fallback", "class": "LV", "item": "{item}", "source": "payload", "path": "lv_generation_contracts.Passa.A._sa_meta.fv_dimension_fallback", "transform": "raw"},
           {"id": "lv.passa.b.fv_fallback", "class": "LV", "item": "{item}", "source": "payload", "path": "lv_generation_contracts.Passa.B._sa_meta.fv_dimension_fallback", "transform": "raw"},
           {"id": "lv.para.a.bbox", "class": "LV", "item": "{item}", "source": "payload", "path": "lv_generation_contracts.Para.A.structural_segments.0.points", "transform": "bbox"},
-          {"id": "pillar.name", "class": "PIL", "item_from": "lv.support.name", "source": "payload", "path": "name.label.0.text", "transform": "entity"},
-          {"id": "pillar.bbox", "class": "PIL", "item_from": "lv.support.name", "source": "geometry", "path": "", "transform": "bbox"}
+          {"id": "support.name", "class_from": "lv.support.name", "item_from": "lv.support.name", "source": "column", "path": "name", "transform": "entity"},
+          {"id": "support.bbox", "class_from": "lv.support.name", "item_from": "lv.support.name", "source": "geometry", "path": "geometry.classified.seg_bottom", "source_by_class": {"PIL": "geometry", "LV": "geometry"}, "path_by_class": {"PIL": "", "LV": "geometry.classified.seg_bottom"}, "transform": "bbox"}
         ],
         "checks": [
           {"id": "beam_identity", "op": "same_entity", "left": "lv.name", "value": "{item}"},
-          {"id": "dim_A", "op": "dimension_equal", "left": "lv.dim", "right": "lv.a.dim", "order_sensitive": true},
-          {"id": "dim_B", "op": "dimension_equal", "left": "lv.dim", "right": "lv.b.dim", "order_sensitive": true},
+          {"id": "dim_A", "op": "present", "left": "lv.a.dim", "reason": "dimensão própria do lado A presente; não espelhar nem confundir com a seção global"},
+          {"id": "dim_B", "op": "present", "left": "lv.b.dim", "reason": "dimensão própria do lado B presente; não espelhar nem confundir com a seção global"},
           {"id": "contract_A_PARA", "op": "equal", "left": "lv.para.a.id", "value": "LV_A_PARA"},
           {"id": "contract_B_PARA", "op": "equal", "left": "lv.para.b.id", "value": "LV_B_PARA"},
           {"id": "contract_A_PASSA", "op": "equal", "left": "lv.passa.a.id", "value": "LV_A_PASSA"},
@@ -105,8 +105,8 @@
           {"id": "no_fv_fallback_B_PASSA", "op": "equal", "left": "lv.passa.b.fv_fallback", "value": false},
           {"id": "sources_A_PARA_vs_PASSA", "op": "disjoint", "left": "lv.para.a.source_keys", "right": "lv.passa.a.source_keys"},
           {"id": "sources_B_PARA_vs_PASSA", "op": "disjoint", "left": "lv.para.b.source_keys", "right": "lv.passa.b.source_keys"},
-          {"id": "support_identity", "op": "same_entity", "left": "lv.support.name", "right": "pillar.name"},
-          {"id": "support_contact", "op": "bbox_intersects", "left": "lv.para.a.bbox", "right": "pillar.bbox"}
+          {"id": "support_identity", "op": "same_entity", "left": "lv.support.name", "right": "support.name"},
+          {"id": "support_contact", "op": "bbox_intersects", "left": "lv.para.a.bbox", "right": "support.bbox"}
         ]
       }
     }
@@ -116,6 +116,10 @@
     "variants": ["A_PARA", "B_PARA", "A_PASSA", "B_PASSA", "CORTE_PARA", "CORTE_PASSA"],
     "identity_path": "beam_name",
     "expected_layers": ["NOMENCLATURA", "Painéis"],
+    "expected_layers_by_variant": {
+      "CORTE_PARA": ["Painéis"],
+      "CORTE_PASSA": ["Painéis"]
+    },
     "contract_families": {
       "identity": ["beam_name", "side", "behavior", "contract_id", "generation_ready"],
       "geometry": ["structural_segments", "geometry_length", "start_adjustment", "end_adjustment", "total_length"],

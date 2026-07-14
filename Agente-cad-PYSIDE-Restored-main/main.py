@@ -122,6 +122,8 @@ from src.core.database import DatabaseManager
 from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
 from src.core.beam_identity import canonical_beam_name, consolidate_beam_identities
+from src.core.beam_support_links import global_beam_boundary_link
+from src.core.lv_support_contact import support_contacts_lv_segment
 from src.core.context_engine import ContextEngine
 from src.core.pillar_analyzer import PillarAnalyzer
 from src.core.services.auth_service import AuthService
@@ -10457,6 +10459,14 @@ class MainWindow(QMainWindow):
             if link_dict:
                 links[field_id] = link_dict
 
+        def _clear_auto_text_field(field_id: str) -> None:
+            """Remove only a stale automatic LV endpoint, never human evidence."""
+            if field_id in validated:
+                return
+            b.pop(field_id, None)
+            fields.pop(field_id, None)
+            links.pop(field_id, None)
+
         # --- Enriquecer base (apoios/lajes/cortes/dimensoes) a partir da geometria ---
         # Early-return do _process_beam_intelligent só re-roda motores de comprimento;
         # sem isso os campos do card SA ficam vazios mesmo com geometria presente.
@@ -10469,29 +10479,12 @@ class MainWindow(QMainWindow):
             str(field).startswith('viga_fundo_seg_') for field in fields
         )
 
-        def _fv_global_boundary_link(link):
-            """Marca o apoio que descreve a viga inteira, sem reutilizá-lo como
-            prova de apoio de um painel FV.
-
-            Os slots ``viga_fundo_seg_*_local_*`` são a evidência local do
-            segmento; ``apoios.inicio/fim`` continuam sendo limites globais.
-            Copiar evita contaminar o candidato geométrico compartilhado.
-            """
-            tagged = dict(link) if isinstance(link, dict) else {
-                'type': 'text', 'text': str(link), 'name': str(link),
-            }
-            if not _is_fv_context:
-                return tagged
-            tagged['evidence_role'] = 'fv_beam_global_boundary'
-            tagged['scope'] = 'beam_global'
-            return tagged
-
         # Migra em memória vínculos legados antes de qualquer consumer do
         # dicionário.  A persistência parcial mantém os campos humanos; só a
         # proveniência automática do link é enriquecida.
         for _boundary in ('inicio', 'fim'):
             links['apoios'][_boundary] = [
-                _fv_global_boundary_link(link)
+                global_beam_boundary_link(link, is_fv_context=_is_fv_context)
                 for link in (links['apoios'].get(_boundary) or [])
             ]
         if not isinstance(links.get('lajes'), dict):
@@ -10596,9 +10589,9 @@ class MainWindow(QMainWindow):
                 if str(k).endswith('_local_fim') and not fim_txt:
                     fim_txt = v
         if ini_txt:
-            links['apoios']['inicio'] = [_fv_global_boundary_link(ini_txt)]
+            links['apoios']['inicio'] = [global_beam_boundary_link(ini_txt, is_fv_context=_is_fv_context)]
         if fim_txt:
-            links['apoios']['fim'] = [_fv_global_boundary_link(fim_txt)]
+            links['apoios']['fim'] = [global_beam_boundary_link(fim_txt, is_fv_context=_is_fv_context)]
 
         # 2) Fallback espacial: support_candidates (P* preferido nas pontas)
         supports = list(geo.get('support_candidates') or [])
@@ -10627,9 +10620,9 @@ class MainWindow(QMainWindow):
             end_pool = pillars_only if len(pillars_only) >= 2 else supports
             sorted_s = sorted(end_pool, key=_sk)
             if not links['apoios']['inicio'] and sorted_s:
-                links['apoios']['inicio'] = [_fv_global_boundary_link(sorted_s[0])]
+                links['apoios']['inicio'] = [global_beam_boundary_link(sorted_s[0], is_fv_context=_is_fv_context)]
             if not links['apoios']['fim'] and len(sorted_s) > 1:
-                links['apoios']['fim'] = [_fv_global_boundary_link(sorted_s[-1])]
+                links['apoios']['fim'] = [global_beam_boundary_link(sorted_s[-1], is_fv_context=_is_fv_context)]
             # Intermediários: só pilares P* que não são extremos
             end_labels = {
                 str((links['apoios']['inicio'] or [{}])[0].get('text')
@@ -10937,32 +10930,60 @@ class MainWindow(QMainWindow):
                     links[f'{prefix}_visao_corte'] = {'cut_view': cut_payload}
 
             # Apoios (por seg: fundo_seg_N.ini/fim → apoios globais da viga)
+            # O fundo só fornece contexto.  Um rótulo global não pode virar
+            # apoio da lateral sem contato físico no próprio segmento: isso
+            # evita copiar uma viga paralela (V327/V328) como se tocasse a face.
+            def _local_support_proven(label: str) -> bool:
+                return support_contacts_lv_segment(
+                    pts,
+                    label,
+                    beams=getattr(self, 'beams_found', None) or [],
+                    pillars=pillars_catalog,
+                )
+
+            def _first_local_support(candidates):
+                for candidate in candidates or []:
+                    label = _support_label(candidate)
+                    if label and _local_support_proven(label):
+                        return candidate
+                return None
+
             _ini_lab = str(_fs.get('ini') or '').strip()
             _fim_lab = str(_fs.get('fim') or '').strip()
-            if _ini_lab:
+            ini_field = f'{prefix}_ini_name'
+            fim_field = f'{prefix}_end_name'
+            if _ini_lab and _local_support_proven(_ini_lab):
                 _set_text_field(
-                    f'{prefix}_ini_name', _ini_lab,
+                    ini_field, _ini_lab,
                     {'label': [{'type': 'text', 'text': _ini_lab, 'name': _ini_lab}]},
                 )
-            elif ini_supports:
-                lab = _support_label(ini_supports[0])
+            else:
+                # Não substituir um rótulo global inválido por um palpite espacial.
+                # Se houver candidato, ele também precisa tocar o segmento LV.
+                ini_candidate = _first_local_support(ini_supports)
+                lab = _support_label(ini_candidate)
                 if lab:
                     _set_text_field(
-                        f'{prefix}_ini_name', lab,
-                        _field_link_for_support(ini_supports[0]) or None,
+                        ini_field, lab,
+                        _field_link_for_support(ini_candidate) or None,
                     )
-            if _fim_lab:
+                else:
+                    _clear_auto_text_field(ini_field)
+            if _fim_lab and _local_support_proven(_fim_lab):
                 _set_text_field(
-                    f'{prefix}_end_name', _fim_lab,
+                    fim_field, _fim_lab,
                     {'label': [{'type': 'text', 'text': _fim_lab, 'name': _fim_lab}]},
                 )
-            elif fim_supports:
-                lab = _support_label(fim_supports[0])
+            else:
+                fim_candidate = _first_local_support(fim_supports)
+                lab = _support_label(fim_candidate)
                 if lab:
                     _set_text_field(
-                        f'{prefix}_end_name', lab,
-                        _field_link_for_support(fim_supports[0]) or None,
+                        fim_field, lab,
+                        _field_link_for_support(fim_candidate) or None,
                     )
+                else:
+                    _clear_auto_text_field(fim_field)
 
             # Lajes (antes do nível — nível pode vir da laje mais alta)
             lajes_key = f'{prefix}_lajes'
@@ -12689,12 +12710,21 @@ class MainWindow(QMainWindow):
             # Por simplificação atual: O mais "menor coord" é Inicio, o "maior coord" é Fim.
             
             if sorted_supports:
+                is_fv_context = any(
+                    str(field).startswith('viga_fundo_seg_')
+                    for field in (b.get('fields') or {})
+                )
+
                 b['links']['apoios']['inicio'].append(
-                    _fv_global_boundary_link(sorted_supports[0])
+                    global_beam_boundary_link(
+                        sorted_supports[0], is_fv_context=is_fv_context
+                    )
                 )
                 if len(sorted_supports) > 1:
                     b['links']['apoios']['fim'].append(
-                        _fv_global_boundary_link(sorted_supports[-1])
+                        global_beam_boundary_link(
+                            sorted_supports[-1], is_fv_context=is_fv_context
+                        )
                     )
 
         # 7. ALTURAS (H1, H2)

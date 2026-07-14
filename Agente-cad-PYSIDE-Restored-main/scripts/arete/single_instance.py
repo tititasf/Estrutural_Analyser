@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 """single_instance.py — trava de instância única via lock exclusivo de arquivo.
 
-Motivação: impedir duas execuções simultâneas de processos pesados — em
-particular `headless_sa_analise.py` (SA + matplotlib, rodada completa ~315s):
-dois em paralelo esgotam a RAM da workstation (OOM). Proteção pedida pelo
-dono em 2026-07-03.
+Motivação: coordenar processos pesados por recurso. O headless SA usa uma
+fila por classe em microciclos read-only e global + quatro classes em rodadas
+completas/multiclasse/persistentes. O mecanismo continua genérico por `name`.
 
 Mecanismo: lock exclusivo de 1 byte no arquivo `.{name}.lock`
 (`msvcrt.locking` no Windows, `fcntl.flock` em POSIX). O SO libera o lock
@@ -14,7 +13,7 @@ lock órfão e não há PID-file para limpar à mão.
 
 Uso:
     from single_instance import acquire_lock
-    lock, holder = acquire_lock('headless_sa')
+    lock, holder = acquire_lock('headless_sa_pil')
     if lock is None:
         print(f'já em execução: {holder}'); sys.exit(2)
     # ... manter `lock` vivo até o fim do processo ...

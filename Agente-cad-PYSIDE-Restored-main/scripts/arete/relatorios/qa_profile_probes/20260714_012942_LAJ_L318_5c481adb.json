@@ -1,0 +1,183 @@
+{
+  "schema": "arete.qa_profile_probe_result/v1",
+  "overall": "PENDENTE",
+  "scope_authority": "field_checks_only; unresolved cross-class materialization",
+  "reason": "referência cross-classe não materializada: item ausente: PIL:P22",
+  "profile": {
+    "class": "LAJ",
+    "version": "1.1.0",
+    "probe": "support_identity_and_contact",
+    "item": "L318",
+    "resolved_cross_class": {
+      "pillar.name": {
+        "item_from": "slab.support.name",
+        "item": "P22"
+      },
+      "pillar.bbox": {
+        "item_from": "slab.support.name",
+        "item": "P22"
+      }
+    }
+  },
+  "preflight": {
+    "schema": "arete.qa_n1_field_probe_result/v1",
+    "engine_version": "1.4.0",
+    "project_id": "4869be2b-f17c-410b-a9c8-98a887ec1c95",
+    "question": "Resolver entidades relacionadas para support_identity_and_contact",
+    "overall": "PASS",
+    "scope_authority": "field_checks_only; never validates full item or ficha",
+    "fields": [
+      {
+        "id": "slab.name",
+        "class": "LAJ",
+        "item": "L318",
+        "source": "payload",
+        "path": "name.label.0.text",
+        "transform": "entity",
+        "value": "L318",
+        "overridden": false,
+        "snapshot_hash": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "slab.dim",
+        "class": "LAJ",
+        "item": "L318",
+        "source": "payload",
+        "path": "laje_dim.label.0.text",
+        "transform": "number",
+        "value": 12.0,
+        "overridden": false,
+        "snapshot_hash": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "slab.bbox",
+        "class": "LAJ",
+        "item": "L318",
+        "source": "geometry",
+        "path": "",
+        "transform": "bbox",
+        "value": [
+          1394.3825,
+          2460.0,
+          4669.0,
+          2661.0
+        ],
+        "overridden": false,
+        "snapshot_hash": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "slab.support.name",
+        "class": "LAJ",
+        "item": "L318",
+        "source": "payload",
+        "path": "laje_pilares_apoio.pillar_geom.0.ficha.pillar_name",
+        "transform": "entity",
+        "value": "P22",
+        "overridden": false,
+        "snapshot_hash": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "slab.support.bbox",
+        "class": "LAJ",
+        "item": "L318",
+        "source": "payload",
+        "path": "laje_pilares_apoio.pillar_geom.0.points",
+        "transform": "bbox",
+        "value": [
+          2914.3825,
+          2423.038,
+          2933.3825,
+          2509.038
+        ],
+        "overridden": false,
+        "snapshot_hash": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "slab.support.trace",
+        "class": "LAJ",
+        "item": "L318",
+        "source": "payload",
+        "path": "laje_pilares_apoio.pillar_geom.0",
+        "transform": "trace",
+        "value": true,
+        "overridden": false,
+        "snapshot_hash": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "resolve:slab.support.name",
+        "op": "present",
+        "status": "PASS",
+        "reason": "present satisfeita",
+        "left": "P22",
+        "right": null,
+        "metric": {}
+      }
+    ],
+    "snapshots": {
+      "LAJ:L318": "43084cc0b92a3c534e153eb915c1fe3d91ed048d3c51b84349830176797a7189"
+    },
+    "provenance": {
+      "allowed": "persisted N1 + explicit candidate overlay",
+      "forbidden": "N2/N4 as N1 proof or N3 input",
+      "cross_class": [
+        "LAJ"
+      ]
+    },
+    "executed_at": "2026-07-14T04:29:42+00:00",
+    "runtime": {
+      "cache_hit": false,
+      "cache_key": "c034dc74e84a98d519d01e7d441a147f0739ecd206626d6f48878ff0d089b948",
+      "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\c0\\c034dc74e84a98d519d01e7d441a147f0739ecd206626d6f48878ff0d089b948.json",
+      "db_load_ms": 10.402,
+      "evaluation_ms": 0.613,
+      "total_ms": 10.995,
+      "loaded_rows": 1,
+      "requested_fields": 6,
+      "requested_checks": 1
+    }
+  }
+}

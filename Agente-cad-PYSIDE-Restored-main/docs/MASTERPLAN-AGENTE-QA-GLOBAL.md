@@ -149,6 +149,11 @@ conflito entre campos e cobertura do contrato. Ele avalia **o DB atual**; não
 exercita uma alteração ainda não materializada no extrator. Se o código N1 foi
 alterado, o microciclo headless continua obrigatório antes de repetir o review.
 
+Microciclos read-only `--secao + --item` usam fila e snapshot próprios da classe;
+agentes QA de classes distintas podem materializar em paralelo. Ausência de item,
+múltiplas classes ou `--persist-db` promovem automaticamente a execução para o
+lock global + locks PIL/LAJ/FV/LV. O QA nunca contorna essa política.
+
 ### 4.2 Gate anti-loop caro: aceite antes da materialização
 
 Antes de editar um extrator/vínculo N1, o run deve declarar um predicado de aceite

@@ -47,18 +47,29 @@
   "unioes_nos_bordes": false,
   "observacoes": "",
   "_sa_meta": {
-    "source": "comparison_engine_n1",
-    "item_id": "L317",
-    "fields": {
-      "nome": "L317",
-      "numero": "17",
-      "laje_dim": "h=13",
-      "laje_nivel": "855.12"
+    "source": "structural_analyzer",
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "id_item": "17",
+    "validated_fields": [
+      "laje_islands",
+      "laje_outline_segs",
+      "laje_dim",
+      "name"
+    ],
+    "validated_link_classes": {
+      "name": [
+        "label"
+      ],
+      "laje_dim": [
+        "label"
+      ],
+      "laje_outline_segs": [
+        "contour"
+      ]
     },
-    "validated_fields": [],
-    "validated_link_classes": {},
-    "n3_source": "comparison_engine_n1",
-    "n3_teacher": null
+    "n3_source": "structural_analyzer_n1",
+    "n3_teacher": null,
+    "gabarito_patterns_allowed": false
   },
   "apoios_hachurados": [
     {

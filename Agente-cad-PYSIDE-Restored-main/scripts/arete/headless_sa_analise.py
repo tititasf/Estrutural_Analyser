@@ -115,7 +115,10 @@ def _store_fast_context_cache(runner: 'HeadlessRunner', path: Path) -> None:
         'slab_learning_config': runner.slab_learning_config,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix('.tmp')
+    # Classes distintas podem materializar o mesmo snapshot N1 em paralelo.
+    # O destino é determinístico, mas o arquivo de trabalho não pode ser:
+    # dois ``.tmp`` iguais corromperiam a publicação atômica.
+    temporary = path.with_suffix(f'.{os.getpid()}.tmp')
     with temporary.open('wb') as stream:
         pickle.dump(state, stream, protocol=pickle.HIGHEST_PROTOCOL)
     temporary.replace(path)
@@ -290,6 +293,40 @@ def _changed_canonical_beam_names(
         if previous is None or _beam_semantic_facts(previous) != _beam_semantic_facts(fresh):
             changed.add(name)
     return changed
+
+
+def _fresh_laj_geometry_for_readonly_preview(
+    merged_slabs: list[dict], fresh_slabs: list[dict],
+) -> int:
+    """Expose the newly traced LAJ geometry in a read-only verification pack.
+
+    The regular merge deliberately returns an entirely human-sealed item as-is.
+    That is correct for persistence, but made a read-only N1/N2 diagnostic render
+    an old ``points_json`` instead of the contour just produced from the DXF.
+    Keep all human validation metadata and non-geometric decisions intact while
+    replacing only the derived N1 geometry used by the verification artifact.
+    Nothing in this helper is persisted.
+    """
+    fresh_by_name = {
+        _item_name(item): item for item in fresh_slabs or []
+        if _item_name(item)
+    }
+    refreshed = 0
+    for slab in merged_slabs or []:
+        fresh = fresh_by_name.get(_item_name(slab))
+        if not isinstance(fresh, dict) or not fresh.get("points"):
+            continue
+        slab["points"] = copy.deepcopy(fresh["points"])
+        for key in ("area", "area_val", "bbox", "pos", "method", "trace_diagnostics"):
+            if key in fresh:
+                slab[key] = copy.deepcopy(fresh[key])
+        links = slab.setdefault("links", {})
+        fresh_outline = (fresh.get("links") or {}).get("laje_outline_segs")
+        if isinstance(fresh_outline, dict):
+            links["laje_outline_segs"] = copy.deepcopy(fresh_outline)
+        slab["n1_geometry_preview_source"] = "fresh_dxf_readonly"
+        refreshed += 1
+    return refreshed
 
 
 def _beam_topology_coverage(beam: dict) -> tuple[int, float]:
@@ -714,7 +751,11 @@ def _run_legacy_analysis(
         'convention': {},
         'term_type_map': {},
     }
-    cache_path = _fast_context_cache_path(dxf_path) if not build_html else None
+    # A cache guarda somente o contexto N1 canônico (DXF → PIL/LAJ/BeamTracer),
+    # não o HTML.  Portanto um microciclo FV que vai materializar fichas também
+    # pode reutilizá-la: a UI continua recebendo exatamente o mesmo snapshot,
+    # sem instanciar MainWindow nem pular o interpretador FV.
+    cache_path = _fast_context_cache_path(dxf_path)
     if cache_path and _restore_fast_context_cache(runner, cache_path):
         print(f'[SA] Cache N1 contextual: HIT {cache_path.name[:12]}', flush=True)
         return {
@@ -879,10 +920,11 @@ def _run_legacy_analysis(
     if n_fixed:
         print(f'[SA] Sides corrigidos por fallback de posicao relativa: {n_fixed}', flush=True)
 
+    if cache_path:
+        _store_fast_context_cache(runner, cache_path)
+        print(f'[SA] Cache N1 contextual: STORED {cache_path.name[:12]}', flush=True)
+
     if not build_html:
-        if cache_path:
-            _store_fast_context_cache(runner, cache_path)
-            print(f'[SA] Cache N1 contextual: STORED {cache_path.name[:12]}', flush=True)
         return {
             'runner': runner,
             'texts': texts,
@@ -1008,6 +1050,41 @@ _SECTION_LABELS: dict[str, str] = {
     'fundos_viga': 'FV',
     'laterais_viga': 'LV',
 }
+
+_CLASS_HEADLESS_LOCKS: dict[str, str] = {
+    'pilares': 'headless_sa_pil',
+    'lajes': 'headless_sa_laj',
+    'fundos_viga': 'headless_sa_fv',
+    'laterais_viga': 'headless_sa_lv',
+}
+_GLOBAL_HEADLESS_LOCK = 'headless_sa_global'
+
+
+def _headless_lock_plan(
+    sections: set[str] | None,
+    item_names: set[str] | None,
+    persist_db: bool,
+) -> tuple[list[str], str]:
+    """Seleciona a menor trava que preserva isolamento e memória.
+
+    Uma consulta realmente granular (uma classe, item explícito e read-only)
+    só monopoliza sua classe. Rodadas completas/multiclasse ou com escrita no
+    DB tomam a trava global e todas as classes, em ordem fixa.
+    """
+    if sections is not None and len(sections) == 1 and item_names and not persist_db:
+        section = next(iter(sections))
+        return [_CLASS_HEADLESS_LOCKS[section]], f'classe:{_SECTION_LABELS[section]}'
+    return ([_GLOBAL_HEADLESS_LOCK, *_CLASS_HEADLESS_LOCKS.values()], 'global')
+
+
+def _release_headless_locks(handles: list) -> None:
+    """Libera um plano de locks na ordem inversa; seguro para ``atexit``."""
+    try:
+        from scripts.arete.single_instance import release_lock
+    except ImportError:
+        from single_instance import release_lock
+    for handle in reversed(handles):
+        release_lock(handle)
 
 
 def _filter_diagnostic_files(
@@ -1725,18 +1802,33 @@ def run_analysis(
         # O mesmo merge alimenta os HTMLs/gates e, quando autorizado, o DB.
         # Assim não existe diferença entre o que foi inspecionado e o commit.
         from src.core.sa_db_persistence import fv_area_errors, merge_analysis_snapshot
+        fresh_slabs = list(getattr(window, 'slabs_found', []) or [])
         merged, merge_stats = merge_analysis_snapshot(
             old_pillars=old_snapshot['pillars'],
             old_slabs=old_snapshot['slabs'],
             old_beams=old_snapshot['beams'],
             new_pillars=list(getattr(window, 'pillars_found', []) or []),
-            new_slabs=list(getattr(window, 'slabs_found', []) or []),
+            new_slabs=fresh_slabs,
             new_beams=list(getattr(window, 'beams_found', []) or []),
             project_id=project_id,
         )
         window.pillars_found = merged['pillars']
         window.slabs_found = merged['slabs']
         window.beams_found = merged['beams']
+        # Um artefato headless read-only é evidência do motor que acabou de
+        # executar.  Não pode renderizar o contorno antigo de um item azul por
+        # causa da proteção de persistência humana do merge.  O commit continua
+        # usando o merge normal; esta sobreposição nunca alcança o banco.
+        if not persist_db and 'lajes' in active_sections:
+            fresh_preview_count = _fresh_laj_geometry_for_readonly_preview(
+                window.slabs_found, fresh_slabs,
+            )
+            if fresh_preview_count:
+                print(
+                    '[SA-HUMAN] LAJ preview read-only: '
+                    f'{fresh_preview_count} contorno(s) N1 recém-traçado(s) do DXF.',
+                    flush=True,
+                )
         # O merge preserva memoria humana, mas pode reintroduzir slots PIL
         # automaticos de uma rodada antiga. Reaplicar a topologia depois do
         # merge mantem DB, ficha N1 e contratos N3 na mesma autoridade. Em
@@ -1875,6 +1967,10 @@ def run_analysis(
             if dialog:
                 if item_names:
                     dialog._headless_item_names = set(item_names)
+                if sections is not None and len(sections) == 1:
+                    # Estado e pack próprios: classes concorrentes não
+                    # sobrescrevem os artefatos umas das outras.
+                    dialog._headless_run_scope = next(iter(sections))
                 html_dir = dialog._export_html_snapshot(sections=sections)
                 # `_export_html_snapshot` salva em `run_dir` local e retorna o Path
                 print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
@@ -2214,37 +2310,62 @@ def main() -> None:
     if args.persist_db and args.skip_diagnostico_fv:
         ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
 
-    # Trava anti-OOM: duas execuções simultâneas do headless (SA+matplotlib)
-    # esgotam a RAM da workstation. O lock é liberado pelo SO ao fim do
-    # processo (mesmo em crash) — nunca fica órfão; basta aguardar e rerodar.
+    # Microciclos read-only de classes distintas têm filas isoladas. Rodadas
+    # perigosas reservam global + todas as classes antes de inicializar o Qt.
     try:
-        from scripts.arete.single_instance import acquire_lock, wait_for_lock, refresh_lock, release_lock
+        from scripts.arete.single_instance import acquire_lock, wait_for_lock, refresh_lock
     except ImportError:
-        from single_instance import acquire_lock, wait_for_lock, refresh_lock, release_lock
-    if args.wait:
-        _instance_lock, _holder = wait_for_lock('headless_sa')
-    else:
-        _instance_lock, _holder = acquire_lock('headless_sa')
-    if _instance_lock is None:
-        print('[SA] ABORTADO: já existe uma execução do headless em andamento '
-              '(proteção anti-OOM — 1 headless por vez nesta máquina).', flush=True)
+        from single_instance import acquire_lock, wait_for_lock, refresh_lock
+    _lock_names, _lock_scope = _headless_lock_plan(sections, item_names, args.persist_db)
+    # A sonda ``headless_sa`` foi criada antes das filas por classe. Só uma
+    # rodada global continua aguardando-a: num microciclo read-only de uma
+    # classe, consultá-la antes de ``headless_sa_fv/laj/...`` recriava a fila
+    # global e anulava exatamente a isolação pretendida.
+    acquire = wait_for_lock if args.wait else acquire_lock
+    if not _lock_scope.startswith('classe:'):
+        _legacy_probe, _holder = acquire('headless_sa')
+        if _legacy_probe is None:
+            print('[SA] ABORTADO: fila legada headless_sa ainda ocupada.', flush=True)
+            if _holder:
+                print(f'[SA] Instância ativa: {_holder}', flush=True)
+            print('[SA] Rode novamente com --wait. NÃO finalize o processo detentor.', flush=True)
+            sys.exit(2)
+        _release_headless_locks([_legacy_probe])
+    _instance_locks = []
+    _holder = None
+    _blocked_lock = None
+    for _lock_name in _lock_names:
+        _lock, _holder = acquire(_lock_name)
+        if _lock is None:
+            _blocked_lock = _lock_name
+            break
+        _instance_locks.append(_lock)
+    if _blocked_lock is not None:
+        _release_headless_locks(_instance_locks)
+        print(
+            f'[SA] ABORTADO: fila ocupada ({_blocked_lock}; escopo {_lock_scope}).',
+            flush=True,
+        )
         if _holder:
             print(f'[SA] Instância ativa: {_holder}', flush=True)
-        print('[SA] O que fazer: rode novamente com --wait para aguardar '
-              'automaticamente a vez, ou aguarde a execução atual terminar. '
-              'NÃO finalize o processo detentor — ele está trabalhando.', flush=True)
+        print('[SA] Rode novamente com --wait. NÃO finalize o processo detentor.', flush=True)
         sys.exit(2)
 
     # QApplication obrigatório para PreValidationDialog, estritamente offscreen.
     # Se a plataforma não for a esperada, falhamos antes de qualquer janela.
     import atexit
     import threading
-    atexit.register(release_lock, _instance_lock)
+    print(
+        f'[SA] Locks adquiridos: {", ".join(_lock_names)} (escopo {_lock_scope}).',
+        flush=True,
+    )
+    atexit.register(_release_headless_locks, _instance_locks)
     _lock_heartbeat_stop = threading.Event()
 
     def _heartbeat_lock() -> None:
         while not _lock_heartbeat_stop.wait(15.0):
-            refresh_lock(_instance_lock, event='running')
+            for _lock in _instance_locks:
+                refresh_lock(_lock, event='running')
 
     threading.Thread(
         target=_heartbeat_lock,
@@ -2260,7 +2381,8 @@ def main() -> None:
             f'Backend Qt inesperado para headless: {platform!r} (esperado: offscreen)'
         )
     app.setQuitOnLastWindowClosed(False)
-    refresh_lock(_instance_lock, event='qt_offscreen_ready')
+    for _lock in _instance_locks:
+        refresh_lock(_lock, event='qt_offscreen_ready')
 
     result = run_analysis(
         obra=args.obra,
@@ -2272,7 +2394,8 @@ def main() -> None:
         persist_db=args.persist_db,
         item_names=item_names,
     )
-    refresh_lock(_instance_lock, event='analysis_complete')
+    for _lock in _instance_locks:
+        refresh_lock(_lock, event='analysis_complete')
 
     print('\n' + '=' * 60, flush=True)
     print(f'RESUMO: {result["obra"]} / {result["pavimento"]}', flush=True)
@@ -2309,8 +2432,9 @@ def main() -> None:
             os.startfile(htmls[0])
 
     _lock_heartbeat_stop.set()
-    release_lock(_instance_lock)
-    print('[lock:headless_sa] Liberada.', flush=True)
+    _release_headless_locks(_instance_locks)
+    _instance_locks.clear()
+    print(f'[SA] Locks liberados: {", ".join(_lock_names)}.', flush=True)
 
 
 if __name__ == '__main__':

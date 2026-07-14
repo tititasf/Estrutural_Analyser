@@ -37,6 +37,51 @@ def test_profile_resolves_cross_class_item_without_hardcoding(tmp_path: Path):
     con.close()
 
 
+def test_profile_resolves_support_class_from_structural_identifier(tmp_path: Path):
+    profile = {
+        "schema": PROFILE_SCHEMA,
+        "class": "PIL",
+        "version": "test",
+        "n1": {"probes": {"support": {
+            "fields": [
+                {"id": "ref", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_sD_v_passa_esq_n.label.0.text", "transform": "entity"},
+                {"id": "beam", "class_from": "ref", "item_from": "ref", "source": "column", "path": "name", "transform": "entity"},
+            ],
+            "checks": [{"id": "identity", "op": "same_entity", "left": "ref", "right": "beam"}],
+        }}},
+    }
+    con = _db()
+    result = run_profile_probe(
+        con, profile, probe_id="support", item="P35", project_id="p",
+        cache=ContentAddressedCache(tmp_path / "cache"),
+    )
+    assert result["overall"] == "PASS"
+    assert result["profile"]["resolved_cross_class"]["beam"]["class"] == "LV"
+    con.close()
+
+
+def test_profile_routes_dynamic_geometry_by_resolved_class(tmp_path: Path):
+    profile = {
+        "schema": PROFILE_SCHEMA,
+        "class": "PIL",
+        "version": "test",
+        "n1": {"probes": {"support": {
+            "fields": [
+                {"id": "ref", "class": "PIL", "item": "{item}", "source": "payload", "path": "p_sD_v_passa_esq_n.label.0.text", "transform": "entity"},
+                {"id": "support_geometry", "class_from": "ref", "item_from": "ref", "source": "payload", "path": "fields.nome", "source_by_class": {"LV": "column"}, "path_by_class": {"LV": "name"}, "transform": "entity"},
+            ],
+            "checks": [{"id": "geometry", "op": "present", "left": "support_geometry"}],
+        }}},
+    }
+    con = _db()
+    result = run_profile_probe(
+        con, profile, probe_id="support", item="P35", project_id="p",
+        cache=ContentAddressedCache(tmp_path / "cache"),
+    )
+    assert result["overall"] == "PASS"
+    con.close()
+
+
 def test_profile_fails_closed_when_reference_is_missing(tmp_path: Path):
     profile = {
         "schema": PROFILE_SCHEMA,
@@ -111,6 +156,16 @@ def test_lv_cannot_read_fv_family_from_shared_beam_payload():
         assert "fora da família semântica de LV" in str(exc)
     else:
         raise AssertionError("LV leu família FV")
+    con.close()
+
+
+def test_lv_can_read_its_own_geometry_family_for_support_contact():
+    con = _db()
+    values = load_requested_fields(
+        con, project_id="p", classe="LV", item="V328",
+        fields=[{"id": "support.geometry", "source": "geometry", "path": "geometry.lines"}],
+    )
+    assert values["raw_fields"]["support.geometry"]["value"] is None
     con.close()
 
 

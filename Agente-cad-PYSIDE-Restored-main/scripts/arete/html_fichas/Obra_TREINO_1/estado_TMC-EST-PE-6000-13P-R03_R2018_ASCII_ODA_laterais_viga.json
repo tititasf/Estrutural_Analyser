@@ -1,0 +1,6383 @@
+{
+  "gerado_em": "2026-07-14T04:47:20",
+  "obra": "Obra_TREINO_1",
+  "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+  "db_path": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+  "pilares": [
+    {
+      "key": "P1",
+      "name": "P1",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          1178.8825,
+          3141.038
+        ],
+        [
+          1197.8825,
+          3141.038
+        ],
+        [
+          1197.8825,
+          3207.038
+        ],
+        [
+          1178.8825,
+          3207.038
+        ],
+        [
+          1178.8825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        1178.8825,
+        3141.038,
+        1197.8825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L301",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309A",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "nulo",
+      "lado_B": "Laje: L301\nAltura: 12\nNivel: 852.12",
+      "lado_C": "nulo",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P2",
+      "name": "P2",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          1603.3825,
+          3141.038
+        ],
+        [
+          1622.3825,
+          3141.038
+        ],
+        [
+          1622.3825,
+          3207.038
+        ],
+        [
+          1603.3825,
+          3207.038
+        ],
+        [
+          1603.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        1603.3825,
+        3141.038,
+        1622.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L301",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L302",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V312",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L301\nAltura: 12\nNivel: 852.12",
+      "lado_B": "Laje: L302\nAltura: 12\nNivel: 852.12",
+      "lado_C": "Laje: L301\nAltura: 12\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P3",
+      "name": "P3",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2040.3825,
+          3141.038
+        ],
+        [
+          2059.3825,
+          3141.038
+        ],
+        [
+          2059.3825,
+          3207.038
+        ],
+        [
+          2040.3825,
+          3207.038
+        ],
+        [
+          2040.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        2040.3825,
+        3141.038,
+        2059.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L302",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L303",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L302\nAltura: 12\nNivel: 852.12",
+      "lado_B": "Laje: L303\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: L302\nAltura: 12\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P4",
+      "name": "P4",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2477.3825,
+          3141.038
+        ],
+        [
+          2496.3825,
+          3141.038
+        ],
+        [
+          2496.3825,
+          3207.038
+        ],
+        [
+          2477.3825,
+          3207.038
+        ],
+        [
+          2477.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        2477.3825,
+        3141.038,
+        2496.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L303",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L304",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V316",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L303\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L304\nAltura: 12\nNivel: 852.12",
+      "lado_C": "Laje: L303\nAltura: 12\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P5",
+      "name": "P5",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2914.3825,
+          3141.038
+        ],
+        [
+          2933.3825,
+          3141.038
+        ],
+        [
+          2933.3825,
+          3207.038
+        ],
+        [
+          2914.3825,
+          3207.038
+        ],
+        [
+          2914.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        2914.3825,
+        3141.038,
+        2933.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L304",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L305",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L304\nAltura: 12\nNivel: 852.12",
+      "lado_B": "Laje: L305\nAltura: 12\nNivel: 852.12",
+      "lado_C": "Laje: L304\nAltura: 12\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P6",
+      "name": "P6",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          3351.3825,
+          3141.038
+        ],
+        [
+          3370.3825,
+          3141.038
+        ],
+        [
+          3370.3825,
+          3207.038
+        ],
+        [
+          3351.3825,
+          3207.038
+        ],
+        [
+          3351.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        3351.3825,
+        3141.038,
+        3370.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L305",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L306",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V320",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L305\nAltura: 12\nNivel: 852.12",
+      "lado_B": "Laje: L306\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: L305\nAltura: 12\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P7",
+      "name": "P7",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          3788.3825,
+          3141.038
+        ],
+        [
+          3807.3825,
+          3141.038
+        ],
+        [
+          3807.3825,
+          3207.038
+        ],
+        [
+          3788.3825,
+          3207.038
+        ],
+        [
+          3788.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        3788.3825,
+        3141.038,
+        3807.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L306",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L307",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L306\nAltura: 10\nNivel: 852.12",
+      "lado_B": "Laje: L307\nAltura: 12\nNivel: 852.12",
+      "lado_C": "Laje: L306\nAltura: 10\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P8",
+      "name": "P8",
+      "classification": "MORRE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          4225.3825,
+          3141.038
+        ],
+        [
+          4244.3825,
+          3141.038
+        ],
+        [
+          4244.3825,
+          3207.038
+        ],
+        [
+          4225.3825,
+          3207.038
+        ],
+        [
+          4225.3825,
+          3141.038
+        ]
+      ],
+      "bbox": [
+        4225.3825,
+        3141.038,
+        4244.3825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L307",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L308",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V325",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L307\nAltura: 12\nNivel: 852.12",
+      "lado_B": "Laje: L308\nAltura: 13\nNivel: 852.12",
+      "lado_C": "Laje: L307\nAltura: 12\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P9",
+      "name": "P9",
+      "classification": "INDETERMINADO",
+      "orientation": "Vertical",
+      "points": [
+        [
+          4649.8825,
+          3103.038
+        ],
+        [
+          4668.8825,
+          3103.038
+        ],
+        [
+          4668.8825,
+          3207.038
+        ],
+        [
+          4649.8825,
+          3207.038
+        ],
+        [
+          4649.8825,
+          3103.038
+        ]
+      ],
+      "bbox": [
+        4649.8825,
+        3103.038,
+        4668.8825,
+        3207.038
+      ],
+      "lajes": [
+        {
+          "laje": "L317",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V332",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "855.12",
+      "lado_A": "Laje: L317\nAltura: 13\nNivel: 855.12",
+      "lado_B": "nulo",
+      "lado_C": "nulo",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P10",
+      "name": "P10",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          1178.8825,
+          2620.038
+        ],
+        [
+          1197.8825,
+          2620.038
+        ],
+        [
+          1197.8825,
+          2680.038
+        ],
+        [
+          1178.8825,
+          2680.038
+        ],
+        [
+          1178.8825,
+          2620.038
+        ]
+      ],
+      "bbox": [
+        1178.8825,
+        2620.038,
+        1197.8825,
+        2680.038
+      ],
+      "lajes": [
+        {
+          "laje": "L319",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L309",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309A",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "nulo",
+      "lado_B": "Laje: L319\nAltura: 14\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P11",
+      "name": "P11",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          1572.8825,
+          2661.038
+        ],
+        [
+          1652.8825,
+          2661.038
+        ],
+        [
+          1652.8825,
+          2680.038
+        ],
+        [
+          1572.8825,
+          2680.038
+        ],
+        [
+          1572.8825,
+          2661.038
+        ]
+      ],
+      "bbox": [
+        1572.8825,
+        2661.038,
+        1652.8825,
+        2680.038
+      ],
+      "lajes": [
+        {
+          "laje": "L309",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L310",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L318",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L309\nAltura: 13\nNivel: 852.19\n\nLaje: L310\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P12",
+      "name": "P12",
+      "classification": "INDETERMINADO",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2040.3825,
+          2825.473324
+        ],
+        [
+          2059.3825,
+          2825.473324
+        ],
+        [
+          2059.3825,
+          2851.36895
+        ],
+        [
+          2040.3825,
+          2848.580555
+        ],
+        [
+          2040.3825,
+          2825.473324
+        ]
+      ],
+      "bbox": [
+        2040.3825,
+        2825.473324,
+        2059.3825,
+        2851.36895
+      ],
+      "lajes": [
+        {
+          "laje": "L310",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L311",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L310\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L311\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P13",
+      "name": "P13",
+      "classification": "INDETERMINADO",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2477.3825,
+          2825.473324
+        ],
+        [
+          2496.3825,
+          2825.473324
+        ],
+        [
+          2496.3825,
+          2851.36895
+        ],
+        [
+          2477.3825,
+          2848.580555
+        ],
+        [
+          2477.3825,
+          2825.473324
+        ]
+      ],
+      "bbox": [
+        2477.3825,
+        2825.473324,
+        2496.3825,
+        2851.36895
+      ],
+      "lajes": [
+        {
+          "laje": "L311",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V316",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L312",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V316",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V316",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V316",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L311\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L312\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P14",
+      "name": "P14",
+      "classification": "INDETERMINADO",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2914.3825,
+          2825.473324
+        ],
+        [
+          2933.3825,
+          2825.473324
+        ],
+        [
+          2933.3825,
+          2851.36895
+        ],
+        [
+          2914.3825,
+          2848.580555
+        ],
+        [
+          2914.3825,
+          2825.473324
+        ]
+      ],
+      "bbox": [
+        2914.3825,
+        2825.473324,
+        2933.3825,
+        2851.36895
+      ],
+      "lajes": [
+        {
+          "laje": "L312",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L313",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L312\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L313\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P15",
+      "name": "P15",
+      "classification": "INDETERMINADO",
+      "orientation": "Vertical",
+      "points": [
+        [
+          3351.3825,
+          2781.538
+        ],
+        [
+          3370.3825,
+          2781.538
+        ],
+        [
+          3370.3825,
+          2881.538
+        ],
+        [
+          3351.3825,
+          2881.538
+        ],
+        [
+          3351.3825,
+          2781.538
+        ]
+      ],
+      "bbox": [
+        3351.3825,
+        2781.538,
+        3370.3825,
+        2881.538
+      ],
+      "lajes": [
+        {
+          "laje": "L313",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V320",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L314",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V320",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V320",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V320",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L313\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L314\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P16",
+      "name": "P16",
+      "classification": "INDETERMINADO",
+      "orientation": "Vertical",
+      "points": [
+        [
+          3788.3825,
+          2779.038
+        ],
+        [
+          3807.3825,
+          2779.038
+        ],
+        [
+          3807.3825,
+          2879.038
+        ],
+        [
+          3788.3825,
+          2879.038
+        ],
+        [
+          3788.3825,
+          2779.038
+        ]
+      ],
+      "bbox": [
+        3788.3825,
+        2779.038,
+        3807.3825,
+        2879.038
+      ],
+      "lajes": [
+        {
+          "laje": "L314",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L315",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L314\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L315\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P17",
+      "name": "P17",
+      "classification": "INDETERMINADO",
+      "orientation": "Horizontal",
+      "points": [
+        [
+          4174.8825,
+          2661.038
+        ],
+        [
+          4294.8825,
+          2661.038
+        ],
+        [
+          4294.8825,
+          2680.038
+        ],
+        [
+          4174.8825,
+          2680.038
+        ],
+        [
+          4174.8825,
+          2661.038
+        ]
+      ],
+      "bbox": [
+        4174.8825,
+        2661.038,
+        4294.8825,
+        2680.038
+      ],
+      "lajes": [
+        {
+          "laje": "L315",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L316",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L318",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L315\nAltura: 12\nNivel: 852.19\n\nLaje: L316\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P18",
+      "name": "P18",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          4533.3825,
+          2601.038
+        ],
+        [
+          4552.3825,
+          2601.038
+        ],
+        [
+          4552.3825,
+          2680.038
+        ],
+        [
+          4533.3825,
+          2680.038
+        ],
+        [
+          4533.3825,
+          2601.038
+        ]
+      ],
+      "bbox": [
+        4533.3825,
+        2601.038,
+        4552.3825,
+        2680.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L316",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L317",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "B",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V331",
+            "dim": "14/40"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "855.12",
+      "lado_A": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: ?\nAltura:\nNivel:",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "nulo",
+      "atencao": ""
+    },
+    {
+      "key": "P19",
+      "name": "P19",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          1572.8825,
+          2490.038
+        ],
+        [
+          1652.8825,
+          2490.038
+        ],
+        [
+          1652.8825,
+          2509.038
+        ],
+        [
+          1572.8825,
+          2509.038
+        ],
+        [
+          1572.8825,
+          2490.038
+        ]
+      ],
+      "bbox": [
+        1572.8825,
+        2490.038,
+        1652.8825,
+        2509.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L319",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L320",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L319\nAltura: 14\nNivel: 852.19\n\nLaje: L320\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P20",
+      "name": "P20",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2040.3825,
+          2423.038
+        ],
+        [
+          2059.3825,
+          2423.038
+        ],
+        [
+          2059.3825,
+          2509.038
+        ],
+        [
+          2040.3825,
+          2509.038
+        ],
+        [
+          2040.3825,
+          2423.038
+        ]
+      ],
+      "bbox": [
+        2040.3825,
+        2423.038,
+        2059.3825,
+        2509.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "C",
+          "face": "CIMA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L320",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L321",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V313",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L320\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L321\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P21",
+      "name": "P21",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2477.3825,
+          2423.038
+        ],
+        [
+          2496.3825,
+          2423.038
+        ],
+        [
+          2496.3825,
+          2509.038
+        ],
+        [
+          2477.3825,
+          2509.038
+        ],
+        [
+          2477.3825,
+          2423.038
+        ]
+      ],
+      "bbox": [
+        2477.3825,
+        2423.038,
+        2496.3825,
+        2509.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "C",
+          "face": "CIMA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L321",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L322",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V315",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L321\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L322\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P22",
+      "name": "P22",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2914.3825,
+          2423.038
+        ],
+        [
+          2933.3825,
+          2423.038
+        ],
+        [
+          2933.3825,
+          2509.038
+        ],
+        [
+          2914.3825,
+          2509.038
+        ],
+        [
+          2914.3825,
+          2423.038
+        ]
+      ],
+      "bbox": [
+        2914.3825,
+        2423.038,
+        2933.3825,
+        2509.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "C",
+          "face": "CIMA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L322",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L323",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V317",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L322\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L323\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P23",
+      "name": "P23",
+      "classification": "INDETERMINADO",
+      "orientation": "Vertical",
+      "points": [
+        [
+          3351.3825,
+          2380.038
+        ],
+        [
+          3370.3825,
+          2380.038
+        ],
+        [
+          3370.3825,
+          2480.038
+        ],
+        [
+          3351.3825,
+          2480.038
+        ],
+        [
+          3351.3825,
+          2380.038
+        ]
+      ],
+      "bbox": [
+        3351.3825,
+        2380.038,
+        3370.3825,
+        2480.038
+      ],
+      "lajes": [
+        {
+          "laje": "L323",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L324",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V303",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V319",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "859.12",
+      "lado_A": "Laje: L323\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L324\nAltura: 13\nNivel: 859.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P24",
+      "name": "P24",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          3788.3825,
+          2380.038
+        ],
+        [
+          3807.3825,
+          2380.038
+        ],
+        [
+          3807.3825,
+          2460.038
+        ],
+        [
+          3788.3825,
+          2460.038
+        ],
+        [
+          3788.3825,
+          2380.038
+        ]
+      ],
+      "bbox": [
+        3788.3825,
+        2380.038,
+        3807.3825,
+        2460.038
+      ],
+      "lajes": [
+        {
+          "laje": "L324",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L325",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V304",
+            "dim": "19/50"
+          }
+        },
+        {
+          "laje": "L318",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V321",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "859.12",
+      "lado_A": "Laje: L324\nAltura: 13\nNivel: 859.12",
+      "lado_B": "Laje: L325\nAltura: 12\nNivel: 859.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P25",
+      "name": "P25",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          1178.8825,
+          2240.038
+        ],
+        [
+          1197.8825,
+          2240.038
+        ],
+        [
+          1197.8825,
+          2300.038
+        ],
+        [
+          1178.8825,
+          2300.038
+        ],
+        [
+          1178.8825,
+          2240.038
+        ]
+      ],
+      "bbox": [
+        1178.8825,
+        2240.038,
+        1197.8825,
+        2300.038
+      ],
+      "lajes": [
+        {
+          "laje": "L319",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V305",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "nulo",
+      "lado_B": "Laje: L319\nAltura: 14\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P26",
+      "name": "P26",
+      "classification": "INDETERMINADO",
+      "orientation": "Normal",
+      "points": [
+        [
+          3936.3825,
+          2242.038
+        ],
+        [
+          4101.3825,
+          2242.038
+        ],
+        [
+          4101.3825,
+          2261.038
+        ],
+        [
+          3955.3825,
+          2261.038
+        ],
+        [
+          3955.3825,
+          2460.038
+        ],
+        [
+          3936.3825,
+          2460.038
+        ],
+        [
+          3936.3825,
+          2242.038
+        ]
+      ],
+      "bbox": [
+        3936.3825,
+        2242.038,
+        4101.3825,
+        2460.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "C",
+          "face": "CIMA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V304",
+            "dim": "19/50"
+          }
+        },
+        {
+          "laje": "L325",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "B",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V324",
+            "dim": "19/50"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V305",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "859.12",
+      "lado_A": "Laje: L325\nAltura: 12\nNivel: 859.12",
+      "lado_B": "Laje: ?\nAltura:\nNivel:",
+      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P27",
+      "name": "P27",
+      "classification": "INDETERMINADO",
+      "orientation": "Normal",
+      "points": [
+        [
+          4552.3825,
+          2242.038
+        ],
+        [
+          4552.3825,
+          2460.038
+        ],
+        [
+          4533.3825,
+          2460.038
+        ],
+        [
+          4533.3825,
+          2261.038
+        ],
+        [
+          4387.3825,
+          2261.038
+        ],
+        [
+          4387.3825,
+          2242.038
+        ],
+        [
+          4552.3825,
+          2242.038
+        ]
+      ],
+      "bbox": [
+        4387.3825,
+        2242.038,
+        4552.3825,
+        2460.038
+      ],
+      "lajes": [
+        {
+          "laje": "L318",
+          "side": "C",
+          "face": "CIMA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V304",
+            "dim": "19/50"
+          }
+        },
+        {
+          "laje": null,
+          "side": "A",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V326",
+            "dim": "19/50"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "B",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V329",
+            "dim": "19/60"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V327",
+            "dim": "14/50"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: ?\nAltura:\nNivel:",
+      "lado_B": "Laje: ?\nAltura:\nNivel:",
+      "lado_C": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P28",
+      "name": "P28",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          1600.8825,
+          1963.038
+        ],
+        [
+          1624.8825,
+          1963.038
+        ],
+        [
+          1624.8825,
+          2043.038
+        ],
+        [
+          1600.8825,
+          2043.038
+        ],
+        [
+          1600.8825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        1600.8825,
+        1963.038,
+        1624.8825,
+        2043.038
+      ],
+      "lajes": [
+        {
+          "laje": "L326",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L327",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V306",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L326\nAltura: 10\nNivel: 852.12",
+      "lado_B": "Laje: L327\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: L327\nAltura: 10\nNivel: 852.12",
+      "atencao": ""
+    },
+    {
+      "key": "P29",
+      "name": "P29",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2037.8825,
+          1963.038
+        ],
+        [
+          2061.8825,
+          1963.038
+        ],
+        [
+          2061.8825,
+          2029.038
+        ],
+        [
+          2037.8825,
+          2029.038
+        ],
+        [
+          2037.8825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        2037.8825,
+        1963.038,
+        2061.8825,
+        2029.038
+      ],
+      "lajes": [
+        {
+          "laje": "L327",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L328",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "VF202",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L327\nAltura: 10\nNivel: 852.12",
+      "lado_B": "Laje: L328\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: L328\nAltura: 10\nNivel: 852.12",
+      "atencao": ""
+    },
+    {
+      "key": "P30",
+      "name": "P30",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2474.8825,
+          1963.038
+        ],
+        [
+          2498.8825,
+          1963.038
+        ],
+        [
+          2498.8825,
+          2029.038
+        ],
+        [
+          2474.8825,
+          2029.038
+        ],
+        [
+          2474.8825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        2474.8825,
+        1963.038,
+        2498.8825,
+        2029.038
+      ],
+      "lajes": [
+        {
+          "laje": "L328",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L329",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "VF202",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L328\nAltura: 10\nNivel: 852.12",
+      "lado_B": "Laje: L329\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: L329\nAltura: 10\nNivel: 852.12",
+      "atencao": ""
+    },
+    {
+      "key": "P31",
+      "name": "P31",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2911.8825,
+          1963.038
+        ],
+        [
+          2935.8825,
+          1963.038
+        ],
+        [
+          2935.8825,
+          2029.038
+        ],
+        [
+          2911.8825,
+          2029.038
+        ],
+        [
+          2911.8825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        2911.8825,
+        1963.038,
+        2935.8825,
+        2029.038
+      ],
+      "lajes": [
+        {
+          "laje": "L329",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L330",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "VF202",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L329\nAltura: 10\nNivel: 852.12",
+      "lado_B": "Laje: L330\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: L330\nAltura: 10\nNivel: 852.12",
+      "atencao": ""
+    },
+    {
+      "key": "P32",
+      "name": "P32",
+      "classification": "SEGUE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          3348.8825,
+          1963.038
+        ],
+        [
+          3372.8825,
+          1963.038
+        ],
+        [
+          3372.8825,
+          2029.038
+        ],
+        [
+          3348.8825,
+          2029.038
+        ],
+        [
+          3348.8825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        3348.8825,
+        1963.038,
+        3372.8825,
+        2029.038
+      ],
+      "lajes": [
+        {
+          "laje": "L330",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L331",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "VF202",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.12",
+      "lado_A": "Laje: L330\nAltura: 10\nNivel: 852.12",
+      "lado_B": "Laje: L331\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: L331\nAltura: 10\nNivel: 852.12",
+      "atencao": ""
+    },
+    {
+      "key": "P33",
+      "name": "P33",
+      "classification": "INDETERMINADO",
+      "orientation": "Horizontal",
+      "points": [
+        [
+          3788.3825,
+          1963.038
+        ],
+        [
+          3888.3825,
+          1963.038
+        ],
+        [
+          3888.3825,
+          1982.038
+        ],
+        [
+          3788.3825,
+          1982.038
+        ],
+        [
+          3788.3825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        3788.3825,
+        1963.038,
+        3888.3825,
+        1982.038
+      ],
+      "lajes": [
+        {
+          "laje": "L325",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V321",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L331",
+          "side": "C",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V308",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "859.12",
+      "lado_A": "nulo",
+      "lado_B": "Laje: L325\nAltura: 12\nNivel: 859.12",
+      "lado_C": "Laje: L331\nAltura: 10\nNivel: 852.12",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P34",
+      "name": "P34",
+      "classification": "INDETERMINADO",
+      "orientation": "Horizontal",
+      "points": [
+        [
+          4141.3825,
+          1963.038
+        ],
+        [
+          4201.3825,
+          1963.038
+        ],
+        [
+          4201.3825,
+          1982.038
+        ],
+        [
+          4141.3825,
+          1982.038
+        ],
+        [
+          4141.3825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        4141.3825,
+        1963.038,
+        4201.3825,
+        1982.038
+      ],
+      "lajes": [
+        {
+          "laje": null,
+          "side": "A",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V308",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "B",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V308",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V308",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V308",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "",
+      "lado_A": "Laje: ?\nAltura:\nNivel:",
+      "lado_B": "Laje: ?\nAltura:\nNivel:",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P35",
+      "name": "P35",
+      "classification": "INDETERMINADO",
+      "orientation": "Horizontal",
+      "points": [
+        [
+          4492.3825,
+          1963.038
+        ],
+        [
+          4552.3825,
+          1963.038
+        ],
+        [
+          4552.3825,
+          1982.038
+        ],
+        [
+          4492.3825,
+          1982.038
+        ],
+        [
+          4492.3825,
+          1963.038
+        ]
+      ],
+      "bbox": [
+        4492.3825,
+        1963.038,
+        4552.3825,
+        1982.038
+      ],
+      "lajes": [
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V308",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V328",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "",
+      "lado_A": "nulo",
+      "lado_B": "nulo",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P41",
+      "name": "P41",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          1178.8825,
+          2960.038
+        ],
+        [
+          1197.8825,
+          2960.038
+        ],
+        [
+          1197.8825,
+          3010.038
+        ],
+        [
+          1178.8825,
+          3010.038
+        ],
+        [
+          1178.8825,
+          2960.038
+        ]
+      ],
+      "bbox": [
+        1178.8825,
+        2960.038,
+        1197.8825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L309",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L301",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "A",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309A",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309A",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V309A",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: ?\nAltura:\nNivel:",
+      "lado_B": "Laje: L309\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P42",
+      "name": "P42",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          1587.8825,
+          2991.038
+        ],
+        [
+          1637.8825,
+          2991.038
+        ],
+        [
+          1637.8825,
+          3010.038
+        ],
+        [
+          1587.8825,
+          3010.038
+        ],
+        [
+          1587.8825,
+          2991.038
+        ]
+      ],
+      "bbox": [
+        1587.8825,
+        2991.038,
+        1637.8825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L301",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L302",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L309",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L310",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L309\nAltura: 13\nNivel: 852.19\n\nLaje: L310\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L301\nAltura: 12\nNivel: 852.12\n\nLaje: L302\nAltura: 12\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P43",
+      "name": "P43",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2040.3825,
+          2960.038
+        ],
+        [
+          2059.3825,
+          2960.038
+        ],
+        [
+          2059.3825,
+          3010.038
+        ],
+        [
+          2040.3825,
+          3010.038
+        ],
+        [
+          2040.3825,
+          2960.038
+        ]
+      ],
+      "bbox": [
+        2040.3825,
+        2960.038,
+        2059.3825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L310",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L311",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L302",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L303",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V314",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L310\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L311\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P44",
+      "name": "P44",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          2461.8825,
+          2991.038
+        ],
+        [
+          2511.8825,
+          2991.038
+        ],
+        [
+          2511.8825,
+          3010.038
+        ],
+        [
+          2461.8825,
+          3010.038
+        ],
+        [
+          2461.8825,
+          2991.038
+        ]
+      ],
+      "bbox": [
+        2461.8825,
+        2991.038,
+        2511.8825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L303",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L304",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L311",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L312",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L311\nAltura: 12\nNivel: 852.19\n\nLaje: L312\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L303\nAltura: 12\nNivel: 852.19\n\nLaje: L304\nAltura: 12\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P45",
+      "name": "P45",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          2914.3825,
+          2960.038
+        ],
+        [
+          2933.3825,
+          2960.038
+        ],
+        [
+          2933.3825,
+          3010.038
+        ],
+        [
+          2914.3825,
+          3010.038
+        ],
+        [
+          2914.3825,
+          2960.038
+        ]
+      ],
+      "bbox": [
+        2914.3825,
+        2960.038,
+        2933.3825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L312",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L313",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L304",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L305",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V318",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L312\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L313\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P46",
+      "name": "P46",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          3335.8825,
+          2991.038
+        ],
+        [
+          3385.8825,
+          2991.038
+        ],
+        [
+          3385.8825,
+          3010.038
+        ],
+        [
+          3335.8825,
+          3010.038
+        ],
+        [
+          3335.8825,
+          2991.038
+        ]
+      ],
+      "bbox": [
+        3335.8825,
+        2991.038,
+        3385.8825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L305",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L306",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L313",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L314",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L313\nAltura: 13\nNivel: 852.19\n\nLaje: L314\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L305\nAltura: 12\nNivel: 852.12\n\nLaje: L306\nAltura: 10\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P47",
+      "name": "P47",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          3788.3825,
+          2960.038
+        ],
+        [
+          3807.3825,
+          2960.038
+        ],
+        [
+          3807.3825,
+          3010.038
+        ],
+        [
+          3788.3825,
+          3010.038
+        ],
+        [
+          3788.3825,
+          2960.038
+        ]
+      ],
+      "bbox": [
+        3788.3825,
+        2960.038,
+        3807.3825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L314",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "both",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L315",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "both",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L306",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L307",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V322",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L314\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L315\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P48",
+      "name": "P48",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          4209.8825,
+          2991.038
+        ],
+        [
+          4259.8825,
+          2991.038
+        ],
+        [
+          4259.8825,
+          3010.038
+        ],
+        [
+          4209.8825,
+          3010.038
+        ],
+        [
+          4209.8825,
+          2991.038
+        ]
+      ],
+      "bbox": [
+        4209.8825,
+        2991.038,
+        4259.8825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L307",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L308",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L315",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": "L316",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V301",
+            "dim": "19/120"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V325",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V325",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L315\nAltura: 12\nNivel: 852.19\n\nLaje: L316\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L307\nAltura: 12\nNivel: 852.12\n\nLaje: L308\nAltura: 13\nNivel: 852.12",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P49",
+      "name": "P49",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR VERTICAL",
+      "points": [
+        [
+          4533.3825,
+          2960.038
+        ],
+        [
+          4552.3825,
+          2960.038
+        ],
+        [
+          4552.3825,
+          3010.038
+        ],
+        [
+          4533.3825,
+          3010.038
+        ],
+        [
+          4533.3825,
+          2960.038
+        ]
+      ],
+      "bbox": [
+        4533.3825,
+        2960.038,
+        4552.3825,
+        3010.038
+      ],
+      "lajes": [
+        {
+          "laje": "L316",
+          "side": "A",
+          "face": "ESQ",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L317",
+          "side": "B",
+          "face": "DIR",
+          "content_type": "laje"
+        },
+        {
+          "laje": "L308",
+          "side": "NULO",
+          "face": "NULO",
+          "source": "canonical_geometry_adjacency",
+          "content_type": "laje"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V330",
+            "dim": "19/120"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "855.12",
+      "lado_A": "Laje: L316\nAltura: 13\nNivel: 852.19",
+      "lado_B": "Laje: L317\nAltura: 13\nNivel: 855.12",
+      "lado_C": "Laje: L316\nAltura: 13\nNivel: 852.19",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P50",
+      "name": "P50",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          2461.882476,
+          2661.038
+        ],
+        [
+          2511.882476,
+          2661.038
+        ],
+        [
+          2511.882476,
+          2680.038
+        ],
+        [
+          2461.882476,
+          2680.038
+        ],
+        [
+          2461.882476,
+          2661.038
+        ]
+      ],
+      "bbox": [
+        2461.882476,
+        2661.038,
+        2511.882476,
+        2680.038
+      ],
+      "lajes": [
+        {
+          "laje": "L311",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L312",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L318",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L311\nAltura: 12\nNivel: 852.19\n\nLaje: L312\nAltura: 13\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    },
+    {
+      "key": "P51",
+      "name": "P51",
+      "classification": "NASCE",
+      "orientation": "RETANGULAR HORIZONTAL",
+      "points": [
+        [
+          3335.8825,
+          2661.038
+        ],
+        [
+          3385.8825,
+          2661.038
+        ],
+        [
+          3385.8825,
+          2680.038
+        ],
+        [
+          3335.8825,
+          2680.038
+        ],
+        [
+          3335.8825,
+          2661.038
+        ]
+      ],
+      "bbox": [
+        3335.8825,
+        2661.038,
+        3385.8825,
+        2680.038
+      ],
+      "lajes": [
+        {
+          "laje": "L313",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L314",
+          "side": "B",
+          "face": "CIMA",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": "L318",
+          "side": "A",
+          "face": "BAIXO",
+          "content_type": "both",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          }
+        },
+        {
+          "laje": null,
+          "side": "C",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        },
+        {
+          "laje": null,
+          "side": "D",
+          "face": "VIGA",
+          "content_type": "viga",
+          "viga": {
+            "name": "V302",
+            "dim": "19/55"
+          },
+          "source": "beam_wall_alignment"
+        }
+      ],
+      "nivel_str": "852.19",
+      "lado_A": "Laje: L318\nAltura: 12\nNivel: 852.19",
+      "lado_B": "Laje: L313\nAltura: 13\nNivel: 852.19\n\nLaje: L314\nAltura: 12\nNivel: 852.19",
+      "lado_C": "Laje: ?\nAltura:\nNivel:",
+      "lado_D": "Laje: ?\nAltura:\nNivel:",
+      "atencao": ""
+    }
+  ],
+  "slabs": [
+    {
+      "name": "L301",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          1603.3825,
+          3010.0
+        ],
+        [
+          1197.8825,
+          3010.0
+        ],
+        [
+          1197.8825,
+          3193.0
+        ],
+        [
+          1603.3825,
+          3193.0
+        ],
+        [
+          1603.3825,
+          3141.038
+        ],
+        [
+          1603.3825,
+          3141.038
+        ],
+        [
+          1603.3825,
+          3010.0
+        ]
+      ]
+    },
+    {
+      "name": "L302",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          2040.3825,
+          3010.0
+        ],
+        [
+          1622.3825,
+          3010.0
+        ],
+        [
+          1622.3825,
+          3193.0
+        ],
+        [
+          2040.3825,
+          3193.0
+        ],
+        [
+          2040.3825,
+          3141.038
+        ],
+        [
+          2040.3825,
+          3141.038
+        ],
+        [
+          2040.3825,
+          3010.0
+        ]
+      ]
+    },
+    {
+      "name": "L303",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          2477.3825,
+          3193.038
+        ],
+        [
+          2477.3825,
+          3010.038
+        ],
+        [
+          2059.3825,
+          3010.038
+        ],
+        [
+          2059.3825,
+          3193.038
+        ],
+        [
+          2477.3825,
+          3193.038
+        ]
+      ]
+    },
+    {
+      "name": "L304",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          2914.3825,
+          3010.0
+        ],
+        [
+          2496.3825,
+          3010.0
+        ],
+        [
+          2496.3825,
+          3193.0
+        ],
+        [
+          2914.3825,
+          3193.0
+        ],
+        [
+          2914.3825,
+          3141.038
+        ],
+        [
+          2914.3825,
+          3141.038
+        ],
+        [
+          2914.3825,
+          3010.0
+        ]
+      ]
+    },
+    {
+      "name": "L305",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          3351.3825,
+          3010.0
+        ],
+        [
+          2933.3825,
+          3010.0
+        ],
+        [
+          2933.3825,
+          3193.0
+        ],
+        [
+          3351.3825,
+          3193.0
+        ],
+        [
+          3351.3825,
+          3141.038
+        ],
+        [
+          3351.3825,
+          3141.038
+        ],
+        [
+          3351.3825,
+          3010.0
+        ]
+      ]
+    },
+    {
+      "name": "L306",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          3788.3825,
+          3010.0
+        ],
+        [
+          3370.3825,
+          3010.0
+        ],
+        [
+          3370.3825,
+          3193.0
+        ],
+        [
+          3788.3825,
+          3193.0
+        ],
+        [
+          3788.3825,
+          3141.038
+        ],
+        [
+          3788.3825,
+          3141.038
+        ],
+        [
+          3788.3825,
+          3010.0
+        ]
+      ]
+    },
+    {
+      "name": "L307",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          4225.3825,
+          3010.0
+        ],
+        [
+          3807.3825,
+          3010.0
+        ],
+        [
+          3807.3825,
+          3193.0
+        ],
+        [
+          4225.3825,
+          3193.0
+        ],
+        [
+          4225.3825,
+          3141.038
+        ],
+        [
+          4225.3825,
+          3141.038
+        ],
+        [
+          4225.3825,
+          3010.0
+        ]
+      ]
+    },
+    {
+      "name": "L308",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          4244.3825,
+          3010.038
+        ],
+        [
+          4533.3825,
+          3010.038
+        ],
+        [
+          4533.3825,
+          3193.038
+        ],
+        [
+          4244.3825,
+          3193.038
+        ],
+        [
+          4244.3825,
+          3010.038
+        ]
+      ]
+    },
+    {
+      "name": "L309",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          1197.8825,
+          2680.0
+        ],
+        [
+          1603.3825,
+          2680.0
+        ],
+        [
+          1603.3825,
+          2991.0
+        ],
+        [
+          1197.8825,
+          2991.0
+        ],
+        [
+          1197.8825,
+          2680.0
+        ]
+      ]
+    },
+    {
+      "name": "L310",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          1622.5,
+          2991.0
+        ],
+        [
+          2040.3825,
+          2991.0
+        ],
+        [
+          2040.3825,
+          2960.038
+        ],
+        [
+          2040.3825,
+          2960.038
+        ],
+        [
+          2040.3825,
+          2759.038
+        ],
+        [
+          2040.3825,
+          2759.038
+        ],
+        [
+          2040.3825,
+          2680.0
+        ],
+        [
+          1622.5,
+          2680.0
+        ],
+        [
+          1622.5,
+          2991.0
+        ]
+      ]
+    },
+    {
+      "name": "L311",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          2059.3825,
+          2680.0
+        ],
+        [
+          2059.3825,
+          2991.0
+        ],
+        [
+          2477.3825,
+          2991.0
+        ],
+        [
+          2477.3825,
+          2759.038
+        ],
+        [
+          2477.3825,
+          2759.038
+        ],
+        [
+          2477.3825,
+          2680.0
+        ],
+        [
+          2059.3825,
+          2680.0
+        ]
+      ]
+    },
+    {
+      "name": "L312",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          2496.3825,
+          2991.0
+        ],
+        [
+          2914.3825,
+          2991.0
+        ],
+        [
+          2914.3825,
+          2960.038
+        ],
+        [
+          2914.3825,
+          2960.038
+        ],
+        [
+          2914.3825,
+          2759.038
+        ],
+        [
+          2914.3825,
+          2759.038
+        ],
+        [
+          2914.3825,
+          2680.0
+        ],
+        [
+          2496.3825,
+          2680.0
+        ],
+        [
+          2496.3825,
+          2991.0
+        ]
+      ]
+    },
+    {
+      "name": "L313",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          3351.3825,
+          2680.0
+        ],
+        [
+          2933.5,
+          2680.0
+        ],
+        [
+          2933.5,
+          2991.0
+        ],
+        [
+          3351.3825,
+          2991.0
+        ],
+        [
+          3351.3825,
+          2881.538
+        ],
+        [
+          3351.3825,
+          2881.538
+        ],
+        [
+          3351.3825,
+          2781.538
+        ],
+        [
+          3351.3825,
+          2781.538
+        ],
+        [
+          3351.3825,
+          2680.0
+        ]
+      ]
+    },
+    {
+      "name": "L314",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          3370.3825,
+          2680.0
+        ],
+        [
+          3370.3825,
+          2991.0
+        ],
+        [
+          3788.3825,
+          2991.0
+        ],
+        [
+          3788.3825,
+          2960.038
+        ],
+        [
+          3788.3825,
+          2960.038
+        ],
+        [
+          3788.3825,
+          2879.038
+        ],
+        [
+          3788.3825,
+          2879.038
+        ],
+        [
+          3788.3825,
+          2779.038
+        ],
+        [
+          3788.3825,
+          2779.038
+        ],
+        [
+          3788.3825,
+          2680.0
+        ],
+        [
+          3370.3825,
+          2680.0
+        ]
+      ]
+    },
+    {
+      "name": "L315",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          3807.3825,
+          2680.0
+        ],
+        [
+          4225.3825,
+          2680.0
+        ],
+        [
+          4225.3825,
+          2991.0
+        ],
+        [
+          3807.3825,
+          2991.0
+        ],
+        [
+          3807.3825,
+          2680.0
+        ]
+      ]
+    },
+    {
+      "name": "L316",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          4533.3825,
+          2680.0
+        ],
+        [
+          4244.5,
+          2680.0
+        ],
+        [
+          4244.5,
+          2991.0
+        ],
+        [
+          4533.3825,
+          2991.0
+        ],
+        [
+          4533.3825,
+          2960.038
+        ],
+        [
+          4533.3825,
+          2960.038
+        ],
+        [
+          4533.3825,
+          2680.0
+        ]
+      ]
+    },
+    {
+      "name": "L317",
+      "nivel": "855.12",
+      "height": "",
+      "points": [
+        [
+          4649.8825,
+          2680.03753
+        ],
+        [
+          4552.5,
+          2680.03753
+        ],
+        [
+          4552.5,
+          3193.0
+        ],
+        [
+          4649.8825,
+          3193.0
+        ],
+        [
+          4649.8825,
+          3103.038
+        ],
+        [
+          4649.8825,
+          3103.038
+        ],
+        [
+          4649.8825,
+          2680.03753
+        ]
+      ]
+    },
+    {
+      "name": "L318",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          3807.5,
+          2460.0
+        ],
+        [
+          3807.5,
+          2509.0
+        ],
+        [
+          1652.8825,
+          2509.0
+        ],
+        [
+          1652.8825,
+          2509.038
+        ],
+        [
+          1572.8825,
+          2509.038
+        ],
+        [
+          1572.8825,
+          2509.0
+        ],
+        [
+          1394.3825,
+          2509.0
+        ],
+        [
+          1394.3825,
+          2661.0
+        ],
+        [
+          4533.3825,
+          2661.0
+        ],
+        [
+          4533.3825,
+          2601.038
+        ],
+        [
+          4533.3825,
+          2601.038
+        ],
+        [
+          4533.3825,
+          2460.0
+        ],
+        [
+          3807.5,
+          2460.0
+        ]
+      ]
+    },
+    {
+      "name": "L319",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          1603.3825,
+          2490.0
+        ],
+        [
+          1380.5,
+          2490.0
+        ],
+        [
+          1380.5,
+          2661.0
+        ],
+        [
+          1197.8825,
+          2661.0
+        ],
+        [
+          1197.8825,
+          2217.506423
+        ],
+        [
+          1356.845108,
+          2067.038
+        ],
+        [
+          1603.3825,
+          2067.0
+        ],
+        [
+          1603.3825,
+          2490.0
+        ]
+      ]
+    },
+    {
+      "name": "L320",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          2040.3825,
+          2067.0
+        ],
+        [
+          1622.5,
+          2067.0
+        ],
+        [
+          1622.5,
+          2490.0
+        ],
+        [
+          2040.3825,
+          2490.0
+        ],
+        [
+          2040.3825,
+          2423.038
+        ],
+        [
+          2040.3825,
+          2423.038
+        ],
+        [
+          2040.3825,
+          2067.0
+        ]
+      ]
+    },
+    {
+      "name": "L321",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          2477.3825,
+          2067.0
+        ],
+        [
+          2059.3825,
+          2067.0
+        ],
+        [
+          2059.3825,
+          2490.0
+        ],
+        [
+          2477.3825,
+          2490.0
+        ],
+        [
+          2477.3825,
+          2423.038
+        ],
+        [
+          2477.3825,
+          2423.038
+        ],
+        [
+          2477.3825,
+          2067.0
+        ]
+      ]
+    },
+    {
+      "name": "L322",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          2914.3825,
+          2067.0
+        ],
+        [
+          2496.3825,
+          2067.0
+        ],
+        [
+          2496.3825,
+          2490.0
+        ],
+        [
+          2914.3825,
+          2490.0
+        ],
+        [
+          2914.3825,
+          2423.038
+        ],
+        [
+          2914.3825,
+          2423.038
+        ],
+        [
+          2914.3825,
+          2067.0
+        ]
+      ]
+    },
+    {
+      "name": "L323",
+      "nivel": "852.19",
+      "height": "",
+      "points": [
+        [
+          3351.3825,
+          2067.0
+        ],
+        [
+          2933.3825,
+          2067.0
+        ],
+        [
+          2933.3825,
+          2490.0
+        ],
+        [
+          3351.3825,
+          2490.0
+        ],
+        [
+          3351.3825,
+          2480.038
+        ],
+        [
+          3351.3825,
+          2480.038
+        ],
+        [
+          3351.3825,
+          2380.038
+        ],
+        [
+          3351.3825,
+          2380.038
+        ],
+        [
+          3351.3825,
+          2067.0
+        ]
+      ]
+    },
+    {
+      "name": "L324",
+      "nivel": "859.12",
+      "height": "",
+      "points": [
+        [
+          3788.3825,
+          2067.0
+        ],
+        [
+          3370.5,
+          2067.0
+        ],
+        [
+          3370.5,
+          2490.0
+        ],
+        [
+          3788.3825,
+          2490.0
+        ],
+        [
+          3788.3825,
+          2460.038
+        ],
+        [
+          3788.3825,
+          2460.038
+        ],
+        [
+          3788.3825,
+          2380.038
+        ],
+        [
+          3788.3825,
+          2380.038
+        ],
+        [
+          3788.3825,
+          2067.0
+        ]
+      ]
+    },
+    {
+      "name": "L325",
+      "nivel": "859.12",
+      "height": "",
+      "points": [
+        [
+          3807.3825,
+          1982.038
+        ],
+        [
+          3936.3825,
+          1982.038
+        ],
+        [
+          3936.3825,
+          2441.0
+        ],
+        [
+          3807.3825,
+          2441.0
+        ],
+        [
+          3807.3825,
+          1982.038
+        ]
+      ]
+    },
+    {
+      "name": "L326",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          1369.644596,
+          2048.038
+        ],
+        [
+          1603.3825,
+          2048.038
+        ],
+        [
+          1603.3825,
+          2043.038
+        ],
+        [
+          1600.8825,
+          2043.038
+        ],
+        [
+          1600.8825,
+          1977.038
+        ],
+        [
+          1444.654758,
+          1977.038
+        ],
+        [
+          1369.644596,
+          2048.038
+        ]
+      ]
+    },
+    {
+      "name": "L327",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          2040.3825,
+          2048.0
+        ],
+        [
+          2040.3825,
+          2029.038
+        ],
+        [
+          2037.8825,
+          2029.038
+        ],
+        [
+          2037.8825,
+          1977.0
+        ],
+        [
+          1624.8825,
+          1977.0
+        ],
+        [
+          1624.8825,
+          2043.038
+        ],
+        [
+          1622.5,
+          2043.038
+        ],
+        [
+          1622.5,
+          2048.0
+        ],
+        [
+          2040.3825,
+          2048.0
+        ]
+      ]
+    },
+    {
+      "name": "L328",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          2062.0,
+          1977.038
+        ],
+        [
+          2062.0,
+          2029.0
+        ],
+        [
+          2059.3825,
+          2029.0
+        ],
+        [
+          2059.3825,
+          2048.038
+        ],
+        [
+          2477.3825,
+          2048.038
+        ],
+        [
+          2477.3825,
+          2029.038
+        ],
+        [
+          2474.8825,
+          2029.038
+        ],
+        [
+          2474.8825,
+          1977.038
+        ],
+        [
+          2062.0,
+          1977.038
+        ]
+      ]
+    },
+    {
+      "name": "L329",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          2499.0,
+          1977.0
+        ],
+        [
+          2499.0,
+          2029.0
+        ],
+        [
+          2496.5,
+          2029.0
+        ],
+        [
+          2496.5,
+          2048.0
+        ],
+        [
+          2914.3825,
+          2048.0
+        ],
+        [
+          2914.3825,
+          2029.038
+        ],
+        [
+          2911.8825,
+          2029.038
+        ],
+        [
+          2911.8825,
+          1977.0
+        ],
+        [
+          2499.0,
+          1977.0
+        ]
+      ]
+    },
+    {
+      "name": "L330",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          2936.0,
+          1977.0
+        ],
+        [
+          2936.0,
+          2029.0
+        ],
+        [
+          2933.5,
+          2029.0
+        ],
+        [
+          2933.5,
+          2048.0
+        ],
+        [
+          3351.3825,
+          2048.0
+        ],
+        [
+          3351.3825,
+          2029.038
+        ],
+        [
+          3348.8825,
+          2029.038
+        ],
+        [
+          3348.8825,
+          1977.0
+        ],
+        [
+          2936.0,
+          1977.0
+        ]
+      ]
+    },
+    {
+      "name": "L331",
+      "nivel": "852.12",
+      "height": "",
+      "points": [
+        [
+          3373.0,
+          1977.038
+        ],
+        [
+          3788.3825,
+          1977.038
+        ],
+        [
+          3788.3825,
+          2048.038
+        ],
+        [
+          3370.5,
+          2048.038
+        ],
+        [
+          3370.5,
+          2029.0
+        ],
+        [
+          3373.0,
+          2029.0
+        ],
+        [
+          3373.0,
+          1977.038
+        ]
+      ]
+    }
+  ],
+  "cortes": [
+    {
+      "uid": "L303_2231_3185",
+      "beam_name": "V314",
+      "conf_pct": 47,
+      "own_laje": "L303",
+      "neigh_laje": "L311",
+      "beam_h": "48.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2203.797851,
+          3207.038
+        ],
+        [
+          2258.797851,
+          3207.038
+        ],
+        [
+          2258.797851,
+          3193.038
+        ],
+        [
+          2220.797851,
+          3193.038
+        ],
+        [
+          2220.797851,
+          3163.038
+        ],
+        [
+          2210.797851,
+          3163.038
+        ],
+        [
+          2210.797851,
+          3193.038
+        ],
+        [
+          2203.797851,
+          3193.038
+        ],
+        [
+          2203.797851,
+          3207.038
+        ]
+      ]
+    },
+    {
+      "uid": "L306_3542_3185",
+      "beam_name": "V320",
+      "conf_pct": 41,
+      "own_laje": "L306",
+      "neigh_laje": "L314",
+      "beam_h": "48.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3514.797851,
+          3207.038
+        ],
+        [
+          3569.797851,
+          3207.038
+        ],
+        [
+          3569.797851,
+          3193.038
+        ],
+        [
+          3531.797851,
+          3193.038
+        ],
+        [
+          3531.797851,
+          3163.038
+        ],
+        [
+          3521.797851,
+          3163.038
+        ],
+        [
+          3521.797851,
+          3193.038
+        ],
+        [
+          3514.797851,
+          3193.038
+        ],
+        [
+          3514.797851,
+          3207.038
+        ]
+      ]
+    },
+    {
+      "uid": "L309_1613_2855",
+      "beam_name": "V312",
+      "conf_pct": 82,
+      "own_laje": "L309",
+      "neigh_laje": "L310",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          1573.3825,
+          2885.473324
+        ],
+        [
+          1573.3825,
+          2873.473324
+        ],
+        [
+          1603.3825,
+          2873.473324
+        ],
+        [
+          1603.3825,
+          2825.473324
+        ],
+        [
+          1622.3825,
+          2825.473324
+        ],
+        [
+          1622.3825,
+          2873.473324
+        ],
+        [
+          1652.3825,
+          2873.473324
+        ],
+        [
+          1652.3825,
+          2885.473324
+        ],
+        [
+          1573.3825,
+          2885.473324
+        ]
+      ]
+    },
+    {
+      "uid": "L309_1203_2855",
+      "beam_name": "V301",
+      "conf_pct": 82,
+      "own_laje": "L309",
+      "neigh_laje": "L310",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          1178.8825,
+          2885.473324
+        ],
+        [
+          1178.8825,
+          2873.473324
+        ],
+        [
+          1178.8825,
+          2825.473324
+        ],
+        [
+          1197.8825,
+          2825.473324
+        ],
+        [
+          1197.8825,
+          2873.473324
+        ],
+        [
+          1227.8825,
+          2873.473324
+        ],
+        [
+          1227.8825,
+          2885.473324
+        ],
+        [
+          1178.8825,
+          2885.473324
+        ]
+      ]
+    },
+    {
+      "uid": "L310_2050_2855",
+      "beam_name": "V314",
+      "conf_pct": 89,
+      "own_laje": "L310",
+      "neigh_laje": "L311",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2010.3825,
+          2885.473324
+        ],
+        [
+          2010.3825,
+          2873.473324
+        ],
+        [
+          2040.3825,
+          2873.473324
+        ],
+        [
+          2040.3825,
+          2825.473324
+        ],
+        [
+          2059.3825,
+          2825.473324
+        ],
+        [
+          2059.3825,
+          2873.473324
+        ],
+        [
+          2089.3825,
+          2873.473324
+        ],
+        [
+          2089.3825,
+          2885.473324
+        ],
+        [
+          2010.3825,
+          2885.473324
+        ]
+      ]
+    },
+    {
+      "uid": "L311_2231_2671",
+      "beam_name": "V314",
+      "conf_pct": 76,
+      "own_laje": "L311",
+      "neigh_laje": "L318",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2203.797851,
+          2631.038
+        ],
+        [
+          2215.797851,
+          2631.038
+        ],
+        [
+          2215.797851,
+          2661.038
+        ],
+        [
+          2258.797851,
+          2661.038
+        ],
+        [
+          2258.797851,
+          2680.038
+        ],
+        [
+          2215.797851,
+          2680.038
+        ],
+        [
+          2215.797851,
+          2710.038
+        ],
+        [
+          2203.797851,
+          2710.038
+        ],
+        [
+          2203.797851,
+          2631.038
+        ]
+      ]
+    },
+    {
+      "uid": "L311_2231_3001",
+      "beam_name": "V314",
+      "conf_pct": 65,
+      "own_laje": "L311",
+      "neigh_laje": "L303",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2210.797851,
+          3040.038
+        ],
+        [
+          2220.797851,
+          3040.038
+        ],
+        [
+          2220.797851,
+          3010.038
+        ],
+        [
+          2258.797851,
+          3010.038
+        ],
+        [
+          2258.797851,
+          2991.038
+        ],
+        [
+          2215.797851,
+          2991.038
+        ],
+        [
+          2215.797851,
+          2961.038
+        ],
+        [
+          2203.797851,
+          2961.038
+        ],
+        [
+          2203.797851,
+          3010.038
+        ],
+        [
+          2210.797851,
+          3010.038
+        ],
+        [
+          2210.797851,
+          3040.038
+        ]
+      ]
+    },
+    {
+      "uid": "L311_2487_2855",
+      "beam_name": "V316",
+      "conf_pct": 89,
+      "own_laje": "L311",
+      "neigh_laje": "L312",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2447.3825,
+          2885.473324
+        ],
+        [
+          2447.3825,
+          2873.473324
+        ],
+        [
+          2477.3825,
+          2873.473324
+        ],
+        [
+          2477.3825,
+          2825.473324
+        ],
+        [
+          2496.3825,
+          2825.473324
+        ],
+        [
+          2496.3825,
+          2873.473324
+        ],
+        [
+          2526.3825,
+          2873.473324
+        ],
+        [
+          2526.3825,
+          2885.473324
+        ],
+        [
+          2447.3825,
+          2885.473324
+        ]
+      ]
+    },
+    {
+      "uid": "L312_2924_2855",
+      "beam_name": "V318",
+      "conf_pct": 89,
+      "own_laje": "L312",
+      "neigh_laje": "L313",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2884.3825,
+          2885.473324
+        ],
+        [
+          2884.3825,
+          2873.473324
+        ],
+        [
+          2914.3825,
+          2873.473324
+        ],
+        [
+          2914.3825,
+          2825.473324
+        ],
+        [
+          2933.3825,
+          2825.473324
+        ],
+        [
+          2933.3825,
+          2873.473324
+        ],
+        [
+          2963.3825,
+          2873.473324
+        ],
+        [
+          2963.3825,
+          2885.473324
+        ],
+        [
+          2884.3825,
+          2885.473324
+        ]
+      ]
+    },
+    {
+      "uid": "L312_2814_2666",
+      "beam_name": "V318",
+      "conf_pct": 85,
+      "own_laje": "L312",
+      "neigh_laje": "L318",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2799.402733,
+          2710.038
+        ],
+        [
+          2799.402733,
+          2680.038
+        ],
+        [
+          2841.402733,
+          2680.038
+        ],
+        [
+          2841.402733,
+          2661.038
+        ],
+        [
+          2798.402733,
+          2661.038
+        ],
+        [
+          2798.402733,
+          2622.86278
+        ],
+        [
+          2789.402733,
+          2622.86278
+        ],
+        [
+          2786.402733,
+          2622.86278
+        ],
+        [
+          2786.402733,
+          2680.038
+        ],
+        [
+          2789.402733,
+          2680.038
+        ],
+        [
+          2789.402733,
+          2710.038
+        ],
+        [
+          2799.402733,
+          2710.038
+        ]
+      ]
+    },
+    {
+      "uid": "L314_3542_3001",
+      "beam_name": "V320",
+      "conf_pct": 59,
+      "own_laje": "L314",
+      "neigh_laje": "L306",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3521.797851,
+          3040.038
+        ],
+        [
+          3531.797851,
+          3040.038
+        ],
+        [
+          3531.797851,
+          3010.038
+        ],
+        [
+          3569.797851,
+          3010.038
+        ],
+        [
+          3569.797851,
+          2991.038
+        ],
+        [
+          3526.797851,
+          2991.038
+        ],
+        [
+          3526.797851,
+          2961.038
+        ],
+        [
+          3514.797851,
+          2961.038
+        ],
+        [
+          3514.797851,
+          3010.038
+        ],
+        [
+          3521.797851,
+          3010.038
+        ],
+        [
+          3521.797851,
+          3040.038
+        ]
+      ]
+    },
+    {
+      "uid": "L315_4235_2827",
+      "beam_name": "V325",
+      "conf_pct": 83,
+      "own_laje": "L315",
+      "neigh_laje": "L316",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          4195.3825,
+          2864.415425
+        ],
+        [
+          4195.3825,
+          2851.415425
+        ],
+        [
+          4225.3825,
+          2851.415425
+        ],
+        [
+          4225.3825,
+          2789.235016
+        ],
+        [
+          4244.3825,
+          2789.235016
+        ],
+        [
+          4244.3825,
+          2851.415425
+        ],
+        [
+          4274.3825,
+          2851.415425
+        ],
+        [
+          4274.3825,
+          2864.415425
+        ],
+        [
+          4195.3825,
+          2864.415425
+        ]
+      ]
+    },
+    {
+      "uid": "L316_4543_2892",
+      "beam_name": "V330",
+      "conf_pct": 76,
+      "own_laje": "L316",
+      "neigh_laje": "L317",
+      "beam_h": "120.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          4503.3825,
+          2851.415425
+        ],
+        [
+          4582.3825,
+          2851.415425
+        ],
+        [
+          4582.3825,
+          2864.415425
+        ],
+        [
+          4552.3825,
+          2864.415425
+        ],
+        [
+          4552.3825,
+          2933.473324
+        ],
+        [
+          4533.3825,
+          2933.473324
+        ],
+        [
+          4533.3825,
+          2861.415425
+        ],
+        [
+          4503.3825,
+          2861.415425
+        ],
+        [
+          4503.3825,
+          2851.415425
+        ]
+      ]
+    },
+    {
+      "uid": "L317_4644_2837",
+      "beam_name": "V332",
+      "conf_pct": 80,
+      "own_laje": "L317",
+      "neigh_laje": "—",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          4668.8825,
+          2864.415425
+        ],
+        [
+          4668.8825,
+          2852.415425
+        ],
+        [
+          4668.8825,
+          2809.415425
+        ],
+        [
+          4649.8825,
+          2809.415425
+        ],
+        [
+          4649.8825,
+          2852.415425
+        ],
+        [
+          4619.8825,
+          2852.415425
+        ],
+        [
+          4619.8825,
+          2864.415425
+        ],
+        [
+          4668.8825,
+          2864.415425
+        ]
+      ]
+    },
+    {
+      "uid": "L318_3542_2671",
+      "beam_name": "V320",
+      "conf_pct": 78,
+      "own_laje": "L318",
+      "neigh_laje": "L324",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3514.797851,
+          2631.038
+        ],
+        [
+          3526.797851,
+          2631.038
+        ],
+        [
+          3526.797851,
+          2661.038
+        ],
+        [
+          3569.797851,
+          2661.038
+        ],
+        [
+          3569.797851,
+          2680.038
+        ],
+        [
+          3526.797851,
+          2680.038
+        ],
+        [
+          3526.797851,
+          2710.038
+        ],
+        [
+          3514.797851,
+          2710.038
+        ],
+        [
+          3514.797851,
+          2631.038
+        ]
+      ]
+    },
+    {
+      "uid": "L319_1613_2218",
+      "beam_name": "V311",
+      "conf_pct": 84,
+      "own_laje": "L319",
+      "neigh_laje": "L318",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          1573.3825,
+          2245.191324
+        ],
+        [
+          1573.3825,
+          2233.191324
+        ],
+        [
+          1603.3825,
+          2233.191324
+        ],
+        [
+          1603.3825,
+          2190.191324
+        ],
+        [
+          1622.3825,
+          2190.191324
+        ],
+        [
+          1622.3825,
+          2233.191324
+        ],
+        [
+          1652.3825,
+          2233.191324
+        ],
+        [
+          1652.3825,
+          2245.191324
+        ],
+        [
+          1573.3825,
+          2245.191324
+        ]
+      ]
+    },
+    {
+      "uid": "L319_1285_2642",
+      "beam_name": "V302",
+      "conf_pct": 89,
+      "own_laje": "L319",
+      "neigh_laje": "L309",
+      "beam_h": "58.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          1270.045111,
+          2710.038
+        ],
+        [
+          1270.045111,
+          2680.038
+        ],
+        [
+          1312.045111,
+          2680.038
+        ],
+        [
+          1312.045111,
+          2661.038
+        ],
+        [
+          1270.045111,
+          2661.038
+        ],
+        [
+          1270.045111,
+          2573.038
+        ],
+        [
+          1260.045111,
+          2573.038
+        ],
+        [
+          1260.045111,
+          2603.038
+        ],
+        [
+          1257.045111,
+          2603.038
+        ],
+        [
+          1257.045111,
+          2680.038
+        ],
+        [
+          1260.045111,
+          2680.038
+        ],
+        [
+          1260.045111,
+          2710.038
+        ],
+        [
+          1270.045111,
+          2710.038
+        ]
+      ]
+    },
+    {
+      "uid": "L320_2050_2218",
+      "beam_name": "V313",
+      "conf_pct": 84,
+      "own_laje": "L320",
+      "neigh_laje": "L318",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2010.3825,
+          2245.191324
+        ],
+        [
+          2010.3825,
+          2233.191324
+        ],
+        [
+          2040.3825,
+          2233.191324
+        ],
+        [
+          2040.3825,
+          2190.191324
+        ],
+        [
+          2059.3825,
+          2190.191324
+        ],
+        [
+          2059.3825,
+          2233.191324
+        ],
+        [
+          2089.3825,
+          2233.191324
+        ],
+        [
+          2089.3825,
+          2245.191324
+        ],
+        [
+          2010.3825,
+          2245.191324
+        ]
+      ]
+    },
+    {
+      "uid": "L321_2231_2500",
+      "beam_name": "V314",
+      "conf_pct": 63,
+      "own_laje": "L321",
+      "neigh_laje": "L318",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2203.797851,
+          2460.038
+        ],
+        [
+          2215.797851,
+          2460.038
+        ],
+        [
+          2215.797851,
+          2490.038
+        ],
+        [
+          2258.797851,
+          2490.038
+        ],
+        [
+          2258.797851,
+          2509.038
+        ],
+        [
+          2215.797851,
+          2509.038
+        ],
+        [
+          2215.797851,
+          2539.038
+        ],
+        [
+          2203.797851,
+          2539.038
+        ],
+        [
+          2203.797851,
+          2460.038
+        ]
+      ]
+    },
+    {
+      "uid": "L321_2487_2218",
+      "beam_name": "V315",
+      "conf_pct": 84,
+      "own_laje": "L321",
+      "neigh_laje": "L322",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2447.3825,
+          2245.191324
+        ],
+        [
+          2447.3825,
+          2233.191324
+        ],
+        [
+          2477.3825,
+          2233.191324
+        ],
+        [
+          2477.3825,
+          2190.191324
+        ],
+        [
+          2496.3825,
+          2190.191324
+        ],
+        [
+          2496.3825,
+          2233.191324
+        ],
+        [
+          2526.3825,
+          2233.191324
+        ],
+        [
+          2526.3825,
+          2245.191324
+        ],
+        [
+          2447.3825,
+          2245.191324
+        ]
+      ]
+    },
+    {
+      "uid": "L322_2924_2218",
+      "beam_name": "V317",
+      "conf_pct": 84,
+      "own_laje": "L322",
+      "neigh_laje": "L323",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2884.3825,
+          2245.191324
+        ],
+        [
+          2884.3825,
+          2233.191324
+        ],
+        [
+          2914.3825,
+          2233.191324
+        ],
+        [
+          2914.3825,
+          2190.191324
+        ],
+        [
+          2933.3825,
+          2190.191324
+        ],
+        [
+          2933.3825,
+          2233.191324
+        ],
+        [
+          2963.3825,
+          2233.191324
+        ],
+        [
+          2963.3825,
+          2245.191324
+        ],
+        [
+          2884.3825,
+          2245.191324
+        ]
+      ]
+    },
+    {
+      "uid": "L323_3361_2218",
+      "beam_name": "V319",
+      "conf_pct": 84,
+      "own_laje": "L323",
+      "neigh_laje": "L324",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3321.3825,
+          2245.191324
+        ],
+        [
+          3321.3825,
+          2233.191324
+        ],
+        [
+          3351.3825,
+          2233.191324
+        ],
+        [
+          3351.3825,
+          2190.191324
+        ],
+        [
+          3370.3825,
+          2190.191324
+        ],
+        [
+          3370.3825,
+          2233.191324
+        ],
+        [
+          3400.3825,
+          2233.191324
+        ],
+        [
+          3400.3825,
+          2245.191324
+        ],
+        [
+          3321.3825,
+          2245.191324
+        ]
+      ]
+    },
+    {
+      "uid": "L324_3542_2500",
+      "beam_name": "V320",
+      "conf_pct": 69,
+      "own_laje": "L324",
+      "neigh_laje": "L318",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3514.797851,
+          2460.038
+        ],
+        [
+          3526.797851,
+          2460.038
+        ],
+        [
+          3526.797851,
+          2490.038
+        ],
+        [
+          3569.797851,
+          2490.038
+        ],
+        [
+          3569.797851,
+          2509.038
+        ],
+        [
+          3526.797851,
+          2509.038
+        ],
+        [
+          3526.797851,
+          2539.038
+        ],
+        [
+          3514.797851,
+          2539.038
+        ],
+        [
+          3514.797851,
+          2460.038
+        ]
+      ]
+    },
+    {
+      "uid": "L324_3798_2218",
+      "beam_name": "V304",
+      "conf_pct": 77,
+      "own_laje": "L324",
+      "neigh_laje": "L325",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3758.3825,
+          2245.191324
+        ],
+        [
+          3758.3825,
+          2233.191324
+        ],
+        [
+          3788.3825,
+          2233.191324
+        ],
+        [
+          3788.3825,
+          2190.191324
+        ],
+        [
+          3807.3825,
+          2190.191324
+        ],
+        [
+          3807.3825,
+          2233.191324
+        ],
+        [
+          3837.3825,
+          2233.191324
+        ],
+        [
+          3837.3825,
+          2245.191324
+        ],
+        [
+          3758.3825,
+          2245.191324
+        ]
+      ]
+    },
+    {
+      "uid": "L328_2231_2058",
+      "beam_name": "V313",
+      "conf_pct": 78,
+      "own_laje": "L328",
+      "neigh_laje": "L321",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2210.797851,
+          2018.038
+        ],
+        [
+          2220.797851,
+          2018.038
+        ],
+        [
+          2220.797851,
+          2048.038
+        ],
+        [
+          2258.797851,
+          2048.038
+        ],
+        [
+          2258.797851,
+          2067.038
+        ],
+        [
+          2215.797851,
+          2067.038
+        ],
+        [
+          2215.797851,
+          2097.038
+        ],
+        [
+          2203.797851,
+          2097.038
+        ],
+        [
+          2203.797851,
+          2048.038
+        ],
+        [
+          2210.797851,
+          2048.038
+        ],
+        [
+          2210.797851,
+          2018.038
+        ]
+      ]
+    },
+    {
+      "uid": "L328_2231_1985",
+      "beam_name": "V313",
+      "conf_pct": 75,
+      "own_laje": "L328",
+      "neigh_laje": "L327",
+      "beam_h": "48.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          2203.797851,
+          1963.038
+        ],
+        [
+          2258.797851,
+          1963.038
+        ],
+        [
+          2258.797851,
+          1977.038
+        ],
+        [
+          2220.797851,
+          1977.038
+        ],
+        [
+          2220.797851,
+          2007.038
+        ],
+        [
+          2210.797851,
+          2007.038
+        ],
+        [
+          2210.797851,
+          1977.038
+        ],
+        [
+          2203.797851,
+          1977.038
+        ],
+        [
+          2203.797851,
+          1963.038
+        ]
+      ]
+    },
+    {
+      "uid": "L331_3542_2058",
+      "beam_name": "V319",
+      "conf_pct": 78,
+      "own_laje": "L331",
+      "neigh_laje": "L324",
+      "beam_h": "55.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3521.797851,
+          2018.038
+        ],
+        [
+          3531.797851,
+          2018.038
+        ],
+        [
+          3531.797851,
+          2048.038
+        ],
+        [
+          3569.797851,
+          2048.038
+        ],
+        [
+          3569.797851,
+          2067.038
+        ],
+        [
+          3526.797851,
+          2067.038
+        ],
+        [
+          3526.797851,
+          2097.038
+        ],
+        [
+          3514.797851,
+          2097.038
+        ],
+        [
+          3514.797851,
+          2048.038
+        ],
+        [
+          3521.797851,
+          2048.038
+        ],
+        [
+          3521.797851,
+          2018.038
+        ]
+      ]
+    },
+    {
+      "uid": "L331_3542_1985",
+      "beam_name": "V319",
+      "conf_pct": 75,
+      "own_laje": "L331",
+      "neigh_laje": "L330",
+      "beam_h": "48.0",
+      "status": "Válido",
+      "atencao": "",
+      "pts": [
+        [
+          3514.797851,
+          1963.038
+        ],
+        [
+          3569.797851,
+          1963.038
+        ],
+        [
+          3569.797851,
+          1977.038
+        ],
+        [
+          3531.797851,
+          1977.038
+        ],
+        [
+          3531.797851,
+          2007.038
+        ],
+        [
+          3521.797851,
+          2007.038
+        ],
+        [
+          3521.797851,
+          1977.038
+        ],
+        [
+          3514.797851,
+          1977.038
+        ],
+        [
+          3514.797851,
+          1963.038
+        ]
+      ]
+    }
+  ],
+  "segmentos": {
+    "fundo": [
+      {
+        "uid": "fundo|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
+        "segment_label": "1",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 260.0,
+        "width": "14",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4387.3825,
+            1982.038
+          ],
+          [
+            4387.3825,
+            2242.038
+          ],
+          [
+            4401.3825,
+            2242.038
+          ],
+          [
+            4401.3825,
+            1982.038
+          ],
+          [
+            4387.3825,
+            1982.038
+          ]
+        ]
+      }
+    ],
+    "lateral_a_para": [
+      {
+        "uid": "lateral_a_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Para",
+        "length": 260.0,
+        "width": "14/50",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4387.3825,
+            1982.038
+          ],
+          [
+            4387.3825,
+            2242.038
+          ]
+        ]
+      }
+    ],
+    "lateral_b_para": [
+      {
+        "uid": "lateral_b_para|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
+        "segment_label": "1",
+        "side": "B",
+        "behavior": "Para",
+        "length": 260.0,
+        "width": "14/50",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4401.3825,
+            1982.038
+          ],
+          [
+            4401.3825,
+            2242.038
+          ]
+        ]
+      }
+    ],
+    "lateral_a_passa": [
+      {
+        "uid": "lateral_a_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
+        "segment_label": "1",
+        "side": "A",
+        "behavior": "Passa",
+        "length": 260.0,
+        "width": "14/50",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4387.3825,
+            1982.038
+          ],
+          [
+            4387.3825,
+            2242.038
+          ]
+        ]
+      }
+    ],
+    "lateral_b_passa": [
+      {
+        "uid": "lateral_b_passa|dd238e47-1dc6-4f63-a760-4e7ce19a7386_b_28|1|1",
+        "beam_name": "V327",
+        "segment_label": "1",
+        "side": "B",
+        "behavior": "Passa",
+        "length": 260.0,
+        "width": "14/50",
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            4401.3825,
+            1982.038
+          ],
+          [
+            4401.3825,
+            2242.038
+          ]
+        ]
+      }
+    ]
+  }
+}

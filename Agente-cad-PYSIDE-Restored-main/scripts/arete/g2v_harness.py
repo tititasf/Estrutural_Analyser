@@ -662,19 +662,38 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
 
     n3_path = None
     if par == "n3xn4" and n3_dir is not None:
-        candidates = [
-            n3_dir / f"LJ_preview_{elemento_id}.dxf",
-            n3_dir / f"{elemento_id}.dxf",
-        ]
-        n3_path = next((path for path in candidates if path.is_file()), None)
-        if n3_path is None:
-            matches = sorted(n3_dir.glob(f"*{elemento_id}*.dxf"))
-            n3_path = matches[0] if matches else None
-        if n3_path is None:
-            resultado["erro"] = f"N3 do run não encontrado em {n3_dir}: {elemento_id}"
-            return resultado
-        resultado["n3_path"] = str(n3_path.resolve())
-        resultado.setdefault("evidencia_fontes", {})["n3"] = _file_evidence(n3_path)
+        if classe == "LV":
+            behavior = str(lista_lv or "passa").strip().capitalize()
+            lv_views = [
+                n3_dir / f"LV_preview_{elemento_id}_{behavior}_CORTE.dxf",
+                n3_dir / f"LV_preview_{elemento_id}_{behavior}_VIEW_A.dxf",
+                n3_dir / f"LV_preview_{elemento_id}_{behavior}_VIEW_B.dxf",
+            ]
+            existing_lv_views = [path for path in lv_views if path.is_file()]
+            resultado["n3_views"] = [str(path.resolve()) for path in existing_lv_views]
+            if fonte_imagem == "dxf":
+                # LV não tem um único DXF N3: corte, A e B são três contratos
+                # visuais. Escolher o primeiro glob poderia selecionar FV do
+                # mesmo Vxxx e tornar o veredito inválido.
+                resultado["erro"] = (
+                    "N3 LV em DXF possui Corte/A/B independentes; use --fonte-imagem html "
+                    "para revisar as três vistas, nunca o fallback de arquivo único."
+                )
+                return resultado
+        else:
+            candidates = [
+                n3_dir / f"LJ_preview_{elemento_id}.dxf",
+                n3_dir / f"{elemento_id}.dxf",
+            ]
+            n3_path = next((path for path in candidates if path.is_file()), None)
+            if n3_path is None:
+                matches = sorted(n3_dir.glob(f"*{elemento_id}*.dxf"))
+                n3_path = matches[0] if matches else None
+            if n3_path is None:
+                resultado["erro"] = f"N3 do run não encontrado em {n3_dir}: {elemento_id}"
+                return resultado
+            resultado["n3_path"] = str(n3_path.resolve())
+            resultado.setdefault("evidencia_fontes", {})["n3"] = _file_evidence(n3_path)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     png_path = out_dir / f"{classe}_{elemento_id}_{par}.png"

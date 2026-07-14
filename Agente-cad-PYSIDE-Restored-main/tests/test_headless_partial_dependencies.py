@@ -10,12 +10,31 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from scripts.arete.headless_sa_analise import (  # noqa: E402
+    _headless_lock_plan,
     _beam_topology_coverage,
     _changed_canonical_beam_names,
     _fast_context_cache_path,
+    _fresh_laj_geometry_for_readonly_preview,
     _non_regressive_beam_dependencies,
     _partial_collections_for_sections,
 )
+
+
+def test_headless_lock_plan_isolates_single_class_item():
+    locks, scope = _headless_lock_plan({'pilares'}, {'P35'}, False)
+    assert locks == ['headless_sa_pil']
+    assert scope == 'classe:PIL'
+
+
+def test_headless_lock_plan_keeps_global_for_dangerous_runs():
+    expected = [
+        'headless_sa_global', 'headless_sa_pil', 'headless_sa_laj',
+        'headless_sa_fv', 'headless_sa_lv',
+    ]
+    assert _headless_lock_plan(None, None, False)[0] == expected
+    assert _headless_lock_plan({'pilares'}, None, False)[0] == expected
+    assert _headless_lock_plan({'pilares', 'lajes'}, {'P1'}, False)[0] == expected
+    assert _headless_lock_plan({'pilares'}, {'P1'}, True)[0] == expected
 
 
 def test_fast_context_cache_key_tracks_source_identity():
@@ -78,6 +97,32 @@ def test_unchanged_canonical_beam_is_not_a_partial_dependency():
         '_section_dimension_source': 'fundo_ficha_geometrica',
     }]
     assert _changed_canonical_beam_names(old, new, {'V308'}) == set()
+
+
+def test_readonly_laj_preview_uses_fresh_geometry_without_losing_human_seal():
+    merged = [{
+        'name': 'L318',
+        'points': [[0, 0], [1, 0], [1, 1], [0, 0]],
+        'area': 1.0,
+        'is_validated': True,
+        'validated_fields': ['laje_outline_segs'],
+        'links': {'laje_outline_segs': {'contour': [{'points': [[0, 0]]}]}},
+    }]
+    fresh = [{
+        'name': 'L318',
+        'points': [[10, 10], [30, 10], [30, 20], [10, 10]],
+        'area': 100.0,
+        'method': 'motor_geom',
+        'trace_diagnostics': {'outline_source': 'polygonize'},
+        'links': {'laje_outline_segs': {'contour': [{'points': [[10, 10]]}]}},
+    }]
+
+    assert _fresh_laj_geometry_for_readonly_preview(merged, fresh) == 1
+    assert merged[0]['is_validated'] is True
+    assert merged[0]['validated_fields'] == ['laje_outline_segs']
+    assert merged[0]['points'] == fresh[0]['points']
+    assert merged[0]['links']['laje_outline_segs'] == fresh[0]['links']['laje_outline_segs']
+    assert merged[0]['n1_geometry_preview_source'] == 'fresh_dxf_readonly'
 
 
 def test_partial_dependency_rejects_loss_of_second_beam_span():

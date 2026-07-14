@@ -7,6 +7,7 @@ import pytest
 from scripts.arete.diagnostico_laj_n1_n2 import (
     classify_delta,
     compare_polygon_footprint,
+    diagnose_item,
     run_diagnostic,
 )
 
@@ -78,6 +79,28 @@ def test_compare_polygon_footprint_rejects_same_bbox_with_different_contour():
     assert result["classificacao"] == "RUIM"
     assert result["iou"] < 0.90
     assert result["symmetric_diff_pct"] > 0.10
+
+
+def test_approved_human_crop_with_draft_n2_fields_is_not_blame_on_n1():
+    item = diagnose_item(
+        "L1",
+        {"largura_bbox": 60.0, "comprimento_bbox": 100.0, "points": _rect(100, 60)},
+        {
+            "comprimento": 300.0,
+            "largura": 200.0,
+            "area_cm2": 60000.0,
+            "coordenadas": _rect(300, 200),
+            "status": "draft",
+            "recorte_humano_aprovado": True,
+        },
+        obra="Obra_TESTE",
+        pavimento="13_PAV",
+        generated_at="2026-07-14T00:00:00+00:00",
+    )
+
+    assert item["causa_raiz"] == "n2_ficha_geometria_desatualizada"
+    assert item["confianca"] == 0.99
+    assert "não copiar" in item["causa_descricao"]
 
 
 def test_run_diagnostic_is_headless_versioned_and_emits_schema_v2(tmp_path: Path):

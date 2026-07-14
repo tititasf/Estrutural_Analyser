@@ -4772,7 +4772,11 @@ class PreValidationDialog(QDialog):
             '..', '..', '..', 'scripts', 'arete', 'html_fichas', self._obra,
         ))
         pav_slug = re.sub(r'[^\w\-]', '_', self._pavimento)[:60]
-        return os.path.join(base, f'estado_{pav_slug}.json')
+        scope = re.sub(
+            r'[^\w\-]', '_', str(getattr(self, '_headless_run_scope', '') or '')
+        )[:40]
+        suffix = f'_{scope}' if scope else ''
+        return os.path.join(base, f'estado_{pav_slug}{suffix}.json')
 
     def _save_analysis_state(self) -> None:
         """Serializa o estado completo da análise para JSON headless-friendly."""
@@ -5669,13 +5673,17 @@ class PreValidationDialog(QDialog):
         self._save_analysis_state()   # snapshot JSON para modo headless
         # Pasta fixa por obra: scripts/arete/html_fichas/{obra}/{pavimento}_{ts}/
         # Acumula histórico de geração sem sobrescrever runs anteriores.
-        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+        scope = re.sub(
+            r'[^\w\-]', '_', str(getattr(self, '_headless_run_scope', '') or '')
+        )[:40]
+        run_suffix = f'_{scope}_{os.getpid()}' if scope else f'_{os.getpid()}'
         base = os.path.normpath(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             '..', '..', '..', 'scripts', 'arete', 'html_fichas',
             self._obra,
         ))
-        output_dir = os.path.join(base, f'{self._pavimento}_{ts}')
+        output_dir = os.path.join(base, f'{self._pavimento}_{ts}{run_suffix}')
         os.makedirs(output_dir, exist_ok=True)
 
         def _photo(points: list) -> str:
@@ -7352,7 +7360,12 @@ class PreValidationDialog(QDialog):
                     )
                     if top_candidates:
                         top = max(top_candidates, key=lambda item: item['profundidade'])
-                        top_void = float(top['profundidade'])
+                        # O vazio construtivo acompanha a profundidade da viga
+                        # mais 4 cm da parede/folga de forma, mesma regra já
+                        # publicada nas aberturas abaixo. Usar a profundidade
+                        # bruta fazia o contrato PASSA divergir do próprio
+                        # painel (ex.: 55 no vazio, 59 na abertura).
+                        top_void = float(top['profundidade']) + 4.0
                         top_source = 'dentro_do_interior' if top in interiors else 'viga_que_passa'
                         top_evidence = top['evidencia']
                     elif slab_depth is not None:
@@ -7506,6 +7519,25 @@ class PreValidationDialog(QDialog):
                 ))
                 if not base:
                     return {}
+                # PD é metadado do pavimento, não a altura individual do
+                # pilar. O N3 não pode consultar N2/N4; usa a configuração
+                # canônica já aprovada para o pavimento, preservando
+                # nivel_saida/nivel_chegada do elemento.
+                if not base.get('pd_pavimento_cm'):
+                    try:
+                        import sys as _sys
+                        _arete_dir = os.path.normpath(os.path.join(
+                            os.path.dirname(os.path.abspath(__file__)),
+                            '..', '..', '..', 'scripts', 'arete',
+                        ))
+                        if _arete_dir not in _sys.path:
+                            _sys.path.insert(0, _arete_dir)
+                        from arete_config import PD_PAVIMENTO_CM as _PD_PAVIMENTO_CM
+                        _pd_cfg = _PD_PAVIMENTO_CM.get(str(base.get('pavimento') or ''))
+                        if _pd_cfg is not None:
+                            base['pd_pavimento_cm'] = float(_pd_cfg)
+                    except Exception as _pd_exc:
+                        print(f'[PL-N3] PD por pavimento indisponivel: {_pd_exc}', flush=True)
                 mode = str(contract.get('modo_semantico') or '').lower()
                 visual_mode = str(contract.get('modo_visual') or 'NOVA').upper()
                 height = float(

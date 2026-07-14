@@ -177,6 +177,84 @@ def test_beam_stopping_on_short_face_materializes_corner_openings_on_long_faces(
     assert {entry["name"] for entry in faces["C"]["para"]} == {"V308"}
 
 
+def test_multi_run_beam_is_arrival_not_fake_passante():
+    """Viga multi-trecho: trecho que nasce na face B é chegada; fragmentos
+    distantes não podem fundir num corredor fictício que 'passa' na face D.
+
+    Reprodução geométrica do caso V328×P35 (13_PAV): trecho N-S nasce no topo
+    do pilar horizontal e sobe; outros fragmentos ficam ao sul, deslocados.
+    O bbox global cruzaria a banda do pilar ao lado da face D.
+    """
+    report = {
+        "P35": {
+            "name": "P35",
+            "points": [(4492.4, 1963.0), (4552.4, 1963.0),
+                       (4552.4, 1982.0), (4492.4, 1982.0)],
+            "lajes": [],
+        }
+    }
+    beams = [{
+        "name": "V328",
+        "dim": "19/55",
+        "geometry": {
+            "classified": {
+                "seg_bottom": [
+                    [[4552.4, 1982.0], [4552.4, 2242.0]],
+                    [[4533.4, 1982.0], [4533.4, 2242.0]],
+                    [[4533.4, 1673.2], [4552.4, 1692.2]],
+                    [[4544.2, 1655.1], [4601.9, 1657.7]],
+                ],
+            }
+        },
+    }]
+
+    enrich_pillar_report_with_beams(report, beams)
+
+    entry = report["P35"]
+    assert not entry.get("viga_que_passa")
+    assert {b["name"] for b in entry.get("viga_que_para") or []} == {"V328"}
+    fb = entry["face_beams"]
+    passa_names = {
+        (fb[f].get(s) or {}).get("name")
+        for f in "ABCD"
+        for s in ("passa_esq", "passa_dir")
+    } - {None}
+    assert "V328" not in passa_names
+    arrivals_b = fb["B"]["para"]
+    assert [p["name"] for p in arrivals_b] == ["V328"]
+    # canto geométrico: o trecho cobre a extremidade D da face B
+    assert arrivals_b[0]["corner"] == "BD"
+    assert fb["D"]["para"] == []
+
+
+def test_head_on_arrival_covering_short_face_is_central():
+    """Chegada de frente que cobre a face curta inteira → slot central FF."""
+    report = {
+        "P35": {
+            "name": "P35",
+            "points": [(100, 0), (160, 0), (160, 19), (100, 19)],
+            "lajes": [],
+        }
+    }
+    beams = [{
+        "name": "V308",
+        "dim": "19/55",
+        "geometry": {
+            "classified": {
+                "seg_bottom": [
+                    [[0.0, 0.0], [100.0, 0.0]],
+                    [[0.0, 19.0], [100.0, 19.0]],
+                ],
+            }
+        },
+    }]
+
+    enrich_pillar_report_with_beams(report, beams)
+
+    fb = report["P35"]["face_beams"]
+    assert [p["corner"] for p in fb["C"]["para"]] == ["CC"]
+
+
 def test_beam_section_dim_rejects_names():
     from src.core.pillar_face_beams import (
         clean_beam_section_dim,

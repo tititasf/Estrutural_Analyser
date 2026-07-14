@@ -1,0 +1,298 @@
+{
+  "schema": "arete.qa_n1_field_probe_result/v1",
+  "engine_version": "1.2.0",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "question": "O primeiro apoio de L318 conserva identidade e geometria iguais ao pilar relacionado?",
+  "overall": "PASS",
+  "scope_authority": "field_checks_only; never validates full item or ficha",
+  "fields": [
+    {
+      "id": "slab.name",
+      "class": "LAJ",
+      "item": "L318",
+      "source": "payload",
+      "path": "name.label.0.text",
+      "transform": "entity",
+      "value": "L318",
+      "overridden": false,
+      "snapshot_hash": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "slab.dim",
+      "class": "LAJ",
+      "item": "L318",
+      "source": "payload",
+      "path": "laje_dim.label.0.text",
+      "transform": "number",
+      "value": 12.0,
+      "overridden": false,
+      "snapshot_hash": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "slab.bbox",
+      "class": "LAJ",
+      "item": "L318",
+      "source": "geometry",
+      "path": "",
+      "transform": "bbox",
+      "value": [
+        1394.3825,
+        2460.0,
+        4533.3825,
+        2661.0
+      ],
+      "overridden": false,
+      "snapshot_hash": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "slab.support.name",
+      "class": "LAJ",
+      "item": "L318",
+      "source": "payload",
+      "path": "laje_pilares_apoio.pillar_geom.0.ficha.pillar_name",
+      "transform": "entity",
+      "value": "P18",
+      "overridden": false,
+      "snapshot_hash": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "slab.support.bbox",
+      "class": "LAJ",
+      "item": "L318",
+      "source": "payload",
+      "path": "laje_pilares_apoio.pillar_geom.0.points",
+      "transform": "bbox",
+      "value": [
+        4533.3825,
+        2601.038,
+        4552.3825,
+        2680.038
+      ],
+      "overridden": false,
+      "snapshot_hash": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "slab.support.trace",
+      "class": "LAJ",
+      "item": "L318",
+      "source": "payload",
+      "path": "laje_pilares_apoio.pillar_geom.0",
+      "transform": "trace",
+      "value": true,
+      "overridden": false,
+      "snapshot_hash": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "pillar.name",
+      "class": "PIL",
+      "item": "P18",
+      "source": "payload",
+      "path": "name.label.0.text",
+      "transform": "entity",
+      "value": "P18",
+      "overridden": false,
+      "snapshot_hash": "4af7f16a9c2369b089f0bace35045ebd089f41a1c6d1a9bc77d900a7204f14cf",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "pillar.bbox",
+      "class": "PIL",
+      "item": "P18",
+      "source": "geometry",
+      "path": "",
+      "transform": "bbox",
+      "value": [
+        4533.3825,
+        2601.038,
+        4552.3825,
+        2680.038
+      ],
+      "overridden": false,
+      "snapshot_hash": "4af7f16a9c2369b089f0bace35045ebd089f41a1c6d1a9bc77d900a7204f14cf",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "slab_identity",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "L318",
+      "right": "L318",
+      "metric": {}
+    },
+    {
+      "id": "dimension_present",
+      "op": "present",
+      "status": "PASS",
+      "reason": "present satisfeita",
+      "left": 12.0,
+      "right": null,
+      "metric": {}
+    },
+    {
+      "id": "support_identity",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "P18",
+      "right": "P18",
+      "metric": {}
+    },
+    {
+      "id": "support_geometry",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": [
+        4533.3825,
+        2601.038,
+        4552.3825,
+        2680.038
+      ],
+      "right": [
+        4533.3825,
+        2601.038,
+        4552.3825,
+        2680.038
+      ],
+      "metric": {}
+    },
+    {
+      "id": "support_touches_slab",
+      "op": "bbox_intersects",
+      "status": "PASS",
+      "reason": "bbox_intersects satisfeita",
+      "left": [
+        1394.3825,
+        2460.0,
+        4533.3825,
+        2661.0
+      ],
+      "right": [
+        4533.3825,
+        2601.038,
+        4552.3825,
+        2680.038
+      ],
+      "metric": {
+        "distance": 0.0,
+        "threshold": 0.0
+      }
+    },
+    {
+      "id": "support_trace",
+      "op": "equal",
+      "status": "PASS",
+      "reason": "equal satisfeita",
+      "left": true,
+      "right": true,
+      "metric": {}
+    }
+  ],
+  "snapshots": {
+    "LAJ:L318": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4",
+    "PIL:P18": "4af7f16a9c2369b089f0bace35045ebd089f41a1c6d1a9bc77d900a7204f14cf"
+  },
+  "provenance": {
+    "allowed": "persisted N1 + explicit candidate overlay",
+    "forbidden": "N2/N4 as N1 proof or N3 input",
+    "cross_class": [
+      "LAJ",
+      "PIL"
+    ]
+  },
+  "executed_at": "2026-07-13T05:26:07+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "1a64eaa3ac3d3346e578df91177017d0198c37d9c0affdd9d0ee10360bd76799",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\1a\\1a64eaa3ac3d3346e578df91177017d0198c37d9c0affdd9d0ee10360bd76799.json",
+    "db_load_ms": 35.085,
+    "evaluation_ms": 0.584,
+    "total_ms": 35.655,
+    "loaded_rows": 2,
+    "requested_fields": 8,
+    "requested_checks": 6
+  },
+  "profile": {
+    "schema": "arete.qa_class_profile/v1",
+    "class": "LAJ",
+    "version": "1.0.0",
+    "probe": "support_identity_and_contact",
+    "item": "L318",
+    "variables": {},
+    "resolved_cross_class": {
+      "pillar.name": {
+        "item_from": "slab.support.name",
+        "item": "P18"
+      },
+      "pillar.bbox": {
+        "item_from": "slab.support.name",
+        "item": "P18"
+      }
+    },
+    "authority": "validation_ready only for promoted adapters; profile probes remain field-scoped",
+    "manual_guides": [
+      "docs/MASTERPLAN-INTERPRETACAO-VALIDACAO.md",
+      "src/ui/widgets/preficha_laje_html.py"
+    ],
+    "preflight_snapshots": {
+      "LAJ:L318": "281c863cb27e53d084c44c1494db5ee7d3bae5495f08501ae4f2fa652cb33df4"
+    }
+  }
+}

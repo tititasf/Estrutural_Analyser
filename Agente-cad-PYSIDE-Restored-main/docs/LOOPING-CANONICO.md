@@ -146,6 +146,14 @@ Seções válidas: `pilares`, `lajes`, `fundos_viga`, `laterais_viga`. `--item` 
 cards e o diagnóstico dos itens pedidos; o diagnóstico numérico continua cego e exige
 N1-V para qualquer decisão de interpretação:
 
+**Concorrência por classe:** um microciclo read-only com exatamente uma `--secao` e
+`--item` entra somente na fila da classe (`headless_sa_pil`, `_laj`, `_fv` ou `_lv`).
+PIL e LAJ, por exemplo, podem rodar simultaneamente sem compartilhar snapshot ou pasta
+HTML: o estado é `estado_{PAV}_{secao}.json` e o pack recebe seção + PID. Dois ciclos da
+mesma classe continuam serializados. Rodada sem item, multiclasse ou com `--persist-db`
+adquire `headless_sa_global` e as quatro filas antes de começar; portanto espera os
+microciclos ativos e executa com exclusividade. `--wait` permanece obrigatório.
+
 ```bash
 python scripts/arete/g2v_harness.py \
     --classe {PIL|LV|FV|LAJ} --pav {PAV} --par n1xn2 --backend cli --item {ITENS}
@@ -243,7 +251,7 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 
 | Script (`scripts/arete/`) | Papel |
 |---|---|
-| `headless_sa_analise.py` | ÚNICO entry point de fichas (4 classes, `--secao`, `--item`, `--wait`, trava anti-OOM). Padrão read-only. Microciclo aceita `--secao --item ...` e mantém análise SA global; `--persist-db` parcial só faz upsert dos itens pedidos, sem delete. Execução completa mantém o commit único conforme `PERSISTENCIA-HEADLESS-SA.md` |
+| `headless_sa_analise.py` | ÚNICO entry point de fichas (4 classes, `--secao`, `--item`, `--wait`). Microciclo read-only de uma classe/item usa fila e snapshot isolados por classe; sem item, multiclasse ou `--persist-db` usa lock global + quatro locks. Mantém análise SA contextual; persistência parcial só faz upsert dos itens pedidos. Execução completa mantém o commit único conforme `PERSISTENCIA-HEADLESS-SA.md` |
 | `arete_runner.py` (+ `roundtrip_ficha`, `paridade_visual`, `ficha_adapter`, `gerar_n4_item`) | Gates N2→N4 + golden |
 | `diagnostico_{pil,fv,lv,laj}_n1_n2.py` + `diagnostico_common.py` | Diagnóstico NUMÉRICO N1×N2 (já rodam DENTRO do headless; CLI avulso só p/ debug) — **cego, exige N1-V** |
 | `g2v_harness.py` | **VEREDITO VISUAL obrigatório** de todo gate visual: `--par n2xn4`(G2-V) / `n1xn2`(N1-V) / `n3xn4`(G5-V), `--backend cli` (agente lê a imagem). Ver §1.5 e `VISION-VALIDACAO-CAMINHOS.md` |

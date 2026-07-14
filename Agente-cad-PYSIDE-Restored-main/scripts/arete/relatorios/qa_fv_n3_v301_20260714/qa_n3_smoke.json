@@ -1,0 +1,139 @@
+{
+  "schema": "arete.qa_artifact_parity_result/v1",
+  "engine_version": "1.1.0",
+  "question": "Smoke N3 FV:V301: identidade do contrato chega ao DXF e as camadas mínimas existem?",
+  "overall": "PASS",
+  "scope_authority": "declared_artifact_fields_only; visual reading remains separate",
+  "variants": {
+    "FUNDO_C": {
+      "paths": {
+        "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\qa_fv_n3_contracts\\20260714\\V301_fundo.json",
+        "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\qa_fv_n3_v301_20260714\\FV_preview_V301.dxf"
+      },
+      "hashes": {
+        "contract": "593d834c0a0bb321407ff55d23d04c8ad81b61624e6e8f7d4465c6f223d39ddb",
+        "dxf": "f9c970fc82146de160364e1ba2ad3812afc931c20427ed33f68d81e121b788be"
+      }
+    }
+  },
+  "fields": [
+    {
+      "id": "fundo_c.contract.identity",
+      "variant": "FUNDO_C",
+      "source": "contract",
+      "path": "name",
+      "transform": "entity",
+      "value": "V301",
+      "artifact_hash": "593d834c0a0bb321407ff55d23d04c8ad81b61624e6e8f7d4465c6f223d39ddb"
+    },
+    {
+      "id": "fundo_c.dxf.text",
+      "variant": "FUNDO_C",
+      "source": "dxf_text_blob",
+      "path": "",
+      "transform": "text",
+      "value": "P1 P2 P3 P4 P5 P15 P16 P8 V301.C",
+      "artifact_hash": "f9c970fc82146de160364e1ba2ad3812afc931c20427ed33f68d81e121b788be"
+    },
+    {
+      "id": "fundo_c.dxf.text_count",
+      "variant": "FUNDO_C",
+      "source": "dxf_entity_count",
+      "path": "TEXT",
+      "transform": "number",
+      "value": 9.0,
+      "artifact_hash": "f9c970fc82146de160364e1ba2ad3812afc931c20427ed33f68d81e121b788be"
+    },
+    {
+      "id": "fundo_c.dxf.layer_1",
+      "variant": "FUNDO_C",
+      "source": "dxf_layer_count",
+      "path": "NOMENCLATURA",
+      "transform": "number",
+      "value": 1.0,
+      "artifact_hash": "f9c970fc82146de160364e1ba2ad3812afc931c20427ed33f68d81e121b788be"
+    },
+    {
+      "id": "fundo_c.dxf.layer_2",
+      "variant": "FUNDO_C",
+      "source": "dxf_layer_count",
+      "path": "Painéis",
+      "transform": "number",
+      "value": 49.0,
+      "artifact_hash": "f9c970fc82146de160364e1ba2ad3812afc931c20427ed33f68d81e121b788be"
+    }
+  ],
+  "checks": [
+    {
+      "id": "fundo_c.contract_item",
+      "op": "same_entity",
+      "status": "PASS",
+      "reason": "same_entity satisfeita",
+      "left": "V301",
+      "right": "V301",
+      "metric": {}
+    },
+    {
+      "id": "fundo_c.identity_in_dxf",
+      "op": "contains",
+      "status": "PASS",
+      "reason": "contains satisfeita",
+      "left": "P1 P2 P3 P4 P5 P15 P16 P8 V301.C",
+      "right": "V301",
+      "metric": {}
+    },
+    {
+      "id": "fundo_c.has_text",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "not_equal satisfeita",
+      "left": 9.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "fundo_c.has_layer_1",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'NOMENCLATURA' presente no DXF",
+      "left": 1.0,
+      "right": 0,
+      "metric": {}
+    },
+    {
+      "id": "fundo_c.has_layer_2",
+      "op": "not_equal",
+      "status": "PASS",
+      "reason": "camada mínima 'Painéis' presente no DXF",
+      "left": 49.0,
+      "right": 0,
+      "metric": {}
+    }
+  ],
+  "provenance": {
+    "chain": [
+      "contract",
+      "dxf"
+    ],
+    "missing_dxf_metadata": false
+  },
+  "executed_at": "2026-07-14T04:38:45+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "fe60cafb63c8808b3023d5f6ce65133d393515a374337e318cdfabb4b7b1d507",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\artifact_parity\\fe\\fe60cafb63c8808b3023d5f6ce65133d393515a374337e318cdfabb4b7b1d507.json",
+    "total_ms": 93.449,
+    "variants": 1,
+    "fields": 5,
+    "checks": 5
+  },
+  "profile": {
+    "class": "FV",
+    "version": "1.1.0",
+    "motor": "ROBOT_FV_N3_N4",
+    "authority": "n3_structural_smoke_only; visual and semantic geometry remain separate",
+    "variant_resolution": {
+      "FUNDO_C": "FUNDO_C"
+    }
+  }
+}

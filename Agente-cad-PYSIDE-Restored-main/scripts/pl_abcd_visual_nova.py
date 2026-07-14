@@ -168,7 +168,10 @@ def paineis_intervals_for_face(
     if fid in FACES_CURTAS and not has_side_openings:
         usable = max(0.0, height - h1 - top_void)
         return distribute_paineis_nova(usable, split_modules=False)
-    usable = max(0.0, height - h1)
+    # Faces longas (e curtas com abertura) recebem o mesmo desconto de void
+    # quando o chamador o publica: o guia ABCD manda a pilha usar a altura
+    # útil DEPOIS do vazio de topo. Chamadas legadas passam 0.0 aqui.
+    usable = max(0.0, height - h1 - top_void)
     return distribute_paineis_nova(usable, split_modules=bool(split_long_faces))
 
 
@@ -354,6 +357,9 @@ def enrich_payload_for_abcd_nova(
     - rebaixo/vazio por face a partir do contrato SA
     - y_rel de aberturas normalizado (preserva N2 válido)
     - paineis_intervals_* pela distribuição 122+sobra (A/B) ou contínuo (C/D)
+      quando o payload vem do contrato SA (N1/N3)
+    - malha paineis_intervals_* preservada quando já foi extraída do desenho
+      humano N2; N2 -> N4 é reprodução, não redistribuição
     - níveis abs se pillar_top conhecido
     """
     if not isinstance(payload, dict):
@@ -364,12 +370,19 @@ def enrich_payload_for_abcd_nova(
         or payload.get("altura")
         or 280.0
     )
-    contract = payload.get("_sa_mode_contract")
-    if not isinstance(contract, dict):
+    raw_contract = payload.get("_sa_mode_contract")
+    has_sa_contract = isinstance(raw_contract, dict)
+    contract = raw_contract
+    if not has_sa_contract:
         contract = {}
     faces = contract.get("faces")
     if not isinstance(faces, dict):
         faces = {}
+    semantic_mode = str(
+        payload.get("_sa_mode_variant")
+        or contract.get("modo_semantico")
+        or ""
+    ).strip().upper()
 
     top = pillar_top_level
     if top is None:
@@ -443,6 +456,19 @@ def enrich_payload_for_abcd_nova(
                 has_dir = True
             ab = dict(ab)
             ab["y_rel"] = normalize_opening_y_rel(ab, height_cm=height, h1_cm=h1)
+            # Aberturas publicadas pelo contrato PASSA representam o encontro
+            # da viga no topo do painel. O montador antigo calculava y_rel a
+            # partir do content_cap e criava um vão intermediário (P35: 164),
+            # embora a própria abertura tivesse origem AC/BC/CC e altura da
+            # viga. Alinhar pela face torna a regra independente do item:
+            # y_rel = PD - h1 - altura da abertura.
+            if semantic_mode == "PASSA" and ab.get("_origem"):
+                try:
+                    _oh_top = float(ab.get("altura") or ab.get("height") or 0.0)
+                except (TypeError, ValueError):
+                    _oh_top = 0.0
+                if _oh_top > 0.5:
+                    ab["y_rel"] = round(max(0.0, height - h1 - _oh_top), 4)
             # normaliza chave largura
             if "larg" not in ab and "largura" in ab:
                 ab["larg"] = ab["largura"]
@@ -504,17 +530,47 @@ def enrich_payload_for_abcd_nova(
             payload=payload,
             has_side_openings=has_side,
         )
-        # faces longas não usam top_void na pilha (aberturas/recortes não encolhem módulos)
-        iv = paineis_intervals_for_face(
-            face_id=fid,
-            height_cm=height,
-            h1_cm=h1,
-            top_void_cm=top_void if fid in FACES_CURTAS else 0.0,
-            has_side_openings=has_side,
-        )
+        # Fronteira de autoridade:
+        # - N1/N3 traz _sa_mode_contract e deve ser convertido para a malha NOVA;
+        # - N2 materializado não traz esse contrato. Seus intervals foram medidos
+        #   no DXF humano e são a própria referência que o N4 deve reproduzir.
+        # Reescrever uma malha N2 válida aqui transforma o comparador em gerador
+        # de um desenho novo (incidente P35: 122/97/26/15 -> 122/122/34).
+        preserved_n2_mesh: list[float] = []
+        if not has_sa_contract:
+            try:
+                preserved_n2_mesh = [
+                    float(value) for value in old_iv if float(value) > 0.5
+                ]
+            except (TypeError, ValueError):
+                preserved_n2_mesh = []
+
+        if preserved_n2_mesh:
+            iv = preserved_n2_mesh
+        else:
+            # Vazio publicado por VIGA (passa/interior) desconta a pilha em
+            # QUALQUER face — a viga ocupa o topo e o painel termina abaixo
+            # dela (guia ABCD: intervals usam a altura útil depois do vazio;
+            # P35 PASSA: A/B ficavam [122,122,34] até o topo apesar do
+            # vazio_topo=55). Vazio de LAJE segue só nas curtas: nas longas
+            # ele é a banda h3, não encurta módulos.
+            beam_void = top_void_contract if top_void_contract > 0.5 else 0.0
+            effective_void = (
+                top_void if (fid in FACES_CURTAS and not has_side) else 0.0
+            )
+            if beam_void > 0.5:
+                effective_void = max(effective_void, beam_void)
+            iv = paineis_intervals_for_face(
+                face_id=fid,
+                height_cm=height,
+                h1_cm=h1,
+                top_void_cm=effective_void,
+                has_side_openings=has_side and beam_void <= 0.5,
+            )
         if iv:
             payload[f"paineis_intervals_{fid}"] = iv
-            _apply_h2_h3_from_intervals(payload, fid, iv)
+            if not preserved_n2_mesh:
+                _apply_h2_h3_from_intervals(payload, fid, iv)
 
     # Textos de carimbo: chegada = topo de contato (max laje); saida = chegada + PD.
     # Só preenche se ainda não houver cota absoluta confiável.

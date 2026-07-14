@@ -519,3 +519,62 @@ def test_lv_face_units_forward_detected_edge_vertical_sarrafos(monkeypatch):
     assert len(calls) == 1
     assert calls[0]["sarrafo_vertical_esquerdo"] is True
     assert calls[0]["sarrafo_vertical_direito"] is False
+
+
+def test_lv_n3_section_contract_wins_over_residual_visual_primitives(monkeypatch):
+    """N3 never renders a residual N2/legacy section when N1 is explicit."""
+    calls = []
+
+    monkeypatch.setattr(
+        lv_generator, "draw_section_n1_contract_clean",
+        lambda *_args, **_kwargs: calls.append("n1") or True,
+    )
+    monkeypatch.setattr(
+        lv_generator, "draw_section_visual_primitives",
+        lambda *_args, **_kwargs: calls.append("legacy") or True,
+    )
+    monkeypatch.setattr(
+        lv_generator, "draw_section_detail",
+        lambda *_args, **_kwargs: calls.append("detail"),
+    )
+
+    lv_generator.draw_viga_lateral_face_units(
+        object(), 0, 0, "V1", [],
+        section_views=[{
+            "h_section": 50,
+            "h_A": 54,
+            "h_B": 54,
+            "n1_contract_clean": True,
+            "visual_primitives": [{"kind": "text", "text": "legacy"}],
+        }],
+        view="CORTE",
+    )
+
+    assert calls == ["n1"]
+
+
+def test_lv_n3_contract_face_draws_single_7cm_edge_sarrafo_per_side():
+    """The N3 edge member is a 7 cm inset line, never a grade half-pontalete."""
+    doc = lv_generator.setup_doc()
+    msp = doc.modelspace()
+    panels = [{
+        "width": 120.0, "height1": 54.0, "height2": 54.0,
+        "grade_h1": 0.0, "grade_h2": 0.0, "panel_type": "Sarrafeado",
+    }]
+
+    lv_generator.draw_lv_face(
+        msp, 0.0, 0.0, panels, 54.0, "V1.A",
+        laje_sup=0.0, laje_inf=0.0,
+        sarrafo_vertical_esquerdo=True,
+        sarrafo_vertical_direito=True,
+    )
+
+    verticals = [
+        entity for entity in msp
+        if entity.dxftype() == "LINE"
+        and entity.dxf.layer == "SARR_2.2x7"
+        and abs(float(entity.dxf.start.x) - float(entity.dxf.end.x)) < 0.001
+        and abs(float(entity.dxf.start.y) - 0.0) < 0.001
+        and abs(float(entity.dxf.end.y) - 54.0) < 0.001
+    ]
+    assert sorted(round(float(line.dxf.start.x), 2) for line in verticals) == [7.0, 113.0]

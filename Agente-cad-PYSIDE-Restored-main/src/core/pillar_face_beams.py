@@ -408,6 +408,72 @@ def beam_bbox_from_entity(beam: dict) -> tuple[float, float, float, float] | Non
     return (min(xs), min(ys), max(xs), max(ys))
 
 
+_RUN_MERGE_TOL = 25.0
+_RUN_MIN_THICK = 5.0
+_RUN_PAD = 12.0
+
+
+def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]:
+    """Corredores contíguos (um bbox por trecho físico) da viga.
+
+    Uma viga multi-trecho colapsada num bbox único vira um corredor fictício
+    que atravessa pilares que nenhum trecho toca (ex.: V328×P35 no 13_PAV,
+    onde fragmentos ao sul deslocavam o eixo médio para cima da banda do
+    pilar e criavam um falso "passa"). Cada grupo de segmentos de fundo
+    próximos vira um corredor independente; passa/para e wall-hits devem
+    ser avaliados corredor a corredor.
+    """
+    geo = beam.get("geometry") if isinstance(beam.get("geometry"), dict) else {}
+    classified = geo.get("classified") if isinstance(geo, dict) else None
+    seg_boxes: list[list[float]] = []
+    if isinstance(classified, dict):
+        for seg in classified.get("seg_bottom") or []:
+            pts: list[tuple[float, float]] = []
+            _collect_xy_from_obj(seg, pts)
+            if len(pts) >= 2:
+                xs = [p[0] for p in pts]
+                ys = [p[1] for p in pts]
+                seg_boxes.append([min(xs), min(ys), max(xs), max(ys)])
+    if not seg_boxes:
+        bbox = beam_bbox_from_entity(beam)
+        return [tuple(bbox)] if bbox else []
+
+    merged = True
+    while merged:
+        merged = False
+        grouped: list[list[float]] = []
+        for box in seg_boxes:
+            for other in grouped:
+                if (
+                    box[0] - _RUN_MERGE_TOL <= other[2]
+                    and box[2] + _RUN_MERGE_TOL >= other[0]
+                    and box[1] - _RUN_MERGE_TOL <= other[3]
+                    and box[3] + _RUN_MERGE_TOL >= other[1]
+                ):
+                    other[0] = min(other[0], box[0])
+                    other[1] = min(other[1], box[1])
+                    other[2] = max(other[2], box[2])
+                    other[3] = max(other[3], box[3])
+                    merged = True
+                    break
+            else:
+                grouped.append(list(box))
+        seg_boxes = grouped
+
+    runs: list[tuple[float, float, float, float]] = []
+    for x0, y0, x1, y1 in seg_boxes:
+        # espessura mínima para wall-hit quando só o eixo foi extraído
+        if (x1 - x0) <= (y1 - y0):
+            if (x1 - x0) < _RUN_MIN_THICK:
+                mid = (x0 + x1) / 2.0
+                x0, x1 = mid - _RUN_PAD, mid + _RUN_PAD
+        elif (y1 - y0) < _RUN_MIN_THICK:
+            mid = (y0 + y1) / 2.0
+            y0, y1 = mid - _RUN_PAD, mid + _RUN_PAD
+        runs.append((x0, y0, x1, y1))
+    return runs
+
+
 def beam_section_dim(beam: dict) -> str:
     """Dimensão de seção preferida da viga (não cota linear longa)."""
     fields = beam.get("fields") if isinstance(beam.get("fields"), dict) else {}
@@ -493,6 +559,40 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
         "D": ("DA", "DB"),
     }
 
+    def _arrival_corner(
+        fid: str,
+        face_coords: dict,
+        view: dict,
+        ov: float,
+    ) -> str:
+        """Slot da chegada pela geometria: canto FX real ou central FF.
+
+        O canto não é convenção visual esq/dir: é a extremidade curta que o
+        trecho de chegada cobre. Cobertura dominante da face = chegada
+        central (engole a face), como a viga que termina de frente.
+        """
+        axis, _fixed, r0, r1 = face_coords[fid]
+        face_len = max(r1 - r0, 1e-6)
+        if ov / face_len >= 0.6:
+            return f"{fid}{fid}"
+        if axis == "H":
+            lo, hi = view["x0"], view["x1"]
+        else:
+            lo, hi = view["y0"], view["y1"]
+        mid = (max(r0, lo) + min(r1, hi)) / 2.0
+        third = face_len / 3.0
+        if mid <= r0 + third:
+            coord = r0
+        elif mid >= r1 - third:
+            coord = r1
+        else:
+            return f"{fid}{fid}"
+        other_axis = "V" if axis == "H" else "H"
+        for ofid, (oaxis, ofixed, _o0, _o1) in face_coords.items():
+            if oaxis == other_axis and abs(ofixed - coord) < 1e-6:
+                return f"{fid}{ofid}"
+        return f"{fid}{fid}"
+
     def _corner_side(
         fid: str,
         axis: str,
@@ -523,6 +623,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
         x0, y0, x1, y1 = bbox
         bw, bh = x1 - x0, y1 - y0
         is_h = beam_axis_is_horizontal(beam, fallback_bbox=(x0, y0, x1, y1))
+        runs = beam_runs_from_entity(beam) or [(x0, y0, x1, y1)]
         beam_info.append(
             {
                 "name": str(beam.get("name") or "").strip(),
@@ -532,9 +633,19 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 "y0": y0,
                 "y1": y1,
                 "is_h": is_h,
+                "runs": runs,
                 "evidence_segments": _beam_evidence_segments(beam),
             }
         )
+
+    def _run_view(bi: dict, run: tuple[float, float, float, float]) -> dict:
+        """Projeção do vínculo no corredor: coords e eixo do trecho, não do todo."""
+        rx0, ry0, rx1, ry1 = run
+        run_is_h = (rx1 - rx0) >= (ry1 - ry0)
+        if len(bi.get("runs") or []) <= 1:
+            run_is_h = bool(bi["is_h"])
+        return {**bi, "x0": rx0, "y0": ry0, "x1": rx1, "y1": ry1,
+                "is_h": run_is_h}
 
     for _nm, entry in report.items():
         pts = entry.get("points") or []
@@ -553,19 +664,25 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
 
         beam_relations = []
         for bi in beam_info:
-            beam_bbox = (bi["x0"], bi["y0"], bi["x1"], bi["y1"])
-            relation = None
-            # passa tem prioridade semântica (atravessa); senão para (termina)
-            if pilar_passa.matches(
-                pillar_bbox, beam_bbox, bi["is_h"], TOL_ALIGN
-            ):
-                relation = "passa"
-            elif pilar_para.matches(
-                pillar_bbox, beam_bbox, bi["is_h"], TOL_ALIGN
-            ):
-                relation = "para"
-            if relation:
-                beam_relations.append({**bi, "behavior": relation})
+            # A relação é do TRECHO com o pilar, não do elemento inteiro:
+            # a mesma viga pode passar por um pilar e parar em outro, e o
+            # bbox global de trechos disjuntos não representa viga nenhuma.
+            best_relation = None
+            for run in bi["runs"]:
+                view = _run_view(bi, run)
+                run_bbox = (view["x0"], view["y0"], view["x1"], view["y1"])
+                # passa tem prioridade semântica (atravessa); senão para (termina)
+                if pilar_passa.matches(
+                    pillar_bbox, run_bbox, view["is_h"], TOL_ALIGN
+                ):
+                    best_relation = {**view, "behavior": "passa"}
+                    break
+                if pilar_para.matches(
+                    pillar_bbox, run_bbox, view["is_h"], TOL_ALIGN
+                ) and best_relation is None:
+                    best_relation = {**view, "behavior": "para"}
+            if best_relation:
+                beam_relations.append(best_relation)
 
         entry[pilar_para.contract.output_slot] = [
             {"name": bi["name"], "dim": bi["dim"]}
@@ -598,34 +715,46 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
         face_inside: dict = {f: False for f in face_coords}
 
         for bi in beam_info:
-            inside = (
-                bi["x0"] <= px0 + TOL_ALIGN
-                and bi["x1"] >= px1 - TOL_ALIGN
-                and bi["y0"] <= py0 + TOL_ALIGN
-                and bi["y1"] >= py1 - TOL_ALIGN
-            )
-            for fid, (axis, fixed, r0, r1) in face_coords.items():
-                if inside:
-                    side = _corner_side(fid, axis, fixed, r0, r1, bi)
-                    face_hits[fid].append((bi, side, 999.0))
-                    face_inside[fid] = True
-                    continue
-                if axis == "H":
-                    for wy in (bi["y0"], bi["y1"]):
-                        if abs(fixed - wy) < TOL_ALIGN:
-                            ov = min(r1, bi["x1"]) - max(r0, bi["x0"])
-                            if ov > MIN_OV:
-                                side = _corner_side(fid, axis, fixed, r0, r1, bi)
-                                face_hits[fid].append((bi, side, ov))
-                                break
-                else:
-                    for wx in (bi["x0"], bi["x1"]):
-                        if abs(fixed - wx) < TOL_ALIGN:
-                            ov = min(r1, bi["y1"]) - max(r0, bi["y0"])
-                            if ov > MIN_OV:
-                                side = _corner_side(fid, axis, fixed, r0, r1, bi)
-                                face_hits[fid].append((bi, side, ov))
-                                break
+            hit_faces: set[str] = set()
+            for run in bi["runs"]:
+                view = _run_view(bi, run)
+                inside = (
+                    view["x0"] <= px0 + TOL_ALIGN
+                    and view["x1"] >= px1 - TOL_ALIGN
+                    and view["y0"] <= py0 + TOL_ALIGN
+                    and view["y1"] >= py1 - TOL_ALIGN
+                )
+                for fid, (axis, fixed, r0, r1) in face_coords.items():
+                    if fid in hit_faces:
+                        continue
+                    if inside:
+                        side = _corner_side(fid, axis, fixed, r0, r1, view)
+                        face_hits[fid].append((view, side, 999.0))
+                        face_inside[fid] = True
+                        hit_faces.add(fid)
+                        continue
+                    if axis == "H":
+                        for wy in (view["y0"], view["y1"]):
+                            if abs(fixed - wy) < TOL_ALIGN:
+                                ov = min(r1, view["x1"]) - max(r0, view["x0"])
+                                if ov > MIN_OV:
+                                    side = _corner_side(
+                                        fid, axis, fixed, r0, r1, view
+                                    )
+                                    face_hits[fid].append((view, side, ov))
+                                    hit_faces.add(fid)
+                                    break
+                    else:
+                        for wx in (view["x0"], view["x1"]):
+                            if abs(fixed - wx) < TOL_ALIGN:
+                                ov = min(r1, view["y1"]) - max(r0, view["y0"])
+                                if ov > MIN_OV:
+                                    side = _corner_side(
+                                        fid, axis, fixed, r0, r1, view
+                                    )
+                                    face_hits[fid].append((view, side, ov))
+                                    hit_faces.add(fid)
+                                    break
 
         # face_beams: passa só behavior=passa; chegadas = behavior=para
         face_beams: dict = {}
@@ -750,12 +879,14 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 continue
             # melhor face = maior overlap de hit; senão face A
             best_f, best_ov, best_side = None, -1.0, "esq"
+            best_bi = None
             for fid, hits in face_hits.items():
                 for bi, side, ov in hits:
                     if bi["name"] == br["name"] and ov > best_ov:
                         best_ov = ov
                         best_f = fid
                         best_side = side
+                        best_bi = bi
             if best_f is None:
                 # sem wall hit: escolhe face cujo fixed está mais perto do endpoint
                 best_f = "A"
@@ -768,11 +899,14 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                         break
             if len(face_beams[best_f]["para"]) < 3:
                 c_esq, c_dir = FACE_CORNERS[best_f]
+                corner = c_esq if best_side == "esq" else c_dir
+                if best_bi is not None and best_ov > MIN_OV:
+                    corner = _arrival_corner(best_f, face_coords, best_bi, best_ov)
                 face_beams[best_f]["para"].append(
                     {
                         "name": br["name"],
                         "dim": br["dim"],
-                        "corner": c_esq if best_side == "esq" else c_dir,
+                        "corner": corner,
                         **({"evidence_segments": copy.deepcopy(br["evidence_segments"])}
                            if br.get("evidence_segments") else {}),
                     }

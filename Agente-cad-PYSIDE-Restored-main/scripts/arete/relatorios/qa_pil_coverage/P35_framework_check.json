@@ -1,0 +1,1528 @@
+{
+  "schema": "arete.qa_pil_coverage/v1",
+  "generated_at": "2026-07-13T22:34:02+00:00",
+  "authority": "diagnostic_only; QG7 and human visual ground truth are required before validation_ready/apply",
+  "scope": {
+    "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+    "class": "PIL",
+    "item": "P35"
+  },
+  "source": {
+    "table": "pillars",
+    "row_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386_p_35",
+    "snapshot_hash": "b4df4b2ad91374cb77d8e3fb4af0398b2328e70d215a9b6396b559bffa6443f9",
+    "sides_hash": "4eefe4717642663d5f41dd069824c013764d8df9108a1bf746ab4f4797567602"
+  },
+  "families": {
+    "identity_geometry": {
+      "name": "P35",
+      "label": "P35",
+      "dimension": "19x60",
+      "point_count": 5,
+      "segment_count": 1,
+      "status": "COMPLETE"
+    },
+    "faces": {
+      "status": "CONFLICT",
+      "items": {
+        "A": {
+          "laje": null,
+          "laje_state": "explicit_null",
+          "beams": [
+            {
+              "slot": "passa_esq",
+              "kind": "passa",
+              "name": "V328",
+              "dimension": "V328"
+            },
+            {
+              "slot": "passa_dir",
+              "kind": "passa",
+              "name": "V328",
+              "dimension": "V328"
+            }
+          ],
+          "status": "CONFLICT"
+        },
+        "B": {
+          "laje": null,
+          "laje_state": "explicit_null",
+          "beams": [
+            {
+              "slot": "passa_esq",
+              "kind": "passa",
+              "name": null,
+              "dimension": "P35"
+            },
+            {
+              "slot": "passa_dir",
+              "kind": "passa",
+              "name": null,
+              "dimension": "P35"
+            }
+          ],
+          "status": "CONFLICT"
+        },
+        "C": {
+          "laje": null,
+          "laje_state": "explicit_null",
+          "beams": [
+            {
+              "slot": "passa_esq",
+              "kind": "passa",
+              "name": "V330",
+              "dimension": "60/19"
+            },
+            {
+              "slot": "passa_dir",
+              "kind": "passa",
+              "name": "V330",
+              "dimension": "60/19"
+            }
+          ],
+          "status": "COMPLETE"
+        },
+        "D": {
+          "laje": "L325",
+          "laje_state": "linked",
+          "beams": [
+            {
+              "slot": "passa_dir",
+              "kind": "passa",
+              "name": "V327",
+              "dimension": "19/55"
+            }
+          ],
+          "status": "COMPLETE"
+        }
+      }
+    },
+    "para": {
+      "mode": "PARA",
+      "status": "COMPLETE",
+      "height": {
+        "nivel_saida": 280.0,
+        "nivel_chegada": 0.0,
+        "altura": 280.0,
+        "nivel_saida_abs": null,
+        "nivel_chegada_abs": null
+      },
+      "faces": {
+        "A": {
+          "vazio_topo": {
+            "valor_cm": 0.0,
+            "fonte": "nulo",
+            "evidencia": "nenhuma fonte aplicavel",
+            "confianca": "alta"
+          },
+          "passante": null,
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [],
+            "chega": [],
+            "interior": []
+          }
+        },
+        "B": {
+          "vazio_topo": {
+            "valor_cm": 0.0,
+            "fonte": "nulo",
+            "evidencia": "nenhuma fonte aplicavel",
+            "confianca": "alta"
+          },
+          "passante": null,
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [],
+            "chega": [],
+            "interior": []
+          }
+        },
+        "C": {
+          "vazio_topo": {
+            "valor_cm": 0.0,
+            "fonte": "nulo",
+            "evidencia": "nenhuma fonte aplicavel",
+            "confianca": "alta"
+          },
+          "passante": null,
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [],
+            "chega": [],
+            "interior": []
+          }
+        },
+        "D": {
+          "vazio_topo": {
+            "valor_cm": 55.0,
+            "fonte": "viga_que_passa",
+            "evidencia": "Viga: V328  ·  dim: 19/55  ·  vÃ­nculo topolÃ³gico SA: corre ao longo da face D",
+            "confianca": "alta"
+          },
+          "passante": {
+            "nome": "V328",
+            "largura": 19.0,
+            "profundidade": 55.0,
+            "evidencia": "Viga: V328  ·  dim: 19/55  ·  vÃ­nculo topolÃ³gico SA: corre ao longo da face D"
+          },
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [
+              "Viga: V328  ·  dim: 19/55  ·  vÃ­nculo topolÃ³gico SA: corre ao longo da face D"
+            ],
+            "chega": [],
+            "interior": []
+          }
+        }
+      },
+      "payload_keys": [
+        "_pl_nova_enriched",
+        "_sa_meta",
+        "_sa_mode_contract",
+        "_sa_mode_variant",
+        "altura",
+        "comprimento",
+        "distancia_1",
+        "distancia_2",
+        "grade_1",
+        "grade_2",
+        "grade_3",
+        "h1_A",
+        "h1_B",
+        "h1_C",
+        "h1_D",
+        "h1_E",
+        "h1_F",
+        "h1_G",
+        "h1_H",
+        "h2_A",
+        "h2_B",
+        "h2_C",
+        "h2_D",
+        "h2_E",
+        "h2_F",
+        "h2_G",
+        "h2_H",
+        "h3_A",
+        "h3_B",
+        "h3_C",
+        "h3_D",
+        "h3_E",
+        "h3_F",
+        "h3_G",
+        "h3_H",
+        "h4_A",
+        "h4_B",
+        "h4_C",
+        "h4_D",
+        "h4_E",
+        "h4_F",
+        "h4_G",
+        "h4_H",
+        "h5_A",
+        "h5_B",
+        "h5_C",
+        "h5_D",
+        "h5_E",
+        "h5_F",
+        "h5_G",
+        "h5_H",
+        "laje_A",
+        "laje_B",
+        "laje_C",
+        "laje_D",
+        "laje_E",
+        "laje_F",
+        "laje_G",
+        "laje_H",
+        "larg1_A",
+        "larg1_B",
+        "larg1_C",
+        "larg1_D",
+        "larg1_E",
+        "larg1_F",
+        "larg1_G",
+        "larg1_H",
+        "larg2_A",
+        "larg2_B",
+        "larg2_C",
+        "larg2_D",
+        "larg2_E",
+        "larg2_F",
+        "larg2_G",
+        "larg2_H",
+        "larg3_A",
+        "larg3_B",
+        "larg3_C",
+        "larg3_D",
+        "larg3_E",
+        "larg3_F",
+        "larg3_G",
+        "larg3_H",
+        "largura",
+        "modo_distribuicao",
+        "nivel_chegada",
+        "nivel_saida",
+        "nome",
+        "numero",
+        "paineis_intervals_A",
+        "paineis_intervals_B",
+        "paineis_intervals_C",
+        "paineis_intervals_D",
+        "paineis_intervals_E",
+        "paineis_intervals_F",
+        "paineis_intervals_G",
+        "paineis_intervals_H",
+        "par_1_2",
+        "par_2_3",
+        "par_3_4",
+        "par_4_5",
+        "par_5_6",
+        "par_6_7",
+        "par_7_8",
+        "par_8_9",
+        "pavimento",
+        "posicao_laje_A",
+        "posicao_laje_B",
+        "posicao_laje_C",
+        "posicao_laje_D",
+        "posicao_laje_E",
+        "posicao_laje_F",
+        "posicao_laje_G",
+        "posicao_laje_H",
+        "rebaixo_laje_A",
+        "rebaixo_laje_B",
+        "rebaixo_laje_C",
+        "rebaixo_laje_D",
+        "rebaixo_laje_E",
+        "rebaixo_laje_F",
+        "rebaixo_laje_G",
+        "rebaixo_laje_H",
+        "vazio_laje_A",
+        "vazio_laje_B",
+        "vazio_laje_C",
+        "vazio_laje_D",
+        "vazio_laje_E",
+        "vazio_laje_F",
+        "vazio_laje_G",
+        "vazio_laje_H"
+      ],
+      "artifacts": {
+        "json": {
+          "path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_185500\\pilares\\n3_variants\\para\\P35.json",
+          "exists": true
+        },
+        "abcd": {
+          "path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_185500\\pilares\\n3_variants\\para\\PL_ABCD_preview_P35.dxf",
+          "exists": true
+        },
+        "grades": {
+          "path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_185500\\pilares\\n3_variants\\para\\PL_GRADES_preview_P35.dxf",
+          "exists": true
+        }
+      }
+    },
+    "passa": {
+      "mode": "PASSA",
+      "status": "COMPLETE",
+      "height": {
+        "nivel_saida": 280.0,
+        "nivel_chegada": 0.0,
+        "altura": 280.0,
+        "nivel_saida_abs": null,
+        "nivel_chegada_abs": null
+      },
+      "faces": {
+        "A": {
+          "vazio_topo": {
+            "valor_cm": 0.0,
+            "fonte": "nulo",
+            "evidencia": "nenhuma fonte aplicavel",
+            "confianca": "alta"
+          },
+          "passante": null,
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [],
+            "chega": [],
+            "interior": []
+          }
+        },
+        "B": {
+          "vazio_topo": {
+            "valor_cm": 0.0,
+            "fonte": "nulo",
+            "evidencia": "nenhuma fonte aplicavel",
+            "confianca": "alta"
+          },
+          "passante": null,
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [],
+            "chega": [],
+            "interior": []
+          }
+        },
+        "C": {
+          "vazio_topo": {
+            "valor_cm": 0.0,
+            "fonte": "nulo",
+            "evidencia": "nenhuma fonte aplicavel",
+            "confianca": "alta"
+          },
+          "passante": null,
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [],
+            "chega": [],
+            "interior": []
+          }
+        },
+        "D": {
+          "vazio_topo": {
+            "valor_cm": 55.0,
+            "fonte": "viga_que_passa",
+            "evidencia": "Viga: V328  ·  dim: 19/55  ·  vÃ­nculo topolÃ³gico SA: corre ao longo da face D",
+            "confianca": "alta"
+          },
+          "passante": {
+            "nome": "V328",
+            "largura": 19.0,
+            "profundidade": 55.0,
+            "evidencia": "Viga: V328  ·  dim: 19/55  ·  vÃ­nculo topolÃ³gico SA: corre ao longo da face D"
+          },
+          "param": 0,
+          "passam": 0,
+          "chegam": 0,
+          "fontes_n1": {
+            "lajes": [],
+            "passa": [
+              "Viga: V328  ·  dim: 19/55  ·  vÃ­nculo topolÃ³gico SA: corre ao longo da face D"
+            ],
+            "chega": [],
+            "interior": []
+          }
+        }
+      },
+      "payload_keys": [
+        "_pl_nova_enriched",
+        "_sa_meta",
+        "_sa_mode_contract",
+        "_sa_mode_variant",
+        "altura",
+        "comprimento",
+        "distancia_1",
+        "distancia_2",
+        "grade_1",
+        "grade_2",
+        "grade_3",
+        "h1_A",
+        "h1_B",
+        "h1_C",
+        "h1_D",
+        "h1_E",
+        "h1_F",
+        "h1_G",
+        "h1_H",
+        "h2_A",
+        "h2_B",
+        "h2_C",
+        "h2_D",
+        "h2_E",
+        "h2_F",
+        "h2_G",
+        "h2_H",
+        "h3_A",
+        "h3_B",
+        "h3_C",
+        "h3_D",
+        "h3_E",
+        "h3_F",
+        "h3_G",
+        "h3_H",
+        "h4_A",
+        "h4_B",
+        "h4_C",
+        "h4_D",
+        "h4_E",
+        "h4_F",
+        "h4_G",
+        "h4_H",
+        "h5_A",
+        "h5_B",
+        "h5_C",
+        "h5_D",
+        "h5_E",
+        "h5_F",
+        "h5_G",
+        "h5_H",
+        "laje_A",
+        "laje_B",
+        "laje_C",
+        "laje_D",
+        "laje_E",
+        "laje_F",
+        "laje_G",
+        "laje_H",
+        "larg1_A",
+        "larg1_B",
+        "larg1_C",
+        "larg1_D",
+        "larg1_E",
+        "larg1_F",
+        "larg1_G",
+        "larg1_H",
+        "larg2_A",
+        "larg2_B",
+        "larg2_C",
+        "larg2_D",
+        "larg2_E",
+        "larg2_F",
+        "larg2_G",
+        "larg2_H",
+        "larg3_A",
+        "larg3_B",
+        "larg3_C",
+        "larg3_D",
+        "larg3_E",
+        "larg3_F",
+        "larg3_G",
+        "larg3_H",
+        "largura",
+        "modo_distribuicao",
+        "nivel_chegada",
+        "nivel_saida",
+        "nome",
+        "numero",
+        "paineis_intervals_A",
+        "paineis_intervals_B",
+        "paineis_intervals_C",
+        "paineis_intervals_D",
+        "paineis_intervals_E",
+        "paineis_intervals_F",
+        "paineis_intervals_G",
+        "paineis_intervals_H",
+        "par_1_2",
+        "par_2_3",
+        "par_3_4",
+        "par_4_5",
+        "par_5_6",
+        "par_6_7",
+        "par_7_8",
+        "par_8_9",
+        "pavimento",
+        "posicao_laje_A",
+        "posicao_laje_B",
+        "posicao_laje_C",
+        "posicao_laje_D",
+        "posicao_laje_E",
+        "posicao_laje_F",
+        "posicao_laje_G",
+        "posicao_laje_H",
+        "rebaixo_laje_A",
+        "rebaixo_laje_B",
+        "rebaixo_laje_C",
+        "rebaixo_laje_D",
+        "rebaixo_laje_E",
+        "rebaixo_laje_F",
+        "rebaixo_laje_G",
+        "rebaixo_laje_H",
+        "vazio_laje_A",
+        "vazio_laje_B",
+        "vazio_laje_C",
+        "vazio_laje_D",
+        "vazio_laje_E",
+        "vazio_laje_F",
+        "vazio_laje_G",
+        "vazio_laje_H"
+      ],
+      "artifacts": {
+        "json": {
+          "path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_185500\\pilares\\n3_variants\\passa\\P35.json",
+          "exists": true
+        },
+        "abcd": {
+          "path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_185500\\pilares\\n3_variants\\passa\\PL_ABCD_preview_P35.dxf",
+          "exists": true
+        },
+        "grades": {
+          "path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\html_fichas\\Obra_TREINO_1\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260713_185500\\pilares\\n3_variants\\passa\\PL_GRADES_preview_P35.dxf",
+          "exists": true
+        }
+      }
+    },
+    "assembly": {
+      "status": "COMPLETE",
+      "grades": {
+        "grade_1": 82.0,
+        "grade_2": 0.0,
+        "grade_3": 0.0
+      },
+      "distances": {
+        "distancia_1": 14.0,
+        "distancia_2": 0.0
+      },
+      "screws": {
+        "par_1_2": 42.0,
+        "par_2_3": 42.0,
+        "par_3_4": 0.0,
+        "par_4_5": 0.0,
+        "par_5_6": 0.0,
+        "par_6_7": 0.0,
+        "par_7_8": 0.0,
+        "par_8_9": 0.0
+      }
+    }
+  },
+  "probe_targets": [
+    {
+      "face": "C",
+      "slot": "passa_esq",
+      "beam": "V330",
+      "dimension": "60/19"
+    },
+    {
+      "face": "C",
+      "slot": "passa_dir",
+      "beam": "V330",
+      "dimension": "60/19"
+    },
+    {
+      "face": "D",
+      "slot": "passa_dir",
+      "beam": "V327",
+      "dimension": "19/55"
+    }
+  ],
+  "profile_probes": [
+    {
+      "target": {
+        "face": "C",
+        "slot": "passa_esq",
+        "beam": "V330",
+        "dimension": "60/19"
+      },
+      "overall": "FAIL",
+      "result": {
+        "schema": "arete.qa_n1_field_probe_result/v1",
+        "engine_version": "1.3.0",
+        "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+        "question": "O slot passa_esq da face C de P35 conserva identidade, dimensao, rastro e contato cross-classe?",
+        "overall": "FAIL",
+        "scope_authority": "field_checks_only; never validates full item or ficha",
+        "fields": [
+          {
+            "id": "pil.face.beam_name",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sC_v_passa_esq_n.label.0.text",
+            "transform": "entity",
+            "value": "V330",
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.face.beam_dim",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sC_v_passa_esq_d.label.0.text",
+            "transform": "dimension",
+            "value": [
+              60.0,
+              19.0
+            ],
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.face.trace",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sC_v_passa_esq_n.label.0",
+            "transform": "trace",
+            "value": true,
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.bbox",
+            "class": "PIL",
+            "item": "P35",
+            "source": "geometry",
+            "path": "",
+            "transform": "bbox",
+            "value": [
+              4492.3825,
+              1963.038,
+              4552.3825,
+              1982.038
+            ],
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.name",
+            "class": "FV",
+            "item": "V330",
+            "source": "payload",
+            "path": "fields.nome",
+            "transform": "entity",
+            "value": "V330",
+            "overridden": false,
+            "snapshot_hash": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.dim",
+            "class": "FV",
+            "item": "V330",
+            "source": "payload",
+            "path": "fields.dimensao",
+            "transform": "dimension",
+            "value": [
+              50.0,
+              19.0
+            ],
+            "overridden": false,
+            "snapshot_hash": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.bottom_bbox",
+            "class": "FV",
+            "item": "V330",
+            "source": "payload",
+            "path": "links.viga_segs.seg_bottom.0.points",
+            "transform": "bbox",
+            "value": [
+              4533.3825,
+              2680.038,
+              4552.3825,
+              2960.038
+            ],
+            "overridden": false,
+            "snapshot_hash": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          }
+        ],
+        "checks": [
+          {
+            "id": "identity",
+            "op": "same_entity",
+            "status": "PASS",
+            "reason": "same_entity satisfeita",
+            "left": "V330",
+            "right": "V330",
+            "metric": {}
+          },
+          {
+            "id": "dimension",
+            "op": "dimension_equal",
+            "status": "FAIL",
+            "reason": "dimension_equal divergente",
+            "left": [
+              60.0,
+              19.0
+            ],
+            "right": [
+              50.0,
+              19.0
+            ],
+            "metric": {
+              "deltas": [
+                10.0,
+                0.0
+              ],
+              "tolerance": 0.05,
+              "order_sensitive": true
+            }
+          },
+          {
+            "id": "trace",
+            "op": "equal",
+            "status": "PASS",
+            "reason": "equal satisfeita",
+            "left": true,
+            "right": true,
+            "metric": {}
+          },
+          {
+            "id": "contact",
+            "op": "bbox_intersects",
+            "status": "FAIL",
+            "reason": "bbox_intersects divergente",
+            "left": [
+              4492.3825,
+              1963.038,
+              4552.3825,
+              1982.038
+            ],
+            "right": [
+              4533.3825,
+              2680.038,
+              4552.3825,
+              2960.038
+            ],
+            "metric": {
+              "distance": 698.0,
+              "threshold": 0.0
+            }
+          }
+        ],
+        "snapshots": {
+          "PIL:P35": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+          "FV:V330": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095"
+        },
+        "provenance": {
+          "allowed": "persisted N1 + explicit candidate overlay",
+          "forbidden": "N2/N4 as N1 proof or N3 input",
+          "cross_class": [
+            "FV",
+            "PIL"
+          ]
+        },
+        "executed_at": "2026-07-13T22:34:02+00:00",
+        "runtime": {
+          "cache_hit": false,
+          "cache_key": "4f80f07013821d28be8e90d0b75d74fe5e1e790a13183254296e7b7abb76da9b",
+          "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\4f\\4f80f07013821d28be8e90d0b75d74fe5e1e790a13183254296e7b7abb76da9b.json",
+          "db_load_ms": 20.544,
+          "evaluation_ms": 1.654,
+          "total_ms": 22.186,
+          "loaded_rows": 2,
+          "requested_fields": 7,
+          "requested_checks": 4
+        },
+        "profile": {
+          "schema": "arete.qa_class_profile/v1",
+          "class": "PIL",
+          "version": "1.3.0",
+          "probe": "face_slot_identity_dimension_contact",
+          "item": "P35",
+          "variables": {
+            "face": "C",
+            "slot": "passa_esq"
+          },
+          "resolved_cross_class": {
+            "beam.name": {
+              "item_from": "pil.face.beam_name",
+              "item": "V330"
+            },
+            "beam.dim": {
+              "item_from": "pil.face.beam_name",
+              "item": "V330"
+            },
+            "beam.bottom_bbox": {
+              "item_from": "pil.face.beam_name",
+              "item": "V330"
+            }
+          },
+          "authority": "coverage_ready; apply remains diagnostic_only until human QG7 promotion",
+          "manual_guides": [
+            "docs/INTERPRETACAO-PILARES-ABCD.md",
+            "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260630_203509/pilares/interpretacao_abcd.html"
+          ],
+          "preflight_snapshots": {
+            "PIL:P35": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739"
+          }
+        }
+      }
+    },
+    {
+      "target": {
+        "face": "C",
+        "slot": "passa_dir",
+        "beam": "V330",
+        "dimension": "60/19"
+      },
+      "overall": "FAIL",
+      "result": {
+        "schema": "arete.qa_n1_field_probe_result/v1",
+        "engine_version": "1.3.0",
+        "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+        "question": "O slot passa_dir da face C de P35 conserva identidade, dimensao, rastro e contato cross-classe?",
+        "overall": "FAIL",
+        "scope_authority": "field_checks_only; never validates full item or ficha",
+        "fields": [
+          {
+            "id": "pil.face.beam_name",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sC_v_passa_dir_n.label.0.text",
+            "transform": "entity",
+            "value": "V330",
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.face.beam_dim",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sC_v_passa_dir_d.label.0.text",
+            "transform": "dimension",
+            "value": [
+              60.0,
+              19.0
+            ],
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.face.trace",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sC_v_passa_dir_n.label.0",
+            "transform": "trace",
+            "value": true,
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.bbox",
+            "class": "PIL",
+            "item": "P35",
+            "source": "geometry",
+            "path": "",
+            "transform": "bbox",
+            "value": [
+              4492.3825,
+              1963.038,
+              4552.3825,
+              1982.038
+            ],
+            "overridden": false,
+            "snapshot_hash": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.name",
+            "class": "FV",
+            "item": "V330",
+            "source": "payload",
+            "path": "fields.nome",
+            "transform": "entity",
+            "value": "V330",
+            "overridden": false,
+            "snapshot_hash": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.dim",
+            "class": "FV",
+            "item": "V330",
+            "source": "payload",
+            "path": "fields.dimensao",
+            "transform": "dimension",
+            "value": [
+              50.0,
+              19.0
+            ],
+            "overridden": false,
+            "snapshot_hash": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.bottom_bbox",
+            "class": "FV",
+            "item": "V330",
+            "source": "payload",
+            "path": "links.viga_segs.seg_bottom.0.points",
+            "transform": "bbox",
+            "value": [
+              4533.3825,
+              2680.038,
+              4552.3825,
+              2960.038
+            ],
+            "overridden": false,
+            "snapshot_hash": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          }
+        ],
+        "checks": [
+          {
+            "id": "identity",
+            "op": "same_entity",
+            "status": "PASS",
+            "reason": "same_entity satisfeita",
+            "left": "V330",
+            "right": "V330",
+            "metric": {}
+          },
+          {
+            "id": "dimension",
+            "op": "dimension_equal",
+            "status": "FAIL",
+            "reason": "dimension_equal divergente",
+            "left": [
+              60.0,
+              19.0
+            ],
+            "right": [
+              50.0,
+              19.0
+            ],
+            "metric": {
+              "deltas": [
+                10.0,
+                0.0
+              ],
+              "tolerance": 0.05,
+              "order_sensitive": true
+            }
+          },
+          {
+            "id": "trace",
+            "op": "equal",
+            "status": "PASS",
+            "reason": "equal satisfeita",
+            "left": true,
+            "right": true,
+            "metric": {}
+          },
+          {
+            "id": "contact",
+            "op": "bbox_intersects",
+            "status": "FAIL",
+            "reason": "bbox_intersects divergente",
+            "left": [
+              4492.3825,
+              1963.038,
+              4552.3825,
+              1982.038
+            ],
+            "right": [
+              4533.3825,
+              2680.038,
+              4552.3825,
+              2960.038
+            ],
+            "metric": {
+              "distance": 698.0,
+              "threshold": 0.0
+            }
+          }
+        ],
+        "snapshots": {
+          "PIL:P35": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739",
+          "FV:V330": "cff927a9e18c9e20a80dc08f577499f027203aff28ca7c90577aa420d04ea095"
+        },
+        "provenance": {
+          "allowed": "persisted N1 + explicit candidate overlay",
+          "forbidden": "N2/N4 as N1 proof or N3 input",
+          "cross_class": [
+            "FV",
+            "PIL"
+          ]
+        },
+        "executed_at": "2026-07-13T22:34:02+00:00",
+        "runtime": {
+          "cache_hit": false,
+          "cache_key": "075f465e5027a92acfe182ca590d4c01744f57da346165e3d72a457d74b70e94",
+          "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\07\\075f465e5027a92acfe182ca590d4c01744f57da346165e3d72a457d74b70e94.json",
+          "db_load_ms": 19.448,
+          "evaluation_ms": 2.176,
+          "total_ms": 21.604,
+          "loaded_rows": 2,
+          "requested_fields": 7,
+          "requested_checks": 4
+        },
+        "profile": {
+          "schema": "arete.qa_class_profile/v1",
+          "class": "PIL",
+          "version": "1.3.0",
+          "probe": "face_slot_identity_dimension_contact",
+          "item": "P35",
+          "variables": {
+            "face": "C",
+            "slot": "passa_dir"
+          },
+          "resolved_cross_class": {
+            "beam.name": {
+              "item_from": "pil.face.beam_name",
+              "item": "V330"
+            },
+            "beam.dim": {
+              "item_from": "pil.face.beam_name",
+              "item": "V330"
+            },
+            "beam.bottom_bbox": {
+              "item_from": "pil.face.beam_name",
+              "item": "V330"
+            }
+          },
+          "authority": "coverage_ready; apply remains diagnostic_only until human QG7 promotion",
+          "manual_guides": [
+            "docs/INTERPRETACAO-PILARES-ABCD.md",
+            "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260630_203509/pilares/interpretacao_abcd.html"
+          ],
+          "preflight_snapshots": {
+            "PIL:P35": "f3beba43f8c1cfb2514faf6447550ae9c6a2936aa10dbfa8b1a755a14412a739"
+          }
+        }
+      }
+    },
+    {
+      "target": {
+        "face": "D",
+        "slot": "passa_dir",
+        "beam": "V327",
+        "dimension": "19/55"
+      },
+      "overall": "FAIL",
+      "result": {
+        "schema": "arete.qa_n1_field_probe_result/v1",
+        "engine_version": "1.3.0",
+        "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+        "question": "O slot passa_dir da face D de P35 conserva identidade, dimensao, rastro e contato cross-classe?",
+        "overall": "FAIL",
+        "scope_authority": "field_checks_only; never validates full item or ficha",
+        "fields": [
+          {
+            "id": "pil.face.beam_name",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sD_v_passa_dir_n.label.0.text",
+            "transform": "entity",
+            "value": "V327",
+            "overridden": false,
+            "snapshot_hash": "7ba1b541b7480893328fbd2bba3646cdaa364bd2da28ab253d0dd7793763a65c",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.face.beam_dim",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sD_v_passa_dir_d.label.0.text",
+            "transform": "dimension",
+            "value": [
+              19.0,
+              55.0
+            ],
+            "overridden": false,
+            "snapshot_hash": "7ba1b541b7480893328fbd2bba3646cdaa364bd2da28ab253d0dd7793763a65c",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.face.trace",
+            "class": "PIL",
+            "item": "P35",
+            "source": "payload",
+            "path": "p_sD_v_passa_dir_n.label.0",
+            "transform": "trace",
+            "value": true,
+            "overridden": false,
+            "snapshot_hash": "7ba1b541b7480893328fbd2bba3646cdaa364bd2da28ab253d0dd7793763a65c",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "pil.bbox",
+            "class": "PIL",
+            "item": "P35",
+            "source": "geometry",
+            "path": "",
+            "transform": "bbox",
+            "value": [
+              4492.3825,
+              1963.038,
+              4552.3825,
+              1982.038
+            ],
+            "overridden": false,
+            "snapshot_hash": "7ba1b541b7480893328fbd2bba3646cdaa364bd2da28ab253d0dd7793763a65c",
+            "selected_columns": [
+              "id",
+              "links_json",
+              "name",
+              "points_json",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.name",
+            "class": "FV",
+            "item": "V327",
+            "source": "payload",
+            "path": "fields.nome",
+            "transform": "entity",
+            "value": "V327",
+            "overridden": false,
+            "snapshot_hash": "7126aca81170a52a1974fc646470b347bda317faa129807dac6775e54f5d2325",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.dim",
+            "class": "FV",
+            "item": "V327",
+            "source": "payload",
+            "path": "fields.dimensao",
+            "transform": "dimension",
+            "value": [
+              14.0,
+              50.0
+            ],
+            "overridden": false,
+            "snapshot_hash": "7126aca81170a52a1974fc646470b347bda317faa129807dac6775e54f5d2325",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          },
+          {
+            "id": "beam.bottom_bbox",
+            "class": "FV",
+            "item": "V327",
+            "source": "payload",
+            "path": "links.viga_segs.seg_bottom.0.points",
+            "transform": "bbox",
+            "value": null,
+            "overridden": false,
+            "snapshot_hash": "7126aca81170a52a1974fc646470b347bda317faa129807dac6775e54f5d2325",
+            "selected_columns": [
+              "data_json",
+              "id",
+              "name",
+              "project_id"
+            ]
+          }
+        ],
+        "checks": [
+          {
+            "id": "identity",
+            "op": "same_entity",
+            "status": "PASS",
+            "reason": "same_entity satisfeita",
+            "left": "V327",
+            "right": "V327",
+            "metric": {}
+          },
+          {
+            "id": "dimension",
+            "op": "dimension_equal",
+            "status": "FAIL",
+            "reason": "dimension_equal divergente",
+            "left": [
+              19.0,
+              55.0
+            ],
+            "right": [
+              14.0,
+              50.0
+            ],
+            "metric": {
+              "deltas": [
+                5.0,
+                5.0
+              ],
+              "tolerance": 0.05,
+              "order_sensitive": true
+            }
+          },
+          {
+            "id": "trace",
+            "op": "equal",
+            "status": "PASS",
+            "reason": "equal satisfeita",
+            "left": true,
+            "right": true,
+            "metric": {}
+          },
+          {
+            "id": "contact",
+            "op": "bbox_intersects",
+            "status": "PENDENTE",
+            "reason": "campo necessário ausente: beam.bottom_bbox",
+            "left": [
+              4492.3825,
+              1963.038,
+              4552.3825,
+              1982.038
+            ],
+            "right": null
+          }
+        ],
+        "snapshots": {
+          "PIL:P35": "7ba1b541b7480893328fbd2bba3646cdaa364bd2da28ab253d0dd7793763a65c",
+          "FV:V327": "7126aca81170a52a1974fc646470b347bda317faa129807dac6775e54f5d2325"
+        },
+        "provenance": {
+          "allowed": "persisted N1 + explicit candidate overlay",
+          "forbidden": "N2/N4 as N1 proof or N3 input",
+          "cross_class": [
+            "FV",
+            "PIL"
+          ]
+        },
+        "executed_at": "2026-07-13T22:34:02+00:00",
+        "runtime": {
+          "cache_hit": false,
+          "cache_key": "dc6fffab32e89d97eb188afe421199a429b15798886e8071a3d04587965fbe5f",
+          "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\dc\\dc6fffab32e89d97eb188afe421199a429b15798886e8071a3d04587965fbe5f.json",
+          "db_load_ms": 20.252,
+          "evaluation_ms": 1.481,
+          "total_ms": 21.722,
+          "loaded_rows": 2,
+          "requested_fields": 7,
+          "requested_checks": 4
+        },
+        "profile": {
+          "schema": "arete.qa_class_profile/v1",
+          "class": "PIL",
+          "version": "1.3.0",
+          "probe": "face_slot_identity_dimension_contact",
+          "item": "P35",
+          "variables": {
+            "face": "D",
+            "slot": "passa_dir"
+          },
+          "resolved_cross_class": {
+            "beam.name": {
+              "item_from": "pil.face.beam_name",
+              "item": "V327"
+            },
+            "beam.dim": {
+              "item_from": "pil.face.beam_name",
+              "item": "V327"
+            },
+            "beam.bottom_bbox": {
+              "item_from": "pil.face.beam_name",
+              "item": "V327"
+            }
+          },
+          "authority": "coverage_ready; apply remains diagnostic_only until human QG7 promotion",
+          "manual_guides": [
+            "docs/INTERPRETACAO-PILARES-ABCD.md",
+            "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260630_203509/pilares/interpretacao_abcd.html"
+          ],
+          "preflight_snapshots": {
+            "PIL:P35": "7ba1b541b7480893328fbd2bba3646cdaa364bd2da28ab253d0dd7793763a65c"
+          }
+        }
+      }
+    }
+  ],
+  "profile_probe_summary": {
+    "PASS": 0,
+    "FAIL": 3,
+    "PENDENTE": 0
+  },
+  "findings": [
+    {
+      "code": "beam_dimension",
+      "family": "faces",
+      "message": "face A/passa_esq sem dimensão largura/profundidade válida",
+      "evidence": {
+        "face": "A",
+        "slot": "passa_esq",
+        "beam": "V328",
+        "observed": "V328"
+      }
+    },
+    {
+      "code": "beam_dimension",
+      "family": "faces",
+      "message": "face A/passa_dir sem dimensão largura/profundidade válida",
+      "evidence": {
+        "face": "A",
+        "slot": "passa_dir",
+        "beam": "V328",
+        "observed": "V328"
+      }
+    },
+    {
+      "code": "beam_identity",
+      "family": "faces",
+      "message": "face B/passa_esq sem identidade de viga válida",
+      "evidence": {
+        "face": "B",
+        "slot": "passa_esq",
+        "observed": null
+      }
+    },
+    {
+      "code": "beam_dimension",
+      "family": "faces",
+      "message": "face B/passa_esq sem dimensão largura/profundidade válida",
+      "evidence": {
+        "face": "B",
+        "slot": "passa_esq",
+        "beam": null,
+        "observed": "P35"
+      }
+    },
+    {
+      "code": "beam_identity",
+      "family": "faces",
+      "message": "face B/passa_dir sem identidade de viga válida",
+      "evidence": {
+        "face": "B",
+        "slot": "passa_dir",
+        "observed": null
+      }
+    },
+    {
+      "code": "beam_dimension",
+      "family": "faces",
+      "message": "face B/passa_dir sem dimensão largura/profundidade válida",
+      "evidence": {
+        "face": "B",
+        "slot": "passa_dir",
+        "beam": null,
+        "observed": "P35"
+      }
+    }
+  ],
+  "structural_complete": false,
+  "probes_complete": false,
+  "ready_for_visual": false,
+  "human_checkpoints": [
+    "regra estrutural ambígua ou lacuna do manual",
+    "veredito visual do N1 próximo/distante e dos desenhos N3",
+    "promoção QG7 do adaptador PIL para validation_ready",
+    "promoção de candidato RAG T1/T2"
+  ],
+  "next_actions": [
+    "corrigir a primeira causa geral listada em findings e regenerar somente o escopo afetado",
+    "resolver FAIL/PENDENTE das probes cross-classe antes de confiar em nome, dimensão ou contato"
+  ]
+}

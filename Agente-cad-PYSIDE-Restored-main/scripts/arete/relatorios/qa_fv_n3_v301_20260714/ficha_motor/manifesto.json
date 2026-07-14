@@ -1,0 +1,22 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "FV",
+  "item": "V301",
+  "nivel": "N3",
+  "generated_at": "2026-07-14T01:36:35",
+  "artifacts": [
+    {
+      "label": "N3",
+      "dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\qa_fv_n3_v301_20260714\\FV_preview_V301.dxf",
+      "dxf_sha256": "f9c970fc82146de160364e1ba2ad3812afc931c20427ed33f68d81e121b788be",
+      "json": null,
+      "json_sha256": null,
+      "contract": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\qa_fv_n3_contracts\\20260714\\V301_fundo.json",
+      "contract_sha256": "593d834c0a0bb321407ff55d23d04c8ad81b61624e6e8f7d4465c6f223d39ddb",
+      "render_cache_hit": false,
+      "render_cache_key": "68bda2bfb0564bf3d4d873d73a887d53cfd585b01f22123799b982b2c31e939f"
+    }
+  ],
+  "input_signature": "e7f206faa9e2c76d63003b872d9f6e26dc520a44228756bfe217d4337ba65c02",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write"
+}

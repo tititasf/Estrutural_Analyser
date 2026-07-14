@@ -1,0 +1,244 @@
+{
+  "schema": "arete.qa_n1_field_probe_result/v1",
+  "engine_version": "1.3.0",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "question": "O aceite localizado P35 A/B esta materializado por V308/19x55 e sua topologia conserva o vao que alcança P35?",
+  "overall": "FAIL",
+  "scope_authority": "field_checks_only; never validates full item or ficha",
+  "fields": [
+    {
+      "id": "p35.face_a.name",
+      "class": "PIL",
+      "item": "P35",
+      "source": "payload",
+      "path": "p_sA_v_passa_esq_n.label.0.text",
+      "transform": "entity",
+      "value": null,
+      "overridden": false,
+      "snapshot_hash": "639ddc9b74899c62389e2a8f25edad4e620798418bdc7fe2f77ed88880b28d0f",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "p35.face_b.name",
+      "class": "PIL",
+      "item": "P35",
+      "source": "payload",
+      "path": "p_sB_v_passa_esq_n.label.0.text",
+      "transform": "entity",
+      "value": null,
+      "overridden": false,
+      "snapshot_hash": "639ddc9b74899c62389e2a8f25edad4e620798418bdc7fe2f77ed88880b28d0f",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "p35.bbox",
+      "class": "PIL",
+      "item": "P35",
+      "source": "geometry",
+      "path": "",
+      "transform": "bbox",
+      "value": [
+        4492.3825,
+        1963.038,
+        4552.3825,
+        1982.038
+      ],
+      "overridden": false,
+      "snapshot_hash": "639ddc9b74899c62389e2a8f25edad4e620798418bdc7fe2f77ed88880b28d0f",
+      "selected_columns": [
+        "id",
+        "links_json",
+        "name",
+        "points_json",
+        "project_id"
+      ]
+    },
+    {
+      "id": "v308.name",
+      "class": "FV",
+      "item": "V308",
+      "source": "payload",
+      "path": "fields.nome",
+      "transform": "entity",
+      "value": "V308",
+      "overridden": false,
+      "snapshot_hash": "69d34513c3b795d0d0f779fb80c8d92b0c6aa28fee2953899d09c0ceabc8eeb2",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "v308.dim",
+      "class": "FV",
+      "item": "V308",
+      "source": "payload",
+      "path": "fields.dimensao",
+      "transform": "dimension",
+      "value": [
+        19.0,
+        55.0
+      ],
+      "overridden": false,
+      "snapshot_hash": "69d34513c3b795d0d0f779fb80c8d92b0c6aa28fee2953899d09c0ceabc8eeb2",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "v308.bottom_count",
+      "class": "FV",
+      "item": "V308",
+      "source": "payload",
+      "path": "links.viga_segs.seg_bottom",
+      "transform": "count",
+      "value": 1,
+      "overridden": false,
+      "snapshot_hash": "69d34513c3b795d0d0f779fb80c8d92b0c6aa28fee2953899d09c0ceabc8eeb2",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    },
+    {
+      "id": "v308.second_bottom_bbox",
+      "class": "FV",
+      "item": "V308",
+      "source": "payload",
+      "path": "links.viga_segs.seg_bottom.1.points",
+      "transform": "bbox",
+      "value": null,
+      "overridden": false,
+      "snapshot_hash": "69d34513c3b795d0d0f779fb80c8d92b0c6aa28fee2953899d09c0ceabc8eeb2",
+      "selected_columns": [
+        "data_json",
+        "id",
+        "name",
+        "project_id"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "face_a_has_beam",
+      "op": "present",
+      "status": "FAIL",
+      "reason": "present divergente",
+      "left": null,
+      "right": null,
+      "metric": {}
+    },
+    {
+      "id": "face_b_has_beam",
+      "op": "present",
+      "status": "FAIL",
+      "reason": "present divergente",
+      "left": null,
+      "right": null,
+      "metric": {}
+    },
+    {
+      "id": "face_a_is_v308",
+      "op": "same_entity",
+      "status": "PENDENTE",
+      "reason": "campo necessário ausente: p35.face_a.name",
+      "left": null,
+      "right": "V308"
+    },
+    {
+      "id": "face_b_is_v308",
+      "op": "same_entity",
+      "status": "PENDENTE",
+      "reason": "campo necessário ausente: p35.face_b.name",
+      "left": null,
+      "right": "V308"
+    },
+    {
+      "id": "v308_dimension_is_19x55",
+      "op": "dimension_equal",
+      "status": "PASS",
+      "reason": "dimension_equal satisfeita",
+      "left": [
+        19.0,
+        55.0
+      ],
+      "right": [
+        19,
+        55
+      ],
+      "metric": {
+        "deltas": [
+          0.0,
+          0.0
+        ],
+        "tolerance": 0.05,
+        "order_sensitive": true
+      }
+    },
+    {
+      "id": "v308_keeps_two_bottom_spans",
+      "op": "equal",
+      "status": "FAIL",
+      "reason": "equal divergente",
+      "left": 1,
+      "right": 2,
+      "metric": {}
+    },
+    {
+      "id": "second_span_reaches_p35",
+      "op": "bbox_intersects",
+      "status": "PENDENTE",
+      "reason": "campo necessário ausente: v308.second_bottom_bbox",
+      "left": [
+        4492.3825,
+        1963.038,
+        4552.3825,
+        1982.038
+      ],
+      "right": null
+    }
+  ],
+  "snapshots": {
+    "PIL:P35": "639ddc9b74899c62389e2a8f25edad4e620798418bdc7fe2f77ed88880b28d0f",
+    "FV:V308": "69d34513c3b795d0d0f779fb80c8d92b0c6aa28fee2953899d09c0ceabc8eeb2"
+  },
+  "provenance": {
+    "allowed": "persisted N1 + explicit candidate overlay",
+    "forbidden": "N2/N4 as N1 proof or N3 input",
+    "cross_class": [
+      "FV",
+      "PIL"
+    ]
+  },
+  "executed_at": "2026-07-14T00:33:42+00:00",
+  "runtime": {
+    "cache_hit": false,
+    "cache_key": "85a3df0d1e17a6eca972e75d91f477ea9f0e50847c2131e87e2a58928d669da8",
+    "cache_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\.cache\\qa_fastpaths\\n1_field_probe\\85\\85a3df0d1e17a6eca972e75d91f477ea9f0e50847c2131e87e2a58928d669da8.json",
+    "db_load_ms": 23.45,
+    "evaluation_ms": 0.654,
+    "total_ms": 24.084,
+    "loaded_rows": 2,
+    "requested_fields": 7,
+    "requested_checks": 7
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "PIL",
+  "item": "P35",
+  "nivel": "N4",
+  "generated_at": "2026-07-14T02:36:39",
+  "artifacts": [
+    {
+      "label": "CIMA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_CIMA_preview_P35.dxf",
+      "dxf_sha256": "ae60e021f57c236041cca6fcb727c82f42d51250a54e757a9f87c24a02d18e41",
+      "svg_sha256": "31e47cd32b3f8ec75315d7fbf78e9dd89da4b38fa98a1a5b8c4f4d8ef7ad92f3",
+      "json": null,
+      "json_sha256": null,
+      "contract": null,
+      "contract_sha256": null,
+      "render_cache_hit": false,
+      "render_cache_key": "0dc7e5e2dde2f7bf71c4fb17a0d480f8d7c61e53eafe5f2bc0278c402fb39ee9"
+    },
+    {
+      "label": "ABCD",
+      "dxf": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\n4\\PL_ABCD_preview_P35.dxf",
+      "dxf_sha256": "0ecc67c8cbb87e25fe53453e300a6388a0ace396ede957557b002519936ab127",
+      "svg_sha256": "5608e75235fa97853ef7a6d36276249756e1139c5f8a8dc284df3346b730596a",
+      "json": null,
+      "json_sha256": null,
+      "contract": null,
+      "contract_sha256": null,
+      "render_cache_hit": false,
+      "render_cache_key": "cd1cb6af7f528253b71606cd0db5053f13f40541d1d93b6494a9fb8e6a0ab0e7"
+    }
+  ],
+  "input_signature": "6b48472b06eefe1dda31713b9727dd49e820ac68effe21a3288ee793e8964518",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write",
+  "html": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\fichas_motor\\P35_N4_20260714_0236\\index.html",
+  "html_sha256": "cbcacd32858250269b704bff0868a1170ff758cfbae8e435c6d815454000bed7"
+}
