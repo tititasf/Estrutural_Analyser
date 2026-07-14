@@ -54,6 +54,31 @@ _SEGMENTO_LADO_SUFIXO = {
     "lateral_b_passa": ("B", "Passa"),
 }
 
+# [2026-07-13, harmonização de validação Fase 3.1] label exibida -> field_id
+# REAL do app desktop (`src/ui/widgets/detail_card.py`) — só entram aqui
+# campos que já têm um field_id 1:1 estável dos dois lados. Campos sem
+# equivalente conhecido (Orientação/Nível Relativo do pilar, Altura da laje)
+# ficam de fora de propósito — gap documentado em
+# docs/CONVENCAO-SELOS-VALIDACAO.md, não um esquecimento. Lado A-D e Lajes
+# Contíguas do pilar são tratados à parte (granularidade própria, Fase 3.3).
+_FIELD_ID_PILAR = {
+    "Nome": "name",
+    "Classificação": "classification",
+}
+
+_FIELD_ID_LAJE = {
+    "Nome": "name",
+    "Nível": "laje_nivel",
+}
+
+
+def _com_field_id(campos: dict, mapa: dict) -> dict:
+    """Subconjunto de `campos` que tem field_id real conhecido do SA —
+    devolvido como `{label: field_id}` ao lado de `campos` (que continua só
+    pra exibição). O JS usa isso pra validar campo com o field_id certo em
+    vez do label cru."""
+    return {label: mapa[label] for label in campos if label in mapa}
+
 CLASSES_N1 = (
     "convencao_pilares", "convencao_niveis_lajes",
     "pilares", "pilares_especiais", "lajes", "cortes",
@@ -133,26 +158,28 @@ def ler_estado_pavimento(obra_dir: Path, pavimento: str) -> Optional[dict]:
 
 
 def _normalizar_pilar(p: dict) -> dict:
+    campos = {
+        "Nome": p.get("name"),
+        "Classificação": p.get("classification"),
+        "Orientação": p.get("orientation"),
+        "Nível Relativo": p.get("nivel_str"),
+        "Lado A": p.get("lado_A"),
+        "Lado B": p.get("lado_B"),
+        "Lado C": p.get("lado_C"),
+        "Lado D": p.get("lado_D"),
+        "Lajes contíguas": (
+            ", ".join(
+                (l.get("laje") or str(l)) if isinstance(l, dict) else str(l)
+                for l in p["lajes"]
+            )
+            if p.get("lajes") else "Nenhuma"
+        ),
+    }
     return {
         "item_id": p.get("name") or p.get("key"),
         "titulo": p.get("name") or p.get("key"),
-        "campos": {
-            "Nome": p.get("name"),
-            "Classificação": p.get("classification"),
-            "Orientação": p.get("orientation"),
-            "Nível Relativo": p.get("nivel_str"),
-            "Lado A": p.get("lado_A"),
-            "Lado B": p.get("lado_B"),
-            "Lado C": p.get("lado_C"),
-            "Lado D": p.get("lado_D"),
-            "Lajes contíguas": (
-                ", ".join(
-                    (l.get("laje") or str(l)) if isinstance(l, dict) else str(l)
-                    for l in p["lajes"]
-                )
-                if p.get("lajes") else "Nenhuma"
-            ),
-        },
+        "campos": campos,
+        "campos_field_id": _com_field_id(campos, _FIELD_ID_PILAR),
         "atencao": p.get("atencao") or "",
         "points": p.get("points") or [],
         "beam_name": p.get("name") or p.get("key"),
@@ -168,18 +195,20 @@ def _normalizar_pilar_n3_variante(p: dict, variante: str) -> dict:
     base["item_id"] = f"{nome_base}_{variante}"
     base["titulo"] = f"{nome_base} ({variante})"
     base["campos"] = {"Variante N3": variante, **base["campos"]}
-    return base
+    return base  # campos_field_id herdado sem alteração ("Variante N3" não tem field_id)
 
 
 def _normalizar_laje(s: dict) -> dict:
+    campos = {
+        "Nome": s.get("name"),
+        "Nível": s.get("nivel"),
+        "Altura": s.get("height"),
+    }
     return {
         "item_id": s.get("name"),
         "titulo": s.get("name"),
-        "campos": {
-            "Nome": s.get("name"),
-            "Nível": s.get("nivel"),
-            "Altura": s.get("height"),
-        },
+        "campos": campos,
+        "campos_field_id": _com_field_id(campos, _FIELD_ID_LAJE),
         "atencao": "",
         "points": s.get("points") or [],
         "beam_name": s.get("name"),

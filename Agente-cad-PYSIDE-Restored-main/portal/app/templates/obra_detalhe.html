@@ -1748,15 +1748,18 @@
             'title="Clique para copiar" onclick="navigator.clipboard.writeText(\'' + item.code_publico + '\')">' +
             item.code_publico + ' 📋</span></div>';
         }
-        // [2026-07-13] field_id do Portal = a própria chave do label (ex.
-        // "Nível Relativo") — a app desktop usa field_ids internos
-        // diferentes (ex. "laje_nivel"); o mapeamento entre os dois
-        // namespaces fica pro sync (Fase 2.4), ainda não implementado.
+        // [2026-07-13, Fase 3.1] field_id real do SA vem de
+        // item.campos_field_id[label] (novo, ver ficha_reader._FIELD_ID_*) —
+        // campo sem mapeamento conhecido (ex. Orientação, Nível Relativo do
+        // pilar) cai no fallback do label cru, sem validação funcional
+        // (gap documentado, não confunde com um bug).
+        var camposFieldId = item.campos_field_id || {};
         var linhas = codePublicoHtml + Object.keys(item.campos).map(function (k) {
           var v = item.campos[k];
           if (v === null || v === undefined || v === '') v = '(vazio/não identificado)';
-          var fieldId = encodeURIComponent(k);
-          var validado = validados.has(k);
+          var fieldIdReal = camposFieldId[k] || k;
+          var fieldId = encodeURIComponent(fieldIdReal);
+          var validado = validados.has(fieldIdReal);
           return '<div class="n1-campo">' +
             '<span class="n1-campo-label">' + k + '</span>' +
             '<span class="n1-campo-valor">' + String(v).replace(/</g, '&lt;') + '</span>' +

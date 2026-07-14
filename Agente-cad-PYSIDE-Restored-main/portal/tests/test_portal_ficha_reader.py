@@ -49,6 +49,24 @@ def test_listar_itens_n1_pilares_tem_campos_reais():
     assert len(p1["points"]) >= 4  # geometria real (retângulo)
 
 
+def test_listar_itens_n1_pilares_expoe_campos_field_id():
+    """[2026-07-13, Fase 3.1] campos_field_id mapeia só os campos com field_id
+    real conhecido do SA (Nome/Classificação) — Orientação/Nível Relativo/
+    Lado A-D/Lajes contíguas ficam de fora (gap documentado, tratado à parte
+    nas Fases 3.2/3.3)."""
+    estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
+    p1 = fr.obter_item_n1(estado, "pilares", "P1")
+    assert p1["campos_field_id"] == {"Nome": "name", "Classificação": "classification"}
+
+
+def test_listar_itens_n1_lajes_expoe_campos_field_id():
+    estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
+    itens = fr.listar_itens_n1(estado, "lajes")
+    laje = itens[0]
+    assert laje["campos_field_id"] == {"Nome": "name", "Nível": "laje_nivel"}
+    assert "Altura" not in laje["campos_field_id"]  # sem field_id conhecido no SA
+
+
 def test_listar_itens_n1_segmentos_fundo_reais():
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
     itens = fr.listar_itens_n1(estado, "fundo")
