@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from scripts.arete.qa_loop_executor import (
     list_states,
     load_state,
     record,
+    record_cycle_phase,
     teach,
 )
 
@@ -32,6 +34,8 @@ def _state(tmp_path: Path):
 
 def test_loop_state_is_persistent_and_fix_invalidates_automatic_checks(tmp_path: Path):
     state = _state(tmp_path)
+    assert state["authority"] == "validation_ready"
+    assert (tmp_path / state["run_id"] / "session_metrics.json").is_file()
     state["tasks"]["evidence_review"] = {"status": "COMPLETE"}
     state["tasks"]["class_coverage"] = {"status": "COMPLETE"}
     fixed = record(
@@ -46,8 +50,55 @@ def test_loop_state_is_persistent_and_fix_invalidates_automatic_checks(tmp_path:
     assert restored["status"] == "ACTIVE"
     assert restored["tasks"]["evidence_review"]["status"] == "PENDING"
     assert restored["tasks"]["class_coverage"]["status"] == "PENDING"
+    assert restored.get("pending_regen_after_fix") is True
+    assert restored["cycle_phases"]["fix"] >= 1
     assert (tmp_path / fixed["run_id"] / "events.jsonl").is_file()
     assert (tmp_path / fixed["run_id"] / "RESUME.md").is_file()
+    metrics = json.loads((tmp_path / fixed["run_id"] / "session_metrics.json").read_text(encoding="utf-8"))
+    assert metrics["schema"] == "arete.qa_session_metrics/v1"
+    assert metrics["authority"] == "validation_ready"
+    assert metrics.get("cycle_efficiency", {}).get("schema") == "arete.qa_cycle_efficiency/v1"
+    assert metrics["cycle_efficiency"]["phases"]["fix"] >= 1
+
+
+def test_record_visual_and_teach_auto_note_cycle_phases(tmp_path: Path):
+    state = _state(tmp_path)
+    visual = record(
+        tmp_path,
+        state,
+        kind="visual",
+        result="FAIL",
+        message="cota desalinhada",
+        evidence=["n2.png", "n4.png"],
+    )
+    assert visual["cycle_phases"]["visual"] >= 1
+    assert visual["status"] == "NEEDS_IMPLEMENTATION"
+    taught = teach(
+        tmp_path,
+        load_state(tmp_path, visual["run_id"]),
+        family="faces",
+        field="dim",
+        rule="aresta do contorno prova dim em L/U",
+        examples=["P99 20/40"],
+        exceptions=[],
+        evidence=["dossie.md"],
+    )
+    assert taught["cycle_phases"]["train"] >= 1
+    resume = (tmp_path / taught["run_id"] / "RESUME.md").read_text(encoding="utf-8")
+    assert "Eficiência do ciclo" in resume
+    metrics = json.loads((tmp_path / taught["run_id"] / "session_metrics.json").read_text(encoding="utf-8"))
+    assert metrics["cycle_efficiency"]["phases"]["visual"] >= 1
+    assert metrics["cycle_efficiency"]["phases"]["train"] >= 1
+
+
+def test_manual_record_cycle_still_works(tmp_path: Path):
+    state = _state(tmp_path)
+    updated = record_cycle_phase(
+        tmp_path, state, phase="validate", result="PASS", message="probe ok",
+    )
+    assert updated["cycle_phases"]["validate"] == 1
+    events = (tmp_path / updated["run_id"] / "events.jsonl").read_text(encoding="utf-8")
+    assert "cycle_phase" in events
 
 
 def test_teaching_requires_reusable_rule_and_becomes_unpromoted_t1_candidate(tmp_path: Path):

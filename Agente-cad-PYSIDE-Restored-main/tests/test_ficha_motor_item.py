@@ -29,6 +29,7 @@ def test_build_ficha_motor_item_embeds_dxf_json_and_hashes(tmp_path):
     manifesto = json.loads((index.parent / 'manifesto.json').read_text(encoding='utf-8'))
     assert '<svg' in document
     assert 'abertura_A_1' in document
+    assert 'Apresentação' in document or 'apresentação' in document.lower() or 'presentation' in document.lower()
     assert manifesto['authority'].startswith('visual_iteration_only')
     assert len(manifesto['artifacts'][0]['dxf_sha256']) == 64
     assert len(manifesto['artifacts'][0]['svg_sha256']) == 64

@@ -129,10 +129,18 @@ class BeamTracer:
             content = b_text['text'].strip()
             pos = b_text['pos']
             is_h = orientations[id(b_text)]
-            raw_lines = self._capture_geometry(pos, is_h, orientations, beam_labels, content)
+            # FV possui uma evidência adicional que não pertence à leitura de
+            # laterais: divisores transversais nativos que fecham exatamente as
+            # duas bordas do fundo.  Eles abrem painéis reais (por exemplo,
+            # mudanças de profundidade), mas não podem virar fallback de LV.
+            raw_lines = self._capture_fundo_geometry(
+                pos, is_h, orientations, beam_labels, content,
+            )
             lv_is_h = legacy_orientations[id(b_text)]
             lv_raw_lines = (
-                raw_lines
+                self._capture_geometry(
+                    pos, lv_is_h, legacy_orientations, beam_labels, content,
+                )
                 if lv_is_h == is_h
                 else self._capture_geometry(
                     pos,
@@ -207,6 +215,7 @@ class BeamTracer:
                         'seg_bottom': [],
                         'lv_seg_side_a': [],
                         'lv_seg_side_b': [],
+                        'fv_physical_divider_positions': [],
                     }
                 }
             }
@@ -257,6 +266,15 @@ class BeamTracer:
                         if (cx, cy) not in seen_centers:
                             seen_centers.add((cx, cy))
                             master_beam['geometry']['classified']['seg_bottom'].append(seg)
+                for divider_position in b['geometry']['classified'].get(
+                    'fv_physical_divider_positions', []
+                ):
+                    if divider_position not in master_beam['geometry']['classified'][
+                        'fv_physical_divider_positions'
+                    ]:
+                        master_beam['geometry']['classified'][
+                            'fv_physical_divider_positions'
+                        ].append(divider_position)
                             
                 # Collect side segments
                 master_beam['geometry']['classified']['seg_side_a'].extend(b['geometry']['classified'].get('seg_side_a', []))
@@ -297,6 +315,9 @@ class BeamTracer:
                 if classified.get('bottom_mode') == 'panel':
                     coords = self.fundo_interpreter.discard_attached_narrow_caps(
                         coords,
+                        protected_boundaries=classified.get(
+                            'fv_physical_divider_positions', []
+                        ),
                     )
                     coords = self.fundo_interpreter.merge_unlabeled_short_gaps(
                         coords,
@@ -502,6 +523,208 @@ class BeamTracer:
                             res_lines.append(candidate['points'])
 
         return res_lines
+
+    def _capture_fundo_geometry(
+        self,
+        pos: Tuple[float, float],
+        is_h: bool,
+        orientations: Dict[int, bool],
+        beam_labels: List[Dict],
+        my_name: str,
+    ) -> List[List[Tuple[float, float]]]:
+        """Captura FV sem emprestar semântica para laterais.
+
+        A geometria de fundo pode conter uma LINE nativa curta, perpendicular
+        ao eixo, no meio de duas bordas paralelas.  O region-growing comum não
+        alcança esse divisor porque ele toca o *interior* das bordas, não seus
+        endpoints.  Aceitá-lo livremente absorveria cotas e hachuras; por isso
+        a regra é estrita: a LINE deve atravessar, de ponta a ponta, duas
+        bordas axiais já capturadas da mesma faixa do FV e pertencer ao rótulo.
+
+        A captura com LINE nativa também preserva continuações axiais reais
+        que terminam em um apoio.  Esta lista é exclusiva de FV; LV recebe sua
+        própria captura em :meth:`detect_beams`.
+        """
+        captured = self._capture_geometry_with_native_lines_experimental(
+            pos, is_h, orientations, beam_labels, my_name,
+        )
+        if not captured:
+            return captured
+
+        axis = 0 if is_h else 1
+        transverse = 1 - axis
+        edge_tolerance = 5.0
+        min_width = 10.0
+        max_width = 80.0
+
+        # Bordas axiais já comprovadas pela classificação FV da captura
+        # topológica. Não basta uma linha paralela no corredor: cotas e
+        # detalhes de vigas vizinhas também podem ser paralelos.  Usar somente
+        # seg_bottom fixa a evidência na faixa de fundo já reconhecida, sem
+        # usar N2/N4, cotas ou texto como fonte de uma fronteira nova.
+        baseline_classified = self._classify_lines(
+            pos, captured, is_h, label_pos=pos,
+        )
+        axial_edges = []
+        for points in baseline_classified.get('seg_bottom') or []:
+            if len(points) < 2:
+                continue
+            axis_values = [point[axis] for point in points]
+            transverse_values = [point[transverse] for point in points]
+            axis_span = max(axis_values) - min(axis_values)
+            transverse_span = max(transverse_values) - min(transverse_values)
+            if axis_span < 30.0 or transverse_span > edge_tolerance:
+                continue
+            axial_edges.append([
+                min(axis_values),
+                max(axis_values),
+                sum(transverse_values) / len(transverse_values),
+                set(),
+            ])
+
+        if len(axial_edges) < 2:
+            return captured
+
+        axis_values = [
+            point[axis]
+            for line in (baseline_classified.get('seg_bottom') or [])
+            for point in line
+        ]
+        transverse_values = [
+            point[transverse]
+            for line in (baseline_classified.get('seg_bottom') or [])
+            for point in line
+        ]
+        search_box = (
+            min(axis_values) - 5.0,
+            min(transverse_values) - 5.0,
+            max(axis_values) + 5.0,
+            max(transverse_values) + 5.0,
+        )
+        # SpatialIndex sempre usa x/y; reconstrói a caixa nessa ordem para
+        # vigas verticais sem inverter os eixos semânticos acima.
+        if is_h:
+            bbox = search_box
+        else:
+            bbox = (
+                search_box[1], search_box[0], search_box[3], search_box[2],
+            )
+
+        # A coincidência geométrica não basta: uma cota pode atravessar uma
+        # faixa do fundo.  Cada borda traz os layers das entidades axiais que
+        # a provaram; o divisor nativo só é aceito se tiver o mesmo layer nas
+        # duas bordas que fecha.  Assim a regra funciona com qualquer layer
+        # estrutural, sem enumerar nomes, e rejeita linhas de dimensão.
+        for edge in axial_edges:
+            edge_axis_min, edge_axis_max, edge_transverse, edge_layers = edge
+            if is_h:
+                edge_bbox = (
+                    edge_axis_min - edge_tolerance,
+                    edge_transverse - edge_tolerance,
+                    edge_axis_max + edge_tolerance,
+                    edge_transverse + edge_tolerance,
+                )
+            else:
+                edge_bbox = (
+                    edge_transverse - edge_tolerance,
+                    edge_axis_min - edge_tolerance,
+                    edge_transverse + edge_tolerance,
+                    edge_axis_max + edge_tolerance,
+                )
+            for source in self.spatial_index.query_bbox(edge_bbox):
+                if not isinstance(source, dict):
+                    continue
+                source_points = self._entity_points(source)
+                if len(source_points) < 2:
+                    continue
+                source_axis = [point[axis] for point in source_points]
+                source_transverse = [point[transverse] for point in source_points]
+                source_axis_span = max(source_axis) - min(source_axis)
+                source_transverse_span = max(source_transverse) - min(source_transverse)
+                overlaps_edge = min(edge_axis_max, max(source_axis)) - max(
+                    edge_axis_min, min(source_axis)
+                )
+                min_structural_overlap = max(
+                    30.0,
+                    min(100.0, (edge_axis_max - edge_axis_min) * 0.5),
+                )
+                if (
+                    source_axis_span >= 30.0
+                    and source_transverse_span <= edge_tolerance
+                    and overlaps_edge >= min_structural_overlap
+                    and abs(
+                        (sum(source_transverse) / len(source_transverse))
+                        - edge_transverse
+                    ) <= edge_tolerance
+                ):
+                    edge_layers.add(str(source.get('layer') or ''))
+
+        def _is_native_line(candidate: Dict) -> bool:
+            return (
+                isinstance(candidate, dict)
+                and not candidate.get('points')
+                and candidate.get('start') is not None
+                and candidate.get('end') is not None
+            )
+
+        def _bridges_existing_fv_strip(
+            points: List[Tuple[float, float]],
+            native_layer: str,
+        ) -> bool:
+            if len(points) != 2:
+                return False
+            candidate_axis = [point[axis] for point in points]
+            candidate_transverse = [point[transverse] for point in points]
+            axis_span = max(candidate_axis) - min(candidate_axis)
+            width = max(candidate_transverse) - min(candidate_transverse)
+            if axis_span > edge_tolerance or not (min_width <= width <= max_width):
+                return False
+
+            axis_position = sum(candidate_axis) / 2.0
+            low, high = min(candidate_transverse), max(candidate_transverse)
+            low_matches = [
+                edge for edge in axial_edges
+                if edge[0] - edge_tolerance <= axis_position <= edge[1] + edge_tolerance
+                and abs(edge[2] - low) <= edge_tolerance
+            ]
+            high_matches = [
+                edge for edge in axial_edges
+                if edge[0] - edge_tolerance <= axis_position <= edge[1] + edge_tolerance
+                and abs(edge[2] - high) <= edge_tolerance
+            ]
+            return any(
+                native_layer in (low_edge[3] & high_edge[3])
+                for low_edge in low_matches
+                for high_edge in high_matches
+            )
+
+        def _already_captured(points: List[Tuple[float, float]]) -> bool:
+            for existing in captured:
+                if len(existing) != len(points):
+                    continue
+                if all(
+                    self._point_dist(first, second) <= 0.05
+                    for first, second in zip(existing, points)
+                ):
+                    return True
+            return False
+
+        for candidate in self.spatial_index.query_bbox(bbox):
+            if not _is_native_line(candidate):
+                continue
+            points = self._entity_points(candidate)
+            if (
+                _bridges_existing_fv_strip(
+                    points, str(candidate.get('layer') or ''),
+                )
+                and self._label_owns_points(
+                    points, pos, is_h, orientations, beam_labels, my_name,
+                )
+                and not _already_captured(points)
+            ):
+                captured.append(points)
+
+        return captured
 
     def _capture_geometry_with_native_lines_experimental(self, pos: Tuple[float, float], is_h: bool, orientations: Dict[int, bool], beam_labels: List[Dict], my_name: str) -> List[List[Tuple[float, float]]]:
         contain_long = 4000
@@ -1002,7 +1225,14 @@ class BeamTracer:
         Classifica linhas em Lado A, Lado B e Fundo baseado na posicao relativa ao centro.
         Assumes horizontal or vertical beams mostly.
         """
-        classified = {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []}
+        classified = {
+            'seg_side_a': [],
+            'seg_side_b': [],
+            'seg_bottom': [],
+            # Exclusivo FV: divisores nativos que fecham as duas bordas
+            # locais. Não alimentam a leitura de LV.
+            'fv_physical_divider_positions': [],
+        }
         valid_lines = []
         horizontal_weight = 0
         vertical_weight = 0
@@ -1305,6 +1535,22 @@ class BeamTracer:
                     split_support_gaps=True,
                 )
                 base_panels = _bridge_nascent_pillars(base_panels)
+                # O extremo de uma linha axial pode cair na borda externa de
+                # uma chapa curta de encontro. FV deve encostar na face
+                # estrutural interna quando ela existe no próprio DXF; sem
+                # essa prova, inclusive diante de um pilar sólido, o intervalo
+                # original permanece. A regra e os dados são exclusivos da
+                # interpretação de fundo e não alimentam LV.
+                transverse_center = sum(
+                    item['center'][1 if is_horizontal else 0]
+                    for item in painel_items
+                ) / len(painel_items)
+                base_panels = self.fundo_interpreter.resolve_attached_support_faces(
+                    base_panels,
+                    [item['line'] for item in valid_lines],
+                    is_horizontal=is_horizontal,
+                    transverse_center=transverse_center,
+                )
                 
                 div_pos = []
                 for d in divisor_items:
@@ -1312,6 +1558,7 @@ class BeamTracer:
                     if not _is_nascent_gap(pos - 0.05, pos + 0.05):
                         div_pos.append(pos)
                 div_pos.sort()
+                classified['fv_physical_divider_positions'] = list(div_pos)
                 
                 split_panels = []
                 for p_min, p_max in base_panels:
@@ -1322,7 +1569,45 @@ class BeamTracer:
                             curr_min = d_p
                     if curr_min < p_max:
                         split_panels.append((curr_min, p_max))
-                
+
+                # Um divisor real (apoio/mudança de altura) às vezes cai a
+                # poucos cm de uma extremidade e produz um fragmento residual
+                # do tamanho da largura da própria viga, não um segmento
+                # estrutural — achado real V310/V331 (2026-07-20): quina
+                # chanfrada, a borda mais longa de um lado do fundo gera uma
+                # lasca de ~19cm colada ao painel principal quando o divisor
+                # bate exatamente onde a borda mais curta começa. N2 não conta
+                # essa lasca como segmento próprio nem soma seu comprimento ao
+                # painel vizinho. O limiar (30cm) fica bem abaixo do menor
+                # painel real confirmado no 13_PAV (41.5cm, V301) e bem acima
+                # da lasca observada (19cm nos dois casos reais), então só
+                # afeta esse padrão específico de fragmento residual.
+                _notch_fragment_max_length = 30.0
+                cleaned_panels = []
+                for idx, (p_min, p_max) in enumerate(split_panels):
+                    length = p_max - p_min
+                    if length > _notch_fragment_max_length:
+                        cleaned_panels.append((p_min, p_max))
+                        continue
+                    touches_larger_neighbor = False
+                    if idx > 0:
+                        prev_min, prev_max = split_panels[idx - 1]
+                        if (
+                            abs(prev_max - p_min) <= 0.5
+                            and (prev_max - prev_min) > _notch_fragment_max_length
+                        ):
+                            touches_larger_neighbor = True
+                    if idx < len(split_panels) - 1:
+                        next_min, next_max = split_panels[idx + 1]
+                        if (
+                            abs(next_min - p_max) <= 0.5
+                            and (next_max - next_min) > _notch_fragment_max_length
+                        ):
+                            touches_larger_neighbor = True
+                    if not touches_larger_neighbor:
+                        cleaned_panels.append((p_min, p_max))
+                split_panels = cleaned_panels
+
                 final_groups = _apply_obstacles_to_panels(split_panels, visual_obstacles)
                 classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)
                 classified['merged_bottom_groups_coords'] = final_groups

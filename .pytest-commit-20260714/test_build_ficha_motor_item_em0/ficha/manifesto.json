@@ -1,0 +1,25 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "PIL",
+  "item": "P1",
+  "nivel": "N3",
+  "generated_at": "2026-07-14T01:27:42",
+  "artifacts": [
+    {
+      "label": "PASSA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_motor_item_em0\\item.dxf",
+      "dxf_sha256": "fd0bae92d8b9820208827638bfb470ac59ea1540bc48eabfd73e9cf0ee33ab82",
+      "svg_sha256": "0d1b7fc3b1fef3e70d15f6ec7ee4862babb4d447c161d1551f7da4c8641d5e62",
+      "json": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_motor_item_em0\\item.json",
+      "json_sha256": "12ba60741425e96c10b566a0ab32372e619e50d8a439300f29060d436448824f",
+      "contract": null,
+      "contract_sha256": null,
+      "render_cache_hit": false,
+      "render_cache_key": null
+    }
+  ],
+  "input_signature": "7a4acf2c0525e247d55acbc207fde8fc145519871c6a1f255762825c998a0089",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write",
+  "html": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_motor_item_em0\\ficha\\index.html",
+  "html_sha256": "26c39fb26963253bc509f49866602891ef586d941de5ed36f7074981634d2dfc"
+}

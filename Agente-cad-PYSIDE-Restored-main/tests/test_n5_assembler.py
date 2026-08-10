@@ -1,8 +1,9 @@
+import sqlite3
 from pathlib import Path
 
 import ezdxf
 
-from src.core.n5_assembler import _entity_bbox, assemble_n5
+from src.core.n5_assembler import _entity_bbox, assemble_n5, _discover_item_ids, _find_n3_preview
 from scripts.visual_modes import apply_visual_mode
 
 
@@ -194,3 +195,64 @@ def test_assemble_fv_n5_preserves_existing_mline(tmp_path):
     assert style.dxf.flags & style.FILL
     assert mlines[0].dxf.style_handle == style.dxf.handle
     assert list(mlines[0].virtual_entities())
+
+
+# --------------------------------------------------------------------------- #
+# P5 — item manual no disco + completude DB (não some em silêncio)
+# --------------------------------------------------------------------------- #
+
+def test_discover_inclui_recorte_web_manual(tmp_path):
+    obra = tmp_path / "Obra_WEB"
+    rec = obra / "Fase-2_Triagem" / "recortes_web" / "13_PAV" / "PIL_P900.dxf"
+    rec.parent.mkdir(parents=True)
+    rec.write_text("0\nSECTION\n", encoding="utf-8")
+    ids = _discover_item_ids(obra, "PL")
+    assert "P900" in ids
+    assert _find_n3_preview(obra, "PL", "P900") == rec
+
+
+def test_assemble_n5_item_no_banco_sem_preview_vira_missing(tmp_path):
+    """G-3: item no DB sem N3 no disco → missing_count > 0 (não ok_count verde)."""
+    obra = tmp_path / "Obra_DB"
+    obra.mkdir()
+    db = tmp_path / "sa.vision"
+    conn = sqlite3.connect(str(db))
+    conn.execute(
+        "CREATE TABLE reverse_eng_fichas ("
+        "obra_name TEXT, pavimento TEXT, classe TEXT, elemento_id TEXT, status TEXT)"
+    )
+    conn.execute(
+        "INSERT INTO reverse_eng_fichas VALUES (?,?,?,?,?)",
+        (obra.name, "13_PAV", "PIL", "P900", "manual"),
+    )
+    conn.commit()
+    conn.close()
+
+    result = assemble_n5(obra, "PL", pavimento="13_PAV", db_path=db)
+    assert result.missing_count == 1
+    assert result.ok_count == 0
+    assert result.items[0].item_id == "P900"
+    assert result.items[0].status == "missing"
+
+
+def test_assemble_n5_item_manual_com_preview_entra_ok(tmp_path):
+    obra = tmp_path / "Obra_DB2"
+    fase6 = obra / "Fase-6_Execucao_CAD"
+    _make_sarrafo_preview(fase6 / "PL_preview_P901.dxf")
+    db = tmp_path / "sa2.vision"
+    conn = sqlite3.connect(str(db))
+    conn.execute(
+        "CREATE TABLE reverse_eng_fichas ("
+        "obra_name TEXT, pavimento TEXT, classe TEXT, elemento_id TEXT, status TEXT)"
+    )
+    conn.execute(
+        "INSERT INTO reverse_eng_fichas VALUES (?,?,?,?,?)",
+        (obra.name, "13_PAV", "PIL", "P901", "manual"),
+    )
+    conn.commit()
+    conn.close()
+
+    result = assemble_n5(obra, "PL", pavimento="13_PAV", db_path=db)
+    assert result.ok_count == 1
+    assert result.missing_count == 0
+    assert result.items[0].item_id == "P901"

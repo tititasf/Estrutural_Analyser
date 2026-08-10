@@ -32,9 +32,18 @@ def test_resolver_html_ficha_uses_selected_lv_list(
     ) == para
 
 
-def test_cli_pass_requires_every_visual_check():
-    verdict = g2v_harness.avaliar_cli(Path(__file__), "prompt")
+def test_cli_pass_requires_every_visual_check(tmp_path: Path):
+    svg = Path(__file__)
+    inv = tmp_path / "trace_inventory.json"
+    inv.write_text("{}", encoding="utf-8")
+    verdict = g2v_harness.avaliar_cli(
+        [svg], "prompt", Path(__file__).with_suffix(".json")
+    )
     verdict["veredito"] = "PASS"
+
+    assert verdict["svgs_para_ler"] == [str(svg)]
+    assert "png_para_ler" not in verdict
+    assert "inventario_minimo_extraido" in verdict["checklist_visual"]
 
     valid, reason = g2v_harness.validar_veredito_cli(verdict)
 
@@ -43,9 +52,93 @@ def test_cli_pass_requires_every_visual_check():
     verdict["checklist_visual"] = {
         key: True for key in verdict["checklist_visual"]
     }
+    # Ainda falta confianca + svgs_lidos (FAIL-closed)
     valid, reason = g2v_harness.validar_veredito_cli(verdict)
-    assert valid
+    assert not valid
+    assert "confianca" in reason or "svgs_lidos" in reason
+
+    verdict["confianca"] = 0.9
+    verdict["svgs_lidos"] = [str(svg)]
+    # inventário path obrigatório
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert not valid
+    assert "inventario" in reason
+
+    verdict["inventario"] = {"path": str(inv), "partes": ["face_A"], "summary": {}}
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert valid, reason
     assert reason == ""
+
+
+def test_cli_pass_blocked_without_inventory_file(tmp_path: Path):
+    svg = Path(__file__)
+    verdict = g2v_harness.avaliar_cli(
+        [svg], "prompt", svg.with_suffix(".json"), classe="LV"
+    )
+    verdict["veredito"] = "PASS"
+    verdict["confianca"] = 0.95
+    verdict["svgs_lidos"] = [str(svg)]
+    verdict["checklist_visual"] = {
+        key: True for key in verdict["checklist_visual"]
+    }
+    verdict["inventario"] = {"path": str(tmp_path / "nao_existe.json")}
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert not valid
+    assert "inventario.path" in reason
+
+
+def test_cli_pass_blocked_by_gate0_fail(tmp_path: Path):
+    svg = Path(__file__)
+    inv = tmp_path / "trace.json"
+    inv.write_text("{}", encoding="utf-8")
+    verdict = g2v_harness.avaliar_cli(
+        [svg], "prompt", svg.with_suffix(".json"), classe="LV"
+    )
+    verdict["veredito"] = "PASS"
+    verdict["confianca"] = 0.95
+    verdict["svgs_lidos"] = [str(svg)]
+    verdict["checklist_visual"] = {
+        key: True for key in verdict["checklist_visual"]
+    }
+    verdict["inventario"] = {"path": str(inv)}
+    verdict["gate0"] = {
+        "status": "FAIL",
+        "pass_allowed": False,
+        "reasons": ["n4_a_mais: 2"],
+    }
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert not valid
+    assert "gate0" in reason
+
+
+
+def test_fv_checklist_requires_structural_position_for_orange(tmp_path: Path):
+    """PASS N1-V FV sem contorno_posicao_sobre_estrutural e invalido (selo laranja)."""
+    svg = Path(__file__)
+    inv = tmp_path / "trace_fv.json"
+    inv.write_text("{}", encoding="utf-8")
+    checklist = g2v_harness.checklist_visual_defaults("FV")
+    assert "contorno_posicao_sobre_estrutural" in checklist
+    assert "apoios_segmento" in checklist
+
+    verdict = g2v_harness.avaliar_cli(
+        [svg], "prompt", svg.with_suffix(".json"), classe="FV"
+    )
+    verdict["classe"] = "FV"
+    verdict["veredito"] = "PASS"
+    verdict["confianca"] = 0.95
+    verdict["svgs_lidos"] = [str(svg)]
+    verdict["inventario"] = {"path": str(inv)}
+    verdict["checklist_visual"] = {key: True for key in verdict["checklist_visual"]}
+    verdict["checklist_visual"]["contorno_posicao_sobre_estrutural"] = False
+
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert not valid
+    assert "contorno_posicao_sobre_estrutural" in reason
+
+    verdict["checklist_visual"]["contorno_posicao_sobre_estrutural"] = True
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert valid, reason
 
 
 def test_lv_dxf_n3_requires_html_to_preserve_corte_a_b(tmp_path: Path, monkeypatch):
@@ -53,7 +146,9 @@ def test_lv_dxf_n3_requires_html_to_preserve_corte_a_b(tmp_path: Path, monkeypat
     monkeypatch.setattr(g2v_harness, "get_real_n4_path", lambda *_args, **_kwargs: tmp_path / "n4.dxf")
     for name in ("n2.dxf", "n4.dxf"):
         (tmp_path / name).write_text("0\nEOF\n", encoding="utf-8")
+    # N4 LV exige CORTE/A/B no mesmo diretório do n4_path
     for suffix in ("CORTE", "VIEW_A", "VIEW_B"):
+        (tmp_path / f"LV_preview_V301_{suffix}.dxf").write_text("0\nEOF\n", encoding="utf-8")
         (tmp_path / f"LV_preview_V301_Passa_{suffix}.dxf").write_text("0\nEOF\n", encoding="utf-8")
 
     result = g2v_harness.avaliar_item(

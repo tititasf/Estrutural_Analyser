@@ -137,6 +137,8 @@ class Settings:
     subprocess_timeout_s: int = field(
         default_factory=lambda: _env_int("PORTAL_SUBPROCESS_TIMEOUT_S", 3600)
     )
+    # Habilita execução real de subprocess do headless SA (default True em produção, False nos testes).
+    headless_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_HEADLESS_ENABLED", True))
     # Pavimento default passado ao headless quando o cliente nao informa.
     pav_default: str = field(default_factory=lambda: os.environ.get("PORTAL_PAV_DEFAULT", "13_PAV"))
 

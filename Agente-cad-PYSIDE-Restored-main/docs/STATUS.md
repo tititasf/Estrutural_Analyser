@@ -1,24 +1,38 @@
 # STATUS — gerado automaticamente, NÃO editar à mão
 
-**Gerado em:** 2026-07-14 02:43:47  
+**Gerado em:** 2026-07-30 14:16:48  
 **Regenerar:** `python scripts/arete/gerar_status.py`  
 **Fontes:** relatórios Arete + GOLDEN/ + triagem JSONL + DB (read-only). Em conflito com qualquer doc escrito à mão, ESTE arquivo vence (é o dado).
 
 ## Última rodada Arete por classe (relatório mais recente)
 
-| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |
-|--------|-----|-----|------|------|---------|---------|---------------|--------|
-| FV | 13_PAV | 20260703_164825 | 26 | 0 | 0 | 100.0% | 26 |  |
-| LAJ | 13_PAV | 20260713_202844 | 31 | 0 | 0 | 100.0% | 31 |  |
-| LV | 13_PAV | 20260703_164510 | 32 | 0 | 0 | 100.0% | 32 |  |
-| LV | 14_PAV | 20260626_194156 | 10 | 17 | 0 | 37.0% | 10 | ❌ FAIL aberto |
-| PIL | 12_PAV | 20260711_000051 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
-| PIL | 13_PAV | 20260710_235326 | 35 | 0 | 0 | 100.0% | 35 |  |
-| PIL | 14_PAV | 20260711_001309 | 27 | 1 | 0 | 96.4% | 27 | ❌ FAIL aberto |
-| PIL | 1_PAV | 20260705_214623 | 15 | 23 | 0 | 39.5% | 34 | ❌ FAIL aberto · ⚠ golden (34) > última rodada (15) — REGRESSÃO vs selado |
-| PIL | 2_PAV | 20260705_215126 | 34 | 2 | 0 | 94.4% | 34 | ❌ FAIL aberto |
-| PIL | COBERTURA | 20260705_215925 | 6 | 23 | 0 | 20.7% | 25 | ❌ FAIL aberto · ⚠ golden (25) > última rodada (6) — REGRESSÃO vs selado |
-| PIL | TERREO | 20260705_215627 | 18 | 5 | 0 | 78.3% | 20 | ❌ FAIL aberto · ⚠ golden (20) > última rodada (18) — REGRESSÃO vs selado |
+| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Regressão | Alerta |
+|--------|-----|-----|------|------|---------|---------|---------------|-----------|--------|
+| FV | 13_PAV | 20260703_164825 | 26 | 0 | 0 | 100.0% | 26 | 0 |  |
+| LAJ | 13_PAV | 20260728_020010 | 31 | 0 | 0 | 100.0% | 31 | 0 |  |
+| LAJ | 14_PAV | 20260728_020127 | 11 | 1 | 0 | 91.7% | — | — | ❌ FAIL aberto |
+| LV | 13_PAV | 20260721_003136 | 30 | 2 | 0 | 93.8% | 32 | 2 | ❌ FAIL aberto · 🔴 2 selado(s) reprovando |
+| LV | 14_PAV | 20260721_000905 | 0 | 5 | 0 | 0.0% | 10 | 0 | ❌ FAIL aberto |
+| PIL | 12_PAV | 20260711_000051 | 34 | 2 | 0 | 94.4% | 34 | 0 | ❌ FAIL aberto |
+| PIL | 13_PAV | 20260710_235326 | 35 | 0 | 0 | 100.0% | 35 | 0 |  |
+| PIL | 14_PAV | 20260711_001309 | 27 | 1 | 0 | 96.4% | 27 | 0 | ❌ FAIL aberto |
+| PIL | 1_PAV | 20260705_214623 | 15 | 23 | 0 | 39.5% | 34 | 19 | ❌ FAIL aberto · 🔴 19 selado(s) reprovando |
+| PIL | 2_PAV | 20260705_215126 | 34 | 2 | 0 | 94.4% | 34 | 0 | ❌ FAIL aberto |
+| PIL | COBERTURA | 20260705_215925 | 6 | 23 | 0 | 20.7% | 25 | 19 | ❌ FAIL aberto · 🔴 19 selado(s) reprovando |
+| PIL | TERREO | 20260705_215627 | 18 | 5 | 0 | 78.3% | 20 | 2 | ❌ FAIL aberto · 🔴 2 selado(s) reprovando |
+
+## Regressão vs golden (itens selados que reprovaram na última rodada)
+
+**42 item(ns) selado(s) reprovando.** Cada linha é dívida real: o item já passou por todos os gates e hoje não passa.
+
+| Classe | Pav | Qtde | Itens |
+|--------|-----|------|-------|
+| LV | 13_PAV | 2 | V308, VF301 |
+| PIL | 1_PAV | 19 | P11, P12, P13, P17, P18, P19, P20, P21, P25, P28, P29, P3, P30, P32, P4 … |
+| PIL | COBERTURA | 19 | P11, P12, P14, P16, P17, P18, P19, P23, P24, P28, P29, P30, P32, P33, P34 … |
+| PIL | TERREO | 2 | P16, P17 |
+
+> Antes de culpar o motor: confirmar se a rodada é recente. Relatório velho contra DB atualizado produz falso positivo em massa.
 
 ## Golden selado (todas as obras/pavimentos)
 
@@ -48,6 +62,7 @@
 | Obra_TREINO_1_13_PAV_pilares.jsonl | 42 | aberto: 5, verificado: 37 | auto: 39, humano: 3 |
 | Obra_TREINO_1_13_PAV_pilares_20260713.jsonl | 8 | aberto: 8 | auto: 8 |
 | Obra_TREINO_1_13_PAV_pilares_20260713_postfix.jsonl | 4 | aberto: 1, verificado: 3 | auto: 4 |
+| Obra_TREINO_1_14_PAV_lajes.jsonl | 29 | aberto: 11, corrigido: 10, em_correcao: 4, nao_reproduzido: 1, verificado: 3 | auto: 20, humano: 9 |
 
 ## Banco de dados (read-only)
 

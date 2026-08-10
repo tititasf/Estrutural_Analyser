@@ -18,12 +18,17 @@ from pydantic import BaseModel
 from .. import access, auth, ficha_reader, pipeline_runner, public_codes_lookup, torre_crop
 from ..dbdep import get_db_conn
 from ...db import repository as repo
+from src.core import pillar_n3_ficha
 
 router = APIRouter(prefix="/obras", tags=["n1"])
 
 
 class ValidacaoCampoPayload(BaseModel):
     validado: bool
+
+
+class PilarN3FichaPayload(BaseModel):
+    ficha: dict
 
 
 def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dict:
@@ -86,14 +91,28 @@ def listar_itens_n1_endpoint(obra_id: str, classe: str, request: Request,
         return {"obra_id": obra_id, "classe": classe, "pavimento": None, "itens": []}
     estado = ficha_reader.ler_estado_pavimento(obra_dir, pav)
     itens = ficha_reader.listar_itens_n1(estado, classe) if estado else []
+    # beam_name + Segmento: painel "Criar item" (fundo/laterais) monta o
+    # combobox de SEG por viga — sem isto o front só via o título.
+    def _item_lista(i: dict) -> dict:
+        campos = i.get("campos") or {}
+        out = {
+            "item_id": i["item_id"],
+            "titulo": i["titulo"],
+            "validado": request.app.state.validacoes.get(obra_id, {}).get(classe, {}).get(i["item_id"], {}).get("n1_ok", False),
+            "beam_name": i.get("beam_name") or campos.get("Nome") or campos.get("Viga"),
+            "segmento": campos.get("Segmento") or campos.get("segmento"),
+        }
+        if classe == "cortes":
+            # [2026-07-13, Fase 3.5] motor de cruzamento corte->laje (main.py)
+            if i.get("own_laje") is not None:
+                out["own_laje"] = i["own_laje"]
+            if i.get("neigh_laje") is not None:
+                out["neigh_laje"] = i["neigh_laje"]
+        return out
+
     return {
         "obra_id": obra_id, "classe": classe, "pavimento": pav,
-        "itens": [{
-            "item_id": i["item_id"], "titulo": i["titulo"],
-            "validado": request.app.state.validacoes.get(obra_id, {}).get(classe, {}).get(i["item_id"], {}).get("n1_ok", False),
-            # [2026-07-13, Fase 3.5] motor de cruzamento corte->laje (main.py)
-            **({"own_laje": i["own_laje"], "neigh_laje": i["neigh_laje"]} if classe == "cortes" else {}),
-        } for i in itens],
+        "itens": [_item_lista(i) for i in itens],
     }
 
 
@@ -121,9 +140,83 @@ def obter_item_n1_endpoint(obra_id: str, classe: str, item_id: str, request: Req
     return {
         "obra_id": obra_id, "classe": classe, "pavimento": pav, "item_id": item_id,
         "titulo": item["titulo"], "campos": item["campos"], "atencao": item["atencao"],
+        "campos_field_id": item.get("campos_field_id") or {},
+        "interpretacao_abcd": item.get("interpretacao_abcd"),
+        "interpretacao_abcd_html": item.get("interpretacao_abcd_html") or "",
         "foto_n1": fotos["n1"], "foto_n3": fotos["n3"],
         "code_publico": code_publico, "referencia": referencia,
     }
+
+
+def _pilar_raw(estado: dict, item_id: str) -> Optional[dict]:
+    for pilar in estado.get("pilares", []):
+        if str(pilar.get("name") or pilar.get("key") or "") == item_id:
+            return pilar
+    return None
+
+
+def _robot_pilar(obra_dir: Path, item_id: str) -> dict:
+    path = obra_dir / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
+    try:
+        import json
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+@router.get("/{obra_id}/n1/{classe}/{item_id}/pilar-n3-ficha")
+def obter_pilar_n3_ficha_endpoint(
+    obra_id: str, classe: str, item_id: str, request: Request,
+    pavimento: Optional[str] = None, membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Ficha editavel N3 derivada do N1, comum a pilares normais/especiais."""
+    if classe not in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+        raise HTTPException(status_code=400, detail="ficha N3 disponivel somente para pilares")
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    pav = _pavimento_da_obra(obra_dir, pavimento)
+    if pav is None:
+        raise HTTPException(status_code=404, detail="obra ainda sem SA rodado")
+    estado = ficha_reader.ler_estado_pavimento(obra_dir, pav) or {}
+    base_id = item_id.removesuffix("_Para").removesuffix("_Passa")
+    pilar = _pilar_raw(estado, base_id)
+    if pilar is None:
+        raise HTTPException(status_code=404, detail="pilar nao encontrado no N1")
+    saved = pillar_n3_ficha.load_ficha(obra_dir, pav, base_id)
+    ficha = pillar_n3_ficha.build_ficha(
+        pilar, _robot_pilar(obra_dir, base_id), saved, pavimento=pav,
+    )
+    return {"obra_id": obra_id, "classe": classe, "pavimento": pav, "item_id": base_id,
+            "ficha": ficha, "robot_patch": pillar_n3_ficha.robot_patch(ficha)}
+
+
+@router.put("/{obra_id}/n1/{classe}/{item_id}/pilar-n3-ficha")
+def salvar_pilar_n3_ficha_endpoint(
+    obra_id: str, classe: str, item_id: str, payload: PilarN3FichaPayload,
+    request: Request, pavimento: Optional[str] = None,
+    membro: dict = Depends(auth.exige_login), conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Salva override humano sem alterar estado SA nem project_data.vision."""
+    if classe not in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+        raise HTTPException(status_code=400, detail="ficha N3 disponivel somente para pilares")
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    pav = _pavimento_da_obra(obra_dir, pavimento)
+    if pav is None:
+        raise HTTPException(status_code=404, detail="obra ainda sem SA rodado")
+    base_id = item_id.removesuffix("_Para").removesuffix("_Passa")
+    estado = ficha_reader.ler_estado_pavimento(obra_dir, pav) or {}
+    if _pilar_raw(estado, base_id) is None:
+        raise HTTPException(status_code=404, detail="pilar nao encontrado no N1")
+    try:
+        ficha = pillar_n3_ficha.save_ficha(obra_dir, pav, base_id, payload.ficha)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"status": "ok", "pavimento": pav, "item_id": base_id,
+            "revision": ficha["revision"], "ficha": ficha,
+            "robot_patch": pillar_n3_ficha.robot_patch(ficha)}
 
 
 @router.post("/{obra_id}/n1/{classe}/{item_id}/campo/{field_id}/validar")

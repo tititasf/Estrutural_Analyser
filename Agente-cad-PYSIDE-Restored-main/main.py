@@ -2034,6 +2034,28 @@ class MainWindow(QMainWindow):
             else:
                 # Lista normal
                 layout.addWidget(list_widget)
+
+            # Botões de Visão Cruzada FV (apenas para Fun. de Vigas em Análise)
+            if item_type == 'beam_fundo' and not is_library:
+                _FV_ACTION_BTN = (
+                    "max-height: 24px; min-height: 22px; padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 4px;"
+                )
+                btn_disp = QPushButton("📌 Destacar Área Disponível de Fundos")
+                btn_disp.setStyleSheet(f"{_FV_ACTION_BTN} background: #004D40; color: #80CBC4; border: 1px solid #00897B;")
+                btn_disp.setToolTip("Realça todos os canais estruturais disponíveis para fundos de viga mapeados no pavimento (Fase 0)")
+                btn_disp.clicked.connect(self.highlight_available_fv_channels_action)
+
+                btn_preen = QPushButton("🎨 Destacar Área Preenchida pelas Vigas")
+                btn_preen.setStyleSheet(f"{_FV_ACTION_BTN} background: #E65100; color: #FFE0B2; border: 1px solid #F57C00;")
+                btn_preen.setToolTip("Realça todos os fundos de viga atualmente preenchidos e vinculados (Fase 1)")
+                btn_preen.clicked.connect(self.highlight_filled_fv_beams_action)
+
+                fv_layout = QVBoxLayout()
+                fv_layout.setContentsMargins(0, 0, 0, 3)
+                fv_layout.setSpacing(3)
+                fv_layout.addWidget(btn_disp)
+                fv_layout.addWidget(btn_preen)
+                layout.insertLayout(0, fv_layout)
             
             # Botões de Ação Básica
             h_layout = QHBoxLayout()
@@ -3185,6 +3207,7 @@ class MainWindow(QMainWindow):
         self.module_tabs.addTab("Robo Laterais de Viga")       # 6
         self.module_tabs.addTab("Robo Fundo de Vigas")         # 7
         self.module_tabs.addTab("Robo Laje")                   # 8
+        self.module_tabs.addTab("QA Global de Evidências")  # 9
 
         # Tooltips dos módulos
         self.module_tabs.setTabToolTip(0, "Etapa 1 — Ingestão: Cadastro de obras, importação de DXFs e documentos.")
@@ -3196,6 +3219,7 @@ class MainWindow(QMainWindow):
         self.module_tabs.setTabToolTip(6, "Etapas 4,5,6 — Robô Laterais de Viga (LV): gera faces laterais em DXF STOG.")
         self.module_tabs.setTabToolTip(7, "Etapas 4,5,6 — Robô Fundo de Vigas (FV): gera fundo/sofito das vigas.")
         self.module_tabs.setTabToolTip(8, "Etapas 4,5,6 — Robô Laje (LJ): gera painéis de laje em DXF STOG.")
+        self.module_tabs.setTabToolTip(9, "QA Global: abrir dossiê/loop de evidências Arete (prova ≠ HTML).")
 
         # ── Faixa de Fase (acima das tabs) ──────────────────────────
         # Descreve a fase ativa para clareza do operador
@@ -3209,6 +3233,7 @@ class MainWindow(QMainWindow):
             6: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Laterais de Viga",
             7: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Fundo de Vigas",
             8: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Laje",
+            9: "QA GLOBAL  ·  EVIDÊNCIAS  —  Dossiê Arete, paths de prova e retomada de microciclo (CLI/skill)",
         }
         self._fase_desc_bar = QFrame()
         self._fase_desc_bar.setFixedHeight(18)
@@ -3362,6 +3387,14 @@ class MainWindow(QMainWindow):
         else:
             self.module_stack.addWidget(QLabel("Robo Laje não encontrado / Erro de importação."))
             self.robo_laje = None
+
+        # --- MÓDULO 9: QA GLOBAL DE EVIDÊNCIAS ---
+        try:
+            from src.ui.widgets.qa_global_dossier_panel import QaGlobalDossierPanel
+            self.qa_global_panel = QaGlobalDossierPanel(db=self.db, parent=self)
+        except Exception as _qa_exc:
+            self.qa_global_panel = QLabel(f"QA Global indisponível: {_qa_exc}")
+        self.module_stack.addWidget(self.qa_global_panel)  # index 9
 
         # Conectar Navegação
         self.module_tabs.currentChanged.connect(self.module_stack.setCurrentIndex)
@@ -4724,6 +4757,80 @@ class MainWindow(QMainWindow):
         else:
             self.canvas.set_category_visibility('all')
 
+    def highlight_available_fv_channels_action(self):
+        """Mapeia e destaca os canais de fundo estruturais disponíveis (Fase 0 - Global Beam Channels)."""
+        from pathlib import Path
+        from src.core.beam_interpreters.global_channel_extractor import GlobalBeamChannelExtractor
+
+        dxf_path = getattr(self, 'current_dxf_path', None)
+        if not dxf_path and hasattr(self, 'canvas') and getattr(self.canvas, 'source_dxf_path', None):
+            dxf_path = self.canvas.source_dxf_path
+
+        if not dxf_path and hasattr(self, 'db') and hasattr(self, 'current_project_id'):
+            p_info = self.db.get_project_by_dxf_path(str(self.current_project_id))
+            if p_info and p_info.get('dxf_path'):
+                dxf_path = p_info['dxf_path']
+
+        if not dxf_path:
+            fallback = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA/torre_1.dxf")
+            if fallback.is_file():
+                dxf_path = str(fallback)
+
+        if not dxf_path or not Path(dxf_path).is_file():
+            QMessageBox.information(self, "Visão Cruzada - Canais", "Nenhum arquivo DXF válido encontrado no projeto atual.")
+            return
+
+        import ezdxf as _ez
+        try:
+            dxf_doc = _ez.readfile(str(dxf_path))
+        except Exception as e:
+            QMessageBox.warning(self, "Visão Cruzada - Canais", f"Erro ao abrir arquivo DXF ({Path(dxf_path).name}): {e}")
+            return
+
+        raw_lines = []
+        raw_texts = []
+        try:
+            for entity in dxf_doc.modelspace():
+                dtype = entity.dxftype()
+                layer = getattr(entity.dxf, 'layer', '')
+                if dtype == "LINE":
+                    raw_lines.append({"points": [(entity.dxf.start.x, entity.dxf.start.y), (entity.dxf.end.x, entity.dxf.end.y)], "layer": layer})
+                elif dtype == "LWPOLYLINE":
+                    pts = list(entity.vertices())
+                    if len(pts) >= 2:
+                        for i in range(len(pts) - 1):
+                            raw_lines.append({"points": [(pts[i][0], pts[i][1]), (pts[i+1][0], pts[i+1][1])], "layer": layer})
+                elif dtype in ("TEXT", "MTEXT"):
+                    txt = entity.dxf.text if dtype == "TEXT" else entity.text
+                    pos = (entity.dxf.insert.x, entity.dxf.insert.y)
+                    raw_texts.append({"text": txt, "pos": pos, "layer": layer})
+        except Exception as e:
+            print(f"[FV-CANIS] Erro ao extrair entidades do DXF: {e}")
+
+        extractor = GlobalBeamChannelExtractor()
+        mesh = extractor.extract_channel_mesh(raw_lines, raw_texts=raw_texts)
+        self.canvas.draw_available_channel_mesh(mesh.slots)
+
+        total_len = sum(s.axial_span[1] - s.axial_span[0] for s in mesh.slots)
+        msg = f"📌 {len(mesh.slots)} canais estruturais de fundo mapeados no DXF ({total_len/100:.1f} m disponíveis)."
+        self.log(msg)
+        QMessageBox.information(self, "Visão Cruzada - Canais Disponíveis (Fase 0)", msg)
+
+    def highlight_filled_fv_beams_action(self):
+        """Destaca os fundos de viga preenchidos pelas vigas N1 (Fase 1)."""
+        self.canvas.set_category_visibility('beam_fundo')
+        if hasattr(self, 'beams_found'):
+            self.canvas.draw_beam_fundos(self.beams_found)
+        total_len = 0.0
+        b_count = len(self.beams_found) if hasattr(self, 'beams_found') and self.beams_found else 0
+        if b_count and hasattr(self, 'beams_found'):
+            for b in self.beams_found:
+                classified = (b.get('geometry') or {}).get('classified') or {}
+                m_lengths = classified.get('merged_bottom_lengths') or []
+                total_len += sum(m_lengths)
+        msg = f"🎨 {b_count} vigas preenchidas com fundos N1 ({total_len/100:.1f} m preenchidos)."
+        self.log(msg)
+
 
     def on_focus_requested(self, field_id):
         """Tenta focar no objeto vinculado ao campo especificado via COORDENADA DIRETA"""
@@ -4848,6 +4955,7 @@ class MainWindow(QMainWindow):
                     self.log(f"Ficha do vinculo atualizada: {field_id}.{slot_id}.{ficha_key}")
                 else:
                     self.log(f"⚠️ Vinculo alvo da ficha nao encontrado: {field_id}.{slot_id}")
+                self.canvas.set_picking_mode(None)
                 for attr in ('current_pick_field', 'current_pick_slot', 'current_pick_request'):
                     if hasattr(self, attr):
                         delattr(self, attr)
@@ -6270,8 +6378,8 @@ class MainWindow(QMainWindow):
                      # Injetar links LV Para/Passa que estavam ausentes ou vazios no DB antigo
                      for _lk, _lv in _fresh_lv_links.items():
                          _old_val = b['links'].get(_lk, {})
-                         _old_has_data = any(bool(v) for v in _old_val.values()) if _old_val else False
-                         if not _old_has_data and any(bool(v) for v in _lv.values()):
+                         _old_has_data = any(bool(v) for v in _old_val.values()) if isinstance(_old_val, dict) else bool(_old_val)
+                         if not _old_has_data and (any(bool(v) for v in _lv.values()) if isinstance(_lv, dict) else bool(_lv)):
                              b['links'][_lk] = _lv
                      b['confidence_map'] = old.get('confidence_map', {})
                      b['validated_fields'] = old.get('validated_fields', [])
@@ -6625,6 +6733,29 @@ class MainWindow(QMainWindow):
                                 elif _fid not in _side_l2_used and not p_data.get(_k2n):
                                     p_data[_k2n] = _slab_nm
                                     _side_l2_used.add(_fid)
+                            elif _ct == 'viga' and _fid not in _side_l1_used:
+                                # Face inteiramente ocupada por viga (beam_wall_alignment):
+                                # não há contato físico de laje possível nesse plano. Sem
+                                # marcar isso como autoritativo, o campo l1_n ficava vazio
+                                # e caía na busca textual cega por raio do PillarAnalyzer
+                                # (_analyze_field, radius=800), que podia capturar o rótulo
+                                # de uma laje distante sem nenhum contato geométrico real
+                                # (achado real: P35 face D -> "L325" persistido a 556cm de
+                                # distância, quando a face é toda ocupada pela viga V328).
+                                _k1n = f'p_s{_fid}_l1_n'
+                                p_data[_k1n] = 'SEM LAJE'
+                                p_data['links'][_k1n] = {
+                                    'label': [{
+                                        'type': 'text',
+                                        'text': 'SEM LAJE',
+                                        'role': 'Face ocupada por viga (sem contato de laje)',
+                                        'source': 'pillar_face_beams_topology',
+                                    }]
+                                }
+                                _side_l1_used.add(_fid)
+                                p_data.setdefault(
+                                    '_face_beam_authoritative_fields', set()
+                                ).add(_k1n)
 
                             # Viga legada (v_int) — só se face_beams não cobrir
                             if _ct in ('viga', 'both') and _vi:
@@ -6900,6 +7031,11 @@ class MainWindow(QMainWindow):
                             p_data['links']['dim'] = {'label': [{'type': 'text', 'text': best_dim_txt['text'], 'points': pts_txt, 'bbox': best_dim_txt.get('bbox')}]}
                         else:
                             p_data['links']['dim'] = {'label': [{'type': 'text', 'text': real_dim, 'points': [(cx, cy)], 'bbox': (cx, cy, cx, cy)}]}
+                        # Trava o vínculo: PillarAnalyzer roda depois (linha ~6978) e,
+                        # sem essa marca, sua busca textual ingênua (regex sem âncora)
+                        # casa com o número de QUALQUER rótulo vizinho (ex.: "V301"),
+                        # sobrescrevendo a dimensão geometricamente correta calculada acima.
+                        p_data['dim_locked'] = True
 
                         real_name = pre_pillar.get('name')
                         if real_name:
@@ -7006,7 +7142,6 @@ class MainWindow(QMainWindow):
                          for f in vf:
                              if f in old_links:
                                  p_data['links'][f] = old_links[f]
-                     
                      print(f"DEBUG: Pilar {p_data['name']} re-analisado (Nao validado).")
 
             self.pillars_found.append(p_data)
@@ -7179,6 +7314,35 @@ class MainWindow(QMainWindow):
                     for b in getattr(self, 'beams_found', []):
                         b['_fv_ignored_support_labels'] = sorted(_fv_ignored_support_labels)
                         try:
+                            # Regra estrutural (achado do dono, 2026-07-20, caso
+                            # real V302xV320xV322; v2 pos-regressao com criterios
+                            # de alcance fisico + dominancia de profundidade +
+                            # fragmento minimo, ver docstring do metodo): no
+                            # cruzamento perpendicular de dois fundos, o mais
+                            # fundo continua e preenche a area; o mais raso para
+                            # ali. Todas as vigas ja passaram por
+                            # _process_beam_intelligent nesta rodada, entao
+                            # `dimensao` esta disponivel em self.beams_found
+                            # inteiro — precisa rodar antes de process_beam_fv
+                            # construir os segmentos, para que a contagem final
+                            # ja reflita a divisao correta.
+                            classified = (b.get('geometry') or {}).get('classified') or {}
+                            own_coords = classified.get('merged_bottom_groups_coords')
+                            if own_coords:
+                                b_fields = b.get('fields') or {}
+                                split_coords = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+                                    own_coords,
+                                    is_horizontal=bool(b.get('fv_is_h', b.get('is_h', True))),
+                                    beam_pos=tuple(b.get('pos') or (0.0, 0.0)),
+                                    own_dim_text=b_fields.get('dimensao') or b.get('dim'),
+                                    context_beams=getattr(self, 'beams_found', []),
+                                    own_name=b.get('name'),
+                                )
+                                if split_coords != list(own_coords):
+                                    classified['merged_bottom_groups_coords'] = split_coords
+                                    classified['merged_bottom_lengths'] = [
+                                        round(abs(end - start), 6) for start, end in split_coords
+                                    ]
                             fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
                         finally:
                             b.pop('_fv_ignored_support_labels', None)
@@ -7189,199 +7353,23 @@ class MainWindow(QMainWindow):
                         is_h = b.get('is_h', True)
                         b_pos = b.get('pos', [0, 0])
                         h_beam = fv_data.get('h_n1') or 20.0
-                        half_h = h_beam / 2.0
 
                         segs = fv_data.get('segmentos_fundo', [])
                         print(f"Beam {b.get('name')} FV segments: {len(segs)}")
 
-                        def _is_good_fv_contour(link):
-                            if not isinstance(link, dict):
-                                return False
-                            if link.get('validated'):
-                                return True
-                            pts = link.get('points') or []
-                            uniq = []
-                            for pt in pts:
-                                if not isinstance(pt, (list, tuple)) or len(pt) < 2:
-                                    continue
-                                xy = (round(float(pt[0]), 3), round(float(pt[1]), 3))
-                                if xy not in uniq:
-                                    uniq.append(xy)
-                            if len(uniq) < 4:
-                                return False
-                            xs = [p[0] for p in uniq]
-                            ys = [p[1] for p in uniq]
-                            min_x, max_x = min(xs), max(xs)
-                            min_y, max_y = min(ys), max(ys)
-                            if (max_x - min_x) <= 1.0 or (max_y - min_y) <= 1.0:
-                                return False
-                            tol = 2.0
-                            corners = [
-                                (min_x, min_y), (max_x, min_y),
-                                (max_x, max_y), (min_x, max_y),
-                            ]
-                            return all(
-                                any(abs(px - cx) <= tol and abs(py - cy) <= tol for px, py in uniq)
-                                for cx, cy in corners
-                            )
-
-                        def _fv_contour_overlaps_span(link, axis_idx, span_min, span_max):
-                            if not isinstance(link, dict):
-                                return False
-                            vals = []
-                            for pt in link.get('points') or []:
-                                try:
-                                    vals.append(float(pt[axis_idx]))
-                                except (TypeError, ValueError, IndexError):
-                                    continue
-                            if not vals:
-                                return False
-                            c_min, c_max = min(vals), max(vals)
-                            s_min, s_max = sorted((float(span_min), float(span_max)))
-                            c_len = c_max - c_min
-                            s_len = s_max - s_min
-                            if c_len <= 0.05 or s_len <= 0.05:
-                                return False
-                            overlap = min(c_max, s_max) - max(c_min, s_min)
-                            return overlap >= max(1.0, min(c_len, s_len) * 0.20)
-
-                        def _automatic_contour_matches_dxf(link, inferred_geom):
-                            """Recusa retângulo automático deslocado em relação às faces DXF.
-
-                            Polígonos não retangulares (chanfro/L) retornam ``None``
-                            na comparação e permanecem sob a regra especializada do
-                            interpretador; não são achatados por este guardrail.
-                            """
-                            if not isinstance(link, dict) or not inferred_geom:
-                                return True
-                            return FundoVigaInterpreter.rectangular_contours_align(
-                                link.get('points') or [], inferred_geom, tolerance=0.05,
-                            )
-
-                        for seg in segs:
-                            idx = seg.get('seg_index')
-                            p_min, p_max = None, None
-                            _coord = seg.get('coord')
-                            if _coord is not None:
-                                p_min, p_max = _coord
-
-                            if idx and p_min is not None and p_max is not None:
-                                if is_h:
-                                    geom = [
-                                        [p_min, b_pos[1] - half_h],
-                                        [p_max, b_pos[1] - half_h],
-                                        [p_max, b_pos[1] + half_h],
-                                        [p_min, b_pos[1] + half_h]
-                                    ]
-                                else:
-                                    geom = [
-                                        [b_pos[0] - half_h, p_min],
-                                        [b_pos[0] + half_h, p_min],
-                                        [b_pos[0] + half_h, p_max],
-                                        [b_pos[0] - half_h, p_max]
-                                    ]
-                                seg_geom = seg.get('geometry')
-                                if isinstance(seg_geom, list) and len(seg_geom) >= 3:
-                                    inferred_geom = [
-                                        [float(pt[0]), float(pt[1])]
-                                        for pt in seg_geom
-                                        if isinstance(pt, (list, tuple)) and len(pt) >= 2
-                                    ]
-                                    if len(inferred_geom) < 3:
-                                        inferred_geom = geom
-                                else:
-                                    inferred_geom = geom
-                                link_key = f"viga_fundo_seg_{idx}_area_segs"
-                                if link_key not in b['links']:
-                                    b['links'][link_key] = {}
-                                preficha_policy = preficha_geometry_policy(b, link_key)
-                                # A decisão humana da pré-ficha é autoritativa:
-                                # ignorado não renasce; válido conserva exatamente
-                                # a geometria mostrada, recebendo apenas ficha/metadata.
-                                if preficha_policy == 'ignore':
-                                    b[f'viga_fundo_seg_{idx}_exists'] = False
-                                    b['links'][link_key]['contour'] = []
-                                    continue
-
-                                # Não sobrescreve contour já populada por _process_beam_intelligent
-                                axis_idx = 0 if is_h else 1
-                                existing_contour = [
-                                    lk for lk in (b['links'][link_key].get('contour', []) or [])
-                                    if _fv_contour_overlaps_span(lk, axis_idx, p_min, p_max)
-                                ]
-                                human_contour = next(
-                                    (lk for lk in existing_contour if lk.get('validated')),
-                                    None,
-                                )
-                                if human_contour:
-                                    good_contour = human_contour
-                                else:
-                                    good_contour = next(
-                                        (lk for lk in existing_contour if _is_good_fv_contour(lk)),
-                                        None
-                                    )
-                                    if good_contour and not good_contour.get('validated'):
-                                        match = _automatic_contour_matches_dxf(
-                                            good_contour, inferred_geom,
-                                        )
-                                        if match is False:
-                                            good_contour = None
-                                if not good_contour:
-                                    _new_fv_link = {
-                                        'points': inferred_geom,
-                                        'type': 'polygon',
-                                        'tag': 'Fundo',
-                                        'ficha': seg.get('ficha', {}),
-                                        'len': seg.get('length'),
-                                    }
-                                    if seg.get('provenance'):
-                                        _new_fv_link['fv_provenance'] = dict(seg['provenance'])
-                                    if seg.get('measure_source'):
-                                        _new_fv_link['fv_measure_source'] = seg['measure_source']
-                                        _new_fv_link['fv_measure_length'] = seg.get('measure_length')
-                                        if seg.get('measure_width') is not None:
-                                            _new_fv_link['fv_measure_width'] = seg['measure_width']
-                                    b['links'][link_key]['contour'] = [_new_fv_link]
-                                    print(f" -> Added {link_key} contour (bbox fallback) to Beam {b.get('name')}")
-                                else:
-                                    _ficha = dict(good_contour.get('ficha') or {})
-                                    _ficha.update(seg.get('ficha') or {})
-                                    good_contour['ficha'] = _ficha
-                                    good_contour['tag'] = good_contour.get('tag') or 'Fundo'
-                                    good_contour['len'] = good_contour.get('len') or seg.get('length')
-                                    if seg.get('provenance') and not good_contour.get('validated'):
-                                        good_contour['fv_provenance'] = dict(seg['provenance'])
-                                    b['links'][link_key]['contour'] = [good_contour]
-                                    print(f" -> Kept existing {link_key} contour for Beam {b.get('name')}")
-
-                                field_prefix = f"viga_fundo_seg_{idx}"
-                                b.setdefault('fields', {})
-                                if seg.get('dim_text'):
-                                    b['fields'][f'{field_prefix}_dim'] = seg.get('dim_text')
-                                    if seg.get('dim_link'):
-                                        b['links'][f'{field_prefix}_dim'] = {'label': [seg.get('dim_link')]}
-                                if seg.get('apoio_inicial'):
-                                    b['fields'][f'{field_prefix}_local_ini'] = seg.get('apoio_inicial')
-                                    if seg.get('apoio_inicial_link'):
-                                        _local_ini = dict(seg.get('apoio_inicial_link'))
-                                        _local_ini.update({
-                                            'evidence_role': 'fv_segment_local_support',
-                                            'scope': 'segment_local',
-                                            'source_segment': idx,
-                                            'source_slot': 'seg_bottom',
-                                        })
-                                        b['links'][f'{field_prefix}_local_ini'] = {'label': [_local_ini]}
-                                if seg.get('apoio_final'):
-                                    b['fields'][f'{field_prefix}_local_fim'] = seg.get('apoio_final')
-                                    if seg.get('apoio_final_link'):
-                                        _local_fim = dict(seg.get('apoio_final_link'))
-                                        _local_fim.update({
-                                            'evidence_role': 'fv_segment_local_support',
-                                            'scope': 'segment_local',
-                                            'source_segment': idx,
-                                            'source_slot': 'seg_bottom',
-                                        })
-                                        b['links'][f'{field_prefix}_local_fim'] = {'label': [_local_fim]}
+                        # Único dono da reconciliação viga_fundo_seg_N: mantém
+                        # contorno já persistido só quando cobre o MESMO vão
+                        # canônico do índice atual (nunca por overlap parcial
+                        # sozinho — regressão V301, 2026-07-18).
+                        FundoVigaInterpreter.reconcile_persisted_segments(
+                            b,
+                            segs,
+                            is_horizontal=is_h,
+                            beam_pos=tuple(b_pos),
+                            default_height=h_beam,
+                            geometry_policy=preficha_geometry_policy,
+                            log=print,
+                        )
 
                         _fv_results.append(fv_data)
 
@@ -8999,6 +8987,23 @@ class MainWindow(QMainWindow):
         # Migração automática de dados de vigas (estrutura antiga → nova)
         for beam in self.beams_found:
             self._migrate_beam_data(beam)
+
+        # FV: reancora contornos com tamanho certo mas flutuando fora das
+        # linhas verdes (não exige re-análise completa). Só toca automáticos.
+        try:
+            from src.core.beam_interpreters import FundoVigaInterpreter
+            _fv_overlay = 0
+            for _beam in self.beams_found:
+                _fv_overlay += FundoVigaInterpreter.repair_area_links(
+                    _beam, context_beams=self.beams_found
+                )
+            if _fv_overlay:
+                self.log(
+                    f"🔧 FV: {_fv_overlay} contorno(s) reancorados em linhas DXF "
+                    "(overlay de posição)."
+                )
+        except Exception as _fv_exc:
+            self.log(f"[FV overlay on load] {_fv_exc}")
 
         # --- NOVA LÓGICA: Garantir geraçao de extensões de laje se ausentes (Retrocompatibilidade) ---
         if self.slabs_found:
@@ -13185,8 +13190,10 @@ class MainWindow(QMainWindow):
                 continue
         return result
 
-    def _classify_slab_boundary_marker(self, pts: list, geom, bbox: tuple[float, float, float, float]) -> str:
-        """Separa apoio compacto de pilar de marco de visao de corte."""
+    def _classify_slab_boundary_marker(self, pts: list, geom,
+                                       bbox: tuple[float, float, float, float],
+                                       layer=None) -> str:
+        """Separa apoio de pilar de marco de visão de corte por geometria/origem."""
         if not pts or not bbox:
             return 'cut_view'
         w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
@@ -13201,12 +13208,20 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
 
+        unique_vertices = {
+            (round(float(point[0]), 6), round(float(point[1]), 6))
+            for point in pts if isinstance(point, (list, tuple)) and len(point) >= 2
+        }
         # Polígonos fechados quase sólidos com ≤6 pts são marcadores de apoio
         # (retângulos simples, incluindo os finos que escapariam do filtro de aspect).
         # T de visão de corte sempre têm fill ~0.5 (forma côncava) e ≥7 pts.
         if closed and fill_ratio >= 0.85 and len(pts) <= 6:
             return 'pillar'
         if closed and aspect <= 4.0 and len(pts) <= 6 and fill_ratio >= 0.70:
+            return 'pillar'
+        # Pilar L estrutural: seis vértices únicos, camada geométrica de pilar.
+        # A publicação ainda exige nome P, lado, face e contato real abaixo.
+        if closed and str(layer or '').strip() == '7' and len(unique_vertices) <= 6 and aspect <= 4.0:
             return 'pillar'
         if closed and aspect <= 2.5 and len(pts) >= 10 and fill_ratio >= 0.65:
             return 'pillar'
@@ -14272,6 +14287,23 @@ class MainWindow(QMainWindow):
                         best_label = label
 
         return best_side, best_label
+
+    def _pillar_geom_touches_slab_boundary(self, pillar_pts: list, slab_pts: list) -> bool:
+        """Contato de apoio por aresta compartilhada, não distância global do polígono.
+
+        Pilares L/T/U podem ter bbox distante da laje enquanto uma face encosta na
+        fronteira. O teste de distância mínima entre polígonos rejeita esses casos.
+        """
+        if not pillar_pts or not slab_pts:
+            return False
+        try:
+            pxs = [float(p[0]) for p in pillar_pts]
+            pys = [float(p[1]) for p in pillar_pts]
+            horizontal = (max(pxs) - min(pxs)) >= (max(pys) - min(pys))
+        except Exception:
+            return False
+        side, face = self._pillar_face_from_edge_overlap(pillar_pts, slab_pts, horizontal)
+        return side != 'NULO' and face != 'NULO'
 
     def _auto_fill_pillar_ficha(self, slab: Dict, link: dict) -> None:
         if not isinstance(link, dict):
@@ -15397,6 +15429,20 @@ class MainWindow(QMainWindow):
         for entry in lajes_report.values():
             if entry['level'] is None:
                 continue
+            # Anti-alucinação: números inteiros > 50 sem separador decimal (ex: 301, 302, 309)
+            # são códigos de elementos (L301, V301) e JAMAIS cotas de nível de laje.
+            lvl_str_raw = str(entry.get('level_str') or '').strip()
+            if lvl_str_raw.replace(',', '.').replace('.', '').isdigit():
+                try:
+                    val_check = float(lvl_str_raw.replace(',', '.'))
+                    if val_check > 50.0 and '.' not in lvl_str_raw and ',' not in lvl_str_raw:
+                        entry['warnings'].append(f"Nivel {lvl_str_raw} e codigo de elemento e nao nivel de laje — alucinacao reprimida")
+                        entry['level'] = None
+                        entry['level_str'] = '⚠'
+                        continue
+                except (ValueError, TypeError):
+                    pass
+
             if median_level is not None:
                 delta = abs(entry['level'] - median_level)
                 if delta > OUTLIER_THRESHOLD_CM:
@@ -15612,19 +15658,27 @@ class MainWindow(QMainWindow):
                 xs = [float(p[0]) for p in pts]
                 ys = [float(p[1]) for p in pts]
                 w, h = max(xs) - min(xs), max(ys) - min(ys)
-                if w < 5 or h < 5 or w > 180 or h > 180:
+                closed_by_coordinate = pts[0] == pts[-1]
+                layer = str(item.get('layer') or '').strip()
+                # Pilar L pode exceder a janela compacta; só a camada estrutural
+                # segue como candidata e a publicação ainda exige P#/face/contato.
+                extended_pillar_candidate = (
+                    closed_by_coordinate and layer == '7'
+                    and min(w, h) >= 5 and max(w, h) <= 420
+                )
+                if w < 5 or h < 5 or ((w > 180 or h > 180) and not extended_pillar_candidate):
                     continue
-                if w / max(h, 1.0) > 5.0 or h / max(w, 1.0) > 5.0:
+                if (w / max(h, 1.0) > 5.0 or h / max(w, 1.0) > 5.0) and not extended_pillar_candidate:
                     continue
                 # Visões de corte (T-section) são sempre polígonos fechados.
                 # Polylines abertas (zig-zag, marcadores de apoio) são descartadas.
-                if pts[0] != pts[-1]:
+                if not closed_by_coordinate:
                     continue
                 geom = Polygon(pts)
                 if geom.is_empty:
                     continue
                 bbox = (min(xs), min(ys), max(xs), max(ys))
-                marker_kind = self._classify_slab_boundary_marker(pts, geom, bbox)
+                marker_kind = self._classify_slab_boundary_marker(pts, geom, bbox, layer)
                 candidates.append((item, geom, bbox, marker_kind))
             except Exception:
                 continue
@@ -15739,7 +15793,13 @@ class MainWindow(QMainWindow):
                 preservados; somente inferências precisam continuar provando
                 nome, lado e face em cada reprocessamento.
                 """
-                if not _inferred_link_touches_boundary(link):
+                if link.get('is_inferred'):
+                    link_pts = link.get('points') or []
+                    if not self._pillar_geom_touches_slab_boundary(
+                        link_pts, slab.get('points') or []
+                    ):
+                        return False
+                elif not _inferred_link_touches_boundary(link):
                     return False
                 if not link.get('is_inferred'):
                     return True
@@ -15764,11 +15824,22 @@ class MainWindow(QMainWindow):
                 existing_pillars = cleaned_pillars
 
             ranked = []
+            slab_pts = slab.get('points') or []
             for item, geom, _bbox, marker_kind in candidates:
                 try:
-                    dist = geom.distance(poly.boundary)
-                    if dist <= contact_tol and geom.distance(poly) <= contact_tol:
-                        ranked.append((dist, item, marker_kind))
+                    pts = item.get('points') or []
+                    if marker_kind == 'pillar':
+                        if not self._pillar_geom_touches_slab_boundary(pts, slab_pts):
+                            continue
+                        dist = 0.0
+                    else:
+                        dist = geom.distance(poly.boundary)
+                        if not (
+                            dist <= contact_tol
+                            and geom.distance(poly) <= contact_tol
+                        ):
+                            continue
+                    ranked.append((dist, item, marker_kind))
                 except Exception:
                     continue
             cut_count = 0
@@ -16252,15 +16323,24 @@ class MainWindow(QMainWindow):
 
 
     def _scan_beam_segments(self, item_data):
-        """Retorna contagem de segmentos (A, B, Fundo) baseada nas chaves do item_data."""
+        """Retorna contagem de segmentos (A, B, Fundo) baseada nas chaves do item_data e links."""
         seg_indices_a = {1}
         seg_indices_b = {1}
         seg_indices_fundo = {1}
         
-        for key in item_data.keys():
+        all_keys = set(item_data.keys())
+        links_data = item_data.get('links', {})
+        if isinstance(links_data, dict):
+            all_keys.update(links_data.keys())
+
+        seg_fundo_list = item_data.get('segmentos_fundo', [])
+        if isinstance(seg_fundo_list, list) and len(seg_fundo_list) > 0:
+            for idx in range(1, len(seg_fundo_list) + 1):
+                seg_indices_fundo.add(idx)
+
+        for key in all_keys:
             if '_seg_' not in key: continue
             try:
-                # Ex: viga_a_seg_2_h1
                 parts = key.split('_')
                 if 'seg' in parts:
                     idx_pos = parts.index('seg') + 1
@@ -16278,13 +16358,7 @@ class MainWindow(QMainWindow):
         itype = str(item_data.get('type') or '').lower()
         
         if 'viga' in itype:
-            # --- VIGAS ---
-            # Campos Base: name, viga_segs (header), dim (fundo global)
-            # Nota: 'dim' é adicionado no pack de fundo, mas como chave fixa, conta como 1 global.
             total = 2 
-            
-            # --- Segmentos Laterais (A e B) ---
-            # Campos SA de interpretação por segmento (após refactor 2026-07):
             # 1. comprimento (para OU passa conforme sub-aba)
             # 2. visao_corte
             # 3. ini_name
@@ -18092,23 +18166,69 @@ class MainWindow(QMainWindow):
         display_data["attention_note"] = meta.get("note", "")
         lay.addWidget(edit)
 
+        # PERFORMANCE: salvar a cada tecla travava a UI — save_attention() faz
+        # CREATE TABLE/ALTER TABLE/PRAGMA + INSERT em SQLite, e
+        # _update_all_lists_ui() reconstrói as 10 árvores de pilares/vigas/lajes
+        # inteiras. Nenhum dos dois precisa rodar por caractere digitado.
+        # Debounce: só executa 600ms depois que o usuário para de digitar.
+        # Flush síncrono garantido ao trocar de item (self._sa_attention_flush,
+        # chamado no início de show_detail) para não perder texto não salvo.
         def _save():
             note = edit.toPlainText()
-            save_attention(obra, pav, cls, item_id, "SA", bool(note.strip()), note)
+            has_note = bool(note.strip())
+            save_attention(obra, pav, cls, item_id, "SA", has_note, note)
             try:
                 display_data["attention_note"] = note
             except Exception:
                 pass
             try:
-                self._update_all_lists_ui()
+                # PERFORMANCE: Atualizar apenas o item de árvore correspondente via tree_item_map
+                # ao invés de destruir e reconstruir as 10 árvores da UI (que causava travamento ao digitar)
+                item_obj_id = display_data.get("id")
+                tree_items = getattr(self, "tree_item_map", {}).get(item_obj_id, [])
+                if tree_items:
+                    _selo, _ = self._montar_selo_icone_e_cor(display_data)
+                    st = "⚠" if has_note else ("⏱" if _selo == "❓" else _selo)
+                    for t_item in tree_items:
+                        t_item.setText(2, str(st))
             except Exception:
                 pass
 
-        edit.textChanged.connect(_save)
+        save_timer = QTimer(edit)
+        save_timer.setSingleShot(True)
+        save_timer.setInterval(600)
+        save_timer.timeout.connect(_save)
+        edit.textChanged.connect(save_timer.start)
+
+        def _flush():
+            if save_timer.isActive():
+                save_timer.stop()
+                _save()
+        self._sa_attention_flush = _flush
         return box
 
     def show_detail(self, item_data, override_type=None, tipo_comp=None):
         """Exibe os detalhes do item no painel direito."""
+        # Flush do autosave (debounced) do campo de atenção geral do item
+        # anterior, antes de destruir seu widget — sem isso, texto digitado
+        # nos últimos <600ms antes de trocar de item seria perdido.
+        pending_flush = getattr(self, '_sa_attention_flush', None)
+        if pending_flush:
+            try:
+                pending_flush()
+            except Exception:
+                pass
+            self._sa_attention_flush = None
+
+        # Idem para o debounce de data_changed do card de campos (Nome,
+        # Dimensão, etc.) — flush_pending_changes() só age se houver
+        # emissão pendente (ver DetailCard.__init__/_on_field_changed).
+        if self.current_card is not None:
+            try:
+                self.current_card.flush_pending_changes()
+            except Exception:
+                pass
+
         # Migração automática se for viga (antes de exibir)
         if str(item_data.get('type') or '').lower() == 'viga':
             self._migrate_beam_data(item_data)

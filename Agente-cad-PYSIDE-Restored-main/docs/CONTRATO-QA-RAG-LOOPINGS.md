@@ -64,6 +64,20 @@ Na implementação atual, o QA consulta `semantic_rag_kb` com
 fechado se a classe não tiver memória; a ausência de `tier` no schema atual faz
 com que toda entrada permaneça apenas contextual até a curadoria T1/T2.
 
+**Camada B1 opcional (2026-07-19, `docs/MASTERPLAN-MINIRAG-QA-N1.md`):**
+`review --session-index <pasta do índice de sessão>` amplia a consulta acima
+com `qa_session_index` — mesma disciplina (consultivo, nunca confirmatório,
+citado em `session_index_b1_consultas.jsonl`), corpus maior (soma
+`human_event_logs` ao `semantic_rag_kb`), embeddings locais sem API. O
+mecanismo é classe-agnóstico (`--classe LAJ|PIL|FV|LV|ALL`), mas o ganho real
+por classe não é uniforme — ver §11 do masterplan antes de tratar como
+recomendação obrigatória. Prática recomendada hoje: passar `--session-index`
+em LAJ/FV/LV (ganho único provado); disponível também em PIL, mas sem ganho
+medido ainda (corpus-fonte vazio). Ausência do flag ou índice stale degrada em
+silêncio para o comportamento acima, sem quebrar a sessão.
+Prova de valor real: `scripts/arete/relatorios/20260718_minirag_d0d1/MR1-RELATORIO.md`
+(LAJ) e `MR3-RELATORIO.md` (PIL/FV/LV).
+
 ## 4. Protocolo de devolução para o RAG
 
 O QA não escreve conhecimento diretamente no tier confiável. Ao fechar uma

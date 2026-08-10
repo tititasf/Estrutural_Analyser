@@ -262,3 +262,76 @@ def test_triagem_ainda_chama_wait_for_lock_no_worker(settings, monkeypatch):
     row = conn.execute("SELECT status FROM portal_jobs WHERE id=?", (job["id"],)).fetchone()
     assert row["status"] == "concluido"
     conn.close()
+
+
+def test_sa_item_dispara_microciclo_e_nao_toca_estado_da_obra(settings, monkeypatch):
+    """etapa='sa_item' (P4 do escape hatch web): dispara APENAS o microciclo do
+    item — nunca a etapa cheia — e não mexe em etapa_concluida/estado() da
+    obra. É um item avulso criado pelo laço, não uma etapa formal do pipeline;
+    tratá-lo como 'sa' completo corromperia o painel de progresso da obra."""
+    from portal.app import jobs as jobs_mod
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    job = _job_pronto_para_processar(conn)
+    obra_antes = repo.obter_obra(conn, job["obra_id"])
+
+    chamadas = {"wait_for_lock": 0, "microciclo": []}
+    monkeypatch.setattr(jobs_mod, "wait_for_lock",
+                        lambda *a, **k: (chamadas.__setitem__("wait_for_lock", chamadas["wait_for_lock"] + 1), (object(), None))[1])
+    monkeypatch.setattr(jobs_mod, "release_lock", lambda *a, **k: None)
+
+    def _fake_microciclo(settings, obra, *, secao, item, pav, dry_run, log_path=None):
+        chamadas["microciclo"].append({"secao": secao, "item": item, "pav": pav, "dry_run": dry_run})
+        return type("R", (), {"ok": True, "log_tail": ""})()
+
+    monkeypatch.setattr(jobs_mod.pipeline_runner, "executar_microciclo_item", _fake_microciclo)
+
+    app_state = _AppStateFake(settings, conn)
+    app_state.job_meta[job["id"]] = {
+        "etapa": "sa_item", "secao": "pilares", "item": "P900", "pav": "13_PAV",
+    }
+    jobs_mod.processar_um_job(app_state, job)
+
+    assert chamadas["wait_for_lock"] == 0, "sa_item nao deve travar (subprocess ja tem --wait)"
+    assert chamadas["microciclo"] == [
+        {"secao": "pilares", "item": "P900", "pav": "13_PAV", "dry_run": False}
+    ]
+
+    row = conn.execute("SELECT status FROM portal_jobs WHERE id=?", (job["id"],)).fetchone()
+    assert row["status"] == "concluido"
+
+    obra_depois = repo.obter_obra(conn, job["obra_id"])
+    assert obra_depois["estado"] == obra_antes["estado"]
+    assert obra_depois["etapa_concluida"] == obra_antes["etapa_concluida"]
+    conn.close()
+
+
+def test_sa_item_com_falha_finaliza_job_sem_mexer_na_obra(settings, monkeypatch):
+    from portal.app import jobs as jobs_mod
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    job = _job_pronto_para_processar(conn)
+    obra_antes = repo.obter_obra(conn, job["obra_id"])
+
+    monkeypatch.setattr(
+        jobs_mod.pipeline_runner, "executar_microciclo_item",
+        lambda *a, **k: type("R", (), {"ok": False, "log_tail": "erro simulado do motor"})(),
+    )
+
+    app_state = _AppStateFake(settings, conn)
+    app_state.job_meta[job["id"]] = {
+        "etapa": "sa_item", "secao": "lajes", "item": "L1", "pav": "13_PAV",
+    }
+    jobs_mod.processar_um_job(app_state, job)
+
+    row = conn.execute("SELECT status, erro_msg FROM portal_jobs WHERE id=?", (job["id"],)).fetchone()
+    assert row["status"] == "falhou"
+    assert "erro simulado" in row["erro_msg"]
+
+    obra_depois = repo.obter_obra(conn, job["obra_id"])
+    assert obra_depois["estado"] == obra_antes["estado"], (
+        "falha de UM item nao pode marcar a obra inteira como 'erro'"
+    )
+    conn.close()

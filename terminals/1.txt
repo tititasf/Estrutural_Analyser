@@ -1,0 +1,42 @@
+---
+pid: 13640
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; python -c @\"
+from pathlib import Path
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+
+base = Path('scripts/arete/relatorios/g2v/20260716_132650')
+out = base / '_preview'
+out.mkdir(exist_ok=True)
+targets = [
+    'FV_V309_n1xn2_01_N1.svg','FV_V309_n1xn2_03_N2.svg',
+    'FV_V320_n1xn2_03_N1.svg','FV_V320_n1xn2_05_N2.svg',
+    'FV_V325_n1xn2_01_N1.svg','FV_V325_n1xn2_03_N2.svg',
+    'FV_V327_n1xn2_01_N1.svg','FV_V327_n1xn2_03_N2.svg',
+    'FV_V332_n1xn2_01_N1.svg','FV_V332_n1xn2_03_N2.svg',
+]
+for name in targets:
+    svg = base / name
+    drawing = svg2rlg(str(svg))
+    if drawing is None:
+        print('FAIL', name)
+        continue
+    renderPM.drawToFile(drawing, str(out / name.replace('.svg','.png')), fmt='PNG')
+    print('OK', name)
+print('dir', out)
+\"@"
+started_at: 2026-07-16T19:13:14.311Z
+running_for_ms: 72080008 
+---
+OK FV_V309_n1xn2_01_N1.svg
+OK FV_V309_n1xn2_03_N2.svg
+OK FV_V320_n1xn2_03_N1.svg
+OK FV_V320_n1xn2_05_N2.svg
+OK FV_V325_n1xn2_01_N1.svg
+OK FV_V325_n1xn2_03_N2.svg
+OK FV_V327_n1xn2_01_N1.svg
+OK FV_V327_n1xn2_03_N2.svg
+OK FV_V332_n1xn2_01_N1.svg
+OK FV_V332_n1xn2_03_N2.svg
+dir scripts\arete\relatorios\g2v\20260716_132650\_preview

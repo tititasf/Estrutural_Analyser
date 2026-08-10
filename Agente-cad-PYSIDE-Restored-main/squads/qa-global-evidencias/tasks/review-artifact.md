@@ -1,17 +1,24 @@
 ---
 task: review-artifact
 agent: aegis
-inputs: [scope.json, nivel, parte, variante]
-outputs: [manifesto.json, index.html]
+inputs: [scope.json, nivel, variante, artefato_dxf]
+outputs: [ficha_index.html, manifesto.json]
 mutates: false
+scripts:
+  - scripts/arete/ficha_motor_item.py
 ---
 
 # Revisar artefato N3/N4
 
-1. Não rodar headless por ajuste somente visual/de gerador.
-2. Gerar o item pela rota individual da classe.
-3. Montar ficha com `scripts/arete/ficha_motor_item.py` e artefatos/JSON exatos.
-4. Para PIL, mostrar PARA e PASSA como payloads e DXFs independentes.
-5. Registrar hash do contrato, payload, DXF e HTML; nenhum card pode misturar variantes.
+Gerar/inspecionar com gerador individual da classe + `ficha_motor_item.py`.
+Ler manifesto com SHA-256 de contrato/DXF/JSON/SVG/HTML.
 
-Aceite: ficha focada reproduzível, sem Qt/DB/lock e com proveniência explícita.
+## Aceite positivo
+
+- Ficha com banner "apresentação ≠ prova".
+- Hashes gravados no manifesto.
+
+## Aceite negativo
+
+- Ficha **não** interpreta N1 e **não** grava DB.
+- Ficha **não** substitui G2-V/G5-V quando o gate exigir comparação canônica.

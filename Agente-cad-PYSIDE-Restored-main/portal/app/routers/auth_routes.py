@@ -16,6 +16,7 @@ router = APIRouter(tags=["auth"])
 class LoginIn(BaseModel):
     login: str
     senha: str
+    manter_conectado: bool = False
 
 
 class MembroOut(BaseModel):
@@ -33,15 +34,21 @@ def login(body: LoginIn, request: Request, response: Response,
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="login ou senha invalidos"
         )
-    cookie = auth.emitir_cookie(settings, membro["login"])
-    response.set_cookie(
+    cookie = auth.emitir_cookie(
+        settings, membro["login"], persistente=body.manter_conectado,
+    )
+    cookie_args = dict(
         key=settings.session_cookie_name,
         value=cookie,
         httponly=True,
         samesite="lax",
         secure=settings.cookie_secure,
-        max_age=settings.session_ttl_horas * 3600,
     )
+    if body.manter_conectado:
+        # Dez anos funciona como "ate Sair" nos navegadores sem introduzir
+        # estado de sessao novo no banco congelado do portal.
+        cookie_args["max_age"] = 10 * 365 * 24 * 3600
+    response.set_cookie(**cookie_args)
     return {"ok": True, "membro": {
         "login": membro["login"], "nome": membro["nome"], "papel": membro["papel"],
     }}

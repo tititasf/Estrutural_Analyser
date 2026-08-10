@@ -1,0 +1,209 @@
+{
+  "schema": "arete.qa_content_cache/v1",
+  "namespace": "n1_field_probe",
+  "key": "5882b1abef48f95d15be44f055da62485b71b7a0dfc09e20f8bd9f3b14c99da8",
+  "engine_version": "1.4.0",
+  "created_at": "2026-07-14T04:27:42+00:00",
+  "input_hashes": {
+    "PIL:P35": "98151c83e09bf5164a225369bde2cf722fba844a2714db886d2f04e83b2f0a62",
+    "FV:V328": "1840659bd2de62d1f9a81daeb809467b87ff3836b5550cc8fa2a2a7e7c4de4bc"
+  },
+  "value": {
+    "schema": "arete.qa_n1_field_probe_result/v1",
+    "engine_version": "1.4.0",
+    "project_id": "p",
+    "question": "A viga vinculada à face D tem identidade, dimensão e contato coerentes?",
+    "overall": "PASS",
+    "scope_authority": "field_checks_only; never validates full item or ficha",
+    "fields": [
+      {
+        "id": "pillar.beam.name",
+        "class": "PIL",
+        "item": "P35",
+        "source": "payload",
+        "path": "p_sD_v_passa_esq_n.label.0.text",
+        "transform": "entity",
+        "value": "V328",
+        "overridden": false,
+        "snapshot_hash": "98151c83e09bf5164a225369bde2cf722fba844a2714db886d2f04e83b2f0a62",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "pillar.beam.dim",
+        "class": "PIL",
+        "item": "P35",
+        "source": "payload",
+        "path": "p_sD_v_passa_esq_d.label.0.text",
+        "transform": "dimension",
+        "value": [
+          19.0,
+          55.0
+        ],
+        "overridden": false,
+        "snapshot_hash": "98151c83e09bf5164a225369bde2cf722fba844a2714db886d2f04e83b2f0a62",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "pillar.bbox",
+        "class": "PIL",
+        "item": "P35",
+        "source": "geometry",
+        "path": "",
+        "transform": "bbox",
+        "value": [
+          0.0,
+          0.0,
+          60.0,
+          19.0
+        ],
+        "overridden": false,
+        "snapshot_hash": "98151c83e09bf5164a225369bde2cf722fba844a2714db886d2f04e83b2f0a62",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "points_json",
+          "project_id"
+        ]
+      },
+      {
+        "id": "beam.name",
+        "class": "FV",
+        "item": "V328",
+        "source": "payload",
+        "path": "fields.nome",
+        "transform": "entity",
+        "value": "V328",
+        "overridden": false,
+        "snapshot_hash": "1840659bd2de62d1f9a81daeb809467b87ff3836b5550cc8fa2a2a7e7c4de4bc",
+        "selected_columns": [
+          "data_json",
+          "id",
+          "name",
+          "project_id"
+        ]
+      },
+      {
+        "id": "beam.dim",
+        "class": "FV",
+        "item": "V328",
+        "source": "payload",
+        "path": "fields.dimensao",
+        "transform": "dimension",
+        "value": [
+          19.0,
+          55.0
+        ],
+        "overridden": false,
+        "snapshot_hash": "1840659bd2de62d1f9a81daeb809467b87ff3836b5550cc8fa2a2a7e7c4de4bc",
+        "selected_columns": [
+          "data_json",
+          "id",
+          "name",
+          "project_id"
+        ]
+      },
+      {
+        "id": "beam.bbox",
+        "class": "FV",
+        "item": "V328",
+        "source": "payload",
+        "path": "links.viga_segs.seg_bottom.0.points",
+        "transform": "bbox",
+        "value": [
+          0.0,
+          10.0,
+          80.0,
+          29.0
+        ],
+        "overridden": false,
+        "snapshot_hash": "1840659bd2de62d1f9a81daeb809467b87ff3836b5550cc8fa2a2a7e7c4de4bc",
+        "selected_columns": [
+          "data_json",
+          "id",
+          "name",
+          "project_id"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "identity",
+        "op": "same_entity",
+        "status": "PASS",
+        "reason": "same_entity satisfeita",
+        "left": "V328",
+        "right": "V328",
+        "metric": {}
+      },
+      {
+        "id": "dimension",
+        "op": "dimension_equal",
+        "status": "PASS",
+        "reason": "dimension_equal satisfeita",
+        "left": [
+          19.0,
+          55.0
+        ],
+        "right": [
+          19.0,
+          55.0
+        ],
+        "metric": {
+          "deltas": [
+            0.0,
+            0.0
+          ],
+          "tolerance": 0.05,
+          "order_sensitive": true
+        }
+      },
+      {
+        "id": "touch",
+        "op": "bbox_intersects",
+        "status": "PASS",
+        "reason": "bbox_intersects satisfeita",
+        "left": [
+          0.0,
+          0.0,
+          60.0,
+          19.0
+        ],
+        "right": [
+          0.0,
+          10.0,
+          80.0,
+          29.0
+        ],
+        "metric": {
+          "distance": 0.0,
+          "threshold": 0.0
+        }
+      }
+    ],
+    "snapshots": {
+      "PIL:P35": "98151c83e09bf5164a225369bde2cf722fba844a2714db886d2f04e83b2f0a62",
+      "FV:V328": "1840659bd2de62d1f9a81daeb809467b87ff3836b5550cc8fa2a2a7e7c4de4bc"
+    },
+    "provenance": {
+      "allowed": "persisted N1 + explicit candidate overlay",
+      "forbidden": "N2/N4 as N1 proof or N3 input",
+      "cross_class": [
+        "FV",
+        "PIL"
+      ]
+    }
+  }
+}

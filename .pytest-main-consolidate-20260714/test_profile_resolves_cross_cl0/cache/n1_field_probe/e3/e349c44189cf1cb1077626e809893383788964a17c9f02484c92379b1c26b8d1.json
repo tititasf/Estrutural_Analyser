@@ -1,0 +1,78 @@
+{
+  "schema": "arete.qa_content_cache/v1",
+  "namespace": "n1_field_probe",
+  "key": "e349c44189cf1cb1077626e809893383788964a17c9f02484c92379b1c26b8d1",
+  "engine_version": "1.4.0",
+  "created_at": "2026-07-14T04:35:30+00:00",
+  "input_hashes": {
+    "PIL:P35": "d4bb8b9a29b48be35f3621472d12e6b72eee5bff0280df8343dfce318e11e18d",
+    "FV:V328": "3a6c489db1710f12d1a99959b8faa7de26554563e36aaaa85ecfcf2091e7854a"
+  },
+  "value": {
+    "schema": "arete.qa_n1_field_probe_result/v1",
+    "engine_version": "1.4.0",
+    "project_id": "p",
+    "question": "vínculo?",
+    "overall": "PASS",
+    "scope_authority": "field_checks_only; never validates full item or ficha",
+    "fields": [
+      {
+        "id": "ref",
+        "class": "PIL",
+        "item": "P35",
+        "source": "payload",
+        "path": "p_sD_v_passa_esq_n.label.0.text",
+        "transform": "entity",
+        "value": "V328",
+        "overridden": false,
+        "snapshot_hash": "d4bb8b9a29b48be35f3621472d12e6b72eee5bff0280df8343dfce318e11e18d",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "project_id"
+        ]
+      },
+      {
+        "id": "beam",
+        "class": "FV",
+        "item": "V328",
+        "source": "payload",
+        "path": "fields.nome",
+        "transform": "entity",
+        "value": "V328",
+        "overridden": false,
+        "snapshot_hash": "3a6c489db1710f12d1a99959b8faa7de26554563e36aaaa85ecfcf2091e7854a",
+        "selected_columns": [
+          "data_json",
+          "id",
+          "name",
+          "project_id"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "identity",
+        "op": "same_entity",
+        "status": "PASS",
+        "reason": "same_entity satisfeita",
+        "left": "V328",
+        "right": "V328",
+        "metric": {}
+      }
+    ],
+    "snapshots": {
+      "PIL:P35": "d4bb8b9a29b48be35f3621472d12e6b72eee5bff0280df8343dfce318e11e18d",
+      "FV:V328": "3a6c489db1710f12d1a99959b8faa7de26554563e36aaaa85ecfcf2091e7854a"
+    },
+    "provenance": {
+      "allowed": "persisted N1 + explicit candidate overlay",
+      "forbidden": "N2/N4 as N1 proof or N3 input",
+      "cross_class": [
+        "FV",
+        "PIL"
+      ]
+    }
+  }
+}

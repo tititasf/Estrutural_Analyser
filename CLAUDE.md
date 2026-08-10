@@ -24,6 +24,12 @@ Plano, gates P0–P6 e decisões DP-1..9:
 
 Progresso/retomada: `Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/` (mais recente).
 
+Visão (G2-V / N1-V / G5-V, todas as classes): dual-mode em
+`Agente-cad-PYSIDE-Restored-main/docs/QA-VISAO-EVIDENCIA-CANONICA.md` —
+**agente = PNG**; **persist/app/portal web = SVG**; headless sem DB = imagem dinâmica.
+**SVG web pan/zoom:** somente **viewBox** (padrão FV V302) — proibido CSS scale.
+Ver `Agente-cad-PYSIDE-Restored-main/docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md`.
+
 ## Regras deste nível
 
 - Git: o repo é `Agente-cad-PYSIDE-Restored-main/` — rodar comandos git lá dentro.
@@ -31,3 +37,8 @@ Progresso/retomada: `Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/` 
   escrever apenas o que o plano Arete prevê (novas linhas em tabelas reverse_eng_*,
   saídas em pastas novas). NUNCA deletar/sobrescrever DXFs de obras ou JSONs Fase-4.
 - Backups `.bak`, logs e pastas Output_* na raiz são históricos — não limpar sem ordem.
+- **Entrega E2E (2026-07-19):** se o dono pediu validar/gerar/fechar um escopo
+  (ex. *todos* os segmentos de uma viga), o agente executa o protocolo **completo**
+  ponta a ponta na qualidade máxima — inventário+set-diff+evidência+veredito **por
+  unidade** — nunca só regen/HTML/smoke.  
+  `Agente-cad-PYSIDE-Restored-main/docs/REGRA-ENTREGA-E2E-QUALIDADE-MAXIMA.md`

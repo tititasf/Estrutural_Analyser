@@ -1,5 +1,17 @@
 # LOOPING CANÔNICO — o único loop válido (e a quarentena dos obsoletos)
 
+> **Convenção obrigatória de escrita e execução:** ao citar um gate, registrar sua
+> finalidade entre parênteses na primeira menção do bloco: **G0 (sanidade de
+> entradas)**, **G1 (round-trip N2→N4→N2′)**, **G2 (paridade canônica N2×N4)**,
+> **G3 (UI e persistência)**, **G4 (convergência/interpretação N1)**,
+> **G5 (paridade final N3×N4)** e **G6 (golden/regressão)**. Para qualquer gate
+> visual — G2-V (N2×N4), N1-V/G4-V (interpretação N1×N2) ou G5-V (N3×N4) — o
+> veredito é obrigatoriamente via `g2v_harness.py --backend cli`.
+> **Agente CLI julga em PNG** (render full do DXF; vision = pixels).
+> **SVG** é obrigatório no HTML da ficha quando há `--persist-db`, app ou
+> **portal web** (zoom humano). Headless **sem** persist pode ser só imagem
+> (dinâmico). Ver `docs/QA-VISAO-EVIDENCIA-CANONICA.md`. API visual é proibida.
+
 **Data:** 2026-07-03 | **Atualizado:** 2026-07-13 | **Status:** CANÔNICO — consolidação pedida pelo dono após
 múltiplas transições/refinamentos dos loops. **Se um script/procedimento de loop não
 está na seção 1 deste doc, NÃO use sem ordem explícita do dono.**
@@ -12,11 +24,78 @@ está na seção 1 deste doc, NÃO use sem ordem explícita do dono.**
 
 ## 1. O loop canônico (dois eixos, um conjunto de ferramentas)
 
+### Memória operacional autoevolutiva
+
+O agente deve evoluir o motor e a documentação juntos: evidência nova → hipótese
+geral → teste/fix autorizado → regressão → triagem/diário/manual da classe atualizados.
+Item BLUE, solicitação humana e selo laranja são gatilhos de registro. HTML/**SVG**
+(persist/app/web) e packs **PNG** de vision (agente) validados são candidatos
+multimodais, não promoção automática: ao fechar uma classe/pavimento, o agente
+consolida e pede validação humana para curadoria RAG;
+ao fechar a obra, pede validação humana da compreensão global antes de propor RAG geral.
+Ver `SA-ANALISE-PROGRESSO-POR-ITEM.md` e `SA-ANALISE/CLASSES/README.md`.
+
 ### Eixo A — Qualidade de GERAÇÃO (N2→N4, gates G0/G1/G2/G6)
 ```bash
 python scripts/arete/arete_runner.py --classe {PIL|LV|FV|LAJ} --pav {PAV} [--regressao]
 ```
 Compara N4 (gerado da ficha N2) contra o recorte humano; sela golden em PASS.
+
+#### Painel dinâmico de depuração humana N2×N4 (companheiro do Eixo A, 24/07)
+
+Passo **obrigatório** ao abrir/retomar o trabalho de geração (Eixo A) de uma classe num
+pavimento novo: gerar o painel HTML de comparação N2×N4 com pan/zoom real, ANTES de
+qualquer sessão de refinamento do gerador. É o caminho do dono para apontar erro visual
+item a item e do agente corrigir a causa geral no motor — mais rápido que abrir
+`g2v_harness.py` a cada iteração (esse continua obrigatório só para o veredito de
+selagem/certificação, não para iteração).
+
+```bash
+python scripts/arete/revisao_laj_n2_n4_html.py --pav {PAV} --serve --port {PORTA}   # LAJ, sobe servidor + abre navegador
+python scripts/arete/revisao_pil_n2_n4_html.py --pav {PAV}   # PIL (ainda so localStorage/export, ver pendencia abaixo)
+```
+
+Gera `scripts/arete/relatorios/revisao_{classe}_n2_n4_{timestamp}/index_panzoom.html`,
+um por item. Cada card tem checkbox "Validado" + campo de nota "Atenção". **LAJ (27/07):
+persistência real em arquivo**, não mais localStorage/export manual — `--serve` sobe
+`servidor_revisao_pil.py` (script genérico, serve qualquer pasta de revisão) apontado
+para a pasta gerada; o JS do painel faz `fetch('/api/state', POST)` a cada mudança
+(debounce 400ms) e `fetch('revisoes_humanas.json', GET)` ao carregar — grava direto em
+`revisoes_humanas.json` dentro da pasta do relatório, sobrevive a fechar o navegador,
+sem passo manual de exportar/importar. **Escolher uma porta livre** (já há sessões
+concorrentes ocupando 8765-8768 nesta máquina; checar com
+`Get-NetTCPConnection -State Listen` no PowerShell antes de fixar uma). Sem `--serve`
+(ou para PIL ainda não migrado), cai no modo antigo localStorage — não altera o banco,
+não sela gate, é só apresentação/triagem humana (mesma ressalva de sempre: HTML/checkbox
+não é prova Arete).
+
+- **LAJ** (`revisao_laj_n2_n4_html.py`, 24/07): **3 imagens lado a lado** — N2 puro
+  (recorte humano), N2 com a área demarcada em laranja translúcido (o MESMO
+  marco/contorno que o Comparison Engine desenha, via
+  `src/core/n2_marco_highlight.py::motor_poly_from_recorte` — não é um cálculo novo, é
+  o motor dinâmico real) e N4 (gerado da ficha, motor mais atual).
+- **PIL** (`revisao_pil_n2_n4_html.py`, script original 21/07): 2 imagens (N2, N4),
+  ainda sem o marco laranja, sem a 3ª imagem, e sem `--serve`/persistência em arquivo
+  (só localStorage/export) — pendência se o dono pedir paridade com LAJ (extensão
+  direta: mesmo padrão de `motor_poly_from_recorte` equivalente de PIL se existir +
+  `highlight_polys` no render + o mesmo bloco `--serve`/`fetch('/api/state')` do LAJ).
+
+**Fluxo de trabalho esperado:** dono abre o `index_panzoom.html`, navega pelos itens
+(scroll do mouse = zoom, arraste = pan), escreve no campo "Atenção" o que está errado
+item a item → agente lê as notas, identifica a causa geral no gerador (nunca hardcode
+por item), corrige, regenera o N4 (`arete_runner.py --classe {C} --pav {PAV} --item
+...` ou sem `--item` pra classe toda), roda o script de revisão de novo (mesmo comando,
+timestamp novo) e volta pro dono conferir. Isso repete até o dono não ter mais
+"atenção" nenhuma pra marcar — só então parte para o veredito formal de selagem
+(`g2v_harness.py --backend cli`, agente lê PNG, ver §1.5).
+
+Script fonte: `scripts/arete/revisao_laj_n2_n4_html.py` (adaptado de
+`scripts/arete/revisao_pil_n2_n4_html.py`, mesmo padrão, ainda não generalizado num
+único script parametrizado por classe — pendência futura, não bloqueia uso).
+Marco laranja implementado como parâmetro opcional `highlight_polys` em
+`scripts/arete/dxf_to_svg_casos.py::render()` (patch matplotlib sobre o mesmo `ax` do
+DXF, mesma cor `Semantic.WARNING #ff9800` do Comparison Engine) — reutilizável por
+qualquer ficha/painel futuro que precise do mesmo marco.
 
 ### Eixo B — Qualidade de INTERPRETAÇÃO (N1, diagnóstico duplo + triagem)
 ```bash
@@ -146,12 +225,20 @@ Seções válidas: `pilares`, `lajes`, `fundos_viga`, `laterais_viga`. `--item` 
 cards e o diagnóstico dos itens pedidos; o diagnóstico numérico continua cego e exige
 N1-V para qualquer decisão de interpretação:
 
-**Concorrência por classe:** um microciclo read-only com exatamente uma `--secao` e
-`--item` entra somente na fila da classe (`headless_sa_pil`, `_laj`, `_fv` ou `_lv`).
+**Concorrência por classe:** uma rodada **read-only** com exatamente uma `--secao`
+(com ou sem `--item`) entra somente na fila da classe (`headless_sa_pil`, `_laj`,
+`_fv` ou `_lv`). O lote completo de uma classe não espera as outras apenas porque
+`--item` foi omitido. Microciclo persistente continua nessa fila somente com
+`--secao --item`, pois é upsert parcial. Persistência de PIL/FV/LV reserva também
+`headless_sa_beams`: esses donos escrevem o mesmo `beams.data_json` e não podem
+calcular snapshots concorrentes dele. LAJ continua isolada dessa reserva.
 PIL e LAJ, por exemplo, podem rodar simultaneamente sem compartilhar snapshot ou pasta
 HTML: o estado é `estado_{PAV}_{secao}.json` e o pack recebe seção + PID. Dois ciclos da
-mesma classe continuam serializados. Rodada sem item, multiclasse ou com `--persist-db`
-adquire `headless_sa_global` e as quatro filas antes de começar; portanto espera os
+mesma classe continuam serializados. A persistência granular faz somente upsert dos
+itens pedidos e `delete_missing=False`; `headless_sa_db_commit` serializa somente o
+curto BEGIN/COMMIT SQLite, em vez de bloquear as análises e os SVGs de outra classe.
+Rodada sem `--secao`, multiclasse ou persistência sem identidade de item adquire
+`headless_sa_global` e as quatro filas antes de começar; portanto espera os
 microciclos ativos e executa com exclusividade. `--wait` permanece obrigatório.
 
 ```bash
@@ -161,7 +248,7 @@ python scripts/arete/g2v_harness.py \
 
 **Integridade do ciclo:** o microciclo é para descobrir e reverificar uma causa com
 rapidez, nunca para certificar o pavimento. Corrigir a fórmula geral (nunca um caso
-hardcoded), rodar de novo os mesmos itens, ler o PNG/HTML e registrar a triagem em
+hardcoded), rodar de novo os mesmos itens, ler os SVGs-fonte/HTML e registrar a triagem em
 append-only. Todo toque em extrator compartilhado ou motor exige depois o headless
 completo (`sem --secao/--item`, sempre `--wait`), comparação dos quatro diagnósticos e a
 regressão/gate aplicável antes de fechar ou selar. `--persist-db` no microciclo só pode
@@ -187,6 +274,16 @@ N1 permanece imutável e N2/N4 nunca são entrada de interpretação.
 python scripts/arete/gerar_status.py   # docs/STATUS.md = fonte de verdade de números
 ```
 
+## 1.4 — Registro de progresso por item (SA)
+
+Além dos relatórios/JSONL canônicos, cada análise precisa acrescentar uma entrada
+append-only no diário da sua classe, com fontes, hipóteses rejeitadas, decisão e
+próximo gate. O modelo e a ordem especial de obras de treino (N2→N4→N1→N3)
+estão em `docs/SA-ANALISE-PROGRESSO-POR-ITEM.md`; antes de cada item, abrir o manual
+de classe em `docs/SA-ANALISE/CLASSES/{PIL,LAJ,FV,LV}.md`; os diários estão em
+`docs/SA-ANALISE/HISTORICO/{PIL,LAJ,FV,LV}.md`. Esse diário não é fonte de
+campos nem selo — aponta para DB, ficha, SVG e triagem schema v2.
+
 ## 1.5 — HIERARQUIA DE VALIDAÇÃO: G2 sozinho NÃO é Arete (decisão do dono, 03/07)
 
 > **G2 é a validação de MAIS BAIXO NÍVEL.** Ele lê metadados do DXF e confere
@@ -199,23 +296,21 @@ python scripts/arete/gerar_status.py   # docs/STATUS.md = fonte de verdade de n�
 ```
 Nível 0 — G1 round-trip           dados da ficha sobrevivem N2→N4→N2′
 Nível 1 — G2 canônico             matemática semântica (contagens/valores)  ← MÍNIMO, nunca suficiente
-Nível 2 — G2-V veredito visual    render lado a lado do recorte N2 (humano) × DXF N4 (robô);
-                                  playwright_loop: DOM/SVG p/ texto exato + visão p/ geometria,
-                                  sobreposição, hachura, gestalt — REGISTRADO no relatório
+Nível 2 — G2-V veredito visual    SVGs-fonte lado a lado do recorte N2 (humano) × DXF N4 (robô);
+                                  DOM/SVG preserva texto exato, cotas e geometria vetorial —
+                                  REGISTRADO no relatório
 Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N2 (ex.: GRADES)
 ```
 
 > **Quem dá o veredito do Nível 2:** a visão do agente CLI (Claude Code / Codex) lendo
-> o screenshot — **única fonte de qualidade comprovada e a ÚNICA permitida hoje**
-> (`g2v_harness.py --backend cli`). **Ordem do dono (03/07): backends de API
-> (claude/gemini/nim) estão DESLIGADOS e bloqueados no código** — só com `--permitir-api`
-> + ordem explícita + calibração. NIM reprovado (4/4). Caminhos explorados, becos sem
-> saída e o protocolo de calibração: `docs/VISION-VALIDACAO-CAMINHOS.md`. Bug prioritário
-> da sentinela x=-9000 em `paridade_visual.py` (distorce os comparacao.png do golden): §5 lá.
+> os SVGs-fonte e o manifesto vetorial — **única fonte de qualidade comprovada e a ÚNICA
+> permitida hoje** (`g2v_harness.py --backend cli`). Backends de API permanecem proibidos;
+> o harness não contém API nem captura raster. Caminhos explorados e decisões anteriores:
+> `docs/VISION-VALIDACAO-CAMINHOS.md`.
 
 **Regras operacionais (valem para TODA classe, TODA rodada):**
 1. **Selar golden exige Nível 2 no mínimo:** G2 PASS torna o item *candidato*;
-   a selagem só após veredito visual registrado (path dos screenshots/leitura no
+   a selagem só após veredito visual registrado (paths dos SVGs e leitura no
    relatório da rodada). Primeira selagem de uma classe/pavimento = varredura visual
    de 100% dos itens; re-selagens pós-fix = 100% dos itens tocados + amostra de 20%
    dos demais (alinha com DA-A4 do masterplan, agora endurecido).
@@ -251,12 +346,13 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 
 | Script (`scripts/arete/`) | Papel |
 |---|---|
-| `headless_sa_analise.py` | ÚNICO entry point de fichas (4 classes, `--secao`, `--item`, `--wait`). Microciclo read-only de uma classe/item usa fila e snapshot isolados por classe; sem item, multiclasse ou `--persist-db` usa lock global + quatro locks. Mantém análise SA contextual; persistência parcial só faz upsert dos itens pedidos. Execução completa mantém o commit único conforme `PERSISTENCIA-HEADLESS-SA.md` |
+| `headless_sa_analise.py` | ÚNICO entry point de fichas (4 classes, `--secao`, `--item`, `--wait`). Rodada read-only de uma classe (com ou sem `--item`) usa fila e snapshot isolados por classe; microciclo persistente de classe/item também é parcial. Sem `--secao`, multiclasse ou persistência sem item usa lock global + quatro locks. Mantém análise SA contextual; execução completa mantém o commit único conforme `PERSISTENCIA-HEADLESS-SA.md` |
 | `arete_runner.py` (+ `roundtrip_ficha`, `paridade_visual`, `ficha_adapter`, `gerar_n4_item`) | Gates N2→N4 + golden |
 | `diagnostico_{pil,fv,lv,laj}_n1_n2.py` + `diagnostico_common.py` | Diagnóstico NUMÉRICO N1×N2 (já rodam DENTRO do headless; CLI avulso só p/ debug) — **cego, exige N1-V** |
 | `g2v_harness.py` | **VEREDITO VISUAL obrigatório** de todo gate visual: `--par n2xn4`(G2-V) / `n1xn2`(N1-V) / `n3xn4`(G5-V), `--backend cli` (agente lê a imagem). Ver §1.5 e `VISION-VALIDACAO-CAMINHOS.md` |
+| `revisao_{laj,pil}_n2_n4_html.py` (+ `dxf_to_svg_casos.render(..., highlight_polys=)`) + `servidor_revisao_pil.py --serve` | Painel dinâmico N2×N4 com pan/zoom pra depuração humana do Eixo A, persistência real em `revisoes_humanas.json` via servidor local (LAJ, 27/07) — companheiro do `arete_runner.py`, não substitui `g2v_harness.py` na selagem — ver §"Painel dinâmico" logo acima |
 | `qa_error_review.py` | Triagem humana (abrir/ler checkboxes) |
-| `playwright_loop.py` | Leitura QA das fichas (screenshots/DOM p/ visão do Claude) |
+| `playwright_loop.py` | Legado de captura raster; não usar para gates. O veredito QA usa SVGs-fonte exportados por `g2v_harness.py --backend cli`. |
 | `triagem_concordancia.py` | Rollup de concordância auto×humano |
 | `gerar_status.py` | STATUS.md gerado (nunca escrever número à mão) |
 | `single_instance.py` | Trava anti-OOM (biblioteca) |

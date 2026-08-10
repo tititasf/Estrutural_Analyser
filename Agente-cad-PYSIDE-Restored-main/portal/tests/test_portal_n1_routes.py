@@ -64,7 +64,12 @@ async def test_listar_classes_n1_conta_itens_reais(settings):
         body = r.json()
         assert "13_PAV" in body["pavimentos"]
         por_classe = {c["classe"]: c["total"] for c in body["classes"]}
-        assert por_classe["pilares"] == 46
+        # [2026-07-30] "pilares" traz só os RETANGULARES; os 2 em L (P26, P27)
+        # saem em "pilares_especiais". A obra tem 46 no estado do SA e a soma
+        # tem de continuar fechando — pilar fora das duas listas some da UI.
+        assert por_classe["pilares"] == 44
+        assert por_classe["pilares_especiais"] == 2
+        assert por_classe["pilares"] + por_classe["pilares_especiais"] == 46
         assert por_classe["lajes"] == 31
         assert por_classe["fundo"] == 106
 
@@ -78,8 +83,10 @@ async def test_listar_itens_de_uma_classe(settings):
         assert r.status_code == 200
         body = r.json()
         assert body["pavimento"] == "13_PAV"
-        assert len(body["itens"]) == 46
+        assert len(body["itens"]) == 44  # retangulares; ver test_listar_classes_n1
         assert any(i["item_id"] == "P1" for i in body["itens"])
+        # P26/P27 sao "em L" e nao podem aparecer aqui
+        assert not any(i["item_id"] in ("P26", "P27") for i in body["itens"])
 
 
 @pytest.mark.asyncio

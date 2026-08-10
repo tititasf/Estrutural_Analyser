@@ -3798,18 +3798,22 @@
               "area_cm2": 28790.5,
               "linhas_verticais": [
                 {
-                  "value": 230.32,
-                  "is_union": false
+                  "is_union": false,
+                  "value": 230.32
                 },
                 {
-                  "value": 402.86,
-                  "is_union": false
+                  "is_union": false,
+                  "value": 402.86
                 }
               ],
               "linhas_horizontais": [
                 {
-                  "value": 35.5,
-                  "is_union": false
+                  "is_union": false,
+                  "value": 35.5
+                },
+                {
+                  "is_union": false,
+                  "value": 35.5
                 }
               ],
               "obstaculos": [],
@@ -5618,6 +5622,2007 @@
               },
               "dimension_positions": {},
               "observacoes": ""
+            },
+            {
+              "numero": 301,
+              "nome": "L301",
+              "comprimento": 405.5,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  1198.0,
+                  3010.0
+                ],
+                [
+                  1603.5,
+                  3010.0
+                ],
+                [
+                  1603.5,
+                  3193.0
+                ],
+                [
+                  1198.0,
+                  3193.0
+                ]
+              ],
+              "area_cm2": 74206.5,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 302,
+              "nome": "L302",
+              "comprimento": 418.0,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  1622.5,
+                  3010.0
+                ],
+                [
+                  2040.5,
+                  3010.0
+                ],
+                [
+                  2040.5,
+                  3193.0
+                ],
+                [
+                  1622.5,
+                  3193.0
+                ]
+              ],
+              "area_cm2": 76494.0,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 303,
+              "nome": "L303",
+              "comprimento": 418.0,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2477.3825,
+                  3193.038
+                ],
+                [
+                  2477.3825,
+                  3010.038
+                ],
+                [
+                  2059.3825,
+                  3010.038
+                ],
+                [
+                  2059.3825,
+                  3193.038
+                ]
+              ],
+              "area_cm2": 76494.0,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 304,
+              "nome": "L304",
+              "comprimento": 418.0,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2496.5,
+                  3010.0
+                ],
+                [
+                  2914.5,
+                  3010.0
+                ],
+                [
+                  2914.5,
+                  3193.0
+                ],
+                [
+                  2496.5,
+                  3193.0
+                ]
+              ],
+              "area_cm2": 76494.0,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 305,
+              "nome": "L305",
+              "comprimento": 418.0,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3351.5,
+                  3010.0
+                ],
+                [
+                  2933.5,
+                  3010.0
+                ],
+                [
+                  2933.5,
+                  3193.0
+                ],
+                [
+                  3351.3825,
+                  3193.0
+                ],
+                [
+                  3351.3825,
+                  3141.038
+                ],
+                [
+                  3351.5,
+                  3141.038
+                ]
+              ],
+              "area_cm2": 76487.89,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 306,
+              "nome": "L306",
+              "comprimento": 418.0,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3788.5,
+                  3010.0
+                ],
+                [
+                  3370.5,
+                  3010.0
+                ],
+                [
+                  3370.5,
+                  3193.0
+                ],
+                [
+                  3788.3825,
+                  3193.0
+                ],
+                [
+                  3788.3825,
+                  3141.038
+                ],
+                [
+                  3788.5,
+                  3141.038
+                ]
+              ],
+              "area_cm2": 76487.89,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 307,
+              "nome": "L307",
+              "comprimento": 418.0,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  4225.5,
+                  3010.0
+                ],
+                [
+                  3807.5,
+                  3010.0
+                ],
+                [
+                  3807.5,
+                  3193.0
+                ],
+                [
+                  4225.3825,
+                  3193.0
+                ],
+                [
+                  4225.3825,
+                  3141.038
+                ],
+                [
+                  4225.5,
+                  3141.038
+                ]
+              ],
+              "area_cm2": 76487.89,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 308,
+              "nome": "L308",
+              "comprimento": 289.12,
+              "largura": 183.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  4244.3825,
+                  3010.038
+                ],
+                [
+                  4533.5,
+                  3010.038
+                ],
+                [
+                  4533.5,
+                  3193.038
+                ],
+                [
+                  4244.3825,
+                  3193.038
+                ]
+              ],
+              "area_cm2": 52908.5,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 309,
+              "nome": "L309",
+              "comprimento": 405.5,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  1198.0,
+                  2680.0
+                ],
+                [
+                  1603.5,
+                  2680.0
+                ],
+                [
+                  1603.5,
+                  2991.0
+                ],
+                [
+                  1198.0,
+                  2991.0
+                ]
+              ],
+              "area_cm2": 126110.5,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 310,
+              "nome": "L310",
+              "comprimento": 418.0,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  1622.5,
+                  2991.0
+                ],
+                [
+                  2040.3825,
+                  2991.0
+                ],
+                [
+                  2040.3825,
+                  2960.038
+                ],
+                [
+                  2040.5,
+                  2960.038
+                ],
+                [
+                  2040.5,
+                  2759.038
+                ],
+                [
+                  2040.3825,
+                  2759.038
+                ],
+                [
+                  2040.3825,
+                  2680.0
+                ],
+                [
+                  1622.5,
+                  2680.0
+                ]
+              ],
+              "area_cm2": 129985.07,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 311,
+              "nome": "L311",
+              "comprimento": 418.0,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2059.5,
+                  2680.0
+                ],
+                [
+                  2059.5,
+                  2991.0
+                ],
+                [
+                  2477.5,
+                  2991.0
+                ],
+                [
+                  2477.5,
+                  2759.038
+                ],
+                [
+                  2477.3825,
+                  2759.038
+                ],
+                [
+                  2477.3825,
+                  2680.0
+                ]
+              ],
+              "area_cm2": 129988.71,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 312,
+              "nome": "L312",
+              "comprimento": 418.0,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2496.3825,
+                  2991.0
+                ],
+                [
+                  2914.3825,
+                  2991.0
+                ],
+                [
+                  2914.3825,
+                  2960.038
+                ],
+                [
+                  2914.3825,
+                  2960.038
+                ],
+                [
+                  2914.3825,
+                  2759.038
+                ],
+                [
+                  2914.3825,
+                  2759.038
+                ],
+                [
+                  2914.3825,
+                  2680.0
+                ],
+                [
+                  2496.3825,
+                  2680.0
+                ]
+              ],
+              "area_cm2": 129998.0,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 313,
+              "nome": "L313",
+              "comprimento": 417.88,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3351.3825,
+                  2680.0
+                ],
+                [
+                  2933.5,
+                  2680.0
+                ],
+                [
+                  2933.5,
+                  2991.0
+                ],
+                [
+                  3351.3825,
+                  2991.0
+                ],
+                [
+                  3351.3825,
+                  2881.538
+                ],
+                [
+                  3351.3825,
+                  2881.538
+                ],
+                [
+                  3351.3825,
+                  2781.538
+                ],
+                [
+                  3351.3825,
+                  2781.538
+                ]
+              ],
+              "area_cm2": 129961.46,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 314,
+              "nome": "L314",
+              "comprimento": 418.0,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3370.3825,
+                  2680.0
+                ],
+                [
+                  3370.3825,
+                  2991.0
+                ],
+                [
+                  3788.3825,
+                  2991.0
+                ],
+                [
+                  3788.3825,
+                  2960.038
+                ],
+                [
+                  3788.3825,
+                  2960.038
+                ],
+                [
+                  3788.3825,
+                  2879.038
+                ],
+                [
+                  3788.3825,
+                  2879.038
+                ],
+                [
+                  3788.3825,
+                  2779.038
+                ],
+                [
+                  3788.3825,
+                  2779.038
+                ],
+                [
+                  3788.3825,
+                  2680.0
+                ]
+              ],
+              "area_cm2": 129998.0,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 315,
+              "nome": "L315",
+              "comprimento": 418.0,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3807.3825,
+                  2680.0
+                ],
+                [
+                  4225.3825,
+                  2680.0
+                ],
+                [
+                  4225.3825,
+                  2991.0
+                ],
+                [
+                  3807.3825,
+                  2991.0
+                ]
+              ],
+              "area_cm2": 129998.0,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 316,
+              "nome": "L316",
+              "comprimento": 288.88,
+              "largura": 311.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  4533.3825,
+                  2680.0
+                ],
+                [
+                  4244.5,
+                  2680.0
+                ],
+                [
+                  4244.5,
+                  2991.0
+                ],
+                [
+                  4533.3825,
+                  2991.0
+                ],
+                [
+                  4533.3825,
+                  2960.038
+                ],
+                [
+                  4533.3825,
+                  2960.038
+                ]
+              ],
+              "area_cm2": 89842.46,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 142.0,
+                  "is_union": true
+                },
+                {
+                  "value": 202.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 317,
+              "nome": "L317",
+              "comprimento": 97.38,
+              "largura": 512.96,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  4649.8825,
+                  2680.03753
+                ],
+                [
+                  4552.5,
+                  2680.03753
+                ],
+                [
+                  4552.5,
+                  3193.0
+                ],
+                [
+                  4649.8825,
+                  3193.0
+                ],
+                [
+                  4649.8825,
+                  3103.038
+                ],
+                [
+                  4649.8825,
+                  3103.038
+                ]
+              ],
+              "area_cm2": 49953.57,
+              "linhas_verticais": [
+                {
+                  "value": 60.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                },
+                {
+                  "value": 366.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 318,
+              "nome": "L318",
+              "comprimento": 3139.0,
+              "largura": 201.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3807.5,
+                  2460.0
+                ],
+                [
+                  3807.5,
+                  2509.0
+                ],
+                [
+                  1652.8825,
+                  2509.0
+                ],
+                [
+                  1652.8825,
+                  2509.038
+                ],
+                [
+                  1572.8825,
+                  2509.038
+                ],
+                [
+                  1572.8825,
+                  2509.0
+                ],
+                [
+                  1394.3825,
+                  2509.0
+                ],
+                [
+                  1394.3825,
+                  2661.0
+                ],
+                [
+                  4533.3825,
+                  2661.0
+                ],
+                [
+                  4533.3825,
+                  2601.038
+                ],
+                [
+                  4533.3825,
+                  2601.038
+                ],
+                [
+                  4533.3825,
+                  2460.0
+                ]
+              ],
+              "area_cm2": 512693.2,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                },
+                {
+                  "value": 488.0,
+                  "is_union": false
+                },
+                {
+                  "value": 732.0,
+                  "is_union": false
+                },
+                {
+                  "value": 976.0,
+                  "is_union": false
+                },
+                {
+                  "value": 1220.0,
+                  "is_union": false
+                },
+                {
+                  "value": 1464.0,
+                  "is_union": false
+                },
+                {
+                  "value": 1708.0,
+                  "is_union": false
+                },
+                {
+                  "value": 1952.0,
+                  "is_union": false
+                },
+                {
+                  "value": 2196.0,
+                  "is_union": false
+                },
+                {
+                  "value": 2440.0,
+                  "is_union": false
+                },
+                {
+                  "value": 2684.0,
+                  "is_union": false
+                },
+                {
+                  "value": 2928.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 319,
+              "nome": "L319",
+              "comprimento": 405.5,
+              "largura": 594.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  1603.3825,
+                  2490.0
+                ],
+                [
+                  1380.5,
+                  2490.0
+                ],
+                [
+                  1380.5,
+                  2661.0
+                ],
+                [
+                  1197.8825,
+                  2661.0
+                ],
+                [
+                  1197.8825,
+                  2217.506423
+                ],
+                [
+                  1356.845108,
+                  2067.038
+                ],
+                [
+                  1603.3825,
+                  2067.0
+                ]
+              ],
+              "area_cm2": 190783.94,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 141.8,
+                  "is_union": true
+                },
+                {
+                  "value": 263.8,
+                  "is_union": false
+                },
+                {
+                  "value": 283.5,
+                  "is_union": true
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                },
+                {
+                  "value": 488.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 320,
+              "nome": "L320",
+              "comprimento": 417.88,
+              "largura": 423.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2040.3825,
+                  2067.0
+                ],
+                [
+                  1622.5,
+                  2067.0
+                ],
+                [
+                  1622.5,
+                  2490.0
+                ],
+                [
+                  2040.3825,
+                  2490.0
+                ],
+                [
+                  2040.3825,
+                  2423.038
+                ],
+                [
+                  2040.3825,
+                  2423.038
+                ]
+              ],
+              "area_cm2": 176764.3,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 147.9,
+                  "is_union": true
+                },
+                {
+                  "value": 269.9,
+                  "is_union": false
+                },
+                {
+                  "value": 295.9,
+                  "is_union": true
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 321,
+              "nome": "L321",
+              "comprimento": 418.0,
+              "largura": 423.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2477.3825,
+                  2067.0
+                ],
+                [
+                  2059.3825,
+                  2067.0
+                ],
+                [
+                  2059.3825,
+                  2490.0
+                ],
+                [
+                  2477.3825,
+                  2490.0
+                ],
+                [
+                  2477.3825,
+                  2423.038
+                ],
+                [
+                  2477.3825,
+                  2423.038
+                ]
+              ],
+              "area_cm2": 176814.0,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 148.0,
+                  "is_union": true
+                },
+                {
+                  "value": 270.0,
+                  "is_union": false
+                },
+                {
+                  "value": 296.0,
+                  "is_union": true
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 322,
+              "nome": "L322",
+              "comprimento": 418.0,
+              "largura": 423.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2914.3825,
+                  2067.0
+                ],
+                [
+                  2496.3825,
+                  2067.0
+                ],
+                [
+                  2496.3825,
+                  2490.0
+                ],
+                [
+                  2914.3825,
+                  2490.0
+                ],
+                [
+                  2914.3825,
+                  2423.038
+                ],
+                [
+                  2914.3825,
+                  2423.038
+                ]
+              ],
+              "area_cm2": 176814.0,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 148.0,
+                  "is_union": true
+                },
+                {
+                  "value": 270.0,
+                  "is_union": false
+                },
+                {
+                  "value": 296.0,
+                  "is_union": true
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 323,
+              "nome": "L323",
+              "comprimento": 418.0,
+              "largura": 423.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3351.3825,
+                  2067.0
+                ],
+                [
+                  2933.3825,
+                  2067.0
+                ],
+                [
+                  2933.3825,
+                  2490.0
+                ],
+                [
+                  3351.3825,
+                  2490.0
+                ],
+                [
+                  3351.3825,
+                  2480.038
+                ],
+                [
+                  3351.3825,
+                  2480.038
+                ],
+                [
+                  3351.3825,
+                  2380.038
+                ],
+                [
+                  3351.3825,
+                  2380.038
+                ]
+              ],
+              "area_cm2": 176814.0,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 148.0,
+                  "is_union": true
+                },
+                {
+                  "value": 270.0,
+                  "is_union": false
+                },
+                {
+                  "value": 296.0,
+                  "is_union": true
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 324,
+              "nome": "L324",
+              "comprimento": 417.88,
+              "largura": 423.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3788.3825,
+                  2067.0
+                ],
+                [
+                  3370.5,
+                  2067.0
+                ],
+                [
+                  3370.5,
+                  2490.0
+                ],
+                [
+                  3788.3825,
+                  2490.0
+                ],
+                [
+                  3788.3825,
+                  2460.038
+                ],
+                [
+                  3788.3825,
+                  2460.038
+                ],
+                [
+                  3788.3825,
+                  2380.038
+                ],
+                [
+                  3788.3825,
+                  2380.038
+                ]
+              ],
+              "area_cm2": 176764.3,
+              "linhas_verticais": [
+                {
+                  "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 147.9,
+                  "is_union": true
+                },
+                {
+                  "value": 269.9,
+                  "is_union": false
+                },
+                {
+                  "value": 295.9,
+                  "is_union": true
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 325,
+              "nome": "L325",
+              "comprimento": 129.0,
+              "largura": 458.96,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3807.3825,
+                  1982.038
+                ],
+                [
+                  3936.3825,
+                  1982.038
+                ],
+                [
+                  3936.3825,
+                  2441.0
+                ],
+                [
+                  3807.3825,
+                  2441.0
+                ]
+              ],
+              "area_cm2": 59206.1,
+              "linhas_verticais": [
+                {
+                  "value": 60.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 326,
+              "nome": "L326",
+              "comprimento": 233.74,
+              "largura": 71.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  1369.644596,
+                  2048.038
+                ],
+                [
+                  1603.3825,
+                  2048.038
+                ],
+                [
+                  1603.3825,
+                  2043.038
+                ],
+                [
+                  1600.8825,
+                  2043.038
+                ],
+                [
+                  1600.8825,
+                  1977.038
+                ],
+                [
+                  1444.654758,
+                  1977.038
+                ]
+              ],
+              "area_cm2": 13767.53,
+              "linhas_verticais": [
+                {
+                  "value": 116.9,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 35.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 327,
+              "nome": "L327",
+              "comprimento": 417.88,
+              "largura": 71.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2040.3825,
+                  2048.0
+                ],
+                [
+                  2040.3825,
+                  2029.038
+                ],
+                [
+                  2037.8825,
+                  2029.038
+                ],
+                [
+                  2037.8825,
+                  1977.0
+                ],
+                [
+                  1624.8825,
+                  1977.0
+                ],
+                [
+                  1624.8825,
+                  2043.038
+                ],
+                [
+                  1622.5,
+                  2043.038
+                ],
+                [
+                  1622.5,
+                  2048.0
+                ]
+              ],
+              "area_cm2": 29382.23,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 35.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 328,
+              "nome": "L328",
+              "comprimento": 418.0,
+              "largura": 71.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2062.0,
+                  1977.038
+                ],
+                [
+                  2062.0,
+                  2029.0
+                ],
+                [
+                  2059.3825,
+                  2029.0
+                ],
+                [
+                  2059.3825,
+                  2048.038
+                ],
+                [
+                  2477.3825,
+                  2048.038
+                ],
+                [
+                  2477.3825,
+                  2029.038
+                ],
+                [
+                  2474.8825,
+                  2029.038
+                ],
+                [
+                  2474.8825,
+                  1977.038
+                ]
+              ],
+              "area_cm2": 29411.99,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 35.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 329,
+              "nome": "L329",
+              "comprimento": 417.88,
+              "largura": 71.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2499.0,
+                  1977.0
+                ],
+                [
+                  2499.0,
+                  2029.0
+                ],
+                [
+                  2496.5,
+                  2029.0
+                ],
+                [
+                  2496.5,
+                  2048.0
+                ],
+                [
+                  2914.3825,
+                  2048.0
+                ],
+                [
+                  2914.3825,
+                  2029.038
+                ],
+                [
+                  2911.8825,
+                  2029.038
+                ],
+                [
+                  2911.8825,
+                  1977.0
+                ]
+              ],
+              "area_cm2": 29409.56,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 35.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 330,
+              "nome": "L330",
+              "comprimento": 417.88,
+              "largura": 71.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  2936.0,
+                  1977.0
+                ],
+                [
+                  2936.0,
+                  2029.0
+                ],
+                [
+                  2933.5,
+                  2029.0
+                ],
+                [
+                  2933.5,
+                  2048.0
+                ],
+                [
+                  3351.3825,
+                  2048.0
+                ],
+                [
+                  3351.3825,
+                  2029.038
+                ],
+                [
+                  3348.8825,
+                  2029.038
+                ],
+                [
+                  3348.8825,
+                  1977.0
+                ]
+              ],
+              "area_cm2": 29409.56,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 35.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
+            },
+            {
+              "numero": 331,
+              "nome": "L331",
+              "comprimento": 417.88,
+              "largura": 71.0,
+              "pavimento": "TMC-EST-EX-5000-TIP-R00_R2018_ASCII_ODA",
+              "coordenadas": [
+                [
+                  3373.0,
+                  1977.038
+                ],
+                [
+                  3788.3825,
+                  1977.038
+                ],
+                [
+                  3788.3825,
+                  2048.038
+                ],
+                [
+                  3370.5,
+                  2048.038
+                ],
+                [
+                  3370.5,
+                  2029.0
+                ],
+                [
+                  3373.0,
+                  2029.0
+                ]
+              ],
+              "area_cm2": 29539.75,
+              "linhas_verticais": [
+                {
+                  "value": 244.0,
+                  "is_union": false
+                }
+              ],
+              "linhas_horizontais": [
+                {
+                  "value": 35.0,
+                  "is_union": false
+                }
+              ],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": [],
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {},
+              "observacoes": ""
             }
           ],
           "fornecimento": "novo",
@@ -5656,18 +7661,22 @@
               "area_cm2": 28790.5,
               "linhas_verticais": [
                 {
-                  "value": 230.32,
-                  "is_union": false
+                  "is_union": false,
+                  "value": 230.32
                 },
                 {
-                  "value": 402.86,
-                  "is_union": false
+                  "is_union": false,
+                  "value": 402.86
                 }
               ],
               "linhas_horizontais": [
                 {
-                  "value": 35.5,
-                  "is_union": false
+                  "is_union": false,
+                  "value": 35.5
+                },
+                {
+                  "is_union": false,
+                  "value": 35.5
                 }
               ],
               "obstaculos": [],
@@ -7508,18 +9517,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7563,18 +9563,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7618,18 +9609,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7673,18 +9655,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7736,18 +9709,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7799,18 +9763,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7862,18 +9817,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -7917,18 +9863,9 @@
                   "is_union": false
                 }
               ],
-              "linhas_horizontais": [
-                {
-                  "value": 102.0,
-                  "is_union": false
-                },
-                {
-                  "value": 122.0,
-                  "is_union": true
-                }
-              ],
+              "linhas_horizontais": [],
               "obstaculos": [],
-              "modo_selecionado": 1,
+              "modo_selecionado": 0,
               "unioes_nos_bordes": false,
               "reaproveitamento_dados": {},
               "sobras_recebidas": [],
@@ -8138,7 +10075,7 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  2496.5,
+                  2496.3825,
                   2991.0
                 ],
                 [
@@ -8150,11 +10087,11 @@
                   2960.038
                 ],
                 [
-                  2914.5,
+                  2914.3825,
                   2960.038
                 ],
                 [
-                  2914.5,
+                  2914.3825,
                   2759.038
                 ],
                 [
@@ -8166,11 +10103,11 @@
                   2680.0
                 ],
                 [
-                  2496.5,
+                  2496.3825,
                   2680.0
                 ]
               ],
-              "area_cm2": 129985.08,
+              "area_cm2": 129998.0,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -8204,12 +10141,12 @@
             {
               "numero": 313,
               "nome": "L313",
-              "comprimento": 418.0,
+              "comprimento": 417.88,
               "largura": 311.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  3351.5,
+                  3351.3825,
                   2680.0
                 ],
                 [
@@ -8221,11 +10158,11 @@
                   2991.0
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2991.0
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2881.538
                 ],
                 [
@@ -8237,11 +10174,11 @@
                   2781.538
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2781.538
                 ]
               ],
-              "area_cm2": 129986.25,
+              "area_cm2": 129961.46,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -8280,11 +10217,11 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  3370.5,
+                  3370.3825,
                   2680.0
                 ],
                 [
-                  3370.5,
+                  3370.3825,
                   2991.0
                 ],
                 [
@@ -8296,11 +10233,11 @@
                   2960.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2960.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2879.038
                 ],
                 [
@@ -8312,15 +10249,15 @@
                   2779.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2779.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2680.0
                 ]
               ],
-              "area_cm2": 129982.61,
+              "area_cm2": 129998.0,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -8359,19 +10296,19 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  3807.5,
+                  3807.3825,
                   2680.0
                 ],
                 [
-                  4225.5,
+                  4225.3825,
                   2680.0
                 ],
                 [
-                  4225.5,
+                  4225.3825,
                   2991.0
                 ],
                 [
-                  3807.5,
+                  3807.3825,
                   2991.0
                 ]
               ],
@@ -8409,12 +10346,12 @@
             {
               "numero": 316,
               "nome": "L316",
-              "comprimento": 289.0,
+              "comprimento": 288.88,
               "largura": 311.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  4533.5,
+                  4533.3825,
                   2680.0
                 ],
                 [
@@ -8434,11 +10371,11 @@
                   2960.038
                 ],
                 [
-                  4533.5,
+                  4533.3825,
                   2960.038
                 ]
               ],
-              "area_cm2": 89875.36,
+              "area_cm2": 89842.46,
               "linhas_verticais": [
                 {
                   "value": 122.0,
@@ -8476,12 +10413,12 @@
             {
               "numero": 317,
               "nome": "L317",
-              "comprimento": 97.5,
+              "comprimento": 97.38,
               "largura": 512.96,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  4650.0,
+                  4649.8825,
                   2680.03753
                 ],
                 [
@@ -8501,11 +10438,11 @@
                   3103.038
                 ],
                 [
-                  4650.0,
+                  4649.8825,
                   3103.038
                 ]
               ],
-              "area_cm2": 50003.27,
+              "area_cm2": 49953.57,
               "linhas_verticais": [
                 {
                   "value": 60.0,
@@ -8539,7 +10476,7 @@
             {
               "numero": 318,
               "nome": "L318",
-              "comprimento": 3139.12,
+              "comprimento": 3139.0,
               "largura": 201.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
@@ -8584,15 +10521,15 @@
                   2601.038
                 ],
                 [
-                  4533.5,
+                  4533.3825,
                   2601.038
                 ],
                 [
-                  4533.5,
+                  4533.3825,
                   2460.0
                 ]
               ],
-              "area_cm2": 512709.77,
+              "area_cm2": 512693.2,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -8671,7 +10608,7 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  1603.5,
+                  1603.3825,
                   2490.0
                 ],
                 [
@@ -8683,11 +10620,11 @@
                   2661.0
                 ],
                 [
-                  1198.0,
+                  1197.8825,
                   2661.0
                 ],
                 [
-                  1198.0,
+                  1197.8825,
                   2217.506423
                 ],
                 [
@@ -8695,11 +10632,11 @@
                   2067.038
                 ],
                 [
-                  1603.5,
+                  1603.3825,
                   2067.0
                 ]
               ],
-              "area_cm2": 190772.69,
+              "area_cm2": 190783.94,
               "linhas_verticais": [
                 {
                   "value": 122.0,
@@ -8745,12 +10682,12 @@
             {
               "numero": 320,
               "nome": "L320",
-              "comprimento": 418.0,
+              "comprimento": 417.88,
               "largura": 423.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  2040.5,
+                  2040.3825,
                   2067.0
                 ],
                 [
@@ -8770,26 +10707,26 @@
                   2423.038
                 ],
                 [
-                  2040.5,
+                  2040.3825,
                   2423.038
                 ]
               ],
-              "area_cm2": 176806.13,
+              "area_cm2": 176764.3,
               "linhas_verticais": [
                 {
                   "value": 122.0,
                   "is_union": false
                 },
                 {
-                  "value": 148.0,
+                  "value": 147.9,
                   "is_union": true
                 },
                 {
-                  "value": 270.0,
+                  "value": 269.9,
                   "is_union": false
                 },
                 {
-                  "value": 296.0,
+                  "value": 295.9,
                   "is_union": true
                 }
               ],
@@ -8821,15 +10758,15 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  2477.5,
+                  2477.3825,
                   2067.0
                 ],
                 [
-                  2059.5,
+                  2059.3825,
                   2067.0
                 ],
                 [
-                  2059.5,
+                  2059.3825,
                   2490.0
                 ],
                 [
@@ -8841,11 +10778,11 @@
                   2423.038
                 ],
                 [
-                  2477.5,
+                  2477.3825,
                   2423.038
                 ]
               ],
-              "area_cm2": 176806.13,
+              "area_cm2": 176814.0,
               "linhas_verticais": [
                 {
                   "value": 122.0,
@@ -8892,15 +10829,15 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  2914.5,
+                  2914.3825,
                   2067.0
                 ],
                 [
-                  2496.5,
+                  2496.3825,
                   2067.0
                 ],
                 [
-                  2496.5,
+                  2496.3825,
                   2490.0
                 ],
                 [
@@ -8912,11 +10849,11 @@
                   2423.038
                 ],
                 [
-                  2914.5,
+                  2914.3825,
                   2423.038
                 ]
               ],
-              "area_cm2": 176806.13,
+              "area_cm2": 176814.0,
               "linhas_verticais": [
                 {
                   "value": 122.0,
@@ -8963,23 +10900,23 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  3351.5,
+                  3351.3825,
                   2067.0
                 ],
                 [
-                  2933.5,
+                  2933.3825,
                   2067.0
                 ],
                 [
-                  2933.5,
+                  2933.3825,
                   2490.0
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2490.0
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2480.038
                 ],
                 [
@@ -8991,11 +10928,11 @@
                   2380.038
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2380.038
                 ]
               ],
-              "area_cm2": 176802.25,
+              "area_cm2": 176814.0,
               "linhas_verticais": [
                 {
                   "value": 122.0,
@@ -9037,12 +10974,12 @@
             {
               "numero": 324,
               "nome": "L324",
-              "comprimento": 418.0,
+              "comprimento": 417.88,
               "largura": 423.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  3788.5,
+                  3788.3825,
                   2067.0
                 ],
                 [
@@ -9054,11 +10991,11 @@
                   2490.0
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2490.0
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2460.038
                 ],
                 [
@@ -9070,26 +11007,26 @@
                   2380.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2380.038
                 ]
               ],
-              "area_cm2": 176804.6,
+              "area_cm2": 176764.3,
               "linhas_verticais": [
                 {
                   "value": 122.0,
                   "is_union": false
                 },
                 {
-                  "value": 148.0,
+                  "value": 147.9,
                   "is_union": true
                 },
                 {
-                  "value": 270.0,
+                  "value": 269.9,
                   "is_union": false
                 },
                 {
-                  "value": 296.0,
+                  "value": 295.9,
                   "is_union": true
                 }
               ],
@@ -9121,19 +11058,19 @@
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  3807.5,
+                  3807.3825,
                   1982.038
                 ],
                 [
-                  3936.5,
+                  3936.3825,
                   1982.038
                 ],
                 [
-                  3936.5,
+                  3936.3825,
                   2441.0
                 ],
                 [
-                  3807.5,
+                  3807.3825,
                   2441.0
                 ]
               ],
@@ -9226,28 +11163,24 @@
             {
               "numero": 327,
               "nome": "L327",
-              "comprimento": 415.5,
+              "comprimento": 417.88,
               "largura": 71.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
                 [
-                  1622.5,
+                  2040.3825,
                   2048.0
                 ],
                 [
-                  2038.0,
-                  2048.0
+                  2040.3825,
+                  2029.038
                 ],
                 [
-                  2038.0,
-                  2029.0
+                  2037.8825,
+                  2029.038
                 ],
                 [
-                  2035.5,
-                  2029.0
-                ],
-                [
-                  2035.5,
+                  2037.8825,
                   1977.0
                 ],
                 [
@@ -9261,9 +11194,13 @@
                 [
                   1622.5,
                   2043.038
+                ],
+                [
+                  1622.5,
+                  2048.0
                 ]
               ],
-              "area_cm2": 29213.16,
+              "area_cm2": 29382.23,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -9360,7 +11297,7 @@
             {
               "numero": 329,
               "nome": "L329",
-              "comprimento": 418.0,
+              "comprimento": 417.88,
               "largura": 71.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
@@ -9381,11 +11318,11 @@
                   2048.0
                 ],
                 [
-                  2914.5,
+                  2914.3825,
                   2048.0
                 ],
                 [
-                  2914.5,
+                  2914.3825,
                   2029.038
                 ],
                 [
@@ -9397,7 +11334,7 @@
                   1977.0
                 ]
               ],
-              "area_cm2": 29411.79,
+              "area_cm2": 29409.56,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -9427,7 +11364,7 @@
             {
               "numero": 330,
               "nome": "L330",
-              "comprimento": 418.0,
+              "comprimento": 417.88,
               "largura": 71.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
@@ -9448,11 +11385,11 @@
                   2048.0
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2048.0
                 ],
                 [
-                  3351.5,
+                  3351.3825,
                   2029.038
                 ],
                 [
@@ -9464,7 +11401,7 @@
                   1977.0
                 ]
               ],
-              "area_cm2": 29411.79,
+              "area_cm2": 29409.56,
               "linhas_verticais": [
                 {
                   "value": 244.0,
@@ -9494,7 +11431,7 @@
             {
               "numero": 331,
               "nome": "L331",
-              "comprimento": 418.0,
+              "comprimento": 417.88,
               "largura": 71.0,
               "pavimento": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
               "coordenadas": [
@@ -9503,11 +11440,11 @@
                   1977.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   1977.038
                 ],
                 [
-                  3788.5,
+                  3788.3825,
                   2048.038
                 ],
                 [
@@ -9523,7 +11460,7 @@
                   2029.0
                 ]
               ],
-              "area_cm2": 29548.1,
+              "area_cm2": 29539.75,
               "linhas_verticais": [
                 {
                   "value": 244.0,

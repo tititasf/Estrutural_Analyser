@@ -1,0 +1,110 @@
+{
+  "contract_version": 3,
+  "motor_id": "ROBOT_FV_N3_N4",
+  "name": "VF202",
+  "floor": "13_PAV",
+  "side": "C",
+  "total_width": 19.0,
+  "total_height": 55.0,
+  "panels": [
+    {
+      "total_width": 286.0,
+      "width": 286.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 286.0,
+      "altura_total": 55.0,
+      "texto_esq": "P26",
+      "texto_dir": "P27",
+      "row_break": false
+    },
+    {
+      "total_width": 254.0,
+      "width": 254.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 254.0,
+      "altura_total": 55.0,
+      "texto_esq": "P27",
+      "texto_dir": "P28",
+      "row_break": true
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 286.0,
+      "width": 286.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 286.0,
+      "altura_total": 55.0,
+      "texto_esq": "P26",
+      "texto_dir": "P27",
+      "row_break": false
+    },
+    {
+      "total_width": 254.0,
+      "width": 254.0,
+      "dim_text": "19/55",
+      "largura_total_fundo": 19.0,
+      "comprimento_total_fundo": 254.0,
+      "altura_total": 55.0,
+      "texto_esq": "P27",
+      "texto_dir": "P28",
+      "row_break": true
+    }
+  ],
+  "holes": [],
+  "label_left": "P26",
+  "label_right": "P28",
+  "pillar_left": {
+    "active": true,
+    "label": "P26",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": true,
+    "label": "P28",
+    "width": 0.0,
+    "length": 0.0
+  },
+  "apoio_inicial": "P26",
+  "apoio_final": "P28",
+  "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
+  "number": "202",
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "_sa_meta": {
+    "tipo": "FV",
+    "analisado_em": "2026-07-21 01:10",
+    "campos_extraidos": [
+      "apoio_final",
+      "apoio_inicial",
+      "floor",
+      "name",
+      "number",
+      "panels",
+      "segments_rich",
+      "total_height",
+      "total_width"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "altura",
+      "comprimento",
+      "coordenadas",
+      "grade_1",
+      "grade_2",
+      "largura",
+      "linhas_horizontais",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "obstaculos",
+      "pavimento",
+      "reaproveitamento_dados"
+    ],
+    "completude_pct": 100.0
+  }
+}

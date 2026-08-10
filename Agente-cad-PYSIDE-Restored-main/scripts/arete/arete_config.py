@@ -560,9 +560,7 @@ G2_EXCECOES = [
 # ─────────────────────────────────────────────────────────────────────────────
 # Valores possíveis:
 #   'RETANGULAR' — pilar padrão, 4 faces A-D, gerador cobre completamente
-#   'U'          — pilar em U (P26/P27 confirmados, todos os 7 pavimentos);
-#                  faces E-H existem na geometria real mas ficha e gerador
-#                  ainda não cobrem; aguardando Fase C/D (AR-1'.C)
+#   'L'          — pilar em L; CIMA combinada e faces adicionais E/F (sem G/H)
 #   'ESPECIAL'   — outros subtipos (P15/P23: rótulos N-sar, possivelmente
 #                  L/T/Canto; P18: cambota diagonal; P28-32: canto/3-face;
 #                  P43/47/49/51/P25: placement; P24: naming; P2: face-swap)
@@ -573,9 +571,9 @@ G2_EXCECOES = [
 # Baseline: Obra_TREINO_1, 7 pavimentos
 # Nota: elemento_ids sem entrada aqui são RETANGULAR por default
 SUBTIPO_PIL: dict[str, str] = {
-    # ── Subtipo U (confirmados, todos os 7 pisos) ─────────────────────────
-    "P26": "U",
-    "P27": "U",
+    # ── Subtipo L (CIMA combinada + faces E/F, sem G/H) ───────────────────
+    "P26": "L",
+    "P27": "L",
     # ── Especial — família "rótulo N-sar/letra-face" (possivelmente L/T) ──
     "P15": "ESPECIAL",
     "P23": "ESPECIAL",

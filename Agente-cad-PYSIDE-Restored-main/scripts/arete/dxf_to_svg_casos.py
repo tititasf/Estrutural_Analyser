@@ -19,7 +19,13 @@ SVG_DIR.mkdir(parents=True, exist_ok=True)
 PNG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def render(dxf_path: Path, width=900, height=600, fmt='svg'):
+def render(dxf_path: Path, width=900, height=600, fmt='svg', highlight_polys=None):
+    """Renderiza DXF -> SVG/PNG. `highlight_polys` (opcional): lista de
+    polígonos [(x,y), ...] em coordenadas MUNDO do próprio DXF (mesmo espaço
+    que ezdxf/matplotlib já usam para desenhar) — desenhados por cima como
+    marco laranja translúcido (mesma cor/estilo do Comparison Engine,
+    Semantic.WARNING #ff9800, ver src/ui/modules/comparison_engine.py e
+    src/core/n2_marco_highlight.py)."""
     import io
     import ezdxf
     from ezdxf.addons.drawing import RenderContext, Frontend
@@ -27,6 +33,7 @@ def render(dxf_path: Path, width=900, height=600, fmt='svg'):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from matplotlib.patches import Polygon as _MplPolygon
     dpi = 150
     doc = ezdxf.readfile(str(dxf_path))
     msp = doc.modelspace()
@@ -37,6 +44,21 @@ def render(dxf_path: Path, width=900, height=600, fmt='svg'):
         ctx = RenderContext(doc)
         out = MatplotlibBackend(ax)
         Frontend(ctx, out).draw_layout(msp)
+        for poly in (highlight_polys or []):
+            pts = [(float(p[0]), float(p[1])) for p in poly if len(p) >= 2]
+            if len(pts) >= 3:
+                # alpha 0.18 sobre fundo escuro do DXF lia como "amarelo" pro
+                # dono (achado 27/07) em vez de laranja -- subiu pra 0.5 +
+                # borda mais grossa pra ficar inconfundivel com a cor real
+                # (#ff9800, mesma do Comparison Engine).
+                ax.add_patch(_MplPolygon(
+                    pts, closed=True, facecolor='#ff9800', edgecolor='none',
+                    alpha=0.5, zorder=50,
+                ))
+                ax.add_patch(_MplPolygon(
+                    pts, closed=True, fill=False, edgecolor='#ff9800',
+                    linewidth=2.2, zorder=51,
+                ))
         buf = io.BytesIO()
         fig.savefig(buf, format=fmt, dpi=dpi, facecolor='white', bbox_inches='tight')
         plt.close(fig)

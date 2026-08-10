@@ -2438,6 +2438,45 @@ class CADCanvas(QGraphicsView):
             self._draw_fundo_polys(polys, orange_pen, store_in_group=True)
         self.scene.update()
 
+    def draw_available_channel_mesh(self, mesh_slots: list):
+        """Destaca polígonos de canais estruturais disponíveis (Fase 0 - Global Beam Channels) em ciano/teal."""
+        self.clear_beam_fundos()
+        teal_pen = QPen(QColor(0, 200, 200, 240), 2)
+        teal_pen.setCosmetic(True)
+        teal_brush = QBrush(QColor(0, 220, 220))
+        _teal_font = QFont("Arial", 10)
+        _teal_font.setBold(True)
+
+        for slot in mesh_slots:
+            bbox = getattr(slot, 'bbox', None)
+            if not bbox:
+                continue
+            x1, y1, x2, y2 = bbox
+            pts = [(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]
+            path = QPainterPath()
+            path.moveTo(pts[0][0], pts[0][1])
+            for p in pts[1:]:
+                path.lineTo(p[0], p[1])
+            item = self.scene.addPath(path, teal_pen)
+            item.setZValue(11)
+            self.item_groups.setdefault('beam_fundo', []).append(item)
+
+            # Rótulo de dimensão identificado em Fase 0
+            dim_text = getattr(slot, 'dim_text', None)
+            width_val = getattr(slot, 'width', 0.0)
+            label = dim_text if dim_text else f"b={width_val:.0f}cm"
+            if label:
+                cx = (x1 + x2) / 2.0
+                cy = (y1 + y2) / 2.0
+                t_item = self.scene.addSimpleText(label, _teal_font)
+                t_item.setPos(cx, cy)
+                t_item.setBrush(teal_brush)
+                t_item.setZValue(14)
+                t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+                self.item_groups.setdefault('beam_fundo', []).append(t_item)
+
+        self.scene.update()
+
     def draw_single_beam_fundo(self, beam_data: dict, apply_zoom: bool = True):
         """Destaca polígono de fundo de UMA viga em laranja e aplica zoom."""
         self.clear_beam_fundos()
@@ -3813,16 +3852,18 @@ class CADCanvas(QGraphicsView):
             return
 
         if self.picking_mode == 'text':
-             best_ent = self._get_best_entity_under_cursor(scene_pos, mode='text')
-             if best_ent:
-                 self.pick_completed.emit(best_ent)
-                 self.set_picking_mode(None)
+            best_ent = self._get_best_entity_under_cursor(scene_pos, mode='text')
+            if best_ent:
+                self.pick_completed.emit(best_ent)
+            self.set_picking_mode(None)
+            return
 
         elif self.picking_mode == 'geometry':
-             best_ent = self._get_best_entity_under_cursor(scene_pos, mode='geometry')
-             if best_ent:
-                 self.pick_completed.emit(best_ent)
-                 self.set_picking_mode(None)
+            best_ent = self._get_best_entity_under_cursor(scene_pos, mode='geometry')
+            if best_ent:
+                self.pick_completed.emit(best_ent)
+            self.set_picking_mode(None)
+            return
 
         elif self.picking_mode == 'line':
             if self.pick_start is None:
@@ -4276,7 +4317,15 @@ class CADCanvas(QGraphicsView):
                     return
 
                 elif self.picking_mode in ('text', 'geometry'):
-                    # Prioriza itens selecionados se o usuário já clicou/selecionou algo
+                    # 1. Se o usuário digitou algum texto via teclado (ex: buffer)
+                    if hasattr(self, 'keyboard_buffer') and self.keyboard_buffer and self.keyboard_buffer.strip():
+                        txt = self.keyboard_buffer.strip()
+                        self.pick_completed.emit({'text': txt, 'type': 'text'})
+                        self.keyboard_buffer = ""
+                        self.set_picking_mode(None)
+                        return
+
+                    # 2. Prioriza itens selecionados se o usuário já clicou/selecionou algo
                     selected_items = self.scene.selectedItems()
                     if selected_items:
                         for item in selected_items:
@@ -4291,10 +4340,14 @@ class CADCanvas(QGraphicsView):
                                 self.set_picking_mode(None)
                                 return
                     
+                    # 3. Busca entidade sob o cursor
                     cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                     best_ent = self._get_best_entity_under_cursor(cursor_pos, mode=self.picking_mode)
                     if best_ent:
-                        self.pick_completed.emit(best_ent); self.set_picking_mode(None)
+                        self.pick_completed.emit(best_ent)
+
+                    # Finalização incondicional do modo de captura ao pressionar Enter
+                    self.set_picking_mode(None)
                     return
 
 

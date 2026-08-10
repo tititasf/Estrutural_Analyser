@@ -208,6 +208,11 @@ def validar_com_vision(ficha: dict, png_path: Path) -> dict:
                 'side': u.get('side'),
                 'n_segmentos': len(u.get('panels', [])),
                 'h_total': u.get('h_total'),
+                'laje_sup': u.get('laje_sup'),
+                'marco_laje_sup': u.get('marco_laje_sup'),
+                'sarrafo_vertical_esquerdo': u.get('sarrafo_vertical_esquerdo'),
+                'sarrafo_vertical_direito': u.get('sarrafo_vertical_direito'),
+                'n_sarrafos_verticais': len(u.get('sarrafos_verticais') or []),
             }
             for u in ficha.get('face_units', [])
         ],

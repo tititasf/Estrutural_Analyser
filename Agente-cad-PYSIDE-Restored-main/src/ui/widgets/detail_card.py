@@ -63,6 +63,17 @@ class DetailCard(QWidget):
     STYLE_VALID_ROSA     = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_ROSA}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
     STYLE_VALID_LARANJA  = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_WARNING}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
     STYLE_NA             = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
+    # [2026-07-17] N/A decidido pelo agente QA fica laranja (mesma cor de
+    # STYLE_VALID_LARANJA) em vez do azul-info padrão de STYLE_NA — o dono
+    # quer distinguir visualmente "agente disse que não se aplica" de N/A
+    # marcado manualmente por um humano. Ver ORIGEM_NA_AGENTE_MARCADOR em
+    # src/core/validation_model.py.
+    STYLE_NA_AGENTE      = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_WARNING}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_WARNING}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
+    # [2026-07-17] Campo que o agente QA tentou resolver e concluiu que
+    # precisa de humano (não é N/A — precisa de valor real). Roxo pra não
+    # ser confundido com "ninguém olhou ainda" (STYLE_DEFAULT). Ver
+    # AGENT_PENDING_KEY em src/core/validation_model.py.
+    STYLE_PENDENTE_AGENTE = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_PURPLE}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
 
     def __init__(self, item_data: dict, parent=None,
                  obra_path=None, db=None, project_id: str = ''):
@@ -90,11 +101,37 @@ class DetailCard(QWidget):
         self.embedded_managers = {}
         self._tipo_comp_buttons = {}  # Armazena referências aos round buttons de tipo comprimento
         self._link_conf_badges  = {}  # field_id -> QLabel do badge XX% de confiança vínculos
+
+        # PERFORMANCE: data_changed era emitido a cada TECLA (textChanged em
+        # todo QLineEdit via _on_field_changed) — o handler em main.py
+        # (on_detail_data_changed) faz save_pillar/save_beam/save_slab (DB) +
+        # vários redraws de canvas inteiro por chamada. Digitar qualquer coisa
+        # travava a UI. Debounce: só emite 400ms depois que o usuário para de
+        # digitar. flush_pending_changes() garante que nada se perde ao trocar
+        # de item (chamado por main.py antes de destruir o card atual).
+        from PySide6.QtCore import QTimer
+        self._data_changed_timer = QTimer(self)
+        self._data_changed_timer.setSingleShot(True)
+        self._data_changed_timer.setInterval(400)
+        self._data_changed_timer.timeout.connect(
+            lambda: self.data_changed.emit(self.item_data)
+        )
+
         self.init_ui()
-        
+
         # Conectar sinal interno para auto-atualização do cabeçalho
         self.data_changed.connect(self._update_header_counts)
         self.validation_changed.connect(self._update_header_counts)
+
+    def flush_pending_changes(self):
+        """Emite data_changed imediatamente se houver debounce pendente.
+
+        Chamar antes de destruir/trocar o card (ex: show_detail) para não
+        perder a última edição feita a menos de 400ms da troca de item.
+        """
+        if self._data_changed_timer.isActive():
+            self._data_changed_timer.stop()
+            self.data_changed.emit(self.item_data)
 
     def _scan_local_segments(self):
         """Conta segmentos locais (A, B, C) para exibicao no cabecalho"""
@@ -178,7 +215,9 @@ class DetailCard(QWidget):
                 w.setMinimumWidth(20)
                 w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 
-            w.setStyleSheet(self.STYLE_DEFAULT if field_id not in self.item_data.get('validated_fields', []) else self.STYLE_VALID)
+            w.setStyleSheet(
+                self.STYLE_VALID if self._field_has_human_validation(field_id) else self.STYLE_DEFAULT
+            )
             self.fields[field_id] = w
             
             # Conectar mudança imediata para refletir nas listas do MainWindow
@@ -332,7 +371,7 @@ class DetailCard(QWidget):
             btn_express.setFixedHeight(22)
             btn_express.setToolTip("Validação Express (Clique para desfazer)")
             btn_express.setCheckable(True)
-            btn_express.setChecked(field_id in self.item_data.get('validated_fields', []))
+            btn_express.setChecked(self._field_has_human_validation(field_id))
             btn_express.setProperty("class", "FieldBtn")
             btn_express.setCursor(Qt.PointingHandCursor)
             
@@ -362,11 +401,7 @@ class DetailCard(QWidget):
             btn_na.setChecked(field_id in self.item_data.get('na_fields', []))
             btn_na.setProperty("class", "FieldBtn")
             btn_na.setCursor(Qt.PointingHandCursor)
-            btn_na.setStyleSheet(f"""
-                QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; font-weight: bold; padding: 0 4px;}}
-                QPushButton:hover {{ background: rgba(244, 67, 54, int(1/100*255)); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER}; }}
-                QPushButton:checked {{ background: rgba(244, 67, 54, int(2/100*255)); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER}; }}
-            """)
+            btn_na.setStyleSheet(self._na_button_qss(field_id))
             btn_na.clicked.connect(lambda chk, f_id=field_id: self._on_na_clicked(f_id, chk))
             actions_layout.addWidget(btn_na)
         else:
@@ -546,12 +581,13 @@ class DetailCard(QWidget):
                 
             # Verificar se restaram vínculos validados no campo. Se não, desvalida o campo inteiro.
             has_validated_links = False
-            for s_id, s_links in field_links.items():
-                if any(l.get('validated') for l in s_links):
+            field_links = self._ensure_field_links_dict(self.item_data, field_id)
+            for _s_id, s_links in field_links.items():
+                if any(isinstance(l, dict) and l.get('validated') for l in s_links):
                     has_validated_links = True
                     break
                     
-            if not has_validated_links and field_id in self.item_data.get('validated_fields', []):
+            if not has_validated_links and self._field_has_human_validation(field_id):
                 self.undo_field_validation(field_id)
             
             # Recalcular is_validated da Ficha inteira
@@ -786,6 +822,58 @@ class DetailCard(QWidget):
         btn.clicked.connect(_on_click)
         return btn
 
+    @staticmethod
+    def _normalize_slot_link_list(slot_value) -> list:
+        """Normaliza payload de um slot de vínculos para ``list[dict]``.
+
+        Em pilares/lados, o SA às vezes grava string crua (``\"19/55\"``) ou um
+        dict solto em vez de lista de links. Iterar string e fazer
+        ``link['validated']=True`` quebra com TypeError.
+        """
+        if slot_value is None:
+            return []
+        if isinstance(slot_value, str):
+            text = slot_value.strip()
+            return [{'text': text, 'type': 'text'}] if text else []
+        if isinstance(slot_value, dict):
+            if any(key in slot_value for key in ('text', 'type', 'points', 'pos', 'len')):
+                return [slot_value]
+            return []
+        if isinstance(slot_value, (list, tuple)):
+            normalized: list = []
+            for item in slot_value:
+                if isinstance(item, dict):
+                    normalized.append(item)
+                elif isinstance(item, str) and item.strip():
+                    normalized.append({'text': item.strip(), 'type': 'text'})
+            return normalized
+        return []
+
+    @classmethod
+    def _ensure_field_links_dict(cls, item_data: dict, field_id: str) -> dict:
+        """Garante ``item_data['links'][field_id]`` como ``dict[slot, list[dict]]``."""
+        links_root = item_data.setdefault('links', {})
+        raw = links_root.get(field_id, {})
+        if isinstance(raw, list):
+            raw = {'label': raw}
+        elif isinstance(raw, str):
+            text = raw.strip()
+            raw = {'label': [{'text': text, 'type': 'text'}]} if text else {}
+        elif not isinstance(raw, dict):
+            raw = {}
+        links_root[field_id] = raw
+        for slot_id, slot_val in list(raw.items()):
+            if isinstance(slot_val, list) and all(isinstance(item, dict) for item in slot_val):
+                continue
+            raw[slot_id] = cls._normalize_slot_link_list(slot_val)
+        return raw
+
+    def _field_has_human_validation(self, field_id: str) -> bool:
+        from src.core.validation_model import ORIGEM_HUMANO_APP, origens_do_campo
+        return ORIGEM_HUMANO_APP in origens_do_campo(
+            self.item_data.get('validated_fields'), field_id
+        )
+
     def mark_field_validated(self, field_id, is_valid=True, emit_data_changed=True):
         """Aplica estilo visual de validação no widget do campo de forma
         otimizada — validação humana feita aqui no app desktop é sempre
@@ -805,14 +893,15 @@ class DetailCard(QWidget):
 
             # --- CASCADE VALIDATION TO LINKS ---
             if 'links' in self.item_data and field_id in self.item_data['links']:
-                links_data = self.item_data['links'][field_id]
+                links_data = self._ensure_field_links_dict(self.item_data, field_id)
                 if isinstance(links_data, dict):
                     valid_map = self.item_data.setdefault('validated_link_classes', {})
                     valid_map[field_id] = list(links_data.keys())
 
-                    for slot_id, link_list in links_data.items():
+                    for _slot_id, link_list in links_data.items():
                         for link in link_list:
-                            link['validated'] = True
+                            if isinstance(link, dict):
+                                link['validated'] = True
 
             if field_id in self.embedded_managers:
                 lm = self.embedded_managers[field_id]
@@ -922,9 +1011,7 @@ class DetailCard(QWidget):
 
     def _on_express_validate(self, field_id):
         """Valida o campo imediatamente ou Desfaz (Undo) se já estava validado"""
-        is_already_validated = field_id in self.item_data.get('validated_fields', [])
-        
-        if is_already_validated:
+        if self._field_has_human_validation(field_id):
              self.undo_field_validation(field_id)
              return
              
@@ -935,9 +1022,8 @@ class DetailCard(QWidget):
         if isinstance(widget, QLineEdit): val = widget.text()
         elif isinstance(widget, QComboBox): val = widget.currentText()
         
-        # Recuperar links existentes para treino
-        links = self.item_data.get('links', {}).get(field_id, {})
-        if isinstance(links, list): links = {'label': links}
+        # Recuperar links existentes para treino (normaliza string/dict legado)
+        links = self._ensure_field_links_dict(self.item_data, field_id)
         
         target_link = None
         target_slot = 'default'
@@ -945,9 +1031,11 @@ class DetailCard(QWidget):
         # Busca primeiro link disponível
         for slot, link_list in links.items():
             if link_list:
-                target_link = link_list[0]
-                target_slot = slot
-                break
+                candidate = link_list[0]
+                if isinstance(candidate, dict):
+                    target_link = candidate
+                    target_slot = slot
+                    break
         
         if not target_link:
             # Cria synthetic link se não houver
@@ -980,7 +1068,7 @@ class DetailCard(QWidget):
                  tmp = LinkManager(field_id, {}, parent=None)
                  expected_slots = [s['id'] for s in tmp._get_slots(field_id)]
                  tmp.deleteLater()
-             except:
+             except Exception:
                  expected_slots = []
 
         # 2. Verificar conteúdo e distribuir status
@@ -992,11 +1080,11 @@ class DetailCard(QWidget):
              if field_id not in valid_map: valid_map[field_id] = []
              if field_id not in na_map: na_map[field_id] = []
              
-             current_links = self.item_data.get('links', {}).get(field_id, {})
-             if isinstance(current_links, list): current_links = {'label': current_links} # Normalize
+             current_links = self._ensure_field_links_dict(self.item_data, field_id)
              
              for slot_id in expected_slots:
-                 has_links = slot_id in current_links and len(current_links[slot_id]) > 0
+                 slot_links = current_links.get(slot_id) or []
+                 has_links = len(slot_links) > 0
                  
                  if has_links:
                      # Tem links -> Valida
@@ -1005,10 +1093,13 @@ class DetailCard(QWidget):
                      if slot_id in na_map[field_id]:
                          na_map[field_id].remove(slot_id)
                          
+                     example = slot_links[0] if isinstance(slot_links[0], dict) else {
+                         'text': str(slot_links[0]), 'type': 'text'
+                     }
                      # Treinar este slot como valido
                      self.training_requested.emit(field_id, {
                          'slot': slot_id,
-                         'link': current_links[slot_id][0], # Usa o primeiro link como exemplo
+                         'link': example,
                          'comment': f"Smart Validation: Slot {slot_id} validado.",
                          'status': "valid",
                          'propagate': False,
@@ -1205,10 +1296,12 @@ class DetailCard(QWidget):
         return f
 
     def _on_field_changed(self, key, value):
-        """Atualiza item_data imediatamente ao digitar"""
+        """Atualiza item_data imediatamente ao digitar; data_changed (caro:
+        DB save + redraw de canvas nos listeners) sai debounced — ver
+        _data_changed_timer no __init__."""
         self.item_data[key] = value
-        self.data_changed.emit(self.item_data)
-        
+        self._data_changed_timer.start()
+
         # Sincronização especial para Marco DXF
         if key.startswith('ext_viga_') and 'vigas_individuais' in self.item_data:
             v_id = key.replace('ext_viga_', '')
@@ -1249,6 +1342,39 @@ class DetailCard(QWidget):
             tooltip = ''
         return estilo, tooltip
 
+    def _na_button_qss(self, fid: str) -> str:
+        """[2026-07-17] QSS do botão N/A — vermelho (padrão, N/A humano) ou
+        laranja quando este campo foi marcado N/A pelo agente QA. Chamado na
+        criação do botão e de novo em `refresh_validation_styles` (o botão
+        não recria o widget, só troca a stylesheet quando a origem muda)."""
+        na_e_agente, _ = self._na_agente_e_tooltip(fid)
+        cor = Colors.ACCENT_WARNING if na_e_agente else Colors.ACCENT_DANGER
+        return f"""
+            QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; font-weight: bold; padding: 0 4px;}}
+            QPushButton:hover {{ color: {cor}; border: 1px solid {cor}; }}
+            QPushButton:checked {{ color: {cor}; border: 1px solid {cor}; }}
+        """
+
+    def _na_agente_e_tooltip(self, fid: str):
+        """[2026-07-17] True + tooltip se o N/A deste campo foi decidido
+        pelo agente QA (não por um humano clicando o botão N/A)."""
+        from src.core.validation_model import na_motivo_exibicao, na_tem_origem_agente
+        motivo = (self.item_data.get('na_reasons') or {}).get(fid)
+        if na_tem_origem_agente(motivo):
+            return True, f'🟠 N/A decidido pelo Agente QA:\n{na_motivo_exibicao(motivo)}'
+        return False, (f'N/A: {motivo}' if motivo else '')
+
+    def _pendente_agente_e_tooltip(self, fid: str):
+        """[2026-07-17] True + tooltip se o agente QA tentou resolver este
+        campo e concluiu que precisa de humano — nunca para campo já
+        validado ou N/A, só pra distinguir "agente tentou e não conseguiu"
+        de "ninguém olhou ainda"."""
+        from src.core.validation_model import campo_pendente_do_agente
+        motivo = campo_pendente_do_agente(self.item_data, fid)
+        if motivo:
+            return True, f'🟣 Agente QA não conseguiu resolver — precisa de revisão humana:\n{motivo}'
+        return False, ''
+
     def refresh_validation_styles(self):
         """Otimizado: Varre campos e aplica estilos apenas em mudanças de estado"""
         validated_fields_raw = self.item_data.get('validated_fields', [])
@@ -1277,11 +1403,20 @@ class DetailCard(QWidget):
                                      break
 
                     estilo_origem, tooltip_origem = self._estilo_e_tooltip_por_origem(fid)
-                    target_style = self.STYLE_NA if is_na else (estilo_origem or self.STYLE_DEFAULT)
+                    if is_na:
+                        na_e_agente, tooltip_na = self._na_agente_e_tooltip(fid)
+                        target_style = self.STYLE_NA_AGENTE if na_e_agente else self.STYLE_NA
+                    elif is_valid:
+                        target_style = estilo_origem or self.STYLE_DEFAULT
+                        tooltip_na = tooltip_origem
+                    else:
+                        pendente_agente, tooltip_pendente = self._pendente_agente_e_tooltip(fid)
+                        target_style = self.STYLE_PENDENTE_AGENTE if pendente_agente else self.STYLE_DEFAULT
+                        tooltip_na = tooltip_pendente
                     if w.styleSheet() != target_style:
                         w.setStyleSheet(target_style)
-                    if not is_na and w.toolTip() != tooltip_origem:
-                        w.setToolTip(tooltip_origem)
+                    if w.toolTip() != tooltip_na:
+                        w.setToolTip(tooltip_na)
 
                     target_enabled = not is_na
                     if w.isEnabled() != target_enabled:
@@ -1308,6 +1443,12 @@ class DetailCard(QWidget):
                             b_na.blockSignals(True)
                             b_na.setChecked(is_na)
                             b_na.blockSignals(False)
+                        na_e_agente, tooltip_btn_na = self._na_agente_e_tooltip(fid)
+                        new_qss = self._na_button_qss(fid)
+                        if b_na.styleSheet() != new_qss:
+                            b_na.setStyleSheet(new_qss)
+                        if na_e_agente and b_na.toolTip() != tooltip_btn_na:
+                            b_na.setToolTip(tooltip_btn_na)
                 
                 # 3. Linked Labels (hide_input=True)
                 if isinstance(w, QLabel):
@@ -2649,10 +2790,15 @@ class DetailCard(QWidget):
                                  return f"{length:.0f}"
                  
                  # Lógica padrão para outros campos
+                 # Nem todo valor em `slots` é uma lista de vínculos: o payload
+                 # do motor de faces (pillar_face_beams._face_beam_link_payload)
+                 # grava metadados irmãos de "label" no mesmo dict (`geometry`,
+                 # `evidence_source` — string), então filtra pra pegar só listas
+                 # de dict reais.
                  for s_list in slots.values():
-                     if s_list and len(s_list) > 0:
+                     if s_list and isinstance(s_list, list) and isinstance(s_list[0], dict):
                          txt = str(s_list[0].get('text', ''))
-                         if txt.strip(): 
+                         if txt.strip():
                              # Somente extrair número se NÃO for campo de nome ou dimensão
                              is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                              if not is_dim_or_name:
@@ -2661,7 +2807,7 @@ class DetailCard(QWidget):
                                  if nums:
                                      return nums[0].replace(',', '.')
                              return txt
-            elif isinstance(slots, list) and len(slots) > 0:
+            elif isinstance(slots, list) and len(slots) > 0 and isinstance(slots[0], dict):
                  # Lógica especial para campos de comprimento (polyline)
                  if 'comp_total_passa' in field_id or '_comprimento_total' in field_id:
                      link_obj = slots[0]
@@ -2670,9 +2816,9 @@ class DetailCard(QWidget):
                          length = sum(((pts[i][0]-pts[i+1][0])**2 + (pts[i][1]-pts[i+1][1])**2)**0.5 for i in range(len(pts)-1))
                          self.item_data[field_id] = f"{length:.0f}"
                          return f"{length:.0f}"
-                 
+
                  txt = str(slots[0].get('text', ''))
-                 if txt.strip(): 
+                 if txt.strip():
                      is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                      if not is_dim_or_name:
                          import re
@@ -2997,8 +3143,10 @@ class DetailCard(QWidget):
         GenerateDXFDialog.open_for_item(obra_path, item_type, item_id, parent=self)
 
     def on_validate(self):
+        from src.core.validation_model import ORIGEM_HUMANO_APP, adicionar_validacao_campo
+
         final_data = self.item_data.copy()
-        validated = final_data.setdefault('validated_fields', [])
+        validated = final_data.get('validated_fields')
 
         # Ensure sides_data exists
         if 'sides_data' not in final_data: final_data['sides_data'] = {}
@@ -3010,8 +3158,10 @@ class DetailCard(QWidget):
 
             final_data[key] = val
             # Ao validar o card todo, todos os campos preenchidos ganham selo de validado
-            if val and key not in validated:
-                validated.append(key)
+            if val:
+                validated = adicionar_validacao_campo(validated, key, ORIGEM_HUMANO_APP)
+        final_data['validated_fields'] = validated if validated is not None else {}
+        self.item_data['validated_fields'] = final_data['validated_fields']
 
         # [NOVO] SELO AZUL (Validação Completa de Contexto)
         # Só este botão concede o status de "Item 100% Validado" para curadoria
@@ -3563,10 +3713,9 @@ class DetailCard(QWidget):
                 valid_map[field_id].append(slot_id)
             
             # Cascata: Validar todos os links internos
-            links_dict = self.item_data.get('links', {})
-            field_links = links_dict.get(field_id, {})
-            if isinstance(field_links, dict) and slot_id in field_links:
-                for lk in field_links[slot_id]:
+            field_links = self._ensure_field_links_dict(self.item_data, field_id)
+            for lk in field_links.get(slot_id) or []:
+                if isinstance(lk, dict):
                     lk['validated'] = True
                     lk.pop('failed', None)
         else:
@@ -3592,10 +3741,9 @@ class DetailCard(QWidget):
             valid_map[field_id].remove(slot_id)
 
         # 2. Resetar links internos e pedir REMOÇÃO de treino
-        links_dict = self.item_data.get('links', {})
-        field_links = links_dict.get(field_id, {})
-        if isinstance(field_links, dict) and slot_id in field_links:
-            for lk in field_links[slot_id]:
+        field_links = self._ensure_field_links_dict(self.item_data, field_id)
+        for lk in field_links.get(slot_id) or []:
+            if isinstance(lk, dict):
                 lk.pop('validated', None)
                 lk.pop('failed', None)
         
@@ -3604,11 +3752,16 @@ class DetailCard(QWidget):
 
     def undo_field_validation(self, field_id):
         """Desfaz toda a validação de um campo (Undo de alto nível)"""
+        from src.core.validation_model import ORIGEM_HUMANO_APP, remover_validacao_campo
+
         self._clear_full_validation_state()
 
-        validated = self.item_data.get('validated_fields', [])
-        if field_id in validated:
-            validated.remove(field_id)
+        # validated_fields é dict multi-origem (ou lista legada) — nunca .remove()
+        self.item_data['validated_fields'] = remover_validacao_campo(
+            self.item_data.get('validated_fields'),
+            field_id,
+            origem=ORIGEM_HUMANO_APP,
+        )
         
         # Cascata para Slots
         valid_map = self.item_data.get('validated_link_classes', {})
@@ -3887,7 +4040,7 @@ class DetailCard(QWidget):
         btn_valid = QPushButton("Ok")
         btn_valid.setFixedSize(30, 22)
         btn_valid.setCheckable(True)
-        btn_valid.setChecked(field_id in self.item_data.get('validated_fields', []))
+        btn_valid.setChecked(self._field_has_human_validation(field_id))
         btn_valid.setProperty("class", "FieldBtn")
         btn_valid.setCursor(Qt.PointingHandCursor)
         btn_valid.setStyleSheet(f"""

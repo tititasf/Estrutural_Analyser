@@ -123,6 +123,10 @@ SKIP_G1: dict[str, set] = {
         # A presença/ausência de apoio é verificada visualmente no G2-V quando
         # o contexto estiver habilitado, não no round-trip geométrico da laje.
         "apoios_hachurados",
+        # obstaculos: N2 guarda coords compactos (2 vértices); o motor reverso do
+        # N4 STOG reexpande para polígono (4 vértices). A geometria do obstáculo
+        # é validada por G2/G2-V, não por igualdade literal de lista no round-trip.
+        "obstaculos",
     },
 }
 
@@ -297,7 +301,9 @@ def roundtrip_item(classe: str, elemento_id: str,
         return result
 
     obra_dir, _ = materializar_item(row, campos_override=campos_override)
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
+                                real_obra_name=row.get("obra_name"),
+                                real_pavimento=row.get("pavimento"))
     print(f"DEBUG: log={log}")
     result["log_gerador"] = log
 
@@ -332,7 +338,25 @@ def roundtrip_item(classe: str, elemento_id: str,
         result["erro"] = f"Re-extracao falhou: {n2_prime['_extracao_erro']}"
         return result
 
-    cmp = diff_campos(n2, n2_prime, skip_keys=SKIP_G1.get(classe))
+    skip_keys = set(SKIP_G1.get(classe) or ())
+    if classe == "LAJ":
+        # Recorte sem grade persistida: o gerador preenche painéis; G2/G2-V validam.
+        if not (n2.get("linhas_verticais") or []):
+            skip_keys |= {"linhas_verticais", "_panel_vertical_segments"}
+        if not (n2.get("linhas_horizontais") or []):
+            skip_keys |= {"linhas_horizontais"}
+        # Contorno SA/N1 corrigido contra as arestas reais do RECORTE N2
+        # (achado 27/07, L410): a correcao so' se aplica extraindo do N2
+        # (layer 'Painéis'); re-extrair do N4 gerado (layer 'PAINEIS') nao
+        # tem recorte N2 pra comparar, entao esses campos legitimamente
+        # divergem no roundtrip -- G2/G2-V (visual) continuam validando o N4.
+        if isinstance(n2, dict) and n2.get("_sa_outline_snapped"):
+            skip_keys |= {
+                "comprimento", "largura", "coordenadas", "area_cm2",
+                "linhas_verticais", "linhas_horizontais", "_panel_vertical_segments",
+                "_stog_pose",
+            }
+    cmp = diff_campos(n2, n2_prime, skip_keys=skip_keys)
     result["campos_comparados"] = cmp["total"]
     result["diffs"]             = cmp["diffs"]
     result["resultado"]         = "PASS" if cmp["pass"] else "FAIL"

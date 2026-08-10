@@ -204,12 +204,16 @@ análise SA completa, reparos e consolidação usuais; filtra apenas a materiali
 ficha/diagnóstico/persistência. Portanto, o resultado do item percorre a mesma cadeia da
 rodada completa. Sempre usar `--wait` e nunca encerrar quem está com a trava.
 
-Para reduzir espera sem cruzar artefatos, cada microciclo **read-only** com uma classe e
-item explícito possui fila própria (PIL/LAJ/FV/LV), snapshot
+Para reduzir espera sem cruzar artefatos, toda rodada **read-only** com uma única
+classe — com item explícito ou com a classe inteira — possui fila própria (PIL/LAJ/FV/LV), snapshot
 `estado_{PAV}_{secao}.json` e pasta de run com seção + PID. Classes diferentes podem
-coexistir; a mesma classe permanece serializada. Sem `--item`, com mais de uma seção ou
-com `--persist-db`, a execução reserva a fila global e as quatro classes, pois memória,
-consolidação e transação deixam de ser isoláveis.
+coexistir; a mesma classe permanece serializada. Sem `--secao` ou com mais de uma seção,
+a execução reserva a fila global e as quatro classes. Com `--persist-db --secao X --item ...`,
+a persistência é parcial (upsert do lote, sem apagar ausentes) e continua na fila de X.
+PIL/FV/LV reservam adicionalmente `headless_sa_beams` durante a análise, pois podem
+escrever o mesmo `beams.data_json`; LAJ não usa esse recurso. O lock
+`headless_sa_db_commit` existe só no BEGIN/COMMIT SQLite. Persistência sem identidade
+de item permanece global.
 
 #### Protocolo por causa
 
@@ -271,6 +275,17 @@ Independente da fonte (número cru do JSON de debug, ou leitura de screenshot vi
 - `evidencia`: os números/observações que embasaram o diagnóstico (ex.:
   `{"dim_delta": 0.1821, "detected": [2831.12, 201.0], "n2": [2413.0, 152.0]}`), para
   permitir auditoria posterior sem precisar re-rodar o cálculo.
+
+### 2A.2b — Dual-mode PNG (agente) / SVG (persist · app · portal)
+
+Canónico: `docs/QA-VISAO-EVIDENCIA-CANONICA.md`.
+
+| Contexto | Formato |
+|----------|---------|
+| Agente CLI (G2-V / N1-V / G5-V) | **PNG** full-render + Read/vision |
+| Headless **sem** `--persist-db` | só imagem (dinâmico; SVG não obrigatório) |
+| Headless **com** `--persist-db` / ficha app | HTML **com SVG** |
+| Portal web / formulários | **SVG incluído** (zoom) |
 
 ### 2A.3 — Regra de uso: número primeiro, vision quando o número não explica
 

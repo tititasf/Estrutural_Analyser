@@ -1,0 +1,25 @@
+{
+  "schema": "arete.ficha_motor_item/v2",
+  "classe": "PIL",
+  "item": "P1",
+  "nivel": "N3",
+  "generated_at": "2026-07-14T01:27:42",
+  "artifacts": [
+    {
+      "label": "PARA",
+      "dxf": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_reuses_svg_ca0\\item.dxf",
+      "dxf_sha256": "999a144e6384ec805fdf36638783b7a703b4031f98fa683e4cb224176e803dbb",
+      "svg_sha256": "eede877150f0f3ada24147c5024893d73fd435a9936c48a2968959cdb89ff09f",
+      "json": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_reuses_svg_ca0\\item.json",
+      "json_sha256": "c80d8b1bb4f8c701b1aea5d8c123e4d3869de06cd3c7a7a850395a50d84cb69b",
+      "contract": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_reuses_svg_ca0\\contract.json",
+      "contract_sha256": "32c5507cb477764bc3475268f68197ab8c5e534972336fda9d83b4e8b3d37e7f",
+      "render_cache_hit": true,
+      "render_cache_key": "7a678ef22013118dad0e77a4ce5700058826bd372c42a84002422c6a449ab138"
+    }
+  ],
+  "input_signature": "f3f5d8019dd25d291d4b434e65898aeb5dcce4c4f6d8a5e9dbf97d40b35a94cf",
+  "authority": "visual_iteration_only; no N1 interpretation; no DB write",
+  "html": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_build_ficha_reuses_svg_ca0\\second\\index.html",
+  "html_sha256": "6f66a551b4814775186fd8b6384bdd3a5dc241a60a700d07a0da83228e004c7e"
+}

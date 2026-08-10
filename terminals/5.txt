@@ -1,0 +1,86 @@
+---
+pid: 13472
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cmd /c \"cd /d D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main && D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe -X utf8 scripts/arete/_tmp_diag_l409_fresh.py\""
+started_at: 2026-07-16T19:23:46.735Z
+running_for_ms: 71445009 
+---
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+[SA] Metodos bindados: 193 (4 ignorados)
+2026-07-16 16:23:51,992 - INFO - Checking database migrations...
+L409 bbox: (5010.47, 2553.03, 5360.8, 2652.03)
+contact_tol: 1.0
+
+1 text(s) for P26
+  text pos=(4919.37, 2377.91) layer=4
+    {"layer": "7", "marker": "pillar", "d_text": 23.89, "d_slab_boundary": 134.88, "d_slab": 134.88, "bbox": [4856.6, 2335.0, 5021.6, 2553.0], "pts": 7, "pillar_like": true, "touches_contact_tol": false}
+    {"layer": "7", "marker": "pillar", "d_text": 214.07, "d_slab_boundary": 282.88, "d_slab": 282.88, "bbox": [4708.6, 2473.0, 4727.6, 2553.0], "pts": 5, "pillar_like": true, "touches_contact_tol": false}
+    {"layer": "9", "marker": "pillar", "d_text": 210.84, "d_slab_boundary": 301.88, "d_slab": 301.88, "bbox": [4583.6, 2383.0, 4708.6, 2583.0], "pts": 5, "pillar_like": true, "touches_contact_tol": false}
+    {"layer": "3", "marker": "pillar", "d_text": 210.84, "d_slab_boundary": 301.88, "d_slab": 301.88, "bbox": [4583.6, 2383.0, 4708.6, 2583.0], "pts": 5, "pillar_like": true, "touches_contact_tol": false}
+    {"layer": "8", "marker": "cut_view", "d_text": 167.85, "d_slab_boundary": 335.09, "d_slab": 335.09, "bbox": [4678.6, 2278.2, 4757.6, 2333.2], "pts": 9, "pillar_like": true, "touches_contact_tol": false}
+
+1 text(s) for P27
+  text pos=(5497.71, 2391.14) layer=4
+    {"layer": "7", "marker": "pillar", "d_text": 25.12, "d_slab_boundary": 92.79, "d_slab": 92.79, "bbox": [5307.6, 2335.0, 5472.6, 2553.0], "pts": 7, "pillar_like": true, "touches_contact_tol": false}
+[SA] Carregando DXF: D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA/EL-(Torre-0)-(TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA)-(Obra_TREINO_1)_1.dxf
+[SA] DXF: 2519 linhas, 276 polilinhas, 528 textos
+[SA] Indexando geometria...
+[SA] Bindando metodos de analise do MainWindow...
+[SA] Metodos bindados: 193 (4 ignorados)
+[SA] Detectando lajes...
+[DEBUG] SlabTracer cascade on 528 texts. N2 teacher=0
+[SA] Lajes detectadas: 23
+[SA] Processando lajes...
+[SA] Montando relatorio de pilares...
+[SA] 🧭 Lajes: 28 visão(ões) de corte, 37 pilar(es) de apoio, 104 texto(s) de nível vizinho; 0 nível(is) por contexto, 0 por delta de corte.
+[SA] Pilares: 35
+[SA] Detectando vigas...
+[SA] 🧠 Viga V401 pré-interpretada com sucesso.
+[SA] 🧠 Viga V402 pré-interpretada com sucesso.
+[SA] 🧠 Viga V403 pré-interpretada com sucesso.
+[SA] 🧠 Viga V404 pré-interpretada com sucesso.
+[SA] 🧠 Viga V405 pré-interpretada com sucesso.
+[SA] 🧠 Viga V406 pré-interpretada com sucesso.
+[SA] 🧠 Viga V407 pré-interpretada com sucesso.
+[SA] 🧠 Viga V408 pré-interpretada com sucesso.
+[SA] 🧠 Viga V409 pré-interpretada com sucesso.
+[SA] 🧠 Viga V410 pré-interpretada com sucesso.
+[SA] 🧠 Viga V411 pré-interpretada com sucesso.
+[SA] 🧠 Viga V412 pré-interpretada com sucesso.
+[SA] 🧠 Viga V413 pré-interpretada com sucesso.
+[SA] 🧠 Viga V414 pré-interpretada com sucesso.
+[SA] 🧠 Viga V415 pré-interpretada com sucesso.
+[SA] 🧠 Viga V416 pré-interpretada com sucesso.
+[SA] 🧠 Viga V417 pré-interpretada com sucesso.
+[SA] 🧠 Viga V418 pré-interpretada com sucesso.
+[SA] 🧠 Viga V419 pré-interpretada com sucesso.
+[SA] 🧠 Viga V420 pré-interpretada com sucesso.
+[SA] 🧠 Viga V421 pré-interpretada com sucesso.
+[SA] 🧠 Viga V422 pré-interpretada com sucesso.
+[SA] 🧠 Viga V423 pré-interpretada com sucesso.
+[SA] 🧠 Viga V424 pré-interpretada com sucesso.
+[SA] 🧠 Viga V425 pré-interpretada com sucesso.
+[SA] 🧠 Viga V426 pré-interpretada com sucesso.
+[SA] 🧠 Viga V427 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF401 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF402 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF403 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF404 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF405 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF406 pré-interpretada com sucesso.
+[SA] Fatos FV canônicos reaplicados: 31 viga(s)
+[SA] Vigas: 33
+[SA] Sides corrigidos por fallback de posicao relativa: 10
+[SA] Cache N1 contextual: STORED faee4c0c5554
+
+Full legacy L409 apoios: 0

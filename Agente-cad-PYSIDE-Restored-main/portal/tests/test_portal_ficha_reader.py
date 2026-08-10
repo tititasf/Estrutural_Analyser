@@ -42,10 +42,17 @@ def test_ler_estado_pavimento_inexistente_devolve_none():
 def test_listar_itens_n1_pilares_tem_campos_reais():
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
     itens = fr.listar_itens_n1(estado, "pilares")
-    assert len(itens) == 46  # confirmado real: 46 pilares nesta obra
+    # [2026-07-30] A obra tem 46 pilares no estado do SA, mas a classe "pilares"
+    # devolve só os RETANGULARES — os demais saem em "pilares_especiais". Antes
+    # da divisão este assert era 46; agora 44 + 2, e a soma continua sendo 46
+    # (ver test_pilares_retangulares_mais_especiais_somam_o_total).
+    assert len(itens) == 44
     p1 = next(i for i in itens if i["item_id"] == "P1")
     assert p1["campos"]["Nome"] == "P1"
-    assert p1["campos"]["Nível"] == "852.12"
+    # [2026-07-30] Era "Nível"; o campo virou "Nível Relativo" (mesmo valor).
+    # O nome atual é o que test_listar_itens_n1_pilares_expoe_campos_field_id
+    # já usava — este assert é que tinha ficado para trás.
+    assert p1["campos"]["Nível Relativo"] == "852.12"
     assert len(p1["points"]) >= 4  # geometria real (retângulo)
 
 
@@ -174,3 +181,30 @@ def test_extrair_fotos_sem_dir_fichas_devolve_ausente_sem_lancar():
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
     item = fr.obter_item_n1(estado, "pilares", "P1")
     assert fr.extrair_fotos_ficha(None, "pilares", item) == {"n1": None, "n3": None}
+
+
+def test_pilares_retangulares_mais_especiais_somam_o_total():
+    """Nenhum pilar pode sumir na divisão retangular/especial.
+
+    A obra tem 46 pilares no estado do SA. `pilares` traz os retangulares e
+    `pilares_especiais` o resto; se a classificação de formato mudar, a soma
+    ainda tem de fechar — um pilar que caia fora das duas listas desaparece da
+    UI em silêncio, e ninguém percebe que o item não foi desenhado.
+    """
+    estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
+    retangulares = fr.listar_itens_n1(estado, "pilares")
+    especiais = fr.listar_itens_n1(estado, "pilares_especiais")
+    assert len(retangulares) + len(especiais) == len(estado["pilares"]) == 46
+
+
+def test_pilares_em_L_vao_para_especiais_nao_somem():
+    """P26 e P27 são 'em L' (7 pontos) e só aparecem em pilares_especiais.
+
+    Existem no N2 com confiança 0.95 e têm recorte real em disco — se sumissem
+    da listagem, pareceria que o SA não os extraiu.
+    """
+    estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
+    especiais = {i["item_id"] for i in fr.listar_itens_n1(estado, "pilares_especiais")}
+    retangulares = {i["item_id"] for i in fr.listar_itens_n1(estado, "pilares")}
+    assert {"P26", "P27"} <= especiais
+    assert not ({"P26", "P27"} & retangulares)

@@ -12,6 +12,7 @@ testada aqui — pesada demais para a suíte rápida; validada manualmente uma v
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -145,6 +146,55 @@ def test_executar_etapa_sa_continua_chamando_headless(settings, tmp_path):
     _, obra = _obra_com_entrada(tmp_path, "teste.dxf")
     r = pipeline_runner.executar_etapa(settings, "sa", obra, dry_run=True)
     assert "headless_sa_analise" in " ".join(r.comando)
+
+
+# --------------------------------------------------------------------------- #
+# P4 — microciclo secao+item com --persist-db
+# --------------------------------------------------------------------------- #
+
+def test_microciclo_item_monta_comando_com_secao_item_persist(settings, tmp_path):
+    _, obra = _obra_com_entrada(tmp_path, "teste.dxf")
+    r = pipeline_runner.executar_microciclo_item(
+        settings, obra, secao="pilares", item="P900", pav="13_PAV", dry_run=True,
+    )
+    assert r.ok and r.dry_run
+    assert r.etapa == "sa_item"
+    cmd = r.comando
+    assert "headless_sa_analise" in " ".join(cmd)
+    assert "--secao" in cmd and "pilares" in cmd
+    assert "--item" in cmd and "P900" in cmd
+    assert "--wait" in cmd
+    assert "--persist-db" in cmd
+
+
+def test_montar_comando_secao_sem_item_nao_tem_persist(settings, tmp_path):
+    """Script recusa --persist-db com --secao sem --item — não montar lixo."""
+    _, obra = _obra_com_entrada(tmp_path, "teste.dxf")
+    cmd = pipeline_runner.montar_comando_headless(
+        settings, obra, secao=["lajes"], pav="13_PAV",
+    )
+    assert "--secao" in cmd and "lajes" in cmd
+    assert "--item" not in cmd
+    assert "--persist-db" not in cmd
+
+
+def test_montar_comando_completo_sem_secao_tem_persist(settings, tmp_path):
+    _, obra = _obra_com_entrada(tmp_path, "teste.dxf")
+    cmd = pipeline_runner.montar_comando_headless(settings, obra, pav="13_PAV")
+    assert "--secao" not in cmd
+    assert "--persist-db" in cmd
+
+
+def test_microciclo_exige_secao_e_item(settings, tmp_path):
+    _, obra = _obra_com_entrada(tmp_path, "teste.dxf")
+    with pytest.raises(ValueError):
+        pipeline_runner.executar_microciclo_item(
+            settings, obra, secao="", item="P1", dry_run=True,
+        )
+    with pytest.raises(ValueError):
+        pipeline_runner.executar_microciclo_item(
+            settings, obra, secao="pilares", item="  ", dry_run=True,
+        )
 
 
 # --------------------------------------------------------------------------- #
@@ -345,3 +395,93 @@ def test_triagem_documentos_grava_log_consolidado_quando_log_path_passado(settin
     assert r.ok
     assert log_path.exists()
     assert "a.dxf" in log_path.read_text(encoding="utf-8")
+
+
+def test_promover_snapshot_sa_publica_estado_canonico_atomico(tmp_path):
+    obra_dir = tmp_path / "obra_snapshot"
+    obra_dir.mkdir()
+    isolated = obra_dir / "estado_TERREO_pilares_pid123.json"
+    isolated.write_text(json.dumps({
+        "pilares": [{"name": "P1", "points": [[0, 0], [1, 0], [1, 1], [0, 1]]}],
+        "slabs": [], "cortes": [], "segmentos": {},
+    }), encoding="utf-8")
+    promoted = pipeline_runner.promover_snapshot_sa(obra_dir, "TERREO")
+    assert promoted == obra_dir / "estado_TERREO.json"
+    payload = json.loads(promoted.read_text(encoding="utf-8"))
+    assert payload["pilares"][0]["name"] == "P1"
+    assert not list(obra_dir.glob(".estado_TERREO.json.*.tmp"))
+
+
+def test_promover_snapshot_sa_rejeita_payload_sem_pilares(tmp_path):
+    obra_dir = tmp_path / "obra_snapshot_invalido"
+    obra_dir.mkdir()
+    (obra_dir / "estado_TERREO_pid9.json").write_text(
+        json.dumps({"slabs": []}), encoding="utf-8",
+    )
+    assert pipeline_runner.promover_snapshot_sa(obra_dir, "TERREO") is None
+    assert not (obra_dir / "estado_TERREO.json").exists()
+
+
+def _escrever_pacote_n3_minimo(obra_dir: Path, name: str = "P1") -> None:
+    root = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants"
+    for mode in ("para", "passa"):
+        folder = root / mode
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / f"{name}.json").write_text("{}", encoding="utf-8")
+        (folder / f"PL_ABCD_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
+        (folder / f"PL_GRADES_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
+
+
+def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, monkeypatch):
+    obra_dir = tmp_path / "obra_sa_integrada"
+    obra_dir.mkdir()
+    obra = {"nome": "obra_sa_integrada", "local_path": str(obra_dir)}
+    monkeypatch.setattr(pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None)
+
+    def fake_run(*args, **kwargs):
+        (obra_dir / "estado_TERREO_pid777.json").write_text(json.dumps({
+            "pilares": [{
+                "name": "P1",
+                "points": [[0, 0], [40, 0], [40, 20], [0, 20], [0, 0]],
+            }],
+            "slabs": [], "cortes": [], "segmentos": {},
+        }), encoding="utf-8")
+        _escrever_pacote_n3_minimo(obra_dir)
+        return pipeline_runner.subprocess.CompletedProcess(args[0], 0, "SA ok", "")
+
+    monkeypatch.setattr(pipeline_runner.subprocess, "run", fake_run)
+    result = pipeline_runner._rodar_subprocess_sa(
+        settings, ["python", "headless"], obra=obra, etapa="sa",
+        dry_run=False, log_path=None, pav="TERREO",
+    )
+    assert result.ok, result.log_tail
+    assert (obra_dir / "estado_TERREO.json").is_file()
+    assert result.artefatos["pilar_n3_fichas"]["created"] == 1
+    assert result.artefatos["pilar_n3"]["variantes_completas"] == 2
+    from src.core.pillar_n3_ficha import ficha_path
+    assert ficha_path(obra_dir, "TERREO", "P1").is_file()
+
+
+def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path, monkeypatch):
+    obra_dir = tmp_path / "obra_sa_sem_n3"
+    obra_dir.mkdir()
+    obra = {"nome": "obra_sa_sem_n3", "local_path": str(obra_dir)}
+    monkeypatch.setattr(pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None)
+
+    def fake_run(*args, **kwargs):
+        (obra_dir / "estado_TERREO_pid778.json").write_text(json.dumps({
+            "pilares": [{
+                "name": "P1",
+                "points": [[0, 0], [40, 0], [40, 20], [0, 20], [0, 0]],
+            }],
+        }), encoding="utf-8")
+        return pipeline_runner.subprocess.CompletedProcess(args[0], 0, "SA parcial", "")
+
+    monkeypatch.setattr(pipeline_runner.subprocess, "run", fake_run)
+    result = pipeline_runner._rodar_subprocess_sa(
+        settings, ["python", "headless"], obra=obra, etapa="sa",
+        dry_run=False, log_path=None, pav="TERREO",
+    )
+    assert not result.ok
+    assert len(result.artefatos["pilar_n3"]["missing"]) == 6
+    assert "pacote N3 de pilares incompleto" in result.log_tail

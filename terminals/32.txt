@@ -1,0 +1,38 @@
+---
+pid: 10364
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; python scripts/arete/gerar_lv_n4_fichas.py V301; python scripts/arete/tmp/open_v301_n4_html.py; python -c \"
+import ezdxf
+doc=ezdxf.readfile(r'D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/n4/LV_preview_V301_VIEW_A.dxf')
+msp=doc.modelspace()
+print('COTA TEXT:')
+for e in msp:
+    if e.dxftype()=='TEXT' and e.dxf.layer=='COTA':
+        print(f'  {e.dxf.text!r} @ y={e.dxf.insert.y:.1f} x={e.dxf.insert.x:.1f}')
+\"
+"
+started_at: 2026-07-17T04:01:36.174Z
+running_for_ms: 40375015 
+---
+DEBUG V301: my_labels = [(5483.094412849332, 8281.870433819078, 'V301.A', 'A'), (6799.255538347416, 8006.224756820968, 'V301.B', 'B')]
+DEBUG V301: label V301.A at (5483.094412849332, 8281.870433819078) -> pair = {'y_bot': 8154.0, 'y_top': 8263.0, 'h_body': 109.0, 'x_left': 5479.891111852656, 'x_right': 5928.550199239063, 'total_w': 448.7}
+DEBUG V301: label V301.B at (6799.255538347416, 8006.224756820968) -> pair = {'y_bot': 7878.0, 'y_top': 8002.0, 'h_body': 124.0, 'x_left': np.float64(6796.052237350742), 'x_right': 7165.948885804495, 'total_w': np.float64(369.9)}
+DEBUG V301: face_A = {'y_bot': 8154.0, 'y_top': 8263.0, 'h_body': 109.0, 'x_left': 5479.891111852656, 'x_right': 5928.550199239063, 'total_w': 448.7}
+DEBUG V301: face_B = {'y_bot': 7878.0, 'y_top': 8002.0, 'h_body': 124.0, 'x_left': np.float64(6796.052237350742), 'x_right': 7165.948885804495, 'total_w': np.float64(369.9)}
+[V301] gerando... OK => D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LV_preview_V301_A.dxf
+
+1/1 OK | N4 em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4
+N2: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V301_motor_178111332829.dxf
+render LV_preview_V301_VIEW_A.dxf...
+render LV_preview_V301_VIEW_B.dxf...
+render LV_preview_V301_CORTE.dxf...
+HTML: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_n4_review_20260717_010144\V301_N4_REVIEW.html
+COTA TEXT:
+  '244' @ y=-304.0 x=122.0
+  '28,7' @ y=-318.0 x=258.4
+  '21,8' @ y=-332.0 x=283.6
+  '111' @ y=-304.0 x=350.0
+  '19' @ y=-318.0 x=415.0
+  '21,2' @ y=-332.0 x=435.1
+  '445,7' @ y=-358.0 x=222.8
+  '124' @ y=-197.0 x=479.7

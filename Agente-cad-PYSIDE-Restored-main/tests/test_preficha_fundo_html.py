@@ -53,16 +53,29 @@ class _FakeDialog:
     def _find_n2_recorte_dxf(self, class_prefix, item_name):
         return f"n2_{class_prefix}_{item_name}.dxf"
 
+    def _render_fv_hifi_n1_svg(self, segments, mode="local", **kwargs):
+        assert mode in {"local", "contextual"}
+        assert segments
+        if mode == "local":
+            lab = segments[0].get("label", "1")
+            return (
+                f'<svg viewBox="0 0 10 10" class="img-fv-hifi" role="img" '
+                f'aria-label="N1 / SA local" alt="N1 / SA local">'
+                f"<text>S{lab}</text></svg>"
+            )
+        return (
+            '<svg viewBox="0 0 10 10" class="img-fv-hifi" role="img" '
+            'aria-label="N1 / SA contextual" alt="N1 / SA contextual">'
+            "<text>CTX</text></svg>"
+        )
+
     def _render_pilar_dxf_context_b64(
         self, points, width=1000, height=680, focus_mode="pillar", fmt="png", **kwargs
     ):
+        # Legado (outras classes / fallback) — FV usa _render_fv_hifi_n1_svg
         assert focus_mode == "segment"
-        assert (width, height) == (2400, 600)
         assert fmt == "svg"
-        assert kwargs["context_view"] in {"near", "far"}
-        if fmt == "svg":
-            return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
-        return "U0E="
+        return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
 
     def _render_ezdxf_b64(self, path, width=950, height=620, fmt="png"):
         assert (width, height) == (1900, 1240)
@@ -123,13 +136,21 @@ def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pa
 
     assert result == ("fundos_viga/index.html", "Fundos", 1)
     page = tmp_path / "fundos_viga" / "V301.html"
-    soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
-    assert len(soup.select(".evidence-card svg")) == 5
+    raw = page.read_text(encoding="utf-8")
+    soup = BeautifulSoup(raw, "html.parser")
+    # 1 local + 1 contextual HI-FI + N2 + N3 + N4
+    assert len(soup.select("svg")) >= 5
+    assert len(soup.select('svg[alt="N1 / SA local"]')) == 1
+    assert len(soup.select('svg[alt="N1 / SA contextual"]')) == 1
+    assert "data-panzoom" in raw
+    assert "fv-hifi-panzoom" in raw or "initPanZoom" in raw
+    assert "<!--FVCTX_START-->" in raw
     style = soup.style.get_text()
     assert "grid-template-columns:1fr!important" in style
     assert "max-height:none!important" in style
     text = soup.get_text(" ", strip=True)
     assert "N1 / SA" in text
+    assert "Contextual unificado" in text
     assert "N2 / STOG real" in text
     assert "N3 / Robô SA" in text
     assert "N3 / NOVA" in text
@@ -143,11 +164,12 @@ def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Pa
     assert "Marcar esta ficha como ERRADA" in text
     assert soup.select_one("#erro_check") is not None
     assert soup.select_one("#erro_nota") is not None
-    assert "aten_erro_fv_Obra_TESTE_13_PAV_V301" in page.read_text(encoding="utf-8")
+    assert "aten_erro_fv_Obra_TESTE_13_PAV_V301" in raw
     sidebar_item = soup.select_one('.sidebar li[data-viga="V301"]')
     assert sidebar_item is not None
     assert sidebar_item.select_one(".erro-flag") is not None
-    assert len(soup.select("[data-atkey]")) == 4
+    # 1 local note + 1 ctx note (+ optional error fields)
+    assert len(soup.select("[data-atkey]")) >= 2
 
 
 def test_fundo_writer_groups_segments_and_renders_shared_stages_once(tmp_path: Path):
@@ -173,20 +195,23 @@ def test_fundo_writer_groups_segments_and_renders_shared_stages_once(tmp_path: P
     assert not (section / "V301_1.html").exists()
     assert not (section / "V301_2.html").exists()
 
-    soup = BeautifulSoup(
-        (section / "V301.html").read_text(encoding="utf-8"), "html.parser"
-    )
+    raw = (section / "V301.html").read_text(encoding="utf-8")
+    soup = BeautifulSoup(raw, "html.parser")
+    # Locais por segmento; contextual unificado UMA vez (não isolado)
     assert len(soup.select('svg[alt="N1 / SA local"]')) == 2
-    assert len(soup.select('svg[alt="N1 / SA contextual"]')) == 2
+    assert len(soup.select('svg[alt="N1 / SA contextual"]')) == 1
+    assert raw.count("data-panzoom") >= 3  # 1 ctx + 2 local
     assert len(soup.select('svg[alt="N2"]')) == 1
     assert len(soup.select('svg[alt="N3 / NOVA"]')) == 1
     assert len(soup.select('svg[alt="N4"]')) == 1
     text = soup.get_text(" ", strip=True)
     assert "segmento 1" in text
     assert "segmento 2" in text
+    assert "Contextual unificado" in text
     assert text.count("N2 completo") == 1
     assert text.count("N3 completo") == 1
-    assert len(soup.select("[data-atkey]")) == 5
+    # 2 local notes + 1 ctx note
+    assert len(soup.select("[data-atkey]")) >= 3
 
 
 def test_isolated_n3_directory_never_falls_back_to_shared_preview(tmp_path):

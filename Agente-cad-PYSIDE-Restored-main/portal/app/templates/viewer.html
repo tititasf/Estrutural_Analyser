@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block titulo %}Estrutural — {{ pavimento }} — {{ obra.nome }}{% endblock %}
+
+{% block conteudo %}
+<h1 style="margin-top:0">Estrutural limpo — {{ pavimento }}</h1>
+<p class="muted">
+  <a href="/app/obras/{{ obra.id }}">&larr; {{ obra.nome }}</a>
+  &nbsp;·&nbsp; fonte: <code id="v-fonte">carregando…</code>
+</p>
+
+{# Cada pavimento tem SEU bruto (…-6000-13P, …-7000-14P, …-8000-COB). Só entram
+   aqui os que têm torre limpa gerada — oferecer um sem torre daria 409 depois
+   do clique. "sem SA" abre o desenho, mas sem item para destacar. #}
+{% if pavimentos %}
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:10px 0">
+  <strong style="font-size:.8rem">Pavimento:</strong>
+  {% for p in pavimentos %}
+    <a class="btn btn-sm {{ 'ativo' if p.pavimento == pavimento else '' }}"
+       href="/app/obras/{{ obra.id }}/viewer/{{ p.pavimento }}"
+       style="font-size:.72rem;padding:4px 9px;text-decoration:none{% if p.pavimento == pavimento %};background:var(--accent-color);color:#000{% endif %}"
+       title="{{ p.bruto_id }}{% if not p.tem_sa %} — sem SA rodado{% endif %}">
+      {{ p.pavimento }}{% if not p.tem_sa %} <span aria-hidden="true" title="sem SA">○</span>{% endif %}
+    </a>
+  {% endfor %}
+  <span class="muted" style="font-size:.7rem">○ = sem SA rodado (desenho sem itens)</span>
+</div>
+{% endif %}
+
+<div id="v-erro" class="aviso" role="alert" hidden></div>
+
+<div id="v-barra" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0" hidden>
+  <strong style="font-size:.8rem">Destacar:</strong>
+  <span id="v-botoes" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+  <label style="font-size:.75rem;margin-left:auto;display:flex;gap:5px;align-items:center">
+    <input type="checkbox" id="v-rotulos" checked> nomes
+  </label>
+  <span id="v-info" class="muted" style="font-size:.75rem"></span>
+</div>
+
+{# Pan/zoom por viewBox (CLAUDE.md regra 5b) — NUNCA transform:scale, que
+   pixeliza o SVG. O estrutural é INLINE (não <img>): <img> não deixa mexer no
+   viewBox, então as duas camadas não conseguiriam acompanhar uma à outra.
+   Cada camada guarda seu próprio viewBox de origem (matplotlib emite em pt,
+   o overlay em px) e o zoom é aplicado RELATIVO — assim ficam coladas. #}
+<div id="v-palco" data-panzoom style="position:relative;background:#000;border:1px solid #333;overflow:hidden;height:76vh;cursor:grab" hidden>
+  <div id="v-estrutural" style="position:absolute;inset:0"></div>
+  <svg id="v-camada" xmlns="http://www.w3.org/2000/svg"
+       style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></svg>
+</div>
+
+<p class="muted" style="font-size:.75rem;margin-top:8px">
+  Arraste para mover · roda do mouse aproxima · duplo clique volta ao enquadramento inicial.
+  Itens em vermelho têm geometria fora da prancha — erro de interpretação a investigar,
+  não são desenháveis aqui.
+</p>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  "use strict";
+  var URL_DADOS = "/obras/{{ obra.id }}/viewer/{{ pavimento }}";
+  var CORES = {
+    pilares: "#4ea1ff",
+    lat_a_para: "#ffd166", lat_a_passa: "#f4a261",
+    lat_b_para: "#e9c46a", lat_b_passa: "#e76f51",
+    laterais: "#ffd166",
+    fundos: "#06d6a0", lajes: "#c77dff"
+  };
+  var dados = null, ativos = {};
+
+  var el = function (id) { return document.getElementById(id); };
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  function erro(msg) {
+    var box = el("v-erro");
+    box.textContent = msg;
+    box.hidden = false;
+  }
+
+  function desenhar() {
+    var camada = el("v-camada");
+    camada.innerHTML = "";
+    if (!dados) return;
+    var mostrarRotulos = el("v-rotulos").checked;
+    var visiveis = 0;
+
+    dados.grupos.forEach(function (grupo) {
+      if (!ativos[grupo.grupo]) return;
+      var cor = CORES[grupo.grupo] || "#fff";
+      grupo.itens.forEach(function (item) {
+        visiveis++;
+        var pts = item.pontos_px.map(function (p) { return p[0] + "," + p[1]; }).join(" ");
+        var poly = document.createElementNS(SVGNS, "polygon");
+        poly.setAttribute("points", pts);
+        // fora_do_frame: geometria alem da prancha. Vermelho para o erro de
+        // interpretacao ficar VISIVEL — esconder faria parecer que o item nao existe.
+        poly.setAttribute("fill", item.fora_do_frame ? "rgba(255,0,0,.25)" : cor + "33");
+        poly.setAttribute("stroke", item.fora_do_frame ? "#ff2d2d" : cor);
+        poly.setAttribute("stroke-width", item.fora_do_frame ? "4.6" : "3");
+        poly.setAttribute("vector-effect", "non-scaling-stroke");
+        var titulo = document.createElementNS(SVGNS, "title");
+        titulo.textContent = item.rotulo + (item.fora_do_frame ? " — FORA DA PRANCHA" : "");
+        poly.appendChild(titulo);
+        camada.appendChild(poly);
+
+        if (mostrarRotulos) {
+          var cx = 0, cy = 0;
+          var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          item.pontos_px.forEach(function (p) {
+            cx += p[0]; cy += p[1];
+            if (p[0] < minX) minX = p[0]; if (p[0] > maxX) maxX = p[0];
+            if (p[1] < minY) minY = p[1]; if (p[1] > maxY) maxY = p[1];
+          });
+          cx /= item.pontos_px.length; cy /= item.pontos_px.length;
+          var txt = document.createElementNS(SVGNS, "text");
+          txt.setAttribute("x", cx); txt.setAttribute("y", cy);
+          txt.setAttribute("fill", item.fora_do_frame ? "#ff6b6b" : cor);
+          txt.setAttribute("font-size", "3.25");
+          txt.setAttribute("text-anchor", "middle");
+          txt.setAttribute("dominant-baseline", "middle");
+          txt.setAttribute("paint-order", "stroke");
+          txt.setAttribute("stroke", "#000");
+          txt.setAttribute("stroke-width", "0.7");
+          var gId = grupo.grupo || "";
+          var isViga = gId === "fundos" || gId === "fundo" ||
+            gId.indexOf("lat_") === 0 || gId.indexOf("lateral") === 0;
+          if (isViga && (maxY - minY) > (maxX - minX) * 1.1) {
+            txt.setAttribute("transform", "rotate(-90 " + cx + " " + cy + ")");
+          }
+          var rot = String(item.rotulo || "").trim();
+          var linhas = (function (s) {
+            if (!s) return [""];
+            var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+)\s*$/i);
+            if (mSeg) return [mSeg[1].trim(), mSeg[2].replace(/\s+/g, " ").toUpperCase()];
+            var mPar = s.match(/^(.*?)\s*\(segmento\s+(\d+)\)\s*$/i);
+            if (mPar) return [mPar[1].trim(), "SEG " + mPar[2]];
+            var parts = s.split(/\s+/);
+            if (parts.length >= 2 && /^SEG$/i.test(parts[parts.length - 2]) && /^\d+$/.test(parts[parts.length - 1])) {
+              return [parts.slice(0, -2).join(" "), "SEG " + parts[parts.length - 1]];
+            }
+            if (parts.length <= 1) return [s];
+            if (parts.length === 2) return parts;
+            var mid = Math.ceil(parts.length / 2);
+            return [parts.slice(0, mid).join(" "), parts.slice(mid).join(" ")];
+          })(rot);
+          linhas.forEach(function (line, li) {
+            var ts = document.createElementNS(SVGNS, "tspan");
+            ts.setAttribute("x", cx);
+            if (li === 0) {
+              ts.setAttribute("dy", linhas.length > 1 ? (-0.55 * (linhas.length - 1)) + "em" : "0");
+            } else {
+              ts.setAttribute("dy", "1.15em");
+            }
+            ts.textContent = line;
+            txt.appendChild(ts);
+          });
+          camada.appendChild(txt);
+        }
+      });
+    });
+    el("v-info").textContent = visiveis + " item(ns) em tela";
+  }
+
+  function montarBotoes() {
+    var caixa = el("v-botoes");
+    dados.grupos.forEach(function (grupo) {
+      ativos[grupo.grupo] = false;
+      var b = document.createElement("button");
+      b.className = "btn btn-sm";
+      b.style.borderLeft = "4px solid " + (CORES[grupo.grupo] || "#fff");
+      b.textContent = grupo.rotulo + " (" + grupo.total + ")"
+        + (grupo.fora_do_frame ? " ⚠" + grupo.fora_do_frame : "");
+      if (grupo.fora_do_frame) {
+        b.title = grupo.fora_do_frame + " item(ns) com geometria fora da prancha";
+      }
+      b.addEventListener("click", function () {
+        ativos[grupo.grupo] = !ativos[grupo.grupo];
+        b.style.background = ativos[grupo.grupo] ? (CORES[grupo.grupo] || "#fff") : "";
+        b.style.color = ativos[grupo.grupo] ? "#000" : "";
+        desenhar();
+      });
+      caixa.appendChild(b);
+    });
+  }
+
+  fetch(URL_DADOS, { credentials: "same-origin" })
+    .then(function (r) {
+      if (r.status === 409) throw new Error("Estrutural limpo ainda não gerado — rode Triagem + Recortes nesta obra.");
+      if (!r.ok) throw new Error("Falha ao carregar o viewer (HTTP " + r.status + ").");
+      return r.json();
+    })
+    .then(function (json) {
+      dados = json;
+      el("v-fonte").textContent = json.fonte.arquivo;
+      // Overlay no sistema de coordenadas do backend (px da transform).
+      el("v-camada").setAttribute("viewBox",
+        "0 0 " + json.transform.largura_px + " " + json.transform.altura_px);
+      el("v-camada").setAttribute("preserveAspectRatio", "xMidYMid meet");
+      el("v-palco").hidden = false;
+      el("v-barra").hidden = false;
+      // SVG do estrutural INLINE — <img> nao permite manipular viewBox, e sem
+      // isso o fundo nao acompanharia o zoom do overlay.
+      return fetch(json.svg_url, { credentials: "same-origin" })
+        .then(function (r) { return r.text(); })
+        .then(function (markup) {
+          el("v-estrutural").innerHTML = markup;
+          var svgFundo = el("v-estrutural").querySelector("svg");
+          if (svgFundo) {
+            svgFundo.setAttribute("preserveAspectRatio", "xMidYMid meet");
+            svgFundo.style.width = "100%";
+            svgFundo.style.height = "100%";
+            svgFundo.style.display = "block";
+          }
+          return json;
+        });
+      if (!json.sa_rodado) {
+        erro("SA ainda não rodou neste pavimento — o desenho aparece, mas sem itens para destacar.");
+      }
+      montarBotoes();
+      desenhar();
+      iniciarPanZoom();
+    })
+    .catch(function (e) { erro(e.message); });
+
+  el("v-rotulos").addEventListener("change", desenhar);
+
+  // ------------------------------------------------------------------ //
+  // Pan/zoom por viewBox — CLAUDE.md regra 5b (transform:scale pixeliza).
+  // Mesmos parâmetros do padrão FV (initPanZoom): fator 0,88/1,14, zoom
+  // ancorado no cursor, limites 3%..450% do enquadramento inicial, duplo
+  // clique reseta.
+  //
+  // As duas camadas têm viewBox de ORIGEM diferentes (matplotlib emite em
+  // pt, o overlay em px), então o zoom é aplicado RELATIVO em cada uma —
+  // forçar o mesmo viewBox nas duas desalinharia o destaque do desenho.
+  // ------------------------------------------------------------------ //
+  function iniciarPanZoom() {
+    var palco = el("v-palco");
+    var camadas = [];
+    [el("v-estrutural").querySelector("svg"), el("v-camada")].forEach(function (svg) {
+      if (!svg || !svg.viewBox || !svg.viewBox.baseVal) return;
+      var vb = svg.viewBox.baseVal;
+      camadas.push({ svg: svg, casa: { x: vb.x, y: vb.y, w: vb.width, h: vb.height } });
+    });
+    if (!camadas.length) return;
+
+    var ref = camadas[camadas.length - 1];  // overlay = sistema de referência
+    var casa = ref.casa;
+    var estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
+    var arrastando = false, ux = 0, uy = 0;
+
+    function aplicar() {
+      var zx = estado.w / casa.w, zy = estado.h / casa.h;
+      var rx = (estado.x - casa.x) / casa.w, ry = (estado.y - casa.y) / casa.h;
+      camadas.forEach(function (c) {
+        var k = c.casa;
+        c.svg.setAttribute("viewBox",
+          (k.x + rx * k.w) + " " + (k.y + ry * k.h) + " " + (k.w * zx) + " " + (k.h * zy));
+      });
+    }
+
+    function paraSvg(cx, cy) {
+      var ctm = ref.svg.getScreenCTM();
+      if (!ctm) return { x: estado.x + estado.w / 2, y: estado.y + estado.h / 2 };
+      var pt = ref.svg.createSVGPoint(); pt.x = cx; pt.y = cy;
+      return pt.matrixTransform(ctm.inverse());
+    }
+
+    palco.addEventListener("wheel", function (ev) {
+      ev.preventDefault();
+      var fator = ev.deltaY < 0 ? 0.88 : 1.14;
+      var nw = estado.w * fator, nh = estado.h * fator;
+      var minW = casa.w * 0.006, maxW = casa.w * 4.5;
+      if (nw < minW) { fator = minW / estado.w; nw = minW; nh = estado.h * fator; }
+      if (nw > maxW) { fator = maxW / estado.w; nw = maxW; nh = estado.h * fator; }
+      var p = paraSvg(ev.clientX, ev.clientY);
+      estado.x = p.x - (p.x - estado.x) * (nw / estado.w);
+      estado.y = p.y - (p.y - estado.y) * (nh / estado.h);
+      estado.w = nw; estado.h = nh;
+      aplicar();
+    }, { passive: false });
+
+    palco.addEventListener("mousedown", function (ev) {
+      if (ev.button !== 0) return;
+      arrastando = true; ux = ev.clientX; uy = ev.clientY;
+      palco.style.cursor = "grabbing"; ev.preventDefault();
+    });
+    window.addEventListener("mousemove", function (ev) {
+      if (!arrastando) return;
+      var a = paraSvg(ux, uy), b = paraSvg(ev.clientX, ev.clientY);
+      estado.x -= (b.x - a.x); estado.y -= (b.y - a.y);
+      ux = ev.clientX; uy = ev.clientY;
+      aplicar();
+    });
+    window.addEventListener("mouseup", function () {
+      if (!arrastando) return;
+      arrastando = false; palco.style.cursor = "grab";
+    });
+    palco.addEventListener("dblclick", function () {
+      estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
+      aplicar();
+    });
+
+    aplicar();
+  }
+
+
+})();
+</script>
+{% endblock %}

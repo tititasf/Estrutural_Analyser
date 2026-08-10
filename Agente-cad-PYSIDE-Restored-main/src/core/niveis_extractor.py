@@ -151,6 +151,12 @@ def pav_num_from_sa_name(sa_name: str) -> 'int | None':
     m = _PAV_NUM_IN_SA.search(sa_name)
     if m:
         return int(m.group(1))
+    m2 = re.search(r'(\d+)\s*[º°aA]?\s*P[AV]?', sa_name, re.IGNORECASE)
+    if m2:
+        return int(m2.group(1))
+    m3 = re.search(r'(\d+)', sa_name)
+    if m3:
+        return int(m3.group(1))
     if re.search(r'[-_]COB[-_]', sa_name, re.IGNORECASE):
         return 9999
     if re.search(r'[-_]ATC[-_]', sa_name, re.IGNORECASE):
@@ -348,3 +354,78 @@ def build_pav_cota_map(
         return num_to_chegada.get(n, '?') if n is not None else '?'
 
     return {sa: _resolve(sa) for sa in sa_pav_names}
+
+
+def get_pavimento_niveis_abs(obra_dir_or_name: str, pav_name_or_num: 'str | int') -> dict:
+    """
+    Retorna cotas absolutas exatas (chegada_abs, saida_abs, altura_m, altura_cm)
+    extraídas da Convenção de Níveis (Elevação Típica) da obra.
+    """
+    import glob, os, re
+    if isinstance(pav_name_or_num, int):
+        pav_num = pav_name_or_num
+    else:
+        pav_num = pav_num_from_sa_name(str(pav_name_or_num))
+        if pav_num is None:
+            m = re.search(r'(\d+)', str(pav_name_or_num))
+            if m:
+                pav_num = int(m.group(1))
+
+    if pav_num is None:
+        return {}
+
+    if os.path.isabs(obra_dir_or_name) and os.path.isdir(obra_dir_or_name):
+        obra_dir = obra_dir_or_name
+    else:
+        obra_dir = os.path.join(r'D:\Agente-cad-PYSIDE\DADOS-OBRAS', obra_dir_or_name)
+
+    conv_dxfs = []
+    for root, _, files in os.walk(obra_dir):
+        for f in files:
+            fl = f.lower()
+            if fl.endswith('.dxf') and ('convencao_niveis' in fl or 'elevacao' in fl or 'elevação' in fl):
+                conv_dxfs.append(os.path.join(root, f))
+
+    if not conv_dxfs:
+        return {}
+
+    conv_dxf = conv_dxfs[0]
+    try:
+        import ezdxf
+        doc = ezdxf.readfile(conv_dxf)
+        msp = doc.modelspace()
+        texts = []
+        for e in msp:
+            if e.dxftype() in ('TEXT', 'MTEXT'):
+                txt = e.plain_text() if hasattr(e, 'plain_text') else e.dxf.text
+                try:
+                    pos = (float(e.dxf.insert[0]), float(e.dxf.insert[1]))
+                except Exception:
+                    pos = (0.0, 0.0)
+                texts.append({'text': txt.strip(), 'pos': pos})
+        
+        entries = extract_elevacao_tipica(texts)
+        for idx_e, e in enumerate(entries):
+            if e.get('pav_num') == pav_num:
+                c_val = float(e['chegada'].replace(',', '.'))
+                # Nível de saída (base do pilar) = chegada do pavimento inferior (pav_num - 1)
+                s_val = None
+                if idx_e > 0:
+                    prev_e = entries[idx_e - 1]
+                    if prev_e.get('chegada') != '?':
+                        s_val = float(prev_e['chegada'].replace(',', '.'))
+                if s_val is None:
+                    h_fallback = float(e['altura'].replace(',', '.')) if e.get('altura') != '?' else 2.80
+                    s_val = c_val - h_fallback
+
+                h_val = abs(c_val - s_val)
+                return {
+                    'chegada_abs': c_val,
+                    'saida_abs': s_val,
+                    'altura_m': round(h_val, 2),
+                    'altura_cm': round(h_val * 100.0, 1) if h_val < 50 else round(h_val, 1),
+                    'fonte': f'Elevação Típica ({os.path.basename(conv_dxf)})'
+                }
+    except Exception as exc:
+        print(f'[NIVEIS] Erro parse ezdxf convencao: {exc}', flush=True)
+    return {}

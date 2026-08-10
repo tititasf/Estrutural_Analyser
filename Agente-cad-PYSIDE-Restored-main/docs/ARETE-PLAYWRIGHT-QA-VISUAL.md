@@ -5,6 +5,39 @@ evidências (N1 estrutural, N2 recorte humano, N3 robô via N1, N4 robô via N2)
 — e o bug de renderização Playwright que precisa ser contornado quando algum
 script tira screenshot dessas fichas.
 
+## 0. Visão canónica + inventário — pré-requisito de validação válida
+
+**Validação sem esta profundidade é ruído, não validação.**  
+Documento mestre: [`docs/QA-VISAO-EVIDENCIA-CANONICA.md`](QA-VISAO-EVIDENCIA-CANONICA.md).
+
+**Antes** de marcar ficha como ok, emitir veredito G2-V/G5-V ou selar item:
+
+0. Materializar evidência de profundidade (DXF full layers, não plot LINE-only):
+   - **Agente CLI:** **PNG** (Read/vision) — ver dual-mode em
+     `QA-VISAO-EVIDENCIA-CANONICA.md`.
+   - **HTML app / `--persist-db` / portal web:** **SVG** embutido (zoom humano).
+   - Headless **sem** persist: pode ser só imagem (dinâmico).
+1. Extrair o **inventário mínimo** do gabarito (N2) e do candidato (N3/N4):
+   cada LINE estrutural, cada cota (valor+posição), cada texto de identidade.
+2. Rastrear MATCH / NEAR / MISSING / EXTRA / VOID_JUNK — não só contagem.
+3. Anexar path do inventário no veredito (`inventario.path`) e no bloco da ficha.
+4. Agente: **ler os PNGs** com vision; humano: SVG/CE. Preencher checklist.
+
+Sem inventário **ou** sem raster lido pelo agente (modo CLI), o PASS é **inválido**
+(`g2v_harness.validar_veredito_cli`).
+
+Inventário (schema):  
+[`docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md`](QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md).
+
+LV (exemplo V301): N2 no CE = recorte `LV_*_motor_*.dxf` com hatch/cotas;
+cotas no N2 costumam ser `TEXT`; N4 usa `DIMENSION`. Botão **Passa** no CE =
+Para/Passa estrutural, **não** veredito visual.
+
+Checklist obrigatório inclui: `inventario_minimo_extraido`,
+`sem_aprovacao_por_contagem`, e em LV também
+`linhas_estruturais_rastreadas`, `cotas_valores_rastreados`,
+`textos_identidade_rastreados`.
+
 > **Atualização 02/07/2026:** desde essa data os 4 cards de LAJ/PIL/FV são
 > `<svg>` inline (não mais `<img>` PNG base64) — ver
 > `docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md` §5.1. Isso soma uma **terceira via**
@@ -182,6 +215,47 @@ desenho já validada = **N4** (robô via engenharia reversa do N2).
 Depois de gerar os PNGs, leia cada um com a ferramenta `Read` (a imagem
 inteira cabe numa leitura só) e monte duas listas: itens com N1 divergente e
 itens com N3 divergente, com o motivo.
+
+## Leitura em lote via Browser pane (g2v_harness --backend cli)
+
+Quando o próprio agente CLI (Claude Code) precisa ler os SVGs exportados por
+`g2v_harness.py --backend cli` (veredito visual G2-V/G5-V) usando a ferramenta
+de Browser pane (não Playwright standalone), **não navegue e tire screenshot
+item a item** — isso gasta 1 `navigate` + 1 `screenshot` por SVG (2-3 SVGs por
+item = 4-6 chamadas de ferramenta por item, ~140-210 chamadas para 35 itens).
+Confirmado (16/07, lote PIL n3xn4, 35 itens) que agrupar em uma página HTML
+local reduz isso para ~1 chamada por item, sem perder resolução nem leitura
+granular:
+
+1. Gerar uma página HTML por lote de ~7-10 itens, servida pelo mesmo
+   `python -m http.server` que já serve a pasta de saída do harness. Cada item
+   vira um bloco empilhado verticalmente com rótulo + tag por estágio
+   (`N3`/`N4` ou `N1`/`N2`), `<img src="ITEM_estagio.svg" style="width:660px">`
+   — largura fixa por estágio, nunca lado a lado (perde resolução).
+2. `resize_window` para viewport estreito (`700x1000`) — a screenshot do
+   Browser pane é limitada a ~800px de largura; um viewport largo (ex.
+   1400px) é reamostrado para caber nesse limite e a imagem perde nitidez.
+   Com 700px de largura o viewport bate 1:1 com a screenshot, sem downscale.
+3. `navigate` uma vez para a página do lote, depois `computer{action:scroll,
+   scroll_amount:10}` + `screenshot` repetidamente. Cada scroll de amount 10
+   avança ~1400px (calibrar por item real; usar `javascript_tool` para ler
+   `window.scrollY` e o `offsetTop` de cada `.label` se precisar confirmar que
+   nenhum item ficou só parcialmente visível entre dois screenshots).
+4. Registrar o veredito de cada item assim que ele aparece inteiro na tela,
+   sem esperar terminar o lote inteiro — mantém a leitura granular por item
+   (mesmo julgamento individual de sempre, só a captura de tela é que virou
+   lote).
+
+Cuidados que já causaram erro numa rodada real:
+- Um `screenshot` pode devolver um frame **obsoleto** logo após um scroll
+  grande (visto no lote 26-34: um screenshot mostrou P26/P27 quando
+  `window.scrollY` já estava perto do fim do documento). Sempre que o conteúdo
+  não bater com a posição esperada, confirme `window.scrollY` via
+  `javascript_tool` antes de seguir — e vá para trás para reler o trecho
+  pulado, não assuma que "já viu" um item só porque o scroll passou por ele.
+- `zoom` (crop de região) não é suportado no Browser pane — não peça zoom pra
+  ler um cabeçalho pequeno; ou aumente a largura da imagem (`style="width:
+  2400px"` numa página só com aquele SVG) ou aceite a resolução do lote.
 
 ## Ambiente
 

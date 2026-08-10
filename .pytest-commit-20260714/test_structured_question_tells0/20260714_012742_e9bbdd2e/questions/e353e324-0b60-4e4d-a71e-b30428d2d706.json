@@ -1,0 +1,41 @@
+{
+  "schema": "arete.qa_structured_question/v1",
+  "question_id": "e353e324-0b60-4e4d-a71e-b30428d2d706",
+  "at": "2026-07-14T04:27:42+00:00",
+  "scope": {
+    "project_id": "project",
+    "class": "PIL",
+    "items": [
+      "P35"
+    ],
+    "level": "N1",
+    "pav": "13_PAV",
+    "part": null,
+    "variant": null
+  },
+  "gate": "PIL/N1/face_D",
+  "observation": "duas identidades competem pelo mesmo segmento",
+  "evidence": [
+    "probe.json"
+  ],
+  "attempts": [
+    "rastreio pelo bbox",
+    "rastreio pelo fundo FV"
+  ],
+  "rejected_hypotheses": [
+    "texto mais próximo"
+  ],
+  "plausible_alternatives": [
+    "priorizar contato",
+    "priorizar continuidade"
+  ],
+  "answer_needed": "qual regra universal desempata contato e continuidade?",
+  "how_to_teach": {
+    "rule": "descreva a regra no vocabulário da ficha",
+    "positive_example": "informe um caso que deve seguir a regra",
+    "counterexample_or_exception": "informe quando a regra não se aplica",
+    "scope": "delimite classe, família, modo e faces afetadas",
+    "expected_drawing_effect": "diga o efeito esperado no N3/N4"
+  },
+  "status": "PENDENTE"
+}

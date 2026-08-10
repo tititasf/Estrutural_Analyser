@@ -19,6 +19,9 @@ class _FakeDialog:
         "links": {},
     }]
 
+    def __init__(self):
+        self.n1_viewport_sizes = []
+
     def _find_beam_dxf(self, class_prefix, item_name, n4=False):
         assert class_prefix == "LV"
         assert item_name.startswith("V301")
@@ -36,6 +39,7 @@ class _FakeDialog:
         assert focus_mode == "segment"
         assert fmt == "svg"
         assert context_view in {"near", "far"}
+        self.n1_viewport_sizes.append((width, height, context_view))
         if fmt == "svg":
             return '<svg viewBox="0 0 10 10"><text>SA</text></svg>'
         return "U0E="
@@ -107,8 +111,9 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
         "lateral_b_passa": [],
     }
 
+    dialog = _FakeDialog()
     result = write_lateral_pages(
-        dialog=_FakeDialog(),
+        dialog=dialog,
         title="Laterais de Viga",
         rows_by_kind=rows_by_kind,
         output_dir=str(tmp_path),
@@ -168,6 +173,11 @@ def test_lateral_writer_creates_para_page_per_beam_with_side_a_and_side_b(tmp_pa
     assert "N1 próximo / local" in text
     assert "N1 distante / contextual" in text
     assert "source_key" in text
+    # Segmento horizontal: altura SVG é 60% de 600, sem alterar largura.
+    assert dialog.n1_viewport_sizes == [
+        (2400, 360, "near"), (2400, 360, "far"),
+        (2400, 360, "near"), (2400, 360, "far"),
+    ]
 
 
 def test_lateral_writer_marks_missing_n4_side_as_ausente(tmp_path: Path):

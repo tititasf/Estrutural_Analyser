@@ -1,0 +1,78 @@
+{
+  "schema": "arete.qa_authority_matrix/v1",
+  "version": "1.3.0",
+  "updated": "2026-07-16",
+  "source_of_truth": "CLASS_REGISTRY in scripts/arete/qa_evidence_auditor.py must match validation_mode here; skill/squad/masterplan/profiles must match this file",
+  "classes": {
+    "LAJ": {
+      "validation_mode": "validation_ready",
+      "apply_allowed": true,
+      "adapter": "LajEvidenceAuditor",
+      "review_decision_label": "CONFIRMAR only with independent CAD evidence via adapter",
+      "generic_review_label": null,
+      "limits": [
+        "profile probes remain field-scoped; PASS does not approve full item/ficha",
+        "apply requires explicit command and intact snapshot"
+      ],
+      "provenance_doc": "docs/PROVENIENCIA-CAMPOS-LAJ.md"
+    },
+    "PIL": {
+      "validation_mode": "validation_ready",
+      "apply_allowed": true,
+      "adapter": "PilEvidenceAuditor",
+      "coverage_adapter": "scripts/arete/qa_pil_coverage.py",
+      "coverage_state": "coverage_ready",
+      "review_decision_label": "CONFIRMAR only via PilEvidenceAuditor independent re-derivation",
+      "generic_review_label": null,
+      "limits": [
+        "rectangular pillars proven (P35/13_PAV baseline); L/U/circular/special not fully proven",
+        "p_s{face}_v contributes evidence but is not in REQUIRED_PIL_BASE_FIELDS seal set",
+        "coverage probes do not authorize apply by themselves",
+        "writes only table pillars; no cross-class mutation",
+        "QG7 human still required for institutional promotion narrative and broader geometry"
+      ],
+      "provenance_doc": "docs/PROVENIENCIA-CAMPOS-PIL.md"
+    },
+    "FV": {
+      "validation_mode": "validation_ready",
+      "apply_allowed": true,
+      "adapter": "FvEvidenceAuditor",
+      "review_decision_label": "CONFIRMAR via FvEvidenceAuditor for segments with closed positive-area geometry and coherent dim/supports",
+      "generic_review_label": null,
+      "limits": [
+        "covers name, viga_fundo_seg_N_exists/area_segs/dim/local_ini/fim when geometry re-derives",
+        "covers cortes (N/A or geom) and aberturas named entities",
+        "does not approve full beam/ficha from one segment PASS",
+        "golden multi-item + G2-V still recommended before bulk seal",
+        "writes only beams table fields via validate_field ops",
+        "LV is never semantic fallback for FV"
+      ],
+      "provenance_doc": "docs/PROVENIENCIA-CAMPOS-FV.md",
+      "next_gate": "golden FV multi-geometry + G2-V institutional package"
+    },
+    "LV": {
+      "validation_mode": "validation_ready",
+      "apply_allowed": true,
+      "adapter": "LvEvidenceAuditor",
+      "review_decision_label": "CONFIRMAR via LvEvidenceAuditor for four A/B×PARA/PASSA contracts + side dims",
+      "generic_review_label": null,
+      "limits": [
+        "A/B and PARA/PASSA remain independent contracts",
+        "fv_dimension_fallback must be false for CONFIRMAR of isolation",
+        "openings viga_*_abert_pilar_* confirmed when dist/larg + entity exist",
+        "PASS of one contract does not approve all sides/behaviors",
+        "golden multi-item + G2-V still recommended before bulk seal"
+      ],
+      "provenance_doc": "docs/PROVENIENCIA-CAMPOS-LV.md",
+      "next_gate": "golden LV para/passa + G2-V institutional package"
+    }
+  },
+  "anti_patterns": [
+    "probe/smoke/parity PASS as full item approval",
+    "HTML/checkbox as primary proof",
+    "N2/N4 feeding N1/N3",
+    "RAG as sole confirmation",
+    "trust structural audit-score S as operational excellence",
+    "use FV fields to fill LV gaps or vice-versa"
+  ]
+}

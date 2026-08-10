@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from arete_config import DADOS_OBRAS, GERADORES, PAV_13, REPO_ROOT
+from arete_config import DADOS_OBRAS, GERADORES, PAV_13, REPO_ROOT, get_subtipo_pil
 from ficha_adapter import (
     query_fichas, query_ficha_item,
     materializar_item, rodar_gerador, get_output_dxf_path,
@@ -27,6 +27,7 @@ from ficha_adapter import (
 
 
 _PIL_ZONES = ("cima", "abcd", "grades")
+_LV_VIEWS = ("CORTE", "A", "B")
 
 
 def _publicar_splits_pil_n4(
@@ -53,7 +54,8 @@ def _publicar_splits_pil_n4(
 
     published: dict[str, str] = {}
     logs: list[str] = []
-    for zone in _PIL_ZONES:
+    zones = _PIL_ZONES + (("efgh",) if get_subtipo_pil(elemento_id) in {"L", "U"} else ())
+    for zone in zones:
         cmd = [
             sys.executable,
             str(gerador),
@@ -98,6 +100,53 @@ def _publicar_splits_pil_n4(
     return True, published, "".join(logs)
 
 
+def _publicar_splits_lv_n4(
+    obra_dir: Path,
+    obra_name: str,
+    elemento_id: str,
+    pavimento: str | None = None,
+) -> tuple[bool, dict[str, str], str]:
+    """Gera e publica os trÃªs viewers LV N4 da mesma ficha N2 materializada.
+
+    O adaptador enriquece o item a partir do seu recorte antes de escrever a
+    pasta temporÃ¡ria. Os viewers, portanto, nÃ£o leem o fichas_lv_v2 global da
+    obra (que pode estar velho) nem reutilizam a geometria de outra viga.
+    """
+    gerador = GERADORES["LV"]
+    temp_out = obra_dir / "Fase-6_Execucao_CAD"
+    real_out = DADOS_OBRAS / obra_name / "Fase-6_Execucao_CAD" / "n4"
+    real_out.mkdir(parents=True, exist_ok=True)
+    published: dict[str, str] = {}
+    logs: list[str] = []
+    for view in _LV_VIEWS:
+        cmd = [
+            sys.executable, str(gerador), "--obra", str(obra_dir),
+            "--item", elemento_id, "--max", "1", "--view", view,
+            "--stog-obra-hint", obra_name,
+        ]
+        if pavimento:
+            cmd += ["--stog-pav-hint", pavimento]
+        try:
+            completed = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=120,
+                cwd=str(REPO_ROOT),
+            )
+        except (subprocess.TimeoutExpired, OSError) as exc:
+            return False, published, f"split LV {view}: {exc}"
+        view_log = (completed.stdout or "") + (completed.stderr or "")
+        logs.append(view_log)
+        if completed.returncode != 0:
+            return False, published, f"split LV {view} falhou (rc={completed.returncode})\n{view_log}"
+        suffix = "CORTE" if view == "CORTE" else f"VIEW_{view}"
+        source = temp_out / f"LV_preview_{elemento_id}_{suffix}.dxf"
+        if not source.exists() or source.stat().st_size == 0:
+            return False, published, f"split LV {view} ausente ou vazio: {source}"
+        destination = real_out / source.name
+        shutil.copy2(source, destination)
+        published[view] = str(destination)
+    return True, published, "".join(logs)
+
+
 def gerar_item(classe: str, elemento_id: str,
                pavimento: str = PAV_13,
                verbose: bool = True) -> dict:
@@ -131,7 +180,9 @@ def gerar_item(classe: str, elemento_id: str,
         print(f"  Materializado: {json_path}")
 
     # 3. Rodar gerador
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
+                                real_obra_name=row.get("obra_name"),
+                                real_pavimento=row.get("pavimento"))
     result["log"] = log
 
     if not ok_gen:
@@ -159,6 +210,19 @@ def gerar_item(classe: str, elemento_id: str,
 
             splits_ok, split_paths, split_log = _publicar_splits_pil_n4(
                 Path(obra_dir), row["obra_name"], elemento_id
+            )
+            result["split_paths"] = split_paths
+            result["log"] += split_log
+            if not splits_ok:
+                result["erro"] = split_log
+                if verbose:
+                    print(f"  [FAIL] {split_log}")
+                return result
+
+        elif classe == "LV":
+            splits_ok, split_paths, split_log = _publicar_splits_lv_n4(
+                Path(obra_dir), row["obra_name"], elemento_id,
+                pavimento=row.get("pavimento"),
             )
             result["split_paths"] = split_paths
             result["log"] += split_log

@@ -122,6 +122,70 @@ def test_existing_inferred_pillar_without_face_is_pruned_but_human_is_preserved(
     assert linked[0]["source"] == "human_ui"
 
 
+def test_layer7_l_pillar_links_by_edge_overlap_not_global_polygon_distance():
+    """Pilar L real (14P/L409): face encosta na laje mas bbox global fica distante."""
+    slab_pts = [
+        [5360.798623, 2553.025], [5350.798623, 2553.025], [5264.09, 2553.025],
+        [5065.09, 2553.025], [5010.474794, 2553.025], [5010.474794, 2652.025],
+        [5360.798623, 2652.025], [5360.798623, 2553.025],
+    ]
+    p26 = [
+        [4856.59, 2335.025], [5021.59, 2335.025], [5021.59, 2354.025],
+        [4875.59, 2354.025], [4875.59, 2553.025], [4856.59, 2553.025],
+        [4856.59, 2335.025],
+    ]
+    p27 = [
+        [5472.59, 2335.025], [5472.59, 2553.025], [5453.59, 2553.025],
+        [5453.59, 2354.025], [5307.59, 2354.025], [5307.59, 2335.025],
+        [5472.59, 2335.025],
+    ]
+
+    def _fill(_slab, link):
+        pts = link.get("points") or []
+        if pts and abs(float(pts[0][0]) - 4856.59) < 1.0:
+            link["ficha"] = {"pillar_name": "P26", "pillar_side": "C", "touch_face": "CIMA"}
+        else:
+            link["ficha"] = {"pillar_name": "P27", "pillar_side": "C", "touch_face": "CIMA"}
+
+    window = _window([
+        {"points": p26, "layer": "7"},
+        {"points": p27, "layer": "7"},
+    ])
+    window._auto_fill_pillar_ficha = _fill
+    target = {"id": "s409", "name": "L409", "points": slab_pts, "links": {}}
+
+    cuts, pillars = window._auto_link_slab_cut_views([target])
+
+    assert cuts == 0
+    assert pillars == 2
+    names = {
+        g["ficha"]["pillar_name"]
+        for g in target["links"]["laje_pilares_apoio"]["pillar_geom"]
+    }
+    assert names == {"P26", "P27"}
+
+
+def test_layer7_l_pillar_larger_than_compact_marker_window_is_linked_by_real_contact():
+    """An L-shaped support may exceed 180 DXF units but must still prove face/name."""
+    l_pillar = [
+        [10, -230], [35, -230], [35, -20], [175, -20],
+        [175, 0], [10, 0], [10, -230],
+    ]
+    window = _window([{"points": l_pillar, "layer": "7"}])
+    window._auto_fill_pillar_ficha = lambda _slab, link: link.update({
+        "ficha": {"pillar_name": "P26", "pillar_side": "B", "touch_face": "CIMA"}
+    })
+    target = _slab()
+
+    cuts, pillars = window._auto_link_slab_cut_views([target])
+
+    assert cuts == 0
+    assert pillars == 1
+    support = target["links"]["laje_pilares_apoio"]["pillar_geom"]
+    assert len(support) == 1
+    assert support[0]["ficha"]["pillar_name"] == "P26"
+
+
 def test_prune_neighbor_level_removes_stale_inference_even_when_slab_is_sealed():
     window = MainWindow.__new__(MainWindow)
     source = {

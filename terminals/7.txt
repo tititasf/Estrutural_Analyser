@@ -1,0 +1,35 @@
+---
+pid: 15116
+cwd: "D:\Agente-cad-PYSIDE"
+command: "D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe -X utf8 \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_161509_lv_n2xn4_passa_current_html\\_render_suspeito_png.py\" 2>&1"
+started_at: 2026-07-16T19:26:57.872Z
+running_for_ms: 71255004 
+---
+D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe : Traceback (most recent call last):
+No linha:1 caractere:1
++ D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe -X utf8 "D:\Agente-cad- ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_161509_lv_n2xn4_pass
+a_current_html\_render_suspeito_png.py", line 28, in <module>
+    page.screenshot(path=str(png), timeout=120000, full_page=True)
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\sync_api\_generated.py", line 10754, in screenshot
+    self._sync(
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_page.py", line 828, in screenshot
+    encoded_binary = await self._channel.send(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 563, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.screenshot: Timeout 120000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+  - fonts loaded

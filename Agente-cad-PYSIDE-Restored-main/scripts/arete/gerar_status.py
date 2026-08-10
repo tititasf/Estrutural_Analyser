@@ -37,6 +37,28 @@ _RE_RESULT = re.compile(
 )
 
 
+def _itens_reprovados(run_dir: Path) -> set[str]:
+    """elemento_id dos itens que NÃO passaram, lidos do relatorio.json da rodada.
+
+    O RELATORIO.md só tem contagens; o teste de regressão precisa de nomes.
+    Ausência do JSON devolve conjunto vazio (rodada antiga) — nunca derruba o STATUS.
+    """
+    alvo = run_dir / 'relatorio.json'
+    if not alvo.is_file():
+        return set()
+    try:
+        dados = json.loads(alvo.read_text(encoding='utf-8', errors='replace'))
+    except (json.JSONDecodeError, OSError):
+        return set()
+    reprovados = set()
+    for item in dados.get('itens') or []:
+        veredito = item.get('resultado_final') or item.get('resultado') or 'PASS'
+        elemento = item.get('elemento_id')
+        if elemento and veredito != 'PASS':
+            reprovados.add(str(elemento))
+    return reprovados
+
+
 def coletar_relatorios() -> dict:
     """Último RELATORIO.md por (classe, pav). Chave: (classe, pav)."""
     ultimos: dict[tuple, dict] = {}
@@ -60,6 +82,7 @@ def coletar_relatorios() -> dict:
             'fail': int(mr.group(2)),
             'blocked': int(mr.group(3)),
             'pct': float(mr.group(4)),
+            'reprovados': _itens_reprovados(d),
         }
         atual = ultimos.get((classe, pav))
         if atual is None or info['run'] > atual['run']:
@@ -68,8 +91,12 @@ def coletar_relatorios() -> dict:
 
 
 def coletar_golden() -> dict:
-    """Contagem de itens selados: {(obra, pav, classe): n}."""
-    selados: dict[tuple, int] = {}
+    """Itens selados: {(obra, pav, classe): {elemento_id, ...}}.
+
+    Conjunto (e não contagem) porque o teste de regressão é de pertinência:
+    "item selado que reprovou na última rodada", não "quantidade caiu".
+    """
+    selados: dict[tuple, set[str]] = {}
     if not _GOLDEN.is_dir():
         return selados
     for obra_dir in _GOLDEN.iterdir():
@@ -81,9 +108,9 @@ def coletar_golden() -> dict:
             for classe_dir in pav_dir.iterdir():
                 if not classe_dir.is_dir():
                     continue
-                n = sum(1 for x in classe_dir.iterdir() if x.is_dir())
-                if n:
-                    selados[(obra_dir.name, pav_dir.name, classe_dir.name)] = n
+                itens = {x.name for x in classe_dir.iterdir() if x.is_dir()}
+                if itens:
+                    selados[(obra_dir.name, pav_dir.name, classe_dir.name)] = itens
     return selados
 
 
@@ -151,23 +178,49 @@ def gerar(db_path: str = _DB_DEFAULT) -> str:
     # ── Última rodada por classe/pav ─────────────────────────────────────
     L.append('## Última rodada Arete por classe (relatório mais recente)')
     L.append('')
-    L.append('| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |')
-    L.append('|--------|-----|-----|------|------|---------|---------|---------------|--------|')
+    L.append('| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Regressão | Alerta |')
+    L.append('|--------|-----|-----|------|------|---------|---------|---------------|-----------|--------|')
+    regressoes: dict[tuple, list[str]] = {}
     for (classe, pav), info in sorted(relatorios.items()):
-        g = None
-        for (obra, gpav, gclasse), n in golden.items():
+        selados = None
+        for (obra, gpav, gclasse), itens in golden.items():
             if gclasse == classe and gpav == pav:
-                g = n
+                selados = itens
                 break
-        alerta = ''
-        if info['fail'] > 0:
-            alerta = '❌ FAIL aberto'
-            if g and g > info['pass']:
-                alerta += f' · ⚠ golden ({g}) > última rodada ({info["pass"]}) — REGRESSÃO vs selado'
+        # Regressão REAL = item que está no golden e reprovou nesta rodada.
+        # (Comparar contagem de golden com PASS da rodada é inválido: o golden é
+        # acumulado e nunca invalidado, e cada rodada pode ter escopo diferente.)
+        regrediu = sorted(selados & info['reprovados']) if selados else []
+        if regrediu:
+            regressoes[(classe, pav)] = regrediu
+        alerta = '❌ FAIL aberto' if info['fail'] > 0 else ''
+        if regrediu:
+            alerta += (' · ' if alerta else '') + f'🔴 {len(regrediu)} selado(s) reprovando'
         L.append(
             f"| {classe} | {pav} | {info['run']} | {info['pass']} | {info['fail']} "
-            f"| {info['blocked']} | {info['pct']:.1f}% | {g if g is not None else '—'} | {alerta} |"
+            f"| {info['blocked']} | {info['pct']:.1f}% | {len(selados) if selados else '—'} "
+            f"| {len(regrediu) if selados else '—'} | {alerta} |"
         )
+    L.append('')
+
+    # ── Regressão real (golden ∩ reprovados) ─────────────────────────────
+    L.append('## Regressão vs golden (itens selados que reprovaram na última rodada)')
+    L.append('')
+    if regressoes:
+        total_reg = sum(len(v) for v in regressoes.values())
+        L.append(f'**{total_reg} item(ns) selado(s) reprovando.** Cada linha é dívida real: '
+                 'o item já passou por todos os gates e hoje não passa.')
+        L.append('')
+        L.append('| Classe | Pav | Qtde | Itens |')
+        L.append('|--------|-----|------|-------|')
+        for (classe, pav), itens in sorted(regressoes.items()):
+            amostra = ', '.join(itens[:15]) + (' …' if len(itens) > 15 else '')
+            L.append(f'| {classe} | {pav} | {len(itens)} | {amostra} |')
+        L.append('')
+        L.append('> Antes de culpar o motor: confirmar se a rodada é recente. Relatório '
+                 'velho contra DB atualizado produz falso positivo em massa.')
+    else:
+        L.append('_Nenhum item selado reprovando — sem regressão vs golden._')
     L.append('')
 
     # ── Golden completo ──────────────────────────────────────────────────
@@ -175,8 +228,8 @@ def gerar(db_path: str = _DB_DEFAULT) -> str:
     L.append('')
     L.append('| Obra | Pavimento | Classe | Itens selados |')
     L.append('|------|-----------|--------|---------------|')
-    for (obra, pav, classe), n in sorted(golden.items()):
-        L.append(f'| {obra} | {pav} | {classe} | {n} |')
+    for (obra, pav, classe), itens in sorted(golden.items()):
+        L.append(f'| {obra} | {pav} | {classe} | {len(itens)} |')
     L.append('')
 
     # ── Triagem ──────────────────────────────────────────────────────────

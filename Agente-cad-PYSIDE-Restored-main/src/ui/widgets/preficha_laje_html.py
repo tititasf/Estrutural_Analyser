@@ -604,7 +604,8 @@ def write_laje_pages(
         return (
             '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
             f"<title>Laje — {html.escape(name)}</title>"
-            f"<style>{page_css}</style>{javascript}</head><body>{sidebar}"
+            f"<style>{page_css}</style>{javascript}</head><body>"
+            f"{sidebar}"
             '<div class="main-wrap"><div class="main-content">'
             '<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'
             f"Laje {html.escape(name)}</h2>"

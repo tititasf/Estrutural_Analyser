@@ -1,0 +1,66 @@
+---
+pid: 4908
+cwd: "D:\Agente-cad-PYSIDE"
+command: "Set-Location D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; Select-String -Path scripts\\gerar_lv_dxf_stog.py.tmp_write -Pattern \"h_void|span >= 40\" | Select-Object -First 5; python scripts\\arete\\tmp\\regen_v301_from_tmp.py; python -c \"
+import ezdxf
+from pathlib import Path
+p=Path(r'D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/n4/LV_preview_V301_VIEW_A.dxf')
+doc=ezdxf.readfile(p)
+print('DIMS:')
+for e in doc.modelspace():
+    if e.dxftype()!='DIMENSION': continue
+    print(' ', round(e.get_measurement(),1), repr(e.dxf.text))
+print('short SARR:')
+for e in doc.modelspace():
+    if e.dxftype()!='LINE' or not str(e.dxf.layer).startswith('SARR'): continue
+    a,b=e.dxf.start,e.dxf.end
+    if abs(a.y-b.y)<0.2 and 5 < abs(a.x-b.x) < 25:
+        print(f'  x={min(a.x,b.x):.1f}..{max(a.x,b.x):.1f} y={a.y:.1f}')
+\"; python scripts\\arete\\tmp\\_v301_vision_compare.py"
+started_at: 2026-07-17T21:47:13.919Z
+running_for_ms: 765007   
+---
+
+scripts\gerar_lv_dxf_stog.py.tmp_write:554:        if span >= 40.0 and any(abs(y - yb) < 1.1 for yb in ban):
+scripts\gerar_lv_dxf_stog.py.tmp_write:1793:        h_void = float(y_shoulder - y0)
+scripts\gerar_lv_dxf_stog.py.tmp_write:1811:        if h_void >= 20.0 and degrau_end > x0 + 1.0:
+scripts\gerar_lv_dxf_stog.py.tmp_write:1822:                    d, _fmt_dim_cm(h_void),
+scripts\gerar_lv_dxf_stog.py.tmp_write:1823:                    (x_dv + 6.0, y0 + h_void / 2.0),
+[V301] recorte N2 live indisponível: No module named 'motor_reverso_lv'
+[V301] gerando... FAIL
+rs\Thierry\AppData\Local\Temp\lv_gen_7s1z3p_5\gerar_lv_dxf_stog.py", line 27, in <module>
+    from visual_modes import apply_visual_mode
+ModuleNotFoundError: No module named 'visual_modes'
+
+[ALL rc=1]
+
+0/1 OK | N4 em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4
+using generator: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\gerar_lv_dxf_stog.py.tmp_write
+exit 0
+DIMS:
+  244.0 '244'
+  50.5 '50,5'
+  111.0 '111'
+  40.2 '40,2'
+  445.7 '445,7'
+  109.0 '<>'
+  124.0 '124'
+  44.0 '44'
+short SARR:
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\01_N2_vs_N4_side_by_side.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\02_N4_VIEW_A_detail.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\03_N2_CE_faceA_detail.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\04_LEFT_zoom_N2_N4.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\05_RIGHT_zoom_N2_N4.png
+OUT D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision
+
+

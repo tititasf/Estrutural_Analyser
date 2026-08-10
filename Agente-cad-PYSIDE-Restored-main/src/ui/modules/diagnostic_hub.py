@@ -1450,6 +1450,27 @@ class DiagnosticHubModule(QWidget):
             pass
 
         self._list_brutos.clear()
+
+        # Batch pre-fetch de status dos recortes para a obra (1 única consulta ao invés de N x N no loop)
+        recortes_stats = {}
+        try:
+            conn = sqlite3.connect(str(DB))
+            cur = conn.execute(
+                "SELECT dxf_bruto_path, status FROM obra_recortes WHERE obra_name=?",
+                (obra_name,)
+            )
+            for r_path, r_status in cur.fetchall():
+                if r_path:
+                    for row in rows:
+                        fn = row.get('file_name', '')
+                        if fn and fn in r_path:
+                            stat = recortes_stats.setdefault(fn, [0, 0])
+                            stat[0] += 1
+                            if r_status == 'approved':
+                                stat[1] += 1
+            conn.close()
+        except Exception:
+            pass
         
         # Agrupar por classe do pavimento
         from PySide6.QtGui import QColor, QFont
@@ -1469,7 +1490,7 @@ class DiagnosticHubModule(QWidget):
                 fname = row.get('file_name', '').upper()
                 m_pav = re.search(r'(\d{1,2})\s*(?:PAV|PV|P)(?:\b|[-_])', fname)
                 if m_pav:
-                    cls = f"{int(m_pav.group(1))}Âº PAV"
+                    cls = f"{int(m_pav.group(1))}º PAV"
                 if '-TER-' in fname or 'TERREO' in fname: cls = 'TÉRREO'
                 elif '-TIP-' in fname or 'TIPO' in fname: cls = 'TIPO'
                 elif '-COB-' in fname or 'COBER' in fname: cls = 'COBERTURA'
@@ -1495,7 +1516,17 @@ class DiagnosticHubModule(QWidget):
             for row in items:
                 item = QListWidgetItem(row['file_name'])
                 item.setData(Qt.UserRole, row)
-                status_icon = self._get_recorte_icon(obra_name, row['file_name'])
+                fn = row['file_name']
+                if fn in recortes_stats:
+                    tot, app = recortes_stats[fn]
+                    if not tot:
+                        status_icon = "⬜"
+                    elif app >= tot:
+                        status_icon = "✅"
+                    else:
+                        status_icon = "🔶"
+                else:
+                    status_icon = self._get_recorte_icon(obra_name, fn)
                 item.setText(f"{status_icon} {row['file_name']}")
                 self._list_brutos.addItem(item)
 

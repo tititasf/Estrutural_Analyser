@@ -17,9 +17,18 @@
    Nunca confiar em número escrito à mão em doc.
 4. **Loop de qualidade**: usar SOMENTE o canônico — `docs/LOOPING-CANONICO.md` seção 1.
    Headless de fichas é UM só: `scripts/arete/headless_sa_analise.py` sempre com
-   `--wait`. Microciclos read-only `--secao + --item` têm filas isoladas por classe;
-   rodada completa, multiclasse ou com `--persist-db` espera todas as classes.
+   `--wait`. Rodadas read-only de uma `--secao` (com ou sem `--item`), inclusive
+   persistência parcial quando usa `--secao + --item`,
+   têm filas isoladas por classe; PIL/FV/LV reservam também o snapshot compartilhado
+   de `beams`, e só o commit SQLite é serializado. Rodada completa ou multiclasse
+   espera todas as classes.
    **NUNCA finalize o processo detentor.** Scripts fora dessa lista = legado em quarentena.
+   **Vision dual-mode** (`docs/QA-VISAO-EVIDENCIA-CANONICA.md`): agente julga em **PNG**;
+   HTML com `--persist-db` / app / **portal web** → **SVG**; headless sem persist = imagem
+   dinâmica (sem SVG obrigatório).
+   **SVG pan/zoom web:** somente **viewBox** (padrão FV V302) — proibido CSS scale.
+   Ver `docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md` + `fv_hifi_n1_render.initPanZoom` /
+   `pil_qa_notes_chrome.initPilPanZoom`. Todo CLI de ficha HTML N1 herda isso.
 5. **Motor universal (Regra de Ouro)**: zero hardcode por item/pavimento/obra — fix é
    fórmula geral a partir da ficha. Golden set: PROIBIDO selar com gate FAIL;
    regressão Arete obrigatória após qualquer toque em `gerar_*`/`motor_*`.

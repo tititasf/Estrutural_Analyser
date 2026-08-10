@@ -70,6 +70,96 @@ def test_face_beams_two_passa_slots_by_corner():
     )
 
 
+def test_face_c_top_multi_segment_ca_cb_same_beam_diff_dims():
+    """Topo E–W: mesma viga com dois segmentos (CA 14/55, CB 19/66) + dualidade AC/BC."""
+    # Pilar vertical 19×66 como P2
+    report = {
+        "P2": {
+            "name": "P2",
+            "points": [(1603.0, 3141.0), (1622.0, 3141.0), (1622.0, 3207.0), (1603.0, 3207.0)],
+            "lajes": [
+                {"side": "A", "laje": "L301", "content_type": "laje"},
+                {"side": "B", "laje": "L302", "content_type": "laje"},
+            ],
+        }
+    }
+    beams = [
+        {
+            "name": "VF301",
+            "dim": "19/66",
+            "is_h": True,
+            # trecho oeste tocando face C (y=3207) e face A (x=1603)
+            "points": [
+                (1500.0, 3207.0),
+                (1603.0, 3207.0),
+                (1603.0, 3221.0),
+                (1500.0, 3221.0),
+            ],
+            "geometry": {
+                "texts": [
+                    {"text": "VF301", "pos": [1520.0, 3210.0]},
+                    {"text": "14/55", "pos": [1534.0, 3209.0]},
+                    {"text": "19/66", "pos": [1632.0, 3223.0]},
+                ],
+                "dimension_texts": [
+                    {"text": "14/55", "pos": [1534.0, 3209.0]},
+                    {"text": "19/66", "pos": [1632.0, 3223.0]},
+                ],
+                "classified": {
+                    "bottom_runs": [
+                        {
+                            "is_h": True,
+                            "pos": [1550.0, 3214.0],
+                            "coords": [[1500.0, 1603.0], [1622.0, 1750.0]],
+                        }
+                    ],
+                    "seg_bottom": [
+                        [[1500.0, 3207.0], [1603.0, 3207.0]],
+                        [[1622.0, 3207.0], [1750.0, 3207.0]],
+                    ],
+                },
+            },
+        },
+        {
+            "name": "V312",
+            "dim": "19/120",
+            "is_h": False,
+            "points": [
+                (1603.0, 2680.0),
+                (1622.0, 2680.0),
+                (1622.0, 3141.0),
+                (1603.0, 3141.0),
+            ],
+        },
+    ]
+    enrich_pillar_report_with_beams(report, beams)
+    fb = report["P2"]["face_beams"]
+    pe = fb["C"].get("passa_esq") or {}
+    pd = fb["C"].get("passa_dir") or {}
+    assert pe.get("name") == "VF301"
+    assert pd.get("name") == "VF301"
+    assert pe.get("corner") == "CA"
+    assert pd.get("corner") == "CB"
+    # dims locais por segmento (cotas na faixa)
+    assert "14/55" in str(pe.get("dim") or "") or pe.get("dim")
+    assert "19/66" in str(pd.get("dim") or "") or pd.get("dim")
+    # dualidade: chega AC / BC em para[] de A/B
+    para_a = {p.get("corner"): p.get("name") for p in (fb["A"].get("para") or [])}
+    para_b = {p.get("corner"): p.get("name") for p in (fb["B"].get("para") or [])}
+    assert para_a.get("AC") == "VF301" or any(
+        p.get("name") == "VF301" for p in (fb["A"].get("para") or [])
+    )
+    assert para_b.get("BC") == "VF301" or any(
+        p.get("name") == "VF301" for p in (fb["B"].get("para") or [])
+    )
+    # V312 interior em D se caso 4
+    inter_d = [p.get("name") for p in (fb["D"].get("interior") or [])]
+    assert "V312" in inter_d or any(
+        (le.get("viga") or {}).get("name") == "V312"
+        for le in report["P2"].get("lajes") or []
+    )
+
+
 def test_face_beams_passante_fills_slot():
     """Viga passante horizontal preenche algum slot passa_*."""
     report = {
@@ -174,16 +264,58 @@ def test_beam_stopping_on_short_face_materializes_corner_openings_on_long_faces(
     assert faces["B"]["passa_dir"] == {
         "name": "V308", "dim": "19/55", "corner": "BC", "behavior": "para",
     }
-    assert {entry["name"] for entry in faces["C"]["para"]} == {"V308"}
+    # V308 corre paralela a A/B e termina no canto C — já vinculada acima.
+    # C não ganha uma "chegada" duplicada dessa mesma viga (achado do dono:
+    # a face curta virava chegada perpendicular de uma viga que na verdade
+    # só passa ao lado dela e termina no canto, sem nunca ter atravessado
+    # C perpendicularmente).
+    assert faces["C"]["para"] == []
+    # Largura da viga (19) == espessura do pilar (19): C fica DENTRO do
+    # corpo de V308 (Caso 4), não é chegada nem face livre (achado do dono,
+    # confirmado num caso real: P35/V308 19/55 termina no canto C).
+    assert faces["C"]["interior"] == [{"name": "V308", "dim": "19/55"}]
+
+
+def test_beam_narrower_than_pillar_thickness_does_not_get_interior():
+    """Viga mais estreita que a espessura do pilar: canto termina, mas a
+    face curta não fica embutida no corpo dela (sem Caso 4 falso-positivo).
+    """
+    report = {
+        "P1": {
+            "name": "P1",
+            "points": [(100, 0), (160, 0), (160, 40), (100, 40)],
+            "lajes": [],
+        }
+    }
+    beams = [{
+        "name": "V1",
+        "dim": "14/50",
+        # Termina no canto C (paredes alinhadas com A/B), mas largura 14
+        # não cobre a espessura 40 do pilar.
+        "points": [(0, 0), (100, 0), (100, 40), (0, 40)],
+        "is_h": True,
+    }]
+
+    enrich_pillar_report_with_beams(report, beams)
+
+    faces = report["P1"]["face_beams"]
+    assert faces["A"]["passa_esq"]["name"] == "V1"
+    assert faces["C"]["interior"] == []
 
 
 def test_multi_run_beam_is_arrival_not_fake_passante():
     """Viga multi-trecho: trecho que nasce na face B é chegada; fragmentos
-    distantes não podem fundir num corredor fictício que 'passa' na face D.
+    distantes não podem fundir num corredor fictício que force um "para"
+    fantasma no eixo A/B pelo lado de D.
 
     Reprodução geométrica do caso V328×P35 (13_PAV): trecho N-S nasce no topo
     do pilar horizontal e sobe; outros fragmentos ficam ao sul, deslocados.
-    O bbox global cruzaria a banda do pilar ao lado da face D.
+    O bbox global cruzaria a banda do pilar ao lado da face D — esse é o
+    bug original (corredor fantasma no eixo A/B). Já a parede DIREITA do
+    trecho real (x=4552.4) coincide exatamente com a parede D do pilar:
+    isso é "C/D sempre passa" (guia) e deve, sim, aparecer como passa em D
+    — achado do dono confirmando que essa face bate por alinhamento de
+    parede, não por o eixo atravessar a faixa do pilar.
     """
     report = {
         "P35": {
@@ -211,15 +343,24 @@ def test_multi_run_beam_is_arrival_not_fake_passante():
     enrich_pillar_report_with_beams(report, beams)
 
     entry = report["P35"]
+    # No eixo A/B (comportamento passa/para do beam_relations) V328 continua
+    # "para" — o bug do corredor fantasma seria aparecer aqui como "passa".
     assert not entry.get("viga_que_passa")
     assert {b["name"] for b in entry.get("viga_que_para") or []} == {"V328"}
     fb = entry["face_beams"]
-    passa_names = {
+    # A/B não ganham V328 em passa_esq/dir (isso seria o corredor fantasma
+    # cruzando a faixa do pilar); só a chegada em B (abaixo) é esperada ali.
+    passa_names_ab = {
         (fb[f].get(s) or {}).get("name")
-        for f in "ABCD"
+        for f in "AB"
         for s in ("passa_esq", "passa_dir")
     } - {None}
-    assert "V328" not in passa_names
+    assert "V328" not in passa_names_ab
+    # D ganha V328 em passa_esq por alinhamento de PAREDE (x=4552.4 == parede
+    # D do pilar) — nao por o eixo atravessar a faixa do pilar. Behavior
+    # explicito 'passa' distingue esse caso do termino-de-canto (para).
+    assert fb["D"]["passa_esq"]["name"] == "V328"
+    assert fb["D"]["passa_esq"]["behavior"] == "passa"
     arrivals_b = fb["B"]["para"]
     assert [p["name"] for p in arrivals_b] == ["V328"]
     # canto geométrico: o trecho cobre a extremidade D da face B
@@ -227,23 +368,32 @@ def test_multi_run_beam_is_arrival_not_fake_passante():
     assert fb["D"]["para"] == []
 
 
-def test_head_on_arrival_covering_short_face_is_central():
-    """Chegada de frente que cobre a face curta inteira → slot central FF."""
+def test_head_on_arrival_centered_on_short_face_is_central():
+    """Chegada perpendicular que NÃO alinha com as duas paredes A/B (não é
+    término de canto) e cai no terço central da face curta → slot central FF.
+
+    Distinção geométrica chave: paredes tocando y0 E y1 do pilar = a MESMA
+    viga que corre paralela a A/B e termina no canto (outro teste) — aquele
+    caso já fica só em passa_esq/dir de A/B, nunca também em "chegada" de
+    C/D (achado do dono: P35/V308 duplicava o vínculo). Aqui o feixe é mais
+    estreito que a face e não toca nenhuma das duas paredes: é uma chegada
+    de fato, perpendicular, centrada.
+    """
     report = {
         "P35": {
             "name": "P35",
-            "points": [(100, 0), (160, 0), (160, 19), (100, 19)],
+            "points": [(100, 0), (160, 0), (160, 40), (100, 40)],
             "lajes": [],
         }
     }
     beams = [{
         "name": "V308",
-        "dim": "19/55",
+        "dim": "10/55",
         "geometry": {
             "classified": {
                 "seg_bottom": [
-                    [[0.0, 0.0], [100.0, 0.0]],
-                    [[0.0, 19.0], [100.0, 19.0]],
+                    [[0.0, 15.0], [100.0, 15.0]],
+                    [[0.0, 25.0], [100.0, 25.0]],
                 ],
             }
         },

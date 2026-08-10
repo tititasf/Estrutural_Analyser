@@ -4,6 +4,13 @@ Data: 2026-06-23
 Escopo: laterais de vigas (`LV`) em engenharia reversa, ficha N2 e reproducao N4.  
 Fonte empirica atual: `Obra_TREINO_1`, pavimento `13 PAV`, 30 vigas LV.
 
+> **Limite arquitetural (2026-07-21):** este documento descreve a leitura N2
+> e seus aprendizados empiricos. Ele nao define heuristicas para o gerador.
+> O contrato autoritativo do motor esta em
+> `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md`. A ficha e a unica entrada do N4;
+> ausencia de elemento e falha de interpretacao, enquanto desenho incorreto de
+> campo presente e falha do motor.
+
 Este documento registra os aprendizados do loop N2 -> ficha -> N4 -> validacao visual.
 Ele deve servir como base viva para uma futura harmonizacao/RAG por classe estrutural.
 
@@ -50,13 +57,27 @@ Padroes observados:
 - O roundtrip atual fechou 33/33 pares de visao-corte.
 - O N4 precisa manter a coluna A/B afastada da coluna de corte para o viewer isolar a
   visao-corte sem contaminar o crop com laterais.
-- As primitivas visuais do N2 sao mais fieis que redesenhar a secao por template rigido.
+- Primitivas visuais podem permanecer como evidencia do interpretador e do QA,
+  mas nao substituem os campos executivos do contrato rigido.
 
 Padrao de geracao:
 
-- Preferir `visual_primitives` quando disponiveis.
-- Usar template `draw_section_detail` apenas como fallback.
+- Desenhar o corte a partir dos campos executivos validados da ficha.
+- Nao reler nem copiar primitivas do recorte durante a geracao estrita.
 - Render/crop deve isolar a zona de corte e evitar puxar lateral A/B para dentro do quadro.
+
+#### Correspondencia obrigatoria Corte <-> A/B
+
+- Corte e contexto comum da mesma viga; nao autoriza espelhar, mesclar ou copiar
+  dados entre os contratos A e B.
+- Cada sarrafo horizontal declarado em A/B precisa ter a altura correspondente
+  no Corte de sua propria face. Os pequenos retangulos verticais/horizontais
+  do Corte sao sarrafos, nao simbolos de cota, e recebem hachura diagonal.
+- As cotas internas B/H usam linhas e ticks convencionais; os quadrados do
+  dimstyle nao sao geometria de forma. O titulo usa `VIGA (H x B)`, por
+  exemplo `V327 (50x14)`.
+- N3 usa esta anatomia com B/H/h_A/h_B do contrato N1; N4 usa os campos N2.
+  Sem transportar primitivas N2/N4 para N3.
 
 ### 3.2 Lados A/B
 
@@ -363,8 +384,71 @@ Exemplos de entradas RAG candidatas:
     `h_total` quando passam filtros de largura, faixa local e altura minima.
 16. `LV/AB/slab_center_draw_guard`: `slab_center` extraido de cota local so vira desenho no
     N4 para segmentos altos; em segmentos baixos, e apenas campo de auditoria.
+17. `LV/AB/horizontal_dimension_levels`: a cadeia individual ocupa o nivel interno;
+    painel principal largo (>=150 cm) e o complemento dos demais paineis ocupam o
+    nivel externo. Vale para degrau inicial e espelhado (`244 | 63+111=174` e
+    `52.5+22.5=75 | 244`).
+18. `LV/AB/raised_panel_witness`: as patas de uma cota horizontal devem terminar no
+    fundo real do intervalo cotado. Se o intervalo pertence ao painel elevado, as
+    duas patas terminam no ombro; uma borda exata nao pode cair no vazio por engano.
+19. `LV/AB/coplanar_step_divider`: a divisao entre paineis elevados coplanares existe
+    somente entre ombro e topo. Nunca prolongar esse divisor pelo vazio ate a base.
+20. `LV/AB/top_panel_after_slab`: retangulo fechado de `Paineis`, com 4--12 cm de
+    altura, imediatamente acima da laje, e campo separado da ficha
+    (`painel_sup_alt/width/x_offset`). O N4 desenha retangulo e cota proprios; a
+    altura total soma corpo + laje + painel superior.
+21. `LV/AB/dimension_side_by_wall`: em degrau espelhado, altura de corpo/total fica
+    na parede alta esquerda e alturas do painel curto ficam na parede direita. Cada
+    cota vertical pertence a parede que materializa aquele nivel.
+22. `LV/AB/material_body_over_bbox`: se o bbox vertical inclui cotas externas e os
+    paineis formam uma altura material coerente entre 80 e 125 cm, `h_body` vem da
+    maior altura dos paineis; laje e painel superior permanecem campos separados.
+23. `LV/AB/explicit_zero_beats_global`: `laje_inf=0` explicito na unidade nao pode
+    ser substituido pelo fallback global. O fallback so preenche campo ausente.
+24. `LV/AB/dimension_chain_can_split`: a cadeia horizontal cotada pode revelar mais
+    paineis que as V-lines brutas (`174 = 111+63`). A reconciliacao pode aumentar a
+    quantidade de segmentos quando a soma recompõe exatamente a largura util.
+25. `LV/AB/slab_dimension_outer_anchors`: as cotas de laje 14/15 pertencem às duas
+    extremidades do contorno superior, nunca à parede interna do degrau.
+26. `LV/N4/layout_order_is_drawing_order`: detalhes por ocorrencia devem repetir a
+    ordenacao espacial final do desenhador; ordenar CONT/sem-rotulo de forma distinta
+    desloca painel superior e cotas para a unidade vizinha.
+27. `LV/AB/trailing_locator_pair`: dois paineis finais menores que 28 cm, cuja soma
+    fica abaixo de 55 cm depois de um painel principal, sao marcos de localizacao e
+    nao entram na cadeia util; o prefixo anterior pode formar cota externa 161,5.
 
-## 8. Proximos Ataques
+## 8. Inventario Minimo Nas Fichas De Interpretacao / Validacao Visual
+
+Desde 2026-07-17, validacao visual N2×N4 de LV **so e valida** com inventário
+linha-a-linha (nao contagem, nao "parece igual").
+
+Documento canônico: `docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md`.
+
+### 8.1 O que toda ficha / veredito deve carregar
+
+1. **Metadados da face:** origem abs N2, h_body, `panel_widths[]`, clip.
+2. **LINEs estruturais** Painéis+SARR: id, `(x1,y1)→(x2,y2)` rel, orient, L, status vs N4.
+3. **Cotas:** no N2 sao `TEXT` numericos (muitas na layer `Painéis`); no N4 sao
+   `DIMENSION`. Listar valor + insert/mid + status MATCH/MISSING/EXTRA.
+4. **Textos:** label do item (`V301.A`) vs vizinhos do recorte (nao copiar).
+5. **Resumo de status** e path do JSON/MD de rastreio.
+
+### 8.2 Ficha HTML (review / granular)
+
+Antes dos checkboxes de aprovacao/reprovacao, a ficha (ou o pacote G2-V anexo) deve
+ter um bloco **"Inventario minimo"** ou link para
+`scripts/arete/relatorios/g2v/{item}_n2_inventory/*.md`. Sem isso, o agente nao
+pode emitir PASS no harness.
+
+### 8.3 Exemplo ouro
+
+V301 face A: `scripts/arete/relatorios/g2v/v301_n2_inventory/`  
+Script: `scripts/arete/tmp/_v301_n2_inventory.py`.
+
+SEG1 corpo (9 linhas estruturais) MATCH 9/9; cotas N2 agrupadas (50.5, 161.5) vs
+N4 granular (28.7, 21.8, …) devem aparecer no rastreio, nao serem omitidas.
+
+## 9. Proximos Ataques
 
 Ordem recomendada:
 
@@ -377,7 +461,7 @@ Ordem recomendada:
    - depois 90%;
    - depois 95% arete.
 
-## 9. Regra De Seguranca
+## 10. Regra De Seguranca
 
 Nenhuma regra deve ser hardcoded por viga. Todo ajuste precisa ser:
 

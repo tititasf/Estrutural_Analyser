@@ -1,0 +1,63 @@
+---
+pid: 10172
+cwd: "D:\Agente-cad-PYSIDE"
+command: "Set-Location D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; python scripts\\arete\\tmp\\unlock_regen_v301.py; python -c \"
+import ezdxf
+from pathlib import Path
+from collections import Counter
+p=Path(r'D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/n4/LV_preview_V301_VIEW_A.dxf')
+doc=ezdxf.readfile(p)
+print('DIMENSIONS:')
+for e in doc.modelspace():
+    if e.dxftype()!='DIMENSION': continue
+    try: m=round(e.get_measurement(),1)
+    except: m=None
+    print(f'  {m} text={e.dxf.text!r}')
+print('SARR H short @shoulder:')
+# list sarr near y relative - need origin
+ys=[]
+for e in doc.modelspace():
+    if e.dxftype()!='LINE' or not str(e.dxf.layer).startswith('SARR'): continue
+    a,b=e.dxf.start,e.dxf.end
+    if abs(a.y-b.y)<0.2 and abs(a.x-b.x)<30:
+        print(f'  short H x={min(a.x,b.x):.1f}..{max(a.x,b.x):.1f} y={a.y:.1f} L={abs(a.x-b.x):.1f}')
+\"; python scripts\\arete\\tmp\\_v301_vision_compare.py"
+started_at: 2026-07-17T21:45:10.147Z
+running_for_ms: 890006   
+---
+DEBUG V301: my_labels = [(5483.094412849332, 8281.870433819078, 'V301.A', 'A'), (6799.255538347416, 8006.224756820968, 'V301.B', 'B')]
+DEBUG V301: label V301.A at (5483.094412849332, 8281.870433819078) -> pair = {'y_bot': 8154.0, 'y_top': 8263.0, 'h_body': 109.0, 'x_left': 5479.891111852656, 'x_right': 5928.550199239063, 'total_w': 448.7}
+DEBUG V301: label V301.B at (6799.255538347416, 8006.224756820968) -> pair = {'y_bot': 7878.0, 'y_top': 7981.350558039295, 'h_body': 103.4, 'x_left': np.float64(6796.052237350742), 'x_right': 7165.948885804495, 'total_w': np.float64(369.9), '_marco_extra_cm': 20.6}
+DEBUG V301: face_A = {'y_bot': 8154.0, 'y_top': 8263.0, 'h_body': 109.0, 'x_left': 5479.891111852656, 'x_right': 5928.550199239063, 'total_w': 448.7}
+DEBUG V301: face_B = {'y_bot': 7878.0, 'y_top': 7981.350558039295, 'h_body': 103.4, 'x_left': np.float64(6796.052237350742), 'x_right': 7165.948885804495, 'total_w': np.float64(369.9), '_marco_extra_cm': 20.6}
+[V301] gerando... OK => D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LV_preview_V301_A.dxf
+
+1/1 OK | N4 em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4
+policies: [('Obra_TREINO_1|TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA|LV|V301|N4', 'TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA', 0, 'human_ui'), ('Obra_TREINO_1|13_PAV|LV|V301|N4', '13_PAV', 0, 'human_ui')]
+short zone panel Y: [-194.0]
+VIEW_A mtime: 1784324716.1550796
+DIMENSIONS:
+  244.0 text='244'
+  50.5 text='50,5'
+  111.0 text='111'
+  40.2 text='40,2'
+  445.7 text='445,7'
+  109.0 text='<>'
+  124.0 text='124'
+  44.0 text='44'
+SARR H short @shoulder:
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\01_N2_vs_N4_side_by_side.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\02_N4_VIEW_A_detail.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\03_N2_CE_faceA_detail.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\04_LEFT_zoom_N2_N4.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\05_RIGHT_zoom_N2_N4.png
+OUT D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision

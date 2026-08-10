@@ -1,0 +1,215 @@
+{
+  "schema": "arete.qa_content_cache/v1",
+  "namespace": "artifact_parity",
+  "key": "f8f664d07f2a6b9860a147b0dde3ac1520eaf2f9c50724a4dfce1d6360da4cfe",
+  "engine_version": "1.1.0",
+  "created_at": "2026-07-14T04:27:42+00:00",
+  "input_hashes": {
+    "PARA.contract": "a274a40f421c146bb8873b57de5a89644aa819e11c422ff48153f5d178f528c0",
+    "PARA.payload": "c80d8b1bb4f8c701b1aea5d8c123e4d3869de06cd3c7a7a850395a50d84cb69b",
+    "PARA.html": "4bdebf8f1dedcb879a010156279edf7c29ebfb1df5dd949408cd588f3b8798d4",
+    "PARA.dxf": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+  },
+  "value": {
+    "schema": "arete.qa_artifact_parity_result/v1",
+    "engine_version": "1.1.0",
+    "question": "A largura declarada percorre contrato, payload, DXF e HTML?",
+    "overall": "PASS",
+    "scope_authority": "declared_artifact_fields_only; visual reading remains separate",
+    "variants": {
+      "PARA": {
+        "paths": {
+          "contract": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_artifact_parity_checks_de0\\contract.json",
+          "payload": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_artifact_parity_checks_de0\\payload.json",
+          "html": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_artifact_parity_checks_de0\\index.html",
+          "dxf": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_artifact_parity_checks_de0\\item.dxf"
+        },
+        "hashes": {
+          "contract": "a274a40f421c146bb8873b57de5a89644aa819e11c422ff48153f5d178f528c0",
+          "payload": "c80d8b1bb4f8c701b1aea5d8c123e4d3869de06cd3c7a7a850395a50d84cb69b",
+          "html": "4bdebf8f1dedcb879a010156279edf7c29ebfb1df5dd949408cd588f3b8798d4",
+          "dxf": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+        }
+      }
+    },
+    "fields": [
+      {
+        "id": "contract.width",
+        "variant": "PARA",
+        "source": "contract",
+        "path": "opening.width",
+        "transform": "number",
+        "value": 11.0,
+        "artifact_hash": "a274a40f421c146bb8873b57de5a89644aa819e11c422ff48153f5d178f528c0"
+      },
+      {
+        "id": "payload.width",
+        "variant": "PARA",
+        "source": "payload",
+        "path": "abertura_A_1.largura",
+        "transform": "number",
+        "value": 11.0,
+        "artifact_hash": "c80d8b1bb4f8c701b1aea5d8c123e4d3869de06cd3c7a7a850395a50d84cb69b"
+      },
+      {
+        "id": "payload.width_text",
+        "variant": "PARA",
+        "source": "payload",
+        "path": "abertura_A_1.largura",
+        "transform": "text",
+        "value": "11",
+        "artifact_hash": "c80d8b1bb4f8c701b1aea5d8c123e4d3869de06cd3c7a7a850395a50d84cb69b"
+      },
+      {
+        "id": "html",
+        "variant": "PARA",
+        "source": "html",
+        "path": "",
+        "transform": "text",
+        "value": "<HTML><BODY>ABERTURA A: 11 CM</BODY></HTML>",
+        "artifact_hash": "4bdebf8f1dedcb879a010156279edf7c29ebfb1df5dd949408cd588f3b8798d4"
+      },
+      {
+        "id": "dxf.lines",
+        "variant": "PARA",
+        "source": "dxf_entity_count",
+        "path": "LINE",
+        "transform": "number",
+        "value": 1.0,
+        "artifact_hash": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+      },
+      {
+        "id": "dxf.texts",
+        "variant": "PARA",
+        "source": "dxf_texts",
+        "path": "",
+        "transform": "raw",
+        "value": [
+          "P35.A"
+        ],
+        "artifact_hash": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+      },
+      {
+        "id": "dxf.text_blob",
+        "variant": "PARA",
+        "source": "dxf_text_blob",
+        "path": "",
+        "transform": "text",
+        "value": "P35.A",
+        "artifact_hash": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+      },
+      {
+        "id": "dxf.layers",
+        "variant": "PARA",
+        "source": "dxf_layers",
+        "path": "",
+        "transform": "raw",
+        "value": [
+          "0",
+          "PAINEIS"
+        ],
+        "artifact_hash": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+      },
+      {
+        "id": "dxf.types",
+        "variant": "PARA",
+        "source": "dxf_entity_types",
+        "path": "",
+        "transform": "raw",
+        "value": [
+          "LINE",
+          "TEXT"
+        ],
+        "artifact_hash": "502ba9485bda3f0cdf28d7972aba338419e1e450dd93ece20c15c1688f47a53e"
+      }
+    ],
+    "checks": [
+      {
+        "id": "contract_payload",
+        "op": "number_close",
+        "status": "PASS",
+        "reason": "number_close satisfeita",
+        "left": 11.0,
+        "right": 11.0,
+        "metric": {
+          "delta": 0.0,
+          "tolerance": 0.05
+        }
+      },
+      {
+        "id": "payload_html",
+        "op": "contains",
+        "status": "PASS",
+        "reason": "contains satisfeita",
+        "left": "<HTML><BODY>ABERTURA A: 11 CM</BODY></HTML>",
+        "right": "11",
+        "metric": {}
+      },
+      {
+        "id": "dxf_line",
+        "op": "number_close",
+        "status": "PASS",
+        "reason": "number_close satisfeita",
+        "left": 1.0,
+        "right": 1,
+        "metric": {
+          "delta": 0.0,
+          "tolerance": 0.05
+        }
+      },
+      {
+        "id": "dxf_text_list",
+        "op": "contains",
+        "status": "PASS",
+        "reason": "contains satisfeita",
+        "left": [
+          "P35.A"
+        ],
+        "right": "P35.A",
+        "metric": {}
+      },
+      {
+        "id": "dxf_text_blob",
+        "op": "contains",
+        "status": "PASS",
+        "reason": "contains satisfeita",
+        "left": "P35.A",
+        "right": "P35",
+        "metric": {}
+      },
+      {
+        "id": "dxf_layer",
+        "op": "contains",
+        "status": "PASS",
+        "reason": "contains satisfeita",
+        "left": [
+          "0",
+          "PAINEIS"
+        ],
+        "right": "PAINEIS",
+        "metric": {}
+      },
+      {
+        "id": "dxf_type",
+        "op": "contains",
+        "status": "PASS",
+        "reason": "contains satisfeita",
+        "left": [
+          "LINE",
+          "TEXT"
+        ],
+        "right": "TEXT",
+        "metric": {}
+      }
+    ],
+    "provenance": {
+      "chain": [
+        "contract",
+        "payload",
+        "dxf",
+        "html"
+      ],
+      "missing_dxf_metadata": false
+    }
+  }
+}

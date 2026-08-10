@@ -25,6 +25,12 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 > 4. `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` — **missão paralela de produto** (2026-07):
 >    portal da equipe, gates P0–P6, decisões DP-1..9. Intercalada com o Arete; em
 >    conflito de tempo, qualidade (Arete) vence.
+> 5. `docs/MASTERPLAN-CONSOLIDACAO-ENTREGA.md` — **trilha de ENTREGA** (2026-07-30):
+>    definição de pronto (entregável = **N5**, 4 classes, web é o produto, PySide vira
+>    laboratório), caminho crítico P0–P7 e o **escape hatch** (operador desenha a geometria
+>    no viewer web; motor interpreta a partir dali). **Sobre o que é "pronto" e o que fazer
+>    primeiro na entrega, este doc vence os demais masterplans.** Não governa qualidade de
+>    motor — isso continua com o Arete e os masterplans por classe.
 
 **Escopo Fase A:** 13_PAV da Obra_TREINO_1 = **124 itens** (PIL 35, LV 32, FV 26, LAJ 31).
 Números escritos à mão envelhecem: a fonte de verdade de status é
@@ -67,9 +73,9 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 | Motores reversos | `scripts/motor_reverso_{pil,lv,fv,laj,obra}.py` |
 | Conversão N1→robô | `DADOS-OBRAS/{obra}/Fase-4_Sincronizacao/JSON_*/` |
 | Render/scoring ref | `scripts/validar_granular_nim.py` (reusar lógica; NIM vision BANIDO como scorer) |
-| Veredito visual (G2-V/N1-V/G5-V) | `scripts/arete/g2v_harness.py --backend cli` (agente lê a imagem) é OBRIGATÓRIO antes de selar/avançar qualquer gate visual — número sozinho = alucinação de aprovação (`docs/LOOPING-CANONICO.md §1.5`). **Ordem do dono (03/07): backends de API (claude/gemini/nim) DESLIGADOS/bloqueados no código** — só com `--permitir-api` + calibração. |
-| Headless de fichas — SÓ UM | **Único ponto de entrada = `scripts/arete/headless_sa_analise.py`** (análise SA completa + fichas 4 classes + diagnósticos). `gerar_html_preficha_headless.py` foi DESCONTINUADO como CLI (aborta sem `--legacy`; risco de ficha com estado velho) — segue vivo só como biblioteca do `playwright_loop`. Os demais `*headless*.py` em `scripts/` são bibliotecas/utilitários de OUTROS pipelines (`analise_geral_headless` é importado pelo próprio `main.py`) — não são alternativas de fichas. |
-| Headless — filas por classe | O entry point continua único. Microciclo read-only com **uma** `--secao` + `--item` usa lock isolado PIL/LAJ/FV/LV e pode coexistir com outra classe. Execução sem item, multiclasse ou com `--persist-db` adquire lock global + todas as classes. Cada microciclo grava estado e pack próprios por classe/PID. Em automação use SEMPRE `--wait`; **NUNCA finalize o processo detentor.** |
+| Veredito visual (G2-V/N1-V/G5-V) | `scripts/arete/g2v_harness.py --backend cli` OBRIGATÓRIO antes de selar. **Agente lê PNG** (render full DXF; vision=pixels). **SVG** no HTML quando `--persist-db` / app / **portal web**. Headless **sem** persist pode ser só imagem (dinâmico). Número sozinho = alucinação. `docs/QA-VISAO-EVIDENCIA-CANONICA.md` + `LOOPING-CANONICO.md §1.5`. API visual proibida. |
+| Headless de fichas — SÓ UM | **Único ponto de entrada = `scripts/arete/headless_sa_analise.py`**. Sem `--persist-db`: pack leve (PNG vision ok). Com `--persist-db`: ficha HTML **com SVG** (app + humano). Portal/web: **SVG incluído**. `gerar_html_preficha_headless.py` DESCONTINUADO como CLI. |
+| Headless — filas por classe | O entry point continua único. Rodada **read-only** com uma `--secao` (com ou sem `--item`) usa lock isolado PIL/LAJ/FV/LV; microciclo parcial `--persist-db --secao --item` também permanece isolado. PIL/FV/LV reservam `headless_sa_beams` porque compartilham `beams.data_json`, e só o BEGIN/COMMIT usa `headless_sa_db_commit`. Execução sem `--secao`, multiclasse ou persistência sem item adquire lock global + todas as classes. Cada microciclo grava estado e pack próprios por classe/PID. Em automação use SEMPRE `--wait`; **NUNCA finalize o processo detentor.** |
 
 ## Regras inegociáveis
 
@@ -78,10 +84,21 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 2. **NÃO editar `src/ui/modules/diagnostic_reverse_hub.py`** nem widgets de UI sem
    confirmar que nenhum outro agente trabalha neles em paralelo.
 3. **NÃO modificar geradores STOG / motores reversos** sem causa comprovada por gate
-   G1/G2 — e sempre rodar regressão do golden set (`GOLDEN/`) após qualquer fix.
+   G1 (round-trip N2→N4→N2′) / G2 (paridade canônica N2×N4) — e sempre rodar
+   regressão do golden set (`GOLDEN/`) após qualquer fix.
 4. **JSONs Fase-4 originais são intocáveis** — N2 é caminho paralelo independente.
-5. **Um fix por causa, nunca hack por item.** Validação visual obrigatória: renderizar
-   PNG e LER a imagem em todo FAIL.
+5. **Um fix por causa, nunca hack por item.** Validação visual: agente lê **PNG**
+   full-render; HTML persistido/portal entrega **SVG** (`QA-VISAO-EVIDENCIA-CANONICA.md`).
+5b. **SVG web pan/zoom = só viewBox (padrão FV V302).** Proibido zoom por CSS
+   `transform:scale` (pixeliza). Qualquer ficha HTML/CLI Arete (FV, PIL, LAJ, LV,
+   portal) que mostre SVG N1 deve reutilizar `initPanZoom` / `initPilPanZoom`
+   (viewBox + drag + wheel + reset). Fonte: `docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md`;
+   ref código FV `src/ui/widgets/fv_hifi_n1_render.py`; PIL
+   `src/core/pil_qa_notes_chrome.py`.
+5c. **Tags destaque agêntico PIL:** multilinha tipo+marca / nome / dim / nível;
+   um canto por tag; chega no centro da viga; chip com contorno branco fino.
+   Padrão: `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`. CLI
+   `scripts/arete/pil_agentic_highlight_draw.py` ou export `--with-agentic`.
 6. **Escopo incremental rígido:** 13_PAV 100% → TREINO_1 completa → outras obras em
    steps. Nunca processar tudo de uma vez.
 7. AutoCAD batch via `accoreconsole.exe` — NUNCA pipelines em paralelo.

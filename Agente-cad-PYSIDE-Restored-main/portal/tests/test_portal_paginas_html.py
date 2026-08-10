@@ -66,6 +66,7 @@ async def test_pagina_login_renderiza(settings):
         assert r.status_code == 200
         assert "text/html" in r.headers["content-type"]
         assert "<form" in r.text  # formulário de login real, não stack trace
+        assert "manter-conectado" in r.text
 
 
 @pytest.mark.asyncio
@@ -74,9 +75,10 @@ async def test_pagina_obras_vazia_renderiza(settings):
         await client.post("/login", json={"login": "ana", "senha": "segredo123"})
         r = await client.get("/app/obras")
         assert r.status_code == 200
-        assert "Minhas obras" in r.text
-        assert "Nenhuma obra detectada ainda" in r.text  # estado vazio real (copy 2026-07-06)
-        assert "Criar obra nova" in r.text  # cartão principal: obra-como-container (2026-07-06)
+        assert "Lista de Obras" in r.text
+        assert "Processar Obra Completa" in r.text  # passo 2 do wizard (2026-08)
+        assert "Processar 1 Pavimento" in r.text
+        assert "Exibir Lista de Obras" in r.text
 
 
 @pytest.mark.asyncio
@@ -235,6 +237,22 @@ async def test_pagina_obra_detalhe_nao_pula_recortes_apos_so_triagem(settings):
         # JobWorker de verdade) — job_ativo fica true e os botões mostram
         # "Job em andamento…" em vez do texto normal, comportamento esperado.
         assert "Recortes" in r.text
-        assert "Job em andamento" in r.text
-        # recortes ainda nao rodaram -> aba SA avisa (nao bloqueia, so' informa)
-        assert "recortes ainda não terminaram" in r.text
+        # [2026-07-30] Era `"Job em andamento" in r.text`. O template nunca
+        # imprimiu esse literal: ele mostra "Rodando a triagem/os recortes/a
+        # Análise Estrutural (SA)" conforme a etapa. A intenção do teste segue
+        # valendo — job na fila tem de renderizar o painel de progresso — mas a
+        # asserção agora ancora na ESTRUTURA (a seção e o status vivo), não na
+        # redação, que muda sem quebrar comportamento.
+        assert 'class="job-panel"' in r.text
+        assert 'id="job-estado"' in r.text
+        assert "Rodando" in r.text
+        # Recortes ainda nao terminaram -> a pagina INFORMA sem bloquear.
+        # [2026-07-30] Era `"recortes ainda não terminaram" in r.text`. Esse
+        # aviso em prosa nao existe mais: a pagina foi redesenhada em painel de
+        # fases, e a pendencia aparece como estado da "Fase 2: Aprovação
+        # Recortes" (icone de espera em vez de check). A garantia que importa —
+        # a secao continua visivel e marcada como nao concluida — segue testada.
+        assert 'id="fase2-icon"' in r.text
+        assert "Aprovação Recortes" in r.text
+        posicao = r.text.index('id="fase2-icon"')
+        assert "⏳" in r.text[posicao:posicao + 120], "Fase 2 deveria estar pendente"

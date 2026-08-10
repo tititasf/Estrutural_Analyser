@@ -185,20 +185,33 @@ item (vizinho de canto?). **PENDENTE** — 1 amostra só, aguardando mais obras.
 
 ---
 
-## Resumo / próximos passos
+## Caso 7 — Diretrizes Canônicas de Interpretação ABCD e Regras de Engolimento / Prioridades (2026-07-23)
 
-| Caso | Itens (amostras) | Padrão | Status |
-|------|-------------------|--------|--------|
-| 1 — CAMBOTA | P18 (2: 12_PAV,13_PAV) | seção diagonal / troca de faces | PENDENTE, amostragem insuficiente |
-| 2 — Pilar em U | P15,P23,P26,P27 (19 amostras, 7 pisos) | rótulos "N sar" ou "A-E" ausentes em N4#ABCD | PENDENTE — dataset pronto p/ Fase C/D quando retomado |
-| 3 — Canto/3-face | P28-32 (5, TERREO) | rótulo extra "PXX.A/D" em N4 | PENDENTE, 1 piso só |
-| 4 — Placement CIMA/ABCD | P43,P47,P49,P51,P25 (6, 14_PAV+COBERTURA) | rótulo "PXX.A/B" no bloco errado | PENDENTE, possível fix de causa única |
-| 5 — Naming dot P24 | P24 (4 pisos) | "P24C" vs "P24.C" | PENDENTE, possível bug de normalização |
-| 6 — Face swap P2 | P2 (1, 1_PAV) | "P2.A"↔"P2.B" trocados | PENDENTE, 1 amostra |
+### 1. Orientação de Lados em Painéis (Abertura Esquerda vs Abertura Direita)
+- **Face A (Oeste):** 
+  - `AC`: Extremidade esquerda do painel `(abertura esquerda)`
+  - `AD`: Extremidade direita do painel `(abertura direita)`
+- **Face B (Leste):** 
+  - `BD`: Extremidade esquerda do painel `(abertura esquerda)`
+  - `BC`: Extremidade direita do painel `(abertura direita)`
 
-**Decisão (sessão 2026-06-13):** baseline canônico dos 7 pisos está
-COMPLETO (182/220 = 82.7%, golden sealado para os 182 PASS). Todos os 6
-casos acima ficam **registrados e pendentes** — Fase C/D (subtipo + EFGH) só
-retoma quando houver evidência de mais obras (mais amostras por padrão).
-Próximo passo geral do AR-1' (Fase E/F) segue conforme priorização futura do
-usuário.
+### 2. Regras de Engolimento no Modo PARA (Mesmo Canto / Lado)
+Quando no mesmo canto de um painel houver simultaneamente uma **Viga que Para** e uma **Viga que Chega**:
+- **Se $d_{param} \le d_{chega}$:** A viga que para é **ENGOLIDA / NEUTRALIZADA** pela viga que chega. Não se desenha nem publica abertura individual para a viga que para.
+- **Se $d_{param} > d_{chega}$:** Desenham-se **AMBAS**, mas a abertura da viga que para é desenhada apenas com a **DIFERENÇA** de profundidade ($d_{param} - d_{chega}$) posicionada abaixo da viga que chega.
+
+### 3. Regras de Prioridade e Engolimento no Modo PASSA
+- **Viga que PASSA vs Viga que CHEGA:**
+  - Se $d_{passa} \ge d_{chega}$: A viga que chega é **NEUTRALIZADA / ENGOLIDA** ($d_{chega} \le d_{passa}$). Desenha-se apenas a viga que passa.
+  - Se $d_{chega} > d_{passa}$: Desenha-se a viga que passa e o recorte da abertura complementar da chegada abaixo da viga que passa.
+- **Viga que PASSA vs LAJE:**
+  - A viga que passa tem **prioridade total** sobre a laje. Quando há viga que passa na face, a laje é **ENGOLIDA / OMITIDA**.
+  - A **LAJE** só é desenhada na face quando **NÃO HÁ VIGA QUE PASSA** naquele trecho.
+
+### 4. Cotas do Topo do Último Painel (Largura Resultante X)
+- Sempre que houver abertura no topo do painel, o motor N3 gera a cadeia contínua de cotagem no topo (`y_dim = y_top + 19`):
+  - **Com 1 Abertura (ex.: 11cm ou 34cm):** Desenha 2 cotas alinhadas — a cota da abertura e **APENAS 1 COTA** do painel resultante remanescente ($X = \text{largura total} - \text{abertura}$).
+  - **Com 2 Aberturas (ex.: 11cm à esquerda e 34cm à direita):** Desenha 3 cotas alinhadas em cadeia — a cota da abertura esquerda (`11cm`), a cota da abertura direita (`34cm`), e **APENAS 1 COTA** para o painel resultante no meio ($X = \text{largura total} - 11 - 34 = 43cm$). Nunca gera cotas duplicadas ou sobrepostas de sobras.
+
+
+

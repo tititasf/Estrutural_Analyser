@@ -1,0 +1,13 @@
+{
+  "schema": "arete.qa_content_cache/v1",
+  "namespace": "dxf_svg",
+  "key": "7a678ef22013118dad0e77a4ce5700058826bd372c42a84002422c6a449ab138",
+  "engine_version": "ficha_motor_item_svg/v1",
+  "created_at": "2026-07-14T04:27:42+00:00",
+  "input_hashes": {
+    "dxf": "999a144e6384ec805fdf36638783b7a703b4031f98fa683e4cb224176e803dbb"
+  },
+  "value": {
+    "svg": "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 705.6 360\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n <metadata>\n  <rdf:RDF xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cc=\"http://creativecommons.org/ns#\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n   <cc:Work>\n    <dc:type rdf:resource=\"http://purl.org/dc/dcmitype/StillImage\"/>\n    <dc:date>2026-07-14T01:27:42.185965</dc:date>\n    <dc:format>image/svg+xml</dc:format>\n    <dc:creator>\n     <cc:Agent>\n      <dc:title>Matplotlib v3.11.0, https://matplotlib.org/</dc:title>\n     </cc:Agent>\n    </dc:creator>\n   </cc:Work>\n  </rdf:RDF>\n </metadata>\n <defs>\n  <style type=\"text/css\">*{stroke-linejoin: round; stroke-linecap: butt}</style>\n </defs>\n <g id=\"figure_1\">\n  <g id=\"patch_1\">\n   <path d=\"M 0 360 \nL 705.6 360 \nL 705.6 0 \nL 0 0 \nz\n\" style=\"fill: #ffffff\"/>\n  </g>\n  <g id=\"axes_1\">\n   <g id=\"patch_2\">\n    <path d=\"M 7.2 352.8 \nL 698.4 352.8 \nL 698.4 7.2 \nL 7.2 7.2 \nz\n\" style=\"fill: #212830\"/>\n   </g>\n   <g id=\"line2d_1\">\n    <path d=\"M 38.618182 337.090909 \nL 666.981818 22.909091 \n\" clip-path=\"url(#p7c73335aca)\" style=\"fill: none; stroke: #ffffff; stroke-width: 0.48; stroke-linecap: square\"/>\n   </g>\n  </g>\n </g>\n <defs>\n  <clipPath id=\"p7c73335aca\">\n   <rect x=\"7.2\" y=\"7.2\" width=\"691.2\" height=\"345.6\"/>\n  </clipPath>\n </defs>\n</svg>\n"
+  }
+}

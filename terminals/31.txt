@@ -1,0 +1,112 @@
+---
+pid: 13688
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe scripts/arete/headless_sa_analise.py --secao fundos_viga --item V320 V309A --wait"
+started_at: 2026-07-16T20:47:43.958Z
+running_for_ms: 66410009 
+---
+[SA] Locks adquiridos: headless_sa_fv (escopo classe:FV).
+[SA-HUMAN] project_id: dd238e47-1dc6-4f63-a760-4e7ce19a7386
+[SA-HUMAN] projects.dxf_path: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+[SA-HUMAN] Fast path N1 FV: motores canonicos sem MainWindow
+[SA] Carregando DXF: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+[SA] DXF: 2762 linhas, 296 polilinhas, 618 textos
+[SA] Indexando geometria...
+[SA] Bindando metodos de analise do MainWindow...
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+[SA] Metodos bindados: 194 (4 ignorados)
+[SA] Detectando lajes...
+[DEBUG] SlabTracer cascade on 618 texts. N2 teacher=0
+[SA] Lajes detectadas: 31
+[SA] Processando lajes...
+[SA] Montando relatorio de pilares...
+[SA] 🧭 Lajes: 45 visão(ões) de corte, 103 pilar(es) de apoio, 204 texto(s) de nível vizinho; 0 nível(is) por contexto, 0 por delta de corte.
+[SA] Pilares: 46
+[SA] Detectando vigas...
+[SA] 🧠 Viga V301 pré-interpretada com sucesso.
+[SA] 🧠 Viga V302 pré-interpretada com sucesso.
+[SA] 🧠 Viga V303 pré-interpretada com sucesso.
+[SA] 🧠 Viga V304 pré-interpretada com sucesso.
+[SA] 🧠 Viga V305 pré-interpretada com sucesso.
+[SA] 🧠 Viga V306 pré-interpretada com sucesso.
+[SA] 🧠 Viga V307 pré-interpretada com sucesso.
+[SA] 🧠 Viga V308 pré-interpretada com sucesso.
+[SA] 🧠 Viga V309 pré-interpretada com sucesso.
+[SA] 🧠 Viga V309A pré-interpretada com sucesso.
+[SA] 🧠 Viga V310 pré-interpretada com sucesso.
+[SA] 🧠 Viga V311 pré-interpretada com sucesso.
+[SA] 🧠 Viga V312 pré-interpretada com sucesso.
+[SA] 🧠 Viga V313 pré-interpretada com sucesso.
+[SA] 🧠 Viga V314 pré-interpretada com sucesso.
+[SA] 🧠 Viga V315 pré-interpretada com sucesso.
+[SA] 🧠 Viga V316 pré-interpretada com sucesso.
+[SA] 🧠 Viga V317 pré-interpretada com sucesso.
+[SA] 🧠 Viga V318 pré-interpretada com sucesso.
+[SA] 🧠 Viga V319 pré-interpretada com sucesso.
+[SA] 🧠 Viga V320 pré-interpretada com sucesso.
+[SA] 🧠 Viga V321 pré-interpretada com sucesso.
+[SA] 🧠 Viga V322 pré-interpretada com sucesso.
+[SA] 🧠 Viga V323 pré-interpretada com sucesso.
+[SA] 🧠 Viga V324 pré-interpretada com sucesso.
+[SA] 🧠 Viga V325 pré-interpretada com sucesso.
+[SA] 🧠 Viga V326 pré-interpretada com sucesso.
+[SA] 🧠 Viga V327 pré-interpretada com sucesso.
+[SA] 🧠 Viga V328 pré-interpretada com sucesso.
+[SA] 🧠 Viga V329 pré-interpretada com sucesso.
+[SA] 🧠 Viga V330 pré-interpretada com sucesso.
+[SA] 🧠 Viga V331 pré-interpretada com sucesso.
+[SA] 🧠 Viga V332 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF202 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF203 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF301 pré-interpretada com sucesso.
+[SA] Fatos FV canônicos reaplicados: 36 viga(s)
+[SA] Vigas: 36
+[SA] Sides corrigidos por fallback de posicao relativa: 11
+[SA] Cache N1 contextual: STORED 2b6160a4ed05
+[SA-HUMAN][PERF] analise N1 contextual incremental: 38.16s (acumulado 38.16s)
+[SA-HUMAN][PERF] analise N1 contextual completa: 0.48s (acumulado 38.65s)
+[SA] 🧭 Lajes: 0 visão(ões) de corte, 9 pilar(es) de apoio, 0 texto(s) de nível vizinho; 0 nível(is) por contexto, 0 por delta de corte.
+[SA-HUMAN][PERF] merge granular e saneamento N1: 1.82s (acumulado 40.47s)
+[SA-HUMAN] Dependencias de viga recusadas por regressao de topologia: {'V322': {'old': (4, 410.0), 'new': (3, 380.0)}}
+[SA-HUMAN] Filtro de itens: V309A, V320 em fundos_viga
+[SA-HUMAN] Merge granular pronto: 46 PIL, 31 LAJ, 2 vigas.
+[HTML] fundos_viga 1/2: V309A
+[HTML] fundos_viga 2/2: V320
+[SA-HUMAN] Pack exportado: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_174825_219998_fundos_viga_15480
+[SA-HUMAN][PERF] exportacao inicial de fichas: 6.30s (acumulado 46.77s)
+[SA-HUMAN] Diagnóstico FV: 2 alerta(s)
+[SA-HUMAN][PERF] diagnosticos canonicos: 5.96s (acumulado 52.73s)
+[SA-HUMAN] FV results para N3: 2 viga(s)
+[SA-HUMAN] N3 NOVA isolado: 2 gerado(s), 0 ausente(s)
+[HTML] fundos_viga 1/2: V309A
+[HTML] fundos_viga 2/2: V320
+[SA-HUMAN] Pack reexportado c/ N3: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_174840_564965_fundos_viga_15480
+[SA-HUMAN][PERF] previews N3 e reexportacao: 8.09s (acumulado 60.82s)
+[SA-HUMAN] Manifesto Arete: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_174840_564965_fundos_viga_15480\arete_manifest.json
+[SA-HUMAN][PERF] manifesto Arete: 0.03s (acumulado 60.85s)
+[SA-HUMAN][PERF] total da rodada: 60.85s
+
+============================================================
+RESUMO: Obra_TREINO_1 / TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA
+  Pilares : 46
+  Lajes   : 31
+  Vigas   : 2
+  HTMLs   : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_174840_564965_fundos_viga_15480
+  Diag. FV: ok
+    JSON : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_fv\Obra_TREINO_1\13_PAV\20260716_174825\diagnostico_fv_n1_n2.json
+    JSONL: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_fv\Obra_TREINO_1\13_PAV\20260716_174825\triagem_auto_fv.jsonl
+  Manifest: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_174840_564965_fundos_viga_15480\arete_manifest.json
+  Fonte   : D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+  DB      : READ_ONLY
+============================================================
+[SA] Locks liberados: headless_sa_fv.

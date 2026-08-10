@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Auditoria estrutural determinística da squad QA Global de Evidências."""
+"""Auditoria estrutural + operacional (dual score) da squad QA Global de Evidências.
+
+- structural_score: presença de arquivos/seções (não prova excelência Arete).
+- operational_score: lido de scores de audit CEO-AUDIT se existir; senão None.
+"""
 
 from __future__ import annotations
 
@@ -34,19 +38,67 @@ def _listed_files(manifest: dict, group: str) -> list[str]:
     return result
 
 
-def audit(root: Path, command_file: Path) -> dict:
+def _grade(total: int) -> str:
+    if total >= 95:
+        return "S"
+    if total >= 85:
+        return "A"
+    if total >= 75:
+        return "B"
+    if total >= 65:
+        return "C"
+    if total >= 50:
+        return "D"
+    return "F"
+
+
+def _load_operational(repo_root: Path) -> dict | None:
+    """Carrega o score operacional mais recente do CEO-AUDIT, se existir."""
+    reports = repo_root / "scripts" / "arete" / "relatorios"
+    if not reports.is_dir():
+        return None
+    candidates = sorted(
+        list(reports.glob("AUDIT-QA-GLOBAL-EVIDENCIAS-*.scores.json"))
+        + list(reports.glob("AUDIT-QA-GLOBAL-EVIDENCIAS-*.scores.reaudit.json")),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if not candidates:
+        return None
+    try:
+        payload = json.loads(candidates[0].read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    global_score = (payload.get("global") or {}).get("score")
+    if global_score is None:
+        return None
+    return {
+        "source": str(candidates[0].as_posix()),
+        "score": int(global_score),
+        "grade": (payload.get("global") or {}).get("grade") or _grade(int(global_score)),
+        "axes": payload.get("scores"),
+        "note": "Operational excellence from CEO-AUDIT meta-audit; not structural completeness",
+    }
+
+
+def audit(root: Path, command_file: Path, repo_root: Path | None = None) -> dict:
     manifest_path = root / "squad.yaml"
     findings: list[dict] = []
     scores = {name: 0 for name in DIMENSIONS}
+    repo_root = repo_root or root.parents[1]
 
     try:
         manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
     except Exception as exc:  # pragma: no cover - fatal path
         return {
             "score": 0,
+            "structural_score": 0,
+            "operational_score": None,
             "grade": "F",
+            "structural_grade": "F",
             "scores": scores,
             "findings": [{"severity": "CRITICAL", "message": f"manifest inválido: {exc}"}],
+            "passed": False,
         }
 
     required = {"name", "version", "description", "icon", "team", "slashPrefix", "components"}
@@ -79,6 +131,11 @@ def audit(root: Path, command_file: Path) -> dict:
         text = path.read_text(encoding="utf-8") if path.is_file() else ""
         if not text.startswith("---\n") or "inputs:" not in text or "outputs:" not in text:
             bad_tasks.append(rel)
+        elif "Aceite negativo" not in text and "aceite negativo" not in text.lower():
+            findings.append({
+                "severity": "MEDIUM",
+                "message": f"task sem seção de aceite negativo: {rel}",
+            })
     if task_files and not bad_tasks:
         scores["tasks"] = 15
     else:
@@ -103,6 +160,12 @@ def audit(root: Path, command_file: Path) -> dict:
     command_text = command_file.read_text(encoding="utf-8") if command_file.is_file() else ""
     if "QAGlobalEvidencias-AIOS" in command_file.name and "agents/aegis.md" in command_text:
         scores["command"] = 5
+        for required_cmd in ("*probe-profile", "*smoke-n3", "*teach"):
+            if required_cmd not in command_text:
+                findings.append({
+                    "severity": "MEDIUM",
+                    "message": f"command file omite {required_cmd}",
+                })
     else:
         findings.append({"severity": "HIGH", "message": "command file ausente ou sem agente registrado"})
 
@@ -120,16 +183,29 @@ def audit(root: Path, command_file: Path) -> dict:
     else:
         findings.append({"severity": "MEDIUM", "message": "README/CHANGELOG/team manifest incompletos"})
 
+    # Authority matrix presence
+    matrix_path = root / "data" / "authority_matrix.json"
+    if not matrix_path.is_file():
+        findings.append({"severity": "HIGH", "message": "data/authority_matrix.json ausente"})
+
     total = sum(scores.values())
-    grade = "S" if total >= 95 else "A" if total >= 85 else "B" if total >= 75 else "C" if total >= 65 else "D" if total >= 50 else "F"
+    operational = _load_operational(repo_root)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "squad": manifest.get("name"),
         "score": total,
-        "grade": grade,
+        "structural_score": total,
+        "structural_grade": _grade(total),
+        "operational_score": operational,
+        "grade": _grade(total),
         "scores": scores,
         "findings": findings,
         "passed": total >= 75 and not any(row["severity"] == "CRITICAL" for row in findings),
+        "disclaimer": (
+            "structural_score mede completude de arquivos/seções; "
+            "operational_score (CEO-AUDIT) mede excelência A–E. "
+            "Não confiar em grade S estrutural como prontidão Arete."
+        ),
     }
 
 
@@ -137,9 +213,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--command-file", type=Path, required=True)
+    parser.add_argument("--repo-root", type=Path, default=None)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
-    result = audit(args.root.resolve(), args.command_file.resolve())
+    root = args.root.resolve()
+    repo_root = args.repo_root.resolve() if args.repo_root else root.parents[1]
+    result = audit(root, args.command_file.resolve(), repo_root=repo_root)
     rendered = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

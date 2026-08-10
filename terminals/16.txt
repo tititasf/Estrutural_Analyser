@@ -1,0 +1,45 @@
+---
+pid: 12200
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; $PY=\"D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe\"; $items=@(\"V305\",\"V306\",\"V308\",\"V309\",\"V310\",\"V312\",\"V321\",\"V325\",\"V327\",\"V332\"); & $PY scripts/arete/g2v_harness.py --classe FV --pav 13_PAV --par n3xn4 --item $items --backend cli --fonte-imagem html --out-dir scripts/arete/relatorios/g2v/20260716_s7a_n3xn4; & $PY scripts/arete/g2v_harness.py --classe FV --pav 13_PAV --par n3xn2 --item $items --backend cli --fonte-imagem html --out-dir scripts/arete/relatorios/g2v/20260716_s7a_n3xn2"
+started_at: 2026-07-16T19:47:41.731Z
+running_for_ms: 70010012 
+---
+
+======================================================================
+HARNESS VISUAL — G5-V (n3xn4) — FV 13_PAV — 10 item(ns) — backends: ['cli']
+======================================================================
+  FV V305 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V305_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V305_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V306 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V306_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V306_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V308 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V308_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V308_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V309 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V309_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V309_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V310 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V310_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V310_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V312 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V312_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V312_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V321 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V321_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V321_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V325 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V325_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V325_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V327 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V327_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V327_n3xn4_02_N4.svg (agente lê e preenche)
+  FV V332 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V332_n3xn4_01_N3.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\FV_V332_n3xn4_02_N4.svg (agente lê e preenche)
+
+Relatório: scripts\arete\relatorios\g2v\20260716_s7a_n3xn4\relatorio.json
+SVGs:      scripts\arete\relatorios\g2v\20260716_s7a_n3xn4
+
+>>> Backend CLI: os SVGs vetoriais estão prontos. O AGENTE (Claude Code/Codex) deve LER cada SVG e preencher veredito/achados no relatorio.json. Sem esse passo, NÃO há veredito visual — não selar.
+
+======================================================================
+HARNESS VISUAL — S7-N3N2 (n3xn2) — FV 13_PAV — 10 item(ns) — backends: ['cli']
+======================================================================
+  FV V305 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V305_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V305_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V306 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V306_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V306_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V308 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V308_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V308_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V309 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V309_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V309_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V310 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V310_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V310_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V312 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V312_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V312_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V321 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V321_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V321_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V325 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V325_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V325_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V327 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V327_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V327_n3xn2_02_N3.svg (agente lê e preenche)
+  FV V332 [cli]: SVGs prontos -> scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V332_n3xn2_01_N2.svg, scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\FV_V332_n3xn2_02_N3.svg (agente lê e preenche)
+
+Relatório: scripts\arete\relatorios\g2v\20260716_s7a_n3xn2\relatorio.json
+SVGs:      scripts\arete\relatorios\g2v\20260716_s7a_n3xn2
+
+>>> Backend CLI: os SVGs vetoriais estão prontos. O AGENTE (Claude Code/Codex) deve LER cada SVG e preencher veredito/achados no relatorio.json. Sem esse passo, NÃO há veredito visual — não selar.

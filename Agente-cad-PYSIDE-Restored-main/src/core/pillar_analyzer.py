@@ -180,7 +180,12 @@ class PillarAnalyzer:
         # 1. Dimensão
         # Regra: Texto (ex: 20x40) Próximo. Regex simples dimensions
         dim_regex = r"\d+([xX]\d+)?"
-        self._analyze_field(p_data, 'dim', 'label', {'prompt': f"regex: {dim_regex}", 'radius': 400})
+        # A regex não tem âncoras: "V301"/"P35" também casam pelo dígito.
+        # Quando a pré-ficha já forçou o vínculo real (main.py, bloco
+        # "FORÇAR VÍNCULOS REAIS DA PRÉ-FICHA"), não deixar essa busca ingênua
+        # substituir a dimensão correta por um rótulo de viga/pilar vizinho.
+        if not p_data.get('dim_locked'):
+            self._analyze_field(p_data, 'dim', 'label', {'prompt': f"regex: {dim_regex}", 'radius': 400})
 
         # 2. Topo/Nível
         # (Opcional, depende do projeto)
@@ -198,9 +203,10 @@ class PillarAnalyzer:
         for side, content in sides_data.items():
             # Laje Nome
             f_id_n = f'p_s{side}_l1_n'
-            # Regra: Texto iniciando com L no setor 'side'
-            self._analyze_field(p_data, f_id_n, 'label', {'prompt': "Buscar texto ('L')", 'radius': 800}, side=side)
-            
+            if f_id_n not in authoritative_fields:
+                # Regra: Texto iniciando com L no setor 'side'
+                self._analyze_field(p_data, f_id_n, 'label', {'prompt': "Buscar texto ('L')", 'radius': 800}, side=side)
+
             # Laje Espessura (h=12)
             f_id_h = f'p_s{side}_l1_h'
             # Regra: Texto numérico próximo à laje encontrada

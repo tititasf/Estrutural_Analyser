@@ -112,6 +112,17 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def _g2v_n4_evidence_path(row: dict, n4_path: Path) -> Path:
+    """Alinha o byte N4 do selo com o mesmo artefato usado no G2-V."""
+    classe = str(row.get("classe") or "")
+    elemento_id = str(row.get("elemento_id") or "")
+    if classe == "LV" and elemento_id:
+        corte = Path(n4_path).parent / f"LV_preview_{elemento_id}_CORTE.dxf"
+        if corte.is_file():
+            return corte
+    return Path(n4_path)
+
+
 def g2v_pass_atual(row: dict, n4_path: Path) -> tuple[bool, str]:
     """Exige PASS visual estrito ligado aos mesmos bytes N2/N4 do G2 atual."""
     recorte_path = get_recorte_path(
@@ -120,7 +131,7 @@ def g2v_pass_atual(row: dict, n4_path: Path) -> tuple[bool, str]:
     if not recorte_path or not Path(recorte_path).exists():
         return False, "recorte N2 atual ausente"
     expected_n2 = _sha256(Path(recorte_path))
-    expected_n4 = _sha256(Path(n4_path))
+    expected_n4 = _sha256(_g2v_n4_evidence_path(row, n4_path))
     reports_root = RELATORIOS_DIR / "g2v"
     if not reports_root.exists():
         return False, "nenhum relatório G2-V"
@@ -413,7 +424,9 @@ def processar_item(row: dict, ts_dir: Path,
             if "_extracao_erro" not in n2_fb:
                 campos_fb = n2_fb
         obra_dir, _ = materializar_item(row, campos_override=campos_fb)
-        ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
+        ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
+                                    real_obra_name=row.get("obra_name"),
+                                    real_pavimento=row.get("pavimento"))
         if ok_gen:
             dxf = get_output_dxf_path(obra_dir, classe, elemento_id)
             if dxf.exists():
@@ -617,7 +630,11 @@ def _gerar_relatorio_md(sumario: dict, ts_dir: Path):
                 diffs_g1 = g1.get("diffs", [])
                 linhas.append(f"- **G1 FAIL** — {len(diffs_g1)} diffs no round-trip:")
                 for d in diffs_g1[:3]:
-                    linhas.append(f"  - `{d.get('campo')}`: N2={d.get('n2')} N2′={d.get('n2p')} [{d.get('tipo')}]")
+                    if d.get("tipo") == "list_len":
+                        n2_val, n2p_val = d.get("n2_len"), d.get("n2p_len")
+                    else:
+                        n2_val, n2p_val = d.get("n2"), d.get("n2p")
+                    linhas.append(f"  - `{d.get('campo')}`: N2={n2_val} N2′={n2p_val} [{d.get('tipo')}]")
             if g2.get("resultado") == "FAIL":
                 nde = len(g2.get("diffs_entidades", []))
                 ndg = len(g2.get("diffs_geometria", []))
@@ -662,8 +679,12 @@ def _proximo_fail(fails: list) -> str:
             erro = g1.get("erro") or g1.get("log_gerador") or "falha sem diff de campo"
             return f"Atacar G1-FAIL em {eid}: {erro}."
         d = diffs[0]
+        if d.get("tipo") == "list_len":
+            n2_val, n2p_val = d.get("n2_len"), d.get("n2p_len")
+        else:
+            n2_val, n2p_val = d.get("n2"), d.get("n2p")
         return (f"Atacar G1-FAIL em {eid}: campo `{d.get('campo')}` "
-                f"diverge N2={d.get('n2')} vs N2′={d.get('n2p')} [{d.get('tipo')}].")
+                f"diverge N2={n2_val} vs N2′={n2p_val} [{d.get('tipo')}].")
     if g2.get("resultado") == "FAIL":
         dts = g2.get("diffs_textos", [])
         if dts:

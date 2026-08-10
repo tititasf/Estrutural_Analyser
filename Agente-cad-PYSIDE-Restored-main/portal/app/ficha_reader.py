@@ -231,6 +231,43 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
     campos_granular, field_ids_granular = _pilar_lajes_granular(p, lajes_por_nome)
     campos.update(campos_granular)
     field_ids.update(field_ids_granular)
+
+    # Tabelas ABCD (4 faces × laje/passa/chega/interior) — visual N1 portal
+    abcd_tables = None
+    abcd_html = ""
+    try:
+        from src.core.pillar_abcd_tables import (
+            build_abcd_tables_from_pillar,
+            format_abcd_tables_portal_html,
+        )
+
+        slab_h = {
+            n: (info.get("height") if isinstance(info, dict) else "")
+            for n, info in (lajes_por_nome or {}).items()
+        }
+        slab_n = {
+            n: (info.get("nivel") if isinstance(info, dict) else "")
+            for n, info in (lajes_por_nome or {}).items()
+        }
+        # Preferir tabelas já serializadas no estado; senão monta de face_beams/lajes
+        if isinstance(p.get("interpretacao_abcd"), dict) and (p.get("interpretacao_abcd") or {}).get("faces"):
+            abcd_tables = p["interpretacao_abcd"]
+        else:
+            pillar_src = dict(p)
+            if not pillar_src.get("face_beams") and isinstance(p.get("extra"), dict):
+                pillar_src["face_beams"] = p["extra"].get("face_beams")
+                if not pillar_src.get("lajes") and p["extra"].get("lajes_adjacentes"):
+                    pillar_src["lajes"] = p["extra"].get("lajes_adjacentes")
+            abcd_tables = build_abcd_tables_from_pillar(
+                pillar_src,
+                slab_height_map=slab_h,
+                slab_nivel_map=slab_n,
+                nivel_viga_default="",
+            )
+        abcd_html = format_abcd_tables_portal_html(abcd_tables)
+    except Exception as exc:
+        log.debug("ABCD tables pilar %s: %s", p.get("name"), exc)
+
     return {
         "item_id": p.get("name") or p.get("key"),
         "titulo": p.get("name") or p.get("key"),
@@ -239,6 +276,8 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
         "atencao": p.get("atencao") or "",
         "points": p.get("points") or [],
         "beam_name": p.get("name") or p.get("key"),
+        "interpretacao_abcd": abcd_tables,
+        "interpretacao_abcd_html": abcd_html,
     }
 
 

@@ -12,6 +12,14 @@
 > Mapa entre estes gates (G0–G6) e a taxonomia G-* da harmonização:
 > `MASTERPLAN-PRODUCAO-SOBERANIA.md` §9. Missão de produto paralela: mesmo doc.
 
+> **Legenda obrigatória em relatórios e handoffs:** G0 (sanidade de entradas),
+> G1 (round-trip N2→N4→N2′), G2 (paridade canônica N2×N4), G3 (UI e persistência),
+> G4 (convergência/interpretação N1), G5 (paridade final N3×N4) e G6
+> (golden/regressão). Todo sufixo visual — G2-V, N1-V/G4-V e G5-V — é executado por
+> `g2v_harness.py --backend cli`. **Agente CLI julga em PNG** (vision=pixels);
+> **SVG** no HTML com persist/app/**portal web**. Headless sem persist = imagem
+> dinâmica. Dual-mode: `docs/QA-VISAO-EVIDENCIA-CANONICA.md`. API visual proibida.
+
 ---
 
 > # 🥇 REGRA DE OURO (acima de todos os gates e fases)
@@ -322,10 +330,11 @@ com mesmos conteúdos e contagem). **PASS da classe:** 100% dos itens não-BLOCK
 > Selar golden exige G2-V no mínimo; ver hierarquia completa (Nível 0–3) no doc citado.
 >
 > **FERRAMENTA OBRIGATÓRIA do G2-V (não improvisar leitura de imagem):**
-> `python scripts/arete/g2v_harness.py --classe X --par n2xn4 --backend cli` — gera a
-> imagem canônica (ficha HTML, sem o bug da sentinela) + stub de veredito; o AGENTE de
-> chat CLI (Claude Code/Codex) lê e preenche. **Único veredito de qualidade comprovada**
-> (NIM reprovado; APIs de visão só pós-calibração — `docs/VISION-VALIDACAO-CAMINHOS.md`).
+> `python scripts/arete/g2v_harness.py --classe X --par n2xn4 --backend cli` +
+> pack **PNG** full-render para o agente (Read/vision). HTML persistido/portal:
+> **SVG**. Dual-mode: `docs/QA-VISAO-EVIDENCIA-CANONICA.md`. Stub de veredito;
+> o AGENTE CLI (Claude/Codex/Grok) lê **PNG** e preenche. NIM reprovado; APIs
+> só pós-calibração — `docs/VISION-VALIDACAO-CAMINHOS.md`.
 > Cada achado traz `parte`/`direcao`(n4_a_mais=gerador criou lixo | n4_a_menos=motor
 > perdeu)/`motor_suspeito` — precisão suficiente para rotear o fix ao motor certo.
 
@@ -359,6 +368,12 @@ classificando cada campo da ficha de robô em:
 Teste: `convert(ficha_N1_SA)` vs `ficha_N2` campo a campo, agrupado por categoria.
 **PASS:** categorias (a)+(b) com delta ≤ tolerância em 100% dos itens; (c) coberto por
 config de estilo/RAG reverso; (d) explicitamente excluído com referência.
+
+> **Barreira antes de N3:** cada item/parte precisa registrar a matriz de ficha
+> N1×N2, score de concordância, matches, mismatches e N/A. Sem essa pontuação não
+> se gera N3: campos (a)+(b) têm de concordar dentro de 0,05, e (c)/(d) só ficam
+> N/A com fonte e justificativa. N2 é referência diagnóstica para distinguir a causa
+> do eventual FAIL de G5 (paridade final N3×N4); nunca alimenta N1 nem N3.
 
 > **Revisão humana obrigatória da ficha N1×N2 (G4):** o diagnóstico N1×N2
 > (`diagnostico_*_n1_n2.py`) é só bbox/dimensão e não fecha o gate sozinho. O julgamento é

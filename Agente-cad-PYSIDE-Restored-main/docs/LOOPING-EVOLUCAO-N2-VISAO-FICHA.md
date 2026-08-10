@@ -47,7 +47,9 @@ Para cada item alvo (ex.: V301):
 
 ### Passo 1 — Ler N2 por Vision
 
-1. Renderizar o recorte N2 em PNG (usar `comparar_ficha_lv_vision.py` ou equivalente).
+1. Renderizar o recorte N2 em **PNG** full layers (agente = vision em pixels;
+   ver dual-mode `docs/QA-VISAO-EVIDENCIA-CANONICA.md`). Com persist/portal →
+   também SVG no HTML.
 2. Ler a imagem com vision e descrever no formato estruturado da classe:
    - Quantidade de elementos de topo (segmentos, painéis, seções, etc.)
    - Dimensões de cada elemento (largura, altura, espessuras)

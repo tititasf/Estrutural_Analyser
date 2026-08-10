@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup — Ficha / Descrição da obra · 5 propostas</title>
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --link: #2563eb;
+    --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background: #0f172a;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  .chrome {
+    position: sticky; top: 0; z-index: 50;
+    padding: 14px 18px 16px;
+    background: linear-gradient(180deg, #0f172a, #1e293b);
+    border-bottom: 1px solid #334155;
+    color: #e2e8f0;
+  }
+  .chrome h1 { margin: 0 0 4px; font-size: 1.05rem; font-weight: 750; color: #f8fafc; }
+  .chrome p { margin: 0 0 12px; font-size: .78rem; color: #94a3b8; max-width: 70rem; line-height: 1.45; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  .toolbar label { font-size: .75rem; font-weight: 600; color: #cbd5e1; display: inline-flex; gap: 6px; align-items: center; }
+  .toolbar select {
+    font: inherit; font-size: .8rem; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid #475569; background: #1e293b; color: #f1f5f9;
+  }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tab {
+    appearance: none; border: 1px solid #475569; background: #1e293b; color: #e2e8f0;
+    font: inherit; font-size: .78rem; font-weight: 650; padding: 7px 12px;
+    border-radius: 999px; cursor: pointer;
+  }
+  .tab:hover { border-color: #93c5fd; }
+  .tab.on { background: #2563eb; border-color: #3b82f6; color: #fff; }
+  .desc {
+    margin-top: 10px; font-size: .8rem; color: #cbd5e1; line-height: 1.45;
+    padding: 8px 12px; border-radius: 8px; background: rgba(15,23,42,.45);
+    border: 1px solid #334155;
+  }
+  .desc strong { color: #f8fafc; }
+
+  .stage {
+    background: var(--bg);
+    padding: 28px 24px 48px;
+    min-height: calc(100vh - 140px);
+  }
+  .stage-inner { max-width: 880px; margin: 0 auto; }
+  .page-title {
+    margin: 0 0 4px; font-size: 1.25rem; font-weight: 750;
+  }
+  .page-meta { margin: 0 0 18px; font-size: .82rem; color: var(--muted); }
+
+  /* shared bits */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px; border: 1px solid transparent;
+    background: #2563eb; color: #fff; font: inherit; font-size: .84rem; font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-sec {
+    background: #fff; color: #1e293b; border-color: #cbd5e1; font-weight: 650;
+  }
+  .btn-ghost {
+    background: transparent; border: 1px solid #cbd5e1; color: #334155;
+    font-weight: 650;
+  }
+  .empty { color: #94a3b8; }
+  .label {
+    font-size: .68rem; font-weight: 700; letter-spacing: .03em;
+    text-transform: uppercase; color: #94a3b8;
+  }
+  .val { font-size: .92rem; color: #0f172a; margin-top: 3px; word-break: break-word; }
+  .val.big { font-size: 1.15rem; font-weight: 750; letter-spacing: -.02em; }
+
+  /* ===== P1: Header compacto (hero nome + chips) ===== */
+  .p1-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.05); overflow: hidden;
+  }
+  .p1-top {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    padding: 18px 20px 14px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 120%);
+    color: #fff;
+  }
+  .p1-top .badge {
+    display: inline-flex; padding: 2px 8px; border-radius: 999px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    font-size: .65rem; font-weight: 750; letter-spacing: .05em; text-transform: uppercase;
+  }
+  .p1-top h2 { margin: 8px 0 4px; font-size: 1.25rem; font-weight: 750; letter-spacing: -.02em; }
+  .p1-top .sub { margin: 0; font-size: .8rem; color: #bfdbfe; }
+  .p1-top .btn-sec { border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.1); color: #fff; }
+  .p1-body { padding: 16px 20px 18px; }
+  .p1-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .p1-chip {
+    display: flex; flex-direction: column; gap: 2px;
+    min-width: 120px; padding: 10px 12px; border-radius: 10px;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+  }
+  .p1-notes {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  @media (max-width: 640px) { .p1-notes { grid-template-columns: 1fr; } }
+  .p1-note {
+    padding: 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #eef2f7;
+    min-height: 72px;
+  }
+
+  /* ===== P2: Meta strip (tipo ficha técnica densa) ===== */
+  .p2-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+  }
+  .p2-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+  }
+  .p2-head h2 { margin: 0; font-size: 1rem; font-weight: 750; }
+  .p2-head .meta { margin: 2px 0 0; font-size: .74rem; color: var(--muted); }
+  .p2-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid #f1f5f9;
+  }
+  @media (max-width: 700px) { .p2-strip { grid-template-columns: 1fr 1fr; } }
+  .p2-cell {
+    padding: 12px 14px;
+    border-right: 1px solid #f1f5f9;
+  }
+  .p2-cell:last-child { border-right: none; }
+  .p2-cell .val { font-weight: 650; }
+  .p2-bottom {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  }
+  @media (max-width: 640px) { .p2-bottom { grid-template-columns: 1fr; } }
+  .p2-block {
+    padding: 14px 16px;
+    border-right: 1px solid #f1f5f9;
+  }
+  .p2-block:last-child { border-right: none; }
+  .p2-block p { margin: 6px 0 0; font-size: .88rem; line-height: 1.45; color: #334155; }
+
+  /* ===== P3: Duas colunas (identidade | prazos+notas) ===== */
+  .p3-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.05); padding: 0; overflow: hidden;
+  }
+  .p3-grid {
+    display: grid; grid-template-columns: 1.1fr .9fr; min-height: 200px;
+  }
+  @media (max-width: 700px) { .p3-grid { grid-template-columns: 1fr; } }
+  .p3-left {
+    padding: 20px;
+    background: linear-gradient(180deg, #f8fafc, #fff);
+    border-right: 1px solid #eef2f7;
+  }
+  .p3-left .badge {
+    display: inline-flex; padding: 2px 8px; border-radius: 999px;
+    background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8;
+    font-size: .65rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .p3-left h2 { margin: 10px 0 6px; font-size: 1.2rem; font-weight: 750; }
+  .p3-left .cliente { font-size: .9rem; color: #475569; margin: 0 0 12px; }
+  .p3-left .cliente strong { color: #0f172a; }
+  .p3-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .p3-right { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .p3-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .p3-item {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid #eef2f7; background: #fafbfc;
+  }
+  .p3-note {
+    flex: 1; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid #eef2f7; background: #fafbfc;
+  }
+  .p3-note p { margin: 6px 0 0; font-size: .86rem; color: #334155; line-height: 1.4; }
+
+  /* ===== P4: Minimal inline (quase só título + editar) ===== */
+  .p4-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px 12px;
+  }
+  .p4-line1 {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  }
+  .p4-line1 h2 { margin: 0; font-size: 1.1rem; font-weight: 750; }
+  .p4-line1 .sub { margin: 3px 0 0; font-size: .78rem; color: var(--muted); }
+  .p4-meta {
+    display: flex; flex-wrap: wrap; gap: 6px 14px;
+    margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0;
+    font-size: .8rem; color: #475569;
+  }
+  .p4-meta b { color: #0f172a; font-weight: 650; }
+  .p4-details {
+    margin-top: 8px;
+  }
+  .p4-details summary {
+    cursor: pointer; font-size: .78rem; font-weight: 650; color: var(--link);
+    list-style: none;
+  }
+  .p4-details summary::-webkit-details-marker { display: none; }
+  .p4-details[open] summary { margin-bottom: 8px; }
+  .p4-details .body {
+    font-size: .86rem; color: #334155; line-height: 1.45;
+    padding: 10px 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #eef2f7;
+  }
+  .p4-details .body + .body { margin-top: 8px; }
+
+  /* ===== P5: Timeline prazos + bloco texto ===== */
+  .p5-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.05); overflow: hidden;
+  }
+  .p5-head {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    padding: 16px 18px 12px;
+  }
+  .p5-head .eyebrow {
+    font-size: .65rem; font-weight: 750; letter-spacing: .05em; text-transform: uppercase;
+    color: #64748b; margin: 0 0 4px;
+  }
+  .p5-head h2 { margin: 0; font-size: 1.15rem; font-weight: 750; }
+  .p5-head .cliente { margin: 4px 0 0; font-size: .86rem; color: #475569; }
+  .p5-timeline {
+    display: flex; align-items: stretch; gap: 0;
+    margin: 0 18px 14px; padding: 12px 14px;
+    background: #f8fafc; border: 1px solid #eef2f7; border-radius: 12px;
+  }
+  .p5-tl-item { flex: 1; text-align: center; position: relative; }
+  .p5-tl-item + .p5-tl-item::before {
+    content: "";
+    position: absolute; left: 0; top: 11px; width: 100%;
+    border-top: 2px dashed #cbd5e1; z-index: 0;
+    transform: translateX(-50%);
+  }
+  .p5-tl-dot {
+    position: relative; z-index: 1;
+    width: 12px; height: 12px; border-radius: 50%;
+    margin: 0 auto 8px;
+    background: #94a3b8; border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #cbd5e1;
+  }
+  .p5-tl-item.has .p5-tl-dot {
+    background: #2563eb; box-shadow: 0 0 0 2px #93c5fd;
+  }
+  .p5-tl-item .label { font-size: .65rem; }
+  .p5-tl-item .val { font-size: .82rem; font-weight: 650; margin-top: 2px; }
+  .p5-body {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    padding: 0 18px 18px;
+  }
+  @media (max-width: 640px) { .p5-body { grid-template-columns: 1fr; } }
+  .p5-block {
+    padding: 12px 14px; border-radius: 10px;
+    border: 1px solid #e2e8f0; background: #fff;
+  }
+  .p5-block p { margin: 6px 0 0; font-size: .88rem; color: #334155; line-height: 1.45; }
+
+  .panel { display: none; }
+  .panel.on { display: block; }
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <h1>Mockup — Ficha «Descrição da obra» · 5 propostas</h1>
+  <p>
+    A ficha atual parece formulário administrativo vazio (traços, labels frias, pouco hierarquia).
+    Compare 5 layouts. Use o seletor de dados para ver <b>vazio</b> (como a captura) e <b>preenchido</b>.
+  </p>
+  <div class="toolbar">
+    <label>Dados
+      <select id="data-sel">
+        <option value="empty">Vazio (como o print)</option>
+        <option value="full" selected>Preenchido (exemplo realista)</option>
+      </select>
+    </label>
+  </div>
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab on" data-p="1">1 · Hero escuro</button>
+    <button type="button" class="tab" data-p="2">2 · Ficha técnica</button>
+    <button type="button" class="tab" data-p="3">3 · Duas colunas</button>
+    <button type="button" class="tab" data-p="4">4 · Minimal + detalhes</button>
+    <button type="button" class="tab" data-p="5">5 · Timeline de prazos</button>
+  </div>
+  <p class="desc" id="desc"></p>
+</div>
+
+<div class="stage">
+  <div class="stage-inner">
+    <p class="page-title" id="page-title">Obra-Teste-Inicial2</p>
+    <p class="page-meta">21 documento(s) · enviada por thierry.tasf@gmail.com · Código 6B2ePBNkeT</p>
+
+    <div id="mount"></div>
+  </div>
+</div>
+
+<script>
+var DATA = {
+  empty: {
+    nome: 'Obra-Teste-Inicial2',
+    cliente: null,
+    sol: null,
+    ent: null,
+    criterios: null,
+    obs: null
+  },
+  full: {
+    nome: 'Obra-Teste-Inicial2',
+    cliente: 'Construtora Horizonte Ltda.',
+    sol: '2026-07-02',
+    ent: '2026-08-15',
+    criterios: 'Pilares e vigas em caixaria metálica. Lajes maciças h=12. Entrega por pavimento tipo (13_PAV).',
+    obs: 'Priorizar FUNDACAO e TÉRREO na 1ª leva. Cliente valida N1 por WhatsApp.'
+  }
+};
+
+var DESCS = {
+  1: '<strong>Proposta 1 — Hero escuro.</strong> Nome da obra em destaque no cabeçalho azul; cliente e prazos em chips; critérios/observações em blocos iguais. Muito mais “identidade da obra”, menos planilha.',
+  2: '<strong>Proposta 2 — Ficha técnica.</strong> Faixa de 4 células (nome, cliente, datas) + duas colunas de texto embaixo. Densa, legível em 1 olhar — boa para quem preenche sempre.',
+  3: '<strong>Proposta 3 — Duas colunas.</strong> Esquerda = identidade (nome + cliente + Editar). Direita = prazos e notas. Equilíbrio visual; funciona bem com campos vazios (não “estica” tanto).',
+  4: '<strong>Proposta 4 — Minimal + detalhes.</strong> Só título + meta inline; critérios e observações num <code>&lt;details&gt;</code> colapsável. Ideal se a ficha quase nunca é o foco (documentos embaixo mandam).',
+  5: '<strong>Proposta 5 — Timeline de prazos.</strong> Solicitação → entrega em linha do tempo; textos em cards. Bom quando datas importam no dia a dia da equipe.'
+};
+
+var state = { p: 1, data: 'full' };
+
+function v(x, emptyHtml) {
+  if (x == null || x === '' || x === '—') {
+    return emptyHtml || '<span class="empty">Não informado</span>';
+  }
+  return esc(x);
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+}
+function fmtDate(iso) {
+  if (!iso) return null;
+  var p = iso.split('-');
+  if (p.length !== 3) return iso;
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function render() {
+  document.getElementById('desc').innerHTML = DESCS[state.p];
+  var d = DATA[state.data];
+  document.getElementById('page-title').textContent = d.nome;
+  var html = '';
+  if (state.p === 1) html = p1(d);
+  else if (state.p === 2) html = p2(d);
+  else if (state.p === 3) html = p3(d);
+  else if (state.p === 4) html = p4(d);
+  else html = p5(d);
+  document.getElementById('mount').innerHTML = html;
+}
+
+function p1(d) {
+  return '<div class="p1-card">' +
+    '<div class="p1-top">' +
+    '<div><span class="badge">Ficha da obra</span>' +
+    '<h2>' + esc(d.nome) + '</h2>' +
+    '<p class="sub">Identificação do serviço · cliente, prazos e notas</p></div>' +
+    '<button type="button" class="btn btn-sec">Editar</button></div>' +
+    '<div class="p1-body">' +
+    '<div class="p1-chips">' +
+    chip('Cliente', d.cliente) +
+    chip('Solicitação', fmtDate(d.sol)) +
+    chip('Entrega', fmtDate(d.ent)) +
+    '</div>' +
+    '<div class="p1-notes">' +
+    '<div class="p1-note"><div class="label">Critérios do cliente</div><div class="val">' + v(d.criterios) + '</div></div>' +
+    '<div class="p1-note"><div class="label">Observações</div><div class="val">' + v(d.obs) + '</div></div>' +
+    '</div></div></div>';
+}
+function chip(lab, val) {
+  return '<div class="p1-chip"><span class="label">' + lab + '</span><span class="val">' + v(val) + '</span></div>';
+}
+
+function p2(d) {
+  return '<div class="p2-card">' +
+    '<div class="p2-head"><div><h2>Ficha da obra</h2>' +
+    '<p class="meta">Dados do serviço para a equipe</p></div>' +
+    '<button type="button" class="btn btn-ghost">Editar</button></div>' +
+    '<div class="p2-strip">' +
+    cell('Nome', d.nome, true) +
+    cell('Cliente', d.cliente) +
+    cell('Solicitação', fmtDate(d.sol)) +
+    cell('Entrega', fmtDate(d.ent)) +
+    '</div>' +
+    '<div class="p2-bottom">' +
+    '<div class="p2-block"><div class="label">Critérios e definições</div><p>' + v(d.criterios) + '</p></div>' +
+    '<div class="p2-block"><div class="label">Observações</div><p>' + v(d.obs) + '</p></div>' +
+    '</div></div>';
+}
+function cell(lab, val, strong) {
+  return '<div class="p2-cell"><div class="label">' + lab + '</div>' +
+    '<div class="val' + (strong ? ' big' : '') + '">' + (strong ? esc(val) : v(val)) + '</div></div>';
+}
+
+function p3(d) {
+  return '<div class="p3-card"><div class="p3-grid">' +
+    '<div class="p3-left">' +
+    '<span class="badge">Ficha da obra</span>' +
+    '<h2>' + esc(d.nome) + '</h2>' +
+    '<p class="cliente">Cliente: <strong>' + v(d.cliente, '<span class="empty">—</span>') + '</strong></p>' +
+    '<div class="p3-actions">' +
+    '<button type="button" class="btn">Editar ficha</button>' +
+    '</div></div>' +
+    '<div class="p3-right">' +
+    '<div class="p3-row">' +
+    '<div class="p3-item"><div class="label">Solicitação</div><div class="val">' + v(fmtDate(d.sol)) + '</div></div>' +
+    '<div class="p3-item"><div class="label">Entrega</div><div class="val">' + v(fmtDate(d.ent)) + '</div></div>' +
+    '</div>' +
+    '<div class="p3-note"><div class="label">Critérios</div><p>' + v(d.criterios) + '</p></div>' +
+    '<div class="p3-note"><div class="label">Observações</div><p>' + v(d.obs) + '</p></div>' +
+    '</div></div></div>';
+}
+
+function p4(d) {
+  var hasExtra = !!(d.criterios || d.obs);
+  return '<div class="p4-card">' +
+    '<div class="p4-line1"><div>' +
+    '<h2>' + esc(d.nome) + '</h2>' +
+    '<p class="sub">Ficha da obra</p></div>' +
+    '<button type="button" class="btn btn-ghost">Editar</button></div>' +
+    '<div class="p4-meta">' +
+    '<span>Cliente: <b>' + v(d.cliente, '—') + '</b></span>' +
+    '<span>Solicitação: <b>' + v(fmtDate(d.sol), '—') + '</b></span>' +
+    '<span>Entrega: <b>' + v(fmtDate(d.ent), '—') + '</b></span>' +
+    '</div>' +
+    '<details class="p4-details"' + (hasExtra ? ' open' : '') + '>' +
+    '<summary>' + (hasExtra ? 'Critérios e observações ▾' : 'Critérios e observações (vazio) ▸') + '</summary>' +
+    '<div class="body"><div class="label">Critérios do cliente</div>' + v(d.criterios) + '</div>' +
+    '<div class="body"><div class="label">Observações</div>' + v(d.obs) + '</div>' +
+    '</details></div>';
+}
+
+function p5(d) {
+  return '<div class="p5-card">' +
+    '<div class="p5-head"><div>' +
+    '<p class="eyebrow">Ficha da obra</p>' +
+    '<h2>' + esc(d.nome) + '</h2>' +
+    '<p class="cliente">Cliente · ' + v(d.cliente, 'não informado') + '</p></div>' +
+    '<button type="button" class="btn btn-ghost">Editar</button></div>' +
+    '<div class="p5-timeline">' +
+    tl('Solicitação', fmtDate(d.sol), !!d.sol) +
+    tl('Em andamento', 'hoje', true) +
+    tl('Entrega', fmtDate(d.ent), !!d.ent) +
+    '</div>' +
+    '<div class="p5-body">' +
+    '<div class="p5-block"><div class="label">Critérios e definições</div><p>' + v(d.criterios) + '</p></div>' +
+    '<div class="p5-block"><div class="label">Observações</div><p>' + v(d.obs) + '</p></div>' +
+    '</div></div>';
+}
+function tl(lab, val, has) {
+  return '<div class="p5-tl-item' + (has ? ' has' : '') + '">' +
+    '<div class="p5-tl-dot"></div>' +
+    '<div class="label">' + lab + '</div>' +
+    '<div class="val">' + (val ? esc(val) : '—') + '</div></div>';
+}
+
+document.querySelectorAll('.tab').forEach(function (t) {
+  t.addEventListener('click', function () {
+    document.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('on'); });
+    t.classList.add('on');
+    state.p = parseInt(t.getAttribute('data-p'), 10);
+    render();
+  });
+});
+document.getElementById('data-sel').addEventListener('change', function () {
+  state.data = this.value;
+  render();
+});
+render();
+</script>
+</body>
+</html>

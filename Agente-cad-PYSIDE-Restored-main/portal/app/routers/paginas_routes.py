@@ -15,14 +15,18 @@ de login é pública; as demais redirecionam para /login sem sessão válida (em
 
 from __future__ import annotations
 
+import inspect
+import logging
 import sqlite3
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
+from starlette.templating import Jinja2Templates
 
-from .. import access, auth, certification, public_codes_lookup
+from .. import access, auth, certification, public_codes_lookup, viewer_pavimentos
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -37,17 +41,38 @@ def _templates(request: Request):
     return request.app.state.templates
 
 
+@lru_cache(maxsize=1)
+def _request_e_posicional() -> bool:
+    """A starlette instalada quer TemplateResponse(request, name, ctx)?
+
+    Detecta em runtime em vez de fixar uma versao. Historico: em 2026-07-06 o
+    codigo foi trocado para a forma posicional, revertido por engano para a forma
+    antiga (starlette 0.27), e em 2026-07-30 o ambiente subiu para starlette 1.3.1
+    — que REMOVEU a forma antiga, derrubando todas as telas HTML do portal com
+    "TypeError: unhashable type: 'dict'" (o dict de contexto ia parar no lugar do
+    nome do template e chegava como chave no LRUCache do jinja2).
+
+    Fixar versao aqui ja falhou duas vezes nos dois sentidos. Perguntar a
+    assinatura funciona nos dois mundos.
+    """
+    try:
+        params = list(
+            inspect.signature(Jinja2Templates.TemplateResponse).parameters
+        )
+    except (TypeError, ValueError):  # pragma: no cover - assinatura opaca
+        return False
+    # antiga: (self, name, context, ...) | nova: (self, request, name, context, ...)
+    return len(params) > 1 and params[1] == "request"
+
+
 def _render(request: Request, template_name: str, ctx: dict):
-    # [FIX] o ambiente real do portal (Python 3.12, venv da app) tem
-    # starlette 0.27.0 instalado — essa versao usa a assinatura ANTIGA
-    # TemplateResponse(name, context), com "request" DENTRO do dict de
-    # contexto (nunca posicional). A troca pra TemplateResponse(request,
-    # name, context) — assinatura de uma starlette 1.3.1 que nao existe
-    # neste ambiente — quebrava TODA pagina com
-    # "ValueError: context must include a 'request' key" (ja tinha sido
-    # corrigido uma vez, 2026-07-06, e foi revertido por engano).
+    # "request" segue no contexto nos dois casos: os templates usam url_for(),
+    # que exige request no namespace do Jinja.
     ctx = {**ctx, "request": request}
-    return _templates(request).TemplateResponse(template_name, ctx)
+    templates = _templates(request)
+    if _request_e_posicional():
+        return templates.TemplateResponse(request, template_name, ctx)
+    return templates.TemplateResponse(template_name, ctx)
 
 
 def _membro_da_sessao(request: Request, conn: sqlite3.Connection) -> Optional[dict]:
@@ -120,11 +145,28 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
     membro = _membro_da_sessao(request, conn)
     if membro is None:
         return RedirectResponse("/login", status_code=303)
+    eh_dono = access.eh_dono(membro)
     obras = (
         repo.listar_todas_obras(conn)
-        if access.eh_dono(membro)
+        if eh_dono
         else repo.listar_obras_por_membro(conn, membro["id"])
     )
+    # Já vêm ORDER BY created_at DESC; agrupa por dono p/ sidebar + tabela
+    # (dono vê blocos «Lista de Obras — {usuário}»; membro só o próprio).
+    meu_nome = (membro.get("nome") or membro.get("login") or "").strip() or "—"
+    grupos_map: dict[str, list] = {}
+    ordem_donos: list[str] = []
+    for o in obras:
+        dono = (o.get("membro_nome") or o.get("membro_login") or meu_nome or "—").strip()
+        if dono not in grupos_map:
+            grupos_map[dono] = []
+            ordem_donos.append(dono)
+        grupos_map[dono].append(o)
+    # dono logado primeiro; demais na ordem de primeira aparição (já por data)
+    if meu_nome in grupos_map:
+        ordem_donos = [meu_nome] + [d for d in ordem_donos if d != meu_nome]
+    obras_por_membro = [{"dono": d, "obras": grupos_map[d]} for d in ordem_donos]
+
     drive = request.app.state.estado_global.get("drive", "ok")
     drive_folder_url = (
         f"https://drive.google.com/drive/folders/{membro['drive_folder_id']}"
@@ -135,9 +177,45 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
         settings.public_consulta_db_path, [o["id"] for o in obras],
     )
     return _render(request, "obras_lista.html", {
-        "membro": membro, "obras": obras, "drive": drive,
-        "drive_folder_url": drive_folder_url, "codigos_publicos": codigos_publicos,
-        "nav_ativo": "obras",
+        "membro": membro, "obras": obras, "obras_por_membro": obras_por_membro,
+        "drive": drive, "drive_folder_url": drive_folder_url,
+        "codigos_publicos": codigos_publicos, "nav_ativo": "obras",
+        "eh_dono": eh_dono, "meu_nome": meu_nome,
+    })
+
+
+# --------------------------------------------------------------------------- #
+# Viewer do estrutural limpo (P2)
+# --------------------------------------------------------------------------- #
+
+@router.get("/app/obras/{obra_id}/viewer/{pavimento}", response_class=HTMLResponse)
+def pagina_viewer(
+    obra_id: str, pavimento: str, request: Request,
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Tela do estrutural limpo com destaque por classe.
+
+    A página só monta o palco; os dados vêm por fetch de
+    `/obras/{id}/viewer/{pav}` (viewer_routes), que já resolve fonte, transform e
+    itens. Assim o contrato do viewer vive num lugar só.
+    """
+    membro = _membro_da_sessao(request, conn)
+    if membro is None:
+        return RedirectResponse("/login", status_code=303)
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None or not access.pode_ver_obra(obra, membro):
+        return RedirectResponse("/app/obras", status_code=303)
+
+    # Pavimentos que TÊM torre limpa — é o que o seletor pode oferecer. Oferecer
+    # um pavimento sem torre só produziria 409 depois do clique.
+    settings = request.app.state.settings
+    lp = obra.get("local_path")
+    obra_dir = Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra")
+    pavimentos = viewer_pavimentos.listar_pavimentos_com_torre(obra_dir, obra)
+
+    return _render(request, "viewer.html", {
+        "membro": membro, "obra": obra, "pavimento": pavimento,
+        "pavimentos": pavimentos, "nav_ativo": "obras",
     })
 
 
@@ -152,7 +230,6 @@ def pagina_obra_detalhe(
 ):
     """Detalhe/progresso da obra. Namespace /app/* isola as páginas HTML das rotas
     JSON /obras/* (obras_routes), evitando colisão de path."""
-    import traceback
     try:
         membro = _membro_da_sessao(request, conn)
         if membro is None:
@@ -235,16 +312,25 @@ def pagina_obra_detalhe(
             "job_ativo": _job_ativo(jobs),
             "validacao_concluida": validacao_concluida,
             "pavimento": settings.pav_default,
+            # Pavimentos com estrutural limpo — um link de viewer por pavimento.
+            "pavimentos_viewer": viewer_pavimentos.listar_pavimentos_com_torre(
+                obra_dir, obra
+            ),
             "classe_ativa": None,
             "item_id": None,
             "nav_ativo": "obras",
         }
 
-    except Exception as e:
-        err_msg = str(e) + "\n" + traceback.format_exc()
-        with open("C:/Users/Thierry/Desktop/err_pagina.txt", "w", encoding="utf-8") as f:
-            f.write(err_msg)
-        raise HTTPException(status_code=500, detail=err_msg)
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        # [2026-07-30] Removida a escrita de C:/Users/Thierry/Desktop/err_pagina.txt
+        # (caminho de Desktop fixo num processo de servidor). Vai para o log, e o
+        # corpo da resposta deixa de expor stack trace ao usuario.
+        logging.getLogger("portal.paginas_routes").exception(
+            "obra_detalhe falhou: obra=%s", obra_id
+        )
+        raise HTTPException(status_code=500, detail=f"falha ao montar a pagina: {exc}") from exc
     return _render(request, "obra_detalhe.html", ctx)
 
 

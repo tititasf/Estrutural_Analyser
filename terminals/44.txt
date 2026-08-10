@@ -1,0 +1,22 @@
+---
+pid: 15920
+cwd: "D:\Agente-cad-PYSIDE"
+command: "Start-Sleep -Seconds 25; Get-Content D:\\Agente-cad-PYSIDE\\terminals\\43.txt -Tail 15"
+started_at: 2026-07-17T21:42:53.709Z
+running_for_ms: 1024999  
+---
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\01_N2_vs_N4_side_by_side.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\02_N4_VIEW_A_detail.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\03_N2_CE_faceA_detail.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\04_LEFT_zoom_N2_N4.png
+wrote D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision\05_RIGHT_zoom_N2_N4.png
+OUT D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_arete_review\vision

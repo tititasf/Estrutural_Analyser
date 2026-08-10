@@ -71,6 +71,21 @@ def test_listar_brutos_recorte_dedup_dwg_dxf_mesmo_stem():
     assert brutos[0]["nome"] == "TMC-EST-PE-6000-13P-R03.dxf"
 
 
+def test_listar_brutos_recorte_dedup_oda_ascii(tmp_path):
+    """[2026-07-31] conversão ODA grava stem_R2018_ASCII_ODA.dxf além do
+    stem.dxf — contam como 1 bruto (preferência pelo ODA)."""
+    entrada = tmp_path / "entrada"
+    entrada.mkdir()
+    (entrada / "TMC-EST-EX-2000-TER-R01.dxf").write_text("0\nEOF\n", encoding="utf-8")
+    (entrada / "TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA.dxf").write_text("0\nEOF\n", encoding="utf-8")
+    (entrada / "TMC-EST-EX-2000-TER-R01.dwg").write_bytes(b"AC10")
+    brutos = rr.listar_brutos_recorte(tmp_path)
+    assert len(brutos) == 1
+    assert brutos[0]["bruto_id"] == "TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA"
+    assert brutos[0]["bruto_base"] == "TMC-EST-EX-2000-TER-R01"
+    assert rr.stem_bruto_canonico("TMC-EST-EX-2000-TER-R01_R2018_ASCII_ODA") == "TMC-EST-EX-2000-TER-R01"
+
+
 def test_listar_brutos_recorte_sem_entrada_devolve_vazio(tmp_path):
     assert rr.listar_brutos_recorte(tmp_path / "obra_sem_entrada") == []
 

@@ -6,6 +6,7 @@ Mesma fixture da obra real usada em test_portal_n1_routes.py.
 from __future__ import annotations
 
 import contextlib
+import re
 from pathlib import Path
 
 import httpx
@@ -14,6 +15,21 @@ import pytest
 from portal.app import auth
 from portal.app.main import create_app
 from portal.db import connection, repository as repo
+
+
+def _dimensoes_svg_px(conteudo: bytes) -> tuple[float, float]:
+    """(largura, altura) em px a partir do cabeçalho do SVG do matplotlib.
+
+    O matplotlib emite width/height em POINTS (figsize_in * 72) enquanto o
+    renderer trabalha em px com dpi=100 — logo px = pt * 100 / 72. Conferido:
+    largura_px=2400 sai como width="1728pt".
+    """
+    cabecalho = conteudo[:1000].decode("utf-8", errors="replace")
+    largura = re.search(r'width="([\d.]+)pt"', cabecalho)
+    altura = re.search(r'height="([\d.]+)pt"', cabecalho)
+    if not (largura and altura):
+        raise AssertionError(f"SVG sem width/height em pt: {cabecalho[:200]!r}")
+    return (float(largura.group(1)) * 100 / 72, float(altura.group(1)) * 100 / 72)
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _OBRA_DIR_REAL = _REPO_ROOT / "DADOS-OBRAS" / "thierry.tasf@gmail.com" / "TMC-EST-PE-6000-13P-R03"
@@ -147,12 +163,12 @@ async def test_foto_recorte_limpo_e_bruto_reais(settings):
 
         r_limpo = await client.get(f"/obras/{obra_id}/recortes/LAJ/L301/foto", params={"tipo": "limpo"})
         assert r_limpo.status_code == 200
-        assert r_limpo.headers["content-type"] == "image/png"
-        assert r_limpo.content[:8] == b"\x89PNG\r\n\x1a\n"
+        assert r_limpo.headers["content-type"] == "image/svg+xml"
+        assert b"<svg" in r_limpo.content[:2000]
 
         r_bruto = await client.get(f"/obras/{obra_id}/recortes/LAJ/L301/foto", params={"tipo": "bruto"})
         assert r_bruto.status_code == 200
-        assert r_bruto.content[:8] == b"\x89PNG\r\n\x1a\n"
+        assert b"<svg" in r_bruto.content[:2000]
         assert r_bruto.content != r_limpo.content  # imagens DIFERENTES (bruto tem mais contexto)
 
 
@@ -167,7 +183,7 @@ async def test_foto_recorte_detalhes_real(settings):
 
         r_detalhes = await client.get(f"/obras/{obra_id}/recortes/LAJ/L301/foto", params={"tipo": "detalhes"})
         assert r_detalhes.status_code == 200
-        assert r_detalhes.content[:8] == b"\x89PNG\r\n\x1a\n"
+        assert b"<svg" in r_detalhes.content[:2000]
 
         r_limpo = await client.get(f"/obras/{obra_id}/recortes/LAJ/L301/foto", params={"tipo": "limpo"})
         assert r_detalhes.content != r_limpo.content
@@ -230,11 +246,16 @@ async def test_foto_bruto_completo_alta_resolucao(settings):
         bruto_id = r_brutos.json()["brutos"][0]["bruto_id"]
         r = await client.get(f"/obras/{obra_id}/recortes/brutos/{bruto_id}/foto")
         assert r.status_code == 200
-        assert r.content[:8] == b"\x89PNG\r\n\x1a\n"
-        from PIL import Image
-        import io
-        im = Image.open(io.BytesIO(r.content))
-        assert max(im.size) >= 2000  # alta resolução, não o 640x480 antigo
+        assert b"<svg" in r.content[:2000]
+        # [2026-07-30] Era Image.open (PIL) sobre PNG; a rota migrou para SVG e o
+        # PIL não abre SVG. A intenção do teste continua a mesma — alta resolução,
+        # não o 640x480 antigo — medida agora no cabeçalho do próprio SVG.
+        # [2026-07-31] Alvo caiu de 2400 para PREVIEW_ALVO_PX=1200
+        # (dxf_preview.py): SVG do matplotlib em 2400px chegava a ~28MB por causa
+        # da quantidade de paths, e o pan/zoom no navegador morria. 1200 continua
+        # muito acima do 640x480 antigo — o que este teste protege.
+        from portal.app.dxf_preview import PREVIEW_ALVO_PX
+        assert max(_dimensoes_svg_px(r.content)) >= PREVIEW_ALVO_PX
 
 
 @pytest.mark.asyncio
@@ -248,7 +269,7 @@ async def test_foto_torre_1_alta_resolucao_diferente_do_bruto(settings):
         r_bruto = await client.get(f"/obras/{obra_id}/recortes/brutos/{bruto_id}/foto")
         r_torre = await client.get(f"/obras/{obra_id}/recortes/brutos/{bruto_id}/torre_1/foto")
         assert r_torre.status_code == 200
-        assert r_torre.content[:8] == b"\x89PNG\r\n\x1a\n"
+        assert b"<svg" in r_torre.content[:2000]
         assert r_torre.content != r_bruto.content
 
 

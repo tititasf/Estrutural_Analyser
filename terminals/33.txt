@@ -1,0 +1,134 @@
+---
+pid: 15632
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe scripts/arete/headless_sa_analise.py --secao fundos_viga --item V301 V302 V303 V304 V305 V306 V307 V308 V309 V309A V310 V311 V312 V313 V314 V315 V316 V317 V318 V319 V320 V321 V322 V323 V324 V325 V326 V327 V328 V329 V330 V331 V332 VF202 VF203 VF301 --wait --persist-db"
+started_at: 2026-07-17T05:08:04.103Z
+running_for_ms: 36389998 
+---
+[SA] Locks adquiridos: headless_sa_fv, headless_sa_beams (escopo classe:FV+recurso:beams).
+[SA-HUMAN] project_id: dd238e47-1dc6-4f63-a760-4e7ce19a7386
+[SA-HUMAN] projects.dxf_path: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+[SA-HUMAN] Fast path N1 FV: motores canonicos sem MainWindow
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+[SA] Metodos bindados: 194 (4 ignorados)
+[SA] Cache N1 contextual: HIT 2b6160a4ed05
+[SA-HUMAN][PERF] analise N1 contextual incremental: 14.88s (acumulado 14.88s)
+[SA-HUMAN][PERF] analise N1 contextual completa: 0.44s (acumulado 15.32s)
+[SA] 🧭 Lajes: 0 visão(ões) de corte, 9 pilar(es) de apoio, 0 texto(s) de nível vizinho; 0 nível(is) por contexto, 0 por delta de corte.
+[SA-HUMAN][PERF] merge granular e saneamento N1: 1.57s (acumulado 16.88s)
+[SA-HUMAN] Dependencias de viga recusadas por regressao de topologia: {'V322': {'old': (4, 410.0), 'new': (3, 380.0)}}
+[SA-HUMAN] Filtro de itens: V301, V302, V303, V304, V305, V306, V307, V308, V309, V309A, V310, V311, V312, V313, V314, V315, V316, V317, V318, V319, V320, V321, V322, V323, V324, V325, V326, V327, V328, V329, V330, V331, V332, VF202, VF203, VF301 em fundos_viga
+[SA-HUMAN] Merge granular pronto: 46 PIL, 31 LAJ, 36 vigas.
+[HTML] fundos_viga 1/36: V301
+[HTML] fundos_viga 2/36: V302
+[HTML] fundos_viga 3/36: V303
+[HTML] fundos_viga 4/36: V304
+[HTML] fundos_viga 5/36: V305
+[HTML] fundos_viga 6/36: V306
+[HTML] fundos_viga 7/36: V307
+[HTML] fundos_viga 8/36: V308
+[HTML] fundos_viga 9/36: V309
+[HTML] fundos_viga 10/36: V309A
+[HTML] fundos_viga 11/36: V310
+[HTML] fundos_viga 12/36: V311
+[HTML] fundos_viga 13/36: V312
+[HTML] fundos_viga 14/36: V313
+[HTML] fundos_viga 15/36: V314
+[HTML] fundos_viga 16/36: V315
+[HTML] fundos_viga 17/36: V316
+[HTML] fundos_viga 18/36: V317
+[HTML] fundos_viga 19/36: V318
+[HTML] fundos_viga 20/36: V319
+[HTML] fundos_viga 21/36: V320
+[HTML] fundos_viga 22/36: V321
+[HTML] fundos_viga 23/36: V322
+[HTML] fundos_viga 24/36: V323
+[HTML] fundos_viga 25/36: V324
+[HTML] fundos_viga 26/36: V325
+[HTML] fundos_viga 27/36: V326
+[HTML] fundos_viga 28/36: V327
+[HTML] fundos_viga 29/36: V328
+[HTML] fundos_viga 30/36: V329
+[HTML] fundos_viga 31/36: V330
+[HTML] fundos_viga 32/36: V331
+[HTML] fundos_viga 33/36: V332
+[HTML] fundos_viga 34/36: VF202
+[HTML] fundos_viga 35/36: VF203
+[HTML] fundos_viga 36/36: VF301
+[SA-HUMAN] Pack exportado: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260717_020822_089996_fundos_viga_3296
+[SA-HUMAN][PERF] exportacao inicial de fichas: 143.21s (acumulado 160.10s)
+[SA-HUMAN] Diagnóstico FV: 26 alerta(s)
+[SA-HUMAN][PERF] diagnosticos canonicos: 0.51s (acumulado 160.60s)
+[SA-HUMAN] Aguardando lock curto de commit SQLite.
+[SA-HUMAN] DB COMMIT transacional: {'pillars': 46, 'slabs': 31, 'beams': 36} -> {'pillars': 46, 'slabs': 31, 'beams': 36}
+[SA-HUMAN][PERF] persistencia transacional: 0.22s (acumulado 160.82s)
+[SA-HUMAN] FV results para N3: 36 viga(s)
+[SA-HUMAN] N3 NOVA isolado: 36 gerado(s), 0 ausente(s)
+[HTML] fundos_viga 1/36: V301
+[HTML] fundos_viga 2/36: V302
+[HTML] fundos_viga 3/36: V303
+[HTML] fundos_viga 4/36: V304
+[HTML] fundos_viga 5/36: V305
+[HTML] fundos_viga 6/36: V306
+[HTML] fundos_viga 7/36: V307
+[HTML] fundos_viga 8/36: V308
+[HTML] fundos_viga 9/36: V309
+[HTML] fundos_viga 10/36: V309A
+[HTML] fundos_viga 11/36: V310
+[HTML] fundos_viga 12/36: V311
+[HTML] fundos_viga 13/36: V312
+[HTML] fundos_viga 14/36: V313
+[HTML] fundos_viga 15/36: V314
+[HTML] fundos_viga 16/36: V315
+[HTML] fundos_viga 17/36: V316
+[HTML] fundos_viga 18/36: V317
+[HTML] fundos_viga 19/36: V318
+[HTML] fundos_viga 20/36: V319
+[HTML] fundos_viga 21/36: V320
+[HTML] fundos_viga 22/36: V321
+[HTML] fundos_viga 23/36: V322
+[HTML] fundos_viga 24/36: V323
+[HTML] fundos_viga 25/36: V324
+[HTML] fundos_viga 26/36: V325
+[HTML] fundos_viga 27/36: V326
+[HTML] fundos_viga 28/36: V327
+[HTML] fundos_viga 29/36: V328
+[HTML] fundos_viga 30/36: V329
+[HTML] fundos_viga 31/36: V330
+[HTML] fundos_viga 32/36: V331
+[HTML] fundos_viga 33/36: V332
+[HTML] fundos_viga 34/36: VF202
+[HTML] fundos_viga 35/36: VF203
+[HTML] fundos_viga 36/36: VF301
+[SA-HUMAN] Pack reexportado c/ N3: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260717_021106_197157_fundos_viga_3296
+[SA-HUMAN][PERF] previews N3 e reexportacao: 165.09s (acumulado 325.91s)
+[SA-HUMAN] Manifesto Arete: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260717_021106_197157_fundos_viga_3296\arete_manifest.json
+[SA-HUMAN][PERF] manifesto Arete: 0.65s (acumulado 326.56s)
+[SA-HUMAN][PERF] total da rodada: 326.56s
+
+============================================================
+RESUMO: Obra_TREINO_1 / TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA
+  Pilares : 46
+  Lajes   : 31
+  Vigas   : 36
+  HTMLs   : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260717_021106_197157_fundos_viga_3296
+  Diag. FV: ok
+    JSON : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_fv\Obra_TREINO_1\13_PAV\20260717_020822\diagnostico_fv_n1_n2.json
+    JSONL: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_fv\Obra_TREINO_1\13_PAV\20260717_020822\triagem_auto_fv.jsonl
+  Manifest: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260717_021106_197157_fundos_viga_3296\arete_manifest.json
+  Fonte   : D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+  DB      : COMMITTED
+    Antes : {'pillars': 46, 'slabs': 31, 'beams': 36}
+    Depois: {'pillars': 46, 'slabs': 31, 'beams': 36}
+============================================================
+[SA] Locks liberados: headless_sa_fv, headless_sa_beams.

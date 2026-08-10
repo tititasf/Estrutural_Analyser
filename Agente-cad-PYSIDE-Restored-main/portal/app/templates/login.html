@@ -21,6 +21,10 @@
       <input id="senha" name="senha" type="password"
              autocomplete="current-password" required>
     </div>
+    <label for="manter-conectado" style="display:flex;align-items:center;gap:.55rem;margin:.2rem 0 1rem;cursor:pointer">
+      <input id="manter-conectado" name="manter_conectado" type="checkbox" style="width:auto;margin:0">
+      <span>Manter-me conectado até eu clicar em Sair</span>
+    </label>
     <button type="submit" id="btn-entrar" class="btn" style="width:100%">Entrar</button>
   </form>
 
@@ -42,8 +46,12 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        login: document.getElementById('login').value,
+        // trim só no LOGIN — autofill e copiar/colar costumam trazer espaço no
+        // fim, e isso dava "usuário incorreto" sem pista. A SENHA vai crua:
+        // espaço pode fazer parte dela de propósito.
+        login: document.getElementById('login').value.trim(),
         senha: document.getElementById('senha').value,
+        manter_conectado: document.getElementById('manter-conectado').checked,
       }),
     }).then(function (r) {
       if (r.ok) { window.location.href = '/app/obras'; return; }

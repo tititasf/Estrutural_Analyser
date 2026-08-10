@@ -1,0 +1,58 @@
+{
+  "schema": "arete.qa_content_cache/v1",
+  "namespace": "n1_field_probe",
+  "key": "c4b23566286d600248de3ed9a247d35f904f9f0bfad2d79798af7862c52e94f6",
+  "engine_version": "1.4.0",
+  "created_at": "2026-07-14T04:35:30+00:00",
+  "input_hashes": {
+    "PIL:P35": "851680f68fcaecce26cbd65d73e66f55624604149d8c3a989071958b219093eb"
+  },
+  "value": {
+    "schema": "arete.qa_n1_field_probe_result/v1",
+    "engine_version": "1.4.0",
+    "project_id": "p",
+    "question": "Resolver entidades relacionadas para face",
+    "overall": "FAIL",
+    "scope_authority": "field_checks_only; never validates full item or ficha",
+    "fields": [
+      {
+        "id": "ref",
+        "class": "PIL",
+        "item": "P35",
+        "source": "payload",
+        "path": "missing",
+        "transform": "raw",
+        "value": null,
+        "overridden": false,
+        "snapshot_hash": "851680f68fcaecce26cbd65d73e66f55624604149d8c3a989071958b219093eb",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "project_id"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "resolve:ref",
+        "op": "present",
+        "status": "FAIL",
+        "reason": "present divergente",
+        "left": null,
+        "right": null,
+        "metric": {}
+      }
+    ],
+    "snapshots": {
+      "PIL:P35": "851680f68fcaecce26cbd65d73e66f55624604149d8c3a989071958b219093eb"
+    },
+    "provenance": {
+      "allowed": "persisted N1 + explicit candidate overlay",
+      "forbidden": "N2/N4 as N1 proof or N3 input",
+      "cross_class": [
+        "PIL"
+      ]
+    }
+  }
+}

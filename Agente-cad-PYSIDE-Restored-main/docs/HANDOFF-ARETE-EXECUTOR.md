@@ -139,8 +139,17 @@ classe a classe (AR-1 a AR-4) até 100%, selando golden set.
 ## 4. Protocolo de autonomia (ordem do usuário)
 - **Executar, validar e corrigir sem pedir permissão.** Instalar dependências que faltarem
   (pip). Criar arquivos/pastas livremente dentro de `scripts/arete/`, `GOLDEN/`, `docs/`.
-- **Validação visual é obrigatória:** renderizar PNGs e LER as imagens (visão própria)
-  em todos os FAIL + amostragem dos PASS. Scoring determinístico decide; visão diagnostica.
+- **Visão canónica dual-mode (2026-07-17):** conteúdo = DXF full layers (CE).
+  **Agente CLI julga em PNG** (Read/vision). **SVG** no HTML com `--persist-db`,
+  app e **portal web**. Headless **sem** persist = só imagem (dinâmico).
+  Plot LINE-only **não** é N2. `docs/QA-VISAO-EVIDENCIA-CANONICA.md`.
+  Validação rasa = **ruído**.
+- **Inventário mínimo antes do veredito:** extrair LINE/cota/texto com coords e
+  status MATCH/MISSING/EXTRA; anexar `inventario.path`.
+  `docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md`. PASS por contagem ou
+  “parece igual” é inválido (`g2v_harness.validar_veredito_cli`).
+- **Validação visual é obrigatória:** agente **Read** nos PNG full-render;
+  humano/web **SVG**. FAIL + amostragem dos PASS. Scoring decide; visão diagnostica.
 - **Um fix por causa, nunca hack por item.** Após cada fix, rerodar regressão do que já passou.
 - **Parar e perguntar APENAS se:** (a) decisão de produto ambígua (ex.: divergência que pode
   ser exceção legítima vs bug), (b) ação destrutiva fora do escopo, (c) bloqueio externo real.

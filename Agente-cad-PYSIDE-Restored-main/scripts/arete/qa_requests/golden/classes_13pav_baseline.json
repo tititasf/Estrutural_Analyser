@@ -1,0 +1,594 @@
+{
+  "schema": "arete.qa_class_golden/v2",
+  "run_id": "20260716_150647_class_golden",
+  "created_at": "2026-07-16T18:06:48+00:00",
+  "project_id": "dd238e47-1dc6-4f63-a760-4e7ce19a7386",
+  "db": "D:\\Agente-cad-PYSIDE\\project_data.vision",
+  "classes": {
+    "PIL": {
+      "classe": "PIL",
+      "items_requested": [
+        "P1",
+        "P3",
+        "P11",
+        "P35"
+      ],
+      "items_seen": [
+        "P1",
+        "P11",
+        "P3",
+        "P35"
+      ],
+      "decision_totals": {
+        "CONFIRMAR": 34,
+        "N/A_CONFIRMADO": 14
+      },
+      "per_item": {
+        "P1": {
+          "CONFIRMAR": 8,
+          "N/A_CONFIRMADO": 4
+        },
+        "P11": {
+          "CONFIRMAR": 9,
+          "N/A_CONFIRMADO": 3
+        },
+        "P3": {
+          "CONFIRMAR": 9,
+          "N/A_CONFIRMADO": 3
+        },
+        "P35": {
+          "CONFIRMAR": 8,
+          "N/A_CONFIRMADO": 4
+        }
+      },
+      "fields": {
+        "P1": {
+          "pilar_segs": "CONFIRMAR",
+          "name": "CONFIRMAR",
+          "dim": "CONFIRMAR",
+          "p_sA_l1_n": "N/A_CONFIRMADO",
+          "p_sA_v": "CONFIRMAR",
+          "p_sB_l1_n": "CONFIRMAR",
+          "p_sB_v": "CONFIRMAR",
+          "p_sC_l1_n": "N/A_CONFIRMADO",
+          "p_sC_v": "N/A_CONFIRMADO",
+          "p_sD_l1_n": "N/A_CONFIRMADO",
+          "p_sD_v": "CONFIRMAR",
+          "connections": "CONFIRMAR"
+        },
+        "P11": {
+          "pilar_segs": "CONFIRMAR",
+          "name": "CONFIRMAR",
+          "dim": "CONFIRMAR",
+          "p_sA_l1_n": "N/A_CONFIRMADO",
+          "p_sA_v": "CONFIRMAR",
+          "p_sB_l1_n": "CONFIRMAR",
+          "p_sB_v": "CONFIRMAR",
+          "p_sC_l1_n": "N/A_CONFIRMADO",
+          "p_sC_v": "CONFIRMAR",
+          "p_sD_l1_n": "CONFIRMAR",
+          "p_sD_v": "N/A_CONFIRMADO",
+          "connections": "CONFIRMAR"
+        },
+        "P3": {
+          "pilar_segs": "CONFIRMAR",
+          "name": "CONFIRMAR",
+          "dim": "CONFIRMAR",
+          "p_sA_l1_n": "N/A_CONFIRMADO",
+          "p_sA_v": "CONFIRMAR",
+          "p_sB_l1_n": "CONFIRMAR",
+          "p_sB_v": "CONFIRMAR",
+          "p_sC_l1_n": "N/A_CONFIRMADO",
+          "p_sC_v": "N/A_CONFIRMADO",
+          "p_sD_l1_n": "CONFIRMAR",
+          "p_sD_v": "CONFIRMAR",
+          "connections": "CONFIRMAR"
+        },
+        "P35": {
+          "pilar_segs": "CONFIRMAR",
+          "name": "CONFIRMAR",
+          "dim": "CONFIRMAR",
+          "p_sA_l1_n": "N/A_CONFIRMADO",
+          "p_sA_v": "CONFIRMAR",
+          "p_sB_l1_n": "N/A_CONFIRMADO",
+          "p_sB_v": "CONFIRMAR",
+          "p_sC_l1_n": "N/A_CONFIRMADO",
+          "p_sC_v": "CONFIRMAR",
+          "p_sD_l1_n": "N/A_CONFIRMADO",
+          "p_sD_v": "CONFIRMAR",
+          "connections": "CONFIRMAR"
+        }
+      },
+      "n_decisions": 48,
+      "n_findings": 3,
+      "elapsed_ms": 744,
+      "adapter": "PilEvidenceAuditor"
+    },
+    "LAJ": {
+      "classe": "LAJ",
+      "items_requested": [
+        "L301",
+        "L318",
+        "L319",
+        "L320"
+      ],
+      "items_seen": [
+        "L301",
+        "L318",
+        "L319",
+        "L320"
+      ],
+      "decision_totals": {
+        "CONFIRMAR": 32
+      },
+      "per_item": {
+        "L301": {
+          "CONFIRMAR": 8
+        },
+        "L318": {
+          "CONFIRMAR": 8
+        },
+        "L319": {
+          "CONFIRMAR": 8
+        },
+        "L320": {
+          "CONFIRMAR": 8
+        }
+      },
+      "fields": {
+        "L301": {
+          "name": "CONFIRMAR",
+          "laje_dim": "CONFIRMAR",
+          "laje_visao_corte": "CONFIRMAR",
+          "laje_vizinhas_niveis": "CONFIRMAR",
+          "laje_pilares_apoio": "CONFIRMAR",
+          "laje_nivel": "CONFIRMAR",
+          "laje_outline_segs": "CONFIRMAR",
+          "laje_islands": "CONFIRMAR"
+        },
+        "L318": {
+          "name": "CONFIRMAR",
+          "laje_dim": "CONFIRMAR",
+          "laje_visao_corte": "CONFIRMAR",
+          "laje_vizinhas_niveis": "CONFIRMAR",
+          "laje_pilares_apoio": "CONFIRMAR",
+          "laje_nivel": "CONFIRMAR",
+          "laje_outline_segs": "CONFIRMAR",
+          "laje_islands": "CONFIRMAR"
+        },
+        "L319": {
+          "name": "CONFIRMAR",
+          "laje_dim": "CONFIRMAR",
+          "laje_visao_corte": "CONFIRMAR",
+          "laje_vizinhas_niveis": "CONFIRMAR",
+          "laje_pilares_apoio": "CONFIRMAR",
+          "laje_nivel": "CONFIRMAR",
+          "laje_outline_segs": "CONFIRMAR",
+          "laje_islands": "CONFIRMAR"
+        },
+        "L320": {
+          "name": "CONFIRMAR",
+          "laje_dim": "CONFIRMAR",
+          "laje_visao_corte": "CONFIRMAR",
+          "laje_vizinhas_niveis": "CONFIRMAR",
+          "laje_pilares_apoio": "CONFIRMAR",
+          "laje_nivel": "CONFIRMAR",
+          "laje_outline_segs": "CONFIRMAR",
+          "laje_islands": "CONFIRMAR"
+        }
+      },
+      "n_decisions": 32,
+      "n_findings": 0,
+      "elapsed_ms": 128,
+      "adapter": "LajEvidenceAuditor"
+    },
+    "FV": {
+      "classe": "FV",
+      "items_requested": [
+        "V301",
+        "V303",
+        "V305",
+        "V306",
+        "V307",
+        "V312",
+        "V327",
+        "V328"
+      ],
+      "items_seen": [
+        "V301",
+        "V303",
+        "V305",
+        "V306",
+        "V307",
+        "V312",
+        "V327",
+        "V328"
+      ],
+      "decision_totals": {
+        "CONFIRMAR": 179,
+        "N/A_CONFIRMADO": 8,
+        "PENDENTE": 2
+      },
+      "per_item": {
+        "V301": {
+          "CONFIRMAR": 82,
+          "N/A_CONFIRMADO": 1
+        },
+        "V303": {
+          "CONFIRMAR": 32,
+          "N/A_CONFIRMADO": 1
+        },
+        "V305": {
+          "CONFIRMAR": 7,
+          "N/A_CONFIRMADO": 1
+        },
+        "V306": {
+          "CONFIRMAR": 32,
+          "N/A_CONFIRMADO": 1
+        },
+        "V307": {
+          "CONFIRMAR": 6,
+          "PENDENTE": 1,
+          "N/A_CONFIRMADO": 1
+        },
+        "V312": {
+          "CONFIRMAR": 7,
+          "N/A_CONFIRMADO": 1
+        },
+        "V327": {
+          "CONFIRMAR": 6,
+          "PENDENTE": 1,
+          "N/A_CONFIRMADO": 1
+        },
+        "V328": {
+          "CONFIRMAR": 7,
+          "N/A_CONFIRMADO": 1
+        }
+      },
+      "fields": {
+        "V301": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "CONFIRMAR",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_2_exists": "CONFIRMAR",
+          "viga_fundo_seg_2_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_2_dim": "CONFIRMAR",
+          "viga_fundo_seg_2_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_2_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_3_exists": "CONFIRMAR",
+          "viga_fundo_seg_3_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_3_dim": "CONFIRMAR",
+          "viga_fundo_seg_3_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_3_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_4_exists": "CONFIRMAR",
+          "viga_fundo_seg_4_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_4_dim": "CONFIRMAR",
+          "viga_fundo_seg_4_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_4_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_5_exists": "CONFIRMAR",
+          "viga_fundo_seg_5_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_5_dim": "CONFIRMAR",
+          "viga_fundo_seg_5_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_5_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_6_exists": "CONFIRMAR",
+          "viga_fundo_seg_6_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_6_dim": "CONFIRMAR",
+          "viga_fundo_seg_6_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_6_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_7_exists": "CONFIRMAR",
+          "viga_fundo_seg_7_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_7_dim": "CONFIRMAR",
+          "viga_fundo_seg_7_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_7_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_8_exists": "CONFIRMAR",
+          "viga_fundo_seg_8_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_8_dim": "CONFIRMAR",
+          "viga_fundo_seg_8_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_8_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_9_exists": "CONFIRMAR",
+          "viga_fundo_seg_9_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_9_dim": "CONFIRMAR",
+          "viga_fundo_seg_9_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_9_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_10_exists": "CONFIRMAR",
+          "viga_fundo_seg_10_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_10_dim": "CONFIRMAR",
+          "viga_fundo_seg_10_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_10_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_11_exists": "CONFIRMAR",
+          "viga_fundo_seg_11_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_11_dim": "CONFIRMAR",
+          "viga_fundo_seg_11_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_11_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_12_exists": "CONFIRMAR",
+          "viga_fundo_seg_12_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_12_dim": "CONFIRMAR",
+          "viga_fundo_seg_12_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_12_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_13_exists": "CONFIRMAR",
+          "viga_fundo_seg_13_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_13_dim": "CONFIRMAR",
+          "viga_fundo_seg_13_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_13_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_14_exists": "CONFIRMAR",
+          "viga_fundo_seg_14_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_14_dim": "CONFIRMAR",
+          "viga_fundo_seg_14_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_14_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_15_exists": "CONFIRMAR",
+          "viga_fundo_seg_15_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_15_dim": "CONFIRMAR",
+          "viga_fundo_seg_15_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_15_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_16_exists": "CONFIRMAR",
+          "viga_fundo_seg_16_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_16_dim": "CONFIRMAR",
+          "viga_fundo_seg_16_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_16_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V303": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "CONFIRMAR",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_2_exists": "CONFIRMAR",
+          "viga_fundo_seg_2_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_2_dim": "CONFIRMAR",
+          "viga_fundo_seg_2_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_2_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_3_exists": "CONFIRMAR",
+          "viga_fundo_seg_3_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_3_dim": "CONFIRMAR",
+          "viga_fundo_seg_3_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_3_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_4_exists": "CONFIRMAR",
+          "viga_fundo_seg_4_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_4_dim": "CONFIRMAR",
+          "viga_fundo_seg_4_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_4_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_5_exists": "CONFIRMAR",
+          "viga_fundo_seg_5_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_5_dim": "CONFIRMAR",
+          "viga_fundo_seg_5_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_5_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_6_exists": "CONFIRMAR",
+          "viga_fundo_seg_6_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_6_dim": "CONFIRMAR",
+          "viga_fundo_seg_6_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_6_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V305": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "CONFIRMAR",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V306": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "CONFIRMAR",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_2_exists": "CONFIRMAR",
+          "viga_fundo_seg_2_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_2_dim": "CONFIRMAR",
+          "viga_fundo_seg_2_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_2_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_3_exists": "CONFIRMAR",
+          "viga_fundo_seg_3_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_3_dim": "CONFIRMAR",
+          "viga_fundo_seg_3_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_3_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_4_exists": "CONFIRMAR",
+          "viga_fundo_seg_4_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_4_dim": "CONFIRMAR",
+          "viga_fundo_seg_4_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_4_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_5_exists": "CONFIRMAR",
+          "viga_fundo_seg_5_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_5_dim": "CONFIRMAR",
+          "viga_fundo_seg_5_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_5_local_fim": "CONFIRMAR",
+          "viga_fundo_seg_6_exists": "CONFIRMAR",
+          "viga_fundo_seg_6_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_6_dim": "CONFIRMAR",
+          "viga_fundo_seg_6_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_6_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V307": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "PENDENTE",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V312": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "CONFIRMAR",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V327": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "PENDENTE",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        },
+        "V328": {
+          "name": "CONFIRMAR",
+          "viga_fundo_seg_1_exists": "CONFIRMAR",
+          "viga_fundo_seg_1_area_segs": "CONFIRMAR",
+          "viga_fundo_seg_1_dim": "CONFIRMAR",
+          "viga_fundo_seg_1_local_ini": "CONFIRMAR",
+          "viga_fundo_seg_1_local_fim": "CONFIRMAR",
+          "cortes": "N/A_CONFIRMADO",
+          "aberturas": "CONFIRMAR"
+        }
+      },
+      "n_decisions": 189,
+      "n_findings": 0,
+      "elapsed_ms": 415,
+      "adapter": "FvEvidenceAuditor"
+    },
+    "LV": {
+      "classe": "LV",
+      "items_requested": [
+        "V301",
+        "V303",
+        "V305",
+        "V312",
+        "V327"
+      ],
+      "items_seen": [
+        "V301",
+        "V303",
+        "V305",
+        "V312",
+        "V327"
+      ],
+      "decision_totals": {
+        "CONFIRMAR": 57,
+        "PENDENTE": 16
+      },
+      "per_item": {
+        "V301": {
+          "CONFIRMAR": 17,
+          "PENDENTE": 4
+        },
+        "V303": {
+          "CONFIRMAR": 16,
+          "PENDENTE": 4
+        },
+        "V305": {
+          "CONFIRMAR": 8,
+          "PENDENTE": 4
+        },
+        "V312": {
+          "CONFIRMAR": 8,
+          "PENDENTE": 4
+        },
+        "V327": {
+          "CONFIRMAR": 8
+        }
+      },
+      "fields": {
+        "V301": {
+          "name": "CONFIRMAR",
+          "viga_a_seg_1_dim": "CONFIRMAR",
+          "viga_b_seg_1_dim": "CONFIRMAR",
+          "lv_contract_PARA_A": "PENDENTE",
+          "lv_contract_PARA_B": "PENDENTE",
+          "lv_contract_PASSA_A": "PENDENTE",
+          "lv_contract_PASSA_B": "PENDENTE",
+          "viga_a_seg_4_abert_pilar_esq": "CONFIRMAR",
+          "viga_a_seg_5_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_5_abert_pilar_esq": "CONFIRMAR",
+          "viga_a_seg_6_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_6_abert_pilar_esq": "CONFIRMAR",
+          "viga_a_seg_7_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_7_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_4_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_5_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_5_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_6_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_6_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_7_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_7_abert_pilar_esq": "CONFIRMAR"
+        },
+        "V303": {
+          "name": "CONFIRMAR",
+          "viga_a_seg_1_dim": "CONFIRMAR",
+          "viga_b_seg_1_dim": "CONFIRMAR",
+          "lv_contract_PARA_A": "PENDENTE",
+          "lv_contract_PARA_B": "PENDENTE",
+          "lv_contract_PASSA_A": "PENDENTE",
+          "lv_contract_PASSA_B": "PENDENTE",
+          "viga_a_seg_1_end_name": "CONFIRMAR",
+          "viga_a_seg_4_abert_pilar_esq": "CONFIRMAR",
+          "viga_a_seg_5_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_6_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_6_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_2_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_2_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_3_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_3_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_4_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_5_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_6_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_6_abert_pilar_esq": "CONFIRMAR"
+        },
+        "V305": {
+          "name": "CONFIRMAR",
+          "viga_a_seg_1_dim": "CONFIRMAR",
+          "viga_b_seg_1_dim": "CONFIRMAR",
+          "lv_contract_PARA_A": "PENDENTE",
+          "lv_contract_PARA_B": "PENDENTE",
+          "lv_contract_PASSA_A": "PENDENTE",
+          "lv_contract_PASSA_B": "PENDENTE",
+          "viga_a_seg_1_end_name": "CONFIRMAR",
+          "viga_a_seg_1_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_1_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_1_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_1_abert_pilar_esq": "CONFIRMAR"
+        },
+        "V312": {
+          "name": "CONFIRMAR",
+          "viga_a_seg_1_dim": "CONFIRMAR",
+          "viga_b_seg_1_dim": "CONFIRMAR",
+          "lv_contract_PARA_A": "PENDENTE",
+          "lv_contract_PARA_B": "PENDENTE",
+          "lv_contract_PASSA_A": "PENDENTE",
+          "lv_contract_PASSA_B": "PENDENTE",
+          "viga_a_seg_1_end_name": "CONFIRMAR",
+          "viga_a_seg_2_abert_pilar_dir": "CONFIRMAR",
+          "viga_a_seg_2_abert_pilar_esq": "CONFIRMAR",
+          "viga_b_seg_2_abert_pilar_dir": "CONFIRMAR",
+          "viga_b_seg_2_abert_pilar_esq": "CONFIRMAR"
+        },
+        "V327": {
+          "name": "CONFIRMAR",
+          "viga_a_seg_1_dim": "CONFIRMAR",
+          "viga_b_seg_1_dim": "CONFIRMAR",
+          "lv_contract_PARA_A": "CONFIRMAR",
+          "lv_contract_PARA_B": "CONFIRMAR",
+          "lv_contract_PASSA_A": "CONFIRMAR",
+          "lv_contract_PASSA_B": "CONFIRMAR",
+          "viga_a_seg_1_end_name": "CONFIRMAR"
+        }
+      },
+      "n_decisions": 73,
+      "n_findings": 0,
+      "elapsed_ms": 424,
+      "adapter": "LvEvidenceAuditor"
+    }
+  },
+  "elapsed_ms_total": 755,
+  "workers": 4
+}

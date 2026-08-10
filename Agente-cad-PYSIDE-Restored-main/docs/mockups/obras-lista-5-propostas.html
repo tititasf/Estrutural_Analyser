@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup — Lista de Obras · 5 propostas</title>
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --surface: #fff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --link: #2563eb;
+    --link-deep: #1d4ed8;
+    --sidebar: #0b1220;
+    --sidebar-2: #111827;
+    --ok: #16a34a;
+    --warn: #d97706;
+    --run: #2563eb;
+    --err: #dc2626;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(15,23,42,.06);
+    --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: var(--font); color: var(--ink); background: #0f172a; }
+  body { min-height: 100vh; }
+
+  /* ===== chrome do mockup ===== */
+  .mock-chrome {
+    position: sticky; top: 0; z-index: 100;
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    border-bottom: 1px solid #334155;
+    padding: 12px 18px 14px;
+  }
+  .mock-chrome h1 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    font-weight: 750;
+    letter-spacing: -.02em;
+    color: #f8fafc;
+  }
+  .mock-chrome p {
+    margin: 0 0 12px;
+    font-size: .78rem;
+    color: #94a3b8;
+    max-width: 72rem;
+    line-height: 1.45;
+  }
+  .mock-toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center;
+  }
+  .mock-toolbar label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .75rem; font-weight: 600; color: #cbd5e1;
+  }
+  .mock-toolbar select {
+    font: inherit; font-size: .8rem; font-weight: 500;
+    padding: 6px 10px; border-radius: 8px;
+    border: 1px solid #475569; background: #1e293b; color: #f1f5f9;
+  }
+  .prop-tabs {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
+  }
+  .prop-tab {
+    appearance: none; border: 1px solid #475569; background: #1e293b;
+    color: #e2e8f0; font: inherit; font-size: .78rem; font-weight: 650;
+    padding: 7px 12px; border-radius: 999px; cursor: pointer;
+    transition: .12s background, .12s border-color, .12s color;
+  }
+  .prop-tab:hover { border-color: #93c5fd; color: #fff; }
+  .prop-tab.active {
+    background: #2563eb; border-color: #3b82f6; color: #fff;
+    box-shadow: 0 0 0 2px rgba(37,99,235,.35);
+  }
+  .prop-meta {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  @media (min-width: 900px) {
+    .prop-meta { grid-template-columns: 1.2fr .8fr; }
+  }
+  .prop-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 8px;
+    background: #172554; border: 1px solid #1e40af;
+    color: #bfdbfe; font-size: .72rem; font-weight: 650;
+  }
+  .prop-desc {
+    font-size: .8rem; color: #cbd5e1; line-height: 1.45;
+    margin: 0; padding: 8px 12px; border-radius: 8px;
+    background: rgba(15,23,42,.45); border: 1px solid #334155;
+  }
+  .prop-desc strong { color: #f8fafc; }
+  .rules-box {
+    font-size: .74rem; color: #94a3b8; line-height: 1.5;
+    margin: 0; padding: 8px 12px; border-radius: 8px;
+    background: rgba(15,23,42,.35); border: 1px dashed #475569;
+  }
+  .rules-box b { color: #e2e8f0; }
+
+  /* ===== shell app ===== */
+  .app {
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    min-height: calc(100vh - 160px);
+    background: var(--bg);
+  }
+  @media (max-width: 800px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  .sidebar {
+    background: var(--sidebar);
+    color: #e2e8f0;
+    display: flex; flex-direction: column;
+    min-height: 100%;
+    border-right: 1px solid #1e293b;
+  }
+  .sidebar .brand {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 14px 10px;
+    font-weight: 750; font-size: .92rem; letter-spacing: -.01em;
+  }
+  .brand-dot {
+    width: 18px; height: 18px; border-radius: 5px;
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+  }
+  .nav-main { padding: 4px 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 11px; border-radius: 9px;
+    font-size: .84rem; font-weight: 600; color: #cbd5e1;
+    text-decoration: none;
+  }
+  .nav-item.active { background: #2563eb; color: #fff; }
+  .nav-item.soft { background: #0f3d36; color: #6ee7b7; }
+
+  .side-search {
+    padding: 6px 10px 8px;
+  }
+  .side-search input {
+    width: 100%;
+    padding: 8px 10px 8px 30px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2394a3b8' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 9px 50% no-repeat;
+    color: #f1f5f9;
+    font: inherit; font-size: .78rem;
+  }
+  .side-search input::placeholder { color: #64748b; }
+  .side-search input:focus {
+    outline: none; border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(37,99,235,.25);
+  }
+
+  .side-lists {
+    flex: 1; overflow: auto;
+    padding: 0 8px 12px;
+  }
+  .side-group {
+    margin-bottom: 10px;
+  }
+  .side-group-title {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 8px 4px;
+    font-size: .65rem; font-weight: 750;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: #64748b;
+  }
+  .side-group-title .count {
+    font-variant-numeric: tabular-nums;
+    background: #1e293b; color: #94a3b8;
+    padding: 1px 6px; border-radius: 999px;
+    font-size: .62rem;
+  }
+
+  .obra-card-side {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    padding: 8px 10px;
+    border-radius: 9px;
+    cursor: pointer;
+    margin-bottom: 3px;
+    transition: .1s background, .1s border-color;
+  }
+  .obra-card-side:hover { background: rgba(255,255,255,.04); }
+  .obra-card-side.on {
+    background: #1e3a5f;
+    border-color: #1d4ed8;
+  }
+  .obra-card-side .n {
+    display: block;
+    font-size: .8rem; font-weight: 650;
+    color: #f1f5f9;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .obra-card-side .d {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 2px;
+    font-size: .68rem; color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto;
+  }
+  .dot.ok { background: var(--ok); }
+  .dot.run { background: var(--run); }
+  .dot.warn { background: var(--warn); }
+  .dot.err { background: var(--err); }
+
+  .side-foot {
+    margin-top: auto;
+    padding: 12px 12px 14px;
+    border-top: 1px solid #1e293b;
+    font-size: .78rem;
+  }
+  .side-foot .who { font-weight: 700; color: #f8fafc; }
+  .side-foot .role { color: #94a3b8; font-size: .72rem; margin-top: 2px; }
+  .side-foot .sair {
+    margin-top: 8px; width: 100%;
+    padding: 7px; border-radius: 8px;
+    border: 1px solid #334155; background: #111827;
+    color: #cbd5e1; font: inherit; font-size: .78rem; cursor: pointer;
+  }
+
+  .main {
+    padding: 22px 26px 40px;
+    max-width: 960px;
+  }
+  .main h1 {
+    margin: 0 0 4px;
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -.02em;
+  }
+  .main .sub {
+    margin: 0 0 18px;
+    font-size: .85rem; color: var(--muted);
+  }
+
+  /* shared UI atoms */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 750;
+  }
+  .card .meta { margin: 0 0 12px; font-size: .8rem; color: var(--muted); line-height: 1.45; }
+  .field {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font: inherit; font-size: .9rem;
+    margin-bottom: 10px;
+    background: #fff;
+  }
+  .field:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+  textarea.field { resize: vertical; min-height: 64px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 14px; border-radius: 8px;
+    border: 1px solid transparent;
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+    color: #fff; font: inherit; font-size: .86rem; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { filter: brightness(1.05); }
+  .btn-sec {
+    background: #fff; color: #1e293b; border-color: #cbd5e1;
+    font-weight: 650;
+  }
+  .btn-sec:hover { background: #f8fafc; }
+  .btn-ghost {
+    background: transparent; color: var(--link); border: none;
+    font-weight: 650; padding: 6px 4px; cursor: pointer; font: inherit; font-size: .84rem;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .drop {
+    border: 1.5px dashed #93c5fd;
+    background: #f8fbff;
+    border-radius: 10px;
+    padding: 22px 16px;
+    text-align: center;
+    color: #334155;
+    font-size: .9rem;
+  }
+  .drop strong { color: var(--ink); }
+  .drop .hint { margin: 6px 0 0; font-size: .78rem; color: var(--muted); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: .7rem; font-weight: 700;
+  }
+  .badge.ok { background: #dcfce7; color: #166534; }
+  .badge.run { background: #dbeafe; color: #1e40af; }
+  .badge.warn { background: #fef3c7; color: #92400e; }
+  .badge.err { background: #fee2e2; color: #991b1b; }
+  .pill {
+    display: inline-flex; align-items: center;
+    padding: 2px 7px; border-radius: 6px;
+    background: #f1f5f9; color: #475569;
+    font-size: .7rem; font-weight: 600;
+  }
+  .list-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 10px; margin: 18px 0 10px;
+  }
+  .list-head h2 { margin: 0; font-size: 1.05rem; }
+  .list-head .meta { font-size: .78rem; color: var(--muted); }
+
+  .obra-row {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  }
+  .obra-row h3 { margin: 0 0 6px; font-size: 1.02rem; font-weight: 750; }
+  .obra-meta-line {
+    display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center;
+    margin-bottom: 6px;
+  }
+  .obra-sub { margin: 0; font-size: .78rem; color: var(--muted); }
+  .code {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: .78rem;
+    background: #f8fafc; border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 5px;
+  }
+
+  .user-block { margin-bottom: 22px; }
+  .user-block-head {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .user-block-head .av {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: #dbeafe; color: #1d4ed8;
+    font-weight: 800; font-size: .8rem;
+  }
+  .user-block-head h2 {
+    margin: 0; font-size: .95rem; font-weight: 750;
+  }
+  .user-block-head .meta { margin: 0; font-size: .72rem; color: var(--muted); }
+
+  /* proposal-specific skins */
+  .p1 .entry-stack { display: flex; flex-direction: column; gap: 12px; }
+  .p1 .card.quick {
+    border-color: #bfdbfe;
+    background: linear-gradient(180deg, #eff6ff 0%, #fff 55%);
+  }
+  .p1 .card.create { background: #fff; }
+
+  .p2 .entry-tabs {
+    display: flex; gap: 4px; padding: 3px; margin-bottom: 12px;
+    background: #e2e8f0; border-radius: 10px;
+  }
+  .p2 .entry-tab {
+    flex: 1; padding: 9px 10px; border: none; border-radius: 8px;
+    background: transparent; font: inherit; font-size: .82rem; font-weight: 700;
+    color: #475569; cursor: pointer;
+  }
+  .p2 .entry-tab.on { background: #fff; color: var(--link-deep); box-shadow: var(--shadow); }
+  .p2 .panel { display: none; }
+  .p2 .panel.on { display: block; }
+
+  .p3 .split-entry {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  @media (max-width: 720px) { .p3 .split-entry { grid-template-columns: 1fr; } }
+  .p3 .card.quick { border-top: 3px solid #f59e0b; }
+  .p3 .card.create { border-top: 3px solid #2563eb; }
+
+  .p4 .hero-quick {
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 140%);
+    color: #fff; margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(37,99,235,.22);
+  }
+  .p4 .hero-quick h2 { margin: 0 0 4px; font-size: 1.05rem; color: #fff; }
+  .p4 .hero-quick .meta { color: #dbeafe; }
+  .p4 .hero-quick .drop {
+    background: rgba(255,255,255,.12);
+    border-color: rgba(255,255,255,.35);
+    color: #eff6ff;
+  }
+  .p4 .hero-quick .drop strong { color: #fff; }
+  .p4 .hero-quick .drop .hint { color: #bfdbfe; }
+  .p4 .create-compact {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end;
+  }
+  @media (max-width: 640px) { .p4 .create-compact { grid-template-columns: 1fr; } }
+  .p4 .obra-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
+  }
+  .p4 .obra-tile {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; min-height: 140px;
+  }
+  .p4 .obra-tile .top { display: flex; justify-content: space-between; gap: 8px; }
+  .p4 .obra-tile h3 { margin: 0; font-size: .95rem; }
+  .p4 .obra-tile .btn { align-self: flex-start; margin-top: auto; }
+
+  .p5 .wizard-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .p5 .wiz-step {
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #475569;
+    cursor: pointer;
+    font: inherit;
+    box-shadow: var(--shadow);
+    transition: .12s border-color, .12s box-shadow, .12s background, .12s color;
+  }
+  .p5 .wiz-step:hover { border-color: #93c5fd; color: #0f172a; }
+  .p5 .wiz-step.on {
+    background: linear-gradient(180deg, #eff6ff 0%, #fff 70%);
+    border-color: #3b82f6;
+    color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12), var(--shadow);
+  }
+  .p5 .wiz-step .ws-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 999px;
+    background: #e2e8f0; color: #475569;
+    font-size: .72rem; font-weight: 800; margin-right: 8px;
+    vertical-align: middle;
+  }
+  .p5 .wiz-step.on .ws-num { background: #2563eb; color: #fff; }
+  .p5 .wiz-step .ws-label {
+    display: inline; font-size: .82rem; font-weight: 750;
+    line-height: 1.25; vertical-align: middle;
+  }
+  .p5 .wiz-step .ws-sub {
+    display: block; margin-top: 4px; margin-left: 30px;
+    font-size: .68rem; font-weight: 500; color: #94a3b8;
+  }
+  .p5 .wiz-step.on .ws-sub { color: #64748b; }
+  @media (max-width: 720px) {
+    .p5 .wizard-steps { grid-template-columns: 1fr; }
+  }
+
+  /* Formulários de inserção (passos 1 e 2) — design refinado */
+  .p5 .flow-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.06);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .p5 .flow-card-head {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+  }
+  .p5 .flow-card-head .ico {
+    flex: 0 0 auto;
+    width: 40px; height: 40px; border-radius: 11px;
+    display: grid; place-items: center;
+    font-size: 1.15rem;
+  }
+  .p5 .flow-card-head.pav .ico { background: #fef3c7; }
+  .p5 .flow-card-head.obra .ico { background: #dbeafe; }
+  .p5 .flow-card-head h2 {
+    margin: 0 0 3px;
+    font-size: 1.02rem;
+    font-weight: 750;
+    letter-spacing: -.01em;
+  }
+  .p5 .flow-card-head .meta {
+    margin: 0;
+    font-size: .78rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .p5 .flow-card-body { padding: 16px 18px 18px; }
+  .p5 .field-label {
+    display: block;
+    font-size: .72rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 0 0 5px;
+    letter-spacing: .01em;
+  }
+  .p5 .field {
+    margin-bottom: 12px;
+    border-radius: 9px;
+    border-color: #cbd5e1;
+    padding: 10px 12px;
+  }
+  .p5 .drop {
+    border: 1.5px dashed #93c5fd;
+    background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    padding: 28px 18px;
+    transition: .12s border-color, .12s background;
+  }
+  .p5 .drop:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+  .p5 .drop-ico {
+    display: block;
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+  .p5 .flow-actions {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .p5 .hint-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 10px;
+  }
+  .p5 .chip-hint {
+    display: inline-flex; align-items: center;
+    padding: 3px 8px; border-radius: 999px;
+    background: #f1f5f9; border: 1px solid #e2e8f0;
+    font-size: .68rem; font-weight: 650; color: #64748b;
+  }
+
+  .p5 .obra-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  .p5 .obra-table th {
+    text-align: left; font-size: .68rem; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--muted); padding: 8px 10px;
+    border-bottom: 1px solid var(--border); background: #f8fafc;
+  }
+  .p5 .obra-table td {
+    padding: 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+  }
+  .p5 .obra-table tr:hover td { background: #f8fafc; }
+  .p5 .user-sep td {
+    background: #f1f5f9 !important;
+    font-size: .72rem; font-weight: 750; color: #475569;
+    letter-spacing: .04em; text-transform: uppercase;
+    padding: 8px 10px;
+  }
+
+  /* Ingestão pré-criação: lista de docs + classificação (Bruto / Docs / Detalhe) */
+  .p5 .ingest-section {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+  .p5 .ingest-section h3 {
+    margin: 0 0 4px;
+    font-size: .88rem;
+    font-weight: 750;
+    color: #0f172a;
+  }
+  .p5 .ingest-section > .meta {
+    margin: 0 0 12px;
+    font-size: .74rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .p5 .ingest-tabs {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-bottom: 10px;
+    padding: 3px;
+    background: #e2e8f0;
+    border-radius: 9px;
+  }
+  .p5 .ingest-tab {
+    flex: 1 1 auto;
+    min-width: 72px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    font: inherit;
+    font-size: .74rem;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+  }
+  .p5 .ingest-tab.on {
+    background: #fff;
+    color: #1d4ed8;
+    box-shadow: 0 1px 2px rgba(15,23,42,.08);
+  }
+  .p5 .ingest-tab .n {
+    display: inline-grid; place-items: center;
+    min-width: 1.3em; margin-left: 4px;
+    padding: 0 4px; border-radius: 999px;
+    background: #cbd5e1; font-size: .65rem; font-weight: 800;
+    color: #334155;
+  }
+  .p5 .ingest-tab.on .n { background: #dbeafe; color: #1e40af; }
+  .p5 .docs-ingest-list {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    margin-bottom: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .p5 .docs-ingest-list table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .8rem;
+  }
+  .p5 .docs-ingest-list th {
+    position: sticky; top: 0; z-index: 1;
+    text-align: left;
+    font-size: .64rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 7px 10px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .p5 .docs-ingest-list td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  .p5 .docs-ingest-list tr:last-child td { border-bottom: none; }
+  .p5 .docs-ingest-list .doc-fn {
+    font-weight: 650;
+    color: #0f172a;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .p5 .docs-ingest-list .doc-sz {
+    font-size: .7rem;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+  .p5 .cls-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .p5 .cls-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    font-size: .7rem;
+    font-weight: 650;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+  }
+  .p5 .cls-opt input { margin: 0; accent-color: #2563eb; }
+  .p5 .cls-opt.on-bruto { border-color: #86efac; background: #f0fdf4; color: #166534; }
+  .p5 .cls-opt.on-docs { border-color: #93c5fd; background: #eff6ff; color: #1e40af; }
+  .p5 .cls-opt.on-detalhe { border-color: #fcd34d; background: #fffbeb; color: #92400e; }
+  .p5 .btn-rm {
+    border: none; background: transparent;
+    color: #94a3b8; font-size: .85rem; cursor: pointer;
+    padding: 4px 6px; border-radius: 6px;
+  }
+  .p5 .btn-rm:hover { background: #fee2e2; color: #b91c1c; }
+  .p5 .docs-empty {
+    margin: 0;
+    padding: 18px 12px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: .8rem;
+  }
+  .p5 .lote-cls {
+    display: flex; flex-wrap: wrap; gap: 8px 12px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: .74rem;
+    color: #475569;
+  }
+  .p5 .lote-cls select {
+    font: inherit; font-size: .78rem;
+    padding: 5px 8px; border-radius: 7px;
+    border: 1px solid #cbd5e1; background: #fff;
+  }
+  .p5 .ingest-note {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    font-size: .72rem;
+    line-height: 1.4;
+  }
+
+  .hidden { display: none !important; }
+  .note-fix {
+    font-size: .72rem; color: #94a3b8; margin-top: 8px;
+  }
+  kbd {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: .72em;
+    background: #1e293b; border: 1px solid #475569;
+    padding: 1px 5px; border-radius: 4px; color: #e2e8f0;
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-chrome">
+  <h1>Mockup visual — Página «Obras» · 5 propostas</h1>
+  <p>
+    Comparativo para escolher layout. Inclui regras de <b>visão dono</b> (listas por usuário)
+    vs <b>usuário comum</b> (só a própria lista: «Lista de Obras — Thierry»),
+    sidebar com <b>busca + data no card + mais recente em cima</b>,
+    e fluxo de entrada com <b>processamento rápido primeiro</b> (aberto) e criar obra depois.
+  </p>
+  <div class="mock-toolbar">
+    <label>Papel
+      <select id="role-sel">
+        <option value="dono" selected>Dono (vê tudo, por usuário)</option>
+        <option value="user">Usuário comum (só as minhas)</option>
+      </select>
+    </label>
+    <label>Usuário logado
+      <select id="user-sel">
+        <option value="Thierry" selected>Thierry</option>
+        <option value="Ana">Ana</option>
+        <option value="Carlos">Carlos</option>
+      </select>
+    </label>
+    <span class="note-fix">Clique nas abas abaixo · filtros atualizam sidebar e conteúdo</span>
+  </div>
+  <div class="prop-tabs" role="tablist">
+    <button type="button" class="prop-tab" data-p="1">1 · Empilhado limpo</button>
+    <button type="button" class="prop-tab" data-p="2">2 · Abas de entrada</button>
+    <button type="button" class="prop-tab" data-p="3">3 · Duas colunas</button>
+    <button type="button" class="prop-tab" data-p="4">4 · Hero rápido + grade</button>
+    <button type="button" class="prop-tab active" data-p="5">5 · ★ Escolhida (wizard + lista)</button>
+  </div>
+  <div class="prop-meta">
+    <p class="prop-desc" id="prop-desc"></p>
+    <p class="rules-box">
+      <b>Regras de lista</b><br>
+      · Usuário comum: título «Lista de Obras — {nome}» e só as obras dele.<br>
+      · Dono: «Lista de Obras — Thierry» + blocos dos demais usuários cadastrados.<br>
+      · Sidebar: busca no topo; cards com nome + data; ordenados do mais recente para o mais antigo.
+    </p>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-dot"></span> Portal de Formas</div>
+    <nav class="nav-main">
+      <a class="nav-item soft" href="#">▣ Status Arete</a>
+      <a class="nav-item active" href="#">📁 Obras</a>
+    </nav>
+    <div class="side-search">
+      <input type="search" id="side-q" placeholder="Buscar obras…" autocomplete="off" />
+    </div>
+    <div class="side-lists" id="side-lists"><!-- filled by JS --></div>
+    <div class="side-foot">
+      <div class="who" id="side-who">Thierry</div>
+      <div class="role" id="side-role">Dono — vê tudo</div>
+      <button type="button" class="sair">Sair</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main"><!-- filled by JS --></main>
+</div>
+
+<script>
+/* ========== dados fictícios ========== */
+var OBRAS = [
+  { id: 'a1', nome: 'Obra-Teste-Inicial2', dono: 'Thierry', data: '2026-07-07 20:28', status: 'ok', tipo: 'container', code: '6B2ePBNkeT' },
+  { id: 'a2', nome: 'TMC-EST-PE-6000-13P-R03', dono: 'Thierry', data: '2026-07-06 17:21', status: 'run', tipo: 'container', code: '9Kx1mQ2LpA' },
+  { id: 'a3', nome: 'Edificio-Paraiso-LoteA', dono: 'Thierry', data: '2026-06-18 11:05', status: 'warn', tipo: 'container', code: 'A1b2C3d4E5' },
+  { id: 'b1', nome: 'Residencial-Sol-Norte', dono: 'Ana', data: '2026-07-28 09:12', status: 'ok', tipo: 'container', code: 'An4SolN0rt' },
+  { id: 'b2', nome: 'Galpao-Logis-02', dono: 'Ana', data: '2026-07-02 14:40', status: 'run', tipo: 'rapido', code: 'GLp02x9k' },
+  { id: 'c1', nome: 'Torre-Centro-PAV13', dono: 'Carlos', data: '2026-07-30 16:55', status: 'ok', tipo: 'container', code: 'TC13pAv' },
+  { id: 'c2', nome: 'Subsolo-Estacionamento', dono: 'Carlos', data: '2026-05-12 08:00', status: 'err', tipo: 'rapido', code: 'SubEst01' },
+];
+
+var PROP = {
+  1: {
+    name: 'Empilhado limpo',
+    desc: '<strong>Proposta 1 — Empilhado limpo.</strong> Processamento rápido sempre aberto e em cima; criar obra em card secundário abaixo; lista agrupada por usuário (dono) ou título único (comum). Menos ruído que o layout atual, hierarquia clara.'
+  },
+  2: {
+    name: 'Abas de entrada',
+    desc: '<strong>Proposta 2 — Abas de entrada.</strong> Um único bloco com abas «Rápido (1 pav.)» | «Obra completa». Lista embaixo. Ideal se a maioria usa só um dos fluxos por vez — evita dois formulários longos na tela.'
+  },
+  3: {
+    name: 'Duas colunas',
+    desc: '<strong>Proposta 3 — Duas colunas.</strong> Rápido e Criar obra lado a lado (mesmo peso visual, rápido com destaque âmbar à esquerda). Lista full-width embaixo. Bom em monitores largos.'
+  },
+  4: {
+    name: 'Hero rápido + grade',
+    desc: '<strong>Proposta 4 — Hero + grade.</strong> Drop de processamento rápido em faixa azul de destaque (primeira ação óbvia). Criar obra compacto. Obras em cards/grade em vez de lista vertical longa.'
+  },
+  5: {
+    name: 'Wizard + tabela (escolhida)',
+    desc: '<strong>Proposta 5 — escolhida.</strong> Passos: «Processar 1 Pavimento» · «Processar Obra Completa» (upload múltiplo + lista + classificação Bruto/Docs/Detalhe na ingestão, pois a triagem só faz pavimento) · «Exibir Lista de Obras». Sidebar e tabela mantidos.'
+  }
+};
+
+var state = {
+  p: 5, role: 'dono', user: 'Thierry', q: '', entryTab: 'rapido', wiz: 2,
+  // rascunho de docs ANTES de criar a obra (passo 2)
+  draftDocs: [
+    { id: 'd1', nome: '13_PAV_planta_bruta.dxf', size: '4.2 MB', cls: 'Bruto' },
+    { id: 'd2', nome: 'memorial_descritivo.pdf', size: '890 KB', cls: 'Docs' },
+    { id: 'd3', nome: 'detalhe_pilar_P12.dxf', size: '1.1 MB', cls: 'Detalhe' },
+    { id: 'd4', nome: 'foto_canteiro_01.jpg', size: '2.4 MB', cls: 'Docs' },
+    { id: 'd5', nome: 'fundacao_bruto.dwg', size: '8.0 MB', cls: 'Bruto' }
+  ],
+  ingestTab: 'todos', // todos | Bruto | Docs | Detalhe
+  loteCls: 'Bruto'
+};
+
+var CLS_OPTS = [
+  { v: 'Bruto', label: 'Bruto', hint: 'planta / pavimento' },
+  { v: 'Docs', label: 'Docs', hint: 'PDF, foto, memorial' },
+  { v: 'Detalhe', label: 'Detalhe', hint: 'detalhe de obra' }
+];
+
+function parseDate(s) {
+  // '2026-07-07 20:28' → Date
+  return new Date(s.replace(' ', 'T') + ':00');
+}
+function fmtDate(s) {
+  var d = parseDate(s);
+  var dd = String(d.getDate()).padStart(2, '0');
+  var mm = String(d.getMonth() + 1).padStart(2, '0');
+  var yy = d.getFullYear();
+  var hh = String(d.getHours()).padStart(2, '0');
+  var mi = String(d.getMinutes()).padStart(2, '0');
+  return dd + '/' + mm + '/' + yy + ' · ' + hh + ':' + mi;
+}
+function statusBadge(st) {
+  var map = {
+    ok: ['ok', 'Pronta para validação'],
+    run: ['run', 'Processando'],
+    warn: ['warn', 'Revisar'],
+    err: ['err', 'Erro']
+  };
+  var m = map[st] || map.warn;
+  return '<span class="badge ' + m[0] + '"><span class="dot ' + m[0] + '" style="width:6px;height:6px"></span>' + m[1] + '</span>';
+}
+function tipoPill(t) {
+  return t === 'rapido'
+    ? '<span class="pill">⚡ Pav. único</span>'
+    : '<span class="pill">📁 Container</span>';
+}
+
+function obrasVisiveis() {
+  var list = OBRAS.slice();
+  if (state.role === 'user') {
+    list = list.filter(function (o) { return o.dono === state.user; });
+  }
+  if (state.q) {
+    var q = state.q.toLowerCase();
+    list = list.filter(function (o) {
+      return (o.nome + ' ' + o.dono + ' ' + o.code).toLowerCase().indexOf(q) >= 0;
+    });
+  }
+  list.sort(function (a, b) { return parseDate(b.data) - parseDate(a.data); });
+  return list;
+}
+
+function groupByUser(list) {
+  var order = [];
+  var map = {};
+  // dono logado primeiro, depois outros por nome
+  list.forEach(function (o) {
+    if (!map[o.dono]) { map[o.dono] = []; order.push(o.dono); }
+    map[o.dono].push(o);
+  });
+  order.sort(function (a, b) {
+    if (a === state.user) return -1;
+    if (b === state.user) return 1;
+    return a.localeCompare(b);
+  });
+  return order.map(function (u) { return { user: u, obras: map[u] }; });
+}
+
+/* ========== SIDEBAR ========== */
+function renderSidebar() {
+  document.getElementById('side-who').textContent = state.user;
+  document.getElementById('side-role').textContent =
+    state.role === 'dono' ? 'Dono — vê tudo' : 'Membro — só as minhas';
+
+  var list = obrasVisiveis();
+  var html = '';
+  if (state.role === 'dono') {
+    groupByUser(list).forEach(function (g) {
+      html += '<div class="side-group">';
+      html += '<div class="side-group-title"><span>Lista · ' + g.user + '</span><span class="count">' + g.obras.length + '</span></div>';
+      g.obras.forEach(function (o) {
+        html += sideCard(o);
+      });
+      html += '</div>';
+    });
+  } else {
+    html += '<div class="side-group">';
+    html += '<div class="side-group-title"><span>Lista de Obras — ' + state.user + '</span><span class="count">' + list.length + '</span></div>';
+    list.forEach(function (o) { html += sideCard(o); });
+    html += '</div>';
+  }
+  if (!list.length) {
+    html = '<p style="padding:12px;color:#64748b;font-size:.78rem">Nenhuma obra com esse filtro.</p>';
+  }
+  document.getElementById('side-lists').innerHTML = html;
+}
+
+function sideCard(o) {
+  return '<button type="button" class="obra-card-side" title="' + o.nome + '">' +
+    '<span class="n">' + o.nome + '</span>' +
+    '<span class="d"><span class="dot ' + o.status + '"></span>' + fmtDate(o.data) + '</span>' +
+    '</button>';
+}
+
+/* ========== MAIN CONTENT ========== */
+function quickBlock(opts) {
+  opts = opts || {};
+  var cls = opts.cls || 'card quick';
+  return '<div class="' + cls + '">' +
+    '<h2>⚡ Processamento rápido de um único pavimento</h2>' +
+    '<p class="meta">Já é 1 pavimento pronto (sem separar por classe)? Passa por triagem e recorte antes do SA — ' +
+    'pula só a tela de separar documentos. <strong>Opção principal de entrada rápida.</strong></p>' +
+    '<div class="drop">' +
+    '<strong>Arraste o arquivo aqui</strong> ou <button type="button" class="btn-ghost">escolha no computador</button>' +
+    '<p class="hint">.dwg ou .dxf — cria 1 obra com esse único arquivo (1 pavimento)</p>' +
+    '</div></div>';
+}
+
+function createBlock(opts) {
+  opts = opts || {};
+  var cls = opts.cls || 'card create';
+  var compact = !!opts.compact;
+  var body = compact
+    ? '<div class="create-compact">' +
+      '<div><label class="meta" style="display:block;margin:0 0 4px">Nome da obra</label>' +
+      '<input class="field" style="margin:0" placeholder="ex.: Edifício Paraíso"></div>' +
+      '<button type="button" class="btn">Criar obra →</button></div>' +
+      '<textarea class="field" style="margin-top:10px" rows="2" placeholder="Descrição (opcional)"></textarea>'
+    : '<input class="field" placeholder="Nome da obra (ex.: Edifício Paraíso)">' +
+      '<textarea class="field" rows="2" placeholder="Descrição (opcional)"></textarea>' +
+      '<div class="row">' +
+      '<button type="button" class="btn">Criar obra →</button>' +
+      '<button type="button" class="btn btn-sec">Abrir pasta no Drive ↗</button>' +
+      '<button type="button" class="btn btn-sec">Verificar agora ↻</button>' +
+      '</div>';
+  return '<div class="' + cls + '">' +
+    '<h2>🏗️ Criar obra completa</h2>' +
+    '<p class="meta">Pasta que recebe vários documentos (PIL, LV, FV, LAJ…). Documentos entram depois, um a um ou em lote.</p>' +
+    body + '</div>';
+}
+
+function obraCard(o, showOwner) {
+  return '<div class="card">' +
+    '<div class="obra-row">' +
+    '<div>' +
+    '<h3>' + o.nome + '</h3>' +
+    '<div class="obra-meta-line">' + statusBadge(o.status) + tipoPill(o.tipo) +
+    (showOwner ? '<span class="pill">de <strong>' + o.dono + '</strong></span>' : '') +
+    '</div>' +
+    '<p class="obra-sub">detectada ' + fmtDate(o.data) +
+    ' · Código <span class="code">' + o.code + '</span></p>' +
+    '</div>' +
+    '<a class="btn" href="#">Abrir →</a>' +
+    '</div></div>';
+}
+
+function obraTile(o, showOwner) {
+  return '<div class="obra-tile">' +
+    '<div class="top"><h3>' + o.nome + '</h3>' + statusBadge(o.status) + '</div>' +
+    '<div class="obra-meta-line">' + tipoPill(o.tipo) +
+    (showOwner ? '<span class="pill">' + o.dono + '</span>' : '') + '</div>' +
+    '<p class="obra-sub">' + fmtDate(o.data) + ' · <span class="code">' + o.code + '</span></p>' +
+    '<a class="btn" href="#">Abrir →</a></div>';
+}
+
+function listSection() {
+  var list = obrasVisiveis();
+  var showOwner = state.role === 'dono';
+  var html = '';
+
+  if (state.role === 'user') {
+    html += '<div class="list-head"><h2>Lista de Obras — ' + state.user + '</h2>' +
+      '<span class="meta">' + list.length + ' obra(s) · mais recentes em cima</span></div>';
+    if (!list.length) {
+      html += '<div class="card"><p class="meta" style="margin:0">Nenhuma obra ainda. Use o processamento rápido ou crie uma obra acima.</p></div>';
+      return html;
+    }
+    if (state.p === 4) {
+      html += '<div class="obra-grid">';
+      list.forEach(function (o) { html += obraTile(o, false); });
+      html += '</div>';
+    } else if (state.p === 5) {
+      html += tableList([{ user: state.user, obras: list }], false);
+    } else {
+      list.forEach(function (o) { html += obraCard(o, false); });
+    }
+    return html;
+  }
+
+  // dono
+  html += '<div class="list-head"><h2>Todas as obras (visão do dono)</h2>' +
+    '<span class="meta">' + list.length + ' obra(s) · agrupadas por usuário · recentes em cima</span></div>';
+
+  var groups = groupByUser(list);
+  if (state.p === 5) {
+    html += tableList(groups, true);
+    return html;
+  }
+
+  groups.forEach(function (g) {
+    var isMine = g.user === state.user;
+    html += '<div class="user-block">';
+    html += '<div class="user-block-head">' +
+      '<span class="av">' + g.user.charAt(0) + '</span>' +
+      '<div><h2>Lista de Obras — ' + g.user + (isMine ? ' <span class="pill">você</span>' : '') + '</h2>' +
+      '<p class="meta">' + g.obras.length + ' obra(s)</p></div></div>';
+    if (state.p === 4) {
+      html += '<div class="obra-grid">';
+      g.obras.forEach(function (o) { html += obraTile(o, false); });
+      html += '</div>';
+    } else {
+      g.obras.forEach(function (o) { html += obraCard(o, false); });
+    }
+    html += '</div>';
+  });
+  return html;
+}
+
+function tableList(groups, showOwnerCol) {
+  var html = '<div class="card" style="padding:0;overflow:hidden">';
+  html += '<table class="obra-table"><thead><tr>' +
+    '<th>Obra</th><th>Data</th><th>Status</th><th>Tipo</th>' +
+    (showOwnerCol ? '<th>Usuário</th>' : '') +
+    '<th>Código</th><th></th></tr></thead><tbody>';
+  groups.forEach(function (g) {
+    if (showOwnerCol) {
+      html += '<tr class="user-sep"><td colspan="7">Lista de Obras — ' + g.user + '</td></tr>';
+    }
+    g.obras.forEach(function (o) {
+      html += '<tr>' +
+        '<td><strong>' + o.nome + '</strong></td>' +
+        '<td style="white-space:nowrap;font-variant-numeric:tabular-nums">' + fmtDate(o.data) + '</td>' +
+        '<td>' + statusBadge(o.status) + '</td>' +
+        '<td>' + tipoPill(o.tipo) + '</td>' +
+        (showOwnerCol ? '<td>' + o.dono + '</td>' : '') +
+        '<td><span class="code">' + o.code + '</span></td>' +
+        '<td><a class="btn" href="#" style="padding:6px 10px;font-size:.78rem">Abrir</a></td>' +
+        '</tr>';
+    });
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function pageTitle() {
+  if (state.role === 'dono') {
+    return '<h1>Todas as obras <span style="font-weight:600;color:var(--muted);font-size:.85rem">(visão do dono)</span></h1>' +
+      '<p class="sub">Suas obras e as dos demais usuários · ordenadas por data (recente → antiga)</p>';
+  }
+  return '<h1>Lista de Obras — ' + state.user + '</h1>' +
+    '<p class="sub">Somente as obras da sua conta · mais recentes em cima</p>';
+}
+
+function countByCls() {
+  var c = { Bruto: 0, Docs: 0, Detalhe: 0, todos: state.draftDocs.length };
+  state.draftDocs.forEach(function (d) {
+    if (c[d.cls] != null) c[d.cls] += 1;
+  });
+  return c;
+}
+
+function docsFiltradosIngest() {
+  if (state.ingestTab === 'todos') return state.draftDocs.slice();
+  return state.draftDocs.filter(function (d) { return d.cls === state.ingestTab; });
+}
+
+function clsRadios(doc) {
+  return '<div class="cls-group" role="radiogroup" aria-label="Classificação de ' + doc.nome + '">' +
+    CLS_OPTS.map(function (opt) {
+      var on = doc.cls === opt.v;
+      var clsOn = on ? (' on-' + opt.v.toLowerCase()) : '';
+      return '<label class="cls-opt' + clsOn + '" title="' + opt.hint + '">' +
+        '<input type="radio" name="cls-' + doc.id + '" value="' + opt.v + '"' +
+        (on ? ' checked' : '') + ' data-doc-cls="' + doc.id + '"> ' + opt.label +
+        '</label>';
+    }).join('') +
+    '</div>';
+}
+
+function renderDocsIngestTable() {
+  var itens = docsFiltradosIngest();
+  if (!itens.length) {
+    return '<div class="docs-ingest-list"><p class="docs-empty">' +
+      (state.draftDocs.length
+        ? 'Nenhum documento nesta classe. Troque a aba ou envie mais arquivos.'
+        : 'Nenhum documento ainda. Arraste ou escolha arquivos abaixo.') +
+      '</p></div>';
+  }
+  var rows = itens.map(function (d) {
+    return '<tr data-doc-id="' + d.id + '">' +
+      '<td><div class="doc-fn" title="' + d.nome + '">' + d.nome + '</div>' +
+      '<div class="doc-sz">' + d.size + '</div></td>' +
+      '<td>' + clsRadios(d) + '</td>' +
+      '<td style="text-align:right">' +
+      '<button type="button" class="btn-rm" data-rm-doc="' + d.id + '" title="Remover">✕</button>' +
+      '</td></tr>';
+  }).join('');
+  return '<div class="docs-ingest-list"><table>' +
+    '<thead><tr><th>Arquivo</th><th>Classificação na ingestão</th><th></th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div>';
+}
+
+function renderProcessarObraCompleta() {
+  var c = countByCls();
+  var tabs = [
+    { id: 'todos', label: 'Todos' },
+    { id: 'Bruto', label: 'Brutos' },
+    { id: 'Docs', label: 'Docs' },
+    { id: 'Detalhe', label: 'Detalhes' }
+  ];
+  var tabHtml = tabs.map(function (t) {
+    var n = t.id === 'todos' ? c.todos : c[t.id];
+    return '<button type="button" class="ingest-tab' + (state.ingestTab === t.id ? ' on' : '') +
+      '" data-ingest-tab="' + t.id + '">' + t.label +
+      ' <span class="n">' + n + '</span></button>';
+  }).join('');
+
+  return '<div class="flow-card">' +
+    '<div class="flow-card-head obra">' +
+    '<span class="ico" aria-hidden="true">🏗️</span>' +
+    '<div><h2>Processar Obra Completa</h2>' +
+    '<p class="meta">Cria a obra e já leva os documentos classificados. ' +
+    'A triagem automática só resolve <strong>pavimento</strong> — tipo Bruto / Docs / Detalhe você define aqui na ingestão ' +
+    '(igual à lista por classe depois de abrir a obra).</p></div></div>' +
+    '<div class="flow-card-body">' +
+
+    '<label class="field-label" for="mock-nome">Nome da obra</label>' +
+    '<input id="mock-nome" class="field" placeholder="ex.: Edifício Paraíso" autocomplete="off">' +
+    '<label class="field-label" for="mock-desc">Descrição <span style="font-weight:500;color:#94a3b8">(opcional)</span></label>' +
+    '<textarea id="mock-desc" class="field" rows="2" placeholder="Critérios do cliente, observações do lote…"></textarea>' +
+
+    '<div class="ingest-section">' +
+    '<h3>Documentos da obra (antes de criar)</h3>' +
+    '<p class="meta">Suba <strong>vários arquivos</strong> (.dwg, .dxf, .pdf, fotos). Classifique cada um: ' +
+    '<strong>Bruto</strong> (planta/pavimento), <strong>Docs</strong> (PDF/foto/memorial) ou <strong>Detalhe</strong>.</p>' +
+    '<p class="ingest-note">⚠ A triagem não classifica tipo de documento — só pavimentos. ' +
+    'Sem marcar aqui, os itens caem em «revisar» depois.</p>' +
+
+    '<div class="ingest-tabs" role="tablist">' + tabHtml + '</div>' +
+    renderDocsIngestTable() +
+
+    '<div class="lote-cls">' +
+    '<span>Classe padrão do próximo lote:</span>' +
+    '<select id="lote-cls">' +
+    CLS_OPTS.map(function (o) {
+      return '<option value="' + o.v + '"' + (state.loteCls === o.v ? ' selected' : '') + '>' +
+        o.label + ' — ' + o.hint + '</option>';
+    }).join('') +
+    '</select>' +
+    '<button type="button" class="btn btn-sec" id="btn-apply-lote" style="padding:6px 10px;font-size:.78rem">' +
+    'Aplicar aos sem classe</button>' +
+    '</div>' +
+
+    '<div class="drop" id="drop-completa" style="margin-bottom:0">' +
+    '<span class="drop-ico" aria-hidden="true">📂</span>' +
+    '<strong>Arraste 1 ou mais arquivos aqui</strong> ou ' +
+    '<button type="button" class="btn-ghost" id="btn-pick-docs">escolha no computador</button>' +
+    '<input type="file" id="input-docs-completa" multiple ' +
+    'accept=".dwg,.dxf,.pdf,.jpg,.jpeg,.png,.webp,.gif" hidden>' +
+    '<p class="hint">Cada arquivo entra na lista acima com a classe padrão do lote (editável por linha)</p>' +
+    '<div class="hint-row">' +
+    '<span class="chip-hint">.dwg</span><span class="chip-hint">.dxf</span>' +
+    '<span class="chip-hint">.pdf</span><span class="chip-hint">fotos</span>' +
+    '<span class="chip-hint">múltiplos</span>' +
+    '</div></div>' +
+    '</div>' +
+
+    '<div class="flow-actions">' +
+    '<button type="button" class="btn" id="btn-criar-com-docs">Criar obra com ' +
+    state.draftDocs.length + ' documento(s) →</button>' +
+    '<button type="button" class="btn btn-sec">Abrir pasta no Drive ↗</button>' +
+    '<button type="button" class="btn btn-sec">Verificar agora ↻</button>' +
+    '<button type="button" class="btn btn-sec" data-wiz="3">Exibir lista de obras</button>' +
+    '</div>' +
+    '<p class="meta" style="margin:12px 0 0">Ao criar, a obra já nasce com a lista por classe ' +
+    '(Brutos / Docs / Detalhes) pronta — mesma visão da ficha da obra.</p>' +
+    '</div></div>';
+}
+
+function renderMain() {
+  var root = document.getElementById('main');
+  root.className = 'main p' + state.p;
+  var html = pageTitle();
+
+  if (state.p === 1) {
+    html += '<div class="entry-stack">' + quickBlock() + createBlock() + '</div>';
+    html += listSection();
+  } else if (state.p === 2) {
+    html += '<div class="card" style="padding-top:12px">' +
+      '<div class="entry-tabs">' +
+      '<button type="button" class="entry-tab' + (state.entryTab === 'rapido' ? ' on' : '') + '" data-etab="rapido">⚡ Rápido (1 pav.)</button>' +
+      '<button type="button" class="entry-tab' + (state.entryTab === 'completa' ? ' on' : '') + '" data-etab="completa">🏗️ Obra completa</button>' +
+      '</div>' +
+      '<div class="panel' + (state.entryTab === 'rapido' ? ' on' : '') + '" id="panel-rapido">' +
+      '<p class="meta">Arraste um .dwg/.dxf de um único pavimento. Abre direto no fluxo triagem → recortes → SA.</p>' +
+      '<div class="drop"><strong>Arraste o arquivo aqui</strong> ou <button type="button" class="btn-ghost">escolha no computador</button>' +
+      '<p class="hint">.dwg ou .dxf — 1 obra · 1 pavimento</p></div></div>' +
+      '<div class="panel' + (state.entryTab === 'completa' ? ' on' : '') + '" id="panel-completa">' +
+      '<p class="meta">Cria a pasta-container; documentos entram depois.</p>' +
+      '<input class="field" placeholder="Nome da obra">' +
+      '<textarea class="field" rows="2" placeholder="Descrição (opcional)"></textarea>' +
+      '<div class="row"><button type="button" class="btn">Criar obra →</button>' +
+      '<button type="button" class="btn btn-sec">Drive ↗</button>' +
+      '<button type="button" class="btn btn-sec">Verificar ↻</button></div></div>' +
+      '</div>';
+    html += listSection();
+  } else if (state.p === 3) {
+    html += '<div class="split-entry">' + quickBlock() + createBlock() + '</div>';
+    html += listSection();
+  } else if (state.p === 4) {
+    html += quickBlock({ cls: 'hero-quick' });
+    html += createBlock({ compact: true });
+    html += listSection();
+  } else if (state.p === 5) {
+    html += '<div class="wizard-steps">' +
+      '<button type="button" class="wiz-step' + (state.wiz === 1 ? ' on' : '') + '" data-wiz="1">' +
+      '<span class="ws-num">1</span><span class="ws-label">Processar 1 Pavimento</span>' +
+      '<span class="ws-sub">.dwg / .dxf · fluxo rápido</span></button>' +
+      '<button type="button" class="wiz-step' + (state.wiz === 2 ? ' on' : '') + '" data-wiz="2">' +
+      '<span class="ws-num">2</span><span class="ws-label">Processar Obra Completa</span>' +
+      '<span class="ws-sub">container · vários documentos</span></button>' +
+      '<button type="button" class="wiz-step' + (state.wiz === 3 ? ' on' : '') + '" data-wiz="3">' +
+      '<span class="ws-num">3</span><span class="ws-label">Exibir Lista de Obras</span>' +
+      '<span class="ws-sub">tabela · por usuário / data</span></button>' +
+      '</div>';
+    if (state.wiz === 1) {
+      html +=
+        '<div class="flow-card">' +
+        '<div class="flow-card-head pav">' +
+        '<span class="ico" aria-hidden="true">⚡</span>' +
+        '<div><h2>Processar 1 Pavimento</h2>' +
+        '<p class="meta">Já é 1 pavimento pronto (sem separar por classe)? Passa por triagem e recorte antes do SA — ' +
+        'pula só a tela de separar documentos.</p></div></div>' +
+        '<div class="flow-card-body">' +
+        '<div class="drop">' +
+        '<span class="drop-ico" aria-hidden="true">📄</span>' +
+        '<strong>Arraste o arquivo aqui</strong> ou <button type="button" class="btn-ghost">escolha no computador</button>' +
+        '<p class="hint">Cria 1 obra com esse único arquivo (1 pavimento)</p>' +
+        '<div class="hint-row">' +
+        '<span class="chip-hint">.dwg</span><span class="chip-hint">.dxf</span>' +
+        '<span class="chip-hint">1 pavimento</span><span class="chip-hint">triagem → recortes → SA</span>' +
+        '</div></div>' +
+        '<div class="flow-actions">' +
+        '<button type="button" class="btn">Enviar e processar →</button>' +
+        '<button type="button" class="btn btn-sec" data-wiz="3">Ver lista de obras</button>' +
+        '</div></div></div>';
+    } else if (state.wiz === 2) {
+      html += renderProcessarObraCompleta();
+    } else {
+      html += listSection();
+    }
+  }
+
+  root.innerHTML = html;
+  bindMainEvents();
+}
+
+function bindMainEvents() {
+  document.querySelectorAll('[data-etab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.entryTab = b.getAttribute('data-etab');
+      renderMain();
+    });
+  });
+  document.querySelectorAll('[data-wiz]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.wiz = parseInt(b.getAttribute('data-wiz'), 10);
+      renderMain();
+    });
+  });
+
+  // --- Passo 2: ingestão + classificação ---
+  document.querySelectorAll('[data-ingest-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.ingestTab = b.getAttribute('data-ingest-tab');
+      renderMain();
+    });
+  });
+  document.querySelectorAll('[data-doc-cls]').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      var id = inp.getAttribute('data-doc-cls');
+      var d = state.draftDocs.find(function (x) { return x.id === id; });
+      if (d) d.cls = inp.value;
+      renderMain();
+    });
+  });
+  document.querySelectorAll('[data-rm-doc]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-rm-doc');
+      state.draftDocs = state.draftDocs.filter(function (x) { return x.id !== id; });
+      renderMain();
+    });
+  });
+  var loteSel = document.getElementById('lote-cls');
+  if (loteSel) {
+    loteSel.addEventListener('change', function () { state.loteCls = loteSel.value; });
+  }
+  var btnApply = document.getElementById('btn-apply-lote');
+  if (btnApply) {
+    btnApply.addEventListener('click', function () {
+      var v = state.loteCls || 'Bruto';
+      state.draftDocs.forEach(function (d) { d.cls = v; });
+      renderMain();
+    });
+  }
+  var inputDocs = document.getElementById('input-docs-completa');
+  var btnPick = document.getElementById('btn-pick-docs');
+  var drop = document.getElementById('drop-completa');
+  function addFiles(fileList) {
+    if (!fileList || !fileList.length) return;
+    var base = Date.now();
+    for (var i = 0; i < fileList.length; i++) {
+      var f = fileList[i];
+      var kb = f.size / 1024;
+      var size = kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(kb)) + ' KB';
+      state.draftDocs.push({
+        id: 'u' + base + '_' + i,
+        nome: f.name,
+        size: size,
+        cls: state.loteCls || 'Bruto'
+      });
+    }
+    renderMain();
+  }
+  if (btnPick && inputDocs) {
+    btnPick.addEventListener('click', function () { inputDocs.click(); });
+    inputDocs.addEventListener('change', function () {
+      addFiles(inputDocs.files);
+      inputDocs.value = '';
+    });
+  }
+  if (drop) {
+    drop.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      drop.style.borderColor = '#2563eb';
+    });
+    drop.addEventListener('dragleave', function () {
+      drop.style.borderColor = '';
+    });
+    drop.addEventListener('drop', function (e) {
+      e.preventDefault();
+      drop.style.borderColor = '';
+      if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+    });
+  }
+  var btnCriar = document.getElementById('btn-criar-com-docs');
+  if (btnCriar) {
+    btnCriar.addEventListener('click', function () {
+      var n = document.getElementById('mock-nome');
+      var nome = n && n.value.trim();
+      if (!nome) {
+        alert('Informe o nome da obra.');
+        if (n) n.focus();
+        return;
+      }
+      if (!state.draftDocs.length) {
+        if (!confirm('Nenhum documento na lista. Criar obra vazia mesmo assim?')) return;
+      }
+      var resumo = { Bruto: 0, Docs: 0, Detalhe: 0 };
+      state.draftDocs.forEach(function (d) { resumo[d.cls] = (resumo[d.cls] || 0) + 1; });
+      alert(
+        'Mock: obra «' + nome + '» com ' + state.draftDocs.length + ' doc(s)\n' +
+        'Brutos: ' + (resumo.Bruto || 0) +
+        ' · Docs: ' + (resumo.Docs || 0) +
+        ' · Detalhes: ' + (resumo.Detalhe || 0) +
+        '\n\n(Na implementação real: POST criar obra + upload classificado.)'
+      );
+    });
+  }
+}
+
+function updatePropDesc() {
+  document.getElementById('prop-desc').innerHTML = PROP[state.p].desc;
+}
+
+function renderAll() {
+  updatePropDesc();
+  renderSidebar();
+  renderMain();
+}
+
+/* events */
+document.querySelectorAll('.prop-tab').forEach(function (tab) {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.prop-tab').forEach(function (t) { t.classList.remove('active'); });
+    tab.classList.add('active');
+    state.p = parseInt(tab.getAttribute('data-p'), 10);
+    state.wiz = 1;
+    state.entryTab = 'rapido';
+    renderAll();
+  });
+});
+document.getElementById('role-sel').addEventListener('change', function () {
+  state.role = this.value;
+  renderAll();
+});
+document.getElementById('user-sel').addEventListener('change', function () {
+  state.user = this.value;
+  renderAll();
+});
+document.getElementById('side-q').addEventListener('input', function () {
+  state.q = this.value.trim();
+  renderSidebar();
+  // também filtra a lista do main
+  renderMain();
+});
+
+renderAll();
+</script>
+</body>
+</html>

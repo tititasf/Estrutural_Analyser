@@ -370,8 +370,15 @@
       "revoked_reason": "comparison_engine_human_unchecked",
       "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:LJ:L331:N4",
       "superseded_by_id": null
+    },
+    "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:PL:P2:N4": {
+      "revoked_at": "2026-07-21T04:24:10.607884+00:00",
+      "revoked_by": "human",
+      "revoked_reason": "comparison_engine_human_unchecked",
+      "source_id": "comparison_engine:Obra_TREINO_1:TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA:PL:P2:N4",
+      "superseded_by_id": null
     }
   },
   "schema_version": 1,
-  "updated_at": "2026-07-08T22:21:03.766282+00:00"
+  "updated_at": "2026-07-21T04:24:10.607884+00:00"
 }

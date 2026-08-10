@@ -1,0 +1,61 @@
+---
+pid: 4340
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; & \"D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe\" scripts/arete/headless_sa_analise.py --secao fundos_viga --item V320 V309A --wait"
+started_at: 2026-07-16T20:35:39.966Z
+running_for_ms: 67135012 
+---
+[SA] Locks adquiridos: headless_sa_fv (escopo classe:FV).
+[SA-HUMAN] project_id: dd238e47-1dc6-4f63-a760-4e7ce19a7386
+[SA-HUMAN] projects.dxf_path: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+[SA-HUMAN] Fast path N1 FV: motores canonicos sem MainWindow
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+[SA] Metodos bindados: 194 (4 ignorados)
+[SA] Cache N1 contextual: HIT 1cb3537fa107
+[SA-HUMAN][PERF] analise N1 contextual incremental: 7.79s (acumulado 7.79s)
+[SA-HUMAN][PERF] analise N1 contextual completa: 0.45s (acumulado 8.23s)
+[SA] 🧭 Lajes: 0 visão(ões) de corte, 9 pilar(es) de apoio, 0 texto(s) de nível vizinho; 0 nível(is) por contexto, 0 por delta de corte.
+[SA-HUMAN][PERF] merge granular e saneamento N1: 1.60s (acumulado 9.83s)
+[SA-HUMAN] Dependencias de viga recusadas por regressao de topologia: {'V322': {'old': (4, 410.0), 'new': (3, 380.0)}}
+[SA-HUMAN] Filtro de itens: V309A, V320 em fundos_viga
+[SA-HUMAN] Merge granular pronto: 46 PIL, 31 LAJ, 2 vigas.
+[HTML] fundos_viga 1/2: V309A
+[HTML] fundos_viga 2/2: V320
+[SA-HUMAN] Pack exportado: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_173550_265162_fundos_viga_276
+[SA-HUMAN][PERF] exportacao inicial de fichas: 3.99s (acumulado 13.82s)
+[SA-HUMAN] Diagnóstico FV: 2 alerta(s)
+[SA-HUMAN][PERF] diagnosticos canonicos: 0.33s (acumulado 14.15s)
+[SA-HUMAN] FV results para N3: 2 viga(s)
+[SA-HUMAN] N3 NOVA isolado: 2 gerado(s), 0 ausente(s)
+[HTML] fundos_viga 1/2: V309A
+[HTML] fundos_viga 2/2: V320
+[SA-HUMAN] Pack reexportado c/ N3: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_173555_719859_fundos_viga_276
+[SA-HUMAN][PERF] previews N3 e reexportacao: 4.62s (acumulado 18.77s)
+[SA-HUMAN] Manifesto Arete: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_173555_719859_fundos_viga_276\arete_manifest.json
+[SA-HUMAN][PERF] manifesto Arete: 0.02s (acumulado 18.80s)
+[SA-HUMAN][PERF] total da rodada: 18.80s
+
+============================================================
+RESUMO: Obra_TREINO_1 / TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA
+  Pilares : 46
+  Lajes   : 31
+  Vigas   : 2
+  HTMLs   : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_173555_719859_fundos_viga_276
+  Diag. FV: ok
+    JSON : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_fv\Obra_TREINO_1\13_PAV\20260716_173550\diagnostico_fv_n1_n2.json
+    JSONL: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_fv\Obra_TREINO_1\13_PAV\20260716_173550\triagem_auto_fv.jsonl
+  Manifest: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\13_PAV_20260716_173555_719859_fundos_viga_276\arete_manifest.json
+  Fonte   : D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\torre_1.dxf
+  DB      : READ_ONLY
+============================================================
+[SA] Locks liberados: headless_sa_fv.

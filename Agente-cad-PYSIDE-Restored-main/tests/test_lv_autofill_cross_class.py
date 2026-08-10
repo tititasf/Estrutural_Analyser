@@ -14,7 +14,7 @@ def _length(points):
     return {"points": points, "len": 200.0}
 
 
-def test_v308_fundo_dimension_replaces_unvalidated_neighbor_and_reaches_all_contracts():
+def test_v308_fundo_dimension_reaches_contracts_without_inventing_supports():
     beam = {
         "name": "V308",
         "dim": "60/19",
@@ -65,8 +65,10 @@ def test_v308_fundo_dimension_replaces_unvalidated_neighbor_and_reaches_all_cont
     for side in ("a", "b"):
         for index in (1, 2):
             assert beam["fields"][f"viga_{side}_seg_{index}_dim"] == "100/19"
-            assert beam["fields"][f"viga_{side}_seg_{index}_ini_name"]
-            assert beam["fields"][f"viga_{side}_seg_{index}_end_name"]
+            # Apoio do fundo e apenas contexto: sem catalogo que prove contato
+            # local, o interpretador LV nao o promove para a ficha lateral.
+            assert f"viga_{side}_seg_{index}_ini_name" not in beam["fields"]
+            assert f"viga_{side}_seg_{index}_end_name" not in beam["fields"]
             for suffix in ("comprimento_total", "comp_total_passa"):
                 entry = beam["links"][f"viga_{side}_seg_{index}_{suffix}"][f"seg_side_{side}"][0]
                 assert entry["lv_dimensao"] == "100/19"

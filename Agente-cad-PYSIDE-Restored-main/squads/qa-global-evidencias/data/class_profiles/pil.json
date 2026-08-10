@@ -2,7 +2,7 @@
   "schema": "arete.qa_class_profile/v1",
   "class": "PIL",
   "version": "1.4.0",
-  "authority": "coverage_ready; apply remains diagnostic_only until human QG7 promotion",
+  "authority": "validation_ready via PilEvidenceAuditor; coverage_ready probes do not alone authorize apply; limits: rectangular proven, L/U/circular pending; see data/authority_matrix.json",
   "model": "Pilar é interpretado por geometria, identidade, faces A-H e relações localizadas com lajes/vigas. PARA e PASSA são contratos distintos; CIMA é único; GRADES é parte separada.",
   "manual_guides": [
     "docs/INTERPRETACAO-PILARES-ABCD.md",
@@ -108,14 +108,15 @@
       "paridade estrutural não substitui leitura visual"
     ],
     "promotion_gate": {
-      "current": "diagnostic_only",
-      "target": "validation_ready",
+      "current": "validation_ready_n1_rectangular",
+      "target": "validation_ready_full_geometries",
       "requires": [
         "cobertura completa das cinco familias",
         "probes cross-classe sem FAIL/PENDENTE",
         "veredito visual registrado",
         "regressao representativa sem nova falha",
-        "decisao humana QG7 explicita"
+        "decisao humana QG7 explicita para ampliacao L/U/circular e set de faces",
+        "apply apenas com comando explicito e adaptador"
       ],
       "automatic_promotion": false
     }

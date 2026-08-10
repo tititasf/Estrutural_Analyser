@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "squad": "qa-global-evidencias",
+  "structural_score": 100,
+  "structural_grade": "S",
+  "score": 100,
+  "grade": "S",
+  "operational_score": {
+    "source": "scripts/arete/relatorios/AUDIT-QA-GLOBAL-EVIDENCIAS-2026-07-16.scores.reaudit.json",
+    "score": 87,
+    "grade": "A",
+    "previous": 78,
+    "note": "Reaudit pós-harmonização 2026-07-16; NÃO usar structural S como prontidão Arete"
+  },
+  "scores": {
+    "manifest": 15,
+    "structure": 10,
+    "agent": 15,
+    "tasks": 15,
+    "workflow": 10,
+    "checklists_templates": 10,
+    "command": 5,
+    "cross_references": 10,
+    "documentation": 10
+  },
+  "findings": [],
+  "passed": true,
+  "disclaimer": "structural_score = completude de arquivos; operational_score = excelência A–E do CEO-AUDIT",
+  "updated": "2026-07-16"
+}

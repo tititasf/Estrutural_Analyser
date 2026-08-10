@@ -1,0 +1,16 @@
+---
+pid: 3552
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; $PY=\"D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe\"; & $PY scripts/arete/g2v_batch_mosaic.py --relatorio scripts/arete/relatorios/g2v/20260716_132650/relatorio.json --out scripts/arete/relatorios/g2v/20260716_invest_furo19/mosaic_V320_only.png; & $PY scripts/arete/g2v_batch_mosaic.py --relatorio scripts/arete/relatorios/g2v/20260716_163525/relatorio.json --out scripts/arete/relatorios/g2v/20260716_invest_furo19/mosaic_V309A_only.png"
+started_at: 2026-07-16T20:20:58.071Z
+running_for_ms: 68015008 
+---
+  V309: scripts\arete\relatorios\g2v\20260716_132650\_mosaic_tmp\mosaic_V309.png
+  V320: scripts\arete\relatorios\g2v\20260716_132650\_mosaic_tmp\mosaic_V320.png
+  V325: scripts\arete\relatorios\g2v\20260716_132650\_mosaic_tmp\mosaic_V325.png
+  V327: scripts\arete\relatorios\g2v\20260716_132650\_mosaic_tmp\mosaic_V327.png
+  V332: scripts\arete\relatorios\g2v\20260716_132650\_mosaic_tmp\mosaic_V332.png
+Pack: scripts\arete\relatorios\g2v\20260716_invest_furo19\mosaic_V320_only.png
+  V309A: scripts\arete\relatorios\g2v\20260716_163525\_mosaic_tmp\mosaic_V309A.png
+  V312: scripts\arete\relatorios\g2v\20260716_163525\_mosaic_tmp\mosaic_V312.png
+Pack: scripts\arete\relatorios\g2v\20260716_invest_furo19\mosaic_V309A_only.png

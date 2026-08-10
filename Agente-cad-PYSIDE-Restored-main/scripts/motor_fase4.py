@@ -34,6 +34,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 import io as _io
+from src.core import pillar_n3_ficha
 # Fix stdout encoding only when running as script (not when imported by pytest)
 if __name__ == "__main__" and hasattr(sys.stdout, 'buffer'):
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -798,6 +799,18 @@ class MotorFase4:
                                  f"-> laje_X=10cm(default), posicao_laje_X=1(default)")
 
                 pilar_dict = pilar.to_dict()
+
+                # A ficha editada no portal e' uma sobreposicao humana
+                # persistente sobre o N1. Reaplica depois de cada regeneracao
+                # da Fase 4 para que o robo N3 receba exatamente os campos da
+                # ficha, sem alterar o estado_<pav>.json nem project_data.
+                _portal_ficha = pillar_n3_ficha.load_ficha(
+                    self.obra_path, str(self.pavimento or "Pavimento"), nome,
+                )
+                if _portal_ficha:
+                    pilar_dict = pillar_n3_ficha.apply_ficha_to_robot(pilar_dict, _portal_ficha)
+                    log.info("  [PORTAL-N3] %s: override humano rev.%s aplicado",
+                             nome, _portal_ficha.get("revision", 0))
 
                 # Rastrear quais campos foram efetivamente extraídos (não defaults)
                 _extraidos = ["numero", "nome", "comprimento", "largura", "altura", "pavimento",

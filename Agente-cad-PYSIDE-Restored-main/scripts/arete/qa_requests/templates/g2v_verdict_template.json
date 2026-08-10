@@ -1,0 +1,23 @@
+{
+  "schema": "arete.g2v_recorded_verdict/v1",
+  "veredito": "PASS|FAIL|SUSPEITO",
+  "confianca": 0.85,
+  "checklist_visual": {
+    "fonte_atual_confirmada": true,
+    "recorte_alvo_preciso": true,
+    "contorno_area_interna": true,
+    "cotas_valores": true,
+    "cotas_posicao_legibilidade": true,
+    "linhas_paineis": true,
+    "hlaz": true,
+    "hachuras_apoio": true,
+    "sem_contaminacao_vizinha": true
+  },
+  "achados": [],
+  "resumo": "1-2 frases sobre o par visual (mesmo conteúdo semântico, não traço idêntico).",
+  "recorded_by": "agente-ou-humano",
+  "classe": "PIL|LAJ|FV|LV",
+  "item": "P35|L318|V301",
+  "par": "n1xn2|n2xn4|n3xn4",
+  "note": "PASS exige todos os checklist_visual === true. FAIL exige ao menos um achado."
+}

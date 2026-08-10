@@ -1,0 +1,75 @@
+{
+  "schema": "arete.qa_loop_state/v1",
+  "run_id": "20260714_012742_80fcd490",
+  "created_at": "2026-07-14T04:27:42+00:00",
+  "updated_at": "2026-07-14T04:27:42+00:00",
+  "scope": {
+    "project_id": "project",
+    "class": "PIL",
+    "items": [
+      "P35"
+    ],
+    "level": "N1",
+    "pav": "13_PAV",
+    "part": null,
+    "variant": null
+  },
+  "status": "NEEDS_IMPLEMENTATION",
+  "cycle": 0,
+  "max_cycles": 4,
+  "tasks": {
+    "evidence_review": {
+      "status": "PENDING"
+    },
+    "class_coverage": {
+      "status": "PENDING"
+    },
+    "visual": {
+      "status": "PENDING"
+    },
+    "qg7": {
+      "status": "PENDING"
+    },
+    "rag_candidate": {
+      "status": "PENDING"
+    }
+  },
+  "item_results": {},
+  "teachings": [
+    "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_teaching_requires_reusabl0\\20260714_012742_80fcd490\\teachings\\427df898-a4b8-46f7-bbbb-2453407f5646.json"
+  ],
+  "events": [
+    {
+      "schema": "arete.qa_loop_event/v1",
+      "event_id": "2c00c397-1a40-430e-a2c4-5d3296804c75",
+      "at": "2026-07-14T04:27:42+00:00",
+      "run_id": "20260714_012742_80fcd490",
+      "cycle": 0,
+      "kind": "run_created",
+      "scope": {
+        "project_id": "project",
+        "class": "PIL",
+        "items": [
+          "P35"
+        ],
+        "level": "N1",
+        "pav": "13_PAV",
+        "part": null,
+        "variant": null
+      }
+    },
+    {
+      "schema": "arete.qa_loop_event/v1",
+      "event_id": "1e9b9a37-af81-4a75-a42b-dbcbbeb4613c",
+      "at": "2026-07-14T04:27:42+00:00",
+      "run_id": "20260714_012742_80fcd490",
+      "cycle": 0,
+      "kind": "human_teaching",
+      "teaching": "D:\\Agente-cad-PYSIDE\\.pytest-commit-20260714\\test_teaching_requires_reusabl0\\20260714_012742_80fcd490\\teachings\\427df898-a4b8-46f7-bbbb-2453407f5646.json",
+      "family": "faces",
+      "field": "viga_passante"
+    }
+  ],
+  "next_action": "traduzir o ensino faces/viga_passante em fórmula geral + teste positivo/negativo; depois registrar fix e retomar. Não promover o candidato RAG automaticamente",
+  "authority": "diagnostic_only"
+}

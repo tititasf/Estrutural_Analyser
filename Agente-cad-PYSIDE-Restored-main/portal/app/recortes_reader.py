@@ -73,21 +73,53 @@ def obter_item_recorte(obra_dir: Path, classe: str, item_id: str) -> dict | None
     return None
 
 
+# Sufixo que o conversor ODA/accoreconsole grava em `entrada/`
+# (ex.: TMC-…-TER-R01_R2018_ASCII_ODA.dxf). Sem dedup, o mesmo pavimento
+# aparece com 2 "Bruto" no drill (stem original + stem ODA) — achado 2026-07-31.
+_ODA_SUFFIX = "_R2018_ASCII_ODA"
+
+
+def stem_bruto_canonico(stem: str) -> str:
+    """Remove o sufixo de conversão ODA para colapsar variantes do mesmo arquivo."""
+    s = (stem or "").strip()
+    if s.upper().endswith(_ODA_SUFFIX.upper()):
+        return s[: -len(_ODA_SUFFIX)]
+    return s
+
+
+def _score_bruto_entrada(path: Path) -> tuple[int, int]:
+    """Preferência: ODA (pipeline/recortes usam esse stem) > .dxf > .dwg."""
+    stem = path.stem
+    is_oda = 1 if stem.upper().endswith(_ODA_SUFFIX.upper()) else 0
+    is_dxf = 1 if path.suffix.lower() == ".dxf" else 0
+    return (is_oda, is_dxf)
+
+
 def listar_brutos_recorte(obra_dir: Path) -> list[dict]:
     """Os DXF/DWG de entrada da obra (o "bruto" real de onde os recortes saem) —
     [2026-07-07] navegação trocada de "por classe" pra "por bruto/pavimento",
     espelhando o diagnostic_hub.py real (lista de brutos à esquerda, não abas de
     classe). Dedup por stem (dwg+dxf do mesmo arquivo contam como 1 bruto,
-    preferindo o .dxf pra exibição — é o que os recortes realmente usam)."""
+    preferindo o .dxf pra exibição — é o que os recortes realmente usam).
+
+    [2026-07-31] também colapsa variantes `_R2018_ASCII_ODA` no mesmo bruto
+    canônico (preferindo o ODA, pasta de recortes e SA usam esse stem)."""
     pasta = obra_dir / "entrada"
     if not pasta.exists():
         return []
-    por_stem: dict[str, Path] = {}
+    por_canon: dict[str, Path] = {}
     for arquivo in sorted(pasta.glob("*.dxf")) + sorted(pasta.glob("*.dwg")):
-        por_stem.setdefault(arquivo.stem, arquivo)
+        canon = stem_bruto_canonico(arquivo.stem)
+        atual = por_canon.get(canon)
+        if atual is None or _score_bruto_entrada(arquivo) > _score_bruto_entrada(atual):
+            por_canon[canon] = arquivo
     return [
-        {"bruto_id": stem, "nome": caminho.name}
-        for stem, caminho in sorted(por_stem.items())
+        {
+            "bruto_id": caminho.stem,
+            "nome": caminho.name,
+            "bruto_base": canon,
+        }
+        for canon, caminho in sorted(por_canon.items())
     ]
 
 

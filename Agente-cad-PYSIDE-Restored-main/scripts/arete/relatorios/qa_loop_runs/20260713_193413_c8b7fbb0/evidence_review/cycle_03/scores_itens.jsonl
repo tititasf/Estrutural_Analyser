@@ -1,1 +1,0 @@
-{"achados": [], "campos_incerto": ["connections", "dim", "name", "p_sA_l1_n", "p_sB_l1_n", "p_sC_l1_n", "p_sD_l1_n", "p_sD_v_passa_esq_d", "p_sD_v_passa_esq_n", "pilar_segs"], "campos_revisados": 10, "classe": "PIL", "decisoes": {"PENDENTE": 1, "TRILHA_N1_OBSERVADA": 9}, "faixa": "baixa", "item": "P35", "item_original": "P35", "perguntas": [], "score_confianca": 33.2}

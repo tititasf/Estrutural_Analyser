@@ -1,0 +1,13 @@
+{
+  "run_id": "20260721T051801_2a246f12ca",
+  "motor_id": "ROBOT_FV_N3_N4",
+  "version_id": "db8e6c2c0874e865",
+  "mode": "publish",
+  "status": "published",
+  "official_path": "D:\\Agente-cad-PYSIDE\\.pytest-tmp-bridge-fv\\test_n3_and_n4_identical_contr0\\n3_output\\FV_preview_V305.dxf",
+  "output_path": "D:\\Agente-cad-PYSIDE\\.pytest-tmp-bridge-fv\\test_n3_and_n4_identical_contr0\\n3_output\\FV_preview_V305.dxf",
+  "baseline_sha256": null,
+  "output_sha256": "b0d716c518b05abd16d0ea24045d260695d63bb43f9ee270d8d586a5af4b5150",
+  "effect": "new",
+  "created_at": "2026-07-21T05:18:01+00:00"
+}

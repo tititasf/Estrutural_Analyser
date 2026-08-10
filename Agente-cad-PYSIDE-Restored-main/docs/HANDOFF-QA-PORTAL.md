@@ -18,6 +18,10 @@
 
 **Framework:** pytest (config em `pyproject.toml`, sem `pytest.ini`). Testes headless/sem-GUI rodam com `python -m pytest tests/`. Testes que tocam Qt vão no `collect_ignore` do `conftest.py` (mesmo padrão dos `test_fundo_*`). Os testes do portal são **todos sem GUI** (FastAPI + poller + fila são headless) — não precisam de sessão desktop.
 
+**Artefactos visuais (portal web):** fichas/resultados servidos por HTTP devem incluir
+**SVG** (zoom humano). Dual-mode completo em `docs/QA-VISAO-EVIDENCIA-CANONICA.md`
+(agente CLI = PNG; portal = SVG).
+
 **Nomenclatura de arquivos-alvo (a criar):**
 
 | Arquivo de teste | Cobre | Código-alvo (a criar em WS-B) |

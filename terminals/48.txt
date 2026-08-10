@@ -1,0 +1,112 @@
+---
+pid: 14804
+cwd: "D:\Agente-cad-PYSIDE"
+command: "Set-Location D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; python scripts\\arete\\audit_n2_marco_attention.py --loop --max-iter 3"
+started_at: 2026-07-19T02:25:48.425Z
+running_for_ms: 11690004 
+---
+
+=== LOOP 1/3 ===
+  WRITE L402: strat=auto reason=invade_intersect+beam_clip_paineis red=335.5x61.6 pass=True db=True
+  WRITE L404: strat=auto reason=invade_intersect+beam_clip_paineis red=335.5x61.6 pass=True db=True
+  WRITE L405: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=841.5x186.5 pass=True db=True
+  WRITE L406: strat=auto reason=invade_intersect+beam_clip_paineis red=855.0x96.5 pass=True db=True
+  WRITE L409: strat=auto reason=invade_intersect+beam_clip_paineis red=3139.0x20.0 pass=True db=True
+  WRITE L410: strat=auto reason=faltou_paineis+pillar_edge_clip red=402.0x446.0 pass=True db=True
+  WRITE L411: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=414.5x320.8 pass=True db=True
+  WRITE L418: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=411.0x18.0 pass=False db=True
+  WRITE L420: strat=auto reason=motor_inflated+pillar_edge_clip red=414.5x18.0 pass=False db=True
+  WRITE L422: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=662.0x18.0 pass=False db=True
+  gravados 10 overrides no DB
+  render L402...
+    PASS override/db_override red=[335.5, 61.6] []
+  render L404...
+    PASS override/db_override red=[335.5, 61.6] []
+  render L405...
+    PASS override/db_override red=[841.5, 186.5] []
+  render L406...
+    PASS override/db_override red=[855.0, 96.5] []
+  render L409...
+    PASS override/db_override red=[3139.0, 20.0] []
+  render L410...
+    PASS override/db_override red=[402.0, 446.0] []
+  render L411...
+    PASS override/db_override red=[414.5, 320.8] []
+  render L418...
+    FAIL override/db_override red=[411.0, 18.0] ['invade_iou_baixo']
+  render L420...
+    FAIL override/db_override red=[414.5, 18.0] ['iou_generico_baixo']
+  render L422...
+    FAIL override/db_override red=[662.0, 18.0] ['invade_iou_baixo']
+  RESULT 7/10 PASS
+
+=== LOOP 2/3 ===
+  WRITE L402: strat=auto reason=invade_intersect+beam_clip_paineis red=335.5x61.6 pass=True db=True
+  WRITE L404: strat=auto reason=invade_intersect+beam_clip_paineis red=335.5x61.6 pass=True db=True
+  WRITE L405: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=841.5x186.5 pass=True db=True
+  WRITE L406: strat=auto reason=invade_intersect+beam_clip_paineis red=855.0x96.5 pass=True db=True
+  WRITE L409: strat=auto reason=invade_intersect+beam_clip_paineis red=3139.0x20.0 pass=True db=True
+  WRITE L410: strat=auto reason=faltou_paineis+pillar_edge_clip red=402.0x446.0 pass=True db=True
+  WRITE L411: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=414.5x320.8 pass=True db=True
+  WRITE L418: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=411.0x18.0 pass=False db=True
+  WRITE L420: strat=auto reason=motor_inflated+pillar_edge_clip red=414.5x18.0 pass=False db=True
+  WRITE L422: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=662.0x18.0 pass=False db=True
+  gravados 10 overrides no DB
+  render L402...
+    PASS override/db_override red=[335.5, 61.6] []
+  render L404...
+    PASS override/db_override red=[335.5, 61.6] []
+  render L405...
+    PASS override/db_override red=[841.5, 186.5] []
+  render L406...
+    PASS override/db_override red=[855.0, 96.5] []
+  render L409...
+    PASS override/db_override red=[3139.0, 20.0] []
+  render L410...
+    PASS override/db_override red=[402.0, 446.0] []
+  render L411...
+    PASS override/db_override red=[414.5, 320.8] []
+  render L418...
+    FAIL override/db_override red=[411.0, 18.0] ['invade_iou_baixo']
+  render L420...
+    FAIL override/db_override red=[414.5, 18.0] ['iou_generico_baixo']
+  render L422...
+    FAIL override/db_override red=[662.0, 18.0] ['invade_iou_baixo']
+  RESULT 7/10 PASS
+
+=== LOOP 3/3 ===
+  WRITE L402: strat=auto reason=invade_intersect+beam_clip_paineis red=335.5x61.6 pass=True db=True
+  WRITE L404: strat=auto reason=invade_intersect+beam_clip_paineis red=335.5x61.6 pass=True db=True
+  WRITE L405: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=841.5x186.5 pass=True db=True
+  WRITE L406: strat=auto reason=invade_intersect+beam_clip_paineis red=855.0x96.5 pass=True db=True
+  WRITE L409: strat=auto reason=invade_intersect+beam_clip_paineis red=3139.0x20.0 pass=True db=True
+  WRITE L410: strat=auto reason=faltou_paineis+pillar_edge_clip red=402.0x446.0 pass=True db=True
+  WRITE L411: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=414.5x320.8 pass=True db=True
+  WRITE L418: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=411.0x18.0 pass=False db=True
+  WRITE L420: strat=auto reason=motor_inflated+pillar_edge_clip red=414.5x18.0 pass=False db=True
+  WRITE L422: strat=auto reason=invade_intersect+beam_clip_paineis+pillar_edge_clip red=662.0x18.0 pass=False db=True
+  gravados 10 overrides no DB
+  render L402...
+    PASS override/db_override red=[335.5, 61.6] []
+  render L404...
+    PASS override/db_override red=[335.5, 61.6] []
+  render L405...
+    PASS override/db_override red=[841.5, 186.5] []
+  render L406...
+    PASS override/db_override red=[855.0, 96.5] []
+  render L409...
+    PASS override/db_override red=[3139.0, 20.0] []
+  render L410...
+    PASS override/db_override red=[402.0, 446.0] []
+  render L411...
+    PASS override/db_override red=[414.5, 320.8] []
+  render L418...
+    FAIL override/db_override red=[411.0, 18.0] ['invade_iou_baixo']
+  render L420...
+    FAIL override/db_override red=[414.5, 18.0] ['iou_generico_baixo']
+  render L422...
+    FAIL override/db_override red=[662.0, 18.0] ['invade_iou_baixo']
+  RESULT 7/10 PASS
+
+=== FINAL 7/10 ===
+HTML: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\n2_marco_attention_20260718_232549\iter_03\INDEX.html

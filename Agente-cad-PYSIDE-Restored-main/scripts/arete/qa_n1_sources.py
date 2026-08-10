@@ -129,6 +129,38 @@ def _sqlite_json_path(path: str) -> str:
     return result
 
 
+def _bbox_from_points(value: Any) -> tuple[float, float, float, float] | None:
+    """Extrai bbox de uma geometria persistida sem inferir nova geometria."""
+    decoded = json_value(value)
+    points: list[tuple[float, float]] = []
+
+    def visit(current: Any) -> None:
+        if isinstance(current, (list, tuple)):
+            if len(current) >= 2 and all(isinstance(v, (int, float)) for v in current[:2]):
+                points.append((float(current[0]), float(current[1])))
+                return
+            for child in current:
+                visit(child)
+        elif isinstance(current, dict):
+            if "points" in current:
+                visit(current["points"])
+
+    visit(decoded)
+    if not points:
+        return None
+    xs, ys = zip(*points)
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def _normalised_bbox(value: Any) -> tuple[float, float, float, float] | None:
+    if not isinstance(value, (list, tuple)) or len(value) != 4:
+        return None
+    try:
+        return tuple(round(float(entry), 6) for entry in value)  # type: ignore[return-value]
+    except (TypeError, ValueError):
+        return None
+
+
 def load_requested_fields(
     con: sqlite3.Connection, *, project_id: str, classe: str, item: str,
     fields: list[dict[str, Any]],
@@ -143,6 +175,19 @@ def load_requested_fields(
     params: list[Any] = []
     descriptors: list[dict[str, Any]] = []
     selected_columns = {"id", "project_id", "name"}
+    requested_match_bboxes = {
+        bbox
+        for field in fields
+        if (bbox := _normalised_bbox(field.get("match_bbox"))) is not None
+    }
+    geometry_column = spec.source_columns.get("geometry") if requested_match_bboxes else None
+    if requested_match_bboxes and not geometry_column:
+        raise ValueError(f"classe sem geometria para desambiguar identidade: {classe}")
+    if geometry_column:
+        if geometry_column not in available:
+            raise ValueError(f"coluna de geometria indisponível em {spec.table}: {geometry_column}")
+        selections.append(f'"{geometry_column}" AS __candidate_geometry')
+        selected_columns.add(geometry_column)
 
     for index, field in enumerate(fields):
         field_id = str(field["id"])
@@ -192,13 +237,35 @@ def load_requested_fields(
             "remaining_path": "" if exact_path else path,
         })
 
-    row = con.execute(
+    rows = con.execute(
         f"SELECT {', '.join(selections)} FROM {spec.table} WHERE project_id=? AND name=?",
         (*params, project_id, item),
-    ).fetchone()
-    if row is None:
+    ).fetchall()
+    if not rows:
         raise ValueError(f"item ausente: {classe}:{item}")
-    values = dict(zip(["__id", "__project_id", "__name", *[d["alias"] for d in descriptors]], row))
+    if requested_match_bboxes:
+        assert geometry_column is not None
+        matches = [
+            row for row in rows
+            if (bbox := _bbox_from_points(row[3])) is not None
+            and tuple(round(value, 6) for value in bbox) in requested_match_bboxes
+        ]
+        if len(matches) != 1:
+            detail = "nenhuma" if not matches else f"{len(matches)} candidatas"
+            raise ValueError(
+                f"identidade geométrica ambígua: {classe}:{item}; {detail} coincide com bbox solicitado"
+            )
+        row = matches[0]
+    elif len(rows) == 1:
+        row = rows[0]
+    else:
+        raise ValueError(
+            f"identidade ambígua: {classe}:{item}; {len(rows)} linhas persistidas sem geometria de desambiguação"
+        )
+    aliases = ["__id", "__project_id", "__name"]
+    if geometry_column:
+        aliases.append("__candidate_geometry")
+    values = dict(zip([*aliases, *[d["alias"] for d in descriptors]], row))
     raw_fields = {
         descriptor["id"]: {
             "value": values[descriptor["alias"]],

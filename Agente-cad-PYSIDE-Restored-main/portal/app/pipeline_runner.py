@@ -40,8 +40,11 @@ vigas V1..V317 etc) em `<obra_dir>/<pavimento>_<run_id>/` — NAO em
 from __future__ import annotations
 
 import logging
+import json
+import os
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -53,6 +56,86 @@ log = logging.getLogger("portal.pipeline_runner")
 # Etapas que o portal aciona (HANDOFF §1.2). 'validacao' nao passa por aqui (so DB).
 ETAPAS_SUBPROCESS = ("triagem", "recortes", "sa")
 ETAPAS_TODAS = ("triagem", "recortes", "sa", "n5")
+
+# Caminhos canônicos do runtime SA (CLAUDE.md / AGENTS.md — Python 3.12 OBRIGATÓRIO).
+_PYTHON312_CANDIDATOS = (
+    Path(r"C:\Users\Thierry\AppData\Local\Programs\Python\Python312\python.exe"),
+    Path(r"C:\Users\Thierry\AppData\Local\Programs\Python\Python312\python.exe"),
+)
+
+
+def python_sa_executable(repo_root: Optional[Path] = None) -> str:
+    """Python 3.12 para o headless SA — NUNCA herdar sys.executable do portal.
+
+    Achado 2026-07-31: portal rodava com Python 3.14 (`portal/run_dev.py`) e
+    `montar_comando_headless` usava `sys.executable` → o subprocess do SA
+    abortava com "CAD-ANALYZER exige Python 3.12.x" (gate em main.py).
+
+    Ordem:
+      1. env PORTAL_SA_PYTHON / CAD_ANALYZER_PYTHON
+      2. sys.executable se já for 3.12
+      3. Python312 instalado em AppData (path do AGENTS.md)
+      4. .venv do workspace (se for 3.12)
+      5. `py -3.12` via launcher Windows
+    """
+    import os
+
+    for env_key in ("PORTAL_SA_PYTHON", "CAD_ANALYZER_PYTHON"):
+        raw = (os.environ.get(env_key) or "").strip().strip('"')
+        if raw and Path(raw).is_file():
+            return raw
+
+    if sys.version_info[:2] == (3, 12):
+        return sys.executable
+
+    for cand in _PYTHON312_CANDIDATOS:
+        if cand.is_file():
+            return str(cand)
+
+    roots = []
+    if repo_root is not None:
+        roots.append(Path(repo_root))
+        roots.append(Path(repo_root).parent)  # workspace acima do repo
+    roots.append(Path(__file__).resolve().parents[2])  # .../Agente-cad-PYSIDE-Restored-main
+    roots.append(Path(__file__).resolve().parents[3])  # .../Agente-cad-PYSIDE
+
+    for root in roots:
+        for rel in (
+            Path(".venv") / "Scripts" / "python.exe",
+            Path("venv") / "Scripts" / "python.exe",
+        ):
+            p = root / rel
+            if not p.is_file():
+                continue
+            # Confirma major.minor sem importar o motor
+            try:
+                out = subprocess.run(
+                    [str(p), "-c", "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"],
+                    capture_output=True, text=True, timeout=8,
+                )
+                if out.returncode == 0 and out.stdout.strip() == "3.12":
+                    return str(p)
+            except (OSError, subprocess.SubprocessError):
+                continue
+
+    # py launcher Windows
+    try:
+        out = subprocess.run(
+            ["py", "-3.12", "-c", "import sys; print(sys.executable)"],
+            capture_output=True, text=True, timeout=8,
+        )
+        if out.returncode == 0 and out.stdout.strip() and Path(out.stdout.strip()).is_file():
+            return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    log.error(
+        "Python 3.12 nao encontrado para SA (portal em %s). "
+        "Defina PORTAL_SA_PYTHON ou instale Python 3.12.",
+        sys.executable,
+    )
+    # Ainda devolve sys.executable — o SA falha com mensagem clara do main.py
+    return sys.executable
 
 
 @dataclass
@@ -112,12 +195,110 @@ def encontrar_dir_fichas(obra_dir: Path) -> Optional[Path]:
     return candidatos[-1] if candidatos else None
 
 
+def promover_snapshot_sa(obra_dir: Path, pavimento: str, *, iniciado_em: float = 0.0) -> Path | None:
+    """Publica o snapshot isolado do headless como estado canÃ´nico do portal.
+
+    O headless inclui escopo/PID no nome para evitar colisÃ£o entre processos;
+    o portal, depois que o subprocess terminou sob lock, precisa promover uma
+    cÃ³pia validada para ``estado_<pav>.json``. Escrita atÃ´mica: leitores nunca
+    observam JSON parcial.
+    """
+    obra_dir = Path(obra_dir)
+    canonical = obra_dir / f"estado_{pavimento}.json"
+    candidates = []
+    for candidate in obra_dir.glob(f"estado_{pavimento}*.json"):
+        if candidate == canonical:
+            continue
+        try:
+            if iniciado_em and candidate.stat().st_mtime < iniciado_em - 5.0:
+                continue
+            candidates.append(candidate)
+        except OSError:
+            continue
+    if not candidates:
+        # Alguns runners antigos escrevem diretamente no nome canonico. Ele so
+        # pode ser aceito quando pertence a ESTA rodada; reutilizar um estado
+        # antigo faria um job novo parecer concluido com fichas obsoletas.
+        try:
+            if not canonical.is_file():
+                return None
+            if iniciado_em and canonical.stat().st_mtime < iniciado_em - 5.0:
+                return None
+            current = json.loads(canonical.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        if not isinstance(current, dict) or not isinstance(current.get("pilares"), list):
+            return None
+        return canonical
+    source = max(candidates, key=lambda path: path.stat().st_mtime)
+    try:
+        payload = json.loads(source.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        log.warning("snapshot SA candidato invalido %s: %s", source, exc)
+        return None
+    if not isinstance(payload, dict) or not isinstance(payload.get("pilares"), list):
+        log.warning("snapshot SA candidato sem contrato de pilares: %s", source)
+        return None
+    canonical.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{canonical.name}.", suffix=".tmp", dir=canonical.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream, ensure_ascii=False, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(tmp_name, canonical)
+    finally:
+        try:
+            Path(tmp_name).unlink(missing_ok=True)
+        except OSError:
+            pass
+    return canonical
+
+
+def auditar_pacote_pilares_n3(obra_dir: Path, pavimento: str) -> dict:
+    """Confirma os contratos e os dois desenhos N3 de cada pilar/modo."""
+    canonical = Path(obra_dir) / f"estado_{pavimento}.json"
+    try:
+        state = json.loads(canonical.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {"total_pilares": 0, "variantes_esperadas": 0,
+                "variantes_completas": 0, "missing": [f"estado: {exc}"]}
+    names = [
+        str(row.get("name") or row.get("nome") or "").strip()
+        for row in (state.get("pilares") or []) if isinstance(row, dict)
+    ]
+    names = [name for name in names if name]
+    root = Path(obra_dir) / "Fase-6_Execucao_CAD" / "n3_variants"
+    missing: list[str] = []
+    complete = 0
+    for mode in ("para", "passa"):
+        for name in names:
+            expected = (
+                root / mode / f"{name}.json",
+                root / mode / f"PL_ABCD_preview_{name}.dxf",
+                root / mode / f"PL_GRADES_preview_{name}.dxf",
+            )
+            absent = [str(path.relative_to(obra_dir)) for path in expected if not path.is_file()]
+            if absent:
+                missing.extend(absent)
+            else:
+                complete += 1
+    return {
+        "total_pilares": len(names),
+        "variantes_esperadas": len(names) * 2,
+        "variantes_completas": complete,
+        "missing": missing,
+    }
+
+
 def montar_comando_headless(
     settings: Settings,
     obra: dict,
     *,
     secao: Optional[list[str]] = None,
     pav: Optional[str] = None,
+    item: Optional[list[str]] = None,
 ) -> list[str]:
     """Comando do headless para as etapas de recortes/sa (HANDOFF §1.2).
 
@@ -131,22 +312,197 @@ def montar_comando_headless(
     lajes/35 vigas processados mas nunca persistidos). O mecanismo de
     persistência já é seguro por padrão (gate de 4 diagnósticos completos,
     transação `BEGIN IMMEDIATE`, preserva campo/vínculo já validado — ver
-    doc acima) — só precisava ser acionado. Só entra em execução COMPLETA
-    (sem `--secao`), porque o próprio script recusa `--persist-db` com
-    `--secao` (`ap.error(...)`).
+    doc acima) — só precisava ser acionado.
+
+    Regras de `--persist-db` (alinhadas a headless_sa_analise.py):
+      - sem `--secao` .............. grava rodada completa
+      - `--secao` + `--item` ....... microciclo: upsert só do lote (P4 escape hatch)
+      - `--secao` sem `--item` ..... READ_ONLY (script recusa --persist-db)
     """
     obra_dir = _obra_dir(settings, obra)
+    py = python_sa_executable(settings.repo_root if settings else None)
+    if Path(py).resolve() != Path(sys.executable).resolve():
+        log.info("SA headless usa Python dedicado: %s (portal: %s)", py, sys.executable)
     cmd = [
-        sys.executable, "-m", "scripts.arete.headless_sa_analise",
+        py, "-m", "scripts.arete.headless_sa_analise",
         "--obra", str(obra_dir),
         "--pav", pav or settings.pav_default,
         "--wait",
     ]
-    for s in secao or []:
+    secoes = [str(s).strip() for s in (secao or []) if str(s).strip()]
+    itens = [str(i).strip() for i in (item or []) if str(i).strip()]
+    for s in secoes:
         cmd += ["--secao", s]
-    if not secao:
+    for i in itens:
+        cmd += ["--item", i]
+    # Completa OU microciclo secao+item — nunca secao sem item (script aborta).
+    if not secoes or itens:
         cmd.append("--persist-db")
     return cmd
+
+
+def _rodar_subprocess_sa(
+    settings: Settings,
+    cmd: list[str],
+    *,
+    obra: dict,
+    etapa: str,
+    dry_run: bool,
+    log_path: Optional[Path],
+    pav: Optional[str],
+) -> ResultadoEtapa:
+    """Dispara o subprocess do headless (compartilhado por SA completo e microciclo)."""
+    if dry_run:
+        return ResultadoEtapa(etapa=etapa, ok=True, comando=cmd, dry_run=True)
+
+    _garantir_project_registrado(settings, obra, pav or settings.pav_default)
+
+    py_cmd = cmd[0] if cmd else "?"
+    banner = (
+        f"[portal] SA python={py_cmd}\n"
+        f"[portal] portal_sys={sys.executable}\n"
+        f"[portal] cmd={' '.join(cmd)}\n"
+    )
+    log.info("disparando SA: %s", " ".join(cmd))
+    if log_path is not None:
+        try:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(log_path).write_text(banner, encoding="utf-8", errors="replace")
+        except OSError:
+            pass
+
+    import time
+    iniciado_em = time.time()
+    try:
+        # [FIX 2026-07-11, achado real testando "SA via web"] sem `encoding`
+        # explícito, `text=True` usa `locale.getpreferredencoding()` — nesta
+        # máquina Windows isso é cp1252, e o headless (como quase todo o
+        # resto do repo) imprime acentos/emojis em UTF-8. Byte inválido em
+        # cp1252 derruba a THREAD de leitura do stdout/stderr do subprocess.
+        proc = subprocess.run(
+            cmd, cwd=str(settings.repo_root), capture_output=True, text=True,
+            encoding="utf-8", errors="replace",
+            timeout=settings.subprocess_timeout_s,
+        )
+    except subprocess.TimeoutExpired:
+        return ResultadoEtapa(etapa=etapa, ok=False, comando=cmd, returncode=None,
+                              log_tail="timeout do subprocess")
+    except OSError as exc:
+        return ResultadoEtapa(etapa=etapa, ok=False, comando=cmd, returncode=None,
+                              log_tail=f"erro ao iniciar subprocess: {exc}")
+
+    saida = banner + (proc.stdout or "") + "\n" + (proc.stderr or "")
+    if log_path is not None:
+        try:
+            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+            Path(log_path).write_text(saida, encoding="utf-8", errors="replace")
+        except OSError:
+            pass
+
+    obra_dir = _obra_dir(settings, obra)
+    artefatos = {
+        "obra_dir": str(obra_dir),
+        "fase6_dir": str(obra_dir / "Fase-6_Execucao_CAD"),
+    }
+    # O headless gera o snapshot N1 e as prÃ©vias N3 na mesma rodada. Assim
+    # que ele termina, materializa tambÃ©m o contrato editÃ¡vel de TODOS os
+    # pilares para que a primeira abertura da tela nÃ£o seja responsÃ¡vel por
+    # criar dados. Overrides humanos existentes sÃ£o preservados.
+    posprocessamento_ok = True
+    if proc.returncode == 0 and etapa in {"sa", "sa_item"}:
+        try:
+            from src.core.pillar_n3_ficha import materialize_pavimento
+
+            snapshot = promover_snapshot_sa(
+                obra_dir, str(pav or settings.pav_default), iniciado_em=iniciado_em,
+            )
+            if snapshot is None:
+                raise RuntimeError("o SA terminou sem publicar um estado N1 valido desta rodada")
+            artefatos["estado_n1"] = str(snapshot)
+            ficha_stats = materialize_pavimento(
+                obra_dir, str(pav or settings.pav_default),
+            )
+            artefatos["pilar_n3_fichas"] = ficha_stats
+            if ficha_stats.get("errors"):
+                raise RuntimeError(
+                    "uma ou mais fichas de pilares nao puderam ser materializadas: "
+                    + "; ".join(ficha_stats["errors"])
+                )
+
+            # SA completo (sem --secao) ou uma solicitacao explicita de pilares
+            # so conclui quando PARA e PASSA possuem contrato + ABCD + GRADES.
+            secoes_cmd = [
+                cmd[index + 1] for index, value in enumerate(cmd[:-1])
+                if value == "--secao"
+            ]
+            pilares_solicitados = not secoes_cmd or "pilares" in secoes_cmd
+            if pilares_solicitados:
+                n3_stats = auditar_pacote_pilares_n3(
+                    obra_dir, str(pav or settings.pav_default),
+                )
+                artefatos["pilar_n3"] = n3_stats
+                if n3_stats["missing"]:
+                    raise RuntimeError(
+                        f"pacote N3 de pilares incompleto: "
+                        f"{len(n3_stats['missing'])} artefato(s) ausente(s)"
+                    )
+            log.info("fichas PIL N1/N3 materializadas: %s", ficha_stats)
+        except Exception as exc:
+            posprocessamento_ok = False
+            log.exception("falha ao materializar fichas PIL N1/N3")
+            artefatos.setdefault("pilar_n3_fichas", {"errors": []})
+            artefatos["pilar_n3_fichas"].setdefault("errors", []).append(str(exc))
+            saida += f"\n[portal] POS-PROCESSAMENTO SA/N1/N3 FALHOU: {exc}\n"
+    return ResultadoEtapa(
+        etapa=etapa, ok=(proc.returncode == 0 and posprocessamento_ok), comando=cmd,
+        returncode=proc.returncode, log_tail=_tail(saida), artefatos=artefatos,
+    )
+
+
+def executar_microciclo_item(
+    settings: Settings,
+    obra: dict,
+    *,
+    secao: str,
+    item: str,
+    pav: Optional[str] = None,
+    dry_run: bool = True,
+    log_path: Optional[Path] = None,
+) -> ResultadoEtapa:
+    """P4 — headless de UMA classe + UM item com --persist-db (escape hatch).
+
+    Entry point único: `scripts.arete.headless_sa_analise` com
+    `--secao <classe> --item <id> --persist-db --wait`. Reusa o pipeline
+    automático a partir do recorte já gravado pelo P3; o lock por classe
+    isola o microciclo (docs/PERSISTENCIA-HEADLESS-SA.md).
+    """
+    secao_s = str(secao or "").strip()
+    item_s = str(item or "").strip()
+    if not secao_s:
+        raise ValueError("secao obrigatoria no microciclo")
+    if not item_s:
+        raise ValueError("item obrigatorio no microciclo")
+
+    pav_efetivo = pav or settings.pav_default
+    if pav_efetivo == "Indeterminado":
+        msg = "Documento sem pavimento (Docs Gerais). Análise estrutural SA ignorada."
+        if log_path:
+            try:
+                Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+                Path(log_path).write_text(msg, encoding="utf-8")
+            except OSError:
+                pass
+        return ResultadoEtapa(
+            etapa="sa_item", ok=True, comando=[], dry_run=dry_run, log_tail=msg,
+        )
+
+    cmd = montar_comando_headless(
+        settings, obra, secao=[secao_s], pav=pav_efetivo, item=[item_s],
+    )
+    return _rodar_subprocess_sa(
+        settings, cmd, obra=obra, etapa="sa_item", dry_run=dry_run,
+        log_path=log_path, pav=pav_efetivo,
+    )
 
 
 def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str) -> None:
@@ -617,52 +973,10 @@ def executar_etapa(
                 pass
         return ResultadoEtapa(etapa=etapa, ok=True, comando=[], dry_run=dry_run, log_tail=msg)
 
-
     cmd = montar_comando_headless(settings, obra, secao=secao, pav=pav_efetivo)
-
-    if dry_run:
-        return ResultadoEtapa(etapa=etapa, ok=True, comando=cmd, dry_run=True)
-
-    _garantir_project_registrado(settings, obra, pav or settings.pav_default)
-
-    try:
-        # [FIX 2026-07-11, achado real testando "SA via web"] sem `encoding`
-        # explícito, `text=True` usa `locale.getpreferredencoding()` — nesta
-        # máquina Windows isso é cp1252, e o headless (como quase todo o
-        # resto do repo) imprime acentos/emojis em UTF-8. Byte inválido em
-        # cp1252 derruba a THREAD de leitura do stdout/stderr do subprocess
-        # (`UnicodeDecodeError` dentro de `_readerthread`, silenciosa — o
-        # subprocess.run "termina" mas com stdout/stderr truncados/vazios).
-        # Reproduzido de verdade: pilares/vigas/lajes ficavam sempre em 0
-        # mesmo com `ok=True` — o subprocess nunca era lido até o fim.
-        proc = subprocess.run(
-            cmd, cwd=str(settings.repo_root), capture_output=True, text=True,
-            encoding="utf-8", errors="replace",
-            timeout=settings.subprocess_timeout_s,
-        )
-    except subprocess.TimeoutExpired:
-        return ResultadoEtapa(etapa=etapa, ok=False, comando=cmd, returncode=None,
-                              log_tail="timeout do subprocess")
-    except OSError as exc:
-        return ResultadoEtapa(etapa=etapa, ok=False, comando=cmd, returncode=None,
-                              log_tail=f"erro ao iniciar subprocess: {exc}")
-
-    saida = (proc.stdout or "") + "\n" + (proc.stderr or "")
-    if log_path is not None:
-        try:
-            Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-            Path(log_path).write_text(saida, encoding="utf-8", errors="replace")
-        except OSError:
-            pass
-
-    obra_dir = _obra_dir(settings, obra)
-    artefatos = {
-        "obra_dir": str(obra_dir),
-        "fase6_dir": str(obra_dir / "Fase-6_Execucao_CAD"),
-    }
-    return ResultadoEtapa(
-        etapa=etapa, ok=(proc.returncode == 0), comando=cmd,
-        returncode=proc.returncode, log_tail=_tail(saida), artefatos=artefatos,
+    return _rodar_subprocess_sa(
+        settings, cmd, obra=obra, etapa=etapa, dry_run=dry_run,
+        log_path=log_path, pav=pav_efetivo,
     )
 
 
@@ -690,7 +1004,7 @@ def executar_n5(
         return ResultadoEtapa(etapa="n5", ok=False, log_tail=f"import assemble_n5 falhou: {exc}")
 
     try:
-        resultado = assemble_n5(obra_dir, classe, pavimento=pavimento)
+        resultado = assemble_n5(obra_dir, classe, pavimento=pavimento, db_path=str(settings.sa_db_path))
     except Exception as exc:  # noqa: BLE001 - erro do assembler vira estado de job 'error'
         return ResultadoEtapa(etapa="n5", ok=False,
                               comando=["assemble_n5", str(obra_dir), classe],
@@ -703,6 +1017,9 @@ def executar_n5(
         "ok_count": resultado.ok_count,
         "missing_count": resultado.missing_count,
     }
-    ok = resultado.ok_count > 0
+    ok = (resultado.ok_count > 0) and (resultado.missing_count == 0)
+    log_msg = None
+    if resultado.missing_count > 0:
+        log_msg = f"[WARNING/N5] Prancha gerada COM AUSÊNCIAS: {resultado.missing_count} item(ns) ausentes no disco!"
     return ResultadoEtapa(etapa="n5", ok=ok, comando=["assemble_n5", str(obra_dir), classe],
-                          returncode=0 if ok else 1, artefatos=artefatos)
+                          returncode=0 if ok else 1, artefatos=artefatos, log_tail=log_msg)

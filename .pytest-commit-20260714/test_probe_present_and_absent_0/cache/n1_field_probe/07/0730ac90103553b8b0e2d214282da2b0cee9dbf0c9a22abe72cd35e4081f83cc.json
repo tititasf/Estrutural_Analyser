@@ -1,0 +1,67 @@
+{
+  "schema": "arete.qa_content_cache/v1",
+  "namespace": "n1_field_probe",
+  "key": "0730ac90103553b8b0e2d214282da2b0cee9dbf0c9a22abe72cd35e4081f83cc",
+  "engine_version": "1.4.0",
+  "created_at": "2026-07-14T04:27:42+00:00",
+  "input_hashes": {
+    "PIL:P35": "0213d763c127c4845e1073e026fad9bc200e54b6eaab31cfee443efe1b11e77c"
+  },
+  "value": {
+    "schema": "arete.qa_n1_field_probe_result/v1",
+    "engine_version": "1.4.0",
+    "project_id": "p",
+    "question": "O slot opcional está ausente?",
+    "overall": "FAIL",
+    "scope_authority": "field_checks_only; never validates full item or ficha",
+    "fields": [
+      {
+        "id": "slot",
+        "class": "PIL",
+        "item": "P35",
+        "source": "payload",
+        "path": "slot_inexistente",
+        "transform": "raw",
+        "value": null,
+        "overridden": false,
+        "snapshot_hash": "0213d763c127c4845e1073e026fad9bc200e54b6eaab31cfee443efe1b11e77c",
+        "selected_columns": [
+          "id",
+          "links_json",
+          "name",
+          "project_id"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "must_exist",
+        "op": "present",
+        "status": "FAIL",
+        "reason": "present divergente",
+        "left": null,
+        "right": null,
+        "metric": {}
+      },
+      {
+        "id": "must_be_absent",
+        "op": "absent",
+        "status": "PASS",
+        "reason": "absent satisfeita",
+        "left": null,
+        "right": null,
+        "metric": {}
+      }
+    ],
+    "snapshots": {
+      "PIL:P35": "0213d763c127c4845e1073e026fad9bc200e54b6eaab31cfee443efe1b11e77c"
+    },
+    "provenance": {
+      "allowed": "persisted N1 + explicit candidate overlay",
+      "forbidden": "N2/N4 as N1 proof or N3 input",
+      "cross_class": [
+        "PIL"
+      ]
+    }
+  }
+}

@@ -23,6 +23,17 @@ from __future__ import annotations
 import glob
 import html
 import json
+
+try:
+    from src.core.qa_presentation_notice import banner_html as _qa_presentation_banner
+except Exception:  # pragma: no cover
+    def _qa_presentation_banner(*, dossier_path=None) -> str:
+        return (
+            '<aside style="border:1px solid #b8860b;background:#2a2110;color:#f0d78c;'
+            'padding:10px;margin:0 0 12px 0;font:12px monospace">'
+            '<strong>Apresentação ≠ prova</strong> — HTML/checkbox não selam N1/Arete.'
+            '</aside>'
+        )
 import os
 import re
 import shutil
@@ -622,6 +633,11 @@ def write_lateral_pages(
             context_width, context_height = 840, 2000
         else:
             context_width, context_height = 1800, 1360
+        # SVG N1: a altura anterior reservava muito vazio vertical em torno
+        # do mesmo recorte DXF. Reduzimos somente a janela do viewer em 40%; o
+        # ``viewBox``/limites CAD e o zoom do recorte são preservados pelo
+        # renderer, portanto não se corta nem se reduz a prova geométrica.
+        context_height = max(1, int(context_height * 0.60))
         source_key = str(segment.get("source_key") or "—")
         source_slot = str(segment.get("source_slot") or "—")
         focus_label = (
@@ -905,6 +921,13 @@ def write_lateral_pages(
                             flush=True,
                         )
                 if dedicated_path and dedicated_crop:
+                    # O split de Corte inclui cotas verticais nas duas bordas.
+                    # Acrescenta apenas respiro lateral nessa vista, sem mudar
+                    # escala/crop dos viewers A/B.
+                    if zone == "Visão Corte":
+                        x1, y1, x2, y2 = dedicated_crop
+                        pad = max(24.0, (x2 - x1) * 0.18)
+                        dedicated_crop = (x1 - pad, y1, x2 + pad, y2)
                     path = dedicated_path
                     crop = dedicated_crop
                 else:
@@ -1099,7 +1122,8 @@ def write_lateral_pages(
         return (
             '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
             f"<title>LV — {html.escape(beam)}-{html.escape(behavior)}</title>"
-            f"<style>{page_css}</style>{javascript}</head><body>{sidebar}"
+            f"<style>{page_css}</style>{javascript}</head><body>"
+            f"{_qa_presentation_banner()}{sidebar}"
             '<div class="main-wrap"><div class="main-content">'
             '<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'
             f"LV — {html.escape(beam)}-{html.escape(behavior)} · "

@@ -23,8 +23,9 @@
 
 ## Decisão
 
-- [ ] `CONFIRMAR` somente com adaptador autorizado e evidência independente.
-- [ ] Revisão genérica PIL/FV/LV é `TRILHA_N1_OBSERVADA` ou `PENDENTE`.
+- [ ] `CONFIRMAR` somente com adaptador autorizado (LAJ/PIL/FV/LV) e evidência independente.
+- [ ] PASS de um segmento/contrato FV/LV não é tratado como ficha/viga inteira aprovada.
+- [ ] Autoridade da classe confere com `data/authority_matrix.json`.
 - [ ] Achado tem causa geral; nenhuma medida foi hardcodada por item.
 - [ ] Fix executado tem regressão proporcional e nenhum FAIL novo.
 

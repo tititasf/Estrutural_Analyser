@@ -1,5 +1,5 @@
 name: qa-global-evidencias
-version: "1.3.0"
+version: "1.8.0"
 description: >-
   Orquestra auditoria Arete por evidencia para obra, pavimento, classe, item,
   nivel e variante. Seleciona o microciclo canonico N1, N3 ou N4, exige
@@ -147,13 +147,16 @@ governance:
     selo_laranja: "CONFIRMAR grava origem qa_agente (nunca humano_app/humano_portal); selo laranja de item exige cobertura isolada de 100% por essa origem, sem mistura. Ver docs/CONVENCAO-SELOS-VALIDACAO.md."
 
 evolution:
+  # SoT espelhada em data/authority_matrix.json (CI: qa_authority_matrix.py).
+  # validation_mode deve coincidir com CLASS_REGISTRY em qa_evidence_auditor.py.
   current_authority:
     LAJ: validation_ready
-    PIL: diagnostic_only
-    FV: diagnostic_only
-    LV: diagnostic_only
+    PIL: validation_ready
+    FV: validation_ready
+    LV: validation_ready
+  authority_matrix: data/authority_matrix.json
   backlog:
-    - "Extrair adaptadores PIL/FV/LV com proveniencia CAD independente."
-    - "Trocar CONFIRMAR generico por TRILHA_N1_OBSERVADA."
-    - "Tipar RAG por classe, familia, campo, tier e escopo."
+    - "Golden/G2-V institucional FV multi-geometria e LV para+passa."
+    - "Expandir FvEvidenceAuditor (furos/recortes) e LvEvidenceAuditor (aberturas)."
+    - "Expandir cobertura PIL para L/U/circular e set obrigatorio de p_s{face}_v."
     - "Adicionar metadados de abertura/recorte ao DXF para paridade rastreavel."

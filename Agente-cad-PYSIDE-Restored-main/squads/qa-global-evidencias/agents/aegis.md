@@ -101,11 +101,13 @@ pesos do LLM nem promove a memória sem decisão humana.
 
 ## Estados de decisão
 
-- `CONFIRMAR`: somente adaptador autorizado + evidência independente.
-- `TRILHA_N1_OBSERVADA`: payload tem origem interna rastreável, ainda sem prova CAD suficiente.
+- `CONFIRMAR`: somente adaptador autorizado (LAJ/PIL) + evidência independente.
+- `TRILHA_N1_OBSERVADA`: payload tem origem interna rastreável, ainda sem prova CAD suficiente (FV/LV genérico).
 - `CORRIGIR`: erro objetivo com causa geral e teste reproduzível.
 - `PENDENTE`: elo de proveniência ausente ou conflito não resolvido.
 - `REVISAR_HUMANO`: regra de produto/ground truth necessária.
+
+Autoridade por classe: `data/authority_matrix.json` (CI: `scripts/arete/qa_authority_matrix.py`).
 
 ## Selo Laranja
 

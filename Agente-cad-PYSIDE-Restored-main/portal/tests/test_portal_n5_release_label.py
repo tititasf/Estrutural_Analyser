@@ -135,3 +135,56 @@ def test_liberar_n5_classe_invalida_levanta(conn, settings, membro_id):
             conn, settings, obra=obra, classe="ZZ", pavimento="13",
             membro_id=membro_id, dry_run=True,
         )
+
+
+# --------------------------------------------------------------------------- #
+# [2026-07-30] Tabela lida por NOME DE CABECALHO, nao por posicao.
+# O parser antigo contava colunas fixas e quebrou quando o gerador ganhou a
+# coluna "Regressao". Como este rotulo gateia a liberacao do N5, o parser tem
+# de aguentar o gerador evoluir.
+# --------------------------------------------------------------------------- #
+
+def _status_md_bruto(tmp_path, texto: str):
+    p = tmp_path / "STATUS.md"
+    p.write_text(texto, encoding="utf-8")
+    return p
+
+
+def test_layout_com_coluna_regressao_e_lido(tmp_path):
+    """Layout atual do gerar_status.py (10 colunas, com Regressao)."""
+    status = _status_md_bruto(tmp_path, "\n".join([
+        "| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Regressão | Alerta |",
+        "|--------|-----|-----|------|------|---------|---------|---------------|-----------|--------|",
+        "| FV | 13_PAV | r1 | 26 | 0 | 0 | 100.0% | 26 | 0 |  |",
+    ]))
+    assert certification.classificar_certificacao(status, "FV") == "certificado"
+
+
+def test_layout_legado_sem_regressao_continua_lido(tmp_path):
+    """Layout de 9 colunas (anterior a 2026-07-30) nao pode virar 'beta' por engano."""
+    status = _status_md_bruto(tmp_path, "\n".join([
+        "| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |",
+        "|--------|-----|-----|------|------|---------|---------|---------------|--------|",
+        "| FV | 13_PAV | r1 | 26 | 0 | 0 | 100.0% | 26 |  |",
+    ]))
+    assert certification.classificar_certificacao(status, "FV") == "certificado"
+
+
+def test_coluna_nova_desconhecida_nao_quebra(tmp_path):
+    """Gerador pode adicionar coluna sem derrubar o gate do N5."""
+    status = _status_md_bruto(tmp_path, "\n".join([
+        "| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Regressão | Custo | Alerta |",
+        "|--------|-----|-----|------|------|---------|---------|---------------|-----------|-------|--------|",
+        "| FV | 13_PAV | r1 | 26 | 0 | 0 | 100.0% | 26 | 0 | 3.2 |  |",
+    ]))
+    assert certification.classificar_certificacao(status, "FV") == "certificado"
+
+
+def test_regressao_positiva_rebaixa_para_beta(tmp_path):
+    """Item selado reprovando nunca pode sair rotulado como certificado."""
+    status = _status_md_bruto(tmp_path, "\n".join([
+        "| Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Regressão | Alerta |",
+        "|--------|-----|-----|------|------|---------|---------|---------------|-----------|--------|",
+        "| FV | 13_PAV | r1 | 26 | 0 | 0 | 100.0% | 26 | 2 |  |",
+    ]))
+    assert certification.classificar_certificacao(status, "FV") == "beta"

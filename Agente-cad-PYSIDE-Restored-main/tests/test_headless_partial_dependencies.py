@@ -11,19 +11,54 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.arete.headless_sa_analise import (  # noqa: E402
     _headless_lock_plan,
+    _headless_persistence_resource_locks,
     _beam_topology_coverage,
     _changed_canonical_beam_names,
     _fast_context_cache_path,
+    _fast_microcycle_section,
     _fresh_laj_geometry_for_readonly_preview,
     _non_regressive_beam_dependencies,
     _partial_collections_for_sections,
 )
+from scripts.arete.single_instance import acquire_lock, release_lock  # noqa: E402
 
 
-def test_headless_lock_plan_isolates_single_class_item():
-    locks, scope = _headless_lock_plan({'pilares'}, {'P35'}, False)
-    assert locks == ['headless_sa_pil']
-    assert scope == 'classe:PIL'
+def test_headless_lock_plan_isolates_single_class_item_even_when_persisting():
+    for persist_db in (False, True):
+        locks, scope = _headless_lock_plan({'pilares'}, {'P35'}, persist_db)
+        assert locks == ['headless_sa_pil']
+        assert scope == 'classe:PIL'
+
+    locks, scope = _headless_lock_plan({'lajes'}, {'L318', 'L319'}, True)
+    assert locks == ['headless_sa_laj']
+    assert scope == 'classe:LAJ'
+
+
+def test_headless_lock_plan_isolates_single_class_full_readonly_export():
+    """Uma classe sem --item não deve esperar outras classes read-only."""
+    locks, scope = _headless_lock_plan({'laterais_viga'}, None, False)
+    assert locks == ['headless_sa_lv']
+    assert scope == 'classe:LV'
+
+
+def test_fast_microcycle_is_explicit_for_each_class_without_reusing_lv_semantics():
+    assert _fast_microcycle_section({'fundos_viga'}, {'V301'}) == 'fundos_viga'
+    assert _fast_microcycle_section({'pilares'}, {'P35'}) == 'pilares'
+    assert _fast_microcycle_section({'lajes'}, {'L318'}) == 'lajes'
+    assert _fast_microcycle_section({'laterais_viga'}, {'V301'}) == 'laterais_viga'
+    assert _fast_microcycle_section({'fundos_viga', 'laterais_viga'}, {'V301'}) is None
+
+
+def test_stage_telemetry_is_safe_for_a_headless_run_callback():
+    """A observabilidade não pode depender de uma janela nem mudar o lock plan."""
+    stages: list[str] = []
+
+    # O callback é uma API intencionalmente mínima: o executor o chama por
+    # etapa e trata qualquer falha como mera telemetria.
+    callback = stages.append
+    callback('previews N3 e reexportacao')
+
+    assert stages == ['previews N3 e reexportacao']
 
 
 def test_headless_lock_plan_keeps_global_for_dangerous_runs():
@@ -32,9 +67,57 @@ def test_headless_lock_plan_keeps_global_for_dangerous_runs():
         'headless_sa_fv', 'headless_sa_lv',
     ]
     assert _headless_lock_plan(None, None, False)[0] == expected
-    assert _headless_lock_plan({'pilares'}, None, False)[0] == expected
+    assert _headless_lock_plan({'pilares'}, None, True)[0] == expected
     assert _headless_lock_plan({'pilares', 'lajes'}, {'P1'}, False)[0] == expected
-    assert _headless_lock_plan({'pilares'}, {'P1'}, True)[0] == expected
+
+
+def test_persisted_microcycle_locks_only_the_shared_beam_snapshot_when_needed():
+    assert _headless_persistence_resource_locks({'lajes'}, {'L318'}, True) == []
+    assert _headless_persistence_resource_locks({'pilares'}, {'P35'}, True) == [
+        'headless_sa_beams'
+    ]
+    assert _headless_persistence_resource_locks({'fundos_viga'}, {'V305'}, True) == [
+        'headless_sa_beams'
+    ]
+    assert _headless_persistence_resource_locks({'laterais_viga'}, {'V305'}, True) == [
+        'headless_sa_beams'
+    ]
+    assert _headless_persistence_resource_locks({'fundos_viga'}, {'V305'}, False) == []
+    assert _headless_persistence_resource_locks(None, None, True) == []
+
+
+def test_laj_can_coexist_with_fv_while_lv_waits_for_shared_beams(tmp_path: Path):
+    """Reproduz a compatibilidade da fila sem instanciar Qt/AutoCAD."""
+    fv_class, _ = acquire_lock('headless_sa_fv', tmp_path)
+    beams, _ = acquire_lock('headless_sa_beams', tmp_path)
+    assert fv_class is not None and beams is not None
+    try:
+        lv_class, _ = acquire_lock('headless_sa_lv', tmp_path)
+        laj_class, _ = acquire_lock('headless_sa_laj', tmp_path)
+        blocked_beams, _ = acquire_lock('headless_sa_beams', tmp_path)
+        assert lv_class is not None
+        assert laj_class is not None
+        assert blocked_beams is None
+    finally:
+        for handle in (locals().get('laj_class'), locals().get('lv_class'), beams, fv_class):
+            if handle is not None:
+                release_lock(handle)
+
+
+def test_fv_and_lv_readonly_are_independent_class_queues(tmp_path: Path):
+    """Leitura N1 de FV não entra na fila de LV (nem vice-versa).
+
+    Esta é a coexecução operacional usada pelos agentes: ambas as rodadas
+    geram somente packs/diagnósticos isolados e não tomam ``headless_sa_beams``.
+    """
+    lv_class, _ = acquire_lock('headless_sa_lv', tmp_path)
+    assert lv_class is not None
+    try:
+        fv_class, holder = acquire_lock('headless_sa_fv', tmp_path)
+        assert fv_class is not None, holder
+        release_lock(fv_class)
+    finally:
+        release_lock(lv_class)
 
 
 def test_fast_context_cache_key_tracks_source_identity():

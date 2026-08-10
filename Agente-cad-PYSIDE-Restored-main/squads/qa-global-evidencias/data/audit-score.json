@@ -1,8 +1,17 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "squad": "qa-global-evidencias",
+  "structural_score": 100,
+  "structural_grade": "S",
   "score": 100,
   "grade": "S",
+  "operational_score": {
+    "source": "scripts/arete/relatorios/AUDIT-QA-GLOBAL-EVIDENCIAS-2026-07-16-STAGE2.scores.json",
+    "score": 89,
+    "grade": "A",
+    "previous": 87,
+    "note": "Stage-2 residual (exceto #2/#6 adiados); NAO usar structural S como prontidao Arete"
+  },
   "scores": {
     "manifest": 15,
     "structure": 10,
@@ -15,5 +24,7 @@
     "documentation": 10
   },
   "findings": [],
-  "passed": true
+  "passed": true,
+  "disclaimer": "structural_score = completude de arquivos; operational_score = excelencia A-E do CEO-AUDIT",
+  "updated": "2026-07-16"
 }

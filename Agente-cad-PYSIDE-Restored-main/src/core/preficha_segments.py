@@ -112,6 +112,31 @@ def _same_geometry(first: Iterable[Any], second: Iterable[Any], tolerance: float
     return signature(a) == signature(b)
 
 
+def _edge_matches_geometry(
+    existing: Iterable[Any], expected: Iterable[Any], tolerance: float = 3.0,
+) -> bool:
+    """Confere se um trecho lateral já registrado bate com a borda esperada.
+
+    A borda esperada vem do contorno de fundo (fonte geometrica mais forte:
+    e o proprio poligono extraido do CAD, nao um link legado que pode ter
+    sido gravado por uma extracao antiga/imprecisa). Compara os extremos
+    (primeiro/ultimo ponto) em qualquer sentido, com folga de arredondamento
+    de poucos cm — divergencias maiores indicam link desatualizado, nao
+    imprecisao numerica.
+    """
+    existing_pts = _clean_points(existing)
+    expected_pts = _clean_points(expected)
+    if len(existing_pts) < 2 or len(expected_pts) < 2:
+        return False
+    e0, e1 = existing_pts[0], existing_pts[-1]
+    x0, x1 = expected_pts[0], expected_pts[-1]
+
+    def _close(p: tuple[float, float], q: tuple[float, float]) -> bool:
+        return abs(p[0] - q[0]) <= tolerance and abs(p[1] - q[1]) <= tolerance
+
+    return (_close(e0, x0) and _close(e1, x1)) or (_close(e0, x1) and _close(e1, x0))
+
+
 def _lateral_edges_from_contour(points: Iterable[Any]) -> dict[str, list[tuple[float, float]]]:
     """Extrai as duas bordas longitudinais opostas de um contorno de fundo."""
     clean = _clean_points(points)
@@ -134,11 +159,19 @@ def _lateral_edges_from_contour(points: Iterable[Any]) -> dict[str, list[tuple[f
 
 
 def harmonize_lateral_segment_links(beams: list[dict] | None) -> int:
-    """Repara fallbacks antigos que colocavam A e B sobre a mesma linha de fundo.
+    """Repara vinculos laterais divergentes da borda real do fundo.
+
+    Cobre tres casos, todos com a mesma causa raiz (link lateral desatualizado
+    ou nunca preenchido): ausente, duplicado por engano sobre a linha de fundo
+    (fallback antigo), e — o gap encontrado em producao (P35/V308: lado A
+    gravado ~8,7cm fora da borda real, sem ser vazio nem duplicata de B) —
+    presente mas geometricamente divergente do contorno de fundo, a fonte mais
+    forte porque vem direto do poligono do CAD. Convergir sempre para o fundo
+    evita que qualquer um dos tres padroes escape sem reparo.
 
     A alteracao e feita nos proprios objetos de link. Assim, a geometria exibida
     na pre-ficha continua sendo exatamente a geometria consumida depois dela.
-    Links A/B ja distintos, inclusive os editados manualmente, nao sao alterados.
+    Decisao humana explicita (status ``valid``/``ignore``) nunca e sobrescrita.
     """
     repaired = 0
 
@@ -168,11 +201,26 @@ def harmonize_lateral_segment_links(beams: list[dict] | None) -> int:
                 geometry_a = values_a[0].get("points") if values_a and isinstance(values_a[0], dict) else []
                 geometry_b = values_b[0].get("points") if values_b and isinstance(values_b[0], dict) else []
                 same_geometry = bool(geometry_a and geometry_b and _same_geometry(geometry_a, geometry_b))
+                status_a = preficha_source_status(beam, key_a)
+                status_b = preficha_source_status(beam, key_b)
+                # Decisao humana (valid/ignore) e soberana mesmo quando a
+                # geometria diverge do fundo — nunca reescreve o que foi
+                # confirmado ou explicitamente descartado por uma pessoa.
+                diverges_a = bool(geometry_a) and not _edge_matches_geometry(
+                    geometry_a, edges["a"]
+                )
+                diverges_b = bool(geometry_b) and not _edge_matches_geometry(
+                    geometry_b, edges["b"]
+                )
                 repair_a = same_geometry or (
-                    not geometry_a and preficha_source_status(beam, key_a) != "ignore"
+                    not geometry_a and status_a != "ignore"
+                ) or (
+                    diverges_a and status_a not in ("ignore", "valid")
                 )
                 repair_b = same_geometry or (
-                    not geometry_b and preficha_source_status(beam, key_b) != "ignore"
+                    not geometry_b and status_b != "ignore"
+                ) or (
+                    diverges_b and status_b not in ("ignore", "valid")
                 )
                 if not repair_a and not repair_b:
                     continue
@@ -244,8 +292,29 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
 
     ``preficha_segmentos``/``preficha_reviewed`` são somente triagem anterior à
     análise e não congelam geometria. A autoridade vem do selo do item, de campo,
-    de slot ou do próprio link validado no card.
+    de slot ou do próprio link validado no card. Selo ``qa_agente`` sozinho
+    NÃO trava a topologia (decisão do dono, 2026-07-18): o agente ainda é
+    ``diagnostic_only`` para FV (`docs/CONVENCAO-SELOS-VALIDACAO.md`) e uma
+    auto-validação campo a campo não compara segmentos vizinhos entre si —
+    travar por ela protegeu geometria com bug (achado real: V301). Campo sem
+    nenhum rastro em ``validated_fields`` (link marcado ``validated`` direto,
+    fluxo anterior a 2026-07-13) continua travando — comportamento anterior
+    preservado para quem nunca passou pelo agente.
     """
+    from src.core.validation_model import (
+        ORIGEM_QA_AGENTE,
+        migrar_validated_fields_legado,
+        origens_do_campo,
+    )
+
+    validated_fields = migrar_validated_fields_legado(beam.get("validated_fields"))
+
+    def _field_has_human_origin(field_id: str) -> bool:
+        origins = origens_do_campo(validated_fields, field_id)
+        if not origins:
+            return True
+        return bool(origins - {ORIGEM_QA_AGENTE})
+
     validated = False
     source_keys: set[str] = set()
     links = beam.get("links") or {}
@@ -324,6 +393,8 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
         source_key = str(key)
         if not _FUNDO_RE.match(source_key) or not isinstance(slots, dict):
             continue
+        if not _field_has_human_origin(source_key):
+            continue
         for link in slots.get("contour") or []:
             if not isinstance(link, dict):
                 continue
@@ -331,8 +402,9 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
                 validated = True
                 source_keys.add(source_key)
 
-    for field in beam.get("validated_fields") or []:
-        field_name = str(field)
+    for field_name in validated_fields:
+        if not _field_has_human_origin(field_name):
+            continue
         match = re.match(r"^viga_fundo_seg_(\d+)_", field_name)
         if match:
             area_key = f"viga_fundo_seg_{match.group(1)}_area_segs"
@@ -496,6 +568,41 @@ def lock_fundo_topology(beam: dict) -> None:
     beam["preficha_fundo_locked_source_keys"] = source_keys
 
 
+def _drop_duplicate_locked_contours(
+    validated_links: dict, source_keys: set[str]
+) -> set[str]:
+    """Remove índices travados cujo contorno é idêntico a um já mantido.
+
+    Achado real V331 (2026-07-21): dados legados sem rastro de proveniência
+    (travados pela regra de segurança de `fundo_topology_is_locked` para
+    nunca perder possível dado humano) às vezes têm dois índices apontando
+    pra EXATAMENTE a mesma geometria (mesmos pontos, mesmo comprimento) —
+    um artefato de persistência antiga, não dois segmentos reais distintos
+    (geometria idêntica nunca pode representar duas revisões humanas
+    diferentes). Mantém sempre o índice de menor número; os demais
+    duplicados exatos são descartados do conjunto restaurado. Índices com
+    geometria genuinamente diferente (o caso comum) nunca são afetados.
+    """
+    if len(source_keys) < 2:
+        return source_keys
+    seen_signatures: dict[tuple, str] = {}
+    kept = set()
+    for key in sorted(source_keys):
+        contour = (validated_links.get(key) or {}).get("contour") or []
+        signature = tuple(
+            (
+                tuple(tuple(round(float(v), 3) for v in pt) for pt in (c.get("points") or [])),
+                round(float(c.get("len") or 0.0), 3),
+            )
+            for c in contour
+        )
+        if signature in seen_signatures:
+            continue
+        seen_signatures[signature] = key
+        kept.add(key)
+    return kept
+
+
 def restore_locked_fundo_topology(target: dict, validated: dict) -> bool:
     """Substitui qualquer FV recém-inferido pelo conjunto humano preservado."""
     if not fundo_topology_is_locked(validated):
@@ -512,6 +619,7 @@ def restore_locked_fundo_topology(target: dict, validated: dict) -> bool:
     else:
         _, reviewed_source_keys = _reviewed_fundo_topology(validated)
         source_keys = set(reviewed_source_keys)
+    source_keys = _drop_duplicate_locked_contours(validated_links, source_keys)
 
     target_classified = (target.get("geometry") or {}).get("classified") or {}
     target_expected = max(

@@ -517,9 +517,19 @@ def get_recorte_path(elemento_id: str, classe: str,
 # ═════════════════════════════════════════════════════════════════════════════
 
 def rodar_gerador(obra_dir: Path, classe: str,
-                  elemento_id: str) -> tuple[bool, str]:
+                  elemento_id: str, real_obra_name: str | None = None,
+                  real_pavimento: str | None = None) -> tuple[bool, str]:
     """
     Chama o gerador STOG via subprocess com --obra {obra_dir} --item {elemento_id}.
+
+    Args:
+        real_obra_name: nome real da obra (ex: "Obra_TREINO_1"), para geradores
+            que descobrem metadados por obra (ex: layers do STOG em
+            dxf_discovery.json) e precisam saber a obra de verdade — `obra_dir`
+            aqui e' uma pasta temp/isolada ("LV_14_PAV_V414"), nao a obra real.
+        real_pavimento: pavimento real (ex: "14_PAV") — moldes STOG variam por
+            pavimento; sem isso o gerador cai num heuristico "melhor pavimento
+            da obra" que pode escolher o molde errado para este item.
 
     Returns:
         (ok: bool, log: str)
@@ -531,6 +541,10 @@ def rodar_gerador(obra_dir: Path, classe: str,
         "--item", elemento_id,
         "--max", "1",
     ]
+    if real_obra_name and classe == "LV":
+        cmd += ["--stog-obra-hint", real_obra_name]
+        if real_pavimento:
+            cmd += ["--stog-pav-hint", real_pavimento]
     try:
         result = subprocess.run(
             cmd,
@@ -585,7 +599,9 @@ def smoke_test(classe: str, elemento_id: str,
     obra_dir, json_path = materializar_item(row)
 
     # 4. Rodar gerador
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
+                                real_obra_name=row.get("obra_name"),
+                                real_pavimento=row.get("pavimento"))
     result["gerador_ok"] = ok_gen
     result["log"] = log
 

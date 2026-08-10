@@ -1,4 +1,4 @@
-﻿"""Visual ABCD modo NOVA — regras gerais (qualquer pilar/obra).
+"""Visual ABCD modo NOVA — regras gerais (qualquer pilar/obra).
 
 Motor único: ``enrich_payload_for_abcd_nova`` + desenho em
 ``apply_face_visual_nova`` / ``gerar_pl_dxf_stog.draw_abcd``.
@@ -283,7 +283,6 @@ def _iter_face_openings(payload: dict, face_id: str) -> list[tuple[str, dict]]:
     single = payload.get(f"abertura_{fid}")
     if isinstance(single, dict) and single:
         out.append((f"abertura_{fid}", single))
-        return out
     i = 1
     while True:
         key = f"abertura_{fid}_{i}"
@@ -402,10 +401,17 @@ def enrich_payload_for_abcd_nova(
         # (nunca herdar rebaixo stale absurdo de run anterior, ex. 311cm).
         rebaixo = float(metrics["rebaixo_laje_cm"] or 0.0)
         vazio_laje = float(metrics["vazio_laje_cm"] or 0.0)
+        is_passa_mode = str(payload.get("modo") or payload.get("modo_variante") or payload.get("modo_dxf") or "").lower() == "passa"
+        mode_contract = payload.get("_sa_mode_contract") or {}
+        face_contract_mode = (mode_contract.get("modo") or "").lower()
+        if is_passa_mode or face_contract_mode == "passa":
+            rebaixo = 0.0
+            vazio_laje = 0.0
+
         has_face_ctx = bool(face) or bool(
             (face or {}).get("fontes_n1") if isinstance(face, dict) else False
         )
-        if not has_face_ctx:
+        if not has_face_ctx and not (is_passa_mode or face_contract_mode == "passa"):
             try:
                 flat_r = float(payload.get(f"rebaixo_laje_{fid}") or 0.0)
             except (TypeError, ValueError):
@@ -496,21 +502,11 @@ def enrich_payload_for_abcd_nova(
         if vazio_laje > 0.5 and rebaixo < 0.5:
             if dual or not has_side:
                 rebaixo = float(FORMA_STRIP_ACIMA_LAJE_CM)
-        # Dual com vazio: aberturas sobem ao topo da face (como P1 B), mesmo
-        # quando o N2 deixou gap = vazio de laje (ex. y_rel 140 em PD 280).
-        if dual and vazio_laje > 0.5:
-            for key, ab0 in openings:
-                ab = dict(payload.get(key) or ab0)
-                try:
-                    oh = float(ab.get("altura") or ab.get("height") or 0.0)
-                except (TypeError, ValueError):
-                    oh = 0.0
-                max_y = max(0.0, height - h1 - oh)
-                ab["y_rel"] = round(max_y, 4)
-                if "larg" not in ab and "largura" in ab:
-                    ab["larg"] = ab["largura"]
-                payload[key] = ab
-            openings_to_top = True
+        # Uma abertura dupla só chega ao topo quando a própria ficha assim a
+        # mede. Forçá-la até lá apagava a anatomia explícita ``abertura +
+        # vazio de laje + painel acima`` (ex.: vão 40, laje 12, painel 7).
+        # O motor preserva o y_rel/altura N2 e desenha a laje como região
+        # vazia independente; assim sarrafos nunca atravessam esse vazio.
         payload[f"rebaixo_laje_{fid}"] = rebaixo
         payload[f"vazio_laje_{fid}"] = vazio_laje
         if face is not None and fid in faces:
@@ -537,7 +533,12 @@ def enrich_payload_for_abcd_nova(
         # Reescrever uma malha N2 válida aqui transforma o comparador em gerador
         # de um desenho novo (incidente P35: 122/97/26/15 -> 122/122/34).
         preserved_n2_mesh: list[float] = []
-        if not has_sa_contract:
+        # Uma malha editada/confirmada na ficha web Ã© autoridade humana N3,
+        # mesmo continuando a carregar o contrato SA para rastreabilidade.
+        # Sem este ramo, o segundo enrich de generate_pilar_zone recalculava
+        # 122+sobra e apagava as linhas/alturas escolhidas no portal.
+        preserve_explicit_mesh = bool(payload.get("_portal_n3_ficha"))
+        if not has_sa_contract or preserve_explicit_mesh:
             try:
                 preserved_n2_mesh = [
                     float(value) for value in old_iv if float(value) > 0.5
@@ -554,6 +555,12 @@ def enrich_payload_for_abcd_nova(
             # P35 PASSA: A/B ficavam [122,122,34] até o topo apesar do
             # vazio_topo=55). Vazio de LAJE segue só nas curtas: nas longas
             # ele é a banda h3, não encurta módulos.
+            # O desconto do vazio e a decisao de dividir em modulos sao
+            # ortogonais: uma face com abertura de canto real (has_side)
+            # continua se dividindo em 122+sobra mesmo quando o vazio vem de
+            # viga (achado: forcar has_side_openings=False sempre que havia
+            # beam_void colapsava C num painel unico quando C tambem tinha
+            # abertura CC — deveria dividir igual A/B).
             beam_void = top_void_contract if top_void_contract > 0.5 else 0.0
             effective_void = (
                 top_void if (fid in FACES_CURTAS and not has_side) else 0.0
@@ -565,7 +572,7 @@ def enrich_payload_for_abcd_nova(
                 height_cm=height,
                 h1_cm=h1,
                 top_void_cm=effective_void,
-                has_side_openings=has_side and beam_void <= 0.5,
+                has_side_openings=has_side,
             )
         if iv:
             payload[f"paineis_intervals_{fid}"] = iv
@@ -633,12 +640,27 @@ def parse_slab_level_and_esp(evidence: str | None) -> tuple[float | None, float 
     import re
     text = str(evidence or "")
     nivel = esp = None
-    m = re.search(r"N:\s*([0-9]+(?:[.,][0-9]+)?)", text, flags=re.I)
+    # ── ANTI-ALUCINAÇÃO NÍVEIS x NOMES DE ELEMENTOS (L301, V301, etc.) ──
+    # Nomes de lajes (L301, L302) e vigas (V301, V302) JAMAIS são níveis.
+    clean_text = re.sub(r"\b[LV]\d{2,4}[A-Z]?\b", "", text, flags=re.I)
+    m = re.search(r"N:\s*([0-9]+(?:[.,][0-9]+)?)", clean_text, flags=re.I)
     if m:
-        nivel = float(m.group(1).replace(",", "."))
-    m = re.search(r"esp:\s*([0-9]+(?:[.,][0-9]+)?)", text, flags=re.I)
+        val_raw = m.group(1).replace(",", ".")
+        try:
+            val = float(val_raw)
+            # Nível de laje não pode ser número inteiro de item/laje (ex: 301, 302, 309)
+            if val > 50.0 and "." not in val_raw:
+                nivel = None
+            else:
+                nivel = val
+        except (ValueError, TypeError):
+            nivel = None
+    m = re.search(r"esp:\s*([0-9]+(?:[.,][0-9]+)?)", clean_text, flags=re.I)
     if m:
-        esp = float(m.group(1).replace(",", "."))
+        try:
+            esp = float(m.group(1).replace(",", "."))
+        except (ValueError, TypeError):
+            esp = None
     return nivel, esp
 
 
@@ -750,12 +772,19 @@ def draw_pressure_battens_ab(
     sarr_offset: float = 7.0,
     break_ys: list[float] | None = None,
     skip_breaks: list[float] | None = None,
+    y_content_top: float | None = None,
 ) -> int:
     """Pressão HIDDEN nas linhas de sarr (offset 7), seccionada nos painéis.
 
     Manual A (abertura direita): esquerda sobe ao topo; direita para no fundo da abertura.
     Manual B dual: 330/404 só corpo até y_bot da abertura.
     Exemplo seccionamento: trechos 122 + 122 + 58 nas juntas da malha.
+
+    ``y_content_top`` é o topo real do painel sólido (antes de rebaixo/vazio
+    de laje). Sem aberturas registradas mas com vazio de topo publicado (viga
+    que passa sem abertura de canto, ex. P35 A/B), o sarrafo de corpo deve
+    parar aí — nunca atravessar o vazio até ``y_top`` (achado do dono:
+    "sarrafo invadindo o vazio" quando não há abertura mas há void real).
     """
     n = 0
     xl = x_left + sarr_offset
@@ -765,15 +794,21 @@ def draw_pressure_battens_ab(
     has_esq = any(ab.get("lado") == "esquerdo" for ab in openings)
     has_dir = any(ab.get("lado") == "direito" for ab in openings)
 
+    solid_top = min(y_top, y_content_top) if y_content_top is not None else y_top
     if has_dir and not has_esq:
-        y_body_l, y_body_r = stop_r, stop_r
-        y_void_l, y_void_r = y_top, None
+        # A pressão externa esquerda continua pelo painel sólido; a direita
+        # para no início do vão. Nenhum sarrafo entra no vazio de topo.
+        y_body_l, y_body_r = solid_top, stop_r
+        y_void_l, y_void_r = None, None
     elif has_esq and not has_dir:
-        y_body_l, y_body_r = stop_l, stop_l
-        y_void_l, y_void_r = None, y_top
+        y_body_l, y_body_r = stop_l, solid_top
+        y_void_l, y_void_r = None, None
     elif has_esq and has_dir:
         y_body_l, y_body_r = stop_l, stop_r
         y_void_l, y_void_r = None, None
+    elif y_content_top is not None and y_content_top < y_top - 0.5:
+        y_body_l = y_body_r = y_content_top
+        y_void_l = y_void_r = None
     else:
         y_body_l = y_body_r = y_top
         y_void_l = y_void_r = None
@@ -849,7 +884,9 @@ def draw_opening_sarrafos(
             msp.add_lwpolyline(pts, close=False, dxfattribs={"layer": layer})
             n += 1
             # vertical SARR seccionada nos cruzamentos de painel
-            y_sarr_top = float(y_top_ref) if y_top_ref is not None else yt
+            # O sarrafo de contorno termina no topo efetivo da abertura; o
+            # trecho acima é vazio/laje e pertence ao layer COTA, não SARR.
+            y_sarr_top = min(float(y_top_ref), yt) if y_top_ref is not None else yt
             if y_sarr_top - yb > 0.5:
                 n += draw_vertical_sectioned(
                     msp,
@@ -872,7 +909,7 @@ def draw_opening_sarrafos(
                 pts.append((x_press_l, yb - corner))
             msp.add_lwpolyline(pts, close=False, dxfattribs={"layer": layer})
             n += 1
-            y_sarr_top = float(y_top_ref) if y_top_ref is not None else yt
+            y_sarr_top = min(float(y_top_ref), yt) if y_top_ref is not None else yt
             if y_sarr_top - yb > 0.5:
                 n += draw_vertical_sectioned(
                     msp,
@@ -885,10 +922,9 @@ def draw_opening_sarrafos(
                 )
 
         elif lado == "meio":
-            xl = float(ab.get("x_inn_l") or 0.0)
-            xr = float(ab.get("x_inn_r") or 0.0)
-            msp.add_line((xl, yb), (xr, yb), dxfattribs={"layer": layer})
-            n += 1
+            # Abertura central é delimitada pelo contorno COTA do vazio. Não
+            # introduzir uma travessa SARR dentro do vão.
+            continue
     return n
 
 
@@ -900,8 +936,10 @@ def void_rects_for_face(
     Dual esq+dir (face B típica):
       - hatch na faixa da abertura ESQ (larg × altura do vão)
       - hatch na faixa da abertura DIR
-      - hatch no MIOLO só na faixa do vazio de laje (esp+2), entre rebaixo e base do vazio
-      NÃO full-width 88×H (isso sobrepõe o miolo sólido e o filete de rebaixo).
+      - quando ambas as aberturas alcançam a base da laje, hatch de laje em
+        toda a largura, unido às duas aberturas; caso contrário, somente no
+        miolo. Assim não ficam três regiões de hatch apenas encostadas num
+        vértice, nem o hatch invade um painel que ainda existe.
 
     Single (face A): só a faixa da abertura.
     C/D passante / sem abertura: full width × vazio de topo (ou laje).
@@ -918,9 +956,10 @@ def void_rects_for_face(
     def _opening_void_rect(ab):
         lado = ab.get("lado")
         yb = float(ab["y_bot"])
-        # vão sobe até o topo da face (aberturas de borda coladas no topo)
-        yt = max(float(ab.get("y_top") or yb), float(y_face_top))
-        # se há rebaixo+vazio no miolo, as aberturas laterais ainda são vazias até o topo
+        # A ficha informa a altura real do vão. Um vazio superior de viga/laje
+        # é outro elemento geométrico e será unido abaixo, sem estender a
+        # abertura nem apagar painéis laterais existentes.
+        yt = float(ab.get("y_top") or yb)
         larg = _ab_larg(ab)
         if larg < 0.5 or yt - yb < 0.5:
             return None
@@ -934,20 +973,54 @@ def void_rects_for_face(
             return (xl, yb, max(0.0, xr - xl), yt - yb)
         return None
 
+    def _top_opening_extension(ab, y_void_top, y_void_bot):
+        """Parte do vão lateral que atravessa o rebaixo até o topo da face.
+
+        Quando uma abertura chega à base da laje, o painel de ``rebaixo`` só
+        existe no trecho sólido oposto. O trecho sobre o próprio vão continua
+        vazio; sem este retângulo ficava um pequeno bloco sem hatch entre a
+        laje e a linha superior, apesar de o contorno da abertura chegar ao
+        topo.
+        """
+        if float(ab.get("y_top") or ab["y_bot"]) < y_void_bot - 0.5:
+            return None
+        lado = ab.get("lado")
+        larg = _ab_larg(ab)
+        if rebaixo < 0.5 or larg < 0.5:
+            return None
+        if lado == "esquerdo":
+            return (x_left, y_void_top, larg, rebaixo)
+        if lado == "direito":
+            return (x_right - larg, y_void_top, larg, rebaixo)
+        return None
+
     if esq and dir_:
         # 1) só as faixas de abertura (não o miolo inteiro)
         for ab in openings:
             r = _opening_void_rect(ab)
             if r:
                 rects.append(r)
-        # 2) miolo: somente vazio de laje (abaixo do rebaixo, acima da base do vazio)
+        # 2) A laje encosta nas duas aberturas? Então é uma única região vazia
+        # em U: abertura esquerda + laje inteira + abertura direita. A união
+        # topológica elimina contornos/hatches internos sem supor o item.
         xl = x_left + max(_ab_larg(ab) for ab in esq)
         xr = x_right - max(_ab_larg(ab) for ab in dir_)
         if vazio > 0.5 and xr - xl > 0.5:
             y_void_top = y_face_top - rebaixo
             y_void_bot = y_void_top - vazio
             if y_void_top > y_void_bot + 0.5:
-                rects.append((xl, y_void_bot, xr - xl, y_void_top - y_void_bot))
+                reaches_slab = all(
+                    float(ab.get("y_top") or ab["y_bot"]) >= y_void_bot - 0.5
+                    for ab in (*esq, *dir_)
+                )
+                if reaches_slab:
+                    rects.append((x_left, y_void_bot, x_right - x_left, y_void_top - y_void_bot))
+                else:
+                    rects.append((xl, y_void_bot, xr - xl, y_void_top - y_void_bot))
+                for ab in (*esq, *dir_):
+                    extension = _top_opening_extension(ab, y_void_top, y_void_bot)
+                    if extension:
+                        rects.append(extension)
         return [(x, y, w, h) for x, y, w, h in rects if w > 0.5 and h > 0.5]
 
     for ab in openings:
@@ -955,32 +1028,17 @@ def void_rects_for_face(
         if r:
             rects.append(r)
 
-    # Vazio de laje full-width só quando NÃO há aberturas laterais no miolo
-    # (single com rebaixo full, ou face sem abertura)
-    if vazio > 0.5 and not openings:
+    # Vazio de viga/laje é sempre full-width na face. Quando toca uma abertura
+    # o contorno final é a união dos dois retângulos, não dois hatches isolados.
+    if vazio > 0.5:
         y_top_void = y_face_top - rebaixo
         y_bot_void = y_top_void - vazio
         if y_top_void > y_bot_void + 0.5:
             rects.append((x_left, y_bot_void, x_right - x_left, y_top_void - y_bot_void))
-    elif vazio > 0.5 and openings and not (esq and dir_):
-        # single abertura: se sobra miolo sólido ao lado, vazio de laje só no trecho sólido
-        # (acima da abertura o vão já é void; no trecho sem abertura = faixa laje)
-        y_top_void = y_face_top - rebaixo
-        y_bot_void = y_top_void - vazio
-        if y_top_void > y_bot_void + 0.5:
-            # cobre só o retângulo de laje no topo full-width menos as aberturas
-            # (abertura single já cobre sua coluna até o topo; evita double-hatch)
-            solid_parts = [(x_left, x_right)]
             for ab in openings:
-                lado = ab.get("lado")
-                larg = _ab_larg(ab)
-                if lado == "direito" and larg > 0.5:
-                    solid_parts = [(a, min(b, x_right - larg)) for a, b in solid_parts if a < x_right - larg]
-                elif lado == "esquerdo" and larg > 0.5:
-                    solid_parts = [(max(a, x_left + larg), b) for a, b in solid_parts if b > x_left + larg]
-            for a, b in solid_parts:
-                if b - a > 0.5:
-                    rects.append((a, y_bot_void, b - a, y_top_void - y_bot_void))
+                extension = _top_opening_extension(ab, y_top_void, y_bot_void)
+                if extension:
+                    rects.append(extension)
     return [(x, y, w, h) for x, y, w, h in rects if w > 0.5 and h > 0.5]
 
 
@@ -993,11 +1051,61 @@ def _rects_touch(a, b, tol=1.0) -> bool:
 def merge_void_rects(rects):
     if not rects:
         return []
-    # um único HATCH com um path por retângulo (como manual multi-path)
-    paths = []
-    for x, y, w, h in rects:
-        paths.append([(x, y), (x + w, y), (x + w, y + h), (x, y + h)])
-    return paths
+    # Converte retângulos que se tocam em uma região única. Isso evita linhas
+    # internas e hatches separados quando uma abertura encontra o vazio de
+    # viga/laje, preservando múltiplas regiões realmente desconectadas.
+    try:
+        from shapely.geometry import box
+        from shapely.ops import unary_union
+
+        merged = unary_union([box(x, y, x + w, y + h) for x, y, w, h in rects])
+        geometries = list(getattr(merged, "geoms", [merged]))
+        paths = []
+        for geometry in geometries:
+            if geometry.is_empty:
+                continue
+            paths.append([(float(x), float(y)) for x, y in geometry.exterior.coords[:-1]])
+            for interior in geometry.interiors:
+                paths.append([(float(x), float(y)) for x, y in interior.coords[:-1]])
+        return paths
+    except Exception:
+        # Fallback determinístico para ambientes sem a biblioteca geométrica.
+        return [[(x, y), (x + w, y), (x + w, y + h), (x, y + h)] for x, y, w, h in rects]
+
+
+def draw_void_contours(msp, paths) -> int:
+    """Desenha o perímetro dos vazios no layer COTA (rosa BYLAYER)."""
+    n = 0
+    for points in paths:
+        if len(points) < 3:
+            continue
+        msp.add_lwpolyline(points, close=True, dxfattribs={"layer": "COTA", "color": 256})
+        n += 1
+    return n
+
+
+def draw_central_opening_panel_remnants(msp, *, x_left, x_right, openings) -> int:
+    """Fecha os dois painéis laterais resultantes de uma abertura central."""
+    n = 0
+    for opening in openings:
+        if opening.get("lado") != "meio":
+            continue
+        xl = float(opening.get("x_inn_l") or x_left)
+        xr = float(opening.get("x_inn_r") or x_right)
+        yb = float(opening["y_bot"])
+        yt = float(opening["y_top"])
+        if yt - yb < 0.5:
+            continue
+        for start, end in ((x_left, xl), (xr, x_right)):
+            if end - start < 0.5:
+                continue
+            msp.add_lwpolyline(
+                [(start, yb), (end, yb), (end, yt), (start, yt)],
+                close=True,
+                dxfattribs={"layer": "Painéis"},
+            )
+            n += 1
+    return n
 
 
 def draw_void_hatches(msp, paths) -> int:
@@ -1035,7 +1143,9 @@ def draw_void_hatches(msp, paths) -> int:
     return 1
 
 
-def draw_rebaixo_strip(msp, *, x_left, x_right, openings, rebaixo_cm, y_face_top) -> int:
+def draw_rebaixo_strip(
+    msp, *, x_left, x_right, openings, rebaixo_cm, vazio_laje_cm, y_face_top
+) -> int:
     """Painel/filete de forma ACIMA da laje (miolo dual ou faixa single).
 
     Anatomia (miolo dual, de cima para baixo):
@@ -1058,20 +1168,69 @@ def draw_rebaixo_strip(msp, *, x_left, x_right, openings, rebaixo_cm, y_face_top
         xr = x_right - max(float(ab.get("larg") or ab.get("largura") or 0.0) for ab in dir_)
     else:
         xl, xr = x_left, x_right
+        # Uma abertura lateral que alcança a base da laje continua aberta até
+        # o topo: o filete/painel acima da laje só pode existir no trecho
+        # sólido oposto. Isso evita invadir o vão em pilares de canto.
+        slab_base = y_face_top - float(rebaixo_cm) - float(vazio_laje_cm or 0.0)
+        for opening in openings:
+            if float(opening.get("y_top") or 0.0) < slab_base - 0.5:
+                continue
+            width = float(opening.get("larg") or opening.get("largura") or 0.0)
+            if opening.get("lado") == "direito":
+                xr = min(xr, x_right - width)
+            elif opening.get("lado") == "esquerdo":
+                xl = max(xl, x_left + width)
     if xr - xl < 0.5:
         return 0
     n = 0
-    # Dual: topo do miolo já vem dos intervals — NÃO duplicar H em y_face_top.
-    # Laterais do painel acima da laje (Painéis + COTA, como manual).
-    for layer in ("Painéis", "COTA"):
+    # O filete acima da laje é um painel físico: sempre publicar seu retângulo
+    # fechado no layer Painéis. Nas faces duais ele antes ficava implícito pelas
+    # juntas vizinhas, sem o retângulo solicitado pelo detalhamento.
+    msp.add_lwpolyline(
+        [(xl, y_bot), (xl, y_face_top), (xr, y_face_top), (xr, y_bot)],
+        close=True,
+        dxfattribs={"layer": "Painéis"},
+    )
+    n += 1
+    for layer in ("COTA",):
         msp.add_line((xl, y_bot), (xl, y_face_top), dxfattribs={"layer": layer})
         msp.add_line((xr, y_bot), (xr, y_face_top), dxfattribs={"layer": layer})
         n += 2
-    if not (esq and dir_):
-        # single: fecha topo + base do rebaixo full width
-        msp.add_line((xl, y_face_top), (xr, y_face_top), dxfattribs={"layer": "Painéis"})
-        msp.add_line((xl, y_bot), (xr, y_bot), dxfattribs={"layer": "Painéis"})
-        n += 2
+    # Painéis de até 7 cm recebem sarrafo na linha inferior; o rebaixo é um
+    # painel declarado e segue a mesma regra do motor.
+    if rebaixo_cm <= 7.5:
+        msp.add_line((xl, y_bot), (xr, y_bot), dxfattribs={"layer": "SARR_2.2x7"})
+        n += 1
+    return n
+
+
+def draw_short_panel_bottom_sarrafos(
+    msp, *, x_left, x_right, y_h1_top, intervals_logical, openings
+) -> int:
+    """Desenha sarrafo na base de painéis N2 cuja altura é até 7 cm."""
+    y = float(y_h1_top)
+    n = 0
+    for interval in intervals_logical or []:
+        height = float(interval)
+        if 0.5 <= height <= 7.5:
+            cuts = []
+            for opening in openings:
+                if float(opening["y_bot"]) + 0.5 < y < float(opening.get("y_top") or y) - 0.5:
+                    width = float(opening.get("larg") or opening.get("largura") or 0.0)
+                    if opening.get("lado") == "esquerdo":
+                        cuts.append((x_left, x_left + width))
+                    elif opening.get("lado") == "direito":
+                        cuts.append((x_right - width, x_right))
+            cursor = x_left
+            for start, end in sorted(cuts):
+                if start - cursor > 0.5:
+                    msp.add_line((cursor, y), (start, y), dxfattribs={"layer": "SARR_2.2x7"})
+                    n += 1
+                cursor = max(cursor, end)
+            if x_right - cursor > 0.5:
+                msp.add_line((cursor, y), (x_right, y), dxfattribs={"layer": "SARR_2.2x7"})
+                n += 1
+        y += height
     return n
 
 
@@ -1214,10 +1373,11 @@ def draw_dual_marco_sarrs(
     n = 0
     layer = "SARR_2.2x7"
     corner = 7.0
-    yb = min(float(ab["y_bot"]) for ab in openings)
+    yb_l = min((float(ab["y_bot"]) for ab in esq), default=y_face_top)
+    yb_r = min((float(ab["y_bot"]) for ab in dir_), default=y_face_top)
     y_reb_bot = y_face_top - max(0.0, float(rebaixo_cm))
     y_top_sarr = y_reb_bot - max(0.0, float(vazio_laje_cm))  # -97 manual
-    if y_top_sarr - yb < 0.5:
+    if y_top_sarr - min(yb_l, yb_r) < 0.5:
         y_top_sarr = y_reb_bot
     # paredes internas das aberturas
     x_inner_l = x_left + max(float(ab["larg"]) for ab in esq)   # 334
@@ -1225,11 +1385,21 @@ def draw_dual_marco_sarrs(
     # inset para o MARCO (centro)
     x_sarr_l = x_inner_l + corner  # 341
     x_sarr_r = x_inner_r - corner  # 375
-    for x in (x_sarr_l, x_sarr_r):
+    if y_top_sarr - yb_l > 0.5:
         n += draw_vertical_sectioned(
             msp,
-            x=x,
-            y0=yb,
+            x=x_sarr_l,
+            y0=yb_l,
+            y1=y_top_sarr,
+            break_ys=break_ys,
+            layer=layer,
+            skip_breaks=skip_breaks,
+        )
+    if y_top_sarr - yb_r > 0.5:
+        n += draw_vertical_sectioned(
+            msp,
+            x=x_sarr_r,
+            y0=yb_r,
             y1=y_top_sarr,
             break_ys=break_ys,
             layer=layer,
@@ -1238,14 +1408,16 @@ def draw_dual_marco_sarrs(
     # L contínuo em cada canto do marco (parede→vão→pé→pressão) — 1 MLINE no INI.
     x_press_l = x_left + corner   # 330
     x_press_r = x_right - corner  # 404
-    y_bar = yb - corner
-    pts_l = [(x_inner_l, yb), (x_sarr_l, yb), (x_sarr_l, y_bar)]
+    y_bar_l = yb_l - corner
+    pts_l = [(x_inner_l, yb_l), (x_sarr_l, yb_l), (x_sarr_l, y_bar_l)]
     if x_sarr_l - x_press_l > 0.5:
-        pts_l.append((x_press_l, y_bar))
+        pts_l.append((x_press_l, y_bar_l))
     msp.add_lwpolyline(pts_l, close=False, dxfattribs={"layer": layer})
-    pts_r = [(x_inner_r, yb), (x_sarr_r, yb), (x_sarr_r, y_bar)]
+
+    y_bar_r = yb_r - corner
+    pts_r = [(x_inner_r, yb_r), (x_sarr_r, yb_r), (x_sarr_r, y_bar_r)]
     if x_press_r - x_sarr_r > 0.5:
-        pts_r.append((x_press_r, y_bar))
+        pts_r.append((x_press_r, y_bar_r))
     msp.add_lwpolyline(pts_r, close=False, dxfattribs={"layer": layer})
     n += 2
     # travessas: rebaixo em SARR (y_reb_bot); base do vazio em Painéis (manual -97)
@@ -1300,6 +1472,9 @@ def apply_face_visual_nova(
                 skip_breaks.append(y)
 
     if fid in ("A", "B"):
+        n += draw_central_opening_panel_remnants(
+            msp, x_left=x_left, x_right=x_right, openings=openings,
+        )
         n += draw_pressure_battens_ab(
             msp,
             x_left=x_left,
@@ -1309,6 +1484,7 @@ def apply_face_visual_nova(
             openings=openings,
             break_ys=break_ys,
             skip_breaks=skip_breaks,
+            y_content_top=y_panel_content_top,
         )
         n += draw_opening_sarrafos(
             msp,
@@ -1338,6 +1514,7 @@ def apply_face_visual_nova(
             x_right=x_right,
             openings=openings,
             rebaixo_cm=rebaixo,
+            vazio_laje_cm=vazio_laje,
             y_face_top=y_face_top,
         )
         n += draw_void_outer_cota(
@@ -1363,17 +1540,56 @@ def apply_face_visual_nova(
                     xs = [x_left + width * 0.35, x_left + width * 0.65]
             else:
                 xs = [x_left + width * 0.25, x_left + width * 0.5, x_left + width * 0.75]
+            def _inside_opening(x: float, opening: dict) -> bool:
+                side = opening.get("lado")
+                width = float(opening.get("larg") or opening.get("largura") or 0.0)
+                if side == "esquerdo":
+                    return x <= x_left + width + 0.5
+                if side == "direito":
+                    return x >= x_right - width - 0.5
+                if side == "meio":
+                    return float(opening.get("x_inn_l") or x_left) - 0.5 <= x <= float(opening.get("x_inn_r") or x_right) + 0.5
+                return False
+
+            def _solid_ranges(x: float) -> list[tuple[float, float]]:
+                ranges = [(y0s, y1s)]
+                for opening in openings:
+                    if not _inside_opening(x, opening):
+                        continue
+                    cut_a = max(y0s, float(opening["y_bot"]))
+                    cut_b = min(y1s, float(opening["y_top"]))
+                    if cut_b <= cut_a + 0.5:
+                        continue
+                    next_ranges = []
+                    for start, end in ranges:
+                        if cut_a > start + 0.5:
+                            next_ranges.append((start, min(end, cut_a)))
+                        if cut_b < end - 0.5:
+                            next_ranges.append((max(start, cut_b), end))
+                    ranges = next_ranges
+                return ranges
+
             for x in xs:
-                n_cd += draw_vertical_sectioned(
-                    msp,
-                    x=x,
-                    y0=y0s,
-                    y1=y1s,
-                    break_ys=break_ys,
-                    layer="SARR_2.2x7",
-                    skip_breaks=skip_breaks,
-                )
+                for start, end in _solid_ranges(x):
+                    n_cd += draw_vertical_sectioned(
+                        msp,
+                        x=x,
+                        y0=start,
+                        y1=end,
+                        break_ys=break_ys,
+                        layer="SARR_2.2x7",
+                        skip_breaks=skip_breaks,
+                    )
         n += n_cd
+
+    n += draw_short_panel_bottom_sarrafos(
+        msp,
+        x_left=x_left,
+        x_right=x_right,
+        y_h1_top=y_bot + h1,
+        intervals_logical=[float(x) for x in _ivs],
+        openings=openings,
+    )
 
     rects = void_rects_for_face(
         x_left=x_left,
@@ -1384,8 +1600,12 @@ def apply_face_visual_nova(
         y_face_top=y_face_top,
         y_panel_content_top=y_panel_content_top,
     )
-    if fid in ("C", "D") and not openings and y_face_top > y_panel_content_top + 0.5:
+    if not openings and y_face_top > y_panel_content_top + 0.5:
+        # Sem abertura de canto mas com vazio de topo publicado (viga que
+        # passa cobrindo a face inteira, ex. P35 A/B): o vazio precisa da
+        # mesma hachura full-width que C/D já recebiam neste mesmo caso.
         rects.append((x_left, y_panel_content_top, x_right - x_left, y_face_top - y_panel_content_top))
     paths = merge_void_rects(rects)
     n += draw_void_hatches(msp, paths)
+    n += draw_void_contours(msp, paths)
     return n

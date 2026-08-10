@@ -28,8 +28,8 @@
           {"id": "slab.support.name", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_pilares_apoio.pillar_geom.0.ficha.pillar_name", "transform": "entity"},
           {"id": "slab.support.bbox", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_pilares_apoio.pillar_geom.0.points", "transform": "bbox"},
           {"id": "slab.support.trace", "class": "LAJ", "item": "{item}", "source": "payload", "path": "laje_pilares_apoio.pillar_geom.0", "transform": "trace"},
-          {"id": "pillar.name", "class": "PIL", "item_from": "slab.support.name", "source": "payload", "path": "name.label.0.text", "transform": "entity"},
-          {"id": "pillar.bbox", "class": "PIL", "item_from": "slab.support.name", "source": "geometry", "path": "", "transform": "bbox"}
+          {"id": "pillar.name", "class": "PIL", "item_from": "slab.support.name", "geometry_match_from": "slab.support.bbox", "source": "column", "path": "name", "transform": "entity"},
+          {"id": "pillar.bbox", "class": "PIL", "item_from": "slab.support.name", "geometry_match_from": "slab.support.bbox", "source": "geometry", "path": "", "transform": "bbox"}
         ],
         "checks": [
           {"id": "slab_identity", "op": "same_entity", "left": "slab.name", "value": "{item}"},

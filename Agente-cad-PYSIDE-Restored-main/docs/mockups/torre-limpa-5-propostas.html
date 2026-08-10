@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup — Torre limpa · 5 propostas de chrome</title>
+<style>
+  :root {
+    --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --link: #2563eb;
+    --bg: #f1f5f9; --ok: #16a34a; --font: "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: #0f172a; color: var(--ink); }
+  .chrome {
+    position: sticky; top: 0; z-index: 40;
+    padding: 12px 16px 14px;
+    background: linear-gradient(180deg, #0f172a, #1e293b);
+    border-bottom: 1px solid #334155; color: #e2e8f0;
+  }
+  .chrome h1 { margin: 0 0 4px; font-size: 1.02rem; font-weight: 750; color: #f8fafc; }
+  .chrome > p { margin: 0 0 10px; font-size: .76rem; color: #94a3b8; max-width: 72rem; line-height: 1.45; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tab {
+    appearance: none; border: 1px solid #475569; background: #1e293b; color: #e2e8f0;
+    font: inherit; font-size: .76rem; font-weight: 650; padding: 7px 12px;
+    border-radius: 999px; cursor: pointer;
+  }
+  .tab:hover { border-color: #93c5fd; }
+  .tab.on { background: #2563eb; border-color: #3b82f6; color: #fff; }
+  .desc {
+    margin: 10px 0 0; font-size: .78rem; color: #cbd5e1; line-height: 1.45;
+    padding: 8px 12px; border-radius: 8px; background: rgba(15,23,42,.4); border: 1px solid #334155;
+  }
+  .desc strong { color: #f8fafc; }
+
+  .stage { background: var(--bg); padding: 16px 18px 40px; min-height: calc(100vh - 130px); }
+  .stage-inner { max-width: 920px; margin: 0 auto; }
+  .obra-line { margin: 0 0 12px; font-size: .78rem; color: var(--muted); }
+  .obra-line b { color: var(--ink); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 12px; border-radius: 8px; border: 1px solid transparent;
+    background: #2563eb; color: #fff; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer;
+  }
+  .btn-sec { background: #fff; color: #1e293b; border-color: #cbd5e1; font-weight: 650; }
+  .btn-ok { background: #16a34a; border-color: #15803d; color: #fff; }
+  .btn-danger { background: #fff; color: #b91c1c; border-color: #fca5a5; }
+  .btn-sm { padding: 5px 9px; font-size: .74rem; }
+  .btn-icon { padding: 6px 9px; min-width: 34px; justify-content: center; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px; font-size: .68rem; font-weight: 650;
+    background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569;
+  }
+  .chip-pav { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+  .chip-ok { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .muted { color: var(--muted); font-size: .74rem; }
+
+  /* fake CAD */
+  .viewer {
+    position: relative;
+    height: 340px; border-radius: 10px; overflow: hidden;
+    background: #0a0a0a;
+    border: 1px solid #1e293b;
+  }
+  .viewer svg { width: 100%; height: 100%; display: block; }
+  .viewer-label {
+    position: absolute; left: 10px; bottom: 8px;
+    font-size: .68rem; color: #94a3b8; background: rgba(0,0,0,.55);
+    padding: 3px 8px; border-radius: 6px;
+  }
+
+  /* ===== P1: Toolbar unificada (título + ações numa barra) ===== */
+  .p1-bar {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 10px 12px; margin-bottom: 8px;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  }
+  .p1-bar h2 { margin: 0; font-size: 1rem; font-weight: 750; }
+  .p1-bar .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .p1-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .p1-draw {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    padding: 8px 12px; margin-bottom: 8px;
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 10px;
+    font-size: .8rem;
+  }
+  .p1-draw select, .p1-draw input {
+    font: inherit; font-size: .78rem; padding: 5px 8px; border-radius: 6px; border: 1px solid #cbd5e1;
+  }
+  .p1-destaque {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    padding: 7px 12px; margin-bottom: 8px;
+    background: #0f172a; color: #e2e8f0; border-radius: 10px; font-size: .74rem;
+  }
+  .p1-destaque .lab { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .66rem; color: #94a3b8; }
+
+  /* ===== P2: Header sticky + ações no overflow menu ===== */
+  .p2-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .p2-head h2 { margin: 0 0 4px; font-size: 1.08rem; font-weight: 750; }
+  .p2-primary { display: flex; gap: 6px; align-items: center; }
+  .p2-more { position: relative; }
+  .p2-menu {
+    position: absolute; right: 0; top: 100%; margin-top: 4px; z-index: 5;
+    min-width: 160px; padding: 6px; background: #fff; border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.12);
+    display: none;
+  }
+  .p2-menu.open { display: block; }
+  .p2-menu button {
+    display: block; width: 100%; text-align: left; border: none; background: none;
+    padding: 8px 10px; border-radius: 6px; font: inherit; font-size: .8rem; cursor: pointer;
+  }
+  .p2-menu button:hover { background: #f1f5f9; }
+  .p2-draw-coll {
+    margin-bottom: 8px; border: 1px solid var(--border); border-radius: 10px; background: #fff;
+  }
+  .p2-draw-coll summary {
+    cursor: pointer; padding: 10px 12px; font-size: .82rem; font-weight: 700;
+    list-style: none;
+  }
+  .p2-draw-coll summary::-webkit-details-marker { display: none; }
+  .p2-draw-coll .body { padding: 0 12px 12px; font-size: .78rem; color: var(--muted); }
+  .p2-draw-coll .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+
+  /* ===== P3: Viewer-first (chrome mínimo acima, tools flutuam) ===== */
+  .p3-mini {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    margin-bottom: 6px;
+  }
+  .p3-mini h2 { margin: 0; font-size: .95rem; font-weight: 750; }
+  .p3-wrap { position: relative; }
+  .p3-float {
+    position: absolute; top: 10px; left: 10px; right: 10px; z-index: 3;
+    display: flex; flex-wrap: wrap; gap: 6px; justify-content: space-between;
+    pointer-events: none;
+  }
+  .p3-float > * { pointer-events: auto; }
+  .p3-float-group {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 6px; background: rgba(15,23,42,.82); border-radius: 10px;
+    backdrop-filter: blur(6px);
+  }
+  .p3-float .btn-sec {
+    background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: #f1f5f9;
+  }
+  .p3-float .btn-ok { background: #16a34a; border-color: transparent; }
+  .p3-float select {
+    font: inherit; font-size: .74rem; padding: 5px 6px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.2); background: rgba(0,0,0,.35); color: #fff;
+  }
+  .p3-under {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin-top: 8px; font-size: .74rem; color: var(--muted);
+  }
+
+  /* ===== P4: Duas faixas — Validação | Desenho ===== */
+  .p4-title-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .p4-title-row h2 { margin: 0; font-size: 1.05rem; font-weight: 750; }
+  .p4-bands { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; margin-bottom: 8px; }
+  @media (max-width: 720px) { .p4-bands { grid-template-columns: 1fr; } }
+  .p4-band {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #fff;
+  }
+  .p4-band h3 {
+    margin: 0 0 8px; font-size: .68rem; font-weight: 750;
+    letter-spacing: .05em; text-transform: uppercase; color: #64748b;
+  }
+  .p4-band .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .p4-band.val { border-color: #bbf7d0; background: #f0fdf4; }
+  .p4-band.draw { border-color: #bfdbfe; background: #eff6ff; }
+  .p4-destaque {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    padding: 6px 10px; margin-bottom: 8px; border-radius: 8px;
+    background: #1e293b; color: #e2e8f0; font-size: .74rem;
+  }
+
+  /* ===== P5: Tabs Validar | Desenhar | Destaques + viewer full ===== */
+  .p5-head {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 8px; margin-bottom: 8px;
+  }
+  .p5-head h2 { margin: 0; font-size: 1.05rem; font-weight: 750; }
+  .p5-tabs {
+    display: flex; gap: 3px; padding: 3px; margin-bottom: 8px;
+    background: #e2e8f0; border-radius: 10px;
+  }
+  .p5-tab {
+    flex: 1; border: none; background: transparent; padding: 8px 10px;
+    border-radius: 8px; font: inherit; font-size: .8rem; font-weight: 700;
+    color: #475569; cursor: pointer;
+  }
+  .p5-tab.on { background: #fff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(15,23,42,.08); }
+  .p5-panel {
+    display: none; padding: 10px 12px; margin-bottom: 8px;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  }
+  .p5-panel.on { display: block; }
+  .p5-panel .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .p5-panel .hint { margin: 8px 0 0; font-size: .74rem; color: var(--muted); line-height: 1.4; }
+
+  .panel { display: none; }
+  .panel.on { display: block; }
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <h1>Mockup — Página Torre limpa · 5 propostas de chrome</h1>
+  <p>
+    O desenho CAD é o herói; o problema atual é o <b>chrome empilhado</b> (título + 4 botões + criar item + texto longo + barra destaques)
+    empurrando o SVG para baixo e competindo por atenção. As propostas reorganizam só a UI ao redor do viewer.
+  </p>
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab on" data-p="1">1 · Barra unificada</button>
+    <button type="button" class="tab" data-p="2">2 · Menu ⋯ + desenho colapsado</button>
+    <button type="button" class="tab" data-p="3">3 · Viewer-first (tools flutuantes)</button>
+    <button type="button" class="tab" data-p="4">4 · Duas faixas Validar | Desenhar</button>
+    <button type="button" class="tab" data-p="5">5 · Abas de ferramenta</button>
+  </div>
+  <p class="desc" id="desc"></p>
+</div>
+
+<div class="stage">
+  <div class="stage-inner">
+    <p class="obra-line"><b>Obra-Teste-Inicial2</b> · FUNDACAO · estrutural limpo</p>
+    <div id="mount"></div>
+  </div>
+</div>
+
+<script>
+var DESCS = {
+  1: '<strong>Proposta 1 — Barra unificada.</strong> Título + chips + ações de validação numa única faixa branca. Desenho em linha compacta (sem bloco de texto longo). Destaques em barra escura fina. Menos “cartões soltos”.',
+  2: '<strong>Proposta 2 — Menu ⋯ + desenho colapsado.</strong> Só Validar/Invalidar em destaque; Regenerar e Excluir no menu. «Criar item» vira <code>details</code> fechado por padrão — abre só quem for desenhar. Máximo de SVG visível.',
+  3: '<strong>Proposta 3 — Viewer-first.</strong> Chrome mínimo (só título + chips). Ferramentas flutuam sobre o CAD (como Figma/AutoCAD). Ideal se o foco é sempre o desenho; ações secundárias embaixo.',
+  4: '<strong>Proposta 4 — Duas faixas coloridas.</strong> Validação (verde) e Desenho (azul) lado a lado, com papéis claros. Bom para treino da equipe: “primeiro valido, depois desenho”.',
+  5: '<strong>Proposta 5 — Abas de ferramenta.</strong> Validar | Desenhar | Destaques — só um painel aberto por vez. Zero empilhamento; o viewer fica estável embaixo. Parecido com o wizard da lista de obras que você gostou.'
+};
+
+function fakeViewer() {
+  return '<div class="viewer">' +
+    '<svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">' +
+    '<rect width="400" height="200" fill="#0a0a0a"/>' +
+    '<g stroke="#4ade80" stroke-width="1" fill="none" opacity=".85">' +
+    '<rect x="40" y="50" width="90" height="70"/>' +
+    '<rect x="160" y="50" width="90" height="70"/>' +
+    '<line x1="20" y1="30" x2="380" y2="30"/>' +
+    '<line x1="20" y1="160" x2="380" y2="160"/>' +
+    '</g>' +
+    '<g stroke="#f87171" stroke-width="1.5" fill="none">' +
+    '<line x1="20" y1="90" x2="380" y2="90"/>' +
+    '<line x1="130" y1="20" x2="130" y2="180"/>' +
+    '</g>' +
+    '<text x="55" y="88" fill="#4ade80" font-size="9" font-family="monospace">BASE</text>' +
+    '<text x="175" y="88" fill="#4ade80" font-size="9" font-family="monospace">BASE</text>' +
+    '<text x="200" y="28" fill="#f87171" font-size="10" font-family="monospace">CORT1</text>' +
+    '</svg>' +
+    '<span class="viewer-label">SVG estrutural · pan/zoom</span></div>';
+}
+
+function chips() {
+  return '<span class="chip">Torres Limpas</span>' +
+    '<span class="chip chip-pav">FUNDACAO</span>' +
+    '<span class="chip chip-ok">✓ Validado</span>';
+}
+
+function p1() {
+  return '<div class="p1-bar">' +
+    '<div><h2>Torre 1 — FUNDACAO</h2><div class="chips">' + chips() + '</div></div>' +
+    '<div class="p1-actions">' +
+    '<button type="button" class="btn btn-ok btn-sm">✔ Já validado</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Invalidar</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Regenerar</button>' +
+    '<button type="button" class="btn btn-danger btn-sm">Excluir</button>' +
+    '</div></div>' +
+    '<div class="p1-draw">' +
+    '<label><input type="checkbox" checked> Desenhar</label>' +
+    '<select><option>Pilares Normais</option><option>Fundos de Viga</option></select>' +
+    '<input placeholder="Nome (ex. P99)" style="width:100px">' +
+    '<button type="button" class="btn btn-sec btn-sm">Limpar</button>' +
+    '<button type="button" class="btn btn-sm">Criar item →</button>' +
+    '<span class="muted">OSNAP · Enter fecha SEG · Esc desfaz</span>' +
+    '</div>' +
+    '<div class="p1-destaque">' +
+    '<span class="lab">Destacar</span>' +
+    '<button type="button" class="btn btn-sec btn-sm">Nenhuma</button>' +
+    '<label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" checked> nomes</label>' +
+    '<span class="muted" style="color:#94a3b8">SA ainda não rodou neste pav</span>' +
+    '</div>' +
+    fakeViewer();
+}
+
+function p2() {
+  return '<div class="p2-head">' +
+    '<div><h2>Torre 1 — FUNDACAO</h2><div style="display:flex;gap:5px;flex-wrap:wrap">' + chips() + '</div></div>' +
+    '<div class="p2-primary">' +
+    '<button type="button" class="btn btn-ok btn-sm">✔ Já validado</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Invalidar</button>' +
+    '<div class="p2-more">' +
+    '<button type="button" class="btn btn-sec btn-icon" id="p2-more-btn" title="Mais ações">⋯</button>' +
+    '<div class="p2-menu" id="p2-menu">' +
+    '<button type="button">Regenerar →</button>' +
+    '<button type="button">Códigos públicos</button>' +
+    '<button type="button" style="color:#b91c1c">Excluir recorte</button>' +
+    '</div></div></div></div>' +
+    '<details class="p2-draw-coll">' +
+    '<summary>✏️ Criar item no estrutural <span class="muted" style="font-weight:500">· desenhe geometria SA</span></summary>' +
+    '<div class="body">Desenhe SEG no SVG · OSNAP nos vértices · Enter fecha segmento.' +
+    '<div class="row">' +
+    '<label><input type="checkbox"> Desenhar no SVG</label>' +
+    '<select><option>Pilares Normais</option></select>' +
+    '<input placeholder="Nome" style="width:90px;padding:5px 8px;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:.78rem">' +
+    '<button type="button" class="btn btn-sm">Criar item →</button>' +
+    '</div></div></details>' +
+    '<div class="p1-destaque" style="margin-bottom:8px">' +
+    '<span class="lab">Destacar</span>' +
+    '<button type="button" class="btn btn-sec btn-sm">Nenhuma</button>' +
+    '<label style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" checked> nomes</label>' +
+    '</div>' +
+    fakeViewer();
+}
+
+function p3() {
+  return '<div class="p3-mini">' +
+    '<h2>Torre 1 — FUNDACAO</h2>' + chips() +
+    '</div>' +
+    '<div class="p3-wrap">' +
+    '<div class="p3-float">' +
+    '<div class="p3-float-group">' +
+    '<button type="button" class="btn btn-ok btn-sm">✔ Validado</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Invalidar</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">⋯</button>' +
+    '</div>' +
+    '<div class="p3-float-group">' +
+    '<label style="color:#e2e8f0;font-size:.72rem;display:flex;align-items:center;gap:4px"><input type="checkbox"> Desenhar</label>' +
+    '<select><option>Pilares</option><option>Fundos</option></select>' +
+    '<button type="button" class="btn btn-sm">Criar →</button>' +
+    '</div></div>' +
+    fakeViewer() +
+    '</div>' +
+    '<div class="p3-under">' +
+    '<span>Destacar no estrutural:</span>' +
+    '<button type="button" class="btn btn-sec btn-sm">Nenhuma</button>' +
+    '<label><input type="checkbox" checked> nomes</label>' +
+    '<span>· SA ainda não rodou neste pav</span>' +
+    '</div>';
+}
+
+function p4() {
+  return '<div class="p4-title-row"><h2>Torre 1 — FUNDACAO</h2>' + chips() + '</div>' +
+    '<div class="p4-bands">' +
+    '<div class="p4-band val"><h3>Validação do recorte</h3>' +
+    '<div class="row">' +
+    '<button type="button" class="btn btn-ok btn-sm">✔ Já validado</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Invalidar</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Regenerar</button>' +
+    '<button type="button" class="btn btn-danger btn-sm">Excluir</button>' +
+    '</div></div>' +
+    '<div class="p4-band draw"><h3>Desenhar item SA</h3>' +
+    '<div class="row">' +
+    '<label style="font-size:.78rem"><input type="checkbox" checked> SVG</label>' +
+    '<select style="font:inherit;font-size:.78rem;padding:4px 6px;border-radius:6px;border:1px solid #93c5fd"><option>Pilares Normais</option></select>' +
+    '<input placeholder="Nome" style="width:88px;padding:4px 6px;border-radius:6px;border:1px solid #93c5fd;font:inherit;font-size:.78rem">' +
+    '<button type="button" class="btn btn-sm">Criar item →</button>' +
+    '<span class="muted">OSNAP · Enter / Esc</span>' +
+    '</div></div></div>' +
+    '<div class="p4-destaque">' +
+    '<strong style="font-size:.66rem;letter-spacing:.04em">DESTAQUES</strong>' +
+    '<button type="button" class="btn btn-sec btn-sm">Nenhuma</button>' +
+    '<label><input type="checkbox" checked> nomes</label>' +
+    '<span style="opacity:.75">sem SA neste pav</span>' +
+    '</div>' +
+    fakeViewer();
+}
+
+function p5() {
+  return '<div class="p5-head">' +
+    '<div><h2>Torre 1 — FUNDACAO</h2><div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap">' + chips() + '</div></div>' +
+    '<button type="button" class="btn btn-ok btn-sm">✔ Já validado</button>' +
+    '</div>' +
+    '<div class="p5-tabs" role="tablist">' +
+    '<button type="button" class="p5-tab on" data-sub="val">Validar</button>' +
+    '<button type="button" class="p5-tab" data-sub="draw">Desenhar</button>' +
+    '<button type="button" class="p5-tab" data-sub="hl">Destaques</button>' +
+    '</div>' +
+    '<div class="p5-panel on" data-sub-panel="val">' +
+    '<div class="row">' +
+    '<button type="button" class="btn btn-ok btn-sm">✔ Já validado</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Invalidar</button>' +
+    '<button type="button" class="btn btn-sec btn-sm">Regenerar →</button>' +
+    '<button type="button" class="btn btn-danger btn-sm">Excluir</button>' +
+    '</div>' +
+    '<p class="hint">Códigos públicos e regeneração ficam aqui — fora do caminho do desenho.</p>' +
+    '</div>' +
+    '<div class="p5-panel" data-sub-panel="draw">' +
+    '<div class="row">' +
+    '<label><input type="checkbox" checked> Desenhar no SVG</label>' +
+    '<select style="font:inherit;font-size:.8rem;padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1"><option>Pilares Normais</option><option>Fundos de Viga</option></select>' +
+    '<input placeholder="Nome (ex. P99)" style="width:110px;padding:5px 8px;border-radius:6px;border:1px solid #cbd5e1;font:inherit;font-size:.8rem">' +
+    '<button type="button" class="btn btn-sec btn-sm">Limpar</button>' +
+    '<button type="button" class="btn btn-sm">Criar item →</button>' +
+    '</div>' +
+    '<p class="hint">Viga: SEG · Enter fecha e prepara o próximo · OSNAP nos vértices/cruzes · Esc desfaz · botão direito remove último ponto.</p>' +
+    '</div>' +
+    '<div class="p5-panel" data-sub-panel="hl">' +
+    '<div class="row">' +
+    '<span class="muted">Destacar no estrutural</span>' +
+    '<button type="button" class="btn btn-sec btn-sm">Nenhuma</button>' +
+    '<label><input type="checkbox" checked> nomes</label>' +
+    '<span class="muted">SA ainda não rodou neste pav</span>' +
+    '</div></div>' +
+    fakeViewer();
+}
+
+var state = { p: 1 };
+
+function render() {
+  document.getElementById('desc').innerHTML = DESCS[state.p];
+  var html = { 1: p1, 2: p2, 3: p3, 4: p4, 5: p5 }[state.p]();
+  document.getElementById('mount').innerHTML = html;
+  bindLocal();
+}
+
+function bindLocal() {
+  var more = document.getElementById('p2-more-btn');
+  var menu = document.getElementById('p2-menu');
+  if (more && menu) {
+    more.addEventListener('click', function () { menu.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.p5-tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var id = t.getAttribute('data-sub');
+      document.querySelectorAll('.p5-tab').forEach(function (x) { x.classList.toggle('on', x === t); });
+      document.querySelectorAll('[data-sub-panel]').forEach(function (p) {
+        p.classList.toggle('on', p.getAttribute('data-sub-panel') === id);
+      });
+    });
+  });
+}
+
+document.querySelectorAll('.tab').forEach(function (t) {
+  t.addEventListener('click', function () {
+    document.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('on'); });
+    t.classList.add('on');
+    state.p = parseInt(t.getAttribute('data-p'), 10);
+    render();
+  });
+});
+render();
+</script>
+</body>
+</html>

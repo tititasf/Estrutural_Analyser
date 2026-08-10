@@ -6,6 +6,7 @@ import pytest
 from src.core.database import DatabaseManager
 from src.core.sa_db_persistence import (
     fv_area_errors,
+    merge_analysis_collection,
     merge_analysis_item,
     persist_analysis_snapshot,
 )
@@ -313,3 +314,108 @@ def test_transaction_rolls_back_all_classes_on_serialization_failure(tmp_path):
         assert conn.execute(
             "SELECT COUNT(*) FROM sa_persistence_runs"
         ).fetchone()[0] == 1
+
+
+def test_partial_laj_persistence_never_deletes_other_class_rows(tmp_path):
+    """O lock por classe só é seguro se o commit parcial não apagar vizinhos."""
+    db_path = tmp_path / "project_data.vision"
+    DatabaseManager(str(db_path))
+    project_id = "project-partial"
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            "INSERT INTO projects (id,name) VALUES (?,?)", (project_id, "Teste"),
+        )
+
+    initial = _empty_collections(project_id)
+    initial["slabs"] = [{
+        "id": "l1", "project_id": project_id, "name": "L1", "points": [],
+        "links": {}, "area": 1.0,
+    }]
+    persist_analysis_snapshot(
+        db_path=str(db_path), project_id=project_id, collections=initial,
+        run_id="run-initial", html_dir="run-initial", source_dxf="source.dxf",
+        merge_stats={},
+    )
+
+    partial_laj = {
+        "pillars": [],
+        "slabs": [{
+            "id": "l1", "project_id": project_id, "name": "L1", "points": [],
+            "links": {"laje_dim": {"label": [{"text": "h=12"}]}}, "area": 2.0,
+        }],
+        "beams": [],
+    }
+    persist_analysis_snapshot(
+        db_path=str(db_path), project_id=project_id, collections=partial_laj,
+        run_id="run-partial-laj", html_dir="run-partial-laj", source_dxf="source.dxf",
+        merge_stats={}, delete_missing=False,
+    )
+
+    with sqlite3.connect(db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM pillars").fetchone()[0] == 1
+        assert conn.execute("SELECT area FROM slabs WHERE id='l1'").fetchone()[0] == 2.0
+
+
+def test_laj_duplicate_label_keeps_closed_polygon_and_partial_commit_cleans_stale_row(tmp_path):
+    """Uma segunda região com o mesmo rótulo não pode virar outra laje N1."""
+    project_id = "project-laj-identity"
+    closed = {
+        "id": "candidate-closed", "project_id": project_id, "name": "L9",
+        "points": [(0, 0), (100, 0), (100, 60), (0, 60), (0, 0)],
+        "area": 6000.0, "links": {}, "confidence_score": 0.30,
+    }
+    fragment = {
+        "id": "candidate-fragment", "project_id": project_id, "name": "L9",
+        "points": [(0, 0), (100, 0), (100, 60), (0, 0)],
+        "area": 3000.0, "links": {}, "confidence_score": 0.95,
+    }
+    merged, stats = merge_analysis_collection(
+        old_items=[], new_items=[fragment, closed], kind="LAJ", project_id=project_id,
+    )
+    assert len(merged) == 1
+    assert merged[0]["id"] == "candidate-closed"
+    assert stats["duplicatas_laj_descartadas_da_analise"] == 1
+
+    db_path = tmp_path / "project_data.vision"
+    DatabaseManager(str(db_path))
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("INSERT INTO projects (id,name) VALUES (?,?)", (project_id, "Teste"))
+
+    # Simula a sobra de uma rodada granular antiga, antes da invariável.
+    persist_analysis_snapshot(
+        db_path=str(db_path), project_id=project_id,
+        collections={"pillars": [], "slabs": [closed, fragment], "beams": []},
+        run_id="dup-initial", html_dir="dup-initial", source_dxf="source.dxf",
+        merge_stats={}, delete_missing=False,
+    )
+    with sqlite3.connect(db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM slabs WHERE name='L9'").fetchone()[0] == 1
+        assert conn.execute("SELECT id FROM slabs WHERE name='L9'").fetchone()[0] == "candidate-closed"
+
+
+def test_laj_duplicate_with_human_validation_is_the_canonical_record(tmp_path):
+    project_id = "project-laj-protected"
+    db_path = tmp_path / "project_data.vision"
+    DatabaseManager(str(db_path))
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("INSERT INTO projects (id,name) VALUES (?,?)", (project_id, "Teste"))
+
+    current = {
+        "id": "current", "project_id": project_id, "name": "L10",
+        "points": [(0, 0), (100, 0), (100, 60), (0, 60), (0, 0)],
+        "area": 6000.0, "links": {},
+    }
+    protected = {
+        "id": "protected", "project_id": project_id, "name": "L10",
+        "points": [(0, 0), (50, 0), (50, 60), (0, 60), (0, 0)],
+        "area": 3000.0, "links": {}, "validated_fields": ["laje_outline_segs"],
+    }
+    persist_analysis_snapshot(
+        db_path=str(db_path), project_id=project_id,
+        collections={"pillars": [], "slabs": [current, protected], "beams": []},
+        run_id="dup-protected", html_dir="dup-protected", source_dxf="source.dxf",
+        merge_stats={}, delete_missing=False,
+    )
+    with sqlite3.connect(db_path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM slabs WHERE name='L10'").fetchone()[0] == 1
+        assert conn.execute("SELECT id FROM slabs WHERE name='L10'").fetchone()[0] == "protected"

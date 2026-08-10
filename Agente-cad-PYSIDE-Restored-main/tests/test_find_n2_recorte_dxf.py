@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from pathlib import Path
 
@@ -11,6 +12,28 @@ def test_analysis_state_path_is_scoped_for_headless_class():
     assert dialog._analysis_state_path().endswith('estado_13_PAV.json')
     dialog._headless_run_scope = 'pilares'
     assert dialog._analysis_state_path().endswith('estado_13_PAV_pilares.json')
+
+
+def test_analysis_state_path_isolates_headless_runs_by_pid(monkeypatch):
+    """Regressão real 2026-07-21/22: sem isolamento por PID, uma rodada
+    headless de verificação e a app aberta ao mesmo tempo escrevem no MESMO
+    `estado_*.json`, corrompendo a leitura uma da outra. A app interativa
+    (sem `CAD_MOTOR_HEADLESS`) precisa continuar no caminho compartilhado de
+    sempre — só o processo headless ganha isolamento.
+    """
+    dialog = PreValidationDialog.__new__(PreValidationDialog)
+    dialog._obra = 'Obra_TREINO_1'
+    dialog._pavimento = '13_PAV'
+    dialog._headless_run_scope = 'fundos_viga'
+
+    monkeypatch.delenv('CAD_MOTOR_HEADLESS', raising=False)
+    shared_path = dialog._analysis_state_path()
+    assert shared_path.endswith('estado_13_PAV_fundos_viga.json')
+
+    monkeypatch.setenv('CAD_MOTOR_HEADLESS', '1')
+    isolated_path = dialog._analysis_state_path()
+    assert isolated_path != shared_path
+    assert isolated_path.endswith(f'estado_13_PAV_fundos_viga_pid{os.getpid()}.json')
 
 
 def _make_db(tmp_path: Path) -> str:

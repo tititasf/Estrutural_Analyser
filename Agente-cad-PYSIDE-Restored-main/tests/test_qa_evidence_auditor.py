@@ -39,7 +39,9 @@ def test_global_discovery_keeps_beam_families_separate_and_is_read_only(tmp_path
     assert resolve_project_scope(con, project_id=None, obra="OBRA", pav="PAV") == "p"
     fv = discover_class_inventory(con, project_id="p", classe="FV", selected=None, include_sealed=True)
     lv = discover_class_inventory(con, project_id="p", classe="LV", selected=None, include_sealed=True)
-    assert fv["validation_mode"] == "diagnostic_only"
+    # FV foi promovido de diagnostic_only para validation_ready em 2026-07-16
+    # (FvEvidenceAuditor com prova geométrica local — ver CLASS_REGISTRY).
+    assert fv["validation_mode"] == "validation_ready"
     assert set(fv["field_frequency"]) == {"viga_fundo_seg_1_exists", "fv_detail"}
     assert set(lv["field_frequency"]) == {"viga_a_seg_1_dim", "lv_detail"}
     assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
@@ -106,6 +108,106 @@ def test_generic_review_labels_internal_trace_without_confirming_semantics(tmp_p
     assert decisions[0].operations == []
     assert "não confirma geometria ou vínculo" in decisions[0].reason
     assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
+    con.close()
+
+
+def test_generic_fv_exists_uses_only_its_closed_area_slot_as_n1_trace(tmp_path: Path):
+    """O marcador ``exists`` não tem pontos: sua prova é o contorno FV do mesmo índice.
+
+    Não é confirmação semântica ou selo QA; a auditoria só deixa de abrir uma
+    pendência falsa quando a área local fechada já está no snapshot N1.
+    """
+    db = tmp_path / "fv_exists_trace.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE beams (
+          id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT,
+          is_validated INTEGER, validated_fields_json TEXT, na_fields_json TEXT
+        );
+        """
+    )
+    payload = {
+        "viga_fundo_seg_1_exists": True,
+        "links": {
+            "viga_fundo_seg_1_area_segs": {
+                "contour": [{
+                    "geometry_role": "area_fundo", "closed": True,
+                    "points": [[0, 0], [100, 0], [100, 19], [0, 19], [0, 0]],
+                }],
+            },
+        },
+    }
+    con.execute(
+        "INSERT INTO beams VALUES ('b', 'p', 'V1', ?, 0, '[]', '[]')",
+        (json.dumps(payload),),
+    )
+    decisions, findings, questions, _ = generic_class_review(
+        con, project_id="p", classe="FV", run_id="run", selected=None, include_sealed=True,
+    )
+    assert not findings
+    exists = next(decision for decision in decisions if decision.field_id == "viga_fundo_seg_1_exists")
+    assert exists.decision == "TRILHA_N1_OBSERVADA"
+    assert exists.operations == []
+    assert exists.evidence[0]["entries"] == 1
+    assert not questions
+    assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0
+    con.close()
+
+
+def test_generic_fv_exists_rejects_open_or_zero_area_as_trace(tmp_path: Path):
+    db = tmp_path / "fv_exists_invalid.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE beams (
+          id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT,
+          is_validated INTEGER, validated_fields_json TEXT, na_fields_json TEXT
+        );
+        """
+    )
+    payload = {
+        "viga_fundo_seg_1_exists": True,
+        "links": {
+            "viga_fundo_seg_1_area_segs": {
+                "contour": [{"geometry_role": "area_fundo", "points": [[0, 0], [100, 0]]}],
+            },
+        },
+    }
+    con.execute(
+        "INSERT INTO beams VALUES ('b', 'p', 'V1', ?, 0, '[]', '[]')",
+        (json.dumps(payload),),
+    )
+    decisions, _, questions, _ = generic_class_review(
+        con, project_id="p", classe="FV", run_id="run", selected=None, include_sealed=True,
+    )
+    exists = next(decision for decision in decisions if decision.field_id == "viga_fundo_seg_1_exists")
+    assert exists.decision == "PENDENTE"
+    assert questions and questions[0]["code"] == "FV-CONTRACT-MISSING"
+    con.close()
+
+
+def test_generic_fv_excludes_internal_orientation_and_raw_count_metadata(tmp_path: Path):
+    db = tmp_path / "fv_internal_meta.vision"
+    con = sqlite3.connect(db)
+    con.executescript(
+        """
+        CREATE TABLE beams (
+          id TEXT PRIMARY KEY, project_id TEXT, name TEXT, data_json TEXT,
+          is_validated INTEGER, validated_fields_json TEXT, na_fields_json TEXT
+        );
+        """
+    )
+    payload = {"fv_is_h": True, "seg_bottom": 6, "links": {"viga_segs": {"seg_bottom": []}}}
+    con.execute(
+        "INSERT INTO beams VALUES ('b', 'p', 'V1', ?, 0, '[]', '[]')",
+        (json.dumps(payload),),
+    )
+    decisions, _, questions, _ = generic_class_review(
+        con, project_id="p", classe="FV", run_id="run", selected=None, include_sealed=True,
+    )
+    assert decisions == []
+    assert not questions
     con.close()
 
 

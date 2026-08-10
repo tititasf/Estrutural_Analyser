@@ -43,6 +43,13 @@ Pilar é uma entidade geométrica com identidade, dimensão, nível e faces loca
 Faces A/B são longas e C/D curtas no retangular; pilares especiais ampliam para
 E/F/G/H. Cada relação precisa conservar face, canto, entidade, dimensão e origem.
 
+#### Regra de Ouro de QA — Cotas de Nível em Fôrmas (PIL vs LAJ/VIG):
+- **Vigas e Lajes**: Possuem **APENAS NÍVEL DE CHEGADA** ($N_{\text{chegada}}$ do pavimento atual, ex: $852,19\text{cm}$). Lajes rebaixadas aplicam o delta (ex: $L301$ com $-7\text{cm} = 852,12\text{cm}$). Vigas e lajes **não** possuem nível de saída.
+- **Pilares**: Possuem **NÍVEL DE SAÍDA E NÍVEL DE CHEGADA**.
+  - **Saída ($N_{\text{saída}}$)**: Cota de base no pavimento inferior ($N-1$º PAV, ex: $848,98\text{cm}$ no 12º PAV).
+  - **Chegada ($N_{\text{chegada}}$)**: Cota de topo no pavimento atual ($N$º PAV, ex: $852,19\text{cm}$ no 13º PAV).
+  - **Pé-direito**: $N_{\text{chegada}} - N_{\text{saída}} = 3,21\text{m}$ ($321\text{cm}$).
+
 | Família | Campos/fontes | Pergunta correta |
 |---|---|---|
 | identidade/geometria | `name.label`, `points_json`, `pilar_segs`, dimensão extra | nome, bbox e dimensão descrevem a mesma entidade? |

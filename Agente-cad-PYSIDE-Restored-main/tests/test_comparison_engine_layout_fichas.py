@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import gerar_lv_dxf_stog as lv_generator
+import motor_reverso_lv as lv_reverse
 
 from src.ui.modules.comparison_engine import (
     ComparisonEngineModule,
@@ -578,3 +579,34 @@ def test_lv_n3_contract_face_draws_single_7cm_edge_sarrafo_per_side():
         and abs(float(entity.dxf.end.y) - 54.0) < 0.001
     ]
     assert sorted(round(float(line.dxf.start.x), 2) for line in verticals) == [7.0, 113.0]
+
+
+def test_lv_section_uses_plain_internal_dims_hatched_sarrafos_and_hxb_title():
+    """Corte comum N3/N4: B/H por linhas e sarrafos pequenos hachurados."""
+    doc = lv_generator.setup_doc()
+    msp = doc.modelspace()
+    lv_generator.draw_section_detail(
+        msp, 100.0, 0.0, 14.0, 50.0,
+        viga_nome="V327", b_alma=14.0, h_A=54.0, h_B=54.0,
+    )
+
+    texts = [(entity.dxf.layer, entity.dxf.text) for entity in msp
+             if entity.dxftype() == "TEXT"]
+    assert ("Texto Seção", "V327 (50x14)") in texts
+    assert ("Cota Seção (2x)", "50") in texts
+    assert ("Cota Seção (2x)", "14") in texts
+    assert not [entity for entity in msp
+                if entity.dxftype() == "LWPOLYLINE"
+                and entity.dxf.layer == "COTA"]
+    assert sum(1 for entity in msp if entity.dxftype() == "HATCH") >= 13
+
+
+def test_lv_reverse_does_not_promote_grade_leg_to_edge_sarrafo():
+    """3.5x7 é perna de grade; borda só nasce da linha 2.2x7 comprovada."""
+    paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v = [], [], [], [], []
+    lv_reverse._collect_seg_line(
+        "SARR_3.5x7", 15.0, 0.0, 15.0, 54.0,
+        paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v,
+    )
+    assert sarr_v == []
+    assert sarr3_v == [(15.0, 0.0, 54.0)]

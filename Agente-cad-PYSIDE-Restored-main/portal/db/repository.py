@@ -73,6 +73,25 @@ def obter_membro_por_login(
     return _row_to_dict(row)
 
 
+def obter_membro_por_login_normalizado(
+    conn: sqlite3.Connection, login: str
+) -> Optional[dict[str, Any]]:
+    """Busca tolerante a espaços e maiúsculas — só para o caminho de LOGIN.
+
+    A busca exata (`obter_membro_por_login`) continua sendo a usada pelo cookie,
+    que sempre carrega o valor canônico gravado no banco. Aqui é o humano
+    digitando: "Thierry.tasf@gmail.com" e "thierry.tasf@gmail.com " são a mesma
+    pessoa, e recusar isso só produz "usuário incorreto" sem explicação.
+    """
+    alvo = (login or "").strip()
+    if not alvo:
+        return None
+    row = conn.execute(
+        "SELECT * FROM portal_membros WHERE LOWER(TRIM(login)) = LOWER(?)", (alvo,)
+    ).fetchone()
+    return _row_to_dict(row)
+
+
 def atualizar_drive_folder_membro(
     conn: sqlite3.Connection, membro_id: str, drive_folder_id: str
 ) -> None:

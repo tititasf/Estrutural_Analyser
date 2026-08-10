@@ -33,24 +33,25 @@ de conhecimento segue o contrato QA↔RAG, não um score isolado.
 
 ## 2. Autoridade por classe
 
+SoT versionada: `squads/qa-global-evidencias/data/authority_matrix.json`
+(alinhada a `CLASS_REGISTRY` via `scripts/arete/qa_authority_matrix.py`).
+
 | Classe | Fonte N1 observada | Adaptador | Estado atual | Pode selar? | Próximo gate |
 |---|---|---|---|---|---|
 | LAJ | `slabs.links_json` + `points_json` | `LajEvidenceAuditor` | `validation_ready` | Sim, somente `apply` explícito e snapshot íntegro | RAG T1/T2 + generalização em outra obra |
-| FV | `beams.data_json`, família `viga_fundo*`/`fv_*` | revisão global + contrato inicial | `diagnostic_only` | Não | golden visual próprio |
-| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | `qa_pil_coverage.py` + probes por face/slot | `coverage_ready`, apply ainda `diagnostic_only` | Não | regressão + visual + promoção QG7 humana |
-| LV | `beams.data_json`, famílias `viga_a_*`, `viga_b_*`, `lv_*` | revisão global + contrato inicial | `diagnostic_only` | Não | golden de segmentos/lados |
+| PIL | `pillars.links_json` + `points_json`/`sides_data_json` | `PilEvidenceAuditor` + `qa_pil_coverage.py` | `validation_ready` (limites: retangular provado; L/U/circular pendente) | Sim, somente `apply` explícito via adaptador; cobertura ≠ apply | ampliar geometrias + QG7 institucional + set de campos de face |
+| FV | `beams.data_json`, família `viga_fundo*` | `FvEvidenceAuditor` | `validation_ready` (segmentos com geometria re-derivada) | Sim, `apply` explícito só nos campos provados; 1 segmento ≠ viga inteira | golden multi-geometria + G2-V |
+| LV | `beams.data_json`, famílias `viga_a_*`/`viga_b_*` + `lv_generation_contracts` | `LvEvidenceAuditor` | `validation_ready` (4 contratos A/B×PARA/PASSA) | Sim, `apply` explícito nos campos/contratos provados | golden para+passa + G2-V |
 
-`diagnostic_only` é uma capacidade útil já: lê o projeto, inventaria campos de verdade, evidencia cobertura e registra sessão. Ela é deliberadamente incapaz de alterar N1. Assim o agente pode ser usado em todas as classes agora, sem criar falso selo.
+As quatro classes usam adaptadores dedicados. `CONFIRMAR` exige re-derivação
+independente (geometria/contrato), não trilha genérica do payload. PASS de um
+campo/segmento/contrato **não** aprova a ficha inteira. Golden visual e
+pacote G2-V continuam o gate institucional antes de selagem em massa.
 
-Os contratos iniciais de proveniência de FV/PIL/LV servem para a decisão
-`CONFIRMAR` **read-only** quando há trilha N1 rastreável. Essa confirmação nunca
-entra no banco nem vira selo até a promoção QG7; ela separa "há evidência
-compatível" de "a classe está autorizada a ser selada".
-
-> **Precisão de vocabulário após auditoria de 13/07/2026:** enquanto PIL/FV/LV
-> continuarem no `generic_class_review`, a decisão deve ser apresentada ao usuário
-> como `TRILHA_N1_OBSERVADA`, não como validação plena de geometria, face, segmento
-> ou painel. `CONFIRMAR` pleno nessas classes exige adaptador CAD independente e QG7.
+> **Precisão de vocabulário (atualizado 16/07/2026):** LAJ/PIL/FV/LV usam
+> adaptadores. FV/LV cobrem famílias centrais (fundo por segmento; 4 contratos
+> laterais). Aberturas/furos/geometrias especiais podem permanecer `PENDENTE`
+> até extensão do adaptador.
 
 ## 3. Núcleo e adaptadores
 
@@ -113,6 +114,19 @@ $py = 'D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe'
 
 Cada `discover` grava `manifesto.json`, `inventario_classes.json`, `resumo_global.md` e uma entrada append-only em `scripts/arete/relatorios/qa_evidencias/registro_sessoes.jsonl`.
 
+### 4.0 Quadro vivo de estado por classe/pavimento
+
+O QA mantém quadro HTML/JSON/CSV/Markdown **read-only** por classe e pavimento para
+orientar a execução item a item. O quadro é projeção de evidências persistidas,
+nunca fonte para N1/N3 nem mecanismo de selo. Ele é regenerado após microciclo que
+produza ou observe nova evidência persistida (review, decisão, materialização,
+diagnóstico, smoke, gate visual ou regressão), e o agente entrega seu link no handoff.
+
+O contrato de colunas, cores, estágios, especializações FV/LV/PIL/LAJ, nomes dos
+motores e prompt operacional está em `docs/QA-QUADROS-ESTADO-POR-CLASSE.md`. FV já
+possui `qa_fv_quadro_pavimento.py`; os demais quadros só existem após implementação
+dedicada e não podem herdar campos ou semântica de outra classe.
+
 ### 4.1 Teste rápido de vínculo e limite de autoridade
 
 Para uma dúvida localizada, preferir o probe declarativo antes do review amplo:
@@ -149,10 +163,12 @@ conflito entre campos e cobertura do contrato. Ele avalia **o DB atual**; não
 exercita uma alteração ainda não materializada no extrator. Se o código N1 foi
 alterado, o microciclo headless continua obrigatório antes de repetir o review.
 
-Microciclos read-only `--secao + --item` usam fila e snapshot próprios da classe;
-agentes QA de classes distintas podem materializar em paralelo. Ausência de item,
-múltiplas classes ou `--persist-db` promovem automaticamente a execução para o
-lock global + locks PIL/LAJ/FV/LV. O QA nunca contorna essa política.
+Rodadas read-only de uma única `--secao` usam fila e snapshot próprios da classe, com
+ou sem `--item`; agentes QA de classes distintas podem materializar em paralelo.
+Com `--persist-db --secao X --item ...`, o commit continua parcial (upsert, sem apagar
+ausentes) e usa a fila de X. Ausência de `--secao`, múltiplas classes ou persistência
+sem identidade de item promovem automaticamente a execução para o lock global + locks
+PIL/LAJ/FV/LV. O QA nunca contorna essa política.
 
 ### 4.2 Gate anti-loop caro: aceite antes da materialização
 
@@ -193,7 +209,9 @@ declaradas; a ficha/PNG continua responsável pela geometria e o gate visual.
 
 1. **N1 é alvo, não prova de si próprio.** Campo persistido precisa de entidade/coord., fonte interpretativa ou cálculo reproduzível.
 2. **N2/N4 são comparadores independentes.** Podem denunciar divergência; jamais alimentam N3 ou reescrevem N1.
-3. **Visual obrigatório para gate visual.** Somente `g2v_harness.py --backend cli`; API permanece desligada.
+3. **Visual obrigatório para gate visual.** Somente `g2v_harness.py --backend cli`;
+   agente julga em **PNG**; SVG no HTML persist/portal (`QA-VISAO-EVIDENCIA-CANONICA.md`).
+   API permanece desligada.
 4. **Cross-classe é consultivo.** Uma laje pode consultar pilares/vigas limítrofes para testar contato; não copia atributos entre classes.
 5. **Dúvida falha fechada.** `PENDENTE` ou `REVISAR_HUMANO`, acompanhada de observação, tentativas, hipóteses recusadas, impasse e impacto.
 6. **Nenhum hardcode por obra/pavimento/item.** Regra nova exige causa geral e regressão.
@@ -268,7 +286,8 @@ RAG. O orquestrador apenas monta o DAG, aplica política e cache por conteúdo; 
 não interpreta domínio e não escreve N1.
 
 Fast paths disponíveis: probe N1 de campos/vínculos com leitura mínima e
-cross-classe; paridade declarativa de artefatos; render DXF→SVG cacheado; consulta
+cross-classe; paridade declarativa de artefatos; render DXF→PNG (agente) / SVG (web);
+   consulta
 RAG tipada que falha fechada quando o schema não suporta os filtros pedidos. O
 contrato detalhado está em `QA-FASTPATHS-CAMPOS-ARTEFATOS.md`.
 

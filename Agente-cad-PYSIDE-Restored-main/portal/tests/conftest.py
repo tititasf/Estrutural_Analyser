@@ -66,6 +66,7 @@ def settings(tmp_path, db_path):
         db_path=db_path,
         poll_enabled=False,
         auto_publish_enabled=False,  # mesma disciplina do poll_enabled acima
+        headless_enabled=False,  # evita invocar subprocess de python real do motor nos testes unitarios
         dados_obras_dir=tmp_path / "DADOS-OBRAS",
         logs_dir=tmp_path / "logs",
         status_md_path=tmp_path / "STATUS.md",  # não existe -> tudo vira 'beta' (fail-safe)

@@ -24,7 +24,12 @@ REPO = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from gerar_lv_dxf_stog import draw_lv_face, draw_section_detail, setup_doc
+from gerar_lv_dxf_stog import (
+    _skip_n2_panel_solid_hatch,
+    draw_lv_face,
+    draw_section_detail,
+    setup_doc,
+)
 from lv_n2_vision_loop_runner import render_dxf_to_png, write_json
 
 
@@ -98,6 +103,8 @@ def _draw_section_visual_primitives(msp: Any, view: dict[str, Any]) -> bool:
                         or [0.0, 0.0]
                     )
             elif kind == "hatch":
+                if _skip_n2_panel_solid_hatch(primitive):
+                    continue
                 paths = primitive.get("paths") or []
                 if not paths:
                     continue

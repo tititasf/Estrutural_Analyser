@@ -19,12 +19,14 @@ invento tabela no DB de outra sessao.
 from __future__ import annotations
 
 import sqlite3
+import uuid
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from .. import access, auth, certification, n5_release, pipeline_runner
+from .. import access, auth, certification, n5_release, pipeline_runner, viewer_pavimentos
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -46,6 +48,44 @@ def _enfileirar(request: Request, conn: sqlite3.Connection, obra: dict, meta: di
     request.app.state.job_meta[job_id] = meta
     repo.atualizar_estado_obra(conn, obra["id"], "processando")
     return job_id
+
+
+def _pavimentos_processaveis(request: Request, obra: dict) -> list[str]:
+    """Pavimentos reais com torre limpa, na mesma ordem exibida no portal."""
+    settings = request.app.state.settings
+    local_path = obra.get("local_path")
+    obra_dir = Path(local_path) if local_path else settings.dados_obras_dir / obra["nome"]
+    return [
+        item["pavimento"]
+        for item in viewer_pavimentos.listar_pavimentos_com_torre(obra_dir, obra)
+    ]
+
+
+def _enfileirar_todos_pavimentos(
+    request: Request,
+    conn: sqlite3.Connection,
+    obra: dict,
+    *,
+    etapa: str,
+    secao: Optional[list[str]],
+) -> tuple[str, list[dict]]:
+    """Cria um lote visivel ao usuario; o JobWorker o executa serialmente."""
+    pavimentos = _pavimentos_processaveis(request, obra)
+    if not pavimentos:
+        raise HTTPException(status_code=422, detail="nenhum pavimento com torre limpa encontrado")
+    batch_id = uuid.uuid4().hex
+    jobs = []
+    for pavimento in pavimentos:
+        meta = {
+            "etapa": etapa,
+            "secao": secao,
+            "pav": pavimento,
+            "escopo": "global",
+            "batch_id": batch_id,
+        }
+        job_id = _enfileirar(request, conn, obra, meta)
+        jobs.append({"job_id": job_id, "pav": pavimento, "meta": meta})
+    return batch_id, jobs
 
 
 class SAIn(BaseModel):
@@ -131,6 +171,18 @@ def sa(obra_id: str, body: SAIn, request: Request, membro: dict = Depends(auth.e
             "estado": "queued", "secao": body.secao}
 
 
+@router.post("/obras/{obra_id}/sa-todos")
+def sa_todos(obra_id: str, body: SAIn, request: Request,
+             membro: dict = Depends(auth.exige_login),
+             conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = _obra_do_membro(conn, obra_id, membro)
+    batch_id, jobs = _enfileirar_todos_pavimentos(
+        request, conn, obra, etapa="sa", secao=body.secao,
+    )
+    return {"batch_id": batch_id, "obra_id": obra_id, "etapa": "sa",
+            "estado": "queued", "total": len(jobs), "jobs": jobs}
+
+
 @router.post("/obras/{obra_id}/n3")
 def n3(obra_id: str, body: N3In, request: Request, membro: dict = Depends(auth.exige_login),
        conn: sqlite3.Connection = Depends(get_db_conn)):
@@ -140,6 +192,18 @@ def n3(obra_id: str, body: N3In, request: Request, membro: dict = Depends(auth.e
     job_id = _enfileirar(request, conn, obra, meta)
     return {"job_id": job_id, "obra_id": obra_id, "etapa": "n3",
             "estado": "queued", "secao": body.secao}
+
+
+@router.post("/obras/{obra_id}/n3-todos")
+def n3_todos(obra_id: str, body: N3In, request: Request,
+             membro: dict = Depends(auth.exige_login),
+             conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = _obra_do_membro(conn, obra_id, membro)
+    batch_id, jobs = _enfileirar_todos_pavimentos(
+        request, conn, obra, etapa="n3", secao=body.secao,
+    )
+    return {"batch_id": batch_id, "obra_id": obra_id, "etapa": "n3",
+            "estado": "queued", "total": len(jobs), "jobs": jobs}
 
 # --------------------------------------------------------------------------- #
 # Etapa 5 — Validacao (so estado; nao recomputa)
@@ -243,9 +307,13 @@ def n5_download_all(obra_id: str, request: Request, membro: dict = Depends(auth.
 def n5_foto(obra_id: str, classe: str, request: Request,
             membro: dict = Depends(auth.exige_login),
             conn: sqlite3.Connection = Depends(get_db_conn)):
-    """Foto (PNG) do DXF final do N5 mais recente dessa classe — [2026-07-06]
+    """Foto (SVG) do DXF final do N5 mais recente dessa classe — [2026-07-06]
     N5 so' tinha download de DXF, sem preview visual nenhum; aqui usa o mesmo
-    `dxf_preview` (ezdxf.addons.drawing) ja usado pelo viewer de Recortes."""
+    `dxf_preview` (ezdxf.addons.drawing) ja usado pelo viewer de Recortes.
+
+    [2026-07-30] O docstring dizia PNG desde a migracao para SVG. Portal web
+    entrega SVG por politica canonica (`docs/QA-VISAO-EVIDENCIA-CANONICA.md`:
+    agente le PNG; persist/app/portal web = SVG)."""
     from fastapi.responses import Response as _Response
     from pathlib import Path as _P
 

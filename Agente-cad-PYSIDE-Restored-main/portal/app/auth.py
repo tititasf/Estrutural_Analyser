@@ -54,18 +54,24 @@ def _serializer(settings: Settings) -> URLSafeTimedSerializer:
     return URLSafeTimedSerializer(settings.session_secret, salt=_SALT)
 
 
-def emitir_cookie(settings: Settings, login: str) -> str:
+def emitir_cookie(settings: Settings, login: str, *, persistente: bool = False) -> str:
     """Cria o valor assinado do cookie de sessao para `login`."""
-    return _serializer(settings).dumps({"login": login})
+    return _serializer(settings).dumps({"login": login, "persistente": bool(persistente)})
 
 
 def ler_cookie(settings: Settings, valor: str) -> Optional[str]:
     """Valida o cookie; devolve o login ou None (assinatura ruim / expirado)."""
     if not valor:
         return None
-    max_age = settings.session_ttl_horas * 3600
     try:
-        dados = _serializer(settings).loads(valor, max_age=max_age)
+        # Primeiro valida apenas a assinatura para descobrir o tipo da sessao.
+        # Sessao comum continua limitada pelo TTL; a opcao explicita "manter-me
+        # conectado" e' persistente e so e' encerrada quando /logout apaga o cookie.
+        dados = _serializer(settings).loads(valor)
+        if not (isinstance(dados, dict) and dados.get("persistente") is True):
+            dados = _serializer(settings).loads(
+                valor, max_age=settings.session_ttl_horas * 3600,
+            )
     except (BadSignature, SignatureExpired):
         return None
     if not isinstance(dados, dict):
@@ -80,6 +86,13 @@ def autenticar(conn: sqlite3.Connection, login: str, senha: str) -> Optional[dic
     Membro inativo (ativo=0) e' recusado como se nao existisse.
     """
     membro = repo.obter_membro_por_login(conn, login)
+    if membro is None:
+        # [2026-07-30] Segunda tentativa tolerante. O login e' um e-mail e a
+        # busca era exata: "Thierry.tasf@gmail.com" ou um espaco colado no fim
+        # (autofill/copiar) davam "usuario incorreto" sem pista nenhuma do que
+        # estava errado. E-mail e' case-insensitive por convencao; a SENHA
+        # continua exata.
+        membro = repo.obter_membro_por_login_normalizado(conn, login)
     if membro is None:
         return None
     if int(membro.get("ativo", 1)) != 1:

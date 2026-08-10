@@ -25,91 +25,32 @@
 {# foi clicado — Bruto, Recorte, doc comum ou classe N1/N3/N5.           #}
 {# ------------------------------------------------------------------ #}
 {% block sidebar_obras_extra %}
+{# 2026-07: Drill grade (1 coluna) — substitui a árvore gorda + painéis 2/3.
+   #docs-viewer permanece no DOM (hidden) para o JS legado de triagem/recortes
+   preencher caches; a UI visível é #drill-root. #}
 <li class="sidebar-obras-arvore">
   <ul class="arvore-obras-lista">
-    {% for o in obras_do_membro %}
-      {% if o.id == obra.id %}
-      <li class="arvore-obra-atual">
-        {# [novo, a pedido do dono] clicável — volta pro cabeçalho/documentos
-           (visão padrão da Triagem) de onde quer que se esteja (Recortes, N1,
-           N3, N5). Antes era um <span> morto, sem jeito de "voltar" sem clicar
-           num doc específico. #}
-        <button type="button" class="obras-strip-item ativo" id="obra-atual-btn" title="Voltar ao cabeçalho da obra">{{ o.nome }}</button>
-        <div class="arvore-triagem-titulo">
-          {% if triagem_feita %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} Triagem
-        </div>
-        <div id="docs-viewer" data-obra="{{ obra.id }}"></div>
-      </li>
-      {% else %}
-      <li><a href="/app/obras/{{ o.id }}" class="obras-strip-item" title="{{ o.nome }}">{{ o.nome }}</a></li>
-      {% endif %}
-    {% endfor %}
+    <li class="arvore-obra-atual">
+      <button type="button" class="obras-strip-item ativo" id="obra-atual-btn" title="Voltar ao cabeçalho da obra" hidden>{{ obra.nome }}</button>
+      <div class="arvore-triagem-titulo" hidden>
+        {% if triagem_feita %}<span class="aba-check" aria-hidden="true">✓</span>{% endif %} Triagem
+      </div>
+      <div id="docs-viewer" data-obra="{{ obra.id }}" hidden></div>
+      <div id="drill-root" class="drill"
+           data-obra="{{ obra.id }}"
+           data-obra-nome="{{ obra.nome }}"
+           data-sa-feito="{{ '1' if sa_feito else '0' }}"
+           data-n5-feito="{{ '1' if n5_feito else '0' }}"></div>
+    </li>
   </ul>
 </li>
 {% endblock %}
 
 {% block conteudo %}
+<link rel="stylesheet" href="/static/pillar_ficha.css?v={{ request.app.state.static_versao | default('0') }}">
 <div class="shell-obra">
     <nav class="painel-2" aria-label="Etapas da obra" style="display: flex; flex-direction: column;">
     <!-- Fases da Obra Global -->
-    <div class="painel-fases-obra" style="padding: 15px; border-bottom: 1px solid var(--border-color); background: #262626;">
-      <h3 style="margin-top:0; font-size: 0.95rem; color: #fff;">Status de Processamento da Obra</h3>
-      <ul style="list-style: none; padding-left: 0; font-size: 0.8rem; color: #aaa; margin-bottom: 0; line-height: 1.4; gap: 8px; display: flex; flex-direction: column;">
-        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-            <span><span id="fase1-icon" aria-hidden="true">{% if triagem_feita %}✓{% else %}⏳{% endif %}</span> <b>Fase 1:</b> Ingestão/Triagem</span>
-          </div>
-          <div style="display: flex; gap: 5px; flex-direction: column;">
-            <button class="btn btn-sm painel2-acao-btn" data-acao="converter-dwg" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Converter Todos Docs</button>
-            <button class="btn btn-sm painel2-acao-btn" data-acao="triagem" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Triagem + Recortes</button>
-          </div>
-        </li>
-        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-            <span><span id="fase2-icon" aria-hidden="true">{% if sa_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 2:</b> Aprovação Recortes</span>
-          </div>
-          <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
-            Validados: <span id="global-fase2-val">0</span>/<span id="global-fase2-tot">0</span> (<span id="global-fase2-perc">0</span>%)
-          </div>
-          <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
-            <div id="global-fase2-bar" style="background:#28a745; width:0%; height:100%;"></div>
-          </div>
-          <div id="tag-job-global-sa" style="display: none; padding: 4px; margin-bottom: 5px; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold;"></div>
-<button class="btn btn-sm painel2-acao-btn" data-acao="sa" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar todos SA (N1)</button>
-        </li>
-        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-            <span><span id="fase3-icon" aria-hidden="true">{% if etapa_atual >= 5 %}✓{% else %}⏳{% endif %}</span> <b>Fase 3:</b> Aprovação N1 → N3</span>
-          </div>
-          <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
-            Validados: <span id="global-fase3-val">0</span>/<span id="global-fase3-tot">0</span> (<span id="global-fase3-perc">0</span>%)
-          </div>
-          <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
-            <div id="global-fase3-bar" style="background:#28a745; width:0%; height:100%;"></div>
-          </div>
-          <div id="tag-job-global-n3" style="display: none; padding: 4px; margin-bottom: 5px; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold;"></div>
-<button class="btn btn-sm painel2-acao-btn" data-acao="n3" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N1 (Todos) → N3</button>
-        </li>
-        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-            <span><span id="fase4-icon" aria-hidden="true">{% if n5_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 4:</b> Aprovação N3 → N5</span>
-          </div>
-          <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
-            Validados: <span id="global-fase4-val">0</span>/<span id="global-fase4-tot">0</span> (<span id="global-fase4-perc">0</span>%)
-          </div>
-          <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
-            <div id="global-fase4-bar" style="background:#28a745; width:0%; height:100%;"></div>
-          </div>
-          <button class="btn btn-sm painel2-acao-btn" data-acao="n5" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N3 (Todos) → N5</button>
-        </li>
-        <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-            <span><span id="fase5-icon" aria-hidden="true">{% if etapa_atual >= 7 %}✓{% else %}⏳{% endif %}</span> <b>Fase 5:</b> Certificação e Download</span>
-          </div>
-          <button class="btn btn-sm painel2-acao-btn" data-acao="download" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%; background: #28a745; color: white; border: none;">Download Todos N5 (Zip)</button>
-        </li>
-      </ul>
-    </div>
 
     <div id="painel2-estado-vazio" style="padding: 20px; text-align: center; color: #888; font-size: 0.85rem;">
       <p>Selecione um <b>Pavimento</b> na Triagem (Painel Esquerdo) para ver as etapas e gerar processamentos.</p>
@@ -192,13 +133,13 @@
   </nav>
 
   <div class="painel-obra">
-   <div class="painel-obra-cabecalho">
-    <h1 style="margin:0">{{ obra.nome }}</h1>
-    {% if obra.descricao %}<p class="subtitulo" style="margin:2px 0">{{ obra.descricao }}</p>{% endif %}
-    <p class="subtitulo" style="margin:0 0 10px">
+   <div class="painel-obra-cabecalho obra-page-header">
+    <h1 class="obra-page-title">{{ obra.nome }}</h1>
+    {% if obra.descricao %}<p class="subtitulo obra-page-desc">{{ obra.descricao }}</p>{% endif %}
+    <p class="subtitulo obra-page-meta">
       {{ obra.arquivo_nome or (documentos|length ~ ' documento(s)') }} · enviada por {{ obra.enviada_por or membro.login }}
     </p>
-    <p class="subtitulo" id="obra-code-publico-slot" style="margin:0 0 10px;font-family:monospace"></p>
+    <p class="subtitulo obra-page-code" id="obra-code-publico-slot"></p>
 
     {% if obra.estado == 'erro' and obra.erro_msg %}
     <div class="faixa faixa-erro" role="alert" style="white-space:pre-wrap;font-family:monospace;font-size:.82rem">
@@ -251,96 +192,143 @@
 
     {# ============================== TRIAGEM (detalhe) ============================== #}
     <div class="conteudo-secao" id="detalhe-triagem">
-      {# ---- cabeçalho de referência do processamento (2026-07-07) ----
-         Nome/cliente/datas/critérios/observações — pra a obra nunca ficar só
-         com o nome do arquivo bruto como identificação, seja modo rápido ou
-         fluxo completo com N documentos. #}
-      <section class="card cabecalho-obra" aria-labelledby="cab-h" id="cabecalho-obra"
+      {# Ficha + docs da obra: só no modo lista de pavimentos (obra-mode-pavs).
+         Com pavimento selecionado some (obra-mode-pavimento). #}
+      <div id="obra-ficha-docs">
+      {# Ficha hero (proposta 1) — nome em destaque; chips de meta; notas em cards #}
+      <section class="cabecalho-obra obra-ficha-hero" aria-labelledby="cab-h" id="cabecalho-obra"
                data-obra="{{ obra.id }}">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2 id="cab-h" style="margin:0">Cabeçalho do processamento</h2>
-          <button type="button" class="btn-sec btn" id="cab-editar-btn">Editar</button>
+        <div class="obra-ficha-hero-top">
+          <div class="obra-ficha-hero-top-text">
+            <span class="obra-ficha-badge" aria-hidden="true">Ficha da obra</span>
+            <h2 id="cab-h" class="obra-ficha-hero-title">{{ obra.nome }}</h2>
+            <p class="obra-ficha-hero-sub">Identificação do serviço · cliente, prazos e notas</p>
+          </div>
+          <button type="button" class="btn obra-ficha-hero-edit" id="cab-editar-btn">Editar</button>
         </div>
-        <div id="cab-visualizacao" class="cab-grid" style="margin-top:10px">
-          <div><span class="n1-campo-label">Nome</span><br>{{ obra.nome }}</div>
-          <div><span class="n1-campo-label">Cliente</span><br>{{ obra.cliente or '—' }}</div>
-          <div><span class="n1-campo-label">Data de solicitação</span><br>{{ obra.data_solicitacao or '—' }}</div>
-          <div><span class="n1-campo-label">Data de entrega</span><br>{{ obra.data_entrega or '—' }}</div>
-          <div style="grid-column:1/-1"><span class="n1-campo-label">Critérios e definições do cliente</span><br>
-            {{ obra.criterios_cliente or '—' }}</div>
-          <div style="grid-column:1/-1"><span class="n1-campo-label">Observações</span><br>{{ obra.observacoes or '—' }}</div>
+        <div id="cab-visualizacao" class="obra-ficha-hero-body">
+          <div class="obra-ficha-chips" role="list">
+            <div class="obra-ficha-chip" role="listitem">
+              <span class="obra-ficha-chip-lab">Cliente</span>
+              <span class="obra-ficha-chip-val{% if not obra.cliente %} is-empty{% endif %}">{{ obra.cliente or 'Não informado' }}</span>
+            </div>
+            <div class="obra-ficha-chip" role="listitem">
+              <span class="obra-ficha-chip-lab">Solicitação</span>
+              <span class="obra-ficha-chip-val{% if not obra.data_solicitacao %} is-empty{% endif %}">{{ obra.data_solicitacao or 'Não informado' }}</span>
+            </div>
+            <div class="obra-ficha-chip" role="listitem">
+              <span class="obra-ficha-chip-lab">Entrega</span>
+              <span class="obra-ficha-chip-val{% if not obra.data_entrega %} is-empty{% endif %}">{{ obra.data_entrega or 'Não informado' }}</span>
+            </div>
+          </div>
+          <div class="obra-ficha-notes">
+            <div class="obra-ficha-note">
+              <span class="obra-ficha-chip-lab">Critérios do cliente</span>
+              <p class="obra-ficha-note-val{% if not obra.criterios_cliente %} is-empty{% endif %}">{{ obra.criterios_cliente or 'Não informado' }}</p>
+            </div>
+            <div class="obra-ficha-note">
+              <span class="obra-ficha-chip-lab">Observações</span>
+              <p class="obra-ficha-note-val{% if not obra.observacoes %} is-empty{% endif %}">{{ obra.observacoes or 'Não informado' }}</p>
+            </div>
+          </div>
         </div>
-        <form id="cab-form" class="cab-grid" style="margin-top:10px" hidden>
-          <label>Nome<input type="text" name="nome" value="{{ obra.nome }}" required></label>
-          <label>Cliente<input type="text" name="cliente" value="{{ obra.cliente or '' }}"></label>
-          <label>Data de solicitação<input type="date" name="data_solicitacao" value="{{ obra.data_solicitacao or '' }}"></label>
-          <label>Data de entrega<input type="date" name="data_entrega" value="{{ obra.data_entrega or '' }}"></label>
-          <label style="grid-column:1/-1">Critérios e definições do cliente
-            <textarea name="criterios_cliente" rows="2">{{ obra.criterios_cliente or '' }}</textarea></label>
-          <label style="grid-column:1/-1">Observações
-            <textarea name="observacoes" rows="2">{{ obra.observacoes or '' }}</textarea></label>
-          <div style="grid-column:1/-1;display:flex;gap:8px">
+        <form id="cab-form" class="obra-ficha-form" hidden>
+          <div class="obra-ficha-form-grid">
+            <label>Nome<input type="text" name="nome" value="{{ obra.nome }}" required></label>
+            <label>Cliente<input type="text" name="cliente" value="{{ obra.cliente or '' }}" placeholder="Nome do cliente"></label>
+            <label>Data de solicitação<input type="date" name="data_solicitacao" value="{{ obra.data_solicitacao or '' }}"></label>
+            <label>Data de entrega<input type="date" name="data_entrega" value="{{ obra.data_entrega or '' }}"></label>
+            <label class="obra-ficha-form-wide">Critérios e definições do cliente
+              <textarea name="criterios_cliente" rows="2" placeholder="Ex.: lajes maciças, prioridade de pavimentos…">{{ obra.criterios_cliente or '' }}</textarea></label>
+            <label class="obra-ficha-form-wide">Observações
+              <textarea name="observacoes" rows="2" placeholder="Notas internas da equipe">{{ obra.observacoes or '' }}</textarea></label>
+          </div>
+          <div class="obra-ficha-form-actions">
             <button type="submit" class="btn">Salvar</button>
             <button type="button" class="btn-sec btn" id="cab-cancelar-btn">Cancelar</button>
           </div>
         </form>
-        <p id="cab-resultado" class="meta" role="status" aria-live="polite"></p>
+        <p id="cab-resultado" class="meta obra-ficha-resultado" role="status" aria-live="polite"></p>
       </section>
 
       {% if not eh_obra_rapida %}
       <script type="application/json" id="docs-data">{{ documentos | tojson }}</script>
-      <section aria-labelledby="docs-h" id="docs-intro">
-        <h2 id="docs-h" style="margin-top:0">Documentos</h2>
+      <section class="obra-docs-panel" aria-labelledby="docs-h" id="docs-intro">
+        <div class="obra-docs-head">
+          <div class="obra-docs-title-row">
+            <h2 id="docs-h" class="obra-card-title">Documentos da obra</h2>
+            <button type="button" class="btn-atualizar-lista" id="docs-btn-atualizar"
+                    title="Recarregar lista de documentos">↻ Atualizar lista</button>
+            <div class="obra-docs-chips" id="docs-resumo-chips" aria-label="Resumo de documentos">
+              {% for st, n in resumo_documentos.items() %}
+              <span class="obra-chip">{{ n }} {{ st }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
 
-        {# [novo, a pedido do dono] lista simples só dos .dwg da obra — os
-           .dwg NÃO aparecem mais na árvore de Triagem (sidebar); ficam aqui,
-           com status "Possui DXF" (checado em disco), acima do upload. #}
-        <div id="dwgs-lista-secao"></div>
+        <div class="docs-tabs" role="tablist" aria-label="Tipo de documento">
+          <button type="button" class="docs-tab-btn ativo" role="tab" data-docs-tab="pdf" aria-selected="true">
+            PDFs <span class="docs-tab-count" id="docs-count-pdf">0</span>
+          </button>
+          <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="dxf" aria-selected="false">
+            DXF <span class="docs-tab-count" id="docs-count-dxf">0</span>
+          </button>
+          <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="fotos" aria-selected="false">
+            Fotos <span class="docs-tab-count" id="docs-count-fotos">0</span>
+          </button>
+          <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="dwg" aria-selected="false">
+            DWG <span class="docs-tab-count" id="docs-count-dwg">0</span>
+          </button>
+        </div>
 
-        <div class="upload-drop" id="docs-drop">
-          <input type="file" id="docs-input" accept=".dwg,.dxf,.pdf" multiple hidden>
-          <p class="upload-drop-texto">
-            <strong>Arraste 1 ou mais arquivos aqui</strong> ou
-            <button type="button" id="docs-btn-escolher" class="btn-link">escolha no computador</button>
-          </p>
-          <p class="meta">.dwg, .dxf ou .pdf — cada arquivo vira 1 documento desta obra, classificado automaticamente.</p>
+        <div id="docs-lista-tab" class="docs-lista-wrap" aria-live="polite"></div>
+        <div id="docs-viewer-tab" class="docs-viewer-panel" hidden>
+          <p class="docs-viewer-empty">Selecione um item na lista para visualizar.</p>
         </div>
-        <div class="cab-grid" style="margin-top:10px;max-width:480px">
-          <label>Tipo padrão deste lote (opcional)
-            <select id="docs-upload-tipo-padrao">
-              <option value="">— deixar o classificador sugerir —</option>
-              <option value="Bruto">Bruto</option>
-              <option value="Detalhe">Detalhe</option>
-              <option value="PDF">PDF</option>
-              <option value="Outro">Outro</option>
-            </select>
-          </label>
-          <label>Pavimento padrão deste lote (opcional)
-            <input type="text" id="docs-upload-pavimento-padrao" placeholder="ex.: 13_PAV">
-          </label>
-        </div>
-        <div id="docs-progresso" class="upload-progresso" hidden>
-          <div class="upload-progresso-barra"><div id="docs-barra-fill"></div></div>
-          <span id="docs-progresso-texto" class="meta">Enviando…</span>
-        </div>
-        <div id="docs-upload-resultado" role="status" aria-live="polite"></div>
-        <div class="upload-actions" style="margin-top:14px">
-          {# [novo, a pedido do dono] antes do botão de triagem: converte todo
-             DWG pendente pra DXF de uma vez (mesmo conversor da ingestão). #}
-          <button type="button" class="btn btn-sec" id="btn-converter-dwg" >
-            Converter DWG → DXF →
+
+        {# Converter DWG → DXF: só na aba DWG, discreto, entre lista e drop #}
+        <div id="docs-dwg-convert-wrap" class="docs-dwg-convert-wrap" hidden>
+          <button type="button" class="btn-converter-dwg-discreto" id="btn-converter-dwg">
+            ⟳ Converter DWG → DXF
           </button>
-          {# [novo, a pedido do dono] "Rodar recortes" isolado foi eliminado —
-             a triagem agora já encadeia recortes automaticamente no backend
-             (jobs.py) assim que termina; o botão reflete isso no nome. #}
-          <button type="button" class="btn" id="btn-rodar-triagem" >
-            Triagem + Recortes →
-          </button>
-          <span class="meta">
-            {% for st, n in resumo_documentos.items() %}{{ n }} {{ st }}{{ ', ' if not loop.last else '' }}{% endfor %}
-          </span>
+          <div id="docs-converter-resultado" role="status" aria-live="polite"></div>
         </div>
-        <div id="docs-converter-resultado" role="status" aria-live="polite"></div>
+        {# slot legado (scripts antigos ainda referenciam) #}
+        <div id="dwgs-lista-secao" hidden></div>
+
+        <div class="obra-upload-block">
+          <div class="upload-drop" id="docs-drop">
+            <input type="file" id="docs-input"
+                   accept=".dwg,.dxf,.pdf,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tif,.tiff"
+                   multiple hidden>
+            <p class="upload-drop-texto">
+              <strong>Arraste 1 ou mais arquivos aqui</strong> ou
+              <button type="button" id="docs-btn-escolher" class="btn-link">escolha no computador</button>
+            </p>
+            <p class="meta" id="docs-drop-hint">.pdf, .dxf, .dwg ou fotos — cada arquivo vira 1 documento desta obra</p>
+          </div>
+          <div class="obra-upload-opts">
+            <label>Pavimento padrão (opcional)
+              <input type="text" id="docs-upload-pavimento-padrao" placeholder="ex.: 13_PAV" autocomplete="off">
+            </label>
+          </div>
+          <div id="docs-progresso" class="upload-progresso" hidden>
+            <div class="upload-progresso-barra"><div id="docs-barra-fill"></div></div>
+            <span id="docs-progresso-texto" class="meta">Enviando…</span>
+          </div>
+          <div id="docs-upload-resultado" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="obra-docs-actions" role="group" aria-label="Processar documentos">
+          <button type="button" class="obra-action-btn obra-action-btn-pri" id="btn-rodar-triagem">
+            <span class="obra-action-ico" aria-hidden="true">▶</span>
+            <span class="obra-action-txt">
+              <span class="obra-action-title">Triagem + Recortes</span>
+              <span class="obra-action-sub">etapa principal — classifica e gera torres limpas</span>
+            </span>
+          </button>
+        </div>
         <div id="docs-triagem-resultado" role="status" aria-live="polite"></div>
       </section>
 
@@ -356,9 +344,9 @@
         {% if triagem_feita %}<p class="meta">✓ Já concluída — pode rodar de novo se precisar.</p>{% endif %}
       </section>
       {% endif %}
-      {# a lista (Pavimento→Tipo→Doc) mora agora dentro da sidebar global
-         (bloco sidebar_obras_extra acima) — aqui fica só o painel de
-         detalhe/edição do doc selecionado. #}
+      </div>{# /#obra-ficha-docs #}
+
+      {# Painel de detalhe do pavimento / doc / recorte (sempre no fluxo do pav) #}
       <div id="docs-detalhe-painel"></div>
     </div>
 
@@ -411,40 +399,101 @@
     <div id="acao-resultado" role="status" aria-live="polite"></div>
    </div>
   </div>
+
+  {# [2026-07-30, pedido do dono] O "Status de Processamento da Obra" saiu do
+     painel esquerdo e virou painel DIREITO recolhivel. O painel 2 (esquerda)
+     fica so' com SA/N1, N3 e N5. O estado aberto/fechado persiste em
+     localStorage — recolher e a pagina reabrir expandida seria pior que nao
+     ter o botao. #}
+  <aside class="painel-status" id="painel-status" aria-label="Status de processamento da obra">
+    <button type="button" class="painel-status-toggle" id="painel-status-toggle"
+            aria-expanded="true" aria-controls="painel-status-corpo"
+            title="Recolher/expandir o status">
+      <span class="painel-status-seta" aria-hidden="true">›</span>
+      <span class="painel-status-rotulo">Status da Obra</span>
+    </button>
+    <div class="painel-status-corpo" id="painel-status-corpo">
+        <div class="painel-fases-obra" style="padding: 15px; border-bottom: 1px solid var(--border-color); background: #262626;">
+          <h3 style="margin-top:0; font-size: 0.95rem; color: #fff;">Status de Processamento da Obra</h3>
+          <ul style="list-style: none; padding-left: 0; font-size: 0.8rem; color: #aaa; margin-bottom: 0; line-height: 1.4; gap: 8px; display: flex; flex-direction: column;">
+            <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <span><span id="fase1-icon" aria-hidden="true">{% if triagem_feita %}✓{% else %}⏳{% endif %}</span> <b>Fase 1:</b> Ingestão/Triagem</span>
+              </div>
+              <div style="display: flex; gap: 5px; flex-direction: column;">
+                <button class="btn btn-sm painel2-acao-btn" data-acao="converter-dwg" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Converter Todos Docs</button>
+                <button class="btn btn-sm painel2-acao-btn" data-acao="triagem" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Triagem + Recortes</button>
+              </div>
+            </li>
+            <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <span><span id="fase2-icon" aria-hidden="true">{% if sa_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 2:</b> Aprovação Recortes</span>
+              </div>
+              {# [2026-07-30] Viewer do estrutural LIMPO (torre), com destaque por
+                 classe. Fica na Fase 2 porque depende dos recortes terem rodado. #}
+              {# Um link por pavimento COM torre limpa — cada pavimento tem seu
+                 próprio bruto (…-6000-13P, …-7000-14P, …-8000-COB). O link
+                 único com pavimento fixo abria sempre o mesmo desenho. #}
+              {% if pavimentos_viewer %}
+              <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
+                {% for p in pavimentos_viewer %}
+                <a class="btn btn-sm" href="/app/obras/{{ obra.id }}/viewer/{{ p.pavimento }}"
+                   style="font-size:0.65rem;padding:3px 6px;text-decoration:none{% if not p.tem_sa %};opacity:.6{% endif %}"
+                   title="Estrutural limpo de {{ p.pavimento }}{% if not p.tem_sa %} — sem SA rodado{% endif %}">
+                  🔎 {{ p.pavimento }}
+                </a>
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
+                Validados: <span id="global-fase2-val">0</span>/<span id="global-fase2-tot">0</span> (<span id="global-fase2-perc">0</span>%)
+              </div>
+              <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
+                <div id="global-fase2-bar" style="background:#28a745; width:0%; height:100%;"></div>
+              </div>
+              <div id="tag-job-global-sa" style="display: none; padding: 4px; margin-bottom: 5px; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold;"></div>
+    <button class="btn btn-sm painel2-acao-btn" data-acao="sa" data-escopo="global" data-endpoint="sa-todos" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar SA/N1 de todos os pavimentos</button>
+            </li>
+            <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <span><span id="fase3-icon" aria-hidden="true">{% if etapa_atual >= 5 %}✓{% else %}⏳{% endif %}</span> <b>Fase 3:</b> Aprovação N1 → N3</span>
+              </div>
+              <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
+                Validados: <span id="global-fase3-val">0</span>/<span id="global-fase3-tot">0</span> (<span id="global-fase3-perc">0</span>%)
+              </div>
+              <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
+                <div id="global-fase3-bar" style="background:#28a745; width:0%; height:100%;"></div>
+              </div>
+              <div id="tag-job-global-n3" style="display: none; padding: 4px; margin-bottom: 5px; border-radius: 4px; text-align: center; font-size: 0.7rem; font-weight: bold;"></div>
+    <button class="btn btn-sm painel2-acao-btn" data-acao="n3" data-escopo="global" data-endpoint="n3-todos" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Regenerar N3 de todos os pavimentos</button>
+            </li>
+            <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <span><span id="fase4-icon" aria-hidden="true">{% if n5_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 4:</b> Aprovação N3 → N5</span>
+              </div>
+              <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
+                Validados: <span id="global-fase4-val">0</span>/<span id="global-fase4-tot">0</span> (<span id="global-fase4-perc">0</span>%)
+              </div>
+              <div style="background:#444; height:4px; margin-bottom:10px; border-radius:2px; overflow:hidden;">
+                <div id="global-fase4-bar" style="background:#28a745; width:0%; height:100%;"></div>
+              </div>
+              <button class="btn btn-sm painel2-acao-btn" data-acao="n5" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%;">Processar N3 (Todos) → N5</button>
+            </li>
+            <li style="background: #2a2a2a; padding: 8px; border-radius: 4px; border: 1px solid #333;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <span><span id="fase5-icon" aria-hidden="true">{% if etapa_atual >= 7 %}✓{% else %}⏳{% endif %}</span> <b>Fase 5:</b> Certificação e Download</span>
+              </div>
+              <button class="btn btn-sm painel2-acao-btn" data-acao="download" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%; background: #28a745; color: white; border: none;">Download Todos N5 (Zip)</button>
+            </li>
+          </ul>
+        </div>
+    </div>
+  </aside>
 </div>
 
-{# ------------------------------------------------------------------ #}
-{# ErrorMarker — comentário de erro (reaproveitado de §4)              #}
-{# ------------------------------------------------------------------ #}
-<section class="error-marker" aria-labelledby="em-h">
-  <div class="em-title" id="em-h">Marcação de erro (revisão humana)</div>
-  <label for="erro_check">
-    <input type="checkbox" id="erro_check">
-    Marcar esta ficha como ERRADA
-  </label>
-  <textarea id="erro_nota" placeholder="Descreva o que está errado (N1, N3 ou N5)…"></textarea>
-  <p class="em-saved" id="em_saved" role="status" aria-live="polite" hidden>Salvo ✔</p>
-  <div id="em_prov" class="em-prov"></div>
-</section>
-
-{% if comentarios %}
-<section aria-labelledby="coments-h">
-  <h2 id="coments-h">Marcações já registradas</h2>
-  <ul class="fichas-lista">
-    {% for c in comentarios %}
-    <li>
-      <span>
-        {% if c.tipo == 'erro' %}<span aria-hidden="true">⚑</span>{% endif %}
-        {{ c.texto }}
-        {% if c.classe %}<span class="muted">· {{ c.classe }}</span>{% endif %}
-      </span>
-      <span class="muted">equipe:{{ c.membro_login or membro.login }}
-        {% if c.created_at %}· {{ c.created_at[:16].replace('T',' ') }}{% endif %}</span>
-    </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
+{# 2026-07-31: ErrorMarker + lista "Marcações já registradas" removidos
+   da página de obra (fora de contexto no fluxo Documentos / drill).
+   Validação por item continua nos painéis N1/N3/recortes. #}
 {% endblock %}
 
 {% block scripts %}
@@ -461,10 +510,10 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data.code_publico) return;
-        slot.innerHTML = '📱 Código de Obra: <strong style="cursor:pointer" title="Clique para copiar" ' +
+        slot.innerHTML = 'Código <strong style="cursor:pointer" title="Copiar" ' +
           'onclick="navigator.clipboard.writeText(\'' + data.code_publico + '\')">' +
-          data.code_publico + ' 📋</strong>' +
-          (data.referencia ? ' <span class="muted" style="font-size:.8em">(' + data.referencia.replace(/</g, '&lt;') + ')</span>' : '');
+          data.code_publico + '</strong>' +
+          (data.referencia ? ' <span class="muted">· ' + data.referencia.replace(/</g, '&lt;') + '</span>' : '');
       })
       .catch(function () { /* silencioso — não é crítico pro resto da página */ });
   })();
@@ -478,40 +527,176 @@
   var _recortesBrutosCache = null;
   var _recortesItensPorBruto = {};
   var _recortesInvalidadosLocal = {};
+  // Estado do doc selecionado na Triagem — precisa ser outer (não IIFE):
+  // selecionarTriagemGeral / drill_grade leem isto fora do módulo Documentos.
+  var _docEstado = { docId: null };
 
-  // --- viewer de foto com zoom (scroll) + arrastar (mouse) — 2026-07-07 ---
-  // Reusado por N1/N3 (svg inline extraído da ficha) e Recortes/N5 (<img>).
-  // scale via CSS transform, mantendo o ponto sob o cursor fixo no zoom
-  // (senão a imagem "pula" a cada scroll); duplo-clique reseta.
+  // --- viewer pan/zoom — padrão canônico viewBox (FV V302 / CLAUDE 5b) ---
+  // 2026-07-31: NUNCA transform:scale em SVG (pixeliza). Bitmap (<img>) ainda
+  // usa CSS scale (não tem viewBox). Mesmos fatores do initPanZoom FV: 0.88/1.14.
+  /** Força linhas do DESENHO estrutural finas em qualquer zoom (non-scaling).
+   *  Os vínculos/destaques já usam stroke fino no overlay; o fundo SVG do
+   *  matplotlib sem isto engordava no zoom-in. */
+  function afinarSvgEstruturalDom(svg) {
+    if (!svg || svg.dataset.structThin === '1') return;
+    if (svg.classList && svg.classList.contains('destaque-overlay')) return;
+    svg.dataset.structThin = '1';
+    var st = svg.querySelector('style#cad-thin-strokes-dom');
+    if (!st) {
+      st = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      st.setAttribute('id', 'cad-thin-strokes-dom');
+      st.textContent =
+        'path,line,polyline,polygon{' +
+        'vector-effect:non-scaling-stroke!important;' +
+        'stroke-width:0.55px!important;' +
+        'stroke-linecap:butt!important;stroke-linejoin:miter!important}' +
+        /* desenho do usuário: NÃO herdar 0.55px (linha sumia / ponto virava bola) */
+        '.poly-draw-layer path,.poly-draw-layer line,.poly-draw-layer polyline,' +
+        '.poly-draw-layer circle{vector-effect:none!important;stroke-width:unset!important}' +
+        '.poly-draw-layer .osnap-mark line,.poly-draw-layer .osnap-mark circle{' +
+        'vector-effect:non-scaling-stroke!important}' +
+        '.crop-svg-layer *{stroke-width:unset!important}';
+      svg.insertBefore(st, svg.firstChild);
+    }
+  }
+  window.afinarSvgEstruturalDom = afinarSvgEstruturalDom;
+
+  function prepSvgPanZoom(svg) {
+    if (!svg) return null;
+    afinarSvgEstruturalDom(svg);
+    var vb = svg.getAttribute('viewBox');
+    if (!vb) {
+      var w = 0, h = 0;
+      try {
+        if (svg.width && svg.width.baseVal) w = svg.width.baseVal.value;
+        if (svg.height && svg.height.baseVal) h = svg.height.baseVal.value;
+      } catch (e) { /* */ }
+      if (!w) w = parseFloat(svg.getAttribute('width')) || 1152;
+      if (!h) h = parseFloat(svg.getAttribute('height')) || 288;
+      vb = '0 0 ' + w + ' ' + h;
+      svg.setAttribute('viewBox', vb);
+    }
+    if (!svg.dataset.homeVb) svg.dataset.homeVb = vb;
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+    svg.style.display = 'block';
+    svg.style.maxWidth = '100%';
+    svg.style.maxHeight = '100%';
+    svg.style.transform = '';
+    return svg;
+  }
+
+  function parseHomeVb(svg) {
+    var raw = (svg.dataset.homeVb || svg.getAttribute('viewBox') || '0 0 100 100')
+      .replace(/,/g, ' ').trim().split(/\s+/).map(parseFloat);
+    if (raw.length < 4 || raw.some(function (n) { return !isFinite(n); })) {
+      return { x: 0, y: 0, w: 100, h: 100 };
+    }
+    return { x: raw[0], y: raw[1], w: raw[2], h: raw[3] };
+  }
+
   function inicializarZoomPan(viewport) {
     if (!viewport || viewport.dataset.zoomInit) return;
     viewport.dataset.zoomInit = '1';
-    var alvo = viewport.querySelector('img, svg');
-    if (!alvo) return;
-    alvo.style.transformOrigin = '0 0';
-    var estado = { scale: 1, tx: 0, ty: 0 };
-    function aplicar() {
-      alvo.style.transform = 'translate(' + estado.tx + 'px,' + estado.ty + 'px) scale(' + estado.scale + ')';
+    var svg = viewport.querySelector('svg');
+    var img = viewport.querySelector('img');
+
+    // ----- SVG: pan/zoom por viewBox (canônico) -----
+    if (svg) {
+      prepSvgPanZoom(svg);
+      var home = parseHomeVb(svg);
+      var state = { x: home.x, y: home.y, w: home.w, h: home.h };
+      var drag = false, lx = 0, ly = 0;
+
+      function apply() {
+        svg.setAttribute('viewBox', state.x + ' ' + state.y + ' ' + state.w + ' ' + state.h);
+      }
+      function reset() {
+        state = { x: home.x, y: home.y, w: home.w, h: home.h };
+        apply();
+      }
+      function clientToSvg(cx, cy) {
+        var pt = svg.createSVGPoint();
+        pt.x = cx; pt.y = cy;
+        var ctm = svg.getScreenCTM();
+        if (!ctm) return { x: state.x + state.w / 2, y: state.y + state.h / 2 };
+        return pt.matrixTransform(ctm.inverse());
+      }
+
+      viewport._pz = {
+        mode: 'viewBox', svg: svg, home: home, state: state,
+        clientToSvg: clientToSvg, reset: reset, apply: apply
+      };
+
+      viewport.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        var factor = e.deltaY < 0 ? 0.88 : 1.14;
+        var nextW = state.w * factor, nextH = state.h * factor;
+        // 0.006 ≈ 5× mais zoom-in que 0.03 (pedido: chegar mais fundo)
+        var minW = home.w * 0.006, maxW = home.w * 4.5;
+        if (nextW < minW) { factor = minW / state.w; nextW = minW; nextH = state.h * factor; }
+        if (nextW > maxW) { factor = maxW / state.w; nextW = maxW; nextH = state.h * factor; }
+        var p = clientToSvg(e.clientX, e.clientY);
+        state.x = p.x - (p.x - state.x) * (nextW / state.w);
+        state.y = p.y - (p.y - state.y) * (nextH / state.h);
+        state.w = nextW; state.h = nextH;
+        apply();
+      }, { passive: false });
+
+      viewport.addEventListener('mousedown', function (e) {
+        if ((window._modoCropManualAtivo || window._modoPolylineAtivo) && e.button === 0) return;
+        if (e.button !== 0 && e.button !== 1) return;
+        drag = true; lx = e.clientX; ly = e.clientY;
+        viewport.classList.add('arrastando');
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', function (e) {
+        if (!drag) return;
+        var a = clientToSvg(lx, ly), b = clientToSvg(e.clientX, e.clientY);
+        state.x -= (b.x - a.x);
+        state.y -= (b.y - a.y);
+        lx = e.clientX; ly = e.clientY;
+        apply();
+      });
+      window.addEventListener('mouseup', function () {
+        if (!drag) return;
+        drag = false;
+        viewport.classList.remove('arrastando');
+      });
+      viewport.addEventListener('dblclick', function (e) {
+        if (e.target && e.target.closest && e.target.closest('button,input,select,textarea,a')) return;
+        reset();
+      });
+      apply();
+      return;
     }
+
+    // ----- <img> bitmap: CSS scale (sem viewBox possível) -----
+    if (!img) return;
+    img.style.transformOrigin = '0 0';
+    var estado = { scale: 1, tx: 0, ty: 0 };
+    function aplicarImg() {
+      img.style.transform = 'translate(' + estado.tx + 'px,' + estado.ty + 'px) scale(' + estado.scale + ')';
+    }
+    viewport._pz = { mode: 'css', img: img, estado: estado };
     viewport.addEventListener('wheel', function (e) {
       e.preventDefault();
       var rect = viewport.getBoundingClientRect();
       var mx = e.clientX - rect.left;
       var my = e.clientY - rect.top;
       var fator = e.deltaY < 0 ? 1.15 : (1 / 1.15);
-      var novaScale = Math.min(Math.max(estado.scale * fator, 0.5), 15);
+      // bitmap: até ~40× (antes 15) para chegar mais perto
+      var novaScale = Math.min(Math.max(estado.scale * fator, 0.5), 40);
       estado.tx = mx - (mx - estado.tx) * (novaScale / estado.scale);
       estado.ty = my - (my - estado.ty) * (novaScale / estado.scale);
       estado.scale = novaScale;
-      aplicar();
+      aplicarImg();
     }, { passive: false });
     var arrastando = false, ultimoX = 0, ultimoY = 0;
     viewport.addEventListener('mousedown', function (e) {
-      // [novo, a pedido do dono] no Modo Recorte Manual, clique 1 (esquerdo)
-      // é reservado pra desenhar o retângulo de recorte — não pode também
-      // arrastar a imagem ao mesmo tempo (os dois rodavam juntos, a imagem
-      // "fugia" enquanto o retângulo era desenhado). Clique 3 (botão do meio
-      // /scroll) continua arrastando normalmente mesmo em modo recorte.
       if (window._modoCropManualAtivo && e.button === 0) return;
       arrastando = true; ultimoX = e.clientX; ultimoY = e.clientY;
       viewport.classList.add('arrastando');
@@ -522,14 +707,14 @@
       estado.tx += e.clientX - ultimoX;
       estado.ty += e.clientY - ultimoY;
       ultimoX = e.clientX; ultimoY = e.clientY;
-      aplicar();
+      aplicarImg();
     });
     window.addEventListener('mouseup', function () {
       if (arrastando) { arrastando = false; viewport.classList.remove('arrastando'); }
     });
     viewport.addEventListener('dblclick', function () {
       estado.scale = 1; estado.tx = 0; estado.ty = 0;
-      aplicar();
+      aplicarImg();
     });
   }
 
@@ -538,6 +723,7 @@
     container.querySelectorAll('.zoom-pan-viewport').forEach(inicializarZoomPan);
   }
   window.ativarZoomEmContainer = ativarZoomEmContainer;
+  window.prepSvgPanZoom = prepSvgPanZoom;
 
   function mostrarDetalhe(qual) {
     document.querySelectorAll('.conteudo-secao').forEach(function (el) {
@@ -613,9 +799,7 @@
       progTexto.textContent = 'Enviando ' + arquivos.length + ' arquivo(s)…';
       var formData = new FormData();
       for (var i = 0; i < arquivos.length; i++) formData.append('arquivos', arquivos[i]);
-      var tipoPadraoEl = document.getElementById('docs-upload-tipo-padrao');
       var pavimentoPadraoEl = document.getElementById('docs-upload-pavimento-padrao');
-      if (tipoPadraoEl && tipoPadraoEl.value) formData.append('tipo_documento_padrao', tipoPadraoEl.value);
       if (pavimentoPadraoEl && pavimentoPadraoEl.value.trim()) {
         formData.append('pavimento_padrao', pavimentoPadraoEl.value.trim());
       }
@@ -636,14 +820,25 @@
           if (falhas.length) {
             resultado.innerHTML = '<p class="faixa faixa-aviso" role="alert">' +
               '<span aria-hidden="true">⚠</span> ' + falhas.length + ' arquivo(s) recusado(s): ' +
-              falhas.map(function (f) { return f.arquivo_nome + ' (' + f.erro + ')'; }).join('; ') + '</p>';
+              falhas.map(function (f) { return f.arquivo_nome + ' (' + f.erro + ')'; }).join('; ') +
+              ' <button type="button" class="btn-atualizar-lista" id="docs-upload-refresh">↻ Atualizar lista</button></p>';
           } else {
             resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
-              '<span aria-hidden="true">✓</span> Enviado! Atualizando lista…</p>';
+              '<span aria-hidden="true">✓</span> Enviado! ' +
+              '<button type="button" class="btn-atualizar-lista" id="docs-upload-refresh">↻ Atualizar lista</button></p>';
           }
-          setTimeout(function () { 
-        if (window.atualizaAposJob) window.atualizaAposJob();
-    }, falhas.length ? 2500 : 900);
+          var btnRef = document.getElementById('docs-upload-refresh');
+          if (btnRef) {
+            btnRef.addEventListener('click', function () {
+              if (window.recarregarDocsObra) window.recarregarDocsObra();
+              else if (window.atualizaAposJob) window.atualizaAposJob();
+            });
+          }
+          // auto-refresh da lista (sem recarregar a página inteira)
+          setTimeout(function () {
+            if (window.recarregarDocsObra) window.recarregarDocsObra();
+            else if (window.atualizaAposJob) window.atualizaAposJob();
+          }, falhas.length ? 400 : 500);
         } else {
           var msg = 'Falha ao enviar.';
           try { msg = JSON.parse(xhr.responseText).detail || msg; } catch (e2) {}
@@ -659,7 +854,7 @@
       xhr.send(formData);
     }
     btnEscolher.addEventListener('click', function () { input.click(); });
-    input.addEventListener('change', function () { enviarArquivos(input.files); });
+    input.addEventListener('change', function () { enviarArquivos(input.files); input.value = ''; });
     drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('upload-drop-ativo'); });
     drop.addEventListener('dragleave', function () { drop.classList.remove('upload-drop-ativo'); });
     drop.addEventListener('drop', function (e) {
@@ -677,12 +872,14 @@
     var form = document.getElementById('cab-form');
     var resultado = document.getElementById('cab-resultado');
     document.getElementById('cab-editar-btn').addEventListener('click', function () {
-      visualizacao.hidden = true;
+      if (visualizacao) visualizacao.hidden = true;
       form.hidden = false;
+      secao.classList.add('is-editing');
     });
     document.getElementById('cab-cancelar-btn').addEventListener('click', function () {
       form.hidden = true;
-      visualizacao.hidden = false;
+      if (visualizacao) visualizacao.hidden = false;
+      secao.classList.remove('is-editing');
     });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -698,7 +895,8 @@
         return r.json();
       }).then(function () {
         resultado.textContent = 'Salvo ✔';
-        setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 600);
+        // recarrega a página para refletir o hero com os novos valores
+        setTimeout(function () { window.location.reload(); }, 500);
       }).catch(function (err) {
         resultado.textContent = 'Falha: ' + err.message;
       });
@@ -743,18 +941,11 @@
       return porPavimento;
     }
 
-    var _docEstado = { docId: null };
-
     function moverIntroParaSlot(det) {
-      // [2026-07-07] Achado com o dono: "Cabeçalho do processamento" ficava
-      // ACIMA da lista de docs, empurrando ela pra baixo. Move o card pra
-      // dentro da coluna de conteúdo também, mesmo padrão do intro/dropzone.
-      var slotCab = document.getElementById('docs-cabecalho-slot');
-      var cab = document.getElementById('cabecalho-obra');
-      if (slotCab && cab) slotCab.appendChild(cab);
-      var slot = document.getElementById('docs-intro-slot');
-      var intro = document.getElementById('docs-intro');
-      if (slot && intro) slot.appendChild(intro);
+      // [2026-08] Ficha + docs ficam fixos em #obra-ficha-docs (modo obra).
+      // Não mover mais pro detalhe — com pavimento selecionado a ficha some
+      // via body.obra-mode-pavimento.
+      return;
     }
 
     // [novo, a pedido do dono] detalhe do bruto no modo rápido/legado (sem
@@ -1272,58 +1463,347 @@
     montarLista();
   })();
 
-  // --- [novo, a pedido do dono] lista simples dos .dwg da obra, com status
-  // "Possui DXF" — fica na seção Documentos, acima do upload. Os .dwg NÃO
-  // aparecem mais na árvore de Triagem (só docs não-dwg navegam lá).
+  // --- Abas Documentos (PDF / DXF / Fotos / DWG) + lista com classe + viewer ---
   (function () {
-    var raiz = document.getElementById('dwgs-lista-secao');
-    if (!raiz) return;
+    var listaEl = document.getElementById('docs-lista-tab');
+    if (!listaEl) return;
+    var viewerEl = document.getElementById('docs-viewer-tab');
+    var convertWrap = document.getElementById('docs-dwg-convert-wrap');
+    var btnAtualizar = document.getElementById('docs-btn-atualizar');
+    var chipsEl = document.getElementById('docs-resumo-chips');
+    var dropHint = document.getElementById('docs-drop-hint');
+    var inputFile = document.getElementById('docs-input');
 
-    function carregarDwgs() {
-      fetch('/obras/' + OBRA_ID + '/documentos/dwgs').then(function (r) { return r.json(); })
-        .then(function (data) { renderizarDwgs(data.dwgs); })
-        .catch(function () { raiz.innerHTML = '<p class="muted">Falha ao carregar a lista de DWGs.</p>'; });
+    var CLASSES_DOC = ['', 'Bruto', 'Detalhe', 'PDF', 'Outro', 'PIL', 'LV', 'FV', 'LAJ', 'GF'];
+    var CLASSES_LABEL = {
+      '': '— auto —', Bruto: 'Bruto', Detalhe: 'Detalhe', PDF: 'PDF', Outro: 'Outro',
+      PIL: 'PIL', LV: 'LV', FV: 'FV', LAJ: 'LAJ', GF: 'GF'
+    };
+    var IMG_EXT = { jpg: 1, jpeg: 1, png: 1, webp: 1, gif: 1, bmp: 1, tif: 1, tiff: 1 };
+    var TAB_HINT = {
+      pdf: '.pdf — material de referência da obra',
+      dxf: '.dxf — plantas e desenhos (clique para preview)',
+      fotos: 'fotos .jpg/.png/.webp… — referência visual',
+      dwg: '.dwg — originais CAD (converta para DXF antes da triagem)'
+    };
+    var TAB_ACCEPT = {
+      pdf: '.pdf',
+      dxf: '.dxf',
+      fotos: '.jpg,.jpeg,.png,.webp,.gif,.bmp,.tif,.tiff',
+      dwg: '.dwg'
+    };
+
+    var state = {
+      tab: 'pdf',
+      docs: [],
+      selectedId: null,
+      dwgMeta: {} // id -> { tem_dxf }
+    };
+
+    try {
+      var dadosEl = document.getElementById('docs-data');
+      if (dadosEl) state.docs = JSON.parse(dadosEl.textContent) || [];
+    } catch (e) { state.docs = []; }
+
+    function extOf(d) {
+      var n = (d.arquivo_nome || '').toLowerCase();
+      var i = n.lastIndexOf('.');
+      return i >= 0 ? n.slice(i + 1) : '';
+    }
+    function tabOf(d) {
+      var e = extOf(d);
+      if (e === 'pdf') return 'pdf';
+      if (e === 'dxf') return 'dxf';
+      if (e === 'dwg') return 'dwg';
+      if (IMG_EXT[e]) return 'fotos';
+      // fallback por tipo confirmado/sugerido
+      var t = (d.tipo_documento_confirmado || d.tipo_documento_sugerido || '').toLowerCase();
+      if (t === 'pdf') return 'pdf';
+      return null;
+    }
+    function classeOf(d) {
+      return d.classe_confirmada || d.classe_sugerida ||
+        d.tipo_documento_confirmado || d.tipo_documento_sugerido || '';
+    }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     }
 
-    function renderizarDwgs(dwgs) {
-      if (!dwgs.length) { raiz.innerHTML = ''; return; }
-      var linhas = dwgs.map(function (d) {
-        var nome = (d.nome_exibicao || d.arquivo_nome).replace(/</g, '&lt;');
-        var status = d.tem_dxf
-          ? '<span class="dwg-status dwg-status-sim">✔ Possui DXF</span>'
-          : '<span class="dwg-status dwg-status-nao">✖ Sem DXF</span>';
-        return '<tr><td>' + nome + '</td><td>' + status + '</td></tr>';
+    function docsDaAba() {
+      return state.docs.filter(function (d) { return tabOf(d) === state.tab; });
+    }
+
+    function atualizarContadores() {
+      var c = { pdf: 0, dxf: 0, fotos: 0, dwg: 0 };
+      state.docs.forEach(function (d) {
+        var t = tabOf(d);
+        if (t && c[t] != null) c[t] += 1;
+      });
+      ['pdf', 'dxf', 'fotos', 'dwg'].forEach(function (k) {
+        var el = document.getElementById('docs-count-' + k);
+        if (el) el.textContent = String(c[k]);
+      });
+    }
+
+    function setTab(tab) {
+      state.tab = tab;
+      state.selectedId = null;
+      document.querySelectorAll('.docs-tab-btn').forEach(function (b) {
+        var on = b.getAttribute('data-docs-tab') === tab;
+        b.classList.toggle('ativo', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      if (convertWrap) convertWrap.hidden = tab !== 'dwg';
+      if (dropHint) dropHint.textContent = TAB_HINT[tab] || TAB_HINT.pdf;
+      if (inputFile && TAB_ACCEPT[tab]) inputFile.setAttribute('accept', TAB_ACCEPT[tab]);
+      renderLista();
+      limparViewer();
+    }
+
+    function limparViewer() {
+      if (!viewerEl) return;
+      viewerEl.hidden = true;
+      viewerEl.innerHTML = '<p class="docs-viewer-empty">Selecione um item na lista para visualizar.</p>';
+    }
+
+    function mostrarViewer(d) {
+      if (!viewerEl || !d) { limparViewer(); return; }
+      var tab = tabOf(d);
+      viewerEl.hidden = false;
+      if (tab === 'pdf') {
+        viewerEl.innerHTML = '<iframe src="/obras/' + OBRA_ID + '/documentos/' + encodeURIComponent(d.id) +
+          '/arquivo" title="PDF: ' + esc(d.arquivo_nome) + '"></iframe>';
+        return;
+      }
+      if (tab === 'dxf') {
+        viewerEl.innerHTML = '<p class="docs-viewer-empty">Carregando preview DXF…</p>';
+        fetch('/obras/' + OBRA_ID + '/documentos/' + encodeURIComponent(d.id) + '/preview')
+          .then(function (r) {
+            if (!r.ok) throw new Error('http ' + r.status);
+            return r.text();
+          })
+          .then(function (svg) {
+            viewerEl.innerHTML = '<div class="docs-dxf-host"></div>';
+            var host = viewerEl.querySelector('.docs-dxf-host');
+            host.innerHTML = svg;
+          })
+          .catch(function (err) {
+            viewerEl.innerHTML = '<p class="docs-viewer-empty">Não foi possível gerar o preview do DXF' +
+              (err && err.message ? ' (' + esc(err.message) + ')' : '') + '.</p>';
+          });
+        return;
+      }
+      if (tab === 'fotos') {
+        viewerEl.innerHTML = '<img src="/obras/' + OBRA_ID + '/documentos/' + encodeURIComponent(d.id) +
+          '/arquivo" alt="' + esc(d.arquivo_nome) + '">';
+        return;
+      }
+      // DWG: sem preview nativo — mostra meta
+      var meta = state.dwgMeta[d.id];
+      var st = meta && meta.tem_dxf
+        ? '<span class="dwg-status dwg-status-sim">✔ Possui DXF correspondente</span>'
+        : '<span class="dwg-status dwg-status-nao">✖ Sem DXF — use Converter DWG → DXF</span>';
+      viewerEl.innerHTML = '<div style="padding:14px 16px">' +
+        '<strong>' + esc(d.nome_exibicao || d.arquivo_nome) + '</strong>' +
+        '<p class="meta" style="margin:8px 0 0">Arquivo nativo CAD. Preview visual após conversão para DXF.</p>' +
+        '<p style="margin:10px 0 0">' + st + '</p></div>';
+    }
+
+    function selectOpts(atual) {
+      var vals = CLASSES_DOC.slice();
+      if (atual && vals.indexOf(atual) < 0) vals.push(atual);
+      return vals.map(function (c) {
+        return '<option value="' + esc(c) + '"' + (c === atual ? ' selected' : '') + '>' +
+          esc(CLASSES_LABEL[c] || c) + '</option>';
       }).join('');
-      raiz.innerHTML =
-        '<table class="docs-tabela dwgs-tabela"><thead><tr><th>DWG</th><th>Status</th></tr></thead>' +
-        '<tbody>' + linhas + '</tbody></table>';
     }
 
-    carregarDwgs();
-    window.recarregarDwgsLista = carregarDwgs;
-  })();
+    function salvarClasse(doc, valor) {
+      if (!valor) return Promise.resolve(); // — auto —: não grava (API exige campo)
+      var isTipo = ['Bruto', 'Detalhe', 'PDF', 'Outro'].indexOf(valor) >= 0;
+      var body = isTipo
+        ? { tipo_documento_confirmado: valor }
+        : { classe_confirmada: valor };
+      return fetch('/obras/' + OBRA_ID + '/documentos/' + encodeURIComponent(doc.id) + '/classificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      }).then(function (atualizado) {
+        Object.assign(doc, atualizado);
+        if (window.documentosTriagem) {
+          var t = window.documentosTriagem.find(function (x) { return x.id === doc.id; });
+          if (t) Object.assign(t, atualizado);
+        }
+      });
+    }
 
-  (function () {
-    var btn = document.getElementById('btn-converter-dwg');
-    if (!btn) return;
-    var res = document.getElementById('docs-converter-resultado');
-    btn.addEventListener('click', function () {
-      btn.disabled = true;
-      btn.textContent = 'Enfileirando…';
-      fetch('/obras/' + OBRA_ID + '/documentos/converter-dwg', { method: 'POST' })
-        .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    function renderLista() {
+      atualizarContadores();
+      var itens = docsDaAba();
+      if (!itens.length) {
+        var vazio = {
+          pdf: 'Nenhum PDF nesta obra.',
+          dxf: 'Nenhum DXF nesta obra.',
+          fotos: 'Nenhuma foto nesta obra.',
+          dwg: 'Nenhum DWG nesta obra.'
+        };
+        listaEl.innerHTML = '<p class="docs-lista-empty">' + (vazio[state.tab] || 'Nenhum documento.') + '</p>';
+        return;
+      }
+      var rows = itens.map(function (d) {
+        var nome = d.nome_exibicao || d.arquivo_nome || d.id;
+        var cl = classeOf(d);
+        var st = d.status || '';
+        var ativo = d.id === state.selectedId ? ' ativo' : '';
+        var extra = '';
+        if (state.tab === 'dwg') {
+          var m = state.dwgMeta[d.id];
+          extra = m && m.tem_dxf
+            ? '<span class="dwg-status dwg-status-sim">DXF</span>'
+            : '<span class="dwg-status dwg-status-nao">sem DXF</span>';
+        }
+        return '<tr class="docs-row' + ativo + '" data-doc-id="' + esc(d.id) + '">' +
+          '<td class="doc-nome" title="' + esc(nome) + '">' + esc(nome) +
+          '<div class="doc-meta">' + esc(d.arquivo_nome || '') + '</div></td>' +
+          '<td><select class="doc-classe-sel" data-doc-id="' + esc(d.id) + '" title="Classe do documento">' +
+          selectOpts(cl) + '</select></td>' +
+          '<td class="doc-meta">' + esc(st) + (extra ? ' · ' + extra : '') + '</td>' +
+          '</tr>';
+      }).join('');
+      listaEl.innerHTML =
+        '<div class="docs-lista-scroll"><table class="docs-lista-tabela">' +
+        '<thead><tr><th>Arquivo</th><th>Classe</th><th>Status</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table></div>';
+
+      listaEl.querySelectorAll('tr.docs-row').forEach(function (tr) {
+        tr.addEventListener('click', function (e) {
+          if (e.target && e.target.tagName === 'SELECT') return;
+          var id = tr.getAttribute('data-doc-id');
+          var d = state.docs.find(function (x) { return x.id === id; });
+          state.selectedId = id;
+          listaEl.querySelectorAll('tr.docs-row').forEach(function (r) {
+            r.classList.toggle('ativo', r.getAttribute('data-doc-id') === id);
+          });
+          mostrarViewer(d);
+        });
+      });
+      listaEl.querySelectorAll('select.doc-classe-sel').forEach(function (sel) {
+        sel.addEventListener('click', function (e) { e.stopPropagation(); });
+        sel.addEventListener('change', function () {
+          var id = sel.getAttribute('data-doc-id');
+          var d = state.docs.find(function (x) { return x.id === id; });
+          if (!d) return;
+          sel.disabled = true;
+          salvarClasse(d, sel.value).then(function () {
+            sel.disabled = false;
+          }).catch(function () {
+            sel.disabled = false;
+            alert('Não foi possível salvar a classe.');
+          });
+        });
+      });
+    }
+
+    function carregarDwgsMeta() {
+      return fetch('/obras/' + OBRA_ID + '/documentos/dwgs')
+        .then(function (r) { return r.ok ? r.json() : { dwgs: [] }; })
         .then(function (data) {
-          res.innerHTML = '<p class="faixa faixa-info" role="status">' +
-            '<span aria-hidden="true">✓</span> Conversão enfileirada (job ' + data.job_id +
-            '). Atualize a página em instantes para ver o resultado.</p>';
-          setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 3000);
+          state.dwgMeta = {};
+          (data.dwgs || []).forEach(function (d) {
+            var kid = d.doc_id || d.id;
+            if (kid) state.dwgMeta[kid] = { tem_dxf: !!d.tem_dxf };
+          });
+        })
+        .catch(function () { state.dwgMeta = {}; });
+    }
+
+    function recarregar() {
+      if (btnAtualizar) btnAtualizar.disabled = true;
+      return fetch('/obras/' + OBRA_ID + '/documentos')
+        .then(function (r) {
+          if (!r.ok) throw new Error('http ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          state.docs = data.documentos || [];
+          // atualiza JSON embutido e cache da triagem
+          var emb = document.getElementById('docs-data');
+          if (emb) emb.textContent = JSON.stringify(state.docs);
+          if (window.documentosTriagem) {
+            window.documentosTriagem = state.docs.filter(function (d) {
+              return !String(d.arquivo_nome || '').toLowerCase().endsWith('.dwg');
+            });
+          }
+          if (chipsEl && data.resumo) {
+            chipsEl.innerHTML = Object.keys(data.resumo).map(function (st) {
+              return '<span class="obra-chip">' + esc(data.resumo[st]) + ' ' + esc(st) + '</span>';
+            }).join('');
+          }
+          return carregarDwgsMeta();
+        })
+        .then(function () {
+          renderLista();
+          if (state.selectedId) {
+            var d = state.docs.find(function (x) { return x.id === state.selectedId; });
+            if (d && tabOf(d) === state.tab) mostrarViewer(d);
+            else { state.selectedId = null; limparViewer(); }
+          }
         })
         .catch(function () {
-          res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
-            '<span aria-hidden="true">⚠</span> Não foi possível enfileirar a conversão.</p>';
-          btn.disabled = false;
-          btn.textContent = 'Converter DWG → DXF →';
+          listaEl.innerHTML = '<p class="docs-lista-empty">Falha ao atualizar a lista.</p>';
+        })
+        .finally(function () {
+          if (btnAtualizar) btnAtualizar.disabled = false;
         });
+    }
+
+    document.querySelectorAll('.docs-tab-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        setTab(b.getAttribute('data-docs-tab') || 'pdf');
+      });
+    });
+    if (btnAtualizar) btnAtualizar.addEventListener('click', function () { recarregar(); });
+
+    // converter DWG (botão discreto, só aba DWG)
+    var btnConv = document.getElementById('btn-converter-dwg');
+    if (btnConv) {
+      var resConv = document.getElementById('docs-converter-resultado');
+      var labelDefault = btnConv.textContent;
+      btnConv.addEventListener('click', function () {
+        btnConv.disabled = true;
+        btnConv.textContent = 'Enfileirando…';
+        fetch('/obras/' + OBRA_ID + '/documentos/converter-dwg', { method: 'POST' })
+          .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+          .then(function (data) {
+            if (resConv) {
+              resConv.innerHTML = '<p class="faixa faixa-info" role="status">' +
+                '<span aria-hidden="true">✓</span> Conversão enfileirada (job ' + esc(data.job_id) +
+                '). Atualize a lista em instantes.</p>';
+            }
+            setTimeout(function () { recarregar(); }, 3000);
+            btnConv.disabled = false;
+            btnConv.textContent = labelDefault;
+          })
+          .catch(function () {
+            if (resConv) {
+              resConv.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+                '<span aria-hidden="true">⚠</span> Não foi possível enfileirar a conversão.</p>';
+            }
+            btnConv.disabled = false;
+            btnConv.textContent = labelDefault;
+          });
+      });
+    }
+
+    window.recarregarDocsObra = recarregar;
+    window.recarregarDwgsLista = function () { return carregarDwgsMeta().then(renderLista); };
+
+    // boot
+    carregarDwgsMeta().then(function () {
+      setTab('pdf');
     });
   })();
 
@@ -1331,9 +1811,11 @@
     var btn = document.getElementById('btn-rodar-triagem');
     if (!btn) return;
     var res = document.getElementById('docs-triagem-resultado');
+    var titleEl = btn.querySelector('.obra-action-title');
+    var labelDefault = titleEl ? titleEl.textContent : 'Triagem + Recortes';
     btn.addEventListener('click', function () {
       btn.disabled = true;
-      btn.textContent = 'Enfileirando…';
+      if (titleEl) titleEl.textContent = 'Enfileirando…';
       fetch('/obras/' + OBRA_ID + '/triagem', { method: 'POST' })
         .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
         .then(function (data) {
@@ -1346,7 +1828,7 @@
           res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
             '<span aria-hidden="true">⚠</span> Não foi possível enfileirar a triagem.</p>';
           btn.disabled = false;
-          btn.textContent = 'Triagem + Recortes →';
+          if (titleEl) titleEl.textContent = labelDefault;
         });
     });
   })();
@@ -1356,7 +1838,8 @@
       e.preventDefault();
       var acao = btn.getAttribute('data-acao');
       var escopo = btn.getAttribute('data-escopo');
-      var url = '/obras/' + OBRA_ID + '/' + acao;
+      var endpoint = btn.getAttribute('data-endpoint') || acao;
+      var url = '/obras/' + OBRA_ID + '/' + endpoint;
 
       if (acao === 'download') {
          window.location.href = url;
@@ -1375,7 +1858,7 @@
       if (acao === 'validacao') body = { classe: btn.getAttribute('data-classe'), n1_ok: true, n3_ok: true };
       else if (acao === 'sa' || acao === 'n3' || acao === 'n5') {
           if (escopo === 'global') {
-              body = { secao: [], pav: null };
+              body = { secao: [] };
           } else {
               if (acao === 'sa') {
                   var perc = atualizarProgressoRecortesPavimento(_pavimentoSelecionado);
@@ -1397,7 +1880,9 @@
         return r.json();
       }).then(function (data) {
         res.className = 'faixa faixa-info';
-        res.textContent = 'Etapa registrada. Processamento na fila.';
+        res.textContent = data.total
+          ? data.total + ' pavimentos enfileirados. O processamento será sequencial.'
+          : 'Etapa registrada. Processamento na fila.';
         
         if (data && data.job_id) {
             _todosJobs.push({
@@ -1405,6 +1890,17 @@
                 status: 'na_fila',
                 meta: { pav: body.pav },
                 enfileirado_em: new Date().toISOString()
+            });
+            atualizarTagsJob(_pavimentoSelecionado);
+        }
+        if (data && Array.isArray(data.jobs)) {
+            data.jobs.forEach(function (job) {
+                _todosJobs.push({
+                    id: job.job_id,
+                    status: 'na_fila',
+                    meta: job.meta,
+                    enfileirado_em: new Date().toISOString()
+                });
             });
             atualizarTagsJob(_pavimentoSelecionado);
         }
@@ -1481,7 +1977,7 @@
     
     var activeJobs = _todosJobs.filter(function(j) { return j.status === 'na_fila' || j.status === 'executando'; });
     activeJobs.forEach(function(j) {
-      var isGlobal = !j.meta || !j.meta.pav;
+      var isGlobal = !j.meta || !j.meta.pav || j.meta.escopo === 'global';
       var isMatch = isGlobal || (j.meta.pav === pav);
       
       var msg = j.status === 'executando' ? '⏳ Processando (ETA ~5 min)...' : '🕒 Na fila de espera...';
@@ -1513,12 +2009,21 @@
     });
   }
 
+  function setObraModo(modo) {
+    // 'pavs' = lista de pavimentos (mostra ficha/docs da obra)
+    // 'pavimento' = pavimento aberto (esconde ficha/docs)
+    document.body.classList.toggle('obra-mode-pavs', modo === 'pavs');
+    document.body.classList.toggle('obra-mode-pavimento', modo === 'pavimento');
+  }
+  window.setObraModo = setObraModo;
+
   function selecionarPavimento(pav) {
   var urlParams = new URLSearchParams(window.location.search);
   urlParams.set('pavimento', pav);
   window.history.replaceState(null, '', '?' + urlParams.toString());
 
     _pavimentoSelecionado = pav;
+    setObraModo('pavimento');
     document.getElementById('painel2-estado-vazio').hidden = true;
     document.getElementById('painel2-pavimento-conteudo').hidden = false;
     document.getElementById('painel2-pavimento-titulo').textContent = pav === 'Indeterminado' ? 'Docs Gerais' : pav;
@@ -1561,10 +2066,29 @@
 
   function selecionarTriagemGeral() {
     _pavimentoSelecionado = null;
-    _docEstado.docId = null;
-    document.getElementById('painel2-estado-vazio').hidden = false;
-    document.getElementById('painel2-pavimento-conteudo').hidden = true;
+    if (typeof _docEstado !== 'undefined' && _docEstado) _docEstado.docId = null;
+    setObraModo('pavs');
+    // Limpa ?pavimento= — senão o drill reabre o hub no próximo onDataReady
+    try {
+      var u = new URL(window.location.href);
+      if (u.searchParams.has('pavimento')) {
+        u.searchParams.delete('pavimento');
+        var q = u.searchParams.toString();
+        window.history.replaceState(null, '', u.pathname + (q ? ('?' + q) : '') + u.hash);
+      }
+    } catch (e) { /* */ }
+    var vazio = document.getElementById('painel2-estado-vazio');
+    var cont = document.getElementById('painel2-pavimento-conteudo');
+    if (vazio) vazio.hidden = false;
+    if (cont) cont.hidden = true;
+    // limpa detalhe do pavimento — só ficha/docs da obra
+    var detalhePainel = document.getElementById('docs-detalhe-painel');
+    if (detalhePainel) detalhePainel.innerHTML = '';
     mostrarDetalhe('triagem');
+    // NÃO chama montarListaTriagem aqui quando o drill está ativo — o drill
+    // já re-renderiza. A árvore legada (data-legacy-tree) ainda pode usar
+    // montarListaTriagem via outros caminhos.
+    if (document.body.classList.contains('drill-grade-on')) return;
     if (window.montarListaTriagem) window.montarListaTriagem();
   }
 
@@ -1694,6 +2218,83 @@
     else carregarDetalheItemN3(atual.item_id);
   }
 
+  /** Fallback: 1 tabela por face (Família|Nome|Dim|Nível|Canto) — cabeçalho único. */
+  function renderAbcdTablesClient(payload) {
+    if (!payload || !payload.faces) return '';
+    var colors = {A:'#0d7a5f', B:'#2b6cb0', C:'#6b46c1', D:'#c05621'};
+    var faces = payload.faces;
+    var head = '<tr><th>Família</th><th>Nome</th><th>Dim</th><th>Nível</th><th>Canto</th><th>d.esq</th><th>d.dir</th></tr>';
+    function esc(s){ return String(s==null?'—':s).replace(/</g,'&lt;'); }
+    function rowsOf(data) {
+      var fams = [
+        ['Lajes', data.lajes||[]],
+        ['Passam', data.passa||[]],
+        ['Chegam', data.chega||[]],
+        ['Interior', data.interior||[]]
+      ];
+      var out = [];
+      fams.forEach(function (pair) {
+        var fam = pair[0], rows = pair[1];
+        var real = rows.filter(function (r) {
+          var n = r && r.nome; return n && n !== '—' && n !== 'nenhuma';
+        });
+        if (real.length) {
+          real.forEach(function (r) { out.push([fam, r]); });
+        } else {
+          out.push([fam, {nome:'nenhuma', dim:'—', nivel:'—', canto:'—', dist_esq:'—', dist_dir:'—'}]);
+        }
+      });
+      return out;
+    }
+    var cards = '';
+    ['A','B','C','D'].forEach(function (fid) {
+      var data = faces[fid] || {};
+      var color = colors[fid];
+      var body = rowsOf(data).map(function (pair) {
+        var fam = pair[0], r = pair[1];
+        return '<tr><td class="abcd-p-fam-cell">'+esc(fam)+'</td><td>'+esc(r.nome)+
+          '</td><td>'+esc(r.dim)+'</td><td>'+esc(r.nivel)+'</td><td>'+esc(r.canto)+
+          '</td><td>'+esc(r.dist_esq)+'</td><td>'+esc(r.dist_dir)+'</td></tr>';
+      }).join('');
+      cards += '<div class="abcd-p-card" style="border-left:4px solid '+color+'">'+
+        '<div class="abcd-p-title" style="color:'+color+'">'+esc(data.label||fid)+'</div>'+
+        '<table class="abcd-p-tbl">'+head+body+'</table></div>';
+    });
+    return '<div class="abcd-p-wrap"><div style="font-size:12px;font-weight:700;margin:6px 0;color:#334155">Interpretação ABCD por face <span style="font-weight:500;color:#94a3b8">(d.esq/d.dir; passantes=—)</span></div>' +
+      '<style>.abcd-p-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:10px 0}' +
+      '.abcd-p-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px}' +
+      '.abcd-p-title{font-weight:700;font-size:13px;margin-bottom:8px}' +
+      '.abcd-p-tbl{width:100%;border-collapse:collapse;font-size:12px}' +
+      '.abcd-p-tbl th{text-align:left;color:#64748b;border-bottom:1px solid #cbd5e1;padding:4px 6px;font-weight:600;background:#f8fafc}' +
+      '.abcd-p-tbl td{padding:4px 6px;border-bottom:1px solid #f1f5f9;color:#1e293b}' +
+      '.abcd-p-tbl .abcd-p-fam-cell{color:#64748b;font-weight:600;white-space:nowrap}' +
+      '.abcd-p-tbl tr:last-child td{border-bottom:none}</style>' +
+      '<div class="abcd-p-grid">' + cards + '</div></div>';
+  }
+
+  function ligarNavegacaoPavimento(prefix) {
+    var prev = document.getElementById(prefix + '-pav-prev');
+    var next = document.getElementById(prefix + '-pav-next');
+    var label = document.getElementById(prefix + '-pav-label');
+    if (!prev || !next || !label) return;
+    fetch('/obras/' + OBRA_ID + '/n1/classes' + (_pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : ''))
+      .then(function (r) { return r.json(); }).then(function (data) {
+        var pavs = data.pavimentos || [];
+        var atual = _pavimentoSelecionado || data.pavimento_atual;
+        var indice = Math.max(0, pavs.indexOf(atual));
+        label.textContent = atual || 'Sem pavimento';
+        function ir(delta) {
+          if (!pavs.length) return;
+          indice = (indice + delta + pavs.length) % pavs.length;
+          _pavimentoSelecionado = pavs[indice];
+          _n1ClassesCarregado = false; _n3ClassesCarregado = false;
+          carregarItensClasseParaPainel3(_painel3Estado.stage, _painel3Estado.classe);
+        }
+        prev.addEventListener('click', function () { ir(-1); });
+        next.addEventListener('click', function () { ir(1); });
+      });
+  }
+
   function carregarDetalheItemN1(itemId) {
     mostrarDetalhe('n1');
     var painel = document.getElementById('n1-detalhe-painel');
@@ -1702,6 +2303,8 @@
         '<button type="button" class="btn-sec btn" id="n1-prev">◀</button>' +
         '<strong id="n1-titulo"></strong>' +
         '<button type="button" class="btn-sec btn" id="n1-next">▶</button>' +
+        '<span class="n1-pav-nav"><button type="button" class="btn-sec btn" id="n1-pav-prev">◀</button>' +
+        '<strong id="n1-pav-label"></strong><button type="button" class="btn-sec btn" id="n1-pav-next">▶</button></span>' +
       '</div>' +
       '<div class="n1-detalhe-corpo">' +
         '<div class="n1-campos" id="n1-campos"><p class="muted">Carregando…</p></div>' +
@@ -1715,6 +2318,7 @@
       _painel3Estado.indice = (_painel3Estado.indice + 1) % _painel3Estado.itens.length;
       renderizarPainel3();
     });
+    ligarNavegacaoPavimento('n1');
     var camposEl = document.getElementById('n1-campos');
     var fotosEl = document.getElementById('n1-fotos');
     var tituloEl = document.getElementById('n1-titulo');
@@ -1795,12 +2399,27 @@
 '<button class="btn btn-sm btn-sec" style="padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'regenerar\')">Invalidar e Regenerar Geometria</button>' +
 '</div>';
         }
-camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
+// Interpretação ABCD: 4 tabelinhas (A/B/C/D × laje/passa/chega/interior)
+        var abcdHtml = '';
+        if (item.interpretacao_abcd_html) {
+          abcdHtml = item.interpretacao_abcd_html;
+        } else if (item.interpretacao_abcd && item.interpretacao_abcd.faces) {
+          abcdHtml = renderAbcdTablesClient(item.interpretacao_abcd);
+        }
+        var ehPilar = ['pilares', 'pilares_especiais', 'pilares_n3_para', 'pilares_n3_passa'].indexOf(_painel3Estado.classe) >= 0;
+        camposEl.innerHTML = btns + (ehPilar ? '<div id="pillar-n3-editor"></div>' : '') +
+          (abcdHtml || '') + (linhas || '<p class="muted">Sem campos.</p>');
+        if (ehPilar && window.PillarFicha) {
+          window.PillarFicha.mount(document.getElementById('pillar-n3-editor'), {
+            obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
+            pavimento: _pavimentoSelecionado || item.pavimento
+          });
+        }
 
         var fotos = '';
         if (item.foto_n1) {
           fotos += '<div class="n1-foto-card"><h4>N1 / SA</h4><div class="zoom-pan-viewport">' + item.foto_n1 + '</div>' +
-            '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p></div>';
+            '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox, sem CSS scale)</p></div>';
         } else {
           fotos += '<div class="n1-foto-card n1-foto-ausente"><h4>N1 / SA</h4><p class="muted">ainda não gerada</p></div>';
         }
@@ -1837,7 +2456,10 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         '<button type="button" class="btn-sec btn" id="n3-prev">◀</button>' +
         '<strong id="n3-titulo"></strong>' +
         '<button type="button" class="btn-sec btn" id="n3-next">▶</button>' +
+        '<span class="n1-pav-nav"><button type="button" class="btn-sec btn" id="n3-pav-prev">◀</button>' +
+        '<strong id="n3-pav-label"></strong><button type="button" class="btn-sec btn" id="n3-pav-next">▶</button></span>' +
       '</div>' +
+      '<div id="pillar-n3-editor-n3"></div>' +
       '<div class="n1-fotos" id="n3-fotos"><p class="muted">Carregando fotos…</p></div>';
     document.getElementById('n3-prev').addEventListener('click', function () {
       _painel3Estado.indice = (_painel3Estado.indice - 1 + _painel3Estado.itens.length) % _painel3Estado.itens.length;
@@ -1847,6 +2469,7 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       _painel3Estado.indice = (_painel3Estado.indice + 1) % _painel3Estado.itens.length;
       renderizarPainel3();
     });
+    ligarNavegacaoPavimento('n3');
     var tituloEl = document.getElementById('n3-titulo');
     var fotosEl = document.getElementById('n3-fotos');
     tituloEl.textContent = _painel3Estado.itens[_painel3Estado.indice].titulo;
@@ -1855,7 +2478,13 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       .then(function (r) { return r.json(); })
       .then(function (item) {
         if (meuToken !== _n3DetalheReqToken) return;
-        var dica = '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
+        if (['pilares', 'pilares_especiais', 'pilares_n3_para', 'pilares_n3_passa'].indexOf(_painel3Estado.classe) >= 0 && window.PillarFicha) {
+          window.PillarFicha.mount(document.getElementById('pillar-n3-editor-n3'), {
+            obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
+            pavimento: _pavimentoSelecionado || item.pavimento
+          });
+        }
+        var dica = '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox)</p>';
         var html = '';
         if (item.foto_n3) html += '<div class="n1-foto-card"><h4>N3 (robô)</h4><div class="zoom-pan-viewport">' + item.foto_n3 + '</div>' + dica + '</div>';
         else html += '<div class="n1-foto-card n1-foto-ausente"><h4>N3 (robô)</h4><p class="muted">ainda não gerada pra este item</p></div>';
@@ -1879,14 +2508,1288 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
 
   
   window._modoCropManualAtivo = false;
+  window._modoPolylineAtivo = false;
   window._cropRects = [];
+  // Geometrias por clique (criar item): lista de polylines [{x,y} em coord SVG]
+  window._polyGeoms = [];
+  window._polyAtual = [];
+  window._snapGrid = null;
+  window._snapCell = 40;
+  window._snapThrBase = 0.5;
+
+  /** Liga desenho de retângulos no viewport (viewBox ou img). Só Modo Recorte Manual (bruto). */
+  function ligarDesenhoRetangulos(vp) {
+    if (!vp || vp.dataset.drawBound === '1') return;
+    vp.dataset.drawBound = '1';
+    var startX = 0, startY = 0, currentDiv = null, currentSvgRect = null;
+    var isDrawing = false;
+
+    function ensureCropSvgLayer(svgEl) {
+      var g = svgEl.querySelector('g.crop-svg-layer');
+      if (!g) {
+        g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'crop-svg-layer');
+        g.style.pointerEvents = 'none';
+        svgEl.appendChild(g);
+      }
+      return g;
+    }
+
+    if (!(vp._pz && vp._pz.mode === 'viewBox')) {
+      if (!vp.querySelector('.crop-layer')) {
+        var layer = document.createElement('div');
+        layer.className = 'crop-layer';
+        layer.style.position = 'absolute';
+        layer.style.top = '0'; layer.style.left = '0';
+        layer.style.width = '100%'; layer.style.height = '100%';
+        layer.style.pointerEvents = 'none';
+        layer.style.transformOrigin = '0 0';
+        vp.appendChild(layer);
+      }
+    }
+
+    vp.addEventListener('mousedown', function (e) {
+      if (!window._modoCropManualAtivo || window._modoPolylineAtivo) return;
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      isDrawing = true;
+      if (vp._pz && vp._pz.mode === 'viewBox') {
+        var p0 = vp._pz.clientToSvg(e.clientX, e.clientY);
+        startX = p0.x; startY = p0.y;
+        var g = ensureCropSvgLayer(vp._pz.svg);
+        currentSvgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        currentSvgRect.setAttribute('fill', 'rgba(59,130,246,0.22)');
+        currentSvgRect.setAttribute('stroke', '#3b82f6');
+        currentSvgRect.setAttribute('stroke-width', String(Math.max(vp._pz.home.w, vp._pz.home.h) * 0.0025));
+        currentSvgRect.setAttribute('stroke-dasharray', '5 3');
+        g.appendChild(currentSvgRect);
+      } else {
+        var rect = vp.getBoundingClientRect();
+        var im = vp.querySelector('img');
+        var tx = 0, ty = 0, scale = 1;
+        if (im && im.style.transform) {
+          var tm = im.style.transform.match(/translate\(([^p]+)px,\s*([^p]+)px\)\s*scale\(([^)]+)\)/);
+          if (tm) { tx = parseFloat(tm[1]); ty = parseFloat(tm[2]); scale = parseFloat(tm[3]); }
+        }
+        startX = (e.clientX - rect.left - tx) / scale;
+        startY = (e.clientY - rect.top - ty) / scale;
+        currentDiv = document.createElement('div');
+        currentDiv.style.position = 'absolute';
+        currentDiv.style.border = '2px dashed #3b82f6';
+        currentDiv.style.background = 'rgba(59,130,246,0.2)';
+        var layer2 = vp.querySelector('.crop-layer');
+        if (layer2) layer2.appendChild(currentDiv);
+      }
+    }, true);
+
+    window.addEventListener('mousemove', function (e) {
+      if (!isDrawing) return;
+      if (vp._pz && vp._pz.mode === 'viewBox' && currentSvgRect) {
+        var p1 = vp._pz.clientToSvg(e.clientX, e.clientY);
+        var x = Math.min(startX, p1.x), y = Math.min(startY, p1.y);
+        var w = Math.abs(p1.x - startX), h = Math.abs(p1.y - startY);
+        currentSvgRect.setAttribute('x', x);
+        currentSvgRect.setAttribute('y', y);
+        currentSvgRect.setAttribute('width', w);
+        currentSvgRect.setAttribute('height', h);
+      } else if (currentDiv) {
+        var rect = vp.getBoundingClientRect();
+        var im = vp.querySelector('img');
+        var tx = 0, ty = 0, scale = 1;
+        if (im && im.style.transform) {
+          var tm = im.style.transform.match(/translate\(([^p]+)px,\s*([^p]+)px\)\s*scale\(([^)]+)\)/);
+          if (tm) { tx = parseFloat(tm[1]); ty = parseFloat(tm[2]); scale = parseFloat(tm[3]); }
+        }
+        var curX = (e.clientX - rect.left - tx) / scale;
+        var curY = (e.clientY - rect.top - ty) / scale;
+        currentDiv.style.left = Math.min(startX, curX) + 'px';
+        currentDiv.style.top = Math.min(startY, curY) + 'px';
+        currentDiv.style.width = Math.abs(curX - startX) + 'px';
+        currentDiv.style.height = Math.abs(curY - startY) + 'px';
+      }
+    }, true);
+
+    window.addEventListener('mouseup', function () {
+      if (!isDrawing) return;
+      isDrawing = false;
+      if (vp._pz && vp._pz.mode === 'viewBox') {
+        if (!currentSvgRect) return;
+        var x = parseFloat(currentSvgRect.getAttribute('x') || '0');
+        var y = parseFloat(currentSvgRect.getAttribute('y') || '0');
+        var w = parseFloat(currentSvgRect.getAttribute('width') || '0');
+        var h = parseFloat(currentSvgRect.getAttribute('height') || '0');
+        currentSvgRect.remove();
+        currentSvgRect = null;
+        var home = vp._pz.home;
+        var minSz = Math.max(home.w, home.h) * 0.005;
+        if (w < minSz || h < minSz) return;
+        window._cropRects.push({
+          x_pct: (x - home.x) / home.w,
+          y_pct: (y - home.y) / home.h,
+          w_pct: w / home.w,
+          h_pct: h / home.h
+        });
+        redesenharCropRects(vp.parentElement || vp);
+        return;
+      }
+      if (!currentDiv) return;
+      var im = vp.querySelector('img');
+      if (!im) { currentDiv.remove(); return; }
+      var imgRect = im.getBoundingClientRect();
+      var scale = 1;
+      if (im.style.transform) {
+        var tm = im.style.transform.match(/scale\(([^)]+)\)/);
+        if (tm) scale = parseFloat(tm[1]);
+      }
+      var imgW = imgRect.width / scale;
+      var imgH = imgRect.height / scale;
+      var x = parseFloat(currentDiv.style.left);
+      var y = parseFloat(currentDiv.style.top);
+      var w = parseFloat(currentDiv.style.width);
+      var h = parseFloat(currentDiv.style.height);
+      if (w < 10 || h < 10) { currentDiv.remove(); return; }
+      window._cropRects.push({
+        x_pct: x / imgW, y_pct: y / imgH, w_pct: w / imgW, h_pct: h / imgH
+      });
+      redesenharCropRects(vp.parentElement || vp);
+    }, true);
+
+    if (vp._pz && vp._pz.mode === 'css') {
+      var layerObs = vp.querySelector('.crop-layer');
+      var imgTarget = vp.querySelector('img');
+      if (layerObs && imgTarget) {
+        var observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (m) {
+            if (m.attributeName === 'style') layerObs.style.transform = m.target.style.transform;
+          });
+        });
+        observer.observe(imgTarget, { attributes: true, attributeFilter: ['style'] });
+      }
+    }
+  }
+  window.ligarDesenhoRetangulos = ligarDesenhoRetangulos;
+
+  // ── Desenho por cliques (polyline) + OSNAP — criar item no estrutural ──
+  function _ensureDrawLayer(svgEl) {
+    var g = svgEl.querySelector('g.poly-draw-layer');
+    if (!g) {
+      g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'poly-draw-layer');
+      g.style.pointerEvents = 'none';
+      svgEl.appendChild(g);
+    }
+    return g;
+  }
+
+  /** Extrai TODOS os vértices de um path `d` (M/L/H/V + extremos de C/Q/S/T).
+   *  Matplotlib costuma só M/L; o walker cobre o resto sem pular vértices. */
+  function parsePathVertices(d) {
+    var out = [];
+    if (!d) return out;
+    var tokens = d.match(/[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g);
+    if (!tokens || !tokens.length) return out;
+    var i = 0, cmd = null, cx = 0, cy = 0, sx = 0, sy = 0;
+    function num() { return parseFloat(tokens[i++]); }
+    function push(x, y) {
+      if (isFinite(x) && isFinite(y)) out.push([x, y]);
+      cx = x; cy = y;
+    }
+    while (i < tokens.length) {
+      var t = tokens[i];
+      if (/^[MmLlHhVvCcSsQqTtAaZz]$/.test(t)) { cmd = t; i++; }
+      else if (!cmd) { i++; continue; }
+      try {
+        if (cmd === 'M' || cmd === 'L') {
+          var x = num(), y = num();
+          if (cmd === 'M') { sx = x; sy = y; }
+          push(x, y);
+          if (cmd === 'M') cmd = 'L'; // M implícito vira L
+        } else if (cmd === 'm' || cmd === 'l') {
+          var dx = num(), dy = num();
+          if (cmd === 'm') { sx = cx + dx; sy = cy + dy; push(sx, sy); cmd = 'l'; }
+          else push(cx + dx, cy + dy);
+        } else if (cmd === 'H') { push(num(), cy); }
+        else if (cmd === 'h') { push(cx + num(), cy); }
+        else if (cmd === 'V') { push(cx, num()); }
+        else if (cmd === 'v') { push(cx, cy + num()); }
+        else if (cmd === 'Z' || cmd === 'z') { push(sx, sy); }
+        else if (cmd === 'C') {
+          num(); num(); num(); num(); // c1 c2
+          push(num(), num());
+        } else if (cmd === 'c') {
+          num(); num(); num(); num();
+          push(cx + num(), cy + num());
+        } else if (cmd === 'S' || cmd === 'Q') {
+          num(); num();
+          push(num(), num());
+        } else if (cmd === 's' || cmd === 'q') {
+          num(); num();
+          push(cx + num(), cy + num());
+        } else if (cmd === 'T') { push(num(), num()); }
+        else if (cmd === 't') { push(cx + num(), cy + num()); }
+        else if (cmd === 'A') {
+          num(); num(); num(); num(); num();
+          push(num(), num());
+        } else if (cmd === 'a') {
+          num(); num(); num(); num(); num();
+          push(cx + num(), cy + num());
+        } else {
+          i++;
+        }
+      } catch (e) { break; }
+    }
+    return out;
+  }
+
+  /**
+   * OSNAP — índice de pontos do SVG estrutural.
+   *
+   * Tipos de alvo:
+   *  - endpoint / vértice de path|line|polyline
+   *  - meio e quartis de aresta
+   *  - **interseção** de dois segmentos (cruz de duas linhas)
+   *  - **T-junction** (ponta de um segmento sobre o miolo de outro)
+   *
+   * Bug anterior: só havia vértices. Em CAD, “cruzes” costumam ser interseção
+   * de dois paths curtos do matplotlib (cada linha = um path M→L), sem vértice
+   * compartilhado — OSNAP nunca agarrava.
+   */
+  // Gravidade em px de tela (snap a vértice / cruz / ao longo da linha)
+  window._OSNAP_GRAVITY_PX = 16;
+
+  function segIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+    var den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Math.abs(den) < 1e-14) return null;
+    var t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
+    var u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
+    // inclui bordas (T e cruz no extremo)
+    if (t < -0.002 || t > 1.002 || u < -0.002 || u > 1.002) return null;
+    return [x1 + t * (x2 - x1), y1 + t * (y2 - y1)];
+  }
+
+  /** Projeta ponto no segmento. midOnly=true ignora vizinhança das pontas. */
+  function projectOnSeg(px, py, x1, y1, x2, y2, tol, midOnly) {
+    var dx = x2 - x1, dy = y2 - y1;
+    var len2 = dx * dx + dy * dy;
+    if (len2 < 1e-16) return null;
+    var t = ((px - x1) * dx + (py - y1) * dy) / len2;
+    if (t < 0) t = 0;
+    if (t > 1) t = 1;
+    if (midOnly && (t < 0.015 || t > 0.985)) return null;
+    var qx = x1 + t * dx, qy = y1 + t * dy;
+    var ddx = px - qx, ddy = py - qy;
+    if (ddx * ddx + ddy * ddy > tol * tol) return null;
+    return [qx, qy, t];
+  }
+
+  function coletarSnapCandidates(svg) {
+    // Performance: coords crus (user space = path d); sem getScreenCTM por path
+    // (era o gargalo). Densidade na aresta fica no nearest-on-segment em runtime.
+    var pts = [];
+    var segs = []; // [x1,y1,x2,y2]
+    var MAX = 60000;
+    var MAX_SEGS = 14000;
+    var seen = Object.create(null);
+    var q = 0.04;
+    function add(x, y) {
+      if (pts.length >= MAX) return;
+      if (!isFinite(x) || !isFinite(y)) return;
+      var key = Math.round(x / q) + ',' + Math.round(y / q);
+      if (seen[key]) return;
+      seen[key] = 1;
+      pts.push([x, y]);
+    }
+    function addSeg(x1, y1, x2, y2) {
+      var dx = x2 - x1, dy = y2 - y1;
+      if (dx * dx + dy * dy < 1e-12) return;
+      add(x1, y1);
+      add(x2, y2);
+      add((x1 + x2) * 0.5, (y1 + y2) * 0.5); // só meio — resto via nearest-on-seg
+      if (segs.length < MAX_SEGS) segs.push([x1, y1, x2, y2]);
+    }
+    function isUiLayer(el) {
+      // evita el.closest em cada path (lento em SVG grande)
+      var p = el;
+      for (var i = 0; i < 6 && p && p !== svg; i++) {
+        var c = p.className && (p.className.baseVal != null ? p.className.baseVal : p.className);
+        if (typeof c === 'string' && (
+          c.indexOf('poly-draw') >= 0 || c.indexOf('crop-svg') >= 0 ||
+          c.indexOf('destaque-overlay') >= 0 || c.indexOf('osnap-mark') >= 0
+        )) return true;
+        p = p.parentNode;
+      }
+      return false;
+    }
+    try {
+      var lines = svg.getElementsByTagName('line');
+      for (var li = 0; li < lines.length; li++) {
+        var el = lines[li];
+        if (isUiLayer(el)) continue;
+        addSeg(+el.getAttribute('x1'), +el.getAttribute('y1'),
+          +el.getAttribute('x2'), +el.getAttribute('y2'));
+      }
+      var polys = svg.querySelectorAll('polyline, polygon');
+      for (var qi = 0; qi < polys.length; qi++) {
+        var pl = polys[qi];
+        if (isUiLayer(pl)) continue;
+        var raw = (pl.getAttribute('points') || '').trim().split(/[\s,]+/);
+        var pvx = null, pvy = null;
+        for (var i = 0; i + 1 < raw.length; i += 2) {
+          var px = +raw[i], py = +raw[i + 1];
+          if (pvx != null) addSeg(pvx, pvy, px, py);
+          else add(px, py);
+          pvx = px; pvy = py;
+        }
+      }
+      var paths = svg.getElementsByTagName('path');
+      var nPaths = paths.length;
+      // se SVG monstruoso, processa com passo 1 ainda (paths curtos M-L); limia segs
+      for (var pi = 0; pi < nPaths && segs.length < MAX_SEGS; pi++) {
+        var elp = paths[pi];
+        if (isUiLayer(elp)) continue;
+        var d0 = elp.getAttribute('d') || '';
+        if (d0.length < 12) continue;
+        if (/^M\s*0[\s,]/.test(d0) && /z\s*$/i.test(d0) && d0.length < 80) continue;
+        var verts = parsePathVertices(d0);
+        for (var vi = 1; vi < verts.length; vi++) {
+          addSeg(verts[vi - 1][0], verts[vi - 1][1], verts[vi][0], verts[vi][1]);
+        }
+        if (verts.length === 1) add(verts[0][0], verts[0][1]);
+      }
+
+      // Cruzes + T (só entre segs da mesma célula / vizinhas)
+      var vb = svg.viewBox && svg.viewBox.baseVal;
+      var span = (vb && vb.width > 0) ? Math.max(vb.width, vb.height) : 1000;
+      var cell = Math.max(span * 0.025, 3);
+      var tolT = Math.max(span * 0.0015, 0.2);
+      var gridS = Object.create(null);
+      function cellKeys(x1, y1, x2, y2) {
+        var minX = Math.floor(Math.min(x1, x2) / cell);
+        var maxX = Math.floor(Math.max(x1, x2) / cell);
+        var minY = Math.floor(Math.min(y1, y2) / cell);
+        var maxY = Math.floor(Math.max(y1, y2) / cell);
+        // limita bbox enorme (evita flood de chaves)
+        if (maxX - minX > 8) maxX = minX + 8;
+        if (maxY - minY > 8) maxY = minY + 8;
+        var keys = [];
+        for (var ix = minX; ix <= maxX; ix++) {
+          for (var iy = minY; iy <= maxY; iy++) keys.push(ix + ',' + iy);
+        }
+        return keys;
+      }
+      for (var si = 0; si < segs.length; si++) {
+        var s = segs[si];
+        var keys = cellKeys(s[0], s[1], s[2], s[3]);
+        for (var ki = 0; ki < keys.length; ki++) {
+          (gridS[keys[ki]] || (gridS[keys[ki]] = [])).push(si);
+        }
+      }
+      var pairSeen = Object.create(null);
+      var nX = 0, nT = 0;
+      var MAX_X = 25000; // teto de testes de interseção
+      var xTests = 0;
+      for (var sj = 0; sj < segs.length && xTests < MAX_X; sj++) {
+        var A = segs[sj];
+        var near = Object.create(null);
+        var aks = cellKeys(A[0], A[1], A[2], A[3]);
+        for (var ak = 0; ak < aks.length; ak++) {
+          var bucket = gridS[aks[ak]];
+          if (!bucket) continue;
+          // limita vizinhos por célula
+          var lim = Math.min(bucket.length, 24);
+          for (var bi = 0; bi < lim; bi++) near[bucket[bi]] = 1;
+        }
+        for (var oid in near) {
+          var oj = +oid | 0;
+          if (oj <= sj) continue;
+          xTests++;
+          if (xTests > MAX_X) break;
+          var B = segs[oj];
+          var ip = segIntersect(A[0], A[1], A[2], A[3], B[0], B[1], B[2], B[3]);
+          if (ip) { add(ip[0], ip[1]); nX++; }
+        }
+        // T-junction só nos 2 endpoints × vizinhos (barato)
+        var ends = [[A[0], A[1]], [A[2], A[3]]];
+        for (var ei = 0; ei < 2; ei++) {
+          var ex = ends[ei][0], ey = ends[ei][1];
+          for (var oid2 in near) {
+            var oj2 = +oid2 | 0;
+            if (oj2 === sj) continue;
+            var C = segs[oj2];
+            var tj = projectOnSeg(ex, ey, C[0], C[1], C[2], C[3], tolT, true);
+            if (tj) { add(tj[0], tj[1]); nT++; }
+          }
+        }
+      }
+      window._snapSegs = segs;
+      window._snapSegGrid = gridS;
+      window._snapSegCell = cell;
+      window._snapSegCount = segs.length;
+      window._snapXCount = nX;
+      window._snapTCount = nT;
+
+      (window._polyGeoms || []).forEach(function (pl) {
+        (pl.points || []).forEach(function (p) { add(p.x, p.y); });
+      });
+      (window._polyAtual || []).forEach(function (p) { add(p.x, p.y); });
+    } catch (e) {
+      if (typeof console !== 'undefined') console.warn('[osnap] coleta falhou', e);
+    }
+    return pts;
+  }
+
+  function buildSnapGrid(pts, cell) {
+    var grid = Object.create(null);
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      var k = Math.floor(p[0] / cell) + ',' + Math.floor(p[1] / cell);
+      (grid[k] || (grid[k] = [])).push(p);
+    }
+    return grid;
+  }
+
+  /** thr user-space a partir de px de tela (zoom-aware). */
+  function snapThrUser(svg) {
+    var px = window._OSNAP_GRAVITY_PX || 14;
+    try {
+      var ctm = svg && svg.getScreenCTM && svg.getScreenCTM();
+      if (ctm) {
+        var sc = Math.hypot(ctm.a, ctm.b) || 1;
+        var u = px / sc;
+        // piso generoso: nunca menor que ~0.15% do viewBox (evita thr=0)
+        var vb = svg.viewBox && svg.viewBox.baseVal;
+        var span = (vb && vb.width > 0) ? Math.max(vb.width, vb.height) : 1000;
+        return Math.max(u, span * 0.0015);
+      }
+    } catch (e) { /* */ }
+    var home = window._snapSpan || 1000;
+    return Math.max(home * 0.012, 2);
+  }
+
+  /**
+   * Snap em **user-space** (rápido) com thr derivado de px de tela.
+   * Evita matrixTransform por candidato (era o custo do mousemove).
+   * 1) vértices/cruzes na grade
+   * 2) nearest-on-segment nos segs da célula (cobre miolo de linha)
+   */
+  function nearestSnapClient(svg, clientX, clientY, rawUser) {
+    if (!svg || !rawUser) return null;
+    var thrU = snapThrUser(svg);
+    var thrU2 = thrU * thrU;
+    var best = null, bestD = thrU2;
+
+    function consider(ux, uy) {
+      var ddx = ux - rawUser.x, ddy = uy - rawUser.y;
+      var d2 = ddx * ddx + ddy * ddy;
+      if (d2 < bestD) { bestD = d2; best = { x: ux, y: uy }; }
+    }
+
+    var pts = window._snapPts;
+    var cell = window._snapCell || thrU;
+    var grid = window._snapGrid;
+    if (pts && pts.length && grid) {
+      var cx = Math.floor(rawUser.x / cell), cy = Math.floor(rawUser.y / cell);
+      var rad = Math.max(1, Math.ceil(thrU / cell) + 1);
+      for (var dx = -rad; dx <= rad; dx++) {
+        for (var dy = -rad; dy <= rad; dy++) {
+          var bucket = grid[(cx + dx) + ',' + (cy + dy)];
+          if (!bucket) continue;
+          for (var i = 0; i < bucket.length; i++) {
+            consider(bucket[i][0], bucket[i][1]);
+          }
+        }
+      }
+    }
+
+    // nearest-on-segment (poucos segs da vizinhança)
+    var segs = window._snapSegs;
+    var sgrid = window._snapSegGrid;
+    var scell = window._snapSegCell || cell;
+    if (segs && segs.length && sgrid) {
+      var scx = Math.floor(rawUser.x / scell), scy = Math.floor(rawUser.y / scell);
+      var srad = Math.max(1, Math.ceil(thrU / scell) + 1);
+      var nearIds = Object.create(null);
+      var nNear = 0;
+      for (var sx = -srad; sx <= srad && nNear < 80; sx++) {
+        for (var sy = -srad; sy <= srad && nNear < 80; sy++) {
+          var sb = sgrid[(scx + sx) + ',' + (scy + sy)];
+          if (!sb) continue;
+          for (var bi = 0; bi < sb.length && nNear < 80; bi++) {
+            if (!nearIds[sb[bi]]) { nearIds[sb[bi]] = 1; nNear++; }
+          }
+        }
+      }
+      var tol = thrU * 1.2;
+      for (var id in nearIds) {
+        var S = segs[+id];
+        if (!S) continue;
+        var pr = projectOnSeg(rawUser.x, rawUser.y, S[0], S[1], S[2], S[3], tol, false);
+        if (pr) consider(pr[0], pr[1]);
+      }
+    }
+
+    if (!best) return null;
+    return { x: best.x, y: best.y, dist: Math.sqrt(bestD), px: false };
+  }
+
+  // compat: antigo nearestSnap(x,y,thr) em user-space
+  function nearestSnap(x, y, thr) {
+    var grid = window._snapGrid;
+    if (!grid) return null;
+    var cell = window._snapCell || 40;
+    var cx = Math.floor(x / cell), cy = Math.floor(y / cell);
+    var best = null, bestD = thr * thr;
+    var rad = Math.max(2, Math.ceil(thr / cell) + 2);
+    for (var dx = -rad; dx <= rad; dx++) {
+      for (var dy = -rad; dy <= rad; dy++) {
+        var bucket = grid[(cx + dx) + ',' + (cy + dy)];
+        if (!bucket) continue;
+        for (var i = 0; i < bucket.length; i++) {
+          var p = bucket[i];
+          var d = (p[0] - x) * (p[0] - x) + (p[1] - y) * (p[1] - y);
+          if (d < bestD) { bestD = d; best = p; }
+        }
+      }
+    }
+    return best ? { x: best[0], y: best[1], dist: Math.sqrt(bestD) } : null;
+  }
+
+  function rebuildSnapIndex(svg, opts) {
+    if (!svg) return;
+    opts = opts || {};
+    var vb = svg.viewBox && svg.viewBox.baseVal;
+    var span = (vb && vb.width > 0) ? Math.max(vb.width, vb.height) : 1000;
+    window._snapCell = Math.max(span * 0.012, 1.5);
+    window._snapSpan = span;
+    window._snapSvg = svg;
+
+    function run() {
+      var t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : 0;
+      var pts = coletarSnapCandidates(svg);
+      window._snapPts = pts;
+      window._snapGrid = buildSnapGrid(pts, window._snapCell);
+      window._snapCount = pts.length;
+      var ms = t0 && performance.now ? Math.round(performance.now() - t0) : 0;
+      window._snapBuildMs = ms;
+      window._snapBuilding = false;
+      if (typeof console !== 'undefined' && console.info) {
+        console.info('[osnap] ' + pts.length + ' pts · segs=' + (window._snapSegCount || 0) +
+          ' · cruzes≈' + (window._snapXCount || 0) +
+          ' · T≈' + (window._snapTCount || 0) +
+          ' · ' + ms + 'ms · gravidade=' + (window._OSNAP_GRAVITY_PX || 16) + 'px');
+      }
+      if (typeof opts.onDone === 'function') opts.onDone(pts.length, ms);
+    }
+
+    // não trava o clique do checkbox: indexa no próximo frame
+    if (opts.async !== false) {
+      window._snapBuilding = true;
+      window._snapPts = window._snapPts || [];
+      if (window._snapBuildTimer) clearTimeout(window._snapBuildTimer);
+      window._snapBuildTimer = setTimeout(run, 0);
+    } else {
+      run();
+    }
+  }
+
+  /** px de tela → unidades do SVG, com teto/piso p/ CTM doida (evita “salsicha”). */
+  function screenPxToSvgUnits(svg, px) {
+    var vb = svg.viewBox && svg.viewBox.baseVal;
+    var span = (vb && vb.width > 0) ? Math.max(vb.width, vb.height) : 1000;
+    var u = px;
+    try {
+      var ctm = svg.getScreenCTM();
+      if (ctm) {
+        var sc = Math.hypot(ctm.a, ctm.b) || 1;
+        u = px / sc;
+      }
+    } catch (e) { /* */ }
+    // nunca > 0.4% do desenho nem < 0.01% (protege zoom extremo)
+    var lo = span * 0.00008, hi = span * 0.004;
+    if (!isFinite(u) || u <= 0) u = span * 0.0005;
+    if (u < lo) u = lo;
+    if (u > hi) u = hi;
+    return u;
+  }
+
+  function redesenharPolylines(container) {
+    var vp = container && container.querySelector
+      ? container.querySelector('.zoom-pan-viewport')
+      : container;
+    if (!vp) return;
+    var svgEl = (vp._pz && vp._pz.svg) || vp.querySelector('svg');
+    if (!svgEl) return;
+    var g = _ensureDrawLayer(svgEl);
+    g.innerHTML = '';
+    // Pedido: bolinha seleção ~5× menor; linha ~10× mais fina.
+    // OSNAP = bolinha verde sólida pequena (sem cruz).
+    var rPt = screenPxToSvgUnits(svgEl, 0.50);
+    // bolinha OSNAP verde — 3× o tamanho anterior (1.15 → ~3.45 px tela)
+    var rOsnap = screenPxToSvgUnits(svgEl, 3.45);
+
+    function drawPoly(points, cor) {
+      if (!points || points.length < 1) return;
+      if (points.length >= 2) {
+        var pl = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        pl.setAttribute('points', points.map(function (p) { return p.x + ',' + p.y; }).join(' '));
+        pl.setAttribute('fill', 'none');
+        pl.setAttribute('stroke', cor);
+        pl.setAttribute('stroke-linecap', 'round');
+        pl.setAttribute('stroke-linejoin', 'round');
+        pl.setAttribute('opacity', '1');
+        // linha fina em px de tela (não escala com zoom)
+        pl.style.setProperty('vector-effect', 'non-scaling-stroke', 'important');
+        pl.style.setProperty('stroke-width', '1.05px', 'important');
+        g.appendChild(pl);
+      }
+      points.forEach(function (p, idx) {
+        var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
+        c.setAttribute('r', String(rPt));
+        c.setAttribute('fill', idx === 0 ? '#16a34a' : cor);
+        c.setAttribute('stroke', 'none');
+        c.setAttribute('opacity', '1');
+        g.appendChild(c);
+      });
+    }
+    (window._polyGeoms || []).forEach(function (pl) { drawPoly(pl.points, '#2563eb'); });
+    drawPoly(window._polyAtual || [], '#3b82f6');
+
+    // OSNAP: bolinha verde sólida pequena (sem cruz amarela)
+    if (window._snapCursor) {
+      var s = window._snapCursor;
+      var mark = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      mark.setAttribute('class', 'osnap-mark');
+      var circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circ.setAttribute('cx', s.x); circ.setAttribute('cy', s.y);
+      circ.setAttribute('r', String(rOsnap));
+      circ.setAttribute('fill', '#22c55e');
+      circ.setAttribute('stroke', 'none');
+      circ.setAttribute('opacity', '1');
+      mark.appendChild(circ);
+      g.appendChild(mark);
+    }
+    // pré-visualização até o cursor — fina e sólida
+    if (window._polyAtual && window._polyAtual.length && window._polyHover) {
+      var last = window._polyAtual[window._polyAtual.length - 1];
+      var hov = window._polyHover;
+      var rb = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      rb.setAttribute('x1', last.x); rb.setAttribute('y1', last.y);
+      rb.setAttribute('x2', hov.x); rb.setAttribute('y2', hov.y);
+      rb.setAttribute('fill', 'none');
+      rb.setAttribute('stroke', '#60a5fa');
+      rb.setAttribute('stroke-linecap', 'round');
+      rb.setAttribute('opacity', '0.95');
+      rb.style.setProperty('vector-effect', 'non-scaling-stroke', 'important');
+      rb.style.setProperty('stroke-width', '0.90px', 'important');
+      g.appendChild(rb);
+    }
+  }
+  window.redesenharPolylines = redesenharPolylines;
+
+  function fecharPolylineAtual() {
+    if (window._polyAtual && window._polyAtual.length >= 2) {
+      var entry = { points: window._polyAtual.slice() };
+      // hook do painel Criar item: associa SEG e atualiza lista multi-segmento
+      if (typeof window._onPolylineFechada === 'function') {
+        window._onPolylineFechada(entry);
+      } else {
+        window._polyGeoms = window._polyGeoms || [];
+        window._polyGeoms.push(entry);
+      }
+    }
+    window._polyAtual = [];
+    window._polyHover = null;
+    window._snapCursor = null;
+  }
+
+  // ORTHO (F8) — trava o traço a 0°/90° em relação ao último ponto quando o
+  // OSNAP não tem alvo sob o cursor (mesma prioridade OSNAP > Ortho do AutoCAD:
+  // um alvo OSNAP explícito sempre vence a trava de ângulo).
+  window._modoOrthoAtivo = window._modoOrthoAtivo || false;
+
+  function toggleOrtho(forcar) {
+    var novo = typeof forcar === 'boolean' ? forcar : !window._modoOrthoAtivo;
+    window._modoOrthoAtivo = novo;
+    var btn = document.getElementById('btn-criar-item-ortho');
+    if (btn) btn.setAttribute('aria-pressed', novo ? 'true' : 'false');
+    var status = document.getElementById('criar-item-status');
+    if (status && window._modoPolylineAtivo) {
+      status.textContent = novo ? 'ORTHO ativado (F8) · traço travado a 0°/90°' : 'ORTHO desativado (F8)';
+    }
+  }
+  window.toggleOrtho = toggleOrtho;
+
+  // Listener único (o próprio <script> da página só roda 1x; trocar de torre
+  // não recarrega a página) — usa o viewport mais recente via global, nunca
+  // um `vp` capturado por closure de uma renderização antiga.
+  window.addEventListener('keydown', function (e) {
+    if (e.key !== 'F8') return;
+    if (!document.getElementById('btn-criar-item-ortho')) return;
+    e.preventDefault();
+    toggleOrtho();
+    var vpAtual = window._criarItemVpAtual;
+    if (vpAtual && window.redesenharPolylines) redesenharPolylines(vpAtual.parentElement || vpAtual);
+  });
+
+  function ligarDesenhoPolyline(vp) {
+    if (!vp || vp.dataset.polyBound === '1') return;
+    vp.dataset.polyBound = '1';
+    window._criarItemVpAtual = vp;
+
+    function svgOf() {
+      return (vp._pz && vp._pz.svg) || vp.querySelector('svg:not(.destaque-overlay)') || vp.querySelector('svg');
+    }
+
+    function toSvg(e) {
+      if (vp._pz && vp._pz.clientToSvg) return vp._pz.clientToSvg(e.clientX, e.clientY);
+      // dual pan
+      if (vp._pzDual && vp._pzDual.clientToSvg) return vp._pzDual.clientToSvg(e.clientX, e.clientY);
+      var svg = svgOf();
+      if (!svg) return { x: 0, y: 0 };
+      var pt = svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      try {
+        var ctm = svg.getScreenCTM();
+        if (ctm) { var inv = ctm.inverse(); var p = pt.matrixTransform(inv); return { x: p.x, y: p.y }; }
+      } catch (err) { /* */ }
+      return { x: 0, y: 0 };
+    }
+
+    function ensureSnapIndex() {
+      var svg = svgOf();
+      if (!svg) return null;
+      if (window._snapBuilding) return svg;
+      if (!window._snapPts || !window._snapPts.length || window._snapSvg !== svg) {
+        rebuildSnapIndex(svg, { async: true });
+      }
+      return svg;
+    }
+
+    /** ORTHO: trava em relação ao último ponto da polyline em curso. Sem
+     *  ponto anterior (primeiro clique da linha) não há o que travar. */
+    function applyOrtho(raw) {
+      if (!window._modoOrthoAtivo) return raw;
+      var pts = window._polyAtual;
+      if (!pts || !pts.length) return raw;
+      var last = pts[pts.length - 1];
+      var dx = raw.x - last.x, dy = raw.y - last.y;
+      return (Math.abs(dx) >= Math.abs(dy)) ? { x: raw.x, y: last.y } : { x: last.x, y: raw.y };
+    }
+
+    function snapPoint(e, raw) {
+      var svg = ensureSnapIndex();
+      if (!svg || window._snapBuilding) {
+        window._snapCursor = null;
+        var semIndice = applyOrtho(raw);
+        return { x: semIndice.x, y: semIndice.y, snapped: false };
+      }
+      var hit = nearestSnapClient(svg, e.clientX, e.clientY, raw);
+      if (hit) {
+        window._snapCursor = { x: hit.x, y: hit.y };
+        return { x: hit.x, y: hit.y, snapped: true };
+      }
+      window._snapCursor = null;
+      var orto = applyOrtho(raw);
+      return { x: orto.x, y: orto.y, snapped: false };
+    }
+
+    var _polyMoveRaf = 0;
+    var _polyMoveEv = null;
+    function flushPolyMove() {
+      _polyMoveRaf = 0;
+      var e = _polyMoveEv;
+      if (!e || !window._modoPolylineAtivo) return;
+      ensureSnapIndex();
+      var raw = toSvg(e);
+      var pt = snapPoint(e, raw);
+      window._polyHover = { x: pt.x, y: pt.y };
+      redesenharPolylines(vp.parentElement || vp);
+    }
+
+    vp.addEventListener('click', function (e) {
+      if (!window._modoPolylineAtivo) return;
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      ensureSnapIndex();
+      var raw = toSvg(e);
+      var pt = snapPoint(e, raw);
+      window._polyAtual = window._polyAtual || [];
+      // evita ponto duplicado se clicar no mesmo lugar
+      var last = window._polyAtual[window._polyAtual.length - 1];
+      var minDup = snapThrUser(svgOf() || window._snapSvg) * 0.15;
+      if (last && Math.hypot(last.x - pt.x, last.y - pt.y) < Math.max(minDup, 0.05)) return;
+      window._polyAtual.push({ x: pt.x, y: pt.y });
+      window._polyHover = null;
+      redesenharPolylines(vp.parentElement || vp);
+      var st = document.getElementById('criar-item-status');
+      if (st) {
+        st.textContent = (pt.snapped ? '✓ OSNAP · ' : '') +
+          'Ponto ' + window._polyAtual.length +
+          ' · ' + (window._snapCount || 0) + ' alvos' +
+          ' · duplo-clique/Enter fecha · Esc desfaz';
+      }
+    }, true);
+
+    vp.addEventListener('dblclick', function (e) {
+      if (!window._modoPolylineAtivo) return;
+      e.preventDefault();
+      e.stopPropagation();
+      // o segundo click do dblclick já adicionou um ponto — remove o extra
+      if (window._polyAtual && window._polyAtual.length >= 2) {
+        window._polyAtual.pop();
+      }
+      fecharPolylineAtual();
+      redesenharPolylines(vp.parentElement || vp);
+      var st = document.getElementById('criar-item-status');
+      if (st) st.textContent = (window._polyGeoms.length) + ' linha(s) · clique para nova';
+    }, true);
+
+    vp.addEventListener('mousemove', function (e) {
+      if (!window._modoPolylineAtivo) return;
+      _polyMoveEv = e;
+      // 1 redesenho por frame — evita travar com OSNAP + SVG grande
+      if (!_polyMoveRaf) {
+        _polyMoveRaf = (window.requestAnimationFrame || function (cb) {
+          return setTimeout(cb, 16);
+        })(flushPolyMove);
+      }
+      vp.style.cursor = 'crosshair';
+    }, true);
+
+    vp.addEventListener('contextmenu', function (e) {
+      if (!window._modoPolylineAtivo) return;
+      e.preventDefault();
+      // botão direito: remove último ponto da linha atual
+      if (window._polyAtual && window._polyAtual.length) {
+        window._polyAtual.pop();
+        redesenharPolylines(vp.parentElement || vp);
+      }
+    }, true);
+
+    window.addEventListener('keydown', function (e) {
+      if (!window._modoPolylineAtivo) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        fecharPolylineAtual();
+        redesenharPolylines(vp.parentElement || vp);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (window._polyAtual && window._polyAtual.length) {
+          window._polyAtual = [];
+        } else if (window._polyGeoms && window._polyGeoms.length) {
+          window._polyGeoms.pop();
+        }
+        redesenharPolylines(vp.parentElement || vp);
+      }
+    });
+  }
+  window.ligarDesenhoPolyline = ligarDesenhoPolyline;
+  window.rebuildSnapIndex = rebuildSnapIndex;
+
+  // ── Destaques por classe (do viewer estrutural limpo) ─────────────────
+  // API: GET /obras/{id}/viewer/{pav} — grupos com pontos_px. Overlay SVG
+  // sincronizado ao pan/zoom do fundo (mesmo padrão de viewer.html).
+  var CORES_DESTAQUE = {
+    pilares: '#4ea1ff',
+    lat_a_para: '#ffd166',
+    lat_a_passa: '#f4a261',
+    lat_b_para: '#e9c46a',
+    lat_b_passa: '#e76f51',
+    laterais: '#ffd166', // legado
+    fundos: '#06d6a0',
+    lajes: '#c77dff'
+  };
+  // Filtro de destaque → classe SA no drill (Interpretação)
+  var DESTAQUE_PARA_CLASSE_SA = {
+    pilares: 'pilares',
+    lat_a_para: 'lateral_a_para',
+    lat_a_passa: 'lateral_a_passa',
+    lat_b_para: 'lateral_b_para',
+    lat_b_passa: 'lateral_b_passa',
+    fundos: 'fundo',
+    laterais: 'lateral_a_para',
+    lajes: 'lajes'
+  };
+
+  function montarBarraDestaques(hostEl) {
+    if (!hostEl || hostEl.querySelector('.destaque-bar')) return hostEl.querySelector('.destaque-bar');
+    var bar = document.createElement('div');
+    bar.className = 'destaque-bar';
+    bar.innerHTML =
+      '<span class="destaque-bar-label">Destacar no estrutural</span>' +
+      '<span class="destaque-botoes" id="destaque-botoes"></span>' +
+      '<button type="button" class="btn-sec btn btn-sm" id="destaque-nenhuma" title="Limpar destaques">Nenhuma</button>' +
+      '<label class="destaque-nomes"><input type="checkbox" id="destaque-rotulos" checked> nomes</label>' +
+      '<span class="meta" id="destaque-info"></span>';
+    hostEl.insertBefore(bar, hostEl.firstChild);
+    return bar;
+  }
+
+  function aplicarPanZoomDual(viewport, svgFundo, svgOverlay) {
+    // pan/zoom relativo fundo (pt) + overlay (px) — igual viewer.html
+    if (!viewport || !svgFundo || !svgOverlay) return;
+    if (viewport.dataset.zoomInit === '1' && viewport._pzDual) return;
+    viewport.dataset.zoomInit = '1';
+    if (window.prepSvgPanZoom) window.prepSvgPanZoom(svgFundo);
+    var camadas = [];
+    [svgFundo, svgOverlay].forEach(function (svg) {
+      if (!svg.viewBox || !svg.viewBox.baseVal) return;
+      var vb = svg.viewBox.baseVal;
+      if (!svg.dataset.homeVb) {
+        svg.dataset.homeVb = vb.x + ' ' + vb.y + ' ' + vb.width + ' ' + vb.height;
+      }
+      var home = {
+        x: parseFloat(svg.dataset.homeVb.split(/\s+/)[0]) || vb.x,
+        y: parseFloat(svg.dataset.homeVb.split(/\s+/)[1]) || vb.y,
+        w: parseFloat(svg.dataset.homeVb.split(/\s+/)[2]) || vb.width,
+        h: parseFloat(svg.dataset.homeVb.split(/\s+/)[3]) || vb.height
+      };
+      camadas.push({ svg: svg, casa: home });
+    });
+    if (!camadas.length) return;
+    var ref = camadas[camadas.length - 1];
+    var casa = ref.casa;
+    var estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
+    var drag = false, ux = 0, uy = 0;
+
+    function aplicar() {
+      var zx = estado.w / casa.w, zy = estado.h / casa.h;
+      var rx = (estado.x - casa.x) / casa.w, ry = (estado.y - casa.y) / casa.h;
+      camadas.forEach(function (c) {
+        var k = c.casa;
+        c.svg.setAttribute('viewBox',
+          (k.x + rx * k.w) + ' ' + (k.y + ry * k.h) + ' ' + (k.w * zx) + ' ' + (k.h * zy));
+      });
+    }
+    function paraSvg(cx, cy) {
+      var ctm = ref.svg.getScreenCTM();
+      if (!ctm) return { x: estado.x + estado.w / 2, y: estado.y + estado.h / 2 };
+      var pt = ref.svg.createSVGPoint(); pt.x = cx; pt.y = cy;
+      return pt.matrixTransform(ctm.inverse());
+    }
+
+    viewport._pz = {
+      mode: 'viewBox',
+      svg: svgFundo,
+      home: {
+        x: parseFloat(svgFundo.dataset.homeVb.split(/\s+/)[0]) || 0,
+        y: parseFloat(svgFundo.dataset.homeVb.split(/\s+/)[1]) || 0,
+        w: parseFloat(svgFundo.dataset.homeVb.split(/\s+/)[2]) || 100,
+        h: parseFloat(svgFundo.dataset.homeVb.split(/\s+/)[3]) || 100
+      },
+      clientToSvg: function (cx, cy) {
+        var ctm = svgFundo.getScreenCTM();
+        if (!ctm) return { x: 0, y: 0 };
+        var pt = svgFundo.createSVGPoint(); pt.x = cx; pt.y = cy;
+        return pt.matrixTransform(ctm.inverse());
+      },
+      apply: aplicar,
+      reset: function () {
+        estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
+        aplicar();
+      }
+    };
+    viewport._pzDual = true;
+
+    viewport.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var fator = e.deltaY < 0 ? 0.88 : 1.14;
+      var nw = estado.w * fator, nh = estado.h * fator;
+      // 0.006 ≈ 5× mais zoom-in que o limite antigo (0.03)
+      var minW = casa.w * 0.006, maxW = casa.w * 4.5;
+      if (nw < minW) { fator = minW / estado.w; nw = minW; nh = estado.h * fator; }
+      if (nw > maxW) { fator = maxW / estado.w; nw = maxW; nh = estado.h * fator; }
+      var p = paraSvg(e.clientX, e.clientY);
+      estado.x = p.x - (p.x - estado.x) * (nw / estado.w);
+      estado.y = p.y - (p.y - estado.y) * (nh / estado.h);
+      estado.w = nw; estado.h = nh;
+      aplicar();
+    }, { passive: false });
+
+    viewport.addEventListener('mousedown', function (e) {
+      // desenho (retângulo ou polyline) consome o clique — não inicia pan
+      if ((window._modoCropManualAtivo || window._modoPolylineAtivo) && e.button === 0) return;
+      if (e.button !== 0 && e.button !== 1) return;
+      drag = true; ux = e.clientX; uy = e.clientY;
+      viewport.classList.add('arrastando');
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!drag) return;
+      var a = paraSvg(ux, uy), b = paraSvg(e.clientX, e.clientY);
+      estado.x -= (b.x - a.x); estado.y -= (b.y - a.y);
+      ux = e.clientX; uy = e.clientY;
+      aplicar();
+    });
+    window.addEventListener('mouseup', function () {
+      if (!drag) return;
+      drag = false;
+      viewport.classList.remove('arrastando');
+    });
+    viewport.addEventListener('dblclick', function (e) {
+      if (e.target && e.target.closest && e.target.closest('button,input,select,a')) return;
+      estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
+      aplicar();
+    });
+    aplicar();
+  }
+
+  function carregarDestaquesEstrutural(container, pavimento) {
+    if (!container || !pavimento || pavimento === 'Indeterminado') return;
+    var barHost = container;
+    // barra fica acima do viewport (irmão do zoom-pan)
+    montarBarraDestaques(barHost);
+    var botoesEl = document.getElementById('destaque-botoes');
+    var infoEl = document.getElementById('destaque-info');
+    if (botoesEl) botoesEl.innerHTML = '<span class="meta">carregando classes…</span>';
+
+    // Destaques sobre a torre limpa. 409 = ainda sem estrutural p/ o pav.
+    // O browser SEMPRE pinta 409 em vermelho no F12 (não dá pra silenciar);
+    // por isso tratamos e paramos cedo com mensagem amigável na barra.
+    fetch('/obras/' + OBRA_ID + '/viewer/' + encodeURIComponent(pavimento), { credentials: 'same-origin' })
+      .then(function (r) {
+        if (r.status === 409) {
+          if (botoesEl) botoesEl.innerHTML = '<span class="meta">sem estrutural limpo p/ destaques</span>';
+          if (infoEl) infoEl.textContent = 'rode Triagem + Recortes / SA';
+          return null;
+        }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (dados) {
+        if (!dados) return;
+        var vp = container.querySelector('.zoom-pan-viewport');
+        if (!vp) return;
+        var svgFundo = vp.querySelector('svg:not(.destaque-overlay)');
+        if (!svgFundo) return;
+
+        // camada de overlay (coords px da transform do viewer)
+        var overlay = vp.querySelector('svg.destaque-overlay');
+        if (!overlay) {
+          overlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          overlay.setAttribute('class', 'destaque-overlay');
+          overlay.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          overlay.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block';
+          // viewport precisa position relative
+          vp.style.position = 'relative';
+          // fundo em camada absoluta
+          if (svgFundo.parentElement === vp) {
+            var wrap = document.createElement('div');
+            wrap.className = 'destaque-fundo';
+            wrap.style.cssText = 'position:absolute;inset:0';
+            vp.insertBefore(wrap, svgFundo);
+            wrap.appendChild(svgFundo);
+          }
+          vp.appendChild(overlay);
+        }
+        var tw = (dados.transform && dados.transform.largura_px) || 1400;
+        var th = (dados.transform && dados.transform.altura_px) || 1000;
+        overlay.setAttribute('viewBox', '0 0 ' + tw + ' ' + th);
+        overlay.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        overlay.dataset.homeVb = '0 0 ' + tw + ' ' + th;
+
+        // re-pan dual (substitui single-SVG se já inicializado)
+        vp.dataset.zoomInit = '';
+        aplicarPanZoomDual(vp, svgFundo, overlay);
+        ligarDesenhoRetangulos(vp);
+
+        var ativos = {};
+        var SVGNS = 'http://www.w3.org/2000/svg';
+        // OSNAP: vértices dos itens SA (endpoints + mids)
+        window._destaqueSnapPts = [];
+        (dados.grupos || []).forEach(function (grupo) {
+          (grupo.itens || []).forEach(function (item) {
+            (item.pontos_px || []).forEach(function (p) {
+              if (p && p.length >= 2) window._destaqueSnapPts.push([+p[0], +p[1]]);
+            });
+          });
+        });
+
+        function desenhar() {
+          overlay.innerHTML = '';
+          var mostrarRotulos = !!(document.getElementById('destaque-rotulos') || {}).checked;
+          var visiveis = 0;
+          (dados.grupos || []).forEach(function (grupo) {
+            if (!ativos[grupo.grupo]) return;
+            var cor = CORES_DESTAQUE[grupo.grupo] || '#fff';
+            (grupo.itens || []).forEach(function (item) {
+              visiveis++;
+              var pts = (item.pontos_px || []).map(function (p) { return p[0] + ',' + p[1]; }).join(' ');
+              if (!pts) return;
+              var poly = document.createElementNS(SVGNS, 'polygon');
+              poly.setAttribute('points', pts);
+              poly.setAttribute('fill', item.fora_do_frame ? 'rgba(255,0,0,.18)' : cor + '22');
+              poly.setAttribute('stroke', item.fora_do_frame ? '#ff2d2d' : cor);
+              // espessura (~2× o valor 1.5/2.3)
+              poly.setAttribute('stroke-width', item.fora_do_frame ? '4.6' : '3');
+              poly.setAttribute('fill-opacity', '0.15');
+              poly.setAttribute('vector-effect', 'non-scaling-stroke');
+              var title = document.createElementNS(SVGNS, 'title');
+              title.textContent = (item.rotulo || '') + (item.fora_do_frame ? ' — FORA DA PRANCHA' : '');
+              poly.appendChild(title);
+              overlay.appendChild(poly);
+              if (mostrarRotulos && item.pontos_px && item.pontos_px.length) {
+                var cx = 0, cy = 0;
+                var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                item.pontos_px.forEach(function (p) {
+                  cx += p[0]; cy += p[1];
+                  if (p[0] < minX) minX = p[0]; if (p[0] > maxX) maxX = p[0];
+                  if (p[1] < minY) minY = p[1]; if (p[1] > maxY) maxY = p[1];
+                });
+                cx /= item.pontos_px.length; cy /= item.pontos_px.length;
+                var txt = document.createElementNS(SVGNS, 'text');
+                txt.setAttribute('x', cx); txt.setAttribute('y', cy);
+                txt.setAttribute('fill', item.fora_do_frame ? '#ff6b6b' : cor);
+                txt.setAttribute('font-size', '3.25');
+                txt.setAttribute('text-anchor', 'middle');
+                txt.setAttribute('dominant-baseline', 'middle');
+                txt.setAttribute('paint-order', 'stroke');
+                txt.setAttribute('stroke', '#000');
+                txt.setAttribute('stroke-width', '0.7');
+                // Vigas (fundos/laterais) verticais: rótulo a 90° (só vigas)
+                var gId = grupo.grupo || '';
+                var isViga = gId === 'fundos' || gId === 'fundo' ||
+                  gId.indexOf('lat_') === 0 || gId.indexOf('lateral') === 0;
+                if (isViga && (maxY - minY) > (maxX - minX) * 1.1) {
+                  txt.setAttribute('transform', 'rotate(-90 ' + cx + ' ' + cy + ')');
+                }
+                // Quebra: "V2 SEG 1" → duas linhas (nome + SEG n)
+                var rot = String(item.rotulo || '').trim();
+                var linhas = (function (s) {
+                  if (!s) return [''];
+                  var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+)\s*$/i);
+                  if (mSeg) return [mSeg[1].trim(), mSeg[2].replace(/\s+/g, ' ').toUpperCase()];
+                  var mPar = s.match(/^(.*?)\s*\(segmento\s+(\d+)\)\s*$/i);
+                  if (mPar) return [mPar[1].trim(), 'SEG ' + mPar[2]];
+                  var parts = s.split(/\s+/);
+                  if (parts.length >= 2 && /^SEG$/i.test(parts[parts.length - 2]) && /^\d+$/.test(parts[parts.length - 1])) {
+                    return [parts.slice(0, -2).join(' '), 'SEG ' + parts[parts.length - 1]];
+                  }
+                  if (parts.length <= 1) return [s];
+                  if (parts.length === 2) return parts;
+                  var mid = Math.ceil(parts.length / 2);
+                  return [parts.slice(0, mid).join(' '), parts.slice(mid).join(' ')];
+                })(rot);
+                linhas.forEach(function (line, li) {
+                  var ts = document.createElementNS(SVGNS, 'tspan');
+                  ts.setAttribute('x', cx);
+                  if (li === 0) {
+                    ts.setAttribute('dy', linhas.length > 1 ? (-0.55 * (linhas.length - 1)) + 'em' : '0');
+                  } else {
+                    ts.setAttribute('dy', '1.15em');
+                  }
+                  ts.textContent = line;
+                  txt.appendChild(ts);
+                });
+                overlay.appendChild(txt);
+              }
+            });
+          });
+          if (infoEl) infoEl.textContent = visiveis ? (visiveis + ' item(ns)') : (dados.sa_rodado ? 'nenhum destaque' : 'sem SA');
+          // reindex OSNAP com vértices SA + geometria do fundo
+          var svgF = vp.querySelector('svg:not(.destaque-overlay)');
+          if (svgF && window.rebuildSnapIndex) window.rebuildSnapIndex(svgF);
+        }
+
+        if (botoesEl) {
+          botoesEl.innerHTML = '';
+          if (!(dados.grupos || []).length) {
+            botoesEl.innerHTML = '<span class="meta">' +
+              (dados.sa_rodado ? 'Nenhum item com geometria' : 'SA ainda não rodou neste pav') +
+              '</span>';
+          } else {
+            dados.grupos.forEach(function (grupo) {
+              ativos[grupo.grupo] = false;
+              var b = document.createElement('button');
+              b.type = 'button';
+              b.className = 'btn-sec btn btn-sm destaque-btn';
+              b.setAttribute('data-destaque-grupo', grupo.grupo);
+              b.style.borderLeft = '4px solid ' + (CORES_DESTAQUE[grupo.grupo] || '#fff');
+              b.textContent = grupo.rotulo + ' (' + grupo.total + ')' +
+                (grupo.fora_do_frame ? ' ⚠' + grupo.fora_do_frame : '');
+              if (grupo.fora_do_frame) {
+                b.title = grupo.fora_do_frame + ' item(ns) fora da prancha';
+              }
+              b.addEventListener('click', function () {
+                // seleção ÚNICA: só 1 filtro por vez (toggle desliga)
+                var jaOn = !!ativos[grupo.grupo];
+                Object.keys(ativos).forEach(function (k) { ativos[k] = false; });
+                botoesEl.querySelectorAll('.destaque-btn').forEach(function (btn) {
+                  btn.classList.remove('on');
+                  btn.style.background = '';
+                  btn.style.color = '';
+                });
+                if (!jaOn) {
+                  ativos[grupo.grupo] = true;
+                  b.classList.add('on');
+                  b.style.background = CORES_DESTAQUE[grupo.grupo] || '#fff';
+                  b.style.color = '#000';
+                  // abre Interpretação · SA na classe correspondente (lista à esquerda)
+                  var clsSa = DESTAQUE_PARA_CLASSE_SA[grupo.grupo];
+                  if (clsSa && window.DrillGrade && typeof window.DrillGrade.openSaClasse === 'function') {
+                    window.DrillGrade.openSaClasse(clsSa, window._viewerPavimentoAtual || null);
+                  }
+                }
+                desenhar();
+              });
+              botoesEl.appendChild(b);
+            });
+          }
+        }
+
+        var btnNenhuma = document.getElementById('destaque-nenhuma');
+        var chkRot = document.getElementById('destaque-rotulos');
+        if (btnNenhuma) btnNenhuma.onclick = function () {
+          Object.keys(ativos).forEach(function (k) { ativos[k] = false; });
+          if (botoesEl) {
+            botoesEl.querySelectorAll('.destaque-btn').forEach(function (b) {
+              b.classList.remove('on');
+              b.style.background = '';
+              b.style.color = '';
+            });
+          }
+          desenhar();
+          // volta ao hub do pavimento (Interpretação) — limpa drill de classe SA
+          try {
+            if (window.DrillGrade && typeof window.DrillGrade.goHub === 'function') {
+              window.DrillGrade.goHub();
+            }
+          } catch (eHub) { /* */ }
+        };
+        if (chkRot) chkRot.onchange = desenhar;
+
+        // por padrão: Nenhuma
+        Object.keys(ativos).forEach(function (k) { ativos[k] = false; });
+        if (botoesEl) {
+          botoesEl.querySelectorAll('.destaque-btn').forEach(function (b) {
+            b.classList.remove('on');
+            b.style.background = '';
+            b.style.color = '';
+          });
+        }
+        desenhar();
+      })
+      .catch(function (err) {
+        if (botoesEl) botoesEl.innerHTML = '<span class="meta">' + (err.message || 'destaques indisponíveis') + '</span>';
+      });
+  }
+  window.carregarDestaquesEstrutural = carregarDestaquesEstrutural;
+
   function renderizarFotoRecorte(container, src, alt, forcarRecarga) {
     var meuToken = ++_fotoRecorteReqToken;
     container.innerHTML = '<p class="muted">Carregando foto em alta resolução…</p>';
     var url = forcarRecarga ? src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now() : src;
-    
-    var m = src.match(/\/recortes\/brutos\/([^/]+)\/foto/);
-    var brutoIdAtual = m ? decodeURIComponent(m[1]) : null;
+
+    // bruto completo: .../brutos/{id}/foto
+    // item (torre/detalhes): .../brutos/{id}/{itemId}/foto
+    var mItem = src.match(/\/recortes\/brutos\/([^/]+)\/([^/]+)\/foto/);
+    var mFull = src.match(/\/recortes\/brutos\/([^/]+)\/foto(?:\?|$)/);
+    var brutoIdAtual = mItem ? decodeURIComponent(mItem[1]) : (mFull ? decodeURIComponent(mFull[1]) : null);
+    var itemIdFoto = mItem ? decodeURIComponent(mItem[2]) : null;
+    var isBrutoCompleto = !!brutoIdAtual && !itemIdFoto;
+    var isTorreLimpa = !!(itemIdFoto && String(itemIdFoto).indexOf('torre') === 0);
 
     fetch(url).then(function(res) {
       if (!res.ok) throw new Error('Falha na rede');
@@ -1894,16 +3797,16 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     }).then(function(text) {
       if (meuToken !== _fotoRecorteReqToken) return;
       
-      var vpHtml = '<div class="zoom-pan-viewport"></div><p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
+      var vpHtml = '<div class="zoom-pan-viewport"></div><p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox em SVG)</p>';
       
+      // UI de recorte manual só no BRUTO completo (não na torre — o criar-item
+      // do estrutural limpo fica acima, na barra de validação).
       var cropHtml = '';
-      if (brutoIdAtual) {
+      if (isBrutoCompleto) {
          cropHtml = `
-         <div id="crop-ui-container" style="margin: 10px 0; padding: 10px; background: var(--bg-lighter); border: 1px solid var(--border); border-radius: 4px;">
-           <label style="font-weight:bold; margin-right:10px; cursor:pointer">
-             <input type="checkbox" id="chk-crop-manual"> Modo Recorte Manual
-           </label>
-           <select id="crop-classe-alvo" style="padding:4px; margin-right:10px; background:var(--bg-dark); color:var(--text); border:1px solid var(--border)">
+         <div id="crop-ui-container" class="crop-ui-box">
+           <label class="crop-ui-toggle"><input type="checkbox" id="chk-crop-manual"> Modo Recorte Manual</label>
+           <select id="crop-classe-alvo">
              <option value="torre_1">Torre 1</option>
              <option value="torre_2">Torre 2</option>
              <option value="detalhes">Detalhes e Convenções Gerais</option>
@@ -1912,8 +3815,8 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
              <option value="outros">Outros</option>
            </select>
            <button type="button" class="btn" id="btn-crop-enviar">Recortar & Processar</button>
-           <button type="button" class="btn btn-outline" id="btn-crop-limpar">Limpar Seleções</button>
-           <span style="margin-left:10px; font-size:12px; color:#aaa">Marque o modo recorte e arraste o mouse sobre a imagem para criar os retângulos.</span>
+           <button type="button" class="btn btn-sec" id="btn-crop-limpar">Limpar</button>
+           <span class="meta">Arraste retângulos no desenho</span>
          </div>`;
       }
       container.innerHTML = cropHtml + vpHtml;
@@ -1922,10 +3825,13 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
       if (text.toLowerCase().includes('<svg')) {
         vp.innerHTML = text;
         var svgEl = vp.querySelector('svg');
-        if (svgEl) {
+        if (svgEl && window.afinarSvgEstruturalDom) window.afinarSvgEstruturalDom(svgEl);
+        if (svgEl && window.prepSvgPanZoom) window.prepSvgPanZoom(svgEl);
+        else if (svgEl) {
           svgEl.style.width = '100%';
-          svgEl.style.height = 'auto';
+          svgEl.style.height = '100%';
           svgEl.style.display = 'block';
+          svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         }
       } else {
         var img = new Image();
@@ -1933,168 +3839,82 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         img.src = url;
         vp.appendChild(img);
       }
-      ativarZoomEmContainer(container);
-      
-      if (brutoIdAtual) {
-         window._cropRects = [];
-         window._modoCropManualAtivo = false;
-         
-         var chk = document.getElementById('chk-crop-manual');
-         chk.addEventListener('change', function() {
-            window._modoCropManualAtivo = this.checked;
-         });
-         document.getElementById('btn-crop-limpar').addEventListener('click', function() {
-            window._cropRects = [];
-            redesenharCropRects(container);
-         });
-         document.getElementById('btn-crop-enviar').addEventListener('click', function() {
-            if (window._cropRects.length === 0) return alert('Desenhe pelo menos um retângulo de recorte.');
-            var classe = document.getElementById('crop-classe-alvo').value.trim();
-            if (!classe) return alert('Digite a classe alvo (ex: torre_1, detalhes, etc).');
-            this.textContent = 'Processando...';
-            this.disabled = true;
-            fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/manual_crop', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({
-                  bboxes: window._cropRects,
-                  classe_alvo: classe
-               })
-            }).then(function(r) { 
-               if (!r.ok) throw new Error('Falha no servidor');
-               return r.json(); 
-            }).then(function(res) {
-                 fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/itens')
-                 .then(function(rr) { return rr.json(); })
-                 .then(function(dados) {
-                     if(dados && dados.itens) {
-                         window._recortesItensPorBruto[brutoIdAtual] = dados.itens;
-                     }
-                     alert('Recorte manual gerado com sucesso: ' + res.torre);
-                     
-                     if (window.atualizarSubclassesDoBruto) window.atualizarSubclassesDoBruto(brutoIdAtual);
-                     if (window.atualizaAposJob) window.atualizaAposJob();
-                     
-                     var alvoId = window._docEstado && window._docEstado.docId ? window._docEstado.docId : null;
-                     if (alvoId && window.documentos) {
-                         var doc = window.documentos.find(function(d){ return d.id === alvoId; });
-                         if (doc && window.renderizarDetalhe) window.renderizarDetalhe(doc);
-                     }
-                 });
-              }).catch(function(err) {
-                 alert('Erro ao enviar recortes');
-                 document.getElementById('btn-crop-enviar').textContent = 'Recortar & Processar';
-                 document.getElementById('btn-crop-enviar').disabled = false;
+
+      // Torre limpa: pan dual + destaques (não inicializa pan simples antes)
+      if (isTorreLimpa && window._viewerPavimentoAtual) {
+        window._cropRects = [];
+        window._polyGeoms = [];
+        window._polyAtual = [];
+        window._modoCropManualAtivo = false;
+        window._modoPolylineAtivo = false;
+        window._viewerBrutoIdAtual = brutoIdAtual;
+        window._viewerItemIdAtual = itemIdFoto;
+        if (typeof window.wireCriarItemPanel === 'function') {
+          window.wireCriarItemPanel(container, brutoIdAtual);
+        }
+        // polyline+OSNAP (criar item) — independente do crop retangular do bruto
+        if (typeof window.ligarDesenhoPolyline === 'function') {
+          window.ligarDesenhoPolyline(vp);
+        }
+        // índice OSNAP preliminar (melhora quando destaques SA chegarem)
+        var svgFundo0 = vp.querySelector('svg');
+        if (svgFundo0 && window.rebuildSnapIndex) window.rebuildSnapIndex(svgFundo0);
+        carregarDestaquesEstrutural(container, window._viewerPavimentoAtual);
+      } else {
+        ativarZoomEmContainer(container);
+        if (brutoIdAtual) {
+          window._cropRects = [];
+          window._modoCropManualAtivo = false;
+          ligarDesenhoRetangulos(vp);
+          if (isBrutoCompleto) {
+            var chk = document.getElementById('chk-crop-manual');
+            if (chk) chk.addEventListener('change', function () {
+              window._modoCropManualAtivo = this.checked;
+            });
+            var btnLimpar = document.getElementById('btn-crop-limpar');
+            if (btnLimpar) btnLimpar.addEventListener('click', function () {
+              window._cropRects = [];
+              redesenharCropRects(container);
+            });
+            var btnEnviar = document.getElementById('btn-crop-enviar');
+            if (btnEnviar) btnEnviar.addEventListener('click', function () {
+              if (window._cropRects.length === 0) return alert('Desenhe pelo menos um retângulo de recorte.');
+              var classe = document.getElementById('crop-classe-alvo').value.trim();
+              if (!classe) return alert('Escolha a classe alvo.');
+              this.textContent = 'Processando...';
+              this.disabled = true;
+              fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/manual_crop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bboxes: window._cropRects, classe_alvo: classe })
+              }).then(function (r) {
+                if (!r.ok) throw new Error('Falha no servidor');
+                return r.json();
+              }).then(function (res) {
+                return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/itens')
+                  .then(function (rr) { return rr.json(); })
+                  .then(function (dados) {
+                    if (dados && dados.itens) window._recortesItensPorBruto[brutoIdAtual] = dados.itens;
+                    alert('Recorte manual gerado: ' + res.torre);
+                    if (window.atualizarSubclassesDoBruto) window.atualizarSubclassesDoBruto(brutoIdAtual);
+                    // Atualização pontual: a lista acima já recebeu os dados novos.
+                    // O refresh global antigo reconstruía pavimento, árvore e grade,
+                    // disparando novas prévias SVG pesadas depois de cada recorte.
+                    if (window.DrillGrade && typeof window.DrillGrade.render === 'function') {
+                      window.DrillGrade.render();
+                    }
+                    if (window.atualizarEstatisticasGlobais) window.atualizarEstatisticasGlobais();
+                    btnEnviar.textContent = 'Recortar & Processar';
+                    btnEnviar.disabled = false;
+                  });
+              }).catch(function () {
+                alert('Erro ao enviar recortes');
+                btnEnviar.textContent = 'Recortar & Processar';
+                btnEnviar.disabled = false;
               });
-         });
-         
-         var layer = document.createElement('div');
-         layer.className = 'crop-layer';
-         layer.style.position = 'absolute';
-         layer.style.top = '0'; layer.style.left = '0';
-         layer.style.width = '100%'; layer.style.height = '100%';
-         layer.style.pointerEvents = 'none'; 
-         layer.style.transformOrigin = '0 0';
-         vp.appendChild(layer);
-         
-         var startX = 0, startY = 0, currentDiv = null;
-         var isDrawing = false;
-         
-         vp.addEventListener('mousedown', function(e) {
-            if (!window._modoCropManualAtivo) return;
-            // [novo, a pedido do dono] só desenha retângulo no clique 1
-            // (esquerdo) — clique 3 (botão do meio/scroll) fica livre pro
-            // arraste normal do viewer (ver skip em inicializarZoomPan acima).
-            if (e.button !== 0) return;
-            e.stopPropagation();
-            var rect = vp.getBoundingClientRect();
-            
-            var img = vp.querySelector('img, svg');
-            var tx = 0, ty = 0, scale = 1;
-            if (img && img.style.transform) {
-               var tm = img.style.transform.match(/translate\(([^p]+)px,\s*([^p]+)px\)\s*scale\(([^)]+)\)/);
-               if (tm) { tx = parseFloat(tm[1]); ty = parseFloat(tm[2]); scale = parseFloat(tm[3]); }
-            }
-            
-            startX = (e.clientX - rect.left - tx) / scale;
-            startY = (e.clientY - rect.top - ty) / scale;
-            
-            isDrawing = true;
-            currentDiv = document.createElement('div');
-            currentDiv.style.position = 'absolute';
-            currentDiv.style.border = '2px dashed red';
-            currentDiv.style.background = 'rgba(255,0,0,0.2)';
-            layer.appendChild(currentDiv);
-         }, true); 
-         
-         window.addEventListener('mousemove', function(e) {
-            if (!isDrawing) return;
-            var rect = vp.getBoundingClientRect();
-            var img = vp.querySelector('img, svg');
-            var tx = 0, ty = 0, scale = 1;
-            if (img && img.style.transform) {
-               var tm = img.style.transform.match(/translate\(([^p]+)px,\s*([^p]+)px\)\s*scale\(([^)]+)\)/);
-               if (tm) { tx = parseFloat(tm[1]); ty = parseFloat(tm[2]); scale = parseFloat(tm[3]); }
-            }
-            
-            var curX = (e.clientX - rect.left - tx) / scale;
-            var curY = (e.clientY - rect.top - ty) / scale;
-            
-            var x = Math.min(startX, curX);
-            var y = Math.min(startY, curY);
-            var w = Math.abs(curX - startX);
-            var h = Math.abs(curY - startY);
-            
-            currentDiv.style.left = x + 'px';
-            currentDiv.style.top = y + 'px';
-            currentDiv.style.width = w + 'px';
-            currentDiv.style.height = h + 'px';
-         }, true);
-         
-         window.addEventListener('mouseup', function(e) {
-            if (!isDrawing) return;
-            isDrawing = false;
-            var img = vp.querySelector('img, svg');
-            if (!img) { currentDiv.remove(); return; }
-            
-            var imgRect = img.getBoundingClientRect();
-            var scale = 1;
-            if (img.style.transform) {
-               var tm = img.style.transform.match(/scale\(([^)]+)\)/);
-               if (tm) scale = parseFloat(tm[1]);
-            }
-            var imgW = imgRect.width / scale;
-            var imgH = imgRect.height / scale;
-            
-            var x = parseFloat(currentDiv.style.left);
-            var y = parseFloat(currentDiv.style.top);
-            var w = parseFloat(currentDiv.style.width);
-            var h = parseFloat(currentDiv.style.height);
-            
-            if (w < 10 || h < 10) {
-               currentDiv.remove();
-               return;
-            }
-            
-            window._cropRects.push({
-               x_pct: x / imgW,
-               y_pct: y / imgH,
-               w_pct: w / imgW,
-               h_pct: h / imgH
             });
-            
-            redesenharCropRects(container);
-         }, true);
-         
-         var observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(m) {
-               if (m.attributeName === 'style') {
-                  layer.style.transform = m.target.style.transform;
-               }
-            });
-         });
-         var imgTarget = vp.querySelector('img, svg');
-         if (imgTarget) observer.observe(imgTarget, { attributes: ['style'] });
+          }
+        }
       }
     }).catch(function(err) {
       if (meuToken !== _fotoRecorteReqToken) return;
@@ -2104,19 +3924,44 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
   function redesenharCropRects(container) {
       var vp = container.querySelector('.zoom-pan-viewport');
       if (!vp) return;
+      // SVG viewBox: retângulos em coordenadas do home viewBox (acompanham zoom)
+      if (vp._pz && vp._pz.mode === 'viewBox' && vp._pz.svg) {
+         var svgEl = vp._pz.svg;
+         var home = vp._pz.home;
+         var g = svgEl.querySelector('g.crop-svg-layer');
+         if (!g) {
+            g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('class', 'crop-svg-layer');
+            g.style.pointerEvents = 'none';
+            svgEl.appendChild(g);
+         }
+         g.innerHTML = '';
+         var sw = Math.max(home.w, home.h) * 0.002;
+         window._cropRects.forEach(function(r) {
+            var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', home.x + r.x_pct * home.w);
+            rect.setAttribute('y', home.y + r.y_pct * home.h);
+            rect.setAttribute('width', r.w_pct * home.w);
+            rect.setAttribute('height', r.h_pct * home.h);
+            rect.setAttribute('fill', 'rgba(255,0,0,0.2)');
+            rect.setAttribute('stroke', 'red');
+            rect.setAttribute('stroke-width', String(sw));
+            g.appendChild(rect);
+         });
+         return;
+      }
       var layer = vp.querySelector('.crop-layer');
       if (!layer) return;
-      var img = vp.querySelector('img, svg');
-      
+      var img = vp.querySelector('img');
+      if (!img) return;
       var imgRect = img.getBoundingClientRect();
       var scale = 1;
-      if (img && img.style.transform) {
+      if (img.style.transform) {
          var tm = img.style.transform.match(/scale\(([^)]+)\)/);
          if (tm) scale = parseFloat(tm[1]);
       }
       var imgW = imgRect.width / scale;
       var imgH = imgRect.height / scale;
-      
       layer.innerHTML = '';
       window._cropRects.forEach(function(r) {
           var div = document.createElement('div');
@@ -2136,18 +3981,28 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     var it = (_recortesItensPorBruto[brutoId] || []).find(function (x) { return x.item_id === itemId; });
     return it ? !!it.validado : false;
   }
+  window.statusValidacaoRecorte = statusValidacaoRecorte;
 
   function atualizarBotoesValidacao(brutoId, itemId) {
     var btnValidar = document.getElementById('recorte-validar-btn');
     var btnInvalidar = document.getElementById('recorte-invalidar-btn');
+    var tag = document.getElementById('recorte-validado-tag');
     if (!btnValidar || !btnInvalidar) return;
     var chave = brutoId + '_' + itemId;
-    btnValidar.classList.toggle('ativo', statusValidacaoRecorte(brutoId, itemId));
-    // [nota] o backend só guarda um bool (validado: true/false) — "nunca
-    // avaliado" e "invalidado explicitamente" são indistinguíveis nele.
-    // `_recortesInvalidadosLocal` só lembra, NESTA sessão de página, que o
-    // usuário clicou em Invalidar, pra dar feedback visual imediato.
-    btnInvalidar.classList.toggle('ativo', !!_recortesInvalidadosLocal[chave]);
+    var ok = statusValidacaoRecorte(brutoId, itemId);
+    var invalLocal = !!_recortesInvalidadosLocal[chave];
+    // Mantém os 4 botões sempre visíveis (pedido do dono); tag no título = estado.
+    btnValidar.hidden = false;
+    btnValidar.classList.toggle('ativo', ok);
+    btnValidar.classList.toggle('recorte-btn-validado', ok);
+    btnValidar.textContent = ok ? '✔ Já validado' : '✔ Validar';
+    btnInvalidar.classList.toggle('ativo', invalLocal && !ok);
+    if (tag) {
+      tag.hidden = !ok;
+      tag.setAttribute('aria-hidden', ok ? 'false' : 'true');
+    }
+    var statusEl = document.getElementById('recorte-validacao-status');
+    if (statusEl && ok) statusEl.textContent = '';
   }
 
   // [2026-07-13] Preenche 1 slot de código público (obra/pavimento/recorte/
@@ -2184,12 +4039,17 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
         if (it) it.validado = validado;
         var chave = item.brutoId + '_' + item.itemId;
         _recortesInvalidadosLocal[chave] = !validado;
-        statusEl.textContent = validado ? 'Validado ✔' : 'Invalidado ✖';
+        // feedback curto; tag no título comunica “validado”
+        statusEl.textContent = validado ? '' : 'Invalidado';
         atualizarBotoesValidacao(item.brutoId, item.itemId);
         // [2026-07-13, pedido do dono] selo de validado na lista lateral
         // tem que atualizar na hora, sem reload — mesma função já usada
         // por Regenerar/Excluir pra refazer só a subclasse deste bruto.
         atualizarSubclassesDoBruto(item.brutoId);
+        // drill tiles (✓ no box) sem full reload
+        if (window.DrillGrade && typeof window.DrillGrade.refresh === 'function') {
+          try { window.DrillGrade.render(); } catch (e) { /* */ }
+        }
         // [2026-07-13, pedido do dono] validar já minta o código de
         // pavimento + o código próprio deste recorte — popula os slots na
         // hora, sem esperar o próximo fetch (a resposta já traz tudo).
@@ -2316,57 +4176,669 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     while (novaLista.firstChild) pai.insertBefore(novaLista.firstChild, proximoIrmao);
   }
 
+  var CLASSES_CRIAR_ITEM = [
+    { id: 'pilares', nome: 'Pilares Normais' },
+    { id: 'pilares_especiais', nome: 'Pilares Especiais' },
+    { id: 'lajes', nome: 'Lajes' },
+    { id: 'fundo', nome: 'Fundos de viga' },
+    { id: 'lateral_a_para', nome: 'Lateral A · Para' },
+    { id: 'lateral_a_passa', nome: 'Lateral A · Passa' },
+    { id: 'lateral_b_para', nome: 'Lateral B · Para' },
+    { id: 'lateral_b_passa', nome: 'Lateral B · Passa' },
+    { id: 'cortes', nome: 'Visão de Cortes' }
+  ];
+
+  function isClasseVigaCriar(classe) {
+    return classe === 'fundo' || (classe && String(classe).indexOf('lateral_') === 0);
+  }
+
+  function normalizarNomeViga(nome) {
+    return String(nome || '').trim().replace(/\s+/g, ' ').toUpperCase();
+  }
+
+  function keyRascunhosCriarItem(brutoId) {
+    return 'portal:criar-item:' + OBRA_ID + ':' + (window._viewerBrutoIdAtual || brutoId || '');
+  }
+
+  function lerRascunhosCriarItem(brutoId) {
+    try {
+      var prev = JSON.parse(localStorage.getItem(keyRascunhosCriarItem(brutoId)) || '[]');
+      return Array.isArray(prev) ? prev : [];
+    } catch (e) { return []; }
+  }
+
+  function beamNameDoItemLista(it) {
+    if (!it) return '';
+    if (it.beam_name) return normalizarNomeViga(it.beam_name);
+    var t = String(it.titulo || '');
+    var m = t.match(/^(.*?)\s*\(segmento\s+\d+\)\s*$/i);
+    if (m) return normalizarNomeViga(m[1]);
+    return normalizarNomeViga(t);
+  }
+
+  function segmentoDoItemLista(it) {
+    if (!it) return null;
+    if (it.segmento != null && it.segmento !== '') return it.segmento;
+    if (it.campos && (it.campos.Segmento != null || it.campos.segmento != null)) {
+      return it.campos.Segmento != null ? it.campos.Segmento : it.campos.segmento;
+    }
+    var m = String(it.titulo || '').match(/segmento\s+(\d+)/i);
+    return m ? m[1] : null;
+  }
+
+  /** Segmentos já existentes (SA + rascunhos) para a mesma viga na classe. */
+  function segmentosDaViga(classe, nomeViga, brutoId) {
+    var nomeN = normalizarNomeViga(nomeViga);
+    var set = {};
+    var fontes = {}; // n -> 'sa' | 'rascunho'
+    function add(seg, fonte) {
+      var n = parseInt(String(seg), 10);
+      if (!isFinite(n) || n < 1) return;
+      set[n] = 1;
+      if (!fontes[n] || fonte === 'sa') fontes[n] = fonte;
+    }
+    var cache = (window._criarItemItensPorClasse || {})[classe] || [];
+    cache.forEach(function (it) {
+      if (beamNameDoItemLista(it) !== nomeN) return;
+      add(segmentoDoItemLista(it), 'sa');
+    });
+    lerRascunhosCriarItem(brutoId).forEach(function (r) {
+      if (!r || r.classe !== classe) return;
+      if (normalizarNomeViga(r.nome || r.beam_name) !== nomeN) return;
+      add(r.segmento, 'rascunho');
+    });
+    // segmentos já desenhados nesta sessão (antes de salvar)
+    (window._polyGeoms || []).forEach(function (pl) {
+      if (pl && pl.segmento != null) add(pl.segmento, 'sessao');
+    });
+    var lista = Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+    // próximo = menor inteiro ≥1 livre (não só max+1)
+    var proximo = 1;
+    while (set[proximo]) proximo++;
+    return { lista: lista, fontes: fontes, proximo: proximo };
+  }
+
+  function htmlCriarItemPanel(prefClasse) {
+    var opts = CLASSES_CRIAR_ITEM.map(function (c) {
+      var sel = (prefClasse && prefClasse === c.id) ? ' selected' : '';
+      return '<option value="' + c.id + '"' + sel + '>' + c.nome + '</option>';
+    }).join('');
+    var showSeg = isClasseVigaCriar(prefClasse);
+    // [Proposta 2 — docs/mockups/torre-limpa-5-propostas.html] o rótulo
+    // "Criar item no estrutural" foi p/ o <summary> do <details> que envolve
+    // este painel (renderizarDetalheRecorte); aqui só o corpo interativo.
+    return (
+        '<div class="criar-item-row">' +
+          '<label class="criar-item-toggle"><input type="checkbox" id="chk-criar-item-geo"> Desenhar no SVG</label>' +
+          '<button type="button" class="criar-item-ortho-btn" id="btn-criar-item-ortho" ' +
+            'title="ORTHO — trava o traço a 0°/90° em relação ao último ponto (atalho F8)" ' +
+            'aria-pressed="false">Ortho <kbd>F8</kbd></button>' +
+          '<select id="criar-item-classe" title="Classe SA">' + opts + '</select>' +
+          '<input type="text" id="criar-item-nome" placeholder="' +
+            (showSeg ? 'Nome da viga (ex. V2)' : 'Nome (ex. P99)') +
+            '" autocomplete="off">' +
+          '<span id="criar-item-seg-wrap" class="criar-item-seg-wrap"' +
+            (showSeg ? '' : ' hidden') + '>' +
+            '<label class="criar-item-seg-label" for="criar-item-segmento">Próx. SEG</label>' +
+            '<select id="criar-item-segmento" title="Segmento do próximo traço (Enter fecha e abre o próximo)"></select>' +
+            '<input type="number" id="criar-item-segmento-livre" class="criar-item-seg-livre" ' +
+              'min="1" step="1" placeholder="nº" title="Número livre de segmento" hidden>' +
+          '</span>' +
+          '<button type="button" class="btn-sec btn" id="btn-criar-item-limpar">Limpar</button>' +
+          '<button type="button" class="btn" id="btn-criar-item-salvar">Criar item →</button>' +
+        '</div>' +
+        '<div id="criar-item-seg-lista" class="criar-item-seg-lista" hidden></div>' +
+        '<p id="criar-item-seg-info" class="meta criar-item-seg-info" hidden></p>' +
+        '<p class="meta criar-item-hint">Viga: desenhe SEG · <b>Enter</b> fecha o segmento e prepara o próximo · lista abaixo permite ajustar cada SEG · no fim use <b>Criar item</b> para gravar todos de uma vez. OSNAP nos vértices/cruzes · <b>Ortho (F8)</b> trava o traço a 0°/90° quando não há OSNAP no cursor. Esc desfaz · botão direito remove o último ponto.</p>' +
+        '<span id="criar-item-status" class="meta" role="status"></span>'
+    );
+  }
+
+  window.wireCriarItemPanel = function (viewerContainer, brutoId) {
+    var chk = document.getElementById('chk-criar-item-geo');
+    var btnLimpar = document.getElementById('btn-criar-item-limpar');
+    var btnSalvar = document.getElementById('btn-criar-item-salvar');
+    var status = document.getElementById('criar-item-status');
+    var selClasse = document.getElementById('criar-item-classe');
+    var inpNome = document.getElementById('criar-item-nome');
+    var wrapSeg = document.getElementById('criar-item-seg-wrap');
+    var selSeg = document.getElementById('criar-item-segmento');
+    var inpSegLivre = document.getElementById('criar-item-segmento-livre');
+    var infoSeg = document.getElementById('criar-item-seg-info');
+    var btnOrtho = document.getElementById('btn-criar-item-ortho');
+    if (!chk) return;
+
+    // reflete o estado global (o dono pode ter deixado Ortho ligado ao trocar
+    // de item/torre — F8 continua funcionando fora deste painel também).
+    if (btnOrtho) {
+      btnOrtho.setAttribute('aria-pressed', window._modoOrthoAtivo ? 'true' : 'false');
+      btnOrtho.addEventListener('click', function () { toggleOrtho(); });
+    }
+
+    window._criarItemItensPorClasse = window._criarItemItensPorClasse || {};
+
+    function carregarItensClasseCriar(classe) {
+      if (!classe || !isClasseVigaCriar(classe)) return;
+      if (window._criarItemItensPorClasse[classe] && window._criarItemItensPorClasse[classe]._loaded) {
+        popularSegmentosSelect();
+        return;
+      }
+      var pav = window._viewerPavimentoAtual;
+      var q = pav ? ('?pavimento=' + encodeURIComponent(pav)) : '';
+      fetch('/obras/' + OBRA_ID + '/n1/' + encodeURIComponent(classe) + q, { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : { itens: [] }; })
+        .then(function (data) {
+          var itens = data.itens || [];
+          itens._loaded = true;
+          window._criarItemItensPorClasse[classe] = itens;
+          popularSegmentosSelect();
+        })
+        .catch(function () {
+          window._criarItemItensPorClasse[classe] = [];
+          window._criarItemItensPorClasse[classe]._loaded = true;
+          popularSegmentosSelect();
+        });
+    }
+
+    function popularSegmentosSelect() {
+      if (!selSeg || !wrapSeg || wrapSeg.hidden) return;
+      var classe = selClasse ? selClasse.value : '';
+      var nome = inpNome ? inpNome.value : '';
+      var info = segmentosDaViga(classe, nome, brutoId);
+      var keep = selSeg.value;
+      selSeg.innerHTML = '';
+      // opções 1..max(proximo+2, 8) + segmentos conhecidos
+      var maxOpt = Math.max(info.proximo + 2, 8, info.lista.length ? info.lista[info.lista.length - 1] : 1);
+      for (var n = 1; n <= maxOpt; n++) {
+        var opt = document.createElement('option');
+        opt.value = String(n);
+        var tag = info.fontes[n] === 'sa' ? ' · SA' : (info.fontes[n] === 'rascunho' ? ' · rascunho' : '');
+        var livre = info.lista.indexOf(n) < 0;
+        opt.textContent = 'SEG ' + n + tag + (livre && n === info.proximo ? ' · próximo' : '');
+        if (!livre) opt.textContent = 'SEG ' + n + tag + ' · ocupado';
+        selSeg.appendChild(opt);
+      }
+      var optNovo = document.createElement('option');
+      optNovo.value = '__livre__';
+      optNovo.textContent = '+ número livre…';
+      selSeg.appendChild(optNovo);
+
+      // default: próximo livre (permite popular SEG 2 da mesma V2)
+      if (keep === '__livre__') {
+        selSeg.value = '__livre__';
+        if (inpSegLivre) { inpSegLivre.hidden = false; }
+      } else if (keep && selSeg.querySelector('option[value="' + keep + '"]') && info.lista.indexOf(parseInt(keep, 10)) < 0) {
+        selSeg.value = keep;
+        if (inpSegLivre) inpSegLivre.hidden = true;
+      } else {
+        selSeg.value = String(info.proximo);
+        if (inpSegLivre) inpSegLivre.hidden = true;
+      }
+
+      if (infoSeg) {
+        if (nome && normalizarNomeViga(nome)) {
+          infoSeg.hidden = false;
+          if (info.lista.length) {
+            infoSeg.textContent = normalizarNomeViga(nome) + ' · segmentos já na classe: ' +
+              info.lista.map(function (s) {
+                return 'SEG ' + s + (info.fontes[s] === 'rascunho' ? ' (rascunho)' : '');
+              }).join(', ') +
+              ' → próximo livre: SEG ' + info.proximo;
+          } else {
+            infoSeg.textContent = normalizarNomeViga(nome) + ' · nenhum segmento ainda nesta classe → SEG 1';
+          }
+        } else {
+          infoSeg.hidden = true;
+          infoSeg.textContent = '';
+        }
+      }
+    }
+
+    var listaSegEl = document.getElementById('criar-item-seg-lista');
+
+    function atualizarUiSegmento() {
+      var classe = selClasse ? selClasse.value : '';
+      var viga = isClasseVigaCriar(classe);
+      if (wrapSeg) wrapSeg.hidden = !viga;
+      if (inpNome) {
+        inpNome.placeholder = viga ? 'Nome da viga (ex. V2)' : 'Nome (ex. P99)';
+      }
+      if (viga) {
+        carregarItensClasseCriar(classe);
+        popularSegmentosSelect();
+        renderListaSegmentosDesenhados();
+      } else {
+        if (infoSeg) infoSeg.hidden = true;
+        if (listaSegEl) { listaSegEl.hidden = true; listaSegEl.innerHTML = ''; }
+      }
+    }
+
+    function segmentoEscolhido() {
+      if (!selSeg || wrapSeg.hidden) return null;
+      if (selSeg.value === '__livre__') {
+        var n = parseInt((inpSegLivre && inpSegLivre.value) || '', 10);
+        return (isFinite(n) && n >= 1) ? n : null;
+      }
+      var s = parseInt(selSeg.value, 10);
+      return (isFinite(s) && s >= 1) ? s : null;
+    }
+
+    function optsSegmentoHtml(selected, classe, nome) {
+      var info = segmentosDaViga(classe, nome, brutoId);
+      // para o select de uma linha, o SEG já usado NELA conta como livre para si
+      var maxOpt = Math.max(info.proximo + 3, 8, selected || 1);
+      var html = '';
+      for (var n = 1; n <= maxOpt; n++) {
+        var tag = info.fontes[n] === 'sa' ? ' · SA'
+          : (info.fontes[n] === 'rascunho' ? ' · rascunho'
+          : (info.fontes[n] === 'sessao' && n !== selected ? ' · nesta sessão' : ''));
+        html += '<option value="' + n + '"' + (n === selected ? ' selected' : '') +
+          '>SEG ' + n + tag + '</option>';
+      }
+      return html;
+    }
+
+    function renderListaSegmentosDesenhados() {
+      if (!listaSegEl) return;
+      var classe = selClasse ? selClasse.value : '';
+      var viga = isClasseVigaCriar(classe);
+      var geoms = window._polyGeoms || [];
+      if (!viga || !geoms.length) {
+        listaSegEl.hidden = true;
+        listaSegEl.innerHTML = '';
+        return;
+      }
+      var nome = (inpNome && inpNome.value) || '';
+      listaSegEl.hidden = false;
+      var rows = geoms.map(function (pl, idx) {
+        var seg = parseInt(pl.segmento, 10) || (idx + 1);
+        var nPts = (pl.points || []).length;
+        return (
+          '<div class="criar-item-seg-row" data-idx="' + idx + '">' +
+            '<span class="criar-item-seg-row-lab">Linha ' + (idx + 1) +
+              ' · ' + nPts + ' pts</span>' +
+            '<select class="criar-item-seg-row-sel" data-idx="' + idx +
+              '" title="Segmento desta linha">' +
+              optsSegmentoHtml(seg, classe, nome) +
+            '</select>' +
+            '<button type="button" class="btn-sec btn btn-sm criar-item-seg-row-del" data-idx="' +
+              idx + '" title="Remover este segmento">✕</button>' +
+          '</div>'
+        );
+      }).join('');
+      listaSegEl.innerHTML =
+        '<div class="criar-item-seg-lista-title">Segmentos da viga nesta sessão · Enter fecha um e libera o próximo</div>' +
+        rows;
+
+      listaSegEl.querySelectorAll('.criar-item-seg-row-sel').forEach(function (sel) {
+        sel.addEventListener('change', function () {
+          var i = parseInt(sel.getAttribute('data-idx'), 10);
+          var v = parseInt(sel.value, 10);
+          if (window._polyGeoms[i] && isFinite(v)) {
+            window._polyGeoms[i].segmento = v;
+            popularSegmentosSelect();
+            renderListaSegmentosDesenhados();
+          }
+        });
+      });
+      listaSegEl.querySelectorAll('.criar-item-seg-row-del').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var i = parseInt(btn.getAttribute('data-idx'), 10);
+          if (!isFinite(i)) return;
+          window._polyGeoms.splice(i, 1);
+          if (window.redesenharPolylines) redesenharPolylines(viewerContainer);
+          popularSegmentosSelect();
+          renderListaSegmentosDesenhados();
+          if (status) status.textContent = 'Segmento removido · restam ' +
+            (window._polyGeoms.length) + ' linha(s)';
+        });
+      });
+    }
+
+    /** Enter / duplo-clique fechou uma polyline → associa SEG e abre o próximo. */
+    window._onPolylineFechada = function (entry) {
+      var classe = selClasse ? selClasse.value : '';
+      var viga = isClasseVigaCriar(classe);
+      window._polyGeoms = window._polyGeoms || [];
+      if (viga) {
+        var seg = segmentoEscolhido();
+        var nome = (inpNome && inpNome.value) || '';
+        var info = segmentosDaViga(classe, nome, brutoId);
+        if (!seg || info.lista.indexOf(seg) >= 0) {
+          // se o combobox aponta para ocupado, usa o próximo livre real
+          seg = info.proximo;
+        }
+        entry.segmento = seg;
+        window._polyGeoms.push(entry);
+        popularSegmentosSelect();
+        // avança combobox para o próximo livre (após incluir esta linha)
+        var info2 = segmentosDaViga(classe, nome, brutoId);
+        if (selSeg) {
+          selSeg.value = String(info2.proximo);
+          if (inpSegLivre) inpSegLivre.hidden = true;
+        }
+        renderListaSegmentosDesenhados();
+        if (status) {
+          status.textContent = '✓ SEG ' + seg + ' fechado (' + entry.points.length +
+            ' pts) · próximo: SEG ' + info2.proximo +
+            ' · desenhe ou Criar item (' + window._polyGeoms.length + ' segmento(s))';
+        }
+      } else {
+        window._polyGeoms.push(entry);
+        if (status) {
+          status.textContent = 'Linha fechada · ' + window._polyGeoms.length +
+            ' traço(s) · continue ou Criar item';
+        }
+      }
+    };
+
+    // Preferência vinda do drill ("+ Criar novo item" com classe já aberta)
+    var pref = window._criarItemClassePref;
+    if (pref && selClasse) {
+      for (var i = 0; i < selClasse.options.length; i++) {
+        if (selClasse.options[i].value === pref) { selClasse.selectedIndex = i; break; }
+      }
+      chk.checked = true;
+      window._modoPolylineAtivo = true;
+      window._modoCropManualAtivo = false;
+      window._criarItemClassePref = null;
+    }
+    atualizarUiSegmento();
+
+    if (selClasse) selClasse.addEventListener('change', function () {
+      atualizarUiSegmento();
+      renderListaSegmentosDesenhados();
+    });
+    if (inpNome) {
+      inpNome.addEventListener('input', function () {
+        if (isClasseVigaCriar(selClasse && selClasse.value)) {
+          popularSegmentosSelect();
+          renderListaSegmentosDesenhados();
+        }
+      });
+      inpNome.addEventListener('change', function () {
+        if (isClasseVigaCriar(selClasse && selClasse.value)) {
+          popularSegmentosSelect();
+          renderListaSegmentosDesenhados();
+        }
+      });
+    }
+    if (selSeg) selSeg.addEventListener('change', function () {
+      if (inpSegLivre) {
+        inpSegLivre.hidden = selSeg.value !== '__livre__';
+        if (!inpSegLivre.hidden) inpSegLivre.focus();
+      }
+    });
+
+    chk.addEventListener('change', function () {
+      window._modoPolylineAtivo = this.checked;
+      window._modoCropManualAtivo = false;
+      if (this.checked) {
+        var vp = viewerContainer.querySelector('.zoom-pan-viewport');
+        var svg = vp && ((vp._pz && vp._pz.svg) || vp.querySelector('svg:not(.destaque-overlay)') || vp.querySelector('svg'));
+        window._snapPts = null;
+        window._snapGrid = null;
+        window._snapSvg = null;
+        window._snapSegs = null;
+        if (status) {
+          status.textContent = 'Modo linha · indexando OSNAP…';
+        }
+        if (svg && window.rebuildSnapIndex) {
+          window.rebuildSnapIndex(svg, {
+            async: true,
+            onDone: function (n, ms) {
+              if (!status) return;
+              var viga = isClasseVigaCriar(selClasse && selClasse.value);
+              status.textContent = n
+                ? ('Modo linha · OSNAP · ' + n + ' alvos · ' +
+                  (window._snapXCount || 0) + ' cruzes · ' + ms + 'ms' +
+                  (viga ? ' · Enter = próximo SEG' : ''))
+                : 'Modo linha · OSNAP sem alvos';
+            }
+          });
+        }
+      } else if (status) {
+        status.textContent = '';
+      }
+    });
+    if (btnLimpar) btnLimpar.addEventListener('click', function () {
+      window._polyGeoms = [];
+      window._polyAtual = [];
+      window._polyHover = null;
+      window._snapCursor = null;
+      if (window.redesenharPolylines) redesenharPolylines(viewerContainer);
+      popularSegmentosSelect();
+      renderListaSegmentosDesenhados();
+      if (status) status.textContent = 'Linhas limpas';
+    });
+    if (btnSalvar) btnSalvar.addEventListener('click', function () {
+      var classe = (selClasse || {}).value;
+      var nome = ((inpNome || {}).value || '').trim();
+      var viga = isClasseVigaCriar(classe);
+
+      // fecha linha em curso se tiver ≥2 pts (usa o hook p/ atribuir SEG)
+      if (window._polyAtual && window._polyAtual.length >= 2) {
+        fecharPolylineAtual();
+      }
+      if (!window._polyGeoms || !window._polyGeoms.length) {
+        if (status) status.textContent = 'Desenhe ao menos uma linha (2+ pontos) e Enter.';
+        return;
+      }
+      if (!classe) {
+        if (status) status.textContent = 'Escolha a classe SA.';
+        return;
+      }
+      if (viga && !nome) {
+        if (status) status.textContent = 'Informe o nome da viga (ex. V2).';
+        return;
+      }
+
+      var key = keyRascunhosCriarItem(brutoId);
+      var prev = lerRascunhosCriarItem(brutoId);
+      var salvos = 0;
+      var erros = [];
+
+      if (viga) {
+        // um rascunho por segmento (cada linha = 1 SEG)
+        var usados = {};
+        window._polyGeoms.forEach(function (pl, idx) {
+          var seg = parseInt(pl.segmento, 10);
+          if (!isFinite(seg) || seg < 1) {
+            erros.push('Linha ' + (idx + 1) + ': SEG inválido');
+            return;
+          }
+          if (usados[seg]) {
+            erros.push('SEG ' + seg + ' repetido na sessão');
+            return;
+          }
+          usados[seg] = 1;
+          // conflito com SA/rascunho já gravado (não com a própria sessão)
+          var info = segmentosDaViga(classe, nome, brutoId);
+          // remove temporariamente segs da sessão do check — já estão em info.lista
+          // como 'sessao'; só bloqueia se fonte for sa ou rascunho
+          if (info.fontes[seg] === 'sa' || info.fontes[seg] === 'rascunho') {
+            erros.push(nome.toUpperCase() + ' SEG ' + seg + ' já existe (' + info.fontes[seg] + ')');
+            return;
+          }
+          prev.push({
+            obra_id: OBRA_ID,
+            bruto_id: brutoId || window._viewerBrutoIdAtual,
+            item_fundo: window._viewerItemIdAtual || 'torre_1',
+            classe: classe,
+            nome: nome,
+            beam_name: nome,
+            segmento: seg,
+            titulo: nome + ' (segmento ' + seg + ')',
+            tipo_geo: 'polyline',
+            polylines: [{
+              points: (pl.points || []).map(function (p) { return [p.x, p.y]; })
+            }],
+            created_at: new Date().toISOString()
+          });
+          salvos++;
+        });
+      } else {
+        prev.push({
+          obra_id: OBRA_ID,
+          bruto_id: brutoId || window._viewerBrutoIdAtual,
+          item_fundo: window._viewerItemIdAtual || 'torre_1',
+          classe: classe,
+          nome: nome || null,
+          beam_name: null,
+          segmento: null,
+          titulo: nome || null,
+          tipo_geo: 'polyline',
+          polylines: window._polyGeoms.map(function (pl) {
+            return { points: (pl.points || []).map(function (p) { return [p.x, p.y]; }) };
+          }),
+          created_at: new Date().toISOString()
+        });
+        salvos = 1;
+      }
+
+      if (erros.length && !salvos) {
+        if (status) status.textContent = erros.join(' · ');
+        return;
+      }
+      try {
+        localStorage.setItem(key, JSON.stringify(prev));
+      } catch (e2) { /* private mode */ }
+
+      if (status) {
+        status.textContent = viga
+          ? ('Rascunho · ' + nome.toUpperCase() + ' · ' + salvos + ' segmento(s) gravado(s)' +
+            (erros.length ? ' · avisos: ' + erros.join('; ') : '') +
+            '. Pode continuar com outro SEG ou outra viga.')
+          : ('Rascunho · ' + classe + (nome ? ' · ' + nome : '') + ' gravado.');
+      }
+      window._polyGeoms = [];
+      window._polyAtual = [];
+      if (window.redesenharPolylines) redesenharPolylines(viewerContainer);
+      popularSegmentosSelect();
+      renderListaSegmentosDesenhados();
+      if (viga) {
+        var pos = segmentosDaViga(classe, nome, brutoId);
+        if (selSeg) {
+          selSeg.value = String(pos.proximo);
+          if (inpSegLivre) inpSegLivre.hidden = true;
+        }
+        chk.checked = true;
+        window._modoPolylineAtivo = true;
+      } else {
+        chk.checked = false;
+        window._modoPolylineAtivo = false;
+      }
+    });
+  };
+
+  // Menu "⋯" do cabeçalho de recorte (Proposta 2): fecha ao clicar fora.
+  // Listener único no document (não por render) — a cada renderizarDetalheRecorte
+  // o botão/menu são recriados, então buscar por id de novo sempre pega o atual.
+  function fecharMenuRecorte() {
+    var menu = document.getElementById('recorte-mais-menu');
+    var btn = document.getElementById('recorte-mais-btn');
+    if (menu) menu.hidden = true;
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  document.addEventListener('click', function (e) {
+    var menu = document.getElementById('recorte-mais-menu');
+    if (!menu || menu.hidden) return;
+    var btn = document.getElementById('recorte-mais-btn');
+    if (btn && btn.contains(e.target)) return;
+    if (menu.contains(e.target)) return;
+    fecharMenuRecorte();
+  });
+
   function renderizarDetalheRecorte(item) {
     var det = document.getElementById('docs-detalhe');
     if (!det) return;
+    var pavLabel = item.pavimento === 'Indeterminado' ? 'Docs Gerais' : (item.pavimento || '—');
+    var cat = (item.categoria || '').replace(/</g, '&lt;');
+    var tit = (item.titulo || '').replace(/</g, '&lt;');
+    var isTorre = !!(item.itemId && String(item.itemId).indexOf('torre') === 0);
+    var prefClasse = window._criarItemClassePref || null;
+    window._viewerPavimentoAtual = (item.pavimento && item.pavimento !== 'Indeterminado')
+      ? item.pavimento : null;
+    // [Proposta 2 — docs/mockups/torre-limpa-5-propostas.html] só Validar/
+    // Invalidar em destaque; Regenerar/Excluir/Códigos públicos no menu "⋯";
+    // "Criar item" vira <details> fechado por padrão — máximo de SVG visível.
     det.innerHTML =
-      '<div id="docs-cabecalho-slot"></div>' +
-      '<div id="docs-intro-slot"></div>' +
-      '<strong>' + item.titulo.replace(/</g, '&lt;') + '</strong>' +
-      '<div class="cab-grid" style="margin-top:10px">' +
-        '<div><span class="n1-campo-label">Categoria</span><br>' + item.categoria + '</div>' +
-        '<div><span class="n1-campo-label">Pavimento</span><br>' + (item.pavimento === 'Indeterminado' ? 'Docs Gerais' : item.pavimento) + '</div>' +
-        '<div id="recorte-pavimento-code-slot"><span class="n1-campo-label">Código de Pavimento</span><br>—</div>' +
-        '<div id="recorte-code-slot"><span class="n1-campo-label">Código de Recorte</span><br>—</div>' +
+      '<div class="recorte-top">' +
+        '<div class="recorte-top-main">' +
+          '<h2 class="recorte-title">' + tit + '</h2>' +
+          '<div class="recorte-chips">' +
+            (cat ? '<span class="recorte-chip">' + cat + '</span>' : '') +
+            '<span class="recorte-chip recorte-chip-pav">' + pavLabel.replace(/</g, '&lt;') + '</span>' +
+            '<span id="recorte-validado-tag" class="recorte-tag-ok" hidden title="Validação salva">✓ Validado</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="recorte-acoes-primarias">' +
+          '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
+          '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-invalidar-btn">✖ Invalidar</button>' +
+          '<div class="recorte-mais-wrap">' +
+            '<button type="button" class="btn-sec btn recorte-mais-btn" id="recorte-mais-btn" ' +
+              'title="Mais ações" aria-haspopup="true" aria-expanded="false">⋯</button>' +
+            '<div class="recorte-mais-menu" id="recorte-mais-menu" hidden>' +
+              '<button type="button" id="recorte-regenerar-btn">Regenerar →</button>' +
+              '<button type="button" id="recorte-codigos-btn">Códigos públicos</button>' +
+              '<button type="button" id="recorte-excluir-btn" class="recorte-mais-danger">🗑 Excluir recorte</button>' +
+            '</div>' +
+          '</div>' +
+          '<span id="recorte-validacao-status" class="meta recorte-status-msg" role="status" aria-live="polite"></span>' +
+        '</div>' +
       '</div>' +
-      '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
-        '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
-        '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-invalidar-btn">✖ Invalidar</button>' +
-        '<button type="button" class="btn-sec btn" id="recorte-regenerar-btn">Regenerar →</button>' +
-        '<button type="button" class="btn-sec btn" id="recorte-excluir-btn">🗑 Excluir</button>' +
-        '<span id="recorte-validacao-status" class="meta" role="status" aria-live="polite"></span>' +
-      '</div>' +
-      '<div id="doc-viewer-extra" style="margin-top:14px"></div>';
-    window.moverIntroParaSlot(det);
+      '<details class="recorte-codes" id="recorte-codes-block">' +
+        '<summary>Códigos públicos</summary>' +
+        '<div class="recorte-codes-grid">' +
+          '<div id="recorte-pavimento-code-slot"><span class="n1-campo-label">Pavimento</span><br><span class="muted">—</span></div>' +
+          '<div id="recorte-code-slot"><span class="n1-campo-label">Recorte</span><br><span class="muted">—</span></div>' +
+        '</div>' +
+      '</details>' +
+      (isTorre ?
+        '<details class="criar-item-coll" id="criar-item-coll">' +
+          '<summary>✏️ Criar item no estrutural <span class="meta">· desenhe geometria SA</span></summary>' +
+          '<div class="criar-item-body">' + htmlCriarItemPanel(prefClasse) + '</div>' +
+        '</details>'
+        : '') +
+      '<div id="doc-viewer-extra" class="recorte-viewer-host"></div>';
 
     document.getElementById('recorte-validar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, true); });
     document.getElementById('recorte-invalidar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, false); });
-    document.getElementById('recorte-regenerar-btn').addEventListener('click', function () { regenerarRecorte(item); });
-    document.getElementById('recorte-excluir-btn').addEventListener('click', function () { excluirRecorte(item); });
+    document.getElementById('recorte-regenerar-btn').addEventListener('click', function () { fecharMenuRecorte(); regenerarRecorte(item); });
+    document.getElementById('recorte-excluir-btn').addEventListener('click', function () { fecharMenuRecorte(); excluirRecorte(item); });
+    document.getElementById('recorte-codigos-btn').addEventListener('click', function () {
+      fecharMenuRecorte();
+      var bloco = document.getElementById('recorte-codes-block');
+      if (bloco) { bloco.open = true; bloco.scrollIntoView({ block: 'nearest' }); }
+    });
+    var menuMaisBtn = document.getElementById('recorte-mais-btn');
+    var menuMaisEl = document.getElementById('recorte-mais-menu');
+    if (menuMaisBtn && menuMaisEl) {
+      menuMaisBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var estavaAberto = !menuMaisEl.hidden;
+        menuMaisEl.hidden = estavaAberto;
+        menuMaisBtn.setAttribute('aria-expanded', estavaAberto ? 'false' : 'true');
+      });
+    }
     atualizarBotoesValidacao(item.brutoId, item.itemId);
 
     var src = '/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(item.brutoId) +
       '/' + encodeURIComponent(item.itemId) + '/foto';
     renderizarFotoRecorte(document.getElementById('doc-viewer-extra'), src, item.titulo);
 
-    // [2026-07-12] Código público do pavimento ("ficha do pavimento"/
-    // recorte limpo da torre) — "Indeterminado" (Docs Gerais) não tem
-    // pavimento real, nunca busca.
     if (item.pavimento && item.pavimento !== 'Indeterminado') {
       fetch('/obras/' + OBRA_ID + '/pavimento-code?pavimento=' + encodeURIComponent(item.pavimento))
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          window.preencherSlotCodePublico('recorte-pavimento-code-slot', 'Código de Pavimento', data.code_publico, data.referencia);
+          window.preencherSlotCodePublico('recorte-pavimento-code-slot', 'Pavimento', data.code_publico, data.referencia);
         })
         .catch(function () { /* silencioso */ });
-
-      // [2026-07-13, pedido do dono] código PRÓPRIO deste recorte (Torre
-      // 1/Detalhes/etc) — só existe depois de validado ao menos 1 vez.
       fetch('/obras/' + OBRA_ID + '/recorte-code?pavimento=' + encodeURIComponent(item.pavimento) +
         '&recorte_tipo=' + encodeURIComponent(item.itemId) + '&bruto_id=' + encodeURIComponent(item.brutoId))
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          window.preencherSlotCodePublico('recorte-code-slot', 'Código de Recorte', data.code_publico, data.referencia,
+          window.preencherSlotCodePublico('recorte-code-slot', 'Recorte', data.code_publico, data.referencia,
             'ainda não validado');
         })
         .catch(function () { /* silencioso */ });
@@ -2381,52 +4853,32 @@ camposEl.innerHTML = btns + (linhas || '<p class="muted">Sem campos.</p>');
     fetch('/obras/' + OBRA_ID + '/recortes/brutos?t=' + Date.now()).then(function (r) { return r.json(); })
       .then(function (data) {
         _recortesBrutosCache = data.brutos;
+        window._recortesBrutosCache = _recortesBrutosCache;
         return Promise.all(data.brutos.map(function (b) {
           return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(b.bruto_id) + '/itens?t=' + Date.now())
             .then(function (r) { return r.json(); })
-            .then(function (itensData) { _recortesItensPorBruto[b.bruto_id] = itensData.itens; })
-            .catch(function () { _recortesItensPorBruto[b.bruto_id] = []; });
+            .then(function (itensData) {
+              _recortesItensPorBruto[b.bruto_id] = itensData.itens;
+              window._recortesItensPorBruto = _recortesItensPorBruto;
+            })
+            .catch(function () {
+              _recortesItensPorBruto[b.bruto_id] = [];
+              window._recortesItensPorBruto = _recortesItensPorBruto;
+            });
         }));
       })
       .then(function () {
+        window._recortesBrutosCache = _recortesBrutosCache;
+        window._recortesItensPorBruto = _recortesItensPorBruto;
         if (window.montarListaTriagem) window.montarListaTriagem();
+        if (window.DrillGrade) window.DrillGrade.refresh();
       })
       .catch(function () { /* Triagem funciona normal sem os recortes */ });
   }
   carregarDadosRecortesEArvore();
 
-  // --- ErrorMarker religado à API (§4). Chave estável mantida. ---
-  (function () {
-    var PAV = {{ (pavimento or 'GERAL')|tojson }};
-    var CLASSE = {{ (classe_ativa or 'GERAL')|tojson }};
-    var ITEM = {{ (item_id or 'ficha')|tojson }};
-    var chave = ('aten_erro_' + CLASSE + '_' + OBRA_ID + '_' + PAV + '_' + ITEM).replace(/ /g, '_');
-    var chk = document.getElementById('erro_check');
-    var txt = document.getElementById('erro_nota');
-    var saved = document.getElementById('em_saved');
-    var prov = document.getElementById('em_prov');
-    var t = null;
-    function save() {
-      clearTimeout(t);
-      t = setTimeout(function () {
-        if (!chk.checked && !txt.value.trim()) return;
-        fetch('/obras/' + OBRA_ID + '/comentarios', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            texto: (txt.value || '(marcada como errada, sem nota)'),
-            tipo: chk.checked ? 'erro' : 'observacao',
-            classe: CLASSE === 'GERAL' ? null : CLASSE,
-            pavimento: PAV === 'GERAL' ? null : PAV,
-            item_id: chave,
-          }),
-        }).then(function (r) { if (r.ok) { saved.hidden = false; return r.json(); } })
-          .then(function (j) { if (j) prov.textContent = 'marcado por ' + j.marcado_por; })
-          .catch(function () { /* silencioso: autosave */ });
-      }, 600);
-    }
-    chk.addEventListener('change', save);
-    txt.addEventListener('input', save);
-  })();
+  // ErrorMarker global da página de obra removido (2026-07-31) — validação
+  // fica nos painéis de item/recorte, não no rodapé de Documentos.
 
   
 
@@ -2490,17 +4942,19 @@ window.atualizaAposJob = function() {
              .then(function(docs) {
                 window.documentos = docs;
                 if (window.montarLista) window.montarLista();
-             });
+             }).catch(function () { /* arvore legada pode nao existir */ });
         }
         
     } else {
-        // Se nada estava selecionado, recarrega a arvore
-        if (window.OBRA_ID) {
-           fetch('/obras/' + window.OBRA_ID + '/arvore').then(function(r) { return r.json(); })
-             .then(function(docs) {
-                window.documentos = docs;
+        // Modo obra: atualiza abas PDF/DXF/Fotos/DWG sem full reload
+        if (window.recarregarDocsObra) {
+          window.recarregarDocsObra();
+        } else if (window.OBRA_ID) {
+           fetch('/obras/' + window.OBRA_ID + '/documentos').then(function(r) { return r.json(); })
+             .then(function(data) {
+                window.documentos = data.documentos || [];
                 if (window.montarLista) window.montarLista();
-             });
+             }).catch(function () { /* */ });
         }
     }
     
@@ -2597,7 +5051,64 @@ window.atualizarEstatisticasGlobais = function() {
 
   setTimeout(window.atualizarEstatisticasGlobais, 500);
 
+  // ---------------------------------------------------------------- //
+  // Drill grade: expõe hooks do conteúdo central p/ drill_grade.js
+  // ---------------------------------------------------------------- //
+  document.body.classList.add('drill-grade-on');
+  // boot: sem ?pavimento= → ficha da obra; com pav → esconde ficha
+  (function () {
+    var pBoot = null;
+    try { pBoot = new URLSearchParams(window.location.search).get('pavimento'); } catch (e) {}
+    if (typeof setObraModo === 'function') setObraModo(pBoot ? 'pavimento' : 'pavs');
+  })();
+  window.mostrarDetalhe = mostrarDetalhe;
+  window.selecionarPavimento = selecionarPavimento;
+  window.selecionarTriagemGeral = selecionarTriagemGeral;
+  window.atualizarProgressoRecortesPavimento = atualizarProgressoRecortesPavimento;
+  window.carregarDetalheItemN1 = carregarDetalheItemN1;
+  window.carregarDetalheItemN3 = carregarDetalheItemN3;
+  window.renderizarDetalheRecorte = renderizarDetalheRecorte;
+  window.renderizarFotoRecorte = renderizarFotoRecorte;
+  window._recortesBrutosCache = typeof _recortesBrutosCache !== 'undefined' ? _recortesBrutosCache : window._recortesBrutosCache;
+  window._recortesItensPorBruto = typeof _recortesItensPorBruto !== 'undefined' ? _recortesItensPorBruto : window._recortesItensPorBruto;
+  window.setPainel3Estado = function (st) { _painel3Estado = st; };
+  // caches de recortes vivem em vars do módulo — re-espelha a cada load
+  (function espelharCachesRecortes() {
+    try {
+      if (typeof _recortesBrutosCache !== 'undefined') window._recortesBrutosCache = _recortesBrutosCache;
+      if (typeof _recortesItensPorBruto !== 'undefined') window._recortesItensPorBruto = _recortesItensPorBruto;
+    } catch (e) { /* */ }
+    setTimeout(espelharCachesRecortes, 800);
+  })();
 
-  
+  // ---------------------------------------------------------------- //
+  // [2026-07-30] Painel direito de status: recolher/expandir.
+  // O estado persiste em localStorage por obra — recolher e a página
+  // reabrir expandida seria pior que não ter o botão.
+  // ---------------------------------------------------------------- //
+  (function () {
+    var painel = document.getElementById('painel-status');
+    var botao = document.getElementById('painel-status-toggle');
+    if (!painel || !botao) return;
+    var CHAVE = 'portal:painel-status-recolhido';
+
+    function aplicar(recolhido) {
+      painel.classList.toggle('recolhido', recolhido);
+      botao.setAttribute('aria-expanded', recolhido ? 'false' : 'true');
+      botao.title = recolhido ? 'Expandir o status' : 'Recolher o status';
+    }
+
+    var salvo = null;
+    try { salvo = localStorage.getItem(CHAVE); } catch (e) { /* modo privado */ }
+    aplicar(salvo === '1');
+
+    botao.addEventListener('click', function () {
+      var recolhido = !painel.classList.contains('recolhido');
+      aplicar(recolhido);
+      try { localStorage.setItem(CHAVE, recolhido ? '1' : '0'); } catch (e) { /* ignora */ }
+    });
+  })();
 </script>
+<script src="/static/pillar_ficha.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+<script src="/static/drill_grade.js?v={{ request.app.state.static_versao | default('0') }}"></script>
 {% endblock %}

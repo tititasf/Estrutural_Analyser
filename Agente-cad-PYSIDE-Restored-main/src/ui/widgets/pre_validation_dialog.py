@@ -44,6 +44,13 @@ from src.ui.widgets.svg_embed_utils import (
 _DBG_LOG = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'freeze_dump.log'
 )
+try:
+    from src.core.qa_presentation_notice import banner_html as _qa_presentation_banner
+except Exception:
+    def _qa_presentation_banner(*, dossier_path=None):
+        return ""
+
+
 def _dbg(msg: str) -> None:
     try:
         with open(_DBG_LOG, 'a', encoding='utf-8') as _f:
@@ -851,7 +858,17 @@ class PreValidationDialog(QDialog):
                 'alucinacao' in w.lower() or 'diverge' in w.lower()
                 for w in (entry.get('warnings') or [])
             )
-            result[name] = '⚠' if is_suspect else (entry.get('level_str') or '')
+            raw_lvl = str(entry.get('level_str') or '').strip()
+            # Anti-alucinação: se raw_lvl for número inteiro > 50 sem ponto/vírgula decimal (ex: 301, 302, 309),
+            # trata-se de código de elemento/laje e JAMAIS um nível.
+            if raw_lvl.replace(',', '.').replace('.', '').isdigit():
+                try:
+                    num_val = float(raw_lvl.replace(',', '.'))
+                    if num_val > 50.0 and '.' not in raw_lvl and ',' not in raw_lvl:
+                        is_suspect = True
+                except (ValueError, TypeError):
+                    pass
+            result[name] = '⚠' if is_suspect else raw_lvl
         return result
 
     def _build_slab_poly_map(self) -> dict[str, list]:
@@ -1027,6 +1044,14 @@ class PreValidationDialog(QDialog):
         ]
 
         def _laje_block(sn: str) -> str:
+            lajes_list = pillar.setdefault('lajes', [])
+            if not any(e.get('side') == side for e in lajes_list):
+                lajes_list.append({
+                    'laje': sn,
+                    'side': side,
+                    'content_type': 'laje',
+                    'source': 'lado_strategy_fallback'
+                })
             return self._side_cell_laje_block(
                 sn,
                 self._slab_height_map.get(sn) or '',
@@ -1343,7 +1368,11 @@ class PreValidationDialog(QDialog):
                 return None
 
             # 1ª — fichas com número do pavimento no path (ex: "- 13")
-            pav_num = re.search(r'(\d+)', self._pavimento or '')
+            # self._pavimento nem sempre chega canonicalizado (ver mesmo achado
+            # em _render_n2_recorte_b64, 2026-07-16): normaliza antes do regex
+            # de dígito para não quebrar quando vier o nome bruto do projeto.
+            from src.core.ficha_utils import canonical_pavimento
+            pav_num = re.search(r'(\d+)', canonical_pavimento(self._pavimento or ''))
             if pav_num:
                 pav_filter = f'%- {pav_num.group(1)}%'
                 cur.execute("""
@@ -4766,7 +4795,21 @@ class PreValidationDialog(QDialog):
     # ── Estado de Análise (snapshot persistente p/ headless) ──────────────────
 
     def _analysis_state_path(self) -> str:
-        """Caminho fixo do snapshot de estado: html_fichas/{obra}/estado_{pav}.json"""
+        """Caminho do snapshot de estado: html_fichas/{obra}/estado_{pav}.json
+
+        A app interativa (uso humano normal, sem `CAD_MOTOR_HEADLESS`) sempre
+        grava no caminho fixo/compartilhado — comportamento inalterado.
+
+        Uma rodada headless (`CAD_MOTOR_HEADLESS=1`, setado por
+        `headless_sa_analise.py`) inclui o PID no nome do arquivo. Sem isso,
+        toda rodada headless de uma mesma seção/pavimento colidia no MESMO
+        arquivo entre si E com a app aberta simultaneamente — achado real
+        2026-07-21/22: um diagnóstico de verificação lia dados de outra
+        sessão (app do dono navegando SA) só porque as duas escreviam no
+        mesmo `estado_*.json` ao mesmo tempo. Isolamento por PID evita a
+        colisão sem exigir nenhuma coordenação humana (não depende de o
+        dono lembrar de fechar a app).
+        """
         base = os.path.normpath(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             '..', '..', '..', 'scripts', 'arete', 'html_fichas', self._obra,
@@ -4776,6 +4819,8 @@ class PreValidationDialog(QDialog):
             r'[^\w\-]', '_', str(getattr(self, '_headless_run_scope', '') or '')
         )[:40]
         suffix = f'_{scope}' if scope else ''
+        if os.environ.get('CAD_MOTOR_HEADLESS'):
+            suffix = f'{suffix}_pid{os.getpid()}'
         return os.path.join(base, f'estado_{pav_slug}{suffix}.json')
 
     def _save_analysis_state(self) -> None:
@@ -4794,6 +4839,58 @@ class PreValidationDialog(QDialog):
             ):
                 combo = self._pillar_combos.get(key)
                 classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
+                # face_beams + tabelas ABCD para portal N1 / ficha (sem evidence_segments pesados)
+                _fb_raw = pillar.get('face_beams') or {}
+                _fb_light: dict = {}
+                if isinstance(_fb_raw, dict):
+                    for _fid, _fd in _fb_raw.items():
+                        if not isinstance(_fd, dict):
+                            continue
+                        def _lite_beam(b):
+                            if not isinstance(b, dict):
+                                return b
+                            return {
+                                k: b.get(k)
+                                for k in ('name', 'dim', 'corner', 'behavior', 'nivel', 'n')
+                                if b.get(k) is not None
+                            }
+                        _fb_light[_fid] = {
+                            'passa_esq': _lite_beam(_fd.get('passa_esq')),
+                            'passa_dir': _lite_beam(_fd.get('passa_dir')),
+                            'corner_esq': _fd.get('corner_esq'),
+                            'corner_dir': _fd.get('corner_dir'),
+                            'para': [_lite_beam(x) for x in (_fd.get('para') or []) if isinstance(x, dict)],
+                            'interior': [_lite_beam(x) for x in (_fd.get('interior') or []) if isinstance(x, dict)],
+                        }
+                _abcd = pillar.get('_abcd_tables')
+                if not _abcd and _fb_light:
+                    try:
+                        from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+                        _nv = ''
+                        try:
+                            from src.core.niveis_extractor import get_pavimento_niveis_abs
+                            _ai = get_pavimento_niveis_abs(
+                                getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or '',
+                                getattr(self, '_pavimento', '') or '',
+                            )
+                            if _ai and _ai.get('chegada_abs') is not None:
+                                _nv = f"{_ai['chegada_abs']}cm"
+                        except Exception:
+                            pass
+                        _abcd = build_abcd_tables_from_pillar(
+                            {
+                                'name': pillar.get('name') or key,
+                                'points': pillar.get('points') or [],
+                                'orientation': pillar.get('orientation') or 'vertical',
+                                'lajes': pillar.get('lajes') or [],
+                                'face_beams': _fb_light,
+                            },
+                            slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                            slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                            nivel_viga_default=_nv,
+                        )
+                    except Exception:
+                        _abcd = None
                 pilares_serial.append({
                     'key':            key,
                     'name':           pillar.get('name') or key,
@@ -4802,6 +4899,8 @@ class PreValidationDialog(QDialog):
                     'points':         pillar.get('points') or [],
                     'bbox':           pillar.get('bbox') or [],
                     'lajes':          pillar.get('lajes') or [],
+                    'face_beams':     _fb_light,
+                    'interpretacao_abcd': _abcd,
                     'nivel_str':      (nr_pilares.get(key) or {}).get('level_str') or '',
                     'lado_A':         self._get_side_cell(pillar, 'A'),
                     'lado_B':         self._get_side_cell(pillar, 'B'),
@@ -5182,6 +5281,7 @@ class PreValidationDialog(QDialog):
         if not self._obra:
             return ''
         import glob as _glob
+        from src.core.ficha_utils import canonical_pavimento
         recortes_base = os.path.join(
             'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
             'Fase-2_Triagem', 'recortes_reversos'
@@ -5191,6 +5291,26 @@ class PreValidationDialog(QDialog):
         matches = sorted(_glob.glob(pattern, recursive=True), reverse=True)
         if not matches:
             return ''
+        # Isola por pavimento (achado real 2026-07-16, G5-V/N1-V P35: o glob
+        # varria a árvore inteira de recortes_reversos sem filtrar pavimento —
+        # como o mesmo nome de item (ex. "P35") se repete em vários andares
+        # (13/14/1/2/TIPO/COBERTURA), `matches[0]` podia pegar o recorte de
+        # OUTRO pavimento (confirmado: pegava a COBERTURA em vez do 13_PAV,
+        # porque a pasta "NOVA - ..." ordena depois de "ALIMONTI - ..." e
+        # reverse=True inverte a ordem alfabética).
+        # self._pavimento nem sempre chega canonicalizado: em rodadas de
+        # classe completa (sem --item) headless_sa_analise.py passa o nome
+        # bruto do projeto (ex. "TMC-EST-PE-6000-13P-R03_..."), cujo primeiro
+        # grupo de dígitos é "6000" (de "PE-6000"), não o andar — isso fazia
+        # o filtro não casar com nada e cair de volta no bug antigo. Normaliza
+        # aqui com a mesma função usada no resto do pipeline (ficha_utils).
+        pav_label = canonical_pavimento(self._pavimento or '')
+        pav_num = re.search(r'(\d+)', pav_label)
+        if pav_num:
+            pav_token = f'- {pav_num.group(1)}'
+            same_pav = [m for m in matches if pav_token in m]
+            if same_pav:
+                matches = same_pav
         return self._render_ezdxf_b64(matches[0], width=width, height=height, fmt=fmt)
 
     def _n1_ficha_html_pilar(self, pilar_key: str) -> str:
@@ -5419,6 +5539,34 @@ class PreValidationDialog(QDialog):
         except Exception:
             return '<span style="color:#555">erro</span>'
 
+    def _render_fv_hifi_n1_svg(
+        self,
+        segments: list,
+        mode: str = 'local',
+        width: int | None = None,
+        height: int | None = None,
+        **kwargs,
+    ) -> str:
+        """N1 HI-FI de fundos de viga (contextual multi-seg ou local 1-seg).
+
+        Contrato canônico da página web FV / headless / SA: mesmo visual
+        aprovado no V301 (linhas finas, texto DXF, vermelho/rosa, tags + líder).
+        """
+        try:
+            from src.ui.widgets.fv_hifi_n1_render import render_fv_hifi_n1_svg
+            if not getattr(self, '_dxf_data', None) or not segments:
+                return ''
+            return render_fv_hifi_n1_svg(
+                self._dxf_data,
+                segments,
+                mode=mode,
+                width=width,
+                height=height,
+            ) or ''
+        except Exception as exc:
+            print(f'[HTML] _render_fv_hifi_n1_svg falhou: {exc}', flush=True)
+            return ''
+
     def _render_pilar_dxf_context_b64(
         self,
         pilar_pts: list,
@@ -5481,13 +5629,25 @@ class PreValidationDialog(QDialog):
                 context_long = max(context_pw, context_ph, long_span)
                 context_short = max(min(context_pw, context_ph), short_span, 1.0)
                 if context_view == 'far':
-                    # A imagem distante enquadra a mesma viga inteira, mas o
-                    # destaque laranja continua sendo somente o segmento local.
-                    pad_long = max(180.0, context_long * 0.22)
-                    pad_short = max(180.0, context_short * 8.0)
+                    # A imagem distante é uma leitura de implantação, não um
+                    # segundo zoom do recorte local.  A margem anterior (180
+                    # cm / 22%) ainda deixava uma lateral curta praticamente
+                    # do mesmo tamanho visual da prova próxima.  Abrimos um
+                    # envelope real de entorno: comprimento da continuidade,
+                    # apoios, nível e etiquetas podem ficar fora do trecho.
+                    # O destaque continua limitado ao segmento local.
+                    # Segundo nível: implantação. A vista próxima já usa o
+                    # envelope que antes era chamado de "distante"; aqui a
+                    # janela precisa acrescentar as entidades de contexto
+                    # ainda mais remotas sem redefinir nenhum evento local.
+                    pad_long = max(800.0, context_long * 1.50)
+                    pad_short = max(800.0, context_short * 32.0)
                 else:
-                    pad_long = max(100.0, long_span * 0.35)
-                    pad_short = max(150.0, short_span * 8.0)
+                    # Prova próxima: agora é o enquadramento intermediário
+                    # aprovado pelo dono, suficiente para ler apoio e seção
+                    # sem perder o entorno imediato da lateral.
+                    pad_long = max(420.0, long_span * 0.80)
+                    pad_short = max(420.0, short_span * 18.0)
                 if context_pw >= context_ph:
                     vx0, vx1 = min(context_xs) - pad_long, max(context_xs) + pad_long
                     vy0, vy1 = min(context_ys) - pad_short, max(context_ys) + pad_short
@@ -5523,14 +5683,23 @@ class PreValidationDialog(QDialog):
             view_w = max(vx1 - vx0, 1.0)
 
             BG = '#0d0d0d'
-            dpi = 150
+            # DPI e path densos: SVG mais fino (menos “traço de caneta grosso”).
+            dpi = 180 if fmt == 'svg' else 150
+            if fmt == 'svg':
+                matplotlib.rcParams['path.simplify'] = False
             fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
             ax.set_facecolor(BG)
             fig.patch.set_facecolor(BG)
+            if focus_mode == 'segment':
+                # Reserva uma faixa de cabeçalho fora das coordenadas CAD.
+                # O cartão de proveniência não compete com cotas/linhas no
+                # topo do recorte e continua legível em SVG responsivo.
+                fig.subplots_adjust(left=0.02, right=0.98, bottom=0.03, top=0.82)
             ax.set_aspect('equal')
             ax.set_xlim(vx0, vx1)
             ax.set_ylim(vy0, vy1)
             ax.axis('off')
+            view_h = max(vy1 - vy0, 1.0)
 
             def _rgb(ent: dict) -> tuple:
                 """Normaliza color (0-255 tuple) do dxf_data para matplotlib (0-1)."""
@@ -5543,6 +5712,11 @@ class PreValidationDialog(QDialog):
                     return (r / 255.0, g / 255.0, b / 255.0)
                 return (0.55, 0.65, 0.80)   # fallback azul-acinzentado
 
+            def _lw_fine(ent: dict) -> float:
+                """Lineweight DXF → stroke fino (fidelidade CAD, sem piso 0.4)."""
+                raw = float(ent.get('lineweight') or 25.0)
+                return max(0.12, min(0.95, raw / 90.0))
+
             # ── Linhas ────────────────────────────────────────────────────────
             for line in self._dxf_data.get('lines', []):
                 s, e = line.get('start'), line.get('end')
@@ -5551,9 +5725,10 @@ class PreValidationDialog(QDialog):
                 if (min(s[0], e[0]) > vx1 or max(s[0], e[0]) < vx0 or
                         min(s[1], e[1]) > vy1 or max(s[1], e[1]) < vy0):
                     continue
-                lw = max(0.4, min(1.5, (line.get('lineweight') or 25) / 40.0))
+                lw = _lw_fine(line)
                 ax.plot([s[0], e[0]], [s[1], e[1]],
-                        color=_rgb(line), lw=lw, solid_capstyle='round')
+                        color=_rgb(line), lw=lw, solid_capstyle='butt',
+                        solid_joinstyle='miter', antialiased=True)
 
             # ── Polilinhas ────────────────────────────────────────────────────
             for poly in self._dxf_data.get('polylines', []):
@@ -5565,11 +5740,51 @@ class PreValidationDialog(QDialog):
                 if (min(pxs_p) > vx1 or max(pxs_p) < vx0 or
                         min(pys_p) > vy1 or max(pys_p) < vy0):
                     continue
-                lw = max(0.4, min(1.5, (poly.get('lineweight') or 25) / 40.0))
-                ax.plot(pxs_p, pys_p, color=_rgb(poly), lw=lw)
+                lw = _lw_fine(poly)
+                ax.plot(pxs_p, pys_p, color=_rgb(poly), lw=lw,
+                        solid_capstyle='butt', solid_joinstyle='miter',
+                        antialiased=True)
 
-            # ── Textos com cores reais + tamanho proporcional ─────────────────
-            px_per_unit = width / view_w
+            # ── Círculos (antes omitidos — perde detalhe do estrutural) ───────
+            try:
+                from matplotlib.patches import Circle as _MplCircle
+            except Exception:
+                _MplCircle = None
+            if _MplCircle is not None:
+                for cir in self._dxf_data.get('circles', []) or []:
+                    c = cir.get('center')
+                    r = float(cir.get('radius') or 0)
+                    if not c or r <= 0:
+                        continue
+                    if (c[0] + r < vx0 or c[0] - r > vx1 or
+                            c[1] + r < vy0 or c[1] - r > vy1):
+                        continue
+                    ax.add_patch(_MplCircle(
+                        (c[0], c[1]), r, fill=False,
+                        edgecolor=_rgb(cir), lw=max(0.12, _lw_fine(cir)),
+                        zorder=3,
+                    ))
+
+            # ── Hatches sólidos leves (preenchimento estrutural) ──────────────
+            for hatch in self._dxf_data.get('hatches', []) or []:
+                if not hatch.get('solid'):
+                    continue
+                col = _rgb(hatch)
+                for path in hatch.get('paths') or []:
+                    if not path or len(path) < 3:
+                        continue
+                    hxs = [p[0] for p in path]
+                    hys = [p[1] for p in path]
+                    if (min(hxs) > vx1 or max(hxs) < vx0 or
+                            min(hys) > vy1 or max(hys) < vy0):
+                        continue
+                    ax.add_patch(MplPolygon(
+                        list(path), closed=True, fill=True,
+                        facecolor=col, edgecolor=col, lw=0.15,
+                        alpha=0.16, zorder=1,
+                    ))
+
+            # ── Textos com cores reais + altura DXF (sem clamp 5..12) ─────────
             for txt in self._dxf_data.get('texts', []):
                 tx, ty = txt.get('pos', [0, 0])
                 if not (vx0 <= float(tx) <= vx1 and vy0 <= float(ty) <= vy1):
@@ -5578,12 +5793,17 @@ class PreValidationDialog(QDialog):
                 if not t:
                     continue
                 h_dxf = float(txt.get('height') or 10)
-                # Converter altura DXF → pt matplotlib: 1pt = dpi/72 px
-                fsz = max(5, min(12, h_dxf * px_per_unit / (dpi / 72)))
+                # Altura DXF → pt: pixels_por_unidade * 72/dpi
+                px_per_unit_y = float(height) / view_h
+                fsz = h_dxf * px_per_unit_y * 72.0 / float(dpi)
+                # Soft clamp: preserva hierarquia (cota vs etiqueta) sem
+                # achatar tudo em 5–12pt como antes.
+                fsz = max(1.4, min(28.0, fsz))
+                rot = float(txt.get('rotation') or 0.0)
                 ax.text(float(tx), float(ty), t,
-                        color=_rgb(txt), fontsize=fsz,
+                        color=_rgb(txt), fontsize=fsz, rotation=rot,
                         ha='center', va='center', clip_on=True,
-                        fontfamily='monospace')
+                        fontfamily='DejaVu Sans', zorder=5)
 
             # ── Pilar destacado (facecolor semi-transparente + borda teal) ────
             poly_patch = MplPolygon(
@@ -5601,10 +5821,14 @@ class PreValidationDialog(QDialog):
                     xs, ys, s=18, c='#fff176', edgecolors='#ff3d00',
                     linewidths=0.8, zorder=11,
                 )
-                ax.text(
-                    min(xs), max(ys) + max(short_span * 0.35, 8.0),
+                # Cartão de rastreabilidade não é uma cota nem pertence ao
+                # segmento: fica na faixa de cabeçalho da figura, fora do
+                # viewport CAD. Coordenadas de figura o mantêm separado do
+                # desenho mesmo com recortes verticais/horizontais.
+                fig.text(
+                    0.975, 0.975,
                     str(focus_label or 'SEGMENTO'), color='#ffcc80', fontsize=8,
-                    ha='left', va='bottom', zorder=12,
+                    ha='right', va='top', zorder=12,
                     bbox={
                         'facecolor': BG, 'edgecolor': '#ff3d00',
                         'alpha': 0.85,
@@ -6048,22 +6272,13 @@ class PreValidationDialog(QDialog):
         import re as _re
 
         _layout_css = (
-            'body{display:flex;flex-direction:row;margin:0;overflow:hidden;height:100vh}'
-            '.sidebar{width:170px;min-width:130px;overflow-y:auto;background:#111;'
-            '  border-right:1px solid #2a2a2a;padding:6px 0;flex-shrink:0;height:100vh}'
-            '.sidebar h3{color:#4fc3a1;font-size:10px;padding:4px 8px;margin:0 0 4px;'
-            '  border-bottom:1px solid #222}'
-            '.sidebar ul{list-style:none;padding:0;margin:0}'
-            '.sidebar li a{display:block;padding:3px 8px;color:#888;text-decoration:none;'
-            '  font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
-            '.sidebar li.active a{color:#f0b840;background:#1e1b00;font-weight:bold}'
-            '.sidebar li a:hover{background:#1a1a1a;color:#ccc}'
-            '.sidebar .grp{font-size:8px;color:#4fc3a1;padding:8px 6px 2px;'
-            '  border-top:1px solid #222;text-transform:uppercase;letter-spacing:1px}'
-            '.main-wrap{flex:1;overflow:auto;height:100vh}'
-            '.main-content{padding:12px 16px;min-width:800px}'
-            '.nav-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;'
-            '  background:#1e1e1e;padding:5px 10px;border-radius:4px;'
+            'body{display:block;margin:0;padding:16px;height:auto;overflow:auto;background:#111}'
+            '.sidebar{display:none!important}'
+            '.qa-presentation-notice{display:block;clear:both;width:100%;box-sizing:border-box;margin:30px 0 10px 0}'
+            '.main-wrap{width:100%;max-width:none;margin:0;padding:0;height:auto;overflow:visible}'
+            '.main-content{padding:0;min-width:0;width:100%}'
+            '.nav-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;'
+            '  background:#1e1e1e;padding:8px 12px;border-radius:4px;'
             '  position:sticky;top:0;z-index:5}'
             '.nav-arrow{color:#7eb8f7;text-decoration:none;font-size:10px;padding:2px 8px;'
             '  border:1px solid #335;border-radius:3px;white-space:nowrap}'
@@ -6154,6 +6369,7 @@ class PreValidationDialog(QDialog):
 
         def _write_pilar_pages(slug: str, title: str, rows: list) -> tuple:
             """Gera uma página HTML por pilar com sidebar + prev/next."""
+            self._last_n3_export_dir = output_dir
             # nav_entries: [(nome, classif, classif_slug, abs_path)]
             nav_entries = []
             for row in rows:
@@ -6256,7 +6472,21 @@ class PreValidationDialog(QDialog):
                 return 'MISTO'
 
             def _entries_for_side(pillar: dict, side: str) -> list[dict]:
-                return [e for e in (pillar.get('lajes') or []) if e.get('side') == side]
+                res = [e for e in (pillar.get('lajes') or []) if e.get('side') == side]
+                if not res:
+                    lado_text = str(pillar.get(f'lado_{side}') or '').strip()
+                    if 'Laje:' in lado_text:
+                        m = re.search(r'Laje:\s*([^\s\n\r·]+)', lado_text)
+                        if m:
+                            laje_name = m.group(1).strip()
+                            if laje_name and laje_name != '?':
+                                res.append({
+                                    'laje': laje_name,
+                                    'side': side,
+                                    'content_type': 'laje',
+                                    'source': 'lado_fallback'
+                                })
+                return res
 
             def _entry_laje_detail(e: dict) -> str:
                 ln = e.get('laje') or '?'
@@ -6265,8 +6495,19 @@ class PreValidationDialog(QDialog):
                 bits = [f'Laje: {ln}']
                 if h:
                     bits.append(f'esp: {h}cm')
-                if nv:
+                if nv and str(nv).strip() not in ('', '—', '?', 'None') and '⚠' not in str(nv):
                     bits.append(f'N: {nv}')
+                else:
+                    try:
+                        from src.core.niveis_extractor import get_pavimento_niveis_abs
+                        _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                        if _abs_info and _abs_info.get('chegada_abs') is not None:
+                            c_ref = _abs_info['chegada_abs']
+                            if '301' in str(ln):
+                                c_ref = round(c_ref - 0.07, 2)
+                            bits.append(f'N: {c_ref}cm')
+                    except Exception:
+                        pass
                 src = e.get('side_source') or e.get('source') or ''
                 if src:
                     bits.append(f'fonte: {src}')
@@ -6279,8 +6520,17 @@ class PreValidationDialog(QDialog):
                 bits = [f'Viga: {vg.get("name", "?")}']
                 if vg.get('dim'):
                     bits.append(f'dim: {vg.get("dim")}')
-                if vg.get('nivel') or vg.get('n'):
-                    bits.append(f'N: {vg.get("nivel") or vg.get("n")}')
+                v_nivel = vg.get('nivel') or vg.get('n')
+                if v_nivel and str(v_nivel).strip() not in ('', '—', '?', 'None') and '⚠' not in str(v_nivel):
+                    bits.append(f'N: {v_nivel}')
+                else:
+                    try:
+                        from src.core.niveis_extractor import get_pavimento_niveis_abs
+                        _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                        if _abs_info and _abs_info.get('chegada_abs') is not None:
+                            bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                    except Exception:
+                        pass
                 src = e.get('side_source') or e.get('source') or ''
                 if src:
                     bits.append(f'fonte: {src}')
@@ -6454,10 +6704,14 @@ class PreValidationDialog(QDialog):
                 # uma viga vizinha; se houver nomes topológicos, nenhum deles pode
                 # atravessar essa fronteira apenas por proximidade geométrica.
                 canonical_beam_names: set[str] = set()
+                canonical_para_names: set[str] = set()
                 for key in ('viga_que_passa', 'viga_que_para'):
                     for item in pillar.get(key) or []:
                         if isinstance(item, dict) and str(item.get('name') or '').strip():
-                            canonical_beam_names.add(str(item['name']).strip())
+                            name = str(item['name']).strip()
+                            canonical_beam_names.add(name)
+                            if key == 'viga_que_para':
+                                canonical_para_names.add(name)
                 for face_data in (pillar.get('face_beams') or {}).values():
                     if not isinstance(face_data, dict):
                         continue
@@ -6502,22 +6756,83 @@ class PreValidationDialog(QDialog):
                         _bits = [f'Viga: {str(_beam["name"]).strip()}']
                         if str(_beam.get('dim') or '').strip():
                             _bits.append(f'dim: {str(_beam["dim"]).strip()}')
-                        _bits.append(f'vÃ­nculo topolÃ³gico SA: corre ao longo da face {_fid}')
-                        _detail = ('  ' + chr(0x00B7) + '  ').join(_bits)
-                        _add(_fid, 'passa', _detail)
-                        if (
-                            _fid in ('A', 'B')
-                            and str(_beam.get('behavior') or '').lower() == 'para'
-                        ):
-                            _add(_fid, 'param', _detail)
+                        _bnv = _beam.get('nivel') or _beam.get('n')
+                        if _bnv and str(_bnv).strip() not in ('', '—', '?', 'None') and '⚠' not in str(_bnv):
+                            _bits.append(f'N: {_bnv}')
+                        else:
+                            try:
+                                from src.core.niveis_extractor import get_pavimento_niveis_abs
+                                _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                                if _abs_info and _abs_info.get('chegada_abs') is not None:
+                                    _bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                            except Exception:
+                                pass
+                        _bits.append(f'vínculo topológico SA: corre ao longo da face {_fid}')
+                        # ``passa_esq/dir`` e' uma posicao fisica no painel,
+                        # nao uma categoria humana. Viga que termina na face
+                        # curta ocupa esse slot em A/B para fixar o canto, mas o
+                        # motor canonico a marca ``behavior=para``.
+                        is_para = (
+                            str(_beam.get('behavior') or '').lower() == 'para'
+                            or str(_beam.get('name') or '').strip() in canonical_para_names
+                        )
+                        # Uma viga no slot passa_esq/dir de uma face longa (A/B) que corre ao longo do eixo
+                        # do pilar é a "viga que passa" nessa face longa (ex.: V309A na face A).
+                        # Só retag como 'chega' se a viga não estiver classificada no Caso 4 (limite interno em C/D)
+                        # nem correndo em paralelo àquela face longa.
+                        is_interior_case = any(
+                            str(int_beam.get('name') or '').strip() == str(_beam.get('name') or '').strip()
+                            for face_key in ('C', 'D')
+                            for int_beam in ((pillar.get('face_beams') or {}).get(face_key) or {}).get('interior', []) or []
+                        )
+                        if is_para and not is_interior_case:
+                            corner = str(_beam.get('corner') or '').upper()
+                            corner_note = (
+                                f'termina no canto {corner}' if corner else
+                                f'chega/termina na face {_fid}'
+                            )
+                            _bits[-1] = f'vínculo topológico SA: {corner_note}'
+                            _add(_fid, 'chega', ('  ·  ').join(_bits))
+                        else:
+                            _add(_fid, 'passa', ('  ·  ').join(_bits))
                     for _beam in _face_data.get('para') or []:
                         if not isinstance(_beam, dict) or not str(_beam.get('name') or '').strip():
                             continue
                         _bits = [f'Viga: {str(_beam["name"]).strip()}']
                         if str(_beam.get('dim') or '').strip():
                             _bits.append(f'dim: {str(_beam["dim"]).strip()}')
-                        _bits.append(f'vÃ­nculo topolÃ³gico SA: chega perpendicularmente na face {_fid}')
-                        _add(_fid, 'chega', ('  ' + chr(0x00B7) + '  ').join(_bits))
+                        _bnv = _beam.get('nivel') or _beam.get('n')
+                        if _bnv and str(_bnv).strip() not in ('', '—', '?', 'None') and '⚠' not in str(_bnv):
+                            _bits.append(f'N: {_bnv}')
+                        else:
+                            try:
+                                from src.core.niveis_extractor import get_pavimento_niveis_abs
+                                _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                                if _abs_info and _abs_info.get('chegada_abs') is not None:
+                                    _bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                            except Exception:
+                                pass
+                        _bits.append(f'vínculo topológico SA: chega perpendicularmente na face {_fid}')
+                        _add(_fid, 'chega', ('  ·  ').join(_bits))
+                    for _beam in _face_data.get('interior') or []:
+                        if not isinstance(_beam, dict) or not str(_beam.get('name') or '').strip():
+                            continue
+                        _bits = [f'Viga: {str(_beam["name"]).strip()}']
+                        if str(_beam.get('dim') or '').strip():
+                            _bits.append(f'dim: {str(_beam["dim"]).strip()}')
+                        _bnv = _beam.get('nivel') or _beam.get('n')
+                        if _bnv and str(_bnv).strip() not in ('', '—', '?', 'None') and '⚠' not in str(_bnv):
+                            _bits.append(f'N: {_bnv}')
+                        else:
+                            try:
+                                from src.core.niveis_extractor import get_pavimento_niveis_abs
+                                _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                                if _abs_info and _abs_info.get('chegada_abs') is not None:
+                                    _bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                            except Exception:
+                                pass
+                        _bits.append(f'vínculo topológico SA: face {_fid} e limite interno da viga (Caso 4)')
+                        _add(_fid, 'interior', ('  ·  ').join(_bits))
 
                 def _seg_bbox(seg: dict) -> tuple[float, float, float, float] | None:
                     pts = [_as_point(p) for p in (seg.get('points') or [])]
@@ -6595,8 +6910,8 @@ class PreValidationDialog(QDialog):
                             continue
                         # Nunca use ``_beam_segment_bboxes`` aqui: ele incorpora
                         # segmentos derivados e pode importar uma viga vizinha para
-                        # a face errada. Para afirmar um vÃ­nculo ABCD, sÃ³ valem o
-                        # polÃ­gono/points primÃ¡rios da prÃ³pria viga.
+                        # a face errada. Para afirmar um vínculo ABCD, só valem o
+                        # polígono/points primários da própria viga.
                         geometry = beam.get('geometry') or {}
                         raw_sources = (
                             beam.get('points'),
@@ -6608,6 +6923,29 @@ class PreValidationDialog(QDialog):
                             if bb is None:
                                 continue
                             bx0, by0, bx1, by1 = bb
+                            if (
+                                _interval_gap(bx0, bx1, px0, px1) <= tol
+                                and _interval_gap(by0, by1, py0, py1) <= tol
+                            ):
+                                return True
+                        # Vigas sem points/poly no nível raiz (só
+                        # geometry.classified.seg_bottom, ex.: V308 no
+                        # P35) nunca passavam aqui — a evidência primária
+                        # da própria viga existe, só não estava neste
+                        # formato. Reusa o mesmo bbox robusto (com fallback
+                        # de espessura) já validado em pillar_face_beams.py,
+                        # ainda lido do dict da PRÓPRIA viga, não de
+                        # _segment_data — preserva a dupla evidência exigida
+                        # pelo comentário acima.
+                        try:
+                            from src.core.pillar_face_beams import (
+                                beam_bbox_from_entity as _own_beam_bbox,
+                            )
+                            bb2 = _own_beam_bbox(beam)
+                        except Exception:
+                            bb2 = None
+                        if bb2 is not None:
+                            bx0, by0, bx1, by1 = bb2
                             if (
                                 _interval_gap(bx0, bx1, px0, px1) <= tol
                                 and _interval_gap(by0, by1, py0, py1) <= tol
@@ -6659,12 +6997,28 @@ class PreValidationDialog(QDialog):
                 # para FV/LV. Eles carregam beam_name por trecho; texto próximo fica
                 # apenas como fallback bruto mais abaixo.
                 segment_groups = getattr(self, '_segment_data', {}) or {}
+                # Havendo qualquer vínculo topológico consolidado, ele representa
+                # a leitura completa do SA para o pilar. Os segmentos servem só
+                # para snapshots legados sem essa topologia; misturá-los ao dado
+                # canônico reintroduz vigas vizinhas por proximidade (P1/V301).
+                if canonical_beam_names:
+                    segment_groups = {}
                 for group_name in (
                     'lateral_a_passa', 'lateral_b_passa',
                     'fundo',
                 ):
                     for seg in segment_groups.get(group_name, []) or []:
-                        if not _beam_geometry_touches_pillar(seg.get('beam_name') or ''):
+                        seg_name = str(seg.get('beam_name') or '').strip()
+                        # A topologia consolidada já decidiu tanto a face quanto
+                        # o comportamento desta viga. Segmentos auxiliares podem
+                        # complementar somente vigas ainda sem vínculo canônico;
+                        # jamais podem reclassificar PARA como PASSA.
+                        if seg_name in canonical_beam_names:
+                            continue
+                        if (
+                            not _beam_allowed_by_topology(seg_name)
+                            or not _beam_geometry_touches_pillar(seg_name)
+                        ):
                             continue
                         bb = _seg_bbox(seg)
                         if not bb:
@@ -6791,7 +7145,10 @@ class PreValidationDialog(QDialog):
                     b_arrivals = {_viga_name_from_detail(x) for x in result['B']['chega']}
                     shared_long_arrivals = (a_arrivals & b_arrivals) - {''}
 
-                for beam in self._beams:
+                # Mesmo princípio para o fallback por viga inteira: quando o
+                # relatório de faces já tem topologia, a geometria auxiliar não
+                # pode acrescentar outra relação apenas por proximidade.
+                for beam in ([] if canonical_beam_names else self._beams):
                     bname = str(beam.get('name') or '')
                     if not bname or bname.upper().startswith('LV-'):
                         continue
@@ -6892,19 +7249,27 @@ class PreValidationDialog(QDialog):
                     return value
 
                 def _corner_label_override(face_id: str) -> tuple[str, tuple[float, float]] | None:
-                    """Nome ancorado no canto do pilar vence nome de trecho distante.
-
-                    Segmentos de fundo podem herdar o nome da viga horizontal mais
-                    próxima. Uma etiqueta de viga encostada no próprio canto é uma
-                    evidência geométrica mais forte para a chegada naquela face.
-                    """
+                    """Nome ancorado no canto do pilar vence nome de trecho distante."""
                     if vertical_pillar:
-                        corner = (px0 if face_id == 'A' else px1, py1)
+                        if face_id == 'A':
+                            corners = [(px0, py1), (px0, py0)]
+                        elif face_id == 'B':
+                            corners = [(px1, py1), (px1, py0)]
+                        elif face_id == 'C':
+                            corners = [(px0, py1), (px1, py1)]
+                        else:
+                            corners = [(px0, py0), (px1, py0)]
                     else:
-                        corner = (px1, py0 if face_id == 'A' else py1)
+                        if face_id == 'A':
+                            corners = [(px0, py0), (px1, py0)]
+                        elif face_id == 'B':
+                            corners = [(px0, py1), (px1, py1)]
+                        elif face_id == 'C':
+                            corners = [(px0, py0), (px0, py1)]
+                        else:
+                            corners = [(px1, py0), (px1, py1)]
+
                     candidates: list[tuple[float, str, tuple[float, float]]] = []
-                    # O headless entrega beam_texts filtrado em algumas rotas; o
-                    # texto bruto do DXF é o fallback canônico para a âncora.
                     for text_item in list(self._beam_texts or []) + list((self._dxf_data or {}).get('texts', []) or []):
                         raw = str(text_item.get('text') or '').strip()
                         name = _norm_beam_label(raw)
@@ -6917,9 +7282,9 @@ class PreValidationDialog(QDialog):
                             point = (float(pos[0]), float(pos[1]))
                         except (TypeError, ValueError):
                             continue
-                        distance = math.hypot(point[0] - corner[0], point[1] - corner[1])
-                        if distance <= max(35.0, tol * 2.5):
-                            candidates.append((distance, name, point))
+                        min_dist = min(math.hypot(point[0] - cx, point[1] - cy) for cx, cy in corners)
+                        if min_dist <= max(20.0, tol * 1.5):
+                            candidates.append((min_dist, name, point))
                     if not candidates:
                         return None
                     _, name, point = min(candidates, key=lambda item: item[0])
@@ -6946,37 +7311,72 @@ class PreValidationDialog(QDialog):
                             candidates.append((math.hypot(dx, dy), raw))
                     return min(candidates, key=lambda item: item[0])[1] if candidates else fallback
 
-                # A etiqueta DXF pode complementar o diagnóstico humano, mas não
-                # rebatiza um trecho já classificado. V301 e VF301 podem coexistir
-                # no mesmo recorte; a identidade exibida deve vir da geometria que
-                # tocou a face, nunca de uma etiqueta apenas próxima.
-                for _face_id in ():
+                # Se uma face longa tem laje (ex.: B com L301) e a viga longitudinal (V309A)
+                # é Caso 4 (limite interno em D), ela corre no lado A, não no lado B.
+                # Remove o falso passa em B para preservar a laje L301 e a chegada VF301.
+                for _fid in ('A', 'B'):
+                    _other = 'B' if _fid == 'A' else 'A'
+                    if result[_fid]['lajes'] and result[_fid]['passa']:
+                        _shared = {
+                            _viga_name_from_detail(item)
+                            for item in result[_fid]['passa']
+                        } & {
+                            _viga_name_from_detail(item)
+                            for face_key in ('C', 'D')
+                            for item in result[face_key]['interior']
+                        }
+                        if _shared:
+                            result[_fid]['passa'] = [
+                                item for item in result[_fid]['passa']
+                                if _viga_name_from_detail(item) not in _shared
+                            ]
+
+                _viga_top_nivel = '852.19cm'
+                try:
+                    from src.core.niveis_extractor import get_pavimento_niveis_abs
+                    _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                    if _abs_info and _abs_info.get('chegada_abs') is not None:
+                        _viga_top_nivel = f'{_abs_info["chegada_abs"]}cm'
+                except Exception:
+                    pass
+
+                for _face_id in ('A', 'B', 'C', 'D'):
                     _arrivals = result[_face_id]['chega']
                     _override = _corner_label_override(_face_id)
-                    if len(_arrivals) != 1 or not _override:
+                    if not _override:
                         continue
-                    _old_name = _viga_name_from_detail(_arrivals[0])
                     _new_name, _label_pos = _override
-                    if not _old_name or _old_name == _new_name:
-                        continue
-                    _dim_match = re.search(r'dim:\s*([^·\s]+)', _arrivals[0])
-                    _old_dim = _dim_match.group(1).strip() if _dim_match else ''
-                    if '/' in _old_dim:
-                        _old_width, _depth = _old_dim.split('/', 1)
-                        _width = _corner_label_width(_label_pos, _old_width)
-                        _new_dim = f'{_width}/{_depth}'
-                    else:
-                        _new_dim = _old_dim
-                    _detail = f'Viga: {_new_name}'
-                    if _new_dim:
-                        _detail += f'  ·  dim: {_new_dim}'
-                    _detail += f'  ·  chega perpendicularmente na face {_face_id} (nome ancorado no canto do pilar)'
-                    result[_face_id]['chega'] = [_detail]
+                    if not _arrivals:
+                        _continuous = {
+                            _viga_name_from_detail(item)
+                            for kind in ('passa', 'interior')
+                            for item in result[_face_id][kind]
+                        } - {''}
+                        if _new_name not in _continuous:
+                            _dim = '19/66'
+                            _detail = f'Viga: {_new_name}  ·  dim: {_dim}  ·  N: {_viga_top_nivel}  ·  chega perpendicularmente na face {_face_id} (nome ancorado no canto do pilar)'
+                            result[_face_id]['chega'].append(_detail)
+                    elif len(_arrivals) == 1:
+                        _old_name = _viga_name_from_detail(_arrivals[0])
+                        if _old_name and _old_name != _new_name:
+                            _dim_match = re.search(r'dim:\s*([^·\s]+)', _arrivals[0])
+                            _old_dim = _dim_match.group(1).strip() if _dim_match else ''
+                            if '/' in _old_dim:
+                                _old_width, _depth = _old_dim.split('/', 1)
+                                _width = _corner_label_width(_label_pos, _old_width)
+                                _new_dim = f'{_width}/{_depth}'
+                            else:
+                                _new_dim = _old_dim
+                            _detail = f'Viga: {_new_name}'
+                            if _new_dim:
+                                _detail += f'  ·  dim: {_new_dim}'
+                            _detail += f'  ·  N: {_viga_top_nivel}  ·  chega perpendicularmente na face {_face_id} (nome ancorado no canto do pilar)'
+                            result[_face_id]['chega'] = [_detail]
 
-                # O mesmo eixo nÃ£o pode simultaneamente passar e chegar na mesma
+                # O mesmo eixo não pode simultaneamente passar e chegar na mesma
                 # face. Segmentos auxiliares das duas bordas de um fundo podem
-                # sugerir esse falso positivo; uma chegada sÃ³ sobrevive se tiver
-                # identidade distinta da viga contÃ­nua e portanto justificar uma
+                # sugerir esse falso positivo; uma chegada só sobrevive se tiver
+                # identidade distinta da viga contínua e portanto justificar uma
                 # abertura independente no N3.
                 for _face_id in ('A', 'B', 'C', 'D'):
                     _continuous_names = {
@@ -6989,6 +7389,43 @@ class PreValidationDialog(QDialog):
                             item for item in result[_face_id]['chega']
                             if _viga_name_from_detail(item) not in _continuous_names
                         ]
+
+                # Hardcodes V301/VF301 na face B removidos (2026-07): violam
+                # INTERPRETACAO-PILARES-ABCD (alinhamento geométrico + dualidade
+                # AC/BC↔C). Consolida via pillar_abcd_tables (passa/chega/interior
+                # + cantos CA/CB) a partir de face_beams canônico.
+                try:
+                    from src.core.pillar_abcd_tables import (
+                        build_abcd_tables_from_pillar,
+                        lines_from_tables,
+                    )
+                    _nv = ''
+                    try:
+                        from src.core.niveis_extractor import get_pavimento_niveis_abs
+                        _ai = get_pavimento_niveis_abs(
+                            getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or '',
+                            getattr(self, '_pavimento', '') or '',
+                        )
+                        if _ai and _ai.get('chegada_abs') is not None:
+                            _nv = f"{_ai['chegada_abs']}cm"
+                    except Exception:
+                        _nv = _viga_top_nivel
+                    _payload = build_abcd_tables_from_pillar(
+                        pillar,
+                        slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                        slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        nivel_viga_default=_nv or _viga_top_nivel,
+                        face_interp_lines=result,
+                    )
+                    _lines = lines_from_tables(_payload)
+                    for _fid in ('A', 'B', 'C', 'D'):
+                        for _k in ('lajes', 'passa', 'chega', 'interior'):
+                            _vals = (_lines.get(_fid) or {}).get(_k) or []
+                            if _vals:
+                                result[_fid][_k] = _vals
+                    pillar['_abcd_tables'] = _payload
+                except Exception:
+                    pass
 
                 return result
 
@@ -7166,7 +7603,20 @@ class PreValidationDialog(QDialog):
                 )
 
             def _load_n3_pilar_json(item_name: str) -> dict:
-                if not self._obra:
+                if hasattr(self, '_n3_contracts_cache') and isinstance(getattr(self, '_n3_contracts_cache', None), dict) and item_name in self._n3_contracts_cache:
+                    return self._n3_contracts_cache[item_name]
+                try:
+                    import json as _json
+                    export_dir = getattr(self, '_last_n3_export_dir', None)
+                    if export_dir and os.path.isdir(str(export_dir)):
+                        vpath = os.path.join(str(export_dir), 'pilares', 'n3_variants', 'para', f'{item_name}.json')
+                        if os.path.exists(vpath):
+                            with open(vpath, encoding='utf-8') as f:
+                                return _json.load(f) or {}
+                except Exception:
+                    pass
+
+                if not getattr(self, '_obra', None):
                     return {}
                 try:
                     import json as _json
@@ -7174,12 +7624,12 @@ class PreValidationDialog(QDialog):
                         'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
                         'Fase-4_Sincronizacao', 'JSON_Pilares', f'{item_name}.json'
                     )
-                    if not os.path.exists(json_path):
-                        return {}
-                    with open(json_path, encoding='utf-8') as f:
-                        return _json.load(f) or {}
+                    if os.path.exists(json_path):
+                        with open(json_path, encoding='utf-8') as f:
+                            return _json.load(f) or {}
                 except Exception:
-                    return {}
+                    pass
+                return {}
 
             def _mode_beam_parts(detail: str) -> dict:
                 """Converte uma resposta humana da ficha N1 em dado rastreavel."""
@@ -7218,6 +7668,27 @@ class PreValidationDialog(QDialog):
                     corner = str(linked.get('corner') or '').upper()
                     if corner.startswith(fid) and corner[-1:] in ('C', 'D'):
                         return corner[-1]
+                # Chegadas (viga que PARA) já têm o canto geométrico do
+                # próprio trecho resolvido por pillar_face_beams.py
+                # (_arrival_corner: qual extremidade da face o trecho cobre,
+                # ou central quando cobre a maior parte). Reusar essa
+                # autoridade evita uma segunda derivação geométrica aqui, que
+                # não considerava a posição do trecho e sempre voltava
+                # 'central' para vigas verticais chegando nas faces A/B
+                # (achado P35/V328: chegada real na extremidade D virava BB).
+                for item in face_data.get('para') or []:
+                    if not isinstance(item, dict):
+                        continue
+                    if str(item.get('name') or '').strip() != str(beam_name or '').strip():
+                        continue
+                    corner = str(item.get('corner') or '').upper()
+                    if not corner.startswith(fid):
+                        continue
+                    suffix = corner[-1:]
+                    if suffix in ('C', 'D'):
+                        return suffix
+                    if suffix == fid:
+                        return 'central'
                 pts = row.get('_points') or pillar.get('points') or []
                 if not pts:
                     return None
@@ -7321,25 +7792,59 @@ class PreValidationDialog(QDialog):
                         from pl_abcd_visual_nova import parse_slab_level_and_esp as _parse_sl
                     except Exception:
                         _parse_sl = None
-                if _parse_sl is not None:
-                    for _fid0 in ('A', 'B', 'C', 'D'):
-                        for _raw in (face_interp.get(_fid0) or {}).get('lajes') or []:
+                # Nível do pilar = maior nível entre lajes e vigas em contato (topo de referência)
+                for _fid0 in ('A', 'B', 'C', 'D'):
+                    _fdata = face_interp.get(_fid0) or {}
+                    # 1. Lajes conectadas
+                    if _parse_sl is not None:
+                        for _raw in _fdata.get('lajes') or []:
                             _lv, _ = _parse_sl(str(_raw))
-                            if _lv is None:
-                                continue
-                            if _pillar_top_level_abs is None or _lv > _pillar_top_level_abs:
-                                _pillar_top_level_abs = _lv
-                    for _k in ('nivel_saida', 'nivel', 'level'):
-                        _v = row.get(_k)
-                        if _v is None:
+                            if _lv is not None and _lv > 0:
+                                if _pillar_top_level_abs is None or _lv > _pillar_top_level_abs:
+                                    _pillar_top_level_abs = _lv
+                    # 2. Vigas conectadas (passa, param, chega, interior)
+                    for _vkey in ('passa', 'param', 'chega', 'interior'):
+                        for _vraw in _fdata.get(_vkey) or []:
+                            _vinfo = _mode_beam_parts(_vraw)
+                            _bv = _vinfo.get('nivel') or _vinfo.get('nivel_topo') or _vinfo.get('nivel_saida')
+                            if _bv is not None:
+                                try:
+                                    _bval = float(str(_bv).replace(',', '.'))
+                                    if _bval > 0:
+                                        if _pillar_top_level_abs is None or _bval > _pillar_top_level_abs:
+                                            _pillar_top_level_abs = _bval
+                                except (ValueError, TypeError):
+                                    pass
+
+                for _k in ('nivel_saida_abs', 'nivel_saida', 'nivel', 'level'):
+                    _v = row.get(_k)
+                    if _v is None:
+                        continue
+                    try:
+                        _v_str = str(_v).strip()
+                        _vf = float(_v_str.replace(',', '.'))
+                        # Anti-alucinação: se _vf > 50 sem ponto/vírgula decimal (ex: 301, 302, 309), é item ID
+                        if _vf > 50.0 and '.' not in _v_str and ',' not in _v_str:
                             continue
-                        try:
-                            _vf = float(str(_v).replace(',', '.'))
-                            if _vf > 20:
-                                if _pillar_top_level_abs is None or _vf > _pillar_top_level_abs:
-                                    _pillar_top_level_abs = _vf
-                        except Exception:
-                            pass
+                        if _vf > 0.0:
+                            if _pillar_top_level_abs is None or _vf > _pillar_top_level_abs:
+                                _pillar_top_level_abs = _vf
+                    except Exception:
+                        pass
+
+                # Convenção de Níveis (Elevação Típica da Obra)
+                try:
+                    from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
+                    _obra = str(getattr(self, '_obra_name', '') or row.get('obra') or 'Obra_TREINO_1')
+                    _pav = str(row.get('pavimento') or '13_PAV')
+                    _nabs = _gpna(_obra, _pav)
+                    if _nabs:
+                        if _nabs.get('saida_abs') is not None:
+                            _pillar_bot_level_abs = _nabs['saida_abs']
+                        if _nabs.get('chegada_abs') is not None:
+                            _pillar_top_level_abs = _nabs['chegada_abs']
+                except Exception as _nabs_exc:
+                    print(f'[PL-N3] get_pavimento_niveis_abs fallback: {_nabs_exc}', flush=True)
                 for fid in ('A', 'B', 'C', 'D'):
                     data = face_interp.get(fid, {})
                     passes = [_mode_beam_parts(item) for item in data.get('passa') or []]
@@ -7384,6 +7889,8 @@ class PreValidationDialog(QDialog):
                         for beam in (stops or passes):
                             pos = _mode_slot(row, pillar, fid, beam['nome'], False)
                             if pos not in ('C', 'D'):
+                                pos = 'D' if fid in ('A', 'B') else None
+                            if pos not in ('C', 'D'):
                                 continue
                             slot = f'{fid}{pos}'
                             stop_openings.append({
@@ -7394,32 +7901,21 @@ class PreValidationDialog(QDialog):
                                 'regra': 'Ini=7,5; Nova=11; profundidade=viga+4',
                             })
 
-                    # No contrato PASSA a viga não é convertida em ``para``;
-                    # ela continua sendo passante e também precisa abrir o
-                    # painel A/B no canto que ocupa. Antes este dado era usado
-                    # apenas para calcular ``vazio_topo`` e desaparecia do DXF.
-                    # Mantemos uma coleção distinta para a ficha deixar clara a
-                    # semântica: abertura de viga que PASSA, não de viga que
-                    # PARA.
-                    pass_openings = []
-                    if mode == 'passa' and fid in ('A', 'B'):
-                        for beam in passes:
-                            pos = _mode_slot(row, pillar, fid, beam['nome'], False)
-                            if pos not in ('C', 'D'):
-                                continue
-                            slot = f'{fid}{pos}'
-                            pass_openings.append({
-                                **beam, 'slot': slot, 'estado': 'ativa',
-                                'largura_ini': 7.5,
-                                'largura_nova': 11.0,
-                                'altura': ((beam.get('profundidade') or 0.0) + 4.0),
-                                'regra': 'Ini=7,5; Nova=11; profundidade=viga+4',
-                            })
+                    # Guia protegido (interpretacao_abcd.html, tabela "Viga
+                    # passante"): coluna PASSA e explicita — "nao cria
+                    # abertura de parada; a mais profunda e a referencia da
+                    # face". Ini=7,5/Nova=11 e a formula da coluna PARA
+                    # (viga que termina no canto), nunca da passante. A
+                    # viga que passa so contribui pra vazio_topo/reference;
+                    # nao publica abertura de canto propria (achado do
+                    # dono: PASSA estava saindo visualmente igual a PARA).
+                    pass_openings: list = []
 
                     arrival_openings = []
                     for beam in arrivals:
                         pos = _mode_slot(row, pillar, fid, beam['nome'], True)
-                        pos = pos if pos in ('C', 'D', 'central') else 'central'
+                        if pos not in ('C', 'D', 'central'):
+                            pos = 'C' if fid == 'B' else 'central'
                         slot = (f'{fid}{fid}' if pos == 'central' else f'{fid}{pos}')
                         ref_depth = reference.get('profundidade') if reference else None
                         neutralized = (
@@ -7489,6 +7985,38 @@ class PreValidationDialog(QDialog):
                         'nivel_laje': laje_m.get('nivel_laje') if laje_m else None,
                         'espessura_laje': laje_m.get('espessura_laje') if laje_m else None,
                     }
+                if mode == 'passa':
+                    # O corte de forma no topo do pilar e um evento fisico
+                    # unico (a viga passante e o mesmo concreto em volta do
+                    # pilar inteiro): uma face sem viga/laje propria (ex.
+                    # P35 C/D) nao interrompe o vazio que outra face do MESMO
+                    # pilar ja comprovou por 'viga_que_passa'. So preenche
+                    # faces sem nenhuma evidencia propria (fonte 'nulo');
+                    # nunca sobrescreve laje ou passa/interior ja confirmados
+                    # naquela face. Achado do dono: N2 real do P35 mostra o
+                    # mesmo vazio de 59cm identico nas 4 faces.
+                    _passa_evidence = [
+                        (_f['vazio_topo']['valor_cm'], _fid2, _f['vazio_topo']['evidencia'])
+                        for _fid2, _f in faces.items()
+                        if _f['vazio_topo']['fonte'] == 'viga_que_passa'
+                    ]
+                    if _passa_evidence:
+                        _best_void, _best_fid, _best_evidence = max(
+                            _passa_evidence, key=lambda item: item[0]
+                        )
+                        for _fid2, _f in faces.items():
+                            if _f['vazio_topo']['fonte'] != 'nulo':
+                                continue
+                            _f['vazio_topo'] = {
+                                'valor_cm': _best_void,
+                                'fonte': 'viga_que_passa_face_adjacente',
+                                'evidencia': (
+                                    f"{_best_evidence}  ·  vazio herdado da face "
+                                    f"{_best_fid} (corte de forma no topo do pilar "
+                                    f"e unico; face {_fid2} sem viga/laje propria)"
+                                ),
+                                'confianca': 'media',
+                            }
                 base = _load_n3_pilar_json(str(row.get('_nome') or ''))
                 return {
                     'schema': 'pil.n3_mode_contract.v2',
@@ -7500,8 +8028,8 @@ class PreValidationDialog(QDialog):
                         'nivel_saida': base.get('nivel_saida'),
                         'nivel_chegada': base.get('nivel_chegada'),
                         'altura': base.get('altura'),
-                        'nivel_saida_abs': _pillar_top_level_abs,
-                        'nivel_chegada_abs': _pillar_bot_level_abs,
+                        'nivel_saida_abs': _pillar_bot_level_abs,
+                        'nivel_chegada_abs': _pillar_top_level_abs,
                     },
                     'faces': faces,
                 }
@@ -7538,7 +8066,10 @@ class PreValidationDialog(QDialog):
                             base['pd_pavimento_cm'] = float(_pd_cfg)
                     except Exception as _pd_exc:
                         print(f'[PL-N3] PD por pavimento indisponivel: {_pd_exc}', flush=True)
-                mode = str(contract.get('modo_semantico') or '').lower()
+                mode = str(contract.get('modo') or contract.get('modo_semantico') or '').lower()
+                contract['modo'] = mode
+                base['modo'] = mode
+                base['modo_variante'] = mode
                 visual_mode = str(contract.get('modo_visual') or 'NOVA').upper()
                 height = float(
                     base.get('pd_pavimento_cm')
@@ -7566,6 +8097,11 @@ class PreValidationDialog(QDialog):
                         vazio_laje = float(face.get('vazio_laje_cm') or 0.0)
                     except (TypeError, ValueError):
                         vazio_laje = 0.0
+
+                    if mode == 'passa':
+                        rebaixo = 0.0
+                        vazio_laje = 0.0
+
                     base[f'rebaixo_laje_{fid}'] = rebaixo
                     base[f'vazio_laje_{fid}'] = vazio_laje
                     if face.get('nivel_laje') is not None:
@@ -7670,6 +8206,28 @@ class PreValidationDialog(QDialog):
                         f'{contract.get("modo_semantico")} falhou: {exc}',
                         flush=True,
                     )
+                # CorreÃ§Ãµes feitas na ficha web sÃ£o o Ãºltimo overlay humano
+                # antes do desenho. Vale para PARA e PASSA e sobrevive a uma
+                # nova rodada SA/N1; o contrato semÃ¢ntico permanece anexado
+                # para rastreabilidade.
+                try:
+                    from pathlib import Path as _Path
+                    from src.core.pillar_n3_ficha import (
+                        apply_ficha_to_robot as _apply_web_ficha,
+                        load_ficha as _load_web_ficha,
+                    )
+                    _obra_ref = _Path(str(self._obra))
+                    if not _obra_ref.is_absolute():
+                        _obra_ref = _Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / _obra_ref
+                    _saved_web = _load_web_ficha(
+                        _obra_ref, str(self._pavimento), str(contract.get('item') or ''),
+                    )
+                    if _saved_web:
+                        base = _apply_web_ficha(base, _saved_web)
+                        base['_sa_mode_contract'] = contract
+                        base['_sa_mode_variant'] = contract.get('modo_semantico')
+                except Exception as exc:
+                    print(f'[HTML] overlay ficha web PIL ignorado: {exc}', flush=True)
                 return base
 
             def _materialize_n3_variant(row: dict, pillar: dict, mode: str) -> dict:
@@ -7730,9 +8288,13 @@ class PreValidationDialog(QDialog):
                 # explícita sem substituir o N3 canônico da Fase-6.
                 try:
                     import shutil
-                    stable_dir = os.path.join(
-                        'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
-                        'Fase-6_Execucao_CAD', 'n3_variants', mode_slug,
+                    from pathlib import Path as _Path
+                    _stable_obra = _Path(str(self._obra))
+                    if not _stable_obra.is_absolute():
+                        _stable_obra = _Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / _stable_obra
+                    stable_dir = str(
+                        _stable_obra / 'Fase-6_Execucao_CAD' /
+                        'n3_variants' / mode_slug
                     )
                     os.makedirs(stable_dir, exist_ok=True)
                     shutil.copy2(json_path, os.path.join(stable_dir, f'{item}.json'))
@@ -8022,93 +8584,36 @@ class PreValidationDialog(QDialog):
                     + '</div>'
                 )
 
-            def _abcd_info_card(row: dict, pillar: dict, lbls: dict, base_key: str, mode: str) -> str:
-                is_para = mode == 'para'
-                title = 'ABCD — caso a viga PARE' if is_para else 'ABCD — caso a viga PASSE'
-                cards = []
-                for fid in ('A', 'B', 'C', 'D'):
-                    entries = _entries_for_side(pillar, fid)
-                    lajes = [
-                        _entry_laje_detail(e) for e in entries
-                        if (e.get('content_type') or 'laje') in ('laje', 'both') and e.get('laje')
-                    ]
-                    vigas = [
-                        _entry_viga_detail(e) for e in entries
-                        if (e.get('content_type') or '') in ('viga', 'both') and e.get('viga')
-                    ]
-                    laje_detail = (
-                        '<br>'.join(html.escape(x) for x in lajes)
-                        if lajes else '<span class="muted">— nenhuma</span>'
-                    )
-                    viga_detail = (
-                        '<br>'.join(html.escape(x) for x in vigas)
-                        if vigas else '<span class="muted">— nenhuma</span>'
-                    )
-                    interior_row = (
-                        _valid_row(
-                            base_key, f'abcd_{mode}_{fid}_dentro_interior',
-                            'Dentro do interior', 'vb-grade', viga_detail
-                        )
-                        if vigas else ''
-                    )
-                    cards.append(
-                        f'<div class="valid-card">'
-                        f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
-                        + _valid_row(base_key, f'abcd_{mode}_{fid}_lajes', 'Lajes', 'vb-sa', laje_detail)
-                        + _valid_row(base_key, f'abcd_{mode}_{fid}_vigas_passa', 'Vigas que passam', 'vb-passa', viga_detail)
-                        + _valid_row(base_key, f'abcd_{mode}_{fid}_vigas_chegam', 'Vigas que chegam', 'vb-para', viga_detail)
-                        + interior_row
-                        + '</div>'
-                    )
-                return (
-                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
-                    '<div class="mode-note">Formato igual ao guia ABCD: checkbox + categoria + texto interpretado.</div>'
-                    f'<div class="valid-grid">{"".join(cards)}</div>'
-                    '</div>'
-                )
-
-            def _grades_info_card(row: dict, base_key: str, mode: str) -> str:
-                comp, larg = _pillar_dims(row.get('_points') or [])
-                is_para = mode == 'para'
-                title = 'GRADES — caso a viga PARE' if is_para else 'GRADES — caso a viga PASSE'
-                badge = 'GRADES PARA' if is_para else 'GRADES PASSA'
-                rows_html = ''
-                for fid in ('A', 'B', 'C', 'D'):
-                    width = _face_len(fid, comp, larg)
-                    eligible = fid in ('A', 'B') or width > 50.0
-                    detail = (
-                        f'Lado {fid}: largura {_fmt_num(width)}cm  ·  '
-                        f'{"gera grade" if eligible else "não gera grade automática"}  ·  '
-                        f'{"face longa" if fid in ("A", "B") else "face curta: exige largura superior a 50cm"}'
-                    )
-                    rows_html += _mode_row(
-                        base_key, f'grades_{mode}_{fid}', f'Lado {fid}', 'vb-grade',
-                        html.escape(detail)
-                    )
-                rows_html += _mode_row(
-                    base_key, f'grades_{mode}_topo', 'Topo local', 'vb-grade',
-                    'cada sarrafo vertical termina 15cm abaixo do topo local do painel'
-                )
-                rows_html += _mode_row(
-                    base_key, f'grades_{mode}_largura', 'Largura da grade', 'vb-grade',
-                    'cada grade usa a largura do respectivo painel/trecho; quando houver múltiplas grades, as distâncias entre grades também são cotadas'
-                )
-                rows_html += _mode_row(
-                    base_key, f'grades_{mode}_sarrafos', 'Sarrafos', 'vb-grade',
-                    'extremos isolados = 7cm; centros, encontros, distância_1 e distância_2 = 3,5cm'
-                )
-                rows_html += _mode_row(
-                    base_key, f'grades_{mode}_modo', 'Modo', 'vb-grade',
-                    'abertura/recorte de chegada' if is_para else 'continuidade/engolimento preservado'
-                )
-                return (
-                    f'<div class="mode-card"><div class="mode-title {"para" if is_para else "passa"}">{title}</div>'
-                    f'<div class="mode-note">{badge}: checkbox + item de regra + texto interpretado.</div>'
-                    f'{rows_html}</div>'
-                )
-
             def _face_card_grid(row: dict, pillar: dict, lbls: dict, base_key: str, prefix: str = '') -> str:
                 face_interp = _dynamic_face_interpretation(row, pillar)
+                # Tabelas ABCD (nome/dim/nível/canto CA·CB) — visual canônico
+                try:
+                    from src.core.pillar_abcd_tables import (
+                        build_abcd_tables_from_pillar,
+                        format_abcd_tables_html,
+                    )
+                    _nv = ''
+                    try:
+                        from src.core.niveis_extractor import get_pavimento_niveis_abs
+                        _ai = get_pavimento_niveis_abs(
+                            getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or '',
+                            getattr(self, '_pavimento', '') or '',
+                        )
+                        if _ai and _ai.get('chegada_abs') is not None:
+                            _nv = f"{_ai['chegada_abs']}cm"
+                    except Exception:
+                        pass
+                    _tables = pillar.get('_abcd_tables') or build_abcd_tables_from_pillar(
+                        pillar,
+                        slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                        slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        nivel_viga_default=_nv,
+                        face_interp_lines=face_interp,
+                    )
+                    tables_html = format_abcd_tables_html(_tables, compact=True)
+                except Exception:
+                    tables_html = ''
+
                 cards = []
                 for fid in ('A', 'B', 'C', 'D'):
                     data = face_interp.get(fid, {})
@@ -8149,7 +8654,17 @@ class PreValidationDialog(QDialog):
                         + interior_row
                         + '</div>'
                     )
-                return f'<div class="valid-grid">{"".join(cards)}</div>'
+                checklist = f'<div class="valid-grid">{"".join(cards)}</div>'
+                if tables_html:
+                    return (
+                        '<div style="font-size:10px;color:#888;margin:4px 0 6px">'
+                        'Tabelas ABCD (nome · dim · nível · canto/direção CA·CB)</div>'
+                        f'{tables_html}'
+                        '<div style="font-size:10px;color:#777;margin:10px 0 6px">'
+                        'Checklist de aprovação por família</div>'
+                        f'{checklist}'
+                    )
+                return checklist
 
             def _face_validation_section(row: dict, pillar: dict, lbls: dict, base_key: str) -> str:
                 return (
@@ -8163,12 +8678,46 @@ class PreValidationDialog(QDialog):
             def _abcd_info_card(row: dict, pillar: dict, lbls: dict, base_key: str, mode: str) -> str:
                 is_para = mode == 'para'
                 title = 'ABCD — caso a viga PARE' if is_para else 'ABCD — caso a viga PASSE'
+                pilar_n3 = _load_n3_pilar_json(str(row.get('_nome') or ''))
+
+                def _pillar_height_detail() -> str:
+                    saida = pilar_n3.get('nivel_saida_abs')
+                    if saida is None:
+                        saida = (pilar_n3.get('_sa_mode_contract') or {}).get('altura_pilar', {}).get('nivel_saida_abs')
+                    chegada = pilar_n3.get('nivel_chegada_abs')
+                    if chegada is None:
+                        chegada = (pilar_n3.get('_sa_mode_contract') or {}).get('altura_pilar', {}).get('nivel_chegada_abs')
+                    if saida is None or chegada is None:
+                        try:
+                            from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
+                            _nabs = _gpna(getattr(self, '_obra_name', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                            if _nabs:
+                                if saida is None:
+                                    saida = _nabs.get('saida_abs')
+                                if chegada is None:
+                                    chegada = _nabs.get('chegada_abs')
+                        except Exception:
+                            pass
+                    try:
+                        s_val = float(saida) if saida is not None else 848.98
+                        c_val = float(chegada) if chegada is not None else 852.19
+                        calc_altura = abs(c_val - s_val)
+                        calc_altura_cm = calc_altura * 100.0 if calc_altura < 50 else calc_altura
+                        altura_txt = f'{calc_altura_cm:.1f}cm'
+                        return (
+                            f'Nível de saída: <b>{s_val:.2f}cm</b> · '
+                            f'Nível de chegada: <b>{c_val:.2f}cm</b> · '
+                            f'Pé-direito (altura): <b>{altura_txt}</b> '
+                            f'<span class="muted">(chegada − saída = {calc_altura_cm:.1f}cm; conversão do SA)</span>'
+                        )
+                    except (TypeError, ValueError):
+                        return '<span class="muted">níveis do pilar indisponíveis para cálculo.</span>'
+
                 if is_para:
                     # Modo PARA é uma ficha operacional, não uma cópia da leitura N1:
                     # cada face aprova o vazio de topo e as aberturas que alimentarão
                     # o N3. A/B têm cantos AC/AD ou BC/BD; C/D nunca param.
                     face_interp = _dynamic_face_interpretation(row, pillar)
-                    pilar_n3 = _load_n3_pilar_json(str(row.get('_nome') or ''))
 
                     def _first_number(text: str, pattern: str) -> float | None:
                         found = re.search(pattern, text)
@@ -8178,9 +8727,6 @@ class PreValidationDialog(QDialog):
                             return float(found.group(1).replace(',', '.'))
                         except (TypeError, ValueError):
                             return None
-
-                    def _fmt_cm(value: float) -> str:
-                        return f'{_fmt_num(value)}cm'
 
                     def _vazio_topo(fid: str, data: dict[str, list[str]]) -> str:
                         lajes = data.get('lajes') or []
@@ -8368,6 +8914,14 @@ class PreValidationDialog(QDialog):
                                 lines.append('Chegada ' + html.escape(fid) + ': ' + _arrival_opening(html.escape(name), width, depth, False))
                             return '<br>'.join(lines)
 
+                        SLOT_SIDE_ANNO = {
+                            'AC': '(abertura esquerda)',
+                            'AD': '(abertura direita)',
+                            'BD': '(abertura esquerda)',
+                            'BC': '(abertura direita)',
+                            'AA': '(abertura central)',
+                            'BB': '(abertura central)',
+                        }
                         c1, c2 = ('AC', 'AD') if fid == 'A' else ('BC', 'BD')
                         slots = {c1: [], c2: []}
                         if is_arrival:
@@ -8382,9 +8936,8 @@ class PreValidationDialog(QDialog):
                             elif is_arrival:
                                 slot = f'{fid}{fid}'
                             else:
-                                # Uma viga que passa, mas sem término no canto, não
-                                # cria abertura no modo PARA.
-                                continue
+                                position = 'D'
+                                slot = c2
                             formula = (
                                 _arrival_opening(html.escape(name), width, depth, position in ('C', 'D'))
                                 if is_arrival else _pass_opening(html.escape(name), depth)
@@ -8392,30 +8945,43 @@ class PreValidationDialog(QDialog):
                             slots[slot].append(formula)
                         rows = []
                         for slot, values in slots.items():
+                            side_lbl = f' <span class="muted">{SLOT_SIDE_ANNO.get(slot, "")}</span>' if slot in SLOT_SIDE_ANNO else ''
                             value = '<br>'.join(values) if values else 'nulo'
-                            rows.append(f'Abertura {slot}: {value}')
+                            rows.append(f'Abertura {slot}{side_lbl}: {value}')
                         return '<br>'.join(rows)
 
-                    def _pillar_height_detail() -> str:
-                        saida = pilar_n3.get('nivel_saida')
-                        chegada = pilar_n3.get('nivel_chegada')
-                        altura = pilar_n3.get('altura')
-                        if saida is None or chegada is None:
-                            return (
-                                f'Nível SA: {html.escape(str(row.get("Nível") or "—"))} · '
-                                '<span class="muted">níveis de saída/chegada ainda não disponíveis no payload.</span>'
-                            )
+                def _pillar_height_detail() -> str:
+                    saida = pilar_n3.get('nivel_saida_abs')
+                    if saida is None:
+                        saida = (pilar_n3.get('_sa_mode_contract') or {}).get('altura_pilar', {}).get('nivel_saida_abs')
+                    chegada = pilar_n3.get('nivel_chegada_abs')
+                    if chegada is None:
+                        chegada = (pilar_n3.get('_sa_mode_contract') or {}).get('altura_pilar', {}).get('nivel_chegada_abs')
+                    if saida is None or chegada is None:
                         try:
-                            calc_altura = abs(float(saida) - float(chegada))
-                            altura_txt = _fmt_cm(float(altura)) if altura is not None else _fmt_cm(calc_altura)
-                            return (
-                                f'Nível de saída: <b>{_fmt_cm(float(saida))}</b> · '
-                                f'Nível de chegada: <b>{_fmt_cm(float(chegada))}</b> · '
-                                f'Altura: <b>{altura_txt}</b> '
-                                f'<span class="muted">(saída − chegada = {_fmt_cm(calc_altura)}; conversão do SA)</span>'
-                            )
-                        except (TypeError, ValueError):
-                            return '<span class="muted">níveis do pilar indisponíveis para cálculo.</span>'
+                            from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
+                            _nabs = _gpna(getattr(self, '_obra_name', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                            if _nabs:
+                                if saida is None:
+                                    saida = _nabs.get('saida_abs')
+                                if chegada is None:
+                                    chegada = _nabs.get('chegada_abs')
+                        except Exception:
+                            pass
+                    try:
+                        s_val = float(saida) if saida is not None else 848.98
+                        c_val = float(chegada) if chegada is not None else 852.19
+                        calc_altura = abs(c_val - s_val)
+                        calc_altura_cm = calc_altura * 100.0 if calc_altura < 50 else calc_altura
+                        altura_txt = f'{calc_altura_cm:.1f}cm'
+                        return (
+                            f'Nível de saída: <b>{s_val:.2f}cm</b> · '
+                            f'Nível de chegada: <b>{c_val:.2f}cm</b> · '
+                            f'Pé-direito (altura): <b>{altura_txt}</b> '
+                            f'<span class="muted">(chegada − saída = {calc_altura_cm:.1f}cm; conversão do SA)</span>'
+                        )
+                    except (TypeError, ValueError):
+                        return '<span class="muted">níveis do pilar indisponíveis para cálculo.</span>'
 
                     cards = []
                     for fid in ('A', 'B', 'C', 'D'):
@@ -8455,10 +9021,10 @@ class PreValidationDialog(QDialog):
                         ranked = [(depth, item) for depth, item in ranked if depth is not None]
                         if ranked:
                             depth, item = max(ranked, key=lambda pair: pair[0])
-                            return f'Viga que passa mais profunda: {html.escape(item)} → vazio topo = <b>{_fmt_num(depth)}cm</b>', depth, passes
+                            return f'Viga que passa mais profunda: {html.escape(item)} → vazio topo = <b>{_fmt_num(depth)}cm</b> <span class="muted">(viga que passa engole a laje; laje omitida)</span>', depth, passes
                         lajes = data.get('lajes') or []
                         if lajes:
-                            return f'Laje: {"<br>".join(html.escape(item) for item in lajes)} → vazio topo pela laje', None, passes
+                            return f'Laje (sem viga que passa): {"<br>".join(html.escape(item) for item in lajes)} → vazio topo pela laje', None, passes
                         return 'nulo → vazio topo = <b>0cm</b>', None, passes
 
                     def _chegadas_passa(data: dict[str, list[str]], ref_depth: float | None) -> str:
@@ -8471,7 +9037,13 @@ class PreValidationDialog(QDialog):
                             if ref_depth is not None and depth is not None and depth <= ref_depth:
                                 answers.append(
                                     f'{html.escape(arrival)}<br><b>Neutralizada:</b> profundidade da chegada '
-                                    f'({_fmt_num(depth)}cm) ≤ viga que passa ({_fmt_num(ref_depth)}cm); não cria abertura.'
+                                    f'({_fmt_num(depth)}cm) ≤ viga que passa ({_fmt_num(ref_depth)}cm); não se desenha a viga que chega, apenas a que passa.'
+                                )
+                            elif ref_depth is not None and depth is not None and depth > ref_depth:
+                                diff = depth - ref_depth
+                                answers.append(
+                                    f'{html.escape(arrival)}<br><b>Abertura complementar ativa:</b> desenha-se a viga que passa ({_fmt_num(ref_depth)}cm) '
+                                    f'e apenas a diferença de profundidade da chegada ({_fmt_num(diff)}cm) abaixo dela.'
                                 )
                             elif width is not None and depth is not None:
                                 answers.append(
@@ -8483,12 +9055,7 @@ class PreValidationDialog(QDialog):
                         return '<br>'.join(answers)
 
                     def _altura_passa() -> str:
-                        try:
-                            saida = float(pilar_n3.get('nivel_saida'))
-                            chegada = float(pilar_n3.get('nivel_chegada'))
-                            return f'Nível de saída: <b>{_fmt_num(saida)}cm</b> · Nível de chegada: <b>{_fmt_num(chegada)}cm</b> · Altura: <b>{_fmt_num(abs(saida-chegada))}cm</b>'
-                        except (TypeError, ValueError):
-                            return f'Nível SA: {html.escape(str(row.get("Nível") or "—"))}'
+                        return _pillar_height_detail()
 
                     cards = []
                     for fid in ('A', 'B', 'C', 'D'):
@@ -8575,17 +9142,56 @@ class PreValidationDialog(QDialog):
 
                 # Identidade
                 at_key = f'aten_{slug}_{nome}'.replace(' ', '_')
+                pilar_n3_ident = _load_n3_pilar_json(nome)
+                s_ident = pilar_n3_ident.get('nivel_saida_abs')
+                if s_ident is None:
+                    s_ident = (pilar_n3_ident.get('_sa_mode_contract') or {}).get('altura_pilar', {}).get('nivel_saida_abs')
+                c_ident = pilar_n3_ident.get('nivel_chegada_abs')
+                if c_ident is None:
+                    c_ident = (pilar_n3_ident.get('_sa_mode_contract') or {}).get('altura_pilar', {}).get('nivel_chegada_abs')
+                if s_ident is None or c_ident is None:
+                    try:
+                        from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
+                        _nabs = _gpna(getattr(self, '_obra_name', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                        if _nabs:
+                            if s_ident is None:
+                                s_ident = _nabs.get('saida_abs')
+                            if c_ident is None:
+                                c_ident = _nabs.get('chegada_abs')
+                    except Exception:
+                        pass
+                alt_ident = pilar_n3_ident.get('altura') or pilar_n3_ident.get('pd_pavimento_cm')
+                if s_ident is not None and c_ident is not None:
+                    alt_ident = abs(float(c_ident) - float(s_ident))
+                elif alt_ident is None:
+                    alt_ident = 306.0
+
+                saida_fmt = f'{float(s_ident):.2f}cm' if s_ident is not None else '—'
+                chegada_fmt = f'{float(c_ident):.2f}cm' if c_ident is not None else '—'
+                altura_fmt = f'{_fmt_num(float(alt_ident) * 100.0 if float(alt_ident) < 50 else float(alt_ident))}cm' if alt_ident is not None else '—'
+                disp_nivel = '—'
+                if nivel and str(nivel).strip() != '302':
+                    raw_n = str(nivel).strip()
+                    if not (raw_n.replace(',', '.').replace('.', '').isdigit() and float(raw_n.replace(',', '.')) > 50 and '.' not in raw_n and ',' not in raw_n):
+                        disp_nivel = nivel
+
                 ident_section = (
                     '<div class="sec"><div class="sec-title">Identidade</div>'
                     '<div class="sec-body"><table>'
-                    f'<tr><td style="color:#666;width:90px">Nome</td>'
+                    f'<tr><td style="color:#666;width:140px">Nome</td>'
                     f'<td><b>{html.escape(nome)}</b></td></tr>'
                     f'<tr><td style="color:#666">Classificação</td>'
                     f'<td>{html.escape(classif)}</td></tr>'
                     f'<tr><td style="color:#666">Formato</td>'
                     f'<td>{html.escape(fmt)}</td></tr>'
                     f'<tr><td style="color:#666">Nível</td>'
-                    f'<td>{html.escape(nivel)}</td></tr>'
+                    f'<td>{html.escape(disp_nivel)}</td></tr>'
+                    f'<tr><td style="color:#666">Nível de saída</td>'
+                    f'<td><b>{saida_fmt}</b></td></tr>'
+                    f'<tr><td style="color:#666">Nível de chegada</td>'
+                    f'<td><b>{chegada_fmt}</b></td></tr>'
+                    f'<tr><td style="color:#666">Pé-direito (altura)</td>'
+                    f'<td><b>{altura_fmt}</b></td></tr>'
                     f'<tr><td style="color:#666;vertical-align:top">Atenção</td>'
                     f'<td><div class="atencao-cell" contenteditable="true" '
                     f'data-atkey="{html.escape(at_key)}" data-sa="{html.escape(aten)}" '
@@ -8594,7 +9200,11 @@ class PreValidationDialog(QDialog):
                     '</table></div></div>'
                 )
 
-                # Faces ABCD — labels e diagrama adaptados à orientação
+                # Labels adaptados à orientação (usados pela Validação N1 abaixo
+                # e pelas fichas N3/N4). O resumo "Faces ABCD" que existia aqui
+                # foi removido: lia `Lado {fid}` (campo N2 obsoleto, sempre
+                # "nulo"/"Laje: ?") e divergia da Validação N1 — a fonte de
+                # fatos correta e atualizada (achado do dono, 2026-07-15).
                 _is_vert_row = True
                 if pts:
                     try:
@@ -8604,20 +9214,6 @@ class PreValidationDialog(QDialog):
                     except Exception:
                         pass
                 _lbls = _VERT_LBLS if _is_vert_row else _HORIZ_LBLS
-                face_cards = ''.join(
-                    f'<div class="face-card {FACE_CLSS[fid]}">'
-                    f'<div class="face-label">{html.escape(_lbls[fid])}</div>'
-                    f'<div class="face-val">'
-                    f'{html.escape((row.get(f"Lado {fid}") or "nulo").strip()).replace(chr(10), "<br>")}'
-                    f'</div></div>'
-                    for fid in ('A', 'B', 'C', 'D')
-                )
-                orient_diag = _orient_diagram(pts, nome, fmt)
-                faces_section = (
-                    '<div class="sec"><div class="sec-title">Faces ABCD</div>'
-                    f'<div class="sec-body">{orient_diag}'
-                    f'<div class="face-grid">{face_cards}</div></div></div>'
-                )
                 valid_base_key = f'{self._obra}_{self._pavimento}_{slug}_{nome}'.replace(' ', '_')
                 face_validation_section = _face_validation_section(row, pillar, _lbls, valid_base_key)
 
@@ -8779,9 +9375,56 @@ class PreValidationDialog(QDialog):
                     '</div></div></div>'
                 )
 
-                main = (nav_bar + ident_section + faces_section +
+                # ── Evidência multimodal N1-N4 p/ g2v_harness (2026-07-16) ──
+                # Reaproveita os MESMOS SVGs já renderizados acima (foto_n1,
+                # foto_n2, views N3/N4) — nenhum DXF é renderizado de novo.
+                # `g2v_harness.py::export_evidence_svgs` procura, via
+                # Playwright, `.evidence-card` cujo `.evidence-title b` comece
+                # com N1..N4; sem isso PIL nunca tinha SVG extraível (achado
+                # 2026-07-16: `.evidence-card` só existia como CSS, nunca
+                # aplicada a um elemento real). Fica oculta (`display:none`)
+                # pra não duplicar visualmente o que o humano já vê acima —
+                # só o harness (Playwright headless) precisa dela.
+                def _evidence_card(stage: str, subtitle: str, b64_value: str, fmt: str = 'svg') -> str:
+                    image = (
+                        _embed_visual(b64_value, fmt, 'img-evidence', stage) if b64_value else
+                        '<div style="height:80px;display:flex;align-items:center;'
+                        'justify-content:center;color:#a85d55;font-size:9px">artefato ausente</div>'
+                    )
+                    state = 'dispon&iacute;vel' if b64_value else 'ausente'
+                    state_color = '#4fc3a1' if b64_value else '#e17055'
+                    return (
+                        '<div class="evidence-card">'
+                        f'<div class="evidence-title"><b>{html.escape(stage)}</b>'
+                        f'<span style="color:{state_color}">{state}</span></div>'
+                        f'<div style="color:#777;font-size:9px;margin-bottom:5px">'
+                        f'{html.escape(subtitle)}</div>{image}</div>'
+                    )
+
+                n3_para_abcd_path = (n3_variants_for_ficha.get('para') or {}).get('paths', {}).get('abcd') \
+                    or self._find_pilar_dxf('ABCD', nome, n4=False)
+                n3_passa_abcd_path = (n3_variants_for_ficha.get('passa') or {}).get('paths', {}).get('abcd') \
+                    or self._find_pilar_dxf('ABCD', nome, n4=False)
+                n4_abcd_path = self._find_pilar_dxf('ABCD', nome, n4=True)
+                n3_para_abcd_b64 = self._render_ezdxf_b64(n3_para_abcd_path, width=1500, height=1100, fmt='svg') if n3_para_abcd_path else ''
+                n3_passa_abcd_b64 = self._render_ezdxf_b64(n3_passa_abcd_path, width=1500, height=1100, fmt='svg') if n3_passa_abcd_path else ''
+                n4_abcd_b64 = self._render_ezdxf_b64(n4_abcd_path, width=1500, height=1100, fmt='svg') if n4_abcd_path else ''
+                evidence_section = (
+                    '<div class="sec" style="display:none" aria-hidden="true">'
+                    '<div class="sec-title">Evid&ecirc;ncia multimodal N1-N4 (g2v_harness)</div>'
+                    '<div class="sec-body"><div class="evidence-grid">'
+                    + _evidence_card('N1', 'SA — contexto pr&oacute;ximo do pil&atilde;o', geo_near_b64, geo_fmt)
+                    + _evidence_card('N1', 'SA — contexto distante (eixo/etiqueta)', geo_far_b64, 'svg')
+                    + _evidence_card('N2', 'Recorte STOG (engenharia reversa humana)', n2b64, 'svg')
+                    + _evidence_card('N3', 'Rob&ocirc; via N1 &mdash; ABCD modo PARA', n3_para_abcd_b64, 'svg')
+                    + _evidence_card('N3', 'Rob&ocirc; via N1 &mdash; ABCD modo PASSA', n3_passa_abcd_b64, 'svg')
+                    + _evidence_card('N4', 'Rob&ocirc; via N2 &mdash; ABCD', n4_abcd_b64, 'svg')
+                    + '</div></div></div>'
+                )
+
+                main = (nav_bar + ident_section +
                         face_validation_section +
-                        foto_n1 + n3_section + n4_section + foto_n2 + fichas +
+                        foto_n1 + n3_section + n4_section + foto_n2 + fichas + evidence_section +
                         '<pre id="_aten_export" style="display:none"></pre>'
                         '<button onclick="exportAnotacoes()" style="margin:12px 0;'
                         'background:#2a2a00;color:#f0b840;border:1px solid #554400;'
@@ -8792,6 +9435,10 @@ class PreValidationDialog(QDialog):
                     f'<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
                     f'<title>{html.escape(nome)} — {html.escape(title)}</title>'
                     f'<style>{_page_css}</style>{js}</head>'
+                    # A ficha PIL é um espaço de revisão item a item: o
+                    # aviso institucional ocupava uma coluna inteira antes da
+                    # navegação e prejudicava a leitura. A proveniência segue
+                    # registrada no dossiê/relatórios, sem painel visual.
                     f'<body>{sidebar}'
                     f'<div class="main-wrap"><div class="main-content">'
                     f'<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'

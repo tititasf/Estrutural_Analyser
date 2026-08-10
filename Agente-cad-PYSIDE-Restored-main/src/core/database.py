@@ -581,6 +581,14 @@ class DatabaseManager:
         _check_and_add_column('reverse_eng_recortes', 'projeto_id', 'TEXT')
         _check_and_add_column('reverse_eng_recortes', 'classe',     'TEXT')
         _check_and_add_column('reverse_eng_recortes', 'status',     "TEXT DEFAULT 'manual'")
+        # [2026-07-31] 'confidence' existe no project_data.vision de PRODUÇÃO
+        # (visto via PRAGMA table_info real) mas nunca tinha migração aqui —
+        # drift entre o bootstrapper "oficial" e o banco real. Achado testando
+        # item_manual.criar_item_manual contra um DatabaseManager novo: a
+        # tabela criada do zero não tinha a coluna que o INSERT gravava.
+        # Qualquer instalação fresca (obra nova, CI, ambiente de teste) caía
+        # nesse mesmo erro.
+        _check_and_add_column('reverse_eng_recortes', 'confidence', 'REAL DEFAULT NULL')
 
 
     def create_work(self, name: str, client_id: str = None):
@@ -2048,6 +2056,18 @@ class DatabaseManager:
                     b['pkl_path'] = row['pkl_path']
                 except (IndexError, KeyError):
                     b['pkl_path'] = b.get('pkl_path')
+
+                # Carregar links estruturados da coluna links_json (se existir)
+                try:
+                    if 'links_json' in row.keys() and row['links_json']:
+                        links_col = json.loads(row['links_json'])
+                        if isinstance(links_col, dict):
+                            b_links = b.setdefault('links', {})
+                            for k, v in links_col.items():
+                                if k not in b_links or not b_links[k]:
+                                    b_links[k] = v
+                except (IndexError, KeyError, TypeError):
+                    pass
 
                 # Carregar campos de validação/NA das colunas dedicadas
                 for col, key in [('validated_fields_json', 'validated_fields'),

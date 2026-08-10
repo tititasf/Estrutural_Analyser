@@ -3694,3 +3694,671 @@ Traceback (most recent call last):
     ^^^^^^^^^^^^^
 AttributeError: 'str' object has no attribute 'deleteLater'
 
+
+[2026-07-16 13:02:41] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9549, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-16 13:03:07] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9549, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-16 18:03:13] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9567, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-16 20:39:52] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9638, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-17 11:47:37] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9638, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-17 11:50:27] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 11:50:27] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 11:50:27] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 11:50:27] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 12:01:50] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1033, in _on_express_validate
+    self.mark_field_validated(field_id, True, emit_data_changed=False)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 815, in mark_field_validated
+    link['validated'] = True
+    ~~~~^^^^^^^^^^^^^
+TypeError: 'str' object does not support item assignment
+
+
+[2026-07-17 12:01:50] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1033, in _on_express_validate
+    self.mark_field_validated(field_id, True, emit_data_changed=False)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 815, in mark_field_validated
+    link['validated'] = True
+    ~~~~^^^^^^^^^^^^^
+TypeError: 'str' object does not support item assignment
+
+
+[2026-07-17 12:01:53] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 928, in _on_express_validate
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:01:55] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 928, in _on_express_validate
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:01:56] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 928, in _on_express_validate
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:03:50] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1033, in _on_express_validate
+    self.mark_field_validated(field_id, True, emit_data_changed=False)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 815, in mark_field_validated
+    link['validated'] = True
+    ~~~~^^^^^^^^^^^^^
+TypeError: 'str' object does not support item assignment
+
+
+[2026-07-17 12:03:51] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1033, in _on_express_validate
+    self.mark_field_validated(field_id, True, emit_data_changed=False)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 815, in mark_field_validated
+    link['validated'] = True
+    ~~~~^^^^^^^^^^^^^
+TypeError: 'str' object does not support item assignment
+
+
+[2026-07-17 12:03:52] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 928, in _on_express_validate
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:03:55] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 344, in <lambda>
+    btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 928, in _on_express_validate
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:05:09] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 457, in <lambda>
+    lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 555, in _remove_link
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:05:10] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 457, in <lambda>
+    lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 555, in _remove_link
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:05:11] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 457, in <lambda>
+    lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 555, in _remove_link
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:05:12] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 457, in <lambda>
+    lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 555, in _remove_link
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:05:12] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 457, in <lambda>
+    lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 555, in _remove_link
+    self.undo_field_validation(field_id)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3611, in undo_field_validation
+    validated.remove(field_id)
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'remove'
+
+
+[2026-07-17 12:14:28] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2154, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7534, in on_list_pillar_clicked
+    self.show_detail(pilar)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 18239, in show_detail
+    self.current_card = DetailCard(display_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 93, in __init__
+    self.init_ui()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1506, in init_ui
+    self.fields['viga_count_b'].setText(str(nb))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3682, in _refresh_dynamic_content
+    for s_id in slots_to_undo:
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1940, in _setup_pilar_complex_view
+    self._add_linked_row(f, "Altura / Espessura (H):", f'p_s{side}_l{i}_h', "text")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 191, in _add_linked_row
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2654, in _get_initial_value
+    seg_prefix = f"{prefix}_seg_{idx}"
+                               ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-07-17 12:27:01] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9638, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-17 12:33:04] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 12:33:04] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 12:33:04] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 12:33:04] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 13:34:45] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9664, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-17 18:45:01] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9664, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-17 18:49:45] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 18:49:45] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 18:49:45] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 18:49:45] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-17 19:06:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9664, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-20 13:10:49] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9973, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-20 13:11:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1742, in _do_pav
+    self._open_project_tab(project_id, raw_name)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1024, in _open_project_tab
+    self._load_project_into_view(pid_str)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1155, in _load_project_into_view
+    self.load_project_action() # Lógica existente de povoar lists/canvas
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 9007, in load_project_action
+    self.show_detail(self.pillars_found[0])
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 18084, in show_detail
+    self.current_card = DetailCard(display_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 104, in __init__
+    self.init_ui()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1619, in init_ui
+    self._refresh_dynamic_content()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3802, in _refresh_dynamic_content
+    self._setup_pilar_complex_view(self.dynamic_layout)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2053, in _setup_pilar_complex_view
+    self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 204, in _add_linked_row
+    initial_val = self._get_initial_value(field_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2767, in _get_initial_value
+    txt = str(s_list[0].get('text', ''))
+              ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-07-20 13:12:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:12:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:12:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:12:03] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:33:41] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:33:41] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:33:54] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9973, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+
+
+[2026-07-20 13:34:21] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1742, in _do_pav
+    self._open_project_tab(project_id, raw_name)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1024, in _open_project_tab
+    self._load_project_into_view(pid_str)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1155, in _load_project_into_view
+    self.load_project_action() # Lógica existente de povoar lists/canvas
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 9007, in load_project_action
+    self.show_detail(self.pillars_found[0])
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 18084, in show_detail
+    self.current_card = DetailCard(display_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 104, in __init__
+    self.init_ui()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1619, in init_ui
+    self._refresh_dynamic_content()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3802, in _refresh_dynamic_content
+    self._setup_pilar_complex_view(self.dynamic_layout)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2053, in _setup_pilar_complex_view
+    self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 204, in _add_linked_row
+    initial_val = self._get_initial_value(field_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2767, in _get_initial_value
+    txt = str(s_list[0].get('text', ''))
+              ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-07-20 13:34:25] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:34:25] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:34:25] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:34:25] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\main_window.py", line 1117, in on_pavimento_selected
+    self.canvas_widget.set_laje(primeira_laje)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\ui\widgets\canvas_widget.py", line 765, in set_laje
+    _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+                        ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+
+[2026-07-20 13:35:09] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2154, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7362, in on_list_pillar_clicked
+    self.show_detail(pilar)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 18084, in show_detail
+    self.current_card = DetailCard(display_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 104, in __init__
+    self.init_ui()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1619, in init_ui
+    self._refresh_dynamic_content()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3802, in _refresh_dynamic_content
+    self._setup_pilar_complex_view(self.dynamic_layout)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2053, in _setup_pilar_complex_view
+    self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 204, in _add_linked_row
+    initial_val = self._get_initial_value(field_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2767, in _get_initial_value
+    txt = str(s_list[0].get('text', ''))
+              ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-07-20 13:35:25] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2154, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7362, in on_list_pillar_clicked
+    self.show_detail(pilar)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 18084, in show_detail
+    self.current_card = DetailCard(display_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 104, in __init__
+    self.init_ui()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1619, in init_ui
+    self._refresh_dynamic_content()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3802, in _refresh_dynamic_content
+    self._setup_pilar_complex_view(self.dynamic_layout)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2053, in _setup_pilar_complex_view
+    self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 204, in _add_linked_row
+    initial_val = self._get_initial_value(field_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2767, in _get_initial_value
+    txt = str(s_list[0].get('text', ''))
+              ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-07-20 13:35:37] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2154, in <lambda>
+    self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7362, in on_list_pillar_clicked
+    self.show_detail(pilar)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 18084, in show_detail
+    self.current_card = DetailCard(display_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 104, in __init__
+    self.init_ui()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 1619, in init_ui
+    self._refresh_dynamic_content()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 3802, in _refresh_dynamic_content
+    self._setup_pilar_complex_view(self.dynamic_layout)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2053, in _setup_pilar_complex_view
+    self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 204, in _add_linked_row
+    initial_val = self._get_initial_value(field_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\detail_card.py", line 2767, in _get_initial_value
+    txt = str(s_list[0].get('text', ''))
+              ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+
+[2026-07-21 01:09:18] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 9973, in _retire_aw
+    w.deleteLater()
+    ^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'deleteLater'
+

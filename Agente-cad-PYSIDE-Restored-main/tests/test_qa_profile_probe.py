@@ -60,6 +60,47 @@ def test_profile_resolves_support_class_from_structural_identifier(tmp_path: Pat
     con.close()
 
 
+def test_laj_profile_reads_pillar_identity_from_persisted_name_column():
+    """PIL identities are authoritative in ``pillars.name``, not an optional link."""
+    profile_path = (
+        Path(__file__).parents[1]
+        / "squads"
+        / "qa-global-evidencias"
+        / "data"
+        / "class_profiles"
+        / "laj.json"
+    )
+    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    fields = profile["n1"]["probes"]["support_identity_and_contact"]["fields"]
+    pillar_identity = next(field for field in fields if field["id"] == "pillar.name")
+    assert pillar_identity["source"] == "column"
+    assert pillar_identity["path"] == "name"
+    assert pillar_identity["geometry_match_from"] == "slab.support.bbox"
+
+
+def test_cross_class_duplicate_identity_requires_and_uses_declared_geometry_match():
+    """Same-name structural rows are selected by declared persisted geometry."""
+    con = _db()
+    target_points = [[100, 20], [140, 20], [140, 40], [100, 40], [100, 20]]
+    con.execute(
+        "INSERT INTO pillars VALUES ('pil-duplicate', 'p', 'P35', ?, '{}', '{}', '{}', '{}')",
+        (json.dumps(target_points),),
+    )
+    values = load_requested_fields(
+        con,
+        project_id="p",
+        classe="PIL",
+        item="P35",
+        fields=[
+            {"id": "name", "source": "column", "path": "name", "match_bbox": [100, 20, 140, 40]},
+            {"id": "geometry", "source": "geometry", "path": "", "match_bbox": [100, 20, 140, 40]},
+        ],
+    )
+    assert values["raw_fields"]["name"]["value"] == "P35"
+    assert json.loads(values["raw_fields"]["geometry"]["value"]) == target_points
+    con.close()
+
+
 def test_profile_routes_dynamic_geometry_by_resolved_class(tmp_path: Path):
     profile = {
         "schema": PROFILE_SCHEMA,

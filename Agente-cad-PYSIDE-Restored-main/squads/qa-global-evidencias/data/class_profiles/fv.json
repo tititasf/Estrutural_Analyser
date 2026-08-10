@@ -2,7 +2,7 @@
   "schema": "arete.qa_class_profile/v1",
   "class": "FV",
   "version": "1.1.0",
-  "authority": "diagnostic_only until the FV adapter is promoted; segment checks do not approve the full beam",
+  "authority": "validation_ready via FvEvidenceAuditor; segment PASS does not approve full beam; see data/authority_matrix.json",
   "model": "Fundo de viga é um contrato próprio: segmentos de fundo, dimensão por segmento, apoios inicial/final, furos e recortes. LV nunca é fallback semântico de FV.",
   "manual_guides": [
     "docs/ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md",

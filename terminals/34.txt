@@ -1,0 +1,61 @@
+---
+pid: 5996
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; python -m pytest tests/test_lv_degrau_marco_sarrafos.py -q --tb=line 2>&1 | Select-Object -Last 15; python scripts/arete/gerar_lv_n4_fichas.py V301 2>&1 | Select-Object -Last 8; python scripts/arete/tmp/open_v301_n4_html.py 2>&1 | Select-Object -Last 6; python -c \"
+import ezdxf
+from pathlib import Path
+N4=Path(r'D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/n4/LV_preview_V301_VIEW_A.dxf')
+doc=ezdxf.readfile(str(N4)); msp=doc.modelspace(); y0=-259
+print('Painéis face A:')
+for e in msp:
+    if e.dxftype()!='LINE' or e.dxf.layer!='Painéis': continue
+    a,b=e.dxf.start,e.dxf.end
+    x1,y1,x2,y2=a.x,a.y-y0,b.x,b.y-y0
+    if max(x1,x2)>460 or max(y1,y2)>150 or min(y1,y2)<-2: continue
+    print(tuple(round(v,1) for v in (x1,y1,x2,y2)))
+\""
+started_at: 2026-07-17T05:12:21.923Z
+running_for_ms: 36130007 
+---
+
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py:65
+  C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py:65: PyparsingDeprecationWarning: 'infixNotation' deprecated - use 'infix_notation'
+    InfixBoolQuery = infixNotation(
+
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py:72
+  C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py:72: PyparsingDeprecationWarning: 'setResultsName' deprecated - use 'set_results_name'
+    ).setResultsName("AttribQuery")
+
+C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py:74
+  C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py:74: PyparsingDeprecationWarning: 'setResultsName' deprecated - use 'set_results_name'
+    AttribQueryOptions = Literal("i").setResultsName("AttribQueryOptions")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 7 warnings in 0.90s
+DEBUG V301: my_labels = [(5483.094412849332, 8281.870433819078, 'V301.A', 'A'), (6799.255538347416, 8006.224756820968, 'V301.B', 'B')]
+DEBUG V301: label V301.A at (5483.094412849332, 8281.870433819078) -> pair = {'y_bot': 8154.0, 'y_top': 8263.0, 'h_body': 109.0, 'x_left': 5479.891111852656, 'x_right': 5928.550199239063, 'total_w': 448.7}
+DEBUG V301: label V301.B at (6799.255538347416, 8006.224756820968) -> pair = {'y_bot': 7878.0, 'y_top': 8002.0, 'h_body': 124.0, 'x_left': np.float64(6796.052237350742), 'x_right': 7165.948885804495, 'total_w': np.float64(369.9)}
+DEBUG V301: face_A = {'y_bot': 8154.0, 'y_top': 8263.0, 'h_body': 109.0, 'x_left': 5479.891111852656, 'x_right': 5928.550199239063, 'total_w': 448.7}
+DEBUG V301: face_B = {'y_bot': 7878.0, 'y_top': 8002.0, 'h_body': 124.0, 'x_left': np.float64(6796.052237350742), 'x_right': 7165.948885804495, 'total_w': np.float64(369.9)}
+[V301] gerando... OK => D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LV_preview_V301_A.dxf
+
+1/1 OK | N4 em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4
+N2: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V301_motor_178111332829.dxf
+render LV_preview_V301_VIEW_A.dxf...
+render LV_preview_V301_VIEW_B.dxf...
+render LV_preview_V301_CORTE.dxf...
+HTML: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\v301_n4_review_20260717_021233\V301_N4_REVIEW.html
+Painéis face A:
+(0.0, 65.0, 0.0, 109.0)
+(244.0, 65.0, 244.0, 109.0)
+(272.7, 0.0, 272.7, 65.0)
+(294.5, 0.0, 294.5, 65.0)
+(405.5, 0.0, 405.5, 109.0)
+(424.5, 0.0, 424.5, 124.0)
+(445.7, 0.0, 445.7, 124.0)
+(0.0, 65.0, 294.5, 65.0)
+(0.0, 109.0, 405.5, 109.0)
+(408.5, 109.0, 427.5, 109.0)
+(408.5, 124.0, 448.7, 124.0)
+(294.5, 0.0, 405.5, 0.0)
+(408.5, 0.0, 448.7, 0.0)

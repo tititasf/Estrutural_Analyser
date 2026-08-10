@@ -8,6 +8,7 @@ import pytest
 from scripts.arete.diagnostico_fv_n1_n2 import (
     _compare_segment_measures,
     classify_delta,
+    diagnose_item,
     load_n1_beams,
     load_n2_beams,
     run_diagnostic,
@@ -51,6 +52,31 @@ def test_segment_measures_reject_tenth_cm_delta():
 
     assert comparison["match"] is False
     assert comparison["pares"][0]["delta_abs_cm"] == pytest.approx(0.1)
+
+
+def test_diagnose_never_calls_equal_total_with_wrong_segmentation_excellent():
+    item = diagnose_item(
+        "V322",
+        {
+            "largura": 19.0,
+            "comprimento_total": 380.0,
+            "comprimentos": [118.0, 112.0, 150.0],
+            "segmentos": 3,
+        },
+        {
+            "largura": 19.0,
+            "comprimento_total": 380.0,
+            "comprimentos": [118.0, 262.0],
+            "segmentos": 2,
+        },
+        obra="Obra_TESTE",
+        pavimento="13_PAV",
+        generated_at="2026-07-16T00:00:00+00:00",
+    )
+
+    assert item["causa_raiz"] == "schema_gap"
+    assert item["evidencia"]["classificacao"] == "DIVERGENTE_SEGMENTOS"
+    assert item["evidencia"]["deltas"] == {"largura": 0.0, "comprimento_total": 0.0}
 
 
 def test_load_n1_beams_uses_special_diagonal_measure_instead_of_global_bbox(tmp_path: Path):
@@ -300,7 +326,7 @@ def test_run_diagnostic_is_headless_versioned_and_emits_schema_v2(tmp_path: Path
         "n1_itens": 2,
         "n2_itens": 2,
         "alertas": 1,
-        "classificacoes": {"EXCELENTE": 1, "RUIM": 1},
+        "classificacoes": {"DIVERGENTE_SEGMENTOS": 1, "EXCELENTE": 1},
         "segmentacao": {
             "comparaveis": 2,
             "quantidade_pass": 2,
@@ -317,7 +343,7 @@ def test_run_diagnostic_is_headless_versioned_and_emits_schema_v2(tmp_path: Path
     assert items["V101"]["evidencia"]["medidas_segmentos_match"] is True
     assert items["V102"]["causa_raiz"] == "extractor_bug"
     assert items["V102"]["evidencia"]["medidas_segmentos_match"] is False
-    assert items["V102"]["evidencia"]["classificacao"] == "RUIM"
+    assert items["V102"]["evidencia"]["classificacao"] == "DIVERGENTE_SEGMENTOS"
     assert items["V102"]["evidencia"]["deltas"]["comprimento_total"] == pytest.approx(0.4)
     assert items["V102"]["marcado_por"] == "auto"
     assert items["V102"]["concordancia"] == "pendente"

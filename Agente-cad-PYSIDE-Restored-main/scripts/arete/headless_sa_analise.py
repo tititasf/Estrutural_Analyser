@@ -23,6 +23,7 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+from typing import Callable
 
 # Esta CLI nunca pode herdar o backend visível do dashboard. ``setdefault``
 # permitia QT_QPA_PLATFORM=windows vindo do processo pai e abria a app.
@@ -895,6 +896,16 @@ def _run_legacy_analysis(
                   flush=True)
 
     from src.core.beam_interpreters import FundoVigaInterpreter
+    # Passada global: quebra cruzamentos mais fundos com contexto completo
+    # (todas as dimensões já resolvidas) e reancora contornos.
+    n_split = FundoVigaInterpreter.apply_deeper_crossing_splits_all(
+        runner.beams_found
+    )
+    if n_split:
+        print(
+            f'[SA] FV deeper-crossing splits: {n_split} viga(s) re-topologizada(s)',
+            flush=True,
+        )
     for b in runner.beams_found:
         FundoVigaInterpreter.repair_area_links(
             b, context_beams=runner.beams_found
@@ -1058,6 +1069,42 @@ _CLASS_HEADLESS_LOCKS: dict[str, str] = {
     'laterais_viga': 'headless_sa_lv',
 }
 _GLOBAL_HEADLESS_LOCK = 'headless_sa_global'
+# PIL pode reconciliar uma dependência de viga; FV e LV persistem campos
+# diferentes, mas no mesmo ``beams.data_json``. Um snapshot concorrente desses
+# donos poderia regravar o JSON inteiro a partir de uma versão antiga.
+_SHARED_BEAMS_LOCK = 'headless_sa_beams'
+_BEAM_PERSIST_SECTIONS = frozenset({'pilares', 'fundos_viga', 'laterais_viga'})
+# SQLite só admite um escritor. A trava de commit é tomada brevemente, após a
+# análise, para não serializar microciclos de classes independentes.
+_DB_COMMIT_LOCK = 'headless_sa_db_commit'
+# Todo microciclo de uma única classe deve passar pelo mesmo bootstrap
+# estritamente headless.  LV não compartilha a semântica FV: o snapshot bruto
+# continua sendo processado pelo contrato próprio A/B + PARA/PASSA em
+# ``_attach_lv_generation_contracts``.  Incluí-la aqui apenas elimina a
+# instanciação de ``MainWindow``; não troca interpretador, campo ou geração.
+_FAST_MICROCYCLE_SECTIONS = frozenset({
+    'pilares', 'lajes', 'fundos_viga', 'laterais_viga',
+})
+
+
+def _fast_microcycle_section(
+    sections: set[str] | None,
+    item_names: set[str] | None,
+) -> str | None:
+    """Retorna a classe apta ao N1 rápido, sem instanciar MainWindow.
+
+    PIL, LAJ, FV e LV materializam a ficha a partir do snapshot canônico de
+    ``_run_legacy_analysis``. Para LAJ, esse caminho executa integralmente
+    ``SlabTracer`` + contexto de pilares/níveis/vigas antes de exportar; para
+    LV, o contrato próprio A/B + PARA/PASSA é anexado depois do snapshot
+    canônico por ``_attach_lv_generation_contracts``. Em todos os casos o
+    atalho só evita instanciar ``MainWindow`` e sua sincronização de UI: não
+    permite que LV receba geometria ou semântica de FV.
+    """
+    if not sections or len(sections) != 1 or not item_names:
+        return None
+    section = next(iter(sections))
+    return section if section in _FAST_MICROCYCLE_SECTIONS else None
 
 
 def _headless_lock_plan(
@@ -1067,14 +1114,44 @@ def _headless_lock_plan(
 ) -> tuple[list[str], str]:
     """Seleciona a menor trava que preserva isolamento e memória.
 
-    Uma consulta realmente granular (uma classe, item explícito e read-only)
-    só monopoliza sua classe. Rodadas completas/multiclasse ou com escrita no
-    DB tomam a trava global e todas as classes, em ordem fixa.
+    Uma rodada read-only de uma única classe — seja um item, lote ou o
+    pavimento inteiro daquela classe — só monopoliza sua classe. A análise N1
+    continua contextual, mas a materialização, diagnóstico, snapshot e
+    previews já são escopados pela seção/PID; omitir ``--item`` não deve
+    recriar uma fila global.
+
+    Um microciclo persistente continua isolado apenas quando traz identidade
+    explícita de item: o writer recebe ``partial_collections`` e
+    ``delete_missing=False``. Rodadas completas, multiclasse ou persistência
+    sem identidade de item tomam a trava global e todas as classes, em ordem
+    fixa, pois o snapshot mesclado pode apagar ausentes.
     """
-    if sections is not None and len(sections) == 1 and item_names and not persist_db:
+    if (
+        sections is not None
+        and len(sections) == 1
+        and (item_names or not persist_db)
+    ):
         section = next(iter(sections))
         return [_CLASS_HEADLESS_LOCKS[section]], f'classe:{_SECTION_LABELS[section]}'
     return ([_GLOBAL_HEADLESS_LOCK, *_CLASS_HEADLESS_LOCKS.values()], 'global')
+
+
+def _headless_persistence_resource_locks(
+    sections: set[str] | None,
+    item_names: set[str] | None,
+    persist_db: bool,
+) -> list[str]:
+    """Recursos extras de um commit granular, além da fila da classe.
+
+    PIL/FV/LV podem escrever uma linha completa de ``beams`` durante um
+    microciclo. LAJ toca apenas ``slabs``. O lock permanece na vida inteira da
+    análise para impedir que duas leituras antigas do mesmo JSON sejam
+    comitadas em sequência e uma delas apague os campos da outra.
+    """
+    if not persist_db or not sections or len(sections) != 1 or not item_names:
+        return []
+    section = next(iter(sections))
+    return [_SHARED_BEAMS_LOCK] if section in _BEAM_PERSIST_SECTIONS else []
 
 
 def _release_headless_locks(handles: list) -> None:
@@ -1085,6 +1162,28 @@ def _release_headless_locks(handles: list) -> None:
         from single_instance import release_lock
     for handle in reversed(handles):
         release_lock(handle)
+
+
+def _acquire_db_commit_lock(*, wait: bool):
+    """Serializa somente o curto BEGIN/COMMIT SQLite dos microciclos.
+
+    O lock de recurso ``headless_sa_beams`` já protege snapshots de viga
+    durante a análise inteira. Este segundo lock evita ``database is locked``
+    entre classes que persistem tabelas distintas (por exemplo LAJ e FV), sem
+    transformar suas leituras, diagnósticos ou HTMLs em uma fila global.
+    """
+    try:
+        from scripts.arete.single_instance import acquire_lock, wait_for_lock
+    except ImportError:
+        from single_instance import acquire_lock, wait_for_lock
+    lock, holder = (wait_for_lock if wait else acquire_lock)(_DB_COMMIT_LOCK)
+    if lock is None:
+        detail = f' ({holder})' if holder else ''
+        raise RuntimeError(
+            'Commit DB não iniciou: escritor SQLite ocupado'
+            f'{detail}. Rode com --wait; não finalize o detentor.'
+        )
+    return lock
 
 
 def _filter_diagnostic_files(
@@ -1231,8 +1330,6 @@ def _inject_arete_block(path: Path, block: str) -> None:
         document,
         flags=re.DOTALL,
     )
-    wrapped = f'{_ARETE_DIAG_START}{block}{_ARETE_DIAG_END}'
-    document = document.replace('</body>', f'{wrapped}</body>', 1)
     path.write_text(document, encoding='utf-8')
 
 
@@ -1309,6 +1406,14 @@ def _publish_arete_manifest(
         if json_path and json_path.is_file():
             report = json.loads(json_path.read_text(encoding='utf-8'))
         label = _SECTION_LABELS.get(section, section.upper())
+        if section in ('lajes', 'fundos_viga'):
+            # Dono pediu (23/07) para tirar o bloco de diagnostico automatico
+            # (numerico, N1xN2) das fichas de laje -- nao acrescenta valor na
+            # leitura humana da ficha e polui o layout. Segue existindo o
+            # JSON/JSONL de diagnostico para uso via qa_evidence_auditor.py etc;
+            # so o bloco HTML injetado sai.
+            # (27/07) Estendido para fundos_viga pelo mesmo motivo.
+            continue
 
         section_dir = run_dir / section
         section_index = section_dir / 'index.html'
@@ -1467,6 +1572,71 @@ def _filter_fv_results_for_items(
         ):
             filtered.append(result)
     return filtered
+
+
+def _populate_last_fv_results(window, item_names: set[str] | None) -> int:
+    """Materializa ``_last_fv_results`` no fast path headless (espelha desktop).
+
+    O bloco N3 FV consome exatamente o mesmo payload que o desktop grava após
+    ``process_beam_fv``. Sem isso, a rodada filtrada por ``--item`` exporta HTML
+    sem cartão N3 mesmo com N1/N2 válidos.
+    """
+    existing = list(getattr(window, '_last_fv_results', []) or [])
+    if existing:
+        return len(existing)
+
+    from scripts.analise_geral_headless import process_beam_fv
+
+    spatial_index = getattr(window, 'spatial_index', None)
+    visual_obstacles = list(getattr(window, '_fv_visual_obstacles', []) or [])
+    ignored_labels = {
+        str(p_name)
+        for p_name, p_data in (getattr(window, 'pavimento_pillar_report', None) or {}).items()
+        if isinstance(p_data, dict)
+        and (
+            p_data.get('ignore_in_beams')
+            or p_data.get('is_invalid')
+            or str(p_data.get('classification') or '').strip().upper() == 'NASCE'
+        )
+    }
+    fv_results: list[dict] = []
+    for beam in getattr(window, 'beams_found', []) or []:
+        if not isinstance(beam, dict):
+            continue
+        raw_name = str(beam.get('name') or '')
+        identity = re.search(r'V[F]?\d+[A-Z]?', raw_name.upper())
+        if item_names and not (
+            _matches_item_name(raw_name, item_names)
+            or (identity is not None and identity.group(0) in item_names)
+        ):
+            continue
+        beam['_fv_ignored_support_labels'] = sorted(ignored_labels)
+        try:
+            # Quebra por viga mais funda ANTES de materializar segmentos
+            # (mesmo contrato do desktop em process_beam_fv).
+            from src.core.beam_interpreters import FundoVigaInterpreter as _FVI
+
+            _FVI.apply_deeper_crossing_splits(
+                beam, context_beams=getattr(window, 'beams_found', []) or []
+            )
+            fv_data = process_beam_fv(beam, spatial_index, visual_obstacles)
+        except Exception as exc:
+            print(
+                f'[SA-HUMAN] FV extract falhou para {raw_name}: {exc}',
+                flush=True,
+            )
+            continue
+        finally:
+            beam.pop('_fv_ignored_support_labels', None)
+        if isinstance(fv_data, dict) and fv_data.get('segmentos_fundo'):
+            fv_results.append(fv_data)
+    window._last_fv_results = fv_results
+    if fv_results:
+        print(
+            f'[SA-HUMAN] FV results para N3: {len(fv_results)} viga(s)',
+            flush=True,
+        )
+    return len(fv_results)
 
 
 def _generate_pl_n3_nova_previews(
@@ -1676,6 +1846,8 @@ def run_analysis(
     sections: set[str] | None = None,
     persist_db: bool = False,
     item_names: set[str] | None = None,
+    wait_for_db_lock: bool = False,
+    stage_callback: Callable[[str], None] | None = None,
 ) -> dict:
     """Executa a Análise Geral real do SA e exporta um pack imutável.
 
@@ -1696,6 +1868,13 @@ def run_analysis(
             flush=True,
         )
         stage_started_at = now
+        # A telemetria da trava é informativa, mas não pode converter uma
+        # análise válida em falha se o filesystem não aceitar a atualização.
+        if stage_callback is not None:
+            try:
+                stage_callback(label)
+            except Exception as exc:
+                print(f'[SA] AVISO telemetria de etapa indisponível: {exc}', flush=True)
 
     from src.core.sa_project_source import resolve_sa_project_from_db
 
@@ -1723,11 +1902,13 @@ def run_analysis(
 
     # Deve existir antes do MainWindow: alguns robôs inicializam durante o
     # construtor. Qualquer escrita incidental será desviada para candidato.
-    fast_pillar_path = bool(sections == {'pilares'} and item_names)
+    fast_section = _fast_microcycle_section(sections, item_names)
     os.environ['CAD_MOTOR_HEADLESS'] = '1'
-    if fast_pillar_path:
+    if fast_section:
+        fast_label = _SECTION_LABELS[fast_section]
         print(
-            '[SA-HUMAN] Fast path N1 PIL: motores canonicos sem MainWindow',
+            f'[SA-HUMAN] Fast path N1 {fast_label}: '
+            'motores canonicos sem MainWindow',
             flush=True,
         )
         fast_result = _run_legacy_analysis(
@@ -2055,16 +2236,21 @@ def run_analysis(
                     f'{persisted_lv_contracts}',
                     flush=True,
                 )
-            persistence = persist_analysis_snapshot(
-                db_path=db_path,
-                project_id=project_id,
-                collections=collections_to_persist,
-                run_id=f'sa-{project_id}-{run_id}',
-                html_dir=str(html_dir),
-                source_dxf=source_path,
-                merge_stats=merge_stats,
-                delete_missing=not item_names,
-            )
+            print('[SA-HUMAN] Aguardando lock curto de commit SQLite.', flush=True)
+            db_commit_lock = _acquire_db_commit_lock(wait=wait_for_db_lock)
+            try:
+                persistence = persist_analysis_snapshot(
+                    db_path=db_path,
+                    project_id=project_id,
+                    collections=collections_to_persist,
+                    run_id=f'sa-{project_id}-{run_id}',
+                    html_dir=str(html_dir),
+                    source_dxf=source_path,
+                    merge_stats=merge_stats,
+                    delete_missing=not item_names,
+                )
+            finally:
+                _release_headless_locks([db_commit_lock])
             print(
                 '[SA-HUMAN] DB COMMIT transacional: '
                 f"{persistence['before']} -> {persistence['after']}",
@@ -2090,6 +2276,11 @@ def run_analysis(
         manifest_path = ''
         try:
             obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
+            if 'fundos_viga' in active_n3_sections:
+                _populate_last_fv_results(
+                    window,
+                    set(item_names) if item_names else None,
+                )
             fv_results = _filter_fv_results_for_items(
                 list(getattr(window, '_last_fv_results', []) or []),
                 item_names if 'fundos_viga' in active_n3_sections else None,
@@ -2286,21 +2477,20 @@ def main() -> None:
     ap.add_argument(
         '--persist-db', action='store_true',
         help=(
-            'Após análise completa + diagnósticos OK, atualizar PIL/LAJ/FV/LV '
-            'no DB em uma única transação, preservando validações granulares.'
+            'Após os diagnósticos OK, persistir o snapshot. Com --secao única '
+            '+ --item faz upsert apenas do lote e mantém a fila da classe; '
+            'sem esse recorte, grava a rodada completa sob lock global.'
         ),
     )
     ap.add_argument('--wait', action='store_true',
                     help='Se outro headless estiver rodando, aguardar a vez '
-                         '(poll 10s, timeout 30min) em vez de abortar — '
+                         '(poll 10s, sem timeout artificial) em vez de abortar — '
                          'recomendado para agentes/automacao')
     args = ap.parse_args()
     try:
         sections = _parse_sections(args.secao)
     except ValueError as exc:
         ap.error(str(exc))
-    if False:
-        ap.error('--persist-db exige execução completa, sem --secao')
     flat_items = [piece for group in (args.item or []) for piece in group]
     item_names = _parse_item_names(flat_items)
     if item_names and sections is None:
@@ -2310,15 +2500,24 @@ def main() -> None:
     if args.persist_db and args.skip_diagnostico_fv:
         ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
 
-    # Microciclos read-only de classes distintas têm filas isoladas. Rodadas
-    # perigosas reservam global + todas as classes antes de inicializar o Qt.
+    # Microciclos de uma classe+itens têm filas isoladas, inclusive quando o
+    # commit é parcial. Rodadas sem recorte verificável reservam global + todas
+    # as classes antes de inicializar o Qt.
     try:
         from scripts.arete.single_instance import acquire_lock, wait_for_lock, refresh_lock
     except ImportError:
         from single_instance import acquire_lock, wait_for_lock, refresh_lock
-    _lock_names, _lock_scope = _headless_lock_plan(sections, item_names, args.persist_db)
+    _class_lock_names, _lock_scope = _headless_lock_plan(
+        sections, item_names, args.persist_db,
+    )
+    _resource_lock_names = _headless_persistence_resource_locks(
+        sections, item_names, args.persist_db,
+    )
+    _lock_names = [*_class_lock_names, *_resource_lock_names]
+    if _resource_lock_names:
+        _lock_scope += '+recurso:beams'
     # A sonda ``headless_sa`` foi criada antes das filas por classe. Só uma
-    # rodada global continua aguardando-a: num microciclo read-only de uma
+    # rodada global continua aguardando-a: num microciclo de uma
     # classe, consultá-la antes de ``headless_sa_fv/laj/...`` recriava a fila
     # global e anulava exatamente a isolação pretendida.
     acquire = wait_for_lock if args.wait else acquire_lock
@@ -2361,11 +2560,23 @@ def main() -> None:
     )
     atexit.register(_release_headless_locks, _instance_locks)
     _lock_heartbeat_stop = threading.Event()
+    # O lock não é um timeout: ele permanece enquanto o trabalho real estiver
+    # em curso. Esta etapa mutável deixa claro se o tempo é análise, exportação,
+    # diagnóstico, commit ou prévia N3; o heartbeat reaplica a última etapa em
+    # vez de apagar a informação com um genérico ``running``.
+    _lock_stage = {'event': 'qt_offscreen_ready'}
+
+    def _set_lock_stage(label: str) -> None:
+        normalized = re.sub(r'\s+', ' ', str(label or '').strip())[:160]
+        event = f'stage:{normalized or "running"}'
+        _lock_stage['event'] = event
+        for _lock in _instance_locks:
+            refresh_lock(_lock, event=event)
 
     def _heartbeat_lock() -> None:
         while not _lock_heartbeat_stop.wait(15.0):
             for _lock in _instance_locks:
-                refresh_lock(_lock, event='running')
+                refresh_lock(_lock, event=_lock_stage['event'])
 
     threading.Thread(
         target=_heartbeat_lock,
@@ -2393,6 +2604,8 @@ def main() -> None:
         sections=sections,
         persist_db=args.persist_db,
         item_names=item_names,
+        wait_for_db_lock=args.wait,
+        stage_callback=_set_lock_stage,
     )
     for _lock in _instance_locks:
         refresh_lock(_lock, event='analysis_complete')

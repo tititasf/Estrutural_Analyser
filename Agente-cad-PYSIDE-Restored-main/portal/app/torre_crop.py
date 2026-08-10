@@ -80,6 +80,23 @@ def set_recorte_validado(obra_dir: Path, bruto_stem: str, item_id: str, validado
                 
     _salvar_validacao(out_dir, data)
 
+def contar_entidades(dxf_path: Path) -> int:
+    """Entidades do modelspace de um DXF já em disco. 0 se ilegível.
+
+    [2026-07-30] Existe porque o caminho de cache reportava `entidades: 0` fixo
+    para recortes já validados pelo humano. O arquivo tinha conteúdo real, mas a
+    UI recebia 0 e a região aparecia como vazia/quebrada — e o teste do crop de
+    torre falhava com `assert 0 > 0` sem que houvesse defeito de geometria.
+    """
+    try:
+        import ezdxf
+        doc = ezdxf.readfile(str(dxf_path))
+        return sum(1 for _ in doc.modelspace())
+    except Exception as exc:  # noqa: BLE001 - DXF corrompido não pode derrubar a listagem
+        log.warning("falha ao contar entidades de %s: %s", dxf_path, exc)
+        return 0
+
+
 def gerar_recortes_bruto(
     obra_dir: Path, dxf_bruto_path: Path, bruto_stem: str, *, n_torres: int = 1, force: bool = False,
 ) -> dict:
@@ -106,7 +123,12 @@ def gerar_recortes_bruto(
         nome_torre = f"torre_{i}"
         out_path = out_dir / f"{nome_torre}.dxf"
         if validados.get(nome_torre) and out_path.is_file():
-            resultado["torres"].append({"nome": nome_torre, "path": str(out_path), "entidades": 0, "cached": True})
+            # Validado pelo humano: NÃO regenerar (sobrescreveria trabalho aprovado),
+            # mas contar o arquivo real — 0 fixo aqui fazia a torre parecer vazia.
+            resultado["torres"].append({
+                "nome": nome_torre, "path": str(out_path),
+                "entidades": contar_entidades(out_path), "cached": True,
+            })
             continue
 
         out_path = out_dir / f"torre_{i}.dxf"
@@ -120,7 +142,10 @@ def gerar_recortes_bruto(
     if regions["detalhes"]:
         out_path = out_dir / "detalhes.dxf"
         if validados.get("detalhes") and out_path.is_file():
-            resultado["detalhes"] = {"nome": "detalhes", "path": str(out_path), "entidades": 0, "cached": True}
+            resultado["detalhes"] = {
+                "nome": "detalhes", "path": str(out_path),
+                "entidades": contar_entidades(out_path), "cached": True,
+            }
         else:
             bboxes = [d["bbox"] for d in regions["detalhes"]]
             crop = crop_dxf_multi(dxf_bruto_path, out_path, bboxes, padding_pct=0.01)

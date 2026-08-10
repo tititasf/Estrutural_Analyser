@@ -118,9 +118,17 @@ def _apply_na(old: dict, result: dict) -> None:
         (result.get("links") or {}).pop(field, None)
 
     result_links = result.setdefault("links", {})
+    if not isinstance(result_links, dict):
+        result_links = {}
+        result["links"] = result_links
     for field, slots in (old.get("na_link_classes") or {}).items():
-        field_links = result_links.setdefault(field, {})
+        field_links = result_links.get(field)
+        if not isinstance(field_links, dict):
+            field_links = {}
+            result_links[field] = field_links
         old_field_links = (old.get("links") or {}).get(field) or {}
+        if not isinstance(old_field_links, dict):
+            old_field_links = {}
         for slot in slots or []:
             if slot in old_field_links:
                 field_links[slot] = copy.deepcopy(old_field_links[slot])
@@ -208,16 +216,51 @@ def _topology_class(source_key: str) -> tuple[str, int] | None:
 
 
 def _validated_topology_sources(old: dict) -> dict[str, set[str]]:
+    """Fontes de topologia (FV/LV) travadas contra recomputação automática.
+
+    Selo `qa_agente` sozinho NUNCA trava (decisão do dono, 2026-07-18): o
+    agente QA ainda é `diagnostic_only` para FV/LV
+    (`docs/CONVENCAO-SELOS-VALIDACAO.md`), e travar a topologia por um selo
+    que não comparou segmentos vizinhos entre si já protegeu geometria com
+    bug (achado real: V301 sobreposto, selado `qa_agente` em 2026-07-17
+    permaneceu sobreposto mesmo após o motor ser corrigido). Origem humana
+    (`humano_app`/`humano_portal`, dado legado migrado incluso) trava; campo
+    sem nenhum rastro de origem em ``validated_fields`` (link marcado
+    ``validated`` direto, fluxo anterior a 2026-07-13) também trava, para não
+    mudar o comportamento de quem nunca passou pelo agente.
+    """
+    from src.core.validation_model import (
+        ORIGEM_QA_AGENTE,
+        migrar_validated_fields_legado,
+        origens_do_campo,
+    )
+
+    validated_fields = migrar_validated_fields_legado(old.get("validated_fields"))
+
+    def _locks(field_id: str) -> bool:
+        """Trava, a menos que a origem seja explicitamente só ``qa_agente``.
+
+        Sem rastro de origem (campo nunca passou por ``validated_fields``,
+        ex.: link marcado ``validated`` diretamente por um fluxo legado/de
+        teste) mantém o comportamento conservador anterior — trava.
+        """
+        origins = origens_do_campo(validated_fields, field_id)
+        if not origins:
+            return True
+        return bool(origins - {ORIGEM_QA_AGENTE})
+
     sources: dict[str, set[str]] = {}
-    candidates = set(old.get("validated_fields") or [])
+    candidates = {field_id for field_id in validated_fields if _locks(field_id)}
     candidates.update(
         field
         for field, slots in (old.get("validated_link_classes") or {}).items()
-        if slots
+        if slots and _locks(field)
     )
     for source_key, slots in (old.get("links") or {}).items():
         topology = _topology_class(str(source_key))
         if not topology or not isinstance(slots, dict):
+            continue
+        if not _locks(str(source_key)):
             continue
         if any(
             isinstance(link, dict) and link.get("validated")
@@ -346,6 +389,65 @@ def merge_analysis_item(old: dict | None, new: dict, kind: str) -> dict:
     return result
 
 
+def _laj_candidate_quality(item: dict) -> tuple[int, int, int, float, int]:
+    """Ordena candidatas LAJ de mesmo rótulo sem usar posição/ID do projeto.
+
+    Um rótulo textual pode ser visto por mais de uma região durante o traçado.
+    A identidade persistida continua sendo o rótulo da laje; portanto só uma
+    candidata pode ocupar esse slot. Uma geometria fechada, não degenerada e
+    com pelo menos quatro vértices distintos é mais confiável que um fragmento
+    aberto/triangular. Selo humano ainda vence qualquer métrica automática.
+
+    O último componente torna o desempate determinístico para a mesma entrada,
+    sem depender de coordenadas, obra, pavimento ou número de item.
+    """
+    raw_points = item.get("points") or []
+    points: list[tuple[float, float]] = []
+    for point in raw_points:
+        try:
+            points.append((float(point[0]), float(point[1])))
+        except (IndexError, TypeError, ValueError):
+            continue
+    unique = {(round(x, 6), round(y, 6)) for x, y in points}
+    closed = len(points) >= 4 and points[0] == points[-1]
+    has_polygon = closed and len(unique) >= 4
+    try:
+        confidence = float(
+            (item.get("extra_data") or item.get("trace_diagnostics") or {}).get(
+                "confidence_score", item.get("confidence_score", 0.0)
+            )
+        )
+    except (TypeError, ValueError):
+        confidence = 0.0
+    return (
+        1 if has_human_validation(item) else 0,
+        1 if has_polygon else 0,
+        1 if closed else 0,
+        confidence,
+        len(unique),
+    )
+
+
+def _canonical_laj_by_name(items: list[dict] | None) -> tuple[dict[str, dict], int]:
+    """Retorna a única candidata LAJ por rótulo e quantifica duplicatas.
+
+    Entradas sem nome não têm identidade e seguem fora deste índice. Duplicata
+    humana não é apagada aqui: o chamador a preserva e a limpeza posterior só
+    remove as sobras sem qualquer validação humana.
+    """
+    grouped: dict[str, list[dict]] = {}
+    for item in items or []:
+        name = str(item.get("name") or "").strip()
+        if name:
+            grouped.setdefault(name, []).append(item)
+    canonical: dict[str, dict] = {}
+    duplicates = 0
+    for name, group in grouped.items():
+        canonical[name] = max(group, key=_laj_candidate_quality)
+        duplicates += max(0, len(group) - 1)
+    return canonical, duplicates
+
+
 def merge_analysis_collection(
     old_items: list[dict] | None,
     new_items: list[dict] | None,
@@ -353,11 +455,21 @@ def merge_analysis_collection(
     project_id: str,
 ) -> tuple[list[dict], dict]:
     """Mescla por nome e mantém órfãos somente quando têm validação real."""
-    old_by_name = {
-        str(item.get("name")): item
-        for item in old_items or []
-        if item.get("name")
-    }
+    if kind == "LAJ":
+        old_by_name, old_duplicates = _canonical_laj_by_name(old_items)
+        new_by_name, new_duplicates = _canonical_laj_by_name(new_items)
+        candidates = list(new_by_name.values()) + [
+            item for item in new_items or [] if not str(item.get("name") or "").strip()
+        ]
+    else:
+        old_by_name = {
+            str(item.get("name")): item
+            for item in old_items or []
+            if item.get("name")
+        }
+        candidates = list(new_items or [])
+        old_duplicates = 0
+        new_duplicates = 0
     merged: list[dict] = []
     matched: set[str] = set()
     occupied_ids = {
@@ -365,7 +477,7 @@ def merge_analysis_collection(
     }
     preserved_items = 0
 
-    for item in new_items or []:
+    for item in candidates:
         name = str(item.get("name") or "")
         old = old_by_name.get(name)
         candidate = merge_analysis_item(old, item, kind)
@@ -406,6 +518,8 @@ def merge_analysis_collection(
         "old": len(old_items or []),
         "new": len(new_items or []),
         "persisted": len(merged),
+        "duplicatas_laj_descartadas_da_analise": new_duplicates,
+        "duplicatas_laj_preexistentes": old_duplicates,
         "items_com_ground_truth_preservado": preserved_items,
         "orfaos_validados_preservados": preserved_orphans,
     }
@@ -547,6 +661,68 @@ def _delete_missing(
     )
 
 
+def _persisted_laj_row_has_human_validation(row: sqlite3.Row | tuple) -> bool:
+    """Equivalente DB de :func:`has_human_validation` para limpeza segura."""
+    is_validated, fields_json, links_json = row
+    if is_validated:
+        return True
+    try:
+        if json.loads(fields_json or "[]"):
+            return True
+    except (TypeError, json.JSONDecodeError):
+        # Dado ilegível é evidência insuficiente para apagar automaticamente.
+        return True
+    try:
+        if any(json.loads(links_json or "{}").values()):
+            return True
+    except (AttributeError, TypeError, json.JSONDecodeError):
+        return True
+    return False
+
+
+def _remove_unvalidated_laj_identity_duplicates(
+    conn: sqlite3.Connection,
+    project_id: str,
+    slabs: list[dict],
+) -> dict[str, int]:
+    """Remove somente sobras não humanas do mesmo `(project_id, name)` LAJ.
+
+    A rotina é restrita às identidades recebidas no microciclo. Portanto um
+    upsert parcial nunca toca outra laje do pavimento. Qualquer duplicata com
+    selo/campo/vínculo humano permanece e é relatada como pendência, em vez de
+    a automação decidir qual ground truth descartar.
+    """
+    canonical_items, _ = _canonical_laj_by_name(slabs)
+    canonical = {
+        name: str(item.get("id") or "")
+        for name, item in canonical_items.items()
+        if str(item.get("id") or "")
+    }
+    removed = 0
+    protected = 0
+    for name, canonical_id in canonical.items():
+        rows = conn.execute(
+            """
+            SELECT id,is_validated,validated_fields_json,validated_link_classes_json
+            FROM slabs WHERE project_id=? AND name=? ORDER BY id
+            """,
+            (project_id, name),
+        ).fetchall()
+        if len(rows) < 2:
+            continue
+        for row_id, is_validated, fields_json, links_json in rows:
+            if str(row_id) == canonical_id:
+                continue
+            if _persisted_laj_row_has_human_validation(
+                (is_validated, fields_json, links_json)
+            ):
+                protected += 1
+                continue
+            conn.execute("DELETE FROM slabs WHERE id=?", (row_id,))
+            removed += 1
+    return {"removidas": removed, "protegidas_humanas": protected}
+
+
 def persist_analysis_snapshot(
     *,
     db_path: str,
@@ -653,6 +829,14 @@ def persist_analysis_snapshot(
                 _beam_params(item, project_id),
             )
 
+        # Em microciclo `delete_missing=False`, o DELETE global não ocorre.
+        # Ainda assim, LAJ precisa manter a invariável de uma identidade por
+        # rótulo dentro do projeto. A limpeza é estritamente local aos nomes
+        # recebidos e nunca apaga uma validação humana.
+        laj_identity_cleanup = _remove_unvalidated_laj_identity_duplicates(
+            conn, project_id, collections["slabs"]
+        )
+
         if delete_missing:
             for table in ("pillars", "slabs", "beams"):
                 _delete_missing(conn, table, project_id, collections[table])
@@ -700,6 +884,7 @@ def persist_analysis_snapshot(
             "before": before,
             "after": after,
             "merge_stats": merge_stats,
+            "laj_identity_cleanup": laj_identity_cleanup,
         }
     except Exception:
         conn.rollback()

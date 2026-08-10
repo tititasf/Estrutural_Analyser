@@ -762,7 +762,7 @@ class CanvasWidget(QWidget):
             
             # Atualizar UI com valores salvos
             self.calculos_modos.set_modo(modo_salvo)
-            _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) else unioes_salvo)
+            _unioes_bool = bool(unioes_salvo[0] if isinstance(unioes_salvo, list) and unioes_salvo else unioes_salvo)
             self.calculos_modos.checkbox_unioes_bordes.setChecked(_unioes_bool)
             
             # Reconectar checkbox

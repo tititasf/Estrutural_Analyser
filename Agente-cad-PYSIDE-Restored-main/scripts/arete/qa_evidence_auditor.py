@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Auditor CLI de evidências do Structural Analyzer.
 
-Primeiro adaptador: LAJ. O comando ``audit`` é read-only e produz decisões,
-achados, perguntas e operações propostas. ``apply`` executa somente operações
-de alta confiança do mesmo snapshot, dentro de uma transação e com rollback
-append-only. Nenhuma regra usa identificador de item, obra ou pavimento.
+Adaptadores validation_ready: LAJ, PIL, FV e LV (2026-07-16). O comando ``audit`` é
+read-only e produz decisões, achados, perguntas e operações propostas.
+``apply`` executa somente operações de alta confiança do mesmo snapshot,
+dentro de uma transação e com rollback append-only. Nenhuma regra usa
+identificador de item, obra ou pavimento. Cada classe grava exclusivamente na
+própria tabela (``CLASS_REGISTRY[classe]["table"]``) — nunca uma junção ou
+schema compartilhado entre classes.
 """
 
 from __future__ import annotations
@@ -29,7 +32,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.arete.qa_rag_evidence import load_partitioned_rag
+from src.core.pillar_face_beams import enrich_pillar_report_with_beams
 from src.core.validation_model import (
+    AGENT_PENDING_KEY,
+    ORIGEM_NA_AGENTE_MARCADOR,
     ORIGEM_QA_AGENTE,
     adicionar_validacao_campo,
     migrar_validated_fields_legado,
@@ -51,6 +57,38 @@ REQUIRED_LAJ_FIELDS = (
     "laje_islands",
 )
 
+# PIL: base fixa presente em todo item + p_s{face}_l1_n por face REALMENTE
+# observada no payload (retangular = A-D; L/U/especial variam). Os campos
+# de viga por face (p_s{face}_v_*) são confirmados quando presentes (ver
+# PilEvidenceAuditor._audit_face_viga) mas ainda não bloqueiam o selo base
+# nesta primeira versão do adaptador — ver docs/PROVENIENCIA-CAMPOS-PIL.md
+# seção "Promoção".
+REQUIRED_PIL_BASE_FIELDS = ("name", "pilar_segs", "dim", "connections")
+
+
+def required_pil_fields_for_state(state: dict) -> set[str]:
+    required = set(REQUIRED_PIL_BASE_FIELDS)
+    links = state.get("links") or {}
+    for face in "ABCDEFGH":
+        if any(str(key).startswith(f"p_s{face}_") for key in links):
+            required.add(f"p_s{face}_l1_n")
+    return required
+
+
+# Cada classe resolve seu próprio conjunto de campos obrigatórios: LAJ é uma
+# tupla estática (schema fixo); PIL é uma função (schema varia com a
+# geometria do item — faces não são as mesmas em pilar retangular vs L/U).
+# Isolado por classe: nunca uma junção/schema compartilhado entre elas.
+REQUIRED_FIELDS_BY_CLASS: dict[str, Any] = {
+    "LAJ": REQUIRED_LAJ_FIELDS,
+    "PIL": required_pil_fields_for_state,
+}
+
+
+def resolve_required_fields(classe: str, state: dict) -> set[str]:
+    spec = REQUIRED_FIELDS_BY_CLASS.get(classe, REQUIRED_LAJ_FIELDS)
+    return spec(state) if callable(spec) else set(spec)
+
 # Registro global do agente.  O núcleo pode inspecionar todas as classes desde
 # já; apenas um adaptador que tenha contrato de proveniência e gates completos
 # pode escrever validações.  Isso evita que a facilidade de consulta vire um
@@ -63,17 +101,25 @@ CLASS_REGISTRY = {
     },
     "PIL": {
         "table": "pillars", "payload_column": "links_json", "geometry_column": "points_json",
-        "validation_mode": "diagnostic_only", "provenance": "docs/PROVENIENCIA-CAMPOS-PIL.md",
+        # 2026-07-15: promovido de diagnostic_only para validation_ready —
+        # adaptador PilEvidenceAuditor re-deriva faces/vigas do motor puro
+        # (pillar_face_beams.py) e geometria/rótulo bruto (identity/dim/
+        # laje). Isolado: escreve exclusivamente na tabela "pillars", nunca
+        # cross-classe com LAJ/FV/LV.
+        "validation_mode": "validation_ready", "provenance": "docs/PROVENIENCIA-CAMPOS-PIL.md",
         "diagnostic": "scripts/arete/diagnostico_pil_n1_n2.py",
     },
     "FV": {
         "table": "beams", "payload_column": "data_json", "geometry_column": None,
-        "validation_mode": "diagnostic_only", "provenance": "docs/PROVENIENCIA-CAMPOS-FV.md",
+        # 2026-07-16: FvEvidenceAuditor — segmentos/área/dim/apoios locais com prova geométrica.
+        # Apply em beams exige colunas de validação; selo completo ainda depende de golden/G2-V.
+        "validation_mode": "validation_ready", "provenance": "docs/PROVENIENCIA-CAMPOS-FV.md",
         "diagnostic": "scripts/arete/diagnostico_fv_n1_n2.py",
     },
     "LV": {
         "table": "beams", "payload_column": "data_json", "geometry_column": None,
-        "validation_mode": "diagnostic_only", "provenance": "docs/PROVENIENCIA-CAMPOS-LV.md",
+        # 2026-07-16: LvEvidenceAuditor — 4 contratos A/B×PARA/PASSA + dims e apoio.
+        "validation_mode": "validation_ready", "provenance": "docs/PROVENIENCIA-CAMPOS-LV.md",
         "diagnostic": "scripts/arete/diagnostico_lv_n1_n2.py",
     },
 }
@@ -168,6 +214,21 @@ def bbox_distance(a: tuple[float, float, float, float], b: tuple[float, float, f
     dx = max(a[0] - b[2], b[0] - a[2], 0.0)
     dy = max(a[1] - b[3], b[1] - a[3], 0.0)
     return math.hypot(dx, dy)
+
+
+def _label_text(value: Any) -> str | None:
+    if not isinstance(value, dict):
+        return None
+    labels = value.get("label") or []
+    if not labels or not isinstance(labels[0], dict):
+        return None
+    text = str(labels[0].get("text") or "").strip()
+    return text or None
+
+
+def _explicit_null(value: Any) -> bool:
+    text = (_label_text(value) or "").upper()
+    return text in {"SEM LAJE", "NULO", "VAZIO (X)"} or "VAZIO" in text
 
 
 def polygon_metrics(points: Iterable) -> tuple[float, float] | None:
@@ -762,8 +823,15 @@ class LajEvidenceAuditor:
         labels = [x for x in safe_list((slab.links.get("name") or {}).get("label")) if isinstance(x, dict)]
         texts = {str(x.get("text") or "").strip().upper() for x in labels}
         field_name = str(slab.fields.get("nome") or slab.fields.get("name") or slab.name).strip().upper()
-        if slab.name.upper() == field_name and (slab.name.upper() in texts or not labels):
-            ops = [] if "name" in slab.validated_fields else self._validation_ops("name", ["label"] if labels else [])
+        if not labels:
+            # Sem rótulo vinculado não é evidência de "coerente" — é ausência
+            # de prova. Correção do dono (2026-07-17): zero campo confirmado
+            # sem 100% de certeza; CONFIRMAR sem nenhum label era falso PASS
+            # por omissão, não confirmação real (mesma classe de bug já
+            # corrigida em PilEvidenceAuditor._audit_name).
+            return self._new_decision(slab, "name", "PENDENTE", "low", "sem rótulo vinculado para comparar com o registro")
+        if slab.name.upper() == field_name and slab.name.upper() in texts:
+            ops = [] if "name" in slab.validated_fields else self._validation_ops("name", ["label"])
             return self._new_decision(slab, "name", "CONFIRMAR", "high", "nome do registro e rótulo estrutural coerentes", operations=ops)
         return self._new_decision(slab, "name", "REVISAR_HUMANO", "low", "nome do registro diverge do rótulo/campo", requires_human=True)
 
@@ -1286,6 +1354,585 @@ class LajEvidenceAuditor:
         )
 
 
+# Faces A–D retangulares; E–H pilares especiais (L/U/multi-face) quando materializadas.
+_PIL_FACES = ("A", "B", "C", "D", "E", "F", "G", "H")
+_PIL_DIMENSION_RE = re.compile(r"^\s*\d+(?:[.,]\d+)?\s*[/xX]\s*\d+(?:[.,]\d+)?\s*$")
+_PIL_BEAM_NAME_RE = re.compile(r"^V[A-Z]*\d+[A-Z0-9._-]*$", re.IGNORECASE)
+
+
+@dataclass
+class Pillar:
+    id: str
+    project_id: str
+    name: str
+    points: list
+    links: dict
+    sides_data: dict
+    extra: dict
+    validated_fields: set[str]
+    na_fields: set[str]
+    validated_link_classes: dict
+    na_link_classes: dict
+    na_reasons: dict
+    is_validated: bool
+    raw_columns: dict[str, Any]
+
+    @property
+    def bbox(self) -> tuple[float, float, float, float] | None:
+        return point_bbox(self.points)
+
+    @property
+    def snapshot_hash(self) -> str:
+        payload = {"id": self.id, **self.raw_columns}
+        return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def load_pillars(con: sqlite3.Connection, project_id: str) -> list[Pillar]:
+    con.row_factory = sqlite3.Row
+    rows = con.execute(
+        "SELECT id, project_id, name, points_json, links_json, sides_data_json, "
+        "extra_data_json, validated_fields_json, na_fields_json, "
+        "validated_link_classes_json, na_link_classes_json, na_reasons_json, "
+        "is_validated FROM pillars WHERE project_id=? ORDER BY name",
+        (project_id,),
+    ).fetchall()
+    pillars = []
+    for row in rows:
+        raw = {column: row[column] for column in MUTABLE_COLUMNS}
+        pillars.append(Pillar(
+            id=row["id"], project_id=row["project_id"], name=row["name"],
+            points=json_load(row["points_json"], []),
+            links=json_load(row["links_json"], {}),
+            sides_data=json_load(row["sides_data_json"], {}),
+            extra=json_load(row["extra_data_json"], {}),
+            validated_fields=set(json_load(row["validated_fields_json"], [])),
+            na_fields=set(json_load(row["na_fields_json"], [])),
+            validated_link_classes=json_load(row["validated_link_classes_json"], {}),
+            na_link_classes=json_load(row["na_link_classes_json"], {}),
+            na_reasons=json_load(row["na_reasons_json"], {}),
+            is_validated=bool(row["is_validated"]), raw_columns=raw,
+        ))
+    return pillars
+
+
+def load_beams_for_project(con: sqlite3.Connection, project_id: str) -> list[dict]:
+    """Vigas do projeto no formato que ``pillar_face_beams`` espera.
+
+    Mesma tabela (``beams``) que alimenta a interpretação SA ao vivo — não é
+    um schema paralelo criado só para o auditor.
+    """
+    con.row_factory = sqlite3.Row
+    rows = con.execute(
+        "SELECT name, data_json, links_json FROM beams WHERE project_id=?",
+        (project_id,),
+    ).fetchall()
+    beams: list[dict] = []
+    for row in rows:
+        beam = json_load(row["data_json"], {})
+        if not isinstance(beam, dict):
+            continue
+        beam = dict(beam)
+        beam["name"] = beam.get("name") or row["name"]
+        links = json_load(row["links_json"], {})
+        if isinstance(links, dict):
+            merged = dict(beam.get("links") or {})
+            for key, value in links.items():
+                merged.setdefault(key, value)
+            beam["links"] = merged
+        beams.append(beam)
+    return beams
+
+
+class PilEvidenceAuditor:
+    """Adaptador CAD independente para PIL.
+
+    Cada ``_audit_*`` re-deriva o fato a partir de geometria/rótulo bruto
+    (``pillar.points``/``pillar.links``, e o motor puro
+    ``pillar_face_beams.enrich_pillar_report_with_beams`` para faces/vigas —
+    o mesmo motor testado e persistido em produção em 2026-07-15), nunca
+    confiando cegamente no que já está gravado. ``CONFIRMAR`` só nasce quando
+    a re-derivação bate com o valor persistido.
+
+    Isolado de ``LajEvidenceAuditor`` de propósito: infraestrutura comum
+    (``_new_decision``/``_add_finding``) é duplicada, não compartilhada — uma
+    mudança de regra em PIL nunca deve poder vazar pro caminho de LAJ.
+    """
+
+    def __init__(self, pillars: list[Pillar], beams: list[dict], slabs: list["Slab"], run_id: str):
+        self.pillars = pillars
+        self.beams = beams
+        self.slabs = slabs
+        self.run_id = run_id
+        self.findings: list[dict] = []
+        self.questions: list[dict] = []
+        self._face_beams_cache: dict[str, dict] = {}
+
+    def _new_decision(
+        self, pillar: Pillar, field_id: str, decision: str, confidence: str, reason: str,
+        *, evidence: list[dict] | None = None, operations: list[dict] | None = None,
+        rule_codes: list[str] | None = None, requires_human: bool = False,
+    ) -> Decision:
+        key = f"{self.run_id}|{pillar.project_id}|{pillar.name}|{field_id}|{decision}|{reason}"
+        decision_id = "qaev-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:16]
+        return Decision(
+            decision_id=decision_id, run_id=self.run_id, project_id=pillar.project_id,
+            classe="PIL", item=pillar.name, field_id=field_id, decision=decision,
+            confidence=confidence, reason=reason, evidence=evidence or [],
+            operations=operations or [], rule_codes=rule_codes or [],
+            requires_human=requires_human, snapshot_hash=pillar.snapshot_hash,
+        )
+
+    def _add_finding(self, pillar: Pillar, field_id: str, code: str, message: str, evidence: list[dict]) -> None:
+        key = f"{pillar.project_id}|{pillar.name}|{field_id}|{code}|{message}"
+        self.findings.append({
+            "finding_id": "qaev-f-" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:16],
+            "run_id": self.run_id, "project_id": pillar.project_id, "classe": "PIL",
+            "item": pillar.name, "field_id": field_id, "code": code, "message": message,
+            "evidence": evidence,
+        })
+
+    def _validation_ops(self, *field_ids: str) -> list[dict]:
+        return [{"op": "validate_field", "field": field_id, "slots": []} for field_id in field_ids]
+
+    def _present_faces(self, pillar: Pillar) -> list[str]:
+        faces = [
+            face for face in _PIL_FACES
+            if any(str(key).startswith(f"p_s{face}_") for key in pillar.links)
+            or face in (pillar.sides_data or {})
+        ]
+        return faces
+
+    def _geometry_class(self, pillar: Pillar) -> str:
+        """Classifica contorno para rigor multi-geometria (ret/L/U/circular/especial)."""
+        n = len(pillar.points or [])
+        # pontos costumam repetir o fechamento
+        unique = n - 1 if n >= 2 and pillar.points[0] == pillar.points[-1] else n
+        faces = self._present_faces(pillar)
+        metrics = polygon_metrics(pillar.points)
+        bbox = pillar.bbox
+        if metrics and bbox and unique >= 8:
+            width = bbox[2] - bbox[0]
+            height = bbox[3] - bbox[1]
+            if width > 0 and height > 0:
+                aspect = max(width, height) / max(min(width, height), 1e-6)
+                area, _perim = metrics
+                # círculo inscrito aprox.: área ≈ π·(min/2)² e aspecto ~1
+                r = min(width, height) / 2.0
+                circle_area = math.pi * r * r
+                if aspect <= 1.15 and circle_area > 0 and abs(area - circle_area) / circle_area <= 0.18:
+                    return "circular_like"
+        if unique <= 5 and len(faces) <= 4:
+            return "rectangular"
+        if unique in (6, 7) or len(faces) in (5, 6):
+            return "L_or_U_like"
+        if unique >= 8 or len(faces) >= 6:
+            return "special_multi_face"
+        return "irregular"
+
+    def _edge_lengths(self, pillar: Pillar, *, min_len: float = 0.5) -> list[float]:
+        """Comprimentos de arestas do contorno (prova de dim em L/U/especial)."""
+        pts = list(pillar.points or [])
+        if len(pts) < 2:
+            return []
+        try:
+            normalized = [(float(p[0]), float(p[1])) for p in pts]
+        except (TypeError, ValueError, IndexError):
+            return []
+        if normalized[0] != normalized[-1]:
+            normalized.append(normalized[0])
+        edges: list[float] = []
+        for index in range(len(normalized) - 1):
+            length = math.hypot(
+                normalized[index + 1][0] - normalized[index][0],
+                normalized[index + 1][1] - normalized[index][1],
+            )
+            if length >= min_len:
+                edges.append(round(length, 1))
+        return edges
+
+    def _audit_pilar_segs(self, pillar: Pillar) -> Decision:
+        metrics = polygon_metrics(pillar.points)
+        bbox = pillar.bbox
+        gclass = self._geometry_class(pillar)
+        valid = (
+            len(pillar.points) >= 4 and bbox is not None and metrics is not None
+            and metrics[0] > 0 and (bbox[2] - bbox[0]) > 0 and (bbox[3] - bbox[1]) > 0
+        )
+        segments = (pillar.links.get("pilar_segs") or {}).get("segments") or []
+        if valid and segments:
+            ops = [] if "pilar_segs" in pillar.validated_fields else self._validation_ops("pilar_segs")
+            return self._new_decision(
+                pillar, "pilar_segs", "CONFIRMAR", "high",
+                f"polígono fechado ({gclass}), não degenerado e com segmento vinculado",
+                operations=ops,
+                evidence=[{
+                    "kind": "contour_metrics", "geometry_class": gclass,
+                    "bbox": bbox, "area": metrics[0], "perimeter": metrics[1],
+                    "vertices": len(pillar.points), "faces": self._present_faces(pillar),
+                }],
+            )
+        return self._new_decision(pillar, "pilar_segs", "PENDENTE", "low", "geometria insuficiente ou sem vínculo")
+
+    def _audit_name(self, pillar: Pillar) -> Decision:
+        labels = [x for x in safe_list((pillar.links.get("name") or {}).get("label")) if isinstance(x, dict)]
+        texts = {str(x.get("text") or "").strip().upper() for x in labels}
+        if not labels:
+            # Sem rótulo vinculado não é evidência de "coerente" — é ausência
+            # de prova. Correção do dono (2026-07-17): zero campo confirmado
+            # sem 100% de certeza; CONFIRMAR sem nenhum label era falso PASS
+            # por omissão, não confirmação real.
+            return self._new_decision(pillar, "name", "PENDENTE", "low", "sem rótulo vinculado para comparar com o registro")
+        if pillar.name.upper() in texts:
+            ops = [] if "name" in pillar.validated_fields else self._validation_ops("name")
+            return self._new_decision(pillar, "name", "CONFIRMAR", "high", "rótulo do pilar coerente com o registro", operations=ops)
+        return self._new_decision(pillar, "name", "REVISAR_HUMANO", "low", "rótulo do pilar diverge do registro", requires_human=True)
+
+    def _audit_dim(self, pillar: Pillar) -> Decision:
+        # Fonte de verdade: geometria do polígono vs "Dimensão (b x h)" da ficha —
+        # NÃO o link bruto "dim", que pode ter capturado o rótulo de uma
+        # viga vizinha em vez da cota do próprio pilar (achado real: P35
+        # tinha link "dim" apontando pro texto "V328").
+        # Retangular: bbox b×h. L/U/especial: cada cota declarada deve aparecer
+        # como aresta do contorno (bbox enganoso). Circular: diâmetro ≈ min(bbox).
+        raw_dim = str((pillar.extra.get("fields") or {}).get("Dimensão (b x h)") or "").strip()
+        match = _PIL_DIMENSION_RE.match(raw_dim)
+        bbox = pillar.bbox
+        gclass = self._geometry_class(pillar)
+        link_label = _label_text(pillar.links.get("dim"))
+        if link_label and _PIL_BEAM_NAME_RE.match(link_label):
+            self._add_finding(
+                pillar, "dim", "PIL-DIM-LINK-MISLABELED",
+                f"link 'dim' aponta para um rótulo de viga ({link_label}), não para a cota do pilar",
+                evidence=[{"kind": "label", "text": link_label}],
+            )
+            # Vínculo contaminado nunca autoriza CONFIRMAR, mesmo que o texto
+            # solto de "Dimensão (b x h)" bata com o bbox por coincidência —
+            # o próprio dado que a UI destaca pro campo está errado (achado
+            # real: campo aprovado com link "dim" apontando pro rótulo de
+            # uma viga vizinha). Correção do dono (2026-07-17): zero
+            # tolerância a vínculo desconexo, sempre humano decide.
+            return self._new_decision(
+                pillar, "dim", "REVISAR_HUMANO", "low",
+                f"vínculo 'dim' contaminado (aponta para rótulo de viga {link_label}) — não confiável mesmo com bbox coerente",
+                requires_human=True,
+                evidence=[{"kind": "label", "text": link_label}],
+            )
+        if not match or not bbox:
+            return self._new_decision(
+                pillar, "dim", "PENDENTE", "low",
+                "dimensão ausente ou não coerente com a geometria",
+                evidence=[{"kind": "geometry_class", "geometry_class": gclass}],
+            )
+        width, height = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        declared = [parse_number(x) for x in re.split(r"[xX/]", raw_dim)]
+        declared_sorted = sorted(d for d in declared if d is not None)
+        observed_bbox = sorted([round(width, 1), round(height, 1)])
+        edges = self._edge_lengths(pillar)
+        evidence_base = {
+            "kind": "dim_geometry",
+            "geometry_class": gclass,
+            "declared": raw_dim,
+            "bbox": [round(width, 1), round(height, 1)],
+            "edges": edges[:16],
+        }
+
+        if gclass == "rectangular":
+            if len(declared_sorted) == len(observed_bbox) and all(
+                nearly_equal(a, b, tol=1.0) for a, b in zip(declared_sorted, observed_bbox)
+            ):
+                ops = [] if "dim" in pillar.validated_fields else self._validation_ops("dim")
+                return self._new_decision(
+                    pillar, "dim", "CONFIRMAR", "high",
+                    "dimensão declarada coerente com o bbox do polígono retangular",
+                    operations=ops, evidence=[evidence_base],
+                )
+            return self._new_decision(
+                pillar, "dim", "PENDENTE", "low",
+                "dimensão retangular não coerente com o bbox",
+                evidence=[evidence_base],
+            )
+
+        if gclass == "circular_like":
+            # b×h iguais ou diâmetro ≈ menor lado do bbox
+            diameter = min(width, height)
+            if (
+                len(declared_sorted) >= 1
+                and all(nearly_equal(declared_sorted[0], d, tol=1.5) for d in declared_sorted)
+                and nearly_equal(declared_sorted[0], diameter, tol=2.0)
+            ):
+                ops = [] if "dim" in pillar.validated_fields else self._validation_ops("dim")
+                return self._new_decision(
+                    pillar, "dim", "CONFIRMAR", "high",
+                    "dimensão circular coerente com diâmetro do contorno (min bbox)",
+                    operations=ops,
+                    evidence=[{**evidence_base, "diameter_obs": round(diameter, 1)}],
+                )
+            return self._new_decision(
+                pillar, "dim", "PENDENTE", "medium",
+                "pilar circular_like: dimensão declarada não bate com diâmetro do contorno",
+                evidence=[{**evidence_base, "diameter_obs": round(diameter, 1)}],
+            )
+
+        # L / U / especial / irregular: bbox NÃO autoriza CONFIRMAR
+        if declared_sorted and edges:
+            matched = all(
+                any(nearly_equal(d, e, tol=1.5) for e in edges)
+                for d in declared_sorted
+            )
+            if matched:
+                ops = [] if "dim" in pillar.validated_fields else self._validation_ops("dim")
+                return self._new_decision(
+                    pillar, "dim", "CONFIRMAR", "high",
+                    f"dimensão em geometria {gclass}: cotas declaradas presentes como arestas do contorno",
+                    operations=ops, evidence=[evidence_base],
+                )
+            # bbox match acidental em L/U seria falso-positivo — reportar
+            bbox_ok = len(declared_sorted) == 2 and all(
+                nearly_equal(a, b, tol=1.0) for a, b in zip(declared_sorted, observed_bbox)
+            )
+            if bbox_ok:
+                self._add_finding(
+                    pillar, "dim", "PIL-DIM-NONRECT-BBOX-ONLY",
+                    f"geometria {gclass}: bbox bate com b×h mas arestas do contorno não confirmam as cotas — "
+                    "não usar bbox como prova em L/U/especial",
+                    evidence=[evidence_base],
+                )
+            return self._new_decision(
+                pillar, "dim", "PENDENTE", "medium",
+                f"geometria {gclass}: cotas declaradas não encontradas como arestas do contorno",
+                evidence=[evidence_base],
+            )
+        return self._new_decision(
+            pillar, "dim", "PENDENTE", "low",
+            f"dimensão {gclass} sem arestas mensuráveis ou declaração inválida",
+            evidence=[evidence_base],
+        )
+
+    def _enriched_report_for(self, pillar: Pillar) -> dict:
+        """Roda o motor puro uma vez por pilar e cacheia AMBAS as saídas.
+
+        ``enrich_pillar_report_with_beams`` é a MESMA função que ``main.py``
+        chama (``main.py:6407``) para montar ``connections.lajes_conectadas``
+        — não há dois motores divergentes. Mas ela produz duas visões
+        diferentes do mesmo fato: ``face_beams`` (só passa/para/interior por
+        face) e ``lajes`` (a lista completa, incluindo vínculos por
+        alinhamento de parede com ``source: beam_wall_alignment`` nas faces
+        C/D, que NUNCA aparecem em ``face_beams`` — achado real 2026-07-16,
+        P11 face D). Comparar ``connections`` persistido contra ``face_beams``
+        ignora essas entradas e gera falso REVISAR_HUMANO; o campo certo pra
+        comparar é ``lajes`` (mesma forma que ``connections.details``).
+        """
+        if pillar.name in self._face_beams_cache:
+            return self._face_beams_cache[pillar.name]
+        report = {pillar.name: {"name": pillar.name, "points": pillar.points, "lajes": []}}
+        try:
+            enrich_pillar_report_with_beams(report, self.beams)
+        except Exception as exc:  # motor não pode derrubar o auditor
+            self._add_finding(pillar, "connections", "PIL-MOTOR-ERROR", f"motor de faces falhou: {exc}", evidence=[])
+            result = {"face_beams": {}, "lajes": []}
+            self._face_beams_cache[pillar.name] = result
+            return result
+        entry = report.get(pillar.name, {})
+        result = {"face_beams": entry.get("face_beams") or {}, "lajes": entry.get("lajes") or []}
+        self._face_beams_cache[pillar.name] = result
+        return result
+
+    def _face_beams_for(self, pillar: Pillar) -> dict:
+        return self._enriched_report_for(pillar)["face_beams"]
+
+    def _slab_contacts_face(self, pillar: Pillar, face: str, slab_name: str) -> dict | None:
+        try:
+            from shapely.geometry import Polygon
+        except Exception:
+            return None
+        slab = next((s for s in self.slabs if s.name == slab_name), None)
+        if slab is None or len(slab.points) < 3 or len(pillar.points) < 3:
+            return None
+        try:
+            pillar_poly = Polygon(pillar.points)
+            slab_poly = Polygon(slab.points)
+            if not pillar_poly.is_valid:
+                pillar_poly = pillar_poly.buffer(0)
+            if not slab_poly.is_valid:
+                slab_poly = slab_poly.buffer(0)
+            distance = pillar_poly.distance(slab_poly)
+        except Exception:
+            return None
+        if distance > 5.0 and not pillar_poly.intersects(slab_poly):
+            return None
+        return {"kind": "slab_contact", "slab": slab_name, "distance": round(distance, 3)}
+
+    def _audit_face_laje(self, pillar: Pillar, face: str) -> Decision:
+        field_id = f"p_s{face}_l1_n"
+        persisted = _label_text(pillar.links.get(field_id))
+        explicit_null = _explicit_null(pillar.links.get(field_id))
+        side_state = (pillar.sides_data.get(face) or {}).get("l1_n")
+        side_is_null = isinstance(side_state, str) and side_state.strip().upper() in ("SEM LAJE", "N/A", "NULO")
+        if explicit_null or side_is_null:
+            ops = [] if field_id in pillar.validated_fields else self._validation_ops(field_id)
+            return self._new_decision(pillar, field_id, "N/A_CONFIRMADO", "high", "face sem laje explicitamente marcada", operations=ops)
+        laje_name = persisted or (side_state if isinstance(side_state, str) else None)
+        if not laje_name:
+            return self._new_decision(pillar, field_id, "PENDENTE", "low", f"face {face} sem estado explícito de laje")
+        contact = self._slab_contacts_face(pillar, face, laje_name)
+        if contact:
+            ops = [] if field_id in pillar.validated_fields else self._validation_ops(field_id)
+            return self._new_decision(
+                pillar, field_id, "CONFIRMAR", "high", f"laje {laje_name} em contato geométrico com a face {face}",
+                operations=ops, evidence=[contact],
+            )
+        return self._new_decision(pillar, field_id, "PENDENTE", "low", f"laje {laje_name} sem contato geométrico comprovado com a face {face}")
+
+    def _audit_face_viga(self, pillar: Pillar, face: str) -> Decision:
+        field_id = f"p_s{face}_v"
+        expected = self._face_beams_for(pillar).get(face) or {}
+        expected_names: set[str] = set()
+        evidence: list[dict] = []
+        for slot in ("passa_esq", "passa_dir"):
+            beam = expected.get(slot)
+            if isinstance(beam, dict) and beam.get("name"):
+                expected_names.add(str(beam["name"]).strip().upper())
+                if beam.get("evidence_segments"):
+                    evidence.append({"kind": "beam_geometry", "slot": slot, "segments": beam["evidence_segments"]})
+        for beam in expected.get("para") or []:
+            if isinstance(beam, dict) and beam.get("name"):
+                expected_names.add(str(beam["name"]).strip().upper())
+                if beam.get("evidence_segments"):
+                    evidence.append({"kind": "beam_geometry", "slot": "para", "segments": beam["evidence_segments"]})
+        interior_names = {
+            str(x.get("name")).strip().upper() for x in (expected.get("interior") or [])
+            if isinstance(x, dict) and x.get("name")
+        }
+        persisted_names: set[str] = set()
+        for key, value in pillar.links.items():
+            if not (str(key).startswith(f"p_s{face}_v_") and str(key).endswith("_n")):
+                continue
+            text = _label_text(value)
+            if text:
+                persisted_names.add(text.strip().upper())
+
+        if not expected_names and not interior_names:
+            if not persisted_names:
+                ops = [] if field_id in pillar.validated_fields else self._validation_ops(field_id)
+                return self._new_decision(
+                    pillar, field_id, "N/A_CONFIRMADO", "high",
+                    f"face {face} sem viga vinculada (motor e persistido concordam)", operations=ops,
+                )
+            return self._new_decision(
+                pillar, field_id, "REVISAR_HUMANO", "low",
+                f"face {face} tem viga persistida ({sorted(persisted_names)}) mas o motor não encontra evidência geométrica",
+                requires_human=True,
+            )
+        if interior_names and not expected_names and not persisted_names:
+            # Caso 4 (INTERPRETACAO-PILARES-ABCD.md): face embutida no corpo
+            # da viga; não se espera abertura/campo p_s{face}_v_* próprio.
+            ops = [] if field_id in pillar.validated_fields else self._validation_ops(field_id)
+            return self._new_decision(
+                pillar, field_id, "CONFIRMAR", "high",
+                f"face {face} interior à viga {sorted(interior_names)} (Caso 4); sem abertura própria esperada",
+                operations=ops, evidence=[{"kind": "interior", "beams": sorted(interior_names)}],
+            )
+        if expected_names and expected_names == persisted_names:
+            ops = [] if field_id in pillar.validated_fields else self._validation_ops(field_id)
+            return self._new_decision(
+                pillar, field_id, "CONFIRMAR", "high",
+                f"viga(s) {sorted(expected_names)} confirmada(s) por geometria própria (motor) na face {face}",
+                operations=ops, evidence=evidence,
+            )
+        return self._new_decision(
+            pillar, field_id, "REVISAR_HUMANO", "low",
+            f"face {face}: motor espera {sorted(expected_names or interior_names)}, persistido tem {sorted(persisted_names)} — reprocessar",
+            requires_human=True,
+        )
+
+    def _audit_connections(self, pillar: Pillar) -> Decision:
+        details = ((pillar.links.get("connections") or {}).get("lajes_conectadas") or {}).get("details") or []
+        if not isinstance(details, list) or not details:
+            return self._new_decision(pillar, "connections", "PENDENTE", "low", "connections sem detalhes vinculados")
+        # expected_names por face = união de duas visões do MESMO motor
+        # (enrich_pillar_report_with_beams, a mesma função que main.py chama):
+        # face_beams (passa_esq/dir/para/interior, cobre A/B) + a lista
+        # `lajes` fresca, filtrada só pras entradas source=beam_wall_alignment
+        # (cobre C/D por alinhamento de parede, que NUNCA aparecem em
+        # face_beams). Usar só face_beams perdia C/D (achado real 2026-07-16,
+        # P11 face D); usar só `lajes` perdia A/B (face_beams é a fonte
+        # estável pra passa/para — `lajes` de entrada vazia no auditor
+        # super-gera wall-alignment pra faces que no cálculo real já estavam
+        # cobertas por uma laje de verdade).
+        enriched = self._enriched_report_for(pillar)
+        face_beams = enriched["face_beams"]
+        wall_alignment_by_side: dict[str, set[str]] = {}
+        for entry in enriched["lajes"]:
+            if not isinstance(entry, dict) or entry.get("source") != "beam_wall_alignment":
+                continue
+            side = entry.get("side")
+            if side not in _PIL_FACES:
+                continue
+            name = str((entry.get("viga") or {}).get("name") or "").strip().upper()
+            if name:
+                wall_alignment_by_side.setdefault(side, set()).add(name)
+        mismatches = []
+        for entry in details:
+            if not isinstance(entry, dict):
+                continue
+            side = entry.get("side")
+            if side not in _PIL_FACES:
+                continue
+            viga = entry.get("viga") or {}
+            observed_name = str(viga.get("name") or "").strip().upper()
+            if not observed_name:
+                continue
+            expected = face_beams.get(side) or {}
+            expected_names = {
+                str((expected.get(slot) or {}).get("name")).strip().upper()
+                for slot in ("passa_esq", "passa_dir") if isinstance(expected.get(slot), dict) and expected.get(slot, {}).get("name")
+            } | {
+                str(b.get("name")).strip().upper() for b in (expected.get("para") or [])
+                if isinstance(b, dict) and b.get("name")
+            } | {
+                str(b.get("name")).strip().upper() for b in (expected.get("interior") or [])
+                if isinstance(b, dict) and b.get("name")
+            } | wall_alignment_by_side.get(side, set())
+            if observed_name not in expected_names:
+                mismatches.append({"side": side, "observed": observed_name, "expected": sorted(expected_names)})
+        if mismatches:
+            return self._new_decision(
+                pillar, "connections", "REVISAR_HUMANO", "low",
+                f"{len(mismatches)} face(s) de connections divergem do motor de faces",
+                evidence=mismatches, requires_human=True,
+            )
+        ops = [] if "connections" in pillar.validated_fields else self._validation_ops("connections")
+        return self._new_decision(
+            pillar, "connections", "CONFIRMAR", "high",
+            "connections derivado (categoria b) coerente com as faces já confirmadas pelo motor",
+            operations=ops,
+        )
+
+    def audit(self, selected: set[str] | None = None, include_sealed: bool = False) -> list[Decision]:
+        decisions: list[Decision] = []
+        for pillar in self.pillars:
+            if selected and pillar.name not in selected:
+                continue
+            if pillar.is_validated and not include_sealed:
+                continue
+            decisions.append(self._audit_pilar_segs(pillar))
+            decisions.append(self._audit_name(pillar))
+            decisions.append(self._audit_dim(pillar))
+            faces = self._present_faces(pillar)
+            gclass = self._geometry_class(pillar)
+            if gclass != "rectangular" and len(faces) < 4:
+                self._add_finding(
+                    pillar, "faces", "PIL-SPECIAL-FACE-COVERAGE",
+                    f"geometria {gclass} com apenas {len(faces)} face(s) materializada(s) no payload",
+                    evidence=[{"faces": faces, "geometry_class": gclass}],
+                )
+            for face in faces:
+                decisions.append(self._audit_face_laje(pillar, face))
+                decisions.append(self._audit_face_viga(pillar, face))
+            decisions.append(self._audit_connections(pillar))
+        return decisions
+
+
 def load_slabs(con: sqlite3.Connection, project_id: str) -> list[Slab]:
     con.row_factory = sqlite3.Row
     rows = con.execute(
@@ -1492,6 +2139,7 @@ def write_reports(
     counts: dict[str, int] = {}
     for decision in decisions:
         counts[decision.decision] = counts.get(decision.decision, 0) + 1
+    out_abs = str(out_dir.resolve())
     summary = [
         "# Resumo — Agente QA de Evidências",
         "",
@@ -1501,32 +2149,97 @@ def write_reports(
         f"- Decisões: {len(decisions)}",
         f"- Achados: {len(findings)}",
         f"- Perguntas: {len(questions)}",
+        f"- Dossiê (absoluto): `{out_abs}`",
+        f"- Decisões JSONL: `{(out_dir / 'decisoes.jsonl').resolve()}`",
+        f"- Achados JSONL: `{(out_dir / 'achados.jsonl').resolve()}`",
+        f"- Manifesto: `{(out_dir / 'manifesto.json').resolve()}`",
         "",
         "## Decisões",
         "",
     ]
     summary += [f"- {key}: {value}" for key, value in sorted(counts.items())]
+    summary += [
+        "",
+        "## Handoff",
+        "",
+        "- HTML/checkbox da app são apresentação; prova = este dossiê.",
+        "- Checklist anti-super-selo: `squads/qa-global-evidencias/checklists/operational-anti-superselo-checklist.md`.",
+        "- Abrir dossiê: `python scripts/arete/qa_open_latest_dossier.py --project-id "
+        f"{manifest['project_id']} --open`.",
+        "",
+    ]
+    # KPIs treino vs validação + quadro de pavimento (paths absolutos)
+    try:
+        from scripts.arete.qa_handoff_assets import handoff_extra_lines, kpis_treino_validacao
+
+        kpis = kpis_treino_validacao(decisions, findings, questions)
+        (out_dir / "kpis_treino_validacao.json").write_text(
+            json.dumps(kpis, ensure_ascii=False, indent=2), encoding="utf-8",
+        )
+        summary += handoff_extra_lines(
+            classe=manifest.get("classe"),
+            project_id=manifest.get("project_id"),
+            decisions=decisions,
+            findings=findings,
+            questions=questions,
+        )
+        summary.append(f"- KPIs JSON: `{(out_dir / 'kpis_treino_validacao.json').resolve()}`")
+        summary.append("")
+    except Exception:
+        pass
     (out_dir / "resumo.md").write_text("\n".join(summary) + "\n", encoding="utf-8")
     _write_final_session_summary(out_dir, manifest, decisions, findings, questions, scorecards)
+    # Memória de erro tipada (cross-sessão) — não contamina classes
+    if findings:
+        try:
+            from scripts.arete.qa_error_memory import append_errors
+            append_errors(
+                findings if isinstance(findings[0], dict) else [asdict(f) if hasattr(f, "__dict__") else f for f in findings],
+                run_id=manifest.get("run_id"),
+                project_id=manifest.get("project_id"),
+                classe=manifest.get("classe") if manifest.get("classe") != "ALL" else None,
+            )
+        except Exception:
+            pass
     _append_session_ledger(out_dir.parent, {
         "at": utc_now(), "run_id": manifest["run_id"], "mode": manifest["mode"],
         "project_id": manifest["project_id"], "classe": manifest["classe"],
         "items": manifest["items"], "decisions": counts, "findings": len(findings),
         "questions": len(questions), "scores": {x["item"]: x["score_confianca"] for x in scorecards},
         "campos_incerto": {x["item"]: x["campos_incerto"] for x in scorecards if x["campos_incerto"]},
-        "out_dir": str(out_dir),
+        "out_dir": out_abs,
     })
 
 
-def current_snapshot(con: sqlite3.Connection, slab_id: str) -> tuple[str, dict[str, Any]]:
+def mutable_columns_for_table(con: sqlite3.Connection, table: str) -> list[str]:
+    """Interseção entre MUTABLE_COLUMNS e colunas realmente existentes na tabela.
+
+    `beams` não tem `extra_data_json`; forçar o conjunto completo quebrava
+    apply/snapshot de FV/LV.
+    """
+    existing = {row[1] for row in con.execute(f"PRAGMA table_info({table})")}
+    cols = [column for column in MUTABLE_COLUMNS if column in existing]
+    if not cols:
+        raise RuntimeError(f"nenhuma coluna mutável conhecida em {table}")
+    return cols
+
+
+def current_snapshot(con: sqlite3.Connection, item_id: str, table: str = "slabs") -> tuple[str, dict[str, Any]]:
+    """Hash+raw das colunas mutáveis do item, na tabela da SUA classe.
+
+    ``table`` isola cada classe na própria tabela (``slabs``/``pillars``/
+    ``beams``) — nunca uma junção cross-classe. ``MUTABLE_COLUMNS`` é o mesmo
+    conjunto de nomes em todas (mesma convenção de schema do SA).
+    """
     con.row_factory = sqlite3.Row
+    columns = mutable_columns_for_table(con, table)
     row = con.execute(
-        "SELECT id, " + ", ".join(MUTABLE_COLUMNS) + " FROM slabs WHERE id=?",
-        (slab_id,),
+        f"SELECT id, {', '.join(columns)} FROM {table} WHERE id=?",
+        (item_id,),
     ).fetchone()
     if row is None:
-        raise RuntimeError(f"slab ausente: {slab_id}")
-    raw = {column: row[column] for column in MUTABLE_COLUMNS}
+        raise RuntimeError(f"item ausente em {table}: {item_id}")
+    raw = {column: row[column] for column in columns}
     payload = {"id": row["id"], **raw}
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest(), raw
 
@@ -1578,8 +2291,13 @@ def apply_operation(state: dict, operation: dict) -> None:
         # [2026-07-13] N/A não é "validado" por nenhuma origem — fica fora do
         # sistema de selo (calcular_selos_item já trata na_fields como
         # resolvido independente de origem), só o motivo em na_reasons importa.
+        # [2026-07-17] O motivo grava o marcador de origem do agente (decisão
+        # do dono: N/A decidido pelo agente aparece laranja no app, distinto
+        # de N/A marcado manualmente por um humano) — ver
+        # src/core/validation_model.py::ORIGEM_NA_AGENTE_MARCADOR.
         na_fields.add(field_id)
-        na_reasons[field_id] = operation.get("reason") or "N/A confirmado pelo QA"
+        reason = operation.get("reason") or "N/A confirmado pelo QA"
+        na_reasons[field_id] = ORIGEM_NA_AGENTE_MARCADOR + reason
     elif op == "repair_cut_ficha":
         slot = operation["slot"]
         entries = safe_list((links.get(field_id) or {}).get(slot))
@@ -1700,6 +2418,7 @@ def load_rag_consultations(
     family: str | None = None, field: str | None = None,
     tiers: Iterable[str] | None = None, obra: str | None = None,
     pav: str | None = None, limit: int = 50,
+    require_tier: bool = False,
 ) -> dict[str, list[dict]]:
     """Consulta a memória semântica da app sem promovê-la a prova do item.
 
@@ -1709,8 +2428,51 @@ def load_rag_consultations(
     """
     return load_partitioned_rag(
         con, classes, family=family, field=field, tiers=tiers,
-        obra=obra, pav=pav, limit=limit,
+        obra=obra, pav=pav, limit=limit, require_tier=require_tier,
     )
+
+
+def load_session_index_b1_context(
+    index_dir: Path, classes: Iterable[str], *,
+    family: str | None = None, field: str | None = None,
+    tiers: Iterable[str] | None = None, obra: str | None = None,
+    pav: str | None = None, limit: int = 8,
+) -> tuple[dict[str, list[dict]], dict]:
+    """Consulta B1 (qa_session_index, MASTERPLAN-MINIRAG-QA-N1.md fase D3) como
+    camada extra, opcional e best-effort — nunca substitui nem bloqueia B2.
+
+    Qualquer falha (índice ausente, stale, corrompido, dependência de
+    embedding indisponível) devolve contexto vazio + status no manifesto; o
+    caminho ``load_partitioned_rag`` (B2) segue 100% intocado. Por isso B1
+    NUNCA participa do check de ``--rag-evidence required`` — required
+    continua medindo só a partição exata de ``semantic_rag_kb``, como sempre
+    mediu; mudar essa semântica quebraria o invariante do contrato QA↔RAG.
+    """
+    classes = list(classes)
+    empty = {classe: [] for classe in classes}
+    status: dict = {"path": str(index_dir), "available": False, "error": None}
+    try:
+        from scripts.arete.qa_session_index import SessionIndex
+        idx = SessionIndex(index_dir)
+    except Exception as exc:  # índice ausente/stale/corrompido: degrada, não bloqueia
+        status["error"] = str(exc)
+        return empty, status
+    try:
+        result: dict[str, list[dict]] = {}
+        for classe in classes:
+            hits = idx.b1_query(
+                classe=classe, familia=family, field=field,
+                tier=list(tiers) if tiers else None, obra=obra, pav=pav,
+                top_k=limit,
+            )
+            for hit in hits:
+                hit["kind"] = "rag_semantic_context_b1"
+            result[classe] = hits
+        status["available"] = True
+        status["b1_manifest"] = idx.manifest.get("b1", {})
+        return result, status
+    finally:
+        idx.close()
 
 
 def _payload_geometry(payload: dict) -> list:
@@ -1718,14 +2480,24 @@ def _payload_geometry(payload: dict) -> list:
 
 
 def _class_payload_keys(payload: dict, classe: str) -> set[str]:
-    """Separa as duas leituras de viga por família sem duplicar nem alterar N1."""
+    """Separa as leituras de viga por contrato sem expor metadados internos.
+
+    Em FV, ``fv_is_h`` e o escalar raiz ``seg_bottom`` são estado transitório
+    do interpretador (orientação e contagem bruta antes da consolidação). A
+    ficha/contrato público usa os slots ``viga_fundo_*`` e
+    ``links.viga_segs.seg_bottom``. Auditar os escalares como campo criava
+    pendência quando a consolidação legítima alterava a contagem de painéis.
+    """
     keys = set(payload)
     for container in ("fields", "links"):
         value = payload.get(container)
         if isinstance(value, dict):
             keys.update(value)
     if classe == "FV":
-        return {key for key in keys if key.startswith(("viga_fundo", "fv_", "seg_bottom"))}
+        return {
+            key for key in keys
+            if key.startswith(("viga_fundo", "fv_")) and key != "fv_is_h"
+        }
     if classe == "LV":
         return {key for key in keys if key.startswith(("viga_a_", "viga_b_", "lv_", "seg_a", "seg_b", "seg_c"))}
     return keys
@@ -1841,6 +2613,65 @@ def _generic_link_entries(payload: dict, field_id: str) -> list[dict]:
     return entries
 
 
+def _fv_segment_area_trace(payload: dict, field_id: str) -> list[dict]:
+    """Resolve a prova observacional do slot FV sem inventar semântica.
+
+    ``viga_fundo_seg_N_exists`` é um marcador escalar legado: ele não possui
+    pontos próprios. A entidade que materializa sua existência é o contorno
+    local correspondente em ``viga_fundo_seg_N_area_segs.contour``. Esse
+    vínculo continua sendo apenas trilha N1 (nunca uma confirmação CAD nem um
+    selo) e só é aceito quando o próprio snapshot conserva um polígono fechado
+    de área positiva. Assim o auditor não pede uma regra humana para todo
+    segmento já representado, e também não confunde linha/parede com fundo.
+    """
+    match = re.fullmatch(r"viga_fundo_seg_(\d+)_exists", str(field_id))
+    if not match:
+        return []
+    segment_index = int(match.group(1))
+    links = payload.get("links") if isinstance(payload.get("links"), dict) else payload
+    if not isinstance(links, dict):
+        return []
+    area_slots = links.get(f"viga_fundo_seg_{segment_index}_area_segs")
+    if not isinstance(area_slots, dict):
+        return []
+
+    entries: list[dict] = []
+    for raw in safe_list(area_slots.get("contour")):
+        if not isinstance(raw, dict):
+            continue
+        points: list[tuple[float, float]] = []
+        for point in safe_list(raw.get("points")):
+            try:
+                points.append((float(point[0]), float(point[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+        if len(points) < 4 or points[0] != points[-1]:
+            continue
+        area2 = sum(
+            first[0] * second[1] - second[0] * first[1]
+            for first, second in zip(points, points[1:])
+        )
+        if abs(area2) * 0.5 <= 0.05:
+            continue
+        if raw.get("geometry_role") not in {None, "area_fundo"}:
+            continue
+        entries.append({
+            "slot": "contour",
+            **raw,
+            "derived_from_field": f"viga_fundo_seg_{segment_index}_area_segs",
+            "trace_role": "fv_closed_local_area",
+        })
+    return entries
+
+
+def _generic_trace_entries(payload: dict, classe: str, field_id: str) -> list[dict]:
+    """Obtém evidência do próprio campo ou de seu slot estrutural exclusivo."""
+    direct = _generic_link_entries(payload, field_id)
+    if direct or classe != "FV":
+        return direct
+    return _fv_segment_area_trace(payload, field_id)
+
+
 def _field_family(field_id: str, classe: str) -> str:
     if classe == "PIL":
         match = re.match(r"p_s([A-H])_(.+)", field_id)
@@ -1848,7 +2679,7 @@ def _field_family(field_id: str, classe: str) -> str:
     if classe == "FV":
         match = re.match(r"viga_fundo_seg_\d+_(.+)", field_id)
         return f"fundo_{match.group(1).split('_')[0]}" if match else (
-            "fundo_meta" if field_id.startswith(("viga_fundo", "fv_", "seg_bottom")) else field_id
+            "fundo_meta" if field_id.startswith("viga_fundo") else field_id
         )
     if classe == "LV":
         match = re.match(r"viga_([ab])_seg_\d+_(.+)", field_id)
@@ -1890,12 +2721,12 @@ def generic_class_review(
         payload = json_load(row[spec["payload_column"]], {})
         fields = sorted(_class_payload_keys(payload, classe))
         snapshot_hash = _generic_snapshot(row, columns)
-        records.append({"id": row["id"], "name": name, "snapshot_hash": snapshot_hash})
+        records.append({"id": row["id"], "name": name, "snapshot_hash": snapshot_hash, "classe": classe})
         if not name:
             fields = ["name", *fields]
         missing_by_family: dict[str, list[str]] = {}
         for field_id in fields:
-            entries = _generic_link_entries(payload, field_id)
+            entries = _generic_trace_entries(payload, classe, field_id)
             family = _field_family(field_id, classe)
             category = _initial_contract_category(classe, family)
             has_trace = any(
@@ -1962,7 +2793,7 @@ def generic_class_review(
 
 
 def cmd_review(args: argparse.Namespace) -> int:
-    """Revisão global por item/campo; só LAJ usa o adaptador com decisões confirmáveis."""
+    """Revisão global por item/campo; LAJ/PIL/FV/LV usam adaptadores com decisões confirmáveis."""
     db = Path(args.db)
     requested = list(CLASS_REGISTRY) if args.classe == "ALL" else [args.classe]
     run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S") + "_review_" + uuid.uuid4().hex[:8]
@@ -1978,6 +2809,7 @@ def cmd_review(args: argparse.Namespace) -> int:
             con, requested, family=args.rag_family, field=args.rag_field,
             tiers=args.rag_tier, obra=args.rag_obra, pav=args.rag_pav,
             limit=args.rag_limit,
+            require_tier=bool(args.rag_evidence == "required" and args.rag_tier),
         ) if args.rag_evidence != "off" else {classe: [] for classe in requested}
         if args.rag_evidence == "required":
             missing = [classe for classe, entries in rag_context.items() if not entries]
@@ -1989,6 +2821,17 @@ def cmd_review(args: argparse.Namespace) -> int:
             ]
             if degraded:
                 raise SystemExit("schema RAG não suporta partição requerida para: " + ", ".join(degraded))
+        session_b1_context: dict[str, list[dict]] = {classe: [] for classe in requested}
+        session_index_status: dict = {"path": None, "available": False, "error": None}
+        if args.session_index and args.rag_evidence != "off":
+            session_b1_context, session_index_status = load_session_index_b1_context(
+                Path(args.session_index), requested,
+                family=args.rag_family, field=args.rag_field, tiers=args.rag_tier,
+                obra=args.rag_obra, pav=args.rag_pav, limit=args.rag_limit,
+            )
+            if session_index_status.get("error"):
+                print(f"[review] B1 (session-index) indisponível, seguindo só com B2: "
+                     f"{session_index_status['error']}", file=sys.stderr)
         for classe in requested:
             if classe == "LAJ":
                 slabs = load_slabs(con, project_id)
@@ -1998,7 +2841,49 @@ def cmd_review(args: argparse.Namespace) -> int:
                 decisions.extend(class_decisions)
                 findings.extend(auditor.findings)
                 questions.extend(auditor.questions)
-                records.extend({"id": slab.id, "name": slab.name, "snapshot_hash": slab.snapshot_hash} for slab in slabs if (not selected or slab.name in selected))
+                records.extend(
+                    {"id": slab.id, "name": slab.name, "snapshot_hash": slab.snapshot_hash, "classe": "LAJ"}
+                    for slab in slabs if (not selected or slab.name in selected)
+                )
+            elif classe == "PIL":
+                pillars = load_pillars(con, project_id)
+                beams = load_beams_for_project(con, project_id)
+                slabs_ctx = load_slabs(con, project_id)
+                auditor = PilEvidenceAuditor(pillars, beams, slabs_ctx, run_id)
+                class_decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
+                decisions.extend(class_decisions)
+                findings.extend(auditor.findings)
+                questions.extend(auditor.questions)
+                records.extend(
+                    {"id": pillar.id, "name": pillar.name, "snapshot_hash": pillar.snapshot_hash, "classe": "PIL"}
+                    for pillar in pillars if (not selected or pillar.name in selected)
+                )
+            elif classe == "FV":
+                from scripts.arete.qa_fv_lv_adapters import FvEvidenceAuditor, load_beam_records, load_name_index
+                beams = load_beam_records(con, project_id)
+                names = load_name_index(con, project_id)
+                auditor = FvEvidenceAuditor(beams, names, run_id)
+                class_decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
+                decisions.extend(class_decisions)
+                findings.extend(auditor.findings)
+                questions.extend(auditor.questions)
+                records.extend(
+                    {"id": b.id, "name": b.name, "snapshot_hash": b.snapshot_hash, "classe": "FV"}
+                    for b in beams if (not selected or b.name in selected)
+                )
+            elif classe == "LV":
+                from scripts.arete.qa_fv_lv_adapters import LvEvidenceAuditor, load_beam_records, load_name_index
+                beams = load_beam_records(con, project_id)
+                names = load_name_index(con, project_id)
+                auditor = LvEvidenceAuditor(beams, names, run_id)
+                class_decisions = auditor.audit(selected=selected, include_sealed=args.include_sealed)
+                decisions.extend(class_decisions)
+                findings.extend(auditor.findings)
+                questions.extend(auditor.questions)
+                records.extend(
+                    {"id": b.id, "name": b.name, "snapshot_hash": b.snapshot_hash, "classe": "LV"}
+                    for b in beams if (not selected or b.name in selected)
+                )
             else:
                 class_decisions, class_findings, class_questions, class_records = generic_class_review(
                     con, project_id=project_id, classe=classe, run_id=run_id,
@@ -2007,8 +2892,8 @@ def cmd_review(args: argparse.Namespace) -> int:
                 decisions.extend(class_decisions); findings.extend(class_findings)
                 questions.extend(class_questions); records.extend(class_records)
             # A mesma citação é anexada como contexto, não como evidência suficiente.
-            # Limitamos a oito entradas para o dossiê permanecer legível.
-            citations = rag_context.get(classe, [])[:8]
+            # Limitamos a oito entradas por camada para o dossiê permanecer legível.
+            citations = rag_context.get(classe, [])[:8] + session_b1_context.get(classe, [])[:8]
             if citations:
                 for decision in class_decisions:
                     decision.evidence.extend(citations)
@@ -2017,8 +2902,11 @@ def cmd_review(args: argparse.Namespace) -> int:
         "schema_version": 1, "run_id": run_id, "created_at": utc_now(), "mode": "global_read_only_review",
         "db": str(db.resolve()), "project_id": project_id, "classe": "ALL" if len(requested) > 1 else requested[0],
         "classes": requested, "items": [record["name"] for record in records],
-        "snapshots": {record["name"]: {"id": record["id"], "hash": record["snapshot_hash"]} for record in records},
-        "authority": "read_only; only LAJ has a validation-ready apply path; all other decisions remain non-mutating",
+        "snapshots": {
+            record["name"]: {"id": record["id"], "hash": record["snapshot_hash"], "classe": record.get("classe")}
+            for record in records
+        },
+        "authority": "read_only; apply path resolves table/columns per item from CLASS_REGISTRY[classe]; validation_ready classes only",
         "rag": {
             "mode": args.rag_evidence,
             "consultations": {classe: len(entries) for classe, entries in rag_context.items()},
@@ -2028,10 +2916,24 @@ def cmd_review(args: argparse.Namespace) -> int:
                 "limit": args.rag_limit,
             },
             "policy": "consultative_only; RAG never proves a field or authorizes apply",
+            "session_index_b1": {
+                **session_index_status,
+                "consultations": {classe: len(entries) for classe, entries in session_b1_context.items()},
+                "policy": ("consultative_only, best_effort; never participates in "
+                          "--rag-evidence required; same_origin never counts as "
+                          "confirmatory reinforcement (docs/MASTERPLAN-MINIRAG-QA-N1.md)"),
+            },
         },
     }
     write_reports(out_dir, manifest, decisions, findings, questions)
-    write_jsonl(out_dir / "rag_consultas.jsonl", (entry for entries in rag_context.values() for entry in entries))
+    write_jsonl(
+        out_dir / "rag_consultas.jsonl",
+        (entry for entries in rag_context.values() for entry in entries),
+    )
+    write_jsonl(
+        out_dir / "session_index_b1_consultas.jsonl",
+        (entry for entries in session_b1_context.values() for entry in entries),
+    )
     print(json.dumps({"run_id": run_id, "out_dir": str(out_dir), "decisions": len(decisions), "questions": len(questions), "classes": requested}, ensure_ascii=False))
     return 0
 
@@ -2077,20 +2979,35 @@ def cmd_apply(args: argparse.Namespace) -> int:
                 snapshot = manifest["snapshots"].get(item)
                 if not snapshot:
                     raise RuntimeError(f"snapshot ausente para {item}")
-                current_hash, old_raw = current_snapshot(con, snapshot["id"])
+                # Isolado por classe: a tabela vem do próprio snapshot (ou do
+                # manifesto quando o run é de uma única classe, mantendo
+                # compat com manifestos antigos que não gravavam "classe" por
+                # item). Nunca uma tabela compartilhada/adivinhada.
+                item_classe = snapshot.get("classe") or manifest.get("classe")
+                if item_classe not in CLASS_REGISTRY:
+                    raise RuntimeError(f"classe desconhecida para {item}: {item_classe!r}")
+                table = CLASS_REGISTRY[item_classe]["table"]
+                current_hash, old_raw = current_snapshot(con, snapshot["id"], table=table)
                 if current_hash != snapshot["hash"]:
-                    raise RuntimeError(f"snapshot obsoleto para {item}; rode audit novamente")
-                row = con.execute("SELECT * FROM slabs WHERE id=? AND project_id=?", (snapshot["id"], args.project_id)).fetchone()
+                    raise RuntimeError(f"snapshot obsoleto para {item}; rode audit/review novamente")
+                row = con.execute(f"SELECT * FROM {table} WHERE id=? AND project_id=?", (snapshot["id"], args.project_id)).fetchone()
                 if row is None:
                     raise RuntimeError(f"item fora do projeto: {item}")
+                keys = set(row.keys())
                 state = {
-                    "links": json_load(row["links_json"], {}),
-                    "validated_fields": migrar_validated_fields_legado(json_load(row["validated_fields_json"], [])),
-                    "na_fields": set(json_load(row["na_fields_json"], [])),
-                    "validated_link_classes": json_load(row["validated_link_classes_json"], {}),
-                    "na_link_classes": json_load(row["na_link_classes_json"], {}),
-                    "na_reasons": json_load(row["na_reasons_json"], {}),
-                    "extra": json_load(row["extra_data_json"], {}),
+                    "links": json_load(row["links_json"] if "links_json" in keys else "{}", {}),
+                    "validated_fields": migrar_validated_fields_legado(
+                        json_load(row["validated_fields_json"] if "validated_fields_json" in keys else "[]", [])
+                    ),
+                    "na_fields": set(json_load(row["na_fields_json"] if "na_fields_json" in keys else "[]", [])),
+                    "validated_link_classes": json_load(
+                        row["validated_link_classes_json"] if "validated_link_classes_json" in keys else "{}", {}
+                    ),
+                    "na_link_classes": json_load(
+                        row["na_link_classes_json"] if "na_link_classes_json" in keys else "{}", {}
+                    ),
+                    "na_reasons": json_load(row["na_reasons_json"] if "na_reasons_json" in keys else "{}", {}),
+                    "extra": json_load(row["extra_data_json"] if "extra_data_json" in keys else "{}", {}),
                     "is_validated": bool(row["is_validated"]),
                 }
                 if state["is_validated"] and not (
@@ -2102,19 +3019,27 @@ def cmd_apply(args: argparse.Namespace) -> int:
                     continue
                 for operation in operations:
                     apply_operation(state, operation)
-                complete = set(REQUIRED_LAJ_FIELDS).issubset(set(state["validated_fields"]) | state["na_fields"])
+                required_fields = resolve_required_fields(item_classe, state)
+                complete = required_fields.issubset(set(state["validated_fields"]) | state["na_fields"])
                 new_seal = 1 if args.seal_complete and complete else int(state["is_validated"])
-                rollback_rows.append({"item": item, "id": snapshot["id"], "old": old_raw})
+                rollback_rows.append({"item": item, "id": snapshot["id"], "table": table, "old": old_raw})
+                update_map = {
+                    "links_json": canonical_json(state["links"]),
+                    "validated_fields_json": canonical_json(state["validated_fields"]),
+                    "na_fields_json": canonical_json(sorted(state["na_fields"])),
+                    "validated_link_classes_json": canonical_json(state["validated_link_classes"]),
+                    "na_link_classes_json": canonical_json(state["na_link_classes"]),
+                    "na_reasons_json": canonical_json(state["na_reasons"]),
+                    "extra_data_json": canonical_json(state["extra"]),
+                    "is_validated": new_seal,
+                }
+                cols = mutable_columns_for_table(con, table)
+                set_parts = [f"{col}=?" for col in cols]
+                values = [update_map[col] for col in cols]
+                values.extend([snapshot["id"], args.project_id])
                 con.execute(
-                    "UPDATE slabs SET links_json=?, validated_fields_json=?, na_fields_json=?, "
-                    "validated_link_classes_json=?, na_link_classes_json=?, na_reasons_json=?, "
-                    "extra_data_json=?, is_validated=? WHERE id=? AND project_id=?",
-                    (
-                        canonical_json(state["links"]), canonical_json(state["validated_fields"]),
-                        canonical_json(sorted(state["na_fields"])), canonical_json(state["validated_link_classes"]),
-                        canonical_json(state["na_link_classes"]), canonical_json(state["na_reasons"]),
-                        canonical_json(state["extra"]), new_seal, snapshot["id"], args.project_id,
-                    ),
+                    f"UPDATE {table} SET {', '.join(set_parts)} WHERE id=? AND project_id=?",
+                    values,
                 )
                 applied.append({"item": item, "operations": len(operations), "complete": complete, "sealed": bool(new_seal)})
             con.commit()
@@ -2133,6 +3058,71 @@ def cmd_apply(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_flag_pending(args: argparse.Namespace) -> int:
+    """Persiste em ``extra_data_json['agent_pending']`` os campos que o
+    agente olhou e concluiu que precisam de humano (decisão PENDENTE ou
+    REVISAR_HUMANO no run) — a UI usa isso pra pintar o campo de roxo,
+    distinguindo "agente tentou e não conseguiu" de "ninguém olhou ainda".
+
+    [2026-07-17] Decisão do dono. Isolado de ``apply``: nunca confirma nada,
+    nunca precisa de decisão "high", nunca passa pelo filtro de aprovação —
+    é metadado de diagnóstico, sempre seguro de rodar de novo (substitui o
+    estado anterior pelo mais recente do review; item que passou a
+    CONFIRMAR em tudo fica com `agent_pending` vazio, limpando o roxo).
+    """
+    run_dir = Path(args.run)
+    manifest = json.loads((run_dir / "manifesto.json").read_text(encoding="utf-8"))
+    if manifest.get("project_id") != args.project_id:
+        raise SystemExit("project_id não coincide com o manifesto")
+    decisions = read_jsonl(run_dir / "decisoes.jsonl")
+    pending_by_item: dict[str, dict[str, str]] = {}
+    for decision in decisions:
+        if decision.get("decision") not in ("PENDENTE", "REVISAR_HUMANO"):
+            continue
+        item = decision.get("item")
+        field_id = decision.get("field_id")
+        if not item or not field_id:
+            continue
+        pending_by_item.setdefault(item, {})[field_id] = decision.get("reason") or decision.get("decision")
+
+    db = Path(args.db)
+    updated = []
+    with sqlite3.connect(db) as con:
+        con.row_factory = sqlite3.Row
+        con.execute("BEGIN IMMEDIATE")
+        try:
+            for item, snapshot in manifest["snapshots"].items():
+                item_classe = snapshot.get("classe") or manifest.get("classe")
+                if item_classe not in CLASS_REGISTRY:
+                    continue
+                table = CLASS_REGISTRY[item_classe]["table"]
+                current_hash, _ = current_snapshot(con, snapshot["id"], table=table)
+                if current_hash != snapshot["hash"]:
+                    continue  # snapshot obsoleto (mudou desde o review) — pula, nunca força
+                row = con.execute(
+                    f"SELECT extra_data_json FROM {table} WHERE id=? AND project_id=?",
+                    (snapshot["id"], args.project_id),
+                ).fetchone()
+                if row is None:
+                    continue
+                extra = json_load(row["extra_data_json"], {})
+                new_pending = pending_by_item.get(item, {})
+                if extra.get(AGENT_PENDING_KEY) == new_pending:
+                    continue
+                extra[AGENT_PENDING_KEY] = new_pending
+                con.execute(
+                    f"UPDATE {table} SET extra_data_json=? WHERE id=? AND project_id=?",
+                    (canonical_json(extra), snapshot["id"], args.project_id),
+                )
+                updated.append({"item": item, "pending_fields": sorted(new_pending)})
+            con.commit()
+        except Exception:
+            con.rollback()
+            raise
+    print(json.dumps({"updated": updated}, ensure_ascii=False))
+    return 0
+
+
 def cmd_rollback(args: argparse.Namespace) -> int:
     run_dir = Path(args.run)
     manifest = json.loads((run_dir / "manifesto.json").read_text(encoding="utf-8"))
@@ -2146,9 +3136,13 @@ def cmd_rollback(args: argparse.Namespace) -> int:
         try:
             for entry in rows:
                 old = entry["old"]
+                # Compat: rollback.jsonl anterior a este fix não gravava
+                # "table" (todo run era LAJ/slabs); manifestos novos sempre
+                # gravam a tabela real do item, isolada por classe.
+                table = entry.get("table") or "slabs"
                 values = [old[column] for column in MUTABLE_COLUMNS]
                 con.execute(
-                    "UPDATE slabs SET " + ", ".join(f"{column}=?" for column in MUTABLE_COLUMNS) + " WHERE id=? AND project_id=?",
+                    f"UPDATE {table} SET " + ", ".join(f"{column}=?" for column in MUTABLE_COLUMNS) + " WHERE id=? AND project_id=?",
                     (*values, entry["id"], args.project_id),
                 )
             con.commit()
@@ -2213,7 +3207,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     review = sub.add_parser(
         "review",
-        help="revisa campos/vínculos de todas as classes; read-only fora do adaptador LAJ",
+        help="revisa campos/vínculos de todas as classes; read-only fora dos adaptadores LAJ/PIL",
     )
     review.add_argument("--db", default=str(DEFAULT_DB))
     review_scope = review.add_mutually_exclusive_group(required=True)
@@ -2233,6 +3227,12 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--rag-obra", help="obra_contexto exata para consulta RAG")
     review.add_argument("--rag-pav", help="pavimento exato quando o schema RAG suportar")
     review.add_argument("--rag-limit", type=int, default=50)
+    review.add_argument(
+        "--session-index",
+        help="pasta do índice de sessão (qa_session_index.py build --out ...) "
+             "para consultar B1 (docs/MASTERPLAN-MINIRAG-QA-N1.md fase D3); "
+             "opcional, degrada em silêncio se ausente/stale",
+    )
     review.add_argument("--run-id")
     review.add_argument("--out-dir")
     review.set_defaults(func=cmd_review)
@@ -2248,6 +3248,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="permite corrigir item já selado somente para decisão high CORRIGIR do mesmo snapshot",
     )
     apply_cmd.set_defaults(func=cmd_apply)
+
+    flag_pending = sub.add_parser(
+        "flag-pending",
+        help="grava em extra_data_json['agent_pending'] os campos PENDENTE/REVISAR_HUMANO do run (UI pinta de roxo)",
+    )
+    flag_pending.add_argument("--db", default=str(DEFAULT_DB))
+    flag_pending.add_argument("--project-id", required=True)
+    flag_pending.add_argument("--run", required=True)
+    flag_pending.set_defaults(func=cmd_flag_pending)
 
     rollback = sub.add_parser("rollback", help="restaura valores pré-apply")
     rollback.add_argument("--db", default=str(DEFAULT_DB))

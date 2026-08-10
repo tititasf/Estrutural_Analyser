@@ -1,0 +1,41 @@
+---
+pid: 6080
+cwd: "D:\Agente-cad-PYSIDE"
+command: "Set-Location D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; $env:PYTHONPATH='D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main'; python scripts\\arete\\tmp\\regen_all_14p_laj_gate.py"
+started_at: 2026-07-19T05:19:34.292Z
+running_for_ms: 1265011  
+---
+OUT D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\laj_14p_full_gate\20260719_021935
+âncoras=22
+[PASS] L401 ficha=[335.5, 71.0] n4=[np.float64(335.5), np.float64(71.0)] fails=[] warns=[]
+[PASS] L402 ficha=[342.53, 71.0] n4=[np.float64(342.5), np.float64(71.0)] fails=[] warns=[]
+[PASS] L403 ficha=[335.5, 71.0] n4=[np.float64(335.5), np.float64(71.0)] fails=[] warns=[]
+[PASS] L404 ficha=[335.5, 71.0] n4=[np.float64(335.5), np.float64(71.0)] fails=[] warns=[]
+[PASS] L405 ficha=[900.49, 311.0] n4=[np.float64(900.5), np.float64(311.0)] fails=[] warns=[]
+[PASS] L406 ficha=[1015.04, 292.16] n4=[np.float64(1015.0), np.float64(292.2)] fails=[] warns=[]
+[PASS] L407 ficha=[855.2, 311.0] n4=[np.float64(855.2), np.float64(311.0)] fails=[] warns=[]
+[PASS] L408 ficha=[726.0, 311.0] n4=[np.float64(726.0), np.float64(311.0)] fails=[] warns=[]
+[PASS] L409 ficha=[3139.0, 201.0] n4=[np.float64(3139.0), np.float64(201.0)] fails=[] warns=[]
+[PASS] L410 ficha=[405.5, 594.0] n4=[np.float64(405.5), np.float64(594.0)] fails=[] warns=[]
+[PASS] L411 ficha=[543.71, 423.0] n4=[np.float64(543.7), np.float64(423.0)] fails=[] warns=[]
+[PASS] L412 ficha=[418.0, 423.0] n4=[np.float64(418.0), np.float64(423.0)] fails=[] warns=[]
+[PASS] L413 ficha=[418.0, 423.0] n4=[np.float64(418.0), np.float64(423.0)] fails=[] warns=[]
+[PASS] L414 ficha=[418.0, 423.0] n4=[np.float64(418.0), np.float64(423.0)] fails=[] warns=[]
+[PASS] L415 ficha=[418.0, 423.0] n4=[np.float64(418.0), np.float64(423.0)] fails=[] warns=[]
+[PASS] L416 ficha=[129.0, 459.0] n4=[np.float64(129.0), np.float64(459.0)] fails=[] warns=[]
+[PASS] L417 ficha=[233.74, 71.0] n4=[np.float64(233.7), np.float64(71.0)] fails=[] warns=[]
+[PASS] L418 ficha=[418.0, 71.0] n4=[np.float64(418.0), np.float64(71.0)] fails=[] warns=[]
+[PASS] L419 ficha=[418.0, 71.0] n4=[np.float64(418.0), np.float64(71.0)] fails=[] warns=[]
+[PASS] L420 ficha=[418.0, 71.0] n4=[np.float64(418.0), np.float64(71.0)] fails=[] warns=[]
+[PASS] L421 ficha=[418.0, 71.0] n4=[np.float64(418.0), np.float64(71.0)] fails=[] warns=[]
+[PASS] L422 ficha=[418.0, 71.0] n4=[np.float64(418.0), np.float64(71.0)] fails=[] warns=[]
+{
+  "summary": {
+    "total": 22,
+    "PASS": 22,
+    "FAIL": 0,
+    "SUSPEITO": 0
+  },
+  "html": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\laj_14p_full_gate\\20260719_021935\\INDEX.html",
+  "out": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\laj_14p_full_gate\\20260719_021935"
+}

@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel esquerdo — propostas de estilo</title>
+<style>
+  :root{
+    --bg:#0a0e16; --painel:#111827; --painel2:#0d1422; --linha:#1f2937;
+    --txt:#cbd5e1; --muted:#7d8ba1; --azul:#2563eb; --azul2:#4ea1ff;
+    --verde:#22c55e; --ambar:#eab308; --roxo:#a855f7; --laranja:#fb923c;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font:13px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif}
+  .app{display:flex;min-height:100vh}
+
+  /* ===== área direita: controles ===== */
+  .conteudo{flex:1;min-width:0;padding:20px 24px 32px;overflow:auto}
+  h1{font-size:1.1rem;margin:0 0 2px;color:#fff}
+  .sub{color:var(--muted);font-size:.78rem;margin:0 0 14px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .btn{appearance:none;border:1px solid var(--linha);background:#131c2e;color:var(--txt);
+       border-radius:7px;padding:7px 11px;font:inherit;font-size:.76rem;cursor:pointer;
+       transition:.12s;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:#334155;background:#18233a}
+  .btn.on{background:#152544;border-color:var(--azul2);color:#fff;
+          box-shadow:0 0 0 1px var(--azul2) inset}
+  .btn .n{width:18px;height:18px;border-radius:5px;background:#1f2c46;color:var(--azul2);
+          font-size:.68rem;font-weight:700;display:grid;place-items:center}
+  .btn.on .n{background:var(--azul2);color:#06101f}
+  .btn.atual .n{background:#3f1f1f;color:#fca5a5}
+  .btn.atual.on{border-color:#f87171;box-shadow:0 0 0 1px #f87171 inset;background:#2a1515}
+
+  .card-info{background:#131c2e;border:1px solid var(--linha);border-radius:8px;
+             padding:12px 14px;max-width:560px;margin-bottom:12px}
+  .card-info h2{margin:0 0 4px;font-size:.88rem;color:#fff}
+  .card-info p{margin:0;font-size:.76rem;color:var(--muted);line-height:1.45}
+  .card-info ul{margin:8px 0 0;padding-left:16px;font-size:.74rem;color:var(--muted)}
+  .card-info li{margin:3px 0}
+  .card-info code{background:#0b1220;padding:1px 5px;border-radius:3px;color:var(--azul2);font-size:.72rem}
+  .meta{font-size:.72rem;color:var(--muted);margin-top:10px}
+  .meta b{color:var(--txt)}
+  .meta code{background:#131c2e;padding:1px 5px;border-radius:3px;color:var(--azul2)}
+
+  table.cmp{border-collapse:collapse;margin-top:12px;font-size:.73rem;max-width:560px}
+  table.cmp th,table.cmp td{border:1px solid var(--linha);padding:5px 8px;text-align:left}
+  table.cmp th{background:#131c2e;color:var(--muted);font-weight:600;font-size:.68rem}
+  table.cmp td:nth-child(n+2){text-align:center}
+  table.cmp tr.hl td{background:#152544}
+  .hint{margin-top:10px;font-size:.72rem;color:var(--muted)}
+  .hint kbd{background:#1a2537;border:1px solid #2b3a52;border-radius:4px;
+            padding:0 5px;font-size:.68rem;color:#fff}
+
+  /* ===== casca esquerda ===== */
+  .lado{display:flex;flex:0 0 auto;min-height:100vh;background:var(--bg);
+        border-right:1px solid #0a0e16}
+  .col{background:var(--painel);border-right:1px solid var(--linha);
+       display:flex;flex-direction:column;overflow:hidden;min-height:100vh}
+  .marca{display:flex;align-items:center;gap:7px;padding:11px 12px 10px;
+         font-weight:700;font-size:.82rem;color:#fff;border-bottom:1px solid var(--linha);
+         flex:0 0 auto}
+  .marca i{color:var(--azul2);font-style:normal}
+  .nav-top{padding:4px 6px;border-bottom:1px solid var(--linha);flex:0 0 auto}
+  .nav-top a{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;
+             color:var(--txt);text-decoration:none;font-size:.76rem}
+  .nav-top a.on{background:var(--azul);color:#fff}
+  .scroll{flex:1;overflow:auto;min-height:0}
+  .rodape{flex:0 0 auto;padding:8px 12px;border-top:1px solid var(--linha);
+          font-size:.68rem;color:var(--muted)}
+  .ghost{color:var(--muted)}
+  .mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace}
+
+  /* ========== 0. ATUAL (problema) ========== */
+  .e0 .c1{flex:0 0 280px}
+  .e0 .c2{flex:0 0 280px;background:#0f172a}
+  .e0 .c3{flex:0 0 200px;background:#0c1220}
+  .e0 .obra{display:block;width:calc(100% - 12px);margin:4px 6px;padding:9px 12px;
+            background:#1d4ed8;color:#fff;border:0;border-radius:6px;font:inherit;
+            font-size:.82rem;font-weight:600;text-align:left}
+  .e0 .triagem{padding:8px 12px 4px;font-size:.78rem;font-weight:600;color:#9ca3af}
+  .e0 .pav-bar{margin:6px 8px;padding:10px 12px;border-radius:4px;border-left:3px solid #3b82f6;
+               background:linear-gradient(90deg,#0c1a2e,#1e3a5f);color:#fff;
+               font-size:.88rem;font-weight:800;display:flex;justify-content:space-between}
+  .e0 .pav-bar.impar{border-left-color:#a78bfa;background:linear-gradient(90deg,#1a0e2e,#3d2359)}
+  .e0 .pav-bar.on{outline:1px solid var(--azul2)}
+  .e0 .tipo{margin:2px 8px;padding:7px 12px 7px 22px;background:#16283f;border-radius:4px;
+            color:#7dd3fc;font-size:.76rem}
+  .e0 .item{margin:1px 8px;padding:7px 12px 7px 34px;font-size:.74rem;color:#cbd5e1}
+  .e0 .item.deep{padding-left:44px;font-size:.68rem;opacity:.9}
+  .e0 .item.on{background:rgba(37,99,235,.35);color:#fff;border-radius:4px}
+  .e0 .p2-h{padding:10px 15px;background:#333;border-bottom:1px solid #1f2937;
+            color:var(--azul2);font-weight:700;font-size:.9rem}
+  .e0 .p2-btn{display:block;width:100%;text-align:left;padding:10px 14px;background:transparent;
+              border:0;border-bottom:1px solid #1f2937;color:#e5e7eb;font:inherit;font-size:.84rem}
+  .e0 .p2-btn.on{background:#1d4ed8;color:#fff}
+  .e0 .p2-box{margin:8px;padding:10px;background:#2a2a2a;border:1px solid #444;border-radius:4px;
+              font-size:.8rem}
+  .e0 .p2-box .bar{height:6px;background:#111;border-radius:3px;margin:6px 0 10px;overflow:hidden}
+  .e0 .p2-box .bar i{display:block;height:100%;width:72%;background:var(--azul)}
+  .e0 .cls{padding:7px 14px;font-size:.78rem;border-bottom:1px solid #1a2332;cursor:default}
+  .e0 .cls.on{background:#1d4ed8;color:#fff}
+  .e0 .cls span{float:right;color:var(--muted);font-size:.7rem}
+  .e0 .cls.on span{color:#bfdbfe}
+  .e0 .p3-item{padding:8px 12px;font-size:.78rem;border-bottom:1px solid #162033}
+  .e0 .p3-item.on{background:#1d4ed8;color:#fff}
+
+  /* ========== 1. DENSO ========== */
+  .e1 .col{flex:0 0 220px}
+  .e1 .obra{margin:6px 8px;padding:5px 8px;background:#152544;border-radius:4px;
+            font-size:.74rem;font-weight:600;color:#fff}
+  .e1 .grp{padding:8px 10px 2px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+           color:var(--muted)}
+  .e1 .row{display:flex;align-items:center;gap:5px;padding:2px 10px;font-size:.74rem;
+           border-left:2px solid transparent;min-height:22px;cursor:default}
+  .e1 .row:hover{background:#162033}
+  .e1 .row.on{background:#152544;border-left-color:var(--azul2);color:#fff;font-weight:600}
+  .e1 .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .e1 .dot{width:5px;height:5px;border-radius:50%;background:#334155;flex:0 0 auto}
+  .e1 .dot.ok{background:var(--verde)}
+  .e1 .dots{display:flex;gap:2px}
+  .e1 .kids{padding:0 0 3px 18px}
+  .e1 .kid{padding:1px 10px;font-size:.7rem;color:var(--muted);display:flex;gap:6px}
+  .e1 .kid.on{color:#fff}
+  .e1 .tri{width:10px;font-size:.58rem;color:var(--muted)}
+
+  /* ========== 2. ÁRVORE ========== */
+  .e2 .col{flex:0 0 248px}
+  .e2 .tree{padding:4px 0;font-size:.76rem}
+  .e2 .no{display:flex;align-items:center;gap:5px;padding:3px 10px;cursor:default}
+  .e2 .no:hover{background:#162033}
+  .e2 .no.on{background:#152544;color:#fff}
+  .e2 .no b{font-weight:600;color:#fff}
+  .e2 .tri{width:10px;font-size:.58rem;color:var(--muted);transition:transform .12s}
+  .e2 .no.ab .tri{transform:rotate(90deg)}
+  .e2 .ramo{margin-left:14px;border-left:1px dotted #2b3a52;padding-left:6px}
+  .e2 .qtd{margin-left:auto;font-size:.62rem;color:var(--muted);background:#1a2537;
+           padding:0 5px;border-radius:8px}
+  .e2 .file{font-family:ui-monospace,Consolas,monospace;font-size:.68rem;color:#8fb7e8}
+
+  /* ========== 3. LISTA + RAIL STATUS ========== */
+  .e3 .col{flex:0 0 236px}
+  .e3 .obra-line{display:flex;align-items:center;gap:8px;padding:8px 10px;
+                 border-bottom:1px solid var(--linha)}
+  .e3 .obra-line .nm{flex:1;font-weight:600;font-size:.78rem;color:#fff}
+  .e3 .badge{font-size:.6rem;padding:1px 6px;border-radius:8px;background:#1a2537;color:var(--muted)}
+  .e3 .row{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;
+           padding:4px 10px;font-size:.74rem;border-bottom:1px solid #131c2e;min-height:26px}
+  .e3 .row:hover{background:#162033}
+  .e3 .row.on{background:#152544;color:#fff}
+  .e3 .row .nm{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .e3 .cnt{font-size:.66rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .e3 .rail{display:flex;gap:3px}
+  .e3 .seg{width:14px;height:4px;border-radius:2px;background:#243044}
+  .e3 .seg.on{background:var(--verde)}
+  .e3 .seg.mid{background:var(--ambar)}
+  .e3 .exp{margin:0 8px 8px;padding:6px 8px;background:#0e1524;border-radius:5px;
+           border:1px solid var(--linha);font-size:.7rem;color:var(--muted)}
+  .e3 .exp div{padding:2px 0;display:flex;justify-content:space-between}
+  .e3 .exp .on{color:#fff}
+
+  /* ========== 4. ULTRA-TABELA ========== */
+  .e4 .col{flex:0 0 228px}
+  .e4 table{width:100%;border-collapse:collapse;font-size:.72rem}
+  .e4 thead th{position:sticky;top:0;background:#0e1524;padding:5px 8px;text-align:left;
+               font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+               font-weight:600;border-bottom:1px solid var(--linha)}
+  .e4 tbody tr{border-bottom:1px solid #131c2e;cursor:default}
+  .e4 tbody tr:hover{background:#162033}
+  .e4 tbody tr.on{background:#152544}
+  .e4 tbody tr.on td:first-child{box-shadow:inset 2px 0 0 var(--azul2)}
+  .e4 td{padding:3px 8px;height:22px}
+  .e4 td.nm{color:#fff;font-weight:500;font-size:.74rem}
+  .e4 td.n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.68rem}
+  .e4 td.st{text-align:right;letter-spacing:.06em;font-size:.64rem;white-space:nowrap}
+  .e4 .p{color:#334155}
+  .e4 .p.ok{color:var(--verde)}
+  .e4 .p.mid{color:var(--ambar)}
+  .e4 .sub{display:block;padding:2px 8px 4px 18px;font-size:.68rem;color:var(--muted);
+           background:#0e1524;border-bottom:1px solid #131c2e}
+  .e4 .sub span{display:inline-block;margin-right:10px}
+  .e4 .sub .on{color:#fff}
+
+  /* ========== 5. COLUNA ÚNICA (mata 3 painéis) ========== */
+  .e5 .col{flex:0 0 260px}
+  .e5 .crumb{display:flex;align-items:center;gap:4px;padding:7px 10px;font-size:.68rem;
+             color:var(--muted);border-bottom:1px solid var(--linha);background:#0e1524;
+             flex-wrap:wrap}
+  .e5 .crumb a{color:var(--azul2);text-decoration:none}
+  .e5 .crumb b{color:#fff;font-weight:600}
+  .e5 .back{padding:6px 10px;font-size:.72rem;color:var(--azul2);border-bottom:1px solid var(--linha);
+            cursor:default}
+  .e5 .back:hover{background:#162033}
+  .e5 .sec{padding:8px 10px 3px;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
+           color:var(--muted)}
+  .e5 .item{display:flex;align-items:center;gap:7px;padding:5px 10px;font-size:.76rem;
+            border-bottom:1px solid #131c2e;min-height:28px}
+  .e5 .item:hover{background:#162033}
+  .e5 .item.on{background:#152544;color:#fff}
+  .e5 .item .nm{flex:1}
+  .e5 .qtd{font-size:.64rem;color:var(--muted);background:#1a2537;padding:0 6px;border-radius:8px}
+  .e5 .seta{color:var(--muted);font-size:.64rem}
+  .e5 .etapas{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px 8px 8px}
+  .e5 .etapa{padding:6px 4px;text-align:center;background:#131c2e;border:1px solid var(--linha);
+             border-radius:5px;font-size:.68rem;cursor:default}
+  .e5 .etapa.on{border-color:var(--azul2);background:#152544;color:#fff}
+  .e5 .etapa .k{display:block;font-weight:700;font-size:.74rem;margin-bottom:1px}
+  .e5 .etapa .s{font-size:.58rem;color:var(--muted)}
+  .e5 .etapa.on .s{color:#93c5fd}
+  .e5 .chips{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;padding:2px 8px 10px}
+  .e5 .chip{padding:5px 6px;background:#131c2e;border:1px solid var(--linha);border-radius:5px;
+            font-size:.68rem;display:flex;justify-content:space-between;align-items:center}
+  .e5 .chip.on{border-color:var(--azul2);background:#152544;color:#fff}
+  .e5 .chip b{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
+  .e5 .chip.on b{color:#93c5fd}
+  .e5 .pav-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px 8px 8px}
+  .e5 .pav{padding:5px 2px;text-align:center;background:#131c2e;border:1px solid var(--linha);
+           border-radius:4px;font-size:.68rem;font-weight:600}
+  .e5 .pav.on{border-color:var(--azul2);background:#152544;color:#fff}
+  .e5 .pav .st{display:block;font-size:.55rem;font-weight:400;color:var(--muted);margin-top:1px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="lado" id="lado"></div>
+
+  <main class="conteudo">
+    <h1>Painel esquerdo — 5 propostas (+ atual)</h1>
+    <p class="sub">Só HTML apresentativo. Clique nos botões para trocar o painel da esquerda. Teclas <kbd>0</kbd>–<kbd>5</kbd>.</p>
+
+    <div class="btns" id="btns"></div>
+
+    <div class="card-info" id="info"></div>
+
+    <div class="meta" id="medida"></div>
+
+    <div class="card-info" style="border-left:3px solid var(--ambar)">
+      <h2>O que pesa no atual</h2>
+      <ul>
+        <li><code>— Pavimento FUNDACAO —</code> gasta 3 palavras + 2 travessões para dizer <code>FUNDACAO</code></li>
+        <li>Cada pavimento é uma <b>barra gorda</b> (~40px) — cabem ~9 na tela inteira</li>
+        <li>Rótulos repetem o pai: <code>Torre 1 - FUNDACAO</code> dentro de <code>Pavimento FUNDACAO</code></li>
+        <li>3 painéis lado a lado (~280+280+200 = <b>~760px</b>) antes do desenho começar</li>
+        <li>Hierarquia visual “gritando” com azul/roxo em blocos cheios — cansa e ocupa</li>
+      </ul>
+    </div>
+
+    <table class="cmp">
+      <thead>
+        <tr><th>Critério</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Pavimentos sem rolar (~1080p)</td><td>~9</td><td>~20</td><td>~16</td><td>~18</td><td><b>~24</b></td><td>grade</td></tr>
+        <tr><td>Largura total esquerda</td><td><b>~760</b></td><td>220</td><td>248</td><td>236</td><td>228</td><td><b>260*</b></td></tr>
+        <tr><td>Status SA/N3/N5 de relance</td><td>não</td><td>3 dots</td><td>qtd</td><td>rail</td><td><b>✓✓✓</b></td><td>etapas</td></tr>
+        <tr><td>Profundidade na mesma coluna</td><td>espalha</td><td>2</td><td><b>3+</b></td><td>2</td><td>1–2</td><td><b>drill</b></td></tr>
+        <tr><td>Senso de compactação</td><td>ruim</td><td><b>alto</b></td><td>médio</td><td>alto</td><td><b>máx</b></td><td>médio</td></tr>
+      </tbody>
+    </table>
+    <p class="hint">* Estilo 5 usa <b>uma coluna só</b> (mata painéis 2 e 3) → libera ~500px pro desenho.<br>
+      Preferência declarada: <b>compacto + organizado</b> → olhe primeiro <b>1 Denso</b> e <b>4 Tabela</b>.</p>
+  </main>
+</div>
+
+<script>
+const PAVS = [
+  {n:'FUNDACAO', sa:1, n3:0, n5:1, itens:12},
+  {n:'TERREO',   sa:1, n3:0, n5:1, itens:35},
+  {n:'1_PAV',    sa:1, n3:1, n5:0, itens:38},
+  {n:'2_PAV',    sa:1, n3:1, n5:0, itens:36},
+  {n:'TIPO',     sa:0, n3:0, n5:0, itens:0},
+  {n:'13_PAV',   sa:1, n3:1, n5:1, itens:46},
+  {n:'14_PAV',   sa:1, n3:0, n5:0, itens:28},
+  {n:'ATICO',    sa:0, n3:0, n5:0, itens:0},
+  {n:'COBERTURA',sa:0, n3:0, n5:0, itens:25},
+];
+const CLASSES = [
+  ['Pilares Normais',35],['Pilares Especiais',3],['Lajes',25],
+  ['Visão Cortes',17],['Seg. Fundos',53],['Lat. A',63],['Lat. B',63],
+];
+const ATIVO = '13_PAV';
+const marca = `<div class="marca"><i>◆</i> Portal de Formas</div>`;
+const rodape = `<div class="rodape">Thierry · Dono</div>`;
+const nav = `<div class="nav-top">
+  <a href="#"><span>📊</span> Status Arete</a>
+  <a href="#" class="on"><span>📁</span> Obras</a>
+</div>`;
+const ck = v => v ? '✓' : '·';
+
+/* ---------- 0. ATUAL ---------- */
+function e0(){
+  return `
+  <div class="col c1">
+    ${marca}${nav}
+    <div class="scroll">
+      <button class="obra">Obra-Teste-Inicial2</button>
+      <div class="triagem">✓ Triagem</div>
+      ${PAVS.map((p,i)=>{
+        const on = p.n===ATIVO;
+        const imp = i%2;
+        return `
+        <div class="pav-bar ${imp?'impar':''} ${on?'on':''}">
+          <span>— Pavimento ${p.n} —</span><span>▾</span>
+        </div>
+        ${on?`
+          <div class="tipo">Bruto</div>
+          <div class="item mono">TMC…6000-13P.dxf</div>
+          <div class="item deep on">Recortes Torres Limpas (1)</div>
+          <div class="item deep"> Torre 1 - ${p.n}</div>
+          <div class="item deep">Recortes Detalhes e Convenções (1)</div>
+          <div class="item deep"> Detalhes - ${p.n}</div>
+        `:''}`;
+      }).join('')}
+    </div>
+    ${rodape}
+  </div>
+  <div class="col c2">
+    <div class="p2-h">— Pavimento ${ATIVO} —</div>
+    <div class="scroll">
+      <button class="p2-btn on">✓ SA / N1</button>
+      <div class="p2-box">
+        <div><b>Status de Processamento do Pavimento</b></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:.75rem">
+          <span>Aprovação de Recortes:</span><strong>72%</strong>
+        </div>
+        <div class="bar"><i></i></div>
+        <button style="width:100%;font-size:.72rem;padding:6px;background:#374151;border:0;color:#fff;border-radius:4px">
+          Processar SA/N1 (Pavimento) →
+        </button>
+      </div>
+      ${CLASSES.map((c,i)=>`<div class="cls ${i===0?'on':''}">${c[0]} <span>${c[1]}</span></div>`).join('')}
+      <button class="p2-btn">N3</button>
+      <button class="p2-btn">✓ N5</button>
+    </div>
+  </div>
+  <div class="col c3">
+    <div class="scroll">
+      ${Array.from({length:12},(_,i)=>`<div class="p3-item ${i===2?'on':''}">P${i+1}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---------- 1. DENSO ---------- */
+function e1(){
+  return `<div class="col">
+    ${marca}${nav}
+    <div class="scroll">
+      <div class="obra">Obra-Teste-Inicial2</div>
+      <div class="grp">Pavimentos · 9</div>
+      ${PAVS.map(p=>`
+        <div class="row ${p.n===ATIVO?'on':''}">
+          <span class="tri">${p.n===ATIVO?'▾':'▸'}</span>
+          <span class="nm">${p.n}</span>
+          <span class="dots">
+            <i class="dot ${p.sa?'ok':''}"></i>
+            <i class="dot ${p.n3?'ok':''}"></i>
+            <i class="dot ${p.n5?'ok':''}"></i>
+          </span>
+        </div>
+        ${p.n===ATIVO?`<div class="kids">
+          <div class="kid"><span>·</span><span class="mono">…6000-13P</span></div>
+          <div class="kid on"><span>·</span>Torre limpa</div>
+          <div class="kid"><span>·</span>Detalhes / conv.</div>
+        </div>`:''}
+      `).join('')}
+      <div class="grp">Docs gerais</div>
+      <div class="row"><span class="nm ghost">— nenhum —</span></div>
+    </div>
+    ${rodape}
+  </div>`;
+}
+
+/* ---------- 2. ÁRVORE ---------- */
+function e2(){
+  return `<div class="col">
+    ${marca}${nav}
+    <div class="scroll tree">
+      <div class="no ab"><span class="tri">▸</span><b>Obra-Teste-Inicial2</b></div>
+      <div class="ramo">
+        ${PAVS.map(p=>`
+          <div class="no ${p.n===ATIVO?'on ab':''}">
+            <span class="tri">▸</span><span>${p.n}</span>
+            <span class="qtd">${p.itens||'—'}</span>
+          </div>
+          ${p.n===ATIVO?`<div class="ramo">
+            <div class="no"><span class="tri"> </span><span class="file">TMC…6000-13P.dxf</span></div>
+            <div class="no on"><span class="tri"> </span>Torre limpa</div>
+            <div class="no"><span class="tri"> </span>Detalhes e conv.</div>
+            <div class="no ab"><span class="tri">▸</span>SA / N1 <span class="qtd">46</span></div>
+            <div class="ramo">
+              <div class="no on"><span class="tri"> </span>Pilares Norm. <span class="qtd">35</span></div>
+              <div class="no"><span class="tri"> </span>Lajes <span class="qtd">25</span></div>
+            </div>
+            <div class="no"><span class="tri">▸</span>N3 <span class="qtd">38</span></div>
+            <div class="no"><span class="tri">▸</span>N5 <span class="qtd">—</span></div>
+          </div>`:''}
+        `).join('')}
+      </div>
+      <div class="no"><span class="tri">▸</span>Docs gerais</div>
+    </div>
+    ${rodape}
+  </div>`;
+}
+
+/* ---------- 3. LISTA + RAIL ---------- */
+function e3(){
+  return `<div class="col">
+    ${marca}${nav}
+    <div class="obra-line">
+      <span class="nm">Obra-Teste-Inicial2</span>
+      <span class="badge">9 pav</span>
+    </div>
+    <div class="scroll">
+      ${PAVS.map(p=>{
+        const on = p.n===ATIVO;
+        return `
+        <div class="row ${on?'on':''}">
+          <span class="nm">${p.n}</span>
+          <span class="cnt">${p.itens||'—'}</span>
+          <span class="rail">
+            <i class="seg ${p.sa?'on':''}"></i>
+            <i class="seg ${p.n3?'on':p.sa?'mid':''}"></i>
+            <i class="seg ${p.n5?'on':''}"></i>
+          </span>
+        </div>
+        ${on?`<div class="exp">
+          <div class="on"><span>Torre limpa</span><span>▸</span></div>
+          <div><span>Detalhes e conv.</span><span>▸</span></div>
+          <div><span>SA/N1 · N3 · N5</span><span>46</span></div>
+        </div>`:''}`;
+      }).join('')}
+    </div>
+    ${rodape}
+  </div>`;
+}
+
+/* ---------- 4. TABELA ---------- */
+function e4(){
+  return `<div class="col">
+    ${marca}${nav}
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th>Pav</th><th style="text-align:right">n</th>
+          <th style="text-align:right">S N5</th>
+        </tr></thead>
+        <tbody>
+          ${PAVS.map(p=>`
+            <tr class="${p.n===ATIVO?'on':''}">
+              <td class="nm">${p.n}</td>
+              <td class="n">${p.itens||'—'}</td>
+              <td class="st">
+                <span class="p ${p.sa?'ok':''}">${ck(p.sa)}</span>
+                <span class="p ${p.n3?'ok':''}">${ck(p.n3)}</span>
+                <span class="p ${p.n5?'ok':''}">${ck(p.n5)}</span>
+              </td>
+            </tr>
+            ${p.n===ATIVO?`<tr><td colspan="3" style="padding:0;border:0">
+              <div class="sub">
+                <span class="on">Torre limpa</span>
+                <span>Detalhes</span>
+                <span>SA 46</span>
+              </div>
+            </td></tr>`:''}
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${rodape}
+  </div>`;
+}
+
+/* ---------- 5. COLUNA ÚNICA ---------- */
+function e5(){
+  return `<div class="col">
+    ${marca}${nav}
+    <div class="crumb">
+      <a href="#">Obra</a> <span>›</span>
+      <a href="#">Pavs</a> <span>›</span>
+      <b>13_PAV</b> <span>›</span>
+      <b>SA/N1</b>
+    </div>
+    <div class="back">← todos os pavimentos</div>
+    <div class="scroll">
+      <div class="sec">Pavimentos</div>
+      <div class="pav-grid">
+        ${PAVS.map(p=>`
+          <div class="pav ${p.n===ATIVO?'on':''}">
+            ${p.n.replace('_PAV','')}
+            <span class="st">${[p.sa&&'S',p.n3&&'3',p.n5&&'5'].filter(Boolean).join('')||'—'}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="sec">Estrutural · 13_PAV</div>
+      <div class="item"><span class="nm">Torre limpa</span><span class="seta">▸</span></div>
+      <div class="item"><span class="nm">Detalhes e conv.</span><span class="seta">▸</span></div>
+      <div class="sec">Etapas</div>
+      <div class="etapas">
+        <div class="etapa on"><span class="k">SA/N1</span><span class="s">46 itens</span></div>
+        <div class="etapa"><span class="k">N3</span><span class="s">38</span></div>
+        <div class="etapa"><span class="k">N5</span><span class="s">—</span></div>
+      </div>
+      <div class="sec">Classes · SA/N1</div>
+      <div class="chips">
+        ${CLASSES.map((c,i)=>`
+          <div class="chip ${i===0?'on':''}"><span>${c[0]}</span><b>${c[1]}</b></div>
+        `).join('')}
+      </div>
+    </div>
+    ${rodape}
+  </div>`;
+}
+
+const ESTILOS = [
+  {
+    cls:'e0', fn:e0, atual:true,
+    nome:'Atual (problema)',
+    desc:'3 colunas gordas, barras de pavimento altas, texto repetido. Base real do portal — pra comparar.',
+    largura:'~760px (280+280+200)',
+    pontos:[
+      'Mostra o desperdício real de largura e altura',
+      'Rótulos longos e hierarquia colorida em blocos',
+      'Não é proposta — é o baseline do ódio'
+    ]
+  },
+  {
+    cls:'e1', fn:e1,
+    nome:'Denso',
+    desc:'Linha ~22px, nome puro (13_PAV), 3 pontinhos SA/N3/N5. Máximo que cabe sem virar planilha.',
+    largura:'220px',
+    pontos:[
+      'Nome curto: FUNDACAO, 13_PAV — sem “Pavimento”',
+      'Status em 3 dots (verde = ok)',
+      'Filhos só no ativo, indentados finos',
+      'Melhor equilíbrio compacto + hierarquia'
+    ]
+  },
+  {
+    cls:'e2', fn:e2,
+    nome:'Árvore',
+    desc:'Explorer clássico: guias pontilhadas, triângulos, monospace no DXF. 3+ níveis na mesma coluna.',
+    largura:'248px',
+    pontos:[
+      'Um painel só para obra → pav → doc → etapa → classe',
+      'Contador à direita (itens)',
+      'Familiar pra quem já usa árvore de arquivos',
+      'Um pouco menos denso que 1 e 4'
+    ]
+  },
+  {
+    cls:'e3', fn:e3,
+    nome:'Lista + rail',
+    desc:'Grid de 3 colunas por linha: nome · qtd · trilho de progresso SA→N3→N5. Organizado e limpo.',
+    largura:'236px',
+    pontos:[
+      'Rail de 3 segmentos = progresso de relance',
+      'Expand do ativo vira mini-bloco, sem engordar todos',
+      'Alinhamento tabular = sensação de ordem',
+      'Bom meio-termo visual'
+    ]
+  },
+  {
+    cls:'e4', fn:e4,
+    nome:'Tabela',
+    desc:'Grade mínima: Pav | n | S N5. Linha de 22px. O que mais cabe; status de todos de uma vez.',
+    largura:'228px',
+    pontos:[
+      'Varredura de status de todos os pavs em 1 segundo',
+      'Máxima densidade vertical',
+      'Filhos do ativo numa sublinha discreta',
+      'Mais “ferramenta” e menos “card UI”'
+    ]
+  },
+  {
+    cls:'e5', fn:e5,
+    nome:'Coluna única',
+    desc:'Mata painéis 2 e 3. Breadcrumb + grade de pavs + etapas + classes. Libera ~500px pro desenho.',
+    largura:'260px (só 1 coluna)',
+    pontos:[
+      'Navegação por drill-down (voltar / trilha)',
+      'Pavimentos em chips 3×3 — visão de obra inteira',
+      'Etapas SA/N3/N5 como botões compactos',
+      'Troca espaço lateral por cliques de profundidade'
+    ]
+  },
+];
+
+let atual = 1; // começa no Denso (proposta, não no problema)
+
+function pintar(){
+  const e = ESTILOS[atual];
+  const lado = document.getElementById('lado');
+  lado.className = 'lado ' + e.cls;
+  lado.innerHTML = e.fn();
+
+  document.querySelectorAll('.btn').forEach((b,i)=>b.classList.toggle('on', i===atual));
+
+  document.getElementById('info').innerHTML = `
+    <h2>${atual}. ${e.nome}</h2>
+    <p>${e.desc}</p>
+    <ul>${e.pontos.map(p=>`<li>${p}</li>`).join('')}</ul>
+  `;
+  document.getElementById('medida').innerHTML =
+    `Largura esquerda: <code>${e.largura}</code> · estilo <b>${atual}. ${e.nome}</b>`;
+}
+
+document.getElementById('btns').innerHTML = ESTILOS.map((e,i)=>`
+  <button class="btn ${e.atual?'atual':''}" type="button">
+    <span class="n">${i}</span>${e.nome}
+  </button>
+`).join('');
+
+document.querySelectorAll('.btn').forEach((b,i)=>{
+  b.addEventListener('click',()=>{atual=i;pintar();});
+});
+
+document.addEventListener('keydown',ev=>{
+  if(ev.key>='0'&&ev.key<='5'){atual=+ev.key;pintar();}
+});
+
+pintar();
+</script>
+</body>
+</html>

@@ -126,10 +126,23 @@ def promote_candidates(
                 "authority": "human_approved; consultative_only_without_local_evidence",
             }
             context = f"qa_groundtruth_t1:{candidate['project_id']}"
-            conn.execute(
-                "INSERT INTO semantic_rag_kb (classe, regra_semantica, obra_contexto, confianca) VALUES (?, ?, ?, ?)",
-                (candidate["classe"], json.dumps(rule, ensure_ascii=False, sort_keys=True), context, 1.0),
-            )
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(semantic_rag_kb)")}
+            regra_json = json.dumps(rule, ensure_ascii=False, sort_keys=True)
+            if {"tier", "field_id"}.issubset(columns):
+                conn.execute(
+                    "INSERT INTO semantic_rag_kb (classe, regra_semantica, obra_contexto, confianca, tier, field_id, familia, pavimento) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        candidate["classe"], regra_json, context, 1.0,
+                        "T1", candidate.get("field_id"), candidate.get("familia") or candidate.get("family"),
+                        None,
+                    ),
+                )
+            else:
+                conn.execute(
+                    "INSERT INTO semantic_rag_kb (classe, regra_semantica, obra_contexto, confianca) VALUES (?, ?, ?, ?)",
+                    (candidate["classe"], regra_json, context, 1.0),
+                )
             event = {
                 "candidate_id": candidate_id,
                 "tier": "T1",

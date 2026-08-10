@@ -37,7 +37,15 @@ def popular_combo_obras_com_drive(combo: QComboBox, widget: QWidget, obras_locai
         from src.core.drive_client import obter_cliente_padrao
         from src.core.drive_mirror import sanitizar_nome_obra
 
-        for o in obter_cliente_padrao().listar_obras():
+        client = obter_cliente_padrao()
+        client_timeout = getattr(client, "_timeout_s", 30.0)
+        client._timeout_s = 2.0  # timeout rápido de 2s para popular combo sem travar UI
+        try:
+            obras_portal = client.listar_obras()
+        finally:
+            client._timeout_s = client_timeout
+
+        for o in obras_portal:
             nome_local = f"[DRIVE] {sanitizar_nome_obra(o['nome'])}"
             mapa_portal[nome_local] = o
             membro = o.get("membro_nome") or o.get("membro_login") or "—"

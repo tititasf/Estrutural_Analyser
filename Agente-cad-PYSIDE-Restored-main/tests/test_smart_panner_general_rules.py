@@ -1,22 +1,60 @@
-from scripts.smart_panner import distribute_panels
+from scripts.smart_panner import cells_fit_sheet, distribute_panels, panel_fits_sheet
 
 
 def _signature(lines):
     return [(line["value"], line["is_union"]) for line in lines]
 
 
-def test_long_uniform_narrow_strip_avoids_artificial_transverse_union():
-    result = distribute_panels(405.5, 183.0)
-    assert _signature(result["linhas_horizontais"]) == []
-    assert result["hlaz"] == [{"x": 0.0, "y": 102.0, "width": 405.5, "height": 20.0}]
+def test_panel_fits_sheet_rule_244x122():
+    assert panel_fits_sheet(244, 122) is True
+    assert panel_fits_sheet(238, 122) is True
+    assert panel_fits_sheet(244, 169) is False
+    assert panel_fits_sheet(169, 244) is False
+    assert panel_fits_sheet(122, 122) is True
 
 
-def test_311_span_prefers_single_large_residual_over_sub_60_cut():
+def test_l408_shape_never_makes_244_by_169():
+    """L408 real: 726×311 — proibido residual 169 no eixo Y com 244 no X."""
+    result = distribute_panels(726.0, 311.0)
+    assert _signature(result["linhas_horizontais"]) == [
+        (122.0, False),
+        (142.0, True),
+        (264.0, False),
+    ]
+    assert cells_fit_sheet(
+        result["linhas_verticais"],
+        result["linhas_horizontais"],
+        726.0,
+        311.0,
+    )
+
+
+def test_311_span_caps_residual_to_fit_sheet_with_244():
+    """311 no eixo menor: 122 + união + 122 + residual 47 (não 169)."""
     result = distribute_panels(405.5, 311.0)
     assert _signature(result["linhas_horizontais"]) == [
         (122.0, False),
         (142.0, True),
+        (264.0, False),
     ]
+    assert cells_fit_sheet(
+        result["linhas_verticais"],
+        result["linhas_horizontais"],
+        405.5,
+        311.0,
+    )
+
+
+def test_long_strip_183_splits_when_major_is_244():
+    """Tira 183 com eixo longo em 244 não pode ficar sem junta (244×183)."""
+    result = distribute_panels(405.5, 183.0)
+    assert result["linhas_horizontais"]  # tem junta
+    assert cells_fit_sheet(
+        result["linhas_verticais"],
+        result["linhas_horizontais"],
+        405.5,
+        183.0,
+    )
 
 
 def test_three_medium_panels_share_union_gaps():
@@ -27,6 +65,12 @@ def test_three_medium_panels_share_union_gaps():
         (270.0, False),
         (296.0, True),
     ]
+    assert cells_fit_sheet(
+        result["linhas_verticais"],
+        result["linhas_horizontais"],
+        418.0,
+        423.0,
+    )
 
 
 def test_narrow_strip_is_bisected_on_both_axes_when_short_enough():

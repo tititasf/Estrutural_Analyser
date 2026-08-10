@@ -83,6 +83,30 @@ def processar_um_job(app_state, job: dict) -> None:
 
     log_path = Path(settings.logs_dir) / f"job_{job['id']}.log"
     try:
+        if etapa == "sa_item":
+            # P4 do escape hatch web (item criado pelo laço do viewer):
+            # microciclo de UM item (--secao --item --persist-db --wait),
+            # enfileirado em vez de rodado dentro do handler HTTP que criou o
+            # item — subprocess_timeout_s default é 3600s, e bloquear a
+            # requisição de criar item por até 1h travaria a aba do operador
+            # sem feedback nenhum. Ramo isolado, ANTES do "etapa_efetiva"
+            # abaixo: "sa_item" não é uma etapa formal do pipeline (não está em
+            # ETAPAS_SUBPROCESS) e NÃO pode tocar etapa_concluida/estado da
+            # obra — é um item avulso, não uma etapa inteira. Mesma razão do
+            # branch "sa": o subprocess já tem --wait, o worker não precisa de
+            # wait_for_lock aqui.
+            resultado = pipeline_runner.executar_microciclo_item(
+                settings, obra, secao=meta.get("secao"), item=meta.get("item"),
+                pav=meta.get("pav"), dry_run=False, log_path=log_path,
+            )
+            if resultado.ok:
+                repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
+            else:
+                erro_tail = resultado.log_tail[-500:] or "microciclo do item falhou"
+                repo.finalizar_job(conn, job["id"], "falhou",
+                                   erro_msg=erro_tail, log_path=str(log_path))
+            return
+
         etapa_efetiva = etapa if etapa in pipeline_runner.ETAPAS_SUBPROCESS else "sa"
 
         if etapa == "n5":

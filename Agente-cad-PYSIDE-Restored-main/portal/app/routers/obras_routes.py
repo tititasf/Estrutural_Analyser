@@ -22,7 +22,17 @@ log = logging.getLogger("portal.obras_routes")
 router = APIRouter(prefix="/obras", tags=["obras"])
 
 _EXTENSOES_VALIDAS = (".dwg", ".dxf")  # modo rápido (legado): a obra INTEIRA é 1 DXF/DWG, PDF não serve pra isso
-_EXTENSOES_VALIDAS_DOCUMENTOS = (".dwg", ".dxf", ".pdf")  # obra-como-container: PDF é material de referência válido
+# obra-como-container: PDF/DXF/DWG + fotos de referência (jpg/png/…)
+_EXTENSOES_VALIDAS_DOCUMENTOS = (
+    ".dwg", ".dxf", ".pdf",
+    ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif", ".tiff",
+)
+_EXTENSOES_IMAGEM = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif", ".tiff")
+_MEDIA_IMAGEM = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+    ".webp": "image/webp", ".gif": "image/gif", ".bmp": "image/bmp",
+    ".tif": "image/tiff", ".tiff": "image/tiff",
+}
 
 
 class CriarObraIn(BaseModel):
@@ -276,7 +286,10 @@ def upload_documentos(
         if ext not in _EXTENSOES_VALIDAS_DOCUMENTOS:
             resultados.append({
                 "arquivo_nome": nome, "ok": False,
-                "erro": f"extensão {ext or '(nenhuma)'} não suportada — use .dwg, .dxf ou .pdf.",
+                "erro": (
+                    f"extensão {ext or '(nenhuma)'} não suportada — "
+                    "use .dwg, .dxf, .pdf ou imagem (jpg/png/webp/…)."
+                ),
             })
             continue
 
@@ -394,6 +407,30 @@ def mover_documento_endpoint(
     return repo.obter_documento(conn, doc_id)
 
 
+def _caminho_doc_entrada(obra: dict, doc: dict, request: Request) -> Path:
+    settings = request.app.state.settings
+    obra_dir = Path(obra["local_path"]) if obra.get("local_path") else settings.dados_obras_dir / obra["nome"]
+    return obra_dir / "entrada" / doc["arquivo_nome"]
+
+
+@router.get("/{obra_id}/documentos")
+def listar_documentos_obra(
+    obra_id: str,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Lista JSON dos documentos da obra — usada pelo botão «Atualizar lista»
+    e pelas abas PDF/DXF/Fotos/DWG sem recarregar a página inteira."""
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None:
+        raise HTTPException(status_code=404, detail="obra nao encontrada")
+    if not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=403, detail="obra de outro membro")
+    docs = repo.listar_documentos_por_obra(conn, obra_id)
+    resumo = repo.contar_documentos_por_status(conn, obra_id)
+    return {"obra_id": obra_id, "documentos": docs, "resumo": resumo}
+
+
 @router.get("/{obra_id}/documentos/{doc_id}/arquivo")
 def servir_arquivo_documento(
     obra_id: str,
@@ -413,13 +450,62 @@ def servir_arquivo_documento(
     doc = repo.obter_documento(conn, doc_id)
     if doc is None or doc["obra_id"] != obra_id:
         raise HTTPException(status_code=404, detail="documento nao encontrado nesta obra")
+    caminho = _caminho_doc_entrada(obra, doc, request)
+    if not caminho.is_file():
+        raise HTTPException(status_code=404, detail="arquivo nao encontrado em disco")
+    ext = caminho.suffix.lower()
+    if ext == ".pdf":
+        media = "application/pdf"
+    elif ext in _MEDIA_IMAGEM:
+        media = _MEDIA_IMAGEM[ext]
+    else:
+        media = "application/octet-stream"
+    return FileResponse(caminho, filename=doc["arquivo_nome"], media_type=media)
+
+
+@router.get("/{obra_id}/documentos/{doc_id}/preview")
+def preview_documento(
+    obra_id: str,
+    doc_id: str,
+    request: Request,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Preview dinâmico: DXF→SVG (ezdxf cache), imagem/PDF servidos inline."""
+    from fastapi.responses import Response
+
+    from .. import dxf_preview
+
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None:
+        raise HTTPException(status_code=404, detail="obra nao encontrada")
+    if not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=403, detail="obra de outro membro")
+    doc = repo.obter_documento(conn, doc_id)
+    if doc is None or doc["obra_id"] != obra_id:
+        raise HTTPException(status_code=404, detail="documento nao encontrado nesta obra")
     settings = request.app.state.settings
     obra_dir = Path(obra["local_path"]) if obra.get("local_path") else settings.dados_obras_dir / obra["nome"]
     caminho = obra_dir / "entrada" / doc["arquivo_nome"]
     if not caminho.is_file():
         raise HTTPException(status_code=404, detail="arquivo nao encontrado em disco")
-    media = "application/pdf" if caminho.suffix.lower() == ".pdf" else "application/octet-stream"
-    return FileResponse(caminho, filename=doc["arquivo_nome"], media_type=media)
+    ext = caminho.suffix.lower()
+    if ext == ".dxf":
+        cache_dir = obra_dir / ".previews"
+        try:
+            svg = dxf_preview.renderizar_dxf_completo_cacheado(caminho, cache_dir)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("preview DXF falhou doc=%s: %s", doc_id, exc)
+            raise HTTPException(status_code=500, detail=f"falha ao renderizar DXF: {exc}") from exc
+        return Response(content=svg, media_type="image/svg+xml")
+    if ext in _MEDIA_IMAGEM:
+        return FileResponse(caminho, filename=doc["arquivo_nome"], media_type=_MEDIA_IMAGEM[ext])
+    if ext == ".pdf":
+        return FileResponse(caminho, filename=doc["arquivo_nome"], media_type="application/pdf")
+    raise HTTPException(
+        status_code=415,
+        detail=f"preview não disponível para {ext or 'sem extensão'} — abra o arquivo.",
+    )
 
 
 @router.post("/{obra_id}/cabecalho")

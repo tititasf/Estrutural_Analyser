@@ -13,6 +13,11 @@ import json, re, math
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
+# Regra construtiva do desenho STOG: as vistas A/B incluem 11 cm de aba de
+# chapa em cada lado.  Isto e uma propriedade da topologia, nunca do pilar.
+AB_LATERAL_CHAPA_TOTAL_CM = 22.0
+DIMENSAO_FACE_TOLERANCIA_CM = 0.5
+
 def _lookup_fase4_pil(elem_id: str, obra_root: Path) -> dict | None:
     """Busca JSON_Pilares/{elem_id}.json no obra_root. Retorna dict ou None."""
     candidates = [
@@ -137,11 +142,14 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                 if _m:
                     _face_label_xs[_m.group(1)] = _e.dxf.insert.x
                     _face_label_ys.append(_e.dxf.insert.y)
+        if _face_label_xs:
+            result['faces_topologia'] = sorted(_face_label_xs)
         # y minimo dos labels = base aproximada do pilar; exclui cotas de largura
         # colocadas abaixo (ex: "82" comprimento em y < y_base)
         _y_face_base = (min(_face_label_ys) - 20.0) if _face_label_ys else -1e9
 
-        _comp_geom_samples: list[float] = []  # amostras fw faces A/B → comp real
+        _comp_geom_faces: dict[str, float] = {}
+        _larg_geom_faces: dict[str, float] = {}
 
         if len(_face_label_xs) >= 2:
             # pd: maior valor plausivel em TODOS os textos (pd pode estar em
@@ -269,12 +277,14 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                         if _fw_mr < 1.0:
                             pass  # skip degenerate face
                         else:
-                            # Coleta comp geometrico de faces A/B (fw = comp+22)
-                            if _face in ('A', 'B') and _fw_mr > 22:
-                                _comp_geom_samples.append(round(_fw_mr - 22, 1))
-                            # Extrai larg_c_geom da face C (fw real da face curta, sem +22)
-                            if _face == 'C' and _fw_mr > 5:
-                                result['larg_c_geom'] = round(_fw_mr, 1)
+                            # A/B possuem abas de chapa; C/D exibem a largura
+                            # interna diretamente. Guardamos as duas faces para
+                            # que a promocao posterior so ocorra com concordancia.
+                            if _face in ('A', 'B') and _fw_mr > AB_LATERAL_CHAPA_TOTAL_CM:
+                                _comp_geom_faces[_face] = round(
+                                    _fw_mr - AB_LATERAL_CHAPA_TOTAL_CM, 1)
+                            if _face in ('C', 'D') and _fw_mr > 5:
+                                _larg_geom_faces[_face] = round(_fw_mr, 1)
                             # y_face_body_top: penúltima H da face body (antes da zona de cota)
                             _y_body_top = (_p_hs_mr[-2] if len(_p_hs_mr) >= 2
                                            else _p_hs_mr[-1])
@@ -392,10 +402,16 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                         result[f'laje_{_face}']         = float(_face_vals[0])
                         result[f'posicao_laje_{_face}'] = _gap
 
-        # comprimento_geom: média das fw das faces A/B extraída das H lines (override Fase-4)
-        if _comp_geom_samples:
+        # Geometria observada das faces, mantida separada dos campos canonicos.
+        # A resolucao canonica ocorre em extrair_ficha_pilar, apos conhecer a
+        # topologia e validar a concordancia entre faces opostas.
+        if _comp_geom_faces:
             result['comprimento_geom'] = round(
-                sum(_comp_geom_samples) / len(_comp_geom_samples), 1)
+                sum(_comp_geom_faces.values()) / len(_comp_geom_faces), 1)
+            result['comprimento_geom_faces'] = _comp_geom_faces
+        if _larg_geom_faces:
+            result['larg_c_geom'] = _larg_geom_faces.get('C', 0.0)
+            result['largura_geom_faces'] = _larg_geom_faces
 
         # Fallback geométrico para DXFs sem anotações de texto (ex: TIPO/12_PAV).
         # SARR_2.2x7 span = (h_low - h1) + h_par = 122 + h_par → h_par = span - 122
@@ -437,6 +453,36 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
         result['_confianca_extracao'] = 0.3
 
     return result
+
+# Dimensioning helpers intentionally stay next to the reverse-extraction rules.
+def _resolver_dimensoes_n2_retangulares(fase4: dict, dxf: dict) -> tuple[dict, dict]:
+    """Promove medidas do recorte somente para topologia A-D comprovada."""
+    base = {'comprimento': fase4.get('comprimento'), 'largura': fase4.get('largura')}
+    comp_faces = dxf.get('comprimento_geom_faces') or {}
+    larg_faces = dxf.get('largura_geom_faces') or {}
+    faces = set(comp_faces) | set(larg_faces)
+    faces_topologia = set(dxf.get('faces_topologia') or ())
+    audit = {'schema': 'pil.n2.dimension-resolution/v1', 'source': 'recorte_dxf_faces',
+             'tolerance_cm': DIMENSAO_FACE_TOLERANCIA_CM, 'applied': False}
+    if faces != {'A', 'B', 'C', 'D'} or faces_topologia != {'A', 'B', 'C', 'D'}:
+        audit.update({'topology': 'nao_confirmada',
+                      'reason': 'topologia_nao_retangular_ou_medicao_incompleta',
+                      'faces_observadas': sorted(faces),
+                      'faces_topologia': sorted(faces_topologia)})
+        return base, audit
+    comp_ok = abs(comp_faces['A'] - comp_faces['B']) <= DIMENSAO_FACE_TOLERANCIA_CM
+    larg_ok = abs(larg_faces['C'] - larg_faces['D']) <= DIMENSAO_FACE_TOLERANCIA_CM
+    audit.update({'topology': 'retangular_abcd',
+                  'faces': {'A_B': comp_faces, 'C_D': larg_faces},
+                  'agreement': {'A_B': comp_ok, 'C_D': larg_ok}})
+    if not (comp_ok and larg_ok):
+        audit['reason'] = 'faces_opostas_divergentes'
+        return base, audit
+    resolved = {'comprimento': round((comp_faces['A'] + comp_faces['B']) / 2.0, 1),
+                'largura': round((larg_faces['C'] + larg_faces['D']) / 2.0, 1)}
+    audit.update({'applied': True, 'before': base, 'resolved': resolved})
+    return resolved, audit
+
 
 def _calc_n_parafusos(comprimento: float) -> int:
     if comprimento <= 120: return 2
@@ -482,10 +528,13 @@ def extrair_ficha_pilar(
         # Campos extraídos do DXF que NÃO existem no Fase-4 JSON (abertura, intervals)
         # são promovidos ao top-level para uso pelo gerador STOG.
         _DXF_PROMOTE = ('abertura_', 'paineis_intervals_', 'comprimento_geom',
-                        'h1_geom_', 'larg_c_geom')
+                        'h1_geom_', 'larg_c_geom', 'largura_geom_faces')
         for _k, _v in dxf_data.items():
             if any(_k.startswith(_p) for _p in _DXF_PROMOTE):
                 result[_k] = _v
+        dimensoes, dimension_resolution = _resolver_dimensoes_n2_retangulares(fase4, dxf_data)
+        if dimension_resolution['applied']:
+            result.update(dimensoes)
         # Override pavimento from recorte path hint
         result['_er_meta'] = {
             'source': 'fase4',
@@ -493,6 +542,7 @@ def extrair_ficha_pilar(
             'confianca': 0.95,
             'dxf_validation': dxf_data,
             'fase4_vs_dxf_gaps': _compare_fase4_dxf(fase4, dxf_data),
+            'dimension_resolution': dimension_resolution,
         }
         result['_confianca'] = 0.95
     else:

@@ -1,0 +1,16 @@
+---
+pid: 276
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; python scripts/arete/g2v_batch_mosaic.py --html-pack scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_20260716_163504_796335_fundos_viga_16216 --html-items V313 V314 V315 V316 V317 V318 V323 V328 --max-panel-w 380 --max-panel-h 260 --out scripts/arete/relatorios/g2v/20260716_163525/PACK_MOSAIC_N1ONLY_8.png"
+started_at: 2026-07-16T19:38:26.994Z
+running_for_ms: 70565004 
+---
+  V313 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V313_N1only.png
+  V314 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V314_N1only.png
+  V315 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V315_N1only.png
+  V316 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V316_N1only.png
+  V317 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V317_N1only.png
+  V318 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V318_N1only.png
+  V323 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V323_N1only.png
+  V328 (N1-only): scripts\arete\html_fichas\Obra_TREINO_1\_mosaic_tmp\mosaic_V328_N1only.png
+Pack: scripts\arete\relatorios\g2v\20260716_163525\PACK_MOSAIC_N1ONLY_8.png

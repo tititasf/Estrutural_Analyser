@@ -1,5 +1,5 @@
 name: arete-qa-loop
-version: "1.3.0"
+version: "1.4.0"
 description: "DAG dinâmico para N1, N3, N4 e RAG sem criar entry point concorrente."
 participants:
   - { name: aegis, role: orchestrator }

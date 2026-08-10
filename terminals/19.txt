@@ -1,0 +1,8 @@
+---
+pid: 11956
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd \"D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\"; & \"D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe\" scripts/arete/g2v_batch_mosaic.py --relatorio scripts/arete/relatorios/g2v/20260716_n1vb_n1xn2/relatorio.json --out scripts/arete/relatorios/g2v/20260716_n1vb_n1xn2/PACK_MOSAIC_N1VB_FULL.png --max-panel-w 380 --max-panel-h 260"
+started_at: 2026-07-16T20:08:38.789Z
+running_for_ms: 68769998 
+---
+  V301: scripts\arete\relatorios\g2v\20260716_n1vb_n1xn2\_mosaic_tmp\mosaic_V301.png

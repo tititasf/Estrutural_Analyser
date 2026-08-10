@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coluna única — 3 navegações diferentes</title>
+<style>
+  :root{
+    --bg:#0a0e16; --painel:#111827; --linha:#1f2937; --linha2:#162033;
+    --txt:#cbd5e1; --muted:#7d8ba1; --azul:#2563eb; --azul2:#4ea1ff;
+    --verde:#22c55e; --ambar:#eab308; --roxo:#c084fc;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--txt);
+       font:13px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif}
+  .app{display:flex;min-height:100vh}
+
+  /* ===== shell direita ===== */
+  .conteudo{flex:1;min-width:0;padding:18px 22px 40px;overflow:auto}
+  h1{font-size:1.08rem;margin:0 0 2px;color:#fff}
+  .sub{color:var(--muted);font-size:.76rem;margin:0 0 12px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .btn{appearance:none;border:1px solid var(--linha);background:#131c2e;color:var(--txt);
+       border-radius:7px;padding:8px 12px;font:inherit;font-size:.76rem;cursor:pointer;text-align:left}
+  .btn:hover{border-color:#334155;background:#18233a}
+  .btn.on{background:#152544;border-color:var(--azul2);color:#fff;
+          box-shadow:0 0 0 1px var(--azul2) inset}
+  .btn b{display:block;font-size:.8rem;margin-bottom:1px}
+  .btn small{display:block;color:var(--muted);font-size:.68rem;line-height:1.3;font-weight:400}
+  .btn.on small{color:#93c5fd}
+  .btn .n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;
+          background:#1f2c46;color:var(--azul2);font-size:.68rem;font-weight:700;margin-right:4px}
+  .btn.on .n{background:var(--azul2);color:#06101f}
+
+  .card{background:#131c2e;border:1px solid var(--linha);border-radius:8px;
+        padding:12px 14px;max-width:580px;margin-bottom:10px}
+  .card h2{margin:0 0 4px;font-size:.86rem;color:#fff}
+  .card p,.card li{font-size:.74rem;color:var(--muted);line-height:1.45;margin:0}
+  .card ul{margin:6px 0 0;padding-left:16px}
+  .card li{margin:3px 0}
+  .card code{background:#0b1220;padding:1px 5px;border-radius:3px;color:var(--azul2);font-size:.7rem}
+
+  .preview{max-width:620px;background:#0e1524;border:1px dashed #2b3a52;border-radius:8px;padding:14px 16px}
+  .preview h3{margin:0 0 6px;font-size:.8rem;color:#fff}
+  .preview .path{font-family:ui-monospace,Consolas,monospace;font-size:.72rem;color:var(--azul2);
+                 margin-bottom:8px;word-break:break-all}
+  .preview .box{background:#152544;border:1px solid #1e3a5f;border-radius:6px;padding:16px;
+                min-height:88px;display:flex;align-items:center;justify-content:center;
+                color:var(--muted);font-size:.78rem;text-align:center}
+  .preview .box strong{color:#fff;display:block;font-size:.9rem;margin-bottom:4px}
+  .preview .box.left{display:block;text-align:left}
+  .preview .box.left strong{margin-bottom:8px}
+  .preview .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+  .tag{font-size:.64rem;padding:2px 7px;border-radius:999px;background:#1a2537;color:var(--muted)}
+  .tag.on{background:rgba(37,99,235,.25);color:#93c5fd}
+  .preview .torre-mock{text-align:left}
+  .preview .torre-mock .banner{background:#0b1220;border:1px solid #1e3a5f;border-radius:6px;
+                              padding:10px 12px;margin-bottom:10px;font-size:.72rem;color:var(--muted)}
+  .preview .torre-mock .banner b{color:#fff}
+  .preview .torre-mock .canvas{height:140px;border:1px dashed #334155;border-radius:6px;
+                              background:repeating-linear-gradient(0deg,#0e1524 0 12px,#111a2a 12px 13px),
+                                         repeating-linear-gradient(90deg,#0e1524 0 12px,#111a2a 12px 13px);
+                              display:flex;align-items:center;justify-content:center;
+                              color:#64748b;font-size:.72rem;margin-bottom:10px}
+  .preview .torre-mock .steps{margin:0;padding-left:18px;font-size:.72rem;color:var(--muted);line-height:1.45}
+  .preview .torre-mock .steps b{color:#e2e8f0}
+  .preview .torre-mock .foot{margin-top:10px;font-size:.68rem;color:#93c5fd}
+
+  .log{max-width:580px;margin-top:10px;font-size:.68rem;color:var(--muted);
+       font-family:ui-monospace,Consolas,monospace;background:#0b1220;border-radius:6px;
+       padding:8px 10px;max-height:84px;overflow:auto;border:1px solid var(--linha)}
+  kbd{background:#1a2537;border:1px solid #2b3a52;border-radius:4px;padding:0 5px;font-size:.68rem;color:#fff}
+
+  /* ===== COLUNA base ===== */
+  .lado{
+    flex:0 0 270px;width:270px;background:var(--painel);
+    border-right:1px solid var(--linha);display:flex;flex-direction:column;
+    min-height:100vh;height:100vh;position:sticky;top:0;
+  }
+  .lado button,.lado a.hit{
+    appearance:none;-webkit-appearance:none;font:inherit;color:inherit;
+    background:transparent;border:0;cursor:pointer;text-align:left;padding:0;
+  }
+  .marca{display:flex;align-items:center;gap:7px;padding:11px 12px;
+         font-weight:700;font-size:.82rem;color:#fff;border-bottom:1px solid var(--linha);flex:0 0 auto}
+  .marca i{color:var(--azul2);font-style:normal}
+  .nav-top{padding:4px 6px;border-bottom:1px solid var(--linha);flex:0 0 auto}
+  .nav-top .hit{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;
+                color:var(--txt);font-size:.76rem;width:100%}
+  .nav-top .hit.on{background:var(--azul);color:#fff}
+  .scroll{flex:1;overflow:auto;min-height:0}
+  .rodape{flex:0 0 auto;padding:8px 12px;border-top:1px solid var(--linha);font-size:.68rem;color:var(--muted)}
+  .estilo-tag{flex:0 0 auto;padding:5px 10px;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;
+              color:var(--azul2);background:#0e1524;border-bottom:1px solid var(--linha);font-weight:700}
+
+  .sec{padding:9px 10px 3px;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
+       color:var(--muted);display:flex;justify-content:space-between}
+  .sec em{font-style:normal;letter-spacing:0;text-transform:none;font-size:.62rem}
+  .empty{padding:14px 12px;font-size:.74rem;color:var(--muted);text-align:center}
+  .qtd{font-size:.64rem;color:var(--muted);background:#1a2537;padding:0 6px;border-radius:8px;
+       font-variant-numeric:tabular-nums}
+  .seta{color:var(--muted);font-size:.64rem}
+  .dot{width:6px;height:6px;border-radius:50%;background:#334155;flex:0 0 auto}
+  .dot.ok{background:var(--verde)}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:.7rem;color:#8fb7e8}
+
+  /* =========================================================
+     A — DRILL GRADE (mapa → hub → chips)
+     Navegação: entra e sai de níveis (breadcrumb + voltar)
+     ========================================================= */
+  body.st-a .lado{flex-basis:268px;width:268px}
+  .st-a .crumb{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:7px 10px;
+               font-size:.68rem;color:var(--muted);background:#0e1524;border-bottom:1px solid var(--linha)}
+  .st-a .crumb button{color:var(--azul2)}
+  .st-a .crumb button:hover{text-decoration:underline}
+  .st-a .crumb b{color:#fff}
+  .st-a .crumb .sep{opacity:.45}
+  .st-a .back{display:block;width:100%;padding:7px 10px;font-size:.72rem;color:var(--azul2);
+              border-bottom:1px solid var(--linha)}
+  .st-a .back:hover{background:#162033}
+  .st-a .busca{padding:6px 8px;border-bottom:1px solid var(--linha)}
+  .st-a .busca input{width:100%;background:#0e1524;border:1px solid var(--linha);border-radius:5px;
+                     color:var(--txt);padding:5px 8px;font:inherit;font-size:.72rem}
+  .st-a .busca input:focus{outline:none;border-color:var(--azul2)}
+
+  .st-a .obra-card{display:block;width:calc(100% - 16px);margin:6px 8px;padding:10px;
+                   background:#131c2e;border:1px solid var(--linha);border-radius:8px;color:var(--txt)}
+  .st-a .obra-card:hover{border-color:#3b4f6e;background:#18233a}
+  .st-a .obra-card.on{border-color:var(--azul2);background:#152544}
+  .st-a .obra-card .t{display:block;font-weight:700;font-size:.8rem;color:#fff;margin-bottom:3px}
+  .st-a .obra-card .m{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted)}
+
+  /* pavimentos: lista vertical (um abaixo do outro) */
+  .st-a .pav-grid{display:flex;flex-direction:column;gap:3px;padding:4px 8px 10px}
+  .st-a .pav{display:flex;align-items:center;justify-content:space-between;gap:8px;
+             width:100%;padding:7px 10px;text-align:left;background:#131c2e;
+             border:1px solid var(--linha);border-radius:6px;font-size:.76rem;font-weight:700;color:var(--txt)}
+  .st-a .pav:hover{border-color:#3b4f6e;background:#18233a}
+  .st-a .pav.on{border-color:var(--azul2);background:#152544;color:#fff;
+                box-shadow:0 0 0 1px var(--azul2) inset}
+  .st-a .pav .lab{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st-a .pav small{flex:0 0 auto;font-weight:400;font-size:.62rem;color:var(--muted);
+                   font-variant-numeric:tabular-nums}
+  .st-a .pav.on small{color:#93c5fd}
+
+  /* estrutural: tiles em grade (pode ter Torre 2, Conv. Pilares…) */
+  .st-a .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px 8px 10px}
+  .st-a .tile{padding:8px 4px;text-align:center;background:#131c2e;border:1px solid var(--linha);
+              border-radius:6px;color:var(--txt)}
+  .st-a .tile:hover{border-color:#3b4f6e;background:#18233a}
+  .st-a .tile.on{border-color:var(--azul2);background:#152544;color:#fff;
+                 box-shadow:0 0 0 1px var(--azul2) inset}
+  .st-a .tile .k{display:block;font-weight:700;font-size:.7rem;line-height:1.15}
+  .st-a .tile .s{display:block;font-size:.55rem;color:var(--muted);margin-top:3px}
+  .st-a .tile.on .s{color:#93c5fd}
+  .st-a .tile .ico{display:block;font-size:.85rem;margin-bottom:2px;line-height:1}
+
+  /* etapas: uma abaixo da outra */
+  .st-a .etapa-list{display:flex;flex-direction:column;gap:3px;padding:4px 8px 10px}
+  .st-a .etapa-row{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;
+                   background:#131c2e;border:1px solid var(--linha);border-radius:6px;color:var(--txt)}
+  .st-a .etapa-row:hover{border-color:#3b4f6e;background:#18233a}
+  .st-a .etapa-row.on{border-color:var(--azul2);background:#152544;color:#fff;
+                      box-shadow:0 0 0 1px var(--azul2) inset}
+  .st-a .etapa-row .lab{flex:1;min-width:0}
+  .st-a .etapa-row .lab .k{display:block;font-weight:700;font-size:.78rem}
+  .st-a .etapa-row .lab .s{display:block;font-size:.62rem;color:var(--muted);margin-top:1px}
+  .st-a .etapa-row.on .lab .s{color:#93c5fd}
+  .st-a .etapa-row .meta{font-size:.66rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .st-a .etapa-row.on .meta{color:#93c5fd}
+  .st-a .etapa-row .seta{color:var(--muted);font-size:.64rem}
+
+  /* classes: 1 coluna, agrupadas */
+  .st-a .cls-list{display:flex;flex-direction:column;gap:2px;padding:2px 8px 10px}
+  .st-a .cls-grp{padding:8px 10px 3px;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
+                 color:var(--muted)}
+  .st-a .cls-row{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;
+                 background:#131c2e;border:1px solid var(--linha);border-radius:6px;color:var(--txt);
+                 font-size:.74rem;margin-bottom:3px}
+  .st-a .cls-row:hover{border-color:#3b4f6e;background:#18233a}
+  .st-a .cls-row.on{border-color:var(--azul2);background:#152544;color:#fff;
+                    box-shadow:0 0 0 1px var(--azul2) inset}
+  .st-a .cls-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st-a .cls-row .meta{font-size:.66rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .st-a .cls-row.on .meta{color:#93c5fd}
+  .st-a .cls-row .seta{color:var(--muted);font-size:.64rem}
+
+  /* card "rodar análise" no topo da etapa */
+  .st-a .proc{margin:6px 8px 8px;padding:10px;background:#1a2332;border:1px solid #2b3a52;
+              border-radius:6px}
+  .st-a .proc .ph{font-size:.72rem;font-weight:700;color:#e5e7eb;margin-bottom:6px}
+  .st-a .proc .pr{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:4px}
+  .st-a .proc .pr strong{color:#fff}
+  .st-a .proc .bar{height:6px;background:#0b1220;border-radius:3px;overflow:hidden;margin-bottom:8px}
+  .st-a .proc .bar i{display:block;height:100%;background:var(--azul);border-radius:3px}
+  .st-a .proc .run{display:block;width:100%;padding:7px 10px;border-radius:5px;
+                   background:#131c2e;border:1px solid var(--azul2);color:#fff;
+                   font-size:.72rem;font-weight:600;text-align:center}
+  .st-a .proc .run:hover{background:#152544}
+  .st-a .proc .run:active{transform:scale(.99)}
+  .st-a .proc .hint{font-size:.6rem;color:var(--muted);margin-top:6px;line-height:1.3}
+
+  /* legado chips (não usar no A SA) */
+  .st-a .chips{display:flex;flex-direction:column;gap:3px;padding:4px 8px 10px}
+  .st-a .chip{display:flex;justify-content:space-between;align-items:center;gap:4px;
+              padding:7px 10px;background:#131c2e;border:1px solid var(--linha);border-radius:6px;
+              font-size:.72rem;color:var(--txt)}
+  .st-a .chip:hover{border-color:#3b4f6e}
+  .st-a .chip.on{border-color:var(--azul2);background:#152544;color:#fff}
+  .st-a .chip b{color:var(--muted);font-size:.64rem}
+  .st-a .chip.on b{color:#93c5fd}
+
+  .st-a .itens{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:4px 8px 6px}
+  .st-a .pi{padding:6px 2px;text-align:center;background:#131c2e;border:1px solid var(--linha);
+            border-radius:4px;font-size:.7rem;font-weight:700;color:var(--txt)}
+  .st-a .pi:hover{border-color:#3b4f6e}
+  .st-a .pi.on{border-color:var(--azul2);background:#152544;color:#fff}
+  .st-a .pi.ok{box-shadow:inset 0 -2px 0 var(--verde)}
+  .st-a .pi .subn{display:block;font-size:.52rem;font-weight:500;color:var(--muted);margin-top:1px}
+  .st-a .pi.on .subn{color:#93c5fd}
+
+  /* segmentos da viga selecionada */
+  .st-a .seg-wrap{margin:0 8px 8px;padding:8px;background:#0e1524;border:1px solid var(--linha);
+                  border-radius:6px}
+  .st-a .seg-wrap .sh{display:flex;justify-content:space-between;align-items:center;
+                      font-size:.68rem;color:var(--muted);margin-bottom:6px}
+  .st-a .seg-wrap .sh b{color:#fff;font-size:.74rem}
+  .st-a .segs{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+  .st-a .sg{padding:5px 2px;text-align:center;background:#131c2e;border:1px solid var(--linha);
+            border-radius:4px;font-size:.66rem;font-weight:700;color:var(--txt)}
+  .st-a .sg:hover{border-color:#3b4f6e}
+  .st-a .sg.on{border-color:var(--ambar);background:#2a2410;color:#fde68a;
+               box-shadow:0 0 0 1px var(--ambar) inset}
+
+  .st-a .criar-item{display:flex;align-items:center;justify-content:center;gap:6px;
+                    width:calc(100% - 16px);margin:4px 8px 12px;padding:8px 10px;
+                    border:1px dashed var(--azul2);border-radius:6px;background:rgba(37,99,235,.08);
+                    color:var(--azul2);font-size:.74rem;font-weight:600}
+  .st-a .criar-item:hover{background:rgba(37,99,235,.18);border-style:solid}
+  .st-a .criar-item.on{background:rgba(37,99,235,.28);border-style:solid;color:#fff;
+                       box-shadow:0 0 0 1px var(--azul2) inset}
+  .st-a .criar-item .plus{font-size:1rem;line-height:1;font-weight:700}
+
+  /* =========================================================
+     B — ÁRVORE EXPANDIDA (tudo na mesma coluna, sem “página”)
+     Navegação: expande/colapsa ramos; seleção marca o nó
+     ========================================================= */
+  body.st-b .lado{flex-basis:252px;width:252px}
+  .st-b .tree-tools{display:flex;gap:4px;padding:6px 8px;border-bottom:1px solid var(--linha);background:#0e1524}
+  .st-b .tree-tools button{flex:1;padding:4px 6px;font-size:.66rem;color:var(--azul2);
+                           background:#131c2e;border:1px solid var(--linha);border-radius:4px}
+  .st-b .tree-tools button:hover{background:#18233a}
+  .st-b .tree{padding:4px 0 12px;font-size:.74rem}
+  .st-b .no{display:flex;align-items:center;gap:5px;width:100%;padding:3px 8px 3px 6px;
+            min-height:24px;color:var(--txt);border-left:2px solid transparent}
+  .st-b .no:hover{background:#162033}
+  .st-b .no.sel{background:#152544;color:#fff;border-left-color:var(--azul2)}
+  .st-b .no .tri{width:12px;flex:0 0 12px;font-size:.58rem;color:var(--muted);text-align:center}
+  .st-b .no.ab .tri{color:var(--azul2)}
+  .st-b .no .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st-b .no .nm.strong{font-weight:700;color:#fff}
+  .st-b .no .meta{margin-left:auto;font-size:.62rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .st-b .no.sel .meta{color:#93c5fd}
+  .st-b .kids{margin-left:10px;border-left:1px dotted #2b3a52;padding-left:2px}
+  .st-b .lvl1 .no{padding-left:8px}
+  .st-b .lvl2 .no{padding-left:6px;font-size:.72rem}
+  .st-b .lvl3 .no{padding-left:6px;font-size:.7rem;color:var(--muted)}
+  .st-b .lvl3 .no.sel{color:#fff}
+  .st-b .lvl4 .no{padding-left:6px;font-size:.68rem}
+  .st-b .leaf-ico{width:12px;text-align:center;font-size:.6rem;opacity:.7}
+  .st-b .dots{display:flex;gap:2px;margin-right:4px}
+  .st-b .hint{padding:8px 10px;font-size:.66rem;color:var(--muted);border-top:1px solid var(--linha)}
+
+  /* =========================================================
+     C — CONTEXTO FIXO (strips + abas; troca sem voltar)
+     Navegação: obra/pav/etapa sempre acessíveis no topo
+     ========================================================= */
+  body.st-c .lado{flex-basis:286px;width:286px}
+  .st-c .ctx{background:#0e1524;border-bottom:1px solid var(--linha);flex:0 0 auto}
+  .st-c .ctx-row{display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--linha2)}
+  .st-c .ctx-row:last-child{border-bottom:0}
+  .st-c .ctx-lbl{font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+                 width:28px;flex:0 0 28px}
+  .st-c .ctx-val{flex:1;min-width:0;font-size:.74rem;font-weight:600;color:#fff;
+                 overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st-c .ctx-val button{color:var(--azul2);font-weight:600;font-size:.74rem}
+  .st-c .ctx-val button:hover{text-decoration:underline}
+
+  .st-c .strip{display:flex;gap:3px;padding:6px 8px;overflow-x:auto;scrollbar-width:none;
+               border-bottom:1px solid var(--linha);background:#0b1220}
+  .st-c .strip::-webkit-scrollbar{display:none}
+  .st-c .pill{flex:0 0 auto;padding:4px 9px;border-radius:999px;font-size:.66rem;font-weight:600;
+              background:#131c2e;border:1px solid var(--linha);color:var(--txt);white-space:nowrap}
+  .st-c .pill:hover{border-color:#3b4f6e}
+  .st-c .pill.on{background:var(--azul);border-color:var(--azul);color:#fff}
+
+  .st-c .tabs{display:flex;background:#0e1524;border-bottom:1px solid var(--linha)}
+  .st-c .tab{flex:1;padding:8px 4px;text-align:center;font-size:.7rem;font-weight:700;
+             color:var(--muted);border-bottom:2px solid transparent}
+  .st-c .tab:hover{color:var(--txt);background:#162033}
+  .st-c .tab.on{color:#fff;border-bottom-color:var(--azul2);background:#152544}
+  .st-c .tab small{display:block;font-weight:400;font-size:.55rem;margin-top:1px;opacity:.85}
+
+  .st-c .modo{display:flex;gap:0;border-bottom:1px solid var(--linha);background:#0b1220}
+  .st-c .modo button{flex:1;padding:6px;font-size:.68rem;font-weight:600;color:var(--muted);
+                     border-bottom:2px solid transparent}
+  .st-c .modo button:hover{color:var(--txt)}
+  .st-c .modo button.on{color:#fff;border-bottom-color:var(--roxo);background:#1a1030}
+
+  .st-c .lista button.row{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;
+                          border-bottom:1px solid var(--linha2);font-size:.74rem;color:var(--txt)}
+  .st-c .lista button.row:hover{background:#162033}
+  .st-c .lista button.row.on{background:#152544;color:#fff}
+  .st-c .lista button.row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st-c .lista button.row .meta{font-size:.64rem;color:var(--muted)}
+  .st-c .lista button.row.on .meta{color:#93c5fd}
+
+  .st-c .grid-itens{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:8px}
+  .st-c .pi{padding:6px 2px;text-align:center;background:#131c2e;border:1px solid var(--linha);
+            border-radius:4px;font-size:.7rem;font-weight:700;color:var(--txt)}
+  .st-c .pi:hover{border-color:#3b4f6e}
+  .st-c .pi.on{border-color:var(--azul2);background:#152544;color:#fff}
+  .st-c .pi.ok{box-shadow:inset 0 -2px 0 var(--verde)}
+
+  .st-c .pick-list{padding:4px 0}
+  .st-c .pick-list button{display:flex;width:100%;padding:8px 12px;border-bottom:1px solid var(--linha2);
+                          font-size:.76rem;color:var(--txt);align-items:center;gap:8px}
+  .st-c .pick-list button:hover{background:#162033}
+  .st-c .pick-list button.on{background:#152544;color:#fff}
+  .st-c .pick-list .nm{flex:1}
+  .st-c .overlay-title{padding:8px 10px;font-size:.72rem;font-weight:700;color:#fff;
+                       background:#152544;border-bottom:1px solid var(--linha)}
+</style>
+</head>
+<body class="st-a">
+<div class="app">
+  <aside class="lado" id="lado"></aside>
+
+  <main class="conteudo">
+    <h1>Coluna única — 3 estilos de navegação</h1>
+    <p class="sub">Cada botão muda <b>como se navega</b> e <b>como se apresenta</b>, não só a cor.
+      Teclas <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</p>
+
+    <div class="btns" id="btns"></div>
+    <div class="card" id="info"></div>
+
+    <div class="preview">
+      <h3>Conteúdo (simulado)</h3>
+      <div class="path" id="path">—</div>
+      <div class="box" id="box"><strong>Navegue à esquerda</strong></div>
+      <div class="tags" id="tags"></div>
+    </div>
+    <div class="log" id="log"></div>
+  </main>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const OBRAS = [
+  {id:'oti2', nome:'Obra-Teste-Inicial2', pavs:9},
+  {id:'treino', nome:'Obra_TREINO_1', pavs:14},
+  {id:'paraiso', nome:'Edificio-Paraiso', pavs:6},
+];
+const PAVS = [
+  {id:'FUNDACAO', sa:1, n3:0, n5:1, n:12},
+  {id:'TERREO',   sa:1, n3:0, n5:1, n:35},
+  {id:'1_PAV',    sa:1, n3:1, n5:0, n:38},
+  {id:'2_PAV',    sa:1, n3:1, n5:0, n:36},
+  {id:'TIPO',     sa:0, n3:0, n5:0, n:0},
+  {id:'13_PAV',   sa:1, n3:1, n5:1, n:46},
+  {id:'14_PAV',   sa:1, n3:0, n5:0, n:28},
+  {id:'ATICO',    sa:0, n3:0, n5:0, n:0},
+  {id:'COBERTURA',sa:0, n3:0, n5:0, n:25},
+];
+/* Recortes estruturais (Torre/Bruto/Detalhes). Conv. Níveis/Pilares vivem na Pré-interpretação (SA). */
+const DOCS_DEFAULT = [
+  {id:'bruto', nome:'Bruto DXF', short:'Bruto', sub:'DXF', ico:'📄', mono:'TMC…bruto.dxf'},
+  {id:'torre1', nome:'Torre limpa 1', short:'Torre 1', sub:'recorte', ico:'🏙'},
+  {id:'detalhes', nome:'Detalhes e convenções', short:'Detalhes', sub:'conv.', ico:'🗒'},
+];
+const DOCS_RICH = {
+  '13_PAV': [
+    {id:'bruto', nome:'Bruto DXF', short:'Bruto', sub:'DXF', ico:'📄', mono:'TMC…6000-13P.dxf'},
+    {id:'torre1', nome:'Torre limpa 1', short:'Torre 1', sub:'recorte', ico:'🏙'},
+    {id:'torre2', nome:'Torre limpa 2', short:'Torre 2', sub:'recorte', ico:'🏙'},
+    {id:'detalhes', nome:'Detalhes e convenções', short:'Detalhes', sub:'detalhe', ico:'🗒'},
+  ],
+  'TERREO': [
+    {id:'bruto', nome:'Bruto DXF', short:'Bruto', sub:'DXF', ico:'📄'},
+    {id:'torre1', nome:'Torre limpa 1', short:'Torre 1', sub:'recorte', ico:'🏙'},
+    {id:'torre2', nome:'Torre limpa 2', short:'Torre 2', sub:'recorte', ico:'🏙'},
+    {id:'detalhes', nome:'Detalhes', short:'Detalhes', sub:'detalhe', ico:'🗒'},
+  ],
+};
+const docsOf = pavId => DOCS_RICH[pavId] || DOCS_DEFAULT;
+const docBy = (pavId, id) => docsOf(pavId).find(d=>d.id===id);
+
+/* Etapas: nomes de produto */
+const ETAPAS = [
+  {id:'sa', nome:'Interpretação', short:'SA', sub:'Interpretação',
+   procLabel:'Processar Interpretação · SA (Pavimento) →',
+   procStatus:'Aprovação de Recortes', procPct:72, procFrac:'2/3'},
+  {id:'n3', nome:'Desenho', short:'N3', sub:'Desenho',
+   procLabel:'Processar Desenho · N3 (Pavimento) →',
+   procStatus:'Aprovação de SA/N1', procPct:40, procFrac:'3/8'},
+  {id:'n5', nome:'Unificação', short:'N5', sub:'Unificação',
+   procLabel:'Processar todas as unificações (Pavimento) →',
+   procStatus:'Aprovação de N3', procPct:55, procFrac:'5/9'},
+];
+
+/* SA — Pré-interpretação + estrutural interpretado */
+const SA_GROUPS = [
+  {nome:'Pré-interpretação', items:[
+    {id:'cortes', nome:'Visão Cortes', n:17},
+    {id:'conv-pil', nome:'Convenção Pilares', n:1},
+    {id:'conv-niv', nome:'Convenção Níveis', n:1},
+  ]},
+  {nome:'Pilares', items:[
+    {id:'pil-n', nome:'Pilares Normais', n:35},
+    {id:'pil-e', nome:'Pilares Especiais', n:3},
+  ]},
+  {nome:'Lajes', items:[
+    {id:'lajes', nome:'Lajes', n:25},
+  ]},
+  {nome:'Vigas', items:[
+    {id:'fundos', nome:'Fundos', n:53},
+    {id:'lat-a-para', nome:'Lado A · Para', n:32},
+    {id:'lat-a-passa', nome:'Lado A · Passa', n:31},
+    {id:'lat-b-para', nome:'Lado B · Para', n:32},
+    {id:'lat-b-passa', nome:'Lado B · Passa', n:31},
+  ]},
+];
+
+/* N3 = mesmas classes do SA, sem Pré-interpretação; pilares ×2 (Para/Passa) */
+const N3_GROUPS = [
+  {nome:'Pilares', items:[
+    {id:'pil-n-para', nome:'Pilares Normais · Para', n:18},
+    {id:'pil-n-passa', nome:'Pilares Normais · Passa', n:17},
+    {id:'pil-e-para', nome:'Pilares Especiais · Para', n:2},
+    {id:'pil-e-passa', nome:'Pilares Especiais · Passa', n:1},
+  ]},
+  {nome:'Lajes', items:[
+    {id:'lajes', nome:'Lajes', n:25},
+  ]},
+  {nome:'Vigas', items:[
+    {id:'fundos', nome:'Fundos', n:53},
+    {id:'lat-a-para', nome:'Lado A · Para', n:32},
+    {id:'lat-a-passa', nome:'Lado A · Passa', n:31},
+    {id:'lat-b-para', nome:'Lado B · Para', n:32},
+    {id:'lat-b-passa', nome:'Lado B · Passa', n:31},
+  ]},
+];
+
+/* N5 Unificação — 8 classes de desenho (para/passa onde existe) */
+const N5_GROUPS = [
+  {nome:'Pilares unificados', items:[
+    {id:'u-pil-para', nome:'Pilares · Para', n:20},
+    {id:'u-pil-passa', nome:'Pilares · Passa', n:18},
+  ]},
+  {nome:'Vigas A unificadas', items:[
+    {id:'u-va-para', nome:'Viga A · Para', n:32},
+    {id:'u-va-passa', nome:'Viga A · Passa', n:31},
+  ]},
+  {nome:'Vigas B unificadas', items:[
+    {id:'u-vb-para', nome:'Viga B · Para', n:32},
+    {id:'u-vb-passa', nome:'Viga B · Passa', n:31},
+  ]},
+  {nome:'Laje & fundo', items:[
+    {id:'u-laje', nome:'Laje unificada', n:25},
+    {id:'u-fundo', nome:'Fundo de viga unificado', n:53},
+  ]},
+];
+
+const GROUPS_BY_ETAPA = { sa: SA_GROUPS, n3: N3_GROUPS, n5: N5_GROUPS };
+
+const CLASSES_FLAT = {
+  sa: SA_GROUPS.flatMap(g => g.items.map(i => [i.id, i.nome, i.n])),
+  n3: N3_GROUPS.flatMap(g => g.items.map(i => [i.id, i.nome, i.n])),
+  n5: N5_GROUPS.flatMap(g => g.items.map(i => [i.id, i.nome, i.n])),
+};
+const CLASSES = CLASSES_FLAT;
+const DOCS = DOCS_DEFAULT;
+
+const ESTILOS = [
+  {
+    id:'a', cls:'st-a', nome:'A · Drill grade',
+    tag:'Drill-down · grade/chips',
+    desc:'SA com Pré-interpretação (Cortes + Conv.). Laterais A/B em Para·Passa. N3 espelha SA sem pré-interp. e pilares×2. N5: 8 classes unificáveis + botão processar todas.',
+    pontos:[
+      'Pré-interpretação: Visão Cortes, Conv. Pilares, Conv. Níveis',
+      'Vigas: Fundos + Lado A/B × Para/Passa (4 laterais)',
+      'N3: sem pré-interp.; pilares Normais/Especiais × Para/Passa',
+      'N5: 8 unificações separadas + processar todas no topo',
+    ],
+  },
+  {
+    id:'b', cls:'st-b', nome:'B · Árvore viva',
+    tag:'Expand/collapse · lista densa',
+    desc:'Tudo na mesma coluna ao mesmo tempo. Clique na seta expande; clique no nome seleciona. Sem páginas, sem voltar — só abre/fecha ramos.',
+    pontos:[
+      'Modelo mental: explorer de arquivos',
+      'Vários níveis visíveis juntos (obra+pav+classe)',
+      'Linhas finas (~24px), máxima densidade',
+      'Seleção = nó marcado; expansão ≠ seleção',
+    ],
+  },
+  {
+    id:'c', cls:'st-c', nome:'C · Contexto fixo',
+    tag:'Strips + abas · troca paralela',
+    desc:'Obra, pav e etapa ficam sempre no topo. Troca pav pela faixa de pills; troca SA/N3/N5 por abas — sem “voltar” para mudar de contexto.',
+    pontos:[
+      'Modelo mental: abas de trabalho',
+      'Troca de pav/etapa em 1 clique de qualquer lugar',
+      'Modo Estrutural vs Etapas no mesmo pav',
+      'Menos profundidade, mais comutação horizontal',
+    ],
+  },
+];
+
+/* ================= STATE ================= */
+const S = {
+  estilo: 0,
+  // A (drill)
+  // right: null | 'torre-criar' — só troca o painel direito; coluna esquerda fica onde está
+  // seg: segmento da viga (só classes de viga: fundos / laterais)
+  a: { level:'hub', obra:'oti2', pav:'13_PAV', etapa:null, classe:null, item:null, seg:null, doc:null, filter:'', right:null },
+  // B (tree open set + selection)
+  b: {
+    open: new Set(['obra:oti2','pav:13_PAV','etapa:sa']),
+    sel: { tipo:'pav', obra:'oti2', pav:'13_PAV' },
+  },
+  // C (context)
+  c: {
+    obra:'oti2', pav:'13_PAV', etapa:'sa',
+    modo:'etapas', // estrutural | etapas
+    classe:null, item:null, doc:null,
+    pick:null, // null | 'obra' | 'pav'  — overlay para trocar
+  },
+};
+
+const $ = id => document.getElementById(id);
+const obra = id => OBRAS.find(o=>o.id===id);
+const pav = id => PAVS.find(p=>p.id===id);
+const clsName = (et,id) => (CLASSES[et]||[]).find(c=>c[0]===id)?.[1]||id;
+const stLab = p => [p.sa&&'S',p.n3&&'3',p.n5&&'5'].filter(Boolean).join('') || '—';
+const etCount = (p,et) => {
+  const groups = GROUPS_BY_ETAPA[et] || [];
+  return groups.reduce((s,g)=>s+g.items.reduce((t,i)=>t+(i.n||0),0),0) || 0;
+};
+const etLabel = et => ETAPAS.find(e=>e.id===et);
+
+/* Vigas (fundos + laterais A/B para/passa + unificados de fundo/viga) têm segmentos por peça */
+const VIGA_CLASS_IDS = new Set([
+  'fundos','lat-a-para','lat-a-passa','lat-b-para','lat-b-passa',
+  'u-fundo','u-va-para','u-va-passa','u-vb-para','u-vb-passa',
+]);
+const isVigaClass = id => VIGA_CLASS_IDS.has(id);
+const itemPrefix = (classeId) => isVigaClass(classeId) ? 'V' : 'P';
+/** nº de segmentos de uma viga (mock estável por índice) */
+const segsOfViga = (itemId) => {
+  const n = parseInt(String(itemId).replace(/\D/g,''),10) || 1;
+  // V1=8, V2=5, V3=6, V4=4, V5=7, V6=8… ciclo 4–8
+  return 4 + ((n * 3) % 5);
+};
+
+function renderProcBox(etapa, pavId){
+  const e = etLabel(etapa);
+  if(!e) return '';
+  return `
+    <div class="proc">
+      <div class="ph">Status · ${pavId}</div>
+      <div class="pr"><span>${e.procStatus}:</span><strong>${e.procPct}% (${e.procFrac})</strong></div>
+      <div class="bar"><i style="width:${e.procPct}%"></i></div>
+      <button type="button" class="run" data-a="proc" data-id="${etapa}">${e.procLabel}</button>
+      ${etapa==='n5'
+        ? `<div class="hint">Roda as 8 unificações (pilares×2, viga A×2, viga B×2, laje, fundo). Cada classe abaixo também pode ser unificada à parte.</div>`
+        : `<div class="hint">Roda a análise desta etapa para o pavimento selecionado.</div>`}
+    </div>`;
+}
+
+function renderGroupsA(etapa, selectedId){
+  const groups = GROUPS_BY_ETAPA[etapa] || [];
+  return groups.map(g=>`
+    <div class="cls-grp">${g.nome}${etapa==='n5'?' · unificar':''}</div>
+    <div class="cls-list" style="padding-top:0;padding-bottom:4px">
+      ${g.items.map(i=>`
+        <button type="button" class="cls-row ${selectedId===i.id?'on':''}" data-a="classe" data-id="${i.id}">
+          <span class="nm">${i.nome}</span>
+          <span class="meta">${i.n}</span>
+          <span class="seta">▸</span>
+        </button>`).join('')}
+    </div>`).join('');
+}
+
+function renderClassesA(etapa, selectedId, pavId){
+  return renderProcBox(etapa, pavId) + renderGroupsA(etapa, selectedId);
+}
+
+function log(m){
+  const t = new Date().toLocaleTimeString('pt-BR',{hour12:false});
+  $('log').insertAdjacentHTML('afterbegin', `<div>[${t}] ${m}</div>`);
+}
+
+/* ================= PREVIEW ================= */
+function previewFromSelection(){
+  let path='Portal', title='—', body='Navegue na coluna esquerda', tags=[];
+  const e = S.estilo;
+
+  if(e===0){
+    const a=S.a;
+    if(a.obra){ path+=` / ${obra(a.obra).nome}`; tags.push('obra'); }
+    if(a.pav){ path+=` / ${a.pav}`; tags.push('pav'); }
+
+    // Criar item: painel direito = Torre limpa do pav; coluna esquerda NÃO mexe
+    if(a.right==='torre-criar'){
+      const cn = clsName(a.etapa, a.classe);
+      const el = etLabel(a.etapa);
+      path += ` / Torre limpa · criar item`;
+      title = `Torre limpa · ${a.pav}`;
+      body = {mode:'torre-criar', classe:cn, etapa:el, pav:a.pav, classeId:a.classe};
+      tags.push('torre limpa','criar item', el?.short||'', cn);
+    }
+    else if(a.seg){
+      path+=` / ${etLabel(a.etapa)?.nome} / ${clsName(a.etapa,a.classe)} / ${a.item} / ${a.seg}`;
+      title=`${a.item} · ${a.seg}`;
+      body=`Segmento da viga ${a.item} — ficha do segmento`;
+      tags.push(a.etapa,a.item,a.seg);
+    }
+    else if(a.item && isVigaClass(a.classe)){
+      path+=` / ${etLabel(a.etapa)?.nome} / ${clsName(a.etapa,a.classe)} / ${a.item}`;
+      title=a.item;
+      body=`Viga ${a.item} com ${segsOfViga(a.item)} segmentos — selecione um S# abaixo na coluna`;
+      tags.push(a.etapa,a.item,'segmentos');
+    }
+    else if(a.item){ path+=` / ${etLabel(a.etapa)?.nome} / ${clsName(a.etapa,a.classe)} / ${a.item}`; title=a.item; body='Ficha do item'; tags.push(a.etapa,a.item); }
+    else if(a.classe){
+      path+=` / ${etLabel(a.etapa)?.nome} / ${clsName(a.etapa,a.classe)}`;
+      title=clsName(a.etapa,a.classe);
+      body = isVigaClass(a.classe)
+        ? 'Vigas V1… — ao selecionar uma viga, os segmentos (S1…) abrem dentro dela'
+        : 'Lista de itens — use “+ Criar novo item” p/ abrir a Torre limpa à direita';
+      tags.push(a.etapa,'classe');
+    }
+    else if(a.etapa){
+      const el=etLabel(a.etapa);
+      path+=` / ${el.nome} (${el.short})`;
+      title=`${el.nome} — ${el.short}`;
+      body = a.etapa==='sa'
+        ? 'Pré-interp. + Pilares + Lajes + Vigas (A/B Para·Passa). Botão processar no topo.'
+        : a.etapa==='n3'
+          ? 'Mesmas classes do SA sem pré-interp.; pilares × Para/Passa. Botão processar N3 no topo.'
+          : '8 classes unificáveis + processar todas as unificações no topo.';
+      tags.push(a.etapa);
+    }
+    else if(a.doc){ const d=docBy(a.pav,a.doc)||docsOf(a.pav)[0]; path+=` / ${d.nome}`; title=d.nome; body='Recorte estrutural selecionado — painel direito (coluna não expande)'; tags.push('estrutural', d.short); }
+    else if(a.level==='hub'){ title=a.pav; body='Estrutural (tiles, só seleciona) + Etapas em lista: Interpretação SA · Desenho N3 · Unificação N5'; }
+    else if(a.level==='pavs'){ title=obra(a.obra).nome; body='Grade de pavimentos'; }
+    else { title='Obras'; body='Cards de obra'; }
+  } else if(e===1){
+    const s=S.b.sel;
+    if(s.obra){ path+=` / ${obra(s.obra).nome}`; tags.push('obra'); }
+    if(s.pav){ path+=` / ${s.pav}`; tags.push('pav'); }
+    if(s.tipo==='doc'){ const d=DOCS.find(x=>x.id===s.doc); path+=` / ${d.nome}`; title=d.nome; body='Doc (selecionado na árvore)'; tags.push('doc'); }
+    else if(s.tipo==='item'){ path+=` / ${s.etapa} / ${clsName(s.etapa,s.classe)} / ${s.item}`; title=s.item; body='Item folha da árvore'; tags.push(s.item); }
+    else if(s.tipo==='classe'){ path+=` / ${s.etapa} / ${clsName(s.etapa,s.classe)}`; title=clsName(s.etapa,s.classe); body='Classe na árvore'; }
+    else if(s.tipo==='etapa'){ path+=` / ${s.etapa}`; title=ETAPAS.find(x=>x.id===s.etapa).nome; body='Etapa expandida'; }
+    else if(s.tipo==='pav'){ title=s.pav; body='Pavimento selecionado na árvore'; }
+    else if(s.tipo==='obra'){ title=obra(s.obra).nome; body='Obra na árvore'; }
+  } else {
+    const c=S.c;
+    if(c.obra){ path+=` / ${obra(c.obra).nome}`; tags.push('obra'); }
+    if(c.pav){ path+=` / ${c.pav}`; tags.push('pav'); }
+    if(c.modo==='estrutural' && c.doc){ const d=DOCS.find(x=>x.id===c.doc); path+=` / ${d.nome}`; title=d.nome; body='Doc via modo Estrutural'; tags.push('doc'); }
+    else if(c.modo==='etapas'){
+      path+=` / ${c.etapa}`;
+      tags.push(c.etapa);
+      if(c.item){ path+=` / ${clsName(c.etapa,c.classe)} / ${c.item}`; title=c.item; body='Item (contexto fixo)'; tags.push(c.item); }
+      else if(c.classe){ path+=` / ${clsName(c.etapa,c.classe)}`; title=clsName(c.etapa,c.classe); body='Classe na aba '+c.etapa.toUpperCase(); }
+      else { title=ETAPAS.find(x=>x.id===c.etapa).nome; body='Aba de etapa — escolha classe'; }
+    } else {
+      title=c.pav; body='Modo Estrutural do pavimento';
+    }
+  }
+
+  $('path').textContent = path;
+  if(body && typeof body==='object' && body.mode==='torre-criar'){
+    $('box').className = 'box left';
+    $('box').innerHTML = `
+      <div class="torre-mock">
+        <strong>🏙 Torre limpa · ${body.pav}</strong>
+        <div class="banner">
+          Criar item manual para <b>${body.classe}</b>
+          · destino: <b>${body.etapa?.nome} · ${body.etapa?.short}</b>
+          <br>A coluna esquerda <b>permanece</b> na lista da classe — só esta página direita muda.
+        </div>
+        <div class="canvas">SVG / pan-zoom da torre limpa (mock)</div>
+        <ol class="steps">
+          <li>Desenha / marca o contorno na <b>Torre limpa</b> deste pavimento</li>
+          <li>Salva o item → ele <b>aparece dinamicamente</b> na lista SA · ${body.classe}</li>
+          <li>Volta a ficha na coluna (já aberta) sem re-navegar a árvore</li>
+        </ol>
+        <div class="foot">Fluxo: lista classe (esq.) → Criar novo item → Torre limpa (dir.) → popula Interpretação SA</div>
+      </div>`;
+  } else {
+    $('box').className = 'box';
+    $('box').innerHTML = `<strong>${title}</strong>${body}`;
+  }
+  $('tags').innerHTML = tags.filter(Boolean).map(t=>`<span class="tag on">${t}</span>`).join('');
+}
+
+function renderItensA(a){
+  const n = (CLASSES[a.etapa]||[]).find(c=>c[0]===a.classe)?.[2]||8;
+  const count = Math.min(n,24);
+  const viga = isVigaClass(a.classe);
+  const pref = itemPrefix(a.classe);
+  const items = Array.from({length:count},(_,i)=>`${pref}${i+1}`);
+
+  let segsHtml = '';
+  if(viga && a.item){
+    const ns = segsOfViga(a.item);
+    segsHtml = `
+      <div class="seg-wrap">
+        <div class="sh"><span><b>${a.item}</b> · segmentos</span><em style="font-style:normal">${ns}</em></div>
+        <div class="segs">
+          ${Array.from({length:ns},(_,i)=>`S${i+1}`).map(s=>`
+            <button type="button" class="sg ${a.seg===s?'on':''}" data-a="seg" data-id="${s}">${s}</button>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="sec">${clsName(a.etapa,a.classe)} <em>${count} ${viga?'vigas':'itens'}</em></div>
+    <div class="itens">
+      ${items.map((x,i)=>{
+        const ns = viga ? segsOfViga(x) : 0;
+        return `<button type="button" class="pi ${x===a.item?'on':''} ${(!viga && (x==='P1'||x==='P6'))||(viga&&i%4===0)?'ok':''}" data-a="item" data-id="${x}">
+          ${x}${viga?`<span class="subn">${ns} seg</span>`:''}
+        </button>`;
+      }).join('')}
+    </div>
+    ${segsHtml}
+    <button type="button" class="criar-item ${a.right==='torre-criar'?'on':''}" data-a="criar-item" title="Abre Torre limpa no painel direito — coluna esquerda fica nesta classe">
+      <span class="plus">+</span> Criar novo ${viga?'viga / item':'item'}
+    </button>
+    <div style="cursor:default;opacity:.65;font-size:.64rem;padding:0 10px 10px;color:var(--muted)">
+      ${viga
+        ? 'Selecione V# para listar os segmentos (S1…) dentro da viga · Criar abre Torre limpa à direita'
+        : `Abre a Torre limpa à direita · item entra em ${etLabel(a.etapa)?.short||'SA'} · ${clsName(a.etapa,a.classe)}`}
+    </div>`;
+}
+
+/* ================= ESTILO A — DRILL ================= */
+function renderA(){
+  const a = S.a;
+  const crumb = [];
+  const push = (label, level, strong) => {
+    if(crumb.length) crumb.push(`<span class="sep">›</span>`);
+    if(strong) crumb.push(`<b>${label}</b>`);
+    else crumb.push(`<button type="button" data-a="jump" data-level="${level}">${label}</button>`);
+  };
+
+  if(a.level==='obras') push('Obras','obras',true);
+  else {
+    push('Obras','obras',false);
+    if(a.level==='pavs') push(obra(a.obra).nome,'pavs',true);
+    else {
+      push(obra(a.obra).nome,'pavs',false);
+      // doc só seleciona no hub — breadcrumb fica no pav
+      if(a.level==='hub' && !a.etapa) push(a.pav,'hub',true);
+      else if(a.seg){ push(a.pav,'hub',false); push(etLabel(a.etapa).short,'etapa',false); push(clsName(a.etapa,a.classe),'classe',false); push(a.item,'item',false); push(a.seg,'seg',true); }
+      else if(a.item){ push(a.pav,'hub',false); push(etLabel(a.etapa).short,'etapa',false); push(clsName(a.etapa,a.classe),'classe',false); push(a.item,'item',true); }
+      else if(a.classe){ push(a.pav,'hub',false); push(etLabel(a.etapa).short,'etapa',false); push(clsName(a.etapa,a.classe),'classe',true); }
+      else if(a.etapa){ push(a.pav,'hub',false); push(`${etLabel(a.etapa).nome} · ${etLabel(a.etapa).short}`,'etapa',true); }
+    }
+  }
+
+  let backLabel = '';
+  if(a.level==='pavs') backLabel = '← todas as obras';
+  else if(a.level==='hub' && !a.etapa) backLabel = '← pavimentos';
+  else if(a.level==='hub' && a.etapa && !a.classe) backLabel = '← hub do pavimento';
+  else if(a.seg) backLabel = `← ${a.item} (segmentos)`;
+  else if(a.item) backLabel = isVigaClass(a.classe) ? '← lista de vigas' : '← lista de itens';
+  else if(a.classe) backLabel = '← classes da etapa';
+
+  let body = '';
+  if(a.level==='obras'){
+    body = `<div class="busca"><input id="af" placeholder="Filtrar obras…" value="${a.filter||''}"></div>
+      <div class="sec">Obras <em>${OBRAS.length}</em></div>
+      ${OBRAS.filter(o=>!a.filter||o.nome.toLowerCase().includes(a.filter.toLowerCase())).map(o=>`
+        <button type="button" class="obra-card" data-a="obra" data-id="${o.id}">
+          <span class="t">${o.nome}</span>
+          <span class="m"><span>${o.pavs} pavimentos</span><span>abrir ▸</span></span>
+        </button>`).join('')}`;
+  } else if(a.level==='pavs'){
+    body = `<div class="busca"><input id="af" placeholder="Filtrar pav…" value="${a.filter||''}"></div>
+      <div class="sec">${obra(a.obra).nome} <em>lista</em></div>
+      <div class="pav-grid">
+        ${PAVS.filter(p=>!a.filter||p.id.toLowerCase().includes(a.filter.toLowerCase())).map(p=>`
+          <button type="button" class="pav ${p.id===a.pav?'on':''}" data-a="pav" data-id="${p.id}">
+            <span class="lab">${p.id}</span>
+            <small>${stLab(p)} · ${p.n||0}</small>
+          </button>`).join('')}
+      </div>`;
+  } else if(a.classe || a.item){
+    // lista de itens da classe + botão criar (coluna NÃO muda ao criar)
+    body = renderItensA(a);
+  } else if(a.etapa){
+    const el = etLabel(a.etapa);
+    const nCls = (GROUPS_BY_ETAPA[a.etapa]||[]).reduce((s,g)=>s+g.items.length,0);
+    body = `<div class="sec">${el.nome} · ${el.short} <em>${a.pav} · ${nCls} classes</em></div>
+      ${renderClassesA(a.etapa, a.classe, a.pav)}`;
+  } else {
+    // hub: estrutural em tiles (só seleciona); etapas em lista vertical
+    const docs = docsOf(a.pav);
+    body = `
+      <div class="sec">Estrutural · ${a.pav} <em>só seleciona</em></div>
+      <div class="tiles">
+        ${docs.map(d=>`
+          <button type="button" class="tile ${a.doc===d.id?'on':''}" data-a="doc" data-id="${d.id}" title="${d.nome}">
+            <span class="ico">${d.ico}</span>
+            <span class="k">${d.short}</span>
+            <span class="s">${d.sub}</span>
+          </button>`).join('')}
+      </div>
+      <div class="sec">Etapas <em>abre classes</em></div>
+      <div class="etapa-list">
+        ${ETAPAS.map(e=>{
+          const p=pav(a.pav); const cnt=etCount(p,e.id);
+          const nCls = (GROUPS_BY_ETAPA[e.id]||[]).reduce((s,g)=>s+g.items.length,0);
+          return `<button type="button" class="etapa-row" data-a="etapa" data-id="${e.id}">
+            <span class="lab">
+              <span class="k">${e.sub} · ${e.short}</span>
+              <span class="s">${nCls} classes</span>
+            </span>
+            <span class="meta">${cnt||'—'}</span>
+            <span class="seta">▸</span>
+          </button>`;
+        }).join('')}
+      </div>`;
+  }
+
+  return `
+    <div class="estilo-tag">A · ${ESTILOS[0].tag}</div>
+    <div class="marca"><i>◆</i> Portal de Formas</div>
+    <div class="nav-top"><a class="hit"><span>📊</span> Status Arete</a>
+      <a class="hit on"><span>📁</span> Obras</a></div>
+    <div class="crumb">${crumb.join(' ')}</div>
+    ${backLabel?`<button type="button" class="back" data-a="back">${backLabel}</button>`:''}
+    <div class="scroll">${body}</div>
+    <div class="rodape">Drill-down · uma tela por nível</div>`;
+}
+
+function bindA(root){
+  const a = S.a;
+  root.querySelectorAll('[data-a]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const act=el.dataset.a, id=el.dataset.id;
+      if(act==='jump'){
+        const lv=el.dataset.level;
+        if(lv==='obras') Object.assign(a,{level:'obras',obra:null,pav:null,etapa:null,classe:null,item:null,seg:null,doc:null,right:null});
+        if(lv==='pavs') Object.assign(a,{level:'pavs',pav:null,etapa:null,classe:null,item:null,seg:null,doc:null,right:null});
+        if(lv==='hub') Object.assign(a,{level:'hub',etapa:null,classe:null,item:null,seg:null,doc:null,right:null});
+        if(lv==='etapa') Object.assign(a,{classe:null,item:null,seg:null,doc:null,right:null});
+        if(lv==='classe') Object.assign(a,{item:null,seg:null,right:null});
+        if(lv==='item') Object.assign(a,{seg:null,right:null});
+        log(`A jump → ${lv}`); render(); return;
+      }
+      if(act==='back'){
+        if(a.right==='torre-criar'){ a.right=null; log('A fecha Torre limpa (dir.) — coluna intacta'); }
+        else if(a.seg){ a.seg=null; a.right=null; log('A back → viga (segmentos)'); }
+        else if(a.item){ a.item=null; a.seg=null; a.right=null; log('A back → classe'); }
+        else if(a.classe){ a.classe=null; a.item=null; a.seg=null; a.right=null; log('A back → etapa'); }
+        else if(a.etapa){ a.etapa=null; a.doc=null; a.right=null; log('A back → hub'); }
+        else if(a.level==='hub'){ a.level='pavs'; a.pav=null; a.doc=null; a.right=null; log('A back → pavs'); }
+        else if(a.level==='pavs'){ a.level='obras'; a.obra=null; a.right=null; log('A back → obras'); }
+        render(); return;
+      }
+      if(act==='obra'){ Object.assign(a,{level:'pavs',obra:id,pav:null,etapa:null,classe:null,item:null,seg:null,doc:null,filter:'',right:null}); log(`A obra → ${id}`); }
+      if(act==='pav'){ Object.assign(a,{level:'hub',pav:id,etapa:null,classe:null,item:null,seg:null,doc:null,filter:'',right:null}); log(`A pav → ${id}`); }
+      // doc: só seleciona no hub — não muda de nível / não expande
+      if(act==='doc'){
+        a.doc = (a.doc===id) ? null : id;
+        a.etapa=null; a.classe=null; a.item=null; a.seg=null; a.right=null;
+        log(a.doc ? `A sel estrutural → ${id}` : `A desmarca estrutural`);
+      }
+      if(act==='etapa'){ Object.assign(a,{etapa:id,classe:null,item:null,seg:null,doc:null,right:null}); log(`A etapa → ${id}`); }
+      if(act==='classe'){ Object.assign(a,{classe:id,item:null,seg:null,right:null}); log(`A classe → ${id}`); }
+      if(act==='item'){
+        // re-clique na mesma viga fecha segmentos; senão seleciona e (se viga) lista segs
+        if(a.item===id){ a.item=null; a.seg=null; log(`A desmarca ${id}`); }
+        else { a.item=id; a.seg=null; a.right=null; log(isVigaClass(a.classe) ? `A viga ${id} → ${segsOfViga(id)} segs` : `A item → ${id}`); }
+      }
+      if(act==='seg'){
+        a.seg = (a.seg===id) ? null : id;
+        a.right=null;
+        log(a.seg ? `A segmento ${a.item}/${a.seg}` : `A desmarca segmento`);
+      }
+      // criar item: NÃO mexe na coluna — só redireciona o painel direito p/ Torre limpa do pav
+      if(act==='criar-item'){
+        a.right = 'torre-criar';
+        // mantém classe; limpa seleção de peça/seg só no sentido de “modo criar”
+        a.item = null; a.seg = null;
+        log(`A criar item → Torre limpa dir. · ${a.pav} · classe ${a.classe} (coluna fixa)`);
+      }
+      if(act==='proc'){
+        const el = etLabel(id);
+        log(`A PROCESSAR ${el?.short} · ${a.pav} — ${el?.procLabel}`);
+        a.right = null;
+        $('box').className = 'box';
+        $('box').innerHTML = `<strong>Job enfileirado (mock)</strong>${el?.procLabel}<br><span style="opacity:.8">${a.pav}</span>`;
+        return;
+      }
+      render();
+    });
+  });
+  const inp = root.querySelector('#af');
+  if(inp) inp.addEventListener('input',e=>{ a.filter=e.target.value; render(); });
+}
+
+/* ================= ESTILO B — TREE ================= */
+function isOpen(key){ return S.b.open.has(key); }
+function toggleOpen(key){
+  if(S.b.open.has(key)) S.b.open.delete(key); else S.b.open.add(key);
+}
+function isSel(tipo, keys){
+  const s=S.b.sel;
+  if(s.tipo!==tipo) return false;
+  return Object.entries(keys).every(([k,v])=>s[k]===v);
+}
+
+function renderB(){
+  const sel = S.b.sel;
+  // ensure at least one obra context for display — show all obras as roots
+  let html = `
+    <div class="estilo-tag">B · ${ESTILOS[1].tag}</div>
+    <div class="marca"><i>◆</i> Portal de Formas</div>
+    <div class="nav-top"><a class="hit"><span>📊</span> Status Arete</a>
+      <a class="hit on"><span>📁</span> Obras</a></div>
+    <div class="tree-tools">
+      <button type="button" data-b="expand">Expandir foco</button>
+      <button type="button" data-b="collapse">Colapsar tudo</button>
+    </div>
+    <div class="scroll"><div class="tree">`;
+
+  for(const o of OBRAS){
+    const ok = `obra:${o.id}`;
+    const open = isOpen(ok);
+    const selected = isSel('obra',{obra:o.id}) && !sel.pav;
+    html += `<div class="lvl0">
+      <button type="button" class="no ${open?'ab':''} ${selected?'sel':''}" data-b="obra" data-id="${o.id}">
+        <span class="tri" data-b="tog" data-key="${ok}">${open?'▾':'▸'}</span>
+        <span class="nm strong">${o.nome}</span>
+        <span class="meta">${o.pavs}</span>
+      </button>`;
+    if(open){
+      html += `<div class="kids lvl1">`;
+      for(const p of PAVS){
+        const pk = `pav:${o.id}:${p.id}`;
+        const popen = isOpen(pk);
+        const psel = isSel('pav',{obra:o.id,pav:p.id}) || (sel.obra===o.id && sel.pav===p.id && sel.tipo!=='obra');
+        // only highlight exact pav if tipo is pav
+        const pselExact = isSel('pav',{obra:o.id,pav:p.id});
+        html += `<div>
+          <button type="button" class="no ${popen?'ab':''} ${pselExact?'sel':''}" data-b="pav" data-obra="${o.id}" data-id="${p.id}">
+            <span class="tri" data-b="tog" data-key="${pk}">${popen?'▾':'▸'}</span>
+            <span class="dots"><i class="dot ${p.sa?'ok':''}"></i><i class="dot ${p.n3?'ok':''}"></i><i class="dot ${p.n5?'ok':''}"></i></span>
+            <span class="nm">${p.id}</span>
+            <span class="meta">${p.n||'—'}</span>
+          </button>`;
+        if(popen){
+          html += `<div class="kids lvl2">`;
+          // docs
+          for(const d of DOCS){
+            const dsel = isSel('doc',{obra:o.id,pav:p.id,doc:d.id});
+            html += `<button type="button" class="no ${dsel?'sel':''}" data-b="doc" data-obra="${o.id}" data-pav="${p.id}" data-id="${d.id}">
+              <span class="leaf-ico">·</span>
+              <span class="nm ${d.mono?'mono':''}">${d.mono||d.nome}</span>
+            </button>`;
+          }
+          // etapas
+          for(const e of ETAPAS){
+            const ek = `etapa:${o.id}:${p.id}:${e.id}`;
+            const eopen = isOpen(ek);
+            const esel = isSel('etapa',{obra:o.id,pav:p.id,etapa:e.id});
+            const cnt = etCount(p,e.id);
+            html += `<div>
+              <button type="button" class="no ${eopen?'ab':''} ${esel?'sel':''}" data-b="etapa" data-obra="${o.id}" data-pav="${p.id}" data-id="${e.id}">
+                <span class="tri" data-b="tog" data-key="${ek}">${eopen?'▾':'▸'}</span>
+                <span class="nm">${e.nome}</span>
+                <span class="meta">${cnt||'—'}</span>
+              </button>`;
+            if(eopen){
+              html += `<div class="kids lvl3">`;
+              for(const c of (CLASSES[e.id]||[])){
+                const ck = `cls:${o.id}:${p.id}:${e.id}:${c[0]}`;
+                const copen = isOpen(ck);
+                const csel = isSel('classe',{obra:o.id,pav:p.id,etapa:e.id,classe:c[0]});
+                html += `<div>
+                  <button type="button" class="no ${copen?'ab':''} ${csel?'sel':''}" data-b="classe" data-obra="${o.id}" data-pav="${p.id}" data-etapa="${e.id}" data-id="${c[0]}">
+                    <span class="tri" data-b="tog" data-key="${ck}">${copen?'▾':'▸'}</span>
+                    <span class="nm">${c[1]}</span>
+                    <span class="meta">${c[2]}</span>
+                  </button>`;
+                if(copen){
+                  html += `<div class="kids lvl4">`;
+                  const n = Math.min(c[2],12);
+                  for(let i=1;i<=n;i++){
+                    const item=`P${i}`;
+                    const isel = isSel('item',{obra:o.id,pav:p.id,etapa:e.id,classe:c[0],item});
+                    html += `<button type="button" class="no ${isel?'sel':''}" data-b="item" data-obra="${o.id}" data-pav="${p.id}" data-etapa="${e.id}" data-classe="${c[0]}" data-id="${item}">
+                      <span class="leaf-ico">·</span>
+                      <span class="nm">${item}</span>
+                    </button>`;
+                  }
+                  if(c[2]>12) html += `<div class="no" style="opacity:.5;cursor:default"><span class="nm">… +${c[2]-12}</span></div>`;
+                  html += `</div>`;
+                }
+                html += `</div>`;
+              }
+              html += `</div>`;
+            }
+            html += `</div>`;
+          }
+          html += `</div>`;
+        }
+        html += `</div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div></div>
+    <div class="hint">▸ expande · clique no nome seleciona · vários ramos abertos ao mesmo tempo</div>
+    <div class="rodape">Árvore viva · sem páginas</div>`;
+  return html;
+}
+
+function bindB(root){
+  root.querySelectorAll('[data-b]').forEach(el=>{
+    el.addEventListener('click',ev=>{
+      const act = el.dataset.b;
+      // triangle toggle — stop selecting when clicking tri
+      if(act==='tog'){
+        ev.stopPropagation();
+        toggleOpen(el.dataset.key);
+        log(`B toggle ${el.dataset.key}`);
+        render();
+        return;
+      }
+      if(act==='expand'){
+        const s=S.b.sel;
+        if(s.obra) S.b.open.add(`obra:${s.obra}`);
+        if(s.pav) S.b.open.add(`pav:${s.obra}:${s.pav}`);
+        if(s.etapa) S.b.open.add(`etapa:${s.obra}:${s.pav}:${s.etapa}`);
+        if(s.classe) S.b.open.add(`cls:${s.obra}:${s.pav}:${s.etapa}:${s.classe}`);
+        log('B expand foco'); render(); return;
+      }
+      if(act==='collapse'){
+        S.b.open.clear();
+        log('B colapsar'); render(); return;
+      }
+
+      // clicking row: if has children key, also ensure open; select
+      if(act==='obra'){
+        const id=el.dataset.id;
+        S.b.open.add(`obra:${id}`);
+        S.b.sel={tipo:'obra',obra:id};
+        log(`B sel obra ${id}`);
+      }
+      if(act==='pav'){
+        const id=el.dataset.id, o=el.dataset.obra;
+        S.b.open.add(`obra:${o}`);
+        S.b.open.add(`pav:${o}:${id}`);
+        S.b.sel={tipo:'pav',obra:o,pav:id};
+        log(`B sel pav ${id}`);
+      }
+      if(act==='doc'){
+        S.b.sel={tipo:'doc',obra:el.dataset.obra,pav:el.dataset.pav,doc:el.dataset.id};
+        log(`B sel doc ${el.dataset.id}`);
+      }
+      if(act==='etapa'){
+        const o=el.dataset.obra,p=el.dataset.pav,id=el.dataset.id;
+        S.b.open.add(`etapa:${o}:${p}:${id}`);
+        S.b.sel={tipo:'etapa',obra:o,pav:p,etapa:id};
+        log(`B sel etapa ${id}`);
+      }
+      if(act==='classe'){
+        const o=el.dataset.obra,p=el.dataset.pav,et=el.dataset.etapa,id=el.dataset.id;
+        S.b.open.add(`cls:${o}:${p}:${et}:${id}`);
+        S.b.sel={tipo:'classe',obra:o,pav:p,etapa:et,classe:id};
+        log(`B sel classe ${id}`);
+      }
+      if(act==='item'){
+        S.b.sel={tipo:'item',obra:el.dataset.obra,pav:el.dataset.pav,etapa:el.dataset.etapa,classe:el.dataset.classe,item:el.dataset.id};
+        log(`B sel item ${el.dataset.id}`);
+      }
+      render();
+    });
+  });
+  // prevent double-firing: tri is inside button — use capture on tri only via stopPropagation already
+  root.querySelectorAll('[data-b="tog"]').forEach(tri=>{
+    tri.addEventListener('click',ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      toggleOpen(tri.dataset.key);
+      log(`B toggle ${tri.dataset.key}`);
+      render();
+    });
+  });
+}
+
+/* ================= ESTILO C — CONTEXT ================= */
+function renderC(){
+  const c = S.c;
+
+  // overlay pickers
+  if(c.pick==='obra'){
+    return `
+      <div class="estilo-tag">C · ${ESTILOS[2].tag}</div>
+      <div class="marca"><i>◆</i> Portal de Formas</div>
+      <div class="overlay-title">Trocar obra</div>
+      <div class="scroll pick-list">
+        ${OBRAS.map(o=>`
+          <button type="button" class="${o.id===c.obra?'on':''}" data-c="set-obra" data-id="${o.id}">
+            <span class="nm">${o.nome}</span><span class="qtd">${o.pavs}</span>
+          </button>`).join('')}
+        <button type="button" data-c="cancel-pick"><span class="nm" style="color:var(--azul2)">← cancelar</span></button>
+      </div>
+      <div class="rodape">Contexto fixo · strips + abas</div>`;
+  }
+  if(c.pick==='pav'){
+    return `
+      <div class="estilo-tag">C · ${ESTILOS[2].tag}</div>
+      <div class="marca"><i>◆</i> Portal de Formas</div>
+      <div class="overlay-title">Trocar pavimento</div>
+      <div class="scroll pick-list">
+        ${PAVS.map(p=>`
+          <button type="button" class="${p.id===c.pav?'on':''}" data-c="set-pav" data-id="${p.id}">
+            <span class="nm">${p.id}</span><span class="qtd">${stLab(p)}</span>
+          </button>`).join('')}
+        <button type="button" data-c="cancel-pick"><span class="nm" style="color:var(--azul2)">← cancelar</span></button>
+      </div>
+      <div class="rodape">Contexto fixo · strips + abas</div>`;
+  }
+
+  const p = pav(c.pav);
+  let main = '';
+
+  if(c.modo==='estrutural'){
+    main = `<div class="sec">Estrutural · ${c.pav}</div>
+      <div class="lista">
+        ${DOCS.map(d=>`
+          <button type="button" class="row ${c.doc===d.id?'on':''}" data-c="doc" data-id="${d.id}">
+            <span>${d.ico}</span>
+            <span class="nm ${d.mono?'mono':''}">${d.mono||d.nome}</span>
+            <span class="seta">▸</span>
+          </button>`).join('')}
+      </div>`;
+  } else if(c.item){
+    const n = (CLASSES[c.etapa]||[]).find(x=>x[0]===c.classe)?.[2]||8;
+    main = `<div class="sec">${clsName(c.etapa,c.classe)} <em>${c.etapa.toUpperCase()}</em></div>
+      <div class="grid-itens">
+        ${Array.from({length:Math.min(n,24)},(_,i)=>`P${i+1}`).map(x=>`
+          <button type="button" class="pi ${x===c.item?'on':''} ${x==='P1'||x==='P6'?'ok':''}" data-c="item" data-id="${x}">${x}</button>
+        `).join('')}
+      </div>
+      <div class="lista"><button type="button" class="row" data-c="back-classe"><span class="nm" style="color:var(--azul2)">← classes da aba</span></button></div>`;
+  } else if(c.classe){
+    const n = (CLASSES[c.etapa]||[]).find(x=>x[0]===c.classe)?.[2]||8;
+    main = `<div class="sec">${clsName(c.etapa,c.classe)} <em>itens</em></div>
+      <div class="grid-itens">
+        ${Array.from({length:Math.min(n,24)},(_,i)=>`P${i+1}`).map(x=>`
+          <button type="button" class="pi ${x==='P1'||x==='P6'?'ok':''}" data-c="item" data-id="${x}">${x}</button>
+        `).join('')}
+      </div>`;
+  } else {
+    main = `<div class="sec">Classes · ${ETAPAS.find(e=>e.id===c.etapa).nome}</div>
+      <div class="lista">
+        ${(CLASSES[c.etapa]||[]).map(cl=>`
+          <button type="button" class="row ${c.classe===cl[0]?'on':''}" data-c="classe" data-id="${cl[0]}">
+            <span class="nm">${cl[1]}</span>
+            <span class="meta">${cl[2]}</span>
+          </button>`).join('')}
+      </div>`;
+  }
+
+  return `
+    <div class="estilo-tag">C · ${ESTILOS[2].tag}</div>
+    <div class="marca"><i>◆</i> Portal de Formas</div>
+    <div class="nav-top"><a class="hit"><span>📊</span> Status Arete</a>
+      <a class="hit on"><span>📁</span> Obras</a></div>
+
+    <div class="ctx">
+      <div class="ctx-row">
+        <span class="ctx-lbl">Obra</span>
+        <span class="ctx-val"><button type="button" data-c="pick-obra">${obra(c.obra).nome}</button></span>
+      </div>
+      <div class="ctx-row">
+        <span class="ctx-lbl">Pav</span>
+        <span class="ctx-val"><button type="button" data-c="pick-pav">${c.pav}</button></span>
+      </div>
+    </div>
+
+    <div class="strip">
+      ${PAVS.map(x=>`
+        <button type="button" class="pill ${x.id===c.pav?'on':''}" data-c="set-pav" data-id="${x.id}">
+          ${x.id.replace('_PAV','')}
+        </button>`).join('')}
+    </div>
+
+    <div class="modo">
+      <button type="button" class="${c.modo==='estrutural'?'on':''}" data-c="modo" data-id="estrutural">Estrutural</button>
+      <button type="button" class="${c.modo==='etapas'?'on':''}" data-c="modo" data-id="etapas">Etapas</button>
+    </div>
+
+    ${c.modo==='etapas'?`
+      <div class="tabs">
+        ${ETAPAS.map(e=>{
+          const cnt=etCount(p,e.id);
+          const done=p[e.id];
+          return `<button type="button" class="tab ${c.etapa===e.id?'on':''}" data-c="etapa" data-id="${e.id}">
+            ${e.short}${done?' ✓':''}<small>${cnt||'—'}</small>
+          </button>`;
+        }).join('')}
+      </div>
+    `:''}
+
+    <div class="scroll">${main}</div>
+    <div class="rodape">Contexto fixo · troca paralela sem voltar</div>`;
+}
+
+function bindC(root){
+  root.querySelectorAll('[data-c]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const act=el.dataset.c, id=el.dataset.id;
+      const c=S.c;
+      if(act==='pick-obra'){ c.pick='obra'; log('C pick obra'); }
+      if(act==='pick-pav'){ c.pick='pav'; log('C pick pav'); }
+      if(act==='cancel-pick'){ c.pick=null; log('C cancel pick'); }
+      if(act==='set-obra'){
+        c.obra=id; c.pick=null; c.classe=null; c.item=null; c.doc=null;
+        log(`C obra → ${id}`);
+      }
+      if(act==='set-pav'){
+        c.pav=id; c.pick=null; c.classe=null; c.item=null; c.doc=null;
+        log(`C pav → ${id}`);
+      }
+      if(act==='modo'){
+        c.modo=id; c.classe=null; c.item=null; c.doc=null;
+        log(`C modo → ${id}`);
+      }
+      if(act==='etapa'){
+        c.etapa=id; c.classe=null; c.item=null; c.doc=null;
+        log(`C etapa → ${id}`);
+      }
+      if(act==='doc'){ c.doc=id; log(`C doc → ${id}`); }
+      if(act==='classe'){ c.classe=id; c.item=null; log(`C classe → ${id}`); }
+      if(act==='item'){ c.item=id; log(`C item → ${id}`); }
+      if(act==='back-classe'){ c.item=null; c.classe=null; log('C back classes'); }
+      render();
+    });
+  });
+}
+
+/* ================= ROOT ================= */
+function render(){
+  const e = ESTILOS[S.estilo];
+  document.body.className = e.cls;
+  document.querySelectorAll('#btns .btn').forEach((b,i)=>b.classList.toggle('on', i===S.estilo));
+
+  const lado = $('lado');
+  if(S.estilo===0){ lado.innerHTML = renderA(); bindA(lado); }
+  else if(S.estilo===1){ lado.innerHTML = renderB(); bindB(lado); }
+  else { lado.innerHTML = renderC(); bindC(lado); }
+
+  $('info').innerHTML = `
+    <h2>${e.nome}</h2>
+    <p>${e.desc}</p>
+    <ul>${e.pontos.map(p=>`<li>${p}</li>`).join('')}</ul>
+  `;
+  previewFromSelection();
+}
+
+$('btns').innerHTML = ESTILOS.map((e,i)=>`
+  <button type="button" class="btn" data-e="${i}">
+    <b><span class="n">${i+1}</span>${e.nome}</b>
+    <small>${e.tag}</small>
+  </button>
+`).join('');
+$('btns').querySelectorAll('.btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    S.estilo = +b.dataset.e;
+    log(`estilo → ${ESTILOS[S.estilo].nome}`);
+    render();
+  });
+});
+
+document.addEventListener('keydown',ev=>{
+  if(ev.target.matches('input,textarea')) return;
+  if(ev.key>='1'&&ev.key<='3'){ S.estilo=+ev.key-1; log(`estilo → ${ESTILOS[S.estilo].nome}`); render(); }
+  if(ev.key==='Backspace' && S.estilo===0){
+    const a=S.a;
+    if(a.right==='torre-criar') a.right=null;
+    else if(a.seg) a.seg=null;
+    else if(a.item){ a.item=null; a.seg=null; }
+    else if(a.classe){ a.classe=null; a.item=null; a.seg=null; }
+    else if(a.etapa){ a.etapa=null; a.doc=null; }
+    else if(a.doc){ a.doc=null; }
+    else if(a.level==='hub'){ a.level='pavs'; a.pav=null; a.doc=null; }
+    else if(a.level==='pavs'){ a.level='obras'; a.obra=null; }
+    else return;
+    ev.preventDefault();
+    render();
+  }
+});
+
+log('3 navegações distintas: A drill · B árvore · C contexto');
+render();
+</script>
+</body>
+</html>

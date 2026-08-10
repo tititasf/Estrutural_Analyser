@@ -8,12 +8,15 @@ import pytest
 from src.core.artifact_governance import (
     discover_level_artifacts,
     ensure_artifact_integrity,
+    get_validation_policy,
     guarded_promote,
     guarded_saveas,
     is_artifact_protected,
+    is_qa_agente_validated,
     motor_history,
     record_motor_test_result,
     register_motor_version,
+    set_validation_protection,
 )
 from src.core.item_attention_store import save_human_validation
 from src.core.item_attention_store import ensure_table, is_human_validated
@@ -257,6 +260,32 @@ def test_motor_version_is_content_addressed(tmp_path: Path):
 
     assert version_1a == version_1b
     assert version_2 != version_1a
+
+
+def test_get_validation_policy_falls_back_when_pavimento_differs(tmp_path: Path):
+    db_path = tmp_path / "project_data.vision"
+    technical_pav = "TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA"
+    set_validation_protection(
+        "Obra_A",
+        technical_pav,
+        "LJ",
+        "L401",
+        "N4",
+        True,
+        db_path=db_path,
+        validation_origin="qa_agente",
+        updated_by="qa-global-evidencias",
+    )
+
+    policy = get_validation_policy(
+        "Obra_A", "14_PAV", "LJ", "L401", "N4", db_path=db_path
+    )
+    assert policy is not None
+    assert policy["pavimento"] == technical_pav
+    assert policy["locked"] is True
+    assert is_qa_agente_validated(
+        "Obra_A", "14_PAV", "LJ", "L401", "N4", db_path=db_path
+    )
 
 
 def test_legacy_human_validation_is_backfilled_into_protection(tmp_path: Path):

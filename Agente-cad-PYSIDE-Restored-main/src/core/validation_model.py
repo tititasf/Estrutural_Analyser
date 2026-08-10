@@ -26,6 +26,47 @@ ORIGEM_QA_AGENTE = "qa_agente"
 
 ORIGENS_VALIDAS = (ORIGEM_HUMANO_APP, ORIGEM_HUMANO_PORTAL, ORIGEM_QA_AGENTE)
 
+# [2026-07-17] Marcador de origem para N/A — decisão do dono: N/A decidido
+# pelo agente QA deve aparecer laranja no app (mesma cor do selo qa_agente),
+# distinguível de N/A marcado manualmente por um humano. `na_reasons` (dict
+# field_id -> motivo, coluna `na_reasons_json`) já existia como texto livre;
+# em vez de mudar o formato (quebraria todo consumidor que espera string),
+# o agente prefixa o motivo com este marcador. Continua sendo uma string
+# normal para qualquer leitor que não conheça o marcador.
+ORIGEM_NA_AGENTE_MARCADOR = "[origem:qa_agente] "
+
+
+def na_tem_origem_agente(motivo) -> bool:
+    """True se este N/A foi decidido pelo agente QA (não por um humano)."""
+    return isinstance(motivo, str) and motivo.startswith(ORIGEM_NA_AGENTE_MARCADOR)
+
+
+def na_motivo_exibicao(motivo) -> str:
+    """Motivo do N/A sem o marcador técnico de origem, para exibir na UI."""
+    if na_tem_origem_agente(motivo):
+        return motivo[len(ORIGEM_NA_AGENTE_MARCADOR):]
+    return motivo or ""
+
+
+# [2026-07-17] Campo "sinalizado pelo agente como pendente de humano" — o
+# agente tentou resolver o campo (não é N/A, não confirmou) e concluiu que
+# precisa de intervenção humana. Sem isso, um campo assim fica visualmente
+# idêntico a um campo que ninguém nunca olhou. Guardado em
+# `extra_data_json['agent_pending'] = {field_id: motivo}` (chave nova,
+# aditiva — `extra_data_json` já é mesclado direto em cima do item_data por
+# `database.py::load_pillars`/`load_slabs`, sem precisar de coluna nova).
+AGENT_PENDING_KEY = "agent_pending"
+
+
+def campo_pendente_do_agente(item_data: dict, field_id: str) -> str | None:
+    """Motivo (ou None) se o agente sinalizou este campo como pendente de
+    humano — usado pela UI para pintar o campo de roxo."""
+    pendentes = (item_data or {}).get(AGENT_PENDING_KEY) or {}
+    if not isinstance(pendentes, dict):
+        return None
+    motivo = pendentes.get(str(field_id))
+    return motivo if isinstance(motivo, str) and motivo else None
+
 
 def migrar_validated_fields_legado(valor_antigo) -> dict:
     """Aceita o formato antigo (`list[str]` de field_ids) ou o novo

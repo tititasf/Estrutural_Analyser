@@ -15,6 +15,7 @@ import subprocess
 import sys
 import uuid
 from datetime import datetime, timezone
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -23,9 +24,16 @@ DEFAULT_DB = Path(r"D:\Agente-cad-PYSIDE\project_data.vision")
 DEFAULT_ROOT = Path(__file__).resolve().parent / "relatorios" / "qa_loop_runs"
 SCHEMA = "arete.qa_loop_state/v1"
 EVENT_SCHEMA = "arete.qa_loop_event/v1"
+METRICS_SCHEMA = "arete.qa_session_metrics/v1"
 CLASSES = ("PIL", "LAJ", "FV", "LV")
 LEVELS = ("N1", "N3", "N4")
 HUMAN_KINDS = {"visual", "rule", "qg7", "rag_promotion"}
+
+try:
+    from scripts.arete.qa_authority_matrix import class_validation_mode as _class_validation_mode
+except Exception:  # pragma: no cover
+    def _class_validation_mode(classe: str) -> str:
+        return "validation_ready" if classe.upper() in {"LAJ", "PIL"} else "diagnostic_only"
 
 
 def utc_now() -> str:
@@ -112,11 +120,146 @@ def compatible_state(
     return None
 
 
+def _parse_iso(ts: str | None) -> datetime | None:
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _aggregate_llm_usage(state: dict[str, Any]) -> dict[str, Any]:
+    """Soma tokens/custo a partir de state.llm_usage e eventos kind=llm_usage."""
+    base = dict(state.get("llm_usage") or {})
+    calls = list(base.get("calls") or [])
+    prompt = int(base.get("prompt_tokens") or 0)
+    completion = int(base.get("completion_tokens") or 0)
+    total = int(base.get("total_tokens") or 0)
+    cost = float(base.get("cost_usd") or 0.0)
+    models: dict[str, int] = dict(base.get("by_model") or {})
+    for event in state.get("events") or []:
+        if event.get("kind") != "llm_usage":
+            continue
+        # evita double-count se o evento já foi absorvido em state.llm_usage
+        if event.get("absorbed"):
+            continue
+        p = int(event.get("prompt_tokens") or 0)
+        c = int(event.get("completion_tokens") or 0)
+        t = int(event.get("total_tokens") or (p + c))
+        cu = float(event.get("cost_usd") or 0.0)
+        model = str(event.get("model") or "unknown")
+        prompt += p
+        completion += c
+        total += t
+        cost += cu
+        models[model] = models.get(model, 0) + 1
+        calls.append({
+            "at": event.get("at"),
+            "model": model,
+            "prompt_tokens": p,
+            "completion_tokens": c,
+            "total_tokens": t,
+            "cost_usd": cu,
+            "note": event.get("message") or event.get("note"),
+        })
+    return {
+        "schema": "arete.qa_llm_usage/v1",
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "total_tokens": total or (prompt + completion),
+        "cost_usd": round(cost, 6),
+        "calls_count": len(calls),
+        "by_model": models,
+        "calls": calls[-50:],  # últimas 50
+    }
+
+
+def build_session_metrics(state: dict[str, Any], *, root: Path | None = None) -> dict[str, Any]:
+    """Telemetria de sessão (session_metrics.v1) para auto-evolução mensurável."""
+    events = state.get("events") or []
+    kinds = Counter(str(event.get("kind") or "unknown") for event in events)
+    tasks = {
+        name: (payload or {}).get("status")
+        for name, payload in (state.get("tasks") or {}).items()
+    }
+    created = _parse_iso(state.get("created_at"))
+    updated = _parse_iso(state.get("updated_at") or utc_now())
+    duration_s = None
+    if created and updated:
+        duration_s = max(0.0, (updated - created).total_seconds())
+    cycle_events = [e for e in events if e.get("kind") in {"cycle_started", "cycle_finished"}]
+    run_dir = str(_run_dir(root, state["run_id"]).resolve()) if root and state.get("run_id") else None
+    llm_usage = _aggregate_llm_usage(state)
+    routing_signals = {
+        "used_review": (
+            "automatic_step" in kinds
+            or tasks.get("evidence_review") == "COMPLETE"
+            or int((state.get("cycle_phases") or {}).get("validate") or 0) > 0
+        ),
+        "used_pil_coverage": tasks.get("class_coverage") in {"COMPLETE", "FAILED"},
+        "waiting_human_visual": state.get("status") == "WAITING_HUMAN_VISUAL",
+        "waiting_human_qg7": state.get("status") == "WAITING_HUMAN_QG7",
+        "structured_questions": kinds.get("structured_question", 0),
+        "human_teachings": kinds.get("human_teaching", 0),
+        "llm_calls": llm_usage.get("calls_count", 0),
+        "cycle_phases": dict(state.get("cycle_phases") or {}),
+        "auto_phase_events": int(kinds.get("cycle_phase") or 0),
+    }
+    try:
+        from scripts.arete.qa_cycle_efficiency import build_cycle_efficiency
+
+        cycle_efficiency = build_cycle_efficiency(
+            state,
+            llm_usage=llm_usage,
+            routing_signals=routing_signals,
+            event_kinds=dict(kinds),
+        )
+    except Exception:
+        cycle_efficiency = {"schema": "arete.qa_cycle_efficiency/v1", "score": None, "grade": None, "error": "build_failed"}
+    return {
+        "schema": METRICS_SCHEMA,
+        "run_id": state.get("run_id"),
+        "created_at": state.get("created_at"),
+        "updated_at": state.get("updated_at") or utc_now(),
+        "duration_seconds": duration_s,
+        "scope": state.get("scope"),
+        "status": state.get("status"),
+        "cycle": state.get("cycle"),
+        "max_cycles": state.get("max_cycles"),
+        "authority": state.get("authority"),
+        "tasks": tasks,
+        "events_count": len(events),
+        "event_kinds": dict(kinds),
+        "cycle_events": len(cycle_events),
+        "teachings_count": len(state.get("teachings") or []),
+        "next_action": state.get("next_action"),
+        "llm_usage": llm_usage,
+        "cycle_efficiency": cycle_efficiency,
+        "paths": {
+            "run_dir": run_dir,
+            "state": str((_run_dir(root, state["run_id"]) / "state.json").resolve()) if run_dir else None,
+            "resume": str((_run_dir(root, state["run_id"]) / "RESUME.md").resolve()) if run_dir else None,
+            "session_metrics": str((_run_dir(root, state["run_id"]) / "session_metrics.json").resolve()) if run_dir else None,
+            "events": str((_run_dir(root, state["run_id"]) / "events.jsonl").resolve()) if run_dir else None,
+        },
+        "routing_signals": routing_signals,
+    }
+
+
+def write_session_metrics(root: Path, state: dict[str, Any]) -> Path:
+    metrics = build_session_metrics(state, root=root)
+    path = _run_dir(root, state["run_id"]) / "session_metrics.json"
+    _atomic_json(path, metrics)
+    return path
+
+
 def _persist(root: Path, state: dict[str, Any]) -> None:
     state["updated_at"] = utc_now()
     run_dir = _run_dir(root, state["run_id"])
     _atomic_json(run_dir / "state.json", state)
-    (run_dir / "RESUME.md").write_text(_resume_markdown(state), encoding="utf-8")
+    (run_dir / "RESUME.md").write_text(_resume_markdown(state, root=root), encoding="utf-8")
+    write_session_metrics(root, state)
 
 
 def _append_event(root: Path, state: dict[str, Any], kind: str, **payload: Any) -> dict[str, Any]:
@@ -137,7 +280,7 @@ def _append_event(root: Path, state: dict[str, Any], kind: str, **payload: Any) 
     return event
 
 
-def _resume_markdown(state: dict[str, Any]) -> str:
+def _resume_markdown(state: dict[str, Any], *, root: Path | None = None) -> str:
     scope = state["scope"]
     lines = [
         "# Retomada — QA Global de Evidências",
@@ -147,16 +290,77 @@ def _resume_markdown(state: dict[str, Any]) -> str:
         f"- Ciclo: {state['cycle']}/{state['max_cycles']}",
         f"- Escopo: `{scope['class']}` / `{scope['level']}` / `{', '.join(scope['items'])}`",
         f"- Projeto: `{scope['project_id']}`",
+        f"- Autoridade: `{state.get('authority')}`",
         "",
         "## Próxima ação",
         "",
         state.get("next_action") or "executar resume",
         "",
+        "## Paths absolutos (prova, não HTML genérico)",
+        "",
+    ]
+    if root and state.get("run_id"):
+        run_dir = _run_dir(root, state["run_id"]).resolve()
+        lines += [
+            f"- Run dir: `{run_dir}`",
+            f"- State: `{run_dir / 'state.json'}`",
+            f"- Events: `{run_dir / 'events.jsonl'}`",
+            f"- Session metrics: `{run_dir / 'session_metrics.json'}`",
+            f"- Evidence review: `{run_dir / 'evidence_review'}`",
+            "",
+        ]
+        try:
+            llm = _aggregate_llm_usage(state)
+            lines += [
+                "## LLM usage (sessão)",
+                "",
+                f"- Calls: {llm.get('calls_count', 0)}",
+                f"- Tokens: prompt={llm.get('prompt_tokens', 0)} "
+                f"completion={llm.get('completion_tokens', 0)} "
+                f"total={llm.get('total_tokens', 0)}",
+                f"- Custo USD (estimado): {llm.get('cost_usd', 0)}",
+                "",
+            ]
+        except Exception:
+            pass
+        try:
+            from scripts.arete.qa_cycle_efficiency import build_cycle_efficiency, efficiency_markdown_lines
+
+            eff = build_cycle_efficiency(state, llm_usage=_aggregate_llm_usage(state))
+            lines += efficiency_markdown_lines(eff)
+        except Exception:
+            pass
+        try:
+            from scripts.arete.qa_handoff_assets import find_latest_quadro
+
+            classe = (state.get("scope") or {}).get("class")
+            project_id = (state.get("scope") or {}).get("project_id")
+            if classe:
+                quadro = find_latest_quadro(classe=str(classe), project_id=project_id)
+                lines += [
+                    "## Quadro de estado",
+                    "",
+                    (
+                        f"- Quadro {classe}: `{quadro.resolve()}`"
+                        if quadro
+                        else f"- Quadro {classe}: não encontrado (gere com "
+                        f"`qa_{str(classe).lower()}_quadro_pavimento.py`)"
+                    ),
+                    "",
+                ]
+        except Exception:
+            pass
+    lines += [
         "## Limites humanos preservados",
         "",
         "- regra estrutural ambígua ou lacuna do manual;",
-        "- veredito visual;",
-        "- promoção QG7 e promoção RAG T1/T2.",
+        "- veredito visual (G2-V / N1-V / G5-V);",
+        "- promoção QG7 e promoção RAG T1/T2;",
+        "- PASS de segmento/contrato/probe **não** aprova ficha inteira.",
+        "",
+        "## Anti-super-selo",
+        "",
+        "- Ver `squads/qa-global-evidencias/checklists/operational-anti-superselo-checklist.md`.",
         "",
     ]
     return "\n".join(lines)
@@ -213,8 +417,10 @@ def create_state(
         "item_results": {},
         "teachings": [],
         "events": [],
+        "cycle_phases": {p: 0 for p in ("train", "validate", "visual", "fix", "regen")},
+        "pending_regen_after_fix": False,
         "next_action": "executar o primeiro ciclo automático",
-        "authority": "diagnostic_only" if classe in {"PIL", "FV", "LV"} else "validation_ready",
+        "authority": _class_validation_mode(classe),
     }
     _append_event(root, state, "run_created", scope=state["scope"])
     _persist(root, state)
@@ -232,6 +438,47 @@ def _execute(command: list[str], *, cwd: Path, stdout_path: Path, stderr_path: P
         "stdout": str(stdout_path.resolve()),
         "stderr": str(stderr_path.resolve()),
     }
+
+
+def _note_cycle_phase(
+    root: Path,
+    state: dict[str, Any],
+    phase: str,
+    *,
+    result: str = "DONE",
+    message: str = "",
+    evidence: list[str] | None = None,
+    source: str = "auto",
+    update_tasks: bool = False,
+) -> None:
+    """Incrementa cycle_phases + evento (sem persistir — caller persiste)."""
+    phase_n = str(phase or "").strip().lower()
+    if phase_n not in {"train", "validate", "visual", "fix", "regen"}:
+        return
+    result_n = str(result or "").strip().upper() or "DONE"
+    phases = state.setdefault("cycle_phases", {})
+    phases[phase_n] = int(phases.get(phase_n) or 0) + 1
+    _append_event(
+        root, state, "cycle_phase",
+        phase=phase_n,
+        result=result_n,
+        message=message,
+        evidence=list(evidence or []),
+        source=source,
+    )
+    if update_tasks:
+        if phase_n == "visual":
+            vis = state.setdefault("tasks", {}).setdefault("visual", {})
+            if isinstance(vis, dict):
+                vis["status"] = result_n
+                if message:
+                    vis["message"] = message
+        if phase_n == "fix":
+            state.setdefault("tasks", {})["last_fix"] = {
+                "status": result_n,
+                "message": message,
+                "evidence": list(evidence or []),
+            }
 
 
 def _run_review(root: Path, state: dict[str, Any], db: Path) -> None:
@@ -259,8 +506,16 @@ def _run_review(root: Path, state: dict[str, Any], db: Path) -> None:
         "--out-dir", str(out_dir),
     ]
     result = _execute(command, cwd=REPO_ROOT, stdout_path=run_dir / "logs" / "review.out", stderr_path=run_dir / "logs" / "review.err")
-    task.update({"status": "COMPLETE" if result["returncode"] == 0 else "FAILED", "result": result, "out_dir": str(out_dir.resolve())})
+    ok = result["returncode"] == 0
+    task.update({"status": "COMPLETE" if ok else "FAILED", "result": result, "out_dir": str(out_dir.resolve())})
     _append_event(root, state, "automatic_step", step="evidence_review", result=result)
+    _note_cycle_phase(
+        root, state, "validate",
+        result="PASS" if ok else "FAIL",
+        message=f"evidence_review {cycle_tag}",
+        evidence=[str(out_dir.resolve())],
+        source="auto_review",
+    )
 
 
 def _run_pil_coverage(root: Path, state: dict[str, Any], db: Path) -> None:
@@ -304,6 +559,13 @@ def _run_pil_coverage(root: Path, state: dict[str, Any], db: Path) -> None:
         _append_event(root, state, "automatic_step", step="pil_coverage", item=item, result=result)
     state["item_results"] = rows
     task.update({"status": "FAILED" if failed else "COMPLETE", "items": rows})
+    _note_cycle_phase(
+        root, state, "validate",
+        result="FAIL" if failed else "PASS",
+        message="pil_coverage/probes",
+        evidence=[str((run_dir / "coverage").resolve())],
+        source="auto_pil_coverage",
+    )
 
 
 def _derive_status(state: dict[str, Any]) -> None:
@@ -334,7 +596,10 @@ def _derive_status(state: dict[str, Any]) -> None:
         return
     if tasks["qg7"].get("status") == "PENDING":
         state["status"] = "WAITING_HUMAN_QG7"
-        state["next_action"] = "revisar a promoção QG7 do adaptador; não habilitar apply PIL por score ou por cobertura apenas"
+        state["next_action"] = (
+            "revisar checkpoint QG7 humano (ampliação de cobertura/geometrias e narrativa institucional); "
+            "cobertura/probes sozinhas não bastam; apply só com comando explícito e authority_matrix"
+        )
         return
     if tasks["qg7"].get("status") == "PASS" and state["authority"] == "diagnostic_only":
         state["status"] = "READY_FOR_PROMOTION"
@@ -372,6 +637,15 @@ def advance(root: Path, state: dict[str, Any], *, db: Path, force: bool = False)
         _append_event(root, state, "cycle_budget_exhausted")
         _persist(root, state)
         return state
+    # Após fix, o próximo advance assume regeneração de artefato antes de revalidar.
+    if state.get("pending_regen_after_fix"):
+        _note_cycle_phase(
+            root, state, "regen",
+            result="DONE",
+            message="assumido pós-fix antes do re-review (agente/motor regenerou artefato)",
+            source="auto_post_fix",
+        )
+        state["pending_regen_after_fix"] = False
     state["cycle"] += 1
     _append_event(root, state, "cycle_started")
     _run_review(root, state, db)
@@ -399,14 +673,40 @@ def record(
         if state["scope"]["class"] == "PIL":
             state["tasks"]["class_coverage"] = {"status": "PENDING"}
         state["status"] = "ACTIVE"
+        state["pending_regen_after_fix"] = True
         state["next_action"] = "retomar o ciclo para reverificar snapshot, cobertura e probes"
+        _note_cycle_phase(
+            root, state, "fix",
+            result=normalized,
+            message=message or "fix registrado",
+            evidence=evidence,
+            source="auto_record_fix",
+            update_tasks=True,
+        )
     elif kind == "visual":
         state["tasks"]["visual"] = {"status": normalized, "message": message, "evidence": evidence}
+        _note_cycle_phase(
+            root, state, "visual",
+            result=normalized,
+            message=message or "veredito visual",
+            evidence=evidence,
+            source="auto_record_visual",
+            update_tasks=False,  # tasks.visual já setado acima
+        )
         if normalized == "FAIL":
             state["status"] = "NEEDS_IMPLEMENTATION"
             state["next_action"] = "triangular o achado visual, corrigir por fórmula geral e registrar fix"
         else:
             _derive_status(state)
+    elif kind == "test":
+        _note_cycle_phase(
+            root, state, "validate",
+            result=normalized,
+            message=message or "test/regressão registrada",
+            evidence=evidence,
+            source="auto_record_test",
+        )
+        state["next_action"] = "usar resultado do teste no próximo microciclo (fix ou visual)"
     elif kind == "qg7":
         state["tasks"]["qg7"] = {"status": normalized, "message": message, "evidence": evidence}
         _derive_status(state)
@@ -421,6 +721,91 @@ def record(
         _derive_status(state)
     else:
         state["next_action"] = "usar a evidência registrada para executar o próximo passo técnico"
+    _persist(root, state)
+    return state
+
+
+def record_cycle_phase(
+    root: Path,
+    state: dict[str, Any],
+    *,
+    phase: str,
+    result: str,
+    message: str = "",
+    evidence: list[str] | None = None,
+) -> dict[str, Any]:
+    """Registra fase do ciclo treino/validação para a rubrica de eficiência."""
+    phase_n = str(phase or "").strip().lower()
+    if phase_n not in {"train", "validate", "visual", "fix", "regen"}:
+        raise ValueError("phase deve ser train|validate|visual|fix|regen")
+    _note_cycle_phase(
+        root, state, phase_n,
+        result=result,
+        message=message,
+        evidence=evidence,
+        source="manual",
+        update_tasks=True,
+    )
+    state["next_action"] = (
+        state.get("next_action")
+        or f"continuar após phase={phase_n} ({str(result or 'DONE').upper()}); ver cycle_efficiency no RESUME"
+    )
+    _persist(root, state)
+    return state
+
+
+def record_llm_usage(
+    root: Path,
+    state: dict[str, Any],
+    *,
+    prompt_tokens: int = 0,
+    completion_tokens: int = 0,
+    total_tokens: int | None = None,
+    cost_usd: float = 0.0,
+    model: str = "unknown",
+    note: str = "",
+) -> dict[str, Any]:
+    """Registra uso de LLM na sessão (tokens/custo) e atualiza session_metrics."""
+    p = max(0, int(prompt_tokens))
+    c = max(0, int(completion_tokens))
+    t = int(total_tokens) if total_tokens is not None else (p + c)
+    cu = max(0.0, float(cost_usd))
+    model_name = (model or "unknown").strip() or "unknown"
+    usage = state.setdefault("llm_usage", {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+        "by_model": {},
+        "calls": [],
+    })
+    usage["prompt_tokens"] = int(usage.get("prompt_tokens") or 0) + p
+    usage["completion_tokens"] = int(usage.get("completion_tokens") or 0) + c
+    usage["total_tokens"] = int(usage.get("total_tokens") or 0) + t
+    usage["cost_usd"] = round(float(usage.get("cost_usd") or 0.0) + cu, 6)
+    by_model = usage.setdefault("by_model", {})
+    by_model[model_name] = int(by_model.get(model_name) or 0) + 1
+    call = {
+        "at": utc_now(),
+        "model": model_name,
+        "prompt_tokens": p,
+        "completion_tokens": c,
+        "total_tokens": t,
+        "cost_usd": cu,
+        "note": note,
+    }
+    usage.setdefault("calls", []).append(call)
+    _append_event(
+        root, state, "llm_usage",
+        absorbed=True,
+        prompt_tokens=p,
+        completion_tokens=c,
+        total_tokens=t,
+        cost_usd=cu,
+        model=model_name,
+        message=note,
+    )
+    state["next_action"] = state.get("next_action") or "continuar microciclo; LLM usage registrado"
     _persist(root, state)
     return state
 
@@ -457,6 +842,13 @@ def teach(
     _atomic_json(path, teaching)
     state.setdefault("teachings", []).append(str(path.resolve()))
     _append_event(root, state, "human_teaching", teaching=str(path.resolve()), family=family, field=field)
+    _note_cycle_phase(
+        root, state, "train",
+        result="TEACH",
+        message=f"ensino {family}/{field}",
+        evidence=[str(path.resolve())],
+        source="auto_teach",
+    )
     state["status"] = "NEEDS_IMPLEMENTATION"
     state["next_action"] = (
         f"traduzir o ensino {family}/{field} em fórmula geral + teste positivo/negativo; "
@@ -504,6 +896,13 @@ def ask_question(
     path = _run_dir(root, state["run_id"]) / "questions" / f"{question['question_id']}.json"
     _atomic_json(path, question)
     _append_event(root, state, "structured_question", question=str(path.resolve()), gate=gate)
+    _note_cycle_phase(
+        root, state, "train",
+        result="QUESTION",
+        message=f"pergunta estruturada gate={gate}",
+        evidence=[str(path.resolve())],
+        source="auto_question",
+    )
     state["status"] = "WAITING_HUMAN_RULE"
     state["next_action"] = (
         f"responder a pergunta estruturada em {path.resolve()} e registrar com `teach`; "
@@ -514,6 +913,7 @@ def ask_question(
 
 
 def _print_state(state: dict[str, Any], root: Path) -> None:
+    metrics_path = _run_dir(root, state["run_id"]) / "session_metrics.json"
     print(json.dumps({
         "run_id": state["run_id"],
         "status": state["status"],
@@ -523,6 +923,7 @@ def _print_state(state: dict[str, Any], root: Path) -> None:
         "next_action": state["next_action"],
         "state": str(_state_path(root, state["run_id"]).resolve()),
         "resume": str((_run_dir(root, state["run_id"]) / "RESUME.md").resolve()),
+        "session_metrics": str(metrics_path.resolve()) if metrics_path.is_file() else None,
     }, ensure_ascii=False, indent=2))
 
 
@@ -566,6 +967,25 @@ def main(argv: list[str] | None = None) -> int:
     rec.add_argument("--result", required=True)
     rec.add_argument("--message", default="")
     rec.add_argument("--evidence", action="append", default=[])
+
+    llm = sub.add_parser("record-llm", help="Registra tokens/custo LLM na sessão (session_metrics.llm_usage)")
+    llm.add_argument("--run", required=True)
+    llm.add_argument("--prompt-tokens", type=int, default=0)
+    llm.add_argument("--completion-tokens", type=int, default=0)
+    llm.add_argument("--total-tokens", type=int, default=None)
+    llm.add_argument("--cost-usd", type=float, default=0.0)
+    llm.add_argument("--model", default="unknown")
+    llm.add_argument("--note", default="")
+
+    cyc = sub.add_parser(
+        "record-cycle",
+        help="Registra fase train|validate|visual|fix|regen (rubrica cycle_efficiency)",
+    )
+    cyc.add_argument("--run", required=True)
+    cyc.add_argument("--phase", required=True, choices=("train", "validate", "visual", "fix", "regen"))
+    cyc.add_argument("--result", default="DONE")
+    cyc.add_argument("--message", default="")
+    cyc.add_argument("--evidence", action="append", default=[])
 
     teaching = sub.add_parser("teach")
     teaching.add_argument("--run", required=True)
@@ -647,6 +1067,26 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     elif args.command == "record":
         state = record(root, load_state(root, args.run), kind=args.kind, result=args.result, message=args.message, evidence=args.evidence)
+    elif args.command == "record-llm":
+        state = record_llm_usage(
+            root,
+            load_state(root, args.run),
+            prompt_tokens=args.prompt_tokens,
+            completion_tokens=args.completion_tokens,
+            total_tokens=args.total_tokens,
+            cost_usd=args.cost_usd,
+            model=args.model,
+            note=args.note,
+        )
+    elif args.command == "record-cycle":
+        state = record_cycle_phase(
+            root,
+            load_state(root, args.run),
+            phase=args.phase,
+            result=args.result,
+            message=args.message,
+            evidence=args.evidence,
+        )
     elif args.command == "teach":
         state = teach(
             root,

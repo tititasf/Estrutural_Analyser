@@ -248,6 +248,55 @@ def test_locked_fundo_restoration_discards_newly_inferred_segments():
     )
 
 
+def test_locked_fundo_restoration_drops_exact_duplicate_index():
+    """Regressão real V331 (2026-07-21, coordenadas reais do 13_PAV).
+
+    Dados legados sem rastro de proveniência (travados pela regra de nunca
+    perder possível dado humano) tinham 2 índices apontando pra EXATAMENTE
+    a mesma geometria (mesmos pontos, mesmo comprimento 201cm) — artefato
+    de persistência antiga, não dois segmentos reais. A restauração deve
+    manter só 1 índice (o de menor número); geometria idêntica nunca pode
+    virar 2 segmentos duplicados na ficha final.
+    """
+    validated = _beam()
+    validated["id"] = "project_v331"
+    contour_points = [
+        (4601.3825, 2460.038), (4620.3825, 2460.038),
+        (4620.3825, 2661.038), (4601.3825, 2661.038),
+    ]
+    validated["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["points"] = (
+        contour_points
+    )
+    validated["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["len"] = 201.0
+    validated["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["validated"] = (
+        True
+    )
+    validated["links"]["viga_fundo_seg_2_area_segs"] = {
+        "contour": [{
+            "points": list(contour_points),
+            "len": 201.0,
+        }]
+    }
+
+    target = _beam()
+    target["id"] = "project_v331"
+    target["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["points"] = (
+        contour_points
+    )
+    target["links"]["viga_fundo_seg_2_area_segs"] = {
+        "contour": [{"points": list(contour_points), "len": 201.0}]
+    }
+    target["geometry"] = {"classified": {
+        "merged_bottom_groups_coords": [(2460.038, 2661.038)],
+    }}
+
+    assert restore_locked_fundo_topology(target, validated) is True
+    assert "viga_fundo_seg_2_area_segs" not in target["links"]
+    assert target["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["len"] == (
+        201.0
+    )
+
+
 def test_lock_excludes_unvalidated_contour_added_after_human_validation():
     beam = _beam()
     beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0][
@@ -543,6 +592,54 @@ def test_stale_decision_from_another_beam_id_does_not_block_harmonization():
     assert preficha_geometry_policy(
         beam, "viga_a_seg_1_comprimento_total"
     ) == "infer"
+
+
+def test_stale_lateral_divergent_from_fundo_edge_is_repaired():
+    """Lado com valor presente e distinto de B, mas fora da borda real do
+    fundo, precisa ser corrigido — não só os casos vazio/duplicado.
+
+    Reproduz o achado em producao (P35/V308): o lado A tinha um link antigo
+    ~8,7cm deslocado da borda real do contorno de fundo, sem ser vazio nem
+    identico ao lado B — nenhum dos dois gatilhos antigos de reparo cobria
+    esse caso, então o link furado nunca era corrigido.
+    """
+    beam = _beam()
+    # Fundo: y de 0 a 20 (borda A real = y=20). Link A gravado com um offset
+    # de 8,7cm (nem vazio, nem igual ao lado B) — inconsistente com a fonte
+    # mais forte (o proprio contorno de fundo).
+    beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["points"] = [
+        (0, 11.3), (100, 11.3),
+    ]
+    beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"][0]["points"] = [
+        (0, 11.3), (100, 11.3),
+    ]
+
+    collected = collect_preficha_segments([beam])
+
+    for behavior in ("para", "passa"):
+        assert collected[f"lateral_a_{behavior}"][0]["points"] == [(0.0, 20.0), (100.0, 20.0)]
+        assert collected[f"lateral_b_{behavior}"][0]["points"] == [(0.0, 0.0), (100.0, 0.0)]
+    assert beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["geometry_source"] == "fundo_edge_fallback"
+
+
+def test_human_validated_lateral_divergent_from_fundo_edge_is_preserved():
+    """Decisão humana (status 'valid') nunca é sobrescrita, mesmo divergindo
+    do contorno de fundo — a heurística geométrica cede à confirmação humana.
+    """
+    beam = _beam()
+    offset_points = [(0, 11.3), (100, 11.3)]
+    beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["points"] = list(offset_points)
+    beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"][0]["points"] = list(offset_points)
+    beam["preficha_segmentos"] = {
+        f"lateral_a_para|{beam.get('id') or beam.get('name')}|1|1": {
+            "status": "valid",
+            "source_key": "viga_a_seg_1_comprimento_total",
+        },
+    }
+
+    collected = collect_preficha_segments([beam])
+
+    assert collected["lateral_a_para"][0]["points"] == [(0.0, 11.3), (100.0, 11.3)]
 
 
 def test_fragments_with_same_parent_name_keep_distinct_uids():

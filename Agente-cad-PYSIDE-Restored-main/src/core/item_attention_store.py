@@ -12,6 +12,15 @@ DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 HUMAN_VALIDATION_ORIGINS = {"human", "human_ui", "manual", "operator", "ui", "ui_click", "user", "user_click"}
 MACHINE_VALIDATION_ORIGINS = {"agent", "ai", "auto", "batch", "cli", "headless", "looper", "machine", "pipeline", "script", "synthetic"}
 
+# PERFORMANCE: ensure_table() roda CREATE TABLE/CREATE INDEX/PRAGMA/ALTER TABLE
+# a cada chamada. load_attention()/has_attention()/is_human_validated() são
+# chamadas por ITEM ao popular listas na UI (Comparison Engine) — com 100+
+# itens isso significava 100+ rodadas de DDL síncronas na thread da GUI,
+# medido como a causa dominante de freezes de vários segundos ao trocar de
+# obra/pavimento (freeze_dump.log). O schema não muda durante o processo
+# rodando, então "já garantido nesta sessão" é seguro, não só rápido.
+_ENSURED_DB_PATHS: set[str] = set()
+
 
 def _norm(value) -> str:
     return str(value or "").strip()
@@ -39,6 +48,9 @@ def _key(obra: str, pavimento: str, classe: str, item_id: str, scope: str) -> st
 
 def ensure_table(db_path: Path | str = DB_PATH) -> None:
     db_path = Path(db_path)
+    cache_key = str(db_path)
+    if cache_key in _ENSURED_DB_PATHS:
+        return
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(str(db_path)) as conn:
         conn.execute(
@@ -72,6 +84,38 @@ def ensure_table(db_path: Path | str = DB_PATH) -> None:
             conn.execute("ALTER TABLE item_attention_notes ADD COLUMN updated_by TEXT DEFAULT ''")
         if "metadata_json" not in cols:
             conn.execute("ALTER TABLE item_attention_notes ADD COLUMN metadata_json TEXT DEFAULT '{}'")
+    _ENSURED_DB_PATHS.add(cache_key)
+
+
+def load_attention_bulk(
+    obra: str,
+    pavimento: str,
+    db_path: Path | str = DB_PATH,
+) -> dict[tuple[str, str, str], dict]:
+    """Uma única consulta para todas as notas/validações de (obra, pavimento).
+
+    Usado pela UI (Comparison Engine) para popular listas de N itens sem N
+    round-trips SQLite — mesmo formato de retorno de load_attention(), chave
+    (classe, item_id, scope). Sem fallback de pavimento (diferente de
+    get_validation_policy em artifact_governance.py); quem chamar isto deve
+    aceitar dict vazio == "sem nota/validação gravada para este escopo".
+    """
+    ensure_table(db_path)
+    out: dict[tuple[str, str, str], dict] = {}
+    with sqlite3.connect(str(db_path)) as conn:
+        cur = conn.execute(
+            "SELECT classe, item_id, scope, attention, note, "
+            "COALESCE(human_validated, 0) "
+            "FROM item_attention_notes WHERE obra_name=? AND pavimento=?",
+            (_norm(obra), _norm(pavimento)),
+        )
+        for classe, item_id, scope, attention, note, human_validated in cur.fetchall():
+            out[(str(classe).upper(), str(item_id), str(scope).upper())] = {
+                "attention": bool(attention),
+                "note": note or "",
+                "human_validated": bool(human_validated),
+            }
+    return out
 
 
 def load_attention(

@@ -1,0 +1,22 @@
+---
+pid: 15772
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cd D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main; D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe scripts/arete/qa_g2v_record_verdict.py --relatorio scripts/arete/relatorios/g2v/20260716_delta19_refresh/relatorio.json --item V320 --from-json scripts/arete/relatorios/g2v/20260716_delta19_refresh/verdict_V320.json; D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe scripts/arete/qa_g2v_record_verdict.py --relatorio scripts/arete/relatorios/g2v/20260716_delta19_refresh/relatorio.json --item V309A --from-json scripts/arete/relatorios/g2v/20260716_delta19_refresh/verdict_V309A.json; D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe scripts/arete/g2v_batch_mosaic.py --relatorio scripts/arete/relatorios/g2v/20260716_delta19_refresh/relatorio.json --out scripts/arete/relatorios/g2v/20260716_delta19_refresh/PACK_MOSAIC_DELTA19_REFRESH.png --max-panels 4 --max-panel-w 400 --max-panel-h 280"
+started_at: 2026-07-16T20:43:44.670Z
+running_for_ms: 66650010 
+---
+{
+  "relatorio": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_delta19_refresh\\relatorio.json",
+  "pack": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_delta19_refresh\\vereditos_registrados\\FV_V320_cli.json",
+  "md": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_delta19_refresh\\vereditos_registrados\\FV_V320_cli.md",
+  "veredito": "FAIL"
+}
+{
+  "relatorio": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_delta19_refresh\\relatorio.json",
+  "pack": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_delta19_refresh\\vereditos_registrados\\FV_V309A_cli.json",
+  "md": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_delta19_refresh\\vereditos_registrados\\FV_V309A_cli.md",
+  "veredito": "FAIL"
+}
+  V320: scripts\arete\relatorios\g2v\20260716_delta19_refresh\_mosaic_tmp\mosaic_V320.png
+  V309A: scripts\arete\relatorios\g2v\20260716_delta19_refresh\_mosaic_tmp\mosaic_V309A.png
+Pack: scripts\arete\relatorios\g2v\20260716_delta19_refresh\PACK_MOSAIC_DELTA19_REFRESH.png

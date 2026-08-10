@@ -9,7 +9,10 @@ recorte gerado pelo RecorteMotor).
 from __future__ import annotations
 
 import logging
+import math
 import sqlite3
+import time
+import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -77,7 +80,10 @@ def listar_brutos_recorte_endpoint(obra_id: str, request: Request,
     from pathlib import Path
     por_stem = {Path(d["arquivo_nome"]).stem.lower(): d for d in repo.listar_documentos_por_obra(conn, obra_id)}
     for bruto in brutos:
-        doc = por_stem.get(Path(bruto["nome"]).stem.lower())
+        stem = Path(bruto["nome"]).stem.lower()
+        base = recortes_reader.stem_bruto_canonico(stem).lower()
+        # ODA stem não está em portal_documentos (só o DWG original) — cai no base
+        doc = por_stem.get(stem) or por_stem.get(base)
         bruto["pavimento"] = (doc.get("pavimento_confirmado") or doc.get("pavimento_sugerido")) if doc else None
         bruto["tipo_documento"] = (
             (doc.get("tipo_documento_confirmado") or doc.get("tipo_documento_sugerido")) if doc else None
@@ -110,7 +116,6 @@ def foto_bruto_completo_endpoint(obra_id: str, bruto_id: str, request: Request,
                                   conn: sqlite3.Connection = Depends(get_db_conn)):
     """A planta INTEIRA do bruto (DXF de entrada), alta resolução — sem
     recorte nenhum, pra comparar com as torres/detalhes já limpos."""
-    import traceback
     try:
         obra = _obra_do_membro(conn, obra_id, membro)
         obra_dir = _obra_dir(request, obra)
@@ -126,14 +131,20 @@ def foto_bruto_completo_endpoint(obra_id: str, bruto_id: str, request: Request,
             svg = dxf_preview.renderizar_dxf_completo_cacheado(entrada, cache_dir)
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
-        return Response(content=svg, media_type="image/svg+xml")
-
-
-    except Exception as e:
-        err_msg = str(e) + "\n" + traceback.format_exc()
-        with open("C:/Users/Thierry/Desktop/err_foto.txt", "w", encoding="utf-8") as f:
-            f.write(err_msg)
-        raise HTTPException(status_code=500, detail=err_msg)
+        return Response(
+            content=svg,
+            media_type="image/svg+xml",
+            headers={"Cache-Control": "private, max-age=3600"},
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        # [2026-07-30] Removida a escrita de C:/Users/Thierry/Desktop/err_foto.txt
+        # (caminho de Desktop fixo num processo de servidor). Vai para o log.
+        logging.getLogger("portal.recortes_routes").exception(
+            "foto_bruto_completo falhou: obra=%s bruto=%s", obra_id, bruto_id
+        )
+        raise HTTPException(status_code=500, detail=f"falha ao renderizar: {exc}") from exc
 @router.get("/{obra_id}/recortes/brutos/{bruto_id}/itens")
 def listar_itens_torre_endpoint(obra_id: str, bruto_id: str, request: Request,
                                  membro: dict = Depends(auth.exige_login),
@@ -182,8 +193,7 @@ def arquivo_recorte_endpoint(obra_id: str, bruto_id: str, item_id: str, request:
 def foto_torre_endpoint(obra_id: str, bruto_id: str, item_id: str, request: Request,
                          membro: dict = Depends(auth.exige_login),
                          conn: sqlite3.Connection = Depends(get_db_conn)):
-    """Foto INTEIRA em alta resolução (2400px no lado maior) — torre limpa ou
-    detalhes/convenções, sempre o desenho completo, nunca um crop por elemento."""
+    """Foto INTEIRA da torre limpa / detalhes (SVG, PREVIEW_ALVO_PX)."""
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
     item = torre_crop.obter_recorte_bruto(obra_dir, bruto_id, item_id)
@@ -194,7 +204,11 @@ def foto_torre_endpoint(obra_id: str, bruto_id: str, item_id: str, request: Requ
         svg = dxf_preview.renderizar_dxf_completo_cacheado(Path(item["path"]), cache_dir)
     except Exception as exc:  # noqa: BLE001 - DXF pode ter geometria que o renderer nao suporta
         raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
-    return Response(content=svg, media_type="image/svg+xml")
+    return Response(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.get("/{obra_id}/recortes/{classe}")
@@ -286,7 +300,6 @@ class ManualCropPayload(BaseModel):
 def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload, request: Request,
                          membro: dict = Depends(auth.exige_login),
                          conn: sqlite3.Connection = Depends(get_db_conn)):
-    import traceback
     try:
         obra = _obra_do_membro(conn, obra_id, membro)
         obra_dir = _obra_dir(request, obra)
@@ -299,28 +312,44 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
         bruto_path = obra_dir / "entrada" / bruto["nome"]
         if not bruto_path.is_file():
             raise HTTPException(status_code=404, detail="DXF nao encontrado")
+        if not payload.bboxes:
+            raise HTTPException(status_code=422, detail="Desenhe pelo menos um recorte")
 
-        bbox_dxf = dxf_preview.obter_bbox_dxf(bruto_path)
-        if not bbox_dxf:
+        # [2026-07-30] A transform vem do RENDER, não é mais recalculada aqui.
+        # Antes esta rota reproduzia a fórmula de renderizar_dxf_completo_cacheado
+        # (margem 0.03 + proporção do desenho). Dava o mesmo resultado — conferido,
+        # erro zero — mas só enquanto as duas contas ficassem idênticas. Mudar
+        # alvo_px/margem/proporção de um lado deslocaria todo recorte manual sem
+        # erro nenhum. Agora existe uma fonte só.
+        transform = dxf_preview.transform_preview_completo(
+            bruto_path, cache_dir=obra_dir / ".previews"
+        )
+        if transform is None:
             raise HTTPException(status_code=500, detail="Nao foi possivel ler os limites do DXF")
-
-        x0, y0, x1, y1 = bbox_dxf
-        margem_pct = 0.03
-        margem_x = max((x1 - x0) * margem_pct, 0.5)
-        margem_y = max((y1 - y0) * margem_pct, 0.5)
-
-        rx0, ry0 = x0 - margem_x, y0 - margem_y
-        rx1, ry1 = x1 + margem_x, y1 + margem_y
-
-        rw = rx1 - rx0
-        rh = ry1 - ry0
 
         dxf_bboxes = []
         for b in payload.bboxes:
-            cx0 = rx0 + b.x_pct * rw
-            cx1 = cx0 + b.w_pct * rw
-            cy1 = ry1 - b.y_pct * rh
-            cy0 = cy1 - b.h_pct * rh
+            valores = (b.x_pct, b.y_pct, b.w_pct, b.h_pct)
+            if not all(math.isfinite(v) for v in valores):
+                raise HTTPException(status_code=422, detail="Coordenadas do recorte invalidas")
+            if b.w_pct <= 0 or b.h_pct <= 0:
+                raise HTTPException(status_code=422, detail="O recorte precisa ter largura e altura")
+            tolerancia = 1e-6
+            if (b.x_pct < -tolerancia or b.y_pct < -tolerancia
+                    or b.x_pct + b.w_pct > 1 + tolerancia
+                    or b.y_pct + b.h_pct > 1 + tolerancia):
+                raise HTTPException(status_code=422, detail="O recorte precisa ficar dentro da imagem")
+            x_pct = max(0.0, min(1.0, b.x_pct))
+            y_pct = max(0.0, min(1.0, b.y_pct))
+            x2_pct = max(0.0, min(1.0, b.x_pct + b.w_pct))
+            y2_pct = max(0.0, min(1.0, b.y_pct + b.h_pct))
+            # Percentuais da imagem exibida -> pixel -> coordenada DXF.
+            px_esq = x_pct * transform.largura_px
+            px_dir = x2_pct * transform.largura_px
+            py_topo = y_pct * transform.altura_px
+            py_base = y2_pct * transform.altura_px
+            cx0, cy1 = transform.px_para_dxf(px_esq, py_topo)
+            cx1, cy0 = transform.px_para_dxf(px_dir, py_base)
             dxf_bboxes.append([cx0, cy0, cx1, cy1])
 
         out_dir = torre_crop._dir_recortes_bruto(obra_dir, bruto_id)
@@ -328,27 +357,55 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
 
         import re
         nome_alvo = re.sub(r'[^a-zA-Z0-9_]', '_', payload.classe_alvo)
+        if not nome_alvo.strip("_"):
+            raise HTTPException(status_code=422, detail="Escolha um nome valido para o recorte")
         out_path = out_dir / f"{nome_alvo}.dxf"
+        tmp_path = out_dir / f".{nome_alvo}.{uuid.uuid4().hex}.tmp.dxf"
 
         from scripts.obra_crop_engine import crop_dxf, crop_dxf_multi
-        if len(dxf_bboxes) == 1:
-            crop = crop_dxf(bruto_path, out_path, dxf_bboxes[0], padding_pct=0.0)
-        else:
-            crop = crop_dxf_multi(bruto_path, out_path, dxf_bboxes, padding_pct=0.0)
+        inicio_crop = time.perf_counter()
+        try:
+            if len(dxf_bboxes) == 1:
+                crop = crop_dxf(
+                    bruto_path, tmp_path, dxf_bboxes[0], padding_pct=0.0,
+                    selection_mode="contained",
+                )
+            else:
+                crop = crop_dxf_multi(
+                    bruto_path, tmp_path, dxf_bboxes, padding_pct=0.0,
+                    selection_mode="contained",
+                )
 
-        if crop.get("error"):
-            raise HTTPException(status_code=500, detail=crop["error"])
+            if crop.get("error"):
+                raise HTTPException(status_code=422, detail=crop["error"])
+            tmp_path.replace(out_path)
+        finally:
+            if tmp_path.exists():
+                tmp_path.unlink(missing_ok=True)
+        duracao_ms = round((time.perf_counter() - inicio_crop) * 1000)
 
         data = torre_crop._ler_validacao(out_dir)
         data[nome_alvo] = True
         torre_crop._salvar_validacao(out_dir, data)
 
-        return {"status": "ok", "torre": nome_alvo}
-    except Exception as e:
-        err_msg = str(e) + "\n" + traceback.format_exc()
-        with open("C:/Users/Thierry/Desktop/err_crop.txt", "w", encoding="utf-8") as f:
-            f.write(err_msg)
-        raise HTTPException(status_code=500, detail=err_msg)
+        return {
+            "status": "ok",
+            "torre": nome_alvo,
+            "bboxes_dxf": dxf_bboxes,
+            "entities_copied": crop.get("entities_copied", 0),
+            "entities_skipped_outside": crop.get("entities_skipped_outside", 0),
+            "duration_ms": duracao_ms,
+        }
+    except HTTPException:
+        raise  # 404/500 já tratados acima não viram 500 genérico com stack
+    except Exception as exc:  # noqa: BLE001 - falha de crop vira erro de request
+        # [2026-07-30] Removida a escrita de C:/Users/Thierry/Desktop/err_crop.txt:
+        # caminho de Desktop fixo, gravado a cada exceção, quebra em qualquer
+        # máquina que não seja a do dono — e o portal é servidor. Vai para o log.
+        logging.getLogger("portal.recortes_routes").exception(
+            "manual_crop falhou: obra=%s bruto=%s", obra_id, bruto_id
+        )
+        raise HTTPException(status_code=500, detail=f"falha ao recortar: {exc}") from exc
 
 @router.post("/{obra_id}/recortes/brutos/{bruto_id}/reprocessar")
 def reprocessar_bruto_endpoint(obra_id: str, bruto_id: str, request: Request,

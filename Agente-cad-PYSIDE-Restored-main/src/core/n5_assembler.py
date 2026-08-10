@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -11,6 +13,8 @@ from ezdxf import bbox
 from ezdxf.addons import Importer
 
 from scripts.visual_modes import apply_visual_mode, normalize_visual_mode
+
+_log = logging.getLogger("src.core.n5_assembler")
 
 
 @dataclass
@@ -44,6 +48,13 @@ _PREFIX = {
     "PL": "PL_preview_",
     "LV": "LV_preview_",
     "FV": "FV_preview_",
+}
+
+_CLASSE_DB_ALIASES = {
+    "PL": ("PIL", "PL"),
+    "LJ": ("LAJ", "LJ"),
+    "FV": ("FV", "FUNDO"),
+    "LV": ("LV",),
 }
 
 _SENTINEL_X = -5000.0
@@ -277,7 +288,9 @@ def _find_n3_previews(obra_dir: Path, classe: str, item_id: str) -> list[Path]:
             fase6 / f"PL_{zone}_preview_{item_id}.dxf"
             for zone in ("CIMA", "ABCD", "GRADES", "EFGH")
         ]
-        return [path for path in zones if path.exists()]
+        zones_found = [path for path in zones if path.exists()]
+        if zones_found:
+            return zones_found
 
     candidates = _fv_aliases(item_id) if classe == "FV" else [item_id]
     if classe == "LV":
@@ -291,6 +304,19 @@ def _find_n3_previews(obra_dir: Path, classe: str, item_id: str) -> list[Path]:
         path = fase6 / f"{pfx}{cand}.dxf"
         if path.exists():
             return [path]
+        # P5: Busca secundária em Fase-4_Detalhamento e Fase-2_Triagem/recortes_web (itens do motor / manuais)
+        fase4 = obra_dir / "Fase-4_Detalhamento" / f"{pfx}{cand}.dxf"
+        if fase4.exists():
+            return [fase4]
+        for db_cls in _CLASSE_DB_ALIASES.get(classe, (classe,)):
+            fase4_cls = obra_dir / "Fase-4_Detalhamento" / f"{db_cls}_{cand}.dxf"
+            if fase4_cls.exists():
+                return [fase4_cls]
+            recortes_dir = obra_dir / "Fase-2_Triagem" / "recortes_web"
+            if recortes_dir.exists():
+                matches = list(recortes_dir.rglob(f"{db_cls}_{cand}.dxf"))
+                if matches:
+                    return [matches[0]]
     return []
 
 
@@ -302,15 +328,88 @@ def _find_n3_preview(obra_dir: Path, classe: str, item_id: str) -> Path | None:
 def _discover_item_ids(obra_dir: Path, classe: str) -> list[str]:
     fase6 = obra_dir / "Fase-6_Execucao_CAD"
     pfx = _PREFIX.get(classe)
-    if not pfx or not fase6.exists():
+    if not pfx:
         return []
     ids = []
-    for path in fase6.glob(f"{pfx}*.dxf"):
-        stem = path.stem.replace(pfx.rstrip("_"), "", 1).lstrip("_")
-        if stem.endswith("_detail_test"):
-            continue
-        ids.append(stem)
+    if fase6.exists():
+        for path in fase6.glob(f"{pfx}*.dxf"):
+            stem = path.stem.replace(pfx.rstrip("_"), "", 1).lstrip("_")
+            if stem.endswith("_detail_test"):
+                continue
+            ids.append(stem)
+
+    # P5: Descobrir também em Fase-4_Detalhamento e recortes_web (itens manuais sem N3 em fase6)
+    fase4 = obra_dir / "Fase-4_Detalhamento"
+    if fase4.exists():
+        for path in fase4.glob(f"{pfx}*.dxf"):
+            stem = path.stem.replace(pfx.rstrip("_"), "", 1).lstrip("_")
+            if not stem.endswith("_detail_test"):
+                ids.append(stem)
+    recortes_dir = obra_dir / "Fase-2_Triagem" / "recortes_web"
+    if recortes_dir.exists():
+        for db_cls in _CLASSE_DB_ALIASES.get(classe, (classe,)):
+            for path in recortes_dir.rglob(f"{db_cls}_*.dxf"):
+                stem = path.stem.replace(f"{db_cls}_", "", 1)
+                if stem and not stem.endswith("_detail_test"):
+                    ids.append(stem)
+
     return sorted(set(ids), key=natural_key)
+
+
+def _get_db_expected_item_ids(obra_dir: Path, classe: str, pavimento: str, db_path: str | Path | None) -> set[str]:
+    """Elemento_ids no banco SA que o N5 DEVE incluir (escape hatch + aprovados).
+
+    Usa só `reverse_eng_fichas` — tem pavimento e é a fonte com UNIQUE por item.
+    `reverse_eng_recortes` não tem coluna pavimento no schema oficial; consultar
+    lá com SELECT pavimento quebrava a completude em silêncio (except genérico).
+
+    Status `manual` entra de propósito: item criado pelo laço web (P3) precisa
+    aparecer na prancha; se o preview N3 sumiu, vira missing_count alto (P5).
+    """
+    if db_path is None:
+        return set()
+    caminho_db = Path(db_path)
+    if not caminho_db.is_file():
+        return set()
+    obra_name = obra_dir.name
+    db_classes = _CLASSE_DB_ALIASES.get(classe, (classe,))
+    placeholders = ",".join("?" for _ in db_classes)
+    expected: set[str] = set()
+    try:
+        from src.core.obra_identity import normalizar_pavimento
+    except Exception:  # pragma: no cover - fallback se import falhar em harnesss isolados
+        normalizar_pavimento = lambda p: p  # type: ignore[assignment]
+    pav_norm = normalizar_pavimento(pavimento) or str(pavimento or "").strip()
+    status_ok = {"aprovado", "manual", "manual_sel", "auto_aprovado", "motor", "pendente", "draft"}
+    try:
+        conn = sqlite3.connect(str(caminho_db))
+        try:
+            res = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='reverse_eng_fichas'"
+            ).fetchone()
+            if not res:
+                return set()
+            sql = (
+                "SELECT elemento_id, pavimento, status FROM reverse_eng_fichas "
+                f"WHERE obra_name=? AND UPPER(classe) IN ({placeholders})"
+            )
+            params = [obra_name] + [c.upper() for c in db_classes]
+            for row in conn.execute(sql, params).fetchall():
+                st = str(row[2] or "").lower()
+                if st not in status_ok:
+                    continue
+                if pav_norm and pav_norm not in ("GERAL", ""):
+                    row_pav = normalizar_pavimento(row[1]) or str(row[1] or "").strip()
+                    if row_pav != pav_norm:
+                        continue
+                eid = str(row[0] or "").strip()
+                if eid:
+                    expected.add(eid)
+        finally:
+            conn.close()
+    except Exception as exc:
+        _log.warning("falha ao consultar completude no banco SA %s: %s", caminho_db, exc)
+    return expected
 
 
 def assemble_n5(
@@ -321,6 +420,7 @@ def assemble_n5(
     row_width: float | None = None,
     visual_mode: str = "NOVA",
     item_positions: dict[str, tuple[float, float]] | None = None,
+    db_path: str | Path | None = None,
 ) -> N5AssemblyResult:
     """Monta um DXF N5 consolidado a partir dos previews N3.
 
@@ -337,6 +437,21 @@ def assemble_n5(
     if not ids:
         ids = _discover_item_ids(obra_dir, classe)
     ids = sorted(dict.fromkeys(str(i).strip() for i in ids if str(i).strip()), key=natural_key)
+
+    # P5: Completude DB × disco — item no banco sem preview N3 NÃO some em silêncio.
+    # Inclui ids do banco na montagem; se o arquivo não existir, vira status=missing
+    # e missing_count sobe (executar_n5 falha com missing_count > 0).
+    expected_ids = _get_db_expected_item_ids(obra_dir, classe, pavimento, db_path)
+    missing_db_ids = expected_ids - set(ids)
+    if missing_db_ids:
+        _log.error(
+            "[CRITICAL/N5] Completude: %d item(ns) no banco ausentes da descoberta em disco: %s",
+            len(missing_db_ids),
+            sorted(missing_db_ids, key=natural_key),
+        )
+        for mid in sorted(missing_db_ids, key=natural_key):
+            ids.append(mid)
+        ids = sorted(dict.fromkeys(ids), key=natural_key)
 
     out_dir = obra_dir / "Fase-6_Execucao_CAD" / "n5"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -463,4 +578,8 @@ def assemble_n5(
         "items": [item.__dict__ for item in items],
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-    return N5AssemblyResult(classe, obra_dir.name, pavimento, out_path, manifest_path, items)
+    resultado = N5AssemblyResult(classe, obra_dir.name, pavimento, out_path, manifest_path, items)
+    if resultado.missing_count > 0:
+        ausentes = [i.item_id for i in resultado.items if i.status != "ok"]
+        _log.warning("[CRITICAL/N5] ALERTA DE COMPLETUDE: Prancha N5 concluída COM FALHAS/AUSÊNCIAS (%d missing): %s", resultado.missing_count, ausentes)
+    return resultado

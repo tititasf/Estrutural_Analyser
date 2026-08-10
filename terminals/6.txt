@@ -1,0 +1,110 @@
+---
+pid: 7984
+cwd: "D:\Agente-cad-PYSIDE"
+command: "cmd /c \"cd /d D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main && D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe -X utf8 scripts/arete/headless_sa_analise.py --project-id d4f298ab-1658-4e60-898d-ec666d54ba8c --obra Obra_TREINO_1 --pav 14_PAV --secao lajes --item L409 --persist-db --wait\""
+started_at: 2026-07-16T19:26:14.069Z
+running_for_ms: 71300014 
+---
+[SA] Locks adquiridos: headless_sa_laj (escopo classe:LAJ).
+[SA-HUMAN] project_id: d4f298ab-1658-4e60-898d-ec666d54ba8c
+[SA-HUMAN] projects.dxf_path: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA\EL-(Torre-0)-(TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA)-(Obra_TREINO_1)_1.dxf
+[SA-HUMAN] Fast path N1 LAJ: motores canonicos sem MainWindow
+[SA] Carregando DXF: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA\EL-(Torre-0)-(TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA)-(Obra_TREINO_1)_1.dxf
+[SA] DXF: 2519 linhas, 276 polilinhas, 528 textos
+[SA] Indexando geometria...
+[SA] Bindando metodos de analise do MainWindow...
+D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\_ROBOS_ABAS\Robo_Lajes\laje_src\services\ai\gemini_service.py:2: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[DEBUG] fundo_utils_novo importado com sucesso
+[DEBUG] ConfigManager importado com sucesso
+[SA] Metodos bindados: 194 (4 ignorados)
+[SA] Detectando lajes...
+[DEBUG] SlabTracer cascade on 528 texts. N2 teacher=0
+[SA] Lajes detectadas: 23
+[SA] Processando lajes...
+[SA] Montando relatorio de pilares...
+[SA] 🧭 Lajes: 30 visão(ões) de corte, 40 pilar(es) de apoio, 100 texto(s) de nível vizinho; 0 nível(is) por contexto, 0 por delta de corte.
+[SA] Pilares: 35
+[SA] Detectando vigas...
+[SA] 🧠 Viga V401 pré-interpretada com sucesso.
+[SA] 🧠 Viga V402 pré-interpretada com sucesso.
+[SA] 🧠 Viga V403 pré-interpretada com sucesso.
+[SA] 🧠 Viga V404 pré-interpretada com sucesso.
+[SA] 🧠 Viga V405 pré-interpretada com sucesso.
+[SA] 🧠 Viga V406 pré-interpretada com sucesso.
+[SA] 🧠 Viga V407 pré-interpretada com sucesso.
+[SA] 🧠 Viga V408 pré-interpretada com sucesso.
+[SA] 🧠 Viga V409 pré-interpretada com sucesso.
+[SA] 🧠 Viga V410 pré-interpretada com sucesso.
+[SA] 🧠 Viga V411 pré-interpretada com sucesso.
+[SA] 🧠 Viga V412 pré-interpretada com sucesso.
+[SA] 🧠 Viga V413 pré-interpretada com sucesso.
+[SA] 🧠 Viga V414 pré-interpretada com sucesso.
+[SA] 🧠 Viga V415 pré-interpretada com sucesso.
+[SA] 🧠 Viga V416 pré-interpretada com sucesso.
+[SA] 🧠 Viga V417 pré-interpretada com sucesso.
+[SA] 🧠 Viga V418 pré-interpretada com sucesso.
+[SA] 🧠 Viga V419 pré-interpretada com sucesso.
+[SA] 🧠 Viga V420 pré-interpretada com sucesso.
+[SA] 🧠 Viga V421 pré-interpretada com sucesso.
+[SA] 🧠 Viga V422 pré-interpretada com sucesso.
+[SA] 🧠 Viga V423 pré-interpretada com sucesso.
+[SA] 🧠 Viga V424 pré-interpretada com sucesso.
+[SA] 🧠 Viga V425 pré-interpretada com sucesso.
+[SA] 🧠 Viga V426 pré-interpretada com sucesso.
+[SA] 🧠 Viga V427 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF401 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF402 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF403 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF404 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF405 pré-interpretada com sucesso.
+[SA] 🧠 Viga VF406 pré-interpretada com sucesso.
+[SA] Fatos FV canônicos reaplicados: 31 viga(s)
+[SA] Vigas: 33
+[SA] Sides corrigidos por fallback de posicao relativa: 9
+[SA] Cache N1 contextual: STORED 2736702f6c6c
+[SA-HUMAN][PERF] analise N1 contextual incremental: 36.40s (acumulado 36.40s)
+[SA-HUMAN][PERF] analise N1 contextual completa: 0.09s (acumulado 36.50s)
+[SA-HUMAN][PERF] merge granular e saneamento N1: 0.92s (acumulado 37.41s)
+[SA-HUMAN] Dependencias de viga recusadas por regressao de topologia: {'V404': {'old': (4, 652.0), 'new': (2, 163.0)}, 'V419': {'old': (4, 724.0), 'new': (1, 1289.5)}, 'VF404': {'old': (2, 792.5), 'new': (1, 402.5)}, 'VF401': {'old': (2, 792.5), 'new': (1, 718.0)}, 'V421': {'old': (4, 724.0), 'new': (1, 253.0)}, 'V417': {'old': (2, 286.0), 'new': (1, 224.0)}, 'V402': {'old': (4, 564.5), 'new': (2, 1184.0)}, 'V401': {'old': (2, 409.0), 'new': (1, 390.0)}, 'V411': {'old': (5, 757.0), 'new': (1, 192.5)}, 'V422': {'old': (2, 440.0), 'new': (1, 233.0)}, 'V426': {'old': (9, 958.0), 'new': (2, 291.5)}, 'V408': {'old': (4, 724.0), 'new': (1, 253.0)}, 'V413': {'old': (2, 375.0), 'new': (1, 855.0)}, 'V423': {'old': (2, 440.0), 'new': (1, 233.0)}, 'V406': {'old': (3, 373.241), 'new': (1, 30.709)}, 'V418': {'old': (2, 332.0), 'new': (1, 855.0)}, 'V405': {'old': (2, 440.0), 'new': (1, 242.5)}, 'V410': {'old': (4, 564.5), 'new': (1, 189.5)}, 'V427': {'old': (5, 526.0), 'new': (1, 49.0)}, 'V416': {'old': (2, 375.0), 'new': (1, 855.0)}, 'V425': {'old': (4, 389.0), 'new': (1, 98.0)}, 'V415': {'old': (2, 375.0), 'new': (1, 855.0)}}
+[SA-HUMAN] Filtro de itens: L409 em lajes
+[SA-HUMAN] Merge granular pronto: 74 PIL, 1 LAJ, 33 vigas.
+[HTML] lajes 1/1: L409
+[SA-HUMAN] Pack exportado: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\14_PAV_20260716_162652_038604_lajes_11996
+[SA-HUMAN][PERF] exportacao inicial de fichas: 2.09s (acumulado 39.50s)
+[SA-HUMAN] Diagnóstico LAJ: 1 alerta(s)
+[SA-HUMAN][PERF] diagnosticos canonicos: 0.05s (acumulado 39.55s)
+[SA-HUMAN] Aguardando lock curto de commit SQLite.
+[SA-HUMAN] DB COMMIT transacional: {'pillars': 74, 'slabs': 22, 'beams': 37} -> {'pillars': 74, 'slabs': 22, 'beams': 37}
+[SA-HUMAN][PERF] persistencia transacional: 0.09s (acumulado 39.64s)
+[SA-HUMAN] N3 LJ isolado: 1 gerado(s), 0 ausente(s)
+[HTML] lajes 1/1: L409
+[SA-HUMAN] Pack reexportado c/ N3: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\14_PAV_20260716_162654_747483_lajes_11996
+[SA-HUMAN][PERF] previews N3 e reexportacao: 1.82s (acumulado 41.47s)
+[SA-HUMAN] Manifesto Arete: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\14_PAV_20260716_162654_747483_lajes_11996\arete_manifest.json
+[SA-HUMAN][PERF] manifesto Arete: 0.01s (acumulado 41.48s)
+[SA-HUMAN][PERF] total da rodada: 41.48s
+
+============================================================
+RESUMO: Obra_TREINO_1 / TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA
+  Pilares : 74
+  Lajes   : 1
+  Vigas   : 33
+  HTMLs   : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\14_PAV_20260716_162654_747483_lajes_11996
+  Diag. LAJ: ok
+    JSON : D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_laj\Obra_TREINO_1\14_PAV\20260716_162652\diagnostico_laj_n1_n2.json
+    JSONL: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\diagnosticos_laj\Obra_TREINO_1\14_PAV\20260716_162652\triagem_auto_laj.jsonl
+  Manifest: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\html_fichas\Obra_TREINO_1\14_PAV_20260716_162654_747483_lajes_11996\arete_manifest.json
+  Fonte   : D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes\TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA\EL-(Torre-0)-(TMC-EST-PE-7000-14P-R03_R2018_ASCII_ODA)-(Obra_TREINO_1)_1.dxf
+  DB      : COMMITTED
+    Antes : {'pillars': 74, 'slabs': 22, 'beams': 37}
+    Depois: {'pillars': 74, 'slabs': 22, 'beams': 37}
+============================================================
+[SA] Locks liberados: headless_sa_laj.

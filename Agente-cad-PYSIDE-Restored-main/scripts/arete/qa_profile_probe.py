@@ -162,6 +162,24 @@ def run_profile_probe(
         for field in dynamic:
             reference = str(field.pop("item_from"))
             field["item"] = str(pre_values[reference])
+            geometry_reference = field.pop("geometry_match_from", None)
+            if geometry_reference:
+                geometry_reference = str(geometry_reference)
+                if geometry_reference not in direct_ids:
+                    raise ProfileProbeError(
+                        f"geometry_match_from sem campo direto: {field['id']} -> {geometry_reference}"
+                    )
+                match_bbox = pre_values.get(geometry_reference)
+                if not isinstance(match_bbox, list) or len(match_bbox) != 4:
+                    return {
+                        "schema": RESULT_SCHEMA,
+                        "overall": "PENDENTE",
+                        "scope_authority": "field_checks_only; unresolved cross-class geometry",
+                        "reason": f"geometria de referência ausente: {geometry_reference}",
+                        "profile": {"class": profile["class"], "version": profile.get("version"), "probe": probe_id},
+                        "preflight": preflight,
+                    }
+                field["match_bbox"] = match_bbox
             class_from = field.pop("class_from", None)
             if class_from:
                 if str(class_from) != reference:
@@ -205,13 +223,16 @@ def run_profile_probe(
         # Uma referência resolvida no payload pode não ter sido materializada
         # na tabela cross-classe deste projeto. Isso é falta de evidência,
         # nunca autorização para inventar o vínculo nem erro fatal do ciclo.
-        if not dynamic or "item ausente:" not in str(exc):
+        if not dynamic or not any(
+            marker in str(exc)
+            for marker in ("item ausente:", "identidade ambígua:", "identidade geométrica ambígua:")
+        ):
             raise
         return {
             "schema": RESULT_SCHEMA,
             "overall": "PENDENTE",
             "scope_authority": "field_checks_only; unresolved cross-class materialization",
-            "reason": f"referência cross-classe não materializada: {exc}",
+            "reason": f"referência cross-classe não resolvida: {exc}",
             "profile": {
                 "class": profile["class"],
                 "version": profile.get("version"),

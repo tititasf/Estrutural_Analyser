@@ -1,0 +1,549 @@
+---
+pid: 16252
+cwd: "D:\Agente-cad-PYSIDE"
+command: "D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe -X utf8 D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\arete_runner.py --classe LAJ --pav 14_PAV"
+started_at: 2026-07-16T20:21:48.264Z
+running_for_ms: 67965000 
+---
+
+╔══ ARETE RUNNER: LAJ / 14_PAV (22 itens) ══╗
+
+  ── LAJ/L401 ──
+  G0 PASS  recorte=LAJ_L401_motor_178398688712.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L401: 336x71cm  pos=(2950,2533)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L401\Fase-6_Execucao_CAD\LJ_preview_L401.dxf
+Total panels: 4
+
+=== Entity Summary (12 total) ===
+  COTA                           4
+  3                              4
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  LWPOLYLINE                5
+  DIMENSION                 4
+  LINE                      2
+  TEXT                      1
+
+  G1 LAJ/L401: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=94→12
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L402 ──
+  G0 PASS  recorte=LAJ_L402_motor_178396118838.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L402: 343x71cm  pos=(3304,2533)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L402\Fase-6_Execucao_CAD\LJ_preview_L402.dxf
+Total panels: 4
+
+=== Entity Summary (15 total) ===
+  COTA                           6
+  3                              5
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  LWPOLYLINE                6
+  DIMENSION                 6
+  LINE                      2
+  TEXT                      1
+
+  G1 LAJ/L402: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=75→15
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L403 ──
+  G0 PASS  recorte=LAJ_L403_motor_178398688719.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L403: 336x71cm  pos=(4698,2533)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L403\Fase-6_Execucao_CAD\LJ_preview_L403.dxf
+Total panels: 4
+
+=== Entity Summary (12 total) ===
+  COTA                           4
+  3                              4
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  LWPOLYLINE                5
+  DIMENSION                 4
+  LINE                      2
+  TEXT                      1
+
+  G1 LAJ/L403: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=69→12
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L404 ──
+  G0 PASS  recorte=LAJ_L404_motor_178396118847.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L404: 336x71cm  pos=(5052,2537)  panels=2
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L404\Fase-6_Execucao_CAD\LJ_preview_L404.dxf
+Total panels: 2
+
+=== Entity Summary (11 total) ===
+  3                              5
+  COTA                           3
+  PAINEIS                        2
+  NOMENCLATURA                   1
+
+=== Types ===
+  LWPOLYLINE                6
+  DIMENSION                 3
+  LINE                      1
+  TEXT                      1
+
+  G1 LAJ/L404: PASS  [16/16 campos iguais]
+  G2: ✓ PASS  entities=73→11
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L405 ──
+  G0 PASS  recorte=LAJ_L405_motor_178396118852.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L405: 900x311cm  pos=(2443,2203)  panels=12
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L405\Fase-6_Execucao_CAD\LJ_preview_L405.dxf
+Total panels: 12
+
+=== Entity Summary (19 total) ===
+  COTA                           7
+  PAINEIS                        6
+  3                              4
+  Hachura                        1
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 7
+  LWPOLYLINE                5
+  LINE                      5
+  HATCH                     1
+  TEXT                      1
+
+  G1 LAJ/L405: PASS  [24/24 campos iguais]
+  G2: ✓ PASS  entities=236→19
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L406 ──
+  G0 PASS  recorte=LAJ_L406_motor_178398510573.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L406: 1015x292cm  pos=(3200,2203)  panels=20
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L406\Fase-6_Execucao_CAD\LJ_preview_L406.dxf
+Total panels: 20
+
+=== Entity Summary (24 total) ===
+  COTA                           9
+  PAINEIS                        8
+  3                              5
+  Hachura                        1
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 9
+  LINE                      7
+  LWPOLYLINE                6
+  HATCH                     1
+  TEXT                      1
+
+  G1 LAJ/L406: PASS  [28/28 campos iguais]
+  G2: ✓ PASS  entities=193→24
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L407 ──
+  G0 PASS  recorte=LAJ_L407_motor_178396118866.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L407: 855x311cm  pos=(4178,2203)  panels=12
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L407\Fase-6_Execucao_CAD\LJ_preview_L407.dxf
+Total panels: 12
+
+=== Entity Summary (18 total) ===
+  COTA                           7
+  PAINEIS                        6
+  3                              3
+  Hachura                        1
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 7
+  LINE                      5
+  LWPOLYLINE                4
+  HATCH                     1
+  TEXT                      1
+
+  G1 LAJ/L407: PASS  [24/24 campos iguais]
+  G2: ✓ PASS  entities=173→18
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L408 ──
+  G0 PASS  recorte=LAJ_L408_motor_178396118871.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L408: 726x311cm  pos=(5052,2203)  panels=9
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L408\Fase-6_Execucao_CAD\LJ_preview_L408.dxf
+Total panels: 9
+
+=== Entity Summary (16 total) ===
+  COTA                           6
+  PAINEIS                        5
+  3                              3
+  Hachura                        1
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 6
+  LWPOLYLINE                4
+  LINE                      4
+  HATCH                     1
+  TEXT                      1
+
+  G1 LAJ/L408: PASS  [22/22 campos iguais]
+  G2: ✓ PASS  entities=146→16
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L409 ──
+  G0 PASS  recorte=LAJ_L409_sel_1783994754.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L409: 3221x239cm  pos=(2625,1964)  panels=42
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L409\Fase-6_Execucao_CAD\LJ_preview_L409.dxf
+Total panels: 42
+
+=== Entity Summary (36 total) ===
+  COTA                          17
+  PAINEIS                       16
+  Hachura                        1
+  NOMENCLATURA                   1
+  3                              1
+
+=== Types ===
+  DIMENSION                17
+  LINE                     15
+  LWPOLYLINE                2
+  HATCH                     1
+  TEXT                      1
+
+  G1 LAJ/L409: PASS  [12/12 campos iguais]
+  G2: ✓ PASS  entities=318→36
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L410 ──
+  G0 PASS  recorte=LAJ_L410_motor_178398688730.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L410: 406x594cm  pos=(2442,1571)  panels=15
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L410\Fase-6_Execucao_CAD\LJ_preview_L410.dxf
+Total panels: 15
+
+=== Entity Summary (28 total) ===
+  COTA                          17
+  PAINEIS                        7
+  Hachura                        2
+  NOMENCLATURA                   1
+  3                              1
+
+=== Types ===
+  DIMENSION                17
+  LINE                      6
+  HATCH                     2
+  LWPOLYLINE                2
+  TEXT                      1
+
+  G1 LAJ/L410: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=238→28
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L411 ──
+  G0 PASS  recorte=LAJ_L411_motor_178398688736.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L411: 544x423cm  pos=(2805,1590)  panels=6
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L411\Fase-6_Execucao_CAD\LJ_preview_L411.dxf
+Total panels: 6
+
+=== Entity Summary (10 total) ===
+  COTA                           5
+  PAINEIS                        4
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 5
+  LINE                      3
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L411: PASS  [20/20 campos iguais]
+  G2: ✓ PASS  entities=194→10
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L412 ──
+  G0 PASS  recorte=LAJ_L412_motor_178396118889.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L412: 418x423cm  pos=(3304,1590)  panels=10
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L412\Fase-6_Execucao_CAD\LJ_preview_L412.dxf
+Total panels: 10
+
+=== Entity Summary (16 total) ===
+  COTA                           7
+  PAINEIS                        6
+  Hachura                        2
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 7
+  LINE                      5
+  HATCH                     2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L412: PASS  [24/24 campos iguais]
+  G2: ✓ PASS  entities=100→16
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L413 ──
+  G0 PASS  recorte=LAJ_L413_motor_178396118893.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L413: 418x423cm  pos=(3741,1590)  panels=10
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L413\Fase-6_Execucao_CAD\LJ_preview_L413.dxf
+Total panels: 10
+
+=== Entity Summary (16 total) ===
+  COTA                           7
+  PAINEIS                        6
+  Hachura                        2
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 7
+  LINE                      5
+  HATCH                     2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L413: PASS  [24/24 campos iguais]
+  G2: ✓ PASS  entities=63→16
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L414 ──
+  G0 PASS  recorte=LAJ_L414_motor_178398435568.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L414: 418x423cm  pos=(4178,1590)  panels=10
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L414\Fase-6_Execucao_CAD\LJ_preview_L414.dxf
+Total panels: 10
+
+=== Entity Summary (16 total) ===
+  COTA                           7
+  PAINEIS                        6
+  Hachura                        2
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 7
+  LINE                      5
+  HATCH                     2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L414: PASS  [24/24 campos iguais]
+  G2: ✓ PASS  entities=97→16
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L415 ──
+  G0 PASS  recorte=LAJ_L415_motor_178397254567.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L415: 418x423cm  pos=(4615,1590)  panels=10
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L415\Fase-6_Execucao_CAD\LJ_preview_L415.dxf
+Total panels: 10
+
+=== Entity Summary (16 total) ===
+  COTA                           7
+  PAINEIS                        6
+  Hachura                        2
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 7
+  LINE                      5
+  HATCH                     2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L415: PASS  [24/24 campos iguais]
+  G2: ✓ PASS  entities=117→16
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L416 ──
+  G0 PASS  recorte=LAJ_L416_motor_178398688742.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L416: 129x459cm  pos=(5052,1505)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L416\Fase-6_Execucao_CAD\LJ_preview_L416.dxf
+Total panels: 4
+
+=== Entity Summary (8 total) ===
+  COTA                           4
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 4
+  LINE                      2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L416: PASS  [18/18 campos iguais]
+  G2: ✓ PASS  entities=107→8
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L417 ──
+  G0 PASS  recorte=LAJ_L417_motor_178398435576.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L417: 234x71cm  pos=(2615,1500)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L417\Fase-6_Execucao_CAD\LJ_preview_L417.dxf
+Total panels: 4
+
+=== Entity Summary (13 total) ===
+  COTA                           9
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 9
+  LINE                      2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L417: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=64→13
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L418 ──
+  G0 PASS  recorte=LAJ_L418_motor_178396118915.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L418: 418x71cm  pos=(2867,1500)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L418\Fase-6_Execucao_CAD\LJ_preview_L418.dxf
+Total panels: 4
+
+=== Entity Summary (8 total) ===
+  COTA                           4
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 4
+  LINE                      2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L418: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=79→8
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L419 ──
+  G0 PASS  recorte=LAJ_L419_motor_178396118919.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L419: 418x71cm  pos=(3304,1500)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L419\Fase-6_Execucao_CAD\LJ_preview_L419.dxf
+Total panels: 4
+
+=== Entity Summary (16 total) ===
+  COTA                          12
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                12
+  LINE                      2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L419: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=117→16
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L420 ──
+  G0 PASS  recorte=LAJ_L420_motor_178396118926.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L420: 418x71cm  pos=(3741,1500)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L420\Fase-6_Execucao_CAD\LJ_preview_L420.dxf
+Total panels: 4
+
+=== Entity Summary (8 total) ===
+  COTA                           4
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 4
+  LINE                      2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L420: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=78→8
+  G6 BLOCKED (G2-V): último G2-V não é PASS: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L421 ──
+  G0 PASS  recorte=LAJ_L421_motor_178396118930.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L421: 418x71cm  pos=(4178,1500)  panels=4
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L421\Fase-6_Execucao_CAD\LJ_preview_L421.dxf
+Total panels: 4
+
+=== Entity Summary (16 total) ===
+  COTA                          12
+  PAINEIS                        3
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                12
+  LINE                      2
+  LWPOLYLINE                1
+  TEXT                      1
+
+  G1 LAJ/L421: PASS  [27/27 campos iguais]
+  G2: ✓ PASS  entities=117→16
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+  ── LAJ/L422 ──
+  G0 PASS  recorte=LAJ_L422_motor_178396118935.dxf  prov=draft
+DEBUG: log=Processando 1 lajes -> LJ_stog_quality.dxf  (mode=planta)
+  [ 1] L422: 418x71cm  pos=(4615,1500)  panels=2
+
+DXF (planta): D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\tmp\LAJ_14_PAV_L422\Fase-6_Execucao_CAD\LJ_preview_L422.dxf
+Total panels: 2
+
+=== Entity Summary (6 total) ===
+  COTA                           3
+  PAINEIS                        2
+  NOMENCLATURA                   1
+
+=== Types ===
+  DIMENSION                 3
+  LWPOLYLINE                1
+  LINE                      1
+  TEXT                      1
+
+  G1 LAJ/L422: PASS  [13/13 campos iguais]
+  G2: ✓ PASS  entities=96→6
+  G6 BLOCKED (G2-V): PASS visual pertence a fontes antigas: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\g2v\20260716_14p_laj_s2_n2xn4_v2\relatorio.json
+
+╚══ RESULTADO: 22P / 0F / 0B  Arete=100.0% ══╝
+
+  Relatório: D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\arete\relatorios\20260716_172149\RELATORIO.md

@@ -1,2 +1,0 @@
-
-pid=11908 inicio=2026-07-06T15:52:09 cmd=D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\pytest\__main__.py tests/test_delete_item_action.py tests/test_beam_interpreters_architecture.py tests/test_sa_db_persistence.py tests/test_preficha_segments.py tests/test_diagnostico_fv_n1_n2.py portal/tests/test_portal_job_queue.py portal/tests/test_portal_pipeline_runner.py

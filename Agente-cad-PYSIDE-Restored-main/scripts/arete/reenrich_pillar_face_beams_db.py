@@ -29,30 +29,50 @@ from src.core.pillar_face_beams import (  # noqa: E402
 def _load_report(conn: sqlite3.Connection, project_id: str) -> tuple[dict, dict]:
     report: dict = {}
     meta: dict = {}
-    for row in conn.execute(
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(pillars)")}
+    has_extra = "extra_data_json" in cols
+    sql = (
         "SELECT id, name, points_json, sides_data_json, links_json, "
-        "validated_fields_json FROM pillars WHERE project_id=?",
-        (project_id,),
-    ):
-        pid, name, pj, sj, lj, vj = row
+        "validated_fields_json"
+        + (", extra_data_json" if has_extra else "")
+        + " FROM pillars WHERE project_id=?"
+    )
+    for row in conn.execute(sql, (project_id,)):
+        if has_extra:
+            pid, name, pj, sj, lj, vj, ej = row
+            extra = json.loads(ej or "{}") if ej else {}
+        else:
+            pid, name, pj, sj, lj, vj = row
+            extra = {}
+        if not isinstance(extra, dict):
+            extra = {}
         sides = json.loads(sj or "{}")
         entry = {
             "name": name,
             "points": json.loads(pj or "[]"),
             "lajes": [],
         }
-        for face in "ABCD":
-            face_sd = sides.get(face) or {}
-            ln = str(face_sd.get("l1_n") or "").strip()
-            if ln:
-                laje_val = None if "SEM" in ln.upper() else ln
-                entry["lajes"].append({"side": face, "laje": laje_val})
+        # Prefer lajes_adjacentes do extra quando existir (content_type rico)
+        lajes_src = extra.get("lajes_adjacentes") if isinstance(extra.get("lajes_adjacentes"), list) else None
+        if lajes_src:
+            for le in lajes_src:
+                if isinstance(le, dict) and le.get("side"):
+                    entry["lajes"].append(dict(le))
+        else:
+            for face in "ABCD":
+                face_sd = sides.get(face) or {}
+                ln = str(face_sd.get("l1_n") or "").strip()
+                if ln:
+                    laje_val = None if "SEM" in ln.upper() else ln
+                    entry["lajes"].append({"side": face, "laje": laje_val})
         report[name] = entry
         meta[name] = {
             "id": pid,
             "sides": sides,
             "links": json.loads(lj or "{}"),
             "validated": set(json.loads(vj or "[]") or []),
+            "extra": extra,
+            "has_extra": has_extra,
         }
     return report, meta
 
@@ -241,19 +261,80 @@ def main() -> int:
             new_links = _sync_links_from_sides(
                 m["links"], new_sides, m["validated"]
             )
-            changed = new_sides != m["sides"] or new_links != m["links"]
+            # Persiste face_beams em extra_data_json (portal N1 + tabelas ABCD)
+            new_extra = dict(m.get("extra") or {})
+            fb_light: dict = {}
+            for face, slots in (fb or {}).items():
+                if not isinstance(slots, dict):
+                    continue
+
+                def _lite(b):
+                    if not isinstance(b, dict):
+                        return b
+                    return {
+                        k: b.get(k)
+                        for k in (
+                            "name",
+                            "dim",
+                            "corner",
+                            "behavior",
+                            "nivel",
+                            "n",
+                            "source",
+                        )
+                        if b.get(k) is not None
+                    }
+
+                fb_light[face] = {
+                    "passa_esq": _lite(slots.get("passa_esq")),
+                    "passa_dir": _lite(slots.get("passa_dir")),
+                    "corner_esq": slots.get("corner_esq"),
+                    "corner_dir": slots.get("corner_dir"),
+                    "para": [
+                        _lite(x)
+                        for x in (slots.get("para") or [])
+                        if isinstance(x, dict)
+                    ],
+                    "interior": [
+                        _lite(x)
+                        for x in (slots.get("interior") or [])
+                        if isinstance(x, dict)
+                    ],
+                }
+            new_extra["face_beams"] = fb_light
+            # lajes_adjacentes a partir do report enriquecido
+            if entry.get("lajes"):
+                new_extra["lajes_adjacentes"] = entry.get("lajes")
+
+            changed = (
+                new_sides != m["sides"]
+                or new_links != m["links"]
+                or new_extra.get("face_beams") != (m.get("extra") or {}).get("face_beams")
+            )
             if changed:
                 n_upd += 1
                 if args.apply:
-                    conn.execute(
-                        "UPDATE pillars SET sides_data_json=?, links_json=? "
-                        "WHERE id=?",
-                        (
-                            json.dumps(new_sides, ensure_ascii=False),
-                            json.dumps(new_links, ensure_ascii=False),
-                            m["id"],
-                        ),
-                    )
+                    if m.get("has_extra"):
+                        conn.execute(
+                            "UPDATE pillars SET sides_data_json=?, links_json=?, "
+                            "extra_data_json=? WHERE id=?",
+                            (
+                                json.dumps(new_sides, ensure_ascii=False),
+                                json.dumps(new_links, ensure_ascii=False),
+                                json.dumps(new_extra, ensure_ascii=False),
+                                m["id"],
+                            ),
+                        )
+                    else:
+                        conn.execute(
+                            "UPDATE pillars SET sides_data_json=?, links_json=? "
+                            "WHERE id=?",
+                            (
+                                json.dumps(new_sides, ensure_ascii=False),
+                                json.dumps(new_links, ensure_ascii=False),
+                                m["id"],
+                            ),
+                        )
         if args.apply:
             conn.commit()
             print(

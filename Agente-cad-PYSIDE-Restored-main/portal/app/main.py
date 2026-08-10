@@ -30,6 +30,7 @@ from .routers import (
     obras_routes,
     paginas_routes,
     recortes_routes,
+    viewer_routes,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -119,12 +120,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     _static_dir.mkdir(parents=True, exist_ok=True)
     app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
 
+    # [2026-07-30] Versão dos estáticos = mtime do maior deles. O navegador
+    # cacheia /static/portal.css agressivamente; mexer no CSS e ver a tela
+    # antiga custou uma sessão inteira de diagnóstico ("o CSS não aplica" era
+    # cache, não erro). Com ?v=<mtime> o cache invalida sozinho a cada edição,
+    # e continua valendo enquanto nada muda.
+    try:
+        app.state.static_versao = str(int(max(
+            (p.stat().st_mtime for p in _static_dir.rglob("*") if p.is_file()),
+            default=0,
+        )))
+    except OSError:  # pragma: no cover - disco indisponível não derruba o app
+        app.state.static_versao = "0"
+
     app.include_router(auth_routes.router)
     app.include_router(obras_routes.router)
     app.include_router(jobs_routes.router)
     app.include_router(fichas_routes.router)
     app.include_router(n1_routes.router)
     app.include_router(recortes_routes.router)
+    app.include_router(viewer_routes.router)
     app.include_router(comentarios_routes.router)
     app.include_router(paginas_routes.router)
     app.include_router(admin_publish_routes.router)

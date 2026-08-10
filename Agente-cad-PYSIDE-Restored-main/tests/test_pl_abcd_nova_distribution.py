@@ -307,12 +307,15 @@ def test_n4_n2_reference_uses_pd_h1_and_panel_part_semantics():
     texts = [entity.dxf.text for entity in msp.query("TEXT")]
     assert "CENARIOS - PD: 3.21" in texts
     assert "NIVEL DE SAIDA: 2.80" in texts
-    assert texts.count("41") >= 2
-    assert texts.count("26") >= 4
-    assert texts.count("15") >= 4
 
+    # 26/15/41 (sobras do N2) agora sao DIMENSION reais (add_linear_dim),
+    # nao TEXT solto sem linha de extensao/seta — mesmo padrao das outras
+    # cotas da ficha (achado do dono: formato destoante das demais).
     measurements = [round(float(entity.get_measurement()), 1)
                     for entity in msp.query("DIMENSION")]
+    assert measurements.count(41.0) >= 2
+    assert measurements.count(26.0) >= 4
+    assert measurements.count(15.0) >= 4
     assert measurements.count(2.0) >= 4
     assert measurements.count(124.0) >= 2
     assert measurements.count(221.0) >= 2
@@ -493,6 +496,89 @@ def test_paineis_unidos_expand_mesh_and_n3_total():
     assert len(totals) == 1
     assert abs(totals[0]["total"] - 122.0) < 0.1
     assert totals[0]["parts"] == [100.0, 22.0]
+
+
+def test_dual_opening_vertical_dims_go_on_their_own_side():
+    """Abertura esquerda cota à esquerda do painel; direita cota à direita.
+
+    Achado do dono: as duas cotas verticais de abertura (uma por lado)
+    caíam na mesma coluna compartilhada (direita), ficando ambíguas quando
+    esquerda e direita têm alturas diferentes. Cada lado precisa da própria
+    cota, no próprio lado.
+    """
+    from gerar_pl_dxf_stog import setup_doc, generate_pilar_zone
+
+    pj = {
+        "nome": "PDUALSIDE",
+        "comprimento": 60,
+        "largura": 19,
+        "altura": 280.0,
+        "h1_A": 2.0,
+        "h1_B": 2.0,
+        "h1_C": 2.0,
+        "h1_D": 2.0,
+        "modo_distribuicao": "NOVA",
+        "paineis_intervals_A": [122.0, 122.0, 34.0],
+        "paineis_intervals_C": [278.0],
+        "paineis_intervals_D": [278.0],
+        # Módulos [122,122,34] -> juntas em 124/246/280 (rel. à base do h1).
+        # Esquerda: y_bot=255, junta seguinte=280 -> gap 25.
+        "abertura_A_1": {
+            "lado": "esquerdo", "largura": 11.0, "altura": 25.0, "y_rel": 253.0,
+        },
+        # Direita: y_bot=260, mesma junta seguinte=280 -> gap 20.
+        # Junta seguinte igual pros dois lados, mas o y_bot de cada abertura
+        # é diferente: se a cota não for por lado, uma delas sai errada.
+        "abertura_A_2": {
+            "lado": "direito", "largura": 29.0, "altura": 15.0, "y_rel": 258.0,
+        },
+        "_pl_nova_enriched": True,  # já normalizado; não deixa o enrich re-mesclar
+    }
+    doc = setup_doc()
+    n = generate_pilar_zone(doc.modelspace(), pj, "abcd", visual_mode="NOVA")
+    assert n > 10
+
+    # Bordas reais do painel A (só, não do ABCD inteiro) a partir das linhas
+    # verticais do contorno (x constante) — face A é a primeira coluna, logo
+    # os dois menores x distintos são o x_left/x_right dela.
+    xs_vert = sorted({
+        round(float(e.dxf.start.x), 1)
+        for e in doc.modelspace()
+        if e.dxftype() == "LINE" and e.dxf.layer == "Painéis"
+        and abs(e.dxf.start.x - e.dxf.end.x) < 0.01
+        and abs(e.dxf.start.y - e.dxf.end.y) > 50
+    })
+    assert len(xs_vert) >= 2
+    x_left, x_right = xs_vert[0], xs_vert[1]
+
+    left_dims = []
+    right_dims = []
+    for e in doc.modelspace():
+        if e.dxftype() != "DIMENSION":
+            continue
+        try:
+            measurement = round(e.get_measurement(), 1)
+            defpoint_x = round(float(e.dxf.defpoint.x), 1)
+        except Exception:
+            continue
+        if abs(measurement - 25.0) < 0.6:
+            left_dims.append(defpoint_x)
+        if abs(measurement - 20.0) < 0.6:
+            right_dims.append(defpoint_x)
+
+    assert left_dims, "cota de 25cm (abertura esquerda) não encontrada"
+    assert right_dims, "cota de 20cm (abertura direita) não encontrada"
+    # A cota da abertura esquerda projeta para FORA à esquerda do painel
+    # (x < x_left); a da direita, para fora à direita (x > x_right). Antes
+    # do fix, as duas caíam do lado direito (x_dim compartilhado).
+    assert any(x < x_left for x in left_dims), (
+        f"cota da abertura esquerda não ficou à esquerda do painel "
+        f"(x_left={x_left}); achei {left_dims}"
+    )
+    assert any(x > x_right for x in right_dims), (
+        f"cota da abertura direita não ficou à direita do painel "
+        f"(x_right={x_right}); achei {right_dims}"
+    )
 
 
 def test_n3_generates_joined_panel_line_and_dims():

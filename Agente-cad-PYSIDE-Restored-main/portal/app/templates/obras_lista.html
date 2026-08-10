@@ -1,185 +1,358 @@
 {% extends "base.html" %}
 {% from "_macros.html" import status_badge %}
-{% block titulo %}{{ 'Todas as obras' if membro.papel == 'dono' else 'Minhas obras' }} — Portal de Formas{% endblock %}
-
+{% block titulo %}{{ 'Todas as obras' if membro.papel == 'dono' else 'Lista de Obras — ' ~ (membro.nome or membro.login) }} — Portal de Formas{% endblock %}
 
 {% block sidebar_obras_extra %}
-<li class="sidebar-obras-arvore">
-  <ul class="arvore-obras-lista">
-    {% for o in obras %}
-      <li><a href="/app/obras/{{ o.id }}" class="obras-strip-item" title="{{ o.nome }}">{{ o.nome }}</a></li>
+<li class="sidebar-obras-arvore sidebar-obras-lista-page">
+  <div class="side-obras-search">
+    <input type="search" id="side-obras-q" placeholder="Buscar obras…" autocomplete="off"
+           aria-label="Buscar obras na lista">
+  </div>
+  <div class="side-obras-scroll" id="side-obras-scroll">
+    {% for g in obras_por_membro %}
+    <div class="side-obras-group" data-group="{{ g.dono }}">
+      <div class="side-obras-group-title">
+        <span>
+          {% if eh_dono %}Lista · {{ g.dono }}{% if g.dono == meu_nome %} <em class="side-you">(você)</em>{% endif %}
+          {% else %}Lista de Obras — {{ meu_nome }}
+          {% endif %}
+        </span>
+        <span class="side-obras-count">{{ g.obras|length }}</span>
+      </div>
+      {% for o in g.obras %}
+      <a href="/app/obras/{{ o.id }}" class="obra-card-side"
+         data-nome="{{ o.nome|e }}" data-dono="{{ g.dono|e }}"
+         title="{{ o.nome }}">
+        <span class="obra-card-side-n">{{ o.nome }}</span>
+        <span class="obra-card-side-d">
+          <span class="obra-card-dot st-{{ o.estado }}"></span>
+          {% if o.created_at %}{{ o.created_at[:16].replace('T', ' ') }}{% else %}—{% endif %}
+        </span>
+      </a>
+      {% else %}
+      <p class="side-obras-empty">Nenhuma obra ainda.</p>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="side-obras-empty">Nenhuma obra ainda.</p>
     {% endfor %}
-  </ul>
+  </div>
 </li>
 {% endblock %}
 
 {% block conteudo %}
-<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
-  <h1>{{ 'Todas as obras (visão do dono)' if membro.papel == 'dono' else 'Minhas obras' }}</h1>
-</div>
+<div class="obras-page" id="obras-page" data-eh-dono="{{ '1' if eh_dono else '0' }}">
 
-{% if drive != 'ok' %}
-<div class="faixa faixa-aviso" role="alert">
-  <span aria-hidden="true">⚠</span> O Google Drive está indisponível no momento —
-  novas obras podem demorar a aparecer. As obras já baixadas seguem acessíveis.
-</div>
-{% endif %}
+  <header class="obras-page-head">
+    {% if eh_dono %}
+    <h1>Todas as obras <span class="obras-page-sub-inline">(visão do dono)</span></h1>
+    <p class="obras-page-sub">Suas obras e as dos demais usuários · mais recentes em cima</p>
+    {% else %}
+    <h1>Lista de Obras — {{ meu_nome }}</h1>
+    <p class="obras-page-sub">Somente as obras da sua conta · mais recentes em cima</p>
+    {% endif %}
+  </header>
 
-<div class="upload-card">
-  <h2><span aria-hidden="true">🏗️</span> Criar obra nova</h2>
-  <p class="meta" style="margin:0 0 12px">
-    Uma obra é uma pasta que recebe vários documentos (PIL, LV, FV, LAJ, GF…).
-    Dê um nome e uma descrição — os documentos entram depois, um por um ou em lote.
-  </p>
-
-  {% if drive_folder_url %}
-  <form id="form-criar-obra" class="upload-actions" style="flex-direction:column;align-items:stretch;gap:10px">
-    <input type="text" id="criar-nome" placeholder="Nome da obra (ex.: Edifício Paraíso)" required
-           style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font:inherit">
-    <textarea id="criar-descricao" placeholder="Descrição (opcional)" rows="2"
-              style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;resize:vertical"></textarea>
-    <button type="submit" class="btn" id="btn-criar-obra" style="align-self:flex-start">Criar obra →</button>
-  </form>
-  <div id="criar-obra-resultado" role="status" aria-live="polite"></div>
-  {% else %}
-  <p class="faixa faixa-aviso" style="margin:0 0 14px">
-    <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
-  </p>
+  {% if drive != 'ok' %}
+  <div class="faixa faixa-aviso" role="alert">
+    <span aria-hidden="true">⚠</span> O Google Drive está indisponível no momento —
+    novas obras podem demorar a aparecer. As obras já baixadas seguem acessíveis.
+  </div>
   {% endif %}
 
-  <div class="upload-actions" style="margin-top:14px">
-    {% if drive_folder_url %}
-    <a class="btn-sec btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener" style="font-size:.86rem">
-      Ou abra sua pasta no Drive direto ↗
-    </a>
-    {% endif %}
-    <button type="button" id="btn-verificar" class="btn-sec btn">Verificar agora ↻</button>
-    <span id="verificar-status" class="status-verificar" role="status" aria-live="polite"></span>
+  {# ---- Wizard 3 passos ---- #}
+  <div class="obras-wizard-steps" role="tablist" aria-label="Fluxo de obras">
+    <button type="button" class="obras-wiz-step on" role="tab" data-wiz="1" aria-selected="true">
+      <span class="ws-num">1</span>
+      <span class="ws-label">Processar 1 Pavimento</span>
+      <span class="ws-sub">.dwg / .dxf · fluxo rápido</span>
+    </button>
+    <button type="button" class="obras-wiz-step" role="tab" data-wiz="2" aria-selected="false">
+      <span class="ws-num">2</span>
+      <span class="ws-label">Processar Obra Completa</span>
+      <span class="ws-sub">container · vários documentos</span>
+    </button>
+    <button type="button" class="obras-wiz-step" role="tab" data-wiz="3" aria-selected="false">
+      <span class="ws-num">3</span>
+      <span class="ws-label">Exibir Lista de Obras</span>
+      <span class="ws-sub">tabela · por data</span>
+    </button>
   </div>
-</div>
 
-<details style="margin-top:12px">
-  <summary class="meta" style="cursor:pointer">⚡ Processamento rápido de um único pavimento ↓</summary>
-  <div class="upload-card" style="margin-top:10px">
-    <p class="meta" style="margin:0 0 12px">
-      Já é 1 pavimento pronto (sem precisar separar por classe)? Ainda passa pela
-      triagem (conversão/sanidade) e pelo recorte (limpeza e convenções do pavimento)
-      antes da Análise Estrutural (SA) — só pula a tela de separar documentos por classe.
-    </p>
-    {% if drive_folder_url %}
-    <div class="upload-drop" id="upload-drop">
-      <input type="file" id="input-arquivo" accept=".dwg,.dxf" hidden>
-      <p class="upload-drop-texto">
-        <strong>Arraste o arquivo aqui</strong> ou
-        <button type="button" id="btn-escolher" class="btn-link">escolha no computador</button>
-      </p>
-      <p class="meta">.dwg ou .dxf — cria 1 obra com esse único arquivo (1 pavimento).</p>
-    </div>
-    <div id="upload-progresso" class="upload-progresso" hidden>
-      <div class="upload-progresso-barra"><div id="upload-barra-fill"></div></div>
-      <span id="upload-progresso-texto" class="meta">Enviando…</span>
-    </div>
-    <div id="upload-resultado" role="status" aria-live="polite"></div>
-    {% endif %}
-  </div>
-</details>
-
-<h2 style="margin-top:28px">{{ 'Obras' if obras else '' }}</h2>
-
-{% if not obras %}
-<div class="card">
-  <p class="muted">Nenhuma obra detectada ainda. Depois de enviar o arquivo pro Drive, ele aparece aqui
-  — clique em "Verificar agora" acima para conferir sem esperar.</p>
-</div>
-{% else %}
-<div class="stack">
-  {% for o in obras %}
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-      <div>
-        <h2 style="margin:0 0 4px">{{ o.nome }}</h2>
-        <div style="margin-bottom:6px">
-          {{ status_badge(o.estado) }}
-          {% if o.arquivo_nome %}
-          <span class="meta" style="margin-left:8px">⚡ Pavimento único (rápido)</span>
-          {% else %}
-          <span class="meta" style="margin-left:8px">📁 Container de documentos</span>
-          {% endif %}
-          {% if o.membro_nome %}
-          <span class="meta" style="margin-left:8px">· de <strong>{{ o.membro_nome }}</strong></span>
-          {% endif %}
+  {# ========== PASSO 1: 1 pavimento ========== #}
+  <section class="obras-wiz-panel on" id="wiz-panel-1" role="tabpanel" data-wiz-panel="1">
+    <div class="flow-card">
+      <div class="flow-card-head pav">
+        <span class="ico" aria-hidden="true">⚡</span>
+        <div>
+          <h2>Processar 1 Pavimento</h2>
+          <p class="meta">Já é 1 pavimento pronto (sem separar por classe)? Passa por triagem e recorte antes do SA —
+            pula só a tela de separar documentos.</p>
         </div>
-        {% if o.descricao %}<p class="meta" style="margin:0 0 2px">{{ o.descricao }}</p>{% endif %}
-        <p class="meta" style="margin:0">
-          {{ o.arquivo_nome or '—' }}
-          {% if o.created_at %}· detectada {{ o.created_at[:16].replace('T',' ') }}{% endif %}
-        </p>
-        {% if codigos_publicos.get(o.id) %}
-        <p class="meta" style="margin:4px 0 0" title="Clique para copiar" onclick="navigator.clipboard.writeText('{{ codigos_publicos[o.id] }}')">
-          📱 Código de Obra: <span style="font-family:monospace">{{ codigos_publicos[o.id] }}</span> 📋
+      </div>
+      <div class="flow-card-body">
+        {% if drive_folder_url %}
+        <div class="upload-drop flow-drop" id="upload-drop">
+          <input type="file" id="input-arquivo" accept=".dwg,.dxf" hidden>
+          <span class="drop-ico" aria-hidden="true">📄</span>
+          <p class="upload-drop-texto">
+            <strong>Arraste o arquivo aqui</strong> ou
+            <button type="button" id="btn-escolher" class="btn-link">escolha no computador</button>
+          </p>
+          <p class="meta">.dwg ou .dxf — cria 1 obra com esse único arquivo (1 pavimento)</p>
+          <div class="hint-row">
+            <span class="chip-hint">.dwg</span>
+            <span class="chip-hint">.dxf</span>
+            <span class="chip-hint">1 pavimento</span>
+          </div>
+        </div>
+        <div id="upload-progresso" class="upload-progresso" hidden>
+          <div class="upload-progresso-barra"><div id="upload-barra-fill"></div></div>
+          <span id="upload-progresso-texto" class="meta">Enviando…</span>
+        </div>
+        <div id="upload-resultado" role="status" aria-live="polite"></div>
+        {% else %}
+        <p class="faixa faixa-aviso" style="margin:0">
+          <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
         </p>
         {% endif %}
-        {% if o.estado == 'erro' and o.erro_msg %}
-        <p class="meta" style="color:#b91c1c;margin:6px 0 0">
-          <span aria-hidden="true">🔴</span> {{ o.erro_msg }}
+        <div class="flow-actions">
+          <button type="button" class="btn-sec btn" data-goto-wiz="3">Exibir lista de obras</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ========== PASSO 2: obra completa + ingestão ========== #}
+  <section class="obras-wiz-panel" id="wiz-panel-2" role="tabpanel" data-wiz-panel="2" hidden>
+    <div class="flow-card">
+      <div class="flow-card-head obra">
+        <span class="ico" aria-hidden="true">🏗️</span>
+        <div>
+          <h2>Processar Obra Completa</h2>
+          <p class="meta">Cria a obra e já leva os documentos classificados.
+            A triagem automática só resolve <strong>pavimento</strong> — tipo
+            <strong>Bruto / Docs / Detalhe</strong> você define na ingestão
+            (igual à lista por classe depois de abrir a obra).</p>
+        </div>
+      </div>
+      <div class="flow-card-body">
+        {% if drive_folder_url %}
+        <form id="form-criar-obra">
+          <label class="field-label" for="criar-nome">Nome da obra</label>
+          <input type="text" id="criar-nome" class="field" placeholder="ex.: Edifício Paraíso" required autocomplete="off">
+
+          <label class="field-label" for="criar-descricao">Descrição <span class="field-opt">(opcional)</span></label>
+          <textarea id="criar-descricao" class="field" rows="2" placeholder="Critérios do cliente, observações do lote…"></textarea>
+
+          <div class="ingest-section">
+            <h3>Documentos da obra (antes de criar)</h3>
+            <p class="meta">Suba <strong>vários arquivos</strong> (.dwg, .dxf, .pdf, fotos). Classifique cada um:
+              <strong>Bruto</strong> (planta/pavimento), <strong>Docs</strong> (PDF/foto/memorial) ou <strong>Detalhe</strong>.</p>
+            <p class="ingest-note">⚠ A triagem não classifica tipo de documento — só pavimentos.
+              Sem marcar aqui, os itens caem em «revisar» depois.</p>
+
+            <div class="ingest-tabs" role="tablist" id="ingest-tabs">
+              <button type="button" class="ingest-tab on" data-ingest-tab="todos">Todos <span class="n" id="cnt-todos">0</span></button>
+              <button type="button" class="ingest-tab" data-ingest-tab="Bruto">Brutos <span class="n" id="cnt-Bruto">0</span></button>
+              <button type="button" class="ingest-tab" data-ingest-tab="Docs">Docs <span class="n" id="cnt-Docs">0</span></button>
+              <button type="button" class="ingest-tab" data-ingest-tab="Detalhe">Detalhes <span class="n" id="cnt-Detalhe">0</span></button>
+            </div>
+
+            <div class="docs-ingest-list" id="docs-ingest-list">
+              <p class="docs-empty">Nenhum documento ainda. Arraste ou escolha arquivos abaixo.</p>
+            </div>
+
+            <div class="lote-cls">
+              <span>Classe padrão do próximo lote:</span>
+              <select id="lote-cls">
+                <option value="Bruto">Bruto — planta / pavimento</option>
+                <option value="Docs">Docs — PDF, foto, memorial</option>
+                <option value="Detalhe">Detalhe — detalhe de obra</option>
+              </select>
+              <button type="button" class="btn-sec btn btn-sm" id="btn-apply-lote">Aplicar a todos da lista</button>
+            </div>
+
+            <div class="upload-drop flow-drop" id="docs-drop-completa">
+              <input type="file" id="input-docs-completa" multiple
+                     accept=".dwg,.dxf,.pdf,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tif,.tiff" hidden>
+              <span class="drop-ico" aria-hidden="true">📂</span>
+              <p class="upload-drop-texto">
+                <strong>Arraste 1 ou mais arquivos aqui</strong> ou
+                <button type="button" id="btn-pick-docs" class="btn-link">escolha no computador</button>
+              </p>
+              <p class="meta">Cada arquivo entra na lista com a classe padrão do lote (editável por linha)</p>
+              <div class="hint-row">
+                <span class="chip-hint">.dwg</span>
+                <span class="chip-hint">.dxf</span>
+                <span class="chip-hint">.pdf</span>
+                <span class="chip-hint">fotos</span>
+                <span class="chip-hint">múltiplos</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-actions">
+            <button type="submit" class="btn" id="btn-criar-obra">Criar obra →</button>
+            {% if drive_folder_url %}
+            <a class="btn-sec btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener">Abrir pasta no Drive ↗</a>
+            {% endif %}
+            <button type="button" class="btn-sec btn" id="btn-verificar">Verificar agora ↻</button>
+            <button type="button" class="btn-sec btn" data-goto-wiz="3">Exibir lista de obras</button>
+          </div>
+          <div id="criar-obra-resultado" role="status" aria-live="polite"></div>
+          <span id="verificar-status" class="status-verificar" role="status" aria-live="polite"></span>
+        </form>
+        {% else %}
+        <p class="faixa faixa-aviso" style="margin:0">
+          <span aria-hidden="true">⚠</span> Sua pasta do Drive ainda não foi configurada — peça ao dono.
         </p>
         {% endif %}
       </div>
-      <a class="btn" href="/app/obras/{{ o.id }}">Abrir →</a>
     </div>
-  </div>
-  {% endfor %}
+  </section>
+
+  {# ========== PASSO 3: lista tabela ========== #}
+  <section class="obras-wiz-panel" id="wiz-panel-3" role="tabpanel" data-wiz-panel="3" hidden>
+    <div class="list-head-row">
+      {% if eh_dono %}
+      <h2>Todas as obras</h2>
+      <span class="meta">{{ obras|length }} obra(s) · agrupadas por usuário · recentes em cima</span>
+      {% else %}
+      <h2>Lista de Obras — {{ meu_nome }}</h2>
+      <span class="meta">{{ obras|length }} obra(s) · mais recentes em cima</span>
+      {% endif %}
+    </div>
+
+    {% if not obras %}
+    <div class="card">
+      <p class="muted" style="margin:0">Nenhuma obra ainda. Use o passo 1 (1 pavimento) ou o passo 2 (obra completa).</p>
+    </div>
+    {% else %}
+    <div class="card obras-table-card">
+      <table class="obras-table">
+        <thead>
+          <tr>
+            <th>Obra</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Tipo</th>
+            {% if eh_dono %}<th>Usuário</th>{% endif %}
+            <th>Código</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for g in obras_por_membro %}
+          {% if eh_dono %}
+          <tr class="obras-user-sep">
+            <td colspan="7">Lista de Obras — {{ g.dono }}{% if g.dono == meu_nome %} · você{% endif %}</td>
+          </tr>
+          {% endif %}
+          {% for o in g.obras %}
+          <tr class="obras-row" data-nome="{{ o.nome|e }}" data-dono="{{ g.dono|e }}">
+            <td><strong>{{ o.nome }}</strong>
+              {% if o.descricao %}<div class="meta" style="margin:2px 0 0">{{ o.descricao[:80] }}{% if o.descricao|length > 80 %}…{% endif %}</div>{% endif %}
+              {% if o.estado == 'erro' and o.erro_msg %}
+              <div class="meta" style="color:#b91c1c;margin-top:4px">{{ o.erro_msg }}</div>
+              {% endif %}
+            </td>
+            <td class="obras-td-date">{% if o.created_at %}{{ o.created_at[:16].replace('T', ' ') }}{% else %}—{% endif %}</td>
+            <td>{{ status_badge(o.estado) }}</td>
+            <td>
+              {% if o.arquivo_nome %}
+              <span class="pill">⚡ Pav. único</span>
+              {% else %}
+              <span class="pill">📁 Container</span>
+              {% endif %}
+            </td>
+            {% if eh_dono %}<td>{{ g.dono }}</td>{% endif %}
+            <td>
+              {% if codigos_publicos.get(o.id) %}
+              <span class="code" title="Clique para copiar" role="button" tabindex="0"
+                    onclick="navigator.clipboard.writeText('{{ codigos_publicos[o.id] }}')">{{ codigos_publicos[o.id] }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td><a class="btn btn-sm" href="/app/obras/{{ o.id }}">Abrir</a></td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </section>
 </div>
-{% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // --- criar obra (nome + descrição) — 2026-07-06, fluxo principal ---
-  (function () {
-    var form = document.getElementById('form-criar-obra');
-    if (!form) return;  // membro sem pasta de Drive configurada
-    var resultado = document.getElementById('criar-obra-resultado');
-    var btn = document.getElementById('btn-criar-obra');
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var nome = document.getElementById('criar-nome').value.trim();
-      var descricao = document.getElementById('criar-descricao').value.trim();
-      if (!nome) return;
-      btn.disabled = true;
-      btn.textContent = 'Criando…';
-      resultado.innerHTML = '';
-      fetch('/obras/criar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: nome, descricao: descricao || null }),
-      }).then(function (r) {
-        return r.json().then(function (data) { return { ok: r.ok, data: data }; });
-      }).then(function (res) {
-        if (res.ok) {
-          resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
-            '<span aria-hidden="true">✓</span> Obra criada! Indo para a página dela…</p>';
-          window.location.href = '/app/obras/' + res.data.obra_id;
-        } else {
-          resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
-            '<span aria-hidden="true">⚠</span> ' + (res.data.detail || 'Falha ao criar obra.') + '</p>';
-          btn.disabled = false;
-          btn.textContent = 'Criar obra →';
-        }
-      }).catch(function () {
-        resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
-          '<span aria-hidden="true">⚠</span> Falha de rede ao criar obra.</p>';
-        btn.disabled = false;
-        btn.textContent = 'Criar obra →';
-      });
+(function () {
+  // ---- wizard ----
+  var wiz = 1;
+  function setWiz(n) {
+    wiz = n;
+    document.querySelectorAll('.obras-wiz-step').forEach(function (b) {
+      var on = parseInt(b.getAttribute('data-wiz'), 10) === n;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
     });
-  })();
+    document.querySelectorAll('[data-wiz-panel]').forEach(function (p) {
+      var on = parseInt(p.getAttribute('data-wiz-panel'), 10) === n;
+      p.classList.toggle('on', on);
+      p.hidden = !on;
+    });
+    try {
+      var u = new URL(window.location.href);
+      u.searchParams.set('passo', String(n));
+      window.history.replaceState(null, '', u.pathname + u.search);
+    } catch (e) { /* */ }
+  }
+  document.querySelectorAll('.obras-wiz-step').forEach(function (b) {
+    b.addEventListener('click', function () {
+      setWiz(parseInt(b.getAttribute('data-wiz'), 10));
+    });
+  });
+  document.querySelectorAll('[data-goto-wiz]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      setWiz(parseInt(b.getAttribute('data-goto-wiz'), 10));
+    });
+  });
+  try {
+    var p0 = parseInt(new URLSearchParams(window.location.search).get('passo') || '1', 10);
+    if (p0 >= 1 && p0 <= 3) setWiz(p0);
+  } catch (e) { /* */ }
 
-  // --- upload direto (drag-and-drop ou escolher arquivo) — 2026-07-06 ---
+  // ---- busca sidebar (+ filtra tabela) ----
+  var qEl = document.getElementById('side-obras-q');
+  function filtrarObras(q) {
+    q = (q || '').toLowerCase().trim();
+    document.querySelectorAll('.obra-card-side').forEach(function (a) {
+      var nome = (a.getAttribute('data-nome') || '').toLowerCase();
+      var dono = (a.getAttribute('data-dono') || '').toLowerCase();
+      var ok = !q || nome.indexOf(q) >= 0 || dono.indexOf(q) >= 0;
+      a.style.display = ok ? '' : 'none';
+    });
+    document.querySelectorAll('.side-obras-group').forEach(function (g) {
+      var any = false;
+      g.querySelectorAll('.obra-card-side').forEach(function (a) {
+        if (a.style.display !== 'none') any = true;
+      });
+      g.style.display = any || !q ? '' : 'none';
+    });
+    document.querySelectorAll('tr.obras-row').forEach(function (tr) {
+      var nome = (tr.getAttribute('data-nome') || '').toLowerCase();
+      var dono = (tr.getAttribute('data-dono') || '').toLowerCase();
+      var ok = !q || nome.indexOf(q) >= 0 || dono.indexOf(q) >= 0;
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (qEl) qEl.addEventListener('input', function () { filtrarObras(qEl.value); });
+
+  // ---- passo 1: upload rápido 1 pav ----
   (function () {
     var drop = document.getElementById('upload-drop');
-    if (!drop) return;  // membro sem pasta de Drive configurada
+    if (!drop) return;
     var input = document.getElementById('input-arquivo');
     var btnEscolher = document.getElementById('btn-escolher');
     var progresso = document.getElementById('upload-progresso');
@@ -189,23 +362,18 @@
 
     function enviarArquivo(arquivo) {
       if (!arquivo) return;
-      var extensoesValidas = ['.dwg', '.dxf'];
       var nomeMinusculo = arquivo.name.toLowerCase();
-      var extensaoOk = extensoesValidas.some(function (ext) { return nomeMinusculo.endsWith(ext); });
-      if (!extensaoOk) {
+      if (!nomeMinusculo.endsWith('.dwg') && !nomeMinusculo.endsWith('.dxf')) {
         resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
           '<span aria-hidden="true">⚠</span> Só aceita .dwg ou .dxf.</p>';
         return;
       }
-
       resultado.innerHTML = '';
       progresso.hidden = false;
       barra.style.width = '0%';
       progTexto.textContent = 'Enviando ' + arquivo.name + '…';
-
       var formData = new FormData();
       formData.append('arquivo', arquivo);
-
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '/obras/upload');
       xhr.upload.addEventListener('progress', function (e) {
@@ -221,7 +389,7 @@
           var data = JSON.parse(xhr.responseText);
           resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
             '<span aria-hidden="true">✓</span> Enviado! ' +
-            (data.novas_obras > 0 ? 'Já apareceu na lista abaixo.' : 'Confirmando…') + '</p>';
+            (data.novas_obras > 0 ? 'Já apareceu na lista.' : 'Confirmando…') + '</p>';
           setTimeout(function () { window.location.reload(); }, 1000);
         } else {
           var msg = 'Falha ao enviar.';
@@ -237,10 +405,11 @@
       };
       xhr.send(formData);
     }
-
-    btnEscolher.addEventListener('click', function () { input.click(); });
-    input.addEventListener('change', function () { enviarArquivo(input.files[0]); });
-
+    if (btnEscolher) btnEscolher.addEventListener('click', function () { input.click(); });
+    if (input) input.addEventListener('change', function () {
+      enviarArquivo(input.files[0]);
+      input.value = '';
+    });
     drop.addEventListener('dragover', function (e) {
       e.preventDefault();
       drop.classList.add('upload-drop-ativo');
@@ -253,32 +422,261 @@
     });
   })();
 
-  document.getElementById('btn-verificar').addEventListener('click', function () {
-    var btn = this;
-    var status = document.getElementById('verificar-status');
-    btn.disabled = true;
-    btn.textContent = 'Verificando…';
-    status.textContent = '';
-    fetch('/obras/verificar-drive', { method: 'POST' })
-      .then(function (r) {
-        if (!r.ok) throw new Error('falha');
-        return r.json();
-      })
-      .then(function (data) {
-        if (data.novas_obras > 0) {
-          status.textContent = data.novas_obras + ' obra(s) nova(s) encontrada(s) — atualizando…';
-          setTimeout(function () { window.location.reload(); }, 900);
-        } else {
-          status.textContent = 'Nenhuma obra nova por enquanto.';
-          btn.disabled = false;
-          btn.textContent = 'Verificar agora ↻';
-        }
-      })
-      .catch(function () {
-        status.textContent = 'Não foi possível verificar agora — tente de novo em instantes.';
-        btn.disabled = false;
-        btn.textContent = 'Verificar agora ↻';
+  // ---- passo 2: rascunho de docs + criar obra + upload classificado ----
+  // Bruto / Docs / Detalhe  →  API: Bruto / PDF / Detalhe
+  var TIPO_API = { Bruto: 'Bruto', Docs: 'PDF', Detalhe: 'Detalhe' };
+  var draftDocs = []; // { id, file, nome, sizeLabel, cls }
+  var ingestTab = 'todos';
+  var uid = 0;
+
+  function fmtSize(bytes) {
+    if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+    return bytes + ' B';
+  }
+
+  function contagens() {
+    var c = { todos: draftDocs.length, Bruto: 0, Docs: 0, Detalhe: 0 };
+    draftDocs.forEach(function (d) { if (c[d.cls] != null) c[d.cls] += 1; });
+    return c;
+  }
+
+  function renderIngestList() {
+    var list = document.getElementById('docs-ingest-list');
+    if (!list) return;
+    var c = contagens();
+    ['todos', 'Bruto', 'Docs', 'Detalhe'].forEach(function (k) {
+      var el = document.getElementById('cnt-' + k);
+      if (el) el.textContent = String(c[k] || 0);
+    });
+    var btn = document.getElementById('btn-criar-obra');
+    if (btn && !btn.disabled) {
+      btn.textContent = draftDocs.length
+        ? ('Criar obra com ' + draftDocs.length + ' documento(s) →')
+        : 'Criar obra →';
+    }
+    var itens = draftDocs.filter(function (d) {
+      return ingestTab === 'todos' || d.cls === ingestTab;
+    });
+    if (!itens.length) {
+      list.innerHTML = '<p class="docs-empty">' +
+        (draftDocs.length
+          ? 'Nenhum documento nesta classe. Troque a aba ou envie mais arquivos.'
+          : 'Nenhum documento ainda. Arraste ou escolha arquivos abaixo.') +
+        '</p>';
+      return;
+    }
+    var rows = itens.map(function (d) {
+      function opt(v, label) {
+        var on = d.cls === v ? ' on-' + v.toLowerCase() : '';
+        return '<label class="cls-opt' + on + '">' +
+          '<input type="radio" name="cls-' + d.id + '" value="' + v + '"' +
+          (d.cls === v ? ' checked' : '') + ' data-doc-cls="' + d.id + '"> ' + label +
+          '</label>';
+      }
+      return '<tr>' +
+        '<td><div class="doc-fn" title="' + esc(d.nome) + '">' + esc(d.nome) + '</div>' +
+        '<div class="doc-sz">' + esc(d.sizeLabel) + '</div></td>' +
+        '<td><div class="cls-group">' +
+        opt('Bruto', 'Bruto') + opt('Docs', 'Docs') + opt('Detalhe', 'Detalhe') +
+        '</div></td>' +
+        '<td style="text-align:right">' +
+        '<button type="button" class="btn-rm" data-rm="' + d.id + '" title="Remover">✕</button></td></tr>';
+    }).join('');
+    list.innerHTML = '<table><thead><tr><th>Arquivo</th><th>Classificação na ingestão</th><th></th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table>';
+
+    list.querySelectorAll('[data-doc-cls]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        var id = inp.getAttribute('data-doc-cls');
+        var d = draftDocs.find(function (x) { return x.id === id; });
+        if (d) d.cls = inp.value;
+        renderIngestList();
       });
+    });
+    list.querySelectorAll('[data-rm]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-rm');
+        draftDocs = draftDocs.filter(function (x) { return x.id !== id; });
+        renderIngestList();
+      });
+    });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  function addFiles(fileList) {
+    if (!fileList || !fileList.length) return;
+    var lote = document.getElementById('lote-cls');
+    var cls = (lote && lote.value) || 'Bruto';
+    for (var i = 0; i < fileList.length; i++) {
+      var f = fileList[i];
+      uid += 1;
+      draftDocs.push({
+        id: 'd' + uid,
+        file: f,
+        nome: f.name,
+        sizeLabel: fmtSize(f.size),
+        cls: cls
+      });
+    }
+    renderIngestList();
+  }
+
+  document.querySelectorAll('[data-ingest-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ingestTab = b.getAttribute('data-ingest-tab') || 'todos';
+      document.querySelectorAll('[data-ingest-tab]').forEach(function (x) {
+        x.classList.toggle('on', x === b);
+      });
+      renderIngestList();
+    });
   });
+
+  var btnApply = document.getElementById('btn-apply-lote');
+  if (btnApply) {
+    btnApply.addEventListener('click', function () {
+      var lote = document.getElementById('lote-cls');
+      var cls = (lote && lote.value) || 'Bruto';
+      draftDocs.forEach(function (d) { d.cls = cls; });
+      renderIngestList();
+    });
+  }
+
+  var inputDocs = document.getElementById('input-docs-completa');
+  var btnPick = document.getElementById('btn-pick-docs');
+  var dropDocs = document.getElementById('docs-drop-completa');
+  if (btnPick && inputDocs) {
+    btnPick.addEventListener('click', function () { inputDocs.click(); });
+    inputDocs.addEventListener('change', function () {
+      addFiles(inputDocs.files);
+      inputDocs.value = '';
+    });
+  }
+  if (dropDocs) {
+    dropDocs.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      dropDocs.classList.add('upload-drop-ativo');
+    });
+    dropDocs.addEventListener('dragleave', function () {
+      dropDocs.classList.remove('upload-drop-ativo');
+    });
+    dropDocs.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropDocs.classList.remove('upload-drop-ativo');
+      if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+    });
+  }
+  renderIngestList();
+
+  function uploadLote(obraId, tipoApi, files) {
+    var fd = new FormData();
+    for (var i = 0; i < files.length; i++) fd.append('arquivos', files[i]);
+    if (tipoApi) fd.append('tipo_documento_padrao', tipoApi);
+    return fetch('/obras/' + obraId + '/documentos', { method: 'POST', body: fd })
+      .then(function (r) {
+        return r.json().then(function (data) {
+          if (!r.ok) throw new Error(data.detail || ('http ' + r.status));
+          return data;
+        });
+      });
+  }
+
+  var form = document.getElementById('form-criar-obra');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nome = document.getElementById('criar-nome').value.trim();
+      var descricao = document.getElementById('criar-descricao').value.trim();
+      var resultado = document.getElementById('criar-obra-resultado');
+      var btn = document.getElementById('btn-criar-obra');
+      if (!nome) return;
+      if (!draftDocs.length) {
+        if (!confirm('Nenhum documento na lista. Criar obra vazia e enviar docs depois?')) return;
+      }
+      btn.disabled = true;
+      var label0 = btn.textContent;
+      btn.textContent = 'Criando obra…';
+      resultado.innerHTML = '';
+
+      fetch('/obras/criar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: nome, descricao: descricao || null }),
+      }).then(function (r) {
+        return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+      }).then(function (res) {
+        if (!res.ok) throw new Error(res.data.detail || 'Falha ao criar obra.');
+        var obraId = res.data.obra_id;
+        if (!draftDocs.length) {
+          resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
+            '<span aria-hidden="true">✓</span> Obra criada! Indo…</p>';
+          window.location.href = '/app/obras/' + obraId;
+          return null;
+        }
+        // agrupa por classe e envia lotes
+        var grupos = { Bruto: [], Docs: [], Detalhe: [] };
+        draftDocs.forEach(function (d) {
+          if (grupos[d.cls]) grupos[d.cls].push(d.file);
+          else grupos.Docs.push(d.file);
+        });
+        btn.textContent = 'Enviando documentos…';
+        var chain = Promise.resolve();
+        ['Bruto', 'Docs', 'Detalhe'].forEach(function (cls) {
+          var files = grupos[cls];
+          if (!files || !files.length) return;
+          chain = chain.then(function () {
+            return uploadLote(obraId, TIPO_API[cls] || 'PDF', files);
+          });
+        });
+        return chain.then(function () {
+          resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
+            '<span aria-hidden="true">✓</span> Obra criada com ' + draftDocs.length +
+            ' documento(s)! Indo…</p>';
+          window.location.href = '/app/obras/' + obraId;
+        });
+      }).catch(function (err) {
+        resultado.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
+          '<span aria-hidden="true">⚠</span> ' + esc(err.message || 'Falha') + '</p>';
+        btn.disabled = false;
+        btn.textContent = label0;
+      });
+    });
+  }
+
+  // verificar Drive
+  var btnVer = document.getElementById('btn-verificar');
+  if (btnVer) {
+    btnVer.addEventListener('click', function () {
+      var status = document.getElementById('verificar-status');
+      btnVer.disabled = true;
+      btnVer.textContent = 'Verificando…';
+      if (status) status.textContent = '';
+      fetch('/obras/verificar-drive', { method: 'POST' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('falha');
+          return r.json();
+        })
+        .then(function (data) {
+          if (data.novas_obras > 0) {
+            if (status) status.textContent = data.novas_obras + ' obra(s) nova(s) — atualizando…';
+            setTimeout(function () { window.location.reload(); }, 900);
+          } else {
+            if (status) status.textContent = 'Nenhuma obra nova por enquanto.';
+            btnVer.disabled = false;
+            btnVer.textContent = 'Verificar agora ↻';
+          }
+        })
+        .catch(function () {
+          if (status) status.textContent = 'Não foi possível verificar agora.';
+          btnVer.disabled = false;
+          btnVer.textContent = 'Verificar agora ↻';
+        });
+    });
+  }
+})();
 </script>
 {% endblock %}

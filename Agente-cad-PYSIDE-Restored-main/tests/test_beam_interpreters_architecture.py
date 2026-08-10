@@ -90,6 +90,117 @@ def test_fv_physical_panel_mode_splits_short_support_gap_between_long_panels():
     assert groups == [(0.0, 254.0), (273.0, 691.0)]
 
 
+def test_fv_uses_proven_inner_support_faces_not_outer_cap_edges():
+    interpreter = FundoVigaInterpreter()
+    panels = [(2059.0, 2461.0), (2511.0, 2914.0), (4259.0, 4552.0)]
+    evidence = [
+        # Encontro fechado: as faces longas internas provam onde o fundo para.
+        [(2461.0, 2991.0), (2511.0, 2991.0), (2511.0, 3010.0), (2461.0, 3010.0), (2461.0, 2991.0)],
+        [(2477.0, 2759.0), (2477.0, 2991.0)],
+        [(2496.0, 2759.0), (2496.0, 2991.0)],
+        [(4209.0, 2991.0), (4259.0, 2991.0), (4259.0, 3010.0), (4209.0, 3010.0), (4209.0, 2991.0)],
+        [(4244.0, 2680.0), (4244.0, 2991.0)],
+        # No terminal a tampa ocupa o final do painel: a face oposta é a fronteira.
+        [(4533.0, 2991.0), (4552.0, 2991.0), (4552.0, 3010.0), (4533.0, 3010.0), (4533.0, 2991.0)],
+    ]
+
+    groups = interpreter.resolve_attached_support_faces(
+        panels, evidence, is_horizontal=True, transverse_center=3000.5,
+    )
+
+    assert groups == [(2059.0, 2477.0), (2496.0, 2914.0), (4244.0, 4533.0)]
+
+
+def test_fv_does_not_cross_a_short_cap_without_a_proven_face():
+    interpreter = FundoVigaInterpreter()
+    panels = [(1622.0, 2040.0), (2059.0, 2377.0)]
+    solid_cap = [
+        (2040.0, 2991.0), (2059.0, 2991.0), (2059.0, 3010.0),
+        (2040.0, 3010.0), (2040.0, 2991.0),
+    ]
+
+    groups = interpreter.resolve_attached_support_faces(
+        panels, [solid_cap], is_horizontal=True, transverse_center=3000.5,
+    )
+
+    assert groups == panels
+
+
+def test_fv_keeps_boundary_when_own_face_sits_exactly_at_cap_edge():
+    """Regressão real V309A (2026-07-20, dados reais do 13_PAV).
+
+    A face que fecha a PRÓPRIA chapa (cap) do encontro senta exatamente na
+    borda do cap (`face_axis == cap_max`), não estritamente dentro do vão.
+    Antes desta correção, a desigualdade estrita descartava essa face
+    genuína e sobrava só uma face mais distante (de outra viga, a mesma
+    linha de grade compartilhada que V301 usa legitimamente nos mesmos x)
+    estritamente dentro do cap — movendo a fronteira 19cm para o lugar
+    errado (480cm em vez dos 461cm reais). Com a face própria participando
+    da disputa, o desempate por proximidade ao limite atual já escolhe
+    certo, sem tocar em nenhuma outra regra.
+    """
+    interpreter = FundoVigaInterpreter()
+    panels = [(2680.038, 3141.038)]
+    evidence = [
+        # Cap real do encontro de V309A, 60cm de vão, 19cm de largura.
+        [
+            (2620.038, 1178.8825), (2680.038, 1178.8825),
+            (2680.038, 1197.8825), (2620.038, 1197.8825),
+            (2620.038, 1178.8825),
+        ],
+        # Face própria: fecha exatamente na borda do cap (2680.038).
+        [(2680.038, 1197.8825), (2680.038, 1387.3825)],
+        # Face estranha: de outra viga (grade compartilhada), estritamente
+        # dentro do cap — não deve mais vencer.
+        [(2661.038, 1197.8825), (2661.038, 1380.3825)],
+    ]
+
+    groups = interpreter.resolve_attached_support_faces(
+        panels, evidence, is_horizontal=False, transverse_center=1188.38,
+    )
+
+    assert groups == [(2680.038, 3141.038)]
+
+
+def test_beam_tracer_applies_support_face_rule_only_to_fv_bottom_panels():
+    tracer = BeamTracer(_FakeSpatialIndex([]))
+    lines = [
+        [(2059.0, 2991.0), (2461.0, 2991.0)],
+        [(2059.0, 3010.0), (2461.0, 3010.0)],
+        [(2511.0, 2991.0), (2914.0, 2991.0)],
+        [(2511.0, 3010.0), (2914.0, 3010.0)],
+        [(2461.0, 2991.0), (2511.0, 2991.0), (2511.0, 3010.0), (2461.0, 3010.0), (2461.0, 2991.0)],
+        [(2477.0, 2759.0), (2477.0, 2991.0)],
+        [(2496.0, 2759.0), (2496.0, 2991.0)],
+    ]
+
+    fv = tracer._classify_lines((2300.0, 3000.5), lines, True, label_pos=(2300.0, 3000.5))
+
+    assert fv["merged_bottom_groups_coords"] == [(2059.0, 2477.0), (2496.0, 2914.0)]
+
+
+def test_fv_captures_only_native_divider_that_bridges_its_own_strip():
+    """LINHA curta só abre FV quando fecha as duas bordas locais do fundo."""
+    top = {"points": [(0.0, 19.0), (100.0, 19.0)], "layer": "3"}
+    bottom = {"points": [(0.0, 0.0), (100.0, 0.0)], "layer": "3"}
+    divider = {"start": (50.0, 0.0), "end": (50.0, 19.0), "layer": "3"}
+    # Parece um divisor, mas não fecha a faixa: deve permanecer fora do FV.
+    foreign_line = {"start": (75.0, 19.0), "end": (75.0, 58.0), "layer": "3"}
+    label = {"text": "V900", "pos": (20.0, 10.0), "rotation": 0.0}
+    tracer = BeamTracer(_FakeSpatialIndex([top, bottom, divider, foreign_line]))
+
+    captured = tracer._capture_fundo_geometry(
+        label["pos"], True, {id(label): True}, [label], "V900",
+    )
+    geometry = tracer._classify_lines(
+        label["pos"], captured, True, label_pos=label["pos"],
+    )
+
+    assert [(50.0, 0.0), (50.0, 19.0)] in captured
+    assert [(75.0, 19.0), (75.0, 58.0)] not in captured
+    assert geometry["merged_bottom_groups_coords"] == [(0.0, 50.0), (50.0, 100.0)]
+
+
 def test_fv_provenance_fingerprints_physical_faces_without_n2():
     provenance = FundoVigaInterpreter.build_provenance(
         contour=[(0.0, 10.0), (100.0, 10.0), (100.0, 29.0), (0.0, 29.0), (0.0, 10.0)],
@@ -179,6 +290,39 @@ def test_fv_discards_touching_narrow_cap_before_long_panel():
     assert groups == [(19.0, 171.0)]
 
 
+def test_fv_absorbs_terminal_opening_cap_at_beam_start():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.discard_attached_narrow_caps(
+        [(0.0, 19.0), (19.0, 120.5)],
+        structural_width=19.0,
+    )
+
+    assert groups == [(0.0, 120.5)]
+
+
+def test_fv_trims_terminal_opening_cap_at_beam_end():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.discard_attached_narrow_caps(
+        [(0.0, 480.0), (461.0, 480.0)],
+        structural_width=19.0,
+    )
+
+    assert groups == [(0.0, 461.0)]
+
+
+def test_fv_keeps_narrow_panel_when_dxf_divider_proves_its_boundary():
+    interpreter = FundoVigaInterpreter()
+
+    groups = interpreter.discard_attached_narrow_caps(
+        [(0.0, 26.0), (26.0, 292.5)],
+        protected_boundaries=[26.0],
+    )
+
+    assert groups == [(0.0, 26.0), (26.0, 292.5)]
+
+
 def test_fv_merges_short_gap_without_structural_boundary_label():
     interpreter = FundoVigaInterpreter()
 
@@ -251,6 +395,106 @@ def test_fundo_area_rejects_collinear_walls_and_builds_rectangle():
     assert max(point[0] for point in contour) - min(point[0] for point in contour) == 286.0
     assert max(point[1] for point in contour) - min(point[1] for point in contour) == 19.0
     assert FundoVigaInterpreter._polygon_area(contour) == 5434.0
+    # Face colinear em y=2242: uma borda do retângulo fica SOBRE a linha DXF.
+    assert max(point[1] for point in contour) == 2242.038
+    assert min(point[1] for point in contour) == 2242.038 - 19.0
+
+
+def test_fundo_area_single_face_snaps_edge_onto_existing_line():
+    """Tamanho correto não basta: contorno não pode flutuar fora da linha verde."""
+    green_face_y = 100.0
+    floating_center = 130.0  # centro "errado" acima da face (caso típico N1)
+    contour = FundoVigaInterpreter.build_area_contour(
+        axial_span=(0.0, 200.0),
+        width=12.0,
+        is_horizontal=True,
+        transverse_center=floating_center,
+        boundary_lines=[[(0.0, green_face_y), (200.0, green_face_y)]],
+        allow_synthetic=False,
+    )
+
+    ys = [point[1] for point in contour]
+    assert max(ys) - min(ys) == 12.0
+    # Uma borda exatamente na linha existente; a outra a 12 cm no lado do rótulo.
+    assert green_face_y in ys
+    assert min(ys) == green_face_y
+    assert max(ys) == green_face_y + 12.0
+
+
+def test_fundo_area_refuses_synthetic_when_no_line_and_disallowed():
+    contour = FundoVigaInterpreter.build_area_contour(
+        axial_span=(0.0, 100.0),
+        width=19.0,
+        is_horizontal=True,
+        transverse_center=50.0,
+        boundary_lines=(),
+        allow_synthetic=False,
+    )
+    assert contour == []
+
+
+def test_fundo_width_repair_snaps_floating_rectangle_onto_dxf_face():
+    """Reparo de largura com evidência DXF não re-centra no contorno flutuante."""
+    green = [(0.0, 0.0), (300.0, 0.0)]
+    # Largura errada (14) e flutuando acima da face verde em y=0.
+    floating = [
+        (0.0, 8.0), (300.0, 8.0), (300.0, 22.0), (0.0, 22.0), (0.0, 8.0),
+    ]
+    beam = {
+        "is_h": True,
+        "pos": (150.0, -6.0),  # rótulo abaixo da face → faixa -12..0
+        "fields": {"viga_fundo_seg_1_dim": "12/100"},
+        "geometry": {"classified": {
+            "merged_bottom_groups_coords": [(0.0, 300.0)],
+            "seg_bottom": [green],
+        }},
+        "links": {"viga_fundo_seg_1_area_segs": {"contour": [{
+            "type": "poly",
+            "points": list(floating),
+        }]}},
+    }
+
+    assert FundoVigaInterpreter.repair_area_links(beam) == 1
+    repaired = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    ys = [point[1] for point in repaired["points"]]
+    assert max(ys) - min(ys) == 12.0
+    assert min(ys) == -12.0
+    assert max(ys) == 0.0
+    assert repaired["geometry_source"] == "fundo_viga_interpreter_width_repair"
+
+
+def test_fundo_overlay_repairs_correct_size_but_floating_position():
+    """Caso majoritário no SA: largura/vão ok, contorno só deslocado da linha verde."""
+    green = [(0.0, 100.0), (400.0, 100.0)]
+    floating = [
+        (0.0, 112.0), (400.0, 112.0), (400.0, 124.0), (0.0, 124.0), (0.0, 112.0),
+    ]
+    beam = {
+        "is_h": True,
+        "pos": (200.0, 106.0),  # rótulo entre face e lado de cima
+        "fields": {"viga_fundo_seg_1_dim": "12/80"},
+        "geometry": {"classified": {
+            "merged_bottom_groups_coords": [(0.0, 400.0)],
+            "seg_bottom": [green],
+        }},
+        "links": {"viga_fundo_seg_1_area_segs": {"contour": [{
+            "type": "poly",
+            "points": list(floating),
+            "len": 400.0,
+        }]}},
+    }
+
+    assert FundoVigaInterpreter.repair_area_links(beam) == 1
+    repaired = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    ys = [point[1] for point in repaired["points"]]
+    assert repaired["geometry_source"] == (
+        "fundo_viga_interpreter_overlay_position_repair"
+    )
+    assert max(ys) - min(ys) == 12.0
+    assert 100.0 in ys
+    assert FundoVigaInterpreter.contour_overlays_boundary_lines(
+        repaired["points"], [green], is_horizontal=True,
+    )
 
 
 def test_fundo_area_preserves_two_real_non_collinear_edges():
@@ -266,6 +510,93 @@ def test_fundo_area_preserves_two_real_non_collinear_edges():
         (0.0, 0.0), (100.0, 0.0),
         (100.0, 20.0), (0.0, 20.0), (0.0, 0.0),
     ]
+
+
+def test_reconcile_persisted_segments_clears_orphaned_index_without_human_validation():
+    """Regressão real V331 (2026-07-20): fix do fragmento residual de
+    V310/V331 reduziu o vão físico de 2 (19cm + 201cm) para 1 (201cm) — mas
+    o índice 2 persistido (ainda o vão real de 201cm, largura 19, dado real
+    do DB) some da lista fresca porque a rodada atual só produz seg_index=1.
+    Sem limpeza, o índice 2 sobra como fantasma e a ficha final mostra 2
+    segmentos de 201cm em vez de 1. Nenhum dos dois é validado por humano,
+    então o órfão pode ser limpo.
+    """
+    old_seg_1 = {
+        "points": [
+            [4601.3825, 2441.038], [4615.3825, 2441.038],
+            [4615.3825, 2460.038], [4601.3825, 2460.038],
+            [4601.3825, 2441.038],
+        ],
+        "len": 19.0, "tag": "Fundo",
+        "fv_provenance": {"authority": "n1_dxf_observational"},
+    }
+    old_seg_2 = {
+        "points": [
+            [4601.3825, 2460.038], [4620.3825, 2460.038],
+            [4620.3825, 2661.038], [4601.3825, 2661.038],
+            [4601.3825, 2460.038],
+        ],
+        "len": 201.0, "tag": "Fundo",
+        "fv_provenance": {"authority": "n1_dxf_observational"},
+    }
+    beam = {
+        "name": "V331",
+        "pos": (4621.143095, 2465.545361),
+        "links": {
+            "viga_fundo_seg_1_area_segs": {"contour": [old_seg_1]},
+            "viga_fundo_seg_2_area_segs": {"contour": [old_seg_2]},
+        },
+    }
+    fresh_segments = [{
+        "seg_index": 1,
+        "coord": (2460.038, 2661.038),
+        "length": 201.0,
+    }]
+
+    FundoVigaInterpreter.reconcile_persisted_segments(
+        beam, fresh_segments,
+        is_horizontal=False, beam_pos=beam["pos"],
+    )
+
+    links = beam["links"]
+    assert links["viga_fundo_seg_2_area_segs"]["contour"] == []
+    assert beam["viga_fundo_seg_2_exists"] is False
+    assert links["viga_fundo_seg_1_area_segs"]["contour"] != []
+
+
+def test_reconcile_persisted_segments_never_clears_human_validated_orphan():
+    """Mesmo órfão do teste acima, mas com `validated=True` — dado humano
+    nunca é apagado silenciosamente, mesmo quando sobra da rodada atual.
+    """
+    old_seg_2 = {
+        "points": [
+            [4601.3825, 2460.038], [4620.3825, 2460.038],
+            [4620.3825, 2661.038], [4601.3825, 2661.038],
+            [4601.3825, 2460.038],
+        ],
+        "len": 201.0, "tag": "Fundo", "validated": True,
+    }
+    beam = {
+        "name": "V331",
+        "pos": (4621.143095, 2465.545361),
+        "links": {
+            "viga_fundo_seg_2_area_segs": {"contour": [old_seg_2]},
+        },
+    }
+    fresh_segments = [{
+        "seg_index": 1,
+        "coord": (2460.038, 2661.038),
+        "length": 201.0,
+    }]
+
+    FundoVigaInterpreter.reconcile_persisted_segments(
+        beam, fresh_segments,
+        is_horizontal=False, beam_pos=beam["pos"],
+    )
+
+    links = beam["links"]
+    assert links["viga_fundo_seg_2_area_segs"]["contour"] == [old_seg_2]
+    assert "viga_fundo_seg_2_exists" not in beam
 
 
 def test_fundo_repairs_v305_degenerate_link_using_segment_dimension():
@@ -310,6 +641,182 @@ def test_fundo_repairs_v305_degenerate_link_using_segment_dimension():
     assert max(p[1] for p in link["points"]) == 2261.038
     assert max(p[1] for p in link["points"]) - min(p[1] for p in link["points"]) == 19.0
     assert round(FundoVigaInterpreter._polygon_area(link["points"]), 6) == 5434.0
+
+
+def test_fundo_splits_at_perpendicular_deeper_beam_crossing_real_v302():
+    """Caso real V302×V320×V322×V330 (achado do dono, 2026-07-20; coordenadas
+    reais do 13_PAV via ``scripts/arete/tmp/_fv_crossing_diag.py``).
+
+    V302 (19/55) atravessa V320/V322/V330 (19/120, patamar estrutural
+    claramente mais fundo — ratio 120/55=2.18) dentro de um único painel
+    contínuo — deve virar 3 painéis nos pontos reais de cruzamento.
+    """
+    coords = [(2933.3825, 4174.8825)]
+    context_beams = [
+        {
+            "name": "V320", "is_h": False, "pos": [3347.6325, 2695.038],
+            "fields": {"dimensao": "19/120"},
+            "geometry": {"classified": {"merged_bottom_groups_coords": [
+                [2680.038, 2781.538], [2881.538, 3141.038],
+            ]}},
+        },
+        {
+            "name": "V322", "is_h": False, "pos": [3784.6325, 2695.038],
+            "fields": {"dimensao": "19/120"},
+            "geometry": {"classified": {"merged_bottom_groups_coords": [
+                [2661.038, 2779.038], [2879.038, 2991.038], [2991.038, 3141.038],
+            ]}},
+        },
+        {
+            "name": "V330", "is_h": False, "pos": [4527.660004, 2682.874273],
+            "fields": {"dimensao": "19/120"},
+            "geometry": {"classified": {"merged_bottom_groups_coords": [
+                [2661.038, 2960.038],
+            ]}},
+        },
+    ]
+
+    result = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+        coords,
+        is_horizontal=True,
+        beam_pos=(1200.683606, 2683.257613),
+        own_dim_text="19/55",
+        context_beams=context_beams,
+        own_name="V302",
+    )
+
+    assert result == [
+        (2933.3825, 3338.1325), (3357.1325, 3775.1325), (3794.1325, 4174.8825),
+    ]
+
+
+def test_fundo_does_not_split_when_deeper_beam_never_reaches_this_row():
+    """Regressão real V308×V325 (2026-07-20): a v1 desta regra comparava só a
+    posição axial do outro feixe, sem confirmar que ele chega fisicamente
+    até aqui — V325 (19/120) tem posição x coincidente com o vão de V308,
+    mas seu próprio vão (y) fica a 738cm de distância transversal (linha
+    completamente diferente do pavimento). V308 deve permanecer intacto.
+    """
+    coords = [(3888.3825, 4141.3825), (4201.3825, 4492.3825)]
+    context_beams = [
+        {
+            "name": "V325", "is_h": False, "pos": [4221.988325, 2683.295774],
+            "fields": {"dimensao": "19/120"},
+            "geometry": {"classified": {"merged_bottom_groups_coords": [
+                [2680.038, 3141.038],
+            ]}},
+        },
+    ]
+
+    result = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+        coords,
+        is_horizontal=True,
+        beam_pos=(3895.195027, 1944.877169),
+        own_dim_text="19/55",
+        context_beams=context_beams,
+        own_name="V308",
+    )
+
+    assert result == coords
+
+
+def test_fundo_does_not_split_at_same_structural_tier_crossing():
+    """Regressão real V327×V305 (2026-07-20): V305 (19/55) fisicamente
+    alcança o cruzamento com V327 (14/50), mas 55cm vs 50cm é o mesmo
+    patamar estrutural do 13_PAV (ratio 1.1) — não domina o suficiente para
+    interromper. Só um salto de patamar real (ratio >= 1.5, ex. 120 vs 55)
+    justifica a interrupção.
+    """
+    coords = [(1982.038, 2242.038)]
+    context_beams = [
+        {
+            "name": "V305", "is_h": True, "pos": [4104.374187, 2221.99086],
+            "fields": {"dimensao": "19/55"},
+            "geometry": {"classified": {"merged_bottom_groups_coords": [
+                [4101.3825, 4387.3825],
+            ]}},
+        },
+    ]
+
+    result = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+        coords,
+        is_horizontal=False,
+        beam_pos=(4383.514712, 1984.552427),
+        own_dim_text="14/50",
+        context_beams=context_beams,
+        own_name="V327",
+    )
+
+    assert result == coords
+
+
+def test_fundo_discards_fragment_smaller_than_crossing_beam_width():
+    """Um corte que deixaria um pedaço menor que a largura do próprio feixe
+    que cruza não é um painel real — é artefato de arredondamento perto da
+    borda do vão. Zona de cruzamento em x=[970,990] (feixe de largura 20)
+    dentro do vão [0,1000] deixaria um resto de 10cm (990→1000); esse resto
+    deve ser descartado, mantendo só o pedaço de 970cm do outro lado.
+    """
+    coords = [(0.0, 1000.0)]
+    context_beams = [
+        {
+            "name": "V_DEEP", "is_h": False, "pos": [980.0, 0.0],
+            "fields": {"dimensao": "20/150"},
+            "geometry": {"classified": {"merged_bottom_groups_coords": [
+                [-50.0, 50.0],
+            ]}},
+        },
+    ]
+
+    result = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+        coords,
+        is_horizontal=True,
+        beam_pos=(500.0, 0.0),
+        own_dim_text="19/55",
+        context_beams=context_beams,
+        own_name="V_OWN",
+    )
+
+    assert result == [(0.0, 970.0)]
+
+
+def test_fundo_canonical_span_repair_catches_same_length_wrong_position():
+    """Regressão V301 (2026-07-18): comprimento igual não prova posição certa.
+
+    Um contorno reaproveitado de rodada anterior pode ter o comprimento do
+    segmento 1 mas estar fisicamente cobrindo o vão do segmento 2 (índice
+    trocado/reaproveitado). O reparo antigo só comparava comprimento e
+    deixava esse contorno passar sem correção — produzindo dois segmentos
+    que se sobrepõem fisicamente no fundo (ex.: V301 seg3 vs seg4).
+    """
+    green_seg1 = [(0.0, 100.0), (100.0, 100.0)]
+    green_seg2 = [(150.0, 100.0), (250.0, 100.0)]
+    # Contorno do segmento 1 preso na posição física do segmento 2 (mesmo
+    # comprimento, 100cm, mas x=[150,250] em vez de x=[0,100]).
+    stale_at_wrong_position = [
+        (150.0, 100.0), (250.0, 100.0), (250.0, 112.0), (150.0, 112.0), (150.0, 100.0),
+    ]
+    beam = {
+        "is_h": True,
+        "pos": (50.0, 94.0),
+        "fields": {"viga_fundo_seg_1_dim": "12/100"},
+        "geometry": {"classified": {
+            "merged_bottom_groups_coords": [(0.0, 100.0), (150.0, 250.0)],
+            "seg_bottom": [green_seg1, green_seg2],
+        }},
+        "links": {"viga_fundo_seg_1_area_segs": {"contour": [{
+            "type": "poly",
+            "points": list(stale_at_wrong_position),
+            "len": 100.0,
+        }]}},
+    }
+
+    assert FundoVigaInterpreter.repair_area_links(beam) == 1
+    repaired = beam["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]
+    xs = [point[0] for point in repaired["points"]]
+    assert min(xs) == 0.0
+    assert max(xs) == 100.0
+    assert repaired["geometry_source"] == "fundo_viga_interpreter_canonical_span_repair"
 
 
 def test_fundo_never_repairs_human_validated_geometry():

@@ -56,7 +56,7 @@ A infra criada para QA interno do Arete **É** a interface da equipe:
 | Peça do Arete (existe hoje) | Papel no portal |
 |---|---|
 | `headless_sa_analise.py` → fichas HTML N1–N4 por item | Página de resultado navegável por obra/pavimento/classe |
-| SVG inline nos cards (texto como DOM) | Conferência fina sem depender de zoom de imagem |
+| SVG inline nos cards (texto como DOM) | Conferência fina / zoom no **portal web** (obrigatório em entrega web; ver `QA-VISAO-EVIDENCIA-CANONICA.md`). Agente CLI julga em **PNG**. |
 | `_error_marker_block` (checkbox ERRADA + nota) | Formulário de comentário da equipe |
 | Log de triagem JSONL + modelo de eventos (harmonização §7) | Persistência dos comentários como evidência T0 assinada |
 | Geradores STOG → DXF N3 | Arquivo entregável para download |

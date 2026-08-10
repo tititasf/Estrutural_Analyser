@@ -6,11 +6,19 @@
 repository/targets/
 
 # Large binary data files (DB principal + backups/WAL/SHM, >1GB)
+# DBs/vision ficam no DVC — nao versionar no git
 project_data.vision
 project_data.vision-wal
 project_data.vision-shm
 project_data.vision.bak*
+engrev_*.vision
 engrev_*.vision.bak*
+*.vision
+*.vision-wal
+*.vision-shm
+*.db
+*.sqlite
+*.sqlite3
 *.bak
 
 # Python bytecode
@@ -22,6 +30,13 @@ __pycache__/
 .pytest_cache/
 .pytest-tmp/
 .fuse_hidden*
+
+# Runtime lock files (single-instance, headless, etc.) — never commit
+*.lock
+
+# Logs locais efemeros
+ce_debug.log
+public_audit.log
 
 # Build/dist artifacts (todos ROBOS_ABAS - executaveis e compactados >80MB)
 _ROBOS_ABAS/**/build/
@@ -35,3 +50,17 @@ _ROBOS_ABAS/**/*.pkg
 
 # ByteRover local memory, sessions and embedded context-tree repository
 **/.brv/
+
+# ── [2026-08-10] Dados gerados: vao para o DVC, nunca para o git ──
+# Fichas HTML+SVG (14GB) e relatorios de rodada (3.8GB) sao DADOS —
+# artefatos derivados dos motores, insumo futuro de RAG multimodal.
+# Versionar isso em git incharia o repo permanentemente (historico imutavel).
+Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/
+Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/
+
+# ── Lixo de trabalho (nem git nem DVC) ──
+Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/
+Agente-cad-PYSIDE-Restored-main/tmp_*.py
+.pytest-tmp-state-path*/
+verify_pillar_clip/
+validacao_visual_3casos/

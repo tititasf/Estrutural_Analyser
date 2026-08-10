@@ -97,3 +97,15 @@ scripts/arete/.cache/
 # soltos na raiz da obra e o cad_project.db sao dumps regeneraveis
 DADOS-OBRAS/**/estado_*.json
 DADOS-OBRAS/**/cad_project.db
+
+# [2026-07-30] Cache de preview SVG do portal (dxf_preview.renderizar_*_cacheado).
+# Chaveado por hash de (path, mtime, bbox, tamanho) — regenera sozinho a partir do
+# DXF. Junto com o .transform.json que fica ao lado.
+DADOS-OBRAS/**/.previews/
+
+# Scratch de investigacao (scripts de uma vez so, nao fazem parte do produto)
+scratch/
+
+# Saidas de execucao dos robos em pastas tmp de QA — regeneraveis, chaveadas por
+# hash da rodada. ~1,5GB de artefato (PNG/DXF/JSON) fora daqui.
+scripts/arete/tmp/**/.motor_versions/

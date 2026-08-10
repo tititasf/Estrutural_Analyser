@@ -34,6 +34,20 @@ def clean_beam_section_dim(txt: Any) -> str:
     return s if is_beam_section_dim(s) else ""
 
 
+def beam_section_width(dim: Any) -> float | None:
+    """Primeiro número de uma seção B/H (ex. "19/55" -> 19.0)."""
+    cleaned = clean_beam_section_dim(dim)
+    if not cleaned:
+        return None
+    match = re.match(r"^(\d+(?:[.,]\d+)?)", cleaned)
+    if not match:
+        return None
+    try:
+        return float(match.group(1).replace(",", "."))
+    except ValueError:
+        return None
+
+
 def _format_section_number(value: Any) -> str:
     """Formata medida estrutural sem introduzir .0 no texto da ficha."""
     try:
@@ -376,6 +390,19 @@ def beam_bbox_from_entity(beam: dict) -> tuple[float, float, float, float] | Non
             # [y0,y1] ou [x0,x1] e corrompem o bbox (trocam eixos).
             axis_pts: list[tuple[float, float]] = []
             _collect_xy_from_obj(classified.get("seg_bottom"), axis_pts)
+            if not axis_pts and classified.get("bottom_runs"):
+                for run in classified.get("bottom_runs") or []:
+                    if isinstance(run, dict):
+                        is_h = bool(run.get("is_h"))
+                        pos = run.get("pos") or [0.0, 0.0]
+                        coords = run.get("coords") or []
+                        for interval in coords:
+                            if isinstance(interval, (list, tuple)) and len(interval) >= 2:
+                                c0, c1 = float(interval[0]), float(interval[1])
+                                if is_h:
+                                    axis_pts.extend([(min(c0, c1), float(pos[1])), (max(c0, c1), float(pos[1]))])
+                                else:
+                                    axis_pts.extend([(float(pos[0]), min(c0, c1)), (float(pos[0]), max(c0, c1))])
             if len(axis_pts) >= 2:
                 xs = [p[0] for p in axis_pts]
                 ys = [p[1] for p in axis_pts]
@@ -434,6 +461,20 @@ def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]
                 xs = [p[0] for p in pts]
                 ys = [p[1] for p in pts]
                 seg_boxes.append([min(xs), min(ys), max(xs), max(ys)])
+        if not seg_boxes and classified.get("bottom_runs"):
+            pad = 12.0
+            for run in classified.get("bottom_runs") or []:
+                if isinstance(run, dict):
+                    is_h = bool(run.get("is_h"))
+                    pos = run.get("pos") or [0.0, 0.0]
+                    coords = run.get("coords") or []
+                    for interval in coords:
+                        if isinstance(interval, (list, tuple)) and len(interval) >= 2:
+                            c0, c1 = float(interval[0]), float(interval[1])
+                            if is_h:
+                                seg_boxes.append([min(c0, c1), float(pos[1]) - pad, max(c0, c1), float(pos[1]) + pad])
+                            else:
+                                seg_boxes.append([float(pos[0]) - pad, min(c0, c1), float(pos[0]) + pad, max(c0, c1)])
     if not seg_boxes:
         bbox = beam_bbox_from_entity(beam)
         return [tuple(bbox)] if bbox else []
@@ -525,6 +566,333 @@ def _beam_evidence_segments(beam: dict) -> list[dict]:
     return result
 
 
+_BEAM_NAME_RE = re.compile(r"^(?:V|VF|F\.|LV|L\.)\s*[A-Z]?\d+", re.I)
+_DIM_RE = re.compile(r"^\d+(?:[.,]\d+)?\s*[/xX]\s*\d+(?:[.,]\d+)?$")
+
+
+def _norm_beam_label(raw: str) -> str:
+    s = str(raw or "").strip().replace(" ", "")
+    m = re.match(r"^F\.(.+?)(?:\.C)?(?:-\d+)?$", s, re.I)
+    if m:
+        return "VF" + re.sub(r"[^A-Za-z0-9]", "", m.group(1))
+    m = re.match(r"^L\.(.+?)(?:\.[AB])?(?:-\d+)?$", s, re.I)
+    if m:
+        return "LV" + re.sub(r"[^A-Za-z0-9]", "", m.group(1))
+    return s.upper()
+
+
+def _iter_beam_text_items(beam: dict) -> list[dict]:
+    """Textos e cotas ligados à entidade viga (geometry + raiz)."""
+    items: list[dict] = []
+    geo = beam.get("geometry") if isinstance(beam.get("geometry"), dict) else {}
+    for key in ("texts", "dimension_texts"):
+        for t in (geo.get(key) or []) + (beam.get(key) or []):
+            if isinstance(t, dict):
+                items.append(t)
+    return items
+
+
+def _collect_top_band_facts(beams: list) -> tuple[list[dict], list[dict]]:
+    """Coleta cotas de seção e nomes de viga com posição (planta)."""
+    dims: list[dict] = []
+    names: list[dict] = []
+    for beam in beams:
+        if not isinstance(beam, dict):
+            continue
+        owner = str(beam.get("name") or "").strip()
+        for t in _iter_beam_text_items(beam):
+            raw = str(t.get("text") or "").strip()
+            pos = t.get("pos") or []
+            if len(pos) < 2:
+                continue
+            try:
+                x, y = float(pos[0]), float(pos[1])
+            except (TypeError, ValueError):
+                continue
+            if _DIM_RE.match(raw.replace(" ", "")):
+                dims.append(
+                    {
+                        "dim": raw.replace(" ", "").replace(",", "."),
+                        "x": x,
+                        "y": y,
+                        "owner": owner,
+                    }
+                )
+            elif _BEAM_NAME_RE.match(raw):
+                names.append(
+                    {
+                        "name": _norm_beam_label(raw),
+                        "x": x,
+                        "y": y,
+                        "owner": owner or _norm_beam_label(raw),
+                    }
+                )
+    return dims, names
+
+
+def apply_face_c_top_multi_segment(
+    face_beams: dict,
+    *,
+    beam_info: list,
+    beams: list,
+    px0: float,
+    py0: float,
+    px1: float,
+    py1: float,
+    horizontal: bool,
+    tol: float = 15.0,
+) -> None:
+    """Preenche face C com passantes multi-segmento (CA/CB) na faixa do topo.
+
+    Caso canônico (INTERPRETACAO-PILARES-ABCD, P2): viga E–W no topo do pilar
+    vertical, com segmentos de profundidade diferentes à esq/dir (ex. 14/55 @ CA
+    e 19/66 @ CB), mesma identidade (ex. VF301). Dualidade:
+      passa C@CA ↔ chega A@AC
+      passa C@CB ↔ chega B@BC
+
+    Não hardcoda nomes de item; usa wall-align + cotas/nomes na faixa do topo.
+    Modifica ``face_beams`` in-place.
+    """
+    if horizontal:
+        # Pilar horizontal: face "topo longa" é B; multi-seg C/D fica para evolução.
+        return
+    if not isinstance(face_beams, dict) or "C" not in face_beams:
+        return
+
+    slots_c = face_beams["C"]
+    # Se já há dois passantes distintos em C, não sobrescreve.
+    if slots_c.get("passa_esq") and slots_c.get("passa_dir"):
+        pe = (slots_c["passa_esq"] or {}).get("name")
+        pd = (slots_c["passa_dir"] or {}).get("name")
+        if pe and pd:
+            # ainda assim garante cantos CA/CB
+            slots_c["passa_esq"]["corner"] = "CA"
+            slots_c["passa_dir"]["corner"] = "CB"
+            return
+
+    face_c_y = py1
+    band = max(tol * 2.5, 40.0)  # faixa do topo (ex. 14 cm + folga de cota)
+    cx = (px0 + px1) / 2.0
+    dim_texts, name_texts = _collect_top_band_facts(beams)
+
+    def _near_c_y(y: float) -> bool:
+        return abs(y - face_c_y) <= band
+
+    # Cotas na faixa do topo, lado esq (CA) e dir (CB)
+    dims_ca = [
+        d
+        for d in dim_texts
+        if _near_c_y(d["y"]) and d["x"] <= cx + tol and d["x"] >= px0 - 250.0
+    ]
+    dims_cb = [
+        d
+        for d in dim_texts
+        if _near_c_y(d["y"]) and d["x"] >= cx - tol and d["x"] <= px1 + 250.0
+    ]
+    # Preferir cota mais próxima do canto AC / BC
+    def _best_dim(cands: list[dict], tx: float, ty: float) -> dict | None:
+        if not cands:
+            return None
+        return min(
+            cands,
+            key=lambda d: (d["x"] - tx) ** 2 + (d["y"] - ty) ** 2,
+        )
+
+    dim_ca = _best_dim(dims_ca, px0, face_c_y)
+    dim_cb = _best_dim(dims_cb, px1, face_c_y)
+
+    # Vigas H na faixa do topo: trecho a OESTE de A ou a LESTE de B
+    # (não basta cruzar o interior do pilar — isso é chega simples, não multi-seg).
+    west_hits: list[dict] = []
+    east_hits: list[dict] = []
+    for bi in beam_info:
+        if not bi.get("is_h") or not bi.get("name"):
+            continue
+        for run in bi.get("runs") or []:
+            rx0, ry0, rx1, ry1 = run
+            in_y_band = min(ry0, ry1) - band <= face_c_y <= max(ry0, ry1) + band
+            wall_c = abs(ry0 - face_c_y) < tol or abs(ry1 - face_c_y) < tol
+            if not (in_y_band or wall_c):
+                continue
+            # Oeste: corpo do trecho predominantemente a oeste de A, tocando A
+            west_body = rx1 <= px0 + tol and rx0 < px0 - 1.0
+            west_touch = abs(rx1 - px0) < tol * 2 and rx0 < px0 - tol
+            # Leste: predominantemente a leste de B
+            east_body = rx0 >= px1 - tol and rx1 > px1 + 1.0
+            east_touch = abs(rx0 - px1) < tol * 2 and rx1 > px1 + tol
+            # Atravessa com gap no pilar (dois corredores ou um eixo longo)
+            through = rx0 < px0 - tol and rx1 > px1 + tol
+            if west_body or west_touch or through:
+                west_hits.append({**bi, "_run": run, "_side": "west"})
+            if east_body or east_touch or through:
+                east_hits.append({**bi, "_run": run, "_side": "east"})
+
+    def _beam_near_top(name: str) -> bool:
+        """Owner de cota só vale se a viga for H e tiver trecho na faixa do topo do pilar."""
+        if not name:
+            return False
+        for bi in beam_info:
+            if bi.get("name") != name or not bi.get("is_h"):
+                continue
+            for run in bi.get("runs") or []:
+                rx0, ry0, rx1, ry1 = run
+                if not (min(ry0, ry1) - band <= face_c_y <= max(ry0, ry1) + band):
+                    continue
+                # trecho cruza a vizinhança X do pilar (não só outro vão distante)
+                if rx1 >= px0 - 300.0 and rx0 <= px1 + 300.0:
+                    return True
+        return False
+
+    def _pick_name(side: str, dim_hit: dict | None) -> str:
+        tx = px0 if side == "west" else px1
+        # 1) rótulo V/VF na faixa do topo (mais confiável que owner de cota compartilhada)
+        near_names = [
+            n
+            for n in name_texts
+            if _near_c_y(n["y"]) and abs(n["x"] - tx) < 400.0
+        ]
+        if near_names:
+            best = min(near_names, key=lambda n: (n["x"] - tx) ** 2 + (n["y"] - face_c_y) ** 2)
+            return best["name"]
+        band_names = [n for n in name_texts if _near_c_y(n["y"])]
+        if band_names:
+            best = min(
+                band_names,
+                key=lambda n: abs(n["y"] - face_c_y) * 10 + abs(n["x"] - cx) * 0.02,
+            )
+            return best["name"]
+        # 2) hit geométrico H no topo
+        pool = west_hits if side == "west" else east_hits
+        if pool:
+            return str(pool[0].get("name") or "").strip()
+        # 3) owner da cota só se a viga for realmente H na faixa deste pilar
+        if dim_hit and dim_hit.get("owner") and _beam_near_top(str(dim_hit["owner"])):
+            return str(dim_hit["owner"]).strip()
+        return ""
+
+    def _pick_dim(side: str, name: str) -> str:
+        dim_hit = dim_ca if side == "west" else dim_cb
+        if dim_hit and dim_hit.get("dim"):
+            return clean_beam_section_dim(dim_hit["dim"]) or dim_hit["dim"]
+        pool = west_hits if side == "west" else east_hits
+        for h in pool:
+            if h.get("name") == name and h.get("dim"):
+                return str(h["dim"])
+        # dim global da viga
+        for bi in beam_info:
+            if bi.get("name") == name and bi.get("dim"):
+                return str(bi["dim"])
+        return ""
+
+    name_w = _pick_name("west", dim_ca)
+    name_e = _pick_name("east", dim_cb)
+    # Mesma viga nos dois lados quando um lado não tem nome
+    if name_w and not name_e:
+        name_e = name_w
+    if name_e and not name_w:
+        name_w = name_e
+    # Se ambos vazios mas há cota + nome na faixa, usa o nome da faixa
+    if not name_w and not name_e:
+        band_names = [n for n in name_texts if _near_c_y(n["y"])]
+        if band_names and (dim_ca or dim_cb or west_hits or east_hits):
+            name_w = name_e = band_names[0]["name"]
+
+    dim_w = _pick_dim("west", name_w) if name_w else ""
+    dim_e = _pick_dim("east", name_e) if name_e else ""
+
+    # Multi-segmento exige evidência nos DOIS lados (cota e/ou trecho).
+    # Um único lado = chega simples (já coberta pelo fluxo para[]) — não forçar C.
+    side_w = bool(dim_ca or west_hits)
+    side_e = bool(dim_cb or east_hits)
+    if not (side_w and side_e):
+        return
+    if not name_w and not name_e:
+        return
+
+    def _slot(name: str, dim: str, corner: str) -> dict:
+        payload = {
+            "name": name,
+            "dim": dim or "",
+            "corner": corner,
+            "behavior": "passa",
+            "source": "face_c_top_multi_segment",
+        }
+        # evidência da viga se existir
+        for bi in beam_info:
+            if bi.get("name") == name and bi.get("evidence_segments"):
+                payload["evidence_segments"] = copy.deepcopy(bi["evidence_segments"])
+                break
+        return payload
+
+    if name_w and not slots_c.get("passa_esq"):
+        slots_c["passa_esq"] = _slot(name_w, dim_w, "CA")
+    elif name_w and slots_c.get("passa_esq"):
+        slots_c["passa_esq"]["corner"] = "CA"
+        if dim_w and not slots_c["passa_esq"].get("dim"):
+            slots_c["passa_esq"]["dim"] = dim_w
+
+    if name_e and not slots_c.get("passa_dir"):
+        # Se mesmo nome e mesmo dim do esq, ainda preenche dir com canto CB
+        # (dois segmentos / duas direções).
+        slots_c["passa_dir"] = _slot(name_e, dim_e or dim_w, "CB")
+    elif name_e and slots_c.get("passa_dir"):
+        slots_c["passa_dir"]["corner"] = "CB"
+        if dim_e and not slots_c["passa_dir"].get("dim"):
+            slots_c["passa_dir"]["dim"] = dim_e
+
+    # Se só um slot preenchido e há cota no outro lado, espelha nome
+    if slots_c.get("passa_esq") and not slots_c.get("passa_dir") and (dim_cb or east_hits):
+        pe = slots_c["passa_esq"]
+        slots_c["passa_dir"] = _slot(
+            pe.get("name") or name_e or name_w,
+            dim_e or pe.get("dim") or "",
+            "CB",
+        )
+    if slots_c.get("passa_dir") and not slots_c.get("passa_esq") and (dim_ca or west_hits):
+        pd = slots_c["passa_dir"]
+        slots_c["passa_esq"] = _slot(
+            pd.get("name") or name_w or name_e,
+            dim_w or pd.get("dim") or "",
+            "CA",
+        )
+
+    # Dualidade leve em A/B: chega AC/BC se ainda vazio de chega para esse nome
+    # (slots para[] nas longas; passa_esq/dir de A/B da viga de baixo ficam intactos)
+    for long_face, corner, c_slot in (
+        ("A", "AC", "passa_esq"),
+        ("B", "BC", "passa_dir"),
+    ):
+        src = slots_c.get(c_slot)
+        if not isinstance(src, dict) or not src.get("name"):
+            continue
+        nm = src["name"]
+        fl = face_beams.get(long_face) or {}
+        already = (
+            (fl.get("passa_esq") or {}).get("name") == nm
+            or (fl.get("passa_dir") or {}).get("name") == nm
+            or any(p.get("name") == nm for p in (fl.get("para") or []))
+            or any(p.get("name") == nm for p in (fl.get("interior") or []))
+        )
+        # Se a viga de baixo já ocupa passa A/B (interior D), ainda podemos
+        # anotar chega no canto de topo em para[] — identidade diferente do papel.
+        if any(p.get("name") == nm and p.get("corner") == corner for p in (fl.get("para") or [])):
+            continue
+        # Não confundir com V312 interior: só adiciona se dim/source top
+        if src.get("source") != "face_c_top_multi_segment" and already:
+            continue
+        if len(fl.get("para") or []) >= 3:
+            continue
+        fl.setdefault("para", []).append(
+            {
+                "name": nm,
+                "dim": src.get("dim") or "",
+                "corner": corner,
+                "behavior": "para",
+                "source": "face_c_top_multi_segment_dual",
+            }
+        )
+
+
 def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
     """
     Classifica cada entrada 'lajes' do pilar como 'laje', 'viga' ou 'both',
@@ -552,11 +920,19 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
     pilar_passa = PilarComVigaPassaInterpreter()
 
     # Cantos: (esq, dir) — alinhado a aberturas NOVA / INTERPRETACAO-ABCD
-    FACE_CORNERS = {
+    # Vertical: A oeste (esq=AC topo, dir=AD base); B leste (esq=BD base, dir=BC topo)
+    # Horizontal: A sul E→W (esq=AC oeste, dir=AD leste); B norte E→W (esq=BC oeste, dir=BD leste)
+    FACE_CORNERS_V = {
         "A": ("AC", "AD"),
         "B": ("BD", "BC"),
         "C": ("CA", "CB"),
         "D": ("DA", "DB"),
+    }
+    FACE_CORNERS_H = {
+        "A": ("AC", "AD"),  # sul: oeste→leste
+        "B": ("BC", "BD"),  # norte: oeste→leste (NÃO BD/BC do vertical)
+        "C": ("CA", "CB"),  # oeste: sul→norte
+        "D": ("DA", "DB"),  # leste: sul→norte
     }
 
     def _arrival_corner(
@@ -641,9 +1017,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
     def _run_view(bi: dict, run: tuple[float, float, float, float]) -> dict:
         """Projeção do vínculo no corredor: coords e eixo do trecho, não do todo."""
         rx0, ry0, rx1, ry1 = run
-        run_is_h = (rx1 - rx0) >= (ry1 - ry0)
-        if len(bi.get("runs") or []) <= 1:
-            run_is_h = bool(bi["is_h"])
+        run_is_h = bool(bi["is_h"])
         return {**bi, "x0": rx0, "y0": ry0, "x1": rx1, "y1": ry1,
                 "is_h": run_is_h}
 
@@ -757,6 +1131,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                                     break
 
         # face_beams: passa só behavior=passa; chegadas = behavior=para
+        FACE_CORNERS = FACE_CORNERS_H if horizontal else FACE_CORNERS_V
         face_beams: dict = {}
         for fid in face_coords:
             c_esq, c_dir = FACE_CORNERS[fid]
@@ -766,6 +1141,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 "corner_esq": c_esq,
                 "corner_dir": c_dir,
                 "para": [],
+                "interior": [],
             }
 
         # Index behavior by name
@@ -849,7 +1225,36 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             terminal_face = min(short_distances, key=short_distances.get)
             if not walls_align or short_distances[terminal_face] >= TOL_ALIGN:
                 continue
+
+            # Caso 4 (INTERPRETACAO-PILARES-ABCD.md): quando a largura da
+            # propria viga (dado confiavel, direto do "dim" da ficha, sem
+            # depender de segmentos laterais que podem estar desatualizados)
+            # aproxima a espessura transversal do pilar, a face curta onde
+            # ela termina fica DENTRO do corpo da viga — nao e uma chegada
+            # perpendicular (nenhuma viga cruza aquela face) nem uma face
+            # livre. Achado do dono (P35: V308 19/55 termina no canto C;
+            # 19 ~= espessura do pilar (19cm) -> C e interior, nao chegada).
+            short_dim = ph if horizontal else pw
+            beam_width = beam_section_width(br.get("dim"))
+            is_interior = (
+                beam_width is not None
+                and abs(beam_width - short_dim) < TOL_ALIGN
+            )
+            if is_interior:
+                face_beams[terminal_face]["interior"].append({
+                    "name": br["name"],
+                    "dim": br["dim"],
+                    **({"evidence_segments": copy.deepcopy(br["evidence_segments"])}
+                       if br.get("evidence_segments") else {}),
+                })
+
             for long_face in ("A", "B"):
+                if is_interior:
+                    pilar_lajes = entry.get("lajes") or []
+                    lajes_on_face = [l for l in pilar_lajes if l.get("lado") == long_face]
+                    if lajes_on_face:
+                        continue
+
                 corner = f"{long_face}{terminal_face}"
                 corner_esq, corner_dir = FACE_CORNERS[long_face]
                 slot = "passa_esq" if corner == corner_esq else "passa_dir"
@@ -867,50 +1272,90 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
 
             # Passante sem hit de parede nesta face: não força (outra face cuida)
 
-        # Chegadas (para): NÃO entram em passa_*; até 3 por face
+        # Chegadas (para): vigas com hit em qualquer face onde ainda não estejam vinculadas (passa/interior/para)
         for br in beam_relations:
-            if br["behavior"] != "para" or not br.get("name"):
+            if not br.get("name"):
                 continue
-            already_para = any(
-                any(p["name"] == br["name"] for p in face_beams[f]["para"])
-                for f in face_beams
-            )
-            if already_para:
-                continue
-            # melhor face = maior overlap de hit; senão face A
-            best_f, best_ov, best_side = None, -1.0, "esq"
-            best_bi = None
             for fid, hits in face_hits.items():
+                best_bi, best_side, best_ov = None, "esq", -1.0
                 for bi, side, ov in hits:
                     if bi["name"] == br["name"] and ov > best_ov:
                         best_ov = ov
-                        best_f = fid
                         best_side = side
                         best_bi = bi
-            if best_f is None:
-                # sem wall hit: escolhe face cujo fixed está mais perto do endpoint
-                best_f = "A"
-                best_side = "esq"
-            if len(face_beams[best_f]["para"]) >= 3:
-                # tenta outra face com espaço
-                for fid in face_coords:
-                    if len(face_beams[fid]["para"]) < 3:
-                        best_f = fid
-                        break
-            if len(face_beams[best_f]["para"]) < 3:
-                c_esq, c_dir = FACE_CORNERS[best_f]
-                corner = c_esq if best_side == "esq" else c_dir
-                if best_bi is not None and best_ov > MIN_OV:
-                    corner = _arrival_corner(best_f, face_coords, best_bi, best_ov)
-                face_beams[best_f]["para"].append(
-                    {
-                        "name": br["name"],
-                        "dim": br["dim"],
-                        "corner": corner,
-                        **({"evidence_segments": copy.deepcopy(br["evidence_segments"])}
-                           if br.get("evidence_segments") else {}),
-                    }
+                if best_bi is None or best_ov <= MIN_OV:
+                    continue
+
+                already_linked = (
+                    (face_beams[fid].get("passa_esq") or {}).get("name") == br["name"]
+                    or (face_beams[fid].get("passa_dir") or {}).get("name") == br["name"]
+                    or any(p["name"] == br["name"] for p in face_beams[fid]["para"])
+                    or any(p["name"] == br["name"] for p in face_beams[fid]["interior"])
                 )
+                if already_linked:
+                    continue
+
+                if len(face_beams[fid]["para"]) < 3:
+                    corner = _arrival_corner(fid, face_coords, best_bi, best_ov)
+                    face_beams[fid]["para"].append(
+                        {
+                            "name": br["name"],
+                            "dim": br["dim"],
+                            "corner": corner,
+                            **({"evidence_segments": copy.deepcopy(br["evidence_segments"])}
+                               if br.get("evidence_segments") else {}),
+                        }
+                    )
+
+        # "C/D sempre passa" (guia, tabela Viga passante): uma viga cujo
+        # eixo e perpendicular as faces longas (ex. V328, vertical, num
+        # pilar horizontal) pode nao atravessar a faixa do pilar no eixo
+        # A/B — nem "passa" nem "para" nesse sentido — mas a PROPRIA PAREDE
+        # dela ainda tampa fisicamente a face curta quando coincide com o
+        # plano de C ou D. Sem isso a face curta ficava vazia mesmo com a
+        # parede exatamente alinhada (achado do dono: motor puro nao
+        # persistia nada em D, só a ficha sabia via segmentos frageis).
+        for fid in ("C", "D"):
+            slots = face_beams[fid]
+            if slots["passa_esq"] or slots["passa_dir"] or slots["para"] or slots["interior"]:
+                continue
+            axis, fixed, r0, r1 = face_coords[fid]
+            for bi in beam_info:
+                if bool(bi["is_h"]) == bool(horizontal):
+                    continue  # eixo paralelo a A/B: já coberto acima
+                if axis == "V":
+                    wall_lo, wall_hi = bi["x0"], bi["x1"]
+                    span_lo, span_hi = bi["y0"], bi["y1"]
+                else:
+                    wall_lo, wall_hi = bi["y0"], bi["y1"]
+                    span_lo, span_hi = bi["x0"], bi["x1"]
+                touches_wall = (
+                    abs(wall_lo - fixed) < TOL_ALIGN or abs(wall_hi - fixed) < TOL_ALIGN
+                )
+                adjacent = span_hi >= r0 - TOL_ALIGN and span_lo <= r1 + TOL_ALIGN
+                if touches_wall and adjacent and bi.get("name"):
+                    slots["passa_esq"] = {
+                        "name": bi["name"],
+                        "dim": bi["dim"],
+                        "corner": slots["corner_esq"],
+                        "behavior": "passa",
+                        **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
+                           if bi.get("evidence_segments") else {}),
+                    }
+                    break
+
+        # Face C multi-segmento (topo E–W): CA/CB com dims locais + dualidade AC/BC
+        apply_face_c_top_multi_segment(
+            face_beams,
+            beam_info=beam_info,
+            beams=beams,
+            px0=px0,
+            py0=py0,
+            px1=px1,
+            py1=py1,
+            horizontal=horizontal,
+            tol=TOL_ALIGN,
+        )
 
         entry["face_beams"] = face_beams
 

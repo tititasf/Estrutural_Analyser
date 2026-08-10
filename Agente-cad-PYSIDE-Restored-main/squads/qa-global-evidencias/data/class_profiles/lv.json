@@ -2,7 +2,7 @@
   "schema": "arete.qa_class_profile/v1",
   "class": "LV",
   "version": "1.4.1",
-  "authority": "diagnostic_only; A/B and PARA/PASSA are four independent contracts",
+  "authority": "validation_ready via LvEvidenceAuditor; A/B and PARA/PASSA remain four independent contracts; see data/authority_matrix.json",
   "model": "Lateral de viga possui dois lados e dois comportamentos. A_PARA, B_PARA, A_PASSA e B_PASSA têm seleção, ajustes, painéis e prova independentes. O corte é contexto comum, não licença para espelhar dados.",
   "manual_guides": [
     "docs/LV-COMPREENDER-INTERPRETACAO-FICHAS-N2-N4.md",

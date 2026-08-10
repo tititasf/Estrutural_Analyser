@@ -11,7 +11,10 @@ reabri-los gastando tokens.
 ## 1. VEREDITO (leia isto primeiro)
 
 > **A ÚNICA fonte de interpretação visual com qualidade GARANTIDA hoje é a visão do
-> próprio agente de chat CLI — Claude Code ou Codex — lendo o screenshot no loop.**
+> próprio agente de chat CLI — Claude Code, Codex ou Grok — lendo PNG (raster) no loop.**
+> Quase todos os LLMs multimodais veem pixels, não SVG nativo no CLI: por isso o agente
+> julga em **PNG** full-render; **SVG** fica para HTML/app/portal (zoom humano).
+> Dual-mode canónico: `docs/QA-VISAO-EVIDENCIA-CANONICA.md`.
 > APIs de visão são plugáveis no harness para batch autônomo FUTURO, mas nenhuma foi
 > validada com qualidade suficiente ainda (NIM reprovado; Claude/Gemini API bloqueados
 > por billing na data). Nenhum modelo de "grounding"/"computer-use" serve — eles agem,
@@ -27,8 +30,11 @@ reabri-los gastando tokens.
 > entra no fluxo.
 
 Regra operacional: **selar golden exige veredito visual (§1.5). Enquanto não houver API
-de visão calibrada e aprovada, esse veredito é dado pelo agente CLI lendo a imagem** —
-não por um script rodando sozinho. "G2 numérico 100%" continua sendo candidato.
+de visão calibrada e aprovada, esse veredito é dado pelo agente CLI lendo PNG**
+(render full do DXF ou screenshot da ficha) — não por um script rodando sozinho e
+não “lendo” só o path de um SVG sem raster. Headless **sem** `--persist-db` pode
+gerar só imagem (dinâmico); **com** persist / portal web → HTML **com SVG**.
+"G2 numérico 100%" continua sendo candidato.
 
 ---
 

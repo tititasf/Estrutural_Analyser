@@ -23,6 +23,17 @@ if str(ROOT) not in sys.path:
 from scripts.arete.dxf_to_svg_casos import render  # noqa: E402
 from scripts.arete.qa_content_cache import ContentAddressedCache, content_hash  # noqa: E402
 
+try:
+    from src.core.qa_presentation_notice import banner_html as _qa_banner_html
+except Exception:  # pragma: no cover - path fallback
+    def _qa_banner_html(*, dossier_path: str | None = None) -> str:
+        return (
+            '<aside style="border:1px solid #b8860b;background:#2a2110;color:#f0d78c;'
+            'padding:10px;margin:0 0 14px 0;font:12px monospace">'
+            '<strong>Apresentação ≠ prova</strong> — HTML/score não selam N1/Arete.'
+            '</aside>'
+        )
+
 
 RENDER_CACHE_VERSION = 'ficha_motor_item_svg/v1'
 DEFAULT_CACHE = Path(__file__).resolve().parent / '.cache' / 'qa_fastpaths'
@@ -143,8 +154,10 @@ def build_ficha(
                 for row in manifesto
             ],
         }),
-        'authority': 'visual_iteration_only; no N1 interpretation; no DB write',
+        'authority': 'visual_iteration_only; no N1 interpretation; no DB write; presentation_not_proof',
+        'presentation_notice': 'HTML/checkbox/score are presentation only; proof lives in QA dossier',
     }
+    notice = _qa_banner_html()
     document = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <title>{html.escape(classe)} {html.escape(nivel)} {html.escape(item)}</title>
 <style>
@@ -155,6 +168,7 @@ h1{{color:#61d6b0}}h2{{color:#78b7ff}}.meta{{color:#999;word-break:break-all}}
 pre{{white-space:pre-wrap;background:#0a0a0a;padding:10px;max-height:520px;overflow:auto}}
 code{{color:#d8ad61}}
 </style></head><body>
+{notice}
 <h1>Ficha focada de motor — {html.escape(classe)} / {html.escape(nivel)} / {html.escape(item)}</h1>
 <p>Iteração visual isolada. Esta ficha não executa interpretação N1, não acessa o DB e não fecha gate visual.</p>
 {''.join(cards)}</body></html>'''

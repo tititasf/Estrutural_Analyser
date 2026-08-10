@@ -43,9 +43,40 @@ pela SUA própria origem. Essa regra existia numa versão anterior com mistura
 (laranja também acendia em laranja+azul), **revogada** explicitamente pelo
 dono para manter o agente isolado e mensurável.
 
-**N/A não carrega origem:** um campo marcado N/A conta como "resolvido" pra
-qualquer um dos 3 selos de cobertura (azul/rosa/laranja), sem precisar de
-nenhuma origem tagueada — é tratado à parte, com motivo em `na_reasons`.
+**N/A não carrega origem para efeito de selo** — continua contando como
+"resolvido" pra qualquer um dos 3 selos de cobertura (azul/rosa/laranja),
+sem distinção de quem marcou. **Mas a UI distingue visualmente quem
+decidiu** (decisão do dono, 2026-07-17): N/A decidido pelo agente QA
+(`qa_evidence_auditor.py`, decisão `N/A_CONFIRMADO`) fica **laranja** no
+app — mesma cor do selo `qa_agente` — em vez do azul-info padrão de N/A
+marcado manualmente por um humano. Implementação sem coluna nova no banco:
+o agente prefixa `na_reasons[field_id]` com o marcador
+`ORIGEM_NA_AGENTE_MARCADOR = "[origem:qa_agente] "`
+(`src/core/validation_model.py`); a UI (`detail_card.py::_na_agente_e_tooltip`)
+detecta o marcador e troca `STYLE_NA` por `STYLE_NA_AGENTE`, tanto no campo
+quanto no botão N/A. `na_motivo_exibicao()` remove o marcador antes de
+mostrar o motivo pro usuário.
+
+## Campo "pendente do agente" (roxo) — agente tentou e não conseguiu
+
+Terceiro estado visual, ortogonal aos 3 selos e ao N/A (decisão do dono,
+2026-07-17): quando o agente QA olha um campo obrigatório e conclui que
+precisa de humano (decisão `PENDENTE` ou `REVISAR_HUMANO`, não é N/A —
+o campo precisa de um valor real), isso fica **indistinguível** de "ninguém
+olhou ainda" a menos que seja marcado. Exemplo motivador: nível de viga que
+passa/chega que o agente não conseguiu determinar com confiança.
+
+Guardado em `extra_data_json['agent_pending'] = {field_id: motivo}` — chave
+nova, aditiva, sem migração de schema (`extra_data_json` já é mesclado
+direto em cima do item_data por `database.py::load_pillars`/`load_slabs`,
+`p.update(extra)`). Escrito por `qa_evidence_auditor.py flag-pending --run
+<review-run>` (subcomando separado de `apply`: nunca confirma nada, nunca
+passa pelo filtro de decisão "high", sempre seguro de rodar de novo —
+substitui o estado anterior pelo mais recente do review, limpando o roxo
+quando o campo deixa de estar pendente). A UI
+(`detail_card.py::_pendente_agente_e_tooltip`) pinta o campo com
+`STYLE_PENDENTE_AGENTE` (borda roxa, `Colors.ACCENT_PURPLE`) só quando o
+campo NÃO está validado nem N/A — nunca sobrepõe os outros dois estados.
 
 ## Peso / hierarquia
 
@@ -68,10 +99,17 @@ automação.
 
 ## Escopo do agente QA-Global-Evidências
 
-Autoridade de escrita continua restrita como já era (`validation_ready` só
-pra classe LAJ, `diagnostic_only` pra PIL/FV/LV) — essa convenção muda
+Autoridade de escrita restrita a classes com adaptador CAD independente
+(`validation_mode: "validation_ready"` em `CLASS_REGISTRY`,
+`scripts/arete/qa_evidence_auditor.py`): **LAJ** (`LajEvidenceAuditor`) e,
+desde **2026-07-15**, **PIL** (`PilEvidenceAuditor` — re-deriva faces/vigas
+do motor puro `src/core/pillar_face_beams.py` e identidade/dimensão/laje de
+geometria bruta, isolado por tabela própria `pillars`). FV/LV continuam
+`diagnostic_only` até ganharem adaptador equivalente. Essa convenção muda
 **como** o agente grava (`origem=qa_agente` em vez de indistinguível), não
-**quem** pode escrever. Ver `squads/qa-global-evidencias/agents/aegis.md`.
+**quem** pode escrever — a regra de isolamento do selo (100% dos campos
+obrigatórios com a MESMA origem, nunca mistura) vale igual pra PIL. Ver
+`squads/qa-global-evidencias/agents/aegis.md`.
 
 ## Mapeamento de field_id Portal ↔ SA (Fase 3.1-3.4)
 

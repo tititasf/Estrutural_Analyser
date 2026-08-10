@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup — Pilares N1/N3 · abas de viewer + fichas conectadas</title>
+<style>
+  :root {
+    --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --link: #2563eb;
+    --bg: #f1f5f9; --ok: #16a34a; --danger: #b91c1c; --font: "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--ink); }
+  .top {
+    padding: 10px 20px; background: #fff; border-bottom: 1px solid var(--border);
+  }
+  .top h1 { margin: 0 0 4px; font-size: 1.05rem; }
+  .top p { margin: 0; font-size: .78rem; color: var(--muted); max-width: 70rem; line-height: 1.5; }
+  .stage { padding: 18px 20px 50px; max-width: 1180px; margin: 0 auto; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 13px; border-radius: 8px; border: 1px solid transparent;
+    background: var(--link); color: #fff; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer;
+  }
+  .btn-sec { background: #fff; color: #1e293b; border-color: #cbd5e1; font-weight: 650; }
+  .btn-ok { background: var(--ok); border-color: #15803d; color: #fff; }
+  .btn-danger { background: #fff; color: var(--danger); border-color: #fca5a5; }
+  .btn-sm { padding: 5px 10px; font-size: .76rem; }
+
+  /* ---- cabeçalho do item: nav + ações (igual à page atual) ---- */
+  .item-head {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 10px;
+  }
+  .item-nav { display: flex; align-items: center; gap: 10px; flex-wrap:wrap; }
+  .item-nav .cur { font-size: 1.15rem; font-weight: 800; }
+  .nav-divider { width:1px; align-self:stretch; background:#cbd5e1; }
+  .nav-unit { display:flex; align-items:center; gap:8px; }
+  .nav-unit-label { color:var(--muted); font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+  .pav-nav .cur { color:#7c3aed; font-size:.9rem; }
+  .item-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+  .breadcrumb { font-size: .74rem; color: var(--muted); margin: 0 0 10px; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+
+  /* ---- abas do viewer (N1 próximo/distante + N3 partes) — ficam logo
+     acima do viewer, não no topo da page (pedido do dono) ---- */
+  .viewer-tabs {
+    display: flex; flex-wrap: wrap; gap: 3px; padding: 3px; margin: 10px 0 8px;
+    background: #e2e8f0; border-radius: 10px;
+  }
+  .vtab {
+    appearance: none; border: none; background: transparent; color: #475569;
+    font: inherit; font-size: .76rem; font-weight: 700; padding: 7px 11px;
+    border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+  .vtab:hover { color: var(--ink); }
+  .vtab.on { color: var(--link); background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.08); }
+  .vtab[data-n3] { color: #92660a; }
+  .vtab[data-n3].on { color: #b45309; }
+
+  /* ---- card genérico de seção ---- */
+  .card {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: .68rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 10px;
+  }
+
+  /* ---- ficha simples SA/N1 — discreta, sem botão de validar por campo ---- */
+  .card-compact { padding: 10px 12px; }
+  .card-compact .card-title { font-size: .62rem; margin-bottom: 6px; }
+  .card-compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  @media (max-width: 560px) { .card-compact-grid { grid-template-columns: 1fr; } }
+  .campo-row {
+    display: grid; grid-template-columns: 7.5em 1fr; gap: 4px 8px; align-items: center;
+    padding: 4px 0; border-bottom: 1px solid #f1f5f9; font-size: .78rem;
+  }
+  .card-compact-grid .campo-row:nth-last-child(-n+2) { border-bottom: none; }
+  .campo-lab { color: var(--muted); font-weight: 600; }
+  .campo-val { font-weight: 650; }
+  .campo-val.empty { color: #cbd5e1; font-weight: 500; }
+  .campo-val input, .campo-val select { font: inherit; font-size: .78rem; padding: 3px 6px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; background: #fff; }
+
+  /* ---- grid ABCD (4 faces) — clara, com borda colorida por face + validação ---- */
+  .abcd-grid { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 10px; margin-top: 4px; }
+  .abcd-face { background: #f8fafc; border: 1px solid var(--border); border-left: 4px solid; border-radius: 8px; padding: 9px 11px; }
+  .abcd-face.a { border-left-color: #14b8a6; }
+  .abcd-face.b { border-left-color: #3b82f6; }
+  .abcd-face.c { border-left-color: #a855f7; }
+  .abcd-face.d { border-left-color: #f59e0b; }
+  .abcd-face-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 6px; }
+  .abcd-face-title { font-weight: 800; font-size: .78rem; }
+  .abcd-face.a .abcd-face-title { color: #0f766e; }
+  .abcd-face.b .abcd-face-title { color: #1d4ed8; }
+  .abcd-face.c .abcd-face-title { color: #7e22ce; }
+  .abcd-face.d .abcd-face-title { color: #b45309; }
+  .abcd-face-validar {
+    display: inline-flex; align-items: center; gap: 4px; font-size: .66rem; font-weight: 700;
+    color: var(--muted); white-space: nowrap; cursor: pointer; user-select: none;
+  }
+  .abcd-face-validar input { margin: 0; cursor: pointer; }
+  table.abcd-mini { width: 100%; border-collapse: collapse; font-size: .74rem; }
+  table.abcd-mini th { text-align: left; color: var(--muted); font-weight: 700; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+  table.abcd-mini td { padding: 4px 6px; border-bottom: 1px solid #f1f5f9; }
+  table.abcd-mini tr:last-child td { border-bottom: none; }
+  table.abcd-mini .fam { color: #475569; font-weight: 700; white-space: nowrap; }
+  table.abcd-mini th.val-col, table.abcd-mini td.val-col { text-align: center; width: 2.2em; }
+  table.abcd-mini td.val-col input { cursor: pointer; margin: 0; }
+  .abcd-save-hint { margin: 8px 0 0; font-size: .68rem; color: var(--muted); }
+
+  /* ---- formulário N3 (editável, agrupado) ---- */
+  .n3-help { font-size: .76rem; color: var(--muted); margin: 0 0 10px; line-height: 1.4; }
+  .n3-sec { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: #f8fafc; }
+  .n3-sec-title { font-size: .68rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: #92660a; background: #fef9ec; padding: 6px 10px; border-bottom: 1px solid #f3e6bd; border-radius: 8px 8px 0 0; }
+  .n3-sec-body { padding: 10px; display: flex; flex-wrap: wrap; gap: 9px 12px; align-items: flex-end; }
+  .n3-field { display: inline-flex; flex-direction: column; gap: 3px; }
+  .n3-lab { font-size: .68rem; color: var(--muted); font-weight: 650; }
+  .n3-field input[type="text"] { font: inherit; font-size: .8rem; padding: 5px 7px; border: 1px solid #cbd5e1; border-radius: 6px; width: 7em; background: #fff; }
+  .n3-field.wide input[type="text"] { width: 14em; }
+  .n3-field.check { flex-direction: row; align-items: center; gap: 6px; }
+  .n3-face { flex: 1 1 46%; min-width: 240px; border: 1px solid var(--border); border-radius: 8px; padding: 8px; background: #fff; }
+  .n3-face-h { font-weight: 800; font-size: .74rem; color: var(--link); margin: 0 0 6px; }
+  .n3-grade-box { flex: 1 1 30%; min-width: 210px; }
+  .n3-grade-rows { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-bottom: 8px; }
+  .n3-add-sarrafo { font-size: .7rem !important; padding: 3px 9px !important; }
+  .n3-grade-section { margin-top:8px; padding-top:7px; border-top:1px solid #e2e8f0; }
+  .n3-grade-section:first-of-type { margin-top:0; padding-top:0; border-top:0; }
+  .n3-grade-section-h { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; color:#64748b; font-size:.61rem; font-weight:800; }
+  .n3-grade-table { width:100%; border-collapse:collapse; font-size:.62rem; }
+  .n3-grade-table th,.n3-grade-table td { padding:3px; border:1px solid #dbe3ef; text-align:center; }
+  .n3-grade-table thead th { color:#475569; background:#f8fafc; font-size:.58rem; }
+  .n3-grade-table tbody th { color:#64748b; background:#f8fafc; text-align:left; white-space:nowrap; }
+  .n3-grade-table input { width:4.2em; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:3px; padding:3px; font:inherit; background:#fff; }
+  .n3-horizontal-list { display:flex; flex-direction:column; gap:5px; }
+  .n3-horizontal-row { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; align-items:flex-end; padding:5px; border:1px solid #e2e8f0; border-radius:5px; background:#f8fafc; }
+  .n3-horizontal-row .n3-field { min-width:0; }
+  .n3-horizontal-row .n3-field input { width:100% !important; box-sizing:border-box; }
+  .n3-horizontal-row .n3-lab { font-size:.58rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .n3-regen-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+  .n3-regen-row .meta { font-size: .72rem; color: var(--muted); }
+
+  /* ---- 3 propostas de "Painéis por face" — pra comparar lado a lado ---- */
+  .proposta-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; background: #fbfcfe; }
+  .proposta-label {
+    font-size: .68rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: .04em;
+    margin-bottom: 3px; display: flex; align-items: center; gap: 6px;
+  }
+  .proposta-desc { font-size: .72rem; color: var(--muted); margin: 0 0 10px; line-height: 1.4; }
+  .pgrid-toolbar { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+  .pgrid-toolbar .meta { font-size: .68rem; color: var(--muted); }
+
+  /* Proposta A — grade visual (elevação), cada célula é o próprio form */
+  .pgrid-a { display: inline-grid; gap: 6px; }
+  .pgrid-cell {
+    width: 106px; border: 1px solid var(--border); border-radius: 8px; background: #fff; padding: 6px;
+  }
+  .pgrid-cell.vazio { background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 5px, #eef1f6 5px, #eef1f6 10px); }
+  .pgrid-cell-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .pgrid-cell-pos { font-size: .64rem; font-weight: 800; color: var(--muted); }
+  .pgrid-hatch { display: inline-flex; align-items: center; gap: 2px; font-size: .6rem; color: var(--muted); cursor: pointer; }
+  .pgrid-hatch input { margin: 0; }
+  .pgrid-hatch.hidden { visibility: hidden; }
+  .pgrid-cell-body { display: flex; gap: 4px; margin-bottom: 4px; }
+  .pgrid-cell-body label { display: flex; flex-direction: column; gap: 1px; flex: 1; font-size: .6rem; color: var(--muted); }
+  .pgrid-cell-body input { font: inherit; font-size: .7rem; padding: 2px 4px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; }
+  .pgrid-tipo { display: flex; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .pgrid-tipo-btn { flex: 1; border: none; background: #fff; padding: 3px 0; font: inherit; font-size: .62rem; font-weight: 700; cursor: pointer; color: #94a3b8; }
+  .pgrid-tipo-btn.on[data-tipo="painel"] { background: #dbeafe; color: #1d4ed8; }
+  .pgrid-tipo-btn.on[data-tipo="vazio"] { background: #fee2e2; color: #991b1b; }
+
+  /* Proposta B — tabela densa + tira de prévia ao vivo */
+  .pgrid-preview-strip { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end; }
+  .pgrid-preview-col { display: flex; flex-direction: column-reverse; gap: 2px; width: 34px; }
+  .pgrid-preview-col-lab { font-size: .62rem; color: var(--muted); text-align: center; margin-top: 2px; }
+  .pgrid-preview-seg { height: 16px; border-radius: 3px; background: #93c5fd; }
+  .pgrid-preview-seg.vazio { background: repeating-linear-gradient(45deg, #fecaca, #fecaca 3px, #fca5a5 3px, #fca5a5 6px); }
+  table.pgrid-table { width: 100%; border-collapse: collapse; font-size: .74rem; }
+  table.pgrid-table th { text-align: center; color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--border); font-size: .66rem; font-weight: 700; }
+  table.pgrid-table td { padding: 6px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  table.pgrid-table td.alt-lab { color: var(--muted); font-weight: 700; white-space: nowrap; padding-top: 10px; }
+  .pgrid-b-cell { display: flex; flex-direction: column; gap: 4px; }
+  .pgrid-b-cell .row2 { display: flex; gap: 4px; }
+  .pgrid-b-cell input[type="text"] { width: 100%; font: inherit; font-size: .72rem; padding: 3px 5px; border: 1px solid #cbd5e1; border-radius: 5px; }
+  .pgrid-b-cell select { font: inherit; font-size: .7rem; padding: 2px 4px; border: 1px solid #cbd5e1; border-radius: 5px; width: 100%; }
+  .pgrid-b-cell .hatch-mini { display: inline-flex; align-items: center; gap: 3px; font-size: .66rem; color: var(--muted); }
+  .pgrid-b-cell .hatch-mini.hidden { visibility: hidden; }
+
+  /* Proposta C — faixas de altura (accordion) + prévia da elevação inteira */
+  .pgrid-c-preview { display: flex; flex-direction: column-reverse; gap: 3px; width: 64px; margin: 0 0 10px; }
+  .pgrid-c-preview-seg { height: 20px; border-radius: 3px; background: #93c5fd; display: flex; }
+  .pgrid-c-preview-seg > span { flex: 1; }
+  .pgrid-c-preview-seg > span.vazio { background: repeating-linear-gradient(45deg, #fecaca, #fecaca 3px, #fca5a5 3px, #fca5a5 6px); }
+  .pgrid-c-preview-seg > span + span { border-left: 1px solid #fff; }
+  .pgrid-band { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; background: #fff; }
+  .pgrid-band summary { cursor: pointer; list-style: none; padding: 7px 10px; display: flex; align-items: center; gap: 8px; font-size: .76rem; font-weight: 700; }
+  .pgrid-band summary::-webkit-details-marker { display: none; }
+  .pgrid-band summary::before { content: '▸ '; color: #94a3b8; }
+  .pgrid-band[open] summary::before { content: '▾ '; }
+  .pgrid-band-mini { display: flex; gap: 2px; margin-left: auto; }
+  .pgrid-band-mini span { width: 10px; height: 14px; border-radius: 2px; background: #93c5fd; }
+  .pgrid-band-mini span.vazio { background: repeating-linear-gradient(45deg, #fecaca, #fecaca 3px, #fca5a5 3px, #fca5a5 6px); }
+  .pgrid-band-body { padding: 0 10px 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .pgrid-x-card { border: 1px solid #f1f5f9; border-radius: 6px; padding: 7px 9px; background: #f8fafc; min-width: 128px; }
+  .pgrid-x-card-h { font-size: .66rem; font-weight: 800; color: var(--muted); margin-bottom: 5px; }
+  .pgrid-x-card.vazio { background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 5px, #eef1f6 5px, #eef1f6 10px); }
+
+  /* ---- Rodada 2: painéis ABCD — três leituras mais compactas ---- */
+  .pface-tabs { display:flex; gap:5px; margin:0 0 10px; }
+  .pface-tab { min-width:34px; padding:4px 8px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#64748b; font:700 .68rem inherit; cursor:pointer; }
+  .pface-tab.on { background:#1d4ed8; color:#fff; border-color:#1d4ed8; }
+  .p2-box { border:1px solid #dbe3ef; border-radius:10px; padding:11px; margin-bottom:12px; background:#fff; }
+  .p2-title { display:flex; align-items:center; gap:7px; color:#334155; font-size:.76rem; font-weight:800; }
+  .p2-tag { color:#7c3aed; font-size:.63rem; letter-spacing:.05em; text-transform:uppercase; }
+  .p2-desc { margin:3px 0 9px; color:var(--muted); font-size:.68rem; line-height:1.35; }
+  .p2-shell { display:flex; gap:12px; align-items:flex-start; }
+  .p2-elev { display:grid; grid-template-columns:repeat(2, 68px); gap:3px; padding:4px; border:1px solid #cbd5e1; border-radius:7px; background:#f8fafc; }
+  .p2-tile { min-height:37px; display:flex; flex-direction:column; justify-content:center; padding:3px 5px; border-radius:3px; background:#bfdbfe; color:#1e3a8a; font-size:.58rem; font-weight:800; line-height:1.1; }
+  .p2-tile.vazio { background:repeating-linear-gradient(45deg,#fee2e2,#fee2e2 4px,#fecaca 4px,#fecaca 8px); color:#991b1b; }
+  .p2-tile.h1 { background-image:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(30,64,175,.3) 5px,rgba(30,64,175,.3) 6px); }
+  .p2-tile.h2 { background-image:repeating-linear-gradient(-45deg,transparent,transparent 5px,rgba(30,64,175,.3) 5px,rgba(30,64,175,.3) 6px); }
+  .p2-edit { display:grid; grid-template-columns:repeat(2,minmax(148px,1fr)); gap:5px; flex:1; }
+  .p2-card { display:grid; grid-template-columns:auto 1fr 1fr; gap:4px; align-items:center; padding:5px; border:1px solid #e2e8f0; border-radius:6px; }
+  .p2-card.vazio { background:#fff8f8; }
+  .p2-pos { grid-row:span 2; color:#64748b; font-size:.62rem; font-weight:800; }
+  .p2-card input { min-width:0; width:100%; padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font:inherit; font-size:.66rem; }
+  .p2-state { display:flex; overflow:hidden; border:1px solid #cbd5e1; border-radius:4px; }
+  .p2-state button,.p2-hatches button { border:0; background:#fff; color:#64748b; padding:2px 4px; font:700 .58rem inherit; cursor:pointer; }
+  .p2-state button.on[data-state="painel"] { background:#dbeafe; color:#1d4ed8; }
+  .p2-state button.on[data-state="vazio"] { background:#fee2e2; color:#991b1b; }
+  .p2-hatches { display:flex; gap:2px; justify-content:flex-end; }
+  .p2-hatches button { border:1px solid #cbd5e1; border-radius:3px; }
+  .p2-hatches button.on { color:#1d4ed8; border-color:#60a5fa; background:#eff6ff; }
+  .p2-hatches .hatch-1 { background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,#94a3b8 3px,#94a3b8 4px); }
+  .p2-hatches .hatch-2 { background-image:repeating-linear-gradient(-45deg,transparent,transparent 3px,#94a3b8 3px,#94a3b8 4px); }
+  .p2-sheet { width:100%; border-collapse:separate; border-spacing:3px; font-size:.66rem; }
+  .p2-sheet th { color:#64748b; font-size:.61rem; text-align:left; padding:0 3px 3px; }
+  .p2-sheet td { padding:0; vertical-align:top; }
+  .p2-rowlab { width:45px; padding:8px 3px !important; color:#64748b; font-weight:800; }
+  .p2-matrix { display:grid; grid-template-columns:26px 1fr 1fr 1fr; gap:3px; align-items:center; padding:4px; border:1px solid #e2e8f0; border-radius:5px; }
+  .p2-matrix.vazio { background:#fff8f8; }
+  .p2-matrix input { min-width:0; width:100%; padding:2px 3px; border:1px solid #cbd5e1; border-radius:3px; font:inherit; font-size:.63rem; }
+  .p2-dot { width:21px; height:20px; border-radius:3px; background:#bfdbfe; }
+  .p2-dot.vazio { background:repeating-linear-gradient(45deg,#fee2e2,#fee2e2 3px,#fecaca 3px,#fecaca 6px); }
+  .p2-lane { display:grid; grid-template-columns:76px 1fr; gap:6px; align-items:stretch; }
+  .p2-ruler { display:flex; flex-direction:column; gap:3px; }
+  .p2-ruler span { min-height:37px; padding:4px 6px; border-radius:4px; background:#f1f5f9; color:#64748b; font-size:.6rem; font-weight:800; }
+  .p2-lanes { display:flex; flex-direction:column; gap:3px; }
+  .p2-lane-row { display:grid; grid-template-columns:repeat(2, minmax(132px,1fr)); gap:3px; }
+  .p2-strip { display:grid; grid-template-columns:34px 1fr 1fr 60px; gap:4px; align-items:center; padding:4px 5px; border:1px solid #e2e8f0; border-radius:5px; background:#fff; }
+  .p2-strip.vazio { background:#fff8f8; }
+  .p2-strip strong { color:#64748b; font-size:.61rem; }
+  .p2-strip input { min-width:0; width:100%; padding:2px 4px; border:1px solid #cbd5e1; border-radius:3px; font:inherit; font-size:.65rem; }
+  .p2-strip .p2-state { grid-column:2 / span 2; }
+  .p2-strip .p2-hatches { grid-column:4; grid-row:1 / span 2; }
+  @media (max-width:700px) { .p2-shell { flex-direction:column; } .p2-edit { width:100%; grid-template-columns:1fr; } .p2-lane-row { grid-template-columns:1fr; } }
+
+  /* ---- Rodada 3: cinco linguagens sem aparência de planilha ---- */
+  .x5 { border:1px solid #cbd5e1; border-radius:12px; padding:13px; margin-bottom:14px; background:#fff; }
+  .x5-head { display:flex; align-items:baseline; gap:8px; color:#0f172a; font-size:.8rem; font-weight:800; }
+  .x5-num { display:inline-grid; place-items:center; width:21px; height:21px; border-radius:50%; background:#0f172a; color:#fff; font-size:.65rem; }
+  .x5 p { margin:4px 0 10px; color:#64748b; font-size:.68rem; line-height:1.35; }
+  .x5 input { min-width:0; border:1px solid #cbd5e1; border-radius:4px; padding:3px 5px; font:inherit; font-size:.66rem; }
+  .x5 button { cursor:pointer; font:700 .61rem inherit; }
+  .x5-canvas { display:grid; grid-template-columns:150px minmax(210px,1fr); gap:14px; align-items:center; }
+  .x5-building { display:grid; grid-template-columns:repeat(2,1fr); gap:3px; padding:6px; background:#1e293b; border-radius:8px; }
+  .x5-block { min-height:48px; padding:4px; border:1px solid rgba(255,255,255,.55); background:#60a5fa; color:#082f49; font-size:.58rem; font-weight:800; }
+  .x5-block.empty { background:repeating-linear-gradient(45deg,#fecaca,#fecaca 4px,#fca5a5 4px,#fca5a5 8px); color:#7f1d1d; }
+  .x5-inspector { display:grid; grid-template-columns:75px 1fr 1fr auto; gap:5px; align-items:center; padding:8px; border-left:3px solid #2563eb; background:#eff6ff; }
+  .x5-inspector label { color:#1e3a8a; font-size:.65rem; font-weight:800; }
+  .x5-mode { display:flex; gap:2px; }
+  .x5-mode button { border:1px solid #93c5fd; background:#fff; padding:3px 5px; color:#1d4ed8; }
+  .x5-mode button:first-child { background:#2563eb; color:#fff; }
+  .x5-flow { display:flex; flex-direction:column; gap:5px; }
+  .x5-flow-row { display:grid; grid-template-columns:64px 1fr; gap:7px; align-items:center; }
+  .x5-level { color:#475569; font-size:.64rem; font-weight:800; text-align:right; }
+  .x5-rail { display:flex; gap:4px; min-height:36px; padding:3px; border-left:2px solid #94a3b8; background:#f8fafc; }
+  .x5-node { flex:1; display:grid; grid-template-columns:1fr 1fr 48px; gap:3px; align-items:center; padding:3px; background:#dbeafe; border-radius:4px; }
+  .x5-node.empty { background:#fee2e2; }
+  .x5-node strong { font-size:.61rem; color:#1e3a8a; }
+  .x5-h { min-width:42px; border:1px solid #94a3b8; background:repeating-linear-gradient(45deg,#fff,#fff 3px,#cbd5e1 3px,#cbd5e1 4px); border-radius:3px; padding:3px; color:#475569; }
+  .x5-script { display:flex; flex-direction:column; gap:5px; }
+  .x5-script-row { display:grid; grid-template-columns:62px 1fr 1fr 64px 56px; gap:4px; align-items:center; padding:5px; border-bottom:1px dashed #cbd5e1; }
+  .x5-script-row strong { color:#334155; font-size:.65rem; }
+  .x5-script-row .empty { color:#b91c1c; }
+  .x5-cross { display:grid; grid-template-columns:1fr 110px 1fr; grid-template-rows:auto 85px auto; gap:5px; align-items:stretch; text-align:center; }
+  .x5-face { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; padding:5px; border:1px solid #cbd5e1; background:#f8fafc; font-size:.58rem; font-weight:800; }
+  .x5-face b { grid-column:1/-1; color:#64748b; font-size:.62rem; }
+  .x5-face span { min-height:15px; background:#93c5fd; }
+  .x5-face span.empty { background:repeating-linear-gradient(45deg,#fecaca,#fecaca 3px,#fca5a5 3px,#fca5a5 6px); }
+  .x5-face.a { grid-column:2; grid-row:1; } .x5-face.b { grid-column:3; grid-row:2; } .x5-face.c { grid-column:2; grid-row:3; } .x5-face.d { grid-column:1; grid-row:2; }
+  .x5-core { grid-column:2; grid-row:2; display:grid; place-items:center; background:#1e293b; color:#fff; font-size:.7rem; font-weight:800; }
+  .x5-events { display:flex; flex-direction:column; gap:5px; }
+  .x5-event { display:grid; grid-template-columns:72px 1fr 56px 56px 85px; gap:5px; align-items:center; padding:6px 7px; border-radius:6px; background:#f8fafc; }
+  .x5-event strong { color:#334155; font-size:.66rem; } .x5-event em { color:#64748b; font-size:.63rem; font-style:normal; }
+  .x5-event .empty { color:#b91c1c; }
+  @media(max-width:700px){ .x5-canvas{grid-template-columns:1fr}.x5-script-row,.x5-event{grid-template-columns:58px 1fr 1fr}.x5-script-row .x5-mode,.x5-event .x5-mode{grid-column:2/4}.x5-cross{transform:scale(.9);transform-origin:left top;margin-bottom:-18px;} }
+
+  /* ---- Rodada 4: quatro faces abertas, células proporcionais e editáveis ---- */
+  .p4 { border:1px solid #cbd5e1; border-radius:12px; padding:12px; margin-bottom:14px; background:#fff; }
+  .p4-title { display:flex; gap:8px; align-items:center; font-size:.79rem; font-weight:800; color:#0f172a; }
+  .p4-index { width:21px; height:21px; display:grid; place-items:center; border-radius:50%; background:#7c3aed; color:#fff; font-size:.65rem; }
+  .p4-desc { margin:4px 0 9px; color:#64748b; font-size:.68rem; line-height:1.35; }
+  .p4-board { display:grid; grid-template-columns:repeat(4,minmax(130px,1fr)); gap:8px; align-items:stretch; }
+  .p4-face { min-height:238px; display:flex; flex-direction:column; border:1px solid #94a3b8; border-radius:7px; overflow:hidden; background:#f8fafc; }
+  .p4-face-h { display:flex; justify-content:space-between; align-items:center; padding:5px 7px; background:#e2e8f0; color:#334155; font-size:.65rem; font-weight:800; }
+  .p4-face-h small { color:#64748b; font-size:.56rem; font-weight:600; }
+  .p4-columns { flex:1; display:flex; gap:2px; padding:3px; }
+  .p4-x { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .p4-cell { min-height:28px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr auto; gap:2px; padding:3px; overflow:hidden; border-radius:3px; background:#bfdbfe; color:#1e3a8a; }
+  .p4-cell.vazio { background:repeating-linear-gradient(45deg,#fee2e2,#fee2e2 4px,#fecaca 4px,#fecaca 8px); color:#991b1b; }
+  .p4-cell b { grid-column:1/-1; font-size:.55rem; line-height:1; }
+  .p4-cell input { min-width:0; width:100%; border:0; border-radius:2px; padding:2px 3px; background:rgba(255,255,255,.88); color:#0f172a; font:600 .59rem inherit; }
+  .p4-cell footer { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; font-size:.53rem; }
+  .p4-hatches { display:flex; gap:2px; } .p4-hatches button { border:0; border-radius:2px; padding:1px 3px; background:#fff; color:#334155; font:700 .55rem inherit; cursor:pointer; }
+  .p4-hatches button.on { background:#1d4ed8; color:#fff; }
+  .p4-ruler { position:relative; padding-left:19px; } .p4-ruler::before { content:''; position:absolute; left:8px; top:27px; bottom:5px; border-left:1px solid #64748b; }
+  .p4-ruler .p4-face-h::before { content:'cm'; position:absolute; left:1px; color:#64748b; font-size:.52rem; }
+  .p4-ribbon { gap:0; border-radius:0; } .p4-ribbon .p4-face { border-radius:0; border-right:0; } .p4-ribbon .p4-face:last-child { border-right:1px solid #94a3b8; }
+  .p4-dark .p4-face-h { background:#1e293b; color:#fff; } .p4-dark .p4-face { background:#0f172a; border-color:#475569; }
+  .p4-dark .p4-columns { background:#0f172a; } .p4-dark .p4-cell { box-shadow:inset 0 0 0 1px rgba(255,255,255,.2); }
+  .p4-ledger .p4-face-h { border-bottom:2px solid #7c3aed; } .p4-ledger .p4-cell b::after { content:'  ↕'; opacity:.6; }
+  .p4-quiet .p4-face { border-color:#cbd5e1; } .p4-quiet .p4-face-h { background:#fff; border-bottom:1px solid #e2e8f0; } .p4-quiet .p4-cell { border-radius:0; }
+  @media(max-width:700px){ .p4-board{grid-template-columns:repeat(2,minmax(135px,1fr));}.p4-ribbon{grid-template-columns:repeat(4,150px);overflow:auto;padding-bottom:4px;} }
+
+  /* ---- Rodada 5: blueprint escolhido, conteúdo fixo dentro da célula ---- */
+  .p5 { border:1px solid #334155; border-radius:12px; padding:12px; margin-bottom:14px; background:#0f172a; color:#e2e8f0; }
+  .p5-title { display:flex; align-items:center; gap:8px; font-size:.8rem; font-weight:800; }
+  .p5-index { display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:#f59e0b; color:#1e293b; font-size:.65rem; }
+  .p5-desc { margin:4px 0 9px; color:#94a3b8; font-size:.68rem; line-height:1.35; }
+  .p5-tools { display:flex; gap:6px; margin:0 0 10px; }
+  .p5-tools button { border:1px solid #64748b; border-radius:5px; padding:5px 8px; background:#1e293b; color:#e2e8f0; font:700 .64rem inherit; cursor:pointer; }
+  .p5-tools button:first-child { border-color:#f59e0b; color:#fbbf24; }
+  .p5-board { display:grid; grid-template-columns:repeat(4,minmax(138px,1fr)); gap:8px; }
+  .p5-face { min-height:276px; display:flex; flex-direction:column; overflow:hidden; border:1px solid #475569; border-radius:7px; background:#111c31; }
+  .p5-face-h { display:flex; justify-content:space-between; padding:6px 7px; border-bottom:1px solid #475569; color:#f8fafc; font-size:.65rem; font-weight:800; }
+  .p5-face-h small { color:#94a3b8; font-size:.55rem; font-weight:600; }
+  .p5-face-tools { display:flex; gap:3px; } .p5-face-tools button { border:1px solid #64748b; border-radius:3px; padding:1px 4px; background:#1e293b; color:#fbbf24; font:800 .55rem inherit; cursor:pointer; }
+  .p5-columns { flex:1; display:flex; gap:2px; padding:3px; }
+  .p5-x { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .p5-cell { min-height:56px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px; overflow:hidden; border-radius:3px; background:#2563eb; }
+  .p5-cell.vazio { background:repeating-linear-gradient(45deg,#7f1d1d,#7f1d1d 4px,#991b1b 4px,#991b1b 8px); }
+  .p5-pos { color:#dbeafe; font-size:.53rem; font-weight:800; line-height:1; }
+  .p5-dims { display:flex; gap:3px; flex:0 0 auto; }
+  .p5-dims input { box-sizing:border-box; flex:0 0 28px; width:28px; height:19px; border:0; border-radius:2px; padding:2px 3px; background:#f8fafc; color:#0f172a; font:700 .57rem inherit; }
+  .p5-tag { display:inline-flex; align-items:center; gap:3px; flex:0 0 auto; padding:2px 4px; border-radius:3px; background:#0f172a; color:#e2e8f0; font-size:.54rem; font-weight:800; }
+  .p5-tag.vazio { background:#450a0a; color:#fecaca; }
+  .p5-hatches { display:flex; gap:2px; } .p5-hatches button { width:15px; height:15px; border:0; border-radius:2px; padding:0; background:#334155; color:#cbd5e1; font:700 .55rem inherit; cursor:pointer; } .p5-hatches button.on { background:#f59e0b; color:#1e293b; }
+  .p5-rulers .p5-face { position:relative; padding-left:15px; } .p5-rulers .p5-face::before { content:'ALT'; position:absolute; left:3px; top:38px; bottom:5px; writing-mode:vertical-rl; color:#64748b; font-size:.5rem; letter-spacing:.08em; }
+  .p5-ribbon { gap:0; } .p5-ribbon .p5-face { border-radius:0; border-right:0; } .p5-ribbon .p5-face:last-child { border-right:1px solid #475569; }
+  .p5-frames .p5-face { box-shadow:inset 0 0 0 2px #1e293b; } .p5-frames .p5-face-h { border-bottom-color:#f59e0b; }
+  @media(max-width:700px){ .p5-board{grid-template-columns:repeat(2,minmax(138px,1fr));}.p5-ribbon{grid-template-columns:repeat(4,150px);overflow:auto;padding-bottom:4px;} }
+
+  /* Proposta 2: prancha contínua — uma escala para as quatro faces. */
+  .p6 { border:1px solid #0f172a; border-radius:12px; padding:12px; margin-bottom:14px; background:#f8fafc; }
+  .p6-title,.p7-title { display:flex; align-items:center; gap:8px; color:#0f172a; font-size:.8rem; font-weight:800; }
+  .p6-desc,.p7-desc { margin:4px 0 9px; color:#64748b; font-size:.68rem; line-height:1.35; }
+  .p6-sheet { display:grid; grid-template-columns:36px repeat(4,1fr); min-height:292px; border:1px solid #94a3b8; background:#fff; }
+  .p6-scale { display:flex; flex-direction:column; justify-content:space-between; padding:29px 4px 7px; border-right:1px solid #94a3b8; color:#64748b; font-size:.56rem; text-align:right; }
+  .p6-face { display:flex; flex-direction:column; border-right:1px solid #cbd5e1; min-width:0; } .p6-face:last-child { border:0; }
+  .p6-face-h { display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid #cbd5e1; color:#334155; font-size:.64rem; font-weight:800; }
+  .p6-face-h button { border:0; background:transparent; color:#2563eb; font:800 .62rem inherit; cursor:pointer; }
+  .p6-cols { flex:1; display:flex; gap:2px; padding:3px; }
+  .p6-col { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .p6-cell { min-height:54px; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px; background:#dbeafe; border-top:2px solid #2563eb; overflow:hidden; }
+  .p6-cell.vazio { background:repeating-linear-gradient(45deg,#fff1f2,#fff1f2 4px,#fecdd3 4px,#fecdd3 8px); border-top-color:#e11d48; }
+  .p6-cell .p5-dims { margin-top:1px; } .p6-cell .p5-tag { background:#1e40af; } .p6-cell.vazio .p5-tag { background:#9f1239; }
+
+  /* Proposta 3: bandas de altura — largura é lida diretamente em cada linha. */
+  .p7 { border:1px solid #cbd5e1; border-radius:12px; padding:12px; margin-bottom:14px; background:#fff; }
+  .p7-board { display:grid; grid-template-columns:repeat(4,minmax(145px,1fr)); gap:10px; }
+  .p7-face { min-height:290px; display:flex; flex-direction:column; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden; }
+  .p7-face-h { display:flex; justify-content:space-between; align-items:center; padding:7px; background:#f1f5f9; color:#334155; font-size:.65rem; font-weight:800; }
+  .p7-face-h span { color:#64748b; font-size:.56rem; }
+  .p7-bands { flex:1; display:flex; flex-direction:column; gap:3px; padding:4px; }
+  .p7-band { display:flex; gap:3px; min-height:59px; border-left:3px solid #64748b; padding-left:3px; }
+  .p7-cell { min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:4px; overflow:hidden; border-radius:4px; background:#dcfce7; color:#14532d; }
+  .p7-cell.vazio { background:repeating-linear-gradient(45deg,#fff7ed,#fff7ed 4px,#fed7aa 4px,#fed7aa 8px); color:#9a3412; }
+  .p7-cell b { font-size:.55rem; } .p7-cell .p5-tag { background:#166534; } .p7-cell.vazio .p5-tag { background:#c2410c; }
+  .p7-tools { display:flex; gap:3px; } .p7-tools button { border:1px solid #94a3b8; border-radius:3px; background:#fff; color:#475569; padding:1px 4px; font:800 .55rem inherit; cursor:pointer; }
+  @media(max-width:700px){.p6-sheet{grid-template-columns:28px repeat(4,145px);overflow:auto;padding-bottom:4px;}.p7-board{grid-template-columns:repeat(2,minmax(145px,1fr));}}
+
+  /* ---- Aberturas ABCD: cada face possui suas próprias esquerdas e direitas ---- */
+  .p8 { border:1px solid #334155; border-radius:12px; padding:13px; margin-bottom:14px; background:#f8fafc; }
+  .p8-title { display:flex; align-items:center; gap:8px; color:#0f172a; font-size:.8rem; font-weight:800; }
+  .p8-desc { margin:4px 0 10px; color:#64748b; font-size:.68rem; line-height:1.35; }
+  .p8-board { display:grid; grid-template-columns:repeat(4,minmax(210px,1fr)); gap:9px; }
+  .p8-face { min-width:0; border:1px solid #94a3b8; border-radius:8px; overflow:visible; background:#fff; }
+  .p8-face-h { display:flex; justify-content:space-between; padding:7px 8px; background:#1e293b; color:#fff; font-size:.66rem; font-weight:800; }
+  .p8-struct-tools { display:flex; gap:2px; } .p8-struct-tools button { border:1px solid #94a3b8; border-radius:2px; padding:1px 3px; background:#0f172a; color:#fff; font:800 .52rem inherit; cursor:pointer; }
+  .p8-elevation { position:relative; height:360px; display:grid; grid-template-columns:1.1fr .9fr; gap:3px; padding:4px; background:#0f172a; overflow:visible; }
+  .p8-x { display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .p8-panel { min-height:0; padding:0; border-radius:0; background:#2563eb; color:#dbeafe; font-size:.54rem; font-weight:800; }
+  .p8-panel.vazio { background:repeating-linear-gradient(45deg,#7f1d1d,#7f1d1d 4px,#991b1b 4px,#991b1b 8px); color:#fecaca; }
+  .p8-panel-name { position:absolute; top:0; left:1px; z-index:2; color:#fff; font-size:5px; line-height:6px; white-space:nowrap; pointer-events:auto; padding:1px; }
+  .p8-panel-dim-tag { position:absolute; top:50%; left:50%; z-index:1; transform:translate(-50%,-50%); color:#fff; font-size:8px; line-height:9px; white-space:nowrap; pointer-events:none; text-shadow:0 1px 1px #000; }
+  .p8-panel-fields { display:none; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3px; position:absolute; z-index:20; top:100%; left:0; width:154px; padding:6px; border:1px solid #000; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,.3); }
+  .p8-panel:hover { z-index:12; overflow:visible; }
+  .p8-panel:hover .p8-panel-fields, .p8-panel:focus-within .p8-panel-fields { display:grid; }
+  .p8-panel-fields label { display:flex; flex-direction:column; gap:2px; color:#334155; font-size:.55rem; font-weight:800; }
+  .p8-panel-fields input { min-width:0; width:100%; box-sizing:border-box; border:1px solid #94a3b8; border-radius:2px; padding:3px; background:#f8fafc; color:#0f172a; font:700 .65rem inherit; }
+  .p8-type-picker { grid-column:1/-1; display:flex; gap:3px; padding-bottom:3px; border-bottom:1px solid #e2e8f0; }
+  .p8-type-choice { flex:1; border:1px solid #94a3b8; border-radius:3px; padding:3px 2px; background:#fff; color:#334155; font:800 .54rem inherit; cursor:pointer; }
+  .p8-type-choice.on[data-panel-type="painel"] { background:#dbeafe; border-color:#2563eb; color:#1e3a8a; }
+  .p8-type-choice.on[data-panel-type="laje"] { background:#fee2e2; border-color:#dc2626; color:#991b1b; }
+  .p8-type-choice.on[data-panel-type="viga"] { background:#ede9fe; border-color:#7c3aed; color:#5b21b6; }
+  .p8-hatch-picker { grid-column:1/-1; display:flex; align-items:center; gap:4px; padding-top:2px; border-top:1px solid #e2e8f0; }
+  .p8-hatch-picker span { margin-right:auto; color:#64748b; font-size:.54rem; font-weight:800; }
+  .p8-hatch-choice { width:16px; height:16px; border:1px solid #64748b; border-radius:50%; padding:0; background:#fff; color:#334155; font:800 .55rem/14px Arial; cursor:pointer; }
+  .p8-hatch-choice.on { outline:2px solid #2563eb; outline-offset:1px; }
+  .p8-hatch-choice[data-hatch="checker"] { background:conic-gradient(#334155 25%,#fff 0 50%,#334155 0 75%,#fff 0) 0/5px 5px; }
+  .p8-hatch-choice[data-hatch="stripe"] { background:repeating-linear-gradient(45deg,#fff,#fff 3px,#334155 3px,#334155 5px); }
+  .p8-panel.hatch-checker { background-color:#2563eb; background-image:conic-gradient(rgba(255,255,255,.42) 25%,transparent 0 50%,rgba(255,255,255,.42) 0 75%,transparent 0); background-size:7px 7px; }
+  .p8-panel.hatch-stripe { background-color:#2563eb; background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,.48) 4px,rgba(255,255,255,.48) 6px); }
+  .p8-panel.vazio-laje { background-color:#991b1b; background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,.45) 4px,rgba(255,255,255,.45) 6px); }
+  .p8-panel.vazio-viga { background-color:#6d28d9; background-image:repeating-linear-gradient(-45deg,transparent,transparent 4px,rgba(255,255,255,.45) 4px,rgba(255,255,255,.45) 6px); }
+  .p8-elevation { transform-origin:center center; transition:transform .08s ease; cursor:crosshair; }
+  .p8-elevation.focused { z-index:30; outline:2px solid #fbbf24; outline-offset:2px; box-shadow:0 8px 22px rgba(0,0,0,.55); }
+  .p8-elevation.dynamic .p8-x { display:contents; }
+  .p8-elevation.dynamic .p8-panel { position:absolute; box-sizing:border-box; min-height:0; overflow:visible; border:1px solid #000; border-radius:0; }
+  .p8-del-panel { display:none; position:absolute; top:1px; right:1px; z-index:22; width:13px; height:13px; border:1px solid #000; border-radius:0; padding:0; background:#fff; color:#991b1b; font:900 .55rem/10px Arial; cursor:pointer; }
+  .p8-panel:hover .p8-del-panel, .p8-panel:focus-within .p8-del-panel { display:block; }
+  .p8-rail { background:#fff; border-color:#000; } .p8-rail .p8-face { border-color:#000; border-radius:0; } .p8-rail .p8-board { gap:0; } .p8-rail .p8-face-h { background:#fff; color:#000; border-bottom:2px solid #000; }
+  .p8-rail .p8-elevation { height:360px; background:#e5e7eb; padding:0; } .p8-rail .p8-panel { background:#fff; color:#000; }
+  .p8-rail .p8-panel.vazio { background:repeating-linear-gradient(45deg,#fff,#fff 4px,#fecaca 4px,#fecaca 8px); color:#991b1b; }
+  .p8-rail .p8-panel-fields label { color:#334155; }
+  .p8-ledger { background:#0b1120; border-color:#fbbf24; } .p8-ledger .p8-title { color:#f8fafc; } .p8-ledger .p8-desc { color:#cbd5e1; }
+  .p8-ledger .p8-face { border-color:#fbbf24; } .p8-ledger .p8-face-h { background:#f59e0b; color:#111827; }
+  .p8-ledger .p8-elevation { height:380px; background:#020617; } .p8-ledger .p8-panel { background:#1d4ed8; }
+  .p8-ledger .p8-panel.vazio-laje,
+  .p8-ledger .p8-panel.vazio-viga { background-color:#fecaca; background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(185,28,28,.24) 4px,rgba(185,28,28,.24) 6px); color:#7f1d1d; }
+  .p8-ledger .p8-panel.vazio-laje .p8-panel-name,
+  .p8-ledger .p8-panel.vazio-laje .p8-panel-dim-tag,
+  .p8-ledger .p8-panel.vazio-viga .p8-panel-name,
+  .p8-ledger .p8-panel.vazio-viga .p8-panel-dim-tag { color:#7f1d1d; text-shadow:none; }
+  .p8-ledger .p8-panel.hatch-checker:not(.vazio-laje):not(.vazio-viga) { background-color:#1d4ed8; background-image:conic-gradient(rgba(255,255,255,.48) 25%,transparent 0 50%,rgba(255,255,255,.48) 0 75%,transparent 0); background-size:7px 7px; }
+  .p8-ledger .p8-panel.hatch-stripe:not(.vazio-laje):not(.vazio-viga) { background-color:#1d4ed8; background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,.55) 4px,rgba(255,255,255,.55) 6px); }
+  .p8-rail .p8-panel.hatch-checker { background-color:#fff; background-image:conic-gradient(#64748b 25%,transparent 0 50%,#64748b 0 75%,transparent 0); background-size:7px 7px; }
+  .p8-rail .p8-panel.hatch-stripe { background-color:#fff; background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,#64748b 4px,#64748b 6px); }
+  .p8-opening-draw { position:absolute; z-index:2; box-sizing:border-box; display:flex; align-items:center; justify-content:center; min-width:18px; min-height:18px; border:2px solid #fbbf24; background:repeating-linear-gradient(-45deg,rgba(251,191,36,.85),rgba(251,191,36,.85) 3px,rgba(120,53,15,.9) 3px,rgba(120,53,15,.9) 6px); color:#fff; font-size:.52rem; font-weight:900; text-shadow:0 1px #000; pointer-events:none; }
+  .p8-opening-draw.right { border-color:#34d399; background:repeating-linear-gradient(45deg,rgba(52,211,153,.85),rgba(52,211,153,.85) 3px,rgba(6,78,59,.9) 3px,rgba(6,78,59,.9) 6px); }
+  .p8-opening-draw.hidden { display:none; }
+  .p8-groups { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:6px; }
+  .p8-group { min-width:0; border:1px solid #dbe3ef; border-radius:5px; overflow:hidden; }
+  .p8-group-h { display:flex; justify-content:space-between; align-items:center; padding:5px; background:#eff6ff; color:#1e3a8a; font-size:.58rem; font-weight:800; }
+  .p8-group.right .p8-group-h { background:#ecfdf5; color:#065f46; }
+  .p8-add { border:0; border-radius:3px; padding:2px 4px; background:#1d4ed8; color:#fff; font:800 .54rem inherit; cursor:pointer; }
+  .p8-group.right .p8-add { background:#047857; }
+  .p8-open { padding:5px; border-top:1px solid #edf2f7; }
+  .p8-open:first-of-type { border-top:0; }
+  .p8-open-name { display:block; margin-bottom:4px; color:#64748b; font-size:.54rem; font-weight:800; }
+  .p8-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px; }
+  .p8-field { display:flex; flex-direction:column; gap:1px; color:#64748b; font-size:.49rem; font-weight:700; }
+  .p8-field.wide { grid-column:1/-1; }
+  .p8-field input { min-width:0; width:100%; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:3px; padding:2px 3px; color:#0f172a; font:600 .58rem inherit; }
+  @media(max-width:900px){.p8-board{grid-template-columns:repeat(2,minmax(220px,1fr));}} @media(max-width:560px){.p8-board{grid-template-columns:1fr;}}
+
+  /* ---- viewer (placeholder) ---- */
+  .viewer-wrap { position: relative; margin-top: 12px; }
+  .viewer {
+    height: 300px; border-radius: 10px; overflow: hidden; background: #0a0a0a; border: 1px solid #1e293b;
+    display: flex; align-items: center; justify-content: center; color: #475569; font-size: .8rem;
+  }
+  .viewer-label { position: absolute; left: 10px; bottom: 8px; font-size: .68rem; color: #94a3b8; background: rgba(0,0,0,.55); padding: 3px 8px; border-radius: 6px; }
+  .viewer-tag { position: absolute; right: 10px; top: 10px; font-size: .68rem; color: #fbbf24; background: rgba(0,0,0,.55); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+
+  /* ---- validação humano + agêntico (abaixo do viewer) ---- */
+  .val-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  @media (max-width: 860px) { .val-grid { grid-template-columns: 1fr; } }
+  .val-box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .val-box-title { font-size: .82rem; font-weight: 800; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+  .hl-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: .78rem; }
+  .hl-row:last-child { border-bottom: none; }
+  .hl-row-lab { font-weight: 650; color: #334155; }
+  .verdict { display: inline-flex; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
+  .verdict button { border: none; background: #fff; padding: 4px 10px; font: inherit; font-size: .7rem; font-weight: 700; cursor: pointer; color: #94a3b8; }
+  .verdict button.validou.on { background: #dcfce7; color: #166534; }
+  .verdict button.invalidou.on { background: #fee2e2; color: #991b1b; }
+  textarea.atencao { width: 100%; min-height: 60px; margin-top: 10px; font: inherit; font-size: .8rem; padding: 8px 9px; border: 1px solid #cbd5e1; border-radius: 8px; resize: vertical; }
+
+  .agent-tabs { display: flex; gap: 3px; padding: 3px; margin-bottom: 8px; background: #f1f5f9; border-radius: 8px; }
+  .agent-tab { flex: 1; border: none; background: transparent; padding: 6px 8px; border-radius: 6px; font: inherit; font-size: .74rem; font-weight: 700; color: #64748b; cursor: pointer; }
+  .agent-tab.on { background: #fff; color: #1d4ed8; box-shadow: 0 1px 2px rgba(15,23,42,.08); }
+  .agent-panel { display: none; }
+  .agent-panel.on { display: block; }
+  .agent-verdict-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: .7rem; font-weight: 800; margin-bottom: 8px; }
+  .agent-verdict-badge.invalidou { background: #fee2e2; color: #991b1b; }
+  .agent-verdict-badge.validou { background: #dcfce7; color: #166534; }
+  .agent-verdict-badge.pendente { background: #f1f5f9; color: #64748b; }
+  textarea.agent-note { width: 100%; min-height: 74px; font: inherit; font-size: .78rem; padding: 8px 9px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; resize: vertical; margin-bottom: 8px; }
+  .agent-request-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .agent-request-row .meta { font-size: .7rem; color: var(--muted); }
+  .btn-agent { background: #4338ca; border-color: #3730a3; }
+  .btn-agent:hover { background: #3730a3; }
+
+  .nota-mockup {
+    max-width: 1180px; margin: 0 auto 30px; padding: 10px 16px; background: #fffbeb;
+    border: 1px solid #fde68a; border-radius: 10px; font-size: .78rem; color: #78350f; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Mockup — Pilares · SA/N1 conectado ao N3 por abas no viewer</h1>
+  <p>
+    As abas trocam <b>a ficha acima</b> (campos daquela camada) e <b>o desenho no viewer</b> ao mesmo tempo.
+    N1 próximo/distante mostram a interpretação SA (campos discretos + grade ABCD com checkbox de validação por
+    linha/face, sem botão avulso); as 5 abas N3 mostram o formulário editável daquele robô (CIMA / ABCD / GRADES)
+    com botão de regeneração próprio. A validação humano+agêntico só aparece <b>abaixo do viewer na aba N1
+    próximo</b> — nas demais abas ela some (não faz sentido revisar camada 1/2/3 olhando um formulário de N3).
+  </p>
+</div>
+
+<div class="stage">
+  <p class="breadcrumb"><a href="#">Obra-Teste-Inicial2</a> › <span id="breadcrumb-floor">FUNDACAO</span> › SA › <a href="#">Pilares Normais</a></p>
+
+  <div class="item-head">
+    <div class="item-nav">
+      <div class="nav-unit">
+        <span class="nav-unit-label">Pilar</span>
+      <button type="button" class="btn-sec btn btn-sm">◀</button>
+      <span class="cur">P1</span>
+      <button type="button" class="btn-sec btn btn-sm">▶</button>
+      </div>
+      <span class="nav-divider"></span>
+      <div class="nav-unit pav-nav">
+        <span class="nav-unit-label">Pavimento</span>
+        <button type="button" class="btn-sec btn btn-sm" data-pav-step="-1" title="Pavimento anterior">◀</button>
+        <span class="cur" id="current-floor">FUNDACAO</span>
+        <button type="button" class="btn-sec btn btn-sm" data-pav-step="1" title="Próximo pavimento">▶</button>
+      </div>
+    </div>
+    <div class="item-actions">
+      <button type="button" class="btn btn-ok">Validar</button>
+      <button type="button" class="btn btn-danger">Excluir</button>
+      <button type="button" class="btn-sec btn">Invalidar e Regenerar Geometria</button>
+    </div>
+  </div>
+
+  <div id="mount"></div>
+
+  <div id="val-section">
+  <div class="val-grid">
+    <div class="val-box">
+      <div class="val-box-title">✏️ Validação humana — P1</div>
+      <div class="hl-row"><span class="hl-row-lab">🏷 SA tags</span>
+        <div class="verdict"><button class="validou on">Validou</button><button class="invalidou">Invalidou</button></div></div>
+      <div class="hl-row"><span class="hl-row-lab">🔵 Camada 1</span>
+        <div class="verdict"><button class="validou">Validou</button><button class="invalidou">Invalidou</button></div></div>
+      <div class="hl-row"><span class="hl-row-lab">🟣 Camada 2</span>
+        <div class="verdict"><button class="validou">Validou</button><button class="invalidou">Invalidou</button></div></div>
+      <div class="hl-row"><span class="hl-row-lab">🟠 Camada 3</span>
+        <div class="verdict"><button class="validou">Validou</button><button class="invalidou">Invalidou</button></div></div>
+      <textarea class="atencao" placeholder="Atenção P1… (o que está errado, o que o agente deve corrigir)"></textarea>
+    </div>
+
+    <div class="val-box">
+      <div class="val-box-title">🤖 Validação agêntica</div>
+      <div class="agent-tabs" role="tablist">
+        <button type="button" class="agent-tab on" data-atab="1">🔵 Camada 1</button>
+        <button type="button" class="agent-tab" data-atab="2">🟣 Camada 2</button>
+        <button type="button" class="agent-tab" data-atab="3">🟠 Camada 3</button>
+      </div>
+      <div class="agent-panel on" data-apanel="1">
+        <span class="agent-verdict-badge pendente">— ainda não rodou</span>
+        <textarea class="agent-note" readonly placeholder="Notas do agente aparecem aqui após a revisão…"></textarea>
+        <div class="agent-request-row">
+          <span class="meta">Usa a atenção humana acima como contexto</span>
+          <button type="button" class="btn btn-agent btn-sm">🤖 Solicitar revisão · Camada 1 →</button>
+        </div>
+      </div>
+      <div class="agent-panel" data-apanel="2">
+        <span class="agent-verdict-badge pendente">— ainda não rodou</span>
+        <textarea class="agent-note" readonly placeholder="Notas do agente aparecem aqui após a revisão…"></textarea>
+        <div class="agent-request-row">
+          <span class="meta">Roda depois de Camada 1 aprovada</span>
+          <button type="button" class="btn btn-agent btn-sm">🤖 Solicitar revisão · Camada 2 →</button>
+        </div>
+      </div>
+      <div class="agent-panel" data-apanel="3">
+        <span class="agent-verdict-badge pendente">— ainda não rodou</span>
+        <textarea class="agent-note" readonly placeholder="Notas do agente aparecem aqui após a revisão…"></textarea>
+        <div class="agent-request-row">
+          <span class="meta">Roda depois de Camada 2 aprovada</span>
+          <button type="button" class="btn btn-agent btn-sm">🤖 Solicitar revisão · Camada 3 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="nota-mockup">
+  <b>Nota:</b> este arquivo é só pra decidir o formato — campos do N3 abaixo estão abreviados (ex.: só 1 face de 4,
+  1 vazio de 3) pra caber na tela; na implementação real todos os campos de cada robô (CIMA/ABCD/GRADES) entram,
+  iguais aos das fichas headless atuais. O viewer é um placeholder — no real, é o SVG com pan/zoom por viewBox
+  (padrão já usado na Torre limpa), trocando de imagem conforme a aba.
+</div>
+
+<script>
+/** Linha da mini-tabela ABCD + checkbox "Validado" na última coluna. */
+function abcdRow(fam, nome, dim, nivel, canto, desq, ddir) {
+  return '<tr><td class="fam">' + fam + '</td><td>' + nome + '</td><td>' + dim + '</td><td>' + nivel +
+    '</td><td>' + canto + '</td><td>' + desq + '</td><td>' + ddir +
+    '</td><td class="val-col"><input type="checkbox" class="abcd-row-check"></td></tr>';
+}
+
+/** Card de 1 face ABCD — checkbox "Validar" no canto sup. direito marca/desmarca todas as linhas. */
+function abcdFace(letra, titulo, linhasHtml) {
+  return '<div class="abcd-face ' + letra + '">' +
+    '<div class="abcd-face-head"><div class="abcd-face-title">' + titulo + '</div>' +
+    '<label class="abcd-face-validar"><input type="checkbox" class="abcd-face-check">Validar</label></div>' +
+    '<table class="abcd-mini"><tr><th>Família</th><th>Nome</th><th>Dim</th><th>Nível</th><th>Canto</th><th>d.esq</th><th>d.dir</th><th class="val-col">Validado</th></tr>' +
+    linhasHtml + '</table></div>';
+}
+
+function fichaN1() {
+  return `
+  <div class="card card-compact">
+    <div class="card-title">Campos SA / N1</div>
+    <div class="card-compact-grid">
+      <div class="campo-row"><span class="campo-lab">Código</span><span class="campo-val" style="font-family:monospace">tQ1ynOPuWf</span></div>
+      <div class="campo-row"><span class="campo-lab">Formato</span><span class="campo-val">
+        <select><option>Retangular</option><option>Circular</option><option>Em L</option><option>Em U</option><option>Em T</option><option>Outro</option></select>
+      </span></div>
+      <div class="campo-row"><span class="campo-lab">Nome</span><span class="campo-val"><input type="text" value="P1"></span></div>
+      <div class="campo-row"><span class="campo-lab">Nível de chegada</span><span class="campo-val"><input type="text" value="852.19cm"></span></div>
+      <div class="campo-row"><span class="campo-lab">Classificação</span><span class="campo-val"><input type="text" value="INDETERMINADO"></span></div>
+      <div class="campo-row"><span class="campo-lab">Nível de saída</span><span class="campo-val"><input type="text" value="848.98cm"></span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Interpretação ABCD — SA (atual motor)</div>
+    <div class="abcd-grid">
+      ${abcdFace('a', 'A — esquerda (oeste) · face longa',
+        abcdRow('Lajes', 'L317', '13', '855.12cm', 'AD', '14cm', '0cm') +
+        abcdRow('Passam', 'V332', '19/55', '852.19cm', 'AD', '—', '—') +
+        abcdRow('Chegam', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Interior', 'nenhuma', '—', '—', '—', '—', '—'))}
+      ${abcdFace('b', 'B — direita (leste) · face longa',
+        abcdRow('Lajes', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Passam', 'V332', '19/55', '852.19cm', 'BD', '—', '—') +
+        abcdRow('Chegam', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Interior', 'nenhuma', '—', '—', '—', '—', '—'))}
+      ${abcdFace('c', 'C — topo (norte) · face curta',
+        abcdRow('Lajes', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Passam', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Chegam', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Interior', 'nenhuma', '—', '—', '—', '—', '—'))}
+      ${abcdFace('d', 'D — base (sul) · face curta',
+        abcdRow('Lajes', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Passam', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Chegam', 'nenhuma', '—', '—', '—', '—', '—') +
+        abcdRow('Interior', 'V332', '19/55', '852.19cm', 'DD', '0cm', '12.5cm'))}
+    </div>
+    <p class="abcd-save-hint">Cada checkbox salva sozinho ao marcar/desmarcar — sem botão de confirmar.</p>
+  `;
+}
+
+function fichaN3(parte, robo, help, secoesHtml) {
+  return `
+  <div class="card">
+    <div class="card-title">Ficha conversão N3 · ${parte}</div>
+    <p class="n3-help">Robô ${robo} — ${help}</p>
+    ${secoesHtml}
+    <div class="n3-regen-row">
+      <span class="meta">Salva sozinho ao sair do campo (igual ao restante do portal)</span>
+      <button type="button" class="btn btn-sec btn-sm">⟳ Regenerar N3 · ${parte} →</button>
+    </div>
+  </div>`;
+}
+
+/** Box "Grade N" com pares Sarrafo/Distância — repete conforme a grade real
+ *  tiver bloquinhos (visão cima). "+ sarrafo" adiciona mais um par na hora. */
+function gradeDetalheBox(n, verticais, horizontais) {
+  function verticalTable() {
+    var heads = '<th>medida</th>', largura = '<th>Largura</th>', altura = '<th>Altura</th>';
+    verticais.forEach(function (p, i) {
+      var idx = i + 1;
+      heads += '<th>Sarrafo V' + idx + '</th><th>Dist. ' + idx + '</th>';
+      largura += '<td><input value="' + p[2] + '"></td><td rowspan="2"><input value="' + p[1] + '"></td>';
+      altura += '<td><input value="' + p[3] + '"></td>';
+    });
+    return '<table class="n3-grade-table" data-vertical-table><thead><tr>' + heads + '</tr></thead><tbody><tr data-vertical-width>' + largura + '</tr><tr data-vertical-height>' + altura + '</tr></tbody></table>';
+  }
+  function horizontalRow(p, i) {
+    var idx = i + 1;
+    return '<div class="n3-horizontal-row"><label class="n3-field"><span class="n3-lab">Sarrafo H' + idx + '</span><input type="text" style="width:4.4em" value="' + p[0] + '"></label><label class="n3-field"><span class="n3-lab">Dist. esquerda</span><input type="text" style="width:4.4em" value="' + p[1] + '"></label><label class="n3-field"><span class="n3-lab">Dist. direita</span><input type="text" style="width:4.4em" value="' + (p[4] || '0.0') + '"></label><label class="n3-field"><span class="n3-lab">Largura</span><input type="text" style="width:4.4em" value="' + p[2] + '"></label><label class="n3-field"><span class="n3-lab">Altura</span><input type="text" style="width:4.4em" value="' + p[3] + '"></label></div>';
+  }
+  return '<div class="n3-face n3-grade-box" data-grade="' + n + '"><div class="n3-face-h">Grade ' + n + '</div>' +
+    '<div class="n3-grade-section"><div class="n3-grade-section-h"><span>Sarrafos verticais</span><button type="button" class="btn-sec btn btn-sm n3-add-sarrafo" data-orientacao="vertical">+ sarrafo</button></div>' + verticalTable() + '</div>' +
+    '<div class="n3-grade-section"><div class="n3-grade-section-h"><span>Sarrafos horizontais</span><button type="button" class="btn-sec btn btn-sm n3-add-sarrafo" data-orientacao="horizontal">+ sarrafo</button></div><div class="n3-horizontal-list" data-sarrafo-list="horizontal">' + horizontais.map(horizontalRow).join('') + '</div></div></div>';
+}
+
+var CIMA_SEC = `
+  <div class="n3-sec"><div class="n3-sec-title">Geometria</div><div class="n3-sec-body">
+    <label class="n3-field"><span class="n3-lab">Comprimento</span><input type="text" value="104.0"></label>
+    <label class="n3-field"><span class="n3-lab">Largura</span><input type="text" value="19.0"></label>
+  </div></div>
+  <div class="n3-sec"><div class="n3-sec-title">Parafusos (espaçamentos)</div><div class="n3-sec-body">
+    <label class="n3-field"><span class="n3-lab">par 1→2</span><input type="text" value="64.0"></label>
+    <label class="n3-field"><span class="n3-lab">par 2→3</span><input type="text" value="64.0"></label>
+    <label class="n3-field"><span class="n3-lab">par 3→4</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">par 4→5</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">par 5→6</span><input type="text" value=""></label>
+    <label class="n3-field"><span class="n3-lab">par 6→7</span><input type="text" value=""></label>
+    <label class="n3-field"><span class="n3-lab">par 7→8</span><input type="text" value=""></label>
+    <label class="n3-field"><span class="n3-lab">par 8→9</span><input type="text" value=""></label>
+  </div></div>
+  <div class="n3-sec"><div class="n3-sec-title">Grades</div><div class="n3-sec-body">
+    <label class="n3-field"><span class="n3-lab">Grade 1</span><input type="text" value="82.0"></label>
+    <label class="n3-field"><span class="n3-lab">Distância 1</span><input type="text" value="14.0"></label>
+    <label class="n3-field"><span class="n3-lab">Grade 2</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">Distância 2</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">Grade 3</span><input type="text" value="0.0"></label>
+  </div></div>
+  <div class="n3-sec"><div class="n3-sec-title">Detalhamento das grades — sarrafos e distâncias (visão cima)</div><div class="n3-sec-body">
+    ${gradeDetalheBox(1, [['18.0', '14.0', '5.0', '5.0'], ['18.0', '14.0', '5.0', '5.0'], ['18.0', '14.0', '5.0', '5.0'], ['18.0', '14.0', '5.0', '5.0']], [['82.0', '0.0', '5.0', '5.0']])}
+    ${gradeDetalheBox(2, [['—', '—', '—', '—']], [['—', '—', '—', '—']])}
+    ${gradeDetalheBox(3, [['—', '—', '—', '—']], [['—', '—', '—', '—']])}
+  </div></div>`;
+
+// ---------------------------------------------------------------------
+// Painéis por face — 3 propostas visuais pra decidir (pedido do dono,
+// 2026-08-06). Cada face pode ter até 3 painéis lado a lado (X) × até 6
+// empilhados em altura, cada um com Largura/Altura, tipo Painel|Vazio
+// (vazio = onde a laje atravessa) e hatch individual (reaproveitamento).
+// As 3 propostas usam o MESMO exemplo (face A) pra comparação direta e
+// são independentes entre si — cada uma mantém seu próprio estado no DOM.
+// ---------------------------------------------------------------------
+var PGRID_EXEMPLO = [
+  { alt: 3, xs: [
+      { x: 1, largura: '34.0', altura: '40.0', tipo: 'painel', hatch: true },
+      { x: 2, largura: '30.0', altura: '40.0', tipo: 'painel', hatch: true }
+  ]},
+  { alt: 2, xs: [
+      { x: 1, largura: '34.0', altura: '120.0', tipo: 'painel', hatch: false },
+      { x: 2, largura: '30.0', altura: '120.0', tipo: 'vazio', hatch: false }
+  ]},
+  { alt: 1, xs: [
+      { x: 1, largura: '34.0', altura: '60.0', tipo: 'painel', hatch: true },
+      { x: 2, largura: '30.0', altura: '60.0', tipo: 'painel', hatch: true }
+  ]}
+];
+
+// ---- Proposta A — grade visual (elevação): a célula É o formulário ----
+function pgridACellHtml(alt, cell) {
+  var vazio = cell.tipo === 'vazio';
+  return '<div class="pgrid-cell' + (vazio ? ' vazio' : '') + '" data-row="' + alt + '">' +
+    '<div class="pgrid-cell-head"><span class="pgrid-cell-pos">X' + cell.x + ' · A' + alt + '</span>' +
+    '<label class="pgrid-hatch' + (vazio ? ' hidden' : '') + '"><input type="checkbox" class="pgrid-hatch-chk"' + (cell.hatch ? ' checked' : '') + '>hatch</label></div>' +
+    '<div class="pgrid-cell-body">' +
+      '<label>L<input type="text" value="' + cell.largura + '"></label>' +
+      '<label>A<input type="text" value="' + cell.altura + '"></label>' +
+    '</div>' +
+    '<div class="pgrid-tipo">' +
+      '<button type="button" class="pgrid-tipo-btn' + (!vazio ? ' on' : '') + '" data-tipo="painel">Painel</button>' +
+      '<button type="button" class="pgrid-tipo-btn' + (vazio ? ' on' : '') + '" data-tipo="vazio">Vazio</button>' +
+    '</div></div>';
+}
+function propostaAHtml() {
+  var cols = PGRID_EXEMPLO[0].xs.length, rows = PGRID_EXEMPLO.length;
+  var cells = PGRID_EXEMPLO.map(function (b) {
+    return b.xs.map(function (c) { return pgridACellHtml(b.alt, c); }).join('');
+  }).join('');
+  return '<div class="proposta-box">' +
+    '<div class="proposta-label">🅰️ Proposta A — grade visual (elevação)</div>' +
+    '<p class="proposta-desc">A própria célula já é o formulário e a referência visual — muda de cor na hora ao trocar Painel/Vazio. Colunas = X lado a lado (até 3), linhas = alturas empilhadas (até 6), lidas do topo pra base.</p>' +
+    '<div class="pgrid-toolbar">' +
+      '<button type="button" class="btn-sec btn btn-sm" id="pgrid-a-add-col"' + (cols >= 3 ? ' disabled' : '') + '>+ coluna (X)</button>' +
+      '<button type="button" class="btn-sec btn btn-sm" id="pgrid-a-add-row"' + (rows >= 6 ? ' disabled' : '') + '>+ linha (altura)</button>' +
+      '<span class="meta" id="pgrid-a-count">' + cols + ' col × ' + rows + ' linhas (máx. 3 × 6)</span>' +
+    '</div>' +
+    '<div class="pgrid-a" id="pgrid-a-grid" style="grid-template-columns:repeat(' + cols + ',auto)">' + cells + '</div>' +
+  '</div>';
+}
+
+// ---- Proposta B — tabela densa (planilha) + tira de prévia ao vivo ----
+function propostaBHtml() {
+  var cols = PGRID_EXEMPLO[0].xs.length;
+  // colunas usam column-reverse no CSS (base embaixo, topo em cima) — por
+  // isso os segmentos entram no DOM de baixo (base) pra cima (topo).
+  var bandasBaseParaTopo = PGRID_EXEMPLO.slice().reverse();
+  var previewCols = [];
+  for (var x = 1; x <= cols; x++) {
+    var segs = bandasBaseParaTopo.map(function (b) { return b.xs[x - 1]; }).map(function (c) {
+      return '<div class="pgrid-preview-seg' + (c.tipo === 'vazio' ? ' vazio' : '') + '"></div>';
+    }).join('');
+    previewCols.push('<div class="pgrid-preview-col" data-preview-col="' + x + '">' + segs + '<div class="pgrid-preview-col-lab">X' + x + '</div></div>');
+  }
+  var linhas = PGRID_EXEMPLO.map(function (b) {
+    var tds = b.xs.map(function (c) {
+      var vazio = c.tipo === 'vazio';
+      return '<td><div class="pgrid-b-cell" data-row="' + b.alt + '" data-x="' + c.x + '">' +
+        '<div class="row2"><input type="text" value="' + c.largura + '" title="Largura">' +
+        '<input type="text" value="' + c.altura + '" title="Altura"></div>' +
+        '<select class="pgrid-b-tipo"><option value="painel"' + (!vazio ? ' selected' : '') + '>Painel</option>' +
+        '<option value="vazio"' + (vazio ? ' selected' : '') + '>Vazio</option></select>' +
+        '<label class="hatch-mini' + (vazio ? ' hidden' : '') + '"><input type="checkbox" class="pgrid-b-hatch"' + (c.hatch ? ' checked' : '') + '>hatch</label>' +
+      '</div></td>';
+    }).join('');
+    return '<tr><td class="alt-lab">A' + b.alt + (b.alt === 3 ? ' · topo' : (b.alt === 1 ? ' · base' : '')) + '</td>' + tds + '</tr>';
+  }).join('');
+  var ths = '';
+  for (var xh = 1; xh <= cols; xh++) ths += '<th>Painel X' + xh + '</th>';
+  return '<div class="proposta-box">' +
+    '<div class="proposta-label">🅱️ Proposta B — tabela densa (planilha)</div>' +
+    '<p class="proposta-desc">Formato tabela, mais compacto pra digitar valores em sequência. A tira acima é a referência visual — atualiza sozinha ao trocar Painel/Vazio no select de cada célula.</p>' +
+    '<div class="pgrid-preview-strip" id="pgrid-b-preview">' + previewCols.join('') + '</div>' +
+    '<div class="pgrid-toolbar">' +
+      '<button type="button" class="btn-sec btn btn-sm" id="pgrid-b-add-col"' + (cols >= 3 ? ' disabled' : '') + '>+ coluna (X)</button>' +
+      '<button type="button" class="btn-sec btn btn-sm" id="pgrid-b-add-row">+ linha (altura)</button>' +
+    '</div>' +
+    '<table class="pgrid-table" id="pgrid-b-table"><thead><tr><th>Altura</th>' + ths + '</tr></thead>' +
+    '<tbody id="pgrid-b-tbody">' + linhas + '</tbody></table>' +
+  '</div>';
+}
+
+// ---- Proposta C — faixas de altura (accordion) + prévia da elevação ----
+function pgridCPreviewHtml() {
+  // column-reverse no CSS: base primeiro no DOM, topo por último (fica em cima).
+  return PGRID_EXEMPLO.slice().reverse().map(function (b) {
+    return '<div class="pgrid-c-preview-seg" data-row="' + b.alt + '">' +
+      b.xs.map(function (c) { return '<span class="' + (c.tipo === 'vazio' ? 'vazio' : '') + '"></span>'; }).join('') +
+    '</div>';
+  }).join('');
+}
+function pgridBandMiniHtml(xs) {
+  return xs.map(function (c) { return '<span class="' + (c.tipo === 'vazio' ? 'vazio' : '') + '"></span>'; }).join('');
+}
+function pgridXCardHtml(alt, c) {
+  var vazio = c.tipo === 'vazio';
+  return '<div class="pgrid-x-card" data-row="' + alt + '" data-x="' + c.x + '">' +
+    '<div class="pgrid-x-card-h">Painel X' + c.x + '</div>' +
+    '<div class="row2" style="display:flex;gap:6px;margin-bottom:6px">' +
+      '<label class="n3-field"><span class="n3-lab">L</span><input type="text" style="width:4.5em" value="' + c.largura + '"></label>' +
+      '<label class="n3-field"><span class="n3-lab">A</span><input type="text" style="width:4.5em" value="' + c.altura + '"></label>' +
+    '</div>' +
+    '<div class="pgrid-tipo" style="margin-bottom:6px">' +
+      '<button type="button" class="pgrid-tipo-btn' + (!vazio ? ' on' : '') + '" data-tipo="painel">Painel</button>' +
+      '<button type="button" class="pgrid-tipo-btn' + (vazio ? ' on' : '') + '" data-tipo="vazio">Vazio</button>' +
+    '</div>' +
+    '<label class="pgrid-hatch' + (vazio ? ' hidden' : '') + '"><input type="checkbox" class="pgrid-hatch-chk"' + (c.hatch ? ' checked' : '') + '>hatch</label>' +
+  '</div>';
+}
+function propostaCHtml() {
+  var bands = PGRID_EXEMPLO.map(function (b, i) {
+    return '<details class="pgrid-band" data-row="' + b.alt + '"' + (i === 0 ? ' open' : '') + '>' +
+      '<summary>Faixa de altura A' + b.alt + (b.alt === 3 ? ' · topo' : (b.alt === 1 ? ' · base' : '')) +
+        '<span class="pgrid-band-mini">' + pgridBandMiniHtml(b.xs) + '</span></summary>' +
+      '<div class="pgrid-band-body">' + b.xs.map(function (c) { return pgridXCardHtml(b.alt, c); }).join('') + '</div>' +
+    '</details>';
+  }).join('');
+  return '<div class="proposta-box">' +
+    '<div class="proposta-label">🅲️ Proposta C — faixas de altura (lista expansível)</div>' +
+    '<p class="proposta-desc">Cada faixa de altura abre/fecha; a tira ao lado do título já mostra Painel/Vazio sem precisar abrir. A prévia acima resume a elevação inteira da face.</p>' +
+    '<div class="pgrid-c-preview" id="pgrid-c-preview">' + pgridCPreviewHtml() + '</div>' +
+    '<button type="button" class="btn-sec btn btn-sm" id="pgrid-c-add-band" style="margin-bottom:8px"' + (PGRID_EXEMPLO.length >= 6 ? ' disabled' : '') + '>+ faixa de altura</button>' +
+    bands +
+  '</div>';
+}
+
+// Rodada 2 — substitui as três alternativas anteriores por leituras mais
+// compactas; mantém A/B/C como comparações diretas da mesma face.
+PGRID_EXEMPLO = [
+  { alt: 3, xs: [{ x: 1, largura: '34.0', altura: '40.0', tipo: 'painel', hatch: 'h1' }, { x: 2, largura: '30.0', altura: '40.0', tipo: 'painel', hatch: 'h2' }] },
+  { alt: 2, xs: [{ x: 1, largura: '34.0', altura: '120.0', tipo: 'painel', hatch: 'nenhum' }, { x: 2, largura: '30.0', altura: '120.0', tipo: 'vazio', hatch: 'nenhum' }] },
+  { alt: 1, xs: [{ x: 1, largura: '34.0', altura: '60.0', tipo: 'painel', hatch: 'h2' }, { x: 2, largura: '30.0', altura: '60.0', tipo: 'painel', hatch: 'h1' }] }
+];
+function p2FaceTabs() { return '<div class="pface-tabs"><button type="button" class="pface-tab on">Face A</button><button type="button" class="pface-tab">Face B</button><button type="button" class="pface-tab">Face C</button><button type="button" class="pface-tab">Face D</button></div>'; }
+function p2State(c) { return '<div class="p2-state"><button type="button" class="panel-state' + (c.tipo === 'painel' ? ' on' : '') + '" data-state="painel">Painel</button><button type="button" class="panel-state' + (c.tipo === 'vazio' ? ' on' : '') + '" data-state="vazio">Vazio</button></div>'; }
+function p2Hatches(c) { return '<div class="p2-hatches"><button type="button" class="hatch-choice' + (c.hatch === 'nenhum' ? ' on' : '') + '" data-hatch="nenhum" title="Sem hatch">—</button><button type="button" class="hatch-choice hatch-1' + (c.hatch === 'h1' ? ' on' : '') + '" data-hatch="h1" title="Hatch 1">╱</button><button type="button" class="hatch-choice hatch-2' + (c.hatch === 'h2' ? ' on' : '') + '" data-hatch="h2" title="Hatch 2">╲</button></div>'; }
+function p2Card(c) { return '<div class="p2-card' + (c.tipo === 'vazio' ? ' vazio' : '') + '" data-panel="A' + c.alt + 'X' + c.x + '"><span class="p2-pos">A' + c.alt + ' · X' + c.x + '</span><input aria-label="Largura" value="' + c.largura + '"><input aria-label="Altura" value="' + c.altura + '">' + p2State(c) + p2Hatches(c) + '</div>'; }
+function propostaAHtml() {
+  var elev = PGRID_EXEMPLO.map(function (b) { return b.xs.map(function (c) { return '<div class="p2-tile ' + (c.tipo === 'vazio' ? 'vazio' : '') + ' ' + c.hatch + '" data-preview="A' + c.alt + 'X' + c.x + '">A' + c.alt + ' · X' + c.x + '<br>' + c.largura + ' × ' + c.altura + '</div>'; }).join(''); }).join('');
+  var cards = PGRID_EXEMPLO.map(function (b) { return b.xs.map(p2Card).join(''); }).join('');
+  return '<div class="p2-box"><div class="p2-title"><span class="p2-tag">A</span> Elevação + cartões compactos</div><p class="p2-desc">A elevação continua dominante; cada bloco à direita edita um painel. Hatch 1 e 2 aparecem como diagonais distintas já na prévia.</p>' + p2FaceTabs() + '<div class="p2-shell"><div class="p2-elev">' + elev + '</div><div class="p2-edit">' + cards + '</div></div></div>';
+}
+function propostaBHtml() {
+  var rows = PGRID_EXEMPLO.map(function (b) { return '<tr><td class="p2-rowlab">A' + b.alt + (b.alt === 3 ? ' topo' : (b.alt === 1 ? ' base' : '')) + '</td>' + b.xs.map(function (c) { return '<td><div class="p2-matrix ' + (c.tipo === 'vazio' ? 'vazio' : '') + '" data-panel="A' + c.alt + 'X' + c.x + '"><span class="p2-dot ' + (c.tipo === 'vazio' ? 'vazio' : '') + '"></span><input aria-label="Largura" value="' + c.largura + '"><input aria-label="Altura" value="' + c.altura + '">' + p2State(c) + p2Hatches(c) + '</div></td>'; }).join('') + '</tr>'; }).join('');
+  return '<div class="p2-box"><div class="p2-title"><span class="p2-tag">B</span> Matriz de produção</div><p class="p2-desc">A leitura mais próxima de uma planilha, mas cada célula guarda o mini desenho, L/A, estado e os dois hatches sem abrir ficha.</p>' + p2FaceTabs() + '<table class="p2-sheet"><thead><tr><th>Faixa</th><th>Painel X1</th><th>Painel X2</th><th>Painel X3</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function propostaCHtml() {
+  var rows = PGRID_EXEMPLO.map(function (b) { return '<div class="p2-lane-row">' + b.xs.map(function (c) { return '<div class="p2-strip ' + (c.tipo === 'vazio' ? ' vazio' : '') + '" data-panel="A' + c.alt + 'X' + c.x + '"><strong>X' + c.x + '</strong><input aria-label="Largura" value="L ' + c.largura + '"><input aria-label="Altura" value="A ' + c.altura + '">' + p2State(c) + p2Hatches(c) + '</div>'; }).join('') + '</div>'; }).join('');
+  return '<div class="p2-box"><div class="p2-title"><span class="p2-tag">C</span> Faixas com régua de altura</div><p class="p2-desc">A régua separa o empilhamento vertical. Em cada faixa os X ficam lado a lado e os campos seguem em uma única linha compacta.</p>' + p2FaceTabs() + '<div class="p2-lane"><div class="p2-ruler"><span>A3 · topo</span><span>A2</span><span>A1 · base</span></div><div class="p2-lanes">' + rows + '</div></div></div>';
+}
+
+// Rodada 3 — cinco direções que tratam o dado como geometria, não como tabela.
+function x5Mini(c) { return '<span class="' + (c.tipo === 'vazio' ? 'empty' : '') + '">' + (c.tipo === 'vazio' ? 'VAZIO' : 'X' + c.x) + '</span>'; }
+function x5Inputs(c) { return '<input aria-label="Largura" value="' + c.largura + '"><input aria-label="Altura" value="' + c.altura + '">'; }
+function x5FaceTabs() { return '<div class="pface-tabs"><button type="button" class="pface-tab on">A</button><button type="button" class="pface-tab">B</button><button type="button" class="pface-tab">C</button><button type="button" class="pface-tab">D</button><span class="meta" style="padding:4px 0 0 4px">faces independentes</span></div>'; }
+function x5First() {
+  var blocks=PGRID_EXEMPLO.map(function(b){return b.xs.map(function(c){return '<div class="x5-block '+(c.tipo==='vazio'?'empty':'')+'">A'+c.alt+' · X'+c.x+'<br>'+c.largura+' × '+c.altura+'</div>';}).join('');}).join('');
+  return '<div class="x5"><div class="x5-head"><span class="x5-num">1</span>Desenho primeiro, edição por seleção</div><p>O pilar é a própria interface. Clique em um bloco da elevação e edite somente aquele elemento no inspetor — sem uma massa de campos competindo com o desenho.</p>'+x5FaceTabs()+'<div class="x5-canvas"><div class="x5-building">'+blocks+'</div><div class="x5-inspector"><label>A2 · X2</label><input value="30.0"><input value="120.0"><div class="x5-mode"><button>Painel</button><button>Vazio</button><button class="x5-h">╱</button><button class="x5-h">╲</button></div></div></div></div>';
+}
+function x5Second() {
+  var rows=PGRID_EXEMPLO.map(function(b){return '<div class="x5-flow-row"><div class="x5-level">A'+b.alt+(b.alt===3?' · TOPO':b.alt===1?' · BASE':'')+'</div><div class="x5-rail">'+b.xs.map(function(c){return '<div class="x5-node '+(c.tipo==='vazio'?'empty':'')+'"><strong>X'+c.x+'</strong>'+x5Inputs(c)+'<button class="x5-h">'+(c.tipo==='vazio'?'vazio':'╱ ╲')+'</button></div>';}).join('')+'</div></div>';}).join('');
+  return '<div class="x5"><div class="x5-head"><span class="x5-num">2</span>Trilho de lajes</div><p>Cada linha é uma cota de altura; os segmentos correm horizontalmente como uma “partitura” da face. O vazio deixa de ser uma opção e passa a ser uma interrupção visual da laje.</p>'+x5FaceTabs()+'<div class="x5-flow">'+rows+'</div></div>';
+}
+function x5Third() {
+  var rows=PGRID_EXEMPLO.map(function(b){return b.xs.map(function(c){return '<div class="x5-script-row"><strong>A'+b.alt+' / X'+c.x+'</strong>'+x5Inputs(c)+'<span class="'+(c.tipo==='vazio'?'empty':'')+'">'+(c.tipo==='vazio'?'vazio':'painel')+'</span><div class="x5-mode"><button>—</button><button>╱</button><button>╲</button></div></div>';}).join('');}).join('');
+  return '<div class="x5"><div class="x5-head"><span class="x5-num">3</span>Roteiro de montagem</div><p>Uma frase curta por peça, ordenada de topo para base. É a alternativa para preencher muito rápido com teclado, mas sem virar uma planilha: posição, dimensão, papel e reaproveitamento formam uma única sentença.</p>'+x5FaceTabs()+'<div class="x5-script">'+rows+'</div></div>';
+}
+function x5Fourth() {
+  function face(n){var cells=PGRID_EXEMPLO.map(function(b){return b.xs.map(x5Mini).join('');}).join('');return '<div class="x5-face '+n+'"><b>FACE '+n.toUpperCase()+'</b>'+cells+'</div>';}
+  return '<div class="x5"><div class="x5-head"><span class="x5-num">4</span>Pilar aberto em quatro faces</div><p>Em vez de escolher uma face por vez, o pilar é “desdobrado”. A/B/C/D ficam visíveis simultaneamente; isso favorece conferir continuidade, lajes e reaproveitamento ao redor do pilar.</p><div class="x5-cross">'+face('a')+face('b')+face('c')+face('d')+'<div class="x5-core">PILAR</div></div></div>';
+}
+function x5Fifth() {
+  var rows=PGRID_EXEMPLO.map(function(b){return b.xs.map(function(c){return '<div class="x5-event"><strong>A'+b.alt+' · X'+c.x+'</strong><em>'+ (c.tipo==='vazio'?'A laje atravessa aqui':'Painel concreto') +'</em>'+x5Inputs(c)+'<div class="x5-mode"><button class="'+(c.tipo==='vazio'?'empty':'')+'">'+(c.tipo==='vazio'?'Vazio':'Painel')+'</button><button>╱</button><button>╲</button></div></div>';}).join('');}).join('');
+  return '<div class="x5"><div class="x5-head"><span class="x5-num">5</span>Inventário de acontecimentos</div><p>O modelo fala a linguagem da obra: “nesta cota há painel” ou “nesta cota a laje atravessa”. É o mais explicativo para revisão humana e para gerar instruções ao robô/agente.</p>'+x5FaceTabs()+'<div class="x5-events">'+rows+'</div></div>';
+}
+function propostaAHtml() { return x5First()+x5Second()+x5Third()+x5Fourth()+x5Fifth(); }
+function propostaBHtml() { return ''; }
+function propostaCHtml() { return ''; }
+
+// Rodada 4 — evolução da opção 4 escolhida: as quatro faces são elevações
+// lado a lado; largura e altura comandam a proporção de cada célula.
+function p4Face(face, ruler) {
+  var multiplier = { A: 1, B: .92, C: 1.05, D: .88 }[face] || 1;
+  var cols = [0, 1].map(function (ix) {
+    var first = PGRID_EXEMPLO[0].xs[ix];
+    var cells = PGRID_EXEMPLO.map(function (band) {
+      var c = band.xs[ix];
+      var h = Math.max(32, parseFloat(c.altura) * .55);
+      return '<div class="p4-cell ' + (c.tipo === 'vazio' ? 'vazio' : '') + '" style="flex:' + h + '"><b>A' + band.alt + ' · X' + c.x + '</b><input aria-label="Largura ' + face + ' A' + band.alt + ' X' + c.x + '" value="' + c.largura + '"><input aria-label="Altura ' + face + ' A' + band.alt + ' X' + c.x + '" value="' + c.altura + '"><footer><span>' + (c.tipo === 'vazio' ? 'VAZIO' : 'PAINEL') + '</span><span class="p4-hatches"><button' + (c.hatch === 'nenhum' ? ' class="on"' : '') + '>—</button><button' + (c.hatch === 'h1' ? ' class="on"' : '') + '>╱</button><button' + (c.hatch === 'h2' ? ' class="on"' : '') + '>╲</button></span></footer></div>';
+    }).join('');
+    return '<div class="p4-x" style="flex:' + (parseFloat(first.largura) * multiplier) + '">' + cells + '</div>';
+  }).join('');
+  return '<div class="' + (ruler ? 'p4-ruler' : '') + '"><div class="p4-face"><div class="p4-face-h"><span>FACE ' + face + '</span><small>2 X · 3 alturas</small></div><div class="p4-columns">' + cols + '</div></div></div>';
+}
+function p4Option(n, title, desc, extra, ruler) {
+  return '<div class="p4 ' + extra + '"><div class="p4-title"><span class="p4-index">' + n + '</span>' + title + '</div><p class="p4-desc">' + desc + '</p><div class="p4-board ' + (extra.indexOf('ribbon') > -1 ? 'p4-ribbon' : '') + '">' + ['A','B','C','D'].map(function (face) { return p4Face(face, ruler); }).join('') + '</div></div>';
+}
+function propostaAHtml() {
+  return p4Option('1', 'Quatro elevações independentes', 'A versão direta da opção escolhida: faces abertas lado a lado; cada célula cresce pela altura e cada coluna X pela largura. Toda edição fica dentro do próprio painel.', '', false) +
+    p4Option('2', 'Fita contínua do perímetro', 'As quatro faces viram uma única faixa contínua, como se o pilar fosse aberto por uma aresta. Útil para enxergar a continuidade da laje de uma face para a seguinte.', 'p4-ribbon', false) +
+    p4Option('3', 'Prancha de levantamento', 'Cada face ganha sua própria régua vertical. A forma da célula dá a medida antes mesmo de ler o número; melhor quando a prioridade é conferência geométrica.', 'p4-ledger', true) +
+    p4Option('4', 'Blueprint operacional', 'A leitura técnica em fundo escuro reduz ruído visual e põe os painéis em primeiro plano. Mantém os campos embutidos para edição sem alternar de contexto.', 'p4-dark', false) +
+    p4Option('5', 'Mapa silencioso de painéis', 'A alternativa mais limpa: sem card dentro de card, sem cabeçalhos extras. Só o perímetro, as quatro faces e os campos que pertencem a cada peça.', 'p4-quiet', false);
+}
+function propostaBHtml() { return ''; }
+function propostaCHtml() { return ''; }
+
+// Rodada 5 — conteúdo do painel não escala: somente o espaço geométrico cresce.
+function p5Tools() { return '<div class="p5-tools"><span class="meta">Cada face tem seus próprios controles de linhas e colunas.</span></div>'; }
+function p5Face(face) {
+  var factor = { A:1, B:.92, C:1.05, D:.88 }[face] || 1;
+  var cols = [0,1].map(function(ix) {
+    var base = PGRID_EXEMPLO[0].xs[ix];
+    var cells = PGRID_EXEMPLO.map(function(band) {
+      var c = band.xs[ix];
+      var grow = Math.max(56, parseFloat(c.altura) * .72);
+      return '<div class="p5-cell ' + (c.tipo === 'vazio' ? 'vazio' : '') + '" style="flex:' + grow + '"><span class="p5-pos">A' + band.alt + ' · X' + c.x + '</span><div class="p5-dims"><input aria-label="Largura" title="Largura" value="' + c.largura + '"><input aria-label="Altura" title="Altura" value="' + c.altura + '"></div><span class="p5-tag ' + (c.tipo === 'vazio' ? 'vazio' : '') + '">' + (c.tipo === 'vazio' ? 'VAZIO' : 'PAINEL') + '<span class="p5-hatches"><button' + (c.hatch === 'nenhum' ? ' class="on"' : '') + '>—</button><button' + (c.hatch === 'h1' ? ' class="on"' : '') + '>╱</button><button' + (c.hatch === 'h2' ? ' class="on"' : '') + '>╲</button></span></span></div>';
+    }).join('');
+    return '<div class="p5-x" style="flex:' + (parseFloat(base.largura) * factor) + '">' + cells + '</div>';
+  }).join('');
+  return '<div class="p5-face"><div class="p5-face-h"><span>FACE ' + face + '</span><span class="p5-face-tools"><button type="button" data-p5-action="row" title="Adicionar linha de altura">+H</button><button type="button" data-p5-action="col" title="Adicionar coluna de largura">+L</button></span></div><div class="p5-columns">' + cols + '</div></div>';
+}
+function p5Option(n, title, desc, cls) { return '<div class="p5"><div class="p5-title"><span class="p5-index">' + n + '</span>' + title + '</div><p class="p5-desc">' + desc + '</p>' + p5Tools() + '<div class="p5-board ' + cls + '">' + ['A','B','C','D'].map(p5Face).join('') + '</div></div>'; }
+function propostaAHtml() {
+  return p5Option('1', 'Blueprint — quatro faces abertas', 'A versão direta: os campos L e A têm tamanho fixo, ficam no topo e a tag Painel/Vazio vem logo abaixo. Só o espaço restante da célula cresce em altura ou largura.', '') +
+    p5Option('2', 'Blueprint com régua vertical', 'Mesma leitura, agora com uma régua lateral discreta por face. É a opção para conferir as faixas de altura sem abrir uma vista adicional.', 'p5-rulers') +
+    p5Option('3', 'Blueprint em fita contínua', 'As faces permanecem lado a lado, mas encostadas como um perímetro aberto. Boa para perceber rapidamente onde a laje ou o reaproveitamento atravessa de uma face à outra.', 'p5-ribbon p5-frames');
+}
+function propostaBHtml() { return ''; }
+function propostaCHtml() { return ''; }
+
+// Rodada 6 — as opções 2 e 3 não são mais apenas uma troca de cor do blueprint.
+function p6Face(face) {
+  var factor = { A:1, B:.92, C:1.05, D:.88 }[face] || 1;
+  var cols = [0,1].map(function(ix) {
+    var base = PGRID_EXEMPLO[0].xs[ix];
+    var cells = PGRID_EXEMPLO.map(function(band) {
+      var c = band.xs[ix], grow = Math.max(54, parseFloat(c.altura) * .72);
+      return '<div class="p6-cell ' + (c.tipo === 'vazio' ? 'vazio' : '') + '" style="flex:' + grow + '"><span class="p5-pos">A' + band.alt + ' · X' + c.x + '</span><div class="p5-dims"><input aria-label="Largura" value="' + c.largura + '"><input aria-label="Altura" value="' + c.altura + '"></div><span class="p5-tag">' + (c.tipo === 'vazio' ? 'VAZIO' : 'PAINEL') + '</span></div>';
+    }).join('');
+    return '<div class="p6-col" style="flex:' + (parseFloat(base.largura) * factor) + '">' + cells + '</div>';
+  }).join('');
+  return '<div class="p6-face"><div class="p6-face-h"><span>FACE ' + face + '</span><span><button title="Adicionar altura">+H</button><button title="Adicionar largura">+L</button></span></div><div class="p6-cols">' + cols + '</div></div>';
+}
+function p6Option() { return '<div class="p6"><div class="p6-title"><span class="p5-index">2</span>Prancha contínua com escala única</div><p class="p6-desc">Uma única régua de altura governa A/B/C/D. As divisões de face quase desaparecem: a leitura é de uma prancha de desenho, não de quatro cartões repetidos.</p><div class="p6-sheet"><div class="p6-scale"><span>TOPO<br>321</span><span>160</span><span>0<br>BASE</span></div>' + ['A','B','C','D'].map(p6Face).join('') + '</div></div>'; }
+function p7Face(face) {
+  var factor = { A:1, B:.92, C:1.05, D:.88 }[face] || 1;
+  var bands = PGRID_EXEMPLO.map(function(band) {
+    var grow = Math.max(59, Math.max.apply(null, band.xs.map(function(c){return parseFloat(c.altura);}))* .72);
+    var cells = band.xs.map(function(c) { return '<div class="p7-cell ' + (c.tipo === 'vazio' ? 'vazio' : '') + '" style="flex:' + (parseFloat(c.largura) * factor) + '"><b>A' + band.alt + ' · X' + c.x + '</b><div class="p5-dims"><input aria-label="Largura" value="' + c.largura + '"><input aria-label="Altura" value="' + c.altura + '"></div><span class="p5-tag">' + (c.tipo === 'vazio' ? 'VAZIO' : 'PAINEL') + '</span></div>'; }).join('');
+    return '<div class="p7-band" style="flex:' + grow + '">' + cells + '</div>';
+  }).join('');
+  return '<div class="p7-face"><div class="p7-face-h"><span>FACE ' + face + '</span><span class="p7-tools"><button>+H</button><button>+L</button></span></div><div class="p7-bands">' + bands + '</div></div>';
+}
+function p7Option() { return '<div class="p7"><div class="p7-title"><span class="p5-index">3</span>Bandas de altura</div><p class="p7-desc">Aqui a unidade principal é a faixa A1/A2/A3, não a coluna X. Dentro da faixa, os painéis crescem horizontalmente pela largura: o desenho mostra a lógica real de cada nível.</p><div class="p7-board">' + ['A','B','C','D'].map(p7Face).join('') + '</div></div>'; }
+function propostaAHtml() {
+  return p5Option('1', 'Blueprint — colunas X', 'Cada X é uma coluna contínua de painéis. Campos L/A e tag têm tamanho fixo; apenas o espaço livre de cada célula cresce. Os botões de cada face são funcionais.', '') + p6Option() + p7Option();
+}
+function propostaBHtml() { return ''; }
+function propostaCHtml() { return ''; }
+
+// Aberturas são registros independentes por face e lado. Distância localiza
+// no eixo horizontal, distância ao topo no vertical; largura/profundidade dão
+// dimensão à sobreposição e nível fica identificado no desenho.
+function p8Key(face, side, index) { return face + '-' + side + '-' + index; }
+function p8OpeningForm(face, side, index, values) {
+  values = values || {}; var key = p8Key(face, side, index); var sideLabel = side === 'left' ? 'esquerda' : 'direita';
+  function field(label, name, wide) { return '<label class="p8-field' + (wide ? ' wide' : '') + '">' + label + '<input data-open-field="' + name + '" value="' + (values[name] || '') + '"></label>'; }
+  return '<div class="p8-open" data-opening="' + key + '"><span class="p8-open-name">Abertura ' + index + '</span><div class="p8-fields">' + field('dist. ' + (side === 'left' ? 'esq.' : 'dir.'), 'dist') + field('largura', 'largura') + field('profundidade', 'profundidade') + field('nível', 'nivel') + field('dist. topo', 'topo', true) + '</div></div>';
+}
+function p8OpeningDraw(face, side, index) {
+  return '<div class="p8-opening-draw ' + (side === 'right' ? 'right' : '') + ' hidden" data-opening-draw="' + p8Key(face, side, index) + '">A' + index + '</div>';
+}
+function p8HatchPicker(choice) {
+  var selected = choice === 'h2' ? 'checker' : (choice === 'h1' ? 'stripe' : 'none');
+  return '<div class="p8-hatch-picker"><span>hatch</span><button type="button" class="p8-hatch-choice' + (selected === 'none' ? ' on' : '') + '" data-hatch="none" title="Sem hatch">—</button><button type="button" class="p8-hatch-choice' + (selected === 'checker' ? ' on' : '') + '" data-hatch="checker" title="Hatch xadrez"></button><button type="button" class="p8-hatch-choice' + (selected === 'stripe' ? ' on' : '') + '" data-hatch="stripe" title="Hatch listrado"></button></div>';
+}
+function p8TypePicker(tipo) {
+  var selected = tipo === 'vazio' ? 'laje' : 'painel';
+  return '<div class="p8-type-picker"><button type="button" class="p8-type-choice' + (selected === 'painel' ? ' on' : '') + '" data-panel-type="painel">Painel</button><button type="button" class="p8-type-choice' + (selected === 'laje' ? ' on' : '') + '" data-panel-type="laje">Vazio laje</button><button type="button" class="p8-type-choice" data-panel-type="viga">Vazio viga</button></div>';
+}
+function p8Face(face) {
+  var factor = { A:1, B:.92, C:1.05, D:.88 }[face] || 1;
+  var panels = [0,1].map(function(ix) { var base=PGRID_EXEMPLO[0].xs[ix]; return '<div class="p8-x" style="flex:' + (parseFloat(base.largura) * factor) + '">' + PGRID_EXEMPLO.map(function(band) { var c=band.xs[ix], grow=Math.max(48,parseFloat(c.altura)*.62), distance = c.distancia || '0.0', reference = ix === 0 ? 'parede esq.' : 'após X' + ix, shortRef = ix === 0 ? 'D parede' : 'D X' + ix, hatchClass = c.hatch === 'h2' ? ' hatch-checker' : (c.hatch === 'h1' ? ' hatch-stripe' : ''), typeClass = c.tipo === 'vazio' ? ' vazio vazio-laje' : ''; return '<div class="p8-panel' + typeClass + hatchClass + '" style="flex:' + grow + '" data-panel-cell="' + face + '-A' + band.alt + '-X' + c.x + '" data-row="' + band.alt + '" data-x="' + c.x + '"><button type="button" class="p8-del-panel" title="Excluir painel">×</button><span class="p8-panel-name">A' + band.alt + ' · X' + c.x + '</span><span class="p8-panel-dim-tag">' + c.largura + ' × ' + c.altura + '</span><div class="p8-panel-fields">' + p8TypePicker(c.tipo) + '<label title="Distância da ' + reference + '">' + shortRef + '<input data-panel-field="distancia" value="' + distance + '"></label><label>larg.<input data-panel-field="largura" value="' + c.largura + '"></label><label>alt.<input data-panel-field="altura" value="' + c.altura + '"></label>' + p8HatchPicker(c.hatch) + '</div></div>'; }).join('') + '</div>'; }).join('');
+  var left = p8OpeningForm(face, 'left', 1, face === 'A' ? {dist:'8',largura:'15',profundidade:'32',nivel:'120',topo:'80'} : {});
+  var right = p8OpeningForm(face, 'right', 1, face === 'A' ? {dist:'6',largura:'12',profundidade:'25',nivel:'120',topo:'145'} : {});
+  return '<div class="p8-face" data-face="' + face + '"><div class="p8-face-h"><span>FACE ' + face + '</span><span class="p8-struct-tools"><button type="button" data-p8-struct="add-row" title="Adicionar linha">+H</button><button type="button" data-p8-struct="remove-row" title="Remover linha">−H</button><button type="button" data-p8-struct="add-col" title="Adicionar coluna">+L</button><button type="button" data-p8-struct="remove-col" title="Remover coluna">−L</button></span></div><div class="p8-elevation" tabindex="0">' + panels + p8OpeningDraw(face,'left',1) + p8OpeningDraw(face,'right',1) + '</div><div class="p8-groups"><div class="p8-group"><div class="p8-group-h"><span>Aberturas esquerda</span><button type="button" class="p8-add" data-open-side="left">+ abertura</button></div><div class="p8-open-list">' + left + '</div></div><div class="p8-group right"><div class="p8-group-h"><span>Aberturas direita</span><button type="button" class="p8-add" data-open-side="right">+ abertura</button></div><div class="p8-open-list">' + right + '</div></div></div></div>';
+}
+function p8MockHtml(index, title, desc, styleClass) { return '<div class="p8 ' + (styleClass || '') + '"><div class="p8-title"><span class="p5-index">' + index + '</span>' + title + '</div><p class="p8-desc">' + desc + '</p><div class="p8-board">' + ['A','B','C','D'].map(p8Face).join('') + '</div></div>'; }
+function propostaAHtml() {
+  return p8MockHtml('3', 'Ledger noturno', 'Leitura operacional de alto contraste: células, aberturas e ações técnicas aparecem como elementos da mesma prancha.', 'p8-ledger');
+}
+function propostaBHtml() { return ''; }
+function propostaCHtml() { return ''; }
+
+function abcdSecHtml() {
+  return `
+  <div class="n3-sec"><div class="n3-sec-title">Níveis</div><div class="n3-sec-body">
+    <label class="n3-field"><span class="n3-lab">Nível chegada</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">Nível saída</span><input type="text" value="280.0"></label>
+    <label class="n3-field"><span class="n3-lab">Altura</span><input type="text" value="321.0"></label>
+    <label class="n3-field"><span class="n3-lab">Pé-direito pav</span><input type="text" value="321.0"></label>
+  </div></div>
+  <div class="n3-sec"><div class="n3-sec-title">Painéis por face — face A de exemplo (B/C/D iguais)</div><div class="n3-sec-body" style="display:block">
+    ` + propostaAHtml() + propostaBHtml() + propostaCHtml() + `
+  </div></div>
+  </div>`;
+}
+
+var GRADES_SEC = `
+  <div class="n3-sec"><div class="n3-sec-title">Grades e distâncias (visão cima)</div><div class="n3-sec-body">
+    <label class="n3-field"><span class="n3-lab">Grade 1</span><input type="text" value="82.0"></label>
+    <label class="n3-field"><span class="n3-lab">Distância 1</span><input type="text" value="14.0"></label>
+    <label class="n3-field"><span class="n3-lab">Grade 2</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">Distância 2</span><input type="text" value="0.0"></label>
+    <label class="n3-field"><span class="n3-lab">Grade 3</span><input type="text" value="0.0"></label>
+  </div></div>
+  <div class="n3-sec"><div class="n3-sec-title">Detalhamento das grades — sarrafos verticais e horizontais</div><div class="n3-sec-body">
+    ${gradeDetalheBox(1, [['18.0', '14.0', '5.0', '5.0'], ['18.0', '14.0', '5.0', '5.0'], ['18.0', '14.0', '5.0', '5.0'], ['18.0', '14.0', '5.0', '5.0']], [['82.0', '0.0', '5.0', '5.0']])}
+    ${gradeDetalheBox(2, [['—', '—', '—', '—']], [['—', '—', '—', '—']])}
+    ${gradeDetalheBox(3, [['—', '—', '—', '—']], [['—', '—', '—', '—']])}
+  </div></div>`;
+
+var VIEWER = { near: 'SA — vista próxima', far: 'SA — vista distante', 'n3-cima': 'N3 · CIMA', 'n3-abcd-para': 'N3 · ABCD PARA', 'n3-abcd-passa': 'N3 · ABCD PASSA', 'n3-grades-para': 'N3 · GRADES PARA', 'n3-grades-passa': 'N3 · GRADES PASSA' };
+var TABS = [
+  { id: 'near', label: 'N1 próximo' },
+  { id: 'far', label: 'N1 distante' },
+  { id: 'n3-cima', label: 'N3 cima', n3: true },
+  { id: 'n3-abcd-para', label: 'N3 ABCD para', n3: true },
+  { id: 'n3-abcd-passa', label: 'N3 ABCD passa', n3: true },
+  { id: 'n3-grades-para', label: 'N3 grades para', n3: true },
+  { id: 'n3-grades-passa', label: 'N3 grades passa', n3: true }
+];
+
+/** Abas ficam logo acima do viewer (não no topo da page) — geradas de novo a
+ *  cada render() pra marcar a aba ativa; clique é ouvido por delegação. */
+function tabsHtml(activo) {
+  return '<div class="viewer-tabs" role="tablist">' + TABS.map(function (t) {
+    return '<button type="button" class="vtab' + (t.id === activo ? ' on' : '') + '"' +
+      (t.n3 ? ' data-n3' : '') + ' data-tab="' + t.id + '">' + t.label + '</button>';
+  }).join('') + '</div>';
+}
+
+function render(tab) {
+  var ficha = '';
+  if (tab === 'near' || tab === 'far') ficha = fichaN1();
+  else if (tab === 'n3-cima') ficha = fichaN3('CIMA', 'CIMA', 'edite e salva sozinho.', CIMA_SEC);
+  else if (tab === 'n3-abcd-para' || tab === 'n3-abcd-passa') ficha = fichaN3(tab === 'n3-abcd-para' ? 'ABCD PARA' : 'ABCD PASSA', 'ABCD', 'níveis, painéis por face (largura/altura/tipo/hatch individual) e vazios.', abcdSecHtml());
+  else ficha = fichaN3(tab.indexOf('para') > -1 ? 'GRADES PARA' : 'GRADES PASSA', 'GRADES', 'campos editáveis (mesma semântica da malha).', GRADES_SEC);
+
+  document.getElementById('mount').innerHTML = ficha +
+    tabsHtml(tab) +
+    '<div class="viewer-wrap"><div class="viewer">SVG do pilar — ' + VIEWER[tab] + '</div>' +
+    '<span class="viewer-tag">' + tab.toUpperCase() + '</span>' +
+    '<span class="viewer-label">scroll zoom · arrastar pan · duplo-clique reset (viewBox)</span></div>';
+
+  // Validação humano+agêntico só faz sentido revisando a interpretação SA/N1.
+  document.getElementById('val-section').style.display = (tab === 'near') ? '' : 'none';
+  p8SyncAll(document.getElementById('mount'));
+}
+
+// checkbox "Validar" no topo da face marca/desmarca todas as linhas dela;
+// marcar/desmarcar uma linha à mão reflete de volta no checkbox da face
+// (indeterminate quando só parte está marcada). Delegado 1x em #mount porque
+// o conteúdo é recriado a cada troca de aba.
+document.getElementById('mount').addEventListener('change', function (e) {
+  var t = e.target;
+  if (t.classList.contains('abcd-face-check')) {
+    var face = t.closest('.abcd-face');
+    face.querySelectorAll('.abcd-row-check').forEach(function (chk) { chk.checked = t.checked; });
+  } else if (t.classList.contains('abcd-row-check')) {
+    var faceEl = t.closest('.abcd-face');
+    var rows = faceEl.querySelectorAll('.abcd-row-check');
+    var marcadas = faceEl.querySelectorAll('.abcd-row-check:checked').length;
+    var faceChk = faceEl.querySelector('.abcd-face-check');
+    faceChk.checked = marcadas === rows.length;
+    faceChk.indeterminate = marcadas > 0 && marcadas < rows.length;
+  }
+});
+
+document.getElementById('mount').addEventListener('input', function (e) {
+  if (e.target.matches('[data-open-field]')) p8SyncOpen(e.target.closest('[data-opening]'));
+  if (e.target.matches('[data-panel-field]')) { var face = e.target.closest('.p8-face'); p8LayoutFace(face); face.querySelectorAll('[data-opening]').forEach(p8SyncOpen); }
+});
+
+document.getElementById('mount').addEventListener('wheel', function (e) {
+  var elevation = e.target.closest('.p8-elevation');
+  if (!elevation) return;
+  e.preventDefault();
+  var rect = elevation.getBoundingClientRect();
+  var originX = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+  var originY = Math.max(0, Math.min(100, (e.clientY - rect.top) / rect.height * 100));
+  var zoom = elevation._wheelZoom || 1;
+  zoom = Math.max(1, Math.min(4, zoom * (e.deltaY < 0 ? 1.14 : 1 / 1.14)));
+  elevation._wheelZoom = zoom;
+  elevation.style.transformOrigin = originX + '% ' + originY + '%';
+  elevation.style.transform = 'scale(' + zoom + ')';
+  elevation.classList.add('focused');
+}, { passive: false });
+
+// "+ sarrafo" (acrescenta par Sarrafo/Distância) e clique nas abas do viewer
+// (agora logo acima do viewer, recriadas a cada render — por isso delegado).
+/** Marca/desmarca Painel|Vazio (Proposta A e Proposta C compartilham o
+ *  mesmo botão .pgrid-tipo-btn) e mantém as prévias vivas sincronizadas. */
+function pgridToggleTipo(tipoBtn) {
+  var vazio = tipoBtn.getAttribute('data-tipo') === 'vazio';
+  tipoBtn.parentElement.querySelectorAll('.pgrid-tipo-btn').forEach(function (b) { b.classList.toggle('on', b === tipoBtn); });
+  var host = tipoBtn.closest('.pgrid-cell') || tipoBtn.closest('.pgrid-x-card');
+  if (!host) return;
+  host.classList.toggle('vazio', vazio);
+  var hatchLab = host.querySelector('.pgrid-hatch');
+  if (hatchLab) hatchLab.classList.toggle('hidden', vazio);
+  var band = tipoBtn.closest('.pgrid-band');
+  if (!band) return;
+  var cards = Array.from(band.querySelectorAll('.pgrid-x-card'));
+  var idx = cards.indexOf(host);
+  var mini = band.querySelector('.pgrid-band-mini');
+  if (mini && mini.children[idx]) mini.children[idx].classList.toggle('vazio', vazio);
+  var seg = document.querySelector('.pgrid-c-preview-seg[data-row="' + band.getAttribute('data-row') + '"]');
+  if (seg && seg.children[idx]) seg.children[idx].classList.toggle('vazio', vazio);
+}
+
+function pgridACurrentDims(grid) {
+  var m = (grid.style.gridTemplateColumns || '').match(/repeat\((\d+)/);
+  var cols = m ? parseInt(m[1], 10) : 1;
+  var rowsSet = {};
+  grid.querySelectorAll('.pgrid-cell').forEach(function (c) { rowsSet[c.dataset.row] = 1; });
+  return { cols: cols, rows: Object.keys(rowsSet).length };
+}
+function pgridSetCount(el, cols, rows) {
+  if (el) el.textContent = cols + ' col × ' + rows + ' linhas (máx. 3 × 6)';
+}
+
+function p2SyncPreview(panel) {
+  var key = panel.getAttribute('data-panel');
+  var preview = document.querySelector('[data-preview="' + key + '"]');
+  if (!preview) return;
+  var vazio = panel.classList.contains('vazio');
+  preview.classList.toggle('vazio', vazio);
+  ['h1', 'h2'].forEach(function (h) { preview.classList.remove(h); });
+  var chosen = panel.querySelector('.hatch-choice.on');
+  if (!vazio && chosen && chosen.getAttribute('data-hatch') !== 'nenhum') preview.classList.add(chosen.getAttribute('data-hatch'));
+}
+
+function p8Clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+function p8SyncOpen(open) {
+  var face = open.closest('.p8-face');
+  if (!face) return;
+  var values = {};
+  open.querySelectorAll('[data-open-field]').forEach(function (input) { values[input.getAttribute('data-open-field')] = input.value; });
+  var draw = face.querySelector('[data-opening-draw="' + open.getAttribute('data-opening') + '"]');
+  if (!draw) return;
+  var active = values.dist !== '' && values.largura !== '' && values.profundidade !== '' && values.topo !== '';
+  draw.classList.toggle('hidden', !active);
+  if (!active) return;
+  var right = open.closest('.p8-group').classList.contains('right');
+  var metric = face.querySelector('.p8-elevation')._metric || { scale: 1, left: 4, right: 100, pad: 4 };
+  var x = parseFloat(values.dist) * metric.scale;
+  var y = parseFloat(values.topo) * metric.scale;
+  var width = parseFloat(values.largura) * metric.scale;
+  var height = parseFloat(values.profundidade) * metric.scale;
+  draw.style.top = (metric.pad + y) + 'px'; draw.style.width = width + 'px'; draw.style.height = height + 'px';
+  draw.style.left = right ? (metric.right - 1 - x - width) + 'px' : (metric.left + x) + 'px'; draw.style.right = '';
+  draw.textContent = 'A' + open.querySelector('.p8-open-name').textContent.replace('Abertura ', '') + ' · N' + (values.nivel || '—');
+}
+function p8PanelValue(cell, field) {
+  var input = cell.querySelector('[data-panel-field="' + field + '"]');
+  var value = input ? parseFloat(input.value) : 0;
+  return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+function p8LayoutFace(face) {
+  var elevation = face.querySelector('.p8-elevation');
+  var cells = Array.from(face.querySelectorAll('.p8-panel'));
+  if (!elevation || !cells.length) return;
+  elevation.classList.add('dynamic');
+  var rows = {};
+  cells.forEach(function (cell) {
+    var row = cell.getAttribute('data-row');
+    if (!rows[row]) rows[row] = [];
+    var width = Math.max(1, p8PanelValue(cell, 'largura')), height = Math.max(1, p8PanelValue(cell, 'altura'));
+    cell.querySelector('.p8-panel-dim-tag').textContent = width + ' × ' + height;
+    rows[row].push({ cell: cell, x: parseInt(cell.getAttribute('data-x'), 10), d: p8PanelValue(cell, 'distancia'), w: width, h: height });
+  });
+  var orderedRows = Object.keys(rows).map(Number).sort(function (a, b) { return b - a; });
+  var availableW = Math.max(1, elevation.clientWidth - 8), availableH = Math.max(1, elevation.clientHeight - 8);
+  var maxRight = 1, totalH = 0;
+  orderedRows.forEach(function (row) {
+    var cursor = 0, maxH = 1;
+    rows[row].sort(function (a, b) { return a.x - b.x; }).forEach(function (item) { cursor += item.d; item.left = cursor; cursor += item.w; maxH = Math.max(maxH, item.h); });
+    rows[row].maxH = maxH; totalH += maxH; maxRight = Math.max(maxRight, cursor);
+  });
+  var scale = Math.min(availableW / maxRight, availableH / totalH), left = 4 + (availableW - maxRight * scale) / 2, y = 4;
+  elevation._metric = { scale: scale, left: left, right: left + maxRight * scale, pad: 4 };
+  orderedRows.forEach(function (row) {
+    var displayH = rows[row].maxH * scale;
+    rows[row].forEach(function (item) {
+      item.cell.style.left = (left + item.left * scale) + 'px';
+      item.cell.style.top = y + 'px';
+      item.cell.style.width = (item.w * scale) + 'px';
+      item.cell.style.height = (item.h * scale) + 'px';
+    });
+    y += displayH;
+  });
+}
+function p8SyncAll(root) { if (root) { root.querySelectorAll('.p8-face').forEach(p8LayoutFace); root.querySelectorAll('[data-opening]').forEach(p8SyncOpen); } }
+function p8AddOpening(button) {
+  var group = button.closest('.p8-group'); var face = button.closest('.p8-face'); var list = group.querySelector('.p8-open-list');
+  var side = button.getAttribute('data-open-side'); var count = list.querySelectorAll('.p8-open').length;
+  if (count >= 4) { button.disabled = true; return; }
+  var index = count + 1; var faceName = face.getAttribute('data-face');
+  list.insertAdjacentHTML('beforeend', p8OpeningForm(faceName, side, index, {}));
+  face.querySelector('.p8-elevation').insertAdjacentHTML('beforeend', p8OpeningDraw(faceName, side, index));
+  if (index >= 4) button.disabled = true;
+}
+function p8ClonePanel(face, row, x) {
+  var source = face.querySelector('.p8-panel');
+  var panel = source.cloneNode(true);
+  panel.classList.remove('vazio'); panel.setAttribute('data-row', String(row)); panel.setAttribute('data-x', String(x));
+  panel.setAttribute('data-panel-cell', face.getAttribute('data-face') + '-A' + row + '-X' + x);
+  panel.querySelector('.p8-panel-name').textContent = 'A' + row + ' · X' + x;
+  var fields = panel.querySelectorAll('[data-panel-field]');
+  fields.forEach(function (input) { var field = input.getAttribute('data-panel-field'); input.value = field === 'distancia' ? '0.0' : (field === 'largura' ? '20.0' : '30.0'); });
+  panel.querySelector('.p8-panel-dim-tag').textContent = '20.0 × 30.0';
+  var firstLabelText = x === 1 ? 'D parede' : 'D X' + (x - 1);
+  var firstLabel = fields[0].parentElement;
+  Array.from(firstLabel.childNodes).forEach(function (node) { if (node.nodeType === 3) node.nodeValue = firstLabelText; });
+  return panel;
+}
+function p8ModifyStructure(button) {
+  var face = button.closest('.p8-face'), elevation = face.querySelector('.p8-elevation'), action = button.getAttribute('data-p8-struct');
+  var cells = Array.from(face.querySelectorAll('.p8-panel')); var rows = Array.from(new Set(cells.map(function (c) { return parseInt(c.getAttribute('data-row'), 10); }))).sort(function(a,b){return a-b;});
+  var cols = Array.from(new Set(cells.map(function (c) { return parseInt(c.getAttribute('data-x'), 10); }))).sort(function(a,b){return a-b;});
+  if (action === 'add-row' && rows.length < 6) { var newRow = rows[rows.length - 1] + 1; cols.forEach(function(x){ elevation.appendChild(p8ClonePanel(face, newRow, x)); }); }
+  if (action === 'remove-row' && rows.length > 1) { var lastRow = rows[rows.length - 1]; cells.filter(function(c){return parseInt(c.getAttribute('data-row'),10) === lastRow;}).forEach(function(c){c.remove();}); }
+  if (action === 'add-col' && cols.length < 3) { var newCol = cols[cols.length - 1] + 1; rows.forEach(function(row){ elevation.appendChild(p8ClonePanel(face, row, newCol)); }); }
+  if (action === 'remove-col' && cols.length > 1) { var lastCol = cols[cols.length - 1]; cells.filter(function(c){return parseInt(c.getAttribute('data-x'),10) === lastCol;}).forEach(function(c){c.remove();}); }
+  p8LayoutFace(face);
+}
+
+function p5BlankCellHtml(alt, x) {
+  return '<div class="p5-cell" style="flex:56"><span class="p5-pos">A' + alt + ' · X' + x + '</span><div class="p5-dims"><input aria-label="Largura" title="Largura" value=""><input aria-label="Altura" title="Altura" value=""></div><span class="p5-tag">PAINEL<span class="p5-hatches"><button class="on">—</button><button>╱</button><button>╲</button></span></span></div>';
+}
+function p5Add(target) {
+  var face = target.closest('.p5-face');
+  var action = target.getAttribute('data-p5-action');
+  var rows = face.querySelector('.p5-x').children.length;
+  var cols = face.querySelectorAll('.p5-x').length;
+  if (action === 'row') {
+    if (rows >= 6) { target.disabled = true; return; }
+    face.querySelectorAll('.p5-x').forEach(function (col, index) { col.insertAdjacentHTML('afterbegin', p5BlankCellHtml(rows + 1, index + 1)); });
+    if (rows + 1 >= 6) target.disabled = true;
+  } else {
+    if (cols >= 3) { target.disabled = true; return; }
+    var cellHtml = '';
+    for (var a = rows; a >= 1; a--) cellHtml += p5BlankCellHtml(a, cols + 1);
+    face.querySelector('.p5-columns').insertAdjacentHTML('beforeend', '<div class="p5-x" style="flex:1">' + cellHtml + '</div>');
+    if (cols + 1 >= 3) target.disabled = true;
+  }
+}
+
+document.getElementById('mount').addEventListener('click', function (e) {
+  var vtab = e.target.closest('.vtab');
+  if (vtab) { render(vtab.getAttribute('data-tab')); return; }
+
+  var p8Zoom = e.target.closest('.p8-elevation');
+  if (p8Zoom && !e.target.closest('button,input,.p8-panel-fields')) { p8Zoom.focus({ preventScroll: true }); p8Zoom.classList.add('focused'); return; }
+
+  var p8Add = e.target.closest('.p8-add');
+  if (p8Add) { p8AddOpening(p8Add); return; }
+
+  var p8Struct = e.target.closest('[data-p8-struct]');
+  if (p8Struct) { p8ModifyStructure(p8Struct); return; }
+
+  var p8Type = e.target.closest('.p8-type-choice');
+  if (p8Type) {
+    var typePanel = p8Type.closest('.p8-panel'), type = p8Type.getAttribute('data-panel-type');
+    p8Type.parentElement.querySelectorAll('.p8-type-choice').forEach(function (b) { b.classList.toggle('on', b === p8Type); });
+    typePanel.classList.remove('vazio', 'vazio-laje', 'vazio-viga');
+    if (type === 'laje') typePanel.classList.add('vazio', 'vazio-laje');
+    if (type === 'viga') typePanel.classList.add('vazio', 'vazio-viga');
+    return;
+  }
+
+  var p8Hatch = e.target.closest('.p8-hatch-choice');
+  if (p8Hatch) {
+    var p8Panel = p8Hatch.closest('.p8-panel');
+    p8Hatch.parentElement.querySelectorAll('.p8-hatch-choice').forEach(function (b) { b.classList.toggle('on', b === p8Hatch); });
+    p8Panel.classList.remove('hatch-checker', 'hatch-stripe');
+    if (p8Hatch.getAttribute('data-hatch') === 'checker') p8Panel.classList.add('hatch-checker');
+    if (p8Hatch.getAttribute('data-hatch') === 'stripe') p8Panel.classList.add('hatch-stripe');
+    return;
+  }
+
+  var p8Delete = e.target.closest('.p8-del-panel');
+  if (p8Delete) { var p8Face = p8Delete.closest('.p8-face'); p8Delete.closest('.p8-panel').remove(); p8LayoutFace(p8Face); return; }
+
+  var p5Action = e.target.closest('[data-p5-action]');
+  if (p5Action) { p5Add(p5Action); return; }
+
+  var faceTab = e.target.closest('.pface-tab');
+  if (faceTab) {
+    faceTab.parentElement.querySelectorAll('.pface-tab').forEach(function (b) { b.classList.toggle('on', b === faceTab); });
+    return;
+  }
+  var stateBtn = e.target.closest('.panel-state');
+  if (stateBtn) {
+    var panel = stateBtn.closest('[data-panel]');
+    var vazio2 = stateBtn.getAttribute('data-state') === 'vazio';
+    panel.querySelectorAll('.panel-state').forEach(function (b) { b.classList.toggle('on', b === stateBtn); });
+    panel.classList.toggle('vazio', vazio2);
+    p2SyncPreview(panel);
+    return;
+  }
+  var hatchBtn = e.target.closest('.hatch-choice');
+  if (hatchBtn) {
+    hatchBtn.parentElement.querySelectorAll('.hatch-choice').forEach(function (b) { b.classList.toggle('on', b === hatchBtn); });
+    p2SyncPreview(hatchBtn.closest('[data-panel]'));
+    return;
+  }
+
+  var tipoBtn = e.target.closest('.pgrid-tipo-btn');
+  if (tipoBtn) { pgridToggleTipo(tipoBtn); return; }
+
+  // ---- Proposta A: + coluna / + linha (surgery direta no DOM, preserva
+  // o que já foi digitado nas células existentes) ----
+  if (e.target.id === 'pgrid-a-add-col') {
+    var gridA = document.getElementById('pgrid-a-grid');
+    var dimsA = pgridACurrentDims(gridA);
+    if (dimsA.cols >= 3) return;
+    var rowsAltos = [];
+    gridA.querySelectorAll('.pgrid-cell').forEach(function (c) { if (rowsAltos.indexOf(c.dataset.row) < 0) rowsAltos.push(c.dataset.row); });
+    rowsAltos.forEach(function (rowAlt) {
+      var cellsInRow = gridA.querySelectorAll('.pgrid-cell[data-row="' + rowAlt + '"]');
+      var lastCell = cellsInRow[cellsInRow.length - 1];
+      var tmp = document.createElement('div');
+      tmp.innerHTML = pgridACellHtml(parseInt(rowAlt, 10), { x: cellsInRow.length + 1, largura: '', altura: '', tipo: 'painel', hatch: false });
+      lastCell.insertAdjacentElement('afterend', tmp.firstChild);
+    });
+    gridA.style.gridTemplateColumns = 'repeat(' + (dimsA.cols + 1) + ',auto)';
+    pgridSetCount(document.getElementById('pgrid-a-count'), dimsA.cols + 1, dimsA.rows);
+    document.getElementById('pgrid-a-add-col').disabled = (dimsA.cols + 1) >= 3;
+    return;
+  }
+  if (e.target.id === 'pgrid-a-add-row') {
+    var gridA2 = document.getElementById('pgrid-a-grid');
+    var dimsA2 = pgridACurrentDims(gridA2);
+    if (dimsA2.rows >= 6) return;
+    var maxRow = 0;
+    gridA2.querySelectorAll('.pgrid-cell').forEach(function (c) { maxRow = Math.max(maxRow, parseInt(c.dataset.row, 10)); });
+    var novos = [];
+    for (var xi = 1; xi <= dimsA2.cols; xi++) {
+      var tmp2 = document.createElement('div');
+      tmp2.innerHTML = pgridACellHtml(maxRow + 1, { x: xi, largura: '', altura: '', tipo: 'painel', hatch: false });
+      novos.push(tmp2.firstChild);
+    }
+    gridA2.prepend.apply(gridA2, novos);
+    pgridSetCount(document.getElementById('pgrid-a-count'), dimsA2.cols, dimsA2.rows + 1);
+    document.getElementById('pgrid-a-add-row').disabled = (dimsA2.rows + 1) >= 6;
+    return;
+  }
+
+  // ---- Proposta B: + coluna / + linha na tabela + tira de prévia ----
+  if (e.target.id === 'pgrid-b-add-col') {
+    var table = document.getElementById('pgrid-b-table');
+    var headerRow = table.tHead.rows[0];
+    var curCols = headerRow.cells.length - 1;
+    if (curCols >= 3) return;
+    var newX = curCols + 1;
+    var th = document.createElement('th');
+    th.textContent = 'Painel X' + newX;
+    headerRow.appendChild(th);
+    Array.from(table.tBodies[0].rows).forEach(function (tr) {
+      var rowAlt = tr.cells[0].textContent.match(/A(\d+)/)[1];
+      var td = document.createElement('td');
+      td.innerHTML = '<div class="pgrid-b-cell" data-row="' + rowAlt + '" data-x="' + newX + '">' +
+        '<div class="row2"><input type="text" value="" title="Largura"><input type="text" value="" title="Altura"></div>' +
+        '<select class="pgrid-b-tipo"><option value="painel" selected>Painel</option><option value="vazio">Vazio</option></select>' +
+        '<label class="hatch-mini"><input type="checkbox" class="pgrid-b-hatch">hatch</label></div>';
+      tr.appendChild(td);
+    });
+    var preview = document.getElementById('pgrid-b-preview');
+    var nRows = table.tBodies[0].rows.length;
+    var segsHtml = '';
+    for (var s = 0; s < nRows; s++) segsHtml += '<div class="pgrid-preview-seg"></div>';
+    var col = document.createElement('div');
+    col.className = 'pgrid-preview-col';
+    col.innerHTML = segsHtml + '<div class="pgrid-preview-col-lab">X' + newX + '</div>';
+    preview.appendChild(col);
+    document.getElementById('pgrid-b-add-col').disabled = newX >= 3;
+    return;
+  }
+  if (e.target.id === 'pgrid-b-add-row') {
+    var table2 = document.getElementById('pgrid-b-table');
+    var tbody2 = table2.tBodies[0];
+    if (tbody2.rows.length >= 6) return;
+    var maxAlt = 0;
+    Array.from(tbody2.rows).forEach(function (tr) { maxAlt = Math.max(maxAlt, parseInt(tr.cells[0].textContent.match(/A(\d+)/)[1], 10)); });
+    var newAlt = maxAlt + 1;
+    var colsNow = table2.tHead.rows[0].cells.length - 1;
+    var tds = '';
+    for (var xj = 1; xj <= colsNow; xj++) {
+      tds += '<td><div class="pgrid-b-cell" data-row="' + newAlt + '" data-x="' + xj + '">' +
+        '<div class="row2"><input type="text" value="" title="Largura"><input type="text" value="" title="Altura"></div>' +
+        '<select class="pgrid-b-tipo"><option value="painel" selected>Painel</option><option value="vazio">Vazio</option></select>' +
+        '<label class="hatch-mini"><input type="checkbox" class="pgrid-b-hatch">hatch</label></div></td>';
+    }
+    var oldTop = tbody2.rows[0];
+    if (oldTop) oldTop.cells[0].textContent = oldTop.cells[0].textContent.replace(' · topo', '');
+    var newTr = document.createElement('tr');
+    newTr.innerHTML = '<td class="alt-lab">A' + newAlt + ' · topo</td>' + tds;
+    tbody2.insertBefore(newTr, tbody2.firstChild);
+    document.querySelectorAll('.pgrid-preview-col').forEach(function (col2) {
+      var seg = document.createElement('div');
+      seg.className = 'pgrid-preview-seg';
+      col2.insertBefore(seg, col2.querySelector('.pgrid-preview-col-lab'));
+    });
+    document.getElementById('pgrid-b-add-row').disabled = tbody2.rows.length >= 6;
+    return;
+  }
+
+  // ---- Proposta C: + faixa de altura ----
+  if (e.target.id === 'pgrid-c-add-band') {
+    var boxC = e.target.closest('.proposta-box');
+    var bandsC = boxC.querySelectorAll('.pgrid-band');
+    if (bandsC.length >= 6) return;
+    var maxAltC = 0;
+    bandsC.forEach(function (b) { maxAltC = Math.max(maxAltC, parseInt(b.getAttribute('data-row'), 10)); });
+    var newAltC = maxAltC + 1;
+    var colsC = bandsC[0].querySelectorAll('.pgrid-x-card').length;
+    var xsHtml = '', miniHtml = '';
+    for (var xk = 1; xk <= colsC; xk++) {
+      xsHtml += pgridXCardHtml(newAltC, { x: xk, largura: '', altura: '', tipo: 'painel', hatch: false });
+      miniHtml += '<span></span>';
+    }
+    var firstBand = bandsC[0];
+    var firstText = firstBand.querySelector('summary').childNodes[0];
+    firstText.textContent = firstText.textContent.replace(' · topo', '');
+    var novoBand = document.createElement('details');
+    novoBand.className = 'pgrid-band';
+    novoBand.setAttribute('data-row', String(newAltC));
+    novoBand.innerHTML = '<summary>Faixa de altura A' + newAltC + ' · topo<span class="pgrid-band-mini">' + miniHtml + '</span></summary>' +
+      '<div class="pgrid-band-body">' + xsHtml + '</div>';
+    boxC.insertBefore(novoBand, firstBand);
+    var previewC = document.getElementById('pgrid-c-preview');
+    var segC = document.createElement('div');
+    segC.className = 'pgrid-c-preview-seg';
+    segC.setAttribute('data-row', String(newAltC));
+    segC.innerHTML = miniHtml;
+    previewC.appendChild(segC);
+    e.target.disabled = bandsC.length + 1 >= 6;
+    return;
+  }
+
+  var btn = e.target.closest('.n3-add-sarrafo');
+  if (!btn) return;
+  var box = btn.closest('.n3-grade-box');
+  var orientacao = btn.getAttribute('data-orientacao') || 'vertical';
+  if (orientacao === 'vertical') {
+    var table = box.querySelector('[data-vertical-table]');
+    var n = (table.tHead.rows[0].cells.length - 1) / 2 + 1;
+    var sarrafoHead = document.createElement('th'); sarrafoHead.textContent = 'Sarrafo V' + n;
+    var distHead = document.createElement('th'); distHead.textContent = 'Dist. ' + n;
+    table.tHead.rows[0].appendChild(sarrafoHead); table.tHead.rows[0].appendChild(distHead);
+    var larguraCell = document.createElement('td'); larguraCell.innerHTML = '<input value="">';
+    var distCell = document.createElement('td'); distCell.rowSpan = 2; distCell.innerHTML = '<input value="">';
+    var alturaCell = document.createElement('td'); alturaCell.innerHTML = '<input value="">';
+    table.querySelector('[data-vertical-width]').appendChild(larguraCell); table.querySelector('[data-vertical-width]').appendChild(distCell); table.querySelector('[data-vertical-height]').appendChild(alturaCell);
+    larguraCell.querySelector('input').focus();
+  } else {
+    var rows = box.querySelector('[data-sarrafo-list="horizontal"]');
+    var index = rows.querySelectorAll('.n3-horizontal-row').length + 1;
+    var row = document.createElement('div'); row.className = 'n3-horizontal-row';
+    row.innerHTML = '<label class="n3-field"><span class="n3-lab">Sarrafo H' + index + '</span><input type="text" style="width:4.4em" value=""></label><label class="n3-field"><span class="n3-lab">Dist. esquerda</span><input type="text" style="width:4.4em" value=""></label><label class="n3-field"><span class="n3-lab">Dist. direita</span><input type="text" style="width:4.4em" value=""></label><label class="n3-field"><span class="n3-lab">Largura</span><input type="text" style="width:4.4em" value=""></label><label class="n3-field"><span class="n3-lab">Altura</span><input type="text" style="width:4.4em" value=""></label>';
+    rows.appendChild(row); row.querySelector('input').focus();
+  }
+});
+
+document.querySelectorAll('.agent-tab').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.agent-tab').forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    document.querySelectorAll('.agent-panel').forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-apanel') === b.getAttribute('data-atab')); });
+  });
+});
+document.querySelectorAll('.verdict').forEach(function (v) {
+  v.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      v.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      btn.classList.add('on');
+    });
+  });
+});
+var PAVIMENTOS_MOCK = ['BALDRAME', 'FUNDACAO', 'TERREO', '1_PAV', '2_PAV'];
+var pavimentoAtual = PAVIMENTOS_MOCK.indexOf('FUNDACAO');
+document.querySelectorAll('[data-pav-step]').forEach(function (button) {
+  button.addEventListener('click', function () {
+    var step = parseInt(button.getAttribute('data-pav-step'), 10);
+    pavimentoAtual = Math.max(0, Math.min(PAVIMENTOS_MOCK.length - 1, pavimentoAtual + step));
+    var nome = PAVIMENTOS_MOCK[pavimentoAtual];
+    document.getElementById('current-floor').textContent = nome;
+    document.getElementById('breadcrumb-floor').textContent = nome;
+    document.querySelectorAll('[data-pav-step="-1"]').forEach(function (b) { b.disabled = pavimentoAtual === 0; });
+    document.querySelectorAll('[data-pav-step="1"]').forEach(function (b) { b.disabled = pavimentoAtual === PAVIMENTOS_MOCK.length - 1; });
+  });
+});
+render('near');
+</script>
+</body>
+</html>

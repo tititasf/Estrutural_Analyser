@@ -69,6 +69,13 @@ def _segment_json_repeat(segment: dict) -> int:
         count = _repeat_count(segment.get(key))
         if count:
             return count
+    if isinstance(segment.get("panels"), list):
+        for panel in segment["panels"]:
+            if isinstance(panel, dict):
+                for key in ("_multiplier", "multiplier", "multiplicador", "repeat", "count"):
+                    count = _repeat_count(panel.get(key))
+                    if count:
+                        return count
     return 1
 
 
@@ -171,6 +178,10 @@ def _n2_segment_lengths(data: dict) -> tuple[list[float], list[dict]]:
         multiplier = _segment_json_repeat(segment)
         if multiplier == 1:
             multiplier = dxf_multipliers.get(round(float(length), 3), 1)
+            if multiplier == 1 and len(segments) == 1:
+                top_m = _repeat_count(data.get("_multiplier") or data.get("multiplicador") or data.get("multiplier"))
+                if top_m:
+                    multiplier = top_m
         physical_lengths.extend([length] * multiplier)
         details.append({
             "index": index,
@@ -450,7 +461,6 @@ def diagnose_item(
     )
     available_deltas = [value for value in (width_delta, length_delta) if value is not None]
     max_delta = max(available_deltas) if available_deltas else None
-    quality = classify_delta(max_delta)
     segments_match = bool(
         n1 is not None
         and n2 is not None
@@ -468,6 +478,20 @@ def diagnose_item(
         segment_measure_comparison
         and segment_measure_comparison["match"]
     )
+
+    # A classifica\u00e7\u00e3o resume a evid\u00eancia inteira, n\u00e3o s\u00f3 o bbox/soma. Um
+    # candidato pode coincidir em comprimento total e largura e, ainda assim,
+    # ter partido uma viga em pain\u00e9is f\u00edsicos errados. Chamar isso de
+    # ``EXCELENTE`` escondia exatamente a sub/supersegmenta\u00e7\u00e3o que o
+    # diagn\u00f3stico FV foi criado para expor (ex.: V322). Mantemos os deltas
+    # num\u00e9ricos em ``deltas`` para triagem, mas a qualidade consolidada s\u00f3
+    # pode ser positiva depois de quantidade e multiconjunto passarem a 0,05 cm.
+    if n1 is None or n2 is None:
+        quality = "INDETERMINADO"
+    elif not segments_match or not segment_measures_match:
+        quality = "DIVERGENTE_SEGMENTOS"
+    else:
+        quality = classify_delta(max_delta)
 
     if n1 is None or n2 is None:
         cause = "schema_gap"

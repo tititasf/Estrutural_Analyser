@@ -3,8 +3,11 @@
 """single_instance.py — trava de instância única via lock exclusivo de arquivo.
 
 Motivação: coordenar processos pesados por recurso. O headless SA usa uma
-fila por classe em microciclos read-only e global + quatro classes em rodadas
-completas/multiclasse/persistentes. O mecanismo continua genérico por `name`.
+fila por classe em microciclos de uma classe (read-only ou persistência parcial
+com ``--secao --item``). Rodadas completas, multiclasse ou persistência sem
+identidade de item usam global + quatro classes. Recursos realmente
+compartilhados (``beams.data_json`` e o curto commit SQLite) possuem locks
+separados. O mecanismo continua genérico por `name`.
 
 Mecanismo: lock exclusivo de 1 byte no arquivo `.{name}.lock`
 (`msvcrt.locking` no Windows, `fcntl.flock` em POSIX). O SO libera o lock
@@ -50,9 +53,15 @@ def _write_status(fh: IO, *, event: str) -> None:
     """
     now = datetime.now().isoformat(timespec='seconds')
     started_at = _STARTED_AT_BY_HANDLE.get(id(fh), now)
+    # A fila precisa exibir seção, itens e --persist-db: truncar o argv no
+    # oitavo token escondia exatamente a causa de uma reserva global. Limite
+    # defensivo evita transformar um lockfile em log volumoso.
+    command = " ".join(sys.argv)
+    if len(command) > 1800:
+        command = command[:1797] + "..."
     payload = (
         f'pid={os.getpid()} inicio={started_at} heartbeat={now} '
-        f'event={event} cmd={" ".join(sys.argv[:8])}\n'
+        f'event={event} cmd={command}\n'
     )
     try:
         fh.seek(1)

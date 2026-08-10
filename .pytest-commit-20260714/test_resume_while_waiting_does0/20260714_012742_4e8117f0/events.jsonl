@@ -1,0 +1,1 @@
+{"schema": "arete.qa_loop_event/v1", "event_id": "49c86b22-907a-4bea-8f38-e33539b8bbce", "at": "2026-07-14T04:27:42+00:00", "run_id": "20260714_012742_4e8117f0", "cycle": 0, "kind": "run_created", "scope": {"project_id": "project", "class": "PIL", "items": ["P35"], "level": "N1", "pav": "13_PAV", "part": null, "variant": null}}

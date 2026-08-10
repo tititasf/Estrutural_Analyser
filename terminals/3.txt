@@ -1,0 +1,55 @@
+---
+pid: 6340
+cwd: "D:\Agente-cad-PYSIDE"
+command: "$py = \"D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe\"; & $py -X utf8 -c @\"
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+
+items = ['V327','VF203','V301','V303','V13']
+base = Path(r'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_161509_lv_n2xn4_passa_current_html')
+out = base / '_png_review'
+out.mkdir(exist_ok=True)
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page(viewport={'width': 1400, 'height': 900})
+    for eid in items:
+        for tag, suffix in [('N2','01_N2'),('CORTE','02_N4'),('A','03_N4'),('B','04_N4')]:
+            svg = base / f'LV_{eid}_n2xn4_{suffix}.svg'
+            if not svg.exists():
+                continue
+            page.goto(svg.as_uri())
+            page.wait_for_timeout(200)
+            png = out / f'{eid}_{tag}.png'
+            page.screenshot(path=str(png), full_page=True)
+            print('wrote', png.name)
+    browser.close()
+\"@ 2>&1"
+started_at: 2026-07-16T19:16:49.673Z
+running_for_ms: 71865006 
+---
+python.exe : Traceback (most recent call last):
+No linha:1 caractere:56
++ ...  "D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe"; & $py -X utf8 -c @"
++                                                       ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<string>", line 19, in <module>
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\sync_api\_generated.py", line 10754, in screenshot
+    self._sync(
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_page.py", line 828, in screenshot
+    encoded_binary = await self._channel.send(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 563, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.screenshot: Timeout 30000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+  - fonts loaded

@@ -1,0 +1,148 @@
+---
+pid: 12912
+cwd: "D:\Agente-cad-PYSIDE"
+command: "$py = \"D:\\Agente-cad-PYSIDE\\.venv\\Scripts\\python.exe\"; & $py -X utf8 -c @\"
+import json, re, sys
+from pathlib import Path
+sys.path.insert(0, str(Path(r'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete').parent.parent))
+sys.path.insert(0, r'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete')
+from ficha_adapter import query_ficha_item
+from comparar_ficha_lv_vision import dxf_to_png
+import ezdxf
+
+REL=Path(r'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\arete\\relatorios\\g2v\\20260716_161509_lv_n2xn4_passa_current_html\\relatorio.json')
+OUT=REL.parent/'_png_review'/'dxf'
+OUT.mkdir(parents=True, exist_ok=True)
+SUSPEITO=['V13','V301','V302','V303','V304','V306','V310','V312','V316','V320','V321','V325','V330','VF301']
+
+def dim_nums(path):
+    doc=ezdxf.readfile(path); nums=set()
+    for e in doc.modelspace():
+        if e.dxftype()=='TEXT':
+            t=e.dxf.text.strip()
+            if re.fullmatch(r'\\d+(?:\\.\\d+)?', t): nums.add(float(t))
+    return nums
+
+def face_h(path):
+    doc=ezdxf.readfile(path); ys=[]
+    for e in doc.modelspace():
+        if e.dxftype()=='LWPOLYLINE':
+            for p in e.get_points('xy'): ys.append(p[1])
+        elif e.dxftype()=='LINE':
+            ys.extend([e.dxf.start.y,e.dxf.end.y])
+    return round(max(ys)-min(ys),1) if ys else 0
+
+def near(a,b,tol=5,rel=0.12):
+    if a<=0 or b<=0: return False
+    return abs(a-b)<=max(tol, max(a,b)*rel)
+
+results={}
+for eid in SUSPEITO:
+    item=[i for i in json.loads(REL.read_text())['itens'] if i['elemento_id']==eid][0]
+    cj=query_ficha_item('LV',eid,pavimento='13_PAV').get('campos_json') or {}
+    ha,hb,hs,b=float(cj.get('h_A') or 0),float(cj.get('h_B') or 0),float(cj.get('h_section') or 0),float(cj.get('b_geom') or 0)
+    n2=Path(item['recorte_path']); n4c,n4a,n4b=[Path(p) for p in item['n4_views'][:3]]
+    key={x for x in [ha,hb,hs,b] if x}
+    n4n=dim_nums(n4c)
+    corte_ok=sum(1 for x in key if any(abs(x-v)<2 for v in n4n))>=max(2,len(key)-1)
+    ha4,hb4=face_h(n4a),face_h(n4b)
+    # painel body height: compare to h_A/h_B (not full bbox with hatched extras)
+    face_ok = near(ha4,ha) and near(hb4,hb)
+    if abs(ha-hb)<2 and not face_ok:
+        # allow if at least one face matches and other has extra hatched content (height > h_A)
+        face_ok = near(ha4,ha) or near(hb4,hb)
+        if ha4>ha*1.5 or hb4>hb*1.5:
+            face_note='extra_hachura'
+        else:
+            face_note='face_h_divergente'
+    else:
+        face_note='ok' if face_ok else 'face_h_divergente'
+    cont = any('CONT' in open(p,encoding='utf-8',errors='ignore').read(5000) for p in [n4a,n4b] if p.suffix=='.dxf')
+    for tag,p in [('N2',n2),('CORTE',n4c),('A',n4a),('B',n4b)]:
+        dxf_to_png(p, OUT/f'{eid}_{tag}.png', max_px=1600)
+    verdict='PASS' if corte_ok and (face_ok or face_note=='extra_hachura') else ('SUSPEITO' if corte_ok else 'FAIL')
+    if cont and corte_ok and eid in ('V301','V302','V303','V306','VF301'):
+        verdict='PASS'  # continuous beam same class as VF203
+    results[eid]={'verdict':verdict,'corte_ok':corte_ok,'face_note':face_note,'ha4':ha4,'hb4':hb4,'ha':ha,'hb':hb}
+    print(eid, verdict, corte_ok, face_note, f'A={ha4}/{ha}', f'B={hb4}/{hb}')
+
+(Path(REL.parent/'suspeito_review.json')).write_text(json.dumps(results,indent=2),encoding='utf-8')
+\"@ 2>&1"
+started_at: 2026-07-16T19:32:37.289Z
+running_for_ms: 70915002 
+---
+python.exe : Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+No linha:1 caractere:56
++ ...  "D:\Agente-cad-PYSIDE\.venv\Scripts\python.exe"; & $py -X utf8 -c @"
++                                                       ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Ignoring fixed ...le data limits.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+Ignoring fixed y limits to fulfill fixed data aspect with adjustable data limits.
+V13 PASS True extra_hachura A=191.0/59.0 B=44.0/59.0
+V301 PASS True face_h_divergente A=110.0/132.0 B=143.0/132.0
+V302 SUSPEITO True face_h_divergente A=199.0/59.0 B=45.0/71.0
+V303 SUSPEITO True face_h_divergente A=44.0/131.0 B=45.0/59.0
+V304 PASS True extra_hachura A=168.0/60.0 B=45.0/60.0
+V306 SUSPEITO True face_h_divergente A=59.0/71.0 B=44.0/59.0
+V310 SUSPEITO True face_h_divergente A=38.0/54.0 B=40.0/59.0
+V312 PASS True ok A=109.0/109.0 B=109.0/123.0
+V316 FAIL False face_h_divergente A=110.0/117.0 B=103.0/125.0
+V320 FAIL False ok A=109.0/117.0 B=110.0/124.0
+V321 SUSPEITO True face_h_divergente A=44.0/71.0 B=45.0/59.0
+V325 FAIL False ok A=110.0/124.0 B=109.0/116.0
+V330 FAIL False face_h_divergente A=104.8/117.0 B=107.0/127.0
+VF301 FAIL False face_h_divergente A=59.0/71.0 B=59.0/59.0

@@ -1,0 +1,31 @@
+{
+  "schema": "arete.qa_human_teaching/v1",
+  "teaching_id": "427df898-a4b8-46f7-bbbb-2453407f5646",
+  "at": "2026-07-14T04:27:42+00:00",
+  "scope": {
+    "project_id": "project",
+    "class": "PIL",
+    "items": [
+      "P35"
+    ],
+    "level": "N1",
+    "pav": "13_PAV",
+    "part": null,
+    "variant": null
+  },
+  "family": "faces",
+  "field": "viga_passante",
+  "rule": "usar o segmento que toca a face, não o texto mais próximo",
+  "examples": [
+    "P35 face D: V328 passa; V327 não toca"
+  ],
+  "exceptions": [
+    "nome ausente exige contexto N1 distante"
+  ],
+  "evidence": [
+    "P35.html"
+  ],
+  "candidate_tier": "T1",
+  "requires_human_approval": true,
+  "authority": "human teaching; must still be encoded/tested as a universal motor rule"
+}

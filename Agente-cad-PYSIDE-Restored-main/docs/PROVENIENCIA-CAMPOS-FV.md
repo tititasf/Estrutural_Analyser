@@ -1,7 +1,11 @@
 # Proveniência de campos FV — contrato inicial
 
 **Classe:** fundo de viga (FV)
-**Estado:** contrato inicial conservador; apto a orientar revisão read-only, não a selar automaticamente.
+**Estado (2026-07-16):** `validation_ready` via `FvEvidenceAuditor`
+(`scripts/arete/qa_fv_lv_adapters.py`) para segmentos com geometria re-derivada
+(exists/area_segs/dim/local_ini-fim). Um segmento confirmado **não** aprova a
+viga inteira; golden multi-geometria + G2-V seguem recomendados antes de selagem
+em massa.
 
 ## Evidência primária
 
@@ -13,10 +17,17 @@
 | Família observada | Campos/padrão | Categoria | Prova mínima | Nunca aceitar como prova |
 |---|---|---|---|---|
 | Existência | `viga_fundo_seg_*_exists` | (a) extração | polilinha/segmento de fundo identificável | booleano isolado no payload |
-| Geometria/área | `*_area_segs` | (a) extração | polígono fechado, coordenadas e área reproduzível | bbox ou área N2 isolada |
+| Geometria/área | `*_area_segs` | (a) extração | polígono fechado **e** borda sobre face DXF classificada (posição no estrutural); checklist N1-V `contorno_posicao_sobre_estrutural` | bbox/área isolada, contorno flutuante com C×L certo, área N2 isolada |
 | Dimensão | `*_dim` | (b) derivado | duas cotas/coord. ligadas ao mesmo segmento | texto `19/55` sem segmento/ordem |
 | Limites locais | `*_local_ini`, `*_local_fim` | (a) extração | ponto inicial/final no contorno do fundo | posição aproximada de outro elemento |
 | Metadados | `fv_is_h`, `seg_bottom` | (c) convenção | regra de orientação documentada + geometria correspondente | similaridade com outra viga |
+
+> **Fronteira de payload:** o escalar raiz `fv_is_h` e o escalar raiz
+> `seg_bottom` são estado transitório do interpretador, não campos de ficha
+> nem slots de validação. A evidência auditável de segmentos continua em
+> `links.viga_segs.seg_bottom` e em `viga_fundo_seg_N_area_segs`. A contagem
+> bruta pode divergir da quantidade física consolidada (por exemplo após
+> agrupar painéis); o QA nunca abre achado apenas por essa divergência.
 
 ## Regras críticas
 
@@ -53,6 +64,23 @@ Para promoção a `validation_ready`: golden FV, G2-V, três geometrias represen
 5. associação espacial entre vigas próximas: V327/V328.
 
 **Sem promoção:** esta sessão é diagnóstica. Nenhum campo foi promovido para selo, golden, G2-V ou validação humana.
+
+## Sessão QA read-only — 2026-07-16
+
+**Escopo:** V309, V320, V325, V327 e V332 (`Obra_TREINO_1/13_PAV/FV`).
+
+- O auditor passou a resolver `viga_fundo_seg_N_exists` pela área local do
+  **mesmo** índice somente quando o slot `area_segs.contour` é polígono
+  fechado de área positiva. A decisão resultante é exclusivamente
+  `TRILHA_N1_OBSERVADA`; não confirma a geometria, não escreve no DB e não
+  promove selo.
+- Foram removidos do inventário auditável os escalares internos raiz
+  `fv_is_h` e `seg_bottom`. A demonstração mostrou `V320=6/2`, `V325=4/1` e
+  `V327=3/1` entre a contagem bruta e os painéis consolidados: tratá-los como
+  campo de ficha produziria pergunta humana falsa e incentivaria uma correção
+  destrutiva do estado N1.
+- Reexecução read-only: `20260716_132435_review_17372bf4`, 30 decisões,
+  0 pergunta; nenhuma modificação de N1/N2/N3/N4, DXF, JSON Fase-4 ou selo.
 
 ## Sessão QA de evidências — 2026-07-14
 

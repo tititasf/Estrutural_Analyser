@@ -38,19 +38,48 @@ _ALIAS = {
     "LJ": "LJ",
 }
 
-# linha da tabela "Ultima rodada Arete por classe":
-# | Classe | Pav | Run | PASS | FAIL | BLOCKED | Arete % | Golden selado | Alerta |
-_LINHA_RE = re.compile(
-    r"^\|\s*(?P<classe>[A-Z]+)\s*\|"       # Classe
-    r"[^|]*\|"                              # Pav
-    r"[^|]*\|"                              # Run
-    r"[^|]*\|"                              # PASS
-    r"[^|]*\|"                              # FAIL
-    r"[^|]*\|"                              # BLOCKED
-    r"\s*(?P<arete>[\d.]+)%\s*\|"          # Arete %
-    r"[^|]*\|"                              # Golden selado
-    r"(?P<alerta>[^|]*)\|"                 # Alerta
-)
+# Tabela "Ultima rodada Arete por classe" do STATUS.md.
+#
+# [2026-07-30] Passou a ser lida por NOME DE CABECALHO, nao por posicao. O parser
+# anterior contava colunas fixas e quebrava a cada coluna nova no gerador — foi o que
+# aconteceu quando "Regressao" entrou entre "Golden selado" e "Alerta". Por nome, o
+# gerador pode adicionar/reordenar colunas sem derrubar o rotulo de certificacao (que
+# gateia a liberacao do N5). Colunas desconhecidas sao ignoradas; ausentes viram None.
+_CELULA_ARETE = re.compile(r"([\d.]+)\s*%")
+
+
+def _linhas_tabela(texto: str) -> list[dict[str, str]]:
+    """Extrai as linhas da tabela como dicts {cabecalho: celula}.
+
+    Aceita qualquer conjunto de colunas desde que existam 'Classe' e 'Arete'.
+    Suporta o layout legado (sem 'Regressao') e o atual, sem ramificar.
+    """
+    cabecalho: list[str] | None = None
+    linhas: list[dict[str, str]] = []
+    for bruta in texto.splitlines():
+        linha = bruta.strip()
+        if not linha.startswith("|"):
+            cabecalho = None  # tabela terminou; a proxima recomeca o cabecalho
+            continue
+        celulas = [c.strip() for c in linha.strip("|").split("|")]
+        if cabecalho is None:
+            baixo = [c.lower() for c in celulas]
+            if any(c.startswith("classe") for c in baixo) and any("arete" in c for c in baixo):
+                cabecalho = baixo
+            continue
+        if all(set(c) <= set("-: ") for c in celulas):
+            continue  # separador |---|---|
+        linhas.append(dict(zip(cabecalho, celulas)))
+    return linhas
+
+
+def _coluna(linha: dict[str, str], *nomes: str) -> str | None:
+    """Primeira coluna cujo cabecalho comeca por um dos nomes dados."""
+    for nome in nomes:
+        for chave, valor in linha.items():
+            if chave.startswith(nome):
+                return valor
+    return None
 
 
 def _norm_classe(classe: str) -> str | None:
@@ -91,19 +120,24 @@ def carregar_mapa_certificacao(status_md_path: str | Path) -> dict[str, StatusCe
     except OSError:
         return _parse_overrides()
 
-    for linha in texto.splitlines():
-        m = _LINHA_RE.match(linha.strip())
-        if not m:
-            continue
-        classe = _norm_classe(m.group("classe"))
+    for linha in _linhas_tabela(texto):
+        classe = _norm_classe(_coluna(linha, "classe") or "")
         if classe is None:
             continue
+        bruto_arete = _coluna(linha, "arete") or ""
+        casado = _CELULA_ARETE.search(bruto_arete)
         try:
-            arete = float(m.group("arete"))
+            arete = float(casado.group(1)) if casado else 0.0
         except ValueError:
             arete = 0.0
-        tem_fail = "fail" in m.group("alerta").lower()
-        cert = "certificado" if (arete >= 100.0 and not tem_fail) else "beta"
+        tem_fail = "fail" in (_coluna(linha, "alerta") or "").lower()
+        # Regressao (item selado que reprovou) rebaixa para beta. Na pratica e'
+        # redundante — regressao e' subconjunto dos FAILs, logo arete < 100 — mas
+        # mantem o rotulo correto se o gerador mudar. Conservador por desenho.
+        # Ausente (layout legado) nao rebaixa: so um numero > 0 rebaixa.
+        bruto_regressao = (_coluna(linha, "regress") or "").strip()
+        tem_regressao = bruto_regressao.isdigit() and int(bruto_regressao) > 0
+        cert = "certificado" if (arete >= 100.0 and not tem_fail and not tem_regressao) else "beta"
         # rebaixa a classe inteira se qualquer pav for beta
         if mapa.get(classe) == "beta" or cert == "beta":
             mapa[classe] = "beta"
