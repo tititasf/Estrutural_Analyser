@@ -1775,6 +1775,127 @@ main.conteudo:has(.shell-obra) {
 .n1-foto-card svg { width: 100%; max-width: 100%; height: auto; max-height: 400px; display: block; }
 .n1-foto-ausente { color: var(--fg-muted); font-size: .82rem; }
 
+/* Pilar: uma aba governa a ficha e o viewer; QA fica sempre numa faixa
+   separada abaixo e nunca se mistura aos campos N1/N3. */
+.pillar-main-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 8px 7px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+  background: #f8fafc;
+  border-radius: 8px 8px 0 0;
+}
+.pillar-main-tab {
+  flex: 0 0 auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  padding: 7px 10px;
+  font-size: .78rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.pillar-main-tab:hover { border-color: #2563eb; color: #1d4ed8; }
+.pillar-main-tab.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+.pillar-n1-subtabs {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 7px 8px;
+  margin: 0 0 8px;
+  border: 0;
+  border-bottom: 1px solid #bfdbfe;
+  border-radius: 0;
+  background: #eff6ff;
+}
+.pillar-n1-subtab {
+  flex: 0 0 auto;
+  border: 1px solid #93c5fd;
+  border-radius: 5px;
+  background: #fff;
+  color: #1e40af;
+  padding: 6px 9px;
+  font-size: .74rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.pillar-n1-subtab:hover { border-color: #2563eb; background: #dbeafe; }
+.pillar-n1-subtab.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+#pillar-tab-fields { margin-bottom: 14px; }
+.pillar-viewer-shell {
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fff;
+}
+#pillar-tab-viewer { padding: 8px; }
+#pillar-tab-viewer > .pillar-n1-subtabs { margin: -8px -8px 8px; }
+#pillar-tab-viewer .n1-foto-card { border: 0; padding: 0; }
+.pillar-n1-summary {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+}
+.pillar-n1-summary > strong { display: block; margin-bottom: 9px; font-size: .82rem; }
+.pillar-n1-summary > div {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(130px, 1fr));
+  gap: 8px;
+}
+.pillar-n1-summary-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+.pillar-n1-summary-field span { color: #64748b; font-size: .7rem; font-weight: 650; }
+.pillar-n1-summary-field b { color: #0f172a; font-size: .82rem; }
+.pillar-layer-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+}
+.pillar-layer-fields > strong { display: block; margin-bottom: 8px; }
+.pillar-layer-fields pre {
+  max-height: 340px;
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #dbeafe;
+  font-size: .75rem;
+}
+.pillar-qa-below {
+  margin-top: 18px;
+  padding: 14px;
+  border-top: 3px solid #2563eb;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.pillar-qa-below > div:first-child { display: flex; flex-direction: column; gap: 3px; }
+.pillar-qa-below > div:first-child span { color: #64748b; font-size: .78rem; }
+.pillar-qa-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.pillar-qa-status { padding: 10px; border: 1px solid #dbeafe; border-radius: 6px; background: #fff; font-size: .82rem; }
+.pillar-qa-status.error { border-color: #fecaca; color: #b91c1c; }
+.pillar-qa-result-head { display: flex; justify-content: space-between; gap: 12px; }
+.pillar-qa-status p { margin: 7px 0; }
+.pillar-qa-status small { color: #64748b; }
+
 /* [FIX 2026-07-07] breakpoint desceu de 900px pra 640px (mobile de verdade)
    — achado ao vivo: em telas médias (640-900px) é melhor rolar
    horizontalmente (já funciona) do que um empilhamento incompleto. */
@@ -1782,6 +1903,7 @@ main.conteudo:has(.shell-obra) {
   .shell-obra { flex-direction: column; }
   .painel-2, .painel-3 { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
   .n1-detalhe-corpo { flex-direction: column; }
+  .pillar-n1-summary > div { grid-template-columns: 1fr 1fr; }
 }
 
 /* ---- responsivo: sidebar vira barra superior em telas estreitas ---- */

@@ -41,6 +41,7 @@ sys.path.insert(0, str(ROOT))
 
 from scripts.arete.pil_agentic_highlight_draw import load_project, render_agentic_svg  # noqa: E402
 from scripts.arete.pil_l2_evidence_check import _beam_contours, _full_span_faces, _is_horizontal  # noqa: E402
+from scripts.arete.pil_geom_contato import relacao  # noqa: E402
 from scripts.arete.pil_blind_l1_calibration import _min_gap, check_pillar_shape, GAP_TOL, BETTER_MARGIN  # noqa: E402
 from scripts.arete.pil_qa_memoria import is_blocked  # noqa: E402
 
@@ -93,8 +94,36 @@ def beams_in_tables(faces: dict) -> set:
     return out
 
 
+CANTOS_DA_FACE = {"A": ("AC", "AD"), "B": ("BC", "BD"),
+                  "C": ("CA", "CB"), "D": ("DA", "DB")}
+
+
 def find_missing_corners(faces, beams_by_name, px0, py0, px1, py1) -> list[tuple[str, str]]:
-    """(beam, corner) implicados pela geometria mas ausentes da tabela L1."""
+    """(beam, corner) implicados pela geometria mas ausentes da tabela L1.
+
+    Usa `pil_geom_contato.relacao` — ALINHAMENTO, como manda o doc — no lugar da
+    detecção antiga por sobreposição de polígonos, que negava vigas colineares
+    com o pilar (caso V321 × P24, corrigido pelo humano em 2026-08-08).
+    Uma viga que PASSA numa face implica os dois cantos daquela face.
+    """
+    horizontal = _is_horizontal(px0, py0, px1, py1)
+    out = []
+    for bname in sorted(beams_in_tables(faces)):
+        bdata = beams_by_name.get(bname)
+        if not bdata:
+            continue
+        for seg in _beam_contours(bdata):
+            for fid in "ABCD":
+                rel = relacao(seg, fid, px0, py0, px1, py1, horizontal=horizontal)
+                if not rel or rel.tipo != "passa":
+                    continue
+                for c in CANTOS_DA_FACE[fid]:
+                    if not corner_present(faces, c) and (bname, c) not in out:
+                        out.append((bname, c))
+    return out
+
+
+def _legado_full_span(faces, beams_by_name, px0, py0, px1, py1) -> list[tuple[str, str]]:
     horizontal = _is_horizontal(px0, py0, px1, py1)
     out = []
     for bname in sorted(beams_in_tables(faces)):

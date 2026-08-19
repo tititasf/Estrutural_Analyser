@@ -74,6 +74,23 @@ async def test_get_put_pillar_n3_ficha_roundtrip(settings):
 
 
 @pytest.mark.asyncio
+async def test_item_n1_pilar_expoe_somente_resumo_visual_canonico(settings):
+    async with _client(settings) as (client, obra_id, _obra_dir):
+        response = await client.get(
+            f"/obras/{obra_id}/n1/pilares/P1?pavimento=TERREO"
+        )
+        assert response.status_code == 200
+        resumo = response.json()["resumo_pilar_n1"]
+        assert resumo == {
+            "classificacao": "Pilar",
+            "orientacao": "—",
+            "nivel_chegada": 0.0,
+            "nivel_saida": 280.0,
+            "pe_direito": 280.0,
+        }
+
+
+@pytest.mark.asyncio
 async def test_ficha_rejects_non_pillar_class(settings):
     async with _client(settings) as (client, obra_id, _obra_dir):
         response = await client.get(

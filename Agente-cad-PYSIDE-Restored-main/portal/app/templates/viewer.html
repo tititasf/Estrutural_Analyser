@@ -60,12 +60,14 @@
 (function () {
   "use strict";
   var URL_DADOS = "/obras/{{ obra.id }}/viewer/{{ pavimento }}";
+  // O destaque tem a mesma identidade visual em todas as classes.
+  var COR_DESTAQUE_ESTRUTURAL = "#4ea1ff";
   var CORES = {
-    pilares: "#4ea1ff",
-    lat_a_para: "#ffd166", lat_a_passa: "#f4a261",
-    lat_b_para: "#e9c46a", lat_b_passa: "#e76f51",
-    laterais: "#ffd166",
-    fundos: "#06d6a0", lajes: "#c77dff"
+    pilares: COR_DESTAQUE_ESTRUTURAL,
+    lat_a_para: COR_DESTAQUE_ESTRUTURAL, lat_a_passa: COR_DESTAQUE_ESTRUTURAL,
+    lat_b_para: COR_DESTAQUE_ESTRUTURAL, lat_b_passa: COR_DESTAQUE_ESTRUTURAL,
+    laterais: COR_DESTAQUE_ESTRUTURAL,
+    fundos: COR_DESTAQUE_ESTRUTURAL, lajes: COR_DESTAQUE_ESTRUTURAL
   };
   var dados = null, ativos = {};
 
@@ -97,7 +99,7 @@
         // interpretacao ficar VISIVEL — esconder faria parecer que o item nao existe.
         poly.setAttribute("fill", item.fora_do_frame ? "rgba(255,0,0,.25)" : cor + "33");
         poly.setAttribute("stroke", item.fora_do_frame ? "#ff2d2d" : cor);
-        poly.setAttribute("stroke-width", item.fora_do_frame ? "4.6" : "3");
+        poly.setAttribute("stroke-width", item.fora_do_frame ? "4.6" : "6");
         poly.setAttribute("vector-effect", "non-scaling-stroke");
         var titulo = document.createElementNS(SVGNS, "title");
         titulo.textContent = item.rotulo + (item.fora_do_frame ? " — FORA DA PRANCHA" : "");

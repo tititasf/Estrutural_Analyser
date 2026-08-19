@@ -34,7 +34,7 @@
 | **H4** | C e D só interior, sem passa | Passa CA/DA da viga contínua | `C/D.passa→interior` CC/DD |
 | **H5** | sem chega no lado A; só BB | Chega espúria em A | Limpar A.chega; B.chega@BB |
 | **H6** | passa DA→DB; bolinha chega BD | Canto D errado + tip | DA→DB; tip mid-trecho |
-| **G1** | geometria vinculada errada | Contorno truncado (~26 cm vs 98) | Retângulo GOLDEN comprimento×largura centrado |
+| **G1** | geometria vinculada errada | Contorno truncado (~26 cm vs 98) | Rejeitar o trecho curto e recuperar o retângulo completo **homônimo no DXF**, mantendo posição e espessura; não usar GOLDEN nem ampliar raio |
 | **V1** | CA/CB não existem; só interior C; passa AC/BC | Dual topo inventado | Remove CA/CB; chega→passa AC/BC; C.interior |
 | **V2** | faltou passa AC e BC (+ interior C) | Multi-seg topo ausente | Flag gap face_beams; interior C se possível |
 | **V3** | D 2 passa; C só interior; A/B laje+AD/BD | Dual topo + chega AC/BC | Remove dual/chega topo; AD/BD; C.interior |
@@ -74,14 +74,15 @@ P19, P34, P35, P42, P44, P46, P48, P51 (+ genéricos P11, P17, P33, P50).
 ### Validados SA (L1 = SA)
 P1–P8, P10, P25.
 
-### Geometria (G1)
-| Item | GOLDEN plan | Ação |
-|------|-------------|------|
-| P12 | 19×98 | Retângulo centrado |
-| P13 | 24×70 | Retângulo centrado |
-| P14 | 19×98 | Retângulo centrado |
+### Geometria (G1 — revisado em 2026-08-10)
+| Itens | Evidência local | Ação validada |
+|-------|-----------------|----------------|
+| P12, P13, P14 | trecho vinculado ≈ 19×26; o DXF contém retângulo fechado homônimo 19×98 | substituir pelo retângulo completo homônimo, preservando suas coordenadas reais |
 
-Se o **eixo** ainda estiver deslocado no DXF, o tamanho corrige mas o centro pode errar — revalidar visualmente.
+O traço não sólido indica a continuidade de um pilar que nasce no pavimento seguinte;
+não significa seção menor. P13 foi confirmado pelo humano como **19×98**, portanto o
+precedente antigo GOLDEN 24×70 está revogado. A regra falha fechado se o candidato não
+for retângulo completo, não conservar a espessura curta ou não tiver o mesmo nome.
 
 ### Horizontais (H1–H6)
 | Item | Atenção-chave | L1 esperado |
@@ -144,7 +145,7 @@ Se o **eixo** ainda estiver deslocado no DXF, o tamanho corrige mas o centro pod
 - D com 2 passa quando face_beams não tem 2 candidatos.
 - P15/P16 passa AC/BC sem evidência no SA.
 - Pilar L (6 faces) — só flag.
-- Centro GOLDEN se o polígono truncado estava no lugar errado do pavimento.
+- Geometria de pilar deve vir do contorno homônimo real no DXF; GOLDEN e raio de busca não desempatarão posição.
 
 ---
 

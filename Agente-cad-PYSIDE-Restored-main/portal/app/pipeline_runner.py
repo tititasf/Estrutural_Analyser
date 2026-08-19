@@ -174,7 +174,7 @@ def _obra_dir(settings: Settings, obra: dict) -> Path:
     return settings.dados_obras_dir / obra.get("nome", "obra")
 
 
-def encontrar_dir_fichas(obra_dir: Path) -> Optional[Path]:
+def encontrar_dir_fichas(obra_dir: Path, pavimento: Optional[str] = None) -> Optional[Path]:
     """Acha o diretorio de fichas HTML mais recente gerado pelo SA real.
 
     [2026-07-06] achado rodando o SA de verdade pela 1a vez contra uma obra
@@ -188,10 +188,22 @@ def encontrar_dir_fichas(obra_dir: Path) -> Optional[Path]:
     """
     if not obra_dir.exists():
         return None
-    candidatos = sorted(
-        (d for d in obra_dir.iterdir() if d.is_dir() and (d / "arete_manifest.json").is_file()),
-        key=lambda d: d.name,
-    )
+    if pavimento:
+        # Filas por classe podem produzir pack HTML valido sem manifest. O
+        # pavimento explicito impede que a ficha avancada de 13_PAV abra o
+        # ultimo pack do TERREO apenas porque ele ordena depois globalmente.
+        candidatos = sorted(
+            (
+                d for d in obra_dir.glob(f"{pavimento}_*")
+                if d.is_dir() and next(d.rglob("*.html"), None) is not None
+            ),
+            key=lambda d: d.name,
+        )
+    else:
+        candidatos = sorted(
+            (d for d in obra_dir.iterdir() if d.is_dir() and (d / "arete_manifest.json").is_file()),
+            key=lambda d: d.name,
+        )
     return candidatos[-1] if candidatos else None
 
 
@@ -292,6 +304,83 @@ def auditar_pacote_pilares_n3(obra_dir: Path, pavimento: str) -> dict:
     }
 
 
+def materializar_n1_tags_pilares(
+    settings: Settings,
+    obra: dict,
+    *,
+    project_id: str,
+    pavimento: str,
+    itens: Optional[list[str]] = None,
+) -> dict:
+    """Gera ``N1 com tag`` sem reinterpretar SA nem criar camadas QA."""
+    script = settings.repo_root / "scripts" / "arete" / "export_pilares_abcd_fichas.py"
+    if not script.is_file():
+        raise RuntimeError(f"exportador de tags PIL ausente: {script}")
+    obra_nome = str(obra.get("nome") or Path(_obra_dir(settings, obra)).name)
+    output_root = settings.repo_root / "scripts" / "arete" / "html_fichas" / obra_nome
+    cmd = [
+        python_sa_executable(settings.repo_root), str(script),
+        "--project-id", str(project_id),
+        "--db", str(settings.sa_db_path),
+        "--obra", obra_nome,
+        "--pav", str(pavimento),
+        "--tags-only",
+    ]
+    itens_limpos = [str(item).strip() for item in (itens or []) if str(item).strip()]
+    if itens_limpos:
+        cmd += ["--item", *itens_limpos]
+    import time
+    iniciado_em = time.time()
+    proc = subprocess.run(
+        cmd, cwd=str(settings.repo_root), capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=None,
+    )
+    saida = (proc.stdout or "") + "\n" + (proc.stderr or "")
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"geração N1 com tag falhou (rc={proc.returncode}): {_tail(saida)}"
+        )
+    packs = []
+    if output_root.is_dir():
+        for path in output_root.glob(f"{pavimento}_*_pilares_abcd"):
+            try:
+                if path.is_dir() and path.stat().st_mtime >= iniciado_em - 5.0:
+                    packs.append(path)
+            except OSError:
+                continue
+    if not packs:
+        raise RuntimeError("gerador terminou sem publicar pack N1 com tag desta rodada")
+    pack = max(packs, key=lambda path: path.stat().st_mtime)
+    canonical = _obra_dir(settings, obra) / f"estado_{pavimento}.json"
+    try:
+        state = json.loads(canonical.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"snapshot N1 indisponível para auditar tags: {exc}") from exc
+    expected = {
+        str(row.get("name") or row.get("nome") or "").strip()
+        for row in state.get("pilares", []) if isinstance(row, dict)
+    }
+    expected.discard("")
+    if itens_limpos:
+        expected &= set(itens_limpos)
+    generated = {
+        path.name.removesuffix("_sa_motor.svg")
+        for path in (pack / "propostas").glob("*_sa_motor.svg")
+    }
+    missing = sorted(expected - generated)
+    if missing:
+        raise RuntimeError(
+            f"pack N1 com tag incompleto: {len(missing)} ausente(s): {', '.join(missing[:10])}"
+        )
+    return {
+        "pack": str(pack),
+        "esperados": len(expected),
+        "gerados": len(generated & expected),
+        "missing": missing,
+        "duracao_s": round(time.time() - iniciado_em, 2),
+    }
+
+
 def montar_comando_headless(
     settings: Settings,
     obra: dict,
@@ -327,7 +416,11 @@ def montar_comando_headless(
         py, "-m", "scripts.arete.headless_sa_analise",
         "--obra", str(obra_dir),
         "--pav", pav or settings.pav_default,
+        "--db", str(settings.sa_db_path),
         "--wait",
+        # Contrato do botao web: apenas motores N1/N3 e publicacao estruturada.
+        # O comando canônico sem esta flag continua sendo o loop Arete/treino.
+        "--production-web",
     ]
     secoes = [str(s).strip() for s in (secao or []) if str(s).strip()]
     itens = [str(i).strip() for i in (item or []) if str(i).strip()]
@@ -355,7 +448,24 @@ def _rodar_subprocess_sa(
     if dry_run:
         return ResultadoEtapa(etapa=etapa, ok=True, comando=cmd, dry_run=True)
 
-    _garantir_project_registrado(settings, obra, pav or settings.pav_default)
+    project_id = _garantir_project_registrado(
+        settings, obra, pav or settings.pav_default,
+    )
+    if not project_id:
+        msg = (
+            "SA nao iniciado: nao foi possivel registrar/localizar o projeto "
+            f"exato no banco {settings.sa_db_path}"
+        )
+        if log_path is not None:
+            try:
+                Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+                Path(log_path).write_text(msg, encoding="utf-8", errors="replace")
+            except OSError:
+                pass
+        return ResultadoEtapa(
+            etapa=etapa, ok=False, comando=cmd, returncode=None, log_tail=msg,
+        )
+    cmd += ["--project-id", project_id]
 
     py_cmd = cmd[0] if cmd else "?"
     banner = (
@@ -382,7 +492,12 @@ def _rodar_subprocess_sa(
         proc = subprocess.run(
             cmd, cwd=str(settings.repo_root), capture_output=True, text=True,
             encoding="utf-8", errors="replace",
-            timeout=settings.subprocess_timeout_s,
+            # Uma rodada SA completa renderiza centenas de fichas e pode
+            # legitimamente ultrapassar uma hora. O headless ja serializa a
+            # execucao com lock + ``--wait``; matar um processo que continua
+            # progredindo deixa o pacote final incompleto. Por isso o SA
+            # canonico nao recebe timeout artificial do wrapper web.
+            timeout=None,
         )
     except subprocess.TimeoutExpired:
         return ResultadoEtapa(etapa=etapa, ok=False, comando=cmd, returncode=None,
@@ -446,6 +561,14 @@ def _rodar_subprocess_sa(
                         f"pacote N3 de pilares incompleto: "
                         f"{len(n3_stats['missing'])} artefato(s) ausente(s)"
                     )
+                itens_cmd = [
+                    cmd[index + 1] for index, value in enumerate(cmd[:-1])
+                    if value == "--item"
+                ]
+                artefatos["pilar_n1_tags"] = materializar_n1_tags_pilares(
+                    settings, obra, project_id=project_id,
+                    pavimento=str(pav or settings.pav_default), itens=itens_cmd,
+                )
             log.info("fichas PIL N1/N3 materializadas: %s", ficha_stats)
         except Exception as exc:
             posprocessamento_ok = False
@@ -505,7 +628,9 @@ def executar_microciclo_item(
     )
 
 
-def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str) -> None:
+def _garantir_project_registrado(
+    settings: Settings, obra: dict, pavimento: str,
+) -> Optional[str]:
     from src.core.database import DatabaseManager
     from ..db import connection as db_conn
     import sqlite3
@@ -563,11 +688,11 @@ def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str)
     if not dxf_path:
         entrada = _arquivo_entrada(obra_dir, obra)
         if not entrada:
-            return
+            return None
         dxf_path = entrada.with_suffix(".dxf")
 
     if not dxf_path or not dxf_path.is_file():
-        return
+        return None
 
     # [novo, a pedido do dono] SA deve analisar o MESMO arquivo que a app
     # desktop usa pra esta obra/pavimento: o recorte "Torre 1" (motor DBSCAN,
@@ -602,20 +727,30 @@ def _garantir_project_registrado(settings: Settings, obra: dict, pavimento: str)
         # pelo except) — cada operacao abre a propria conexao via
         # `_get_conn()`, mesmo padrao que `create_project()` ja usa.
         vconn = database._get_conn()
-        cur = vconn.execute(
-            "UPDATE projects SET dxf_path = ? WHERE work_name = ? AND name = ?",
-            (str(dxf_path), work_name, pavimento)
-        )
-        precisa_criar = cur.rowcount == 0
-        vconn.commit()
+        row = vconn.execute(
+            "SELECT id FROM projects WHERE work_name = ? AND name = ? "
+            "ORDER BY rowid DESC LIMIT 1",
+            (work_name, pavimento),
+        ).fetchone()
+        if row:
+            project_id = str(row[0])
+            vconn.execute(
+                "UPDATE projects SET dxf_path = ? WHERE id = ?",
+                (str(dxf_path), project_id),
+            )
+            vconn.commit()
+            vconn.close()
+            return project_id
+
         vconn.close()
-        if precisa_criar:
-            database.create_project(
+        project_id = database.create_project(
                 name=pavimento, dxf_path=str(dxf_path),
                 work_name=work_name, pavement_name=pavimento,
-            )
+        )
+        return str(project_id) if project_id else None
     except Exception as e:
         print("Erro ao atualizar project.vision:", e)
+        return None
 
 
 def _tail(texto: str, linhas: int = 40) -> str:

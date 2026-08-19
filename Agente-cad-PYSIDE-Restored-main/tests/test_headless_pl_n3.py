@@ -104,3 +104,24 @@ def test_pre_validation_has_materialize_pl_n3_api():
         pytest.skip(f"Qt/UI indisponível: {exc}")
     assert hasattr(PreValidationDialog, "materialize_pl_n3_variants")
     assert callable(PreValidationDialog.materialize_pl_n3_variants)
+
+
+def test_materialize_pl_n3_uses_dxf_only_export_mode():
+    try:
+        from src.ui.widgets.pre_validation_dialog import PreValidationDialog
+    except Exception as exc:
+        pytest.skip(f"Qt/UI indisponível: {exc}")
+
+    class FakeDialog:
+        def _export_html_snapshot(self, *, sections, materialize_pl_only):
+            assert sections == {'pilares'}
+            assert materialize_pl_only is True
+            self._last_pl_n3_materialize = {
+                'generated': ['P1_para', 'P1_passa'],
+                'failed': [],
+            }
+
+    fake = FakeDialog()
+    generated, failed = PreValidationDialog.materialize_pl_n3_variants(fake)
+    assert generated == ['P1_para', 'P1_passa']
+    assert failed == []

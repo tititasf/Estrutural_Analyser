@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import json
 import logging
+import html
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional
@@ -157,7 +159,14 @@ def descobrir_pavimentos(obra_dir: Path) -> list[str]:
     """Pavimentos com estado real salvo (`estado_<pav>.json` no root da obra)."""
     if not obra_dir.exists():
         return []
-    return sorted(p.stem.removeprefix("estado_") for p in obra_dir.glob("estado_*.json"))
+    # Snapshots isolados de fila terminam em ``_pid<numero>`` e sao insumos
+    # internos, nao pavimentos navegaveis. So o snapshot promovido/atomico
+    # sem PID pode aparecer no portal.
+    return sorted(
+        p.stem.removeprefix("estado_")
+        for p in obra_dir.glob("estado_*.json")
+        if re.search(r"_pid[0-9]+$", p.stem) is None
+    )
 
 
 def ler_estado_pavimento(obra_dir: Path, pavimento: str) -> Optional[dict]:
@@ -482,7 +491,8 @@ def _classificar_svg(svg, texto_contexto: str) -> Optional[tuple[str, Optional[s
     aria = (svg.get("aria-label") or "").upper()
     classe_svg = svg.get("class") or []
 
-    if texto_contexto.startswith("N1") or "img-geo" in classe_svg or aria.startswith("N1"):
+    if (texto_contexto.startswith("N1") or "img-geo" in classe_svg
+            or "img-fv-hifi" in classe_svg or aria.startswith("N1")):
         nivel = "N1"
     elif texto_contexto.startswith("N3") or "N3" in aria:
         nivel = "N3"
@@ -490,9 +500,13 @@ def _classificar_svg(svg, texto_contexto: str) -> Optional[tuple[str, Optional[s
         return None
 
     lado = None
-    if "lado a" in baixo or "lateral a" in baixo:
+    if ("lado a" in baixo or "lateral a" in baixo
+            or "seg_side_a" in baixo or "viga_a_seg_" in baixo
+            or re.search(r"\.a\s*/", baixo)):
         lado = "A"
-    elif "lado b" in baixo or "lateral b" in baixo:
+    elif ("lado b" in baixo or "lateral b" in baixo
+            or "seg_side_b" in baixo or "viga_b_seg_" in baixo
+            or re.search(r"\.b\s*/", baixo)):
         lado = "B"
     return nivel, lado
 
@@ -505,7 +519,7 @@ def _parse_html_cache(caminho_str: str, mtime: float) -> list[dict]:
     texto = Path(caminho_str).read_text(encoding="utf-8", errors="replace")
     soup = BeautifulSoup(texto, "html.parser")
     cartas = []
-    for svg in soup.select("svg.img-geo, svg.img-n4, svg.img-n3"):
+    for svg in soup.select("svg.img-geo, svg.img-fv-hifi, svg.img-n4, svg.img-n3"):
         # card ao redor (achado real: nome da classe do container varia por
         # tipo de item — evidence-card em vigas/lajes, face-card em pilares).
         card = svg.find_parent(class_=lambda c: bool(c) and (
@@ -518,7 +532,16 @@ def _parse_html_cache(caminho_str: str, mtime: float) -> list[dict]:
         if classificado is None:
             continue
         nivel, lado = classificado
-        cartas.append({"nivel": nivel, "lado": lado, "svg": str(svg)})
+        segmento_match = re.search(
+            r"\b(?:segmento|seg)\s*([0-9]+)\b",
+            f"{svg.get('aria-label') or ''} {texto_card}",
+            flags=re.IGNORECASE,
+        )
+        segmento = segmento_match.group(1) if segmento_match else None
+        cartas.append({
+            "nivel": nivel, "lado": lado, "segmento": segmento,
+            "aria": svg.get("aria-label") or "", "svg": str(svg),
+        })
     return cartas
 
 
@@ -562,6 +585,10 @@ def extrair_fotos_ficha(
     if classe in _SEGMENTO_LADO_SUFIXO:
         lado_alvo, side_suffix = _SEGMENTO_LADO_SUFIXO[classe]
 
+    segmento_bruto = str((item.get("campos") or {}).get("Segmento") or "")
+    segmento_match = re.search(r"[0-9]+", segmento_bruto)
+    segmento_alvo = segmento_match.group(0) if segmento_match else None
+
     caminho = _localizar_ficha_html(dir_fichas, classe, beam_name, side_suffix)
     if caminho is None:
         return resultado
@@ -575,7 +602,286 @@ def extrair_fotos_ficha(
     for carta in cartas:
         if lado_alvo is not None and carta["lado"] != lado_alvo:
             continue
+        # Fichas de viga contem todos os segmentos. Para N1, a foto local do
+        # segmento aberto vence a contextual/global; N3 continua sendo o DXF
+        # consolidado da viga e portanto nao exige numero de segmento.
+        if (segmento_alvo is not None and carta["nivel"] == "N1"
+                and carta.get("segmento") != segmento_alvo):
+            continue
         chave = carta["nivel"].lower()
         if resultado.get(chave) is None:
             resultado[chave] = carta["svg"]
     return resultado
+
+
+def _encontrar_dir_ficha_item(
+    obra_dir: Path, pavimento: str, classe: str, item: dict,
+) -> Optional[Path]:
+    """Acha a rodada mais recente do pavimento que realmente contem o item.
+
+    As filas por classe geram diretorios parciais e nem toda rodada possui
+    ``arete_manifest.json``. Selecionar apenas a ultima rodada global podia
+    misturar TERREO com 13_PAV ou escolher um pack de outra classe.
+    """
+    obra_dir = Path(obra_dir)
+    beam_name = str(item.get("beam_name") or "").strip()
+    if not obra_dir.is_dir() or not beam_name:
+        return None
+    side_suffix = ""
+    if classe in _SEGMENTO_LADO_SUFIXO:
+        _lado, side_suffix = _SEGMENTO_LADO_SUFIXO[classe]
+    candidatos = sorted(
+        (path for path in obra_dir.glob(f"{pavimento}_*") if path.is_dir()),
+        key=lambda path: path.name,
+        reverse=True,
+    )
+    for candidato in candidatos:
+        if _localizar_ficha_html(candidato, classe, beam_name, side_suffix) is not None:
+            return candidato
+    return None
+
+
+def resolver_fotos_portal(
+    obra_dir: Path,
+    pavimento: str,
+    classe: str,
+    item: dict,
+) -> dict[str, Optional[str]]:
+    """Resolve os SVGs exibidos no portal sem degradar uma ficha completa.
+
+    O HTML persistido pelo SA contem o desenho contextual canonico (entidades,
+    cotas e textos). O preview direto de producao continua sendo necessario
+    como fallback para rodadas novas/obras sem pack HTML, mas o poligono leve
+    do snapshot nunca deve encobrir uma imagem canonica existente.
+
+    As chaves ``*_origem`` tornam a escolha observavel nos logs/API e permitem
+    distinguir evidencia canonica de fallback operacional em auditorias.
+    """
+    dir_fichas = _encontrar_dir_ficha_item(obra_dir, pavimento, classe, item)
+    canonicas = extrair_fotos_ficha(dir_fichas, classe, item)
+    producao = extrair_fotos_producao(obra_dir, pavimento, classe, item)
+    resultado: dict[str, Optional[str]] = {}
+    for nivel in ("n1", "n3"):
+        if canonicas.get(nivel) is not None:
+            resultado[nivel] = canonicas[nivel]
+            resultado[f"{nivel}_origem"] = "ficha_html_canonica"
+        elif producao.get(nivel) is not None:
+            resultado[nivel] = producao[nivel]
+            resultado[f"{nivel}_origem"] = "artefato_producao"
+        else:
+            resultado[nivel] = None
+            resultado[f"{nivel}_origem"] = None
+    return resultado
+
+
+def resolver_camadas_qa_pilar(
+    obra_dir: Path,
+    pavimento: str,
+    classe: str,
+    item: dict,
+    html_fichas_root: Optional[Path] = None,
+) -> dict[str, dict]:
+    """Lê as camadas agentivas persistidas do pack, sem inventar fallback.
+
+    SA/N1 continua sendo resolvido por :func:`resolver_fotos_portal`.  L1/L2/L3
+    só aparecem quando o artefato correspondente realmente existe; desse modo
+    o portal não apresenta a evidência de uma camada como se fosse outra.
+    """
+    vazio = {
+        layer: {"svg": None, "tables": None, "disponivel": False}
+        for layer in ("L1", "L2", "L3")
+    }
+    if classe not in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+        return vazio
+    pack = _encontrar_dir_ficha_item(obra_dir, pavimento, classe, item)
+    item_name = str(item.get("beam_name") or "").strip()
+    if not item_name:
+        return vazio
+    packs = [pack] if pack is not None else []
+    if html_fichas_root is not None:
+        packs.extend(sorted(
+            (path for path in Path(html_fichas_root).glob(f"{pavimento}*_pilares_abcd") if path.is_dir()),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        ))
+    for layer in ("L1", "L2", "L3"):
+        svg = tables = None
+        for candidate in packs:
+            propostas = candidate / "propostas"
+            svg_path = propostas / f"{item_name}_qa_{layer}.svg"
+            tables_path = propostas / f"{item_name}_qa_{layer}_tables.json"
+            try:
+                svg = svg_path.read_text(encoding="utf-8") if svg_path.is_file() else None
+            except OSError:
+                svg = None
+            try:
+                tables = json.loads(tables_path.read_text(encoding="utf-8")) if tables_path.is_file() else None
+            except (OSError, ValueError):
+                tables = None
+            if svg is not None or tables is not None:
+                break
+        vazio[layer] = {
+            "svg": svg,
+            "tables": tables,
+            "disponivel": svg is not None or tables is not None,
+        }
+    return vazio
+
+
+def resolver_visualizacoes_n1_pilar(
+    obra_dir: Path,
+    pavimento: str,
+    classe: str,
+    item: dict,
+    *,
+    foto_n1_fallback: Optional[str] = None,
+    html_fichas_root: Optional[Path] = None,
+) -> dict[str, Optional[str]]:
+    """Resolve as três evidências N1 distintas: próxima, distante e tagueada."""
+    resultado = {"proximo": foto_n1_fallback, "distante": None, "com_tag": None}
+    if classe not in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+        return resultado
+    item_name = str(item.get("beam_name") or "").strip()
+    pack = _encontrar_dir_ficha_item(obra_dir, pavimento, classe, item)
+    if pack is not None and item_name:
+        html_path = _localizar_ficha_html(pack, classe, item_name)
+        if html_path is not None:
+            try:
+                cartas = _parse_html_cache(str(html_path), html_path.stat().st_mtime)
+            except OSError:
+                cartas = []
+            for carta in cartas:
+                if carta.get("nivel") != "N1":
+                    continue
+                aria = str(carta.get("aria") or "").lower()
+                if "contexto" in aria or "distante" in aria:
+                    resultado["distante"] = carta["svg"]
+                elif "proximo" in aria or "próximo" in aria:
+                    resultado["proximo"] = carta["svg"]
+
+    packs = [pack] if pack is not None else []
+    if html_fichas_root is not None:
+        packs.extend(sorted(
+            (path for path in Path(html_fichas_root).glob(f"{pavimento}*_pilares_abcd") if path.is_dir()),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        ))
+    for candidate in packs:
+        tagged_path = candidate / "propostas" / f"{item_name}_sa_motor.svg"
+        try:
+            tagged = tagged_path.read_text(encoding="utf-8") if tagged_path.is_file() else None
+        except OSError:
+            tagged = None
+        if tagged:
+            resultado["com_tag"] = re.sub(r"<\?xml[^?]*\?>", "", tagged).strip()
+            break
+    return resultado
+
+
+def _svg_geometria_n1(item: dict) -> Optional[str]:
+    """Preview N1 leve a partir da geometria já persistida no snapshot SA."""
+    points = []
+    for point in item.get("points") or []:
+        if not isinstance(point, (list, tuple)) or len(point) < 2:
+            continue
+        try:
+            points.append((float(point[0]), float(point[1])))
+        except (TypeError, ValueError):
+            continue
+    if len(points) < 2:
+        return None
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    x0, x1 = min(xs), max(xs)
+    y0, y1 = min(ys), max(ys)
+    width = max(x1 - x0, 1.0)
+    height = max(y1 - y0, 1.0)
+    pad = max(width, height) * 0.12
+    view_x = x0 - pad
+    view_y = -(y1 + pad)
+    view_w = width + 2 * pad
+    view_h = height + 2 * pad
+    coords = " ".join(f"{x:.4f},{-y:.4f}" for x, y in points)
+    title = html.escape(str(item.get("titulo") or item.get("beam_name") or "N1"))
+    shape = "polygon" if len(points) >= 3 else "polyline"
+    return (
+        f'<svg class="img-geo" aria-label="N1 / SA {title}" '
+        f'viewBox="{view_x:.4f} {view_y:.4f} {view_w:.4f} {view_h:.4f}" '
+        'xmlns="http://www.w3.org/2000/svg" role="img">'
+        '<rect x="-1000000" y="-1000000" width="2000000" height="2000000" fill="#101418"/>'
+        f'<{shape} points="{coords}" fill="rgba(79,195,161,.18)" '
+        'stroke="#4fc3a1" stroke-width="1.4" vector-effect="non-scaling-stroke"/>'
+        f'<title>{title} — geometria N1 persistida</title></svg>'
+    )
+
+
+def _latest_production_run(obra_dir: Path, pavimento: str) -> Optional[Path]:
+    root = obra_dir / "Fase-6_Execucao_CAD" / "production_sa" / pavimento
+    if not root.is_dir():
+        return None
+    candidates = sorted(
+        path.parent for path in root.glob("*/production_manifest.json")
+        if path.is_file()
+    )
+    return candidates[-1] if candidates else None
+
+
+def _n3_dxf_producao(
+    obra_dir: Path, pavimento: str, classe: str, item: dict,
+) -> Optional[Path]:
+    beam = str(item.get("beam_name") or "").strip()
+    if not beam:
+        return None
+    base_beam = beam.rsplit("_", 1)[0] if classe in _PILARES_N3_VARIANTE else beam
+    if classe in ("pilares", "pilares_especiais") or classe in _PILARES_N3_VARIANTE:
+        mode = "passa" if classe == "pilares_n3_passa" else "para"
+        candidate = (
+            obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / mode
+            / f"PL_ABCD_preview_{base_beam}.dxf"
+        )
+        return candidate if candidate.is_file() else None
+
+    run = _latest_production_run(obra_dir, pavimento)
+    if run is None:
+        return None
+    dxf_dir = run / "n3" / "dxf"
+    if classe == "lajes":
+        candidate = dxf_dir / f"LJ_preview_{beam}.dxf"
+    elif classe == "fundo":
+        candidate = dxf_dir / f"FV_preview_{beam}.dxf"
+    elif classe == "cortes":
+        candidate = dxf_dir / f"LV_preview_{beam}_Para_CORTE.dxf"
+    elif classe in _SEGMENTO_LADO_SUFIXO:
+        side, behavior = _SEGMENTO_LADO_SUFIXO[classe]
+        candidate = dxf_dir / f"LV_preview_{beam}_{behavior}_VIEW_{side}.dxf"
+    else:
+        return None
+    return candidate if candidate.is_file() else None
+
+
+def extrair_fotos_producao(
+    obra_dir: Path, pavimento: str, classe: str, item: dict,
+) -> dict[str, Optional[str]]:
+    """Fotos operacionais sem abrir ou analisar o pack HTML de QA.
+
+    N1 vem do snapshot estruturado; N3 vem do DXF permanente da rodada web e
+    é convertido para SVG somente quando o usuário abre o item (com cache).
+    """
+    result = {"n1": _svg_geometria_n1(item), "n3": None}
+    dxf = _n3_dxf_producao(Path(obra_dir), pavimento, classe, item)
+    if dxf is None:
+        return result
+    try:
+        from .dxf_preview import renderizar_dxf_svg_cacheado
+
+        svg = renderizar_dxf_svg_cacheado(
+            dxf,
+            Path(obra_dir) / ".previews" / "sa_production",
+            largura_px=1200,
+            altura_px=800,
+            margem_pct=0.03,
+        )
+        result["n3"] = svg.decode("utf-8", errors="replace")
+    except Exception as exc:
+        log.warning("preview N3 producao falhou em %s: %s", dxf, exc)
+    return result

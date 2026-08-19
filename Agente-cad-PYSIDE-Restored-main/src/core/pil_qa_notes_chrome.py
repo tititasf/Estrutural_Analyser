@@ -658,11 +658,68 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
 
   /* layer toggle SA | L1 | L2 | L3 — uma visível (espelho FV V303, sem "ambos") */
   var PIL_LAYER_MODES=['sa_plain','sa','l1','l2','l3'];
+  var PIL_SVG_NS_SEQ=0;
+  function _namespacePilSvg(svg, layerEl){{
+    if(!svg || svg.getAttribute('data-pil-ids-namespaced')==='1') return;
+    var layer=(layerEl&&layerEl.getAttribute('data-layer'))||'layer';
+    var prefix='pil-'+_pageStem()+'-'+layer+'-'+(++PIL_SVG_NS_SEQ)+'-';
+    var ids={{}};
+    svg.querySelectorAll('[id]').forEach(function(el){{
+      var oldId=el.getAttribute('id');
+      if(!oldId) return;
+      var newId=prefix+oldId;
+      ids[oldId]=newId;
+      el.setAttribute('id',newId);
+    }});
+    svg.querySelectorAll('*').forEach(function(el){{
+      Array.prototype.slice.call(el.attributes||[]).forEach(function(attr){{
+        var value=attr.value||'';
+        var changed=value;
+        changed=changed.replace(/#([A-Za-z0-9_.:-]+)/g,function(all,oldId){{
+          return ids[oldId]?('#'+ids[oldId]):all;
+        }});
+        if(changed!==value) el.setAttribute(attr.name,changed);
+      }});
+    }});
+    svg.setAttribute('data-pil-ids-namespaced','1');
+  }}
+  window._namespacePilSvg=_namespacePilSvg;
+  function _auditPilSvgNamespaces(){{
+    var seen={{}}, duplicates=[];
+    document.querySelectorAll('.pil-layer svg [id]').forEach(function(el){{
+      var id=el.getAttribute('id');
+      if(!id) return;
+      if(seen[id]) duplicates.push(id);
+      else seen[id]=1;
+    }});
+    var unresolved=[];
+    document.querySelectorAll('.pil-layer svg').forEach(function(svg){{
+      var local={{}};
+      svg.querySelectorAll('[id]').forEach(function(el){{ local[el.getAttribute('id')]=1; }});
+      svg.querySelectorAll('use').forEach(function(el){{
+        var href=el.getAttribute('href')||el.getAttribute('xlink:href')||'';
+        if(href.charAt(0)==='#' && !local[href.slice(1)]) unresolved.push(href);
+      }});
+    }});
+    var ok=!duplicates.length && !unresolved.length;
+    if(document.body){{
+      document.body.dataset.pilSvgIdsOk=ok?'1':'0';
+      document.body.dataset.pilSvgDuplicateIds=String(duplicates.length);
+      document.body.dataset.pilSvgUnresolvedRefs=String(unresolved.length);
+    }}
+    if(!ok && window.console) console.error('PIL SVG namespace inválido', {{duplicates:duplicates, unresolved:unresolved}});
+    return {{ok:ok, duplicates:duplicates, unresolved:unresolved}};
+  }}
+  window.auditPilSvgNamespaces=_auditPilSvgNamespaces;
   function _loadLayerSvg(layerEl, outer, done){{
     if(!layerEl) return;
     function after(){{
       var s=layerEl.querySelector('svg');
-      if(s){{ _prepPilSvg(s); if(outer&&outer._pzApply) outer._pzApply(); }}
+      if(s){{
+        _namespacePilSvg(s,layerEl); _prepPilSvg(s);
+        _auditPilSvgNamespaces();
+        if(outer&&outer._pzApply) outer._pzApply();
+      }}
       if(done) done();
     }}
     if(layerEl.querySelector('svg')){{ after(); return; }}
@@ -747,7 +804,15 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
     document.querySelectorAll('[data-pil-pz], .pil-panzoom[data-panzoom]').forEach(function(el){{
       if(el.id) initPilPanZoom(el.id);
     }});
-    document.querySelectorAll('.pil-layer-sa svg, .pil-layer-sa-plain svg, .pil-layer-l1 svg, .pil-layer-l2 svg, .pil-layer-l3 svg, .pil-layer-agent svg').forEach(_prepPilSvg);
+    /* Namespace TODAS as camadas inline antes de qualquer troca/visibilidade.
+       Matplotlib reutiliza IDs de glifos (DejaVuSans-*). Sem esta passagem,
+       <use href="#..."> pode resolver no SVG de outra camada e exibir nomes
+       aleatórios apesar do rótulo correto no artefato. */
+    document.querySelectorAll('.pil-layer-sa svg, .pil-layer-sa-plain svg, .pil-layer-l1 svg, .pil-layer-l2 svg, .pil-layer-l3 svg, .pil-layer-agent svg').forEach(function(s){{
+      _namespacePilSvg(s, s.closest('.pil-layer'));
+      _prepPilSvg(s);
+    }});
+    _auditPilSvgNamespaces();
     try{{
       var m=localStorage.getItem('pil_ctx_hl_mode_'+_pageStem());
       if(m) setHlMode(m);

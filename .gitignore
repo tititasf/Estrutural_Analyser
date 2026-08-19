@@ -58,6 +58,11 @@ _ROBOS_ABAS/**/*.pkg
 Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/
 Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/
 
+# ── [2026-08-18] Staging de transferencia e saidas DXF de rodada — DADOS, nao codigo ──
+# .codex-transfer/ = 2GB (DB .vision + tarballs de obra); pasta de rodada = 1.3GB de DXF/SVG.
+.codex-transfer/
+Agente-cad-PYSIDE-Restored-main/13_PAV_*_dxf_revisado_*/
+
 # ── Lixo de trabalho (nem git nem DVC) ──
 Agente-cad-PYSIDE-Restored-main/scripts/arete/tmp/
 Agente-cad-PYSIDE-Restored-main/tmp_*.py

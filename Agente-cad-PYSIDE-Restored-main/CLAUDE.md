@@ -95,9 +95,23 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
    (viewBox + drag + wheel + reset). Fonte: `docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md`;
    ref código FV `src/ui/widgets/fv_hifi_n1_render.py`; PIL
    `src/core/pil_qa_notes_chrome.py`.
-5c. **Tags destaque agêntico PIL:** multilinha tipo+marca / nome / dim / nível;
-   um canto por tag; chega no centro da viga; chip com contorno branco fino.
-   Padrão: `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`. CLI
+5c. **Tags destaque agêntico PIL — contrato falha-fechada:** geometria, semântica,
+   vínculo, conteúdo, ponto, legibilidade e evidência visual têm o mesmo peso.
+   Multilinha tipo+marca / nome / dim / nível; um canto por tag; `V.passa` no
+   vértice físico exato; `V.chega` no centro transversal da viga; interior no
+   centro da face; laje no centro do contato. Pilares especiais usam o contorno
+   real A–F, sem guias da caixa envolvente. Linhas de face usam offset CAD zero;
+   bolinhas usam tamanho canônico dobrado (retangular 1.4, especial r=0.8).
+   Em especiais, `V.chega` fica no centro transversal do contorno estrutural
+   efetivo (`viga_fundo_seg_*`) mais próximo, exatamente sobre o contato com a
+   face; o bbox geral da entidade é apenas fallback. Somente retangulares
+   preservam o deslocamento externo canônico.
+   Tags usam fonte `1.10×` e roteamento `non_crossing_v1`: chips separados,
+   inteiros no viewBox e zero cruzamento entre conectores (mesmo ponto final é
+   permitido). Cruzamento detectado é FAIL técnico.
+   Chip retangular pode ter contorno
+   branco fino; especial/denso usa sem contorno. PASS de sidecar sem leitura do
+   PNG não aprova. Padrão: `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`. CLI
    `scripts/arete/pil_agentic_highlight_draw.py` ou export `--with-agentic`.
 6. **Escopo incremental rígido:** 13_PAV 100% → TREINO_1 completa → outras obras em
    steps. Nunca processar tudo de uma vez.

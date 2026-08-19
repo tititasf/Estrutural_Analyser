@@ -1,0 +1,5896 @@
+{
+  "schema": "pil.cruzamento.v1",
+  "obra": "Obra_TREINO_1",
+  "pav": "13_PAV",
+  "nota": "sinal para arbitragem, nunca correcao automatica; PIL e a classe mais madura hoje (calibracao do dono 2026-08-10)",
+  "itens": [
+    {
+      "item": "P1",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "OUTRA CLASSE liga V322 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V309A",
+          "seg": 1,
+          "ini": "V302",
+          "fim": "P1",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 1,
+          "ini": "P1",
+          "fim": "P2",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "VF301",
+          "seg": 1,
+          "ini": "P1",
+          "fim": "P1",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [
+        {
+          "viga": "V322",
+          "seg": 3,
+          "ini": "P16",
+          "fim": "P7",
+          "papel": "alinhada com o pilar e encosta nele; apoio declarado além = P7 → passa por dentro"
+        }
+      ],
+      "aberturas_lv": [
+        {
+          "viga": "V309A",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 42.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "VF301",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "VF301",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P2",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V312",
+          "seg": 1,
+          "ini": "P11",
+          "fim": "P2",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 1,
+          "ini": "P1",
+          "fim": "P2",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 4,
+          "ini": "P2",
+          "fim": "V314",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V312",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V312",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V312",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V312",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P3",
+      "divergencias": [
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V314",
+          "seg": 1,
+          "ini": "P12",
+          "fim": "P3",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V314",
+          "seg": 2,
+          "ini": "P3",
+          "fim": "P3",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 126.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 126.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 21.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 21.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P4",
+      "divergencias": [
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V316",
+          "seg": 1,
+          "ini": "P13",
+          "fim": "P4",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V316",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 81.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V316",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 2.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V316",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 81.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V316",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 2.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P5",
+      "divergencias": [
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V318",
+          "seg": 2,
+          "ini": "P14",
+          "fim": "P5",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 76.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 19.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 76.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 19.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P6",
+      "divergencias": [
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V320",
+          "seg": 2,
+          "ini": "P15",
+          "fim": "P6",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P7",
+      "divergencias": [
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V322",
+          "seg": 3,
+          "ini": "P16",
+          "fim": "P7",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P8",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem VF301, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V325",
+          "seg": 1,
+          "ini": "P17",
+          "fim": "P8",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 13,
+          "ini": "P16",
+          "fim": "P8",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 16,
+          "ini": "P8",
+          "fim": "P9",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 92.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 60.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P9",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "OUTRA CLASSE liga V330 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V332",
+          "seg": 1,
+          "ini": "V330",
+          "fim": "P9",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V330",
+          "seg": 1,
+          "ini": "P18",
+          "fim": "P9",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 16,
+          "ini": "P8",
+          "fim": "P9",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V332",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 44.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V332",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 340.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V332",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 44.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V332",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 340.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P10",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V309",
+          "seg": 1,
+          "ini": "P25",
+          "fim": "P10",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V309A",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V302",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V309A",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 42.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    },
+    {
+      "item": "P11",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V312",
+          "seg": 1,
+          "ini": "P11",
+          "fim": "P2",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": 2,
+          "ini": "P11",
+          "fim": "P12",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 2,
+          "ini": "V312",
+          "fim": "P11",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 3,
+          "ini": "P11",
+          "fim": "P11",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [
+        {
+          "viga": "V302",
+          "seg": 1,
+          "ini": "V309A",
+          "fim": "V312",
+          "papel": "alinhada com o pilar e encosta nele; apoio declarado além = V312 → passa por dentro"
+        }
+      ],
+      "aberturas_lv": [
+        {
+          "viga": "V312",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V312",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V312",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V312",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P12",
+      "divergencias": [
+        "OUTRA CLASSE liga V302 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V314",
+          "seg": 1,
+          "ini": "P12",
+          "fim": "P3",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": 2,
+          "ini": "P11",
+          "fim": "P12",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": 3,
+          "ini": "P12",
+          "fim": "V316",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 126.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 126.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 21.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 21.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    },
+    {
+      "item": "P13",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "OUTRA CLASSE liga V302 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V316",
+          "seg": 1,
+          "ini": "P13",
+          "fim": "P4",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": 4,
+          "ini": "P13",
+          "fim": "P14",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 7,
+          "ini": "V316",
+          "fim": "P13",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V316",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 81.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V316",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 2.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V316",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 81.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V316",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 2.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P14",
+      "divergencias": [
+        "OUTRA CLASSE liga V302 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V318",
+          "seg": 2,
+          "ini": "P14",
+          "fim": "P5",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V318",
+          "seg": 1,
+          "ini": "P14",
+          "fim": "P14",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": 5,
+          "ini": "P14",
+          "fim": "V325",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": 4,
+          "ini": "P13",
+          "fim": "P14",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 76.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 19.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 76.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 19.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    },
+    {
+      "item": "P15",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V320",
+          "seg": 1,
+          "ini": "P15",
+          "fim": "P15",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V320",
+          "seg": 2,
+          "ini": "P15",
+          "fim": "P6",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 10,
+          "ini": "P15",
+          "fim": "P15",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 11,
+          "ini": "P15",
+          "fim": "P15",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 12,
+          "ini": "P15",
+          "fim": "P16",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 9,
+          "ini": "V318",
+          "fim": "P15",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P16",
+      "divergencias": [
+        "OUTRA CLASSE liga V301 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V322",
+          "seg": 2,
+          "ini": "P16",
+          "fim": "P16",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V322",
+          "seg": 3,
+          "ini": "P16",
+          "fim": "P7",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 12,
+          "ini": "P15",
+          "fim": "P16",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V301",
+          "seg": 13,
+          "ini": "P16",
+          "fim": "P8",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [
+        {
+          "viga": "V322",
+          "seg": 1,
+          "ini": "V308",
+          "fim": "P26",
+          "papel": "alinhada com o pilar e encosta nele; apoio declarado além = P26 → passa por dentro"
+        }
+      ],
+      "aberturas_lv": [
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P17",
+      "divergencias": [
+        "OUTRA CLASSE liga V304 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V304",
+          "seg": 3,
+          "ini": "V324",
+          "fim": "P17",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V325",
+          "seg": 1,
+          "ini": "P17",
+          "fim": "P8",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": "viga_fundo_seg_7_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 45.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 120.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 92.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 60.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    },
+    {
+      "item": "P18",
+      "divergencias": [
+        "ABCD tem V331, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V329",
+          "seg": 1,
+          "ini": "V331",
+          "fim": "P18",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V330",
+          "seg": 1,
+          "ini": "P18",
+          "fim": "P9",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V302",
+          "seg": "viga_fundo_seg_9_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    },
+    {
+      "item": "P19",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V303",
+          "seg": 1,
+          "ini": "V310",
+          "fim": "P19",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V303",
+          "seg": 2,
+          "ini": "P19",
+          "fim": "P20",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V311",
+          "seg": 1,
+          "ini": "P28",
+          "fim": "P19",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V311",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V311",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 173.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V311",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V311",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 173.0,
+          "larg": 82.0
+        }
+      ]
+    },
+    {
+      "item": "P20",
+      "divergencias": [
+        "ABCD tem V310, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V303",
+          "seg": 2,
+          "ini": "P19",
+          "fim": "P20",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V303",
+          "seg": 3,
+          "ini": "P20",
+          "fim": "P21",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V313",
+          "seg": 1,
+          "ini": "P29",
+          "fim": "P20",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P21",
+      "divergencias": [
+        "ABCD tem V310, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V303",
+          "seg": 3,
+          "ini": "P20",
+          "fim": "P21",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V303",
+          "seg": 4,
+          "ini": "P21",
+          "fim": "P22",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V315",
+          "seg": 1,
+          "ini": "P30",
+          "fim": "P21",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V315",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V315",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P22",
+      "divergencias": [
+        "ABCD tem V310, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V303",
+          "seg": 4,
+          "ini": "P21",
+          "fim": "P22",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V303",
+          "seg": 5,
+          "ini": "P22",
+          "fim": "P23",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V317",
+          "seg": 1,
+          "ini": "P31",
+          "fim": "P22",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V317",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V317",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P23",
+      "divergencias": [
+        "ABCD tem V329, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V303",
+          "seg": 5,
+          "ini": "P22",
+          "fim": "P23",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V303",
+          "seg": 6,
+          "ini": "P23",
+          "fim": "V304",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V319",
+          "seg": 1,
+          "ini": "P32",
+          "fim": "P23",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 3,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V303",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V319",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V319",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V319",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V319",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P24",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V304",
+          "seg": 1,
+          "ini": "P24",
+          "fim": "P26",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [
+        {
+          "viga": "V321",
+          "seg": 1,
+          "ini": "P33",
+          "fim": "V304",
+          "papel": "alinhada com o pilar e encosta nele; apoio declarado além = V304 → passa por dentro"
+        }
+      ],
+      "aberturas_lv": [
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 45.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 120.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V321",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 88.0
+        },
+        {
+          "viga": "V321",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 88.0
+        }
+      ]
+    },
+    {
+      "item": "P25",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V307",
+          "seg": 1,
+          "ini": "P25",
+          "fim": "P25",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V309",
+          "seg": 1,
+          "ini": "P25",
+          "fim": "P10",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": []
+    },
+    {
+      "item": "P26",
+      "divergencias": [
+        "OUTRA CLASSE liga V322 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "OUTRA CLASSE liga V324 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V304",
+          "seg": 1,
+          "ini": "P24",
+          "fim": "P26",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V305",
+          "seg": 1,
+          "ini": "P26",
+          "fim": "P27",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V322",
+          "seg": 1,
+          "ini": "V308",
+          "fim": "P26",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V323",
+          "seg": 1,
+          "ini": "V308",
+          "fim": "P26",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V324",
+          "seg": 1,
+          "ini": "V308",
+          "fim": "P26",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 45.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 120.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V305",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 102.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V305",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 41.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V305",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 102.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V305",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 41.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V324",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 93.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V324",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V324",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 93.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V324",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 142.0
+        }
+      ]
+    },
+    {
+      "item": "P27",
+      "divergencias": [
+        "ABCD tem V331, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V305",
+          "seg": 1,
+          "ini": "P26",
+          "fim": "P27",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V328",
+          "seg": 1,
+          "ini": "P35",
+          "fim": "P27",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V304",
+          "seg": "viga_fundo_seg_4_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V327",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V329",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 45.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 120.0,
+          "larg": 240.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V304",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 10.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V305",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 102.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V305",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 41.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V305",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 102.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V305",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 41.0,
+          "larg": 142.0
+        }
+      ]
+    },
+    {
+      "item": "P28",
+      "divergencias": [
+        "OUTRA CLASSE liga VF203 ao pilar [com geometria], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem V306, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V311",
+          "seg": 1,
+          "ini": "P28",
+          "fim": "P19",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "VF202",
+          "seg": 1,
+          "ini": "V306",
+          "fim": "P28",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "VF203",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V311",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V311",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 173.0,
+          "larg": 82.0
+        },
+        {
+          "viga": "V311",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V311",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 173.0,
+          "larg": 82.0
+        }
+      ]
+    },
+    {
+      "item": "P29",
+      "divergencias": [
+        "OUTRA CLASSE liga V313 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem VF202, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V313",
+          "seg": 1,
+          "ini": "P29",
+          "fim": "P20",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": []
+    },
+    {
+      "item": "P30",
+      "divergencias": [
+        "OUTRA CLASSE liga V315 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem VF202, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V315",
+          "seg": 1,
+          "ini": "P30",
+          "fim": "P21",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V315",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V315",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P31",
+      "divergencias": [
+        "OUTRA CLASSE liga V317 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem VF202, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V317",
+          "seg": 1,
+          "ini": "P31",
+          "fim": "P22",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V317",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V317",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P32",
+      "divergencias": [
+        "OUTRA CLASSE liga V319 ao pilar [só declaração (sem geometria)], mas o ABCD não tem — checar dos DOIS lados",
+        "ABCD tem VF202, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V319",
+          "seg": 1,
+          "ini": "P32",
+          "fim": "P23",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V319",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V319",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V319",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V319",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        }
+      ]
+    },
+    {
+      "item": "P33",
+      "divergencias": [
+        "ABCD tem V323, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe",
+        "ABCD tem VF202, nenhuma outra classe confirma — PIL é mais maduro: provável lacuna na outra classe"
+      ],
+      "toca": [
+        {
+          "viga": "V321",
+          "seg": 1,
+          "ini": "P33",
+          "fim": "V304",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V308",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V321",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 88.0
+        },
+        {
+          "viga": "V321",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 88.0
+        }
+      ]
+    },
+    {
+      "item": "P34",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V308",
+          "seg": 2,
+          "ini": "P34",
+          "fim": "P34",
+          "papel": "apoio/chega (declarado no FV)"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": []
+    },
+    {
+      "item": "P35",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V328",
+          "seg": 1,
+          "ini": "P35",
+          "fim": "P27",
+          "papel": "apoio/chega (declarado no FV)"
+        },
+        {
+          "viga": "V308",
+          "seg": "viga_fundo_seg_2_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": []
+    },
+    {
+      "item": "P41",
+      "divergencias": [
+        "OUTRA CLASSE liga V322 ao pilar [com geometria], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V309A",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V322",
+          "seg": "viga_fundo_seg_3_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V309A",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 42.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P42",
+      "divergencias": [
+        "OUTRA CLASSE liga V312 ao pilar [com geometria], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V312",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_2_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V312",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V312",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V312",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V312",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 0.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P43",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V314",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_4_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 126.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 17.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 126.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 21.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 82.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V314",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 21.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P44",
+      "divergencias": [
+        "OUTRA CLASSE liga V316 ao pilar [com geometria], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V316",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_6_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V316",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 81.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V316",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 2.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V316",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 81.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V316",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 2.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P45",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V318",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_8_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 108.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 75.0,
+          "larg": 102.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 76.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 19.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "dir",
+          "dist": 76.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V318",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 19.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P46",
+      "divergencias": [
+        "OUTRA CLASSE liga V320 ao pilar [com geometria], mas o ABCD não tem — checar dos DOIS lados"
+      ],
+      "toca": [
+        {
+          "viga": "V320",
+          "seg": "viga_fundo_seg_2_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_10_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P47",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V322",
+          "seg": "viga_fundo_seg_2_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_12_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V322",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P48",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V325",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_14_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 96.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "a",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "dir",
+          "dist": 92.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V325",
+          "lado": "b",
+          "seg": 2,
+          "extremo": "esq",
+          "dist": 60.0,
+          "larg": 187.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P49",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V301",
+          "seg": "viga_fundo_seg_16_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [
+        {
+          "viga": "V330",
+          "seg": 1,
+          "ini": "P18",
+          "fim": "P9",
+          "papel": "alinhada com o pilar e encosta nele; apoio declarado além = P9 → passa por dentro"
+        }
+      ],
+      "aberturas_lv": [
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "a",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "dir",
+          "dist": 0.0,
+          "larg": 142.0
+        },
+        {
+          "viga": "V301",
+          "lado": "b",
+          "seg": 7,
+          "extremo": "esq",
+          "dist": 12.0,
+          "larg": 41.0
+        }
+      ]
+    },
+    {
+      "item": "P50",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V302",
+          "seg": "viga_fundo_seg_3_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    },
+    {
+      "item": "P51",
+      "divergencias": [],
+      "toca": [
+        {
+          "viga": "V320",
+          "seg": "viga_fundo_seg_1_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        },
+        {
+          "viga": "V302",
+          "seg": "viga_fundo_seg_5_area_segs",
+          "ini": "",
+          "fim": "",
+          "papel": "contorno encosta no pilar (gap 0) — vínculo geométrico"
+        }
+      ],
+      "passa": [],
+      "aberturas_lv": [
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 4,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 171.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 9.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "dir",
+          "dist": 43.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 5,
+          "extremo": "esq",
+          "dist": 15.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "a",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "dir",
+          "dist": 60.0,
+          "larg": 41.0
+        },
+        {
+          "viga": "V320",
+          "lado": "b",
+          "seg": 6,
+          "extremo": "esq",
+          "dist": 6.0,
+          "larg": 72.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "dir",
+          "dist": 103.0,
+          "larg": 122.0
+        },
+        {
+          "viga": "V302",
+          "lado": "a",
+          "seg": 1,
+          "extremo": "esq",
+          "dist": 62.0,
+          "larg": 48.0
+        }
+      ]
+    }
+  ]
+}

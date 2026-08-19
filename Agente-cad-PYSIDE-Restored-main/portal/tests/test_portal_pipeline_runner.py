@@ -165,6 +165,7 @@ def test_microciclo_item_monta_comando_com_secao_item_persist(settings, tmp_path
     assert "--item" in cmd and "P900" in cmd
     assert "--wait" in cmd
     assert "--persist-db" in cmd
+    assert "--production-web" in cmd
 
 
 def test_montar_comando_secao_sem_item_nao_tem_persist(settings, tmp_path):
@@ -183,6 +184,8 @@ def test_montar_comando_completo_sem_secao_tem_persist(settings, tmp_path):
     cmd = pipeline_runner.montar_comando_headless(settings, obra, pav="13_PAV")
     assert "--secao" not in cmd
     assert "--persist-db" in cmd
+    assert "--production-web" in cmd
+    assert cmd[cmd.index("--db") + 1] == str(settings.sa_db_path)
 
 
 def test_microciclo_exige_secao_e_item(settings, tmp_path):
@@ -294,12 +297,13 @@ def test_garantir_project_registra_quando_nao_existe(settings, tmp_path):
 
     obra_dir, obra = _obra_com_entrada(tmp_path, "teste.dxf")
     # simula o dxf ja' convertido pela triagem (mesmo nome, .dxf)
-    pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
+    project_id = pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
 
     database = DatabaseManager(db_path=str(settings.sa_db_path))
     projetos = database.get_projects()
     achado = select_sa_project(projetos, obra=str(obra_dir), pavimento="13_PAV")
     assert achado["work_name"] == str(obra_dir)
+    assert project_id == achado["id"]
     assert Path(achado["dxf_path"]).exists()
 
 
@@ -436,9 +440,14 @@ def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, mon
     obra_dir = tmp_path / "obra_sa_integrada"
     obra_dir.mkdir()
     obra = {"nome": "obra_sa_integrada", "local_path": str(obra_dir)}
-    monkeypatch.setattr(pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None)
+    monkeypatch.setattr(
+        pipeline_runner, "_garantir_project_registrado", lambda *a, **k: "proj-test",
+    )
 
     def fake_run(*args, **kwargs):
+        cmd = args[0]
+        assert cmd[cmd.index("--project-id") + 1] == "proj-test"
+        assert kwargs["timeout"] is None
         (obra_dir / "estado_TERREO_pid777.json").write_text(json.dumps({
             "pilares": [{
                 "name": "P1",
@@ -450,6 +459,13 @@ def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, mon
         return pipeline_runner.subprocess.CompletedProcess(args[0], 0, "SA ok", "")
 
     monkeypatch.setattr(pipeline_runner.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        pipeline_runner, "materializar_n1_tags_pilares",
+        lambda *a, **k: {
+            "pack": "pack-tags", "esperados": 1, "gerados": 1,
+            "missing": [], "duracao_s": 0.1,
+        },
+    )
     result = pipeline_runner._rodar_subprocess_sa(
         settings, ["python", "headless"], obra=obra, etapa="sa",
         dry_run=False, log_path=None, pav="TERREO",
@@ -458,15 +474,39 @@ def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, mon
     assert (obra_dir / "estado_TERREO.json").is_file()
     assert result.artefatos["pilar_n3_fichas"]["created"] == 1
     assert result.artefatos["pilar_n3"]["variantes_completas"] == 2
+    assert result.artefatos["pilar_n1_tags"]["gerados"] == 1
     from src.core.pillar_n3_ficha import ficha_path
     assert ficha_path(obra_dir, "TERREO", "P1").is_file()
+
+
+def test_job_sa_falha_fechado_quando_project_id_nao_resolve(settings, tmp_path, monkeypatch):
+    obra_dir = tmp_path / "obra_sem_project_id"
+    obra_dir.mkdir()
+    obra = {"nome": "obra_sem_project_id", "local_path": str(obra_dir)}
+    monkeypatch.setattr(
+        pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None,
+    )
+
+    def nao_deve_rodar(*args, **kwargs):
+        raise AssertionError("subprocess nao pode rodar sem project_id exato")
+
+    monkeypatch.setattr(pipeline_runner.subprocess, "run", nao_deve_rodar)
+    result = pipeline_runner._rodar_subprocess_sa(
+        settings, ["python", "headless"], obra=obra, etapa="sa",
+        dry_run=False, log_path=None, pav="TERREO",
+    )
+    assert not result.ok
+    assert result.returncode is None
+    assert "projeto exato" in result.log_tail
 
 
 def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path, monkeypatch):
     obra_dir = tmp_path / "obra_sa_sem_n3"
     obra_dir.mkdir()
     obra = {"nome": "obra_sa_sem_n3", "local_path": str(obra_dir)}
-    monkeypatch.setattr(pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None)
+    monkeypatch.setattr(
+        pipeline_runner, "_garantir_project_registrado", lambda *a, **k: "proj-test",
+    )
 
     def fake_run(*args, **kwargs):
         (obra_dir / "estado_TERREO_pid778.json").write_text(json.dumps({
@@ -485,3 +525,36 @@ def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path,
     assert not result.ok
     assert len(result.artefatos["pilar_n3"]["missing"]) == 6
     assert "pacote N3 de pilares incompleto" in result.log_tail
+
+
+def test_materializar_n1_tags_usa_modo_rapido_e_audita_todos(settings, tmp_path, monkeypatch):
+    repo = tmp_path / "repo"
+    script = repo / "scripts" / "arete" / "export_pilares_abcd_fichas.py"
+    script.parent.mkdir(parents=True)
+    script.write_text("# fake", encoding="utf-8")
+    settings.repo_root = repo
+    obra_dir = tmp_path / "obra_tags"
+    obra_dir.mkdir()
+    obra = {"nome": "obra_tags", "local_path": str(obra_dir)}
+    (obra_dir / "estado_TERREO.json").write_text(json.dumps({
+        "pilares": [{"name": "P1"}, {"name": "P2"}],
+    }), encoding="utf-8")
+
+    def fake_run(cmd, **kwargs):
+        assert "--tags-only" in cmd
+        assert "--no-layers" not in cmd
+        assert kwargs["timeout"] is None
+        pack = repo / "scripts" / "arete" / "html_fichas" / "obra_tags" / "TERREO_20260818_pilares_abcd"
+        propostas = pack / "propostas"
+        propostas.mkdir(parents=True)
+        for name in ("P1", "P2"):
+            (propostas / f"{name}_sa_motor.svg").write_text("<svg/>", encoding="utf-8")
+        return pipeline_runner.subprocess.CompletedProcess(cmd, 0, "ok", "")
+
+    monkeypatch.setattr(pipeline_runner, "python_sa_executable", lambda *_: "python312")
+    monkeypatch.setattr(pipeline_runner.subprocess, "run", fake_run)
+    stats = pipeline_runner.materializar_n1_tags_pilares(
+        settings, obra, project_id="proj", pavimento="TERREO",
+    )
+    assert stats["esperados"] == stats["gerados"] == 2
+    assert stats["missing"] == []

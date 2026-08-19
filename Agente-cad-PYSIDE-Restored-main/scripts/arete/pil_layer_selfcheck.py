@@ -37,6 +37,23 @@ def _real(rows):
     return [r for r in (rows or []) if (r.get("nome") or "") not in EMPTY]
 
 
+def _short_face_pass_corner_convention(fid, kind, nome, canto, contatos):
+    """A/B.passa no canto pode espelhar uma viga colinear à face curta C/D.
+
+    O contato medido pertence ao segmento curto, mas a tag de A/B continua
+    legítima como marca do vértice físico compartilhado. A regra é geométrica e
+    vale para qualquer item; não depende do nome do pilar ou da viga.
+    """
+    return (
+        kind == "passa"
+        and fid in ("A", "B")
+        and len(canto) == 2
+        and canto[0] == fid
+        and canto[1] in ("C", "D")
+        and (nome, canto[1], "passa") in contatos
+    )
+
+
 def avaliar(faces, pillar, beams_by_name):
     xs = [p[0] for p in pillar["points"]]
     ys = [p[1] for p in pillar["points"]]
@@ -82,6 +99,10 @@ def avaliar(faces, pillar, beams_by_name):
                 elif kind == "interior" and fid in ("C", "D") and nome in engloba:
                     st, why = "CONVENCAO", (f"Caso 4 do doc: {nome} passa em A e B → o pilar está no "
                                             f"corpo da viga, logo a face {fid} é limite interno")
+                elif _short_face_pass_corner_convention(fid, kind, nome, canto, contatos):
+                    st, why = "CONVENCAO", (
+                        f"marca de vértice {canto}: {nome} é colinear à face curta {canto[1]}"
+                    )
                 else:
                     st, why = "SEM_BASE", "nenhum contato medido nesta face e nenhuma regra que sustente"
                 linhas.append({"face": fid, "familia": kind, "nome": nome, "canto": canto,
@@ -167,6 +188,32 @@ def main() -> int:
     veredito = "validou" if n["SEM_BASE"] == 0 else "invalidou"
     print(f"\n  OK={n['OK']}  CONVENCAO={n['CONVENCAO']}  SEM_BASE={n['SEM_BASE']}")
     print(f"  [camada 1 · geometria] {veredito.upper()}")
+
+    # ── camada 3a · CRUZAMENTO ENTRE CLASSES (SEMPRE, nunca opcional) ──
+    # Regra do dono (2026-08-10): "o que estiver divergindo entre classes, você
+    # como QA SEMPRE deve apontar" — o objetivo é harmonizar as classes, então
+    # nenhuma divergência pode ser suprimida, mesmo que o PIL esteja certo.
+    from scripts.arete.pil_cruzamento_classes import cruzar, comparar, apoios_declarados  # noqa
+    from scripts.arete.pil_l2_evidence_check import _beam_contours as _bc  # noqa
+    mapa_pos = {}
+    for _p in pillars:
+        _xs = [q[0] for q in _p["points"]]
+        _ys = [q[1] for q in _p["points"]]
+        mapa_pos[_p["name"]] = (min(_xs), min(_ys), max(_xs), max(_ys))
+    for _b in beams:
+        _sg = _bc(_b)
+        if _sg:
+            mapa_pos.setdefault(_b.get("name"), (
+                min(s["x0"] for s in _sg), min(s["y0"] for s in _sg),
+                max(s["x1"] for s in _sg), max(s["y1"] for s in _sg)))
+    _cz = cruzar(pillar, beams, mapa_pos)
+    divergencias = comparar(_cz, {"faces": faces})
+    print(f"\n  [camada 3a · cruzamento entre classes] "
+          f"{len(divergencias)} divergência(s)")
+    for d in divergencias:
+        print(f"    ⚠ {d}")
+    if not divergencias:
+        print("    ✔ FV/LV e ABCD concordam sobre todos os vínculos")
 
     if args.vision:
         png = rasterizar(prop / f"{args.item}_qa_{args.layer}.svg", faces, pillar,

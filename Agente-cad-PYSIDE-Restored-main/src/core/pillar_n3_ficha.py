@@ -114,7 +114,14 @@ def build_ficha(pillar: dict, robot: dict | None = None, saved: dict | None = No
         fallback_width = length if face in "AB" else width
         if index < len(edge_lengths):
             fallback_width = edge_lengths[index]
-        face_width = _positive(robot.get(f"larg1_{face}"), fallback_width)
+        # A Fase 4 grava explicitamente ``0.0`` nas faces extras sem medida.
+        # Para pilares especiais (mais de quatro arestas), essas faces ainda
+        # precisam de uma malha editavel. Trate zero como "medida ausente" e
+        # use a aresta/geometria N1; manter zero criaria um painel invalido no
+        # pos-processamento do SA completo.
+        face_width = _positive(robot.get(f"larg1_{face}")) or _positive(fallback_width)
+        if face_width <= 0:
+            face_width = width or 20.0
         faces[face] = _default_face(face, face_width, height, robot)
     ficha = {
         "schema": SCHEMA,

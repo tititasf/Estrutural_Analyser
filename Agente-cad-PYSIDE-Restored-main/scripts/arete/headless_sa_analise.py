@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-"""Exporta o pack SA usando o mesmo projeto, DXF e motor da interface humana.
+"""Executa o SA usando o mesmo projeto, DXF e motor da interface humana.
 
 O script resolve o registro ``projects`` exibido no Structural Analyzer,
 carrega seu ``dxf_path`` e executa o próprio fluxo da Análise Geral em modo
-offscreen. O padrão é somente leitura; ``--persist-db`` habilita commit
-transacional depois dos quatro diagnósticos.
+offscreen. O padrão continua sendo o pack de QA/Arete. ``--production-web``
+ativa o caminho operacional separado: N1 + persistência + N3 permanente,
+sem N2/N4, diagnósticos ou reexportação do pack de treino.
 """
 from __future__ import annotations
 
@@ -22,8 +23,23 @@ import pickle
 import subprocess
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Callable
+
+
+class _PersistentDirectoryContext:
+    """Mesmo contrato de ``TemporaryDirectory``, sem remover a saída final."""
+
+    def __init__(self, path: Path):
+        self.path = Path(path)
+
+    def __enter__(self) -> str:
+        self.path.mkdir(parents=True, exist_ok=True)
+        return str(self.path)
+
+    def __exit__(self, exc_type, exc, traceback) -> bool:
+        return False
 
 # Esta CLI nunca pode herdar o backend visível do dashboard. ``setdefault``
 # permitia QT_QPA_PLATFORM=windows vindo do processo pai e abria a app.
@@ -56,6 +72,7 @@ _FAST_CONTEXT_ENGINE_FILES = (
     'src/core/lv_generation_contract.py',
     'src/core/fv_generation_contract.py',
     'src/core/pillar_face_beams.py',
+    'src/core/pillar_geometry_recovery.py',
 )
 
 
@@ -828,6 +845,20 @@ def _run_legacy_analysis(
     print('[SA] Montando relatorio de pilares...', flush=True)
     runner._infer_slab_levels_from_context(runner.slabs_found)
     runner.pavimento_pillar_report = runner._build_complete_pillar_report(runner.slabs_found)
+    # Antes de usar pilares como obstáculos/apoios de viga, recupere a seção
+    # completa quando o detector associou ao P# apenas o trecho curto de um
+    # pilar que nasce no pavimento seguinte. A regra é puramente DXF+nome e
+    # não usa GOLDEN nem ajuste visual.
+    from src.core.pillar_geometry_recovery import repair_truncated_named_pillars_from_dxf
+    repaired_pillars = repair_truncated_named_pillars_from_dxf(
+        runner.pavimento_pillar_report, polylines=polylines, texts=texts,
+    )
+    if repaired_pillars:
+        print(
+            '[SA] Geometrias de pilar recuperadas do DXF: ' +
+            ', '.join(str(item['item']) for item in repaired_pillars),
+            flush=True,
+        )
     runner._apply_preficha_rejections(runner.pavimento_pillar_report)
     n_pil = len(runner.pavimento_pillar_report)
     print(f'[SA] Pilares: {n_pil}', flush=True)
@@ -1478,6 +1509,7 @@ def _generate_fv_n3_nova_previews(
     obra_dir: Path,
     fv_results: list[dict],
     output_dir: Path,
+    max_workers: int = 1,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 NOVA com o resultado do fluxo humano, em diretórios isolados."""
     from src.core.fv_generation_contract import build_fv_generation_contract
@@ -1498,6 +1530,7 @@ def _generate_fv_n3_nova_previews(
         if beam_name and contract.get('segments_rich'):
             contracts[beam_name] = contract
 
+    tasks: list[tuple[str, list[str], Path, int]] = []
     for beam_name, contract in contracts.items():
         contract_path = input_dir / f'{beam_name}_fundo.json'
         contract_path.write_text(
@@ -1513,38 +1546,56 @@ def _generate_fv_n3_nova_previews(
             '--output-dir', str(output_dir),
             '--input-dir', str(input_dir),
         ]
+        expected = output_dir / f'FV_preview_{beam_name}.dxf'
+        tasks.append((beam_name, command, expected, 120))
+    return _run_n3_subprocess_tasks(tasks, max_workers=max_workers, label='N3 NOVA')
+
+
+def _run_n3_subprocess_tasks(
+    tasks: list[tuple[str, list[str], Path, int]], *, max_workers: int, label: str,
+) -> tuple[list[str], list[str]]:
+    """Executa geradores independentes sem alterar seus contratos certificados."""
+    if not tasks:
+        return [], []
+
+    def run_one(task: tuple[str, list[str], Path, int]):
+        name, command, expected, timeout = task
         try:
             result = subprocess.run(
                 command,
                 cwd=str(_REPO_ROOT),
                 capture_output=True,
                 text=True,
-                timeout=120,
-                # O destino já é temporário e isolado. Remover a trava aqui evita
-                # que guarded_saveas desvie o candidato para outro diretório.
+                timeout=timeout,
                 env={
                     key: value for key, value in os.environ.items()
                     if key != 'CAD_MOTOR_HEADLESS'
                 },
             )
         except subprocess.TimeoutExpired:
-            failed.append(beam_name)
-            print(
-                f'[SA-HUMAN] N3 NOVA timeout (120s) para {beam_name}',
-                flush=True,
-            )
-            continue
-        expected = output_dir / f'FV_preview_{beam_name}.dxf'
-        if result.returncode == 0 and expected.is_file():
-            generated.append(beam_name)
+            return name, False, f'timeout ({timeout}s)'
+        ok = result.returncode == 0 and expected.is_file()
+        detail = '' if ok else (result.stderr or result.stdout or '').strip()[-300:]
+        return name, ok, detail
+
+    generated: list[str] = []
+    failed: list[str] = []
+    workers = max(1, min(int(max_workers or 1), 3, len(tasks)))
+    if workers == 1:
+        results = [run_one(task) for task in tasks]
+    else:
+        results = []
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix='sa-n3') as pool:
+            futures = [pool.submit(run_one, task) for task in tasks]
+            for future in as_completed(futures):
+                results.append(future.result())
+    for name, ok, detail in results:
+        if ok:
+            generated.append(name)
         else:
-            failed.append(beam_name)
-            detail = (result.stderr or result.stdout or '').strip()[-300:]
-            print(
-                f'[SA-HUMAN] N3 NOVA ausente para {beam_name}: {detail}',
-                flush=True,
-            )
-    return generated, failed
+            failed.append(name)
+            print(f'[SA-HUMAN] {label} ausente para {name}: {detail}', flush=True)
+    return sorted(generated), sorted(failed)
 
 
 def _filter_fv_results_for_items(
@@ -1672,6 +1723,7 @@ def _generate_lv_n3_nova_previews(
     obra_dir: Path,
     beams: list[dict],
     output_dir: Path,
+    max_workers: int = 1,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 isolado das laterais de viga (LV): 2 comportamentos
     (Para/Passa) x 3 vistas (Visão de Corte/Lateral A/Lateral B) por viga.
@@ -1690,6 +1742,7 @@ def _generate_lv_n3_nova_previews(
     generated: list[str] = []
     failed: list[str] = []
 
+    tasks: list[tuple[str, list[str], Path, int]] = []
     for beam in beams or []:
         contracts = beam.get('lv_generation_contracts')
         if not isinstance(contracts, dict):
@@ -1724,45 +1777,16 @@ def _generate_lv_n3_nova_previews(
                     '--output-dir', str(output_dir),
                     '--input-dir', str(behavior_input_dir),
                 ]
-                try:
-                    result = subprocess.run(
-                        command,
-                        cwd=str(_REPO_ROOT),
-                        capture_output=True,
-                        text=True,
-                        timeout=90,
-                        # Destino já isolado/temporário — remover a trava evita
-                        # que guarded_saveas desvie o candidato pra outro lugar
-                        # (mesmo motivo do FV, ver _generate_fv_n3_nova_previews).
-                        env={
-                            key: value for key, value in os.environ.items()
-                            if key != 'CAD_MOTOR_HEADLESS'
-                        },
-                    )
-                except subprocess.TimeoutExpired:
-                    failed.append(label)
-                    print(
-                        f'[SA-HUMAN] N3 LV timeout (90s) para {label}',
-                        flush=True,
-                    )
-                    continue
                 expected = output_dir / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
-                if result.returncode == 0 and expected.is_file():
-                    generated.append(label)
-                else:
-                    failed.append(label)
-                    detail = (result.stderr or result.stdout or '').strip()[-300:]
-                    print(
-                        f'[SA-HUMAN] N3 LV ausente para {label}: {detail}',
-                        flush=True,
-                    )
-    return generated, failed
+                tasks.append((label, command, expected, 90))
+    return _run_n3_subprocess_tasks(tasks, max_workers=max_workers, label='N3 LV')
 
 
 def _generate_lj_n3_nova_previews(
     obra_dir: Path,
     window,
     output_dir: Path,
+    max_workers: int = 1,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 isolado das lajes (LJ) — reaproveita a MESMA materialização
     que o desktop já faz com sucesso em modo não-read-only
@@ -1779,6 +1803,7 @@ def _generate_lj_n3_nova_previews(
     generated: list[str] = []
     failed: list[str] = []
 
+    tasks: list[tuple[str, list[str], Path, int]] = []
     for slab in getattr(window, 'slabs_found', []) or []:
         nome = str(slab.get('name') or '').strip().upper()
         if not nome:
@@ -1807,33 +1832,12 @@ def _generate_lj_n3_nova_previews(
             '--json-dir', str(json_dir),
             '--out-dir', str(output_dir),
         ]
-        try:
-            result = subprocess.run(
-                command,
-                cwd=str(_REPO_ROOT),
-                capture_output=True,
-                text=True,
-                timeout=90,
-                env={
-                    key: value for key, value in os.environ.items()
-                    if key != 'CAD_MOTOR_HEADLESS'
-                },
-            )
-        except subprocess.TimeoutExpired:
-            failed.append(nome)
-            print(f'[SA-HUMAN] N3 LJ timeout (90s) para {nome}', flush=True)
-            continue
         expected = output_dir / f'LJ_preview_{nome}.dxf'
-        if result.returncode == 0 and expected.is_file():
-            generated.append(nome)
-        else:
-            failed.append(nome)
-            detail = (result.stderr or result.stdout or '').strip()[-300:]
-            print(
-                f'[SA-HUMAN] N3 LJ ausente para {nome}: {detail}',
-                flush=True,
-            )
-    return generated, failed
+        tasks.append((nome, command, expected, 90))
+    generated_tasks, failed_tasks = _run_n3_subprocess_tasks(
+        tasks, max_workers=max_workers, label='N3 LJ'
+    )
+    return sorted(set(generated + generated_tasks)), sorted(set(failed + failed_tasks))
 
 
 def run_analysis(
@@ -1848,6 +1852,7 @@ def run_analysis(
     item_names: set[str] | None = None,
     wait_for_db_lock: bool = False,
     stage_callback: Callable[[str], None] | None = None,
+    production_web: bool = False,
 ) -> dict:
     """Executa a Análise Geral real do SA e exporta um pack imutável.
 
@@ -2143,6 +2148,8 @@ def run_analysis(
         html_dir = None
         dialog = None
         diagnostics = {}
+        production_dir: Path | None = None
+        production_manifest = ''
         try:
             dialog = window._build_pre_validation_dialog()
             if dialog:
@@ -2152,10 +2159,34 @@ def run_analysis(
                     # Estado e pack próprios: classes concorrentes não
                     # sobrescrevem os artefatos umas das outras.
                     dialog._headless_run_scope = next(iter(sections))
-                html_dir = dialog._export_html_snapshot(sections=sections)
-                # `_export_html_snapshot` salva em `run_dir` local e retorna o Path
-                print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
-                report_stage('exportacao inicial de fichas')
+                if production_web:
+                    # Produção não usa o pack Arete como banco intermediário.
+                    # O estado estruturado é a fonte do portal; N2/N4 e os HTMLs
+                    # comparativos continuam disponíveis no modo canônico de QA.
+                    dialog._save_analysis_state()
+                    state_path = Path(dialog._analysis_state_path())
+                    if not state_path.is_file():
+                        raise RuntimeError(
+                            f'snapshot N1 de producao nao foi publicado: {state_path}'
+                        )
+                    obra_dir_prod = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
+                    run_stamp = time.strftime('%Y%m%d_%H%M%S')
+                    production_dir = (
+                        obra_dir_prod / 'Fase-6_Execucao_CAD' / 'production_sa'
+                        / pavimento / f'{run_stamp}_{os.getpid()}'
+                    )
+                    production_dir.mkdir(parents=True, exist_ok=True)
+                    html_dir = str(production_dir)
+                    print(
+                        f'[SA-PROD] Snapshot N1 estruturado: {state_path}',
+                        flush=True,
+                    )
+                    report_stage('snapshot N1 de producao')
+                else:
+                    html_dir = dialog._export_html_snapshot(sections=sections)
+                    # `_export_html_snapshot` salva em `run_dir` local e retorna o Path
+                    print(f'[SA-HUMAN] Pack exportado: {html_dir}', flush=True)
+                    report_stage('exportacao inicial de fichas')
 
                 # A exportação PIL já materializou PARA+PASSA no cache do
                 # diálogo. Se este run for persistido, anexa o mesmo artefato
@@ -2182,10 +2213,11 @@ def run_analysis(
                         db_path=db_path,
                         item_names=item_names,
                     )
-                    if run_diagnostics
+                    if run_diagnostics and not production_web
                     else {}
                 )
-                report_stage('diagnosticos canonicos')
+                if not production_web:
+                    report_stage('diagnosticos canonicos')
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -2197,29 +2229,34 @@ def run_analysis(
         # Ordem: gate+commit primeiro; N3 é best-effort depois.
         persistence = {'status': 'READ_ONLY'}
         if persist_db:
-            required_sections = set(_SECTION_DIAGNOSTIC_MODULES)
-            if item_names and sections is not None:
-                required_sections = set(sections)
-            missing = required_sections - set(diagnostics)
-            errors = {
-                section: diagnostic.get('erro', 'erro desconhecido')
-                for section, diagnostic in diagnostics.items()
-                if diagnostic.get('status') != 'ok'
-            }
-            if missing or errors or not html_dir or not Path(html_dir).is_dir():
-                raise RuntimeError(
-                    'Persistência recusada pelo gate: '
-                    f'seções ausentes={sorted(missing)}, erros={errors}, '
-                    f'html_dir={html_dir!s}'
+            if production_web:
+                if not production_dir or not production_dir.is_dir():
+                    raise RuntimeError('diretorio de producao SA nao foi criado')
+                run_id = production_dir.name
+            else:
+                required_sections = set(_SECTION_DIAGNOSTIC_MODULES)
+                if item_names and sections is not None:
+                    required_sections = set(sections)
+                missing = required_sections - set(diagnostics)
+                errors = {
+                    section: diagnostic.get('erro', 'erro desconhecido')
+                    for section, diagnostic in diagnostics.items()
+                    if diagnostic.get('status') != 'ok'
+                }
+                if missing or errors or not html_dir or not Path(html_dir).is_dir():
+                    raise RuntimeError(
+                        'Persistência recusada pelo gate: '
+                        f'seções ausentes={sorted(missing)}, erros={errors}, '
+                        f'html_dir={html_dir!s}'
+                    )
+                run_id = next(
+                    (
+                        str(diagnostic.get('run_id'))
+                        for diagnostic in diagnostics.values()
+                        if diagnostic.get('run_id')
+                    ),
+                    Path(html_dir).name.rsplit('_', 1)[-1],
                 )
-            run_id = next(
-                (
-                    str(diagnostic.get('run_id'))
-                    for diagnostic in diagnostics.values()
-                    if diagnostic.get('run_id')
-                ),
-                Path(html_dir).name.rsplit('_', 1)[-1],
-            )
             from src.core.sa_db_persistence import persist_analysis_snapshot
             collections_to_persist = partial_collections or merged
             # O dialogo HTML pode reconstruir os vinculos granulares. Reanexa
@@ -2287,13 +2324,20 @@ def run_analysis(
             )
             n3_tmp_root = _REPO_ROOT / 'scripts' / 'arete' / 'tmp'
             n3_tmp_root.mkdir(parents=True, exist_ok=True)
-            with tempfile.TemporaryDirectory(
-                prefix='sa_n3_nova_', dir=str(n3_tmp_root)
-            ) as n3_temp:
+            if production_web:
+                if production_dir is None:
+                    raise RuntimeError('diretorio de producao ausente antes do N3')
+                n3_temp_context = _PersistentDirectoryContext(production_dir / 'n3')
+            else:
+                n3_temp_context = tempfile.TemporaryDirectory(
+                    prefix='sa_n3_nova_', dir=str(n3_tmp_root)
+                )
+            with n3_temp_context as n3_temp:
                 if 'fundos_viga' in active_n3_sections:
                     try:
                         generated, failed = _generate_fv_n3_nova_previews(
-                            obra_dir, fv_results, Path(n3_temp) / 'dxf'
+                            obra_dir, fv_results, Path(n3_temp) / 'dxf',
+                            max_workers=3 if production_web else 1,
                         )
                         print(
                             f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
@@ -2305,7 +2349,8 @@ def run_analysis(
                 if 'laterais_viga' in active_n3_sections:
                     try:
                         lv_generated, lv_failed = _generate_lv_n3_nova_previews(
-                            obra_dir, window.beams_found, Path(n3_temp) / 'dxf'
+                            obra_dir, window.beams_found, Path(n3_temp) / 'dxf',
+                            max_workers=3 if production_web else 1,
                         )
                         print(
                             f'[SA-HUMAN] N3 LV isolado: {len(lv_generated)} gerado(s), '
@@ -2317,7 +2362,8 @@ def run_analysis(
                 if 'lajes' in active_n3_sections:
                     try:
                         lj_generated, lj_failed = _generate_lj_n3_nova_previews(
-                            obra_dir, window, Path(n3_temp) / 'dxf'
+                            obra_dir, window, Path(n3_temp) / 'dxf',
+                            max_workers=3 if production_web else 1,
                         )
                         print(
                             f'[SA-HUMAN] N3 LJ isolado: {len(lj_generated)} gerado(s), '
@@ -2358,17 +2404,64 @@ def run_analysis(
                 )
                 if dialog is None and needs_secondary_reexport:
                     dialog = window._build_pre_validation_dialog()
-                if dialog is not None and needs_secondary_reexport:
+                if dialog is not None and needs_secondary_reexport and not production_web:
                     dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
                     dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
                     html_dir = dialog._export_html_snapshot(sections=sections)
                     print(f'[SA-HUMAN] Pack reexportado c/ N3: {html_dir}', flush=True)
-                report_stage('previews N3 e reexportacao')
+                if production_web:
+                    # O cache PL nasce durante a materialização acima. Anexá-lo
+                    # à coleção persistida mantém o contrato N1/N3; o snapshot
+                    # N1 já foi salvo antes deste bloco e não deve ser refeito.
+                    if dialog is not None and 'pilares' in active_n3_sections:
+                        _attach_pl_n3_variants_to_pillars(
+                            (partial_collections or merged).get('pillars', []),
+                            getattr(dialog, '_pl_n3_cache', None),
+                        )
+                    n3_root = Path(n3_temp)
+                    artifacts = sorted(
+                        str(path.relative_to(production_dir)).replace('\\', '/')
+                        for path in production_dir.rglob('*') if path.is_file()
+                    )
+                    production_payload = {
+                        'schema': 'cad.sa.production/v1',
+                        'obra': str(obra),
+                        'pavimento': pavimento,
+                        'project_id': project_id,
+                        'source_dxf': str(source_path),
+                        'state_path': str(dialog._analysis_state_path()) if dialog else '',
+                        'n1_counts': {
+                            'pillars': len(window.pillars_found),
+                            'slabs': len(window.slabs_found),
+                            'beams': len(window.beams_found),
+                        },
+                        'n3': {
+                            'fv_generated': list(generated if 'generated' in locals() else []),
+                            'fv_failed': list(failed if 'failed' in locals() else []),
+                            'lv_generated': list(lv_generated if 'lv_generated' in locals() else []),
+                            'lv_failed': list(lv_failed if 'lv_failed' in locals() else []),
+                            'lj_generated': list(lj_generated if 'lj_generated' in locals() else []),
+                            'lj_failed': list(lj_failed if 'lj_failed' in locals() else []),
+                            'pl_generated': list(pl_generated),
+                            'pl_failed': list(pl_failed),
+                        },
+                        'artifacts': artifacts,
+                    }
+                    manifest_file = production_dir / 'production_manifest.json'
+                    manifest_file.write_text(
+                        json.dumps(production_payload, ensure_ascii=False, indent=2) + '\n',
+                        encoding='utf-8',
+                    )
+                    production_manifest = str(manifest_file)
+                    print(f'[SA-PROD] Manifesto: {manifest_file}', flush=True)
+                    report_stage('N3 permanente e manifesto de producao')
+                else:
+                    report_stage('previews N3 e reexportacao')
         except Exception as exc:
             print(f'[SA-HUMAN] AVISO bloco N3 best-effort: {exc}', flush=True)
 
         try:
-            if html_dir:
+            if html_dir and not production_web:
                 manifest_path = _publish_arete_manifest(
                     html_dir=html_dir,
                     obra=obra,
@@ -2397,6 +2490,7 @@ def run_analysis(
             'diagnostics': diagnostics,
             'fv_diagnostic': diagnostics.get('fundos_viga', {'status': 'ignorado'}),
             'arete_manifest': str(manifest_path),
+            'production_manifest': production_manifest,
             'merge_stats': merge_stats,
             'persistence': persistence,
         }
@@ -2482,6 +2576,13 @@ def main() -> None:
             'sem esse recorte, grava a rodada completa sob lock global.'
         ),
     )
+    ap.add_argument(
+        '--production-web', action='store_true',
+        help=(
+            'Caminho operacional do portal: N1 estruturado + persistencia + '
+            'N3 permanente. Nao gera N2/N4, diagnosticos Arete nem HTMLs de treino.'
+        ),
+    )
     ap.add_argument('--wait', action='store_true',
                     help='Se outro headless estiver rodando, aguardar a vez '
                          '(poll 10s, sem timeout artificial) em vez de abortar — '
@@ -2497,8 +2598,10 @@ def main() -> None:
         ap.error('--item exige --secao para evitar ambiguidade entre classes')
     if args.persist_db and sections is not None and not item_names:
         ap.error('--persist-db exige execucao completa, sem --secao')
-    if args.persist_db and args.skip_diagnostico_fv:
+    if args.persist_db and args.skip_diagnostico_fv and not args.production_web:
         ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
+    if args.production_web and not args.persist_db:
+        ap.error('--production-web exige --persist-db')
 
     # Microciclos de uma classe+itens têm filas isoladas, inclusive quando o
     # commit é parcial. Rodadas sem recorte verificável reservam global + todas
@@ -2606,6 +2709,7 @@ def main() -> None:
         item_names=item_names,
         wait_for_db_lock=args.wait,
         stage_callback=_set_lock_stage,
+        production_web=args.production_web,
     )
     for _lock in _instance_locks:
         refresh_lock(_lock, event='analysis_complete')

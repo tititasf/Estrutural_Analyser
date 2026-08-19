@@ -51,6 +51,13 @@ FACE_LABELS = {
     "D": "D · base (sul)",
 }
 
+# Contrato visual canônico: face exatamente sobre o contorno CAD e bolinha com
+# metade do diâmetro histórico (1.4 → 0.7 pt).
+FACE_WALL_OFFSET = 0.0
+CONTACT_MARKER_SIZE = 1.4
+CONTACT_MARKER_EDGE_WIDTH = 0.3
+TAG_FONT_SCALE = 1.10
+
 
 def _natural_key(s: str):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", s or "")]
@@ -285,6 +292,44 @@ def _orient_from_bbox(
     return "horizontal" if pw >= ph else "vertical"
 
 
+def _arrival_nominal_distances(
+    fid: str,
+    row: dict,
+    face_len: float,
+    *,
+    horizontal: bool = False,
+) -> tuple[float, float] | None:
+    """Distâncias na face para uma viga que chega, sem usar fração arbitrária.
+
+    O canto informa de qual extremidade parte a seção e o primeiro número da
+    dimensão da viga informa sua largura nominal.  Essa é a única aproximação
+    coerente quando a tabela ainda não traz ``dist_esq/dist_dir`` medidos.
+    """
+    canto = str(row.get("canto") or "").upper()
+    if not canto.startswith(fid) or len(canto) != 2:
+        return None
+    match = re.match(r"\s*(\d+(?:[.,]\d+)?)", str(row.get("dim") or ""))
+    if not match or face_len <= 0:
+        return None
+    width = min(face_len, float(match.group(1).replace(",", ".")))
+    if width <= 0:
+        return None
+
+    # Origem das distâncias é a mesma usada abaixo em cada face. Nas faces A
+    # e D de pilar vertical ela é invertida em relação ao menor X/Y.
+    starts = (
+        {"A": "AC", "B": "BC", "C": "CA", "D": "DA"}
+        if horizontal
+        else {"A": "AC", "B": "BD", "C": "CA", "D": "DB"}
+    )
+    if canto == f"{fid}{fid}":
+        margin = max(0.0, (face_len - width) / 2.0)
+        return margin, margin
+    if canto == starts[fid]:
+        return 0.0, max(0.0, face_len - width)
+    return max(0.0, face_len - width), 0.0
+
+
 def _beam_seg_on_face(
     fid: str,
     kind: str,
@@ -332,6 +377,21 @@ def _beam_seg_on_face(
             de, dd = float(m1.group(1)), float(m2.group(1))
         except Exception:
             de = dd = None
+
+    # Chegadas sem medição não podem usar 28% da face: em pilares compridos
+    # isso põe a bolinha dezenas de centímetros fora da seção real. O canto +
+    # largura nominal da viga determinam dinamicamente o trecho de contato.
+    if kind == "chega" and (de is None or dd is None):
+        face_len = (
+            abs(px1 - px0)
+            if (horizontal and fid in "AB") or (not horizontal and fid in "CD")
+            else abs(py1 - py0)
+        )
+        nominal = _arrival_nominal_distances(
+            fid, row, face_len, horizontal=horizontal
+        )
+        if nominal is not None:
+            de, dd = nominal
 
     if horizontal:
         # A = sul (y=py0), esq=AC (x=px0) → dir=AD (x=px1)
@@ -481,18 +541,16 @@ def _corner_xy(
         "AC": (px0, py1),
         "CA": (px0, py1),
         "AD": (px0, py0),
-        "DA": (px1, py0),
+        "DA": (px0, py0),
         "BC": (px1, py1),
         "CB": (px1, py1),
         "BD": (px1, py0),
-        "DB": (px0, py0),
+        "DB": (px1, py0),
         "AA": (px0, (py0 + py1) / 2),
         "BB": (px1, (py0 + py1) / 2),
         "CC": ((px0 + px1) / 2, py1),
         "DD": ((px0 + px1) / 2, py0),
     }
-    table["DA"] = (px1, py0)
-    table["DB"] = (px0, py0)
     return table.get(c)
 
 
@@ -622,6 +680,126 @@ def _resolve_tag_pos(
     return x, y
 
 
+def _same_xy(a, b, eps=1e-7):
+    return abs(a[0] - b[0]) <= eps and abs(a[1] - b[1]) <= eps
+
+
+def _segments_cross(a, b, c, d, eps=1e-7):
+    """Interseção real entre conectores; encontro apenas no mesmo ponto é aceito."""
+    if any(_same_xy(p, q, eps) for p in (a, b) for q in (c, d)):
+        return False
+
+    def orient(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    def on_segment(p, q, r):
+        return (
+            min(p[0], r[0]) - eps <= q[0] <= max(p[0], r[0]) + eps
+            and min(p[1], r[1]) - eps <= q[1] <= max(p[1], r[1]) + eps
+        )
+
+    o1, o2, o3, o4 = orient(a, b, c), orient(a, b, d), orient(c, d, a), orient(c, d, b)
+    if ((o1 > eps and o2 < -eps) or (o1 < -eps and o2 > eps)) and (
+        (o3 > eps and o4 < -eps) or (o3 < -eps and o4 > eps)
+    ):
+        return True
+    return (
+        (abs(o1) <= eps and on_segment(a, c, b))
+        or (abs(o2) <= eps and on_segment(a, d, b))
+        or (abs(o3) <= eps and on_segment(c, a, d))
+        or (abs(o4) <= eps and on_segment(c, b, d))
+    )
+
+
+def _segment_hits_box(a, b, box, pad=0.0):
+    """Detecta uma linha atravessando o chip de outra tag."""
+    x, y, hw, hh = box
+    left, right = x - hw - pad, x + hw + pad
+    bottom, top = y - hh - pad, y + hh + pad
+    if left <= a[0] <= right and bottom <= a[1] <= top:
+        return True
+    if left <= b[0] <= right and bottom <= b[1] <= top:
+        return True
+    corners = ((left, bottom), (right, bottom), (right, top), (left, top))
+    return any(
+        _segments_cross(a, b, corners[i], corners[(i + 1) % 4])
+        for i in range(4)
+    )
+
+
+def _route_tag_position(
+    x,
+    y,
+    tip,
+    half_w,
+    half_h,
+    placed,
+    connectors,
+    prefer,
+    *,
+    gap,
+    bounds=None,
+):
+    """Escolhe uma posição cujo conector não cruza linhas nem chips existentes."""
+    nx, ny = prefer
+    norm = (nx * nx + ny * ny) ** 0.5 or 1.0
+    nx, ny = nx / norm, ny / norm
+    tx, ty = -ny, nx
+    step = max(gap * 0.55, half_w * 0.7, half_h * 1.1, 0.5)
+    candidates = []
+    for radial in range(10):
+        for lateral in range(-18, 19):
+            cx = x + nx * radial * step + tx * lateral * step
+            cy = y + ny * radial * step + ty * lateral * step
+            score = radial * radial + lateral * lateral * 1.08
+            candidates.append((score, abs(lateral), radial, cx, cy))
+    candidates.sort()
+
+    # 1ª passagem: linha não cruza nem atravessa chip. Se a própria proximidade
+    # entre dois pontos tornar isso topologicamente impossível, 2ª passagem
+    # mantém os dois requisitos pedidos pelo dono (chips separados e zero
+    # cruzamento linha–linha) em vez de voltar silenciosamente à posição cruzada.
+    for strict_boxes in (True, False):
+        for _, _, _, cx, cy in candidates:
+            new_box = (cx, cy, half_w, half_h)
+            if bounds is not None:
+                bx0, by0, bx1, by1 = bounds
+                if (
+                    cx - half_w < bx0 or cx + half_w > bx1
+                    or cy - half_h < by0 or cy + half_h > by1
+                ):
+                    continue
+            if any(
+                abs(cx - ox) < half_w + ow + gap and abs(cy - oy) < half_h + oh + gap
+                for ox, oy, ow, oh in placed
+            ):
+                continue
+            connector = ((cx, cy), tip)
+            if any(_segments_cross(*connector, *old) for old in connectors):
+                continue
+            if strict_boxes and any(
+                _segment_hits_box(*connector, box, pad=gap * 0.12) for box in placed
+            ):
+                continue
+            if strict_boxes and any(
+                _segment_hits_box(*old, new_box, pad=gap * 0.12) for old in connectors
+            ):
+                continue
+            return cx, cy
+    x, y = _resolve_tag_pos(x, y, half_w, half_h, placed, prefer, gap=gap)
+    if bounds is not None:
+        bx0, by0, bx1, by1 = bounds
+        x = max(bx0 + half_w, min(bx1 - half_w, x))
+        y = max(by0 + half_h, min(by1 - half_h, y))
+    return x, y
+
+
+def _agentic_context_margin(width: float, height: float) -> float:
+    """Margem local compartilhavel/testavel do N1 com tags."""
+    scale = max(float(width), float(height))
+    return (scale * 3.0 + 60.0) * 1.3
+
+
 def render_agentic_svg(
     dxf_path: Path,
     pillar_pts: list,
@@ -653,8 +831,9 @@ def render_agentic_svg(
     px0, py0, px1, py1 = min(xs), min(ys), max(xs), max(ys)
     pw, ph = px1 - px0, py1 - py0
     scale = max(pw, ph)
-    # margem ampla p/ tags fora da parede
-    margin = (scale * 6.2 + 200) * 1.6
+    # Mesmo contrato espacial do N1 proximo: contexto local suficiente para
+    # chips/setas, sem transformar o eixo longo em zoom do pavimento inteiro.
+    margin = _agentic_context_margin(pw, ph)
     vx0, vx1 = px0 - margin, px1 + margin
     vy0, vy1 = py0 - margin, py1 + margin
 
@@ -672,6 +851,14 @@ def render_agentic_svg(
         ctx = RenderContext(doc)
         out = MatplotlibBackend(ax)
         Frontend(ctx, out).draw_layout(msp)
+        from matplotlib.text import Annotation, Text
+
+        # Textos que vieram do DXF devem continuar recortados pelo viewport.
+        # Somente as tags criadas abaixo podem escapar do eixo; do contrario,
+        # ``bbox_inches=tight`` expande a imagem ate textos do pavimento todo.
+        dxf_text_artists = {
+            art for art in ax.get_children() if isinstance(art, (Annotation, Text))
+        }
 
         # DXF estrutural SEMPRE por baixo (coleções/lines/patches do ezdxf)
         for coll in list(ax.collections):
@@ -720,12 +907,12 @@ def render_agentic_svg(
                 )
             )
 
-        wall_off = max(0.8, min(pw, ph) * 0.04)
+        wall_off = FACE_WALL_OFFSET
         # chips mini fora da parede (seta/bolinha iguais; só o box muda)
         text_pad = scale * 1.75 + 62.0
         wall_lw = 0.35
-        tag_fs = 1.7  # ainda menor; multilinha + path SVG
-        tag_fs_empty = 1.6
+        tag_fs = 1.7 * TAG_FONT_SCALE
+        tag_fs_empty = 1.6 * TAG_FONT_SCALE
         face_tag_fs = 2.0
         box_pad = 0.10  # chip mini com quebra de linha
         arrow_lw = 0.4
@@ -829,14 +1016,17 @@ def render_agentic_svg(
                 tip[1],
                 "o",
                 color="#ffffff",
-                markersize=1.4,
+                markersize=CONTACT_MARKER_SIZE,
                 markeredgecolor=arrow_c,
-                markeredgewidth=0.3,
+                markeredgewidth=CONTACT_MARKER_EDGE_WIDTH,
                 zorder=z + 6,
                 clip_on=False,
             )
 
         placed: list[tuple[float, float, float, float]] = []
+        connectors: list[
+            tuple[tuple[float, float], tuple[float, float]]
+        ] = []
         gap = scale * 0.12 + 10.0  # chips não se tocam
 
         for fid in "ABCD":
@@ -870,37 +1060,27 @@ def render_agentic_svg(
             nx, ny = _outward(fid, horizontal=horizontal)
             axn, ayn = _along(fid, horizontal=horizontal)
 
+            # Empilhar os chips na mesma ordem espacial dos pontos de contato.
+            # Sem isso, laje/passagem/chegada eram ordenadas por família e as
+            # setas se cruzavam mesmo quando os vínculos estavam corretos.
+            def _contact_order(item):
+                kind, row = item
+                p0, p1, _ = _beam_seg_on_face(
+                    fid, kind, row, px0, py0, px1, py1,
+                    pad=text_pad, horizontal=horizontal,
+                )
+                tip = _contact_tip(
+                    fid, kind, row, p0, p1, px0, py0, px1, py1,
+                    horizontal=horizontal,
+                )
+                return tip[0] * axn + tip[1] * ayn
+
+            items.sort(key=_contact_order)
+
             if not items:
-                if horizontal:
-                    tip = {
-                        "A": ((px0 + px1) / 2, py0),
-                        "B": ((px0 + px1) / 2, py1),
-                        "C": (px0, (py0 + py1) / 2),
-                        "D": (px1, (py0 + py1) / 2),
-                    }[fid]
-                else:
-                    tip = {
-                        "A": (px0, (py0 + py1) / 2),
-                        "B": (px1, (py0 + py1) / 2),
-                        "C": ((px0 + px1) / 2, py1),
-                        "D": ((px0 + px1) / 2, py0),
-                    }[fid]
-                txx = tip[0] + nx * text_pad
-                tyy = tip[1] + ny * text_pad
-                hw, hh = _estimate_tag_half(f"{fid} · —", scale=scale, fs=tag_fs_empty)
-                txx, tyy = _resolve_tag_pos(
-                    txx, tyy, hw, hh, placed, (nx, ny), gap=gap
-                )
-                placed.append((txx, tyy, hw, hh))
-                _draw_pill_tag(
-                    tip,
-                    (txx, tyy),
-                    f"{fid} · —",
-                    bg=wcol,
-                    arrow_c=wcol,
-                    fs=tag_fs_empty,
-                    z=z_tag,
-                )
+                # Face vazia continua identificada pela letra A–D na parede,
+                # mas não recebe chip/seta fictício. O placeholder "C · —"
+                # parecia uma tag estrutural e já foi reprovado pelo dono.
                 continue
 
             n_it = len(items)
@@ -967,8 +1147,9 @@ def render_agentic_svg(
                 txx = wall_mid[0] + nx * text_pad + axn * stack
                 tyy = wall_mid[1] + ny * text_pad + ayn * stack
                 hw, hh = _estimate_tag_half(label, scale=scale, fs=tag_fs)
-                txx, tyy = _resolve_tag_pos(
-                    txx, tyy, hw, hh, placed, (nx, ny), gap=gap
+                txx, tyy = _route_tag_position(
+                    txx, tyy, tip, hw, hh, placed, connectors,
+                    (nx, ny), gap=gap,
                 )
                 pad_in = scale * 0.15
                 if (
@@ -977,10 +1158,12 @@ def render_agentic_svg(
                 ):
                     txx = wall_mid[0] + nx * (text_pad + scale * 0.5)
                     tyy = wall_mid[1] + ny * (text_pad + scale * 0.5)
-                    txx, tyy = _resolve_tag_pos(
-                        txx, tyy, hw, hh, placed, (nx, ny), gap=gap
+                    txx, tyy = _route_tag_position(
+                        txx, tyy, tip, hw, hh, placed, connectors,
+                        (nx, ny), gap=gap,
                     )
                 placed.append((txx, tyy, hw, hh))
+                connectors.append(((txx, tyy), tip))
 
                 bg = wcol if kind == "lajes" else tcol
                 acol = tcol if kind != "lajes" else wcol
@@ -1000,6 +1183,7 @@ def render_agentic_svg(
             "l1": ("Ag.L1 · 1ª proposta QA vs SA · viewBox zoom", "#4dd0e1"),
             "l2": ("Ag.L2 · refino pós-atenção humana · viewBox zoom", "#69f0ae"),
             "l3": ("Ag.L3 · alvo validado pré-fix motor · viewBox zoom", "#ffd54f"),
+            "l1-r2": ("Ag.L1-R2 · revisão geométrica dos pontos de chegada · viewBox zoom", "#40c4ff"),
         }
         _btxt, _bcol = _banners.get(_layer, _banners["sa"])
         ax.text(
@@ -1016,10 +1200,10 @@ def render_agentic_svg(
             clip_on=False,
         )
 
-        from matplotlib.text import Annotation, Text
-
         for art in ax.get_children():
             if isinstance(art, (Annotation, Text)):
+                if art in dxf_text_artists:
+                    continue
                 try:
                     art.set_zorder(z_tag + 100)
                     art.set_clip_on(False)
@@ -1043,9 +1227,12 @@ def render_agentic_svg(
                 except Exception:
                     pass
 
+        # ``adjustable=box`` preserva os limites locais. Com o default
+        # ``datalim``, o Matplotlib podia ignorar xlim/ylim para satisfazer o
+        # aspecto do pavimento completo, afastando pilar e tags.
+        ax.set_aspect("equal", adjustable="box")
         ax.set_xlim(vx0, vx1)
         ax.set_ylim(vy0, vy1)
-        ax.set_aspect("equal")
         ax.axis("off")
         import io
 

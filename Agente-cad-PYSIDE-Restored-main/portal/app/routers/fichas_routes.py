@@ -31,7 +31,8 @@ def _dir_fichas(request: Request, obra: dict) -> Optional[Path]:
     settings = request.app.state.settings
     lp = obra.get("local_path")
     obra_dir = Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra")
-    return pipeline_runner.encontrar_dir_fichas(obra_dir)
+    pavimento = request.query_params.get("pavimento")
+    return pipeline_runner.encontrar_dir_fichas(obra_dir, pavimento)
 
 
 def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dict:

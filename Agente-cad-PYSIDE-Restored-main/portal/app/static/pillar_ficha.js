@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  var FACE_ZOOM_MIN = 0.1;
+  var FACE_ZOOM_MAX = 5;
+
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -25,7 +28,7 @@
   }
 
   function App(root, options) {
-    this.root = root; this.options = options; this.data = null; this.tab = 'abcd-para'; this.timer = null;
+    this.root = root; this.options = options; this.data = null; this.tab = options.initialTab || 'abcd-para'; this.timer = null;
     this.load();
   }
   App.prototype.url = function () {
@@ -71,11 +74,13 @@
       ['Pilar especial', 'As faces E–H aparecem quando o contorno N1 não é retangular ou quando a Fase 4 já possui essas faces.']
     ].forEach(function(row){var item=el('div');item.appendChild(el('b','',row[0]));item.appendChild(el('span','',row[1]));guide.appendChild(item);});
     help.appendChild(guide); shell.appendChild(help);
-    var tabs = el('div', 'plf-tabs');
-    [['cima','N3 Cima'],['abcd-para','ABCD Para'],['abcd-passa','ABCD Passa'],['grades-para','Grades Para'],['grades-passa','Grades Passa']].forEach(function (spec) {
-      tabs.appendChild(button(spec[1], '', function () { self.tab = spec[0]; self.render(); }, self.tab === spec[0] ? 'active' : ''));
-    });
-    shell.appendChild(tabs);
+    if (!self.options.hideTabs) {
+      var tabs = el('div', 'plf-tabs');
+      [['cima','N3 Cima'],['abcd-para','ABCD Para'],['abcd-passa','ABCD Passa'],['grades-para','Grades Para'],['grades-passa','Grades Passa']].forEach(function (spec) {
+        tabs.appendChild(button(spec[1], '', function () { self.tab = spec[0]; self.render(); }, self.tab === spec[0] ? 'active' : ''));
+      });
+      shell.appendChild(tabs);
+    }
     if (self.tab === 'cima') shell.appendChild(self.renderCima());
     else if (self.tab.indexOf('abcd') === 0) shell.appendChild(self.renderFaces());
     else shell.appendChild(self.renderGrades());
@@ -126,7 +131,7 @@
     var canvas = el('div', 'plf-canvas'); viewport.appendChild(canvas); card.appendChild(viewport);
     this.layoutFace(canvas, face, data);
     var scale = 1;
-    viewport.addEventListener('wheel', function(e){ e.preventDefault(); scale=Math.max(1,Math.min(5,scale*(e.deltaY<0?1.12:1/1.12))); canvas.style.transform='scale('+scale+')'; }, {passive:false});
+    viewport.addEventListener('wheel', function(e){ e.preventDefault(); scale=Math.max(FACE_ZOOM_MIN,Math.min(FACE_ZOOM_MAX,scale*(e.deltaY<0?1.12:1/1.12))); canvas.style.transform='scale('+scale+')'; }, {passive:false});
     viewport.addEventListener('click', function(){ viewport.focus(); });
     card.appendChild(this.renderOpenings(face, data)); return card;
   };

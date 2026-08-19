@@ -141,6 +141,7 @@ def capture_granular_item_pages(
     section_dir: Path | str,
     out_dir: Path | str | None = None,
     selector: str = '.evidence-grid',
+    include_names: tuple[str, ...] = (),
     exclude_names: tuple[str, ...] = ('index.html',),
     exclude_prefixes: tuple[str, ...] = ('interpretacao_',),
     viewport_width: int = 1000,
@@ -169,6 +170,7 @@ def capture_granular_item_pages(
         h for h in section_dir.glob(pattern)
         if h.name not in exclude_names
         and not h.name.startswith(exclude_prefixes)
+        and (not include_names or h.name in include_names)
     )
     if not htmls:
         print(f'  [playwright-granular] Nenhum HTML encontrado em {section_dir}')

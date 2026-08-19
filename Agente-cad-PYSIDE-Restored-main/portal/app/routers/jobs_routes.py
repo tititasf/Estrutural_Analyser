@@ -46,6 +46,7 @@ def _enfileirar(request: Request, conn: sqlite3.Connection, obra: dict, meta: di
     ev = pipeline_runner.engine_version(request.app.state.settings.repo_root)
     job_id = repo.enfileirar_job(conn, obra_id=obra["id"], engine_version=ev)
     request.app.state.job_meta[job_id] = meta
+    repo.salvar_job_meta(conn, job_id, meta)
     repo.atualizar_estado_obra(conn, obra["id"], "processando")
     return job_id
 

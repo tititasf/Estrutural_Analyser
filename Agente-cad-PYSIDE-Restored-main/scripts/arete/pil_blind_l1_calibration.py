@@ -41,6 +41,10 @@ from scripts.arete.pil_l2_evidence_check import (  # noqa: E402
 )
 from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar  # noqa: E402
 from src.core.niveis_extractor import get_pavimento_niveis_abs  # noqa: E402
+from src.core.dxf_loader import DXFLoader  # noqa: E402
+from src.core.pillar_geometry_recovery import (  # noqa: E402
+    repair_truncated_named_pillars_from_dxf,
+)
 
 GAP_TOL = 10.0  # cm — acima disso, vínculo "passa" é suspeito
 BETTER_MARGIN = 5.0  # cm — outra viga precisa ser pelo menos isso mais perto p/ contar
@@ -69,6 +73,46 @@ def check_duplicate_role(tables: dict) -> list[str]:
     return issues
 
 
+def check_corner_occupancy(tables: dict) -> list[str]:
+    """Um canto físico não pode ter duas vigas no mesmo papel/face."""
+    issues = []
+    faces = (tables or {}).get("faces") or {}
+    for fid, face in faces.items():
+        for kind in ("passa", "chega", "interior"):
+            by_corner: dict[str, list[str]] = {}
+            for row in face.get(kind) or []:
+                nome = str(row.get("nome") or "").strip()
+                corner = str(row.get("canto") or "").strip().upper()
+                if nome in ("", "—", "nenhuma") or corner in ("", "—"):
+                    continue
+                by_corner.setdefault(corner, []).append(nome)
+            for corner, names in by_corner.items():
+                distinct = list(dict.fromkeys(names))
+                if len(distinct) > 1:
+                    issues.append(
+                        f"{fid}.{kind}@{corner}: canto ocupado por múltiplas vigas {distinct}"
+                    )
+    return issues
+
+
+def check_orientation_contract(points: list, tables: dict) -> list[str]:
+    """Compara a direção física do retângulo com o contrato ABCD publicado."""
+    if not points:
+        return []
+    try:
+        xs = [float(point[0]) for point in points]
+        ys = [float(point[1]) for point in points]
+    except (TypeError, ValueError, IndexError):
+        return []
+    expected = "horizontal" if max(xs) - min(xs) >= max(ys) - min(ys) else "vertical"
+    actual = str((tables or {}).get("orientation") or "").strip().lower()
+    if actual == expected:
+        return []
+    return [
+        f"orientação ABCD divergente: geometria={expected}, tabela={actual or 'ausente'}"
+    ]
+
+
 def check_geometry(beams_by_name, px0, py0, px1, py1, face_beams) -> list[str]:
     issues = []
     horizontal = _is_horizontal(px0, py0, px1, py1)
@@ -84,6 +128,93 @@ def check_geometry(beams_by_name, px0, py0, px1, py1, face_beams) -> list[str]:
                 missing = [c for c in corners if c not in existing_corners and c[::-1] not in existing_corners]
                 if missing:
                     issues.append(f"{bname} encosta full-span em {face} → faltam cantos {missing}")
+    return issues
+
+
+def expected_short_face_bridge_links(
+    beams_by_name: dict, px0: float, py0: float, px1: float, py1: float,
+    *, tol: float = 3.0, min_extension: float = 2.0,
+) -> set[tuple[str, str, str, str]]:
+    """Reconstrui vinculos dirigidos quando uma viga contorna o pilar.
+
+    A evidencia exigida e independente do inventario SA: dois contornos da
+    mesma viga, alinhados a uma face curta, terminam exatamente nos dois lados
+    do pilar. O conjunto esperado e, por exemplo, D passa DA+DB e A/B recebem
+    chegadas AD+BD. Nomes de pilares ou vigas nao participam da regra.
+    """
+    horizontal_pillar = _is_horizontal(px0, py0, px1, py1)
+    expected: set[tuple[str, str, str, str]] = set()
+    short_faces = (
+        {"C": ("x", px0, py0, py1), "D": ("x", px1, py0, py1)}
+        if horizontal_pillar
+        else {"C": ("y", py1, px0, px1), "D": ("y", py0, px0, px1)}
+    )
+    for beam_name, beam in beams_by_name.items():
+        if not beam_name or not beam:
+            continue
+        segments = _beam_contours(beam)
+        if not segments:
+            continue
+        for face, (wall_axis, fixed, span0, span1) in short_faces.items():
+            # A viga deve correr paralela a face curta.
+            wants_horizontal = wall_axis == "y"
+            candidates = [
+                seg for seg in segments
+                if bool(seg.get("is_h", (seg["x1"] - seg["x0"]) >= (seg["y1"] - seg["y0"])))
+                == wants_horizontal
+                and (
+                    seg["y0"] - tol <= fixed <= seg["y1"] + tol
+                    if wall_axis == "y"
+                    else seg["x0"] - tol <= fixed <= seg["x1"] + tol
+                )
+            ]
+            if wall_axis == "y":
+                low = any(seg["x0"] < span0 - min_extension and abs(seg["x1"] - span0) <= tol for seg in candidates)
+                high = any(seg["x1"] > span1 + min_extension and abs(seg["x0"] - span1) <= tol for seg in candidates)
+            else:
+                low = any(seg["y0"] < span0 - min_extension and abs(seg["y1"] - span0) <= tol for seg in candidates)
+                high = any(seg["y1"] > span1 + min_extension and abs(seg["y0"] - span1) <= tol for seg in candidates)
+            if not (low and high):
+                continue
+            expected.update({
+                (face, "passa", beam_name, f"{face}A"),
+                (face, "passa", beam_name, f"{face}B"),
+                ("A", "chega", beam_name, f"A{face}"),
+                ("B", "chega", beam_name, f"B{face}"),
+            })
+    return expected
+
+
+def actual_directed_links(face_beams: dict) -> set[tuple[str, str, str, str]]:
+    actual: set[tuple[str, str, str, str]] = set()
+    for face, slots in (face_beams or {}).items():
+        for slot in ("passa_esq", "passa_dir"):
+            item = slots.get(slot) or {}
+            if item.get("name") and item.get("corner"):
+                actual.add((face, "passa", item["name"], item["corner"]))
+        for item in slots.get("para") or []:
+            if item.get("name") and item.get("corner"):
+                actual.add((face, "chega", item["name"], item["corner"]))
+    return actual
+
+
+def check_directional_topology(beams_by_name, px0, py0, px1, py1, face_beams) -> list[str]:
+    expected = expected_short_face_bridge_links(beams_by_name, px0, py0, px1, py1)
+    actual = actual_directed_links(face_beams)
+    issues = []
+    for face, role, beam, corner in sorted(expected - actual):
+        issues.append(
+            f"topologia dirigida: falta {face}.{role} {beam}@{corner} "
+            "(dois trechos geometricos chegam aos lados opostos da face curta)"
+        )
+    # Para as vigas reconstruidas, papeis/cantos adicionais tambem sao
+    # suspeitos; o QA os informa sem inventar substituicao por proximidade.
+    bridge_beams = {item[2] for item in expected}
+    expected_by_beam = {item for item in expected if item[2] in bridge_beams}
+    for face, role, beam, corner in sorted(
+        item for item in actual if item[2] in bridge_beams and item not in expected_by_beam
+    ):
+        issues.append(f"topologia dirigida: sobra {face}.{role} {beam}@{corner} sem suporte no contorno bilateral")
     return issues
 
 
@@ -239,6 +370,15 @@ def main() -> int:
     dxf_path, slab_h, slab_n, slab_pts, beams, pillars = load_project(
         Path(args.db), args.project_id, args.obra, args.pav
     )
+    # O QA deve avaliar a geometria observacional vigente. Isto apenas corrige
+    # a copia em memoria; nao persiste nada no banco de producao.
+    dxf_data = DXFLoader.load_dxf(str(dxf_path)) if dxf_path else None
+    if dxf_data:
+        repair_truncated_named_pillars_from_dxf(
+            {p["name"]: p for p in pillars},
+            polylines=dxf_data.get("polylines", []),
+            texts=dxf_data.get("texts", []),
+        )
     pillars_by_name = {p["name"]: p for p in pillars}
     beams_by_name = {b.get("name"): b for b in beams}
     niveis = get_pavimento_niveis_abs(args.obra, args.pav) or {"chegada_abs": 852.19}
@@ -266,15 +406,19 @@ def main() -> int:
         px0, py0, px1, py1 = min(xs), min(ys), max(xs), max(ys)
         face_beams = p.get("face_beams") or {}
 
-        dup_issues = check_duplicate_role(tables)
+        dup_issues = check_duplicate_role(tables) + check_corner_occupancy(tables)
+        orientation_issues = check_orientation_contract(p["points"], tables)
         geo_issues = check_geometry(beams_by_name, px0, py0, px1, py1, face_beams)
+        topology_issues = check_directional_topology(
+            beams_by_name, px0, py0, px1, py1, face_beams
+        )
         gap_issues, better_issues = check_link_gaps(beams_by_name, px0, py0, px1, py1, face_beams)
         shape_issues = check_pillar_shape(p["points"])
         orphan_issues = check_orphan_label(msp, face_beams, px0, py0, px1, py1) if msp is not None else []
 
         all_issues = (
             ([] if v1 == "validou" else [l.strip("- ") for l in txt1.split("\n") if l.startswith("- ")])
-            + dup_issues + geo_issues + gap_issues + better_issues + shape_issues + orphan_issues
+            + dup_issues + orientation_issues + geo_issues + topology_issues + gap_issues + better_issues + shape_issues + orphan_issues
         )
         pred_verdict = "invalidou" if all_issues else "validou"
         predictions[name] = {"verdict": pred_verdict, "issues": all_issues}

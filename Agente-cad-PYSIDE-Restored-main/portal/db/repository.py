@@ -11,6 +11,7 @@ certificação do N5 é recebido como SNAPSHOT já lido em modo read-only pelo c
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import uuid
 from typing import Any, Optional
@@ -549,6 +550,210 @@ def enfileirar_job(
     )
     conn.commit()
     return job_id
+
+
+def salvar_job_meta(conn: sqlite3.Connection, job_id: str, meta: dict[str, Any]) -> None:
+    """Persiste o tipo/escopo do job; sobrevive a restart do portal."""
+    conn.execute(
+        """INSERT INTO portal_job_meta(job_id, meta_json) VALUES(?,?)
+           ON CONFLICT(job_id) DO UPDATE SET
+             meta_json=excluded.meta_json,
+             updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')""",
+        (job_id, json.dumps(meta, ensure_ascii=False, sort_keys=True)),
+    )
+    conn.commit()
+
+
+def obter_job_meta(conn: sqlite3.Connection, job_id: str) -> dict[str, Any]:
+    row = conn.execute(
+        "SELECT meta_json FROM portal_job_meta WHERE job_id=?", (job_id,)
+    ).fetchone()
+    if row is None:
+        return {}
+    try:
+        value = json.loads(row["meta_json"])
+    except (TypeError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def criar_qa_round(
+    conn: sqlite3.Connection,
+    *,
+    round_id: str,
+    job_id: str,
+    obra_id: str,
+    membro_id: str,
+    classe: str,
+    pavimento: str,
+    layer: str,
+    items: list[str],
+) -> None:
+    with conn:
+        conn.execute(
+            """INSERT INTO portal_qa_rounds
+               (id,job_id,obra_id,membro_id,classe,pavimento,layer)
+               VALUES(?,?,?,?,?,?,?)""",
+            (round_id, job_id, obra_id, membro_id, classe, pavimento, layer),
+        )
+        for ordinal, item in enumerate(items):
+            conn.execute(
+                """INSERT INTO portal_qa_items(id,round_id,item_id,ordinal)
+                   VALUES(?,?,?,?)""",
+                (_new_id(), round_id, item, ordinal),
+            )
+
+
+def enfileirar_qa_round(
+    conn: sqlite3.Connection,
+    *,
+    obra_id: str,
+    membro_id: str,
+    classe: str,
+    pavimento: str,
+    layer: str,
+    items: list[str],
+    engine_version: Optional[str] = None,
+) -> tuple[str, str]:
+    """Cria job, metadados e rodada em uma transacao indivisivel.
+
+    Sem esta fronteira, o worker pode consumir ``portal_jobs`` entre o commit do
+    job e a gravacao do ``round_id`` e interpretar a tarefa como SA completo.
+    """
+    job_id = _new_id()
+    round_id = _new_id()
+    meta = {"etapa": "qa_agentico", "round_id": round_id}
+    with conn:
+        conn.execute(
+            """INSERT INTO portal_jobs (id, obra_id, prioridade, engine_version)
+               VALUES(?,?,?,?)""",
+            (job_id, obra_id, 0, engine_version),
+        )
+        conn.execute(
+            "INSERT INTO portal_job_meta(job_id, meta_json) VALUES(?,?)",
+            (job_id, json.dumps(meta, ensure_ascii=False, sort_keys=True)),
+        )
+        conn.execute(
+            """INSERT INTO portal_qa_rounds
+               (id,job_id,obra_id,membro_id,classe,pavimento,layer)
+               VALUES(?,?,?,?,?,?,?)""",
+            (round_id, job_id, obra_id, membro_id, classe, pavimento, layer),
+        )
+        for ordinal, item in enumerate(items):
+            conn.execute(
+                """INSERT INTO portal_qa_items(id,round_id,item_id,ordinal)
+                   VALUES(?,?,?,?)""",
+                (_new_id(), round_id, item, ordinal),
+            )
+    return round_id, job_id
+
+
+def obter_qa_round(conn: sqlite3.Connection, round_id: str) -> Optional[dict[str, Any]]:
+    row = conn.execute(
+        "SELECT * FROM portal_qa_rounds WHERE id=?", (round_id,)
+    ).fetchone()
+    return _row_to_dict(row)
+
+
+def listar_qa_items(conn: sqlite3.Connection, round_id: str) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        "SELECT * FROM portal_qa_items WHERE round_id=? ORDER BY ordinal", (round_id,)
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def iniciar_qa_round(conn: sqlite3.Connection, round_id: str) -> None:
+    conn.execute(
+        """UPDATE portal_qa_rounds SET status='running',
+           iniciado_em=strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+           updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?""",
+        (round_id,),
+    )
+    conn.commit()
+
+
+def gravar_resultado_qa_item(conn: sqlite3.Connection, round_id: str, result: Any) -> None:
+    row = conn.execute(
+        "SELECT id FROM portal_qa_items WHERE round_id=? AND item_id=?",
+        (round_id, result.item),
+    ).fetchone()
+    if row is None:
+        raise KeyError(f"item QA ausente: {round_id}/{result.item}")
+    qa_item_id = row["id"]
+    with conn:
+        conn.execute("DELETE FROM portal_qa_attempts WHERE qa_item_id=?", (qa_item_id,))
+        for ordinal, attempt in enumerate(result.attempts):
+            conn.execute(
+                """INSERT INTO portal_qa_attempts
+                   (id,qa_item_id,ordinal,provider,model_requested,effort_requested,
+                    model_reported,status,failure_category,error,duration_s,
+                    provider_version,raw_response_text,raw_response_sha256)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    _new_id(), qa_item_id, ordinal, attempt.provider,
+                    attempt.model_requested, attempt.effort_requested,
+                    attempt.model_reported, attempt.status, attempt.failure_category,
+                    attempt.error, attempt.duration_s,
+                    attempt.provider_version, attempt.raw_response,
+                    attempt.raw_response_sha256,
+                ),
+            )
+        conn.execute(
+            """UPDATE portal_qa_items SET status=?, provider=?, model=?, verdict=?,
+               note=?, suggestion_json=?, prompt_text=?, prompt_sha256=?,
+               evidence_json=?, adapter_version=?, decision_authority=?,
+               training_eligible=?,
+               updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?""",
+            (
+                result.status, result.provider, result.model, result.verdict,
+                result.note,
+                json.dumps(result.suggestion, ensure_ascii=False) if result.suggestion is not None else None,
+                result.prompt, result.prompt_sha256,
+                json.dumps(result.evidence, ensure_ascii=False), result.adapter_version,
+                result.decision_authority, int(result.training_eligible),
+                qa_item_id,
+            ),
+        )
+
+
+def finalizar_qa_round(conn: sqlite3.Connection, round_id: str, status: str) -> None:
+    conn.execute(
+        """UPDATE portal_qa_rounds SET status=?,
+           finalizado_em=strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+           updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?""",
+        (status, round_id),
+    )
+    conn.commit()
+
+
+def detalhe_qa_round(conn: sqlite3.Connection, round_id: str) -> Optional[dict[str, Any]]:
+    round_row = obter_qa_round(conn, round_id)
+    if round_row is None:
+        return None
+    items = listar_qa_items(conn, round_id)
+    for item in items:
+        item["suggestion"] = None
+        if item.get("suggestion_json"):
+            try:
+                item["suggestion"] = json.loads(item["suggestion_json"])
+            except json.JSONDecodeError:
+                pass
+        item.pop("suggestion_json", None)
+        item["evidence"] = []
+        if item.get("evidence_json"):
+            try:
+                item["evidence"] = json.loads(item["evidence_json"])
+            except json.JSONDecodeError:
+                pass
+        item.pop("evidence_json", None)
+        item["training_eligible"] = bool(item.get("training_eligible"))
+        attempts = conn.execute(
+            "SELECT * FROM portal_qa_attempts WHERE qa_item_id=? ORDER BY ordinal",
+            (item["id"],),
+        ).fetchall()
+        item["attempts"] = [dict(row) for row in attempts]
+    round_row["items"] = items
+    return round_row
 
 
 def proximo_job(conn: sqlite3.Connection) -> Optional[dict[str, Any]]:

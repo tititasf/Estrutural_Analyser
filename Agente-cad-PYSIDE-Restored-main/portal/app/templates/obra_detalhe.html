@@ -359,7 +359,7 @@
         <ul class="fichas-lista">
           {% for f in fichas %}
           <li>
-            <a href="/obras/{{ obra.id }}/fichas/{{ f.rel }}" target="_blank" rel="noopener">{{ f.nome }}</a>
+            <a href="/obras/{{ obra.id }}/fichas/{{ f.rel }}?pavimento={{ pavimento | urlencode }}" target="_blank" rel="noopener">{{ f.nome }}</a>
             <span class="muted">{{ (f.tamanho // 1024) }} KB</span>
           </li>
           {% endfor %}
@@ -2407,24 +2407,215 @@
           abcdHtml = renderAbcdTablesClient(item.interpretacao_abcd);
         }
         var ehPilar = ['pilares', 'pilares_especiais', 'pilares_n3_para', 'pilares_n3_passa'].indexOf(_painel3Estado.classe) >= 0;
-        camposEl.innerHTML = btns + (ehPilar ? '<div id="pillar-n3-editor"></div>' : '') +
-          (abcdHtml || '') + (linhas || '<p class="muted">Sem campos.</p>');
-        if (ehPilar && window.PillarFicha) {
-          window.PillarFicha.mount(document.getElementById('pillar-n3-editor'), {
-            obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
-            pavimento: _pavimentoSelecionado || item.pavimento
-          });
+        if (!ehPilar) {
+          camposEl.innerHTML = btns + (abcdHtml || '') + (linhas || '<p class="muted">Sem campos.</p>');
+          var fotos = '';
+          if (item.foto_n1) {
+            fotos += '<div class="n1-foto-card"><h4>N1 / SA</h4><div class="zoom-pan-viewport">' + item.foto_n1 + '</div>' +
+              '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox, sem CSS scale)</p></div>';
+          } else {
+            fotos += '<div class="n1-foto-card n1-foto-ausente"><h4>N1 / SA</h4><p class="muted">ainda não gerada</p></div>';
+          }
+          fotosEl.innerHTML = fotos;
+          ativarZoomEmContainer(fotosEl);
+          return;
         }
 
-        var fotos = '';
-        if (item.foto_n1) {
-          fotos += '<div class="n1-foto-card"><h4>N1 / SA</h4><div class="zoom-pan-viewport">' + item.foto_n1 + '</div>' +
-            '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox, sem CSS scale)</p></div>';
-        } else {
-          fotos += '<div class="n1-foto-card n1-foto-ausente"><h4>N1 / SA</h4><p class="muted">ainda não gerada</p></div>';
+        // Pilares usam uma única navegação: a aba determina simultaneamente
+        // ficha/campos e desenho. Isso evita misturar N1, N3 e QA na mesma tela.
+        fotosEl.innerHTML = '';
+        fotosEl.hidden = true;
+        var tabsPilar = [
+          ['sa', 'N1 / SA'], ['cima', 'N3 Cima'], ['abcd-para', 'N3 ABCD Para'],
+          ['abcd-passa', 'N3 ABCD Passa'], ['grades-para', 'N3 Grades Para'],
+          ['grades-passa', 'N3 Grades Passa']
+        ];
+        camposEl.innerHTML = '<div id="pillar-tab-fields"></div>' +
+          '<div class="pillar-viewer-shell">' +
+            '<div class="pillar-main-tabs" role="tablist">' + tabsPilar.map(function (tab, i) {
+              return '<button type="button" class="pillar-main-tab' + (i === 0 ? ' active' : '') +
+                '" role="tab" data-pillar-tab="' + tab[0] + '">' + tab[1] + '</button>';
+            }).join('') + '</div>' +
+            '<div id="pillar-tab-viewer"></div>' +
+          '</div>' +
+          '<section class="pillar-qa-below" id="pillar-qa-below">' +
+            '<div><strong>QA agentivo</strong><span>Revisão posterior à interpretação — não roda automaticamente com o SA.</span></div>' +
+            '<div class="pillar-qa-actions">' +
+              '<button type="button" class="btn btn-sec" data-qa-layer="L1">Solicitar revisão · Camada 1</button>' +
+              '<button type="button" class="btn btn-sec" data-qa-layer="L2">Solicitar revisão · Camada 2</button>' +
+              '<button type="button" class="btn btn-sec" data-qa-layer="L3">Solicitar revisão · Camada 3</button>' +
+            '</div><div id="pillar-qa-status" class="pillar-qa-status muted">Nenhuma revisão solicitada nesta abertura.</div>' +
+          '</section>';
+        var fieldsPilar = document.getElementById('pillar-tab-fields');
+        var viewerPilar = document.getElementById('pillar-tab-viewer');
+        var qaPilar = document.getElementById('pillar-qa-below');
+        var qaStatus = document.getElementById('pillar-qa-status');
+        var camadasQa = item.camadas_qa || {};
+        var visualizacoesN1 = item.visualizacoes_n1 || {};
+        var resumoPilar = item.resumo_pilar_n1 || {};
+        var subabasN1 = [
+          ['proximo', 'N1 próximo sem tag'],
+          ['distante', 'N1 distante'],
+          ['com_tag', 'N1 com tag'],
+          ['L1', 'Camada 1'],
+          ['L2', 'Camada 2'],
+          ['L3', 'Camada 3']
+        ];
+
+        function textoSeguro(value) {
+          return String(value === null || value === undefined ? '—' : value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
-        fotosEl.innerHTML = fotos;
-        ativarZoomEmContainer(fotosEl);
+        function camposCamada(layer, dados) {
+          if (!dados || !dados.disponivel) {
+            return '<div class="pillar-layer-empty"><strong>' + layer + ' ainda não materializada</strong>' +
+              '<span>A interpretação SA permanece intacta. Solicite a revisão correspondente no bloco QA abaixo.</span></div>';
+          }
+          if (!dados.tables) return '<p class="muted">Desenho da ' + layer + ' disponível; sem tabela estruturada associada.</p>';
+          return '<div class="pillar-layer-fields"><strong>Campos estruturados · ' + layer + '</strong>' +
+            '<pre>' + textoSeguro(JSON.stringify(dados.tables, null, 2)) + '</pre></div>';
+        }
+        function viewerSvg(titulo, svg) {
+          if (!svg) return '<div class="n1-foto-card n1-foto-ausente"><h4>' + titulo + '</h4><p class="muted">desenho ainda não gerado</p></div>';
+          return '<div class="n1-foto-card"><h4>' + titulo + '</h4><div class="zoom-pan-viewport">' + svg + '</div>' +
+            '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox)</p></div>';
+        }
+        function valorMedida(value) {
+          if (value === null || value === undefined || value === '') return '—';
+          return textoSeguro(value) + ' cm';
+        }
+        function valorNivel(value) {
+          if (value === null || value === undefined || value === '') return '—';
+          return textoSeguro(value);
+        }
+        function resumoN1PilarHtml() {
+          var camposResumo = [
+            ['Orientação', textoSeguro(resumoPilar.orientacao)],
+            ['Classificação', textoSeguro(resumoPilar.classificacao)],
+            ['Nível de chegada', valorNivel(resumoPilar.nivel_chegada)],
+            ['Nível de saída', valorNivel(resumoPilar.nivel_saida)],
+            ['Altura do pé-direito', valorMedida(resumoPilar.pe_direito)]
+          ];
+          return '<section class="pillar-n1-summary"><strong>Campos SA / N1</strong><div>' +
+            camposResumo.map(function (campo) {
+              return '<div class="pillar-n1-summary-field"><span>' + campo[0] + '</span><b>' + campo[1] + '</b></div>';
+            }).join('') + '</div></section>';
+        }
+        function selecionarSubabaN1(subId) {
+          var subviewer = document.getElementById('pillar-n1-subviewer');
+          if (!subviewer) return;
+          viewerPilar.querySelectorAll('[data-pillar-n1-subtab]').forEach(function (button) {
+            var ativo = button.getAttribute('data-pillar-n1-subtab') === subId;
+            button.classList.toggle('active', ativo);
+            button.setAttribute('aria-selected', ativo ? 'true' : 'false');
+          });
+          if (/^L[123]$/.test(subId)) {
+            var camada = camadasQa[subId] || {};
+            fieldsPilar.innerHTML = camposCamada(subId, camada);
+            subviewer.innerHTML = viewerSvg('Camada ' + subId.substring(1), camada.svg);
+          } else {
+            var titulos = {
+              proximo: 'N1 próximo sem tag',
+              distante: 'N1 distante',
+              com_tag: 'N1 com tag'
+            };
+            var svg = visualizacoesN1[subId];
+            if (subId === 'proximo' && !svg) svg = item.foto_n1;
+            fieldsPilar.innerHTML = btns + resumoN1PilarHtml() +
+              (abcdHtml || '<p class="muted">Interpretação ABCD ainda não disponível.</p>');
+            subviewer.innerHTML = viewerSvg(titulos[subId] || 'N1 / SA', svg);
+          }
+          ativarZoomEmContainer(subviewer);
+        }
+        function selecionarAbaPilar(tabId) {
+          camposEl.querySelectorAll('[data-pillar-tab]').forEach(function (button) {
+            var ativo = button.getAttribute('data-pillar-tab') === tabId;
+            button.classList.toggle('active', ativo);
+            button.setAttribute('aria-selected', ativo ? 'true' : 'false');
+          });
+          fieldsPilar.innerHTML = '';
+          viewerPilar.innerHTML = '';
+          if (tabId === 'sa') {
+            fieldsPilar.innerHTML = btns + resumoN1PilarHtml() +
+              (abcdHtml || '<p class="muted">Interpretação ABCD ainda não disponível.</p>');
+            viewerPilar.innerHTML = '<div class="pillar-n1-subtabs" role="tablist" aria-label="Visualizações N1 / SA">' +
+              subabasN1.map(function (subtab, i) {
+                return '<button type="button" class="pillar-n1-subtab' + (i === 0 ? ' active' : '') +
+                  '" role="tab" aria-selected="' + (i === 0 ? 'true' : 'false') +
+                  '" data-pillar-n1-subtab="' + subtab[0] + '">' + subtab[1] + '</button>';
+              }).join('') + '</div><div id="pillar-n1-subviewer"></div>';
+            viewerPilar.querySelectorAll('[data-pillar-n1-subtab]').forEach(function (button) {
+              button.addEventListener('click', function () {
+                selecionarSubabaN1(button.getAttribute('data-pillar-n1-subtab'));
+              });
+            });
+            qaPilar.hidden = false;
+            selecionarSubabaN1('proximo');
+          } else {
+            qaPilar.hidden = true;
+            fieldsPilar.innerHTML = '';
+            viewerPilar.innerHTML = '<div id="pillar-n3-editor"></div>';
+            if (window.PillarFicha) {
+              window.PillarFicha.mount(document.getElementById('pillar-n3-editor'), {
+                obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
+                pavimento: _pavimentoSelecionado || item.pavimento,
+                initialTab: tabId, hideTabs: true
+              });
+            }
+          }
+        }
+        camposEl.querySelectorAll('[data-pillar-tab]').forEach(function (button) {
+          button.addEventListener('click', function () { selecionarAbaPilar(button.getAttribute('data-pillar-tab')); });
+        });
+        camposEl.querySelectorAll('[data-qa-layer]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            var layer = button.getAttribute('data-qa-layer');
+            button.disabled = true;
+            qaStatus.className = 'pillar-qa-status';
+            qaStatus.textContent = 'Enfileirando revisão ' + layer + '…';
+            fetch('/obras/' + OBRA_ID + '/qa-agentico', {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({items:[itemId], classe:'PIL', pavimento:_pavimentoSelecionado || item.pavimento, layer:layer})
+            }).then(function (r) { return r.json().then(function (body) { if (!r.ok) throw new Error(body.detail || 'HTTP ' + r.status); return body; }); })
+              .then(function (body) {
+                qaStatus.innerHTML = '<strong>Rodada na fila</strong> · ' + textoSeguro(layer) +
+                  ' · <span class="muted">' + textoSeguro(body.round_id) + '</span>';
+                function acompanharQa() {
+                  fetch('/qa-rounds/' + encodeURIComponent(body.round_id)).then(function (r) {
+                    return r.json().then(function (detail) { if (!r.ok) throw new Error(detail.detail || 'HTTP ' + r.status); return detail; });
+                  }).then(function (detail) {
+                    if (meuToken !== _n1DetalheReqToken) return;
+                    var resultado = (detail.items || [])[0] || {};
+                    if (['na_fila', 'queued', 'running'].indexOf(detail.status) >= 0) {
+                      qaStatus.innerHTML = '<strong>QA ' + textoSeguro(detail.status) + '</strong> · ' + textoSeguro(layer) +
+                        ' · aguardando execução na fila';
+                      window.setTimeout(acompanharQa, 2500);
+                      return;
+                    }
+                    button.disabled = false;
+                    var sugestao = resultado.suggestion || {};
+                    qaStatus.innerHTML = '<div class="pillar-qa-result-head"><strong>' +
+                      textoSeguro(resultado.verdict || detail.status) + '</strong><span>' +
+                      textoSeguro(resultado.provider || 'sem agente') + ' · ' + textoSeguro(resultado.model || 'modelo não informado') +
+                      '</span></div><p>' + textoSeguro(resultado.note || 'Sem observação.') + '</p>' +
+                      (sugestao.summary ? '<p><strong>Sugestão:</strong> ' + textoSeguro(sugestao.summary) + '</p>' : '') +
+                      '<small>Autoridade: ' + textoSeguro(resultado.decision_authority || 'PENDENTE') +
+                      ' · dados mantidos para auditoria/treinamento</small>';
+                  }).catch(function (err) {
+                    button.disabled = false;
+                    qaStatus.className = 'pillar-qa-status error';
+                    qaStatus.textContent = 'Falha ao acompanhar a rodada: ' + err.message;
+                  });
+                }
+                acompanharQa();
+              }).catch(function (err) {
+                button.disabled = false;
+                qaStatus.className = 'pillar-qa-status error';
+                qaStatus.textContent = 'Falha ao enfileirar: ' + err.message;
+              });
+          });
+        });
+        selecionarAbaPilar('sa');
       })
       .catch(function () {
         if (meuToken !== _n1DetalheReqToken) return;
@@ -3391,15 +3582,18 @@
   // ── Destaques por classe (do viewer estrutural limpo) ─────────────────
   // API: GET /obras/{id}/viewer/{pav} — grupos com pontos_px. Overlay SVG
   // sincronizado ao pan/zoom do fundo (mesmo padrão de viewer.html).
+  // Cor unica para qualquer classe: o azul originalmente usado nos pilares.
+  // Manter uma constante evita que botoes, poligonos e rotulos voltem a divergir.
+  var COR_DESTAQUE_ESTRUTURAL = '#4ea1ff';
   var CORES_DESTAQUE = {
-    pilares: '#4ea1ff',
-    lat_a_para: '#ffd166',
-    lat_a_passa: '#f4a261',
-    lat_b_para: '#e9c46a',
-    lat_b_passa: '#e76f51',
-    laterais: '#ffd166', // legado
-    fundos: '#06d6a0',
-    lajes: '#c77dff'
+    pilares: COR_DESTAQUE_ESTRUTURAL,
+    lat_a_para: COR_DESTAQUE_ESTRUTURAL,
+    lat_a_passa: COR_DESTAQUE_ESTRUTURAL,
+    lat_b_para: COR_DESTAQUE_ESTRUTURAL,
+    lat_b_passa: COR_DESTAQUE_ESTRUTURAL,
+    laterais: COR_DESTAQUE_ESTRUTURAL, // legado
+    fundos: COR_DESTAQUE_ESTRUTURAL,
+    lajes: COR_DESTAQUE_ESTRUTURAL
   };
   // Filtro de destaque → classe SA no drill (Interpretação)
   var DESTAQUE_PARA_CLASSE_SA = {
@@ -3622,8 +3816,8 @@
               poly.setAttribute('points', pts);
               poly.setAttribute('fill', item.fora_do_frame ? 'rgba(255,0,0,.18)' : cor + '22');
               poly.setAttribute('stroke', item.fora_do_frame ? '#ff2d2d' : cor);
-              // espessura (~2× o valor 1.5/2.3)
-              poly.setAttribute('stroke-width', item.fora_do_frame ? '4.6' : '3');
+              // Destaque azul reforcado; vermelho de erro permanece distinto.
+              poly.setAttribute('stroke-width', item.fora_do_frame ? '4.6' : '6');
               poly.setAttribute('fill-opacity', '0.15');
               poly.setAttribute('vector-effect', 'non-scaling-stroke');
               var title = document.createElementNS(SVGNS, 'title');

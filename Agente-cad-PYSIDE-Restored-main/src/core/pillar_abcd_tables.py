@@ -883,27 +883,101 @@ def apply_c_interior_suppress_top_dual(
 
 
 def apply_interior_d_as_passa_ab(tables: dict[str, dict[str, list[dict]]]) -> dict:
-    """Viga de baixo: interior em D ⇒ passa nas longas A e B (mesma id/dim/N)."""
-    for r in list(tables.get("D", {}).get("interior") or []):
-        nome = r.get("nome") or ""
-        if not nome or nome == "—":
-            continue
-        for face in ("A", "B"):
-            passa = tables.setdefault(face, {}).setdefault("passa", [])
-            if any(p.get("nome") == nome for p in passa):
+    """Interior em C/D materializa os cantos correspondentes nas faces longas.
+
+    Uma viga axial que engloba a tampa C ocupa AC+BC; na tampa D ocupa AD+BD.
+    O vínculo é por ``nome+canto``: encontrar o mesmo nome em um extremo não pode
+    apagar o segundo extremo da mesma face longa.
+    """
+    for short_face in ("C", "D"):
+        for r in list(tables.get(short_face, {}).get("interior") or []):
+            nome = r.get("nome") or ""
+            if not nome or nome == "—":
                 continue
-            passa.append(
+            for face in ("A", "B"):
+                canto = f"{face}{short_face}"
+                passa = tables.setdefault(face, {}).setdefault("passa", [])
+                if any(
+                    p.get("nome") == nome
+                    and str(p.get("canto") or "").upper() == canto
+                    for p in passa
+                ):
+                    continue
+                passa.append(
+                    _row(
+                        "viga",
+                        nome=nome,
+                        dim=r.get("dim"),
+                        nivel=r.get("nivel"),
+                        canto=canto,
+                        papel="passa",
+                        raw=r.get("raw"),
+                    )
+                )
+    return tables
+
+
+def apply_axial_bilateral_short_faces(
+    tables: dict[str, dict[str, list[dict]]],
+) -> list[str]:
+    """Consolida uma viga axial observada nas duas tampas curtas.
+
+    A mesma identidade em C e D prova que a viga percorre o eixo longo do
+    pilar: C/D são interiores e A/B recebem os dois cantos. A regra usa apenas
+    topologia e identidade, sem nomes de obra, pilar ou viga. Também elimina a
+    dualidade falsa ``passa+chega`` criada pela leitura isolada de um extremo.
+    """
+    short_rows: dict[str, dict[str, dict]] = {"C": {}, "D": {}}
+    for face in ("C", "D"):
+        for role in ("passa", "chega", "interior"):
+            for row in _real_face_rows(tables, face, role):
+                name = str(row.get("nome") or "").strip()
+                if name:
+                    short_rows[face].setdefault(name, row)
+
+    notes: list[str] = []
+    for name in sorted(set(short_rows["C"]) & set(short_rows["D"])):
+        source = short_rows["C"].get(name) or short_rows["D"][name]
+        for face in ("C", "D"):
+            for role in ("passa", "chega", "interior"):
+                tables.setdefault(face, {}).setdefault(role, [])
+                tables[face][role] = [
+                    row
+                    for row in tables[face][role]
+                    if str(row.get("nome") or "").strip() != name
+                ]
+            tables[face]["interior"].append(
                 _row(
-                    "viga",
-                    nome=nome,
-                    dim=r.get("dim"),
-                    nivel=r.get("nivel"),
-                    canto="—",
-                    papel="passa",
-                    raw=r.get("raw"),
+                    "viga", nome=name, dim=source.get("dim"),
+                    nivel=source.get("nivel"), canto=f"{face}{face}",
+                    papel="interior", raw=source.get("raw"),
                 )
             )
-    return tables
+
+        for face, corners in (("A", ("AC", "AD")), ("B", ("BC", "BD"))):
+            bucket = tables.setdefault(face, {})
+            bucket.setdefault("passa", [])
+            bucket.setdefault("chega", [])
+            bucket["chega"] = [
+                row for row in bucket["chega"]
+                if str(row.get("nome") or "").strip() != name
+            ]
+            for corner in corners:
+                if any(
+                    str(row.get("nome") or "").strip() == name
+                    and str(row.get("canto") or "").upper() == corner
+                    for row in bucket["passa"]
+                ):
+                    continue
+                bucket["passa"].append(
+                    _row(
+                        "viga", nome=name, dim=source.get("dim"),
+                        nivel=source.get("nivel"), canto=corner,
+                        papel="passa", raw=source.get("raw"),
+                    )
+                )
+        notes.append(f"{name}: axial bilateral C/D consolidada")
+    return notes
 
 
 def build_abcd_tables_from_pillar(
@@ -944,7 +1018,13 @@ def build_abcd_tables_from_pillar(
             pts = _json.loads(pts)
         except Exception:
             pts = []
-    orientation = (pillar.get("orientation") or "").lower()
+    raw_orientation = str(pillar.get("orientation") or "").strip().lower()
+    if "horizontal" in raw_orientation:
+        orientation = "horizontal"
+    elif "vertical" in raw_orientation:
+        orientation = "vertical"
+    else:
+        orientation = ""
     if not orientation and pts:
         try:
             xs = [float(p[0]) for p in pts]
@@ -1051,17 +1131,21 @@ def build_abcd_tables_from_pillar(
                 if not br:
                     continue
                 canto_b = (br.get("canto") or str(beam.get("corner") or "")).upper()
-                # corner mid (CC/DD/AA/BB) em para[] = interior na face (Caso 4)
+                # Corner central em para[] depende da família da face. Em A/B
+                # (faces longas), a viga perpendicular termina no meio da face:
+                # é uma chegada central. Em C/D (faces curtas), o slot central
+                # continua representando o eixo longitudinal interior (Caso 4).
                 if canto_b in ("CC", "DD", "AA", "BB"):
-                    br["papel"] = "interior"
                     br["canto"] = canto_b
                     if not br["nivel"] or br["nivel"] == "—":
                         br["nivel"] = nivel_viga_default or "—"
+                    target_kind = "chega" if fid in ("A", "B") else "interior"
+                    br["papel"] = target_kind
                     if not any(
                         x.get("nome") == br["nome"]
-                        for x in tables[fid]["interior"]
+                        for x in tables[fid][target_kind]
                     ):
-                        tables[fid]["interior"].append(br)
+                        tables[fid][target_kind].append(br)
                     continue
                 if br["nome"] in interior_names:
                     continue  # interior de D/C não vira chega em A/B
@@ -1133,6 +1217,7 @@ def build_abcd_tables_from_pillar(
                         )
 
     # 4) Regras de consolidação
+    apply_axial_bilateral_short_faces(tables)
     apply_interior_d_as_passa_ab(tables)
     apply_c_dualidade(tables)
 

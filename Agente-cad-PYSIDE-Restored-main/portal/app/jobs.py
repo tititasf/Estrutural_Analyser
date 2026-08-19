@@ -45,7 +45,11 @@ def _metadados_job(app_state, job_id: str) -> dict:
     da etapa num mapa em memoria (app_state.job_meta). Se ausente (ex.: reconciliacao
     pos-crash sem meta), assume etapa 'sa' completa (regenera tudo, idempotente).
     """
-    return app_state.job_meta.get(job_id, {"etapa": "sa"})
+    memory = app_state.job_meta.get(job_id)
+    if memory:
+        return memory
+    persisted = repo.obter_job_meta(app_state.db, job_id)
+    return persisted or {"etapa": "sa"}
 
 
 def reconciliar_jobs(conn) -> int:
@@ -83,6 +87,28 @@ def processar_um_job(app_state, job: dict) -> None:
 
     log_path = Path(settings.logs_dir) / f"job_{job['id']}.log"
     try:
+        if etapa == "qa_agentico":
+            from . import qa_jobs
+
+            round_id = meta.get("round_id")
+            if not round_id:
+                repo.finalizar_job(conn, job["id"], "falhou", erro_msg="round_id QA ausente")
+                return
+            status = qa_jobs.executar_qa_round(
+                settings=settings,
+                conn=conn,
+                round_id=round_id,
+                log_path=log_path,
+            )
+            if status == "completed":
+                repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
+            else:
+                repo.finalizar_job(
+                    conn, job["id"], "falhou",
+                    erro_msg=f"rodada QA terminou como {status}", log_path=str(log_path),
+                )
+            return
+
         if etapa == "sa_item":
             # P4 do escape hatch web (item criado pelo laço do viewer):
             # microciclo de UM item (--secao --item --persist-db --wait),
@@ -243,7 +269,8 @@ def processar_um_job(app_state, job: dict) -> None:
     except Exception as exc:  # noqa: BLE001 - quarentena (R6): job com erro nao para a fila
         log.exception("job %s falhou", job["id"])
         repo.finalizar_job(conn, job["id"], "falhou", erro_msg=str(exc)[:500])
-        repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=str(exc)[:500])
+        if etapa != "qa_agentico":
+            repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=str(exc)[:500])
     finally:
         app_state.job_meta.pop(job["id"], None)
 

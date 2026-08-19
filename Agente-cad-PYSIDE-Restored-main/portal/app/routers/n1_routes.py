@@ -15,7 +15,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from .. import access, auth, ficha_reader, pipeline_runner, public_codes_lookup, torre_crop
+from .. import access, auth, ficha_reader, public_codes_lookup, torre_crop
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 from src.core import pillar_n3_ficha
@@ -130,8 +130,24 @@ def obter_item_n1_endpoint(obra_id: str, classe: str, item_id: str, request: Req
     item = ficha_reader.obter_item_n1(estado, classe, item_id) if estado else None
     if item is None:
         raise HTTPException(status_code=404, detail="item nao encontrado nesta classe/pavimento")
-    dir_fichas = pipeline_runner.encontrar_dir_fichas(obra_dir)
-    fotos = ficha_reader.extrair_fotos_ficha(dir_fichas, classe, item)
+    # A ficha persistida contem o SVG contextual completo. O artefato direto
+    # da rodada de producao e' fallback para obras/itens ainda sem pack HTML.
+    fotos = ficha_reader.resolver_fotos_portal(
+        obra_dir, pav, classe, item,
+    )
+    html_fichas_root = request.app.state.settings.repo_root / "scripts" / "arete" / "html_fichas" / obra["nome"]
+    camadas_qa = ficha_reader.resolver_camadas_qa_pilar(
+        obra_dir, pav, classe, item, html_fichas_root,
+    )
+    visualizacoes_n1 = ficha_reader.resolver_visualizacoes_n1_pilar(
+        obra_dir, pav, classe, item,
+        foto_n1_fallback=fotos["n1"], html_fichas_root=html_fichas_root,
+    )
+    resumo_pilar_n1 = None
+    if classe in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+        resumo_pilar_n1 = _resumo_pilar_n1(
+            estado, obra_dir, item_id.removesuffix("_Para").removesuffix("_Passa"), pav,
+        )
     settings = request.app.state.settings
     code_publico = public_codes_lookup.buscar_code_item(
         settings.public_consulta_db_path, obra_id, pav, classe, item_id,
@@ -144,6 +160,11 @@ def obter_item_n1_endpoint(obra_id: str, classe: str, item_id: str, request: Req
         "interpretacao_abcd": item.get("interpretacao_abcd"),
         "interpretacao_abcd_html": item.get("interpretacao_abcd_html") or "",
         "foto_n1": fotos["n1"], "foto_n3": fotos["n3"],
+        "foto_n1_origem": fotos["n1_origem"],
+        "foto_n3_origem": fotos["n3_origem"],
+        "camadas_qa": camadas_qa,
+        "visualizacoes_n1": visualizacoes_n1,
+        "resumo_pilar_n1": resumo_pilar_n1,
         "code_publico": code_publico, "referencia": referencia,
     }
 
@@ -163,6 +184,62 @@ def _robot_pilar(obra_dir: Path, item_id: str) -> dict:
     except (OSError, ValueError):
         return {}
     return value if isinstance(value, dict) else {}
+
+
+def _resumo_pilar_n1(
+    estado: dict, obra_dir: Path, item_id: str, pavimento: str,
+) -> Optional[dict]:
+    """Resumo visual canônico da ficha N1 do pilar.
+
+    A tela não deve voltar a exibir o dump genérico de lados/lajes. Classificação
+    e orientação vêm do snapshot SA; níveis e pé-direito usam a mesma conversão
+    automática consumida pelo N3, sem aplicar eventual override humano do N3.
+    """
+    pilar = _pilar_raw(estado, item_id)
+    if pilar is None:
+        return None
+    ficha = pillar_n3_ficha.build_ficha(
+        pilar, _robot_pilar(obra_dir, item_id), None, pavimento=pavimento,
+    )
+    dimensions = ficha["dimensions"]
+    top_view = ficha["top_view"]
+    niveis = _niveis_absolutos_pilar(obra_dir, pavimento, item_id)
+    return {
+        "classificacao": top_view.get("classification") or "—",
+        "orientacao": top_view.get("orientation") or "—",
+        "nivel_chegada": niveis.get("nivel_chegada_abs", dimensions.get("nivel_chegada")),
+        "nivel_saida": niveis.get("nivel_saida_abs", dimensions.get("nivel_saida")),
+        "pe_direito": niveis.get("pd_pavimento_cm", dimensions.get("height")),
+    }
+
+
+def _niveis_absolutos_pilar(obra_dir: Path, pavimento: str, item_id: str) -> dict:
+    """Localiza o payload N3 de produção que preserva os níveis absolutos do SA."""
+    candidatos = [
+        obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / modo / f"{item_id}.json"
+        for modo in ("para", "passa")
+    ]
+    candidatos.extend(sorted(
+        obra_dir.glob(f"{pavimento}_*/pilares/n3_variants/para/{item_id}.json"),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    ))
+    for path in candidatos:
+        try:
+            import json
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        if payload.get("nivel_chegada_abs") is None or payload.get("nivel_saida_abs") is None:
+            continue
+        return {
+            "nivel_chegada_abs": payload["nivel_chegada_abs"],
+            "nivel_saida_abs": payload["nivel_saida_abs"],
+            "pd_pavimento_cm": payload.get("pd_pavimento_cm") or payload.get("altura"),
+        }
+    return {}
 
 
 @router.get("/{obra_id}/n1/{classe}/{item_id}/pilar-n3-ficha")

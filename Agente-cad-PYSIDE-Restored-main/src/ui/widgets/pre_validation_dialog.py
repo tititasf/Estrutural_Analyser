@@ -5871,7 +5871,9 @@ class PreValidationDialog(QDialog):
         self._pl_n3_cache = {}
         self._last_pl_n3_materialize = {'generated': [], 'failed': []}
         try:
-            self._export_html_snapshot(sections={'pilares'})
+            self._export_html_snapshot(
+                sections={'pilares'}, materialize_pl_only=True,
+            )
         except Exception as exc:
             print(f'[HTML] materialize_pl_n3_variants falhou: {exc}', flush=True)
         stats = getattr(self, '_last_pl_n3_materialize', None) or {}
@@ -5880,7 +5882,12 @@ class PreValidationDialog(QDialog):
             list(stats.get('failed') or []),
         )
 
-    def _export_html_snapshot(self, sections: set[str] | None = None) -> str | None:
+    def _export_html_snapshot(
+        self,
+        sections: set[str] | None = None,
+        *,
+        materialize_pl_only: bool = False,
+    ) -> str | None:
         """Gera uma ficha HTML independente para cada aba de dados.
 
         `sections`: `None` (default) gera tudo, comportamento idêntico ao
@@ -5894,7 +5901,8 @@ class PreValidationDialog(QDialog):
         Retorna o output_dir gerado (ou None em caso de erro)."""
         import html
         _include = lambda name: sections is None or name in sections  # noqa: E731
-        self._save_analysis_state()   # snapshot JSON para modo headless
+        if not materialize_pl_only:
+            self._save_analysis_state()   # snapshot JSON para modo headless
         # Pasta fixa por obra: scripts/arete/html_fichas/{obra}/{pavimento}_{ts}/
         # Acumula histórico de geração sem sobrescrever runs anteriores.
         ts = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
@@ -8361,6 +8369,11 @@ class PreValidationDialog(QDialog):
                     flush=True,
                 )
 
+            # Produção web precisa somente dos contratos/DXFs N3 estáveis.
+            # O fluxo normal e o QA continuam construindo o pack HTML completo.
+            if materialize_pl_only:
+                return ('', title, len(rows))
+
             def _segments_label(values: list) -> str:
                 vals = [_fmt_num(v) for v in (values or [])]
                 return ' | '.join(vals) if vals else '—'
@@ -9523,6 +9536,10 @@ class PreValidationDialog(QDialog):
                 ))
 
             for slug, title, headers, rows, extra_th, extra_td_fn in reports:
+                if materialize_pl_only and slug not in (
+                    'pilares', 'pilares_especiais',
+                ):
+                    continue
                 if slug in _lateral_kinds:
                     continue
                 # Pilares: gera página individual por item
@@ -9589,6 +9606,9 @@ class PreValidationDialog(QDialog):
                 with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as file:
                     file.write(document)
                 generated.append((filename, title, len(rows)))
+
+            if materialize_pl_only:
+                return output_dir
 
             index_items = ''.join(
                 f'<li><a href="{html.escape(f)}">{html.escape(t)}</a> — {c} registro(s)</li>'

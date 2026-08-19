@@ -38,6 +38,14 @@ from src.core.pil_qa_notes_chrome import (  # noqa: E402
 OUT_BASE = Path(__file__).resolve().parent / "html_fichas"
 
 
+def _render_tag_worker(payload: tuple[str, str, list, dict]) -> tuple[str, str]:
+    """Worker isolado: matplotlib/ezdxf não compartilham estado entre pilares."""
+    name, dxf_path, points, tables = payload
+    from scripts.arete.pil_agentic_highlight_draw import render_agentic_svg
+
+    return name, render_agentic_svg(Path(dxf_path), points, tables, layer="sa")
+
+
 def _render_n1_svg(
     dxf_path: Path,
     pillar_pts: list,
@@ -297,6 +305,18 @@ def main() -> int:
         action="store_true",
         help="Só N1 SA com tags (sem gravar L1/L2/L3 em propostas/) — raríssimo",
     )
+    ap.add_argument(
+        "--tags-only",
+        action="store_true",
+        help=(
+            "Produção web: gera somente {PILAR}_sa_motor.svg. Não renderiza "
+            "SA plain/distante nem camadas QA; evita três renders redundantes."
+        ),
+    )
+    ap.add_argument(
+        "--workers", type=int, default=3,
+        help="Processos paralelos usados por --tags-only (default: 3; máximo: 3).",
+    )
     args = ap.parse_args()
 
     db = Path(args.db)
@@ -422,7 +442,8 @@ def main() -> int:
     names = [p["name"] for p, _ in pages]
     print(
         f"[N1] DXF={'ok' if dxf_path and dxf_path.is_file() else 'ausente'} "
-        f"skip={args.skip_n1} layers={'off' if args.no_layers else 'SA+L1/L2/L3'}",
+        f"skip={args.skip_n1} tags_only={args.tags_only} "
+        f"layers={'off' if args.no_layers or args.tags_only else 'SA+L1/L2/L3'}",
         flush=True,
     )
 
@@ -443,6 +464,27 @@ def main() -> int:
         _process_item = _mod.process_item
 
     nivel_v = f"{niveis.get('chegada_abs')}cm"
+    tagged_cache: dict[str, str] = {}
+    if args.tags_only and dxf_path and dxf_path.is_file() and pages:
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+
+        workers = max(1, min(int(args.workers or 1), 3, len(pages)))
+        payloads = [
+            (p["name"], str(dxf_path), p.get("points") or [], tables)
+            for p, tables in pages
+        ]
+        try:
+            with ProcessPoolExecutor(max_workers=workers) as executor:
+                futures = [executor.submit(_render_tag_worker, payload) for payload in payloads]
+                for done_index, future in enumerate(as_completed(futures), start=1):
+                    name, svg = future.result()
+                    tagged_cache[name] = svg
+                    print(f"  N1+tags {name} ({done_index}/{len(pages)}) ✓", flush=True)
+        except Exception as exc:
+            # Fail-safe: o loop abaixo regenera sequencialmente apenas os
+            # itens ausentes do cache, sem produzir pack parcialmente válido.
+            print(f"  [WARN] pool tags: {exc}; fallback sequencial", flush=True)
+
     for i, (p, tables) in enumerate(pages):
         nav = []
         if i > 0:
@@ -454,15 +496,24 @@ def main() -> int:
         l1_svg = l2_svg = l3_svg = ""
         pts = p.get("points") or []
         if not args.skip_n1 and dxf_path and dxf_path.is_file():
-            print(f"  N1+tags {p['name']} ({i+1}/{len(pages)})…", flush=True)
-            # SA sem tags = N1 estrutural + marco vermelho (sempre)
-            n1_near_plain = _render_n1_svg(dxf_path, pts, context_view="near")
-            n1_far = _render_n1_svg(dxf_path, pts, context_view="far")
+            if not args.tags_only:
+                print(f"  N1+tags {p['name']} ({i+1}/{len(pages)})…", flush=True)
             prop = out_dir / "propostas"
             prop.mkdir(parents=True, exist_ok=True)
-            (prop / f"{p['name']}_sa_plain.svg").write_text(
-                n1_near_plain, encoding="utf-8"
-            )
+            n1_near = tagged_cache.get(p["name"], "")
+            if n1_near:
+                (prop / f"{p['name']}_sa_motor.svg").write_text(
+                    n1_near, encoding="utf-8"
+                )
+            if not args.tags_only:
+                # O pack humano completo conserva os dois contextos sem tags.
+                # A produção web já os possui no HTML canônico e pede somente
+                # a evidência tagueada que faltava.
+                n1_near_plain = _render_n1_svg(dxf_path, pts, context_view="near")
+                n1_far = _render_n1_svg(dxf_path, pts, context_view="far")
+                (prop / f"{p['name']}_sa_plain.svg").write_text(
+                    n1_near_plain, encoding="utf-8"
+                )
 
             def _read_svg(fn: str) -> str:
                 fp = prop / fn
@@ -472,7 +523,7 @@ def main() -> int:
                     r"<\?xml[^?]*\?>", "", fp.read_text(encoding="utf-8")
                 ).strip()
 
-            if not args.no_layers and _process_item:
+            if not args.no_layers and not args.tags_only and _process_item:
                 # process_item grava SA com tags + L1/L2/L3
                 try:
                     r = _process_item(
@@ -500,7 +551,7 @@ def main() -> int:
                 (prop / f"{p['name']}_sa_motor.svg").write_text(
                     n1_near, encoding="utf-8"
                 )
-                if not args.no_layers:
+                if not args.no_layers and not args.tags_only:
                     for ly in ("l1", "l2", "l3"):
                         svg_ly = _render_tagged(dxf_path, pts, tables, layer=ly)
                         out_name = f"{p['name']}_qa_L{ly[-1]}.svg"
@@ -584,14 +635,25 @@ a{{color:#7eb8f7}} li{{margin:4px 0}}</style></head><body>
         "cortes": [],
         "segmentos": {},
     }
-    estado_path = OUT_BASE / args.obra / f"estado_{args.pav}_pilares_abcd.json"
+    # Microciclo não substitui o inventário global pelo subconjunto filtrado.
+    estado_path = (
+        out_dir / "estado_pilares_abcd.json"
+        if args.item
+        else OUT_BASE / args.obra / f"estado_{args.pav}_pilares_abcd.json"
+    )
     estado_path.parent.mkdir(parents=True, exist_ok=True)
     estado_path.write_text(json.dumps(estado, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"[OK] {len(pages)} fichas em {out_dir}")
     print(f"[OK] estado: {estado_path}")
+    if args.skip_n1:
+        artefatos_label = "sem SVG N1 (--skip-n1)"
+    elif args.tags_only or args.no_layers:
+        artefatos_label = "somente SA+tags"
+    else:
+        artefatos_label = "SA+tags + L1/L2/L3"
     print(
-        f"[OK] SA+tags + L1/L2/L3 → {out_dir / 'propostas'} "
+        f"[OK] {artefatos_label} → {out_dir / 'propostas'} "
         f"(padrão: docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md · espelho FV V303)",
         flush=True,
     )

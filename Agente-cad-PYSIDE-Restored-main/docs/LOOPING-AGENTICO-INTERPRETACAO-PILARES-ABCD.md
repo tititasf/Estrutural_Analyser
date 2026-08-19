@@ -222,8 +222,13 @@ identidade por rótulo do DXF). Não anunciar esses itens como resolvidos.
 
 ### Backlog estrutural aberto (pedido humano, sem suporte no modelo atual)
 
-- **Blocklist de geometria reprovada** (P12/P13/P14): persistir vínculos que o humano
-  invalidou, para o SA nunca religar a mesma geometria e tentar a próxima mais próxima.
+- **Geometria reprovada P12/P13/P14 — regra consolidada em 2026-08-10:** o SA recupera
+  somente um retângulo fechado homônimo no DXF, com a mesma espessura curta e extensão
+  longa significativamente maior. P12/P13/P14 convergiram para 19×98. Não usa GOLDEN,
+  não aumenta raio e não escolhe apenas por proximidade. O side-car
+  `blocklist_vinculos.json` v1 não guarda fingerprint de polígono e, isoladamente, não
+  prova que uma geometria de pilar foi rejeitada; sua aplicação continua restrita aos
+  vínculos estruturados que ele consegue identificar.
 - **Pilar especial em L — 6 faces A–F** (P26/P27): o modelo inteiro assume 4 faces.
   Convenção pedida: A/B seguem a definição atual, C e D continuam sendo as tampas
   (lados curtos), e o trecho horizontal do L acrescenta **E** e **F** como lados longos.
@@ -271,11 +276,10 @@ Campos: face (A–F) · canto (AC…DD) · papel · nome · obs. Chave:
 a re-export) e **sem tocar no schema N1** (regra 1 do CLAUDE.md — side-car, nunca
 `pillars.extra_data`):
 
-- `scripts/arete/qa_memoria/blocklist_vinculos.json` — vínculos reprovados. Consulta
-  pública `is_blocked(obra, pav, item, nome=, face=, canto=)`; já integrada ao
-  `pil_l2_apply_calibrated_fixes.py`, que **nunca propõe um candidato bloqueado** —
-  vira pendência explícita em vez de religar o que o humano já reprovou.
-  (Pedido humano: P12/P13/P14.)
+- `scripts/arete/qa_memoria/blocklist_vinculos.json` — vínculos estruturados reprovados
+  por item/nome/face/canto. Consulta pública `is_blocked(...)`; integrada à L2. Para
+  contorno de pilar, usar a recuperação homônima DXF acima até existir schema com
+  fingerprint geométrico explícito.
 - `scripts/arete/qa_memoria/dataset_correcoes.jsonl` — todo apontamento + assinatura
   estrutural do item. É o dataset rotulado que calibra as checagens do §3.2.
 
@@ -502,6 +506,60 @@ Duas correções saíram daí:
 antes de propagar qualquer mudança de geometria para lote. A correção do ponto foi
 provada no P24 (vertical, n=1) e teria espelhado/deslocado pontos em todos os
 horizontais do lote se tivesse ido direto.
+
+---
+
+## 3.7 Cruzamento entre classes — camada 3a, SEMPRE obrigatória
+
+> **Regra do dono (2026-08-10):** *"o que estiver divergindo entre classes, você
+> como QA SEMPRE deve apontar"*. Divergência entre classes **nunca** pode ser
+> suprimida — o objetivo é as classes irem se **harmonizando**.
+
+Ler linha solta de DXF e adivinhar é "leitura básica no chute". As outras classes
+do mesmo pavimento já afirmam coisas sobre as **mesmas vigas**:
+
+| Fonte | Campo | O que dá |
+|---|---|---|
+| **FV** (fundos) | `viga_fundo_seg_N_local_ini/_local_fim` | entre quais apoios cada trecho corre |
+| **LV** (laterais) | `viga_{a,b}_seg_N_abert_pilar_{esq,dir}_{dist,larg}` | a abertura do pilar medida no painel da viga |
+| **geometria** | contorno do segmento com gap 0 | adjacência real |
+
+Script: `scripts/arete/pil_cruzamento_classes.py --todos` (grava sempre
+`qa_memoria/cruzamento_classes.json`). Integrado como **camada 3a** em
+`pil_layer_selfcheck.py` — roda em toda avaliação, sem flag.
+
+### Calibração — nenhuma classe é autoridade sobre a outra
+
+- **PIL é hoje a classe mais madura.** FV/LV ainda erram. Uma divergência é,
+  com frequência, lacuna da OUTRA classe — não do ABCD.
+- **Caso arbitrado (P2):** o topo é **VF301**. O ABCD estava certo; o FV
+  declarava `V301`. Serviu para calibrar: **o FV não é autoridade de identidade**.
+- **O valor é bidirecional:** o relatório alimenta o QA de PIL *e* o de FV/LV.
+  Cada divergência é candidata a fix dos dois lados.
+- Por isso o cruzamento **nunca corrige sozinho** — só reporta o conflito com as
+  duas versões e o que a geometria diz (camada 3 do §3.6).
+
+### As três fontes precisam ser combinadas (aprendido errando)
+
+1ª versão só usava os apoios declarados → acusou 46 falsos "ninguém confirma".
+Causa: **o FV nomeia só os EXTREMOS do trecho**; um pilar que a viga atravessa no
+meio nunca aparece como apoio. Provado em `V301 × P42` — seg2 `x[1503,1603]` e
+seg3 `x[1622,1722]`, ambos na faixa `y[2991,3010]` do pilar, gap 0 dos dois
+lados: a viga atravessa o P42, mas os apoios citam P11/V312.
+
+Com a adjacência de contorno somada: **4 → 13** itens plenamente corroborados,
+"ninguém confirma" **46 → 20**.
+
+### Estado do 13_PAV (2026-08-10)
+
+| | |
+|---|---|
+| itens sem nenhuma divergência | **13 / 46** |
+| ABCD tem, nenhuma classe confirma | **20** |
+| outra classe liga, ABCD não tem | **25** |
+
+Os 25 são o número a atacar: cada um é uma viga que encosta/é declarada no pilar
+sem entrada no ABCD. Não presumir de que lado está o erro — arbitrar item a item.
 
 ---
 

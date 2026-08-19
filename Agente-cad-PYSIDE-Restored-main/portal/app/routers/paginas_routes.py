@@ -270,7 +270,8 @@ def pagina_obra_detalhe(
         fichas: list[dict] = []
         lp = obra.get("local_path")
         obra_dir = (Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra"))
-        base = _pipeline_runner.encontrar_dir_fichas(obra_dir)
+        pavimento_fichas = request.query_params.get("pavimento") or settings.pav_default
+        base = _pipeline_runner.encontrar_dir_fichas(obra_dir, pavimento_fichas)
         if base is not None:
             for p in sorted(base.rglob("*.html")):
                 fichas.append({
@@ -311,7 +312,7 @@ def pagina_obra_detalhe(
             # tambem tem job proprio rodando em qualquer etapa (1/2/3).
             "job_ativo": _job_ativo(jobs),
             "validacao_concluida": validacao_concluida,
-            "pavimento": settings.pav_default,
+            "pavimento": pavimento_fichas,
             # Pavimentos com estrutural limpo — um link de viewer por pavimento.
             "pavimentos_viewer": viewer_pavimentos.listar_pavimentos_com_torre(
                 obra_dir, obra

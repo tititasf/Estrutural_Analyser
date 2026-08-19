@@ -208,3 +208,108 @@ def test_pilares_em_L_vao_para_especiais_nao_somem():
     retangulares = {i["item_id"] for i in fr.listar_itens_n1(estado, "pilares")}
     assert {"P26", "P27"} <= especiais
     assert not ({"P26", "P27"} & retangulares)
+
+
+def test_preview_n1_producao_vem_do_snapshot_sem_html():
+    item = {
+        "titulo": "P900",
+        "beam_name": "P900",
+        "points": [[10, 20], [70, 20], [70, 40], [10, 40]],
+    }
+    svg = fr._svg_geometria_n1(item)
+    assert svg is not None
+    assert 'aria-label="N1 / SA P900"' in svg
+    assert "<polygon" in svg
+    assert "viewBox=" in svg
+
+
+def test_n3_producao_localiza_artefato_permanente_sem_pack_html(tmp_path):
+    run = (
+        tmp_path / "Fase-6_Execucao_CAD" / "production_sa" / "13_PAV"
+        / "20260811_120000_42"
+    )
+    dxf = run / "n3" / "dxf" / "FV_preview_V301.dxf"
+    dxf.parent.mkdir(parents=True)
+    dxf.write_text("placeholder", encoding="utf-8")
+    (run / "production_manifest.json").write_text("{}", encoding="utf-8")
+    found = fr._n3_dxf_producao(
+        tmp_path, "13_PAV", "fundo", {"beam_name": "V301"},
+    )
+    assert found == dxf
+
+
+def test_resolver_fotos_portal_prioriza_svg_canonico(monkeypatch, tmp_path):
+    canonico_n1 = '<svg class="img-geo"><path d="M 0 0 L 10 10"/></svg>'
+    canonico_n3 = '<svg class="img-n3"><text>N3 completo</text></svg>'
+    monkeypatch.setattr(
+        fr, "extrair_fotos_ficha",
+        lambda *_args, **_kwargs: {"n1": canonico_n1, "n3": canonico_n3},
+    )
+    monkeypatch.setattr(
+        fr, "extrair_fotos_producao",
+        lambda *_args, **_kwargs: {
+            "n1": '<svg><polygon id="simplificado"/></svg>',
+            "n3": '<svg><polygon id="fallback"/></svg>',
+        },
+    )
+
+    fotos = fr.resolver_fotos_portal(
+        tmp_path, "13_PAV", "pilares", {"beam_name": "P1"},
+    )
+
+    assert fotos["n1"] == canonico_n1
+    assert fotos["n3"] == canonico_n3
+    assert fotos["n1_origem"] == "ficha_html_canonica"
+    assert fotos["n3_origem"] == "ficha_html_canonica"
+
+
+def test_resolver_camadas_qa_pilar_nao_inventa_fallback(monkeypatch, tmp_path):
+    pack = tmp_path / "13_PAV_pack"
+    propostas = pack / "propostas"
+    propostas.mkdir(parents=True)
+    (propostas / "P7_qa_L1.svg").write_text(
+        '<svg viewBox="0 0 10 10"><path d="M0 0L1 1"/></svg>', encoding="utf-8"
+    )
+    (propostas / "P7_qa_L1_tables.json").write_text(
+        '{"faces":{"A":{"chega":1}}}', encoding="utf-8"
+    )
+    monkeypatch.setattr(fr, "_encontrar_dir_ficha_item", lambda *_args: pack)
+    layers = fr.resolver_camadas_qa_pilar(
+        tmp_path, "13_PAV", "pilares", {"beam_name": "P7"},
+    )
+    assert layers["L1"]["disponivel"] is True
+    assert "viewBox" in layers["L1"]["svg"]
+    assert layers["L1"]["tables"]["faces"]["A"]["chega"] == 1
+    assert layers["L2"] == {"svg": None, "tables": None, "disponivel": False}
+    assert layers["L3"] == {"svg": None, "tables": None, "disponivel": False}
+
+
+def test_resolver_visualizacoes_n1_pilar_separa_proximo_distante_e_tag(monkeypatch, tmp_path):
+    pack = tmp_path / "13_PAV_pack"
+    pilares = pack / "pilares"
+    pilares.mkdir(parents=True)
+    (pilares / "P7.html").write_text(
+        '<div class="face-card"><svg class="img-geo" aria-label="N1 proximo" '
+        'viewBox="0 0 10 10"><path id="perto"/></svg></div>'
+        '<div class="face-card"><svg class="img-geo" aria-label="N1 contexto" '
+        'viewBox="0 0 20 20"><path id="longe"/></svg></div>',
+        encoding="utf-8",
+    )
+    central = tmp_path / "html_fichas"
+    propostas = central / "13_PAV_20260813_pilares_abcd" / "propostas"
+    propostas.mkdir(parents=True)
+    (propostas / "P7_sa_motor.svg").write_text(
+        '<?xml version="1.0"?><svg viewBox="0 0 30 30"><path id="tag"/></svg>',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(fr, "_encontrar_dir_ficha_item", lambda *_args: pack)
+
+    views = fr.resolver_visualizacoes_n1_pilar(
+        tmp_path, "13_PAV", "pilares", {"beam_name": "P7"},
+        foto_n1_fallback='<svg id="fallback"/>', html_fichas_root=central,
+    )
+
+    assert 'id="perto"' in views["proximo"]
+    assert 'id="longe"' in views["distante"]
+    assert 'id="tag"' in views["com_tag"]
+    assert "<?xml" not in views["com_tag"]

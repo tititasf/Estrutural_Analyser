@@ -117,6 +117,10 @@ async def test_obter_item_n1_pilar_com_foto_real(settings):
         assert r.status_code == 200
         body = r.json()
         assert body["campos"]["Nome"] == "P1"
+        assert set(body["resumo_pilar_n1"]) == {
+            "classificacao", "orientacao", "nivel_chegada", "nivel_saida", "pe_direito",
+        }
+        assert body["resumo_pilar_n1"]["pe_direito"] > 0
         assert body["foto_n1"] is not None and "<svg" in body["foto_n1"]
         assert body["foto_n3"] is None  # honesto: N3 nao existe pra pilares nesta obra
 

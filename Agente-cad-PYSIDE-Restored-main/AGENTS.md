@@ -29,6 +29,10 @@
    **SVG pan/zoom web:** somente **viewBox** (padrão FV V302) — proibido CSS scale.
    Ver `docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md` + `fv_hifi_n1_render.initPanZoom` /
    `pil_qa_notes_chrome.initPilPanZoom`. Todo CLI de ficha HTML N1 herda isso.
+   **Tags PIL:** aplicar integralmente
+   `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`; chega no centro da viga, passa no
+   vértice exato e todos os gates (geometria, semântica, vínculo, conteúdo, ponto,
+   legibilidade e PNG) têm o mesmo peso. Sidecar PASS isolado não aprova.
 5. **Motor universal (Regra de Ouro)**: zero hardcode por item/pavimento/obra — fix é
    fórmula geral a partir da ficha. Golden set: PROIBIDO selar com gate FAIL;
    regressão Arete obrigatória após qualquer toque em `gerar_*`/`motor_*`.

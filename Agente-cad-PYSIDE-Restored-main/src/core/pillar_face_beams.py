@@ -710,9 +710,15 @@ def apply_face_c_top_multi_segment(
             continue
         for run in bi.get("runs") or []:
             rx0, ry0, rx1, ry1 = run
-            in_y_band = min(ry0, ry1) - band <= face_c_y <= max(ry0, ry1) + band
-            wall_c = abs(ry0 - face_c_y) < tol or abs(ry1 - face_c_y) < tol
-            if not (in_y_band or wall_c):
+            # A cota pode estar próxima da face sem que a viga a toque.
+            # Materializar CA/CB exige contato do contorno, não apenas
+            # pertencimento a uma faixa gráfica.
+            contact_tol = min(tol, 3.0)
+            wall_c = (
+                abs(ry0 - face_c_y) <= contact_tol
+                or abs(ry1 - face_c_y) <= contact_tol
+            )
+            if not wall_c:
                 continue
             # Oeste: corpo do trecho predominantemente a oeste de A, tocando A
             west_body = rx1 <= px0 + tol and rx0 < px0 - 1.0
@@ -745,7 +751,14 @@ def apply_face_c_top_multi_segment(
 
     def _pick_name(side: str, dim_hit: dict | None) -> str:
         tx = px0 if side == "west" else px1
-        # 1) rótulo V/VF na faixa do topo (mais confiável que owner de cota compartilhada)
+        # 1) identidade do próprio trecho que provou o contato. Um rótulo
+        # próximo pode pertencer a outra viga e não vence a geometria.
+        pool = west_hits if side == "west" else east_hits
+        geometric_names = [str(hit.get("name") or "").strip() for hit in pool]
+        geometric_names = [item for item in geometric_names if item]
+        if geometric_names:
+            return geometric_names[0]
+        # 2) rótulo V/VF na faixa do topo
         near_names = [
             n
             for n in name_texts
@@ -761,10 +774,6 @@ def apply_face_c_top_multi_segment(
                 key=lambda n: abs(n["y"] - face_c_y) * 10 + abs(n["x"] - cx) * 0.02,
             )
             return best["name"]
-        # 2) hit geométrico H no topo
-        pool = west_hits if side == "west" else east_hits
-        if pool:
-            return str(pool[0].get("name") or "").strip()
         # 3) owner da cota só se a viga for realmente H na faixa deste pilar
         if dim_hit and dim_hit.get("owner") and _beam_near_top(str(dim_hit["owner"])):
             return str(dim_hit["owner"]).strip()
@@ -800,10 +809,11 @@ def apply_face_c_top_multi_segment(
     dim_w = _pick_dim("west", name_w) if name_w else ""
     dim_e = _pick_dim("east", name_e) if name_e else ""
 
-    # Multi-segmento exige evidência nos DOIS lados (cota e/ou trecho).
+    # Multi-segmento exige evidência geométrica nos DOIS lados. Cotas explicam
+    # dimensão, mas não provam contato.
     # Um único lado = chega simples (já coberta pelo fluxo para[]) — não forçar C.
-    side_w = bool(dim_ca or west_hits)
-    side_e = bool(dim_cb or east_hits)
+    side_w = bool(west_hits)
+    side_e = bool(east_hits)
     if not (side_w and side_e):
         return
     if not name_w and not name_e:
@@ -1273,6 +1283,107 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             # Passante sem hit de parede nesta face: não força (outra face cuida)
 
         # Chegadas (para): vigas com hit em qualquer face onde ainda não estejam vinculadas (passa/interior/para)
+        # Viga axial bilateral: quando a mesma viga, com largura compatível com
+        # a espessura transversal do pilar, alcança as DUAS tampas curtas, ela
+        # ocupa os dois cantos de cada face longa. O caso aparece tanto como
+        # dois corredores separados pelo próprio pilar quanto como um corredor
+        # contínuo. A deduplicação geral por nome não pode apagar AC+AD ou
+        # BC+BD, pois os cantos representam contatos geométricos distintos.
+        # A regra é geométrica e não depende de item, obra ou pavimento.
+        short_dim = ph if horizontal else pw
+        for bi in beam_info:
+            if not bi.get("name") or bool(bi.get("is_h")) != bool(horizontal):
+                continue
+            beam_width = beam_section_width(bi.get("dim"))
+            if beam_width is None or abs(beam_width - short_dim) >= TOL_ALIGN:
+                continue
+
+            aligned_runs = []
+            for run in bi.get("runs") or []:
+                rx0, ry0, rx1, ry1 = run
+                walls_align = (
+                    abs(ry0 - py0) < TOL_ALIGN
+                    and abs(ry1 - py1) < TOL_ALIGN
+                    if horizontal
+                    else abs(rx0 - px0) < TOL_ALIGN
+                    and abs(rx1 - px1) < TOL_ALIGN
+                )
+                if walls_align:
+                    aligned_runs.append(run)
+
+            if horizontal:
+                reaches_c = any(
+                    run[0] < px0 - MIN_OV and run[2] >= px0 - TOL_ALIGN
+                    for run in aligned_runs
+                )
+                reaches_d = any(
+                    run[2] > px1 + MIN_OV and run[0] <= px1 + TOL_ALIGN
+                    for run in aligned_runs
+                )
+            else:
+                reaches_d = any(
+                    run[1] < py0 - MIN_OV and run[3] >= py0 - TOL_ALIGN
+                    for run in aligned_runs
+                )
+                reaches_c = any(
+                    run[3] > py1 + MIN_OV and run[1] <= py1 + TOL_ALIGN
+                    for run in aligned_runs
+                )
+            if not (reaches_c and reaches_d):
+                continue
+
+            payload = {
+                "name": bi["name"],
+                "dim": bi["dim"],
+                "behavior": "passa",
+                "source": "axial_bilateral_runs",
+                **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
+                   if bi.get("evidence_segments") else {}),
+            }
+            for long_face in ("A", "B"):
+                corner_esq, corner_dir = FACE_CORNERS[long_face]
+                for slot, corner in (
+                    ("passa_esq", corner_esq),
+                    ("passa_dir", corner_dir),
+                ):
+                    current = face_beams[long_face].get(slot)
+                    if current and current.get("name") != bi["name"]:
+                        continue
+                    face_beams[long_face][slot] = {**payload, "corner": corner}
+
+                # A viga axial já foi provada nos dois extremos. Remover a
+                # chegada residual do mesmo nome evita o conflito passa+chega
+                # criado por uma leitura parcial de parede antes desta prova.
+                face_beams[long_face]["para"] = [
+                    arrival
+                    for arrival in face_beams[long_face]["para"]
+                    if arrival.get("name") != bi["name"]
+                ]
+
+            # Nas tampas curtas a mesma viga é interior, não passa/chega.
+            # Limpar os slots parciais antes de materializar o fato axial.
+            for short_face in ("C", "D"):
+                slots = face_beams[short_face]
+                for slot in ("passa_esq", "passa_dir"):
+                    if (slots.get(slot) or {}).get("name") == bi["name"]:
+                        slots[slot] = None
+                slots["para"] = [
+                    arrival
+                    for arrival in slots["para"]
+                    if arrival.get("name") != bi["name"]
+                ]
+                if not any(
+                    interior.get("name") == bi["name"]
+                    for interior in slots["interior"]
+                ):
+                    slots["interior"].append({
+                        "name": bi["name"],
+                        "dim": bi["dim"],
+                        "source": "axial_bilateral_runs",
+                        **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
+                           if bi.get("evidence_segments") else {}),
+                    })
+
         for br in beam_relations:
             if not br.get("name"):
                 continue
@@ -1317,7 +1428,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
         # persistia nada em D, só a ficha sabia via segmentos frageis).
         for fid in ("C", "D"):
             slots = face_beams[fid]
-            if slots["passa_esq"] or slots["passa_dir"] or slots["para"] or slots["interior"]:
+            if slots["para"] or slots["interior"]:
                 continue
             axis, fixed, r0, r1 = face_coords[fid]
             for bi in beam_info:
@@ -1334,14 +1445,112 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 )
                 adjacent = span_hi >= r0 - TOL_ALIGN and span_lo <= r1 + TOL_ALIGN
                 if touches_wall and adjacent and bi.get("name"):
-                    slots["passa_esq"] = {
+                    occupied_names = {
+                        (slots.get("passa_esq") or {}).get("name"),
+                        (slots.get("passa_dir") or {}).get("name"),
+                    } - {None}
+                    if occupied_names and bi["name"] not in occupied_names:
+                        continue
+                    payload = {
                         "name": bi["name"],
                         "dim": bi["dim"],
-                        "corner": slots["corner_esq"],
                         "behavior": "passa",
                         **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
                            if bi.get("evidence_segments") else {}),
                     }
+
+                    # Uma viga pode vir materializada em dois trechos, um de
+                    # cada lado do pilar (o vazio entre eles e o proprio
+                    # pilar). Nesse caso ela realmente ocupa os DOIS cantos
+                    # da face curta. A deduplicacao geral por nome nao se
+                    # aplica: DA e DB (ou CA e CB) sao evidencias distintas.
+                    # Exigimos dois trechos independentes para nao transformar
+                    # um unico retangulo continuo em dois vinculos artificiais.
+                    def run_touches_wall(run):
+                        rx0, ry0, rx1, ry1 = run
+                        if axis == "H":
+                            return ry0 - TOL_ALIGN <= fixed <= ry1 + TOL_ALIGN
+                        return rx0 - TOL_ALIGN <= fixed <= rx1 + TOL_ALIGN
+
+                    # Preserve os trechos observacionais antes da agregacao de
+                    # corredores: uma tolerancia de merge pode unir justamente
+                    # o vao de 19 cm ocupado pelo pilar e apagar a bilateralidade.
+                    evidence_runs = []
+                    for evidence in bi.get("evidence_segments") or []:
+                        evidence_points = evidence.get("points") or []
+                        if len(evidence_points) < 2:
+                            continue
+                        exs = [float(point[0]) for point in evidence_points]
+                        eys = [float(point[1]) for point in evidence_points]
+                        evidence_runs.append((min(exs), min(eys), max(exs), max(eys)))
+                    source_runs = evidence_runs if len(evidence_runs) >= 2 else (bi.get("runs") or [])
+                    wall_runs = [run for run in source_runs if run_touches_wall(run)]
+                    if axis == "H":
+                        low_side = any(
+                            run[0] < r0 - MIN_OV and abs(run[2] - r0) < TOL_ALIGN
+                            for run in wall_runs
+                        )
+                        high_side = any(
+                            run[2] > r1 + MIN_OV and abs(run[0] - r1) < TOL_ALIGN
+                            for run in wall_runs
+                        )
+                    else:
+                        low_side = any(
+                            run[1] < r0 - MIN_OV and abs(run[3] - r0) < TOL_ALIGN
+                            for run in wall_runs
+                        )
+                        high_side = any(
+                            run[3] > r1 + MIN_OV and abs(run[1] - r1) < TOL_ALIGN
+                            for run in wall_runs
+                        )
+                    bridges_both_corners = low_side and high_side
+
+                    def along_center(run):
+                        if axis == "H":
+                            return (run[0] + run[2]) / 2.0
+                        return (run[1] + run[3]) / 2.0
+
+                    preferred_slot = "passa_esq"
+                    if wall_runs:
+                        best_run = min(
+                            wall_runs,
+                            key=lambda run: min(
+                                abs(along_center(run) - r0),
+                                abs(along_center(run) - r1),
+                            ),
+                        )
+                        preferred_slot = (
+                            "passa_esq"
+                            if abs(along_center(best_run) - r0)
+                            <= abs(along_center(best_run) - r1)
+                            else "passa_dir"
+                        )
+
+                    if slots[preferred_slot] is None:
+                        corner_key = "corner_esq" if preferred_slot == "passa_esq" else "corner_dir"
+                        slots[preferred_slot] = {**payload, "corner": slots[corner_key]}
+                    if bridges_both_corners:
+                        slots["passa_esq"] = {**payload, "corner": slots["corner_esq"]}
+                        slots["passa_dir"] = {**payload, "corner": slots["corner_dir"]}
+
+                        # Dualidade dirigida: se a viga cobre DA+DB, as faces
+                        # longas enxergam chegadas AD+BD. Para C, AC+BC.
+                        # Sao chegadas (para[]), nao slots de viga passante.
+                        for long_face in ("A", "B"):
+                            reciprocal_corner = f"{long_face}{fid}"
+                            arrivals = face_beams[long_face]["para"]
+                            if not any(
+                                arrival.get("name") == bi["name"]
+                                and arrival.get("corner") == reciprocal_corner
+                                for arrival in arrivals
+                            ):
+                                arrivals.append({
+                                    "name": bi["name"],
+                                    "dim": bi["dim"],
+                                    "corner": reciprocal_corner,
+                                    **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
+                                       if bi.get("evidence_segments") else {}),
+                                })
                     break
 
         # Face C multi-segmento (topo E–W): CA/CB com dims locais + dualidade AC/BC

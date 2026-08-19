@@ -196,3 +196,84 @@ def maybe_repair_pillar_points(
     result["points"] = new_pts
     result["reason"] = (result["reason"] or "") + " → retângulo GOLDEN aplicado"
     return result
+
+
+def repair_truncated_named_pillars_from_dxf(
+    pillar_report: dict[str, dict],
+    *,
+    polylines: list[dict],
+    texts: list[dict],
+) -> list[dict[str, Any]]:
+    """Recupera a planta completa quando o vínculo atual é um trecho truncado.
+
+    Alguns pilares que ``nascem`` no pavimento seguinte aparecem na planta como
+    um curto trecho sólido/visual junto à viga. Esse trecho pode receber o nome
+    certo, mas não representa a seção inteira do pilar. A correção procura
+    exclusivamente alternativas detectadas com o *mesmo nome* no DXF e só troca
+    quando a alternativa é retangular, mantém a espessura curta e estende o eixo
+    longo de modo significativo. Assim não depende de GOLDEN nem escolhe outro
+    pilar apenas por proximidade.
+    """
+    try:
+        from src.core.analysis_helpers import detect_pilares_from_polylines
+        detected = detect_pilares_from_polylines(polylines or [], texts or [])
+    except Exception:
+        return []
+
+    def dims(points: list) -> tuple[float, float, tuple[float, float, float, float]] | None:
+        bb = _bbox(points)
+        if not bb:
+            return None
+        w, h = abs(bb[2] - bb[0]), abs(bb[3] - bb[1])
+        if w <= 0 or h <= 0:
+            return None
+        return min(w, h), max(w, h), bb
+
+    def rectangular(points: list) -> bool:
+        if not points:
+            return False
+        # Retângulos fechados têm quatro vértices distintos; evita escolher
+        # desenhos de viga/corte com o mesmo texto próximo ao pilar.
+        unique = {(round(float(p[0]), 2), round(float(p[1]), 2)) for p in points}
+        return len(unique) == 4
+
+    by_name: dict[str, list[dict]] = {}
+    for candidate in detected:
+        name = str(candidate.get("name") or (candidate.get("fields") or {}).get("nome") or "").strip().upper()
+        if name:
+            by_name.setdefault(name, []).append(candidate)
+
+    repaired: list[dict[str, Any]] = []
+    for key, pillar in pillar_report.items():
+        name = str(pillar.get("name") or key or "").strip().upper()
+        current = dims(pillar.get("points") or [])
+        if not name or not current:
+            continue
+        short, long, old_bb = current
+        # Apenas contornos suspeitos: seção estreita com eixo longo truncado.
+        if short < 8.0 or short > 40.0 or long >= 45.0:
+            continue
+        choices: list[tuple[float, dict, tuple[float, float, tuple[float, float, float, float]]]] = []
+        for candidate in by_name.get(name, []):
+            points = candidate.get("points") or []
+            cd = dims(points)
+            if not cd or not rectangular(points):
+                continue
+            cshort, clong, _ = cd
+            if abs(cshort - short) > max(2.0, short * 0.12) or clong < max(45.0, long * 1.8):
+                continue
+            # Menor extensão válida primeiro: reduz risco de capturar uma
+            # geometria arquitetônica muito maior que compartilhe o rótulo.
+            choices.append((clong, candidate, cd))
+        if not choices:
+            continue
+        _, chosen, (_, new_long, new_bb) = min(choices, key=lambda value: value[0])
+        pillar["points"] = [[float(x), float(y)] for x, y in chosen["points"]]
+        pillar["bbox"] = new_bb
+        pillar["_geometry_repaired"] = {
+            "from": {"short": round(short, 2), "long": round(long, 2), "bbox": old_bb},
+            "to": {"short": round(short, 2), "long": round(new_long, 2), "bbox": new_bb},
+            "source": "DXF: alternativa retangular homônima (contorno truncado por pilar nasce)",
+        }
+        repaired.append({"item": name, **pillar["_geometry_repaired"]})
+    return repaired

@@ -29,6 +29,27 @@ def test_special_pillar_exposes_up_to_eight_faces():
     assert set(result["faces"]) == set("ABCDEFGH")
 
 
+def test_special_pillar_uses_geometry_when_fase4_extra_face_width_is_zero():
+    pillar = {
+        "name": "P26",
+        "points": [[0, 0], [50, 0], [50, 19], [19, 19], [19, 50], [0, 50], [0, 0]],
+    }
+    robot = {
+        "comprimento": 50, "largura": 19, "altura": 280,
+        "larg1_A": 50, "larg1_B": 50, "larg1_C": 19, "larg1_D": 19,
+        "larg1_E": 0.0, "larg1_F": 0.0, "larg1_G": 0.0, "larg1_H": 0.0,
+    }
+
+    result = ficha.build_ficha(pillar, robot, pavimento="TERREO")
+
+    assert result["special"] is True
+    assert all(
+        panel["width"] > 0 and panel["height"] > 0
+        for face in result["faces"].values()
+        for panel in face["panels"]
+    )
+
+
 def test_right_opening_zero_distance_is_anchored_inside_right_panel_edge():
     result = ficha.build_ficha(_rect_pillar(), {
         "comprimento": 100, "largura": 20, "altura": 280,

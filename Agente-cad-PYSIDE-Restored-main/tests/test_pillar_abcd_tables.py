@@ -391,6 +391,36 @@ def test_c_para_cc_becomes_interior():
     )
 
 
+def test_long_face_central_para_becomes_chega_not_interior():
+    """Chegada perpendicular no meio da face longa mantém descrição de chegada."""
+    pillar = {
+        "name": "PX",
+        "orientation": "horizontal",
+        "points": [[0, 0], [100, 0], [100, 19], [0, 19]],
+        "face_beams": {
+            "A": {"para": [], "interior": [], "corner_esq": "AD", "corner_dir": "AC"},
+            "B": {
+                "para": [{"name": "V325", "dim": "19/120", "corner": "BB"}],
+                "interior": [],
+                "corner_esq": "BC",
+                "corner_dir": "BD",
+            },
+            "C": {"para": [], "interior": [], "corner_esq": "CA", "corner_dir": "CB"},
+            "D": {"para": [], "interior": [], "corner_esq": "DA", "corner_dir": "DB"},
+        },
+    }
+    payload = build_abcd_tables_from_pillar(pillar, nivel_viga_default="852cm")
+    assert any(
+        row["nome"] == "V325" and row["canto"] == "BB"
+        for row in payload["faces"]["B"]["chega"]
+    )
+    assert not any(
+        row["nome"] == "V325"
+        for row in payload["faces"]["B"]["interior"]
+        if row["nome"] != "nenhuma"
+    )
+
+
 def test_c_interior_suppresses_top_dual():
     tables = {
         "A": {
