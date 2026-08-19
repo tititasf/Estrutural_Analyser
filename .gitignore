@@ -69,3 +69,6 @@ Agente-cad-PYSIDE-Restored-main/tmp_*.py
 .pytest-tmp-state-path*/
 verify_pillar_clip/
 validacao_visual_3casos/
+
+# Fixtures temporarias de pytest (lixo de rodada, nunca versionar)
+Agente-cad-PYSIDE-Restored-main/.pytest-tmp-*/
