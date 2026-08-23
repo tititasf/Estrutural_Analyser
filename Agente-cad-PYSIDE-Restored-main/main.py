@@ -1415,6 +1415,8 @@ class MainWindow(QMainWindow):
                 if dpath and os.path.exists(dpath):
                     from src.core.dxf_loader import DXFLoader
                     self.dxf_data = DXFLoader.load_dxf(dpath)
+                    if self.dxf_data:
+                        self.current_dxf_path = dpath
                     if self.dxf_data and hasattr(self.canvas, 'add_dxf_entities'):
                         self.canvas.add_dxf_entities(self.dxf_data, source_dxf_path=dpath)
 
@@ -5410,7 +5412,11 @@ class MainWindow(QMainWindow):
             if not self.dxf_data:
                 self.log("❌ DXFLoader retornou None.")
                 return
-            
+            # Caminho bruto do arquivo, para leituras auxiliares que precisam
+            # do DXF original (ex.: recuperação de corredor de viga pelo par
+            # de paredes) — o `dxf_data` já vem abstraído em linhas/textos.
+            self.current_dxf_path = path
+
             self.log(f"📊 DXF Parsed: {len(self.dxf_data.get('lines', []))} linhas, {len(self.dxf_data.get('texts', []))} textos.")
             
             # 1. Inicializar Lógica (Spatial Index + Engines)
@@ -8941,6 +8947,8 @@ class MainWindow(QMainWindow):
                          # Reutiliza DXFLoader
                          from src.core.dxf_loader import DXFLoader
                          self.dxf_data = DXFLoader.load_dxf(dpath)
+                         if self.dxf_data:
+                             self.current_dxf_path = dpath
                          if self.dxf_data and hasattr(self.canvas, 'add_dxf_entities'):
                              self.canvas.add_dxf_entities(self.dxf_data, source_dxf_path=dpath)
                              
@@ -14941,7 +14949,52 @@ class MainWindow(QMainWindow):
             reconcile_beam_fundo_facts,
         )
         reconcile_beam_fundo_facts(beams)
+        self._recover_beam_corridors_for_report(report, beams)
         enrich_pillar_report_with_beams(report, beams)
+
+    def _recover_beam_corridors_for_report(self, report: dict, beams: list) -> None:
+        """Mede o corredor físico de cada viga no par de paredes do DXF.
+
+        O traçado bruto pode vir truncado, deslocado ou fabricado (viga
+        engolindo segmento da vizinha, rótulo distante do corredor real —
+        ver `docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md`). Esta é a mesma
+        recuperação que o comparador de QA usa para validar contra o corpus
+        humano (`src.core.beam_corridor_recovery`); ligá-la aqui é o que
+        torna o resultado do app/portal idêntico ao que foi calibrado.
+
+        Silenciosamente vira no-op se o caminho do DXF não estiver
+        disponível ou a leitura falhar — nunca interrompe a análise por
+        causa de uma medição auxiliar.
+        """
+        dxf_path = getattr(self, "current_dxf_path", None)
+        if not dxf_path or not beams:
+            return
+        try:
+            from src.core.beam_corridor_recovery import (
+                pillar_support_boxes, recover_pillar_beam_corridors,
+            )
+
+            pillars = [p for p in (report or {}).values() if isinstance(p, dict)]
+            supports = pillar_support_boxes(pillars)
+            repaired, measured = recover_pillar_beam_corridors(
+                dxf_path, beams, supports,
+            )
+        except Exception:
+            logging.getLogger(__name__).debug(
+                "Recuperação de corredor de viga falhou (não bloqueia a análise)",
+                exc_info=True,
+            )
+            return
+        for beam in beams:
+            if not isinstance(beam, dict):
+                continue
+            name = str(beam.get("name") or "")
+            corridor = repaired.get(name)
+            if corridor:
+                beam["_recovered_corridor"] = corridor
+            medido = measured.get(name)
+            if medido:
+                beam["_measured_corridor"] = medido
 
 
     def _pillar_laje_entries(self, points: list, slabs: list[Dict]) -> list[dict]:
@@ -15290,9 +15343,18 @@ class MainWindow(QMainWindow):
             if not candidate_values:
                 continue
 
-            # Escolhe o de maior confiança; em empate, usa a média
-            candidate_values.sort(key=lambda x: x['confidence'], reverse=True)
-            best = candidate_values[0]
+            # Fonte humana é suficiente. Fonte já inferida só pode propagar
+            # quando dois cortes independentes concordam; um palpite encadeado
+            # isolado já deslocou laje em 7 m num pavimento real.
+            from src.core.slab_level_inference import select_supported_cut_delta
+            best = select_supported_cut_delta(candidate_values)
+            if best is None:
+                slab['level_inference'] = {
+                    'status': 'needs_review',
+                    'reason': 'cut_view_delta_without_independent_support',
+                    'candidates': candidate_values,
+                }
+                continue
             self._apply_inferred_slab_level(
                 slab, best['value'],
                 f"cut_view_delta from {best['source_slab']} (Δ={best['delta']:+.1f}cm)",
@@ -16304,6 +16366,19 @@ class MainWindow(QMainWindow):
                         s['fields']['laje_nivel'] = txt_val
                         found_level = True
                         continue
+
+            # 2b. AUTORIDADE DO NÍVEL — a anotação DENTRO do contorno prova o
+            # vínculo e não pode perder para a anotação da laje vizinha só por
+            # estar mais longe do rótulo. Sem nenhuma anotação no contorno o
+            # valor obtido acima é preservado, porém declarado sem evidência.
+            try:
+                from src.core.analysis_helpers import apply_plan_level_provenance
+                nivel_ref, altura_pav = self._sa_pavimento_nivel_ref()
+                apply_plan_level_provenance(
+                    s, texts, learning, altura_pav, nivel_ref,
+                )
+            except Exception as exc:
+                self.log(f"⚠️ Nível da laje {s.get('name', '?')}: proveniência não aplicada ({exc})")
 
         # 3. CONTORNO (Geometria já encontrada pelo SlabTracer)
         if 'points' in s and s['points']:
@@ -17919,6 +17994,29 @@ class MainWindow(QMainWindow):
                 self.log(f"✅ Viga {beam.get('name', 'N/A')} migrada automaticamente")
             except Exception as e:
                 self.log(f"⚠️ Erro ao salvar viga migrada: {e}")
+
+    def _sa_pavimento_nivel_ref(self):
+        """(nível de chegada, pé-direito) do pavimento, ou (None, None).
+
+        O nível de chegada é a âncora que decide se um candidato pertence a
+        este pavimento; o pé-direito dá a escala da janela. Sem os dois,
+        nenhum candidato é descartado por valor, porque a unidade do desenho
+        não estaria estabelecida.
+        """
+        try:
+            from src.core.niveis_extractor import get_pavimento_niveis_abs
+            obra, pav = self._attention_current_obra_pav()
+            if not obra or not pav:
+                return None, None
+            niveis = get_pavimento_niveis_abs(obra, pav) or {}
+            chegada = niveis.get('chegada_abs')
+            altura = niveis.get('altura_m')
+            return (
+                float(chegada) if chegada is not None else None,
+                float(altura) if altura else None,
+            )
+        except Exception:
+            return None, None
 
     def _attention_current_obra_pav(self):
         obra = ""

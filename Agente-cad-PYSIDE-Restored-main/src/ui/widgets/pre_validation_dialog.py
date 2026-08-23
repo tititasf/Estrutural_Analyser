@@ -15,6 +15,7 @@ import re
 import math
 import json
 import os
+import hashlib
 from datetime import datetime
 from typing import Any
 
@@ -95,6 +96,138 @@ PILLAR_FORMATO_COLORS: dict[str, str] = {
     'Circular':   '#7eb8f7',   # azul info
     'Especial':   '#f07070',   # vermelho leve
 }
+
+
+def _clean_pillar_points(points: list | tuple | None) -> list[list[float]]:
+    """Normaliza o contorno N1 sem alterar sua geometria ou orientação."""
+    clean: list[list[float]] = []
+    for point in points or []:
+        try:
+            xy = [float(point[0]), float(point[1])]
+        except (TypeError, ValueError, IndexError):
+            continue
+        if not clean or abs(clean[-1][0] - xy[0]) > 1e-6 or abs(clean[-1][1] - xy[1]) > 1e-6:
+            clean.append(xy)
+    if len(clean) > 1 and all(abs(clean[0][i] - clean[-1][i]) <= 1e-6 for i in (0, 1)):
+        clean.pop()
+    return clean
+
+
+def build_pillar_n3_base_from_n1(
+    item: str,
+    points: list | tuple | None,
+    contract: dict,
+    pavimento: str,
+) -> dict:
+    """Cria o payload-base PL exclusivamente do contrato vivo SA/N1.
+
+    Este é o caminho de produção para obras que ainda não possuem JSON da
+    Fase-4. Ele não consulta N2/N4, não contém exceções por obra/item e deixa
+    explícita a proveniência de cada valor derivado.
+    """
+    clean = _clean_pillar_points(points)
+    if len(clean) < 3:
+        return {}
+    xs = [point[0] for point in clean]
+    ys = [point[1] for point in clean]
+    dx = max(xs) - min(xs)
+    dy = max(ys) - min(ys)
+    short_dim, long_dim = sorted((dx, dy))
+    if short_dim <= 1e-6 or long_dim <= 1e-6:
+        return {}
+
+    altitude = contract.get('altura_pilar') or {}
+    height = None
+    try:
+        if altitude.get('nivel_saida_abs') is not None and altitude.get('nivel_chegada_abs') is not None:
+            delta = abs(float(altitude['nivel_saida_abs']) - float(altitude['nivel_chegada_abs']))
+            # As cotas absolutas da convenção são expressas em metros
+            # (ex.: 848,98→852,19); diferenças já em cm são naturalmente >20.
+            height = delta * 100.0 if 0.0 < delta <= 20.0 else delta
+    except (TypeError, ValueError):
+        height = None
+    if not height:
+        try:
+            height = float(altitude.get('altura') or 0.0)
+        except (TypeError, ValueError):
+            height = 0.0
+    if not height:
+        return {}
+
+    face_ids = list((contract.get('faces') or {}).keys()) or list('ABCD')
+    formato = _pilar_formato(clean)
+    subtype = {'em L': 'L', 'em U': 'U'}.get(formato, 'RETANGULAR')
+    item_text = str(item or '').strip()
+    number_match = re.search(r'(\d+)', item_text)
+    payload: dict[str, Any] = {
+        'numero': number_match.group(1) if number_match else item_text,
+        'nome': item_text,
+        'comprimento': round(long_dim, 4),
+        'largura': round(short_dim, 4),
+        'altura': round(float(height), 4),
+        'pd_pavimento_cm': round(float(height), 4),
+        'pavimento': str(pavimento or ''),
+        'nivel_chegada': 0.0,
+        'nivel_saida': round(float(height), 4),
+        'modo_distribuicao': 'NOVA',
+        'subtipo_pil': subtype,
+        'geometry_points': clean,
+        # A grade acompanha a largura externa da fôrma (face longa + 11cm
+        # de cada lado), a mesma relação geométrica usada pelo desenhador.
+        'grade_1': round(long_dim + 22.0, 4),
+        'grade_2': 0.0,
+        'grade_3': 0.0,
+        'distancia_1': max(0.0, round((long_dim + 22.0 - 60.0) / 2.0, 4)),
+        'distancia_2': 0.0,
+    }
+
+    face_geometry = contract.get('face_geometry') or {}
+    for index, fid in enumerate('ABCDEFGH'):
+        face = (contract.get('faces') or {}).get(fid) or {}
+        geom = face_geometry.get(fid) or face.get('geometry') or {}
+        face_width = None
+        if isinstance(geom, dict):
+            try:
+                p0 = geom.get('p0') or geom.get('start')
+                p1 = geom.get('p1') or geom.get('end')
+                if p0 is not None and p1 is not None:
+                    face_width = math.hypot(float(p1[0]) - float(p0[0]), float(p1[1]) - float(p0[1]))
+                elif geom.get('length') is not None:
+                    face_width = float(geom['length'])
+            except (TypeError, ValueError, IndexError):
+                face_width = None
+        if not face_width and fid in face_ids:
+            face_width = long_dim if fid in ('A', 'B') else short_dim
+        active = bool(face_width and face_width > 0.0)
+        payload[f'h1_{fid}'] = 2.0 if active else 0.0
+        for slot in range(2, 6):
+            payload[f'h{slot}_{fid}'] = 0.0
+        payload[f'larg1_{fid}'] = round(float(face_width), 4) if active else 0.0
+        payload[f'larg2_{fid}'] = 0.0
+        payload[f'larg3_{fid}'] = 0.0
+        slab = face.get('espessura_laje')
+        try:
+            slab = float(slab or 0.0)
+        except (TypeError, ValueError):
+            slab = 0.0
+        payload[f'laje_{fid}'] = slab
+        payload[f'posicao_laje_{fid}'] = 1.0 if slab > 0.0 else 0.0
+
+    for index in range(1, 9):
+        payload[f'par_{index}_{index + 1}'] = 45.0 if index <= 2 else 0.0
+    canonical = json.dumps(clean, ensure_ascii=False, separators=(',', ':'))
+    payload['_sa_meta'] = {
+        'schema': 'pil.n3_live_base.v1',
+        'tipo': 'PL',
+        'fonte': 'SA/N1 live contract',
+        'fase4_consultada': False,
+        'geometry_sha256': hashlib.sha256(canonical.encode('utf-8')).hexdigest(),
+        'campos_derivados': [
+            'geometry_points', 'comprimento', 'largura', 'altura',
+            'faces', 'grade_1',
+        ],
+    }
+    return payload
 
 
 def _pilar_formato(pts: list) -> str:
@@ -4866,6 +4999,7 @@ class PreValidationDialog(QDialog):
                 if not _abcd and _fb_light:
                     try:
                         from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+                        from src.core.pillar_special_faces import enrich_special_pillar_tables
                         _nv = ''
                         try:
                             from src.core.niveis_extractor import get_pavimento_niveis_abs
@@ -4877,16 +5011,26 @@ class PreValidationDialog(QDialog):
                                 _nv = f"{_ai['chegada_abs']}cm"
                         except Exception:
                             pass
-                        _abcd = build_abcd_tables_from_pillar(
-                            {
+                        _pillar_tables_source = {
                                 'name': pillar.get('name') or key,
                                 'points': pillar.get('points') or [],
                                 'orientation': pillar.get('orientation') or 'vertical',
                                 'lajes': pillar.get('lajes') or [],
                                 'face_beams': _fb_light,
-                            },
+                                'sides_data': pillar.get('sides_data') or {},
+                                'format': pillar.get('format'),
+                            }
+                        _abcd = build_abcd_tables_from_pillar(
+                            _pillar_tables_source,
                             slab_height_map=getattr(self, '_slab_height_map', None) or {},
                             slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                            nivel_viga_default=_nv,
+                        )
+                        _abcd = enrich_special_pillar_tables(
+                            _abcd, _pillar_tables_source,
+                            slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                            slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                            beams=getattr(self, '_beams', None) or [],
                             nivel_viga_default=_nv,
                         )
                     except Exception:
@@ -4900,6 +5044,8 @@ class PreValidationDialog(QDialog):
                     'bbox':           pillar.get('bbox') or [],
                     'lajes':          pillar.get('lajes') or [],
                     'face_beams':     _fb_light,
+                    'sides_data':     pillar.get('sides_data') or {},
+                    'format':         pillar.get('format'),
                     'interpretacao_abcd': _abcd,
                     'nivel_str':      (nr_pilares.get(key) or {}).get('level_str') or '',
                     'lado_A':         self._get_side_cell(pillar, 'A'),
@@ -6390,20 +6536,33 @@ class PreValidationDialog(QDialog):
             for _, _, _, abs_p in nav_entries:
                 os.makedirs(os.path.dirname(abs_p), exist_ok=True)
 
-            FACE_CLSS = {'A': 'face-A', 'B': 'face-B', 'C': 'face-C', 'D': 'face-D'}
+            FACE_CLSS = {
+                'A': 'face-A', 'B': 'face-B', 'C': 'face-C', 'D': 'face-D',
+                'E': 'face-special', 'F': 'face-special',
+            }
 
             # Labels e diagrama ASCII por orientação
+            # E/F só existem no pilar especial em L (`geometry_type` L_special_6_faces,
+            # face_ids='ABCDEF' — ver `enrich_special_pillar_tables`); a orientação
+            # A-D não muda o significado delas, por isso o mesmo par serve nos dois
+            # dicts.
+            _SPECIAL_LBLS = {
+                'E': 'E — ramo horizontal · face longa externa',
+                'F': 'F — ramo horizontal · face longa interna',
+            }
             _VERT_LBLS = {
                 'A': 'A — esquerda (oeste) · face longa',
                 'B': 'B — direita (leste) · face longa',
                 'C': 'C — topo (norte) · face curta',
                 'D': 'D — base (sul) · face curta',
+                **_SPECIAL_LBLS,
             }
             _HORIZ_LBLS = {
                 'A': 'A — base (sul) · face longa',
                 'B': 'B — topo (norte) · face longa',
                 'C': 'C — esquerda (oeste) · face curta',
                 'D': 'D — direita (leste) · face curta',
+                **_SPECIAL_LBLS,
             }
 
             def _orient_diagram(pts: list, nome: str, fmt: str) -> str:
@@ -7407,6 +7566,7 @@ class PreValidationDialog(QDialog):
                         build_abcd_tables_from_pillar,
                         lines_from_tables,
                     )
+                    from src.core.pillar_special_faces import enrich_special_pillar_tables
                     _nv = ''
                     try:
                         from src.core.niveis_extractor import get_pavimento_niveis_abs
@@ -7425,8 +7585,18 @@ class PreValidationDialog(QDialog):
                         nivel_viga_default=_nv or _viga_top_nivel,
                         face_interp_lines=result,
                     )
+                    _payload = enrich_special_pillar_tables(
+                        _payload, pillar,
+                        slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                        slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        beams=getattr(self, '_beams', None) or [],
+                        nivel_viga_default=_nv or _viga_top_nivel,
+                    )
                     _lines = lines_from_tables(_payload)
-                    for _fid in ('A', 'B', 'C', 'D'):
+                    for _fid in (_payload.get('face_ids') or list('ABCD')):
+                        result.setdefault(_fid, {
+                            'lajes': [], 'passa': [], 'chega': [], 'interior': [],
+                        })
                         for _k in ('lajes', 'passa', 'chega', 'interior'):
                             _vals = (_lines.get(_fid) or {}).get(_k) or []
                             if _vals:
@@ -7514,7 +7684,8 @@ class PreValidationDialog(QDialog):
                     )
                     cards.append(
                         f'<div class="valid-card">'
-                        f'<div class="valid-card-title {FACE_CLSS[fid]}">{html.escape(lbls[fid])}</div>'
+                        f'<div class="valid-card-title {FACE_CLSS.get(fid, "face-special")}">'
+                        f'{html.escape(str(lbls.get(fid) or ((_tables.get("faces") or {}).get(fid) or {}).get("label") or fid))}</div>'
                         + _valid_row(
                             base_key, f'{fid}_lajes', 'Lajes', 'vb-sa',
                             _laje_answer_detail(laje_detail, has_laje)
@@ -7778,6 +7949,9 @@ class PreValidationDialog(QDialog):
                 mode = str(mode or '').lower()
                 face_interp = _dynamic_face_interpretation(row, pillar)
                 faces: dict[str, dict] = {}
+                _contract_face_ids = [
+                    fid for fid in 'ABCDEFGH' if fid in face_interp
+                ] or list('ABCD')
                 visual_mode = str(
                     _load_n3_pilar_json(str(row.get('_nome') or '')).get(
                         'modo_distribuicao', 'NOVA'
@@ -7801,7 +7975,7 @@ class PreValidationDialog(QDialog):
                     except Exception:
                         _parse_sl = None
                 # Nível do pilar = maior nível entre lajes e vigas em contato (topo de referência)
-                for _fid0 in ('A', 'B', 'C', 'D'):
+                for _fid0 in _contract_face_ids:
                     _fdata = face_interp.get(_fid0) or {}
                     # 1. Lajes conectadas
                     if _parse_sl is not None:
@@ -7853,7 +8027,7 @@ class PreValidationDialog(QDialog):
                             _pillar_top_level_abs = _nabs['chegada_abs']
                 except Exception as _nabs_exc:
                     print(f'[PL-N3] get_pavimento_niveis_abs fallback: {_nabs_exc}', flush=True)
-                for fid in ('A', 'B', 'C', 'D'):
+                for fid in _contract_face_ids:
                     data = face_interp.get(fid, {})
                     passes = [_mode_beam_parts(item) for item in data.get('passa') or []]
                     stops = [_mode_beam_parts(item) for item in data.get('param') or []]
@@ -8026,7 +8200,7 @@ class PreValidationDialog(QDialog):
                                 'confianca': 'media',
                             }
                 base = _load_n3_pilar_json(str(row.get('_nome') or ''))
-                return {
+                contract = {
                     'schema': 'pil.n3_mode_contract.v2',
                     'item': str(row.get('_nome') or ''),
                     'modo_semantico': mode.upper(),
@@ -8040,7 +8214,15 @@ class PreValidationDialog(QDialog):
                         'nivel_chegada_abs': _pillar_top_level_abs,
                     },
                     'faces': faces,
+                    'face_geometry': pillar.get('face_geometry') or {},
                 }
+                contract['n1_base'] = build_pillar_n3_base_from_n1(
+                    contract['item'],
+                    row.get('_points') or pillar.get('points') or [],
+                    contract,
+                    str(row.get('pavimento') or getattr(self, '_pavimento', '') or ''),
+                )
+                return contract
 
             def _variant_payload(contract: dict) -> dict:
                 """Projeta o contrato semantico no schema que o gerador ABCD/GRADES le.
@@ -8050,8 +8232,9 @@ class PreValidationDialog(QDialog):
                 motor NOVA ``enrich_payload_for_abcd_nova`` — não se injeta
                 junta de abertura na malha (abertura = recorte, não módulo).
                 """
+                legacy_base = _load_n3_pilar_json(str(contract.get('item') or ''))
                 base = json.loads(json.dumps(
-                    _load_n3_pilar_json(str(contract.get('item') or ''))
+                    legacy_base or contract.get('n1_base') or {}
                 ))
                 if not base:
                     return {}
@@ -8605,6 +8788,7 @@ class PreValidationDialog(QDialog):
                         build_abcd_tables_from_pillar,
                         format_abcd_tables_html,
                     )
+                    from src.core.pillar_special_faces import enrich_special_pillar_tables
                     _nv = ''
                     try:
                         from src.core.niveis_extractor import get_pavimento_niveis_abs
@@ -8623,12 +8807,20 @@ class PreValidationDialog(QDialog):
                         nivel_viga_default=_nv,
                         face_interp_lines=face_interp,
                     )
+                    _tables = enrich_special_pillar_tables(
+                        _tables, pillar,
+                        slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                        slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        beams=getattr(self, '_beams', None) or [],
+                        nivel_viga_default=_nv,
+                    )
                     tables_html = format_abcd_tables_html(_tables, compact=True)
                 except Exception:
                     tables_html = ''
 
                 cards = []
-                for fid in ('A', 'B', 'C', 'D'):
+                _face_ids = (_tables.get('face_ids') if '_tables' in locals() else None) or list('ABCD')
+                for fid in _face_ids:
                     data = face_interp.get(fid, {})
                     lajes = data.get('lajes') or []
                     passa = data.get('passa') or []

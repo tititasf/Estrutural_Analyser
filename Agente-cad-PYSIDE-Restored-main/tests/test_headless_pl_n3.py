@@ -125,3 +125,28 @@ def test_materialize_pl_n3_uses_dxf_only_export_mode():
     generated, failed = PreValidationDialog.materialize_pl_n3_variants(fake)
     assert generated == ['P1_para', 'P1_passa']
     assert failed == []
+
+
+def test_recovered_pillar_geometry_overrides_qa_only_but_not_human():
+    mod = _load_headless()
+    report = {
+        "P1": {
+            "name": "P1",
+            "points": [[0, 0], [19, 0], [19, 98], [0, 98], [0, 0]],
+            "bbox": (0, 0, 19, 98),
+            "_geometry_repaired": {"source": "DXF"},
+        }
+    }
+    qa_only = [{
+        "name": "P1", "points": [[0, 0], [19, 0], [19, 26], [0, 26]],
+        "validated_fields": {"pilar_segs": [{"origem": "qa_agente"}]},
+    }]
+    assert mod._refresh_recovered_pillar_geometry(qa_only, report) == 1
+    assert qa_only[0]["points"] == report["P1"]["points"]
+
+    human = [{
+        "name": "P1", "points": [[0, 0], [19, 0], [19, 26], [0, 26]],
+        "validated_fields": {"pilar_segs": [{"origem": "humano_app"}]},
+    }]
+    assert mod._refresh_recovered_pillar_geometry(human, report) == 0
+    assert human[0]["points"][-1] == [0, 26]

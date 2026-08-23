@@ -308,10 +308,124 @@ def process_beam_intelligent(b: Dict) -> None:
 # Interpretação de Laje
 # ──────────────────────────────────────────────────────────────────────────────
 
+def _point_inside_slab(points: Any, point: 'tuple[float, float]') -> bool:
+    from src.core.slab_level_inference import point_inside_ring
+
+    return point_inside_ring(points, point)
+
+
+def _looks_like_level_text(text: str) -> bool:
+    value = str(text or '').strip()
+    if not value or not any(mark in value for mark in ('+', '-', '.')):
+        return False
+    return bool(re.search(r'[+-]?\d+\.\d+|[+-]?\d+', value))
+
+
+def apply_plan_level_provenance(
+    s: Dict, dxf_texts: List[Dict], learning: Dict,
+    floor_height: Optional[float] = None,
+    reference_level: Optional[float] = None,
+) -> None:
+    """Reclassifica o nível da laje pela autoridade geométrica da anotação.
+
+    A escolha por proximidade ao rótulo não distingue a anotação da própria
+    laje da anotação da laje vizinha. Quando existe anotação dentro do
+    contorno, ela vence; caso contrário o valor anterior é preservado e
+    marcado, para que o QA saiba onde o motor está sem evidência local.
+    """
+    from src.core.slab_level_inference import select_plan_level_annotation
+
+    def _as_candidate(text: Any, token: Any) -> 'Dict | None':
+        try:
+            value = float(str(text).strip().replace(',', '.').replace('+', ''))
+        except (TypeError, ValueError):
+            return None
+        pos = token.get('pos') if isinstance(token, dict) else None
+        if not pos:
+            return None
+        return {
+            'value': value, 'text': str(text).strip(),
+            'pos': (float(pos[0]), float(pos[1])), 'token': token,
+        }
+
+    candidates: List[Dict] = []
+    seen: set = set()
+    for txt, token in s.get('_nivel_candidates') or []:
+        candidate = _as_candidate(txt, token)
+        if candidate:
+            candidates.append(candidate)
+            seen.add((candidate['text'], candidate['pos']))
+
+    # A anotação de dentro do contorno é a prova do vínculo e não pode ficar de
+    # fora por estar longe do rótulo — foi assim que lajes grandes perderam o
+    # próprio nível para o da vizinha.
+    level_layers = learning.get('level_layers')
+    for token in dxf_texts or []:
+        text = str(token.get('text') or '').strip()
+        if not _looks_like_level_text(text) or text == s.get('name'):
+            continue
+        if level_layers and token.get('layer') not in level_layers:
+            continue
+        candidate = _as_candidate(text, token)
+        if not candidate or (candidate['text'], candidate['pos']) in seen:
+            continue
+        if _point_inside_slab(s.get('points'), candidate['pos']):
+            candidates.append(candidate)
+            seen.add((candidate['text'], candidate['pos']))
+
+    if not candidates:
+        return
+
+    selected = select_plan_level_annotation(
+        s.get('points'),
+        candidates,
+        label_pos=s.get('pos'),
+        reference_level=reference_level,
+        floor_height=floor_height,
+        label_radius=float(learning.get('search_radius', 200.0)),
+    )
+    if not selected:
+        from src.core.slab_level_inference import plausible_level_candidates
+
+        _, far = plausible_level_candidates(
+            candidates, reference_level=reference_level, floor_height=floor_height,
+        )
+        current = str(s.get('fields', {}).get('laje_nivel') or '').strip()
+        if current and any(row['text'] == current for row in far):
+            # O valor vigente veio de uma anotação distante demais para ser
+            # deste pavimento. Mantê-lo seria propagar o palpite adiante.
+            s['fields'].pop('laje_nivel', None)
+            provenance = 'descartado_fora_do_pavimento'
+        else:
+            provenance = 'sem_evidencia_local'
+        s['_nivel_provenance'] = {
+            'provenance': provenance,
+            'value': current or None,
+            'discarded_out_of_range': [row['text'] for row in far],
+            'needs_human_review': True,
+        }
+        return
+
+    s['fields']['laje_nivel'] = selected['text']
+    links = s.setdefault('links', {}).setdefault(
+        'laje_nivel', {'label': [], 'cut_view_geom': [], 'cut_view_text': []},
+    )
+    links['label'] = [selected['token']]
+    s['_nivel_provenance'] = {
+        'provenance': selected['provenance'],
+        'value': selected['text'],
+        'alternatives': selected.get('alternatives') or [],
+        'discarded_out_of_range': selected.get('discarded_out_of_range') or [],
+        'needs_human_review': bool(selected.get('needs_human_review')),
+    }
+
+
 def process_slab_intelligent(
     s: Dict,
     dxf_texts: List[Dict],
     slab_learning_config: Optional[Dict] = None,
+    floor_height: Optional[float] = None,
+    reference_level: Optional[float] = None,
 ) -> None:
     """
     Popula s['fields'] e s['links'] com a interpretação semântica da laje.
@@ -321,6 +435,8 @@ def process_slab_intelligent(
         s: dicionário da laje (saído do SlabTracer).
         dxf_texts: lista de textos do DXF carregado (dxf_data['texts']).
         slab_learning_config: configurações de aprendizado ativo (opcional).
+        floor_height: altura do pavimento, usada para descartar nível de outro
+            pavimento/vista. Sem ela nenhum candidato é descartado por valor.
     """
     learning = slab_learning_config or {}
 
@@ -398,6 +514,13 @@ def process_slab_intelligent(
                         s['links']['laje_nivel']['label'].append(t)
                         s['fields']['laje_nivel'] = txt_val
                         found_level = True
+
+    # 2b. Autoridade do nível: anotação DENTRO do contorno prova o vínculo;
+    #     proximidade ao rótulo é indício fraco. Sem nenhuma das duas, o valor
+    #     já obtido permanece, porém declarado sem evidência local.
+    apply_plan_level_provenance(
+        s, dxf_texts, learning, floor_height, reference_level,
+    )
 
     # 3. Contorno (geometria já encontrada pelo SlabTracer)
     if s.get('points'):

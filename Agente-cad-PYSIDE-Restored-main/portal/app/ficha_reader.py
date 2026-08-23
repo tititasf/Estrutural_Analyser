@@ -249,6 +249,10 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
             build_abcd_tables_from_pillar,
             format_abcd_tables_portal_html,
         )
+        from src.core.pillar_special_faces import (
+            enrich_special_pillar_tables,
+            format_tables_portal_dynamic,
+        )
 
         slab_h = {
             n: (info.get("height") if isinstance(info, dict) else "")
@@ -259,10 +263,10 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
             for n, info in (lajes_por_nome or {}).items()
         }
         # Preferir tabelas já serializadas no estado; senão monta de face_beams/lajes
+        pillar_src = dict(p)
         if isinstance(p.get("interpretacao_abcd"), dict) and (p.get("interpretacao_abcd") or {}).get("faces"):
             abcd_tables = p["interpretacao_abcd"]
         else:
-            pillar_src = dict(p)
             if not pillar_src.get("face_beams") and isinstance(p.get("extra"), dict):
                 pillar_src["face_beams"] = p["extra"].get("face_beams")
                 if not pillar_src.get("lajes") and p["extra"].get("lajes_adjacentes"):
@@ -273,7 +277,13 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
                 slab_nivel_map=slab_n,
                 nivel_viga_default="",
             )
-        abcd_html = format_abcd_tables_portal_html(abcd_tables)
+        abcd_tables = enrich_special_pillar_tables(
+            abcd_tables, pillar_src,
+            slab_height_map=slab_h, slab_nivel_map=slab_n,
+        )
+        abcd_html = format_tables_portal_dynamic(
+            format_abcd_tables_portal_html, abcd_tables,
+        )
     except Exception as exc:
         log.debug("ABCD tables pilar %s: %s", p.get("name"), exc)
 

@@ -162,7 +162,7 @@ L301
 | Tipo | Onde fica o pontinho |
 |------|----------------------|
 | **V.passa** | **Vértice físico exato** compartilhado pelas duas faces da marca. `AC=CA`, `AD=DA`, `BC=CB`, `BD=DB`; em especial vale o mesmo para todo par adjacente A–F. |
-| **V.chega** | **Centro transversal da viga que chega**. Em retangular: meio do span na face com deslocamento externo de `0,9 × largura do contato`. Em pilar especial A–F: centro do contorno estrutural efetivo `viga_fundo_seg_*` mais próximo no eixo transversal, **exatamente sobre a linha de contato com a face**, sem deslocamento normal; o `bbox` geral da entidade é apenas fallback quando não houver contorno efetivo. Nunca usar a esquina só porque a marca é `AC/BC/...`. |
+| **V.chega** | **Centro transversal da viga que chega**. Em retangular: meio do span na face com deslocamento externo de `0,9 × largura do contato`. Em pilar especial A–F: partir do canto indicado (`AC/BC/ED/...`) e avançar **meia largura nominal da viga** para dentro da face física; assim o ponto fica entre as duas paredes vistas no DXF. As linhas do DXF são a verdade de terra. É proibido ancorar em `viga_fundo_seg_*`, pois esse contorno pode estar deslocado uma largura inteira (caso real V304: DB `2422..2441`, DXF `2441..2460`). O `bbox` geral é apenas fallback. |
 | **V.interior** | **Centro da parede** da face |
 | **laje** | **Centro do contato** laje–parede (meio do span na face) |
 

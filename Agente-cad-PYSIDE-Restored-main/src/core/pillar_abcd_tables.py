@@ -144,7 +144,7 @@ def _beam_from_slot(beam: Optional[dict], default_canto: str = "", papel: str = 
     nome = _clean(beam.get("name") or beam.get("nome"))
     if not nome:
         return None
-    return _row(
+    row = _row(
         familia="viga",
         nome=nome,
         dim=beam.get("dim") or beam.get("d") or "",
@@ -154,7 +154,17 @@ def _beam_from_slot(beam: Optional[dict], default_canto: str = "", papel: str = 
         dist_esq=beam.get("dist_esq") or beam.get("d_esq") or "",
         dist_dir=beam.get("dist_dir") or beam.get("d_dir") or "",
     )
+    # Proveniência da etapa de topologia: quem decidiu este vínculo. Pós-
+    # processadores precisam distinguir um fato afirmado com evidência de um
+    # preenchimento por default, para não desfazerem o primeiro.
+    source = _clean(beam.get("source"))
+    if source:
+        row["_source"] = source
+    return row
 
+
+# Nomes que representam ausência de elemento numa célula da tabela.
+EMPTY_ROW_NAMES = {"", "—", "-", "nenhuma", "none"}
 
 # Cantos esq/dir por face (pilar vertical) — INTERPRETACAO-ABCD / face_beams
 _FACE_CORNERS_V = {
@@ -163,6 +173,21 @@ _FACE_CORNERS_V = {
     "C": ("CA", "CB"),
     "D": ("DA", "DB"),
 }
+
+# Pilar deitado: A e B invertem o sentido esq→dir em relação ao pilar em pé.
+# Mesma parametrização de `_face_axis_span(vertical=False)`.
+_FACE_CORNERS_H = {
+    "A": ("AD", "AC"),
+    "B": ("BC", "BD"),
+    "C": ("CA", "CB"),
+    "D": ("DA", "DB"),
+}
+
+
+def _face_corners(fid: str, *, vertical: bool = True) -> tuple[str, str]:
+    """Cantos (esq, dir) da face, no sentido em que a face é parametrizada."""
+    table = _FACE_CORNERS_V if vertical else _FACE_CORNERS_H
+    return table.get(fid, ("", ""))
 
 
 def _pillar_bbox(points) -> tuple[float, float, float, float] | None:
@@ -222,12 +247,18 @@ def span_dists_on_face(
     elem_bb: tuple[float, float, float, float] | None,
     *,
     vertical: bool = True,
+    width_cm: Optional[float] = None,
 ) -> tuple[Optional[float], Optional[float]]:
     """dist_esq / dist_dir (cm) do elemento na face, a partir dos cantos esq/dir.
 
     dist_esq = distância do canto esquerdo da face até o início do elemento
     dist_dir = distância do canto direito da face até o fim do elemento
     (cobertura total → 0 / 0; sem overlap → None, None)
+
+    ``width_cm`` mede a **seção declarada** centrada no corredor, em vez do
+    corredor cru. A folga do traçador varia (`V313` sai com 19 cm, `V311` com
+    24 para a mesma seção de 19) e sem isso a mesma chegada dá `2,5/2,5` num
+    pilar e `0/0` no vizinho.
     """
     if not elem_bb:
         return None, None
@@ -258,6 +289,11 @@ def span_dists_on_face(
     s0, s1 = to_s(o0), to_s(o1)
     if s0 > s1:
         s0, s1 = s1, s0
+    if width_cm and 0 < width_cm < (s1 - s0) - 0.6:
+        # A seção declarada, centrada no corredor: o excesso é folga do
+        # traçador, não ocupação da face.
+        meio = (s0 + s1) / 2.0
+        s0, s1 = meio - width_cm / 2.0, meio + width_cm / 2.0
     # clamp
     s0 = max(0.0, min(face_len, s0))
     s1 = max(0.0, min(face_len, s1))
@@ -566,6 +602,7 @@ def apply_top_dual_band_dims(
 def prune_phantom_top_dual(
     tables: dict[str, dict[str, list[dict]]],
     pbb: tuple[float, float, float, float] | None,
+    beams: list | None = None,
     *,
     vertical: bool = True,
 ) -> list[str]:
@@ -593,6 +630,7 @@ def prune_phantom_top_dual(
             if (
                 c == canto
                 and nome not in ("", "—", "nenhuma")
+                and nome not in confirmadas
                 and _is_pillar_section_dim(r.get("dim"), pbb)
             ):
                 n += 1
@@ -601,6 +639,16 @@ def prune_phantom_top_dual(
         if n:
             tables[fid][kind] = keep
         return n
+
+    # Viga com corredor **recuperado** não é fantasma: a geometria confirmou
+    # o par de paredes dela. `VF301` sai do traçador com a seção do pilar
+    # (`19/66`), e por isso caía aqui — mas o corredor dela, medido com a
+    # seção real de 14, vai de `P1` a `P9` na fileira norte.
+    confirmadas = {
+        str((b or {}).get("name") or "")
+        for b in (beams or [])
+        if isinstance(b, dict) and b.get("_recovered_corridor")
+    }
 
     if la_b and not la_a:
         n1 = _drop("A", "chega", "AC")
@@ -691,17 +739,15 @@ def _chega_dists_from_corner(
         return None, None
     w = min(float(width_cm), face_len)
     canto = (canto or "").upper()
-    table = {
-        ("A", "AC"): (0.0, face_len - w),
-        ("A", "AD"): (face_len - w, 0.0),
-        ("B", "BC"): (face_len - w, 0.0),  # esq=BD, dir=BC
-        ("B", "BD"): (0.0, face_len - w),
-        ("C", "CA"): (0.0, face_len - w),
-        ("C", "CB"): (face_len - w, 0.0),
-        ("D", "DA"): (0.0, face_len - w),
-        ("D", "DB"): (face_len - w, 0.0),
-    }
-    return table.get((fid, canto), (None, None))
+    # O lado que zera é o canto nomeado, no sentido em que a face é
+    # parametrizada. Pilar deitado inverte A e B — a mesma tabela que
+    # `_face_axis_span` e `fill_cantos_all_rows` usam.
+    c_esq, c_dir = _face_corners(fid, vertical=vertical)
+    if canto and canto == c_esq:
+        return 0.0, face_len - w
+    if canto and canto == c_dir:
+        return face_len - w, 0.0
+    return None, None
 
 
 def _beam_bbox_for_name(beams: list, name: str) -> tuple[float, float, float, float] | None:
@@ -737,14 +783,695 @@ def _interior_names(tables: dict) -> set[str]:
     return names
 
 
-def apply_c_dualidade(tables: dict[str, dict[str, list[dict]]]) -> dict[str, dict[str, list[dict]]]:
+#: Folga (cm) para a viga contar como vindo de fora da face. Acima do padding
+#: que o agrupamento de trechos acrescenta ao bbox (4 cm) e bem abaixo da
+#: largura de um pilar, para não confundir folga com travessia.
+TOL_OUTWARD_CM = 10.0
+
+
+#: Ocupação mínima (cm) da face para a viga poder ser listada nela.
+FACE_OCCUPANCY_MIN_CM = 1.0
+#: Afastamento máximo (cm) da viga à linha da face. Generoso de propósito: o
+#: vão da R1 chega a 38 cm no 13_PAV.
+FACE_REACH_MAX_CM = 60.0
+#: Folga (cm) para a viga paralela contar como encostada na face.
+PARALLEL_TOUCH_TOL_CM = 2.0
+
+
+def prune_orphan_corner_dual(
+    tables: dict[str, dict[str, list[dict]]],
+) -> list[str]:
+    """Tira `C.passa@CA/CB` que ficou sem a chegada correspondente.
+
+    Pela R4 do dono o par é **um fato só**: chegada em `AC` e passagem em
+    `CA`. Quando uma poda mede que a chegada não existe — `V303` passa 10 cm
+    acima do `P23` e não toca a face longa —, a metade em C fica órfã e
+    precisa cair junto.
+    """
+    notes: list[str] = []
+    for face, canto_longo, canto_c in (("A", "AC", "CA"), ("B", "BC", "CB")):
+        chegam = {
+            (r.get("nome") or "")
+            for r in (tables.get(face) or {}).get("chega") or []
+            if (r.get("canto") or "").upper() == canto_longo
+        }
+        mantidas = []
+        for row in (tables.get("C") or {}).get("passa") or []:
+            nome = row.get("nome") or ""
+            if (row.get("canto") or "").upper() != canto_c or nome in ("", "—", "nenhuma"):
+                mantidas.append(row)
+                continue
+            if nome in chegam:
+                mantidas.append(row)
+                continue
+            notes.append(f"C.passa@{canto_c}: {nome} sem a chegada em {canto_longo}")
+        tables.setdefault("C", {})["passa"] = mantidas
+    return notes
+
+
+def prune_parallel_beam_not_ending_at_face(
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    *,
+    vertical: bool = True,
+    reach: float = FACE_REACH_MAX_CM,
+) -> list[str]:
+    """`chega` de viga paralela à face exige que ela **termine** ali.
+
+    Viga perpendicular chega por definição. Viga paralela pode chegar na
+    esquina — mas só se acabar naquele trecho; se ela passa reto, corre ao
+    longo da face e não chega nela. `V306` passa 5 cm acima da face C do
+    `P28` e seguia listada como chegada.
+
+    Medido no corpus: 71 das 72 chegadas satisfazem a regra (a única fora é
+    a `V302` do `P51`, já rebaixada pela medição).
+    """
+    notes: list[str] = []
+    if not pbb or not beams:
+        return notes
+    for fid in "ABCD":
+        axis, _c0, _c1, comprimento = _face_axis_span(fid, *pbb, vertical=vertical)
+        if comprimento <= 0:
+            continue
+        px0, py0, px1, py1 = pbb
+        f0, f1 = (px0, px1) if axis == "x" else (py0, py1)
+        mantidas = []
+        for row in (tables.get(fid) or {}).get("chega") or []:
+            nome = row.get("nome") or ""
+            trechos = _beam_runs_for_name(beams, nome) if nome not in (
+                "", "—", "nenhuma"
+            ) else []
+            if not trechos:
+                mantidas.append(row)
+                continue
+            paralela = all(
+                (abs(r[2] - r[0]) >= abs(r[3] - r[1])) == (axis == "x")
+                for r in trechos
+            )
+            if not paralela:
+                mantidas.append(row)
+                continue
+            # Viga paralela só chega se **encostar** na face. O vão da R1 é
+            # ao longo do eixo da viga; 5 cm ao lado não é vão, é folga
+            # lateral — `V306` passa 5 cm acima da face C do `P28`.
+            fixo = _face_fixed_coord(fid, pbb, vertical=vertical)
+            encosta = any(
+                max(t0 - fixo, fixo - t1, 0.0) <= PARALLEL_TOUCH_TOL_CM
+                for r in trechos
+                for t0, t1 in [
+                    (min(r[1], r[3]), max(r[1], r[3])) if axis == "x"
+                    else (min(r[0], r[2]), max(r[0], r[2]))
+                ]
+            )
+            termina = encosta and any(
+                min(abs(a - f0), abs(a - f1)) <= reach
+                for r in trechos
+                for a in (
+                    (min(r[0], r[2]), max(r[0], r[2])) if axis == "x"
+                    else (min(r[1], r[3]), max(r[1], r[3]))
+                )
+            )
+            if termina:
+                mantidas.append(row)
+                continue
+            notes.append(f"{fid}.chega: {nome} corre ao longo da face")
+        tables.setdefault(fid, {})["chega"] = mantidas
+    return notes
+
+
+def prune_beams_far_from_face(
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    *,
+    vertical: bool = True,
+    reach: float = FACE_REACH_MAX_CM,
+) -> list[str]:
+    """Tira da face a viga cujo corredor está longe dela.
+
+    Ocupar a face no eixo dela não basta: `V328` corre na mesma prumada do
+    `P18` e aparecia como chegada na face sul dele, a **359 cm** de distância.
+    """
+    notes: list[str] = []
+    if not pbb or not beams:
+        return notes
+    for fid in "ABCD":
+        axis, _c0, _c1, comprimento = _face_axis_span(fid, *pbb, vertical=vertical)
+        if comprimento <= 0:
+            continue
+        fixo = _face_fixed_coord(fid, pbb, vertical=vertical)
+        for role in ("passa", "chega", "interior"):
+            mantidas = []
+            for row in (tables.get(fid) or {}).get(role) or []:
+                nome = row.get("nome") or ""
+                if nome in ("", "—", "nenhuma"):
+                    mantidas.append(row)
+                    continue
+                trechos = _beam_runs_for_name(beams, nome)
+                if not trechos:
+                    mantidas.append(row)
+                    continue
+                perto = False
+                for r in trechos:
+                    t0, t1 = (
+                        (min(r[1], r[3]), max(r[1], r[3])) if axis == "x"
+                        else (min(r[0], r[2]), max(r[0], r[2]))
+                    )
+                    if max(t0 - fixo, fixo - t1, 0.0) <= reach:
+                        perto = True
+                        break
+                if perto:
+                    mantidas.append(row)
+                    continue
+                notes.append(f"{fid}.{role}: {nome} longe da face")
+            tables.setdefault(fid, {})[role] = mantidas
+    return notes
+
+
+def _beam_runs_for_name(beams: list, name: str) -> list:
+    if not name or not beams:
+        return []
+    try:
+        from src.core.pillar_face_beams import beam_runs_from_entity
+    except Exception:
+        return []
+    for beam in beams:
+        if isinstance(beam, dict) and str(beam.get("name") or "").strip() == name:
+            return beam_runs_from_entity(beam) or []
+    return []
+
+
+def _short_faces_of(
+    pbb: tuple[float, float, float, float], *, vertical: bool = True,
+) -> set[str]:
+    """As duas faces curtas do retângulo — as tampas."""
+    return {"C", "D"} if vertical else {"C", "D"}
+
+
+def prune_beams_without_face_occupancy(
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    *,
+    vertical: bool = True,
+) -> list[str]:
+    """Tira da face a viga que não ocupa comprimento nenhum dela.
+
+    A mesma régua que o gate usa contra o corpus, agora contra o motor:
+    listar uma viga numa face exige que o corredor dela divida comprimento
+    com a face. `VF203` morre na face oeste do `P33` e aparecia como
+    passante da face norte, que ela não toca.
+    """
+    notes: list[str] = []
+    if not pbb or not beams:
+        return notes
+    for fid in "ABCD":
+        axis, c0, c1, comprimento = _face_axis_span(fid, *pbb, vertical=vertical)
+        if comprimento <= 0:
+            continue
+        lo, hi = min(c0, c1), max(c0, c1)
+        # Só `passa`, e só nas faces **curtas**. Na face longa, `passa` é
+        # como o corpus registra a viga que corre na prumada do pilar — ela
+        # pode morrer rente à face e ocupar **zero** comprimento dela, e
+        # ainda assim estar lá: `P1`, `P10` e `P15` (verdes) listam `V309A`,
+        # que morre encostada. Exigir ocupação ali apagava 41 linhas.
+        # `chega` afirma ocupação em qualquer face — é o que `dist_esq` e
+        # `dist_dir` medem. `passa` só na tampa curta, pelo motivo acima.
+        # `V303` passa 10 cm **acima** do `P23` e virava chegada na face
+        # longa oeste, que ela não toca em centímetro nenhum.
+        curtas = _short_faces_of(pbb, vertical=vertical)
+        papeis = ("passa", "chega")
+        for role in papeis:
+            mantidas = []
+            for row in (tables.get(fid) or {}).get(role) or []:
+                nome = row.get("nome") or ""
+                if nome in ("", "—", "nenhuma"):
+                    mantidas.append(row)
+                    continue
+                # Os **trechos** da viga, não a caixa bruta: o traçado de
+                # `VF203` é fabricado longe do pilar e só o corredor reparado
+                # diz onde ela está.
+                trechos = _beam_runs_for_name(beams, nome)
+                if not trechos:
+                    mantidas.append(row)
+                    continue
+                if any(
+                    min(hi, max(r[0], r[2]) if axis == "x" else max(r[1], r[3]))
+                    - max(lo, min(r[0], r[2]) if axis == "x" else min(r[1], r[3]))
+                    > FACE_OCCUPANCY_MIN_CM
+                    for r in trechos
+                ):
+                    mantidas.append(row)
+                    continue
+                # Ocupação zero só vale na face longa quando a viga está **na
+                # linha dela** — é a viga da prumada, que morre encostada
+                # (`V309A` no `P10`). `VF203` morre na face oeste do `P33` e
+                # corre 5 cm abaixo da face norte: ali ela não está.
+                if role == "passa" and fid not in curtas:
+                    fixo = _face_fixed_coord(fid, pbb, vertical=vertical)
+                    if any(
+                        max(
+                            (min(r[1], r[3]) if axis == "x" else min(r[0], r[2])) - fixo,
+                            fixo - (max(r[1], r[3]) if axis == "x" else max(r[0], r[2])),
+                            0.0,
+                        ) <= FACE_OCCUPANCY_MIN_CM
+                        for r in trechos
+                    ):
+                        mantidas.append(row)
+                        continue
+                if role == "chega" and fid not in curtas:
+                    # Não some: vira **passagem**. Viga que corre rente à
+                    # ponta do pilar sem ocupar a face longa é passante ali,
+                    # não chegada — é como o corpus registra a `V303`, que
+                    # passa 10 cm acima do `P23`.
+                    virada = dict(row)
+                    virada["papel"] = "passa"
+                    virada["dist_esq"] = virada["dist_dir"] = "—"
+                    if not any(
+                        p.get("nome") == nome
+                        and (p.get("canto") or "") == (row.get("canto") or "")
+                        for p in (tables.get(fid) or {}).get("passa") or []
+                    ):
+                        tables.setdefault(fid, {}).setdefault("passa", []).append(virada)
+                    notes.append(f"{fid}.chega→passa: {nome} não ocupa a face")
+                    continue
+                notes.append(f"{fid}.{role}: {nome} não ocupa a face")
+            tables.setdefault(fid, {})[role] = mantidas
+    return notes
+
+
+#: Sobra mínima (cm) de pilar para a faixa contar como embutida.
+EMBEDDED_BAND_MARGIN_CM = 5.0
+
+
+def add_slabs_touching_faces(
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None,
+    slab_points_map: dict | None,
+    slab_height_map: dict | None,
+    slab_nivel_map: dict | None,
+    *,
+    beams: list | None = None,
+    vertical: bool = True,
+    side: float = 30.0,
+) -> list[str]:
+    """Vincula à face a laje que o polígono dela toca e a ficha não trouxe.
+
+    O vínculo laje→pilar vem de `lajes_adjacentes`, do SA, e às vezes falta:
+    `L331` toca 5 cm da face C do `P33` e não estava na lista. O contato é
+    medível — a mesma régua que o gate usa contra o corpus.
+    """
+    notes: list[str] = []
+    if not pbb or not slab_points_map:
+        return notes
+    slab_height_map = slab_height_map or {}
+    slab_nivel_map = slab_nivel_map or {}
+    for fid in "ABCD":
+        axis, c0, c1, comprimento = _face_axis_span(fid, *pbb, vertical=vertical)
+        if comprimento <= 0:
+            continue
+        lo, hi = min(c0, c1), max(c0, c1)
+        fixo = _face_fixed_coord(fid, pbb, vertical=vertical)
+        ja = {
+            str(r.get("nome") or "").upper()
+            for r in (tables.get(fid) or {}).get("lajes") or []
+            if str(r.get("nome") or "") not in ("", "—", "nenhuma")
+        }
+        # Só onde a face está **vazia** de laje.
+        if ja:
+            continue
+        # E só onde **nenhuma viga corre ao longo da linha da face**: ali a
+        # laje faz divisa com a viga, não com o pilar. `L318` encosta na
+        # linha da face D do `P12`, mas quem está lá é a `V302` embutida.
+        if _beam_lies_along_face(beams, axis, fixo, lo, hi):
+            continue
+        for nome, points in slab_points_map.items():
+            if str(nome).upper() in ja:
+                continue
+            # A **aresta** do polígono, não a caixa: `L318` tem caixa de
+            # 3139×201 e recorte em volta de cada pilar. Pela caixa ela
+            # encostava em face de meio pavimento (medido: 3 → 19 células).
+            aresta = _slab_edge_on_face(points, axis, fixo, lo, hi)
+            if not aresta:
+                continue
+            sbb = _bbox_from_points(points)
+            if not sbb:
+                continue
+            sx0, sy0, sx1, sy1 = sbb
+            if axis == "x":
+                contato = min(hi, sx1) - max(lo, sx0)
+                t0, t1 = sy0, sy1
+            else:
+                contato = min(hi, sy1) - max(lo, sy0)
+                t0, t1 = sx0, sx1
+            afast = max(fixo - t1, t0 - fixo, 0.0)
+            if contato <= MIN_SLAB_FACE_CONTACT_CM or afast > side:
+                continue
+            # A laje tem de estar **do lado de fora** da face: encostada na
+            # linha, não atravessando-a nem cobrindo o pilar. Sem isso a
+            # varredura liga laje demais (medido: 3 → 19 células).
+            fora = (t1 <= fixo + side) if _face_outward_is_low(
+                fid, vertical=vertical
+            ) else (t0 >= fixo - side)
+            if not fora:
+                continue
+            tables.setdefault(fid, {}).setdefault("lajes", []).append(
+                _row(
+                    "laje", nome=str(nome),
+                    dim=slab_height_map.get(nome, ""),
+                    nivel=slab_nivel_map.get(nome, ""),
+                    papel="laje",
+                )
+            )
+            notes.append(f"{fid}.lajes: {nome} vinculada pela geometria")
+    return notes
+
+
+def _beam_lies_along_face(
+    beams: list | None, axis: str, fixo: float, lo: float, hi: float,
+    tol: float = 1.0,
+) -> bool:
+    """Alguma viga corre **ao longo** da linha da face, com uma parede nela?"""
+    for beam in beams or []:
+        nome = str((beam or {}).get("name") or "")
+        for r in _beam_runs_for_name(beams, nome) if nome else []:
+            run_h = abs(r[2] - r[0]) >= abs(r[3] - r[1])
+            if run_h != (axis == "x"):
+                continue          # perpendicular: cruza, não corre ao longo
+            along = (
+                (min(r[0], r[2]), max(r[0], r[2])) if axis == "x"
+                else (min(r[1], r[3]), max(r[1], r[3]))
+            )
+            across = (
+                (min(r[1], r[3]), max(r[1], r[3])) if axis == "x"
+                else (min(r[0], r[2]), max(r[0], r[2]))
+            )
+            if min(hi, along[1]) - max(lo, along[0]) <= tol:
+                continue
+            if min(abs(across[0] - fixo), abs(across[1] - fixo)) <= tol:
+                return True
+    return False
+
+
+def _slab_edge_on_face(
+    points, axis: str, fixo: float, lo: float, hi: float, tol: float = 0.6,
+) -> bool:
+    """O contorno da laje tem aresta **sobre a linha da face**, ao longo dela."""
+    try:
+        pts = [(float(p[0]), float(p[1])) for p in (points or [])]
+    except (TypeError, ValueError, IndexError):
+        return False
+    if len(pts) < 3:
+        return False
+    if pts[0] != pts[-1]:
+        pts = pts + [pts[0]]
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+        if axis == "x":
+            if abs(ay - fixo) > tol or abs(by - fixo) > tol:
+                continue
+            e0, e1 = min(ax, bx), max(ax, bx)
+        else:
+            if abs(ax - fixo) > tol or abs(bx - fixo) > tol:
+                continue
+            e0, e1 = min(ay, by), max(ay, by)
+        if min(hi, e1) - max(lo, e0) > MIN_SLAB_FACE_CONTACT_CM:
+            return True
+    return False
+
+
+def _face_outward_is_low(fid: str, *, vertical: bool = True) -> bool:
+    """A face olha para o lado de coordenada menor?"""
+    if vertical:
+        return fid in ("A", "D")   # A = oeste (px0), D = sul (py0)
+    return fid in ("A", "C")       # A = sul (py0), C = oeste (px0)
+
+
+def _face_fixed_coord(
+    fid: str, pbb: tuple[float, float, float, float], *, vertical: bool = True,
+) -> float:
+    px0, py0, px1, py1 = pbb
+    if vertical:
+        return {"A": px0, "B": px1, "C": py1, "D": py0}[fid]
+    return {"A": py0, "B": py1, "C": px0, "D": px1}[fid]
+
+
+def beams_embedded_at_start(
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    points: list | None = None,
+) -> dict[str, list]:
+    """Vigas com faixa embutida na ponta **inicial** do pilar, e a assinatura.
+
+    A assinatura — largura, altura e ponta — é o que permite comparar o item
+    com os irmãos de mesma geometria. Só pilar retangular.
+    """
+    from src.core.pillar_special_faces import physical_ring
+
+    if not pbb or not beams or len(physical_ring(points or [])) != 4:
+        return {}
+    px0, py0, px1, py1 = pbb
+    eixo_longo_y = (py1 - py0) >= (px1 - px0)
+    p_lo, p_hi = (py0, py1) if eixo_longo_y else (px0, px1)
+    transv_lo, transv_hi = (px0, px1) if eixo_longo_y else (py0, py1)
+    # A assinatura é a **largura transversal** e a ponta, não a altura: o que
+    # compara `P28` com `P29` é o pilar ter 24 cm de largura e a faixa estar
+    # na ponta inicial; a altura (80 contra 66) não muda a leitura.
+    assinatura_base = [round(transv_hi - transv_lo), bool(eixo_longo_y)]
+    achadas: dict[str, list] = {}
+    for beam in beams or []:
+        if not isinstance(beam, dict):
+            continue
+        nome = str(beam.get("name") or "").strip()
+        if not nome:
+            continue
+        for run in _beam_runs_for_name(beams, nome):
+            b_lo, b_hi = (
+                (min(run[1], run[3]), max(run[1], run[3])) if eixo_longo_y
+                else (min(run[0], run[2]), max(run[0], run[2]))
+            )
+            t_lo, t_hi = (
+                (min(run[0], run[2]), max(run[0], run[2])) if eixo_longo_y
+                else (min(run[1], run[3]), max(run[1], run[3]))
+            )
+            if min(t_hi, transv_hi) - max(t_lo, transv_lo) <= 1.0:
+                continue
+            if not (b_lo >= p_lo - 1.0 and b_hi <= p_hi + 1.0):
+                continue
+            if (p_hi - b_hi) <= EMBEDDED_BAND_MARGIN_CM:
+                continue
+            if abs(b_lo - p_lo) > 1.0:
+                continue
+            achadas[nome] = assinatura_base + ["inicio"]
+            break
+    return achadas
+
+
+def prune_beam_embedded_at_start_end(
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    points: list | None = None,
+    *,
+    vertical: bool = True,
+) -> list[str]:
+    """Faixa de viga embutida na ponta **inicial** do pilar não entra nas faces.
+
+    Medido no corpus do 13_PAV, agrupando por assinatura geométrica (largura,
+    altura, ponta em que a faixa fica):
+
+    | faixa embutida na ponta | itens que registram |
+    |---|---|
+    | final | 10 de 10 |
+    | inicial | 1 de 8 |
+
+    Os sete que não registram incluem `P29`–`P32`, **verdes**, e os três
+    `P12`/`P13`/`P14`, onde o motor listava a `V302` e divergia. A exceção é
+    o `P28`, que registra a mesma `VF203` que o `P29` omite — contradição do
+    corpus entre dois itens de geometria idêntica, registrada no relatório.
+    """
+    notes: list[str] = []
+    if not pbb or not beams:
+        return notes
+    px0, py0, px1, py1 = pbb
+    eixo_longo_y = (py1 - py0) >= (px1 - px0)
+    # Só pilar retangular: no L a faixa da ponta é o próprio pé do pilar, e o
+    # corpus a registra (`V305` no `P26`, 2 de 2).
+    from src.core.pillar_special_faces import physical_ring
+
+    if len(physical_ring(points or [])) != 4:
+        return notes
+    p_lo, p_hi = (py0, py1) if eixo_longo_y else (px0, px1)
+    embutidas: set[str] = set()
+    for beam in beams or []:
+        if not isinstance(beam, dict):
+            continue
+        nome = str(beam.get("name") or "").strip()
+        if not nome:
+            continue
+        for run in _beam_runs_for_name(beams, nome):
+            b_lo, b_hi = (
+                (min(run[1], run[3]), max(run[1], run[3])) if eixo_longo_y
+                else (min(run[0], run[2]), max(run[0], run[2]))
+            )
+            t_lo, t_hi = (
+                (min(run[0], run[2]), max(run[0], run[2])) if eixo_longo_y
+                else (min(run[1], run[3]), max(run[1], run[3]))
+            )
+            transv_lo, transv_hi = (px0, px1) if eixo_longo_y else (py0, py1)
+            if min(t_hi, transv_hi) - max(t_lo, transv_lo) <= 1.0:
+                continue                      # nem cruza o pilar
+            if not (b_lo >= p_lo - 1.0 and b_hi <= p_hi + 1.0):
+                continue                      # não está embutida
+            if (p_hi - b_hi) <= EMBEDDED_BAND_MARGIN_CM:
+                continue                      # ponta final: registra
+            if abs(b_lo - p_lo) > 1.0:
+                continue                      # não está na ponta inicial
+            embutidas.add(nome)
+            break
+    if not embutidas:
+        return notes
+    for fid in "ABCD":
+        for role in ("passa", "chega", "interior"):
+            antes = (tables.get(fid) or {}).get(role) or []
+            depois = [r for r in antes if (r.get("nome") or "") not in embutidas]
+            if len(depois) != len(antes):
+                notes.append(f"{fid}.{role}: faixa embutida na ponta inicial")
+            tables.setdefault(fid, {})[role] = depois
+    return notes
+
+
+def _beam_span_for_name(
+    beams: list, nome: str,
+) -> tuple[float, float, float, float] | None:
+    """Envelope dos **trechos** da viga — honra o corredor recuperado.
+
+    `_beam_bbox_for_name` devolve a caixa do traçador, que pode ser só o
+    retângulo do rótulo: `VF301` sai com 100×24 junto ao `P1` enquanto o
+    corredor medido dela vai de `P1` a `P9`.
+    """
+    trechos = _beam_runs_for_name(beams, nome)
+    if not trechos:
+        return _beam_bbox_for_name(beams, nome)
+    xs = [v for r in trechos for v in (r[0], r[2])]
+    ys = [v for r in trechos for v in (r[1], r[3])]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def _beam_comes_from_outside(
+    nome: str,
+    face: str,
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    *,
+    vertical: bool = True,
+) -> bool:
+    """O corredor da viga ultrapassa a linha daquela face, para fora do pilar?
+
+    Sem geometria a resposta é sim — a regra não pode apagar linha por falta
+    de dado.
+    """
+    if not pbb or not beams or not nome:
+        return True
+    ebb = _beam_span_for_name(beams, nome)
+    if not ebb:
+        return True
+    px0, py0, px1, py1 = pbb
+    if vertical:
+        lo, hi = min(ebb[0], ebb[2]), max(ebb[0], ebb[2])
+        fixo = px0 if face == "A" else px1
+    else:
+        lo, hi = min(ebb[1], ebb[3]), max(ebb[1], ebb[3])
+        fixo = py0 if face == "A" else py1
+    if face == "A":
+        return lo < fixo - TOL_OUTWARD_CM
+    return hi > fixo + TOL_OUTWARD_CM
+
+
+def _arrives_from_outside(
+    nome: str,
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None,
+    beams: list | None,
+    *,
+    vertical: bool = True,
+) -> bool:
+    """A viga chega numa face longa vindo de fora do pilar?
+
+    Chegada é vinda de fora: o corredor ultrapassa a linha da face,
+    afastando-se do pilar. É o que separa a chegada real (`V301` no `P41`,
+    que vem do leste e morre na face B) de uma chegada inventada por
+    propagação.
+    """
+    if not pbb or not beams or not nome:
+        return False
+    faces = [
+        face for face in ("A", "B")
+        if any(
+            (r.get("nome") or "") == nome
+            and (r.get("canto") or "").upper() == f"{face}C"
+            for r in (tables.get(face) or {}).get("chega") or []
+        )
+    ]
+    if not faces:
+        return False
+    ebb = _beam_span_for_name(beams, nome)
+    if not ebb:
+        return False
+    px0, py0, px1, py1 = pbb
+    lo, hi = (
+        (min(ebb[0], ebb[2]), max(ebb[0], ebb[2])) if vertical
+        else (min(ebb[1], ebb[3]), max(ebb[1], ebb[3]))
+    )
+    for face in faces:
+        fixo = (px0 if face == "A" else px1) if vertical else (py0 if face == "A" else py1)
+        if face == "B" and hi > fixo + TOL_OUTWARD_CM:
+            return True
+        if face == "A" and lo < fixo - TOL_OUTWARD_CM:
+            return True
+    return False
+
+
+def apply_c_dualidade(
+    tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None = None,
+    beams: list | None = None,
+    *,
+    vertical: bool = True,
+) -> dict[str, dict[str, list[dict]]]:
     """Garante dualidade: chega A@AC ↔ passa C@CA e chega B@BC ↔ passa C@CB.
 
     Não propaga vigas de **interior** (Caso 4 em D/C) — essas não são chegadas
     de topo nem passantes de C.
+
+    Com ``pbb``/``beams``, também não cria chegada numa face longa que o
+    corredor da viga **não alcança**: `V304` no `P24` corre a leste, e a
+    dualidade inventava uma chegada dela na face oeste.
     """
 
     interior = _interior_names(tables)
+
+    def _alcanca(nome: str, face: str) -> bool:
+        if not pbb or not beams:
+            return True
+        ebb = _beam_span_for_name(beams, nome)
+        if not ebb:
+            return True
+        px0, py0, px1, py1 = pbb
+        fixo = (
+            {"A": px0, "B": px1}.get(face) if vertical
+            else {"A": py0, "B": py1}.get(face)
+        )
+        if fixo is None:
+            return True
+        lo, hi = (
+            (min(ebb[0], ebb[2]), max(ebb[0], ebb[2])) if vertical
+            else (min(ebb[1], ebb[3]), max(ebb[1], ebb[3]))
+        )
+        # Chegada vem de FORA: o corredor tem de ultrapassar a linha da face,
+        # afastando-se do pilar. `V304` no `P24` fica toda a leste e nunca
+        # cruza a face oeste — não chega nela.
+        return hi > fixo + TOL_OUTWARD_CM if face == "B" else lo < fixo - TOL_OUTWARD_CM
 
     def _has(rows: list, nome: str, canto: str = "") -> bool:
         for r in rows:
@@ -770,6 +1497,8 @@ def apply_c_dualidade(tables: dict[str, dict[str, list[dict]]]) -> dict[str, dic
                 target_canto, face = "AC", "A"
             else:
                 target_canto, face = "BC", "B"
+        if not _alcanca(nome, face):
+            continue
         chega = tables.setdefault(face, {}).setdefault("chega", [])
         # remove chega espúria da viga de interior no mesmo canto
         if not _has(chega, nome, target_canto):
@@ -789,7 +1518,12 @@ def apply_c_dualidade(tables: dict[str, dict[str, list[dict]]]) -> dict[str, dic
     for face, src_canto, c_canto in (("A", "AC", "CA"), ("B", "BC", "CB")):
         for r in list(tables.get(face, {}).get("chega") or []):
             nome = r.get("nome") or ""
-            if not nome or nome in ("—", "nenhuma") or nome in interior:
+            if not nome or nome in ("—", "nenhuma"):
+                continue
+            # Ser interior na face curta não impede o par da esquina: pela R4
+            # do dono, chegada em `XC` e passagem em `CX` são a mesma
+            # informação. `V301` no `P49` é interior em C **e** passa em CA.
+            if nome in interior and not _alcanca(nome, face):
                 continue
             canto = (r.get("canto") or "").upper()
             if canto in ("", "—"):
@@ -823,13 +1557,105 @@ def apply_c_dualidade(tables: dict[str, dict[str, list[dict]]]) -> dict[str, dic
     return tables
 
 
+#: Proveniências que marcam o dual de topo como reconhecido pela topologia,
+#: e não preenchido por default.
+TOP_DUAL_TOPOLOGY_SOURCES = (
+    "face_c_top_multi_segment",
+    "face_c_top_multi_segment_dual",
+)
+
+
+def _has_topology_asserted_top_dual(tables: dict[str, dict[str, list[dict]]]) -> bool:
+    """O dual de topo veio da topologia com evidência, e não de default?"""
+    for face, roles in (("C", ("passa",)), ("A", ("chega",)), ("B", ("chega",))):
+        for role in roles:
+            for row in (tables.get(face) or {}).get(role) or []:
+                if str(row.get("nome") or "") in ("", "—", "nenhuma"):
+                    continue
+                if str(row.get("_source") or "") in TOP_DUAL_TOPOLOGY_SOURCES:
+                    return True
+    return False
+
+
+#: Contato mínimo (cm) para uma laje pertencer à face. No 13_PAV o menor
+#: contato aceito por humano é 5,0 cm e todo contato espúrio mede 0,038 cm —
+#: o resíduo da própria coordenada. O limiar fica entre as duas ordens de
+#: grandeza, sem ser ajustado a nenhum item.
+MIN_SLAB_FACE_CONTACT_CM = 1.0
+
+
+def prune_slabs_without_face_contact(
+    tables: dict[str, dict[str, list[dict]]],
+    pillar_bb: tuple[float, float, float, float] | None,
+    slab_points_map: dict | None,
+    *,
+    vertical: bool = True,
+    min_contact_cm: float = MIN_SLAB_FACE_CONTACT_CM,
+) -> list[str]:
+    """Remove laje que apenas tangencia a face, sem contato mensurável.
+
+    Uma laje que começa onde a face termina compartilha um vértice, não uma
+    aresta: o "contato" é o resíduo da coordenada, e a laje pertence à face
+    vizinha. Sem geometria da laje nada é removido, porque aí não há evidência
+    para decidir.
+    """
+    notes: list[str] = []
+    if not pillar_bb or not slab_points_map:
+        return notes
+    for fid in "ABCD":
+        bucket = tables.get(fid) or {}
+        rows = bucket.get("lajes") or []
+        kept = []
+        dropped: list[str] = []
+        for row in rows:
+            nome = str(row.get("nome") or "")
+            points = slab_points_map.get(nome) if nome not in EMPTY_ROW_NAMES else None
+            if not points:
+                kept.append(row)
+                continue
+            de, dd = span_dists_on_face(
+                fid, pillar_bb, _bbox_from_points(points), vertical=vertical,
+            )
+            if de is None or dd is None:
+                dropped.append(nome)
+                continue
+            face_len = _face_axis_span(fid, *pillar_bb, vertical=vertical)[3]
+            if face_len - de - dd < min_contact_cm:
+                dropped.append(nome)
+                continue
+            kept.append(row)
+        if dropped:
+            tables.setdefault(fid, {})["lajes"] = kept
+            notes.append(
+                f"{fid}: laje sem contato na face removida ({', '.join(dropped)})"
+            )
+    return notes
+
+
 def apply_c_interior_suppress_top_dual(
     tables: dict[str, dict[str, list[dict]]],
+    pbb: tuple[float, float, float, float] | None = None,
+    beams: list | None = None,
+    *,
+    vertical: bool = True,
 ) -> list[str]:
     """Se C tem interior real, não dualiza chega AC/BC → passa CA/CB.
 
+    **Regra do dono (2026-08-22).** Uma viga que chega na esquina `BC` é, ao
+    mesmo tempo, passante do lado `C` — as duas informações valem juntas. A
+    supressão então só desfaz o dual quando a viga **não chega de fora**
+    naquela face longa; onde a chegada é real, `chega@BC` e `passa@CB`
+    convivem, como no `P41` e no `P24`.
+
     Padrão validado (P23/P24/P28…): face C é **só interior**; AC/BC nas longas
     são **passa** (não chega) e CA/CB não existem.
+
+    A supressão não vale contra um dual que a etapa de topologia afirmou com
+    evidência multi-segmento (``face_c_top_multi_segment``): ali o passante do
+    topo foi reconhecido pelos próprios corredores da viga, e o interior em C
+    é outra viga — tipicamente a longitudinal que corre nas faces longas.
+    Desfazer esse dual apagava a chegada AC/BC e a passagem CA/CB de uma só
+    vez (P18, P43, P45, P47).
     """
     notes: list[str] = []
     c_int = [
@@ -839,6 +1665,32 @@ def apply_c_interior_suppress_top_dual(
     ]
     if not c_int:
         return notes
+    if _has_topology_asserted_top_dual(tables):
+        return notes
+
+    # Quem estava no dual: só a viga que aparecia como passa CA/CB em C tem
+    # chegada AC/BC para desfazer. Uma viga que chega numa face longa sem
+    # contrapartida em C não é dual nenhum — `V301` chega em B no `P41`
+    # enquanto quem é interior em C é a `V309A`, outra viga.
+    no_dual = {
+        (r.get("nome") or "")
+        for r in (tables.get("C") or {}).get("passa") or []
+        if (r.get("canto") or "").upper() in ("CA", "CB")
+        and (r.get("nome") or "") not in ("", "—", "nenhuma")
+    }
+
+    # Chegada real na esquina é protegida: pela regra do dono ela vale junto
+    # com a passagem do lado C. Só cai o dual de quem não chega de fora.
+    chegam_de_fora = {
+        nome for nome in no_dual
+        if _arrives_from_outside(nome, tables, pbb, beams, vertical=vertical)
+    }
+    no_dual -= chegam_de_fora
+    if chegam_de_fora:
+        notes.append(
+            "dual preservado (chegada real na esquina): "
+            + ", ".join(sorted(chegam_de_fora))
+        )
 
     # remove passa CA/CB em C (dual topo inválido quando há interior C)
     before = len(_real_face_rows(tables, "C", "passa"))
@@ -846,6 +1698,7 @@ def apply_c_interior_suppress_top_dual(
         r
         for r in (tables.get("C") or {}).get("passa") or []
         if (r.get("nome") or "") in ("", "—", "nenhuma")
+        or (r.get("nome") or "") in chegam_de_fora
         or (r.get("canto") or "").upper() not in ("CA", "CB")
     ]
     after = len(_real_face_rows(tables, "C", "passa"))
@@ -861,7 +1714,7 @@ def apply_c_interior_suppress_top_dual(
         for r in chega:
             c = (r.get("canto") or "").upper()
             nome = r.get("nome") or ""
-            if c == canto and nome not in ("", "—", "nenhuma"):
+            if c == canto and nome in no_dual:
                 # já tem passa mesmo nome+canto?
                 if not any(
                     p.get("nome") == nome and (p.get("canto") or "").upper() == canto
@@ -1103,6 +1956,12 @@ def build_abcd_tables_from_pillar(
                     and fid in ("A", "B")
                     and not is_interior_beam
                     and default_c in ("AC", "BC", "CA", "CB")
+                    # Chegada vem de fora: `V301` no `P49` entra pela face A
+                    # e morre rente à face B — na B ela não chega, passa.
+                    and _beam_comes_from_outside(
+                        nome, fid, _pillar_bbox(pts), beams,
+                        vertical=orientation == "vertical",
+                    )
                 ):
                     # Chegada de topo nos cantos AC/BC (não misturar com AD/BD da viga de baixo)
                     br["papel"] = "chega"
@@ -1133,13 +1992,29 @@ def build_abcd_tables_from_pillar(
                 canto_b = (br.get("canto") or str(beam.get("corner") or "")).upper()
                 # Corner central em para[] depende da família da face. Em A/B
                 # (faces longas), a viga perpendicular termina no meio da face:
-                # é uma chegada central. Em C/D (faces curtas), o slot central
-                # continua representando o eixo longitudinal interior (Caso 4).
+                # é uma chegada central. Em C/D (faces curtas), quem decide é a
+                # **largura** (regra R2 do dono, 2026-08-20): viga mais estreita
+                # que a face é chegada e sobra face dos lados; viga do tamanho
+                # da face deixa a face inteira dentro do corpo dela, e aí é
+                # interior. V313 (19) na face C de P29 (24) chega; V308 (19) na
+                # face C de P35 (19) é interior.
+                # Ver docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md.
                 if canto_b in ("CC", "DD", "AA", "BB"):
                     br["canto"] = canto_b
                     if not br["nivel"] or br["nivel"] == "—":
                         br["nivel"] = nivel_viga_default or "—"
-                    target_kind = "chega" if fid in ("A", "B") else "interior"
+                    if fid in ("A", "B") and not _beam_comes_from_outside(
+                        br["nome"], fid, _pillar_bbox(pts), beams,
+                        vertical=orientation == "vertical",
+                    ):
+                        # Chegada central na face longa exige vir **de fora**.
+                        # `V320` no `P51` nasce na face A e sobe atravessando
+                        # o pilar: ali ela passa, não chega.
+                        continue
+                    target_kind = (
+                        "chega" if fid in ("A", "B")
+                        else _short_face_role(br.get("dim"), pts, vertical=orientation == "vertical")
+                    )
                     br["papel"] = target_kind
                     if not any(
                         x.get("nome") == br["nome"]
@@ -1149,6 +2024,13 @@ def build_abcd_tables_from_pillar(
                     continue
                 if br["nome"] in interior_names:
                     continue  # interior de D/C não vira chega em A/B
+                if fid in ("A", "B") and not _beam_comes_from_outside(
+                    br["nome"], fid, _pillar_bbox(pts), beams,
+                    vertical=orientation == "vertical",
+                ):
+                    # Chegada na face longa vem de fora. `V301` entra pela
+                    # face A do `P49` e morre rente à B: lá ela não chega.
+                    continue
                 if not br["nivel"] or br["nivel"] == "—":
                     br["nivel"] = nivel_viga_default or "—"
                 tables[fid]["chega"].append(br)
@@ -1219,7 +2101,10 @@ def build_abcd_tables_from_pillar(
     # 4) Regras de consolidação
     apply_axial_bilateral_short_faces(tables)
     apply_interior_d_as_passa_ab(tables)
-    apply_c_dualidade(tables)
+    apply_c_dualidade(
+        tables, _pillar_bbox(pts), beams,
+        vertical=orientation == "vertical",
+    )
 
     # Default nível viga se ainda vazio
     if nivel_viga_default:
@@ -1237,8 +2122,9 @@ def build_abcd_tables_from_pillar(
     #     Ordem importa: se reescrever dim antes, a poda deixa de ver 19/66.
     #     P1: remove AC/CA inventados; P2–P8: BC/CB 19/66 → 14/55.
     if pbb and is_vertical:
-        prune_phantom_top_dual(tables, pbb, vertical=is_vertical)
-        apply_c_dualidade(tables)  # re-sincroniza só o lado real restante
+        prune_phantom_top_dual(tables, pbb, beams, vertical=is_vertical)
+        # re-sincroniza só o lado real restante
+        apply_c_dualidade(tables, pbb, beams, vertical=is_vertical)
         apply_top_dual_band_dims(
             tables,
             pbb,
@@ -1247,9 +2133,29 @@ def build_abcd_tables_from_pillar(
             vertical=is_vertical,
         )
     # 4c) Interior em C anula dual topo (CA/CB + chega AC/BC → passa AC/BC)
-    apply_c_interior_suppress_top_dual(tables)
+    apply_c_interior_suppress_top_dual(
+        tables, pbb, beams, vertical=is_vertical,
+    )
+    prune_beams_without_face_occupancy(tables, pbb, beams, vertical=is_vertical)
+    prune_beams_far_from_face(tables, pbb, beams, vertical=is_vertical)
+    prune_parallel_beam_not_ending_at_face(
+        tables, pbb, beams, vertical=is_vertical,
+    )
+    prune_orphan_corner_dual(tables)
+    prune_beam_embedded_at_start_end(
+        tables, pbb, beams, pts, vertical=is_vertical,
+    )
 
     if pbb:
+        # Antes de medir, descarta laje que só compartilha um vértice com a
+        # face: ela não tem contato para medir e não é laje desta face.
+        prune_slabs_without_face_contact(
+            tables, pbb, slab_points_map, vertical=is_vertical,
+        )
+        add_slabs_touching_faces(
+            tables, pbb, slab_points_map, slab_height_map, slab_nivel_map,
+            beams=beams, vertical=is_vertical, side=0.6,
+        )
         for fid in "ABCD":
             # lajes
             for r in tables[fid]["lajes"]:
@@ -1281,6 +2187,7 @@ def build_abcd_tables_from_pillar(
                         continue
 
                     de = dd = None
+                    folga_simetrica = None
                     canto = (r.get("canto") or "").upper()
                     w = _dim_first_number(r.get("dim"))
 
@@ -1303,6 +2210,18 @@ def build_abcd_tables_from_pillar(
                             de, dd = _chega_dists_from_corner(
                                 fid, c_use, w_use, pbb, vertical=is_vertical
                             )
+                    elif kind == "chega" and w and canto == f"{fid}{fid}":
+                        # Chegada no canto central: a posição é MEDIDA no
+                        # corredor da viga (abaixo). A folga simétrica é só
+                        # fallback para quando o corredor não for localizável
+                        # — V313 em P29 mede 2,5/2,5, mas V325 em P48 encosta
+                        # num extremo e mede 0/31.
+                        face_len = _face_axis_span(
+                            fid, *pbb, vertical=is_vertical
+                        )[3]
+                        folga = (face_len - w) / 2.0
+                        if folga >= -0.6:
+                            folga_simetrica = max(folga, 0.0)
                     elif kind == "chega" and w and canto:
                         de, dd = _chega_dists_from_corner(
                             fid, canto, w, pbb, vertical=is_vertical
@@ -1312,12 +2231,16 @@ def build_abcd_tables_from_pillar(
                         ebb = _beam_bbox_for_name(beams, nome)
                         if ebb and _bbox_near_pillar(ebb, pbb, pad=30.0):
                             de, dd = span_dists_on_face(
-                                fid, pbb, ebb, vertical=is_vertical
+                                fid, pbb, ebb, vertical=is_vertical,
+                                width_cm=w,
                             )
                         elif kind == "interior" and w:
                             de, dd = span_dists_on_face(
                                 fid, pbb, pbb, vertical=is_vertical
                             )
+
+                    if de is None and folga_simetrica is not None:
+                        de = dd = folga_simetrica
 
                     r["dist_esq"] = _fmt_dist(de)
                     r["dist_dir"] = _fmt_dist(dd)
@@ -1371,13 +2294,7 @@ def _canto_from_dists(
     - Passa: mantém dual CA/CB ou mid AA… se vazio
     """
     mid = {"A": "AA", "B": "BB", "C": "CC", "D": "DD"}.get(fid, "AA")
-    corners = _FACE_CORNERS_V if vertical else {
-        "A": ("AD", "AC"),
-        "B": ("BC", "BD"),
-        "C": ("CA", "CB"),
-        "D": ("DA", "DB"),
-    }
-    c_esq, c_dir = corners.get(fid, ("AA", "AA"))
+    c_esq, c_dir = _face_corners(fid, vertical=vertical) or ("AA", "AA")
     de = _parse_dist_cm(dist_esq)
     dd = _parse_dist_cm(dist_dir)
     tol = 0.6  # cm — “0” prático
@@ -1419,6 +2336,116 @@ def _canto_from_dists(
     if dd is not None and dd <= tol:
         return c_dir
     return mid
+
+
+#: Folga (cm) para a largura da viga ser considerada igual à da face curta.
+SHORT_FACE_MATCH_TOL_CM = 2.0
+
+
+def _short_face_role(dim: Any, points, *, vertical: bool = True) -> str:
+    """`chega` ou `interior` numa face curta, pela regra da largura (R2).
+
+    Viga mais estreita que a face encosta nela e sobra face dos lados: é
+    chegada. Viga do tamanho da face deixa a face inteira dentro do corpo
+    dela: é interior. Sem dados para comparar, mantém o comportamento antigo.
+    """
+    from src.core.pillar_special_faces import physical_ring
+
+    bbox = _pillar_bbox(points)
+    width = _dim_first_number(dim)
+    if not bbox or width is None:
+        return "interior"
+    if len(physical_ring(points)) != 4:
+        # Contorno não retangular: a caixa envolvente não mede a face curta —
+        # em L ela devolve o braço inteiro. Quem trata essas faces é
+        # `enrich_special_pillar_tables`, pelo contorno real.
+        return "interior"
+    # A face curta tem o comprimento da menor dimensão em planta do pilar.
+    face_len = (bbox[2] - bbox[0]) if vertical else (bbox[3] - bbox[1])
+    if face_len <= 0:
+        return "interior"
+    return "chega" if width < face_len - SHORT_FACE_MATCH_TOL_CM else "interior"
+
+
+def face_corner_ids(fid: str, *, vertical: bool = True) -> tuple[str, str]:
+    """Cantos das duas extremidades da face, na parametrização esq→dir."""
+    return _face_corners(fid, vertical=vertical) or (f"{fid}{fid}", f"{fid}{fid}")
+
+
+def face_slab_beam_violations(
+    fid: str, bucket: dict, *, vertical: bool = True,
+) -> list[dict[str, str]]:
+    """Confere o invariante humano entre viga que chega e contato de laje.
+
+    Regra do domínio: a viga que chega parte o contato da laje naquela face.
+
+    - chega no meio da face (``XX``) → duas lajes, uma em cada canto;
+    - chega num canto → uma laje só, no canto **oposto**;
+    - nenhuma viga chegando → uma laje cobrindo a face (``XX``).
+
+    Devolve as violações; lista vazia significa face coerente. A checagem não
+    decide quem está errado — ela expõe a incoerência para o gate humano.
+    """
+    mid = f"{fid}{fid}"
+    ends = set(face_corner_ids(fid, vertical=vertical))
+    lajes = [row for row in (bucket or {}).get("lajes") or []
+             if str(row.get("nome") or "").strip().lower() not in EMPTY_ROW_NAMES]
+    chega = [row for row in (bucket or {}).get("chega") or []
+             if str(row.get("nome") or "").strip().lower() not in EMPTY_ROW_NAMES]
+    if not lajes:
+        return []
+
+    laje_corners = [str(row.get("canto") or "").upper() for row in lajes]
+    chega_corners = {str(row.get("canto") or "").upper() for row in chega}
+    violations: list[dict[str, str]] = []
+
+    def add(rule: str, detail: str) -> None:
+        violations.append({"face": fid, "rule": rule, "detail": detail})
+
+    if mid in chega_corners:
+        if len(lajes) != 2 or set(laje_corners) != ends:
+            add(
+                "chega_no_meio_exige_duas_lajes",
+                f"viga chega em {mid}; lajes esperadas em {sorted(ends)}, "
+                f"obtidas {laje_corners}",
+            )
+        return violations
+
+    corner_arrivals = chega_corners & ends
+    if corner_arrivals:
+        expected = ends - corner_arrivals
+        if len(corner_arrivals) > 1 or not expected:
+            return violations
+        if len(lajes) != 1 or laje_corners[0] not in expected:
+            add(
+                "chega_no_canto_exige_laje_no_oposto",
+                f"viga chega em {sorted(corner_arrivals)[0]}; laje esperada em "
+                f"{sorted(expected)[0]}, obtida {laje_corners}",
+            )
+        return violations
+
+    if len(lajes) != 1 or laje_corners[0] != mid:
+        add(
+            "sem_chega_exige_laje_cobrindo_a_face",
+            f"nenhuma viga chega em {fid}; laje esperada em {mid}, "
+            f"obtida {laje_corners}",
+        )
+    return violations
+
+
+def validate_face_slab_beam_invariant(
+    tables_payload: dict, *, vertical: bool | None = None,
+) -> list[dict[str, str]]:
+    """Aplica ``face_slab_beam_violations`` a todas as faces do payload."""
+    faces = (tables_payload or {}).get("faces") or {}
+    if vertical is None:
+        vertical = str((tables_payload or {}).get("orientation") or "vertical") == "vertical"
+    output: list[dict[str, str]] = []
+    for fid in (tables_payload or {}).get("face_ids") or sorted(faces):
+        output.extend(
+            face_slab_beam_violations(str(fid).upper(), faces.get(fid) or {}, vertical=vertical)
+        )
+    return output
 
 
 def fill_cantos_all_rows(faces: dict, *, vertical: bool = True) -> None:
@@ -1504,21 +2531,25 @@ def _face_rows_unified(data: dict) -> list[tuple[str, dict]]:
 def format_abcd_tables_html(tables_payload: dict, *, compact: bool = False) -> str:
     """HTML: 1 tabela por face (Família|Nome|Dim|Nível|Canto|d.esq|d.dir)."""
     faces = (tables_payload or {}).get("faces") or {}
+    face_ids = (tables_payload or {}).get("face_ids") or list("ABCD")
     # compact ainda legível (fichas SA); não-compact um pouco maior
     fs = "13px" if compact else "14px"
     title_fs = "14px" if compact else "15px"
     table_fs = "13px" if compact else "14px"
     pad = "5px 7px" if compact else "6px 8px"
     cards = []
-    colors = {"A": "#4fc3a1", "B": "#7eb8f7", "C": "#c47ef7", "D": "#f0b840"}
+    colors = {
+        "A": "#4fc3a1", "B": "#7eb8f7", "C": "#c47ef7",
+        "D": "#f0b840", "E": "#ff8a65", "F": "#80cbc4",
+    }
     head = (
         "<tr><th>Família</th><th>Nome</th><th>Dim</th><th>Nível</th>"
         "<th>Canto</th><th>d.esq</th><th>d.dir</th></tr>"
     )
-    for fid in "ABCD":
+    for fid in face_ids:
         data = faces.get(fid) or {}
         label = data.get("label") or fid
-        color = colors[fid]
+        color = colors.get(fid, "#aaaaaa")
         body = []
         for fam, r in _face_rows_unified(data):
             body.append(

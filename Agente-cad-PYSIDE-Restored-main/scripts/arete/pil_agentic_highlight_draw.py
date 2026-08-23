@@ -1321,11 +1321,12 @@ def load_project(
 
     pillars = []
     for r in conn.execute(
-        "SELECT name, points_json, extra_data_json, type FROM pillars WHERE project_id=?",
+        "SELECT name, points_json, sides_data_json, extra_data_json, type FROM pillars WHERE project_id=?",
         (project_id,),
     ):
         pts = json.loads(r["points_json"] or "[]")
         extra = json.loads(r["extra_data_json"] or "{}") if r["extra_data_json"] else {}
+        sides = json.loads(r["sides_data_json"] or "{}") if r["sides_data_json"] else {}
         if not isinstance(extra, dict):
             extra = {}
         try:
@@ -1345,6 +1346,8 @@ def load_project(
                 "orientation": orient,
                 "lajes": extra.get("lajes_adjacentes") or [],
                 "face_beams": extra.get("face_beams") or {},
+                "sides_data": sides if isinstance(sides, dict) else {},
+                "format": extra.get("format"),
             }
         )
     pillars.sort(key=lambda p: _natural_key(p["name"]))
