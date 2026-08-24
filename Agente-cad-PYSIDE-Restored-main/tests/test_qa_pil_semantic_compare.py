@@ -693,3 +693,48 @@ def test_interior_axial_perpendicular_continua_no_gate():
 
     assert result["authority_exclusions"] == []
     assert [d["field"] for d in result["differences"]] == ["faces.C.interior"]
+
+
+def test_viga_do_braco_em_ambas_e_f_sai_do_gate_no_pilar_espelhado():
+    """V305×P27 (2026-08-24): viga contínua sob o braço de P26 E P27.
+
+    O corpus de 19/08 só nomeou V305 no P26; o motor a registra em ambas
+    as faces longas do braço (E e F) de P27 também — decisão do dono via
+    ficha de dúvida (opção A: registra nos dois pilares mesmo)."""
+    expected = _semantic({
+        "E": {"passa": [_row(nome="V329", canto="EB")]},
+        "F": {"passa": [_row(nome="V329", canto="FD")]},
+    })
+    actual = _semantic({
+        "E": {"passa": [
+            _row(nome="V329", canto="EB"),
+            _row(nome="V305", canto="EB"),
+        ]},
+        "F": {"passa": [
+            _row(nome="V329", canto="FD"),
+            _row(nome="V305", canto="FD"),
+        ]},
+    })
+
+    result = compare_semantics(expected, actual)
+
+    assert [e["tier"] for e in result["authority_exclusions"]] == [
+        "T0_ARM_BEAM_SHARED_WITH_MIRRORED_PILLAR",
+        "T0_ARM_BEAM_SHARED_WITH_MIRRORED_PILLAR",
+    ]
+    assert result["differences"] == []
+
+
+def test_viga_so_numa_face_do_braco_continua_no_gate():
+    # Sem a viga aparecer nas DUAS faces longas do braço (E e F), não há
+    # prova estrutural do padrão de braço compartilhado — continua julgada.
+    expected = _semantic({"E": {"passa": [_row(nome="V329", canto="EB")]}})
+    actual = _semantic({"E": {"passa": [
+        _row(nome="V329", canto="EB"),
+        _row(nome="V305", canto="EB"),
+    ]}})
+
+    result = compare_semantics(expected, actual)
+
+    assert result["authority_exclusions"] == []
+    assert [d["field"] for d in result["differences"]] == ["faces.E.passa"]

@@ -1552,6 +1552,68 @@ def _exclude_rows_at_unreachable_corner(
     return adjusted, adjusted_actual, exclusions
 
 
+def _exclude_arm_beam_shared_with_mirrored_pillar(
+    expected: dict[str, Any], actual: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+    """Rebaixa `passa` em E/F de uma viga do braço que o corpus só nomeou no pilar espelhado.
+
+    **R5 do dono (2026-08-22) + decisão de 2026-08-24 (`V305`×`P26`/`P27`):**
+    a viga que corre no braço atravessa em ambos os pilares do par espelhado
+    — E/F de um e E/F do outro — porque é uma viga física contínua sob os
+    dois braços (medido: `V305`, 578cm, `x:3955→4533`, `y:2242-2261`, toca o
+    braço de `P26` E de `P27` ao mesmo tempo). O corpus congelado de 19/08
+    só registrou num dos dois lados do par; ficha de dúvida gerada e
+    decidida pelo dono (`scratchpad/duvida_v305_p26_p27.html`, opção A:
+    registra nos dois).
+
+    Só rebaixa quando a mesma viga já aparece em **ambas** as faces E e F
+    como `passa` no motor — o mesmo padrão estrutural da viga irmã já
+    registrada no corpus (ex. `V329`) — não é licença geral para qualquer
+    nome ausente.
+    """
+    import copy
+
+    faces_actual = actual.get("faces") or {}
+    if "E" not in faces_actual and "F" not in faces_actual:
+        return expected, actual, []
+    adjusted = copy.deepcopy(expected)
+    adjusted_actual = copy.deepcopy(actual)
+    exclusions: list[dict[str, Any]] = []
+    for face in ("E", "F"):
+        bucket_actual = (adjusted_actual.get("faces") or {}).get(face)
+        bucket_expected = (adjusted.get("faces") or {}).get(face)
+        if not isinstance(bucket_actual, dict) or not isinstance(bucket_expected, dict):
+            continue
+        expected_names = {
+            str(row.get("nome") or "").upper()
+            for row in bucket_expected.get("passa") or []
+        }
+        other_face = "F" if face == "E" else "E"
+        other_names = {
+            str(row.get("nome") or "").upper()
+            for row in (faces_actual.get(other_face) or {}).get("passa") or []
+        }
+        kept = []
+        for row in bucket_actual.get("passa") or []:
+            nome = str(row.get("nome") or "").upper()
+            if nome in expected_names or nome not in other_names:
+                kept.append(row)
+                continue
+            exclusions.append({
+                "tier": "T0_ARM_BEAM_SHARED_WITH_MIRRORED_PILLAR",
+                "field": f"faces.{face}.passa",
+                "identity": row.get("nome"),
+                "value": row.get("dim"),
+                "reason": (
+                    "beam runs continuously under both pillars' arms in the "
+                    "mirrored L pair; corpus named it on only one side "
+                    "(owner decision 2026-08-24, R5 extension)"
+                ),
+            })
+        bucket_actual["passa"] = kept
+    return adjusted, adjusted_actual, exclusions
+
+
 def compare_semantics(
     expected: dict[str, Any],
     actual: dict[str, Any],
@@ -1616,10 +1678,13 @@ def compare_semantics(
     expected, actual, cap_arm_exclusions = (
         _exclude_cap_passage_already_in_arm(expected, actual, arm_beams)
     )
+    expected, actual, arm_shared_exclusions = (
+        _exclude_arm_beam_shared_with_mirrored_pillar(expected, actual)
+    )
     expected, actual, arrival_passage_exclusions = (
         _exclude_arrival_recorded_as_passage(expected, actual)
     )
-    cap_arm_exclusions = cap_arm_exclusions + arrival_passage_exclusions
+    cap_arm_exclusions = cap_arm_exclusions + arrival_passage_exclusions + arm_shared_exclusions
     interior_par_exclusions = interior_par_exclusions + cap_arm_exclusions
     interior_gap_exclusions = interior_gap_exclusions + interior_par_exclusions
     parallel_exclusions = parallel_exclusions + interior_gap_exclusions
