@@ -356,11 +356,28 @@ if __name__ == '__main__':
     parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
     parser.add_argument(
-        '--refresh-from-recorte', action='store_true',
-        help='Reextrai a ficha do recorte N2 antes de gerar. Por padrao, a '
-             'ficha fornecida e autoritativa e nao e substituida.',
+        '--refresh-from-recorte', action=argparse.BooleanOptionalAction,
+        default=None,
+        help='Reextrai a ficha do recorte N2 vivo antes de gerar. LIGADO por '
+             'padrao: o fichas_lv_v2.json pode estar stale/resumido e gera '
+             'larguras de painel ERRADAS (incidente 2026-09-10: V301 caiu de '
+             '935 para 314 entidades por rodar sem refresh). Com --entry-json '
+             'o padrao e DESLIGADO, porque ali a ficha fornecida e explicita. '
+             'Use --no-refresh-from-recorte para forcar a ficha do arquivo.',
     )
     args = parser.parse_args()
+
+    # Falha-fechada: a rota de producao (sem --entry-json) sempre reextrai do
+    # recorte N2. So' quem passa uma ficha explicita herda o comportamento
+    # antigo de tratar o arquivo como autoritativo.
+    if args.refresh_from_recorte is None:
+        args.refresh_from_recorte = not bool(args.entry_json)
+    print(
+        '[FICHA] fonte = '
+        + ('recorte N2 vivo (--refresh-from-recorte)'
+           if args.refresh_from_recorte
+           else 'arquivo fornecido (--no-refresh-from-recorte)')
+    )
 
     if args.entry_json:
         raw_entry = json.loads(

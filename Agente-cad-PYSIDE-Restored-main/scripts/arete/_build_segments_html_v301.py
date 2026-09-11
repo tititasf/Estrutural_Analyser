@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import re
 import sys
 import webbrowser
 from pathlib import Path
@@ -21,6 +22,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import ezdxf  # noqa: E402
+import ezdxf.colors as ez_colors  # noqa: E402
 from ezdxf.addons.drawing import Frontend, RenderContext  # noqa: E402
 from ezdxf.addons.drawing.matplotlib import MatplotlibBackend  # noqa: E402
 
@@ -77,10 +79,17 @@ def render_dxf_clip(
         ax.set_position([0.02, 0.04, 0.96, 0.90])
         if clip is not None:
             xmin, ymin, xmax, ymax = clip
-            # Respiro visual: expande o recorte em 20% para cada direção.
-            # A mesma regra vale para N2 e N4, preservando a comparação.
-            dx = max(5.0, (xmax - xmin) * 0.20)
-            dy = max(5.0, (ymax - ymin) * 0.20)
+            # Respiro visual: expande o recorte para cada direção. Reduzido
+            # de 20% para 8% (achado 2026-08-31): ocorrências repetidas no
+            # mesmo recorte ficam empilhadas a ~30cm uma da outra, e 20% de
+            # respiro (ex. 28cm num clip de 140cm) já é o suficiente pra
+            # "vazar" o título/label da ocorrência vizinha pro N2 preview,
+            # fazendo o card mostrar um rótulo errado mesmo com a geometria
+            # comparada corretamente por trás (revisor via "CONT. V301.A"
+            # onde devia ver "UNIT.B#7"). 8% fica bem abaixo desse gap
+            # típico e ainda dá respiro pra cotas na borda.
+            dx = max(3.0, (xmax - xmin) * 0.08)
+            dy = max(3.0, (ymax - ymin) * 0.08)
             ax.set_xlim(xmin - dx, xmax + dx)
             ax.set_ylim(ymin - dy, ymax + dy)
         ax.set_aspect("equal", adjustable="box")
@@ -101,6 +110,420 @@ def render_dxf_clip(
         except Exception:
             pass
         return False
+
+
+def _hex_from_aci(aci: int) -> str:
+    try:
+        rgb = ez_colors.aci2rgb(int(aci))
+        return f"#{rgb.r:02x}{rgb.g:02x}{rgb.b:02x}"
+    except Exception:
+        return "#e5e7eb"
+
+
+def _layer_color_map(doc) -> dict:
+    out = {}
+    for layer in doc.layers:
+        aci = layer.dxf.color
+        if aci is None or not (1 <= aci <= 255):
+            aci = 7
+        out[layer.dxf.name] = _hex_from_aci(aci)
+    return out
+
+
+def _entity_hex(e, layer_colors: dict, *, fallback_layer=None, fallback_color=None) -> str:
+    color = getattr(e.dxf, "color", 256)
+    layer = fallback_layer or e.dxf.layer
+    if color in (0, 256) and fallback_color is not None:
+        color = fallback_color
+    if color not in (0, 256) and isinstance(color, int) and 1 <= color <= 255:
+        return _hex_from_aci(color)
+    return layer_colors.get(layer, "#e5e7eb")
+
+
+def _all_geom_points(msp):
+    """Pontos (x,y) de todas as LINE/LWPOLYLINE do modelspace — usado para
+    delimitar a caixa real de uma instancia de corte (nao ha campo de bbox
+    pronto, tem que medir a geometria)."""
+    pts = []
+    for e in msp:
+        if e.dxftype() == "LINE":
+            pts.append((e.dxf.start.x, e.dxf.start.y))
+            pts.append((e.dxf.end.x, e.dxf.end.y))
+        elif e.dxftype() == "LWPOLYLINE":
+            for p in e.get_points():
+                pts.append((p[0], p[1]))
+    return pts
+
+
+def find_n4_corte_instances(path: Path, section_views: list | None = None) -> list[dict]:
+    """Particiona LV_preview_{item}_CORTE.dxf em uma instancia por secao.
+
+    Reproduz o empilhamento do proprio gerador em vez de procurar texto de
+    titulo: desde que o N4 passou a replicar a geometria real do N2 (decisao
+    do dono, 2026-09-10), o titulo sintetico "NOME (LxA)" — que so o template
+    procedural emitia — deixou de existir. Tambem nao da pra agrupar por vazio
+    vertical: as primitivas do N2 vem em escala 2x e as cotas de uma secao
+    chegam perto da vizinha, sem intervalo limpo.
+
+    Regra (espelha ``draw_viga_lateral_face_units``): ``y_section`` comeca em
+    ``y_top - 150`` e anda ``-max(h_sec + 90, 180)`` por secao; cada secao e'
+    desenhada centrada em ``y_section + h_sec/2``. A extensao vertical real
+    vem das proprias ``visual_primitives`` daquela secao (coords relativas ao
+    centro), entao a faixa e' exata mesmo com o 2x.
+    """
+    try:
+        doc = ezdxf.readfile(str(path))
+    except Exception as ex:
+        print("corte n4 read fail", path.name, ex)
+        return []
+    msp = doc.modelspace()
+    pts = _all_geom_points(msp)
+    if not pts or not section_views:
+        return []
+
+    # Centros de cada secao, pela mesma cascata do gerador.
+    centers: list[tuple[int, float, float]] = []
+    _y_sec = -150.0  # y_top = 0 na vista CORTE isolada
+    for idx, sv in enumerate(section_views):
+        _h = float(sv.get("h_section", 0) or 0)
+        if _h > 0:
+            centers.append((idx, _y_sec + _h / 2.0, _h))
+        _y_sec -= max(_h + 90.0, 180.0)
+
+    out = []
+    for pos, (idx, center, h_sec) in enumerate(centers):
+        sv = section_views[idx]
+        rel_y = []
+        for prim in (sv.get("visual_primitives") or []):
+            for key in ("points", "insert", "align_point"):
+                val = prim.get(key)
+                if not val:
+                    continue
+                seq = val if isinstance(val[0], (list, tuple)) else [val]
+                rel_y += [float(p[1]) for p in seq if len(p) >= 2]
+            for sub in (prim.get("paths") or []):
+                rel_y += [float(p[1]) for p in sub if len(p) >= 2]
+        if rel_y:
+            y_lo, y_hi = center + min(rel_y) - 8.0, center + max(rel_y) + 8.0
+        else:
+            y_lo, y_hi = center - h_sec, center + h_sec
+        # As cotas de uma secao alcancam a vizinha (primitivas em 2x), entao
+        # a faixa e' cortada no meio do caminho ate' o centro vizinho.
+        if pos > 0:
+            y_hi = min(y_hi, (center + centers[pos - 1][1]) / 2.0)
+        if pos + 1 < len(centers):
+            y_lo = max(y_lo, (center + centers[pos + 1][1]) / 2.0)
+        band = [(px, py) for px, py in pts if y_lo <= py <= y_hi]
+        if band:
+            xs = [p[0] for p in band]
+            bys = [p[1] for p in band]
+            out.append({
+                "label": str(sv.get("label") or f"Corte {idx + 1}"),
+                "clip": (min(xs) - 5.0, min(bys) - 5.0,
+                         max(xs) + 5.0, max(bys) + 5.0),
+            })
+    return out
+
+
+def find_n2_corte_instances(
+    path: Path, x_range: tuple[float, float], gap: float = 160.0,
+) -> list[dict]:
+    """Particiona o CORTE real do N2 em instancias via cluster dos rotulos
+    'a'/'b'/'c' (marcam cada corte individual no desenho humano — nao ha
+    titulo "NOME (LxA)" no N2, so' esses 3 rotulos curtos por instancia).
+    """
+    try:
+        doc = ezdxf.readfile(str(path))
+    except Exception as ex:
+        print("corte n2 read fail", path.name, ex)
+        return []
+    msp = doc.modelspace()
+    abc = []
+    for e in msp.query("TEXT"):
+        t = (e.dxf.text or "").strip()
+        x = float(e.dxf.insert.x)
+        if t in ("a", "b", "c") and x_range[0] <= x <= x_range[1]:
+            abc.append(float(e.dxf.insert.y))
+    if not abc:
+        return []
+    abc.sort(reverse=True)
+    clusters: list[list[float]] = []
+    cur = [abc[0]]
+    for y in abc[1:]:
+        if cur[-1] - y > gap:
+            clusters.append(cur)
+            cur = [y]
+        else:
+            cur.append(y)
+    clusters.append(cur)
+    pts = [
+        (px, py) for px, py in _all_geom_points(msp)
+        if x_range[0] - 20.0 <= px <= x_range[1] + 20.0
+    ]
+    out = []
+    for cl in clusters:
+        y_hi, y_lo = max(cl) + 90.0, min(cl) - 90.0
+        band = [(px, py) for px, py in pts if y_lo <= py <= y_hi]
+        if not band:
+            continue
+        xs = [p[0] for p in band]
+        ys = [p[1] for p in band]
+        out.append({"clip": (min(xs) - 5.0, min(ys) - 5.0, max(xs) + 5.0, max(ys) + 5.0)})
+    return out
+
+
+def render_dxf_clip_svg(
+    dxf_path: Path,
+    *,
+    clip: tuple[float, float, float, float] | None,
+    id_prefix: str,
+    pad_frac: float = 0.08,
+) -> str | None:
+    """Renderiza um recorte do DXF como SVG inline, um elemento por entidade.
+
+    Cada LINE/TEXT/HATCH/DIMENSION vira seu proprio <g data-layer=... data-
+    type=... data-handle=...> no DOM — quando o dono aponta "essa linha
+    aqui" no navegador, o clique carrega a entidade real (layer/tipo/handle/
+    medida), fechando a ponte anotacao->codigo sem eu ter que recalcular
+    coordenada de pixel/porcentagem (pedido do dono, 2026-08-31).
+    """
+    try:
+        doc = ezdxf.readfile(str(dxf_path))
+    except Exception as ex:
+        print("svg render fail (read)", dxf_path.name, ex)
+        return None
+    msp = doc.modelspace()
+    layer_colors = _layer_color_map(doc)
+
+    if clip is not None:
+        xmin, ymin, xmax, ymax = clip
+        dx = max(3.0, (xmax - xmin) * pad_frac)
+        dy = max(3.0, (ymax - ymin) * pad_frac)
+        xmin, xmax = xmin - dx, xmax + dx
+        ymin, ymax = ymin - dy, ymax + dy
+    else:
+        ext_min = doc.header.get("$EXTMIN")
+        ext_max = doc.header.get("$EXTMAX")
+        xmin, ymin = (ext_min[0], ext_min[1]) if ext_min else (0.0, 0.0)
+        xmax, ymax = (ext_max[0], ext_max[1]) if ext_max else (100.0, 100.0)
+
+    def fy(y: float) -> float:
+        return -y
+
+    def in_window(x: float, y: float, pad: float = 0.0) -> bool:
+        return (xmin - pad) <= x <= (xmax + pad) and (ymin - pad) <= y <= (ymax + pad)
+
+    frags: list[str] = []
+    counter = {"n": 0}
+    pattern_defs: dict[str, tuple] = {}
+
+    def _pattern_ref(name: str, color: str) -> str:
+        # Hatch de padrao (ANSI31/AR-CONC/etc, nao solid_fill) preenchido
+        # solido a 0.28 de opacidade virava um "bloco cinza" enganoso quando
+        # duas faixas de padrao ficam lado a lado — o dono achou que a
+        # posicao tinha piorado quando na verdade era so a minha
+        # simplificacao de render empilhando dois blocos solidos (achado
+        # 2026-08-31: reaproveitamento ANSI31 + laje AR-CONC, ambos color=7
+        # no DXF real, ficavam indistinguiveis um do outro e do fundo).
+        # Textura de verdade (linhas/pontos esparsos) preserva a leitura.
+        key = f"{name}|{color}"
+        if key not in pattern_defs:
+            pid = f"pat-{id_prefix}-{len(pattern_defs)}"
+            if (name or "").upper() == "AR-CONC":
+                body = (
+                    f'<pattern id="{pid}" width="7" height="7" '
+                    f'patternUnits="userSpaceOnUse">'
+                    f'<circle cx="1.8" cy="1.8" r="0.55" fill="{color}" fill-opacity="0.65"/>'
+                    f'<circle cx="5.2" cy="4.8" r="0.4" fill="{color}" fill-opacity="0.55"/>'
+                    f'</pattern>'
+                )
+            else:
+                body = (
+                    f'<pattern id="{pid}" width="6" height="6" '
+                    f'patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+                    f'<line x1="0" y1="0" x2="0" y2="6" stroke="{color}" '
+                    f'stroke-width="0.6" stroke-opacity="0.7"/>'
+                    f'</pattern>'
+                )
+            pattern_defs[key] = (pid, body)
+        return pattern_defs[key][0]
+
+    def emit(tag_svg: str, *, dxftype: str, layer: str, handle: str, extra: str = "") -> None:
+        counter["n"] += 1
+        eid = f"{id_prefix}-{counter['n']}"
+        frags.append(
+            f'<g id="{html.escape(eid, quote=True)}" data-layer="{html.escape(layer, quote=True)}" '
+            f'data-type="{html.escape(dxftype, quote=True)}" '
+            f'data-handle="{html.escape(handle, quote=True)}"'
+            f'{extra} class="dxf-el dxf-{html.escape(dxftype.lower())}">{tag_svg}</g>'
+        )
+
+    def handle_line(e, *, fallback_layer=None, fallback_color=None):
+        s, e2 = e.dxf.start, e.dxf.end
+        if not (in_window(s.x, s.y, 20) or in_window(e2.x, e2.y, 20)):
+            return
+        color = _entity_hex(e, layer_colors, fallback_layer=fallback_layer, fallback_color=fallback_color)
+        layer = fallback_layer or e.dxf.layer
+        length = round(((e2.x - s.x) ** 2 + (e2.y - s.y) ** 2) ** 0.5, 1)
+        x1, y1, x2, y2 = f"{s.x:.2f}", f"{fy(s.y):.2f}", f"{e2.x:.2f}", f"{fy(e2.y):.2f}"
+        # "Ima" de clique: linha invisivel bem mais grossa por baixo da
+        # linha fina real, so' para hit-test (pointer-events:stroke) — sem
+        # isso o dono tinha que acertar o pixel exato de uma stroke de
+        # 0.6px pra selecionar (pedido do dono, 2026-08-31).
+        svg = (
+            f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
+            f'stroke="transparent" stroke-width="12" vector-effect="non-scaling-stroke" '
+            f'style="pointer-events:stroke"/>'
+            f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
+            f'stroke="{color}" stroke-width="0.6" vector-effect="non-scaling-stroke" '
+            f'style="pointer-events:none"/>'
+        )
+        emit(
+            svg, dxftype="LINE", layer=layer, handle=str(e.dxf.handle),
+            extra=f' data-length-cm="{length}"',
+        )
+
+    def handle_lwpolyline(e, *, fallback_layer=None, fallback_color=None):
+        pts = [(p[0], p[1]) for p in e.get_points()]
+        if not pts or not any(in_window(px, py, 20) for px, py in pts):
+            return
+        color = _entity_hex(e, layer_colors, fallback_layer=fallback_layer, fallback_color=fallback_color)
+        layer = fallback_layer or e.dxf.layer
+        d = "M " + " L ".join(f"{px:.2f} {fy(py):.2f}" for px, py in pts)
+        closed = bool(getattr(e, "closed", False))
+        if closed:
+            d += " Z"
+        # Sem fill automatico so por estar "fechada": no DXF real uma
+        # LWPOLYLINE (aberta ou fechada) e' so contorno — preenchimento so
+        # existe se houver um HATCH separado referenciando o mesmo path.
+        # Preencher toda closed=True a 25% criava caixas com "fundo solido"
+        # enganoso (ex.: contorno de painel 75x7cm sem hachura nenhuma
+        # associada, achado 2026-09-08 via ponto marcado pelo dono).
+        hit_stroke = (
+            f'<path d="{d}" stroke="transparent" stroke-width="12" fill="none" '
+            f'vector-effect="non-scaling-stroke" style="pointer-events:stroke"/>'
+        )
+        svg = (
+            f'{hit_stroke}'
+            f'<path d="{d}" stroke="{color}" stroke-width="0.6" fill="none" '
+            f'vector-effect="non-scaling-stroke" style="pointer-events:none"/>'
+        )
+        emit(svg, dxftype="LWPOLYLINE", layer=layer, handle=str(e.dxf.handle))
+
+    def handle_hatch(e):
+        color = _entity_hex(e, layer_colors)
+        layer = e.dxf.layer
+        is_solid = bool(getattr(e.dxf, "solid_fill", 0))
+        pattern_name = str(getattr(e.dxf, "pattern_name", "") or "")
+        paths_svg = []
+        any_in = False
+        for p in e.paths:
+            pts = None
+            if hasattr(p, "vertices"):
+                pts = [(v[0], v[1]) for v in p.vertices]
+            if not pts:
+                continue
+            if any(in_window(px, py, 20) for px, py in pts):
+                any_in = True
+            d = "M " + " L ".join(f"{px:.2f} {fy(py):.2f}" for px, py in pts) + " Z"
+            paths_svg.append(d)
+        if not any_in or not paths_svg:
+            return
+        d_all = " ".join(paths_svg)
+        if is_solid:
+            fill_attr = f'fill="{color}" fill-opacity="0.28"'
+        else:
+            pid = _pattern_ref(pattern_name, color)
+            fill_attr = f'fill="url(#{pid})"'
+        # Contorno da hachura de reaproveitamento (layer "Hachura") quase
+        # sempre coincide com uma linha Painéis real já desenhada separada
+        # (a borda do painel/degrau) — o stroke aqui virava "linha
+        # duplicada" falsa na leitura visual (achado 2026-09-09, SEGMENTO
+        # 3B: handle BDE parecia duplicado, mas era so o contorno do
+        # hatch por cima dele). Outros hatches (concreto/vazio) mantêm o
+        # contorno normal, pois neles a borda é a única indicação visual
+        # do limite da região.
+        stroke_attr = (
+            "" if layer == "Hachura"
+            else f'stroke="{color}" stroke-width="0.25" stroke-opacity="0.5" '
+        )
+        svg = (
+            f'<path d="{d_all}" {fill_attr} '
+            f'{stroke_attr}fill-rule="evenodd"/>'
+        )
+        emit(
+            svg, dxftype="HATCH", layer=layer, handle=str(e.dxf.handle),
+            extra=f' data-pattern="{html.escape(pattern_name, quote=True)}"',
+        )
+
+    def handle_text(e, *, dxftype="TEXT", fallback_layer=None, fallback_color=None):
+        try:
+            ins = e.dxf.insert
+            txt = e.dxf.text if dxftype == "TEXT" else e.text
+            h = float(getattr(e.dxf, "height", 8.0) or getattr(e.dxf, "char_height", 8.0) or 8.0)
+        except Exception:
+            return
+        if not txt or not in_window(ins.x, ins.y, 30):
+            return
+        color = _entity_hex(e, layer_colors, fallback_layer=fallback_layer, fallback_color=fallback_color)
+        layer = fallback_layer or e.dxf.layer
+        txt_esc = html.escape(str(txt))[:80]
+        svg = (
+            f'<text x="{ins.x:.2f}" y="{fy(ins.y):.2f}" font-size="{max(h, 4):.1f}" '
+            f'fill="{color}" font-family="monospace">{txt_esc}</text>'
+        )
+        emit(
+            svg, dxftype=dxftype, layer=layer, handle=str(e.dxf.handle),
+            extra=f' data-text="{html.escape(str(txt), quote=True)[:80]}"',
+        )
+
+    def handle_dimension(e):
+        layer = e.dxf.layer
+        color = getattr(e.dxf, "color", 256)
+        fb_color = None if color in (0, 256) else color
+        try:
+            subs = list(e.virtual_entities())
+        except Exception:
+            subs = []
+        for v in subs:
+            vt = v.dxftype()
+            if vt == "LINE":
+                handle_line(v, fallback_layer=layer, fallback_color=fb_color)
+            elif vt in ("TEXT", "MTEXT"):
+                handle_text(v, dxftype=vt, fallback_layer=layer, fallback_color=fb_color)
+
+    for e in msp:
+        t = e.dxftype()
+        try:
+            if t == "LINE":
+                handle_line(e)
+            elif t == "LWPOLYLINE":
+                handle_lwpolyline(e)
+            elif t == "HATCH":
+                handle_hatch(e)
+            elif t == "TEXT":
+                handle_text(e, dxftype="TEXT")
+            elif t == "MTEXT":
+                handle_text(e, dxftype="MTEXT")
+            elif t == "DIMENSION":
+                handle_dimension(e)
+        except Exception as ex:
+            print("svg entity skip", t, ex)
+            continue
+
+    width = xmax - xmin
+    height = ymax - ymin
+    if width <= 0 or height <= 0:
+        return None
+    view_box = f"{xmin:.2f} {fy(ymax):.2f} {width:.2f} {height:.2f}"
+    defs = "".join(body for _, body in pattern_defs.values())
+    return (
+        f'<svg viewBox="{view_box}" xmlns="http://www.w3.org/2000/svg" '
+        f'preserveAspectRatio="xMidYMid meet" class="dxf-svg" '
+        f'style="width:100%;height:100%;display:block;background:#1e2531">'
+        f'<defs>{defs}</defs>'
+        f'<g>{"".join(frags)}</g></svg>'
+    )
 
 
 def _cls(v: str) -> str:
@@ -140,12 +563,10 @@ def build() -> Path:
     # Versiona as imagens pela revisão efetiva dos DXFs. Isso impede que o
     # navegador reutilize previews do motor anterior e evita sobrescrever PNGs
     # que estejam momentaneamente abertos pelo servidor no Windows.
-    preview_tag = str(
-        max(
-            [n2_path.stat().st_mtime_ns, Path(__file__).stat().st_mtime_ns]
-            + [p.stat().st_mtime_ns for p in n4_paths.values() if p.exists()]
-        )
-    )
+    n2_tag = str(n2_path.stat().st_mtime_ns)
+    n4_tag = str(max([p.stat().st_mtime_ns for p in n4_paths.values() if p.exists()] or [0]))
+    preview_tag = f"{n2_tag}_{n4_tag}"
+
     n4_units = {
         s: split_n4_view(p, s) if p.exists() else [] for s, p in n4_paths.items()
     }
@@ -157,18 +578,54 @@ def build() -> Path:
             n2_by_label[unit_label(u, u.get("_idx", 0))] = u
 
     # full face renders (qualidade DXF)
+    # clip=None desenhava o arquivo INTEIRO, incluindo blocos de referencia
+    # (PAR_ESQ/PAR_FUNDO_ESQ/par_int_esq/par_int_dir, perto de x=0-120,
+    # marcadores fixos sem relacao com as ocorrencias reais) e a visao de
+    # corte embutida no mesmo arquivo la' por x<0 — contaminando a leitura
+    # visual de "N4 completo" com objetos que nao sao paineis A/B (achado
+    # 2026-09-10, dono circulou os retangulos brancos e o icone de corte).
+    # As ocorrencias reais do painel comecam por volta de x=1800; recorta
+    # so' essa faixa.
     full_prev = {}
     for side, p in n4_paths.items():
         if p.exists():
-            out = PREV / f"FULL_N4_VIEW_{side}_{preview_tag}.png"
-            ok = render_dxf_clip(
-                p, out, clip=None, title=f"N4 VIEW_{side} completo (DXF real)", width_px=1200, height_px=420
+            out = PREV / f"FULL_N4_VIEW_{side}_{n4_tag}.png"
+            ok = out.exists() or render_dxf_clip(
+                p, out, clip=(1700, -340, 12420, -80),
+                title=f"N4 VIEW_{side} completo (DXF real)", width_px=1200, height_px=420
             )
             full_prev[side] = f"previews_dxf/{out.name}" if ok else None
 
+    # Visao CORTE — classe separada dos paineis A/B (pedido do dono,
+    # 2026-09-10): overview completo + card granular por instancia de
+    # corte (N2 real x N4 gerado), abaixo dos segmentos de painel.
+    corte_path = N4_DIR / "LV_preview_V301_CORTE.dxf"
+    full_corte = None
+    corte_pairs: list[dict] = []
+    if corte_path.exists():
+        out_corte = PREV / f"FULL_N4_CORTE_{n4_tag}.png"
+        ok_corte = out_corte.exists() or render_dxf_clip(
+            corte_path, out_corte, clip=None,
+            title="N4 CORTE completo (DXF real)", width_px=900, height_px=520,
+        )
+        full_corte = f"previews_dxf/{out_corte.name}" if ok_corte else None
+        n4_corte_insts = find_n4_corte_instances(
+            corte_path, section_views=entry.get("section_views") or [],
+        )
+        # Faixa X do corte no recorte N2 real — especifica desta viga
+        # (achado por inspecao direta: rotulos a/b/c ficam em x~5170-5450).
+        n2_corte_insts = find_n2_corte_instances(n2_path, x_range=(5100.0, 5500.0))
+        for idx in range(min(len(n4_corte_insts), len(n2_corte_insts))):
+            corte_pairs.append({
+                "idx": idx,
+                "n4_label": n4_corte_insts[idx]["label"],
+                "clip_n2": n2_corte_insts[idx]["clip"],
+                "clip_n4": n4_corte_insts[idx]["clip"],
+            })
+
     # N2 full (overview) — recorte inteiro
-    out_n2 = PREV / f"FULL_N2_recorte_{preview_tag}.png"
-    ok_n2 = render_dxf_clip(
+    out_n2 = PREV / f"FULL_N2_recorte_{n2_tag}.png"
+    ok_n2 = out_n2.exists() or render_dxf_clip(
         n2_path, out_n2, clip=None, title="N2 recorte completo (DXF original)", width_px=1200, height_px=520
     )
     full_n2 = f"previews_dxf/{out_n2.name}" if ok_n2 else None
@@ -190,8 +647,8 @@ def build() -> Path:
     lookup_occurrence = {}
 
     for i, r in enumerate(results):
-        r["preview_n2"] = None
-        r["preview_n4"] = None
+        r["preview_n2_svg"] = None
+        r["preview_n4_svg"] = None
         side = str(r.get("side") or "")
         lab = str(r.get("label") or "")
         if side not in ("A", "B"):
@@ -222,15 +679,29 @@ def build() -> Path:
         c4 = a4["clip"]
         clip_n4 = (ox4 + c4[0], oy4 + c4[1], ox4 + c4[2], oy4 + c4[3])
 
-        p2 = PREV / f"seg_{i:02d}_N2_{preview_tag}.png"
-        p4 = PREV / f"seg_{i:02d}_N4_{preview_tag}.png"
-        t2 = f"N2 · {lab} (clip face_unit DXF original)"
-        t4 = f"N4 · {r.get('n4_label')} (clip banda VIEW_{side})"
-        if render_dxf_clip(n2_path, p2, clip=clip_n2, title=t2, width_px=700, height_px=400):
-            r["preview_n2"] = f"previews_dxf/{p2.name}"
+        # SVG por elemento (nao PNG raster): cada LINE/TEXT/HATCH/DIMENSION
+        # do recorte vira seu proprio <g data-layer/data-type/data-handle>
+        # no DOM, para o clique do dono mapear direto na entidade real —
+        # sem eu ter que recalcular posicao por pixel/porcentagem cada vez
+        # que ele aponta "essa linha aqui" (pedido do dono, 2026-08-31).
+        sp2 = PREV / f"seg_{i:02d}_N2_{n2_tag}.svg"
+        sp4 = PREV / f"seg_{i:02d}_N4_{n4_tag}.svg"
+        if sp2.exists():
+            r["preview_n2_svg"] = sp2.read_text(encoding="utf-8")
+        else:
+            svg2 = render_dxf_clip_svg(n2_path, clip=clip_n2, id_prefix=f"s{i}n2")
+            if svg2:
+                sp2.write_text(svg2, encoding="utf-8")
+                r["preview_n2_svg"] = svg2
         n4p = n4_paths[side]
-        if n4p.exists() and render_dxf_clip(n4p, p4, clip=clip_n4, title=t4, width_px=700, height_px=400):
-            r["preview_n4"] = f"previews_dxf/{p4.name}"
+        if n4p.exists():
+            if sp4.exists():
+                r["preview_n4_svg"] = sp4.read_text(encoding="utf-8")
+            else:
+                svg4 = render_dxf_clip_svg(n4p, clip=clip_n4, id_prefix=f"s{i}n4")
+                if svg4:
+                    sp4.write_text(svg4, encoding="utf-8")
+                    r["preview_n4_svg"] = svg4
 
     def sort_key(r):
         lab = str(r.get("label") or "")
@@ -275,6 +746,30 @@ code{color:#fde68a}.kpi{font-size:1.35rem;font-weight:800}
 .segment-head{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .validated{width:18px;height:18px;vertical-align:middle}.validation{white-space:nowrap;font-weight:700}
 .attention{display:block;margin-top:10px;font-weight:700}.note{display:block;box-sizing:border-box;width:100%;margin-top:4px;background:#0b1220;color:#e5e7eb;border:1px solid #475569;border-radius:6px;padding:8px;font:inherit}
+.imgwrap{position:relative;cursor:grab;height:480px;overflow:hidden;border-radius:8px}
+.imgwrap.dragging{cursor:grabbing}
+.pz-reset{position:absolute;top:6px;right:6px;z-index:2;background:#1f2937cc;color:#e5e7eb;border:1px solid #475569;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer}
+.pz-reset:hover{background:#334155cc}
+.click-dot{position:absolute;width:14px;height:14px;margin-left:-7px;margin-top:-7px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 2px #000;pointer-events:none}
+.click-label{position:absolute;margin-left:9px;margin-top:-16px;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000;pointer-events:none;font-family:monospace}
+.points-list-head{margin-top:8px}
+.copy-all-points{background:#1f2937;color:#e5e7eb;border:1px solid #475569;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer}
+.copy-all-points:hover{background:#334155}
+.copy-all-points[hidden]{display:none}
+.points-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.point-row{display:flex;gap:6px;align-items:center;font-size:12px}
+.point-row input{flex:1;background:#0b1220;color:#e5e7eb;border:1px solid #475569;border-radius:6px;padding:4px 6px;font:inherit}
+.point-row button{width:24px;background:#1f2937;color:#e5e7eb;border:1px solid #475569;border-radius:6px;cursor:pointer}
+.point-row .elem-tag{font-family:monospace;font-size:10px;color:#93c5fd;background:#1e293b;border-radius:4px;padding:1px 5px;white-space:nowrap}
+.point-row-removed{opacity:0.75}
+.point-row-removed button{width:auto;padding:3px 8px;font-size:11px}
+.dxf-svg{border:1px solid #334155}
+.dxf-el{cursor:pointer}
+.dxf-el:hover line,.dxf-el:hover path,.dxf-el:hover text{filter:drop-shadow(0 0 0.6px #0ea5e9) drop-shadow(0 0 1.5px #0ea5e9)}
+.dxf-el.dxf-picked line,.dxf-el.dxf-picked path{stroke:#0ea5e9!important;stroke-width:1.6!important}
+.dxf-el.dxf-picked text{fill:#0ea5e9!important}
+.dxf-el.dxf-picked{cursor:default}
+.dxf-el.dxf-picked *{pointer-events:none!important}
 </style></head><body>
 <header>
 <h1>V301 · Segmentos com DXF real (ezdxf)</h1>
@@ -295,6 +790,11 @@ Este usa render do DXF. O gate numérico (R/G) continua no ledger; o visual abai
                 f'<div><div class="mut">N4 VIEW_{side}</div>'
                 f'<img class="preview" src="{html.escape(full_prev[side])}"/></div>'
             )
+    if full_corte:
+        parts.append(
+            f'<div><div class="mut">N4 CORTE (classe separada dos painéis A/B)</div>'
+            f'<img class="preview" src="{html.escape(full_corte)}"/></div>'
+        )
     parts.append("</div></div>")
 
     parts.append('<div class="card"><h2>Faces nominais A/B (métricas gate)</h2><div class="grid2">')
@@ -366,22 +866,92 @@ Este usa render do DXF. O gate numérico (R/G) continua no ledger; o visual abai
             f"R {100*float(m.get('r_match') or 0):.0f}% · G {100*float(m.get('g_match') or 0):.0f}%</div>"
             "<label class='validation'><input class='validated' type='checkbox'> Validado</label></div>"
         )
-        p2, p4 = r.get("preview_n2"), r.get("preview_n4")
-        if p2 or p4:
+        svg2, svg4 = r.get("preview_n2_svg"), r.get("preview_n4_svg")
+        if svg2 or svg4:
             parts.append('<div class="grid2">')
-            if p2:
-                parts.append(f'<div><div class="mut">N2 original (clip)</div><img class="preview" src="{html.escape(p2)}"/></div>')
-            if p4:
-                parts.append(f'<div><div class="mut">N4 gerado (clip)</div><img class="preview" src="{html.escape(p4)}"/></div>')
+            if svg2:
+                parts.append(
+                    '<div><div class="mut">N2 original (clip) · '
+                    '<span class="mut">arraste p/ mover, roda p/ zoom, clique num elemento p/ marcar</span></div>'
+                    f'<div class="imgwrap" data-side="n2">{svg2}'
+                    '<button type="button" class="pz-reset" data-pz-reset>reset zoom</button></div></div>'
+                )
+            if svg4:
+                parts.append(
+                    '<div><div class="mut">N4 gerado (clip) · '
+                    '<span class="mut">arraste p/ mover, roda p/ zoom, clique num elemento p/ marcar</span></div>'
+                    f'<div class="imgwrap" data-side="n4">{svg4}'
+                    '<button type="button" class="pz-reset" data-pz-reset>reset zoom</button></div></div>'
+                )
             parts.append("</div>")
         else:
             parts.append("<p class='mut'>sem par clipável (n2_only / n4_only / CORTE)</p>")
         parts.append(
             f"<p class='mut'>{html.escape(' · '.join(r.get('reasons') or [])[:220])}</p>"
-            "<label class='attention'>Atenção / observação"
+            "<div class='mut' style='margin-top:8px'>Clique na imagem N2 ou N4 acima para marcar um ponto de incoerência.</div>"
+            "<div class='points-list-head'>"
+            "<button type='button' class='copy-all-points' title='copiar referência de todos os pontos deste card'>📋 copiar todos os pontos</button>"
+            "</div>"
+            "<div class='points-list'></div>"
+            "<label class='attention'>Atenção / observação geral"
             "<textarea class='note' rows='3' placeholder='Salva automaticamente neste navegador'></textarea>"
             "</label></article>"
         )
+
+    # Cards granulares de VISAO CORTE — classe separada dos paineis A/B,
+    # um card por instancia real de corte que a viga possui (N2 real x N4
+    # gerado), abaixo dos segmentos de painel (pedido do dono, 2026-09-10).
+    if corte_pairs:
+        parts.append(
+            '<div class="card"><h2>Revisão por visão de CORTE (N2 clip | N4 clip)</h2>'
+            '<p class="mut">Classe separada dos painéis A/B — uma seção transversal '
+            'por instância real que a viga possui.</p>'
+        )
+        for cp in corte_pairs:
+            n4_label = cp["n4_label"]
+            review_key = f"LV::13_PAV::V301::CORTE {cp['idx']+1}::{n4_label}"
+            parts.append(
+                f'<article class="card segment-card" data-key="{html.escape(review_key, quote=True)}" '
+                'style="margin:10px 0">'
+            )
+            parts.append(
+                f"<div class='segment-head'><div><b>CORTE {cp['idx']+1}</b> "
+                f"<code>{html.escape(n4_label)}</code></div>"
+                "<label class='validation'><input class='validated' type='checkbox'> Validado</label></div>"
+            )
+            svg2 = render_dxf_clip_svg(n2_path, clip=cp["clip_n2"], id_prefix=f"corte{cp['idx']}n2")
+            svg4 = render_dxf_clip_svg(corte_path, clip=cp["clip_n4"], id_prefix=f"corte{cp['idx']}n4")
+            if svg2 or svg4:
+                parts.append('<div class="grid2">')
+                if svg2:
+                    parts.append(
+                        '<div><div class="mut">N2 original (clip) · '
+                        '<span class="mut">arraste p/ mover, roda p/ zoom, clique num elemento p/ marcar</span></div>'
+                        f'<div class="imgwrap" data-side="n2">{svg2}'
+                        '<button type="button" class="pz-reset" data-pz-reset>reset zoom</button></div></div>'
+                    )
+                if svg4:
+                    parts.append(
+                        '<div><div class="mut">N4 gerado (clip) · '
+                        '<span class="mut">arraste p/ mover, roda p/ zoom, clique num elemento p/ marcar</span></div>'
+                        f'<div class="imgwrap" data-side="n4">{svg4}'
+                        '<button type="button" class="pz-reset" data-pz-reset>reset zoom</button></div></div>'
+                    )
+                parts.append("</div>")
+            else:
+                parts.append("<p class='mut'>sem clip renderizável</p>")
+            parts.append(
+                "<div class='mut' style='margin-top:8px'>Clique na imagem N2 ou N4 acima para marcar um ponto de incoerência.</div>"
+                "<div class='points-list-head'>"
+                "<button type='button' class='copy-all-points' title='copiar referência de todos os pontos deste card'>📋 copiar todos os pontos</button>"
+                "</div>"
+                "<div class='points-list'></div>"
+                "<label class='attention'>Atenção / observação geral"
+                "<textarea class='note' rows='3' placeholder='Salva automaticamente neste navegador'></textarea>"
+                "</label></article>"
+            )
+        parts.append("</div>")
+
     parts.append("""</div></main><script>
 const prefix='cad_analyzer_review_';
 const cards=[...document.querySelectorAll('.segment-card')];
@@ -390,8 +960,357 @@ function cookieName(card){return cookieNameFor(card.dataset.key);}
 function readCookie(key){try{const name=cookieNameFor(key)+'=';const part=document.cookie.split('; ').find(row=>row.startsWith(name));return part?JSON.parse(decodeURIComponent(part.slice(name.length))):{};}catch(_){return {};}}
 function read(card){const current=readCookie(card.dataset.key);if(current.validated||current.note)return current;return readCookie(card.dataset.legacyKey||'');}
 function sync(key,data){fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[key]:data})}).catch(()=>{});}
-function save(card){const data={validated:card.querySelector('.validated').checked,note:card.querySelector('.note').value,updated_at:new Date().toISOString()};try{const value=encodeURIComponent(JSON.stringify(data));if(value.length>3500)throw Error('nota longa');document.cookie=`${cookieName(card)}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`;sync(card.dataset.key,data);}catch(_){alert('Nota muito longa para salvar (limite: cerca de 3.500 caracteres).');}}
-cards.forEach(card=>{const saved=read(card);card.querySelector('.validated').checked=!!saved.validated;card.querySelector('.note').value=saved.note||'';if(saved.validated||saved.note)sync(card.dataset.key,saved);card.querySelector('.validated').addEventListener('change',()=>save(card));card.querySelector('.note').addEventListener('input',()=>save(card));});
+function save(card){const data={validated:card.querySelector('.validated').checked,note:card.querySelector('.note').value,points:(card._points||[]).filter(p=>!p._removed),updated_at:new Date().toISOString()};try{const value=encodeURIComponent(JSON.stringify(data));if(value.length>3500)throw Error('nota longa');document.cookie=`${cookieName(card)}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`;sync(card.dataset.key,data);}catch(_){sync(card.dataset.key,data);}}
+const pointColors=['#f87171','#60a5fa','#4ade80','#fbbf24','#c084fc','#f472b6','#2dd4bf','#fb923c'];
+// Zoom/pan por viewBox (padrao do projeto, docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md).
+// Arrastar move o desenho; roda do mouse aplica zoom centrado no cursor;
+// duplo-clique ou o botao "reset zoom" volta ao home. O ponto marcado so
+// existe se o clique realmente caiu num elemento DXF (.dxf-el) — pedido do
+// dono, 2026-08-31: nao marcar ponto em fundo vazio.
+function initSvgPanZoom(wrap){
+  const svg=wrap.querySelector('svg.dxf-svg');
+  if(!svg||wrap.dataset.pzInit==='1')return;
+  wrap.dataset.pzInit='1';
+  const base=svg.viewBox.baseVal;
+  const home={x:base.x,y:base.y,w:base.width,h:base.height};
+  if(!isFinite(home.w)||home.w<=0)return;
+  const state={x:home.x,y:home.y,w:home.w,h:home.h};
+  function apply(){svg.setAttribute('viewBox',`${state.x} ${state.y} ${state.w} ${state.h}`);renderDots(wrap.closest('.segment-card'));}
+  function reset(){state.x=home.x;state.y=home.y;state.w=home.w;state.h=home.h;apply();}
+  wrap._pzReset=reset;
+  function clientToSvg(cx,cy){
+    const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;
+    const ctm=svg.getScreenCTM();
+    if(!ctm)return{x:state.x+state.w/2,y:state.y+state.h/2};
+    return pt.matrixTransform(ctm.inverse());
+  }
+  wrap.addEventListener('wheel',e=>{
+    e.preventDefault();
+    let factor=e.deltaY<0?0.88:1.14;
+    let nextW=state.w*factor,nextH=state.h*factor;
+    const minW=home.w*0.04,maxW=home.w*4;
+    if(nextW<minW){factor=minW/state.w;nextW=minW;nextH=state.h*factor;}
+    if(nextW>maxW){factor=maxW/state.w;nextW=maxW;nextH=state.h*factor;}
+    const p=clientToSvg(e.clientX,e.clientY);
+    state.x=p.x-(p.x-state.x)*(nextW/state.w);
+    state.y=p.y-(p.y-state.y)*(nextH/state.h);
+    state.w=nextW;state.h=nextH;apply();
+  },{passive:false});
+  let dragging=false,lx=0,ly=0;
+  wrap._dragMoved=0;
+  wrap.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(e.target&&e.target.closest&&e.target.closest('button'))return;
+    dragging=true;lx=e.clientX;ly=e.clientY;wrap._dragMoved=0;
+    wrap.classList.add('dragging');
+  });
+  window.addEventListener('mousemove',e=>{
+    if(!dragging)return;
+    const ctm=svg.getScreenCTM();if(!ctm)return;
+    const inv=ctm.inverse();
+    const p0=svg.createSVGPoint();p0.x=lx;p0.y=ly;
+    const p1=svg.createSVGPoint();p1.x=e.clientX;p1.y=e.clientY;
+    const a=p0.matrixTransform(inv),b=p1.matrixTransform(inv);
+    state.x-=(b.x-a.x);state.y-=(b.y-a.y);
+    wrap._dragMoved+=Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly);
+    lx=e.clientX;ly=e.clientY;apply();
+  });
+  window.addEventListener('mouseup',()=>{
+    if(!dragging)return;dragging=false;wrap.classList.remove('dragging');
+  });
+  wrap.addEventListener('dblclick',e=>{
+    if(e.target&&e.target.closest&&e.target.closest('button'))return;
+    reset();
+  });
+  const btn=wrap.querySelector('[data-pz-reset]');
+  if(btn)btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();reset();});
+}
+// Elemento ja marcado: trava (sem reclique) e manda pra tras no z-order
+// (primeiro filho do <g> = pintado primeiro = fica atras de tudo que veio
+// depois na ordem do DXF), pra nao atrapalhar a selecao de elementos
+// vizinhos empilhados no mesmo lugar (pedido do dono, 2026-08-31).
+function markPicked(target){
+  if(!target||target.classList.contains('dxf-picked'))return;
+  target.classList.add('dxf-picked');
+  if(target.parentNode)target.parentNode.prepend(target);
+}
+// Ao excluir o ponto, o elemento associado destrava (fica selecionavel de
+// novo) — sem isso, uma linha apagada da lista continuava presa pra
+// sempre, mesmo sem nenhum ponto mais se referindo a ela (pedido do dono,
+// 2026-09-08). Nao desfaz o reordenamento pro fundo (nao guardamos a
+// posicao original), so remove a trava de clique/hover.
+function unmarkPicked(card, elementId){
+  if(!elementId)return;
+  card.querySelectorAll('.imgwrap svg.dxf-svg').forEach(svg=>{
+    const el=svg.querySelector('#'+CSS.escape(elementId));
+    if(el)el.classList.remove('dxf-picked');
+  });
+}
+function renderDots(card){
+  card.querySelectorAll('.imgwrap').forEach(wrap=>{
+    wrap.querySelectorAll('.click-dot,.click-label').forEach(el=>el.remove());
+    const side=wrap.dataset.side;
+    const wRect=wrap.getBoundingClientRect();
+    let _vi=-1;
+    (card._points||[]).forEach((p)=>{
+      if(p._removed)return;
+      _vi++;
+      if(p.side!==side)return;
+      const c=pointColors[_vi%pointColors.length];
+      let x=p.x,y=p.y;
+      // reancorra no elemento real (se ainda existir nesta geracao do SVG)
+      // para o ponto acompanhar o desenho durante pan/zoom.
+      const el=p.element&&p.element.id?wrap.querySelector('#'+CSS.escape(p.element.id)):null;
+      if(el)markPicked(el);
+      if(el&&wRect.width>0&&wRect.height>0){
+        const r=el.getBoundingClientRect();
+        x=(r.left+r.width/2-wRect.left)/wRect.width;
+        y=(r.top+r.height/2-wRect.top)/wRect.height;
+      }
+      if(x<-0.05||x>1.05||y<-0.05||y>1.05)return;
+      const dot=document.createElement('div');
+      dot.className='click-dot';dot.style.left=(x*100)+'%';dot.style.top=(y*100)+'%';dot.style.background=c;
+      wrap.appendChild(dot);
+      const lb=document.createElement('div');
+      lb.className='click-label';lb.style.left=(x*100)+'%';lb.style.top=(y*100)+'%';lb.style.color=c;lb.textContent=String(_vi+1);
+      wrap.appendChild(lb);
+    });
+  });
+}
+// Referencia compacta de um ponto: cola no chat e o agente ja sabe qual
+// card/elemento/nota sem precisar reler o revisoes_humanas.json inteiro
+// (pedido do dono, 2026-09-08 — "economizar tokens" ao apontar um ponto).
+function pointRefText(card, p, i){
+  const parts=[card.dataset.key, `P${i+1} ${p.side}`];
+  if(p.element){
+    const el=p.element;
+    let s=`${el.type}·${el.layer}`;
+    if(el.pattern) s+=` pattern=${el.pattern}`;
+    if(el.handle) s+=` handle=${el.handle}`;
+    if(el.text) s+=` texto="${el.text}"`;
+    if(el.length_cm) s+=` ${el.length_cm}cm`;
+    if(el.coords){
+      const c=el.coords;
+      s+= (c.x2!==undefined)
+        ? ` @(${c.x1.toFixed(1)},${c.y1.toFixed(1)})->(${c.x2.toFixed(1)},${c.y2.toFixed(1)})`
+        : ` @(${c.x1.toFixed(1)},${c.y1.toFixed(1)})`;
+    }
+    parts.push(s);
+  }
+  if(p.note) parts.push(`nota: "${p.note}"`);
+  return parts.join(' | ');
+}
+function renderPoints(card){
+  const list=card.querySelector('.points-list');
+  if(!list)return;
+  list.innerHTML='';
+  const copyAllBtn=card.querySelector('.copy-all-points');
+  const activeCount=(card._points||[]).filter(p=>!p._removed).length;
+  if(copyAllBtn){
+    copyAllBtn.hidden=!activeCount;
+  }
+  let vi=-1;
+  (card._points||[]).forEach((p,i)=>{
+    // Exclusao "leve": o ponto some do render normal, dos dots e do que e
+    // salvo no servidor, mas continua em card._points ate a pagina
+    // recarregar — so assim um botao de desfazer no LUGAR onde ele estava
+    // pode trazer ele de volta (pedido do dono, 2026-09-09: "me arrepender"
+    // de uma exclusao sem precisar remarcar o ponto do zero). Some de vez
+    // so quando a pagina for recarregada (save() ja filtra _removed).
+    if(p._removed){
+      const row=document.createElement('div');
+      row.className='point-row point-row-removed';
+      const lbl=document.createElement('span');
+      lbl.style.cssText='flex:1;color:#94a3b8;font-style:italic;font-size:11px;';
+      lbl.textContent='ponto removido';
+      const undo=document.createElement('button');
+      undo.type='button';undo.textContent='↺ desfazer';
+      undo.style.cssText='white-space:nowrap;';
+      undo.addEventListener('click',()=>{
+        delete p._removed;
+        if(p.element&&p.element.id){
+          const wrap=card.querySelector(`.imgwrap[data-side="${p.side}"]`);
+          const el=wrap&&wrap.querySelector('#'+CSS.escape(p.element.id));
+          if(el)markPicked(el);
+        }
+        renderDots(card);renderPoints(card);save(card);
+      });
+      row.appendChild(lbl);row.appendChild(undo);
+      list.appendChild(row);
+      return;
+    }
+    vi++;
+    const c=pointColors[vi%pointColors.length];
+    const row=document.createElement('div');
+    row.className='point-row';
+    const lbl=document.createElement('span');
+    lbl.style.cssText=`min-width:70px;color:${c};font-family:monospace;`;
+    lbl.textContent=`P${vi+1} ${p.side.toUpperCase()}`;
+    const inp=document.createElement('input');
+    inp.type='text';inp.placeholder='nota sobre este ponto';inp.value=p.note||'';
+    inp.addEventListener('input',()=>{p.note=inp.value;save(card);});
+    const cp=document.createElement('button');
+    cp.type='button';cp.textContent='📋';cp.title='copiar referência deste ponto';
+    cp.addEventListener('click',()=>{
+      const text=pointRefText(card,p,vi);
+      const done=()=>{cp.textContent='✓';setTimeout(()=>{cp.textContent='📋';},1200);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      }else{
+        const ta=document.createElement('textarea');
+        ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+        document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');}catch(_){}
+        document.body.removeChild(ta);done();
+      }
+    });
+    const rm=document.createElement('button');
+    rm.type='button';rm.textContent='×';
+    rm.addEventListener('click',()=>{
+      unmarkPicked(card,p.element&&p.element.id);
+      p._removed=true;renderDots(card);renderPoints(card);save(card);
+    });
+    row.appendChild(lbl);
+    if(p.element){
+      const tag=document.createElement('span');
+      tag.className='elem-tag';
+      tag.title=`handle=${p.element.handle}`+(p.element.pattern?` pattern=${p.element.pattern}`:'')+(p.element.text?` texto="${p.element.text}"`:'')+(p.element.length_cm?` ${p.element.length_cm}cm`:'');
+      tag.textContent=`${p.element.type}·${p.element.layer}`;
+      row.appendChild(tag);
+    }
+    row.appendChild(inp);row.appendChild(cp);row.appendChild(rm);
+    list.appendChild(row);
+  });
+}
+function applyState(state){
+  cards.forEach(card=>{
+    const saved=(state&&(state[card.dataset.key]||state[card.dataset.legacyKey||'']))||read(card)||{};
+    card.querySelector('.validated').checked=!!saved.validated;
+    card.querySelector('.note').value=saved.note||'';
+    card._points=Array.isArray(saved.points)?saved.points:[];
+    const copyAllBtn=card.querySelector('.copy-all-points');
+    if(copyAllBtn){
+      copyAllBtn.addEventListener('click',()=>{
+        const text=(card._points||[]).filter(p=>!p._removed).map((p,i)=>pointRefText(card,p,i)).join('\\n');
+        const done=()=>{copyAllBtn.textContent='✓ copiado';setTimeout(()=>{copyAllBtn.textContent='📋 copiar todos os pontos';},1200);};
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(done).catch(done);
+        }else{
+          const ta=document.createElement('textarea');
+          ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+          document.body.appendChild(ta);ta.select();
+          try{document.execCommand('copy');}catch(_){}
+          document.body.removeChild(ta);done();
+        }
+      });
+    }
+    card.querySelector('.validated').addEventListener('change',()=>save(card));
+    card.querySelector('.note').addEventListener('input',()=>save(card));
+    card.querySelectorAll('.imgwrap').forEach(wrap=>{
+      initSvgPanZoom(wrap);
+      wrap.addEventListener('click',(e)=>{
+        if(e.target&&e.target.closest&&e.target.closest('button'))return;
+        // arrastar (pan) tambem dispara 'click' no mouseup — so conta como
+        // marcacao de ponto se o mouse quase nao se moveu.
+        if((wrap._dragMoved||0)>4)return;
+        // so marca ponto se o clique caiu de fato num elemento DXF (LINE/
+        // TEXT/HATCH/...), nunca no fundo vazio do SVG (pedido do dono).
+        const target=e.target.closest('.dxf-el');
+        if(!target)return;
+        const rect=wrap.getBoundingClientRect();
+        const tr=target.getBoundingClientRect();
+        const x=(tr.left+tr.width/2-rect.left)/rect.width;
+        const y=(tr.top+tr.height/2-rect.top)/rect.height;
+        // elemento ja marcado antes: ignora o clique (nao gera ponto
+        // duplicado) — o proprio markPicked ja tirou o pointer-events dele,
+        // isso aqui e' so um fallback defensivo.
+        if(target.classList.contains('dxf-picked'))return;
+        card._points=card._points||[];
+        markPicked(target);
+        // Coordenadas reais do DXF (nao pixel/SVG) — o handle muda a cada
+        // regeneracao, mas a posicao geometrica e' estavel; dono pediu pra
+        // apontar o elemento geometricamente em vez de so' por handle
+        // (2026-09-10). y guardado no SVG e' -y_dxf (fy() em Python), entao
+        // desfaz o sinal aqui pra devolver a coordenada real.
+        let coords=null;
+        const lineEl=target.querySelector('line');
+        if(lineEl){
+          coords={
+            x1:parseFloat(lineEl.getAttribute('x1')),
+            y1:-parseFloat(lineEl.getAttribute('y1')),
+            x2:parseFloat(lineEl.getAttribute('x2')),
+            y2:-parseFloat(lineEl.getAttribute('y2')),
+          };
+        }else{
+          const pathEl=target.querySelector('path');
+          if(pathEl){
+            const d=pathEl.getAttribute('d')||'';
+            const nums=(d.match(/-?\d+\.?\d*/g)||[]).map(Number);
+            if(nums.length>=2) coords={x1:nums[0],y1:-nums[1]};
+          }
+        }
+        const point={
+          side:wrap.dataset.side,x,y,note:'',
+          element:{
+            id:target.id,
+            layer:target.dataset.layer||'',
+            type:target.dataset.type||'',
+            handle:target.dataset.handle||'',
+            text:target.dataset.text||'',
+            length_cm:target.dataset.lengthCm||'',
+            pattern:target.dataset.pattern||'',
+            coords,
+          },
+        };
+        card._points.push(point);
+        renderDots(card);renderPoints(card);save(card);
+      });
+    });
+    renderDots(card);renderPoints(card);
+  });
+}
+fetch('revisoes_humanas.json',{cache:'no-store'})
+  .then(r=>r.ok?r.json():{})
+  .then(applyState)
+  .catch(()=>applyState({}));
+
+let lastDxfVersion = '';
+let dxfPollTimer = null;
+async function checkDxfHotReload() {
+  try {
+    const res = await fetch('/api/dxf-version', { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.ok && data.version) {
+      if (!lastDxfVersion) {
+        lastDxfVersion = String(data.version);
+      } else if (lastDxfVersion !== String(data.version)) {
+        lastDxfVersion = String(data.version);
+        location.reload();
+      }
+    }
+  } catch (_) {}
+}
+function startDxfPolling() {
+  if (dxfPollTimer) return;
+  dxfPollTimer = setInterval(checkDxfHotReload, 800);
+}
+function stopDxfPolling() {
+  if (dxfPollTimer) { clearInterval(dxfPollTimer); dxfPollTimer = null; }
+}
+// setInterval sozinho e' throttled/pausado pelo navegador quando a aba fica em
+// background (Chrome pode cair pra ~1 tick/min ou menos). Isso faz o hot-reload
+// "sumir" justamente quando o usuario troca de janela pra olhar o resultado de
+// uma edicao e volta. Forcamos uma checagem imediata sempre que a aba volta a
+// ficar visivel/focada, alem do polling normal em primeiro plano.
+startDxfPolling();
+checkDxfHotReload();
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { stopDxfPolling(); }
+  else { checkDxfHotReload(); startDxfPolling(); }
+});
+window.addEventListener('focus', () => { checkDxfHotReload(); startDxfPolling(); });
+window.addEventListener('pageshow', () => { checkDxfHotReload(); startDxfPolling(); });
 </script></body></html>""")
 
     out = GATE / "V301_SEGMENTS_E2E.html"
