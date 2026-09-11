@@ -46,7 +46,13 @@ from lv_n4_face_unit_selection import select_n4_face_units  # noqa: E402
 
 DB = Path(r"D:\Agente-cad-PYSIDE\project_data.vision")
 OBRA = Path(r"D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1")
-N4_DIR = OBRA / "Fase-6_Execucao_CAD" / "n4"
+# Pasta dos N4 a comparar. Por padrao a de producao; a rodada de revisao aponta
+# para uma pasta propria via LV_N4_DIR porque os N4 selados de producao estao
+# somente-leitura (artefato protegido) e nao devem ser sobrescritos no loop de
+# ajuste do motor.
+import os  # noqa: E402
+N4_DIR = Path(os.environ.get("LV_N4_DIR")
+              or (OBRA / "Fase-6_Execucao_CAD" / "n4"))
 
 
 def resolve_n2(item: str) -> Path:

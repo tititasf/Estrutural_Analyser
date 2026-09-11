@@ -43,10 +43,27 @@ from arete.gerar_lv_n4_fichas import _entry_from_live_recorte  # noqa: E402
 import gerar_lv_dxf_stog as lv_motor  # noqa: E402
 from lv_n4_face_unit_selection import select_n4_face_units  # noqa: E402
 
-GATE = ARETE / "relatorios" / "g2v" / "v301_geometry_gate"
+# Item corrente. Passa a ser definido por `--item` (default V301, que foi o
+# item de calibracao do motor). Mantidos como globais porque varias funcoes
+# auxiliares ja liam GATE/PREV; `_set_item()` reaponta as duas.
+ITEM = "V301"
+GATE = ARETE / "relatorios" / "g2v" / f"{ITEM.lower()}_geometry_gate"
 PREV = GATE / "previews_dxf"
+
+
+def _set_item(item: str) -> None:
+    """Reaponta o item corrente e os diretorios derivados dele."""
+    global ITEM, GATE, PREV
+    ITEM = str(item).strip().upper()
+    GATE = ARETE / "relatorios" / "g2v" / f"{ITEM.lower()}_geometry_gate"
+    PREV = GATE / "previews_dxf"
+    PREV.mkdir(parents=True, exist_ok=True)
+import os  # noqa: E402
+# Idem run_geometry_gate_lv: LV_N4_DIR redireciona a leitura dos N4 para a
+# pasta da rodada, deixando os N4 selados de producao intocados.
 N4_DIR = Path(
-    r"D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4"
+    os.environ.get("LV_N4_DIR")
+    or r"D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4"
 )
 PREV.mkdir(parents=True, exist_ok=True)
 
@@ -534,14 +551,17 @@ def _cls(v: str) -> str:
     return "sus"
 
 
-def build() -> Path:
-    data = json.loads((GATE / "V301_GEOMETRY_GATE.json").read_text(encoding="utf-8"))
+def build(item: str | None = None) -> Path:
+    if item:
+        _set_item(item)
+    viga = ITEM
+    data = json.loads((GATE / f"{viga}_GEOMETRY_GATE.json").read_text(encoding="utf-8"))
     results = list(data.get("results") or [])
     n2_path = Path(data["n2"])
 
-    entry = _entry_from_live_recorte("V301")
+    entry = _entry_from_live_recorte(viga)
     fus = select_n4_face_units(
-        lv_motor, entry.get("face_units") or [], "V301"
+        lv_motor, entry.get("face_units") or [], viga
     ) if entry else []
     n2_by_side: dict[str, list] = {"A": [], "B": []}
     for i, u in enumerate(fus):
@@ -555,7 +575,7 @@ def build() -> Path:
     # canonico: ficha focada). O combinado _A.dxf tem TODAS as ocorrencias
     # (A e B, absolutas) na mesma folha — fonte real p/ split multi-unidade
     # (split_n4_view ja filtra por sufixo .A/.B do label).
-    _n4_combined = N4_DIR / "LV_preview_V301_A.dxf"
+    _n4_combined = N4_DIR / f"LV_preview_{viga}_A.dxf"
     n4_paths = {
         "A": _n4_combined,
         "B": _n4_combined,
@@ -586,12 +606,27 @@ def build() -> Path:
     # 2026-09-10, dono circulou os retangulos brancos e o icone de corte).
     # As ocorrencias reais do painel comecam por volta de x=1800; recorta
     # so' essa faixa.
+    # Clip do panorama: bbox da geometria real (LINE/LWPOLYLINE). Exclui os
+    # blocos PAR_* soltos perto da origem local, que nao pertencem a ocorrencia
+    # desenhada e esticavam a imagem. Generalizado 2026-09-11 — antes era a
+    # faixa fixa da V301 (1700..12420), que cortava as outras vigas.
+    def _clip_geom(caminho: Path):
+        try:
+            pts = _all_geom_points(ezdxf.readfile(str(caminho)).modelspace())
+        except Exception:
+            return None
+        if not pts:
+            return None
+        xs = [q[0] for q in pts]
+        ys = [q[1] for q in pts]
+        return (min(xs) - 20.0, min(ys) - 20.0, max(xs) + 20.0, max(ys) + 20.0)
+
     full_prev = {}
     for side, p in n4_paths.items():
         if p.exists():
             out = PREV / f"FULL_N4_VIEW_{side}_{n4_tag}.png"
             ok = out.exists() or render_dxf_clip(
-                p, out, clip=(1700, -340, 12420, -80),
+                p, out, clip=_clip_geom(p),
                 title=f"N4 VIEW_{side} completo (DXF real)", width_px=1200, height_px=420
             )
             full_prev[side] = f"previews_dxf/{out.name}" if ok else None
@@ -599,7 +634,7 @@ def build() -> Path:
     # Visao CORTE — classe separada dos paineis A/B (pedido do dono,
     # 2026-09-10): overview completo + card granular por instancia de
     # corte (N2 real x N4 gerado), abaixo dos segmentos de painel.
-    corte_path = N4_DIR / "LV_preview_V301_CORTE.dxf"
+    corte_path = N4_DIR / f"LV_preview_{viga}_CORTE.dxf"
     full_corte = None
     corte_pairs: list[dict] = []
     if corte_path.exists():
@@ -612,9 +647,23 @@ def build() -> Path:
         n4_corte_insts = find_n4_corte_instances(
             corte_path, section_views=entry.get("section_views") or [],
         )
-        # Faixa X do corte no recorte N2 real — especifica desta viga
-        # (achado por inspecao direta: rotulos a/b/c ficam em x~5170-5450).
-        n2_corte_insts = find_n2_corte_instances(n2_path, x_range=(5100.0, 5500.0))
+        # Faixa X do corte no recorte N2: vem do bbox que a propria ficha
+        # registra por secao (generalizado 2026-09-11 — antes era a faixa fixa
+        # da V301, x~5100-5500, que nao vale para as outras vigas).
+        _xs = [
+            (float(sv["bbox"]["x_left"]), float(sv["bbox"]["x_right"]))
+            for sv in (entry.get("section_views") or [])
+            if isinstance(sv.get("bbox"), dict)
+            and sv["bbox"].get("x_left") is not None
+        ]
+        if _xs:
+            _x_range = (min(a for a, _ in _xs) - 40.0,
+                        max(b for _, b in _xs) + 40.0)
+        else:
+            _x_range = None
+        n2_corte_insts = (
+            find_n2_corte_instances(n2_path, x_range=_x_range) if _x_range else []
+        )
         for idx in range(min(len(n4_corte_insts), len(n2_corte_insts))):
             corte_pairs.append({
                 "idx": idx,
@@ -706,7 +755,7 @@ def build() -> Path:
     def sort_key(r):
         lab = str(r.get("label") or "")
         side = str(r.get("side") or "")
-        primary = 0 if lab in ("V301.A", "V301.B") else (1 if "CONT" in lab else 2)
+        primary = 0 if lab in (f"{viga}.A", f"{viga}.B") else (1 if "CONT" in lab else 2)
         return (side, primary, lab)
 
     ordered = sorted(
@@ -720,7 +769,7 @@ def build() -> Path:
     counts = {}
     for r in results:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
-    prim = [r for r in results if r.get("label") in ("V301.A", "V301.B")]
+    prim = [r for r in results if r.get("label") in (f"{viga}.A", f"{viga}.B")]
 
     parts = [
         """<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"/>
@@ -826,7 +875,7 @@ Este usa render do DXF. O gate numérico (R/G) continua no ledger; o visual abai
         m = r.get("metrics") or {}
         v = r["verdict"]
         lab = str(r.get("label") or "")
-        row = "primary" if lab in ("V301.A", "V301.B") else ""
+        row = "primary" if lab in (f"{viga}.A", f"{viga}.B") else ""
         parts.append(
             f"<tr class='{row}'><td>{i}</td>"
             f"<td><code>{html.escape(lab)}</code></td>"
@@ -850,9 +899,9 @@ Este usa render do DXF. O gate numérico (R/G) continua no ledger; o visual abai
         side = str(r.get("side") or "").upper()
         segment_ordinals[side] += 1
         segment_name = f"SEGMENTO {segment_ordinals[side]}{side}"
-        box = "primary" if lab in ("V301.A", "V301.B") else ""
-        legacy_key = f"LV::13_PAV::V301::{r.get('side')}::{lab}::{r.get('n4_label') or 'ausente'}"
-        review_key = f"LV::13_PAV::V301::{segment_name}::{i}::{lab}::{r.get('n4_label') or 'ausente'}"
+        box = "primary" if lab in (f"{viga}.A", f"{viga}.B") else ""
+        legacy_key = f"LV::13_PAV::{viga}::{r.get('side')}::{lab}::{r.get('n4_label') or 'ausente'}"
+        review_key = f"LV::13_PAV::{viga}::{segment_name}::{i}::{lab}::{r.get('n4_label') or 'ausente'}"
         parts.append(
             f'<article class="card segment-card {box}" '
             f'data-key="{html.escape(review_key, quote=True)}" '
@@ -909,7 +958,7 @@ Este usa render do DXF. O gate numérico (R/G) continua no ledger; o visual abai
         )
         for cp in corte_pairs:
             n4_label = cp["n4_label"]
-            review_key = f"LV::13_PAV::V301::CORTE {cp['idx']+1}::{n4_label}"
+            review_key = f"LV::13_PAV::{viga}::CORTE {cp['idx']+1}::{n4_label}"
             parts.append(
                 f'<article class="card segment-card" data-key="{html.escape(review_key, quote=True)}" '
                 'style="margin:10px 0">'
@@ -1313,17 +1362,22 @@ window.addEventListener('focus', () => { checkDxfHotReload(); startDxfPolling();
 window.addEventListener('pageshow', () => { checkDxfHotReload(); startDxfPolling(); });
 </script></body></html>""")
 
-    out = GATE / "V301_SEGMENTS_E2E.html"
-    out.write_text("".join(parts), encoding="utf-8")
+    out = GATE / f"{viga}_SEGMENTS_E2E.html"
+    # O cabecalho vem de um bloco triplo com CSS (chaves), entao nao pode ser
+    # f-string: o nome da viga entra aqui, na escrita.
+    html_out = "".join(parts).replace("V301 · Segmentos", f"{viga} · Segmentos")
+    out.write_text(html_out, encoding="utf-8")
     print("previews in", PREV)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("item", nargs="?", default="V301",
+                    help="Viga LV a montar (default V301, item de calibracao)")
     ap.add_argument("--open", action="store_true")
     args = ap.parse_args()
-    path = build()
+    path = build(args.item)
     print("HTML", path)
     if args.open:
         webbrowser.open(path.resolve().as_uri())
