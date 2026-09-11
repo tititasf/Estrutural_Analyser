@@ -65,8 +65,19 @@ ficha stale → abortar.
 - **3 falham o contrato N4** e por isso não têm página:
   - `V305`, `V308` — `face_units: lado(s) ausente(s): B` (extração só achou um lado);
   - `V330` — `face_units[0].segments[0].height1: deve ser maior que zero`.
-- **28 dos 29 cortes** já saem da geometria real do N2. Só a `V13` cai no
-  template procedural (a seção dela não tem `visual_primitives`).
+- **Todas as 35 seções das 32 vigas têm geometria real do N2** e os cortes
+  gerados saem dela — nenhum cai mais no template procedural.
+
+  Até 11/09 a `V13` era a exceção: caía no template porque a extração devolvia
+  `visual_primitives=0` / `concrete_profiles=0`. O corte existia no recorte
+  (rótulos a/b/c, 8 entidades `CONCRETO`, layer `Cota Seção (2x)`) e estava
+  dentro do limiar de distância — o que faltava é que as 8 entidades eram
+  **polilinhas de 2 pontos**, e o extrator só montava perfil a partir de
+  polígono fechado. Resolvido com costura de segmentos em anel
+  (`_costurar_aneis`, `motor_reverso_lv.py`), aplicada **só quando nenhum
+  polígono fechado foi encontrado** — quem já extraía sai byte a byte igual.
+  Entre as 32, apenas a V13 tinha esse desenho, então a mudança é geral no
+  mecanismo e comprovadamente inerte nas demais.
 
 ### Achados do índice N2 (antes de olhar desenho)
 

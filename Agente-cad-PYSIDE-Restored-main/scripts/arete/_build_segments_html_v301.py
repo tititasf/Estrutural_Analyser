@@ -610,24 +610,91 @@ def build(item: str | None = None) -> Path:
     # blocos PAR_* soltos perto da origem local, que nao pertencem a ocorrencia
     # desenhada e esticavam a imagem. Generalizado 2026-09-11 — antes era a
     # faixa fixa da V301 (1700..12420), que cortava as outras vigas.
+    def _faixa_densa(vals: list[float]) -> tuple[float, float]:
+        """Descarta cauda solta separada por um vazio grande.
+
+        O combinado tem entidades perdidas longe do desenho (na V13 ha um ponto
+        em x=-9000 enquanto o conteudo vive entre 119 e 3070). Sem isso o bbox
+        fica 12070 de largura e a imagem vira uma faixa preta quase vazia
+        (apontado pelo dono, 2026-09-11).
+        """
+        v = sorted(vals)
+        if len(v) < 8:
+            return v[0], v[-1]
+        span = v[-1] - v[0]
+        if span <= 0:
+            return v[0], v[-1]
+        lo, hi = 0, len(v) - 1
+        for _ in range(4):  # pode haver cauda dos dois lados
+            larguras = [(v[i + 1] - v[i], i) for i in range(lo, hi)]
+            if not larguras:
+                break
+            gap, i = max(larguras)
+            # Vazio tem que ser MUITO maior que o normal do desenho: as
+            # ocorrencias de uma mesma face ficam a ~25% do span umas das
+            # outras e nao podem ser cortadas. 40% separa cauda perdida de
+            # espacamento legitimo. A cauda pode ter ate' 25% dos pontos —
+            # na V13 o bloco solto em x=-9000 tem 28 de 276 (10.1%) e o
+            # limiar anterior de 10% deixava passar raspando.
+            if gap < 0.40 * (v[hi] - v[lo]):
+                break
+            n_esq, n_dir = (i + 1) - lo, hi - i
+            if n_esq <= n_dir and n_esq <= 0.25 * len(v):
+                lo = i + 1
+            elif n_dir < n_esq and n_dir <= 0.25 * len(v):
+                hi = i
+            else:
+                break
+        return v[lo], v[hi]
+
+    # Mobilia de prancha: nao e' o desenho da viga. Na V13 a moldura+carimbo
+    # ocupam Y +200..+1250 enquanto a viga vive em Y -305..0 — incluir isso no
+    # enquadramento quintuplica a altura e some com o desenho (apontado pelo
+    # dono, 2026-09-11: "faixa preta gigante").
+    _LAYERS_PRANCHA = {"Folhas", "CARIMBO"}
+
     def _clip_geom(caminho: Path):
         try:
-            pts = _all_geom_points(ezdxf.readfile(str(caminho)).modelspace())
+            msp = ezdxf.readfile(str(caminho)).modelspace()
         except Exception:
             return None
+        pts = []
+        for e in msp:
+            if str(getattr(e.dxf, "layer", "")) in _LAYERS_PRANCHA:
+                continue
+            t = e.dxftype()
+            if t == "LINE":
+                pts += [(e.dxf.start[0], e.dxf.start[1]),
+                        (e.dxf.end[0], e.dxf.end[1])]
+            elif t == "LWPOLYLINE":
+                pts += [(p[0], p[1]) for p in e.get_points("xy")]
         if not pts:
             return None
-        xs = [q[0] for q in pts]
-        ys = [q[1] for q in pts]
-        return (min(xs) - 20.0, min(ys) - 20.0, max(xs) + 20.0, max(ys) + 20.0)
+        x0, x1 = _faixa_densa([q[0] for q in pts])
+        y0, y1 = _faixa_densa([q[1] for q in pts])
+        pad_x = max((x1 - x0) * 0.02, 10.0)
+        pad_y = max((y1 - y0) * 0.08, 10.0)
+        return (x0 - pad_x, y0 - pad_y, x1 + pad_x, y1 + pad_y)
+
+    def _tela(clip, largura=1200, alt_min=230, alt_max=520):
+        """Altura da imagem seguindo a proporcao do recorte (evita tarja)."""
+        if not clip:
+            return largura, 420
+        dx, dy = clip[2] - clip[0], clip[3] - clip[1]
+        if dx <= 0 or dy <= 0:
+            return largura, 420
+        return largura, int(min(max(largura * dy / dx, alt_min), alt_max))
 
     full_prev = {}
     for side, p in n4_paths.items():
         if p.exists():
             out = PREV / f"FULL_N4_VIEW_{side}_{n4_tag}.png"
+            _cl = _clip_geom(p)
+            _w, _h = _tela(_cl)
             ok = out.exists() or render_dxf_clip(
-                p, out, clip=_clip_geom(p),
-                title=f"N4 VIEW_{side} completo (DXF real)", width_px=1200, height_px=420
+                p, out, clip=_cl,
+                title=f"N4 VIEW_{side} completo (DXF real)",
+                width_px=_w, height_px=_h,
             )
             full_prev[side] = f"previews_dxf/{out.name}" if ok else None
 
