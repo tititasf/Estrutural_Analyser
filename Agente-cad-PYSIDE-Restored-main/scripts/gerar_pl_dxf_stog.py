@@ -45,6 +45,7 @@ _MOTOR_ID = "ROBOT_PL_N3_N4"
 _MOTOR_SOURCES = [
     Path(__file__),
     Path(__file__).with_name("pl_grade_visual_config.py"),
+    Path(__file__).with_name("pl_cima_especial.py"),
     PL_GRADE_VISUAL_CONFIG_PATH,
 ]
 
@@ -611,56 +612,36 @@ def _grade_divisions(pj, total_width, ng, grade_width, gaps):
 # ═════════════════════════════════════════════════════════════════════════════
 
 def _secao_l_da_ficha(pj: dict):
-    """Lê a seção em L declarada pela ficha N2, sem conhecer o item."""
-    special = pj.get("pilar_especial") if isinstance(pj, dict) else None
-    section = special.get("secao_l") if isinstance(special, dict) else None
-    if not isinstance(section, dict):
-        return None
+    """Lê a seção em L da ficha N2 ou deriva do contorno N1."""
     try:
-        ex = float(section.get("externa_x") or 0.0)
-        ix = float(section.get("interna_x") or 0.0)
-        ey = float(section.get("externa_y") or 0.0)
-        iy = float(section.get("interna_y") or 0.0)
-    except (TypeError, ValueError):
+        from pl_cima_especial import secao_l_do_payload
+        secao = secao_l_do_payload(pj)
+    except Exception:
+        secao = None
+    if not secao:
         return None
-    if min(ex, ix, ey, iy) <= 0.0 or ix >= ex or iy >= ey:
-        return None
-    return ex, ix, ey, iy
+    return (
+        secao["externa_x"], secao["interna_x"],
+        secao["externa_y"], secao["interna_y"],
+    )
 
 
 def draw_cima_l(msp, ox, oy, nome, pj: dict):
-    """CIMA combinada de pilar L; guiada somente pela seção declarada em N2."""
-    dims = _secao_l_da_ficha(pj)
-    if not dims:
+    """CIMA em L — motor DXF convertido do SCR de pilar especial."""
+    try:
+        from pl_cima_especial import draw_cima_l as _draw
+        return int(_draw(msp, ox, oy, nome, pj) or 0)
+    except Exception as exc:
+        print(f"[PL-CIMA-L] falhou, segue retangular: {exc}", flush=True)
         return 0
-    ex, ix, ey, iy = dims
-    x0, y0 = ox - ex / 2.0, oy - ey / 2.0
-    outline = [(x0, y0), (x0 + ex, y0), (x0 + ex, y0 + ey - iy),
-               (x0 + ix, y0 + ey - iy), (x0 + ix, y0 + ey), (x0, y0 + ey)]
-    msp.add_lwpolyline(outline, close=True, dxfattribs={"layer": "Painéis"})
-    for layer, offset in (("CHAPA", 2.0), ("SARRAFO", 4.0)):
-        ring = [(x0 - offset, y0 - offset), (x0 + ex + offset, y0 - offset),
-                (x0 + ex + offset, y0 + ey - iy), (x0 + ix, y0 + ey - iy),
-                (x0 + ix, y0 + ey + offset), (x0 - offset, y0 + ey + offset)]
-        msp.add_lwpolyline(ring, close=True, dxfattribs={"layer": layer})
-    for p1, p2, base, angle in (
-        ((x0, y0), (x0 + ex, y0), (ox, y0 - 32.0), 0),
-        ((x0, y0 + ey), (x0 + ix, y0 + ey), (x0 + ix / 2.0, y0 + ey + 26.0), 0),
-        ((x0, y0), (x0, y0 + ey), (x0 - 32.0, oy), 90),
-        ((x0 + ex, y0), (x0 + ex, y0 + ey - iy), (x0 + ex + 28.0, y0 + (ey - iy) / 2.0), 90),
-    ):
-        try:
-            dim = msp.add_linear_dim(base=base, p1=p1, p2=p2, angle=angle,
-                                     dimstyle="PAINEL-NOVA", dxfattribs={"layer": "COTA"})
-            dim.render()
-        except Exception:
-            pass
-    msp.add_text(f"{nome} · CIMA L", dxfattribs={"layer": "NOMENCLATURA", "insert": (x0, y0 + ey + 48.0), "height": 12})
-    return 8
 
 
 def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
-    if str(pj.get("subtipo_pil") or "").upper() == "L":
+    try:
+        from src.core.cima_l_contract import is_cima_l as _is_cima_l
+    except Exception:
+        _is_cima_l = lambda _pj: str((_pj or {}).get("subtipo_pil") or "").upper() in {"L", "U", "T"}
+    if _is_cima_l(pj) or _secao_l_da_ficha(pj):
         special_count = draw_cima_l(msp, ox, oy, nome, pj)
         if special_count:
             return special_count

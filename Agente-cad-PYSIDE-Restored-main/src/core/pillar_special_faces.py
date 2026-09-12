@@ -90,6 +90,35 @@ def rectangular_pieces(
     return pieces
 
 
+def secao_l_from_points(points: Any) -> dict[str, float] | None:
+    """Medidas canônicas da seção em L (cm), só do contorno físico.
+
+    ``externa_x/y`` = caixa; ``interna_x`` = espessura do ramo vertical;
+    ``interna_y`` = altura do recorte (externa_y − espessura do ramo horizontal).
+    Convenção do stub CIMA L / ficha N2 ``pilar_especial.secao_l``.
+    """
+    ring = physical_ring(points)
+    if len(ring) != 6:
+        return None
+    pieces = rectangular_pieces(points)
+    if len(pieces) != 2:
+        return None
+    xs = [point[0] for point in ring]
+    ys = [point[1] for point in ring]
+    externa_x = max(xs) - min(xs)
+    externa_y = max(ys) - min(ys)
+    thicknesses = [min(piece[2] - piece[0], piece[3] - piece[1]) for piece in pieces]
+    thick = min(thicknesses)
+    if thick <= 0.05 or externa_x <= thick or externa_y <= thick:
+        return None
+    return {
+        "externa_x": round(externa_x, 4),
+        "interna_x": round(thick, 4),
+        "externa_y": round(externa_y, 4),
+        "interna_y": round(externa_y - thick, 4),
+    }
+
+
 def classify_pillar_geometry(points: Any) -> str:
     """Tipifica o pilar pelo contorno físico, sem depender de nome ou layer.
 

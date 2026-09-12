@@ -4,7 +4,9 @@ from scripts.arete.pil_agentic_highlight_draw import (
     CONTACT_MARKER_EDGE_WIDTH,
     CONTACT_MARKER_SIZE,
     FACE_WALL_OFFSET,
+    TAG_COLLISION_SCALE,
     TAG_FONT_SCALE,
+    TAG_SIZE_MULTIPLIER,
     _arrival_nominal_distances,
     _beam_seg_on_face,
     _contact_tip,
@@ -71,7 +73,9 @@ def test_visual_contract_uses_doubled_contact_dot_and_zero_face_offset():
     assert CONTACT_MARKER_SIZE == 1.4
     assert CONTACT_MARKER_EDGE_WIDTH == 0.3
     assert FACE_WALL_OFFSET == 0.0
-    assert TAG_FONT_SCALE == 1.10
+    assert TAG_SIZE_MULTIPLIER == 2.0
+    assert TAG_FONT_SCALE == 2.20
+    assert TAG_COLLISION_SCALE == 2.0
 
 
 def test_connector_router_moves_tag_until_arrow_lines_do_not_cross():
