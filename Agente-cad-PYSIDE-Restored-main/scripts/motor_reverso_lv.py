@@ -257,6 +257,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
         concrete_profiles: list = []
         concrete_lines: list = []
+        painel_lines: list = []   # segmentos soltos da layer Painéis
 
         for e in msp:
             layer = e.dxf.layer
@@ -294,6 +295,15 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         # 2 pontos (V13), nao como polígono fechado.
                         if layer == 'CONCRETO':
                             concrete_lines.append((
+                                (float(x1), float(y1)), (float(x2), float(y2)),
+                            ))
+                        elif layer == 'Painéis':
+                            # Mesma historia do CONCRETO: ha' recorte em que o
+                            # painel de fechamento e' desenhado como 4 segmentos
+                            # soltos em vez de retangulo fechado, e por isso nao
+                            # entra em `panel_boxes` (V13: painel 3x200 acima da
+                            # face, handles F3..F6).
+                            painel_lines.append((
                                 (float(x1), float(y1)), (float(x2), float(y2)),
                             ))
                     elif n >= 3:
@@ -407,6 +417,23 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             concrete_profiles.extend(
                 _costurar_aneis(concrete_lines)
             )
+
+        # Mesma costura para `Painéis`: retangulos desenhados como segmentos
+        # soltos nao entravam em `panel_boxes` (so' alimentado por poligono
+        # fechado), e o painel de fechamento acima da face ficava invisivel
+        # para o detector (V13: 3x200, handles F3..F6). Aditivo — um anel so'
+        # entra se ainda nao houver caixa equivalente.
+        if painel_lines:
+            for anel in _costurar_aneis(painel_lines):
+                xs = [p[0] for p in anel]
+                ys = [p[1] for p in anel]
+                caixa = (min(xs), min(ys), max(xs), max(ys))
+                if not any(
+                    abs(caixa[0] - b[0]) <= 1.0 and abs(caixa[1] - b[1]) <= 1.0
+                    and abs(caixa[2] - b[2]) <= 1.0 and abs(caixa[3] - b[3]) <= 1.0
+                    for b in panel_boxes
+                ):
+                    panel_boxes.append(caixa)
 
         # ── 1. Catalogar H-lines largas (candidatos a bordas de faces) ──────────
         # Filtrar H-lines com largura > _MIN_FACE_W (excluir detalhes VC e pequenos)
@@ -2048,7 +2075,11 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     width = float(bxr - bxl)
                     height = float(byr - byl)
                     gap = float(byl - yt)
-                    if not (4.0 <= height <= 12.0 and width >= 50.0):
+                    # Piso 4.0 rejeitava painel de fechamento fino: o da V13
+                    # tem 3.0 de altura por 200 de largura (achado 2026-09-11,
+                    # apontado pelo dono). A largura minima de 50 e a janela de
+                    # `gap` continuam sendo o que separa painel de ruido.
+                    if not (2.5 <= height <= 12.0 and width >= 50.0):
                         continue
                     if not (4.0 <= gap <= 35.0):
                         continue

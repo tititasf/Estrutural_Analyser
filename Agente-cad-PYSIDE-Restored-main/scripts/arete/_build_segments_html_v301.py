@@ -172,6 +172,58 @@ def _all_geom_points(msp):
     return pts
 
 
+_BORDAS_PAINEL_CACHE: dict = {}
+
+
+def _bordas_de_painel(path: Path) -> list[tuple]:
+    """Horizontais da layer `Painéis` do recorte: (y, x_ini, x_fim)."""
+    chave = str(path)
+    if chave in _BORDAS_PAINEL_CACHE:
+        return _BORDAS_PAINEL_CACHE[chave]
+    bordas = []
+    try:
+        for e in ezdxf.readfile(str(path)).modelspace().query("LINE"):
+            if e.dxf.layer != "Painéis":
+                continue
+            s, t = e.dxf.start, e.dxf.end
+            if abs(s[1] - t[1]) > 0.6:
+                continue
+            bordas.append((float(s[1]), float(min(s[0], t[0])),
+                           float(max(s[0], t[0]))))
+    except Exception:
+        bordas = []
+    _BORDAS_PAINEL_CACHE[chave] = bordas
+    return bordas
+
+
+def _expandir_ate_borda_de_painel(path: Path, clip, alcance: float = 35.0):
+    """Nao cortar a borda de um painel que esta' logo fora do recorte.
+
+    O recorte N2 e' derivado da banda que a ficha declara. Quando a ficha erra
+    a banda, o recorte decepa a borda que justamente define a altura do painel
+    — na V13 a face A perdia 9.0cm do topo, e sem o topo nao da' para ler o
+    tamanho real do painel (apontado pelo dono, 2026-09-11).
+
+    Regra de EXIBICAO, independente da ficha: se existe borda horizontal de
+    `Painéis` ate' `alcance` fora da janela, e ela cobre boa parte da largura
+    mostrada, a janela cresce ate' inclui-la. Limitada a `alcance` para nao
+    engolir a face vizinha.
+    """
+    x0, y0, x1, y1 = clip
+    largura = max(x1 - x0, 1.0)
+    novo_y0, novo_y1 = y0, y1
+    for y, xa, xb in _bordas_de_painel(path):
+        # so' bordas que pertencem ao que esta' sendo mostrado
+        sobre = min(x1, xb) - max(x0, xa)
+        if sobre < 0.5 * largura:
+            continue
+        if y1 < y <= y1 + alcance:
+            novo_y1 = max(novo_y1, y + 6.0)
+        elif y0 - alcance <= y < y0:
+            novo_y0 = min(novo_y0, y - 6.0)
+    return (x0, novo_y0, x1, novo_y1)
+
+
 def find_n4_corte_instances(path: Path, section_views: list | None = None) -> list[dict]:
     """Particiona LV_preview_{item}_CORTE.dxf em uma instancia por secao.
 
@@ -791,6 +843,7 @@ def build(item: str | None = None) -> Path:
         # clip N2 em coords absolutas do recorte
         c2 = a2["clip"]  # rel
         clip_n2 = (ox2 + c2[0], oy2 + c2[1], ox2 + c2[2], oy2 + c2[3])
+        clip_n2 = _expandir_ate_borda_de_painel(n2_path, clip_n2)
         ox4, oy4 = a4["origin"]
         c4 = a4["clip"]
         clip_n4 = (ox4 + c4[0], oy4 + c4[1], ox4 + c4[2], oy4 + c4[3])

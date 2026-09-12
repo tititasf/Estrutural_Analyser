@@ -117,9 +117,28 @@ def split_n4_view(path: Path, side: str) -> list[dict]:
         else:
             x1 = xmax + 40
         # y_bot = menor H; y_body_top = H mais LONGA (topo do corpo, nao marco)
+        # laje_handoff_ys: Y onde a parede troca de layer Painéis->SCO-___-LAJ
+        # (a marca real de "aqui acaba o corpo, comeca o marco" — mais
+        # confiavel que largura quando um bloco de reaproveitamento acima
+        # do corpo tem parede tao ou mais larga que o proprio topo do corpo,
+        # achado 2026-08-31, V301.B#1: base do bloco de reaproveitamento em
+        # y=98.4 largura 307 vence por largura o topo real do corpo em
+        # y=108.6 largura 111, quebrando o pareamento N2<->N4).
+        laje_handoff_ys = set()
+        for e in msp:
+            if e.dxftype() != "LINE" or e.dxf.layer != "SCO-___-LAJ":
+                continue
+            s, e2 = e.dxf.start, e.dxf.end
+            if abs(s.x - e2.x) > 0.4:
+                continue
+            x = float(s.x)
+            if not (x0 - 15 <= x <= x1 + 5):
+                continue
+            laje_handoff_ys.add(round(min(s.y, e2.y), 1))
         y_bot = None
         y_hi = None
         best_top = None  # (width, y) topo do corpo
+        best_handoff = None  # (width, y) candidato confirmado por handoff
         for e in msp:
             if e.dxftype() != "LINE" or e.dxf.layer not in ("Painéis", "Paineis"):
                 continue
@@ -140,8 +159,14 @@ def split_n4_view(path: Path, side: str) -> list[dict]:
                     w == best_top[0] and y > best_top[1]
                 ):
                     best_top = (w, y)
+                if round(y, 1) in laje_handoff_ys and (
+                    best_handoff is None or w > best_handoff[0]
+                ):
+                    best_handoff = (w, y)
         if y_bot is None:
             y_bot = ymin
+        if best_handoff is not None:
+            best_top = best_handoff
         y_body_top = best_top[1] if best_top else (y_hi if y_hi is not None else y_bot + 100)
         # se a H mais longa e a base, usar segundo nivel
         if abs(y_body_top - y_bot) < 5 and y_hi is not None:
@@ -252,10 +277,27 @@ def pair_score(n2_unit: dict, n4_unit: dict) -> float:
     if w2 and w4:
         n = min(len(w2), len(w4))
         mean_d = sum(abs(w2[i] - w4[i]) for i in range(n)) / max(n, 1)
-        if mean_d <= 12:
+        # Guarda de cobertura: a comparacao acima so olha o PREFIXO comum
+        # (min dos dois tamanhos) — se o N4 so detectou uma fracao pequena
+        # da largura total do N2 (banda estreita/deteccao de largura
+        # quebrada em _n4_widths_in_band), bater 100% nesse prefixo curto
+        # nao pode virar nota maxima, senao um n4_unit com 1 de 3 paineis
+        # reais "rouba" o pareamento de um n4_unit completo so por vir
+        # primeiro na lista de bandas (achado 2026-09-09, UNIT.B#8: N4
+        # "V301.B#1" com widths=[111.0] pontuava 1.0 contra w2=[111,63,244]
+        # so por bater no 1o painel — o pareamento certo era "V301.B#2",
+        # widths=[111,63,244] completo, que teria a MESMA nota 1.0 mas
+        # perdia o empate por ordem de lista).
+        s2_sum, s4_sum = sum(w2), sum(w4)
+        coverage = (s4_sum / s2_sum) if s2_sum > 0 else 1.0
+        if mean_d <= 12 and coverage >= 0.7:
             sc = max(sc, 1.0 - mean_d / 12.0)
-        # prefix match (N4 pode truncar marco)
-        if n >= 2 and all(abs(w2[i] - w4[i]) <= 3.0 for i in range(min(n, 3))):
+        # prefix match (N4 pode truncar marco residual pequeno) — exige a
+        # mesma cobertura minima, mesmo motivo.
+        if (
+            n >= 2 and coverage >= 0.7
+            and all(abs(w2[i] - w4[i]) <= 3.0 for i in range(min(n, 3)))
+        ):
             sc = max(sc, 0.8)
     # unlabeled N2 não pode roubar label nominal N4
     if not raw and n4lab and re.match(r"^V\d+\.[AB]$", n4lab):
@@ -361,10 +403,18 @@ def n2_anchor(unit: dict) -> dict:
         1.0, float(bb.get("x_right") or ox) - ox
     )
     h = float(unit.get("h_body") or unit.get("h") or 100)
+    # A borda direita nao pode ser so' a soma das larguras: quando o desenho
+    # se estende alem dos paineis (marco, cota de extremidade), o recorte
+    # corta parte do segmento e as cotas da direita. O bbox da propria unidade
+    # entra como piso (achado 2026-09-11 na V13, apontado pelo dono no
+    # SEGMENTO 1B: faltavam 29.8cm a direita). Medido nas 32 vigas: so' as
+    # duas unidades da V13 ficam mais largas por causa disso.
+    bbox_w = float(bb.get("x_right") or ox) - ox
+    largura = max(total_w, bbox_w)
     # Margem esquerda alinhada a direita (+55): cota "classic_deg"/marco pode
     # ancorar em x0 com offset ate DIM_L2(50)+texto(~4) — -25 cortava essa
     # cota da leitura visual (nao e ausencia real, e corte de enquadramento).
-    clip = (-65.0, -70.0, total_w + 55.0, h + 35.0)
+    clip = (-65.0, -70.0, largura + 55.0, h + 35.0)
     return {
         "origin": (ox, oy),
         "h_body": h,
@@ -398,7 +448,16 @@ def n4_anchor(unit: dict, widths_fallback: list[float] | None = None) -> dict:
     # ancorada em x0 (dim_side=-1) da leitura visual — nao e ausencia real
     # no DXF (confirmado via query direta de DIMENSION), so corte de
     # enquadramento. Alinhar com a margem direita (+55).
-    clip = (-65.0, -75.0, total_w + 55.0, h + 40.0)
+    # Padding vertical IGUAL ao de n2_anchor (-70/+35, nao -75/+40) — com
+    # paddings diferentes, mesmo h_body identico produzia clip_n2 com altura
+    # h+105 e clip_n4 com h+115: janelas de recorte com proporcao diferente
+    # renderizadas no mesmo box (preserveAspectRatio meet) escalam OS DOIS
+    # painéis empilhados em fatores distintos — qualquer feature na mesma Y
+    # real aparece em alturas de tela diferentes entre N2 e N4, dando
+    # impressão de "deslocamento em Y" mesmo com coordenadas identicas
+    # (achado 2026-09-08: dono apontou 2 pontos com dados batendo exatos
+    # contra o N2 real, a causa era so o viewBox dos dois lados nao bater).
+    clip = (-65.0, -70.0, total_w + 55.0, h + 35.0)
     return {
         "origin": (ox, oy),
         "h_body": h,
