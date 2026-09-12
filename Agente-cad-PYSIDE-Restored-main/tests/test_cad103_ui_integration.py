@@ -16,14 +16,27 @@ from unittest.mock import MagicMock, call, patch
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
 # ── Stub PySide6 para rodar sem Qt ────────────────────────────────────────────
+# Todos os módulos stubados aqui têm seu estado original em sys.modules salvo e
+# restaurado logo após o import de Fase4Importer (linha abaixo). A restauração
+# não pode esperar um teardown_module: o pytest importa (coleta) TODOS os
+# arquivos de teste antes de rodar qualquer teste, então um teardown só
+# executaria depois que outros arquivos já teriam sido coletados com o stub
+# ainda ativo em sys.modules — o próprio bug que este bloco corrige.
+_ORIGINAL_SYS_MODULES = {}
+
+
+def _stub_module(name):
+    """Salva o módulo original (ou None) e registra um ModuleType vazio no lugar."""
+    _ORIGINAL_SYS_MODULES.setdefault(name, sys.modules.get(name))
+    m = types.ModuleType(name)
+    sys.modules[name] = m
+    return m
+
+
 def _make_qt_stub():
     """Cria stubs mínimos de PySide6 para não quebrar o import de diagnostic_hub."""
-    mods = [
-        'PySide6', 'PySide6.QtWidgets', 'PySide6.QtCore', 'PySide6.QtGui',
-    ]
-    for name in mods:
-        if name not in sys.modules:
-            sys.modules[name] = types.ModuleType(name)
+    for name in ('PySide6', 'PySide6.QtWidgets', 'PySide6.QtCore', 'PySide6.QtGui'):
+        _stub_module(name)
 
     # QtWidgets
     qw = sys.modules['PySide6.QtWidgets']
@@ -48,15 +61,22 @@ for mod_path in [
     'src.core.services.data_coordinator',
     'src.ui.theme',
 ]:
-    if mod_path not in sys.modules:
-        m = types.ModuleType(mod_path)
-        for attr in ('DiagnosticSidebar', 'TechSheetPanel', 'CADCanvas',
-                     'RenderMode', 'get_coordinator', 'Colors', 'Fonts',
-                     'Radius'):
-            setattr(m, attr, MagicMock)
-        sys.modules[mod_path] = m
+    m = _stub_module(mod_path)
+    for attr in ('DiagnosticSidebar', 'TechSheetPanel', 'CADCanvas',
+                 'RenderMode', 'get_coordinator', 'Colors', 'Fonts',
+                 'Radius'):
+        setattr(m, attr, MagicMock)
 
 from src.core.services.fase4_importer import Fase4Importer
+
+# Restaura sys.modules imediatamente: os stubs só existiam para viabilizar o
+# import acima, e precisam sumir antes que o pytest colete o próximo arquivo.
+for _name, _original in _ORIGINAL_SYS_MODULES.items():
+    if _original is None:
+        sys.modules.pop(_name, None)
+    else:
+        sys.modules[_name] = _original
+del _name, _original
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────

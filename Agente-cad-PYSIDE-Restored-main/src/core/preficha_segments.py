@@ -1093,6 +1093,27 @@ def collect_preficha_segments(
                 prefix = f"viga_{side_key}_seg_{segment_index}" if kind != "fundo" else ""
                 height = ""
                 details: dict[str, Any] = {}
+                level = ""
+                level_source = "unresolved"
+                level_slabs: list[str] = []
+                if kind == "fundo":
+                    from src.core.fundo_segment_levels import derive_fundo_segment_level
+                    level_result = derive_fundo_segment_level(
+                        points,
+                        slabs,
+                        explicit_levels=(
+                            fields.get(f"viga_fundo_seg_{segment_index}_nivel_viga"),
+                            fields.get(f"viga_a_seg_{segment_index}_nivel_viga"),
+                            fields.get(f"viga_b_seg_{segment_index}_nivel_viga"),
+                            fields.get("nivel_lado_a"),
+                            fields.get("nivel_lado_b"),
+                            fields.get("nivel_viga"),
+                        ),
+                    )
+                    if level_result["value"] is not None:
+                        level = f'{float(level_result["value"]):g}'
+                    level_source = str(level_result["source"])
+                    level_slabs = list(level_result["slabs"])
                 if kind != "fundo":
                     dimension_raw = _first_value(
                         beam,
@@ -1148,6 +1169,9 @@ def collect_preficha_segments(
                     "length": round(length, 2),
                     "height": str(height),
                     "width": str(width),
+                    "level": level,
+                    "level_source": level_source,
+                    "level_slabs": level_slabs,
                     "points": points,
                     "measure_source": str(link.get("fv_measure_source") or ""),
                     "tag": str(link.get("tag") or spec["side"]),

@@ -59,6 +59,18 @@ def test_collects_all_five_segment_tabs_from_sa_contract():
     assert collected["lateral_b_passa"][0]["source_slot"] == "seg_side_b"
 
 
+def test_fundo_segment_persists_level_and_its_geometric_provenance():
+    slabs = [{
+        "name": "L301", "nivel": "852.12",
+        "points": [(0, 20), (100, 20), (100, 80), (0, 80)],
+    }]
+    segment = collect_preficha_segments([_beam()], slabs=slabs)["fundo"][0]
+
+    assert segment["level"] == "852.12"
+    assert segment["level_source"] == "highest_touching_slab"
+    assert segment["level_slabs"] == ["L301"]
+
+
 def test_lateral_link_dimension_does_not_reuse_fv_segment_ficha():
     beam = _beam()
     link = beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]

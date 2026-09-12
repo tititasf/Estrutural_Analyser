@@ -11,7 +11,9 @@ from src.core.fv_generation_contract import (
     FV_ENGINE_ID,
     build_fv_generation_contract,
     materialize_fv_contract_from_db,
+    merge_fv_source_results,
     normalize_fv_generation_contract,
+    overlay_fv_state_measurements,
 )
 
 
@@ -85,6 +87,58 @@ def test_contract_preserves_segments_dimensions_and_supports():
     assert contract["label_right"] == "P28"
 
 
+def test_duplicate_beam_occurrences_are_merged_in_sa_order():
+    occurrences = [
+        {
+            "viga_nome": "V301.C",
+            "is_horizontal": True,
+            "segmentos_fundo": [
+                {"seg_index": 1, "coord": [300, 400], "length": 100},
+                {"seg_index": 2, "coord": [500, 600], "length": 100},
+            ],
+        },
+        {
+            "viga_nome": "V301-1",
+            "is_horizontal": True,
+            "segmentos_fundo": [
+                {"seg_index": 1, "coord": [0, 200], "length": 200},
+                {"seg_index": 2, "coord": [700, 850], "length": 150},
+            ],
+        },
+    ]
+
+    merged = merge_fv_source_results(occurrences)
+
+    assert len(merged) == 1
+    assert merged[0]["viga_nome"] == "V301"
+    assert [segment["length"] for segment in merged[0]["segmentos_fundo"]] == [
+        100, 100, 200, 150,
+    ]
+    assert [segment["seg_index"] for segment in merged[0]["segmentos_fundo"]] == [1, 2, 3, 4]
+
+
+def test_structured_sa_state_overlays_lengths_without_losing_supports():
+    merged = merge_fv_source_results([{"viga_nome": "V301", "segmentos_fundo": [
+        {"length": 318, "apoio_inicial": "P1", "apoio_final": "P2"},
+        {"length": 106.5, "apoio_inicial": "P2", "apoio_final": "P3"},
+    ]}])
+
+    overlaid = overlay_fv_state_measurements(merged, [
+        {"beam_name": "V301", "length": 304.47, "width": "19", "status": "valid",
+         "level": "852.19", "level_source": "highest_touching_slab", "level_slabs": ["L301"]},
+        {"beam_name": "V301", "length": 93.61, "width": "19", "status": "valid"},
+    ])
+
+    segments = overlaid[0]["segmentos_fundo"]
+    assert [row["length"] for row in segments] == [304.47, 93.61]
+    assert [(row["apoio_inicial"], row["apoio_final"]) for row in segments] == [
+        ("P1", "P2"), ("P2", "P3"),
+    ]
+    assert segments[0]["nivel"] == "852.19"
+    assert segments[0]["nivel_origem"] == "highest_touching_slab"
+    assert segments[0]["nivel_lajes"] == ["L301"]
+
+
 def test_n1_adapter_delegates_panel_rules_to_the_current_fv_engine():
     contract = build_fv_generation_contract("V305", _source())
     assert all("panels" not in segment for segment in contract["segments_rich"])
@@ -131,7 +185,7 @@ def test_n3_and_n4_use_the_same_fv_ficha_schema_without_losing_n4_details():
     assert n4["panels"] is n4["segments_rich"]
 
 
-def test_contract_removes_short_transverse_crossing_but_keeps_real_panel():
+def test_contract_preserves_every_segment_published_by_sa():
     source = _source()
     source["segmentos_fundo"].insert(
         0,
@@ -144,10 +198,10 @@ def test_contract_removes_short_transverse_crossing_but_keeps_real_panel():
         },
     )
     contract = build_fv_generation_contract("V305", source)
-    assert [s["total_width"] for s in contract["segments_rich"]] == [286, 254]
+    assert [s["total_width"] for s in contract["segments_rich"]] == [19, 286, 254]
 
 
-def test_contract_preserves_only_available_short_segment_for_review():
+def test_contract_preserves_only_available_short_segment():
     source = {
         "dim_text": "19/60",
         "segmentos_fundo": [{
@@ -162,7 +216,7 @@ def test_contract_preserves_only_available_short_segment_for_review():
     contract = build_fv_generation_contract("V307", source)
 
     assert [s["total_width"] for s in contract["segments_rich"]] == [30.7]
-    assert contract["quality_warnings"]
+    assert "quality_warnings" not in contract
 
 
 def test_segment_dimensions_override_stale_beam_header_dimensions():
@@ -173,6 +227,17 @@ def test_segment_dimensions_override_stale_beam_header_dimensions():
 
     assert contract["total_width"] == 19
     assert contract["total_height"] == 55
+
+
+def test_current_sa_length_overrides_stale_segment_ficha_length():
+    source = _source()
+    source["segmentos_fundo"][0]["ficha"] = {
+        "comprimento_total_fundo": 318,
+    }
+
+    contract = build_fv_generation_contract("V305", source)
+
+    assert contract["segments_rich"][0]["comprimento_total_fundo"] == 286
 
 
 def test_n1_database_record_materializes_a_filled_n3_ficha(tmp_path):

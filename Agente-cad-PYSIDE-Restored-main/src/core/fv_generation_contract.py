@@ -36,7 +36,10 @@ def _dim_pair(value: Any) -> tuple[float, float]:
 
 def _segment_length(segment: dict[str, Any]) -> float:
     ficha = segment.get("ficha") if isinstance(segment.get("ficha"), dict) else {}
-    value = ficha.get("comprimento_total_fundo") or segment.get("length")
+    # ``length`` pertence ao segmento recém-publicado pelo SA e é a fonte
+    # soberana. A subficha pode conservar um valor de uma interpretação
+    # anterior; ela só serve como fallback quando o SA atual não mediu.
+    value = segment.get("length") or ficha.get("comprimento_total_fundo")
     if _number(value) > 0:
         return _number(value)
     coord = segment.get("coord")
@@ -68,6 +71,143 @@ def compute_panel_modules(length: Any) -> list[float]:
     if remainder < PANEL_MINIMUM:
         return [PANEL_MODULE] * (full - 1) + [PANEL_MODULE + remainder]
     return [PANEL_MODULE] * full + [remainder]
+
+
+def _blank_apoio(text: Any) -> bool:
+    t = str(text or "").strip()
+    return t in ("", "—", "-", "N/A", "n/a", "None", "none", "null")
+
+
+def chain_linear_segment_apoios(
+    rows: list[dict[str, Any]],
+    *,
+    start_key: str = "ponto_inicial",
+    end_key: str = "ponto_final",
+) -> list[dict[str, Any]]:
+    """If every span copied the beam-global end, set fim[i] = ini[i+1]."""
+    if len(rows) < 2:
+        return rows
+    starts = [str(row.get(start_key) or "").strip() for row in rows]
+    ends = [str(row.get(end_key) or "").strip() for row in rows]
+    valid_ends = [end for end in ends if not _blank_apoio(end)]
+    common = ""
+    if valid_ends:
+        common, count = Counter(valid_ends).most_common(1)[0]
+        if count < max(2, (len(valid_ends) + 1) // 2):
+            common = ""
+    for i in range(len(rows) - 1):
+        nxt = starts[i + 1]
+        cur = ends[i]
+        if _blank_apoio(nxt):
+            continue
+        copied_global = bool(common) and cur == common and nxt != common
+        if _blank_apoio(cur) or copied_global:
+            rows[i][end_key] = nxt
+            ends[i] = nxt
+    return rows
+
+
+def merge_fv_source_results(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Consolidate every SA occurrence that belongs to the same canonical beam.
+
+    ``BeamTracer`` can legitimately return more than one occurrence for a beam
+    name (for example, interrupted/overlapping runs of V301).  The production
+    adapter used to store contracts in a dict by name, so the last occurrence
+    silently replaced the others.  This merge happens before the N3 contract is
+    built, keeping all segments and ordering them on the structural axis.
+    """
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    order: list[str] = []
+    for source in results or []:
+        if not isinstance(source, dict):
+            continue
+        raw_name = str(source.get("viga_nome") or source.get("name") or "")
+        match = re.search(r"(V[F]?\d+[A-Z]?)", raw_name.upper())
+        name = match.group(1) if match else raw_name.upper().replace(".C", "")
+        if not name:
+            continue
+        if name not in grouped:
+            grouped[name] = []
+            order.append(name)
+        grouped[name].append(source)
+
+    merged: list[dict[str, Any]] = []
+    for name in order:
+        sources = grouped[name]
+        base = deepcopy(sources[0])
+        segments: list[dict[str, Any]] = []
+        for source in sources:
+            for segment in source.get("segmentos_fundo") or []:
+                if isinstance(segment, dict):
+                    segments.append(deepcopy(segment))
+
+        horizontal_votes = [bool(s.get("is_horizontal", True)) for s in sources]
+        is_horizontal = Counter(horizontal_votes).most_common(1)[0][0]
+        # A ordem publicada pelo SA define S1..Sn. Reordenar novamente pela
+        # coordenada invertia vigas verticais e dissociava a ficha do viewer.
+        # Ocorrências repetidas continuam consolidadas na ordem em que o SA as
+        # forneceu; apenas a numeração final é normalizada.
+        for index, segment in enumerate(segments, 1):
+            segment["seg_index"] = index
+        base["viga_nome"] = name
+        base["is_horizontal"] = is_horizontal
+        base["segmentos_fundo"] = segments
+        base["panels_n1"] = len(segments)
+        base["merged_lengths_count"] = len(segments)
+        base["comprimento_fundo"] = round(sum(_segment_length(s) for s in segments), 3)
+        merged.append(base)
+    return merged
+
+
+def overlay_fv_state_measurements(
+    merged_results: list[dict[str, Any]],
+    state_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Overlay the exact structured SA measurements onto the N3 adapter input.
+
+    The saved production state is the same source consumed by the web ficha.
+    Pairing by canonical beam and SA segment order prevents stale values nested
+    in an older per-segment ``ficha`` from replacing current measurements.
+    """
+    rows_by_beam: dict[str, list[dict[str, Any]]] = {}
+    for row in state_rows or []:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("beam_name") or row.get("viga_nome") or "").upper()
+        match = re.search(r"(V[F]?\d+[A-Z]?)", name)
+        if match:
+            rows_by_beam.setdefault(match.group(1), []).append(row)
+
+    output = deepcopy(merged_results)
+    for source in output:
+        raw_name = str(source.get("viga_nome") or source.get("name") or "").upper()
+        match = re.search(r"(V[F]?\d+[A-Z]?)", raw_name)
+        name = match.group(1) if match else raw_name
+        segments = source.get("segmentos_fundo") or []
+        rows = rows_by_beam.get(name) or []
+        if len(rows) != len(segments):
+            continue
+        for index, (segment, row) in enumerate(zip(segments, rows), 1):
+            measured = _number(row.get("length"))
+            if measured > 0:
+                segment["length"] = measured
+            points = row.get("points")
+            if isinstance(points, list) and len(points) >= 2:
+                segment["geometry"] = deepcopy(points)
+            width = _number(row.get("width"))
+            if width > 0:
+                segment["dim_width"] = width
+            segment["seg_index"] = index
+            segment["sa_status"] = row.get("status") or "valid"
+            if row.get("level") not in (None, ""):
+                segment["nivel"] = row.get("level")
+                segment["nivel_origem"] = row.get("level_source") or "sa_state"
+                segment["nivel_lajes"] = list(row.get("level_slabs") or [])
+                segment["nivel_distancia_cm"] = row.get("level_distance_cm")
+        source["comprimento_fundo"] = round(
+            sum(_number(segment.get("length")) for segment in segments), 3
+        )
+    return output
 
 
 def _is_transverse_contaminant(segment: dict[str, Any]) -> bool:
@@ -143,17 +283,12 @@ def build_fv_generation_contract(
         segment for segment in source_data.get("segmentos_fundo", [])
         if isinstance(segment, dict)
     ]
-    longitudinal_segments = [
-        segment for segment in all_source_segments
-        if not _is_transverse_contaminant(segment)
-    ]
-    # Remova cruzamentos curtos somente quando houver uma alternativa melhor.
-    # Se o SA entregou apenas esse trecho, preserve a unica geometria disponivel
-    # para que N1->N3 consiga materializar uma ficha revisavel.
-    contaminant_fallback = bool(
-        all_source_segments and not longitudinal_segments
-    )
-    source_segments = longitudinal_segments or all_source_segments
+    # O SA é a autoridade geométrica desta etapa. Um segmento curto ou com o
+    # mesmo apoio nas duas pontas pode representar um vão real medido; o
+    # adaptador N3 não pode reinterpretá-lo nem descartá-lo por heurística.
+    # Eventuais contaminantes devem ser resolvidos no próprio motor SA, antes
+    # da publicação do snapshot estruturado.
+    source_segments = all_source_segments
     segments: list[dict[str, Any]] = []
     segment_widths: list[float] = []
     segment_heights: list[float] = []
@@ -194,6 +329,11 @@ def build_fv_generation_contract(
             "texto_dir": right,
             "row_break": index > 0,
         }
+        if source.get("nivel") not in (None, ""):
+            segment["nivel"] = source.get("nivel")
+            segment["nivel_origem"] = source.get("nivel_origem") or source.get("level_source") or "sa"
+            segment["nivel_lajes"] = list(source.get("nivel_lajes") or source.get("level_slabs") or [])
+            segment["nivel_distancia_cm"] = source.get("nivel_distancia_cm", source.get("level_distance_cm"))
         explicit_panels = source.get("panels") or ficha.get("panels")
         if isinstance(explicit_panels, list) and explicit_panels:
             segment["panels"] = explicit_panels
@@ -239,11 +379,6 @@ def build_fv_generation_contract(
         "apoio_final": last_support,
         "observations": "Fonte: Structural Analyzer N1; contrato canonico FV N3/N4",
     }
-    if contaminant_fallback:
-        contract["quality_warnings"] = [
-            "FV N1 possui somente segmento curto com o mesmo apoio; "
-            "geometria preservada para revisao humana"
-        ]
     return normalize_fv_generation_contract(name, contract, floor=floor)
 
 
