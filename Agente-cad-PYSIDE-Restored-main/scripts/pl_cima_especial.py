@@ -135,9 +135,10 @@ def _rect(msp, entities, origin, along, across, u0, v0, du, dv, layer, color=Non
 
 PERFIL_H = 10.0
 # Distâncias N2 (cm, antes do 2×): ticks saem da borda do perfil.
-COTA_QUAD = 18.0
-COTA_GRADE = 28.0
-COTA_PAINEL = 56.0
+# Face externa (240/176): pilha larga. Face interna (210/153): pilha justa
+# para o L do vazio não cruzar texto de 210 com 153.
+COTA_OUTER = (18.0, 28.0, 56.0)
+COTA_INNER = (6.0, 17.0, 33.0)
 TICK = 1.6
 
 
@@ -232,9 +233,10 @@ def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: 
     _rect(msp, entities, origin, along, across, perfil_u0, perfil_v0 + TC, perfil_w, PERFIL_H - 2 * TC, "Perfil Metálico", 224)
 
     v_attach = perfil_v0 + PERFIL_H
-    v_quad = v_attach + COTA_QUAD
-    v_grade = v_attach + COTA_GRADE
-    v_panel = v_attach + COTA_PAINEL
+    d_quad, d_grade, d_panel = COTA_OUTER if outer else COTA_INNER
+    v_quad = v_attach + d_quad
+    v_grade = v_attach + d_grade
+    v_panel = v_attach + d_panel
 
     def _label(u, v, txt, height=5.0, layer="COTA"):
         entities.append(msp.add_text(
@@ -256,25 +258,19 @@ def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: 
             )
         gw = widths[gi]
         _label(start + gw / 2.0, madeira_v0 + 1.5, f"G{gw:.0f}", 4.5, "NOMENCLATURA")
+        _cota_chain(
+            msp, entities, origin, along, across, start, [gw],
+            v_attach, v_grade, [f"{_fmt_cm(gw)}(GRADE)"],
+        )
         if gaps and gi < len(gaps) and gaps[gi] > 0.4:
             _cota_chain(
                 msp, entities, origin, along, across, start + gw, [gaps[gi]],
                 v_attach, v_quad, [_fmt_cm(gaps[gi])],
             )
-
-    grade_labels = []
-    grade_segs = []
-    cursor = 0.0
-    for gi, gw in enumerate(widths):
-        grade_segs.append(gw)
-        grade_labels.append(f"{_fmt_cm(gw)}(GRADE)")
-        cursor += gw
-        if gi < len(gaps) and gaps[gi] > 0.4:
-            grade_segs.append(gaps[gi])
-            grade_labels.append(_fmt_cm(gaps[gi]))
-            cursor += gaps[gi]
-    _cota_chain(msp, entities, origin, along, across, 0.0, grade_segs, v_attach, v_grade, grade_labels)
-    _cota_chain(msp, entities, origin, along, across, 0.0, [panel], v_attach, v_panel, [f"{_fmt_cm(panel)} PAINEL"])
+    _cota_chain(
+        msp, entities, origin, along, across, 0.0, [panel],
+        v_attach, v_panel, [f"{_fmt_cm(panel)} PAINEL"],
+    )
 
     spacings = [float(v) for v in (arm.get("parafusos") or []) if v]
     cursor = float(arm.get("parafuso_inicio") or 0.0)

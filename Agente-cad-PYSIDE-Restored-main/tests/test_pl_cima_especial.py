@@ -127,6 +127,15 @@ def test_generate_pilar_zone_cima_uses_l_motor():
     layers = {e.dxf.layer for e in doc.modelspace()}
     assert "Madeira" in layers
     assert "MEIO_PONT" in layers
+    assert "Perfil Metálico" in layers
+    perfil = [
+        e for e in doc.modelspace()
+        if e.dxftype() == "LWPOLYLINE" and e.dxf.layer == "Perfil Metálico"
+    ]
+    assert len(perfil) >= 8, "perfil metálico nas 4 faces longas (C-channel = 2 por face)"
+    assert not any(e.dxftype() == "DIMENSION" for e in doc.modelspace()), (
+        "cotas CIMA L são LINE+TEXT (legado/N2); DIMENSION quebra no 2×"
+    )
 
 
 def test_cima_l_contract_exposes_editable_grade_and_bolt_fields():
