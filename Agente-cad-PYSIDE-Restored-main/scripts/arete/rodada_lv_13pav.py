@@ -10,14 +10,22 @@ OBJETIVO
 
 PROCEDIMENTO
     1. Gerar os N4 da rodada (nao escreve na producao):
-         python scripts/arete/gerar_lv_n4_fichas.py <vigas...> --out <rodada>/n4
-       `--refresh-from-recorte` e' o padrao; a fonte da ficha e' impressa.
-    2. Rodar esta rodada:
-         python scripts/arete/rodada_lv_13pav.py
+         python scripts/arete/gerar_lv_n4_fichas.py <vigas...> \
+             --refresh-from-recorte --out <rodada>/n4
+       A fonte da ficha e' ESCOLHA EXPLICITA: o gerador exige
+       `--refresh-from-recorte` ou `--no-refresh-from-recorte` e falha sem
+       nenhuma das duas (contrato rigido §6: reextrair nunca e' fallback
+       escondido). Toda execucao imprime `[FICHA] fonte = ...`.
+    2. Rodar esta rodada SERVINDO pelo servidor de revisao:
+         python scripts/arete/rodada_lv_13pav.py --serve --port 8770
        Para cada viga: gate de geometria (--no-regen) + pagina de revisao.
-    3. Abrir <rodada>/INDEX_VIGAS.html e revisar item por item.
+       NUNCA servir com `python -m http.server`: ele nao tem /api/state, o
+       sync() do painel falha em silencio e as validacoes ficam so em cookie
+       (incidente 2026-09-11).
+    3. Revisar item por item pelo INDEX_VIGAS.html aberto pelo --serve.
     4. Ao achar um problema: corrigir o motor, regerar SO aquela viga
-         python scripts/arete/gerar_lv_n4_fichas.py <viga> --out <rodada>/n4
+         python scripts/arete/gerar_lv_n4_fichas.py <viga> \
+             --refresh-from-recorte --out <rodada>/n4
          python scripts/arete/rodada_lv_13pav.py --item <viga>
        e reabrir a pagina da viga.
     5. Antes de publicar em producao, comparar contagem de entidades contra o
@@ -154,6 +162,12 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--item", action="append",
                     help="Processar só esta viga (pode repetir)")
+    ap.add_argument("--serve", action="store_true",
+                    help="Sobe servidor_revisao_pil.py na pasta g2v e abre o "
+                         "índice. OBRIGATÓRIO para as validações persistirem: "
+                         "com `python -m http.server` não existe /api/state e "
+                         "o painel salva só em cookie (incidente 2026-09-11).")
+    ap.add_argument("--port", type=int, default=8770)
     args = ap.parse_args()
     alvos = args.item or VIGAS
 
@@ -169,6 +183,17 @@ def main() -> None:
         print("\nINDICE:", out)
     ok = sum(1 for s in estados if s["pagina"])
     print(f"{ok}/{len(estados)} paginas geradas")
+
+    if args.serve:
+        import subprocess
+        import webbrowser
+        raiz = ARETE / "relatorios" / "g2v"
+        url = f"http://127.0.0.1:{args.port}/lv_13pav_rodada_20260911/INDEX_VIGAS.html"
+        print(f"\nServindo em {url} (Ctrl+C para parar)")
+        webbrowser.open(url)
+        subprocess.run([PY, str(ARETE / "servidor_revisao_pil.py"),
+                        "--directory", str(raiz), "--port", str(args.port)],
+                       cwd=str(REPO))
 
 
 if __name__ == "__main__":

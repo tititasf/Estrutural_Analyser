@@ -18,22 +18,23 @@ reabrir a página. Repete até a viga ficar Arete; depois passa para a próxima.
 
 ```bash
 # 1. Gerar os N4 da rodada (NÃO escreve na produção)
-python scripts/arete/gerar_lv_n4_fichas.py <vigas...> \
+python scripts/arete/gerar_lv_n4_fichas.py <vigas...> --refresh-from-recorte \
     --out scripts/arete/relatorios/g2v/lv_13pav_rodada_20260911/n4
 ```
 
-`--refresh-from-recorte` é o padrão e a fonte da ficha é impressa
-(`[FICHA] fonte = ...`).
+A flag de fonte é **obrigatória** (`--refresh-from-recorte` ou
+`--no-refresh-from-recorte`); o script falha sem ela e imprime a fonte escolhida
+(`[FICHA] fonte = ...`). Ver §6 do contrato rígido.
 
 ```bash
 # 2. Rodar a rodada: gate de geometria + página por viga
-python scripts/arete/rodada_lv_13pav.py
+python scripts/arete/rodada_lv_13pav.py --serve --port 8770
 
 # 3. Revisar
 #    abrir <rodada>/INDEX_VIGAS.html e clicar na viga
 
 # 4. Após corrigir o motor, regerar SÓ a viga afetada
-python scripts/arete/gerar_lv_n4_fichas.py V314 --out <rodada>/n4
+python scripts/arete/gerar_lv_n4_fichas.py V314 --refresh-from-recorte --out <rodada>/n4
 python scripts/arete/rodada_lv_13pav.py --item V314
 ```
 
@@ -96,9 +97,13 @@ ficha stale → abortar.
 Foi tornado padrão após o incidente de 10/09 (rodar sem a flag sobrescreveu N4
 já validados da V301: 935 → 314 entidades). Medindo as 32, porém, **não há
 vencedor universal**: refresh entrega mais em 14, a ficha em 10, empatam em 5 —
-e é o refresh que faz V305/V308/V330 falharem o contrato. O invariante real
-não é o default da flag, é o **procedimento**: comparar contra o que já existe
-antes de publicar.
+e é o refresh que faz V305/V308/V330 falharem o contrato.
+
+**Revertido em 11/09:** virar padrão violava o §6 do contrato rígido
+("nunca como fallback escondido") e generalizava de um caso só. Agora o script
+**exige** uma das duas flags e falha sem nenhuma — a escolha é consciente, por
+rodada. O invariante real nunca foi qual fonte usar, e sim o **procedimento**:
+comparar contagem contra o que já existe antes de publicar.
 
 ## Limitações conhecidas
 

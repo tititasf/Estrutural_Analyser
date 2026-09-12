@@ -1482,6 +1482,13 @@ window.addEventListener('focus', () => { checkDxfHotReload(); startDxfPolling();
 window.addEventListener('pageshow', () => { checkDxfHotReload(); startDxfPolling(); });
 </script></body></html>""")
 
+    # Estado da revisao humana mora em arquivo, ao lado da pagina (mesmo
+    # mecanismo do painel LAJ). Sem semear, a pagina servida por
+    # `servidor_revisao_pil.py` carrega vazia no primeiro acesso.
+    _estado = GATE / "revisoes_humanas.json"
+    if not _estado.exists():
+        _estado.write_text("{}", encoding="utf-8")
+
     out = GATE / f"{viga}_SEGMENTS_E2E.html"
     # O cabecalho vem de um bloco triplo com CSS (chaves), entao nao pode ser
     # f-string: o nome da viga entra aqui, na escrita.

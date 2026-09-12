@@ -53,6 +53,27 @@ selagem/certificação, não para iteração).
 ```bash
 python scripts/arete/revisao_laj_n2_n4_html.py --pav {PAV} --serve --port {PORTA}   # LAJ, sobe servidor + abre navegador
 python scripts/arete/revisao_pil_n2_n4_html.py --pav {PAV}   # PIL (ainda so localStorage/export, ver pendencia abaixo)
+python scripts/arete/rodada_lv_13pav.py --serve --port {PORTA}   # LV (2026-09-11), indice + uma pagina granular por viga
+```
+
+**LV (2026-09-11) — granularidade por SEGMENTO.** O painel de LV nao e' um card
+por item: e' um indice de vigas (`INDEX_VIGAS.html`) e, por viga, uma pagina com
+um cartao por **segmento** N2xN4 (cada painel da face, recortado dos dois lados)
+mais um cartao por **visao de corte**. Marcacao de ponto com coordenada DXF real,
+nota e checkbox por cartao. Gerado por `rodada_lv_13pav.py`, que chama
+`run_geometry_gate_lv.py --no-regen` + `_build_segments_html_v301.py <VIGA>`
+(este ultimo aceita a viga como argumento posicional desde 11/09).
+
+> **Servir SEMPRE por `servidor_revisao_pil.py`** (e' o que `--serve` faz).
+> Subir a pasta com `python -m http.server` **perde validacao**: nao existe
+> `/api/state`, o `sync()` do painel falha em silencio e so' o cookie do
+> navegador sobrevive. Foi assim que a rodada LV de 10-11/09 quase perdeu as
+> marcacoes do dono. O estado real mora em `revisoes_humanas.json` **na pasta
+> de cada viga**; o servidor roteia o POST pelo `Referer` da pagina.
+
+```bash
+# so' para lembrar do que NAO fazer:
+# python -m http.server {PORTA}   # <- NAO: painel sem persistencia
 ```
 
 Gera `scripts/arete/relatorios/revisao_{classe}_n2_n4_{timestamp}/index_panzoom.html`,

@@ -3,11 +3,20 @@
 Fecha a sessão de ajuste do motor LV (faces A/B + visão de corte) sobre a V301 do
 13_PAV. Documenta o que virou regra, o que foi corrigido e o que ainda é frágil.
 
-## 1. Regeneração de N4 — `--refresh-from-recorte` é o padrão
+## 1. Regeneração de N4 — a fonte da ficha é **escolha explícita**
 
-`scripts/arete/gerar_lv_n4_fichas.py` agora **liga o refresh por padrão**. Sem ele o
-script lê o `fichas_lv_v2.json` / `campos_json` resumido (stale) e gera larguras de
-painel erradas.
+> **Corrigido em 2026-09-11.** Este doc dizia, em 10/09, que o refresh virara o
+> **padrão**. Isso violava o §6 do `CONTRATO-RIGIDO-MOTOR-LV-N3-N4` ("reextrair
+> só ocorre com `--refresh-from-recorte`; nunca como fallback escondido") e foi
+> generalizado de um caso só. Medindo as 32 vigas: refresh entrega mais em 14,
+> a ficha em 10, empatam em 5 — e é o refresh que faz V305/V308/V330 falharem
+> o contrato N4. Nenhuma fonte vence sempre.
+
+`scripts/arete/gerar_lv_n4_fichas.py` **exige uma das duas flags** e falha sem
+nenhuma. Sem `--refresh-from-recorte` o script lê o `fichas_lv_v2.json` /
+`campos_json` resumido, que pode estar stale e gerar larguras de painel erradas;
+com ele, reextrai do recorte N2 vivo, que pode estar pior em vigas cuja extração
+atual regrediu. A escolha é do operador, por rodada.
 
 Incidente que motivou a mudança (2026-09-10): rodar `gerar_lv_n4_fichas.py V301` sem a
 flag sobrescreveu N4 já validados pelo dono —
